@@ -22,6 +22,12 @@
       "source": "Operator brief 2026-10-04 (Regent activity timeline) — approved by MK 2026-10-04",
       "rationale": "Upstream ships no record history. A list of events and comment threads composing upstream button, select and skeleton with our person-hover-card, person-avatar and relative-time; no patch."
     },
+    "agent-edit-banner": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "Regent Phase 3 Pages x Agents plan (.vegastack/plans/pages-connections/13-phase3-pages-agents.md §7.1, §7.7, slice S5a; issue #481) — operator go-dark mandate 14-10-2026 under the standing DS authorization (AGENTS.md, 8 October 2026)",
+      "rationale": "Upstream ships no agent-edit notice. A fixed composition of alert, button, popover, person-avatar and relative-time: the strip under a document's header after an agent changed it, with View changes, Undo, the refused and undoing states, the created state and the other agents behind +N; it carries no patch."
+    },
     "animated-number": {
       "disposition": "keep",
       "family": "data-display",

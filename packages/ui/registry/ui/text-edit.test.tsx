@@ -4094,3 +4094,218 @@ test("embeds: without the embeds prop an embed is a link and a pasted video link
     ),
   );
 });
+
+/* --- B.2: host slash items, emoji, find & replace, block menu, stats --------------------------- */
+
+const suggestionMenu = (name: string) =>
+  document.querySelector(
+    `[data-slot="suggestion-menu"][data-menu="text-edit-${name}"]`,
+  );
+
+test("slashActions: a host item follows the built-in ones, inserts a mention chip; a disabled one says why and does nothing", async () => {
+  const onSelect = vi.fn(
+    (ctx: {
+      insertMention: (m: { kind: string; id: string; label: string }) => void;
+    }) => ctx.insertMention({ kind: "page", id: "p9", label: "Launch plan" }),
+  );
+  const blocked = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    onValueChange,
+    slashActions: [
+      {
+        id: "page",
+        label: "Page",
+        keywords: ["subpage", "child"],
+        icon: <span data-testid="page-glyph" />,
+        onSelect,
+      },
+      {
+        id: "locked",
+        label: "Locked page",
+        icon: <span />,
+        disabled: true,
+        disabledReason: "Archived pages can't hold pages",
+        onSelect: blocked,
+      },
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(suggestionMenu("slash")).not.toBeNull());
+  const labels = [
+    ...suggestionMenu("slash")!.querySelectorAll(
+      '[data-slot="suggestion-menu-label"]',
+    ),
+  ].map((label) => label.textContent);
+  // After every built-in item.
+  expect(labels.slice(-2)).toEqual(["Page", "Locked page"]);
+  expect(
+    suggestionMenu("slash")!.querySelector('[data-testid="page-glyph"]'),
+  ).not.toBeNull();
+
+  // The disabled one: muted, its reason shown, Enter does nothing.
+  await userEvent.keyboard("locked");
+  await vi.waitFor(() =>
+    expect(suggestionMenu("slash")?.textContent).toContain(
+      "Archived pages can't hold pages",
+    ),
+  );
+  expect(
+    suggestionMenu("slash")!.querySelector('[aria-disabled="true"]'),
+  ).not.toBeNull();
+  await userEvent.keyboard("{Enter}");
+  expect(blocked).not.toHaveBeenCalled();
+  await userEvent.keyboard("{Escape}");
+  await userEvent.keyboard(
+    "{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}",
+  );
+
+  // A keyword finds it; choosing it drops the typed query and inserts the chip.
+  await userEvent.keyboard("/subpage");
+  await vi.waitFor(() =>
+    expect(suggestionMenu("slash")?.textContent).toContain("Page"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(onSelect).toHaveBeenCalledTimes(1));
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("[@Launch plan](mention://page/p9)"),
+  );
+});
+
+test("emoji: `:` and two letters after a space opens the menu and inserts the character; 10:30 and Note: never do", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ emoji: true, onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("10:30 Note:x ");
+  // No menu: the colon follows a digit or a letter.
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(suggestionMenu("emoji")).toBeNull();
+  await userEvent.keyboard(":smi");
+  await vi.waitFor(() =>
+    expect(suggestionMenu("emoji")?.textContent).toContain("grinning face"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("10:30 Note:x 😀"),
+  );
+  expect(suggestionMenu("emoji")).toBeNull();
+});
+
+test("find & replace: ⌘F opens the bar, Enter steps the matches, Replace all is one undo step, Esc closes", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta\n\nalpha gamma",
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  const bar = screen.getByRole("search", { name: "Find in page" });
+  await expect.element(bar).toBeInTheDocument();
+  await userEvent.keyboard("alpha");
+  await vi.waitFor(() => expect(bar.element().textContent).toMatch(/of 2/));
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(bar.element().textContent).toMatch(/\d of 2/));
+  await expectNoA11yViolations(bar.element() as HTMLElement, [
+    "color-contrast",
+  ]);
+
+  // DOM clicks: the bar re-renders on every transaction, which a pointer click's stability wait
+  // can read as movement on a slow runner.
+  (
+    screen
+      .getByRole("button", { name: "Replace", exact: true })
+      .element() as HTMLElement
+  ).click();
+  await screen.getByRole("textbox", { name: "Replace with" }).fill("omega");
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole("button", { name: "Replace all" }).element(),
+    ).not.toBeDisabled(),
+  );
+  (
+    screen.getByRole("button", { name: "Replace all" }).element() as HTMLElement
+  ).click();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("omega beta\n\nomega gamma"),
+  );
+
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[data-slot="text-edit-find"]')).toBeNull(),
+  );
+  // One undo step brings both back.
+  await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("alpha beta\n\nalpha gamma"),
+  );
+});
+
+test("block menu: ⇧F10 opens it for the caret's block; Duplicate copies the block below", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "# Plan\n\nBody",
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard(END);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  // Named by its trigger, the handle.
+  const menu = screen.getByRole("menu", { name: "Block options" });
+  await expect.element(menu).toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Move down/ }))
+    .toHaveAttribute("aria-disabled", "true");
+  await screen.getByRole("menuitem", { name: /Duplicate/ }).click();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("# Plan\n\nBody\n\nBody"),
+  );
+});
+
+test("getStats: words, characters, reading time and the selection's words", async () => {
+  const handle = React.createRef<TextEditHandle>();
+  const onStatsChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "One two three\n\nfour five",
+    handleRef: handle,
+    onStatsChange,
+  });
+  await vi.waitFor(() =>
+    expect(onStatsChange).toHaveBeenCalledWith({
+      words: 5,
+      characters: 22,
+      readingMinutes: 1,
+      selectedWords: 0,
+    }),
+  );
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  expect(handle.current?.getStats()?.selectedWords).toBe(5);
+});
+
+test("collaboration: toggleState keeps a viewer's folded toggles (read on load, told on a chevron click)", async () => {
+  const closed = new Set<string>();
+  const onToggle = vi.fn((id: string, open: boolean) => {
+    if (open) closed.delete(id);
+    else closed.add(id);
+  });
+  const isOpen = vi.fn((id: string, fallback: boolean) =>
+    closed.has(id) ? false : fallback,
+  );
+  const { screen } = await twoEditors(
+    "<details open><summary>Title</summary>\n\nBody\n\n</details>",
+    { b: { readOnly: true, toggleState: { isOpen, onToggle } } },
+  );
+  const viewerToggle = () =>
+    screen.container.querySelectorAll<HTMLElement>('[data-slot="toggle"]')[1]!;
+  await vi.waitFor(() => expect(viewerToggle()).toHaveAttribute("data-open"));
+  expect(isOpen).toHaveBeenCalled();
+  await userEvent.click(
+    viewerToggle().querySelector<HTMLElement>('[data-slot="toggle-chevron"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(onToggle).toHaveBeenCalledWith(expect.any(String), false),
+  );
+  expect(viewerToggle()).not.toHaveAttribute("data-open");
+});

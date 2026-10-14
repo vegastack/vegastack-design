@@ -1,4 +1,4 @@
-// @vegastack library-01@0.25.37 sha256-1+mQ7sjQoZVcVpnmpLPpq+X8VBzaYbU3AcXXyBVFOaw=
+// @vegastack library-01@0.25.38 sha256-lrds3ICmJKn4tt3tjr0FZFAENErjU+SiGujrQNH5Se8=
 
 import { Library } from "./components/library";
 

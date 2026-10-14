@@ -8,7 +8,7 @@ import {
   encodeAwarenessUpdate,
 } from "y-protocols/awareness";
 import dynamic from "next/dynamic";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, FilePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { MarkdownView } from "@/components/ui/markdown-view";
@@ -25,6 +25,7 @@ import type {
   TextEditAnnotationLayout,
   TextEditHandle,
   TextEditOutlineItem,
+  TextEditStats,
 } from "@/components/ui/text-edit";
 import { Wrapper } from "./wrapper";
 import { EMBED_PROVIDERS } from "@/lib/embed-providers";
@@ -1150,6 +1151,61 @@ export function textEditVersionDiff(): ReactNode {
               : "the current text",
         }}
       />
+    </Wrapper>
+  );
+}
+
+/**
+ * Editor tools (B.2) — ⌘F inside the text opens find & replace; type `:smi` for an emoji; `/page`
+ * runs the host's own slash item (a mention chip here); hover a heading for its `#` link; the
+ * counts below come from `onStatsChange`; ⇧F10 or a click on the ⋮⋮ handle opens the block menu.
+ */
+export function textEditEditorTools(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "# Site visit\n\nCheck the breaker panel, then the meter. Type / for blocks, or /page for a new page.\n\n## Before you go\n\nBring gloves and the ladder.",
+  );
+  const [stats, setStats] = useState<TextEditStats | null>(null);
+  const handle = useRef<TextEditHandle>(null);
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handle.current?.openFind()}
+        >
+          Find in page
+        </Button>
+      </div>
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        handleRef={handle}
+        findReplace
+        emoji
+        headingLinkHref={(anchor) =>
+          `#${anchor.slug}${anchor.id ? `~${anchor.id}` : ""}`
+        }
+        onStatsChange={setStats}
+        slashActions={[
+          {
+            id: "page",
+            label: "Page",
+            description: "A page inside this one",
+            keywords: ["subpage", "child"],
+            icon: <FilePlus aria-hidden />,
+            onSelect: ({ insertMention }) =>
+              insertMention({ kind: "page", id: "p42", label: "New page" }),
+          },
+        ]}
+        aria-label="Notes with editor tools"
+      />
+      <p className="text-sm text-muted-foreground">
+        {stats
+          ? `${stats.words.toLocaleString()} words · ${stats.characters.toLocaleString()} characters · about ${stats.readingMinutes} min read`
+          : "Counting…"}
+      </p>
     </Wrapper>
   );
 }

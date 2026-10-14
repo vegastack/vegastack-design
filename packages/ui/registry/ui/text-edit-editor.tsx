@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.37 sha256-8W+PbA7Gq7xorOMp7PsSG19aUCaIGWuttnJlIFwdSyc=
+// @vegastack text-edit@0.25.38 sha256-gEKUh/mEDJXUgZYlM66i1s10NN68mBV01W4XdoW/mXA=
 
 "use client";
 
@@ -23,9 +23,14 @@ import {
   type NodeViewRenderer,
   type Range,
   type ReactNodeViewProps,
+  type AnyExtension,
 } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import { Placeholder } from "@tiptap/extensions";
+import {
+  FindAndReplace,
+  FindAndReplacePluginKey,
+} from "@tiptap/extension-find-and-replace";
 import {
   Suggestion,
   exitSuggestion,
@@ -69,6 +74,19 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  CaseSensitive,
+  Check,
+  ChevronRight,
+  ChevronUp,
+  CopyPlus,
+  FileCode,
+  ListCollapse,
+  Regex,
+  Repeat2,
+  ReplaceAll,
+  Search,
+  WholeWord,
+  X,
   BetweenHorizontalEnd,
   BetweenHorizontalStart,
   BetweenVerticalEnd,
@@ -158,8 +176,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Dropzone } from "@/components/ui/dropzone";
 import {
@@ -212,6 +242,7 @@ import {
 import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 import { FileTypeIcon } from "@/lib/file-kind";
 import {
   anchorFromRange,
@@ -230,7 +261,11 @@ import type {
   TextEditCollaborationUser,
   TextEditHandle,
   TextEditProps,
+  TextEditSlashAction,
   TextEditSlashCommand,
+  TextEditStats,
+  TextEditToggleState,
+  TextEditHeadingAnchor,
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
 
@@ -255,12 +290,19 @@ type Panel = "link" | "image" | "video" | "audio" | "file" | "turnInto";
 type MediaKind = "image" | "video" | "audio" | "file";
 
 interface SlashSpec {
-  id: TextEditSlashCommand;
+  /** A built-in command, or a host item's `host:<id>`. */
+  id: TextEditSlashCommand | `host:${string}`;
   label: string;
   /** Extra words the filter matches. */
   keywords: string;
   hint?: string;
   icon: React.ComponentType;
+  /** A host item's own glyph, drawn in place of `icon`. */
+  glyph?: React.ReactNode;
+  /** Muted text after the label (a host item's description, or why it is disabled). */
+  description?: string;
+  /** Shown but not choosable. */
+  disabled?: boolean;
   run: (ed: Editor, range: Range, open: (panel: Panel) => void) => void;
 }
 
@@ -499,6 +541,58 @@ function inTableCell(state: EditorState): boolean {
   return false;
 }
 
+/**
+ * A mention chip and the space after it — what the `@` menu inserts. A shared document never
+ * stores a record's title (a page or task the reader may not see): each reader's chip resolves it.
+ */
+function mentionChip(
+  collaborative: boolean,
+  mention: { kind: string; id: string; label: string },
+): JSONContent[] {
+  return [
+    {
+      type: "mention",
+      attrs: {
+        kind: mention.kind,
+        id: mention.id,
+        label:
+          collaborative && isRecordMentionKind(mention.kind as MentionKind)
+            ? ""
+            : mention.label.replace(/\s*\n\s*/g, " "),
+      },
+    },
+    { type: "text", text: " " },
+  ];
+}
+
+/** A host's `/` item (`slashActions`) as a menu entry: the typed query goes, then its `onSelect`. */
+function hostSlashSpec(action: TextEditSlashAction): SlashSpec {
+  return {
+    id: `host:${action.id}`,
+    label: action.label,
+    keywords: (action.keywords ?? []).join(" "),
+    icon: Plus,
+    glyph: action.icon,
+    description: action.disabled
+      ? (action.disabledReason ?? action.description)
+      : action.description,
+    disabled: action.disabled,
+    run: (ed, range) => {
+      if (action.disabled) return;
+      ed.chain().focus().deleteRange(range).run();
+      action.onSelect({
+        insertMention: (mention) => {
+          if (ed.isDestroyed) return;
+          ed.chain()
+            .focus()
+            .insertContent(mentionChip(yBinding(ed.state) !== null, mention))
+            .run();
+        },
+      });
+    },
+  };
+}
+
 /** A menu query compared loosely: lower case, without spaces (`/head2` finds "Heading 2"). */
 const compact = (text: string) => text.toLowerCase().replace(/\s+/g, "");
 
@@ -506,6 +600,7 @@ function filterSlash(
   allowed: readonly TextEditSlashCommand[],
   query: string,
   inCell = false,
+  actions: readonly TextEditSlashAction[] = [],
 ): SlashSpec[] {
   const q = query.trim().toLowerCase();
   // Words, and a run of letters and a run of digits apart: `head2` is "head" and "2".
@@ -513,28 +608,31 @@ function filterSlash(
     .replace(/(\p{L})(\p{N})|(\p{N})(\p{L})/gu, "$1$3 $2$4")
     .split(/\s+/)
     .filter(Boolean);
-  // One menu everywhere: the canonical order, whatever order the host's subset lists.
+  // One menu everywhere: the canonical order, whatever order the host's subset lists; the host's
+  // own items after the built-in ones.
   const wanted = new Set(allowed);
-  return (Object.keys(SLASH) as TextEditSlashCommand[])
-    .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
-    .map((id) => SLASH[id])
-    .filter((spec) => {
-      if (!q) return true;
-      const label = spec.label.toLowerCase();
-      const keywords = spec.keywords.toLowerCase();
-      // "heading 2", "head2", "h2": the label read without spaces, or every word starting a word
-      // of the label (or found in its keywords).
-      const labelWords = label.split(/\s+/);
-      return (
-        compact(label).includes(compact(q)) ||
-        keywords.includes(q) ||
-        words.every(
-          (word) =>
-            labelWords.some((each) => each.startsWith(word)) ||
-            keywords.includes(word),
-        )
-      );
-    });
+  return [
+    ...(Object.keys(SLASH) as TextEditSlashCommand[])
+      .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
+      .map((id) => SLASH[id]),
+    ...actions.map(hostSlashSpec),
+  ].filter((spec) => {
+    if (!q) return true;
+    const label = spec.label.toLowerCase();
+    const keywords = spec.keywords.toLowerCase();
+    // "heading 2", "head2", "h2": the label read without spaces, or every word starting a word
+    // of the label (or found in its keywords).
+    const labelWords = label.split(/\s+/);
+    return (
+      compact(label).includes(compact(q)) ||
+      keywords.includes(q) ||
+      words.every(
+        (word) =>
+          labelWords.some((each) => each.startsWith(word)) ||
+          keywords.includes(word),
+      )
+    );
+  });
 }
 
 /**
@@ -1135,6 +1233,8 @@ const SLASH_KEY = new PluginKey("textEditSlash");
 /** What the slash extension reads from the component; refs, so the extensions are built once. */
 interface SlashRuntime {
   allowed: React.RefObject<readonly TextEditSlashCommand[]>;
+  /** The host's own items (`slashActions`). */
+  actions: React.RefObject<readonly TextEditSlashAction[]>;
   get: () => SlashState | null;
   set: (next: SlashState | null) => void;
   open: (panel: Panel) => void;
@@ -1156,9 +1256,16 @@ function slashExtension(runtime: SlashRuntime) {
           findSuggestionMatch: phraseMatch({ maxWords: 3, maxChars: 24 }),
           shouldShow: localQuery(SLASH_KEY),
           allow: () =>
-            runtime.allowed.current.length > 0 && !editor.isActive("codeBlock"),
+            (runtime.allowed.current.length > 0 ||
+              runtime.actions.current.length > 0) &&
+            !editor.isActive("codeBlock"),
           items: ({ query, editor: ed }) =>
-            filterSlash(runtime.allowed.current, query, inTableCell(ed.state)),
+            filterSlash(
+              runtime.allowed.current,
+              query,
+              inTableCell(ed.state),
+              runtime.actions.current,
+            ),
           command: ({ editor: ed, range, props }) =>
             props.run(ed, range, runtime.open),
           render: () => {
@@ -1172,6 +1279,7 @@ function slashExtension(runtime: SlashRuntime) {
                   runtime.allowed.current,
                   props.query,
                   inTableCell(props.editor.state),
+                  runtime.actions.current,
                 ).length === 0
               ) {
                 exitSuggestion(editor.view, SLASH_KEY);
@@ -1201,7 +1309,10 @@ function slashExtension(runtime: SlashRuntime) {
                   activeIndex: state.index,
                   onActiveIndexChange: (index) =>
                     runtime.set({ ...state, index }),
-                  onSelect: (index) => state.command(state.items[index]!),
+                  onSelect: (index) => {
+                    const spec = state.items[index]!;
+                    if (!spec.disabled) state.command(spec);
+                  },
                   onClose: () => exitSuggestion(editor.view, SLASH_KEY),
                 });
               },
@@ -1213,7 +1324,7 @@ function slashExtension(runtime: SlashRuntime) {
   });
 }
 
-/** Shortcuts StarterKit does not bind: ⇧⌘X strike (Notion/Linear), ⌘⇧↑/↓ move the block. */
+/** Shortcuts StarterKit does not bind: ⇧⌘X strike (Notion/Linear), ⌘⇧↑/↓ move the block, ⌘D duplicates it. */
 const Shortcuts = Extension.create({
   name: "textEditShortcuts",
   addKeyboardShortcuts() {
@@ -1221,6 +1332,8 @@ const Shortcuts = Extension.create({
       "Mod-Shift-x": () => this.editor.commands.toggleStrike(),
       "Mod-Shift-ArrowUp": () => moveBlockBy(this.editor, -1),
       "Mod-Shift-ArrowDown": () => moveBlockBy(this.editor, 1),
+      // Duplicate the caret's block (the block menu's Duplicate), never the browser's bookmark.
+      "Mod-d": () => this.editor.isEditable && duplicateCaretBlock(this.editor),
     };
   },
 });
@@ -2747,24 +2860,11 @@ function mentionBehaviour(runtime: EditorRuntime) {
             runtime.mention.enabled() && !editor.isActive("codeBlock"),
           items: () => [],
           command: ({ editor: ed, range, props }) => {
+            // A record's title is not everyone's to read: a shared document stores the mention
+            // without it, and each reader's chip resolves it (`mentionLabel`).
             ed.chain()
               .focus()
-              .insertContentAt(range, [
-                {
-                  type: "mention",
-                  attrs: {
-                    kind: props.kind,
-                    id: props.id,
-                    // A record's title is not everyone's to read: a shared document stores the
-                    // mention without it, and each reader's chip resolves it (`mentionLabel`).
-                    label:
-                      runtime.collaborative && isRecordMentionKind(props.kind)
-                        ? ""
-                        : props.label.replace(/\s*\n\s*/g, " "),
-                  },
-                },
-                { type: "text", text: " " },
-              ])
+              .insertContentAt(range, mentionChip(runtime.collaborative, props))
               .run();
           },
           render: () => {
@@ -2940,16 +3040,34 @@ class ToggleStates {
   private open = new Map<string, boolean>();
   private listeners = new Set<() => void>();
   private version = 0;
+  /** The host's own record (`toggleState`): read for a toggle this session has not flipped. */
+  constructor(
+    private readonly host: React.RefObject<TextEditToggleState | undefined>,
+  ) {}
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => void this.listeners.delete(listener);
   };
   snapshot = () => this.version;
-  get(id: unknown): boolean | undefined {
-    return typeof id === "string" ? this.open.get(id) : undefined;
+  /** Whether the toggle `id` shows open for this viewer; `fallback` is the document's default. */
+  get(id: unknown, fallback: boolean): boolean {
+    if (typeof id !== "string") return fallback;
+    const own = this.open.get(id);
+    if (own !== undefined) return own;
+    return this.host.current?.isOpen(id, fallback) ?? fallback;
   }
-  set(id: string, open: boolean) {
+  /**
+   * This viewer opened or closed a toggle. `persist` false is a passing reveal (a find result, a
+   * link or a comment inside it): shown open now, not recorded as the viewer's choice.
+   */
+  set(id: string, open: boolean, persist = true) {
     this.open.set(id, open);
+    this.version++;
+    if (persist) this.host.current?.onToggle(id, open);
+    for (const listener of this.listeners) listener();
+  }
+  /** The host's record changed (a reload of it): re-read it. */
+  refresh() {
     this.version++;
     for (const listener of this.listeners) listener();
   }
@@ -2962,7 +3080,75 @@ interface ToggleRuntime {
 
 /** Whether the toggle at `node` shows open for this viewer. */
 function toggleOpen(runtime: ToggleRuntime, node: PMNode): boolean {
-  return runtime.states?.get(node.attrs.blockId) ?? node.attrs.open !== false;
+  const fallback = node.attrs.open !== false;
+  return runtime.states
+    ? runtime.states.get(node.attrs.blockId, fallback)
+    : fallback;
+}
+
+/**
+ * Open every closed toggle around `pos` for this viewer, so what sits there shows: a find result,
+ * a linked heading, a comment's text, the caret. In a shared document it is this viewer's passing
+ * view (not recorded as their choice); in a single-writer one the toggle's `open` attribute.
+ * Returns whether any opened.
+ */
+function expandAncestors(
+  editor: Editor,
+  runtime: ToggleRuntime,
+  pos: number,
+): boolean {
+  if (editor.isDestroyed) return false;
+  const { doc } = editor.state;
+  const $pos = doc.resolve(Math.max(0, Math.min(pos, doc.content.size)));
+  const tr = editor.state.tr;
+  let opened = false;
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const node = $pos.node(depth);
+    if (node.type.name !== "toggle" || toggleOpen(runtime, node)) continue;
+    // The title line always shows: only a position in the body needs the toggle open.
+    const summaryEnd = $pos.before(depth) + 1 + node.firstChild!.nodeSize;
+    if (pos < summaryEnd) continue;
+    const id = node.attrs.blockId as string | null;
+    if (runtime.states && id) runtime.states.set(id, true, false);
+    else if (!runtime.states && editor.isEditable)
+      tr.setNodeAttribute($pos.before(depth), "open", true);
+    else continue;
+    opened = true;
+  }
+  if (tr.docChanged) editor.view.dispatch(tr.setMeta("addToHistory", false));
+  return opened;
+}
+
+/**
+ * The caret moved into a closed toggle's hidden body (arrow keys, a click on the folded title's
+ * end, an undo): in a shared document the toggle opens for this viewer, so the caret is never
+ * somewhere unseen. A single-writer document's toggles are its own `open` attribute: the caret
+ * alone never writes it.
+ */
+function toggleReveal(runtime: ToggleRuntime) {
+  return Extension.create({
+    name: "textEditToggleReveal",
+    addProseMirrorPlugins() {
+      const editor = this.editor;
+      return [
+        new Plugin({
+          view: () => ({
+            update: (view, previous) => {
+              if (
+                !runtime.states ||
+                !view.hasFocus() ||
+                previous.selection.eq(view.state.selection)
+              )
+                return;
+              const head = view.state.selection.head;
+              // After this update: dispatching inside a view update is not allowed.
+              queueMicrotask(() => expandAncestors(editor, runtime, head));
+            },
+          }),
+        }),
+      ];
+    },
+  });
 }
 
 /**
@@ -3015,7 +3201,7 @@ function toggleView(runtime: ToggleRuntime) {
         data-open={open ? "" : undefined}
         // The body hides when closed. Tiptap's React content box nests the blocks one level down
         // (`[data-node-view-content-react]`), so the rules reach the summary's siblings, not children.
-        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden"
+        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden print:[&:not([data-open])_[data-slot=toggle-summary]~*]:block print:[&_[data-slot=toggle-chevron]]:hidden print:[&_[data-slot=toggle-options]]:hidden"
       >
         <Button
           type="button"
@@ -3661,6 +3847,7 @@ function buildExtensions(
   toggleRuntime: ToggleRuntime,
   collaboration: TextEditCollaboration | null,
   diff = false,
+  extras: AnyExtension[] = [],
 ) {
   // The schema and its Markdown rules are the shared `text-edit-schema`; the editor adds its node
   // views and behaviour only, so a server reads and writes exactly the documents it edits.
@@ -3715,9 +3902,13 @@ function buildExtensions(
       mentionBehaviour(editorRuntime),
       toggleKeys(toggleRuntime),
       fileChips(editorRuntime),
-      HeadingIds,
+      // A shared document links headings by block id (`scrollToHeading`): no per-change rebuild of
+      // every heading's slug decoration on each keystroke.
+      ...(collaboration ? [] : [HeadingIds]),
       annotationsExtension(annotationRuntime),
       Uploads,
+      toggleReveal(toggleRuntime),
+      ...extras,
       ...(collaboration ? collaborationExtensions(collaboration) : []),
     ],
   });
@@ -4567,16 +4758,28 @@ function startDrag(
   event.preventDefault();
   const origin = { x: event.clientX, y: event.clientY };
   let dragging = false;
+  // Touch: a drag needs a 350ms hold first (a quick tap is a click); moving before then lets go.
+  let armed = event.pointerType !== "touch";
+  const hold = armed
+    ? undefined
+    : setTimeout(() => {
+        armed = true;
+      }, 350);
   const move = (next: PointerEvent) => {
     if (
       !dragging &&
       Math.hypot(next.clientX - origin.x, next.clientY - origin.y) < 4
     )
       return;
+    if (!armed) {
+      cancel();
+      return;
+    }
     dragging = true;
     handlers.onMove(next);
   };
   const stop = (drop: boolean) => () => {
+    clearTimeout(hold);
     window.removeEventListener("pointermove", move);
     window.removeEventListener("pointerup", up);
     window.removeEventListener("pointercancel", cancel);
@@ -4697,6 +4900,11 @@ function resolveCell(view: EditorView, cell: HTMLElement) {
 /**
  * Drag the block at `pos` among its siblings (a line shows the drop slot), or `onClick` when the
  * pointer never travelled. Shared by the block handle and the table's corner grip.
+ *
+ * Safe while others edit: the block is held by a Yjs relative position from the press, and the
+ * drop re-resolves it — when it is gone (deleted, or replaced by a collaborator) the move is
+ * dropped with a toast. A remote change during the drag re-measures the slots. Near the top or
+ * bottom of the window (48px) the page scrolls.
  */
 function startBlockDrag(
   editor: Editor,
@@ -4708,38 +4916,105 @@ function startBlockDrag(
     onEnd: () => void;
   },
 ) {
-  const { siblings } = siblingsOf(editor.view, pos);
-  const rects = siblings.map(
-    (sibling) => sibling.dom?.getBoundingClientRect() ?? new DOMRect(),
-  );
-  // The line is inset from the blocks' own edges, and kept inside the frame, so it never touches
-  // a section's or card's edge.
-  const frame = handleFrame(editor)?.getBoundingClientRect();
-  const left = Math.max(
-    Math.min(...rects.map((rect) => rect.left)) + 4,
-    frame ? frame.left + FRAME_INSET : -Infinity,
-  );
-  const right = Math.min(
-    Math.max(...rects.map((rect) => rect.right)) - 4,
-    frame ? frame.right - FRAME_INSET : Infinity,
-  );
+  const type = editor.state.doc.nodeAt(pos)?.type.name;
+  const y = yBinding(editor.state);
+  const held = y ? relativeAt(y, pos, 1) : null;
+  let rects: DOMRect[] = [];
+  let left = 0;
+  let right = 0;
+  const measure = () => {
+    const { siblings } = siblingsOf(editor.view, currentPos() ?? pos);
+    rects = siblings.map(
+      (sibling) => sibling.dom?.getBoundingClientRect() ?? new DOMRect(),
+    );
+    // The line is inset from the blocks' own edges, and kept inside the frame, so it never touches
+    // a section's or card's edge.
+    const frame = handleFrame(editor)?.getBoundingClientRect();
+    left = Math.max(
+      Math.min(...rects.map((rect) => rect.left)) + 4,
+      frame ? frame.left + FRAME_INSET : -Infinity,
+    );
+    right = Math.min(
+      Math.max(...rects.map((rect) => rect.right)) - 4,
+      frame ? frame.right - FRAME_INSET : Infinity,
+    );
+  };
+  /** The dragged block's position now: re-read from Yjs in a shared document; null when it is gone. */
+  function currentPos(): number | null {
+    if (!held) return pos;
+    const binding = yBinding(editor.state);
+    const at = binding ? resolveRelative(binding, held) : null;
+    if (at === null) return null;
+    // The relative position is bound to the block's first character: step out to the block.
+    const $at = editor.state.doc.resolve(at);
+    for (let depth = $at.depth; depth >= 0; depth--) {
+      const before = depth > 0 ? $at.before(depth) : 0;
+      if (depth > 0 && $at.node(depth).type.name === type) return before;
+    }
+    return editor.state.doc.nodeAt(at)?.type.name === type ? at : null;
+  }
+  measure();
   let slot = -1;
+  let pointerY = event.clientY;
+  let frame = 0;
+  const place = () => {
+    if (slot < 0) return;
+    const edge =
+      slot >= rects.length ? rects[rects.length - 1]!.bottom : rects[slot]!.top;
+    handlers.setLine({ left, top: edge - 1, width: right - left, height: 2 });
+  };
+  // Edge auto-scroll: faster the closer the pointer is to the window's edge.
+  const scrollTick = () => {
+    frame = 0;
+    const band = 48;
+    const top = pointerY - band;
+    const bottom = window.innerHeight - band - pointerY;
+    const step =
+      top < 0
+        ? Math.max(-16, top / 3)
+        : bottom < 0
+          ? Math.min(16, -bottom / 3)
+          : 0;
+    if (step === 0) return;
+    window.scrollBy(0, step);
+    measure();
+    slot = slotAt(rects, pointerY, "y");
+    place();
+    frame = requestAnimationFrame(scrollTick);
+  };
+  const onRemote = ({ transaction }: { transaction: Transaction }) => {
+    if (!transaction.docChanged || !isChangeOrigin(transaction)) return;
+    measure();
+    if (slot >= 0) {
+      slot = slotAt(rects, pointerY, "y");
+      place();
+    }
+  };
+  editor.on("transaction", onRemote);
   // Synchronous (tiptap's `focus()` waits a frame): the edit session opens before the move.
   editor.view.focus();
   startDrag(event, {
     onMove: (next) => {
+      pointerY = next.clientY;
       slot = slotAt(rects, next.clientY, "y");
-      const edge =
-        slot >= rects.length
-          ? rects[rects.length - 1]!.bottom
-          : rects[slot]!.top;
-      handlers.setLine({ left, top: edge - 1, width: right - left, height: 2 });
+      place();
+      if (!frame) frame = requestAnimationFrame(scrollTick);
     },
     onDrop: () => {
-      if (slot >= 0) moveNodeTo(editor.view, pos, slot);
+      if (slot < 0) return;
+      const now = currentPos();
+      if (now === null) {
+        toast.add({
+          title: "That block changed while you moved it. Try again.",
+        });
+        return;
+      }
+      moveNodeTo(editor.view, now, slot);
     },
     onClick: handlers.onClick,
     onEnd: () => {
+      cancelAnimationFrame(frame);
+      editor.off("transaction", onRemote);
       handlers.setLine(null);
       handlers.onEnd();
     },
@@ -5305,89 +5580,1294 @@ function TableControls({
   );
 }
 
+/* --- `:` emoji (B4) ----------------------------------------------------------------------------*/
+
+const EMOJI_KEY = new PluginKey("textEditEmoji");
+
+type EmojiModule = typeof import("@/lib/emoji-data");
+let emojiModule: Promise<EmojiModule> | null = null;
+/** The emoji table, loaded on the first `:` query (never on load). */
+function loadEmoji(): Promise<EmojiModule> {
+  emojiModule ??= import("@/lib/emoji-data").catch((error: unknown) => {
+    emojiModule = null;
+    throw error;
+  });
+  return emojiModule;
+}
+
+interface EmojiMenuState {
+  query: string;
+  items: { char: string; name: string }[];
+  index: number;
+  rect: DOMRect | null;
+  command: (item: { char: string; name: string }) => void;
+}
+
+interface EmojiRuntime {
+  get: () => EmojiMenuState | null;
+  set: (next: EmojiMenuState | null) => void;
+}
+
+/** A query worth a menu: two or more letters (digits, `_`, `+`, `-` after the first). */
+const EMOJI_QUERY = /^[a-z][a-z0-9_+-]+$/i;
+
+/** Up to 8 emoji whose name or keywords match `query` (`thumbs_up` reads as "thumbs up"). */
+function emojiMatches(data: EmojiModule, query: string) {
+  const words = query.toLowerCase().replace(/[_-]+/g, " ").trim();
+  const out: { char: string; name: string }[] = [];
+  for (const category of data.EMOJI_CATEGORIES)
+    for (const entry of data.EMOJI[category]) {
+      if (out.length >= 8) return out;
+      if (data.matchesEmoji(entry, words))
+        out.push({ char: entry.char, name: entry.name });
+    }
+  return out;
+}
+
 /**
- * The ⋮⋮ handle beside the hovered block (a top-level block, or a list item among its siblings).
- * Drag it to reorder; a line shows the drop slot. Click it to select the block (then ⌫ deletes,
- * ⌘C copies). ⌘⇧↑ / ⌘⇧↓ move the caret's block from the keyboard. Moves are node moves, so the
- * markdown is the same blocks in a new order. A table's handle is `TableControls`' corner grip.
+ * `:` + two letters opens the emoji menu; the pick lands as the character itself (plain text — the
+ * Markdown is the emoji). Only at the start of a block, after a space or `(`: `10:30`, `Note:` and
+ * `https://` never open it. A collaborator's typing never opens this viewer's menu.
  */
-function BlockHandle({ editor }: { editor: Editor }) {
-  const { value, show, hideSoon, keep, pinnedRef } = useHover<Block>(
+function emojiExtension(runtime: EmojiRuntime) {
+  return Extension.create({
+    name: "textEditEmoji",
+    addProseMirrorPlugins() {
+      const editor = this.editor;
+      return [
+        Suggestion<
+          { char: string; name: string },
+          { char: string; name: string }
+        >({
+          editor,
+          pluginKey: EMOJI_KEY,
+          char: ":",
+          allowedPrefixes: [" ", "("],
+          shouldShow: localQuery(EMOJI_KEY),
+          allow: () =>
+            !editor.isActive("codeBlock") && !editor.isActive("code"),
+          items: () => [],
+          command: ({ editor: ed, range, props }) => {
+            ed.chain().focus().insertContentAt(range, props.char).run();
+          },
+          render: () => {
+            let latest = "";
+            const show = (
+              props: SuggestionProps<
+                { char: string; name: string },
+                { char: string; name: string }
+              >,
+            ) => {
+              latest = props.query;
+              if (!EMOJI_QUERY.test(props.query)) {
+                runtime.set(null);
+                return;
+              }
+              const query = props.query;
+              const rect = props.clientRect?.() ?? null;
+              void loadEmoji()
+                .then((data) => {
+                  // A later keystroke has moved on: its own load answers.
+                  if (latest !== query) return;
+                  const items = emojiMatches(data, query);
+                  const previous = runtime.get();
+                  runtime.set(
+                    items.length
+                      ? {
+                          query,
+                          items,
+                          index:
+                            previous && previous.query === query
+                              ? Math.min(previous.index, items.length - 1)
+                              : 0,
+                          rect,
+                          command: props.command,
+                        }
+                      : null,
+                  );
+                })
+                .catch(() => runtime.set(null));
+            };
+            return {
+              onStart: show,
+              onUpdate: show,
+              onExit: () => {
+                latest = "";
+                runtime.set(null);
+              },
+              onKeyDown: ({ event }) => {
+                const state = runtime.get();
+                if (!state) return false;
+                return suggestionMenuKeyDown(event, {
+                  count: state.items.length,
+                  activeIndex: state.index,
+                  onActiveIndexChange: (index) =>
+                    runtime.set({ ...state, index }),
+                  onSelect: (index) => state.command(state.items[index]!),
+                  onClose: () => exitSuggestion(editor.view, EMOJI_KEY),
+                });
+              },
+            };
+          },
+        }),
+      ];
+    },
+  });
+}
+
+/* --- find & replace (B3) -----------------------------------------------------------------------*/
+
+/** The find bar's view of the find plugin. */
+interface FindSnapshot {
+  term: string;
+  results: number;
+  current: number | null;
+  caseSensitive: boolean;
+  wholeWord: boolean;
+  useRegex: boolean;
+}
+
+function findSnapshot(editor: Editor): FindSnapshot {
+  const state = FindAndReplacePluginKey.getState(editor.state);
+  return {
+    term: state?.searchTerm ?? "",
+    results: state?.results.length ?? 0,
+    current: state?.currentIndex ?? null,
+    caseSensitive: state?.caseSensitive ?? false,
+    wholeWord: state?.wholeWord ?? false,
+    useRegex: state?.useRegex ?? false,
+  };
+}
+
+/** The matches' tints: every match, and the current one (darker, underlined). */
+const FIND_RESULT_CLASS =
+  "[&_.find-and-replace-result]:rounded-[2px] [&_.find-and-replace-result]:bg-warning/35 [&_.find-and-replace-result-current]:bg-warning/60 [&_.find-and-replace-result-current]:underline [&_.find-and-replace-result-current]:decoration-2 [&_.find-and-replace-result-current]:underline-offset-2 print:[&_.find-and-replace-result]:bg-transparent";
+
+/** The find plugin's keys while the bar is open: ⌘G / ⇧⌘G step, Esc closes. */
+interface FindRuntime {
+  open: () => boolean;
+  isOpen: () => boolean;
+  step: (direction: 1 | -1) => boolean;
+  close: () => boolean;
+}
+
+function findKeys(runtime: FindRuntime) {
+  return Extension.create({
+    name: "textEditFindKeys",
+    addKeyboardShortcuts() {
+      return {
+        // Only inside an editable editor: elsewhere the browser's own find runs.
+        "Mod-f": () => this.editor.isEditable && runtime.open(),
+        "Mod-g": () => runtime.isOpen() && runtime.step(1),
+        "Shift-Mod-g": () => runtime.isOpen() && runtime.step(-1),
+        Escape: () => runtime.isOpen() && runtime.close(),
+      };
+    },
+  });
+}
+
+/**
+ * The find bar (`role="search"`), docked at the top of the text: a Find field with "3 of 12",
+ * previous / next, match case, whole word and regular expression (RE2: no runaway patterns), and —
+ * while editable — a Replace row with Replace and Replace all (one undo step). A match inside a
+ * closed toggle opens it for this viewer. Esc closes it with the caret back where it was.
+ */
+function FindBar({
+  editor,
+  editable,
+  top,
+  focusKey,
+  initialTerm,
+  onClose,
+  onReveal,
+}: {
+  editor: Editor;
+  editable: boolean;
+  /** The selection's text to search for when opened; null keeps the last term. */
+  initialTerm: string | null;
+  /** The sticky offset: below a host's header (`floatingSafeArea.top`). */
+  top: number;
+  /** Changes whenever the bar is asked to open again: the Find field takes focus. */
+  focusKey: number;
+  onClose: () => void;
+  /** Show the current match: open toggles around it, then scroll it into view. */
+  onReveal: (from: number) => void;
+}) {
+  const [snap, setSnap] = React.useState(() => findSnapshot(editor));
+  const [term, setTerm] = React.useState(snap.term);
+  const [replacing, setReplacing] = React.useState(false);
+  const [replacement, setReplacement] = React.useState("");
+  const findRef = React.useRef<HTMLInputElement>(null);
+  const { announce, Announcer } = useAnnouncer();
+  const inputId = React.useId();
+  const replaceId = React.useId();
+
+  React.useEffect(() => {
+    const update = () => setSnap(findSnapshot(editor));
+    editor.on("transaction", update);
+    return () => {
+      editor.off("transaction", update);
+    };
+  }, [editor]);
+
+  React.useEffect(() => {
+    if (initialTerm !== null) {
+      setTerm(initialTerm);
+      editor.commands.setSearchTerm(initialTerm);
+    }
+    findRef.current?.focus();
+    findRef.current?.select();
+    // Only on each open: the term is the field's own after that.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusKey]);
+
+  const count =
+    snap.term === ""
+      ? ""
+      : snap.results === 0
+        ? "No results"
+        : snap.current === null
+          ? snap.results === 1
+            ? "1 result"
+            : `${snap.results} results`
+          : `${snap.current + 1} of ${snap.results}`;
+  // "3 of 12", announced once it settles (250ms), never per keystroke.
+  React.useEffect(() => {
+    if (!count) return;
+    const timer = setTimeout(() => announce(count), 250);
+    return () => clearTimeout(timer);
+  }, [count, announce]);
+
+  const reveal = () => {
+    const state = FindAndReplacePluginKey.getState(editor.state);
+    const result =
+      state && state.currentIndex !== null
+        ? state.results[state.currentIndex]
+        : null;
+    if (result) onReveal(result.from);
+  };
+  const step = (direction: 1 | -1) => {
+    if (direction > 0) editor.commands.goToNextResult();
+    else editor.commands.goToPreviousResult();
+    reveal();
+  };
+  const toggle = (
+    label: string,
+    icon: React.ReactNode,
+    pressed: boolean,
+    set: (value: boolean) => void,
+  ) => (
+    <MenuTip label={label}>
+      <Toggle
+        size="sm"
+        aria-label={label}
+        pressed={pressed}
+        onPressedChange={set}
+        className="pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+      >
+        {icon}
+      </Toggle>
+    </MenuTip>
+  );
+  const iconButton = (
+    label: string,
+    icon: React.ReactNode,
+    onClick: () => void,
+    disabled = false,
+  ) => (
+    <MenuTip label={label}>
+      <Button
+        type="button"
+        size="icon-sm"
+        variant="ghost"
+        aria-label={label}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        {icon}
+      </Button>
+    </MenuTip>
+  );
+
+  return (
+    <div
+      role="search"
+      aria-label="Find in page"
+      data-slot="text-edit-find"
+      data-text-edit-menu=""
+      style={{ top }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          onClose();
+        } else if (
+          (event.metaKey || event.ctrlKey) &&
+          event.key.toLowerCase() === "g"
+        ) {
+          event.preventDefault();
+          step(event.shiftKey ? -1 : 1);
+        } else if (
+          (event.metaKey || event.ctrlKey) &&
+          event.key.toLowerCase() === "f"
+        ) {
+          event.preventDefault();
+          findRef.current?.select();
+        }
+      }}
+      className="sticky z-20 mb-3 flex flex-col gap-1.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+    >
+      <div className="flex flex-wrap items-center gap-1">
+        <label htmlFor={inputId} className="sr-only">
+          Find
+        </label>
+        <div className="relative min-w-40 flex-1">
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            ref={findRef}
+            id={inputId}
+            value={term}
+            placeholder="Find"
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(event) => {
+              setTerm(event.target.value);
+              editor.commands.setSearchTerm(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter") return;
+              event.preventDefault();
+              step(event.shiftKey ? -1 : 1);
+            }}
+            className="h-8 ps-8 pointer-coarse:h-11"
+          />
+        </div>
+        <span
+          aria-hidden
+          className="min-w-16 text-center text-xs text-muted-foreground tabular-nums"
+        >
+          {count}
+        </span>
+        {iconButton(
+          "Previous match",
+          <ChevronUp />,
+          () => step(-1),
+          snap.results === 0,
+        )}
+        {iconButton(
+          "Next match",
+          <ChevronDown />,
+          () => step(1),
+          snap.results === 0,
+        )}
+        {toggle("Match case", <CaseSensitive />, snap.caseSensitive, (value) =>
+          editor.commands.setCaseSensitive(value),
+        )}
+        {toggle("Whole word", <WholeWord />, snap.wholeWord, (value) =>
+          editor.commands.setWholeWord(value),
+        )}
+        {toggle("Regular expression", <Regex />, snap.useRegex, (value) =>
+          editor.commands.setUseRegex(value),
+        )}
+        {editable
+          ? toggle("Replace", <Replace />, replacing, setReplacing)
+          : null}
+        {iconButton("Close find", <X />, onClose)}
+      </div>
+      {editable && replacing ? (
+        <div className="flex flex-wrap items-center gap-1">
+          <label htmlFor={replaceId} className="sr-only">
+            Replace with
+          </label>
+          <Input
+            id={replaceId}
+            value={replacement}
+            placeholder="Replace with"
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(event) => {
+              setReplacement(event.target.value);
+              editor.commands.setReplaceTerm(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter") return;
+              event.preventDefault();
+              editor.commands.replace();
+              reveal();
+            }}
+            className="h-8 min-w-40 flex-1 pointer-coarse:h-11"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={snap.results === 0}
+            onClick={() => {
+              editor.commands.replace();
+              reveal();
+            }}
+          >
+            <Replace />
+            Replace
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={snap.results === 0}
+            onClick={() => {
+              const n = snap.results;
+              editor.commands.replaceAll();
+              announce(n === 1 ? "Replaced 1 match" : `Replaced ${n} matches`);
+            }}
+          >
+            <ReplaceAll />
+            Replace all
+          </Button>
+        </div>
+      ) : null}
+      <Announcer />
+    </div>
+  );
+}
+
+/* --- heading links (B4) ------------------------------------------------------------------------*/
+
+/** A heading's slug (its outline id) and block id, for `headingLinkHref`. */
+function headingAnchorAt(
+  doc: PMNode,
+  pos: number,
+): TextEditHeadingAnchor | null {
+  const entry = headingsOf(doc).find((heading) => heading.pos === pos);
+  if (!entry) return null;
+  const blockId = doc.nodeAt(pos)?.attrs.blockId as string | null | undefined;
+  return blockId ? { id: blockId, slug: entry.id } : { slug: entry.id };
+}
+
+/**
+ * The `#` copy-link button for the hovered heading, or the caret's (works read-only too): one
+ * floating button at the heading's end, so nothing is decorated per heading on every change.
+ */
+function HeadingLink({
+  editor,
+  href,
+}: {
+  editor: Editor;
+  href: (anchor: TextEditHeadingAnchor) => string | null;
+}) {
+  const hover = useHover<number>((a, b) => a === b);
+  const [caret, setCaret] = React.useState<number | null>(null);
+  const [, redraw] = React.useReducer((n: number) => n + 1, 0);
+
+  React.useEffect(() => {
+    const dom = editor.view.dom;
+    const headingPos = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null;
+      const heading = target.closest("h1,h2,h3,h4,h5,h6");
+      if (!heading || !dom.contains(heading)) return null;
+      const pos = editor.view.posAtDOM(heading, 0) - 1;
+      return editor.state.doc.nodeAt(pos)?.type.name === "heading" ? pos : null;
+    };
+    const onMove = (event: MouseEvent) => {
+      const pos = headingPos(event.target);
+      if (pos !== null) hover.show(pos);
+      else hover.hideSoon();
+    };
+    const onSelection = () => {
+      const { $from } = editor.state.selection;
+      setCaret(
+        editor.isFocused && $from.parent.type.name === "heading"
+          ? $from.before()
+          : null,
+      );
+    };
+    const onScroll = () => redraw();
+    dom.addEventListener("mousemove", onMove);
+    dom.addEventListener("mouseleave", hover.hideSoon);
+    editor.on("selectionUpdate", onSelection);
+    editor.on("focus", onSelection);
+    editor.on("blur", onSelection);
+    window.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () => {
+      dom.removeEventListener("mousemove", onMove);
+      dom.removeEventListener("mouseleave", hover.hideSoon);
+      editor.off("selectionUpdate", onSelection);
+      editor.off("focus", onSelection);
+      editor.off("blur", onSelection);
+      window.removeEventListener("scroll", onScroll, { capture: true });
+    };
+  }, [editor, hover.show, hover.hideSoon]);
+
+  const pos = hover.value ?? caret;
+  if (pos === null || editor.isDestroyed) return null;
+  const node = editor.state.doc.nodeAt(pos);
+  if (node?.type.name !== "heading" || node.content.size === 0) return null;
+  const anchor = headingAnchorAt(editor.state.doc, pos);
+  const link = anchor ? href(anchor) : null;
+  if (!link) return null;
+  // The end of the heading's last line: the button sits just after its text.
+  const end = editor.view.coordsAtPos(pos + node.nodeSize - 1);
+  const dom = editor.view.nodeDOM(pos);
+  if (!(dom instanceof HTMLElement)) return null;
+  const box = dom.getBoundingClientRect();
+  const size = 24;
+  return (
+    <FloatingLayer>
+      <CopyButton
+        data-slot="text-edit-heading-link"
+        value={new URL(link, window.location.href).href}
+        size="icon-xs"
+        copyLabel={`Copy link to “${node.textContent}”`}
+        copiedLabel="Link copied"
+        onMouseEnter={hover.keep}
+        onMouseLeave={hover.hideSoon}
+        onMouseDown={(event) => event.preventDefault()}
+        style={{
+          position: "fixed",
+          left: Math.min(end.right + 4, box.right - size),
+          top: (end.top + end.bottom) / 2 - size / 2,
+        }}
+        className="z-50 font-sans text-muted-foreground print:hidden"
+      />
+    </FloatingLayer>
+  );
+}
+
+/* --- block menu (B2) ---------------------------------------------------------------------------*/
+
+/** The block a handle or ⇧F10 menu acts on. */
+interface BlockTarget {
+  pos: number;
+  node: PMNode;
+  dom: HTMLElement;
+}
+
+/** What the block menu needs from the editor beyond the block itself. */
+interface BlockMenuRuntime {
+  /** `headingLinkHref`: a heading's Copy link. */
+  headingLink: (pos: number) => string | null;
+}
+
+/** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
+type BlockKind = (typeof BLOCK_TYPES)[number]["id"] | "callout" | "toggle";
+
+/** The kind of the block at `node` — a callout or toggle by its wrapper, else as Turn into names it. */
+function blockKind(node: PMNode): BlockKind | null {
+  switch (node.type.name) {
+    case "paragraph":
+      return "text";
+    case "heading":
+      return `h${Math.min(4, Math.max(1, Number(node.attrs.level) || 1))}` as BlockKind;
+    case "codeBlock":
+      return "codeBlock";
+    case "blockquote":
+      return "blockquote";
+    case "callout":
+      return "callout";
+    case "toggle":
+      return "toggle";
+    case "listItem":
+      return null;
+    case "taskItem":
+      return "taskList";
+    case "bulletList":
+      return "bulletList";
+    case "orderedList":
+      return "orderedList";
+    case "taskList":
+      return "taskList";
+    default:
+      return null;
+  }
+}
+
+/** Blocks Turn into applies to: text, headings, lists and their items, quotes, code, callouts, toggles. */
+const TURNABLE = new Set([
+  "paragraph",
+  "heading",
+  "codeBlock",
+  "blockquote",
+  "callout",
+  "toggle",
+  "listItem",
+  "taskItem",
+  "bulletList",
+  "orderedList",
+  "taskList",
+]);
+
+/** A copy of `node` with no block ids, so the duplicate gets its own (UniqueID assigns them). */
+function withoutBlockIds(node: PMNode): PMNode {
+  if (node.isText) return node;
+  const content: PMNode[] = [];
+  node.forEach((child) => content.push(withoutBlockIds(child)));
+  const attrs =
+    "blockId" in node.attrs ? { ...node.attrs, blockId: null } : node.attrs;
+  return node.type.create(attrs, Fragment.from(content), node.marks);
+}
+
+/** Put the caret at the start of the block at `pos`, so a command for "the caret's block" acts on it. */
+function caretInto(editor: Editor, pos: number) {
+  const { state } = editor;
+  const at = Math.min(pos + 1, state.doc.content.size);
+  editor.view.dispatch(
+    state.tr.setSelection(TextSelection.near(state.doc.resolve(at))),
+  );
+}
+
+/** Duplicate the block at `pos` right after it (⌘D), the caret moving into the copy. */
+function duplicateBlock(editor: Editor, pos: number): boolean {
+  const node = editor.state.doc.nodeAt(pos);
+  if (!node) return false;
+  const at = pos + node.nodeSize;
+  const tr = editor.state.tr.insert(at, withoutBlockIds(node));
+  tr.setSelection(TextSelection.near(tr.doc.resolve(at + 1)));
+  editor.view.dispatch(tr.scrollIntoView());
+  return true;
+}
+
+/** ⌘D: duplicate the caret's block. */
+function duplicateCaretBlock(editor: Editor): boolean {
+  const pos = caretBlockPos(editor.state);
+  return pos === null ? false : duplicateBlock(editor, pos);
+}
+
+/**
+ * Turn the block at `pos` into a toggle: a paragraph or heading's text becomes the toggle's title
+ * with an empty body below it; anything else gets an empty toggle after it.
+ */
+function turnIntoToggle(editor: Editor, pos: number) {
+  const { state } = editor;
+  const node = state.doc.nodeAt(pos);
+  const { toggle, toggleSummary, paragraph } = state.schema.nodes;
+  if (!node || !toggle || !toggleSummary || !paragraph) return;
+  if (node.type.name === "toggle") return;
+  if (node.type.name === "paragraph" || node.type.name === "heading") {
+    const created = toggle.create(null, [
+      toggleSummary.create(null, node.content),
+      paragraph.create(),
+    ]);
+    const tr = state.tr.replaceWith(pos, pos + node.nodeSize, created);
+    tr.setSelection(TextSelection.create(tr.doc, pos + 2 + node.content.size));
+    editor.view.dispatch(tr.scrollIntoView());
+    return;
+  }
+  caretInto(editor, pos);
+  insertToggle(editor);
+}
+
+/** Turn the block at `pos` into a callout of `tone` (or retone the callout it is). */
+function turnIntoCallout(editor: Editor, pos: number, tone: CalloutTone) {
+  const node = editor.state.doc.nodeAt(pos);
+  if (!node) return;
+  if (node.type.name === "callout") {
+    editor.view.dispatch(editor.state.tr.setNodeAttribute(pos, "tone", tone));
+    return;
+  }
+  caretInto(editor, pos);
+  editor.chain().focus().wrapIn("callout", { tone }).run();
+}
+
+/** The block at `pos` as Markdown (Copy as Markdown). */
+function blockMarkdown(editor: Editor, node: PMNode): string {
+  const manager = editor.markdown;
+  if (!manager) return node.textContent;
+  return manager
+    .serialize({ type: "doc", content: [node.toJSON() as JSONContent] })
+    .trim();
+}
+
+async function copyText(text: string, done: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.add({ title: done });
+  } catch {
+    toast.add({ title: "Couldn't copy. Try again.", type: "error" });
+  }
+}
+
+interface BlockAction {
+  key: string;
+  label: string;
+  icon: React.ComponentType;
+  run: () => void;
+  shortcut?: string;
+  disabled?: boolean;
+  destructive?: boolean;
+  /** A check item: shown with its state. */
+  checked?: boolean;
+}
+
+/** The menu's actions for `block`, in order; `null` marks the separator before Delete. */
+function blockActions(
+  editor: Editor,
+  block: BlockTarget,
+  runtime: BlockMenuRuntime,
+): (BlockAction | null)[] {
+  const { pos, node } = block;
+  const { index, siblings } = siblingsOf(editor.view, pos);
+  const link = node.type.name === "heading" ? runtime.headingLink(pos) : null;
+  const actions: (BlockAction | null)[] = [
+    {
+      key: "duplicate",
+      label: "Duplicate",
+      icon: CopyPlus,
+      shortcut: "⌘D",
+      run: () => duplicateBlock(editor, pos),
+    },
+  ];
+  if (link)
+    actions.push({
+      key: "link",
+      label: "Copy link",
+      icon: LinkIcon,
+      run: () =>
+        void copyText(new URL(link, window.location.href).href, "Link copied"),
+    });
+  actions.push(
+    {
+      key: "markdown",
+      label: "Copy as Markdown",
+      icon: FileCode,
+      run: () =>
+        void copyText(blockMarkdown(editor, node), "Copied as Markdown"),
+    },
+    {
+      key: "up",
+      label: "Move up",
+      icon: ArrowUp,
+      shortcut: "⌘⇧↑",
+      disabled: index === 0,
+      run: () => moveNodeTo(editor.view, pos, index - 1),
+    },
+    {
+      key: "down",
+      label: "Move down",
+      icon: ArrowDown,
+      shortcut: "⌘⇧↓",
+      disabled: index >= siblings.length - 1,
+      run: () => moveNodeTo(editor.view, pos, index + 2),
+    },
+  );
+  if (node.type.name === "toggle")
+    actions.push({
+      key: "open",
+      label: "Open by default",
+      icon: ListCollapse,
+      checked: node.attrs.open !== false,
+      run: () =>
+        editor.view.dispatch(
+          editor.state.tr.setNodeAttribute(
+            pos,
+            "open",
+            node.attrs.open === false,
+          ),
+        ),
+    });
+  actions.push(null, {
+    key: "delete",
+    label: "Delete",
+    icon: Trash2,
+    shortcut: "⌫",
+    destructive: true,
+    run: () => {
+      const tr = editor.state.tr.delete(pos, pos + node.nodeSize);
+      editor.view.dispatch(tr.scrollIntoView());
+      editor.commands.focus();
+    },
+  });
+  return actions;
+}
+
+/** The Turn into choices for `block`: the block types, then a callout (by tone) and a toggle. */
+function turnIntoChoices(editor: Editor, block: BlockTarget) {
+  const current = blockKind(block.node);
+  return {
+    current,
+    types: BLOCK_TYPES.map((type) => ({
+      key: type.id,
+      label: type.label,
+      icon: type.icon as React.ComponentType,
+      run: () => {
+        caretInto(editor, block.pos);
+        type.run(editor);
+      },
+    })),
+    tones: CALLOUT_TONES.map((tone) => ({
+      key: tone,
+      label: CALLOUT_STYLE[tone].label,
+      icon: CALLOUT_STYLE[tone].icon as React.ComponentType,
+      run: () => turnIntoCallout(editor, block.pos, tone),
+    })),
+    toggle: () => turnIntoToggle(editor, block.pos),
+  };
+}
+
+/**
+ * The block menu (B2) as a dropdown: opened by the block handle (a click, no drag) or ⇧F10 /
+ * the context-menu key for the caret's block. Turn into ▸ (with Callout ▸ by tone, and Toggle),
+ * Duplicate, Copy link (headings), Copy as Markdown, Move up / down, Open by default (toggles), Delete.
+ */
+function BlockMenuItems({
+  editor,
+  block,
+  runtime,
+}: {
+  editor: Editor;
+  block: BlockTarget;
+  runtime: BlockMenuRuntime;
+}) {
+  const turnable = TURNABLE.has(block.node.type.name);
+  const choices = turnable ? turnIntoChoices(editor, block) : null;
+  return (
+    <>
+      {choices ? (
+        <>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Repeat2 />
+              Turn into
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent
+              data-text-edit-menu=""
+              aria-label="Turn into"
+              className="w-auto min-w-48"
+            >
+              {choices.types.map((type) => (
+                <DropdownMenuCheckboxItem
+                  key={type.key}
+                  checked={choices.current === type.key}
+                  onClick={type.run}
+                >
+                  <type.icon />
+                  {type.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Info />
+                  Callout
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent
+                  data-text-edit-menu=""
+                  aria-label="Callout"
+                  className="w-auto min-w-40"
+                >
+                  {choices.tones.map((tone) => (
+                    <DropdownMenuCheckboxItem
+                      key={tone.key}
+                      checked={
+                        choices.current === "callout" &&
+                        block.node.attrs.tone === tone.key
+                      }
+                      onClick={tone.run}
+                    >
+                      <tone.icon />
+                      {tone.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuCheckboxItem
+                checked={choices.current === "toggle"}
+                onClick={choices.toggle}
+              >
+                <ListCollapse />
+                Toggle
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSeparator />
+        </>
+      ) : null}
+      {blockActions(editor, block, runtime).map((action, index) =>
+        action === null ? (
+          <DropdownMenuSeparator key={`separator-${index}`} />
+        ) : action.checked !== undefined ? (
+          <DropdownMenuCheckboxItem
+            key={action.key}
+            checked={action.checked}
+            disabled={action.disabled}
+            onClick={action.run}
+          >
+            <action.icon />
+            {action.label}
+          </DropdownMenuCheckboxItem>
+        ) : (
+          <DropdownMenuItem
+            key={action.key}
+            disabled={action.disabled}
+            variant={action.destructive ? "destructive" : "default"}
+            onClick={action.run}
+          >
+            <action.icon />
+            {action.label}
+            {action.shortcut ? (
+              <DropdownMenuShortcut>{action.shortcut}</DropdownMenuShortcut>
+            ) : null}
+          </DropdownMenuItem>
+        ),
+      )}
+    </>
+  );
+}
+
+/** The block menu on a coarse pointer: a bottom sheet with 44px rows; Turn into is a second page. */
+function BlockMenuSheet({
+  editor,
+  block,
+  runtime,
+  onClose,
+}: {
+  editor: Editor;
+  block: BlockTarget | null;
+  runtime: BlockMenuRuntime;
+  onClose: () => void;
+}) {
+  const [page, setPage] = React.useState<"actions" | "turn" | "callout">(
+    "actions",
+  );
+  const [shown, setShown] = React.useState(block);
+  if (block !== shown) {
+    setShown(block);
+    setPage("actions");
+  }
+  // 44px rows, start-aligned: the sheet's menu items.
+  const row =
+    "h-auto min-h-11 w-full justify-start gap-3 px-3 text-start font-normal [&_svg]:text-muted-foreground";
+  const act = (run: () => void) => () => {
+    onClose();
+    run();
+  };
+  const body = (() => {
+    if (!block) return null;
+    if (page === "actions") {
+      const turnable = TURNABLE.has(block.node.type.name);
+      return (
+        <>
+          {turnable ? (
+            <Button
+              variant="ghost"
+              type="button"
+              className={row}
+              onClick={() => setPage("turn")}
+            >
+              <Repeat2 />
+              <span className="flex-1">Turn into</span>
+              <ChevronRight aria-hidden className="rtl:-scale-x-100" />
+            </Button>
+          ) : null}
+          {blockActions(editor, block, runtime).map((action, index) =>
+            action === null ? (
+              <Separator key={`separator-${index}`} className="my-1" />
+            ) : (
+              <Button
+                variant="ghost"
+                key={action.key}
+                type="button"
+                className={cn(
+                  row,
+                  action.destructive &&
+                    "text-destructive [&_svg]:text-destructive",
+                )}
+                disabled={action.disabled}
+                aria-pressed={action.checked}
+                onClick={act(action.run)}
+              >
+                <action.icon />
+                <span className="flex-1">{action.label}</span>
+                {action.checked ? <Check aria-hidden /> : null}
+              </Button>
+            ),
+          )}
+        </>
+      );
+    }
+    const choices = turnIntoChoices(editor, block);
+    if (page === "callout")
+      return choices.tones.map((tone) => (
+        <Button
+          variant="ghost"
+          key={tone.key}
+          type="button"
+          className={row}
+          onClick={act(tone.run)}
+        >
+          <tone.icon />
+          <span className="flex-1">{tone.label}</span>
+        </Button>
+      ));
+    return (
+      <>
+        {choices.types.map((type) => (
+          <Button
+            variant="ghost"
+            key={type.key}
+            type="button"
+            className={row}
+            onClick={act(type.run)}
+          >
+            <type.icon />
+            <span className="flex-1">{type.label}</span>
+            {choices.current === type.key ? <Check aria-hidden /> : null}
+          </Button>
+        ))}
+        <Button
+          variant="ghost"
+          type="button"
+          className={row}
+          onClick={() => setPage("callout")}
+        >
+          <Info />
+          <span className="flex-1">Callout</span>
+          <ChevronRight aria-hidden className="rtl:-scale-x-100" />
+        </Button>
+        <Button
+          variant="ghost"
+          type="button"
+          className={row}
+          onClick={act(choices.toggle)}
+        >
+          <ListCollapse />
+          <span className="flex-1">Toggle</span>
+          {choices.current === "toggle" ? <Check aria-hidden /> : null}
+        </Button>
+      </>
+    );
+  })();
+  return (
+    <Sheet open={block !== null} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="bottom" data-text-edit-menu="" aria-label="Block">
+        <SheetHeader>
+          <SheetTitle>
+            {page === "actions"
+              ? "Block"
+              : page === "turn"
+                ? "Turn into"
+                : "Callout"}
+          </SheetTitle>
+        </SheetHeader>
+        <SheetBody className="flex flex-col gap-0.5 pb-4">{body}</SheetBody>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+/** Whether the primary pointer is coarse (touch): the handle follows the caret, not the hover. */
+function useCoarsePointer() {
+  const [coarse, setCoarse] = React.useState(false);
+  React.useEffect(() => {
+    const query = window.matchMedia?.("(pointer: coarse)");
+    if (!query) return;
+    const update = () => setCoarse(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return coarse;
+}
+
+/** The block the caret is in, as the handle shows it (a table is its own controls' business). */
+function caretBlock(editor: Editor): BlockTarget | null {
+  const pos = caretBlockPos(editor.state);
+  if (pos === null) return null;
+  const node = editor.state.doc.nodeAt(pos);
+  const dom = editor.view.nodeDOM(pos);
+  if (!node || !(dom instanceof HTMLElement) || node.type.name === "table")
+    return null;
+  return { pos, node, dom };
+}
+
+/**
+ * The block handle: a ⋮⋮ grip beside the hovered block (on touch, the caret's block). Drag it to
+ * move the block; click or tap it — or press <kbd>⇧F10</kbd> / the context-menu key — for the block
+ * menu (a dropdown, or a bottom sheet on touch). On touch a drag starts after a 350ms hold.
+ */
+function BlockHandle({
+  editor,
+  runtime,
+}: {
+  editor: Editor;
+  runtime: BlockMenuRuntime;
+}) {
+  const { value, show, hideSoon, keep, pinnedRef } = useHover<BlockTarget>(
     (a, b) => a.dom === b.dom && a.pos === b.pos,
   );
   const [line, setLine] = React.useState<DragLine | null>(null);
+  const [menu, setMenu] = React.useState<BlockTarget | null>(null);
+  const menuOpenRef = React.useRef(false);
+  const coarse = useCoarsePointer();
+  const handleRef = React.useRef<HTMLButtonElement>(null);
+
+  const openMenu = React.useCallback(
+    (block: BlockTarget) => {
+      pinnedRef.current = true;
+      menuOpenRef.current = true;
+      show(block);
+      setMenu(block);
+    },
+    [pinnedRef, show],
+  );
+  const closeMenu = React.useCallback(() => {
+    setMenu(null);
+    menuOpenRef.current = false;
+    pinnedRef.current = false;
+  }, [pinnedRef]);
 
   React.useEffect(() => {
     const dom = editor.view.dom;
     const onMove = (event: MouseEvent) => {
-      if (pinnedRef.current || !(event.target instanceof Node)) return;
+      if (coarse || pinnedRef.current || !(event.target instanceof Node))
+        return;
       if (event.target === dom) return;
       const block = blockAt(editor.view, event.target);
       if (block) show(block.node.type.name === "table" ? null : block);
     };
-    const onKey = () => show(null);
+    const onKey = (event: KeyboardEvent) => {
+      const menuKey =
+        event.key === "ContextMenu" || (event.shiftKey && event.key === "F10");
+      // In a table its own controls answer (TableControls).
+      if (menuKey && !inTableCell(editor.state)) {
+        const block = caretBlock(editor);
+        if (block) {
+          event.preventDefault();
+          openMenu(block);
+          return;
+        }
+      }
+      if (!coarse) show(null);
+    };
+    // Touch: the handle follows the caret's block (there is no hover).
+    const onSelection = () => {
+      if (!coarse || pinnedRef.current) return;
+      show(editor.isFocused ? caretBlock(editor) : null);
+    };
     dom.addEventListener("mousemove", onMove);
     dom.addEventListener("mouseleave", hideSoon);
     dom.addEventListener("keydown", onKey);
+    editor.on("selectionUpdate", onSelection);
+    editor.on("focus", onSelection);
     return () => {
       dom.removeEventListener("mousemove", onMove);
       dom.removeEventListener("mouseleave", hideSoon);
       dom.removeEventListener("keydown", onKey);
+      editor.off("selectionUpdate", onSelection);
+      editor.off("focus", onSelection);
     };
-  }, [editor, show, hideSoon, pinnedRef]);
+  }, [editor, show, hideSoon, pinnedRef, coarse, openMenu]);
 
-  if (!value || !value.dom.isConnected) return null;
-  const block = value;
-  const box = block.dom.getBoundingClientRect();
+  const block = value && value.dom.isConnected ? value : null;
+  const box = block?.dom.getBoundingClientRect();
   // A bullet or number sits in the list's start padding, outside the item's box; clear it.
-  const marker = block.node.type.name === "listItem" ? 20 : 0;
-  const lineHeight = Math.min(box.height, 24);
+  const marker = block?.node.type.name === "listItem" ? 20 : 0;
+  const lineHeight = box ? Math.min(box.height, 24) : 0;
+  // Touch: a 24px grip (44px hit area); otherwise the 16px grip.
+  const size = coarse ? 24 : HANDLE_WIDTH;
 
   const onPointerDown = (event: React.PointerEvent) => {
+    if (!block) return;
     pinnedRef.current = true;
     startBlockDrag(editor, block.pos, event, {
       setLine,
-      onClick: () =>
+      onClick: () => {
         editor.view.dispatch(
           editor.state.tr.setSelection(
             NodeSelection.create(editor.state.doc, block.pos),
           ),
-        ),
+        );
+        openMenu(block);
+      },
       onEnd: () => {
-        pinnedRef.current = false;
-        show(null);
+        if (!menuOpenRef.current) pinnedRef.current = false;
       },
     });
   };
 
   return (
-    <FloatingLayer>
-      <div
-        data-slot="text-edit-block-handle"
-        aria-hidden
-        title="Drag to move · click to select"
-        onMouseEnter={keep}
-        onMouseLeave={hideSoon}
-        onMouseDown={(event) => event.preventDefault()}
-        onPointerDown={onPointerDown}
-        style={{
-          left: handleLeft(editor, box.left - marker),
-          top: box.top + lineHeight / 2 - 10,
-          width: HANDLE_WIDTH,
-          height: 20,
-        }}
-        className={GRIP}
-      >
-        <GripVertical />
-      </div>
-      {line ? (
-        <div
-          data-slot="text-edit-drop-indicator"
-          className={DROP_LINE}
-          style={line}
+    <>
+      <FloatingLayer>
+        {block && box ? (
+          <DropdownMenu
+            open={menu !== null && !coarse}
+            onOpenChange={(open) => {
+              if (!open) closeMenu();
+            }}
+          >
+            <DropdownMenuTrigger
+              ref={handleRef}
+              data-slot="text-edit-block-handle"
+              aria-label="Block options"
+              title="Drag to move · click for options"
+              tabIndex={-1}
+              onMouseEnter={keep}
+              onMouseLeave={hideSoon}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                event.preventBaseUIHandler();
+              }}
+              onClick={(event) => {
+                // A pointer click is the drag's own (no travel → the menu); a screen reader's
+                // virtual click (`detail` 0) opens it through Base UI.
+                if (event.detail !== 0) event.preventBaseUIHandler();
+              }}
+              onPointerDown={onPointerDown}
+              style={{
+                left:
+                  handleLeft(editor, box.left - marker) - (size - HANDLE_WIDTH),
+                top: box.top + lineHeight / 2 - (coarse ? 12 : 10),
+                width: size,
+                height: coarse ? 24 : 20,
+              }}
+              className={cn(
+                GRIP,
+                // A 44px hit area on touch, centred on the 24px grip.
+                "pointer-coarse:after:absolute pointer-coarse:after:-inset-2.5 pointer-coarse:after:content-['']",
+              )}
+            >
+              <GripVertical />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              data-text-edit-menu=""
+              align="start"
+              finalFocus={() => {
+                editor.view.focus();
+                return false;
+              }}
+              className="w-auto min-w-52"
+            >
+              {menu ? (
+                <BlockMenuItems
+                  editor={editor}
+                  block={menu}
+                  runtime={runtime}
+                />
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
+        {line ? (
+          <div
+            data-slot="text-edit-drop-indicator"
+            className={DROP_LINE}
+            style={line}
+          />
+        ) : null}
+      </FloatingLayer>
+      {coarse ? (
+        <BlockMenuSheet
+          editor={editor}
+          block={menu}
+          runtime={runtime}
+          onClose={closeMenu}
         />
       ) : null}
-    </FloatingLayer>
+    </>
   );
 }
 
@@ -5411,6 +6891,34 @@ const appendToBody = () => document.body;
 /* ------------------------------------------------------------------------------------------------
  * TextEdit
  * ----------------------------------------------------------------------------------------------*/
+
+const NO_SLASH_ACTIONS: readonly TextEditSlashAction[] = [];
+
+/** Run `work` when the browser is idle (or on the next tick where it cannot say). */
+function whenIdle(work: () => void) {
+  if (typeof window.requestIdleCallback === "function")
+    window.requestIdleCallback(work, { timeout: 1000 });
+  else setTimeout(work, 0);
+}
+
+/** Words are runs of non-space characters (one definition, here and in a host's read copy). */
+const countWords = (text: string) => (text.match(/\S+/g) ?? []).length;
+
+/** The document's words and characters, and the selection's words (`getStats`). */
+function docStats(state: EditorState): TextEditStats {
+  const { doc, selection } = state;
+  // A chip reads as one word; block breaks separate words but are not characters.
+  const words = countWords(doc.textBetween(0, doc.content.size, " ", " "));
+  const characters = doc.textBetween(0, doc.content.size, "", " ").length;
+  return {
+    words,
+    characters,
+    readingMinutes: words === 0 ? 0 : Math.max(1, Math.ceil(words / 230)),
+    selectedWords: selection.empty
+      ? 0
+      : countWords(doc.textBetween(selection.from, selection.to, " ", " ")),
+  };
+}
 
 /** The image types a browser shows everywhere: inline by default; others land as file chips. */
 const INLINE_IMAGE_TYPES = [
@@ -5554,6 +7062,12 @@ export function TextEditEditor({
   editorHandle,
   onOpenImage,
   onOpenFile,
+  slashActions = NO_SLASH_ACTIONS,
+  headingLinkHref,
+  toggleState,
+  onStatsChange,
+  findReplace = false,
+  emoji = false,
 }: TextEditEditorProps) {
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
@@ -5588,6 +7102,7 @@ export function TextEditEditor({
     onUploadError,
     onExternalImage,
     onOutlineChange,
+    onStatsChange,
     onAnnotationClick,
     onAnnotationHover,
     onCreateAnnotation,
@@ -5606,6 +7121,7 @@ export function TextEditEditor({
       onUploadError,
       onExternalImage,
       onOutlineChange,
+      onStatsChange,
       onAnnotationClick,
       onAnnotationHover,
       onCreateAnnotation,
@@ -5623,6 +7139,8 @@ export function TextEditEditor({
     onUploadError,
     onExternalImage,
     onOutlineChange,
+    onStatsChange,
+    onStatsChange,
     onAnnotationClick,
     onAnnotationHover,
     onCreateAnnotation,
@@ -5639,6 +7157,27 @@ export function TextEditEditor({
   );
   const slashRef = React.useRef<readonly TextEditSlashCommand[]>(allowedSlash);
   slashRef.current = allowedSlash;
+  const slashActionsRef =
+    React.useRef<readonly TextEditSlashAction[]>(slashActions);
+  slashActionsRef.current = slashActions;
+  const toggleStateRef = React.useRef(toggleState);
+  toggleStateRef.current = toggleState;
+  const headingLinkRef = React.useRef(headingLinkHref);
+  headingLinkRef.current = headingLinkHref;
+  const [emojiMenu, setEmojiMenu] = React.useState<EmojiMenuState | null>(null);
+  const emojiMenuRef = React.useRef<EmojiMenuState | null>(null);
+  // The find bar: open, and a counter that asks its field for focus on each ⌘F.
+  const [find, setFind] = React.useState<{
+    key: number;
+    term: string | null;
+  } | null>(null);
+  const findOpenRef = React.useRef(false);
+  findOpenRef.current = find !== null;
+  const findCaretRef = React.useRef<number | null>(null);
+  // Filled once the editor exists; the extensions (built first) call through them.
+  const openFindRef = React.useRef<() => void>(() => {});
+  const closeFindRef = React.useRef<() => void>(() => {});
+  const revealFindRef = React.useRef<() => void>(() => {});
   const mentionHrefRef = React.useRef(mentionHref);
   mentionHrefRef.current = mentionHref;
   const mentionImageRef = React.useRef(mentionImage);
@@ -5650,7 +7189,7 @@ export function TextEditEditor({
   React.useEffect(() => labels.bump(), [labels, mentionLabel]);
   const [toggleRuntime] = React.useState<ToggleRuntime>(() => ({
     // Shared or a diff: opening a toggle is this viewer's view, never a document change.
-    states: quiet ? new ToggleStates() : null,
+    states: quiet ? new ToggleStates(toggleStateRef) : null,
   }));
   const inlineImageTypesRef = React.useRef(inlineImageTypes);
   inlineImageTypesRef.current = inlineImageTypes;
@@ -5765,6 +7304,7 @@ export function TextEditEditor({
       placeholderRef,
       {
         allowed: slashRef,
+        actions: slashActionsRef,
         get: () => slashStateRef.current,
         set: (next) => {
           slashStateRef.current = next;
@@ -5798,6 +7338,46 @@ export function TextEditEditor({
       toggleRuntime,
       collab,
       diffing,
+      [
+        ...(findReplace
+          ? [
+              FindAndReplace.configure({
+                searchDebounceMs: 250,
+                injectCSS: false,
+              }),
+              findKeys({
+                open: () => {
+                  openFindRef.current();
+                  return true;
+                },
+                isOpen: () => findOpenRef.current,
+                step: (direction) => {
+                  const ed = editorRef.current;
+                  if (!ed) return false;
+                  if (direction > 0) ed.commands.goToNextResult();
+                  else ed.commands.goToPreviousResult();
+                  revealFindRef.current();
+                  return true;
+                },
+                close: () => {
+                  closeFindRef.current();
+                  return true;
+                },
+              }),
+            ]
+          : []),
+        ...(emoji
+          ? [
+              emojiExtension({
+                get: () => emojiMenuRef.current,
+                set: (next) => {
+                  emojiMenuRef.current = next;
+                  setEmojiMenu(next);
+                },
+              }),
+            ]
+          : []),
+      ],
     ),
   );
 
@@ -5807,9 +7387,74 @@ export function TextEditEditor({
     "aria-describedby": resolvedDescribedBy,
     "aria-invalid": ariaInvalidAttribute,
   } = aria;
-  const hasSlash = allowedSlash.length > 0;
+  const hasSlash = allowedSlash.length > 0 || slashActions.length > 0;
+  // Find: open (⌘F, `openFind`) with the selection's text as the term; close (Esc, ✕) with the
+  // caret back where it was; reveal a match inside a closed toggle.
+  const revealAt = React.useCallback(
+    (from: number) => {
+      const ed = editorRef.current;
+      if (!ed || ed.isDestroyed) return;
+      expandAncestors(ed, toggleRuntime, from);
+      requestAnimationFrame(() => {
+        if (ed.isDestroyed) return;
+        const { node } = ed.view.domAtPos(from);
+        (node instanceof Element ? node : node.parentElement)?.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
+        });
+      });
+    },
+    [toggleRuntime],
+  );
+  openFindRef.current = () => {
+    const ed = editorRef.current;
+    if (!ed || ed.isDestroyed || !findReplace) return;
+    const { from, to, empty } = ed.state.selection;
+    if (!findOpenRef.current) findCaretRef.current = from;
+    const text = empty ? "" : ed.state.doc.textBetween(from, to, " ", " ");
+    setFind((previous) => ({
+      key: (previous?.key ?? 0) + 1,
+      term: text && text.length <= 100 && !text.includes("\n") ? text : null,
+    }));
+  };
+  closeFindRef.current = () => {
+    const ed = editorRef.current;
+    setFind(null);
+    if (!ed || ed.isDestroyed) return;
+    ed.commands.clearSearch();
+    const at = findCaretRef.current;
+    findCaretRef.current = null;
+    if (at !== null)
+      ed.chain()
+        .focus()
+        .setTextSelection(Math.min(at, ed.state.doc.content.size))
+        .run();
+  };
+  revealFindRef.current = () => {
+    const ed = editorRef.current;
+    const state = ed ? FindAndReplacePluginKey.getState(ed.state) : undefined;
+    const result =
+      state && state.currentIndex !== null
+        ? state.results[state.currentIndex]
+        : undefined;
+    if (result) revealAt(result.from);
+  };
+  const blockMenuRuntime = React.useMemo<BlockMenuRuntime>(
+    () => ({
+      headingLink: (pos) => {
+        const ed = editorRef.current;
+        const href = headingLinkRef.current;
+        if (!ed || !href) return null;
+        const anchor = headingAnchorAt(ed.state.doc, pos);
+        return anchor ? href(anchor) : null;
+      },
+    }),
+    [],
+  );
+
   const slashListId = React.useId();
   const mentionListId = React.useId();
+  const emojiListId = React.useId();
   // The open menu the surface points at (`aria-controls`, `aria-activedescendant`); focus stays
   // in the editor, so the active row is announced through the textbox.
   const openMenu =
@@ -5825,7 +7470,13 @@ export function TextEditEditor({
                 : flatOptions(mentionMenu.results).length,
               index: mentionMenu.index,
             }
-          : null;
+          : emojiMenu
+            ? {
+                id: emojiListId,
+                count: emojiMenu.items.length,
+                index: emojiMenu.index,
+              }
+            : null;
   const menuControls = openMenu?.id;
   const menuActive =
     openMenu && openMenu.count > 0
@@ -6624,20 +8275,26 @@ export function TextEditEditor({
     };
   }, [editor, serialize, leave, panel]);
 
-  // Outline: every heading's id, level and text — after load, then 150ms after each change.
+  // Outline: every heading's id, level and text — after load, then when idle after a change (300ms).
   React.useEffect(() => {
     if (!editor || !onOutlineChange) return;
     let last = "";
     let timer: ReturnType<typeof setTimeout> | undefined;
     const emit = () => {
       if (editor.isDestroyed) return;
-      const outline = headingsOf(editor.state.doc)
+      const { doc } = editor.state;
+      const outline = headingsOf(doc)
         .filter((entry) => entry.level <= 4)
-        .map((entry) => ({
-          id: entry.id,
-          level: entry.level as 1 | 2 | 3 | 4,
-          text: entry.text,
-        }));
+        .map((entry) => {
+          const blockId = doc.nodeAt(entry.pos)?.attrs.blockId as
+            string | null | undefined;
+          return {
+            id: entry.id,
+            level: entry.level as 1 | 2 | 3 | 4,
+            text: entry.text,
+            ...(blockId ? { blockId } : {}),
+          };
+        });
       const key = JSON.stringify(outline);
       if (key === last) return;
       last = key;
@@ -6645,7 +8302,7 @@ export function TextEditEditor({
     };
     const schedule = () => {
       clearTimeout(timer);
-      timer = setTimeout(emit, 150);
+      timer = setTimeout(() => whenIdle(emit), 300);
     };
     emit();
     editor.on("update", schedule);
@@ -6654,6 +8311,32 @@ export function TextEditEditor({
       editor.off("update", schedule);
     };
   }, [editor, onOutlineChange]);
+
+  // Word and character counts: once after load, then when idle after a change (300ms) — never per
+  // keystroke (counting walks the whole document).
+  React.useEffect(() => {
+    if (!editor || !onStatsChange) return;
+    let last = "";
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const emit = () => {
+      if (editor.isDestroyed) return;
+      const stats = docStats(editor.state);
+      const key = `${stats.words}:${stats.characters}`;
+      if (key === last) return;
+      last = key;
+      callbacks.current.onStatsChange?.(stats);
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => whenIdle(emit), 300);
+    };
+    whenIdle(emit);
+    editor.on("update", schedule);
+    return () => {
+      clearTimeout(timer);
+      editor.off("update", schedule);
+    };
+  }, [editor, onStatsChange]);
 
   // Annotations: resolved into the document whenever the host's list changes.
   React.useEffect(() => {
@@ -6791,11 +8474,38 @@ export function TextEditEditor({
     editorHandle,
     () => ({
       scrollToHeading: (id: string) => {
-        const target = rootRef.current?.querySelector<HTMLElement>(
-          `[id="${CSS.escape(id)}"]`,
-        );
-        target?.scrollIntoView({ block: "start", behavior: "smooth" });
+        const ed = editorRef.current;
+        if (!ed || ed.isDestroyed) return false;
+        // `<slug>~<blockId>`, a block id or a slug: the block id wins (a renamed heading keeps its
+        // link), then the slug.
+        const tilde = id.lastIndexOf("~");
+        const slug = tilde >= 0 ? id.slice(0, tilde) : id;
+        const blockId = tilde >= 0 ? id.slice(tilde + 1) : id;
+        const headings = headingsOf(ed.state.doc);
+        const entry =
+          headings.find(
+            (heading) =>
+              blockId !== "" &&
+              ed.state.doc.nodeAt(heading.pos)?.attrs.blockId === blockId,
+          ) ?? headings.find((heading) => heading.id === slug);
+        if (!entry) return false;
+        const scroll = () => {
+          if (ed.isDestroyed) return;
+          const dom = ed.view.nodeDOM(entry.pos);
+          if (dom instanceof HTMLElement)
+            dom.scrollIntoView({ block: "start", behavior: "smooth" });
+        };
+        // Toggles around it open first; it scrolls once they have drawn.
+        if (expandAncestors(ed, toggleRuntime, entry.pos + 1))
+          requestAnimationFrame(scroll);
+        else scroll();
+        return true;
       },
+      getStats: () => {
+        const ed = editorRef.current;
+        return ed && !ed.isDestroyed ? docStats(ed.state) : null;
+      },
+      openFind: () => openFindRef.current(),
       flush: async () => {
         commitNow();
         await Promise.allSettled(
@@ -6828,7 +8538,15 @@ export function TextEditEditor({
           );
         set(id);
         const range = ANNOTATION_KEY.getState(ed.state)?.ranges.get(id);
-        if (range)
+        // A comment inside a closed toggle: it opens for this viewer first.
+        if (range && expandAncestors(ed, toggleRuntime, range.from))
+          requestAnimationFrame(() =>
+            ed.view.domAtPos(range.from).node.parentElement?.scrollIntoView({
+              block: "center",
+              behavior: "smooth",
+            }),
+          );
+        else if (range)
           ed.view.domAtPos(range.from).node.parentElement?.scrollIntoView({
             block: "center",
             behavior: "smooth",
@@ -7006,8 +8724,10 @@ export function TextEditEditor({
             return {
               key: spec.id,
               label: spec.label,
-              icon: <Icon />,
+              icon: spec.glyph ?? <Icon />,
               shortcut: spec.hint,
+              description: spec.description,
+              disabled: spec.disabled,
             };
           })}
           activeIndex={slash.index}
@@ -7016,7 +8736,10 @@ export function TextEditEditor({
             slashStateRef.current = next;
             setSlashState(next);
           }}
-          onSelect={(index) => slash.command(slash.items[index]!)}
+          onSelect={(index) => {
+            const spec = slash.items[index]!;
+            if (!spec.disabled) slash.command(spec);
+          }}
         />
       ) : null}
       {mentionMenu && editable ? (
@@ -7038,9 +8761,41 @@ export function TextEditEditor({
           }
         />
       ) : null}
+      {emojiMenu && editable ? (
+        <SuggestionMenu
+          id={emojiListId}
+          aria-label="Emoji"
+          data-menu="text-edit-emoji"
+          className="w-64"
+          anchor={emojiMenu.rect}
+          floatingSafeArea={floatingSafeArea}
+          options={emojiMenu.items.map((item) => ({
+            key: item.char,
+            label: item.name,
+            icon: (
+              <span aria-hidden className="text-base leading-none">
+                {item.char}
+              </span>
+            ),
+          }))}
+          activeIndex={emojiMenu.index}
+          onActiveIndexChange={(index) => {
+            const next = { ...emojiMenu, index };
+            emojiMenuRef.current = next;
+            setEmojiMenu(next);
+          }}
+          onSelect={(index) => emojiMenu.command(emojiMenu.items[index]!)}
+        />
+      ) : null}
+      {headingLinkHref && editor && !diffing ? (
+        <HeadingLink
+          editor={editor}
+          href={(anchor) => headingLinkRef.current?.(anchor) ?? null}
+        />
+      ) : null}
       {dragHandles && editable && editor ? (
         <>
-          <BlockHandle editor={editor} />
+          <BlockHandle editor={editor} runtime={blockMenuRuntime} />
           <TableControls editor={editor} markdown={markdown} />
         </>
       ) : null}
@@ -7066,6 +8821,17 @@ export function TextEditEditor({
           <picker.Announcer />
         </>
       ) : null}
+      {find && editor && !hidden ? (
+        <FindBar
+          editor={editor}
+          editable={editable}
+          top={safeTop}
+          focusKey={find.key}
+          initialTerm={find.term}
+          onClose={() => closeFindRef.current()}
+          onReveal={revealAt}
+        />
+      ) : null}
       <div
         data-slot="text-edit-content"
         // Clicking the blank space around short content still starts editing, Notion-style.
@@ -7075,7 +8841,7 @@ export function TextEditEditor({
           event.preventDefault();
           editor.commands.focus("end");
         }}
-        className={contentClassName}
+        className={cn(contentClassName, findReplace && FIND_RESULT_CLASS)}
         style={contentStyle}
         hidden={hidden}
       >
