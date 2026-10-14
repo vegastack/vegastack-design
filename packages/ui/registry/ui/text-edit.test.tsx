@@ -4324,6 +4324,11 @@ test("find: ⌘F with words selected searches for them, and typing replaces the 
   await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
   const field = screen.getByRole("textbox", { name: "Find" });
   await expect.element(field).toHaveValue("gamma");
+  // The term is selected a frame after the bar opens.
+  await vi.waitFor(() => {
+    const input = field.element() as HTMLInputElement;
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 5]);
+  });
   await userEvent.keyboard("beta");
   await expect.element(field).toHaveValue("beta");
 });
