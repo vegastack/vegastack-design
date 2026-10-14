@@ -159,10 +159,19 @@ function pickUnit(absMs: number) {
   return UNITS[UNITS.length - 1]!;
 }
 
+/**
+ * Whole units in a span. The past counts completed units ("6 days ago" until the seventh is
+ * over); the future rounds to the nearest, so a deadline set 7 days out reads "in 7 days" the
+ * moment after, not "in 6 days".
+ */
+function unitCount(absMs: number, ms: number, future: boolean): number {
+  return Math.max(1, (future ? Math.round : Math.floor)(absMs / ms));
+}
+
 /** Minimal unit string for a positive span: "2m", "3h", "5d", "1w", "2mo", "1y". */
-function shortSpan(absMs: number): string {
+function shortSpan(absMs: number, future = false): string {
   const [ms, short] = pickUnit(absMs);
-  return `${Math.max(1, Math.floor(absMs / ms))}${short}`;
+  return `${unitCount(absMs, ms, future)}${short}`;
 }
 
 /** Relative time: now · 2m · 3h · 5d · 1w · 2mo · 1y · in 2d. */
@@ -178,12 +187,12 @@ export function formatRelative(
   if (abs < NOW_THRESHOLD) return "now";
   if (style === "long") {
     const [ms, , unit] = pickUnit(abs);
-    const n = Math.max(1, Math.floor(abs / ms));
+    const n = unitCount(abs, ms, delta > 0);
     return new Intl.RelativeTimeFormat(options.locale ?? DEFAULT_LOCALE, {
       numeric: "always",
     }).format(delta < 0 ? -n : n, unit);
   }
-  const span = shortSpan(abs);
+  const span = shortSpan(abs, delta > 0);
   if (delta > 0) return `in ${span}`;
   return style === "suffix" ? `${span} ago` : span;
 }
