@@ -14780,6 +14780,7 @@
         "@vegastack/design-tokens@^0.8.12",
         "@tiptap/extension-collaboration@^3.31.4",
         "@tiptap/extension-collaboration-caret@^3.31.4",
+        "@tiptap/extension-find-and-replace@^3.31.4",
         "@tiptap/y-tiptap@^3.0.9",
         "yjs@^13.6.33",
         "y-protocols@^1.0.7"
@@ -14813,7 +14814,11 @@
         "@vegastack/text-edit-grammar",
         "@vegastack/text-edit-schema",
         "@vegastack/text-edit-markdown",
-        "@vegastack/avatar"
+        "@vegastack/avatar",
+        "@vegastack/sheet",
+        "@vegastack/separator",
+        "@vegastack/use-announcer",
+        "@vegastack/emoji-data"
       ],
       "files": [
         {
