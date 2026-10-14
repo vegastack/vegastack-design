@@ -2903,12 +2903,28 @@ test("pendingUploads counts uploads still landing, and onPendingUploadsChange re
 function sharedDocument(markdown = "") {
   const a = new Y.Doc();
   const b = new Y.Doc();
+  // Updates relay at once, or — while `hold` is on — wait for `flush`, as on a slow network.
+  let hold = false;
+  const queued: [Y.Doc, Uint8Array][] = [];
+  const send = (to: Y.Doc, update: Uint8Array) => {
+    if (hold) queued.push([to, update]);
+    else Y.applyUpdate(to, update, "peer");
+  };
   a.on("update", (update: Uint8Array, origin: unknown) => {
-    if (origin !== "peer") Y.applyUpdate(b, update, "peer");
+    if (origin !== "peer") send(b, update);
   });
   b.on("update", (update: Uint8Array, origin: unknown) => {
-    if (origin !== "peer") Y.applyUpdate(a, update, "peer");
+    if (origin !== "peer") send(a, update);
   });
+  const network = {
+    hold: (on: boolean) => {
+      hold = on;
+    },
+    flush: () => {
+      for (const [to, update] of queued.splice(0))
+        Y.applyUpdate(to, update, "peer");
+    },
+  };
   if (markdown)
     prosemirrorToYXmlFragment(
       markdownToDoc(markdown),
@@ -2943,6 +2959,7 @@ function sharedDocument(markdown = "") {
   return {
     a,
     b,
+    network,
     awareness,
     collaboration: (side: "a" | "b") => ({
       document: side === "a" ? a : b,
@@ -3369,6 +3386,7 @@ function editorOf(box: Element) {
           setTextSelection: (
             at: number | { from: number; to: number },
           ) => boolean;
+          insertContent: (text: string) => boolean;
         };
         chain: () => {
           setTextSelection: (pos: number) => {
@@ -3510,3 +3528,32 @@ test("collaboration: an upload survives its paragraph turned heading here, then 
     expect(image).toBe(true);
   });
 });
+
+for (const [block, markdown] of [
+  ["paragraph", "Go"],
+  ["heading", "# Go"],
+] as const)
+  test(`collaboration: two people typing at the same place in a ${block} each keep their own characters in order`, async () => {
+    const { screen, shared } = await twoEditors(markdown);
+    const a = editorOf(screen.getByRole("textbox", { name: "A" }).element());
+    const b = editorOf(screen.getByRole("textbox", { name: "B" }).element());
+    // Both carets at the end of the paragraph.
+    a.commands.setTextSelection(3);
+    b.commands.setTextSelection(3);
+    // Each types a character before seeing the other's, eight times over.
+    shared.network.hold(true);
+    for (const [mine, theirs] of [..."abcdefgh"].map((ch, i) => [
+      ch,
+      String(i + 1),
+    ])) {
+      a.commands.insertContent(mine!);
+      b.commands.insertContent(theirs!);
+      shared.network.flush();
+    }
+    shared.network.hold(false);
+    const text = sharedText(shared.a);
+    expect(sharedText(shared.b)).toBe(text);
+    // Interleaved however Yjs orders them, but each person's own characters in typing order.
+    expect(text.replace(/[^a-h]/g, "")).toBe("abcdefgh");
+    expect(text.replace(/[^1-8]/g, "")).toBe("12345678");
+  });

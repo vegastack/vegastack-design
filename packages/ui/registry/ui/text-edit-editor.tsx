@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.32 sha256-YHYaqayDiSgIGXzsc9jBI32LaYmw83vSynG07E8bRrY=
+// @vegastack text-edit@0.25.32 sha256-5pf7LNdEmHxJbwCifIsxW3D+kZbh3upEpjlMovd+NtA=
 
 "use client";
 
@@ -3280,7 +3280,94 @@ function collaborationExtensions(collaboration: TextEditCollaboration) {
         kind: user.kind ?? "person",
       },
     }),
+    CaretKept,
   ];
+}
+
+/**
+ * This person's caret through a collaborator's change, exactly where Yjs puts it. After a remote
+ * change the binding resolves the caret's relative positions, then second-guesses any landing in a
+ * paragraph whose text changed and re-places it by its old offset — so when two people type at the
+ * same spot, the collaborator's character arriving first puts this caret back before the one just
+ * typed, and the next keystroke lands in front of it (typing comes out reversed). Where the caret's
+ * own text still exists in the shared document (no block moved or deleted under it), its Yjs
+ * position is the truth and is kept; everything else is left to the binding's recovery.
+ */
+const CaretKept = Extension.create({
+  name: "textEditCaretKept",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        appendTransaction(transactions, old, state) {
+          if (!transactions.some((tr) => tr.docChanged && isChangeOrigin(tr)))
+            return null;
+          const y = yBinding(state);
+          const sync = ySyncPluginKey.getState(state) as
+            | {
+                binding?: {
+                  beforeTransactionSelection?: RelativeSelection | null;
+                };
+              }
+            | undefined;
+          const before = sync?.binding?.beforeTransactionSelection;
+          if (!y || !before || before.type !== "text") return null;
+          const size = old.doc.content.size;
+          if (
+            before.absAnchor == null ||
+            before.absHead == null ||
+            before.absAnchor > size ||
+            before.absHead > size
+          )
+            return null;
+          const anchor = livePosition(y, before.anchor);
+          const head = livePosition(y, before.head);
+          if (anchor === null || head === null) return null;
+          if (
+            state.selection.anchor === anchor &&
+            state.selection.head === head
+          )
+            return null;
+          const max = state.doc.content.size;
+          if (anchor > max || head > max) return null;
+          return state.tr
+            .setSelection(TextSelection.create(state.doc, anchor, head))
+            .setMeta("addToHistory", false);
+        },
+      }),
+    ];
+  },
+});
+
+/** The binding's record of this person's selection before a Yjs change (`getRelativeSelection`). */
+interface RelativeSelection {
+  type: string;
+  anchor: Y.RelativePosition | null;
+  head: Y.RelativePosition | null;
+  absAnchor?: number;
+  absHead?: number;
+}
+
+/**
+ * A relative position's document position when the text it points into is still in the shared
+ * document — its text type and every block around it alive; null otherwise (a block moved or
+ * deleted: the binding's own recovery handles those).
+ */
+function livePosition(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  rel: Y.RelativePosition | null,
+): number | null {
+  if (!rel) return null;
+  const at = Y.createAbsolutePositionFromRelativePosition(rel, y.doc);
+  if (!at || !(at.type instanceof Y.XmlText)) return null;
+  // Every enclosing type, up to the document's fragment, still alive.
+  type Typed = { _item: { deleted: boolean; parent: unknown } | null };
+  for (
+    let type = at.type as unknown as Typed | null;
+    type?._item;
+    type = type._item.parent as Typed | null
+  )
+    if (type._item.deleted) return null;
+  return resolveRelative(y, rel);
 }
 
 function buildExtensions(
