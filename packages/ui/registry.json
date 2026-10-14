@@ -407,6 +407,63 @@
       }
     },
     {
+      "name": "block-view",
+      "type": "registry:ui",
+      "title": "Block View",
+      "description": "The frame TextEdit and MarkdownView draw a fenced block in when a blockViews entry renders its language: the label, Preview / Code, a split view on a wide editable block, Expand (a full-screen dialog with pan and pinch) and a ⋯ menu.",
+      "categories": ["display"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.13",
+        "@vegastack/design-tokens@^0.8.12"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/code-block",
+        "@vegastack/dialog",
+        "@vegastack/dropdown-menu",
+        "@vegastack/toast"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-view.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-view.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Internal to TextEdit and MarkdownView: pass blockViews to either rather than mounting it.",
+        "whenNotToUse": "Showing code (CodeBlock) or a standalone diagram (MermaidBlock).",
+        "version": "0.25.37"
+      }
+    },
+    {
+      "name": "mermaid-block",
+      "type": "registry:ui",
+      "title": "Mermaid Block",
+      "description": "A mermaid diagram drawn in the browser — the engine loaded lazily, the configuration pinned (strict security, SVG labels, dagre), token colours in light and dark, the last diagram that worked kept on an error — plus the ready blockViews entry for TextEdit and MarkdownView.",
+      "categories": ["display"],
+      "dependencies": [
+        "mermaid@12.1.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.13",
+        "@vegastack/design-tokens@^0.8.12"
+      ],
+      "registryDependencies": ["@vegastack/skeleton"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/mermaid-block.tsx",
+          "type": "registry:ui",
+          "target": "@ui/mermaid-block.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
+        "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
+        "version": "0.25.37"
+      }
+    },
+    {
       "name": "reactions",
       "type": "registry:ui",
       "title": "Reactions",
@@ -12995,7 +13052,8 @@
         "@vegastack/copy-button",
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
-        "@vegastack/embed-providers"
+        "@vegastack/embed-providers",
+        "@vegastack/block-view"
       ],
       "files": [
         {
@@ -14844,7 +14902,8 @@
         "@vegastack/sheet",
         "@vegastack/separator",
         "@vegastack/use-announcer",
-        "@vegastack/emoji-data"
+        "@vegastack/emoji-data",
+        "@vegastack/block-view"
       ],
       "files": [
         {

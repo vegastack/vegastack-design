@@ -1,0 +1,158 @@
+---
+title: Mermaid Block
+description: A mermaid diagram drawn in the browser — lazily loaded, strictly configured, in token colours — and the Diagram block view for TextEdit and MarkdownView.
+audience: public
+registry: mermaid-block
+status: stable
+since: 0.25.39
+a11y: figure named by accTitle, status line on an error
+preview: mermaidBlock
+---
+
+## Install
+
+<InstallSteps name="mermaid-block" />
+
+## Usage
+
+````tsx
+import { MarkdownView } from "@/components/ui/markdown-view";
+import { MermaidBlock, mermaidBlockView } from "@/components/ui/mermaid-block";
+import { TextEdit } from "@/components/ui/text-edit";
+
+// A ```mermaid fence in a page, read or edited, is a Diagram block:
+<TextEdit
+  format="markdown"
+  value={page.body}
+  onCommit={save}
+  blockViews={{ mermaid: mermaidBlockView }}
+/>;
+<MarkdownView blockViews={{ mermaid: mermaidBlockView }}>
+  {page.body}
+</MarkdownView>;
+
+// A diagram on its own:
+<MermaidBlock source={source} />;
+````
+
+`MermaidBlock` draws a [mermaid](https://mermaid.js.org) source as a diagram, in the browser. The
+engine (mermaid 12.1.0) loads in its own chunks the first time a diagram comes within 200px of the
+viewport, and draws after the page's fonts are ready, so labels measure right. Colours are the
+design tokens of the scheme around it — light, or dark under `.dark` — re-drawn when it changes;
+writers can colour flowchart nodes with `class A start|step|decision|outcome|stop|muted`. The
+diagram is drawn at its natural width: a wide one scrolls sideways inside its box rather than
+shrinking its labels, and prints at most the page's width, never split across pages, in the light
+palette.
+
+The usual home is a page: `mermaidBlockView` is the ready `blockViews` entry for `TextEdit` and
+`MarkdownView`, so a ` ```mermaid ` fence becomes a **Diagram** block with Preview / Code,
+Expand (full screen, with pan and pinch) and a ⋯ menu — Copy source, Copy SVG, Download SVG. The
+document keeps an ordinary fenced code block, so exports, search and agents read the source.
+
+<ComponentPreview
+  name="mermaidBlock"
+  file="components/preview/mermaid-block.tsx"
+/>
+
+## Examples
+
+### Errors and other diagram types
+
+Every diagram type mermaid draws works. When a source stops parsing, the last diagram that worked
+stays, dimmed, with a status line: "Line 3: Expected '-->'. Showing the last diagram that worked."
+With nothing to keep, the block says "Couldn't draw this diagram", names the problem and shows the
+source. A browser that cannot run the engine (Safari before 17.4) gets the source too.
+
+<ComponentPreview
+  name="mermaidBlockStates"
+  file="components/preview/mermaid-block.tsx"
+/>
+
+### In a page you edit
+
+Code shows the source; on a block at least 720px wide, beside a live preview that redraws 400ms
+after you stop typing. ⌘/Ctrl+Enter or Escape goes back to the preview. `/diagram` (or Turn into ›
+Diagram) inserts a new one, which opens in Code with a small flowchart to start from.
+
+<ComponentPreview
+  name="mermaidBlockTextEdit"
+  file="components/preview/mermaid-block.tsx"
+/>
+
+### In a page you read
+
+<ComponentPreview
+  name="mermaidBlockMarkdownView"
+  file="components/preview/mermaid-block.tsx"
+/>
+
+On the server, and until the page hydrates, the fence shows its source in the same frame with the
+diagram's height reserved; the height a diagram last drew at is remembered per source, so a
+returning reader sees no jump at all.
+
+### Rendering without the component
+
+`renderMermaid(source, { theme })` resolves to `{ svg }` or `{ error: { line?, message } }` and
+never throws; `useMermaidSvg(source, { debounce: 400 })` is the hook the block uses — the last SVG
+that worked, the current error and whether a drawing is pending, with stale results dropped.
+
+```tsx
+import { renderMermaid } from "@/components/ui/mermaid-block";
+
+const result = await renderMermaid(source, { theme: "light" });
+if ("svg" in result) download(result.svg);
+else console.warn(`Line ${result.error.line}: ${result.error.message}`);
+```
+
+Every render pins the same configuration, inside one queue so two themes never race:
+`securityLevel: "strict"` (a diagram's own `%%{init}%%` cannot change it, and mermaid sanitises its
+SVG), SVG labels only (no HTML, so `click` links and scripts stay off and the ELK layout engine is
+never downloaded), the classic look on the dagre layout, no error diagram, and at most 20,000
+characters and 300 edges. SVGs are cached (the last 50, by engine version, theme and source), and
+the other scheme is drawn while the page is idle, so a theme switch or a print is instant.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/mermaid-block.tsx"
+  name="MermaidBlockProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/mermaid-block.tsx"
+  name="UseMermaidSvgOptions"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-view.tsx"
+  name="BlockView"
+/>
+
+## Accessibility
+
+- The diagram is a `<figure>` named by the source's `accTitle` (else "Diagram"). The SVG keeps
+  mermaid's own `aria-labelledby` / `aria-describedby`, built from `accTitle` and `accDescr`, and
+  its `aria-roledescription`; nothing wraps it in `role="img"`, so its text stays readable.
+- Write `accTitle:` and `accDescr:` in every diagram. In Code mode the block reminds the writer
+  while either is missing.
+- Code is the text alternative: the source is one press away, and Copy source copies it.
+- An error is a `role="status"` line, announced once when it changes; it names the line.
+- Preview and Code are buttons with `aria-pressed`. The expanded view is a dialog titled
+  "Diagram" whose viewport pans with the arrow keys and zooms with + and −.
+
+| Key                                                 | Action                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------ |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>              | Switch between Preview and Code                              |
+| <kbd>Esc</kbd>                                      | From Code, back to Preview                                   |
+| <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | In the expanded view, move the diagram (Shift moves further) |
+| <kbd>+</kbd> / <kbd>−</kbd>                         | In the expanded view, zoom in or out                         |
+| <kbd>0</kbd>                                        | In the expanded view, fit the diagram to the screen          |
+
+<StatesTested name="mermaid-block" />
+
+## Do / Don't
+
+<DoDont
+  do="Give every diagram an accTitle and an accDescr, keep it small enough to read at its natural width, and let pages carry it as a ```mermaid fence."
+  dont="Raise the security level, turn on HTML labels, or draw data that belongs in a chart."
+/>

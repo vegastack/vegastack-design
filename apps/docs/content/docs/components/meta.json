@@ -151,6 +151,7 @@
     "inline-chip",
     "markdown-view",
     "code-block",
+    "mermaid-block",
     "terminal",
     "kbd",
     "truncated-text",

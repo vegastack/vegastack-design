@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 747,
-    "components": 162,
+    "totalRegistryItems": 749,
+    "components": 164,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -25,9 +25,9 @@
     "Forms/editing": 34,
     "Navigation/layout": 22,
     "Overlays": 21,
-    "Data display": 31,
+    "Data display": 32,
     "Content/marketing": 15,
-    "Shared internals": 5,
+    "Shared internals": 6,
     "AI/chat": 10,
     "Hooks": 15,
     "Block": 1,
@@ -174,7 +174,8 @@
       "version-list",
       "view-toggle",
       "icon-glyph",
-      "level-meter"
+      "level-meter",
+      "mermaid-block"
     ],
     "Content/marketing": [
       "alert",
@@ -198,7 +199,8 @@
       "panel-search",
       "person-avatar",
       "picker-panel",
-      "suggestion-menu"
+      "suggestion-menu",
+      "block-view"
     ],
     "AI/chat": [
       "marker",
@@ -15889,6 +15891,69 @@
           }
         },
         {
+          "name": "BlockView",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewActionTarget",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewRenderContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViews",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownBlockView",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MarkdownBlockView renders a fence's block view (its source until hydration, then the lazily loaded frame); it takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownBlockViewProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "MarkdownEmbed",
           "kind": "component",
           "source": "packages/ui/registry/ui/markdown-view-client.tsx",
@@ -15970,6 +16035,7 @@
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
         "@vegastack/alert",
+        "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
@@ -16068,6 +16134,23 @@
                 "markdown-embed-link",
                 "markdown-embed-url"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownBlockView": {
+          "attributes": [
+            {
+              "name": "data-language",
+              "values": []
+            },
+            {
+              "name": "data-mode",
+              "values": ["source"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["block-view", "block-view-fallback"]
             }
           ],
           "cssVariables": []
@@ -25247,6 +25330,7 @@
       "registryDependencies": [
         "@vegastack/alert",
         "@vegastack/avatar",
+        "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
@@ -27231,6 +27315,229 @@
                 "suggestion-menu-shortcut",
                 "suggestion-menu-status"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "block-view",
+      "registryType": "registry:ui",
+      "title": "Block View",
+      "summary": "The frame TextEdit and MarkdownView draw a fenced block in when a blockViews entry renders its language: label, Preview / Code, split on a wide editable block, Expand with pan and pinch, and a ⋯ menu.",
+      "status": "stable",
+      "since": "0.25.39",
+      "family": "display",
+      "wave": "Shared internals",
+      "sourceFiles": ["packages/ui/registry/ui/block-view.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BlockViewFrame",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/block-view.tsx."
+          }
+        },
+        {
+          "name": "BlockViewFrameProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StaticBlockView",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target: it composes BlockViewFrame with its own mode."
+          }
+        },
+        {
+          "name": "StaticBlockViewProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "initialBlockViewMode",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "BlockView",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViews",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewMode",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewActionTarget",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockViewRenderContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One frame; the mode is state, not a visual axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Control sizes are inherited from Button."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["preview", "code", "split", "expanded"],
+          "evidence": "packages/ui/registry/ui/block-view.tsx + packages/ui/registry/ui/block-view.test.tsx"
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/block-view.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "code", "split"],
+          "evidence": "packages/ui/registry/ui/block-view.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Split view only from 45rem of the block's own width (a container query); below it Code shows the source alone."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/code-block",
+        "@vegastack/dialog",
+        "@vegastack/dropdown-menu",
+        "@vegastack/toast"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.13",
+        "@vegastack/design-tokens@^0.8.12"
+      ],
+      "testFiles": ["packages/ui/registry/ui/block-view.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "dataAttributes": {
+        "BlockViewFrame": {
+          "attributes": [
+            {
+              "name": "data-block-view-chrome",
+              "values": [""]
+            },
+            {
+              "name": "data-language",
+              "values": []
+            },
+            {
+              "name": "data-mode",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "block-view",
+                "block-view-body",
+                "block-view-code",
+                "block-view-dialog",
+                "block-view-expand",
+                "block-view-header",
+                "block-view-hint",
+                "block-view-menu",
+                "block-view-mode",
+                "block-view-preview"
+              ]
+            },
+            {
+              "name": "data-split",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StaticBlockView": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["code-block-pre"]
             }
           ],
           "cssVariables": []
@@ -30465,6 +30772,195 @@
       },
       "previewModule": "diff-view",
       "dataAttributes": {}
+    },
+    {
+      "name": "mermaid-block",
+      "registryType": "registry:ui",
+      "title": "Mermaid Block",
+      "summary": "A mermaid diagram drawn in the browser with the engine loaded lazily and its configuration pinned (strict security, SVG labels, dagre), in token colours for light and dark, keeping the last diagram that worked on an error — plus renderMermaid, useMermaidSvg and the ready blockViews entry for TextEdit and MarkdownView.",
+      "status": "stable",
+      "since": "0.25.39",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/mermaid-block.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MermaidBlock",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "figure",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/mermaid-block.tsx."
+          }
+        },
+        {
+          "name": "MermaidBlockProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "mermaidBlockView",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The ready blockViews entry (label, starter, render, actions), not a component."
+          }
+        },
+        {
+          "name": "renderMermaid",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "useMermaidSvg",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseMermaidSvgOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseMermaidSvgResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MermaidRenderError",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MermaidRenderResult",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MermaidTheme",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/mermaid-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A rendered diagram; the colour scheme follows the page."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Drawn at the diagram's natural size; no local scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["loading", "ready", "error", "failed"],
+          "evidence": "packages/ui/registry/ui/mermaid-block.tsx + packages/ui/registry/ui/mermaid-block.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "live-region", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/mermaid-block.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "loading", "error"],
+          "evidence": "packages/ui/registry/ui/mermaid-block.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll"],
+        "rationale": "Drawn at natural width; a diagram wider than its box scrolls sideways inside it, and prints at most the page's width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [
+        {
+          "package": "mermaid",
+          "role": "diagram renderer (lazily loaded)"
+        }
+      ],
+      "docsSlug": "/docs/components/mermaid-block",
+      "registryDependencies": ["@vegastack/skeleton"],
+      "npmDependencies": [
+        "mermaid@12.1.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.13",
+        "@vegastack/design-tokens@^0.8.12"
+      ],
+      "testFiles": ["packages/ui/registry/ui/mermaid-block.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "mermaid-block",
+      "dataAttributes": {
+        "MermaidBlock": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "mermaid-block",
+                "mermaid-block-skeleton",
+                "mermaid-block-source",
+                "mermaid-block-status",
+                "mermaid-block-svg"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "version-list",

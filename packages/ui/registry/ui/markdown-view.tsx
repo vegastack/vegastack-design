@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.38 sha256-uO4soRxoGHJhASynUJLktcRjp8eI5H6efHMyOWkWwwg=
+// @vegastack markdown-view@0.25.38 sha256-XeSCQU06cpUk/BX4d6dFffqwGXSUjceVTyQYjZdEdh4=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/markdown-citation";
 import {
   MarkdownEmbed,
+  MarkdownBlockView,
   MarkdownHeadingLink,
   MarkdownTableScroll,
   MarkdownViewEffects,
@@ -50,6 +51,14 @@ import {
 
 export type { MarkdownCitation } from "@/components/ui/markdown-citation";
 export { MarkdownEmbed } from "@/components/ui/markdown-view-client";
+import type { BlockViews } from "@/components/ui/block-view";
+export type {
+  BlockView,
+  BlockViewAction,
+  BlockViewActionTarget,
+  BlockViewRenderContext,
+  BlockViews,
+} from "@/components/ui/block-view";
 export type {
   MarkdownEmbedProps,
   MarkdownAnnotationLayout,
@@ -1108,6 +1117,8 @@ interface RenderContext {
   embeds?: EmbedProviders;
   fileContentType?: (href: string) => string | null | undefined;
   citation?: (n: number) => MarkdownCitation | null | undefined;
+  /** Fenced languages drawn by a block view (```mermaid → a diagram). */
+  blockViews?: BlockViews;
   /**
    * Mark what the anchor text reads differently from the DOM (`data-anchor-text`): a mention or
    * file chip, a blocked image or media block — set while selections can be commented on.
@@ -1431,6 +1442,17 @@ function renderNode(
       const code = childElements(node).find((child) => child.tag === "code");
       const language = /language-([\w-]+)/.exec(code?.attrs.class ?? "")?.[1];
       const raw = textOf(code ?? node).replace(/\n$/, "");
+      // A language a block view draws (```mermaid): its preview, after hydration only.
+      const view = language ? ctx.blockViews?.[language] : undefined;
+      if (view && language)
+        return (
+          <MarkdownBlockView
+            key={key}
+            view={view}
+            language={language}
+            source={raw}
+          />
+        );
       return (
         <CodeBlock
           key={key}
@@ -1851,6 +1873,16 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default undefined
    */
   citation?: (n: number) => MarkdownCitation | null | undefined;
+  /**
+   * Fenced languages drawn by a block view instead of as code: `{ mermaid: mermaidBlockView }`
+   * draws ```` ```mermaid ```` fences as diagrams. The block shows a header with the view's label,
+   * Preview / Code, Expand and a ⋯ menu (Copy source and the view's own actions). The preview is
+   * client-only: the server, and the first render before hydration, show the source in the same
+   * frame with the preview's height reserved. The entries hold functions, so pass this from a
+   * client component (or pass an entry exported by a client module, such as `mermaidBlockView`).
+   * @default undefined
+   */
+  blockViews?: BlockViews;
 }
 
 /**
@@ -1917,6 +1949,7 @@ export function MarkdownView({
   embeds,
   fileContentType,
   citation,
+  blockViews,
   className,
   ...props
 }: MarkdownViewProps) {
@@ -2023,6 +2056,7 @@ export function MarkdownView({
         embeds,
         fileContentType,
         citation,
+        blockViews,
         anchorAttrs: onCreateAnnotation !== undefined,
       })}
     </div>
