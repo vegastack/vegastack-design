@@ -424,6 +424,29 @@ server's: the editor gives one only to a block made here, never to a document it
 />
 ```
 
+### Version diff
+
+`diff={{ doc, baseline }}` shows the changes between two versions, formatted: added text and
+blocks underlined on the success tint, removed ones struck through in the destructive ink (`ins`/`del`; a changed image is outlined), each
+announced "Added:"/"Removed:" to a screen reader, under `Compared with {baseline}` and the two inks.
+`doc` is the newer version's text with `ychange` marks on changed text and a `ychange` attribute
+on whole blocks added or removed — the ProseMirror JSON a Yjs snapshot diff of two version states
+produces (a server walker, checked with `textEditDiffSchema()` from `text-edit-schema`). The view
+is read-only and ignores `value`; a new `diff.doc` replaces the shown one. The markings exist only
+in a diff's schema (`TextEditDiff`), never in a document's.
+
+<ComponentPreview
+  name="textEditVersionDiff"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  aria-label="Changes in this version"
+  diff={{ doc: diffJson, baseline: "the previous version" }}
+/>
+```
+
 ### Uploads
 
 `onImageUpload(file, { signal })` takes images pasted, dropped, or picked in the image panel's

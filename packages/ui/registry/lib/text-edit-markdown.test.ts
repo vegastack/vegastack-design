@@ -33,7 +33,8 @@ test("markdownToDoc: an empty source is one empty paragraph, and blocks get ids 
   const empty = markdownToDoc("", { blockId: () => "p1" });
   expect(empty.toJSON()).toEqual({
     type: "doc",
-    content: [{ type: "paragraph", attrs: { blockId: "p1" } }],
+    // `ychange` is always null in a document (its schema refuses a version diff's markings).
+    content: [{ type: "paragraph", attrs: { blockId: "p1", ychange: null } }],
   });
   let next = 0;
   const doc = markdownToDoc(

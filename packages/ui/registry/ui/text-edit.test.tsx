@@ -3557,3 +3557,212 @@ for (const [block, markdown] of [
     expect(text.replace(/[^a-h]/g, "")).toBe("abcdefgh");
     expect(text.replace(/[^1-8]/g, "")).toBe("12345678");
   });
+
+/* --- version diff -----------------------------------------------------------------------------*/
+
+const diffDoc = (word: string) => ({
+  type: "doc",
+  content: [
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Kept " },
+        {
+          type: "text",
+          text: word,
+          marks: [{ type: "ychange", attrs: { type: "added", user: null } }],
+        },
+        {
+          type: "text",
+          text: " old",
+          marks: [{ type: "ychange", attrs: { type: "removed", user: null } }],
+        },
+      ],
+    },
+    {
+      type: "heading",
+      attrs: { level: 2, ychange: { type: "removed", user: null } },
+      content: [{ type: "text", text: "Gone heading" }],
+    },
+    {
+      type: "bulletList",
+      attrs: { ychange: { type: "added", user: null } },
+      content: [
+        {
+          type: "listItem",
+          attrs: { ychange: { type: "added", user: null } },
+          content: [
+            {
+              type: "paragraph",
+              attrs: { ychange: { type: "added", user: null } },
+              content: [{ type: "text", text: "New item" }],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
+test("diff: a version diff shows read-only, its added and removed text and blocks marked, under its baseline", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <TextEdit
+      aria-label="Changes"
+      diff={{ doc: diffDoc("new"), baseline: "the previous version" }}
+    />,
+  );
+  const view = screen.getByRole("document", { name: "Changes" });
+  await vi.waitFor(() =>
+    expect(
+      view.element().querySelector("ins[data-ychange=added]")?.textContent,
+    ).toBe("new"),
+  );
+  const root = screen.container;
+  expect(root.querySelector("del[data-ychange=removed]")?.textContent).toBe(
+    " old",
+  );
+  expect(root.querySelector("h2")?.getAttribute("data-ychange")).toBe(
+    "removed",
+  );
+  expect(root.querySelector("ul")?.getAttribute("data-ychange")).toBe("added");
+  // Read-only: nothing to type into, whatever `readOnly` says.
+  expect(root.querySelector('[contenteditable="true"]')).toBeNull();
+  expect(
+    root.querySelector('[data-slot="text-edit-diff-legend"]')?.textContent,
+  ).toContain("Compared with the previous version");
+  // Each change is announced: a visually hidden "Added:"/"Removed:" before it.
+  const before = (element: Element | null) =>
+    getComputedStyle(element!, "::before").content;
+  expect(before(root.querySelector("ins[data-ychange]"))).toContain("Added:");
+  expect(before(root.querySelector("h2"))).toContain("Removed:");
+  // A changed block is tinted once: the list, not again for its item and paragraph.
+  expect(before(root.querySelector("ul li"))).toBe("none");
+  await expectNoA11yViolations(root);
+
+  // Another pair of versions replaces the document.
+  await screen.rerender(
+    <TextEdit
+      aria-label="Changes"
+      diff={{ doc: diffDoc("fresh"), baseline: "the current text" }}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(root.querySelector("ins[data-ychange=added]")?.textContent).toBe(
+      "fresh",
+    ),
+  );
+  expect(
+    root.querySelector('[data-slot="text-edit-diff-legend"]')?.textContent,
+  ).toContain("Compared with the current text");
+});
+
+test("diff: node views carry their change, nothing is ever saved, `value` never replaces it, Copy code skips removed lines", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const writeText = vi
+    .spyOn(navigator.clipboard, "writeText")
+    .mockResolvedValue(undefined);
+  onTestFinished(() => writeText.mockRestore());
+  const toggle = markdownToDoc(
+    "<details open><summary>Steps</summary>\n\nBody\n\n</details>",
+  ).toJSON().content![0]!;
+  const doc = {
+    type: "doc",
+    content: [
+      {
+        type: "codeBlock",
+        attrs: { language: null },
+        content: [
+          { type: "text", text: "kept();\n" },
+          {
+            type: "text",
+            text: "removed();",
+            marks: [
+              { type: "ychange", attrs: { type: "removed", user: null } },
+            ],
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Ask " },
+          {
+            type: "mention",
+            attrs: {
+              kind: "user",
+              id: "u1",
+              label: "Asha Rao",
+              ychange: { type: "removed", user: null },
+            },
+          },
+        ],
+      },
+      {
+        ...toggle,
+        attrs: { ...toggle.attrs, ychange: { type: "added", user: null } },
+      },
+    ],
+  };
+  const onValueChange = vi.fn();
+  const onCommit = vi.fn();
+  const screen = await render(
+    <>
+      <TextEdit
+        format="markdown"
+        aria-label="Changes"
+        value="Some other text"
+        onValueChange={onValueChange}
+        onCommit={onCommit}
+        diff={{ doc }}
+      />
+      <button type="button">Outside</button>
+    </>,
+  );
+  const root = screen.container;
+  await vi.waitFor(() =>
+    expect(root.querySelector('[data-slot="code-block"]')).not.toBeNull(),
+  );
+  // A node view's own element carries the change, as `renderHTML` would.
+  expect(
+    root.querySelector('[data-ychange="removed"] [data-slot="inline-chip"]'),
+  ).not.toBeNull();
+  expect(
+    root.querySelector(
+      '[data-ychange="added"] [data-slot="toggle"], [data-slot="toggle"][data-ychange="added"]',
+    ),
+  ).not.toBeNull();
+  expect(root.textContent).not.toContain("Some other text");
+  // Copy code: the code as it is now, without the removed line.
+  await userEvent.click(screen.getByRole("button", { name: "Copy code" }));
+  await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith("kept();\n"));
+  // Folding a toggle is the viewer's own; leaving, and another `value`, change nothing.
+  const chevron = root.querySelector<HTMLElement>(
+    '[data-slot="toggle-chevron"]',
+  );
+  if (chevron) await userEvent.click(chevron);
+  await screen.getByRole("button", { name: "Outside" }).click();
+  await screen.rerender(
+    <>
+      <TextEdit
+        format="markdown"
+        aria-label="Changes"
+        value="Yet another text"
+        onValueChange={onValueChange}
+        onCommit={onCommit}
+        diff={{ doc }}
+      />
+      <button type="button">Outside</button>
+    </>,
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(root.textContent).not.toContain("Yet another text");
+  expect(onValueChange).not.toHaveBeenCalled();
+  expect(onCommit).not.toHaveBeenCalled();
+});

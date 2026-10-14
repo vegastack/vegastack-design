@@ -706,10 +706,10 @@
   "terminal": "sha256-GTluqz7nSbBRzvfqOB4kLL3YF1w57+Rc06360jUcZGI=",
   "text-anchor": "sha256-WXR+S6WitNz3CLfPi+bOuyykZB9HmO0yEOS30DuTtjg=",
   "text-anchor-doc": "sha256-vCFp1TOE2wQDgOuppr5KY1ufeuyBBdAIgV0d1rtz4lQ=",
-  "text-edit": "sha256-dF5urPC2h4QdExjJsgiK0521haStTzuDcBoadxHn7AI=",
+  "text-edit": "sha256-lRnzbNVVmWdXT8zaxnt5E4ttHpzAm/MoxagWU/I4Yxs=",
   "text-edit-grammar": "sha256-aJdNsXdxmf3h3V7uO8X4uNeM4lfl3m2+vYTkURqEp68=",
   "text-edit-markdown": "sha256-U5UY6XhwzutZju/POxCnX9ZZ4vugfhpnek67cR+rJDU=",
-  "text-edit-schema": "sha256-1a1Reoe2pIovuOCPKiENySi0KQh1DVpfWuow3LSGjSY=",
+  "text-edit-schema": "sha256-vFzfeM899viZ9PY2os3g2nfSxFCAjR6VRGI5h2/wYss=",
   "textarea": "sha256-6mQqAY3Xn2tjosT9WCGzFJCdGZ9mkXNvvLULHanGRv8=",
   "thumbnail": "sha256-qJ4KZuL/Xp7Qn/0YV4fwPzLReOyT5B0VgEC52q8lsHs=",
   "tile-overlay": "sha256-BnkCy08lKNtHnkC+3P5yI11MfeRvbjIIg+fwqcSUPuA=",
@@ -740,7 +740,7 @@
   "use-tabs-swipe": "sha256-Uo6cYXj1hHKjb5ktnU36Er63pNPlXQEbzh+6pcgeffg=",
   "use-view-transition": "sha256-l8h2PTfL6S1tTDlQZBbzWoVAq8druD0p1akb2wYT720=",
   "value-change": "sha256-w37pshrbYgA3KrJR/64udwEesbBYVKja3ghctuULUw4=",
-  "version-list": "sha256-3dGTuLu+CgzHb5pN2lTdFTF/4/rrsfcPP/dfhXh3Ht4=",
+  "version-list": "sha256-OyfdxdyWFBnjukGykqdNVIM+vd0yUIlHB4qCua6TVdE=",
   "video-player": "sha256-ExKQHoalSGZjVEcNdVZbT5ZJvqe05KAzd6isNEFy57Y=",
   "view-toggle": "sha256-y2SetSbfI7C/7iTAMsW191b9PURAInSIwBfQhVypVtA="
 }
