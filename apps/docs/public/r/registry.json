@@ -1931,7 +1931,7 @@
         "version": "0.25.34",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-ZKJ+w67Q02eD8G/Wy0N3f5ykDsR3ZLEj2Ox0l3hGhuY="
+        "integrity": "sha256-vFzfeM899viZ9PY2os3g2nfSxFCAjR6VRGI5h2/wYss="
       }
     },
     {
@@ -18180,7 +18180,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.34",
-        "integrity": "sha256-nzWIu0Y8Ttpm5rl8vZureZBEXqZQWdxnYAvhwqQsxTk="
+        "integrity": "sha256-lRnzbNVVmWdXT8zaxnt5E4ttHpzAm/MoxagWU/I4Yxs="
       }
     },
     {

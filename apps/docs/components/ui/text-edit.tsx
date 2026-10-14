@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.34 sha256-nzWIu0Y8Ttpm5rl8vZureZBEXqZQWdxnYAvhwqQsxTk=
+// @vegastack text-edit@0.25.34 sha256-lRnzbNVVmWdXT8zaxnt5E4ttHpzAm/MoxagWU/I4Yxs=
 
 "use client";
 
@@ -321,16 +321,18 @@ const editorBaseClassName = cn(
 );
 
 /*
- * A version diff (`diff`): the same inks as `DiffView` — added text on the success tint, removed
- * text struck through on the destructive tint, as `ins`/`del` — and a whole block added or removed
+ * A version diff (`diff`): the same inks as `DiffView` — added text underlined on the success
+ * tint, removed text struck through on the destructive tint, as `ins`/`del` (a cue beyond colour
+ * either way) — and a whole block added or removed
  * (`data-ychange` on its element) tinted once, not again for each block inside it. Each change
  * starts with a visually hidden "Added:"/"Removed:" so a screen reader hears it.
  */
 const diffClassName = cn(
-  "[&_ins[data-ychange]]:rounded-xs [&_ins[data-ychange]]:bg-success/10 [&_ins[data-ychange]]:text-success-text [&_ins[data-ychange]]:no-underline dark:[&_ins[data-ychange]]:bg-success/20",
+  "[&_ins[data-ychange]]:rounded-xs [&_ins[data-ychange]]:bg-success/10 [&_ins[data-ychange]]:text-success-text [&_ins[data-ychange]]:underline [&_ins[data-ychange]]:decoration-success [&_ins[data-ychange]]:underline-offset-2 dark:[&_ins[data-ychange]]:bg-success/20",
   "[&_del[data-ychange]]:rounded-xs [&_del[data-ychange]]:bg-destructive/10 [&_del[data-ychange]]:text-destructive-text [&_del[data-ychange]]:line-through dark:[&_del[data-ychange]]:bg-destructive/20",
-  "[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/10 [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:text-success-text dark:[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/20",
+  "[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/10 [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:text-success-text [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:underline [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:decoration-success [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:underline-offset-2 dark:[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/20",
   "[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/10 [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:text-destructive-text [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:line-through dark:[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/20",
+  "[&_img[data-ychange=added]]:outline-2 [&_img[data-ychange=added]]:outline-offset-2 [&_img[data-ychange=added]]:outline-success [&_img[data-ychange=removed]]:opacity-60 [&_img[data-ychange=removed]]:outline-2 [&_img[data-ychange=removed]]:outline-offset-2 [&_img[data-ychange=removed]]:outline-dashed [&_img[data-ychange=removed]]:outline-destructive",
   "[&_[data-ychange=added]:not(:is([data-ychange]_*))]:before:sr-only [&_[data-ychange=added]:not(:is([data-ychange]_*))]:before:content-['Added:_']",
   "[&_[data-ychange=removed]:not(:is([data-ychange]_*))]:before:sr-only [&_[data-ychange=removed]:not(:is([data-ychange]_*))]:before:content-['Removed:_']",
 );
@@ -345,7 +347,7 @@ function DiffLegend({ baseline }: { baseline?: React.ReactNode }) {
       {baseline !== undefined && baseline !== null ? (
         <span className="min-w-0 wrap-anywhere">Compared with {baseline}</span>
       ) : null}
-      <ins className="rounded-xs bg-success/10 px-1 text-success-text no-underline dark:bg-success/20">
+      <ins className="rounded-xs bg-success/10 px-1 text-success-text underline decoration-success underline-offset-2 dark:bg-success/20">
         Added
       </ins>
       <del className="rounded-xs bg-destructive/10 px-1 text-destructive-text line-through dark:bg-destructive/20">
@@ -1048,7 +1050,7 @@ export interface TextEditProps {
    */
   collaboration?: TextEditCollaboration;
   /**
-   * Show a version diff, read-only: added text and blocks in the success ink, removed ones struck
+   * Show a version diff, read-only: added text and blocks underlined in the success ink, removed ones struck
    * through in the destructive ink (`ins`/`del`, each announced "Added"/"Removed"), with a legend
    * naming its `baseline`. The document is `diff.doc` — `value`, `defaultValue` and every editing
    * prop are ignored. Fixed at mount: a TextEdit is a diff view or an editor, never both; a new

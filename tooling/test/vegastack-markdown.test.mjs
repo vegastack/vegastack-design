@@ -105,9 +105,50 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
         .child(1)
         .marks.map((mark) => mark.type.name),
     ).toEqual(["bold", "ychange"]);
-    // The live schema has no `ychange`: a diff never reaches a document.
+    // The live schema refuses `ychange` — a change mark, and a block marking alone (unknown
+    // attributes are otherwise dropped silently, keeping the removed text as live text).
     expect(() => textEditSchema().nodeFromJSON(json)).toThrow(/ychange/);
-    expect(textEditSchema().nodes.heading.spec.attrs?.ychange).toBeUndefined();
+    const blocksOnly = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          attrs: { ychange: { type: "removed", user: null } },
+          content: [{ type: "text", text: "Deleted passage" }],
+        },
+      ],
+    };
+    expect(() => textEditSchema().nodeFromJSON(blocksOnly)).toThrow(/ychange/);
+    expect(() =>
+      textEditSchema()
+        .node("doc", null, [
+          textEditSchema().node("paragraph", { ychange: "added" }),
+        ])
+        .check(),
+    ).toThrow(/ychange/);
+    // An unchanged document reads as before.
+    expect(
+      textEditSchema().nodeFromJSON(markdownToDoc("Kept").toJSON()).textContent,
+    ).toBe("Kept");
+    // A code block's changed lines carry the change mark in a diff.
+    const code = textEditDiffSchema().nodeFromJSON({
+      type: "doc",
+      content: [
+        {
+          type: "codeBlock",
+          content: [
+            { type: "text", text: "let a = 1;\n" },
+            {
+              type: "text",
+              text: "let b = 2;",
+              marks: [{ type: "ychange", attrs: { type: "removed" } }],
+            },
+          ],
+        },
+      ],
+    });
+    code.check();
+    expect(code.child(0).childCount).toBe(2);
     expect(ychangeType("added")).toBe("added");
     expect(ychangeType({ type: "nope" })).toBeNull();
   });

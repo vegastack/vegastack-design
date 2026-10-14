@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.34 sha256-nzWIu0Y8Ttpm5rl8vZureZBEXqZQWdxnYAvhwqQsxTk=
+// @vegastack text-edit@0.25.34 sha256-lRnzbNVVmWdXT8zaxnt5E4ttHpzAm/MoxagWU/I4Yxs=
 
 "use client";
 
@@ -199,7 +199,7 @@ import {
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
-import { TextEditDiff, textEditExtensions } from "@/lib/text-edit-schema";
+import { textEditExtensions, ychangeType } from "@/lib/text-edit-schema";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { FileTypeIcon } from "@/lib/file-kind";
@@ -674,6 +674,22 @@ function CodeLanguagePicker({
  * (```` ```ts ````) and the wrap icon toggles the saved `wrap` attribute (```` ```ts wrap ````);
  * read-only the language is a label. Unwrapped lines scroll sideways inside the block only.
  */
+/** A code block's text as it is now: in a version diff, without the lines it removed. */
+function currentCode(node: PMNode): string {
+  let text = "";
+  node.forEach((child) => {
+    if (
+      !child.marks.some(
+        (mark) =>
+          mark.type.name === "ychange" &&
+          ychangeType(mark.attrs.type) === "removed",
+      )
+    )
+      text += child.text ?? "";
+  });
+  return text;
+}
+
 function CodeBlockView({
   node,
   editor,
@@ -739,7 +755,7 @@ function CodeBlockView({
             </MenuTip>
           ) : null}
           <CopyButton
-            value={node.textContent}
+            value={currentCode(node)}
             size="icon-xs"
             variant="ghost"
             copyLabel="Copy code"
@@ -2273,6 +2289,13 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
       else image.removeAttribute("title");
       image.style.width = width ? `${width}px` : "";
       image.style.height = "";
+      // A version diff: the image is marked (an outline — the inks cannot show on a picture), and
+      // its alt text says so.
+      const change = ychangeType(next.attrs.ychange);
+      if (change) {
+        image.dataset.ychange = change;
+        image.alt = `${change === "added" ? "Added" : "Removed"}: ${alt ?? ""}`;
+      } else delete image.dataset.ychange;
     };
     sync(node);
 
@@ -3370,6 +3393,13 @@ function livePosition(
   return resolveRelative(y, rel);
 }
 
+/** A version diff's change on a node, as its element's attribute; none outside a diff. */
+function changeAttrs(node: PMNode): Record<string, string> {
+  const change = ychangeType(node.attrs.ychange);
+  return change ? { "data-ychange": change } : {};
+}
+const changeAttrsOf = ({ node }: { node: PMNode }) => changeAttrs(node);
+
 function buildExtensions(
   placeholder: React.RefObject<string | undefined>,
   runtime: SlashRuntime,
@@ -3386,6 +3416,10 @@ function buildExtensions(
     lowlight: codeLowlight,
     fileLinkPrefix: () => editorRuntime.fileLinkPrefix.current,
     ...(collaboration ? { collaboration: { isRemote: isChangeOrigin } } : {}),
+    // A version diff's `ychange` mark and attribute: only ever in a diff view's schema.
+    diff,
+    // A node view draws its own element: a version diff's change (`data-ychange`) is put on it
+    // here, as `renderHTML` would — a removed code block, mention or video looks removed.
     nodeViews: {
       taskItem: () =>
         ReactNodeViewRenderer(TaskItemView, {
@@ -3393,16 +3427,25 @@ function buildExtensions(
           attrs: ({ node }) => ({
             "data-type": "taskItem",
             "data-checked": String(Boolean(node.attrs.checked)),
+            ...changeAttrs(node),
           }),
         }),
-      codeBlock: () => ReactNodeViewRenderer(CodeBlockView),
+      codeBlock: () =>
+        ReactNodeViewRenderer(CodeBlockView, { attrs: changeAttrsOf }),
       image: () => imageView(imageRuntime),
       mention: () =>
-        ReactNodeViewRenderer(mentionView(editorRuntime), { as: "span" }),
-      callout: () => ReactNodeViewRenderer(CalloutView),
-      toggle: () => ReactNodeViewRenderer(toggleView(toggleRuntime)),
-      video: () => ReactNodeViewRenderer(MediaView),
-      audio: () => ReactNodeViewRenderer(MediaView),
+        ReactNodeViewRenderer(mentionView(editorRuntime), {
+          as: "span",
+          attrs: changeAttrsOf,
+        }),
+      callout: () =>
+        ReactNodeViewRenderer(CalloutView, { attrs: changeAttrsOf }),
+      toggle: () =>
+        ReactNodeViewRenderer(toggleView(toggleRuntime), {
+          attrs: changeAttrsOf,
+        }),
+      video: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
+      audio: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
     },
     plugins: [
       Placeholder.configure({
@@ -3423,8 +3466,6 @@ function buildExtensions(
       annotationsExtension(annotationRuntime),
       Uploads,
       ...(collaboration ? collaborationExtensions(collaboration) : []),
-      // A version diff's `ychange` mark and attribute: only ever in a diff view's schema.
-      ...(diff ? [TextEditDiff] : []),
     ],
   });
 }
@@ -5235,6 +5276,9 @@ export function TextEditEditor({
   // A version diff, fixed at creation (its schema has the `ychange` markings); its document
   // follows the prop.
   const [diffing] = React.useState(() => diff !== undefined);
+  // Nothing here is ever the host's to save — a shared document (its Yjs state is the truth) or a
+  // version diff (read-only, and its text holds removed passages): no value in, no commit out.
+  const quiet = collab !== null || diffing;
   const escapeBehavior = collab
     ? "blur"
     : (escapeBehaviorProp ??
@@ -5315,7 +5359,8 @@ export function TextEditEditor({
   const [labels] = React.useState(() => new Versioned());
   React.useEffect(() => labels.bump(), [labels, mentionLabel]);
   const [toggleRuntime] = React.useState<ToggleRuntime>(() => ({
-    states: collab ? new ToggleStates() : null,
+    // Shared or a diff: opening a toggle is this viewer's view, never a document change.
+    states: quiet ? new ToggleStates() : null,
   }));
   const inlineImageTypesRef = React.useRef(inlineImageTypes);
   inlineImageTypesRef.current = inlineImageTypes;
@@ -5553,7 +5598,7 @@ export function TextEditEditor({
   const liveDocRef = React.useRef<PMNode | null>(null);
   const commit = React.useCallback(() => {
     const ed = editorRef.current;
-    if (collab || !ed || ed.isDestroyed || baselineRef.current === null) return;
+    if (quiet || !ed || ed.isDestroyed || baselineRef.current === null) return;
     const next = serialize(ed);
     if (next === baselineRef.current) return;
     baselineRef.current = next;
@@ -5566,7 +5611,7 @@ export function TextEditEditor({
    */
   const commitNow = React.useCallback(() => {
     const ed = editorRef.current;
-    if (collab || !ed || ed.isDestroyed) return;
+    if (quiet || !ed || ed.isDestroyed) return;
     if (baselineRef.current !== null) {
       commit();
       return;
@@ -5584,14 +5629,14 @@ export function TextEditEditor({
   /** The host saved the current document: it becomes the baseline Escape and commits compare to. */
   const markSaved = React.useCallback(() => {
     const ed = editorRef.current;
-    if (collab || !ed || ed.isDestroyed) return;
+    if (quiet || !ed || ed.isDestroyed) return;
     const next = serialize(ed);
     if (baselineRef.current !== null) baselineRef.current = next;
     committedRef.current = next;
   }, [serialize]);
   const revert = React.useCallback(() => {
     const ed = editorRef.current;
-    if (collab || !ed || baselineRef.current === null) return;
+    if (quiet || !ed || baselineRef.current === null) return;
     const previous = baselineRef.current;
     if (serialize(ed) !== previous) {
       ed.commands.setContent(previous, {
@@ -5897,7 +5942,7 @@ export function TextEditEditor({
     },
     onUpdate: ({ editor: ed }) => {
       // A shared document is never serialized per keystroke (E3): its Markdown is derived on save.
-      if (collab) return;
+      if (quiet) return;
       liveDocRef.current = ed.state.doc;
       callbacks.current.onValueChange?.(serialize(ed));
     },
@@ -5914,9 +5959,9 @@ export function TextEditEditor({
 
   // The document the host passed in is the committed one until something changes it.
   React.useEffect(() => {
-    if (!collab && editor && committedRef.current === null)
+    if (!quiet && editor && committedRef.current === null)
       committedRef.current = serialize(editor);
-  }, [collab, editor, serialize]);
+  }, [quiet, editor, serialize]);
 
   // The file picker behind the image panel's Upload and the slash menu's File. Files land where
   // the caret was when it opened.
@@ -6021,7 +6066,8 @@ export function TextEditEditor({
   // Only a value that changed is news: a rebuilt editor already holds the live document.
   const seenValueRef = React.useRef<string | undefined>(undefined);
   React.useEffect(() => {
-    if (!editor || value === undefined || collab) return;
+    // A diff shows `diff.doc`: a `value` never replaces it.
+    if (!editor || value === undefined || quiet) return;
     if (value === seenValueRef.current) return;
     seenValueRef.current = value;
     if (editor.isFocused) {
@@ -6106,7 +6152,7 @@ export function TextEditEditor({
   React.useEffect(() => {
     if (!editor) return;
     const onFocus = () => {
-      if (!collab && editor.isEditable && baselineRef.current === null)
+      if (!quiet && editor.isEditable && baselineRef.current === null)
         baselineRef.current = serialize(editor);
     };
     const onBlur = ({ event }: { event: FocusEvent }) => {
