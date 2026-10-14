@@ -1,8 +1,9 @@
-// @vegastack markdown-view@0.25.34 sha256-DB/4xf9EYJcwYd1Dlg0oREze4nC2Cy8rdTr7Mwl25iY=
+// @vegastack markdown-view@0.25.34 sha256-EkuWYdi4OI3EozPdx01YuLtWAIUN84WW29R1HeXSoJI=
 
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
@@ -204,6 +205,8 @@ const HighlightClass = () =>
 
 /** Props accepted by `MarkdownViewEffects`. */
 export interface MarkdownViewEffectsProps {
+  /** The view's `data-view-id`, how the effects find it in the document. */
+  viewId: string;
   /** The outline to report, computed by the view at render. @default undefined */
   outline?: readonly MarkdownOutlineItem[];
   /** Receives `outline` after each render that changes it. @default undefined */
@@ -244,13 +247,15 @@ const defaultFindLabels = {
 
 /**
  * `MarkdownViewEffects` — `MarkdownView`'s one client leaf for behaviour after render. It finds the
- * view from a hidden marker it renders inside it, so the view needs no ref and stays server-safe.
+ * view by its `data-view-id` and renders nothing inside it (the find bar is a portal), so the view
+ * needs no ref, stays server-safe, and its first and last blocks stay its own.
  * Rendered by `MarkdownView` only when one of these props is set.
  *
  * @example
- * <MarkdownViewEffects findQuery="pricing" onFindClose={close} />
+ * <MarkdownViewEffects viewId={id} findQuery="pricing" onFindClose={close} />
  */
 export function MarkdownViewEffects({
+  viewId,
   outline,
   onOutlineChange,
   onAnnotationsLayout,
@@ -260,10 +265,13 @@ export function MarkdownViewEffects({
   printToggles = false,
   findLabels,
 }: MarkdownViewEffectsProps) {
-  const markerRef = React.useRef<HTMLSpanElement>(null);
+  // Mounted: the portal (find bar, live region) renders from the first client effect on.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
   const root = () =>
-    markerRef.current?.closest<HTMLElement>("[data-slot=markdown-view]") ??
-    null;
+    document.querySelector<HTMLElement>(
+      `[data-view-id="${CSS.escape(viewId)}"]`,
+    );
 
   // The outline: reported when its content changes, never per render.
   const outlineKey = JSON.stringify(outline ?? []);
@@ -356,6 +364,7 @@ export function MarkdownViewEffects({
   const labels = { ...defaultFindLabels, ...findLabels };
   React.useEffect(() => {
     const view = root();
+    if (!mounted) return;
     if (!view || !query) {
       setMatches([]);
       return;
@@ -373,14 +382,19 @@ export function MarkdownViewEffects({
       registry?.delete(FIND_CURRENT);
     };
     // Labels are strings the host passes per render; the query and view are the inputs.
-  }, [query]);
+  }, [query, mounted]);
   React.useEffect(() => {
     const range = matches[current];
     if (!range) return;
     openAncestors(range.startContainer);
     const registry = highlights();
     const Highlight = HighlightClass();
-    if (registry && Highlight) registry.set(FIND_CURRENT, new Highlight(range));
+    if (registry && Highlight) {
+      const highlight = new Highlight(range) as { priority?: number };
+      // Above the every-match highlight where they overlap.
+      highlight.priority = 1;
+      registry.set(FIND_CURRENT, highlight);
+    }
     const target = range.startContainer.parentElement;
     target?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [matches, current]);
@@ -392,68 +406,69 @@ export function MarkdownViewEffects({
     announce(labels.position(next + 1, matches.length));
   };
 
-  return (
+  // The bar docks at the window's bottom end through a portal — never inside the text, so opening
+  // find moves nothing and the recipe's first- and last-child rules still see the document's own
+  // blocks. The live region is there too, mounted from the first client render.
+  if (!mounted) return null;
+  return createPortal(
     <>
-      <span ref={markerRef} hidden data-slot="markdown-view-marker" />
       {query ? (
-        // A zero-height sticky row: the bar floats over the text's top end and never moves it.
-        <div className="pointer-events-none sticky top-2 z-10 flex h-0 justify-end print:hidden">
-          <div
-            data-slot="markdown-find-bar"
-            role="search"
-            aria-label={labels.label}
-            className="pointer-events-auto flex h-8 items-center gap-0.5 rounded-lg border border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md"
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && onFindClose) {
-                event.preventDefault();
-                onFindClose();
-              } else if (event.key === "Enter") {
-                event.preventDefault();
-                step(event.shiftKey ? -1 : 1);
-              }
-            }}
+        <div
+          data-slot="markdown-find-bar"
+          role="search"
+          aria-label={labels.label}
+          className="fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] z-50 flex h-8 items-center gap-0.5 rounded-lg border border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md print:hidden"
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && onFindClose) {
+              event.preventDefault();
+              onFindClose();
+            } else if (event.key === "Enter") {
+              event.preventDefault();
+              step(event.shiftKey ? -1 : 1);
+            }
+          }}
+        >
+          <span
+            data-slot="markdown-find-count"
+            className="me-1 text-muted-foreground tabular-nums"
           >
-            <span
-              data-slot="markdown-find-count"
-              className="me-1 text-muted-foreground tabular-nums"
-            >
-              {matches.length
-                ? labels.position(current + 1, matches.length)
-                : labels.none}
-            </span>
+            {matches.length
+              ? labels.position(current + 1, matches.length)
+              : labels.none}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={labels.previous}
+            disabled={matches.length < 2}
+            onClick={() => step(-1)}
+          >
+            <ChevronUp />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={labels.next}
+            disabled={matches.length < 2}
+            onClick={() => step(1)}
+          >
+            <ChevronDown />
+          </Button>
+          {onFindClose ? (
             <Button
               variant="ghost"
               size="icon-xs"
-              aria-label={labels.previous}
-              disabled={matches.length < 2}
-              onClick={() => step(-1)}
+              aria-label={labels.close}
+              onClick={onFindClose}
             >
-              <ChevronUp />
+              <X />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={labels.next}
-              disabled={matches.length < 2}
-              onClick={() => step(1)}
-            >
-              <ChevronDown />
-            </Button>
-            {onFindClose ? (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={labels.close}
-                onClick={onFindClose}
-              >
-                <X />
-              </Button>
-            ) : null}
-            <Announcer />
-          </div>
+          ) : null}
         </div>
       ) : null}
-    </>
+      <Announcer />
+    </>,
+    document.body,
   );
 }
 

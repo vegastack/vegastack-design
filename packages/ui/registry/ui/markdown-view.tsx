@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.34 sha256-DB/4xf9EYJcwYd1Dlg0oREze4nC2Cy8rdTr7Mwl25iY=
+// @vegastack markdown-view@0.25.34 sha256-EkuWYdi4OI3EozPdx01YuLtWAIUN84WW29R1HeXSoJI=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -1749,6 +1749,8 @@ export function MarkdownView({
   className,
   ...props
 }: MarkdownViewProps) {
+  // How the client effects find this view (server-safe: `useId` exists in a server render).
+  const viewId = React.useId();
   const source = typeof children === "string" ? children : (content ?? "");
 
   if (!source.trim()) return null;
@@ -1815,14 +1817,17 @@ export function MarkdownView({
     <div
       data-slot="markdown-view"
       data-type-scale={typeScale}
+      data-view-id={effects ? viewId : undefined}
       className={cn(
         typeScale === "document" ? documentProse : compactProse,
+        findQuery?.trim() && findHighlightClassName,
         className,
       )}
       {...props}
     >
       {effects ? (
         <MarkdownViewEffects
+          viewId={viewId}
           outline={onOutlineChange ? outline : undefined}
           onOutlineChange={onOutlineChange}
           onAnnotationsLayout={onAnnotationsLayout}
@@ -1869,6 +1874,13 @@ const documentProse = cn(
   proseDocumentClassName,
   documentPrintClassName,
 );
+/**
+ * The find highlights (`::highlight()`, painted on this view's text only): every match on the
+ * warning tint, the current one stronger.
+ */
+const findHighlightClassName =
+  "[&::highlight(vs-find)]:bg-warning/20 [&_*::highlight(vs-find)]:bg-warning/20 [&::highlight(vs-find-current)]:bg-warning/50 [&_*::highlight(vs-find-current)]:bg-warning/50";
+
 /** The app's own scale: the prose recipe and the chips' rules. */
 const compactProse = cn(proseClassName, markdownExtrasClassName);
 

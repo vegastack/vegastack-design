@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.25.34 sha256-QKT9Q6r4Gjovi9KUgUqbr2qOOWqudYiezGUqKlme8aw=
+// @vegastack breadcrumb-cascade@0.25.34 sha256-+RrAyjKKy0tN4VCm1pHv1/G1Fbdfv7+NsO4RtJ4CfOY=
 
 "use client";
 
@@ -469,9 +469,9 @@ export function BreadcrumbTrail({
                       variant="ghost"
                       size="sm"
                       aria-label={compactLabel(parent.label)}
-                      // The chevron sits where the trail's first character would: the button's
-                      // padding hangs outside the column.
-                      className="-ms-1.5 max-w-full min-w-0 gap-0.5 ps-0.5 pe-1.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:text-foreground"
+                      // No negative margin: it would come off the trail's own width and clip the
+                      // name it was sized to hold.
+                      className="max-w-full min-w-0 gap-0.5 px-1.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:text-foreground"
                     />
                   }
                 >
