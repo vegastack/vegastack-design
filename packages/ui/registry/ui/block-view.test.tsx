@@ -3,7 +3,11 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { StaticBlockView, type BlockView } from "./block-view";
+import {
+  StaticBlockView,
+  initialBlockViewMode,
+  type BlockView,
+} from "./block-view";
 import { MarkdownView } from "./markdown-view";
 
 const view: BlockView = {
@@ -87,4 +91,24 @@ test("MarkdownView draws a mapped fence with its view after hydration, other fen
   expect(
     screen.container.querySelector("[data-slot=code-block][data-language=ts]"),
   ).not.toBeNull();
+});
+
+test("a new block holding the starter opens in Code, with or without its trailing newline", () => {
+  const view: BlockView = {
+    label: "Diagram",
+    render: () => null,
+    starter: "flowchart LR\n  a --> b\n",
+  };
+  expect(initialBlockViewMode(view, "flowchart LR\n  a --> b", true)).toBe(
+    "code",
+  );
+  expect(initialBlockViewMode(view, "flowchart LR\n  a --> b\n", true)).toBe(
+    "code",
+  );
+  expect(initialBlockViewMode(view, "flowchart LR\n  a --> c", true)).toBe(
+    "preview",
+  );
+  expect(initialBlockViewMode(view, "flowchart LR\n  a --> b", false)).toBe(
+    "preview",
+  );
 });

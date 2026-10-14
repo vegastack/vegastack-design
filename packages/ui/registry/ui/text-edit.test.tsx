@@ -4312,3 +4312,51 @@ test("collaboration: toggleState keeps a viewer's folded toggles (read on load, 
   );
   expect(viewerToggle()).not.toHaveAttribute("data-open");
 });
+
+test("find: ⌘F with words selected searches for them, and typing replaces the term", async () => {
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta gamma",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  selectTail(box.element().querySelector("p")!, 5);
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  const field = screen.getByRole("textbox", { name: "Find" });
+  await expect.element(field).toHaveValue("gamma");
+  // The term is selected a frame after the bar opens.
+  await vi.waitFor(() => {
+    const input = field.element() as HTMLInputElement;
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 5]);
+  });
+  await userEvent.keyboard("beta");
+  await expect.element(field).toHaveValue("beta");
+});
+
+test("slashActions: insertContent puts a block at the caret", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    onValueChange,
+    slashActions: [
+      {
+        id: "quote",
+        label: "Saved quote",
+        icon: <span />,
+        onSelect: ({ insertContent }) =>
+          insertContent({
+            type: "blockquote",
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "Hi" }] },
+            ],
+          }),
+      },
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/saved");
+  await vi.waitFor(() =>
+    expect(suggestionMenu("slash")?.textContent).toContain("Saved quote"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("> Hi"));
+});
