@@ -1,5 +1,31 @@
 # @vegastack/ui
 
+## 0.25.39
+
+### Patch Changes
+
+- [#652](https://github.com/vegastack/vegastack-design/pull/652) [`0f856e3`](https://github.com/vegastack/vegastack-design/commit/0f856e311719abafc6c7ce530162b18c1ec18af6) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **MermaidBlock** (new): a `mermaid` fence drawn as a diagram in the browser — `mermaid` 12.1.0 loaded lazily the first time a diagram nears the viewport, every render pinned to strict security, SVG labels and the dagre layout inside one queue, token colours for light and dark (the other scheme pre-drawn on idle, so theme switches and print are instant), an LRU of 50 SVGs, the measured height reserved on the next visit, and the last diagram that worked kept, dimmed, with a `role="status"` line when the source stops parsing. Exports `MermaidBlock`, `renderMermaid(source, { theme })`, `useMermaidSvg(source, { debounce })` and `mermaidBlockView`. **TextEdit** and **MarkdownView**: `blockViews` maps a fence's language to a renderer — `blockViews={{ mermaid: mermaidBlockView }}` makes those fences **Diagram** blocks with Preview / Code (split beside a live preview on a block at least 720px wide), Expand (full screen, pan and pinch) and a ⋯ menu (Copy source, plus the view's own actions); the mode is per viewer and never saved; ⌘/Ctrl+Enter and Escape return to the preview; the slash menu and Turn into offer **Diagram** while `blockViews.mermaid` is set. MarkdownView shows the source in the same frame on the server and before hydration. New shared internal: `block-view`.
+  [docs](https://design.vegastack.com/docs/components/mermaid-block)
+
+- [#647](https://github.com/vegastack/vegastack-design/pull/647) [`5358739`](https://github.com/vegastack/vegastack-design/commit/5358739b3bf60970727c8e3025d75b0fd9ab2e42) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **TextEdit** editor tools (B.2):
+
+  - **Block menu:** a click on the ⋮⋮ handle, or ⇧F10 / the context-menu key, opens Turn into ▸ (Callout ▸ by tone, Toggle), Duplicate (⌘D), Copy link, Copy as Markdown, Move up / down, Open by default and Delete. On touch it is a bottom sheet, the handle follows the caret, and a drag needs a 350ms hold. Drags auto-scroll at the window's edge, and in a shared document a drop re-resolves the block by its Yjs position.
+  - **Find and replace:** `findReplace` adds a docked bar (⌘F, ⌘G, RE2 regex, Replace all as one undo step) and `handleRef.openFind()`.
+  - **Emoji:** `emoji` adds a `:` menu.
+  - **Heading links:** `headingLinkHref` adds a `#` copy link on the hovered or caret heading. `scrollToHeading` now takes `<slug>~<blockId>`, opens toggles and returns whether it found the heading.
+  - **Word count:** `onStatsChange` / `getStats()`, counted when idle.
+  - **Toggles:** `toggleState` persists each viewer's toggles. Find results, links, comments and the caret open the toggles around them for the moment.
+  - **Host slash items:** `slashActions` adds host `/` items after the built-in ones, and `insertMention` inserts a mention chip.
+  - **Outline:** items carry `blockId`, and a shared document no longer rebuilds heading decorations on every change.
+
+  **SuggestionMenu**: an option can be `disabled`.
+  [docs](https://design.vegastack.com/docs/components/text-edit)
+
+- [#650](https://github.com/vegastack/vegastack-design/pull/650) [`37b51ca`](https://github.com/vegastack/vegastack-design/commit/37b51ca772896ad52d2747a4c1a6ebf5a5b9ca9c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **TextEdit**: YouTube and Loom embeds, opt-in with `embeds={EMBED_PROVIDERS}` (without it an embed shows as a link and a pasted link stays one) — a new `embed` block (`{ provider, url }`, with a `blockId`) whose Markdown is the URL as written, alone on its line; a paragraph holding only a link to its own URL on an allowlisted host parses back to an embed, any other lone URL stays a link, and existing documents serialize unchanged. It draws a facade (16:9 card, provider glyph, "YouTube video" / "Loom video", **Play**) that requests nothing from the provider until Play, then a lazy, sandboxed frame whose `src` is rebuilt from the video id (`youtube-nocookie.com`, `t=` as `?start=`) with its own referrer policy; printed, it is the URL. A lone link pasted into an empty paragraph embeds, with an "Embedded" toast and Undo back to a link; the slash menu's **Video** link tab embeds YouTube and Loom links. New `onExternalImage(url, { signal })`: images pasted or dropped from another site leave the paste, show an upload placeholder and land as your stored copy — or as a link with "Couldn't import that image. A link was added instead." — and pasted `data:` images upload through `onImageUpload` (20 a paste, 3 at a time). **MarkdownView** renders the same facade (`MarkdownEmbed`) with the same `embeds` prop. New lib **embed-providers**: `matchEmbed`, `EMBED_PROVIDERS`, `EmbedProviders`, `EMBED_FRAME_ORIGINS` (the `frame-src` allowlist) and `EMBED_FRAME_ATTRIBUTES`. Corpus cases `extensions/embed-*`, `editor-json/embed-*`.
+  [docs](https://design.vegastack.com/docs/components/text-edit)
+- Updated dependencies [[`37b51ca`](https://github.com/vegastack/vegastack-design/commit/37b51ca772896ad52d2747a4c1a6ebf5a5b9ca9c)]:
+  - @vegastack/design@0.8.15
+
 ## 0.25.38
 
 ### Patch Changes
