@@ -338,6 +338,58 @@ the swap never moves the text. On a page with room the text keeps its column, an
 />
 ```
 
+### Linked task lines and section marks
+
+- **Linked task lines**: a checklist line whose first inline is a task mention,
+  `- [x] [@Order glass](mention://task/t1)`, is linked to that task. `linkedTaskId(node)` returns
+  its id, or `null` for any other node. Its box is the task's done state.
+  `onTaskItemToggle(taskId, checked)` reports only this person's own ticks, including their undo.
+  It never reports a collaborator's tick, a `value` change or the host's own
+  `setTaskItemChecked`.
+- **Make task** (`onMakeTask`): the block menu of an unlinked checklist line offers **Make task**,
+  or **Make N tasks** when the selection reaches several unlinked lines (open it with ⇧F10, or
+  the grip with the lines selected). It calls `onMakeTask` with each line's position and trimmed
+  text. Create the tasks, then call `handleRef.linkTaskItems([{ pos, id, label }])` to put a task
+  chip at the start of each line. If the line starts with the title, the text after the title
+  stays after the chip ("Order glass — by Friday"); otherwise the whole line becomes the chip.
+  Nested lines stay. Linking is one undo step.
+- **The task changed elsewhere**: `handleRef.setTaskItemChecked(taskId, checked)` ticks or
+  unticks every line linked to it. It is not an undo step and returns how many lines changed.
+- **Closed targets** (`mentionStatus(kind, id)`): return `{ struck: true, status: "Canceled" }` to
+  strike a chip's label through and add a small status tag. Like `mentionLabel`, it is read at
+  render, and chips re-render when the function changes. The read view and `MarkdownView` take
+  the same prop.
+- **Section marks** (`sectionMarks`): each `{ key, tone, label }` names a heading by its `blockId`.
+  It draws a dot in the gutter beside the heading, 26px before the text, left of the drag grip,
+  and a `warning` or `info` bar along the section, up to the next heading of the same or a
+  higher level. Leave about 34px of start gutter for them. They are decorations: nothing is
+  written to the document and no text moves. Typing maps them, and they are rebuilt only when
+  the marks change or an edit touches a heading or adds or removes a block. The dot is a button
+  named by `label` (also its tooltip) that calls `onSectionMark(key)`. Headings carry a `blockId`
+  in a shared document or in HTML with `data-blockid`, not in plain Markdown.
+
+<ComponentPreview
+  name="textEditTasks"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  format="markdown"
+  collaboration={collaboration}
+  handleRef={handle}
+  mentionStatus={(kind, id) =>
+    kind === "task" && closed(id) ? { struck: true, status: label(id) } : null
+  }
+  onMakeTask={(items) => openMakeTaskDialog(items)} // then handle.current.linkTaskItems(links)
+  onTaskItemToggle={(taskId, checked) => setTaskDone(taskId, checked)}
+  sectionMarks={[
+    { key: heading.blockId, tone: "warning", label: "May be out of date" },
+  ]}
+  onSectionMark={(key) => openSectionChanges(key)}
+/>
+```
+
 ### Placeholders
 
 Keep `placeholder` to the recommended copy — "Add a description…", "Add a summary…", "Add a
@@ -430,7 +482,7 @@ editor is created.
 ### Mentions
 
 `mentions={{ kinds, search }}` turns on `@`: typed after a space, an opening bracket or at the start
-of a line it opens a menu grouped People · Pages · Files · Tasks · … · Your agents (only the `kinds`
+of a line it opens a menu grouped People · Pages · Files · Tasks · Meetings · Customers · Projects · Products · Your agents (only the `kinds`
 given, at most five each). The query may hold spaces — `@Asha Rao` searches the whole name — and two
 spaces in a row, or a phrase that matches no one past a space, close the menu. `search`
 runs 150ms after the last keystroke with an `AbortSignal` that aborts when the query changes; the

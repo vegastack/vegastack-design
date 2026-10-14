@@ -6,6 +6,7 @@ import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import {
+  linkedTaskId,
   preloadTextEdit,
   TextEdit,
   type MentionOption,
@@ -2922,6 +2923,256 @@ test("pendingUploads counts uploads still landing, and onPendingUploadsChange re
     expect(onPendingUploadsChange).toHaveBeenLastCalledWith(0),
   );
   expect(handleRef.current!.pendingUploads()).toBe(0);
+});
+
+/* --- linked task items and section marks (release C) -------------------------------------------*/
+
+test("linkedTaskId: a task item whose first inline is a task mention, else null", () => {
+  const list = markdownToDoc(
+    [
+      "- [x] [@Order glass](mention://task/t1) — by Friday",
+      "- [ ] Order hinges",
+      "- [ ] Ask [@Order glass](mention://task/t2)",
+      "- [ ] [@Q3 plan](mention://page/p1)",
+    ].join("\n"),
+  ).firstChild!;
+  expect(list.type.name).toBe("taskList");
+  expect(linkedTaskId(list.child(0))).toBe("t1");
+  expect(linkedTaskId(list.child(1))).toBeNull();
+  // Only the FIRST inline links the line; a page mention never does.
+  expect(linkedTaskId(list.child(2))).toBeNull();
+  expect(linkedTaskId(list.child(3))).toBeNull();
+  // Anything but a task item is never linked, even when it starts with a task mention.
+  const paragraph = markdownToDoc(
+    "[@Order glass](mention://task/t1)",
+  ).firstChild!;
+  expect(linkedTaskId(paragraph)).toBeNull();
+  expect(linkedTaskId(null)).toBeNull();
+});
+
+test("onTaskItemToggle: a person's tick on a linked line reaches the host; setTaskItemChecked never echoes", async () => {
+  const onTaskItemToggle = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)\n- [ ] Plain line",
+    onTaskItemToggle,
+    handleRef: handle,
+  });
+  const boxes = () =>
+    screen.container.querySelectorAll<HTMLElement>(
+      '.ProseMirror [data-slot="checkbox"]',
+    );
+  boxes()[0]!.click();
+  await vi.waitFor(() =>
+    expect(onTaskItemToggle).toHaveBeenCalledWith("t1", true),
+  );
+  // An unlinked line is the document's own business.
+  boxes()[1]!.click();
+  await vi.waitFor(() =>
+    expect(boxes()[1]).toHaveAttribute("aria-checked", "true"),
+  );
+  expect(onTaskItemToggle).toHaveBeenCalledTimes(1);
+  // The task changed elsewhere: the host sets the box, and is not told about its own change.
+  expect(handle.current!.setTaskItemChecked("t1", false)).toBe(1);
+  await vi.waitFor(() =>
+    expect(boxes()[0]).toHaveAttribute("aria-checked", "false"),
+  );
+  expect(handle.current!.setTaskItemChecked("t1", false)).toBe(0);
+  expect(onTaskItemToggle).toHaveBeenCalledTimes(1);
+});
+
+test("onTaskItemToggle: a collaborator's tick is never reported to this viewer", async () => {
+  const toggledA = vi.fn();
+  const toggledB = vi.fn();
+  const { screen } = await twoEditors(
+    "- [ ] [@Order glass](mention://task/t1)",
+    { a: { onTaskItemToggle: toggledA }, b: { onTaskItemToggle: toggledB } },
+  );
+  const box = (name: string) =>
+    screen
+      .getByRole("textbox", { name })
+      .element()
+      .querySelector<HTMLElement>('[data-slot="checkbox"]');
+  await vi.waitFor(() => expect(box("B")).not.toBeNull());
+  box("B")!.click();
+  await vi.waitFor(() =>
+    expect(box("A")).toHaveAttribute("aria-checked", "true"),
+  );
+  expect(toggledB).toHaveBeenCalledExactlyOnceWith("t1", true);
+  expect(toggledA).not.toHaveBeenCalled();
+});
+
+test("Make N tasks: the block menu offers the selected unlinked lines; linkTaskItems writes linked lines", async () => {
+  const onMakeTask = vi.fn();
+  const onTaskItemToggle = vi.fn();
+  const onValueChange = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass — by Friday\n- [x] Fix scaffolding",
+    onMakeTask,
+    onTaskItemToggle,
+    onValueChange,
+    handleRef: handle,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  const lines = box.element().querySelectorAll("li p");
+  await userEvent.click(lines[0]!);
+  // From inside the first line's text into the second's.
+  editorOf(box.element()).commands.setTextSelection({ from: 3, to: 31 });
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await screen.getByRole("menuitem", { name: "Make 2 tasks" }).click();
+  await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledTimes(1));
+  const items = onMakeTask.mock.calls[0]![0] as { pos: number; text: string }[];
+  expect(items.map((item) => item.text)).toEqual([
+    "Order glass — by Friday",
+    "Fix scaffolding",
+  ]);
+  // The host created T-1 ("Order glass") and T-2: the title becomes the chip, the rest stays.
+  expect(
+    handle.current!.linkTaskItems([
+      { pos: items[0]!.pos, id: "t1", label: "Order glass" },
+      { pos: items[1]!.pos, id: "t2", label: "Fix scaffolding" },
+    ]),
+  ).toBe(2);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [ ] [@Order glass](mention://task/t1) — by Friday\n- [x] [@Fix scaffolding](mention://task/t2)",
+    ),
+  );
+  // The written Markdown reads back as linked lines.
+  const list = markdownToDoc(lastValue(onValueChange)!).firstChild!;
+  expect([linkedTaskId(list.child(0)), linkedTaskId(list.child(1))]).toEqual([
+    "t1",
+    "t2",
+  ]);
+  expect(onTaskItemToggle).not.toHaveBeenCalled();
+  // A linked line no longer offers Make task, and linking it again does nothing.
+  await userEvent.click(lines[0]!);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Duplicate/ }))
+    .toBeInTheDocument();
+  expect(
+    [...document.querySelectorAll('[role="menuitem"]')].some((item) =>
+      /Make/.test(item.textContent ?? ""),
+    ),
+  ).toBe(false);
+  expect(
+    handle.current!.linkTaskItems([
+      { pos: items[0]!.pos, id: "t9", label: "Order glass" },
+    ]),
+  ).toBe(0);
+});
+
+test("Make task is absent without onMakeTask", async () => {
+  const screen = await markdownEditor({ defaultValue: "- [ ] Order glass" });
+  await userEvent.click(
+    screen
+      .getByRole("textbox", { name: "Notes" })
+      .element()
+      .querySelector("p")!,
+  );
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Duplicate/ }))
+    .toBeInTheDocument();
+  expect(
+    [...document.querySelectorAll('[role="menuitem"]')].some((item) =>
+      /Make/.test(item.textContent ?? ""),
+    ),
+  ).toBe(false);
+});
+
+test("mentionStatus strikes a closed task's chip and tags its status; product chips use the Package kind", async () => {
+  const screen = await markdownEditor({
+    defaultValue:
+      "- [x] [@Old supplier](mention://task/t1)\n\n[@Glazing kit](mention://product/v1)",
+    mentionStatus: (kind, id) =>
+      kind === "task" && id === "t1"
+        ? { struck: true, status: "Canceled" }
+        : null,
+  });
+  const chips = () =>
+    screen.container.querySelectorAll<HTMLElement>(
+      '.ProseMirror [data-slot="inline-chip"]',
+    );
+  await vi.waitFor(() => expect(chips()).toHaveLength(2));
+  expect(chips()[0]).toHaveAttribute("data-struck", "");
+  expect(
+    chips()[0]!.querySelector('[data-slot="inline-chip-struck"]')?.textContent,
+  ).toBe("Old supplier");
+  expect(
+    chips()[0]!.querySelector('[data-slot="inline-chip-status"]')?.textContent,
+  ).toBe("Canceled");
+  expect(chips()[1]).toHaveAttribute("data-kind", "product");
+  expect(chips()[1]).not.toHaveAttribute("data-struck");
+});
+
+test("sectionMarks: the marked heading's section to the next heading of its level wears the bar; the marker calls onSectionMark", async () => {
+  const onSectionMark = vi.fn();
+  const onValueChange = vi.fn();
+  const marks = [
+    { key: "s1", tone: "warning" as const, label: "May be out of date" },
+  ];
+  const html =
+    '<p>Intro</p><h2 data-blockid="s1">Pricing</h2><p>Glass</p><h3>Detail</h3><p>Frames</p><h2 data-blockid="s2">Scope</h2><p>Later</p>';
+  const screen = await render(
+    <TextEdit
+      aria-label="Doc"
+      defaultValue={html}
+      sectionMarks={marks}
+      onSectionMark={onSectionMark}
+      onValueChange={onValueChange}
+    />,
+  );
+  const box = () =>
+    screen.getByRole("textbox", { name: "Doc" }).element() as HTMLElement;
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  const marked = () =>
+    [...box().querySelectorAll<HTMLElement>(":scope > *")]
+      .filter((block) => block.hasAttribute("data-section-mark"))
+      .map((block) => block.textContent);
+  await vi.waitFor(() =>
+    expect(marked()).toEqual(["Pricing", "Glass", "Detail", "Frames"]),
+  );
+  const marker = box().querySelector<HTMLElement>(
+    '[data-slot="text-edit-section-mark"]',
+  )!;
+  expect(marker).toHaveAttribute("aria-label", "May be out of date");
+  expect(marker.closest("h2")?.textContent).toBe("Pricing");
+  // A decoration: the heading's text starts where an unmarked heading's does.
+  const pricing = box().querySelector("h2")!;
+  const scope = box().querySelectorAll("h2")[1]!;
+  expect(
+    pricing.getBoundingClientRect().left - scope.getBoundingClientRect().left,
+  ).toBe(0);
+  await userEvent.click(marker);
+  expect(onSectionMark).toHaveBeenCalledExactlyOnceWith("s1");
+  // A new block typed inside the section joins it; nothing reaches the document.
+  // The end of "Frames", the section's last block.
+  await userEvent.click(box().querySelectorAll("p")[2]!);
+  editorOf(box()).commands.setTextSelection(38);
+  await userEvent.keyboard("{Enter}More");
+  await vi.waitFor(() =>
+    expect(marked()).toEqual(["Pricing", "Glass", "Detail", "Frames", "More"]),
+  );
+  expect(lastValue(onValueChange)).not.toContain("section");
+  // No marks: no decorations.
+  await screen.rerender(
+    <TextEdit
+      aria-label="Doc"
+      defaultValue={html}
+      sectionMarks={[]}
+      onSectionMark={onSectionMark}
+      onValueChange={onValueChange}
+    />,
+  );
+  await vi.waitFor(() => expect(marked()).toEqual([]));
+  expect(
+    box().querySelector('[data-slot="text-edit-section-mark"]'),
+  ).toBeNull();
 });
 
 /* --- collaboration ----------------------------------------------------------------------------*/

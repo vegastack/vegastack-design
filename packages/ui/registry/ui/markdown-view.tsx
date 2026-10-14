@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.41 sha256-kK6EYiOxTrKqf0G3pxvoO6j2uNy+iPar/gab+eafXP4=
+// @vegastack markdown-view@0.25.41 sha256-o0JC+OKUdbz7Q8uUk8WXojWAvRNw2Uo9/5bXtoyNC28=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -1113,6 +1113,7 @@ interface RenderContext {
   tableLabel?: string;
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   mentionImage?: (id: string) => string | null | undefined;
+  mentionStatus?: MarkdownViewProps["mentionStatus"];
   fileLinkPrefix: string;
   embeds?: EmbedProviders;
   fileContentType?: (href: string) => string | null | undefined;
@@ -1320,12 +1321,15 @@ function renderNode(
     }
     case "mention": {
       const kind = attrs.kind as MentionKind;
+      const closed = ctx.mentionStatus?.(kind, attrs.id ?? "");
       return (
         <InlineChip
           key={key}
           kind={kind}
           targetId={attrs.id ?? ""}
           label={attrs.label ?? ""}
+          struck={closed?.struck === true}
+          status={closed?.status}
           // The view's own props win over the provider's only when the host passed them.
           href={
             ctx.mentionHref ? ctx.mentionHref(kind, attrs.id ?? "") : undefined
@@ -1847,6 +1851,16 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   mentionImage?: (id: string) => string | null | undefined;
   /**
+   * A closed target's look, by kind and id: `{ struck: true, status: "Canceled" }` strikes the
+   * chip's label through and adds a small status tag (a canceled or duplicate task). `null` for a
+   * plain chip.
+   * @default undefined
+   */
+  mentionStatus?: (
+    kind: MentionKind,
+    id: string,
+  ) => { struck?: boolean; status?: string } | null | undefined;
+  /**
    * A link whose href starts with this renders as a file chip — an icon for the file's type and
    * its name. `""` turns file chips off.
    * @default "/api/files/"
@@ -1945,6 +1959,7 @@ export function MarkdownView({
   tableLabel,
   mentionHref,
   mentionImage,
+  mentionStatus,
   fileLinkPrefix = "/api/files/",
   embeds,
   fileContentType,
@@ -2052,6 +2067,7 @@ export function MarkdownView({
         tableLabel,
         mentionHref,
         mentionImage,
+        mentionStatus,
         fileLinkPrefix,
         embeds,
         fileContentType,

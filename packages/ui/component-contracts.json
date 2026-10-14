@@ -15377,7 +15377,7 @@
       "name": "inline-chip",
       "registryType": "registry:ui",
       "title": "Inline Chip",
-      "summary": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "summary": "The one inline reference in running text — a person, page, file, task, meeting, customer, project or product — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
       "status": "stable",
       "since": "0.23.102",
       "family": "data-display",
@@ -15524,7 +15524,8 @@
               "task",
               "meeting",
               "customer",
-              "project"
+              "project",
+              "product"
             ]
           }
         ],
@@ -15604,7 +15605,9 @@
                 "inline-chip-icon",
                 "inline-chip-label",
                 "inline-chip-person",
-                "inline-chip-preview"
+                "inline-chip-preview",
+                "inline-chip-status",
+                "inline-chip-struck"
               ]
             }
           ],
@@ -25243,6 +25246,60 @@
         },
         {
           "name": "TextEditToggleState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "linkedTaskId",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function over a document node, not a component."
+          }
+        },
+        {
+          "name": "TextEditMentionStatus",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditNodeLike",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditSectionMark",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditTaskItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditTaskLink",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {

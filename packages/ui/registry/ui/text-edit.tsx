@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.41 sha256-CnIn2nX4K7H5LDSL+6e+7IqhRY4eyRZam3+zN4AjxzQ=
+// @vegastack text-edit@0.25.41 sha256-uztHKq37sn2D/OTJ6DiCU9ptKZsPcf6nJM8kgC2h980=
 
 "use client";
 
@@ -191,6 +191,78 @@ export interface TextEditSlashAction {
   onSelect: (ctx: TextEditSlashActionContext) => void;
 }
 
+/** How a mention chip shows a closed target (`mentionStatus`): struck through, with a status tag. */
+export interface TextEditMentionStatus {
+  /** Strike the chip's label through (a canceled or duplicate task). @default false */
+  struck?: boolean;
+  /** A small tag after the label ("Canceled", "Duplicate"). @default undefined */
+  status?: string;
+}
+
+/** An unlinked checklist line `onMakeTask` offers: its position and its text. */
+export interface TextEditTaskItem {
+  /** The task item's position in the document (pass it back to `linkTaskItems`). */
+  pos: number;
+  /** The line's text, trimmed: the new task's suggested title. */
+  text: string;
+}
+
+/** A checklist line to link to a task (`linkTaskItems`). */
+export interface TextEditTaskLink {
+  /** The task item's position, as `onMakeTask` gave it. */
+  pos: number;
+  /** The task's id: the line's leading chip is `mention://task/<id>`. */
+  id: string;
+  /** The task's title, the chip's label (a shared document stores it empty). */
+  label: string;
+}
+
+/**
+ * A marked section (`sectionMarks`): a gutter marker on its heading and a bar along its blocks,
+ * drawn as decorations — never written to the document and never moving the text.
+ */
+export interface TextEditSectionMark {
+  /** The section heading's `blockId`; the section runs to the next heading of the same or a higher level. */
+  key: string;
+  /** `warning` (may be out of date) or `info` (changed since you last read). */
+  tone: "warning" | "info";
+  /** The marker's accessible name and tooltip ("May be out of date"). */
+  label: string;
+}
+
+/** What `linkedTaskId` reads: a ProseMirror node, or anything shaped like one. */
+export interface TextEditNodeLike {
+  type: { name: string };
+  attrs: Record<string, unknown>;
+  firstChild: TextEditNodeLike | null;
+}
+
+/**
+ * The task a checklist line is linked to: the id of its leading task mention, when `node` is a
+ * task item whose first inline is a `mention` of kind `task` (VegaStack Markdown's linked task
+ * line, `- [x] [@Order glass](mention://task/<id>)`); otherwise `null`.
+ *
+ * @example
+ * linkedTaskId(editor.state.doc.nodeAt(pos)); // "t1" | null
+ */
+export function linkedTaskId(
+  node: TextEditNodeLike | null | undefined,
+): string | null {
+  if (!node || node.type.name !== "taskItem") return null;
+  const first = node.firstChild;
+  if (!first || first.type.name !== "paragraph") return null;
+  const inline = first.firstChild;
+  if (
+    !inline ||
+    inline.type.name !== "mention" ||
+    inline.attrs.kind !== "task" ||
+    typeof inline.attrs.id !== "string" ||
+    !inline.attrs.id
+  )
+    return null;
+  return inline.attrs.id;
+}
+
 /** A heading's slug and block id — what `headingLinkHref` builds a link from. */
 export interface TextEditHeadingAnchor {
   /** The heading's block id (`blockId`), stable across renames. Absent when it has none yet. */
@@ -316,6 +388,20 @@ export interface TextEditHandle {
   pickFiles: () => void;
   /** How many uploads are still landing: a host shows "Uploading…" and guards leaving while any are. */
   pendingUploads: () => number;
+  /**
+   * Link checklist lines to tasks (after `onMakeTask` created them): each line's text becomes a
+   * leading task chip — text after a matching title stays after the chip, nested content stays
+   * below — and its box becomes the task's done state. A position that is no longer an unlinked
+   * task item is skipped. One undo step; never reported through `onTaskItemToggle`. Returns how
+   * many lines were linked (0 before the editor is in).
+   */
+  linkTaskItems: (links: readonly TextEditTaskLink[]) => number;
+  /**
+   * Tick or untick every line linked to `taskId` (the task changed elsewhere). Not an undo step,
+   * and never reported through `onTaskItemToggle`. Returns how many lines changed (0 before the
+   * editor is in).
+   */
+  setTaskItemChecked: (taskId: string, checked: boolean) => number;
 }
 
 /** Who this viewer is to collaborators: their caret, selection and name label wear it. */
@@ -1022,6 +1108,40 @@ export interface TextEditProps {
    */
   mentionLabel?: (kind: MentionKind, id: string) => string | null | undefined;
   /**
+   * A closed target's look, by kind and id: `{ struck: true, status: "Canceled" }` strikes the
+   * chip's label through and adds a small status tag. Read at render, like `mentionLabel`; chips
+   * re-render when this function changes. `null` for a plain chip.
+   * @default undefined
+   */
+  mentionStatus?: (
+    kind: MentionKind,
+    id: string,
+  ) => TextEditMentionStatus | null | undefined;
+  /**
+   * A linked checklist line (`linkedTaskId`) was ticked or unticked by this person — never by a
+   * collaborator, a `value` change or `setTaskItemChecked`. The host sets the task's status.
+   * @default undefined
+   */
+  onTaskItemToggle?: (taskId: string, checked: boolean) => void;
+  /**
+   * Adds **Make task** to the block menu of an unlinked checklist line (**Make N tasks** when
+   * several are selected); called with the lines. Create the tasks, then `linkTaskItems`.
+   * @default undefined
+   */
+  onMakeTask?: (items: TextEditTaskItem[]) => void;
+  /**
+   * Marked sections: each draws a small marker in the gutter beside its heading (named `label`)
+   * and a `tone` bar along the section — decorations only, with no layout shift. A key matching
+   * no heading draws nothing.
+   * @default undefined
+   */
+  sectionMarks?: readonly TextEditSectionMark[];
+  /**
+   * A section mark's marker was clicked: its `key`.
+   * @default undefined
+   */
+  onSectionMark?: (key: string) => void;
+  /**
    * `MarkdownView`'s `citation`, for the read view: a `[[n]]` marker renders as a superscript
    * citation, and clicking it is the citation's, never an edit. In the editor the markers stay
    * plain `[[n]]` text, so with `citation` set the read view stands in whenever the document is not
@@ -1526,6 +1646,9 @@ export function TextEdit(props: TextEditProps) {
       pendingUploads: () =>
         (editorHandle.current?.pendingUploads() ?? 0) +
         pendingFilesRef.current.length,
+      linkTaskItems: (links) => editorHandle.current?.linkTaskItems(links) ?? 0,
+      setTaskItemChecked: (taskId, checked) =>
+        editorHandle.current?.setTaskItemChecked(taskId, checked) ?? 0,
     }),
     // `activate` reads only refs and stable setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1758,6 +1881,7 @@ export function TextEdit(props: TextEditProps) {
               allowedImageOrigins={ALL_ORIGINS}
               mentionHref={props.mentionHref}
               mentionImage={props.mentionImage}
+              mentionStatus={props.mentionStatus}
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}

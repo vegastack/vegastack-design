@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.41 sha256-g8bZeHiuwzTFL7fnxGpHwwNgTotkJV0NNqaDiLW8kkI=
+// @vegastack text-edit-grammar@0.25.41 sha256-1sqr7d0M7yOwLyTcae2gg4HYkcBXDNiv3AykUBYQW8k=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -28,6 +28,7 @@ export const MENTION_KINDS = [
   "meeting",
   "customer",
   "project",
+  "product",
   "agent",
 ] as const;
 

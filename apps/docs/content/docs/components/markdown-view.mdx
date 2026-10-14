@@ -162,6 +162,9 @@ The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still s
   16px avatar instead of the icon. `mentionHref(kind, id)` makes a chip a link (return
   `null` for none); a person is never a link, and an id starting with `restricted:` renders a
   muted chip that never links (the target is one the reader may not open).
+  `mentionStatus(kind, id)` returning `{ struck: true, status: "Canceled" }` strikes a closed
+  target's label and tags its status, as in `TextEdit`. Product mentions,
+  `[@Glazing kit](mention://product/v1)`, render with the package icon.
 - **File chips** — a link whose href starts with `fileLinkPrefix` (default `/api/files/`) renders
   as a chip with an icon for the file's type; `""` turns file chips off.
 - **Callouts** — GitHub's alert syntax, `> [!NOTE]`, `> [!TIP]` and `> [!WARNING]`, renders as a

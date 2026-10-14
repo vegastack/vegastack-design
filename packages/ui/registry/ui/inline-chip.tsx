@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.41 sha256-aamEIUSj/4ZjNQcVHv09VEOsgEasP5ZpjVYEzL7eJDo=
+// @vegastack inline-chip@0.25.41 sha256-jWdvroXYyUApc7TdBBceBz8nc/tPp1yP/RKEex81hB4=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   CircleCheck,
   FileText,
   FolderKanban,
+  Package,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -26,7 +27,7 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * InlineChip — the one inline reference in running text: a person, page, file, task, meeting,
- * customer or project, in an editor, a rendered Markdown body or a comment. It is an INLINE box,
+ * customer, project or product, in an editor, a rendered Markdown body or a comment. It is an INLINE box,
  * never inline-flex: an inline-flex box whose first item is an icon takes its baseline from the
  * icon's bottom edge, which lifts the label above the text beside it. Here the label is ordinary
  * inline text on the line's own baseline, the icon is a 1em glyph nudged down by the usual
@@ -44,6 +45,7 @@ export type InlineChipKind =
   | "meeting"
   | "customer"
   | "project"
+  | "product"
   | "agent";
 
 /** Every inline chip kind, in menu order. */
@@ -55,6 +57,7 @@ export const INLINE_CHIP_KINDS: readonly InlineChipKind[] = [
   "meeting",
   "customer",
   "project",
+  "product",
   "agent",
 ];
 
@@ -154,6 +157,7 @@ const KIND_ICON: Record<InlineChipKind, LucideIcon> = {
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
+  product: Package,
   agent: Bot,
 };
 
@@ -166,12 +170,13 @@ export const INLINE_CHIP_KIND_LABEL: Record<InlineChipKind, string> = {
   meeting: "Meeting",
   customer: "Customer",
   project: "Project",
+  product: "Product",
   agent: "Agent",
 };
 
 /**
  * Each kind's soft ground and ink, from the tag hues: people blue, tasks green, meetings orange,
- * customers purple, projects cyan, agents purple (the agent hue everywhere — `PersonAvatar`'s bot);
+ * customers purple, projects cyan, products magenta, agents purple (the agent hue everywhere — `PersonAvatar`'s bot);
  * pages and files on the neutral muted ground. A restricted chip
  * is muted whatever its kind.
  */
@@ -185,6 +190,8 @@ const KIND_TONE: Record<InlineChipKind, string> = {
   customer:
     "bg-tag-purple-subtle [--inline-chip-ink:var(--color-tag-purple-text)]",
   project: "bg-tag-cyan-subtle [--inline-chip-ink:var(--color-tag-cyan-text)]",
+  product:
+    "bg-tag-magenta-subtle [--inline-chip-ink:var(--color-tag-magenta-text)]",
   agent:
     "bg-tag-purple-subtle [--inline-chip-ink:var(--color-tag-purple-text)]",
 };
@@ -289,6 +296,18 @@ export interface InlineChipProps extends Omit<
    * @default "click"
    */
   openOn?: "click" | "modifier";
+  /**
+   * The label struck through: a target that is closed without being done (a canceled or duplicate
+   * task). The chip carries `data-struck`; its tint and link are unchanged.
+   * @default false
+   */
+  struck?: boolean;
+  /**
+   * A small status tag after the label ("Canceled", "Duplicate") — the same muted outline badge
+   * as "Inactive". `""` or undefined shows none.
+   * @default undefined
+   */
+  status?: string;
 }
 
 /** A link or image URL that is relative or uses a safe protocol; anything else becomes `""`. */
@@ -309,7 +328,7 @@ function safeUrl(value: string): string {
 }
 
 /**
- * `InlineChip` — a person, page, file, task, meeting, customer or project referenced inline. It
+ * `InlineChip` — a person, page, file, task, meeting, customer, project or product referenced inline. It
  * sits on the text's baseline at the text's size, tinted by kind. A person chip previews the
  * person (avatar, name, email) on hover or focus; any other chip previews what `preview` returns
  * and opens on click (`onOpen`, else its `href`), with ⌘/Ctrl-click opening a link in a new tab.
@@ -331,6 +350,8 @@ export function InlineChip({
   preview: previewProp,
   restricted: restrictedProp,
   openOn = "click",
+  struck = false,
+  status,
   className,
   onKeyDown,
   ...props
@@ -421,6 +442,7 @@ export function InlineChip({
     "data-kind": kind,
     "data-restricted": restricted ? "" : undefined,
     "data-inactive": person?.inactive ? "" : undefined,
+    "data-struck": struck ? "" : undefined,
     "data-interactive": opens || person ? "" : undefined,
     spellCheck: false,
     className: cn(CHIP, KIND_TONE[kind], className),
@@ -430,7 +452,27 @@ export function InlineChip({
   const body = (
     <span data-slot="inline-chip-label" className="text-(--inline-chip-ink)">
       {lead}
-      {label}
+      {struck ? (
+        <s
+          data-slot="inline-chip-struck"
+          className="decoration-(--inline-chip-ink)/60"
+        >
+          {label}
+        </s>
+      ) : (
+        label
+      )}
+      {status ? (
+        // A closed target's status ("Canceled"): the person surfaces' badge, at the chip's
+        // baseline and no taller.
+        <Badge
+          variant="outline"
+          data-slot="inline-chip-status"
+          className="ms-1 h-auto px-1.5 py-px align-baseline leading-none font-normal text-muted-foreground"
+        >
+          {status}
+        </Badge>
+      ) : null}
       {person?.inactive ? (
         // The person surfaces' "Inactive" badge, at the chip's text baseline and no taller.
         <Badge

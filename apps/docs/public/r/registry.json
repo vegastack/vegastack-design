@@ -1990,7 +1990,7 @@
         "version": "0.25.41",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-g8bZeHiuwzTFL7fnxGpHwwNgTotkJV0NNqaDiLW8kkI="
+        "integrity": "sha256-1sqr7d0M7yOwLyTcae2gg4HYkcBXDNiv3AykUBYQW8k="
       }
     },
     {
@@ -16183,7 +16183,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.41",
-        "integrity": "sha256-aamEIUSj/4ZjNQcVHv09VEOsgEasP5ZpjVYEzL7eJDo="
+        "integrity": "sha256-jWdvroXYyUApc7TdBBceBz8nc/tPp1yP/RKEex81hB4="
       }
     },
     {
@@ -16235,7 +16235,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.41",
-        "integrity": "sha256-kK6EYiOxTrKqf0G3pxvoO6j2uNy+iPar/gab+eafXP4="
+        "integrity": "sha256-o0JC+OKUdbz7Q8uUk8WXojWAvRNw2Uo9/5bXtoyNC28="
       }
     },
     {
@@ -18321,7 +18321,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.41",
-        "integrity": "sha256-CnIn2nX4K7H5LDSL+6e+7IqhRY4eyRZam3+zN4AjxzQ="
+        "integrity": "sha256-uztHKq37sn2D/OTJ6DiCU9ptKZsPcf6nJM8kgC2h980="
       }
     },
     {

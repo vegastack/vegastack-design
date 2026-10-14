@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.41 sha256-CnIn2nX4K7H5LDSL+6e+7IqhRY4eyRZam3+zN4AjxzQ=
+// @vegastack text-edit@0.25.41 sha256-uztHKq37sn2D/OTJ6DiCU9ptKZsPcf6nJM8kgC2h980=
 
 "use client";
 
@@ -276,6 +276,13 @@ import type {
   TextEditHeadingAnchor,
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
+import {
+  linkedTaskId,
+  type TextEditSectionMark,
+  type TextEditTaskItem,
+  type TextEditTaskLink,
+} from "@/components/ui/text-edit";
+import { Package } from "lucide-react";
 
 /*
  * The heavy half of `TextEdit`: the Tiptap editor itself. `text-edit.tsx` renders the saved
@@ -2454,6 +2461,7 @@ const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
   { kind: "meeting", label: "Meetings" },
   { kind: "customer", label: "Customers" },
   { kind: "project", label: "Projects" },
+  { kind: "product", label: "Products" },
   { kind: "agent", label: "Your agents" },
 ];
 
@@ -2529,6 +2537,7 @@ const MENTION_ICON: Record<
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
+  product: Package,
   agent: Bot,
 };
 
@@ -2976,6 +2985,8 @@ interface EditorRuntime {
   mentionImage: React.RefObject<TextEditProps["mentionImage"]>;
   /** A record mention's label for this reader (`mentionLabel`); `labels` bumps when it changes. */
   mentionLabel: React.RefObject<TextEditProps["mentionLabel"]>;
+  /** A closed target's struck chip and status tag (`mentionStatus`); read with the labels. */
+  mentionStatus: React.RefObject<TextEditProps["mentionStatus"]>;
   labels: Versioned;
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
@@ -3020,6 +3031,7 @@ function mentionView(runtime: EditorRuntime) {
         ? own
         : stored || own) || "…";
     const hrefFor = runtime.mentionHref.current;
+    const closed = runtime.mentionStatus.current?.(kind, id);
     return (
       // An atom: never editable text, never spellchecked.
       <NodeViewWrapper
@@ -3032,6 +3044,8 @@ function mentionView(runtime: EditorRuntime) {
           kind={kind}
           targetId={id}
           label={label}
+          struck={closed?.struck === true}
+          status={closed?.status}
           openOn="modifier"
           href={hrefFor ? hrefFor(kind, id) : undefined}
           image={
@@ -6378,6 +6392,419 @@ function HeadingLink({
   );
 }
 
+/* --- linked task items (J9) ---------------------------------------------------------------------*/
+
+/**
+ * Marks a transaction this editor makes for the host (`linkTaskItems`, `setTaskItemChecked`): it
+ * is never reported as a person's toggle (`onTaskItemToggle`).
+ */
+const TASK_SYNC_META = "textEditTaskSync";
+
+/** The trimmed text of a task item's own line (its first paragraph). */
+function taskItemText(node: PMNode): string {
+  const line = node.firstChild;
+  return line?.isTextblock ? line.textContent.trim() : "";
+}
+
+/**
+ * The unlinked checklist lines Make task acts on from `block`: every unlinked, non-empty task item
+ * whose line the selection reaches when the selection covers the block, else the block alone.
+ * Empty when the block is not an unlinked task item with text.
+ */
+function makeTaskItems(
+  state: EditorState,
+  block: BlockTarget,
+): TextEditTaskItem[] {
+  const { node, pos, range } = block;
+  if (node.type.name !== "taskItem" || linkedTaskId(node) !== null) return [];
+  const end = pos + node.nodeSize;
+  if (range && range.to > range.from && range.from < end && range.to > pos) {
+    const items: TextEditTaskItem[] = [];
+    state.doc.nodesBetween(range.from, range.to, (child, at) => {
+      if (child.isTextblock) return false;
+      if (child.type.name !== "taskItem") return true;
+      // Only the lines the selection reaches into: a parent item whose nested line is selected
+      // is not one.
+      const lineEnd = at + 1 + (child.firstChild?.nodeSize ?? 0);
+      if (range.from < lineEnd && range.to > at + 1 && !linkedTaskId(child)) {
+        const text = taskItemText(child);
+        if (text) items.push({ pos: at, text });
+      }
+      return true;
+    });
+    if (items.some((item) => item.pos === pos)) return items;
+  }
+  const text = taskItemText(node);
+  return text ? [{ pos, text }] : [];
+}
+
+/** The position in `line` after `offset` characters of its text (atoms count as none). */
+function lineOffsetToPos(line: PMNode, offset: number): number {
+  let left = offset;
+  let at = 0;
+  for (let index = 0; index < line.childCount; index++) {
+    const child = line.child(index);
+    const length = child.isText ? (child.text ?? "").length : 0;
+    if (left <= length) return at + left;
+    left -= length;
+    at += child.nodeSize;
+  }
+  return at;
+}
+
+/**
+ * Link checklist lines to tasks (`linkTaskItems`): each line's text becomes a leading task chip.
+ * When the line starts with the task's title (the line `onMakeTask` offered), what follows the
+ * title stays after the chip; otherwise the whole line is replaced. Nested content stays.
+ */
+function linkTaskItemsIn(
+  editor: Editor,
+  links: readonly TextEditTaskLink[],
+  collaborative: boolean,
+): number {
+  const { state } = editor;
+  const { mention } = state.schema.nodes;
+  if (!mention) return 0;
+  const tr = state.tr;
+  let linked = 0;
+  for (const link of [...links].sort((a, b) => a.pos - b.pos)) {
+    if (!link.id) continue;
+    const pos = tr.mapping.map(link.pos);
+    const node = tr.doc.nodeAt(pos);
+    if (!node || node.type.name !== "taskItem" || linkedTaskId(node)) continue;
+    const line = node.firstChild;
+    if (!line || line.type.name !== "paragraph") continue;
+    let text = "";
+    line.forEach((child) => {
+      if (child.isText) text += child.text ?? "";
+    });
+    const label = link.label.replace(/\s*\n\s*/g, " ").trim();
+    const lead = text.length - text.trimStart().length;
+    // The rest of the line after the title, from a word boundary ("Order glass — Friday").
+    const rest = text.slice(lead + label.length);
+    const keepFrom =
+      label &&
+      text.slice(lead).startsWith(label) &&
+      (rest === "" || /^[\s\p{P}]/u.test(rest))
+        ? lineOffsetToPos(line, lead + label.length)
+        : line.content.size;
+    const chip = mention.create({
+      kind: "task",
+      id: link.id,
+      // A shared document never stores a record's title (`recordLabelsStripped`).
+      label: collaborative ? "" : label,
+    });
+    const start = pos + 2;
+    tr.replaceWith(
+      start,
+      start + line.content.size,
+      Fragment.from(chip).append(line.content.cut(keepFrom)),
+    );
+    linked++;
+  }
+  if (linked) editor.view.dispatch(tr.setMeta(TASK_SYNC_META, true));
+  return linked;
+}
+
+/** Tick or untick every line linked to `taskId` (`setTaskItemChecked`): not an undo step. */
+function setLinkedTaskChecked(
+  editor: Editor,
+  taskId: string,
+  checked: boolean,
+): number {
+  const { state } = editor;
+  const tr = state.tr;
+  let changed = 0;
+  state.doc.descendants((node, pos) => {
+    if (node.isTextblock) return false;
+    if (
+      node.type.name === "taskItem" &&
+      Boolean(node.attrs.checked) !== checked &&
+      linkedTaskId(node) === taskId
+    ) {
+      tr.setNodeMarkup(pos, undefined, { ...node.attrs, checked });
+      changed++;
+    }
+    return true;
+  });
+  if (changed)
+    editor.view.dispatch(
+      tr.setMeta(TASK_SYNC_META, true).setMeta("addToHistory", false),
+    );
+  return changed;
+}
+
+/** Each step's changed ranges: in the document before it, and in the one after it. */
+function forEachStepRange(
+  tr: Transaction,
+  visit: (
+    before: PMNode,
+    from: number,
+    to: number,
+    after: PMNode,
+    newFrom: number,
+    newTo: number,
+  ) => void,
+) {
+  tr.steps.forEach((step, index) => {
+    const before = tr.docs[index]!;
+    const after = tr.docs[index + 1] ?? tr.doc;
+    let any = false;
+    step.getMap().forEach((from, to, newFrom, newTo) => {
+      any = true;
+      visit(before, from, to, after, newFrom, newTo);
+    });
+    // An attribute step changes no range: the node at its position is the change.
+    const at = (step as { pos?: unknown }).pos;
+    if (!any && typeof at === "number")
+      visit(before, at, at + 1, after, at, at + 1);
+  });
+}
+
+/**
+ * The linked lines `tr` ticked or unticked, by task id → checked: lines that existed before and
+ * after it with a different box. A line pasted, deleted or newly linked is not a toggle.
+ */
+function taskToggles(tr: Transaction): Map<string, boolean> {
+  const before = new Map<string, boolean>();
+  const after = new Map<string, boolean>();
+  const collect = (
+    doc: PMNode,
+    from: number,
+    to: number,
+    into: Map<string, boolean>,
+    first: boolean,
+  ) => {
+    const size = doc.content.size;
+    doc.nodesBetween(
+      Math.max(0, Math.min(from, size)),
+      Math.max(0, Math.min(to, size)),
+      (node) => {
+        if (node.isTextblock) return false;
+        if (node.type.name !== "taskItem") return true;
+        const id = linkedTaskId(node);
+        if (id && (!first || !into.has(id)))
+          into.set(id, Boolean(node.attrs.checked));
+        return true;
+      },
+    );
+  };
+  forEachStepRange(tr, (old, from, to, next, newFrom, newTo) => {
+    collect(old, from, to, before, true);
+    collect(next, newFrom, newTo, after, false);
+  });
+  const toggles = new Map<string, boolean>();
+  for (const [id, checked] of after)
+    if (before.has(id) && before.get(id) !== checked) toggles.set(id, checked);
+  return toggles;
+}
+
+/** Whether `tr` was this person's own edit: not a collaborator's, not a value sync or task sync. */
+function isOwnEdit(tr: Transaction): boolean {
+  if (
+    !tr.docChanged ||
+    tr.getMeta(TASK_SYNC_META) ||
+    tr.getMeta("preventUpdate")
+  )
+    return false;
+  if (!isChangeOrigin(tr)) return true;
+  // A shared document's undo and redo come back through Yjs, but they are this person's own.
+  return Boolean(
+    (
+      tr.getMeta(ySyncPluginKey) as
+        { isUndoRedoOperation?: boolean } | undefined
+    )?.isUndoRedoOperation,
+  );
+}
+
+/* --- section marks (J1/J3) ----------------------------------------------------------------------*/
+
+const SECTION_MARKS_KEY = new PluginKey<SectionMarksState>(
+  "textEditSectionMarks",
+);
+
+interface SectionMarksState {
+  marks: readonly TextEditSectionMark[];
+  set: DecorationSet;
+}
+
+/**
+ * The section bar: a 2px rule in the block gutter, left of the drag grip (its centre 26px before
+ * the text), drawn by `::after` so nothing moves. A block's rule reaches 24px up across the gap
+ * above it, so the bar runs unbroken from the heading to the section's last block.
+ */
+const SECTION_BAR =
+  "relative after:pointer-events-none after:absolute after:-start-[27px] after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
+const SECTION_TONE = {
+  warning: "after:bg-warning",
+  info: "after:bg-info",
+} as const;
+const SECTION_HEADING_CLASS = {
+  warning: cn(SECTION_BAR, "after:top-0", SECTION_TONE.warning),
+  info: cn(SECTION_BAR, "after:top-0", SECTION_TONE.info),
+} as const;
+const SECTION_BLOCK_CLASS = {
+  warning: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.warning),
+  info: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.info),
+} as const;
+/** The gutter marker: a dot on the bar at the heading's first line, a 16×24 target around it. */
+const SECTION_MARKER =
+  "absolute -start-[34px] top-[calc(0.5lh-12px)] z-[1] flex h-6 w-4 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
+const SECTION_DOT = {
+  warning: "bg-warning",
+  info: "bg-info",
+} as const;
+
+/** The marker widget's DOM: a button named by the mark, calling `onMark` on a click. */
+function sectionMarker(
+  mark: TextEditSectionMark,
+  onMark: (key: string) => void,
+) {
+  return () => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.contentEditable = "false";
+    button.dataset.slot = "text-edit-section-mark";
+    button.dataset.tone = mark.tone;
+    button.className = SECTION_MARKER;
+    button.title = mark.label;
+    button.setAttribute("aria-label", mark.label);
+    const dot = document.createElement("span");
+    dot.className = SECTION_DOT[mark.tone];
+    dot.setAttribute("aria-hidden", "true");
+    button.append(dot);
+    // The caret stays where it was; the click is the marker's.
+    button.addEventListener("mousedown", (event) => event.preventDefault());
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onMark(mark.key);
+    });
+    return button;
+  };
+}
+
+/**
+ * The marks' decorations over the document's top-level blocks: each marked heading (by
+ * `blockId`) gets the marker and its bar, and every block up to the next heading of the same or
+ * a higher level the bar too (a nested marked section's tone wins inside it).
+ */
+function sectionDecorations(
+  doc: PMNode,
+  marks: readonly TextEditSectionMark[],
+  onMark: (key: string) => void,
+): DecorationSet {
+  if (marks.length === 0) return DecorationSet.empty;
+  const byKey = new Map(marks.map((mark) => [mark.key, mark]));
+  const open: { level: number; mark: TextEditSectionMark | null }[] = [];
+  const decorations: PMDecoration[] = [];
+  doc.forEach((node, pos) => {
+    if (node.type.name === "heading") {
+      const level = Number(node.attrs.level) || 1;
+      while (open.length > 0 && open[open.length - 1]!.level >= level)
+        open.pop();
+      const id = node.attrs.blockId as string | null | undefined;
+      const mark = id ? byKey.get(id) : undefined;
+      if (mark) {
+        open.push({ level, mark });
+        decorations.push(
+          PMDecoration.node(pos, pos + node.nodeSize, {
+            class: SECTION_HEADING_CLASS[mark.tone],
+            "data-section-mark": mark.tone,
+          }),
+          PMDecoration.widget(pos + 1, sectionMarker(mark, onMark), {
+            side: -1,
+            ignoreSelection: true,
+            stopEvent: () => true,
+            key: `section-mark:${mark.key}:${mark.tone}:${mark.label}`,
+          }),
+        );
+        return;
+      }
+      // An unmarked heading inside a marked section is one of its blocks.
+      open.push({ level, mark: null });
+    }
+    const inner = [...open].reverse().find((section) => section.mark)?.mark;
+    if (inner)
+      decorations.push(
+        PMDecoration.node(pos, pos + node.nodeSize, {
+          class: SECTION_BLOCK_CLASS[inner.tone],
+          "data-section-mark": inner.tone,
+        }),
+      );
+  });
+  return DecorationSet.create(doc, decorations);
+}
+
+/** Whether `tr` added, removed or changed a top-level heading (a section boundary may move). */
+function touchesHeading(tr: Transaction): boolean {
+  let found = false;
+  const scan = (doc: PMNode, from: number, to: number) => {
+    if (found) return;
+    const size = doc.content.size;
+    doc.nodesBetween(
+      Math.max(0, Math.min(from, size)),
+      Math.max(0, Math.min(to, size)),
+      (node) => {
+        if (node.type.name === "heading") found = true;
+        return false;
+      },
+    );
+  };
+  forEachStepRange(tr, (before, from, to, after, newFrom, newTo) => {
+    scan(before, from, to);
+    scan(after, newFrom, newTo);
+  });
+  return found;
+}
+
+/**
+ * Section marks (`sectionMarks`) as decorations: nothing is written to the document. They are
+ * rebuilt only when the marks change or an edit touches a heading or adds or removes a top-level
+ * block; any other edit maps them.
+ */
+function sectionMarksExtension(onMark: (key: string) => void) {
+  return Extension.create({
+    name: "textEditSectionMarks",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin<SectionMarksState>({
+          key: SECTION_MARKS_KEY,
+          state: {
+            init: () => ({ marks: [], set: DecorationSet.empty }),
+            apply(tr, previous, oldState, newState) {
+              const marks = tr.getMeta(SECTION_MARKS_KEY) as
+                readonly TextEditSectionMark[] | undefined;
+              if (marks)
+                return {
+                  marks,
+                  set: sectionDecorations(newState.doc, marks, onMark),
+                };
+              if (!tr.docChanged || previous.marks.length === 0)
+                return previous;
+              if (
+                oldState.doc.childCount !== newState.doc.childCount ||
+                touchesHeading(tr)
+              )
+                return {
+                  marks: previous.marks,
+                  set: sectionDecorations(newState.doc, previous.marks, onMark),
+                };
+              return {
+                marks: previous.marks,
+                set: previous.set.map(tr.mapping, tr.doc),
+              };
+            },
+          },
+          props: {
+            decorations: (state) => SECTION_MARKS_KEY.getState(state)?.set,
+          },
+        }),
+      ];
+    },
+  });
+}
+
 /* --- block menu (B2) ---------------------------------------------------------------------------*/
 
 /** The block a handle or ⇧F10 menu acts on. */
@@ -6385,12 +6812,16 @@ interface BlockTarget {
   pos: number;
   node: PMNode;
   dom: HTMLElement;
+  /** The selection when the menu opened: Make task acts on every checklist line it reaches. */
+  range?: { from: number; to: number };
 }
 
 /** What the block menu needs from the editor beyond the block itself. */
 interface BlockMenuRuntime {
   /** `headingLinkHref`: a heading's Copy link. */
   headingLink: (pos: number) => string | null;
+  /** `onMakeTask`: Make task on an unlinked checklist line. */
+  makeTask: () => ((items: TextEditTaskItem[]) => void) | undefined;
 }
 
 /** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
@@ -6552,15 +6983,27 @@ function blockActions(
   const { pos, node } = block;
   const { index, siblings } = siblingsOf(editor.view, pos);
   const link = node.type.name === "heading" ? runtime.headingLink(pos) : null;
-  const actions: (BlockAction | null)[] = [
-    {
-      key: "duplicate",
-      label: "Duplicate",
-      icon: CopyPlus,
-      shortcut: "⌘D",
-      run: () => duplicateBlock(editor, pos),
-    },
-  ];
+  const makeTask = runtime.makeTask();
+  const tasks =
+    makeTask && editor.isEditable ? makeTaskItems(editor.state, block) : [];
+  const actions: (BlockAction | null)[] = [];
+  if (makeTask && tasks.length > 0)
+    actions.push(
+      {
+        key: "make-task",
+        label: tasks.length > 1 ? `Make ${tasks.length} tasks` : "Make task",
+        icon: CircleCheck,
+        run: () => makeTask(tasks),
+      },
+      null,
+    );
+  actions.push({
+    key: "duplicate",
+    label: "Duplicate",
+    icon: CopyPlus,
+    shortcut: "⌘D",
+    run: () => duplicateBlock(editor, pos),
+  });
   if (link)
     actions.push({
       key: "link",
@@ -6923,7 +7366,8 @@ function caretBlock(editor: Editor): BlockTarget | null {
   const dom = editor.view.nodeDOM(pos);
   if (!node || !(dom instanceof HTMLElement) || node.type.name === "table")
     return null;
-  return { pos, node, dom };
+  const { from, to } = editor.state.selection;
+  return { pos, node, dom, range: { from, to } };
 }
 
 /**
@@ -7015,6 +7459,8 @@ function BlockHandle({
   const onPointerDown = (event: React.PointerEvent) => {
     if (!block) return;
     pinnedRef.current = true;
+    // The selection before the grip selects its block: Make task reads the lines it reaches.
+    const { from, to } = editor.state.selection;
     startBlockDrag(editor, block.pos, event, {
       setLine,
       onClick: () => {
@@ -7023,7 +7469,7 @@ function BlockHandle({
             NodeSelection.create(editor.state.doc, block.pos),
           ),
         );
-        openMenu(block);
+        openMenu({ ...block, range: { from, to } });
       },
       onEnd: () => {
         if (!menuOpenRef.current) pinnedRef.current = false;
@@ -7271,6 +7717,11 @@ export function TextEditEditor({
   mentionHref,
   mentionImage,
   mentionLabel,
+  mentionStatus: mentionStatusProp,
+  onTaskItemToggle,
+  onMakeTask,
+  sectionMarks,
+  onSectionMark,
   onImageUpload,
   onFileUpload,
   onUploadError,
@@ -7432,9 +7883,21 @@ export function TextEditEditor({
   mentionImageRef.current = mentionImage;
   const mentionLabelRef = React.useRef(mentionLabel);
   mentionLabelRef.current = mentionLabel;
-  // Chips read `mentionLabel` at render: a new one re-renders them.
+  const mentionStatusRef = React.useRef(mentionStatusProp);
+  mentionStatusRef.current = mentionStatusProp;
+  // Chips read `mentionLabel` and `mentionStatus` at render: a new one re-renders them.
   const [labels] = React.useState(() => new Versioned());
-  React.useEffect(() => labels.bump(), [labels, mentionLabel]);
+  React.useEffect(
+    () => labels.bump(),
+    [labels, mentionLabel, mentionStatusProp],
+  );
+  // Linked checklist lines and section marks: read through refs by the extensions and the menu.
+  const taskToggleRef = React.useRef(onTaskItemToggle);
+  taskToggleRef.current = onTaskItemToggle;
+  const makeTaskRef = React.useRef(onMakeTask);
+  makeTaskRef.current = onMakeTask;
+  const sectionMarkRef = React.useRef(onSectionMark);
+  sectionMarkRef.current = onSectionMark;
   const [toggleRuntime] = React.useState<ToggleRuntime>(() => ({
     // Shared or a diff: opening a toggle is this viewer's view, never a document change.
     states: quiet ? new ToggleStates(toggleStateRef) : null,
@@ -7564,6 +8027,7 @@ export function TextEditEditor({
         mentionHref: mentionHrefRef,
         mentionImage: mentionImageRef,
         mentionLabel: mentionLabelRef,
+        mentionStatus: mentionStatusRef,
         labels,
         collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
@@ -7587,6 +8051,7 @@ export function TextEditEditor({
       collab,
       diffing,
       [
+        sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
         ...(findReplace
           ? [
               FindAndReplace.configure({
@@ -7696,6 +8161,7 @@ export function TextEditEditor({
         const anchor = headingAnchorAt(ed.state.doc, pos);
         return anchor ? href(anchor) : null;
       },
+      makeTask: () => makeTaskRef.current,
     }),
     [],
   );
@@ -8596,6 +9062,36 @@ export function TextEditEditor({
     };
   }, [editor, onStatsChange]);
 
+  // Linked checklist lines: this person's own ticks reach the host — never a collaborator's, a
+  // value sync or the host's own `setTaskItemChecked`.
+  React.useEffect(() => {
+    if (!editor) return;
+    const onTransaction = ({ transaction }: { transaction: Transaction }) => {
+      const notify = taskToggleRef.current;
+      if (!notify || !isOwnEdit(transaction)) return;
+      for (const [taskId, checked] of taskToggles(transaction))
+        notify(taskId, checked);
+    };
+    editor.on("transaction", onTransaction);
+    return () => {
+      editor.off("transaction", onTransaction);
+    };
+  }, [editor]);
+
+  // Section marks: rebuilt when the host's list changes (by content, not identity).
+  const sectionMarksKey = JSON.stringify(sectionMarks ?? []);
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.view.dispatch(
+      editor.state.tr
+        .setMeta(
+          SECTION_MARKS_KEY,
+          JSON.parse(sectionMarksKey) as TextEditSectionMark[],
+        )
+        .setMeta("addToHistory", false),
+    );
+  }, [editor, sectionMarksKey]);
+
   // Annotations: resolved into the document whenever the host's list changes.
   React.useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -8782,6 +9278,18 @@ export function TextEditEditor({
       },
       pickFiles: () => pickRef.current?.(),
       pendingUploads: () => uploadsRef.current.size,
+      linkTaskItems: (links: readonly TextEditTaskLink[]) => {
+        const ed = editorRef.current;
+        return ed && !ed.isDestroyed
+          ? linkTaskItemsIn(ed, links, collab !== null)
+          : 0;
+      },
+      setTaskItemChecked: (taskId: string, checked: boolean) => {
+        const ed = editorRef.current;
+        return ed && !ed.isDestroyed
+          ? setLinkedTaskChecked(ed, taskId, checked)
+          : 0;
+      },
       pulseAnnotation: (id: string) => {
         const ed = editorRef.current;
         if (!ed || ed.isDestroyed) return;
