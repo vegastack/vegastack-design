@@ -1965,7 +1965,7 @@
         "version": "0.25.35",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-qpAzelqfXJ2Qh/Yr5ypOPRYesho1FuiQPOWGu03RngA="
+        "integrity": "sha256-97z5ahH4Ndko3uTZi4iKcX5FxnFOhNB6OaODbFWZuqM="
       }
     },
     {
