@@ -135,6 +135,9 @@ export default defineConfig({
       "@tiptap/extension-link",
       "@tiptap/extension-unique-id",
       "@tiptap/y-tiptap",
+      "@tiptap/extension-collaboration",
+      "@tiptap/extension-collaboration-caret",
+      "y-protocols/awareness",
       "yjs",
       // Base UI entry points registry sources import that no list above named: each was discovered
       // mid-run on a cold cache and reloaded the page (text-edit: 40/45 failed cold).

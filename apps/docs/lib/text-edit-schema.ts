@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.30 sha256-guBn/2WKUMjiwfTguEu4AyvKcNGGEuDlug6OlFr22Cs=
+// @vegastack text-edit-schema@0.25.30 sha256-01qCd6OHOiVk41anJNkVwEXEyXohZkE+9W4aNZI86Gw=
 
 import {
   Extension,
@@ -15,6 +15,7 @@ import {
   type NodeViewRenderer,
 } from "@tiptap/core";
 import type { Schema } from "@tiptap/pm/model";
+import type { Transaction } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import { CodeBlock } from "@tiptap/extension-code-block";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
@@ -83,8 +84,12 @@ export interface TextEditSchemaOptions {
   fileLinkPrefix?: () => string;
   /** A lowlight instance: code blocks highlight with it. Omit on a server. */
   lowlight?: object;
-  /** A collaborative editor: Tiptap's own undo history is off (the collaboration undo replaces it). */
-  collaboration?: boolean;
+  /**
+   * A collaborative editor. Tiptap's own undo history is off (the collaboration undo replaces it),
+   * and new blocks get ids as they appear — in this viewer's own transactions only (`isRemote`
+   * tells a collaborator's change apart), so two viewers never race on one block.
+   */
+  collaboration?: { isRemote: (transaction: Transaction) => boolean };
 }
 
 /**
@@ -1381,15 +1386,46 @@ export function textEditExtensions(
     fileChipAttribute(options.fileLinkPrefix ?? (() => "")),
     // Stable block ids: the attribute is always in the schema; only a collaborative editor assigns
     // ids as blocks appear (a server assigns them when it converts Markdown: `markdownToDoc`).
-    UniqueID.configure({
+    BlockIds.configure({
       attributeName: "blockId",
       types: [...BLOCK_ID_TYPES],
       generateID: blockId,
       updateDocument: Boolean(options.collaboration),
+      ...(options.collaboration
+        ? {
+            filterTransaction: (transaction: Transaction) =>
+              !options.collaboration!.isRemote(transaction),
+          }
+        : {}),
     }),
     ...(options.plugins ?? []),
   ];
 }
+
+/**
+ * Stable block ids (`blockId`): a block created here gets one as it is made. A document's initial
+ * ids are never assigned by a client — `markdownToDoc` and the collaboration server own them —
+ * so a reader (read-only) never edits a shared document, and two viewers never race to give one
+ * block different ids. Upstream assigns the whole document's missing ids on create or on the
+ * first sync; both are switched off, and only this person's own edits are given ids.
+ */
+const BlockIds = UniqueID.extend({
+  onCreate() {},
+  addProseMirrorPlugins() {
+    const upstream = UniqueID.config.addProseMirrorPlugins as
+      | ((
+          this: unknown,
+        ) => ReturnType<
+          NonNullable<typeof UniqueID.config.addProseMirrorPlugins>
+        >)
+      | undefined;
+    const plugins = upstream?.call(this) ?? [];
+    (
+      this.storage as { needsInitialIdGeneration?: boolean }
+    ).needsInitialIdGeneration = false;
+    return plugins;
+  },
+});
 
 let cachedSchema: Schema | undefined;
 

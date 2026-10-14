@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.30 sha256-M6fYx0+2o/pu1+dO67XMjhTdBH4GqrLjdBhJBvUADmk=
+// @vegastack text-edit-grammar@0.25.30 sha256-r1FM3ZC5PxGSXUP87V/uOPCYEmAZd1VOhS08FfO7aGk=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -28,20 +28,22 @@ export const MENTION_KINDS = [
   "meeting",
   "customer",
   "project",
+  "agent",
 ] as const;
 
 /** What a mention points at. */
 export type MentionKind = (typeof MENTION_KINDS)[number];
 
 /**
- * A record mention (anything but a person). Its label is a record's title, which only readers who
- * can open the record may see — so a shared document stores it empty and each reader's chip
- * resolves it.
+ * A record mention (a page, a file, a task, …: anything but a person or a member's agent). Its
+ * label is a record's title, which only readers who can open the record may see — so a shared
+ * document stores it empty and each reader's chip resolves it. A person's or an agent's name is
+ * visible to every member, so theirs is stored.
  */
 export function isRecordMentionKind(
   kind: MentionKind,
-): kind is Exclude<MentionKind, "user"> {
-  return kind !== "user";
+): kind is Exclude<MentionKind, "user" | "agent"> {
+  return kind !== "user" && kind !== "agent";
 }
 
 /** A target the reader may not open: the link carries the real id after this prefix. */

@@ -467,3 +467,36 @@ test('AutoSaveIndicator variant="icon": one icon per state, labelled for screen 
   expect(svg).toContain("lucide-triangle-alert");
   expect(svg).not.toContain("motion-shake");
 });
+
+test("AutoSaveIndicator: a live document's connecting and offline states, worded and never colour alone", async () => {
+  const screen = await render(<AutoSaveIndicator status="connecting" />);
+  const region = screen.getByRole("status");
+  await expect.element(region).toHaveTextContent("Connecting…");
+  expect(
+    region.element().querySelector('[data-slot="spinner"], svg'),
+  ).not.toBeNull();
+
+  await screen.rerender(
+    <AutoSaveIndicator
+      status="offline"
+      labels={{ offline: "Offline — saved on this device" }}
+    />,
+  );
+  await expect
+    .element(region)
+    .toHaveTextContent("Offline — saved on this device");
+  expect(region.element().getAttribute("class")).toContain("text-warning-text");
+  expect(
+    region.element().querySelector("svg")!.getAttribute("class"),
+  ).toContain("lucide-cloud-off");
+  await expectNoA11yViolations(screen.container);
+
+  // The icon variant keeps its 16px box and names the state for screen readers.
+  await screen.rerender(<AutoSaveIndicator variant="icon" status="offline" />);
+  await expect.element(region).toHaveTextContent("Offline — changes will sync");
+  expect(region.element().getAttribute("class")).toContain("size-4");
+  await screen.rerender(
+    <AutoSaveIndicator variant="icon" status="connecting" />,
+  );
+  await expect.element(region).toHaveTextContent("Connecting");
+});

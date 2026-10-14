@@ -587,7 +587,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.25.30",
-        "integrity": "sha256-5B99u4N84k4NO3X7GJfsDRpQkgusykO4bJDdAJTLOFM="
+        "integrity": "sha256-odZH7HkRPasxmuh7EadFR01C10EoagLWN/MqokW0OPE="
       }
     },
     {
@@ -1891,7 +1891,7 @@
         "version": "0.25.30",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-M6fYx0+2o/pu1+dO67XMjhTdBH4GqrLjdBhJBvUADmk="
+        "integrity": "sha256-r1FM3ZC5PxGSXUP87V/uOPCYEmAZd1VOhS08FfO7aGk="
       }
     },
     {
@@ -1930,7 +1930,7 @@
         "version": "0.25.30",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-guBn/2WKUMjiwfTguEu4AyvKcNGGEuDlug6OlFr22Cs="
+        "integrity": "sha256-01qCd6OHOiVk41anJNkVwEXEyXohZkE+9W4aNZI86Gw="
       }
     },
     {
@@ -1949,7 +1949,8 @@
       ],
       "registryDependencies": [
         "@vegastack/text-edit-schema",
-        "@vegastack/text-anchor-doc"
+        "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-grammar"
       ],
       "files": [
         {
@@ -1962,7 +1963,7 @@
         "version": "0.25.30",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-yDc5Sjj6bDcwx+Wh4K0recbokyumRDT/rwz1WlYgd84="
+        "integrity": "sha256-top2uoSgMcLPXzs6KON/vws8J5rSCDe6w9PudswklaI="
       }
     },
     {
@@ -16057,7 +16058,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.30",
-        "integrity": "sha256-SNHT0VT0XxwEG7P1PZIpxqJr9AmFtS+0LaE3shdcIZM="
+        "integrity": "sha256-97/bvjOu146Tm++MSGqmxMYE0LhCe0rtuPkr8ubaah8="
       }
     },
     {
@@ -18124,7 +18125,12 @@
         "@tiptap/suggestion@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.7",
-        "@vegastack/design-tokens@^0.8.3"
+        "@vegastack/design-tokens@^0.8.3",
+        "@tiptap/extension-collaboration@^3.31.4",
+        "@tiptap/extension-collaboration-caret@^3.31.4",
+        "@tiptap/y-tiptap@^3.0.9",
+        "yjs@^13.6.33",
+        "y-protocols@^1.0.7"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -18154,7 +18160,8 @@
         "@vegastack/suggestion-menu",
         "@vegastack/text-edit-grammar",
         "@vegastack/text-edit-schema",
-        "@vegastack/text-edit-markdown"
+        "@vegastack/text-edit-markdown",
+        "@vegastack/avatar"
       ],
       "files": [
         {
@@ -18172,7 +18179,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.30",
-        "integrity": "sha256-cSJLXhuYH2Jgvx9Y27KjXL0nJ2OVyGdk/TkCVZHcocU="
+        "integrity": "sha256-YCxJblG8DieSdsF0WXeKm6eepT6F/qX/BPptbFf3wnY="
       }
     },
     {

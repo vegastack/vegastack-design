@@ -120,3 +120,21 @@ test("has no accessibility violations", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("an agent chip is the bot on the agent hue, named as an agent", async () => {
+  const screen = await render(
+    <InlineChip
+      kind="agent"
+      targetId="c1"
+      label="Claude (via Manoj)"
+      data-testid="chip"
+    />,
+  );
+  const chip = screen.getByTestId("chip").element();
+  expect(chip.getAttribute("class")).toContain("bg-tag-purple-subtle");
+  expect(chip.querySelector("svg")!.getAttribute("class")).toContain(
+    "lucide-bot",
+  );
+  expect(chip.textContent).toContain("Claude (via Manoj)");
+  await expectNoA11yViolations(screen.container);
+});

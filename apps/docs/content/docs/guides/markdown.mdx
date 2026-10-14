@@ -14,7 +14,7 @@ surface has a separate "prose" look. Only inline code and code blocks are mono.
 
 `TextEdit` is Notion-style: no border, no fill in any state, no focus ring and no view mode — the
 caret is the focus cue. It rests looking exactly like `MarkdownView`; click anywhere and type. Leaving the editor calls `onCommit` with the
-new markdown when it changed; <kbd>Esc</kbd> reverts.
+new markdown when it changed; <kbd>Esc</kbd> keeps the text and leaves (a `boxed` field reverts).
 
 ```tsx
 import { MarkdownView } from "@/components/ui/markdown-view";
@@ -170,7 +170,7 @@ words, URLs and inline code wrap, and code blocks and tables scroll inside their
 | Event                           | Result                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------ |
 | Focus leaves the editor         | `onCommit(value)` — only when the document differs from when focus came. |
-| <kbd>Esc</kbd>                  | Revert to the document focus found, blur, then `onRevert()`.             |
+| <kbd>Esc</kbd>                  | Commit and blur (a `boxed` field: revert, blur, then `onRevert()`).      |
 | <kbd>Mod</kbd> <kbd>Enter</kbd> | `onSubmit(value)` when set; otherwise commit and blur.                   |
 | `autosave` idle gap             | `onCommit(value)` without leaving.                                       |
 
@@ -211,7 +211,7 @@ elsewhere.
 | <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>C</kbd>                                 | Code block                    |
 | <kbd>Mod</kbd> <kbd>Z</kbd> / <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> | Undo / redo                   |
 | <kbd>Mod</kbd> <kbd>Enter</kbd>                                            | Submit (`onSubmit`) or commit |
-| <kbd>Esc</kbd>                                                             | Revert (`onRevert`)           |
+| <kbd>Esc</kbd>                                                             | Leave (`boxed`: revert)       |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd>                           | Indent / outdent a list item  |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd> in a table                | Next / previous cell          |
 | <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd>                | Move the block up / down      |

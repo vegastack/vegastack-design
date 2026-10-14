@@ -1,10 +1,11 @@
-// @vegastack text-edit-markdown@0.25.30 sha256-yDc5Sjj6bDcwx+Wh4K0recbokyumRDT/rwz1WlYgd84=
+// @vegastack text-edit-markdown@0.25.30 sha256-top2uoSgMcLPXzs6KON/vws8J5rSCDe6w9PudswklaI=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { Marked, Tokenizer, type TokenizerObject, type marked } from "marked";
 import { anchorText } from "@/lib/text-anchor-doc";
+import type { MentionKind } from "@/lib/text-edit-grammar";
 import {
   BLOCK_ID_TYPES,
   TASK_MARKER,
@@ -683,12 +684,45 @@ export function markdownToDoc(
  * @example
  * docToMarkdown(markdownToDoc("Some  *text*")); // "Some *text*"
  */
-export function docToMarkdown(doc: PMNode | JSONContent): string {
+export function docToMarkdown(
+  doc: PMNode | JSONContent,
+  options: DocToMarkdownOptions = {},
+): string {
   const json =
     "toJSON" in doc && typeof doc.toJSON === "function"
       ? (doc as PMNode).toJSON()
       : (doc as JSONContent);
-  return serialize(manager(), json);
+  const { labels } = options;
+  return serialize(manager(), labels ? withLabels(json, labels) : json);
+}
+
+/** What `docToMarkdown` takes. */
+export interface DocToMarkdownOptions {
+  /**
+   * A record mention's label (a page's, a task's title), for a mention stored without one — as a
+   * shared document stores them. Unanswered, the mention is written with an empty label.
+   */
+  labels?: (kind: MentionKind, id: string) => string | null | undefined;
+}
+
+/** `node` with each label-less mention's label filled from `labels`. */
+function withLabels(
+  node: JSONContent,
+  labels: NonNullable<DocToMarkdownOptions["labels"]>,
+): JSONContent {
+  if (node.type === "mention" && !node.attrs?.label) {
+    const label = labels(
+      node.attrs?.kind as MentionKind,
+      String(node.attrs?.id ?? ""),
+    );
+    return label ? { ...node, attrs: { ...node.attrs, label } } : node;
+  }
+  return node.content
+    ? {
+        ...node,
+        content: node.content.map((child) => withLabels(child, labels)),
+      }
+    : node;
 }
 
 /**

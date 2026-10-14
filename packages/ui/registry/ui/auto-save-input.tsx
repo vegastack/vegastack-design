@@ -1,9 +1,9 @@
-// @vegastack auto-save-input@0.25.30 sha256-5B99u4N84k4NO3X7GJfsDRpQkgusykO4bJDdAJTLOFM=
+// @vegastack auto-save-input@0.25.30 sha256-odZH7HkRPasxmuh7EadFR01C10EoagLWN/MqokW0OPE=
 
 "use client";
 
 import * as React from "react";
-import { Check, TriangleAlert, X } from "lucide-react";
+import { Check, CloudOff, TriangleAlert, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 import { TIMINGS } from "@vegastack/design";
@@ -498,22 +498,32 @@ export function useAutoSave<T extends Record<string, unknown>>({
 
 /* ---------------------------------------------------------- AutoSaveIndicator */
 
-const INDICATOR_TEXT: Record<Exclude<AutoSaveFormStatus, "idle">, string> = {
+/**
+ * What `AutoSaveIndicator` shows: a form's save status, plus a live document's connection —
+ * `connecting` (to the server, or back to it) and `offline` (edits kept here until it returns).
+ */
+export type AutoSaveIndicatorStatus =
+  AutoSaveFormStatus | "connecting" | "offline";
+
+type ShownStatus = Exclude<AutoSaveIndicatorStatus, "idle">;
+
+const INDICATOR_TEXT: Record<ShownStatus, string> = {
   saving: "Saving…",
   saved: "Saved",
   error: "Couldn't save",
   conflict: "Not saved",
+  connecting: "Connecting…",
+  offline: "Offline — changes will sync",
 };
 
 /** What the icon variant says to a screen reader, per status. */
-const INDICATOR_ICON_LABEL: Record<
-  Exclude<AutoSaveFormStatus, "idle">,
-  string
-> = {
+const INDICATOR_ICON_LABEL: Record<ShownStatus, string> = {
   saving: "Saving",
   saved: "Saved",
   error: "Couldn't save",
   conflict: "Not saved",
+  connecting: "Connecting",
+  offline: "Offline — changes will sync",
 };
 
 /** Props accepted by `AutoSaveIndicator`. */
@@ -521,19 +531,24 @@ export interface AutoSaveIndicatorProps extends Omit<
   React.ComponentPropsWithRef<"span">,
   "children"
 > {
-  /** The status to show — `useAutoSave().status`. `idle` shows nothing. */
-  status: AutoSaveFormStatus;
+  /**
+   * The status to show — `useAutoSave().status`, or a live document's connection (`connecting`,
+   * `offline`). `idle` shows nothing.
+   */
+  status: AutoSaveIndicatorStatus;
   /**
    * Replaces the default wording per status — the visible line for `text`, the screen-reader
-   * label for `icon`.
-   * @default { saving: 'Saving…', saved: 'Saved', error: "Couldn't save", conflict: 'Not saved' } (icon: 'Saving', 'Saved', "Couldn't save", 'Not saved')
+   * label for `icon` (a document kept on the device says so: `offline: "Offline — saved on this
+   * device"`).
+   * @default { saving: 'Saving…', saved: 'Saved', error: "Couldn't save", conflict: 'Not saved', connecting: 'Connecting…', offline: 'Offline — changes will sync' } (icon: 'Saving', 'Saved', "Couldn't save", 'Not saved', 'Connecting', 'Offline — changes will sync')
    */
-  labels?: Partial<Record<Exclude<AutoSaveFormStatus, "idle">, string>>;
+  labels?: Partial<Record<ShownStatus, string>>;
   /**
    * `text` — icon and wording, for an action row. `icon` — the icon alone in a fixed 16px box,
    * for a field's trailing slot (`InputGroupAddon align="inline-end"`, or beside a select): a
-   * muted spinner while saving, a muted check once saved (it fades out when the status
-   * returns to `idle`), and a warning-ink triangle on error or conflict.
+   * muted spinner while saving or connecting, a muted check once saved (it fades out when the
+   * status returns to `idle`), a warning-ink triangle on error or conflict, and a warning-ink
+   * cloud-off while offline.
    * The wording stays as screen-reader text in the live region.
    * @default 'text'
    */
@@ -544,7 +559,8 @@ export interface AutoSaveIndicatorProps extends Omit<
  * `AutoSaveIndicator` — a quiet "Saving…" / "Saved" line for a form that saves as you go,
  * sized to sit in an action row (`MultiStepFormActions`' `status`). A spinner while saving, a
  * check once saved, and the `-text` ink with its own icon for an error or a conflict, so
- * colour is never the only cue. It is a polite live region, mounted empty while idle.
+ * colour is never the only cue. A live document adds `connecting` (a muted spinner) and `offline`
+ * (warning ink, a cloud-off icon). It is a polite live region, mounted empty while idle.
  *
  * `variant="icon"` is the same status as a single icon inside a field: each state pops in
  * (fade plus a 0.9 → 1 scale, `motion-pop-in`), a saved check fades out over `duration-slow`
@@ -566,10 +582,9 @@ export function AutoSaveIndicator({
   ...props
 }: AutoSaveIndicatorProps) {
   // The icon variant keeps the last shown state so it can fade out on `idle`.
-  const [last, setLast] = React.useState<Exclude<
-    AutoSaveFormStatus,
-    "idle"
-  > | null>(status === "idle" ? null : status);
+  const [last, setLast] = React.useState<ShownStatus | null>(
+    status === "idle" ? null : status,
+  );
   if (status !== "idle" && status !== last) setLast(status);
 
   if (variant === "icon") {
@@ -600,9 +615,9 @@ export function AutoSaveIndicator({
             status === "idle" && "opacity-0",
           )}
         >
-          {shown === "saving" ? (
+          {shown === "saving" || shown === "connecting" ? (
             <Spinner
-              key="saving"
+              key={shown}
               className="size-4 text-muted-foreground motion-pop-in"
               aria-hidden
               role={undefined}
@@ -621,6 +636,11 @@ export function AutoSaveIndicator({
           ) : shown === "conflict" ? (
             <TriangleAlert
               key="conflict"
+              className="size-4 text-warning-text motion-pop-in"
+            />
+          ) : shown === "offline" ? (
+            <CloudOff
+              key="offline"
               className="size-4 text-warning-text motion-pop-in"
             />
           ) : null}
@@ -644,11 +664,12 @@ export function AutoSaveIndicator({
         "inline-flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground",
         status === "error" && "text-warning-text",
         status === "conflict" && "text-warning-text",
+        status === "offline" && "text-warning-text",
         className,
       )}
       {...props}
     >
-      {status === "saving" ? (
+      {status === "saving" || status === "connecting" ? (
         <Spinner aria-hidden role={undefined} aria-label={undefined} />
       ) : status === "saved" ? (
         <Check aria-hidden className="size-4 shrink-0" />
@@ -656,6 +677,8 @@ export function AutoSaveIndicator({
         <X aria-hidden className="size-4 shrink-0" />
       ) : status === "conflict" ? (
         <TriangleAlert aria-hidden className="size-4 shrink-0" />
+      ) : status === "offline" ? (
+        <CloudOff aria-hidden className="size-4 shrink-0" />
       ) : null}
       {text ? <span className="truncate">{text}</span> : null}
     </span>

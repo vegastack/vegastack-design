@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.30 sha256-cSJLXhuYH2Jgvx9Y27KjXL0nJ2OVyGdk/TkCVZHcocU=
+// @vegastack text-edit@0.25.30 sha256-YCxJblG8DieSdsF0WXeKm6eepT6F/qX/BPptbFf3wnY=
 
 "use client";
 
@@ -29,8 +29,19 @@ import { Placeholder } from "@tiptap/extensions";
 import {
   Suggestion,
   exitSuggestion,
+  type SuggestionMatch,
   type SuggestionProps,
+  type Trigger,
 } from "@tiptap/suggestion";
+import { Collaboration, isChangeOrigin } from "@tiptap/extension-collaboration";
+import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
+import {
+  absolutePositionToRelativePosition,
+  relativePositionToAbsolutePosition,
+  ySyncPluginKey,
+  yCursorPlugin,
+} from "@tiptap/y-tiptap";
+import * as Y from "yjs";
 import { Fragment, type Node as PMNode } from "@tiptap/pm/model";
 import {
   NodeSelection,
@@ -38,6 +49,7 @@ import {
   PluginKey,
   TextSelection,
   type EditorState,
+  type Transaction,
 } from "@tiptap/pm/state";
 import {
   CellSelection,
@@ -62,6 +74,7 @@ import {
   BetweenVerticalEnd,
   BetweenVerticalStart,
   Bold,
+  Bot,
   ChevronDown,
   Building2,
   CalendarDays,
@@ -182,6 +195,7 @@ import {
 import {
   CALLOUT_TONES,
   headingIds,
+  isRecordMentionKind,
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
@@ -201,10 +215,14 @@ import {
 } from "@/lib/text-anchor-doc";
 import type {
   MentionOption,
+  TextEditAnchor,
+  TextEditCollaboration,
+  TextEditCollaborationUser,
   TextEditHandle,
   TextEditProps,
   TextEditSlashCommand,
 } from "@/components/ui/text-edit";
+import type { AvatarHue } from "@/components/ui/avatar";
 
 /*
  * The heavy half of `TextEdit`: the Tiptap editor itself. `text-edit.tsx` renders the saved
@@ -471,23 +489,82 @@ function inTableCell(state: EditorState): boolean {
   return false;
 }
 
+/** A menu query compared loosely: lower case, without spaces (`/head2` finds "Heading 2"). */
+const compact = (text: string) => text.toLowerCase().replace(/\s+/g, "");
+
 function filterSlash(
   allowed: readonly TextEditSlashCommand[],
   query: string,
   inCell = false,
 ): SlashSpec[] {
   const q = query.trim().toLowerCase();
+  // Words, and a run of letters and a run of digits apart: `head2` is "head" and "2".
+  const words = q
+    .replace(/(\p{L})(\p{N})|(\p{N})(\p{L})/gu, "$1$3 $2$4")
+    .split(/\s+/)
+    .filter(Boolean);
   // One menu everywhere: the canonical order, whatever order the host's subset lists.
   const wanted = new Set(allowed);
   return (Object.keys(SLASH) as TextEditSlashCommand[])
     .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
     .map((id) => SLASH[id])
-    .filter(
-      (spec) =>
-        !q ||
-        spec.label.toLowerCase().includes(q) ||
-        spec.keywords.toLowerCase().includes(q),
-    );
+    .filter((spec) => {
+      if (!q) return true;
+      const label = spec.label.toLowerCase();
+      const keywords = spec.keywords.toLowerCase();
+      // "heading 2", "head2", "h2": the label read without spaces, or every word starting a word
+      // of the label (or found in its keywords).
+      const labelWords = label.split(/\s+/);
+      return (
+        compact(label).includes(compact(q)) ||
+        keywords.includes(q) ||
+        words.every(
+          (word) =>
+            labelWords.some((each) => each.startsWith(word)) ||
+            keywords.includes(word),
+        )
+      );
+    });
+}
+
+/**
+ * A suggestion trigger whose query may hold spaces and digits — `/heading 2`, `@Asha Rao` — up to
+ * `maxWords` words and `maxChars` characters. Read across marks (a bold word inside the query
+ * keeps the match) and closed by a leading space, two spaces in a row, or an atom (a mention).
+ * The trigger must start the line or follow a space or an opening bracket, so `and/or` and a URL
+ * never open a menu.
+ */
+function phraseMatch({
+  maxWords,
+  maxChars,
+}: {
+  maxWords: number;
+  maxChars: number;
+}) {
+  return ({ char, $position }: Trigger): SuggestionMatch => {
+    const offset = $position.parentOffset;
+    const start = Math.max(0, offset - maxChars - 2);
+    const read = (from: number, to: number) =>
+      $position.parent.textBetween(from, to, undefined, "\ufffc");
+    const before = read(start, offset);
+    const at = before.lastIndexOf(char);
+    if (at < 0) return null;
+    const lead =
+      at > 0 ? before[at - 1]! : start > 0 ? read(start - 1, start) : "";
+    // Only where the line, a space or an opening bracket comes before the trigger.
+    if (lead && !/[\s([{"'“‘]/.test(lead)) return null;
+    const query = before.slice(at + 1);
+    if (/^\s|\s\s|\ufffc/.test(query)) return null;
+    if (query.length > maxChars) return null;
+    if (query.trim().split(/\s+/).filter(Boolean).length > maxWords)
+      return null;
+    const from = $position.pos - (before.length - at);
+    return {
+      range: { from, to: $position.pos },
+      query,
+      text: before.slice(at),
+    };
+  };
 }
 
 interface SlashState {
@@ -1047,6 +1124,11 @@ function slashExtension(runtime: SlashRuntime) {
           editor,
           pluginKey: SLASH_KEY,
           char: "/",
+          // "/heading 2": spaces and digits stay in the query (B1); a collaborator's typing never
+          // opens this viewer's menu.
+          allowSpaces: true,
+          findSuggestionMatch: phraseMatch({ maxWords: 3, maxChars: 24 }),
+          shouldShow: localQuery(SLASH_KEY),
           allow: () =>
             runtime.allowed.current.length > 0 && !editor.isActive("codeBlock"),
           items: ({ query, editor: ed }) =>
@@ -1055,6 +1137,20 @@ function slashExtension(runtime: SlashRuntime) {
             props.run(ed, range, runtime.open),
           render: () => {
             const show = (props: SuggestionProps<SlashSpec, SlashSpec>) => {
+              // A phrase that matches nothing and goes on past a space is a sentence, not a
+              // command: the menu closes (Notion's behaviour).
+              // (Counted here: the plugin's first update of a query arrives before its items.)
+              if (
+                /\s$/.test(props.query) &&
+                filterSlash(
+                  runtime.allowed.current,
+                  props.query,
+                  inTableCell(props.editor.state),
+                ).length === 0
+              ) {
+                exitSuggestion(editor.view, SLASH_KEY);
+                return;
+              }
               const previous = runtime.get();
               runtime.set({
                 items: props.items,
@@ -1258,9 +1354,17 @@ interface AnnotationOptions {
   countLabel: (count: number) => string;
 }
 
+/** A highlight's Yjs relative positions: its first and its last character. */
+interface YRefs {
+  start: Y.RelativePosition;
+  end: Y.RelativePosition;
+}
+
 interface AnnotationPluginState {
   /** Each annotation's current range; null when its text is gone (orphaned). */
   ranges: Map<string, { from: number; to: number } | null>;
+  /** A shared document's annotations: the relative positions their range is re-read from. */
+  y: Map<string, YRefs>;
   /** The anchor each annotation was last resolved from, so an unchanged one keeps its mapped range. */
   keys: Map<string, string>;
   /** Each annotation's comment count, as the host gave it. */
@@ -1274,7 +1378,7 @@ interface AnnotationPluginState {
 type AnnotationMeta =
   | {
       type: "set";
-      items: readonly { id: string; anchor: TextAnchor; count?: number }[];
+      items: readonly { id: string; anchor: TextEditAnchor; count?: number }[];
     }
   | { type: "active"; id: string | null }
   | { type: "pulse"; id: string | null }
@@ -1454,6 +1558,134 @@ function annotationAt(
   return found;
 }
 
+/**
+ * A suggestion menu (slash or mention) opens on this person's typing only — a collaborator's `/`
+ * or `@` never opens it here — but a menu already open stays open, and follows, through a
+ * collaborator's edit elsewhere. `editor.state` is still the state before the transaction.
+ */
+function localQuery(key: PluginKey) {
+  return ({
+    transaction,
+    editor,
+  }: {
+    transaction: Transaction;
+    editor: Editor;
+  }) =>
+    !isChangeOrigin(transaction) ||
+    Boolean(
+      (key.getState(editor.state) as { active?: boolean } | undefined)?.active,
+    );
+}
+
+/** The Yjs binding of a collaborative editor's state; null in a single-writer one. */
+function yBinding(state: EditorState) {
+  const sync = ySyncPluginKey.getState(state) as
+    | {
+        doc: Y.Doc;
+        type: Y.XmlFragment;
+        binding?: { mapping: Map<unknown, unknown> };
+      }
+    | undefined;
+  return sync?.binding
+    ? { doc: sync.doc, type: sync.type, mapping: sync.binding.mapping }
+    : null;
+}
+
+/**
+ * A highlight's range from its relative positions: null when orphaned (its quote deleted), and
+ * undefined only while the editor has no Yjs binding yet (nothing to resolve against).
+ */
+function resolveY(
+  state: EditorState,
+  refs: YRefs,
+): { from: number; to: number } | null | undefined {
+  const y = yBinding(state);
+  if (!y) return undefined;
+  const from = resolveRelative(y, refs.start);
+  const to = resolveRelative(y, refs.end);
+  if (from === null || to === null) return null;
+  // Collapsed: the quote is gone — orphaned, never a highlight of whatever follows.
+  return from < to ? { from, to } : null;
+}
+
+/**
+ * A Yjs relative position as a document position; null when it no longer resolves. The binding
+ * reads a position bound to the document's very first character as a misresolved one (its guard
+ * against block reorders) — a quote that starts the document is valid, so a position whose text
+ * still exists is resolved again through its text type instead.
+ */
+function resolveRelative(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  rel: Y.RelativePosition,
+): number | null {
+  const pos = relativePositionToAbsolutePosition(
+    y.doc,
+    y.type,
+    rel,
+    y.mapping as never,
+  );
+  if (pos !== null) return pos;
+  const at = Y.createAbsolutePositionFromRelativePosition(rel, y.doc);
+  if (!at || !(at.type instanceof Y.XmlText) || at.type._item?.deleted)
+    return null;
+  return relativePositionToAbsolutePosition(
+    y.doc,
+    y.type,
+    Y.createRelativePositionFromTypeIndex(at.type, at.index, -1),
+    y.mapping as never,
+  );
+}
+
+/**
+ * A Yjs relative position for document position `pos`, bound to the character after it
+ * (`assoc` ≥ 0) or before it (`assoc` < 0). The binding's own conversion always binds left.
+ */
+function relativeAt(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  pos: number,
+  assoc: number,
+): Y.RelativePosition {
+  const left = absolutePositionToRelativePosition(
+    pos,
+    y.type,
+    y.mapping as never,
+  );
+  if (assoc < 0) return left;
+  const at = Y.createAbsolutePositionFromRelativePosition(left, y.doc);
+  return at && at.type instanceof Y.XmlText
+    ? Y.createRelativePositionFromTypeIndex(at.type, at.index, assoc)
+    : left;
+}
+
+/** The relative positions of `from`…`to` (exclusive), as `TextEditYAnchor` bytes. */
+function yAnchorOf(state: EditorState, from: number, to: number) {
+  const y = yBinding(state);
+  if (!y || to <= from) return undefined;
+  return {
+    start: Y.encodeRelativePosition(relativeAt(y, from, 0)),
+    end: Y.encodeRelativePosition(relativeAt(y, to, -1)),
+  };
+}
+
+/** An anchor's identity for "unchanged since last time": its text fields and its `y` bytes. */
+function annotationKey(anchor: TextEditAnchor): string {
+  const { y, ...text } = anchor;
+  return JSON.stringify([
+    text,
+    y ? [Array.from(y.start), Array.from(y.end)] : null,
+  ]);
+}
+
+/** A highlight's range: from its Y anchor when it has one (null once orphaned), else its quote. */
+function resolveAnchorY(
+  state: EditorState,
+  anchor: TextEditAnchor,
+  refs: YRefs | undefined,
+) {
+  const placed = refs ? resolveY(state, refs) : undefined;
+  return placed === undefined ? resolveInDoc(state.doc, anchor) : placed;
+}
+
 /** Resolve an anchor in `doc`: offsets → context → unique quote, then into document positions. */
 function resolveInDoc(doc: PMNode, anchor: TextAnchor) {
   const offsets = resolveAnchor(anchorText(doc), anchor);
@@ -1511,6 +1743,7 @@ function annotationsExtension(runtime: {
           state: {
             init: (_config, state) => ({
               ranges: new Map(),
+              y: new Map(),
               keys: new Map(),
               counts: new Map(),
               active: null,
@@ -1523,12 +1756,21 @@ function annotationsExtension(runtime: {
                 AnnotationMeta | undefined;
               if (!tr.docChanged && !meta) return previous;
               let ranges = previous.ranges;
+              let y = previous.y;
               let keys = previous.keys;
               let counts = previous.counts;
               let { active, pulse, options } = previous;
               if (tr.docChanged) {
                 ranges = new Map();
+                // A collaborator's change replaces whole blocks, so positions inside them can't
+                // be mapped: a shared highlight is read again from its relative positions.
+                const remote = isChangeOrigin(tr);
                 for (const [id, range] of previous.ranges) {
+                  const refs = y.get(id);
+                  if (remote && refs) {
+                    ranges.set(id, resolveY(newState, refs) ?? null);
+                    continue;
+                  }
                   if (!range) {
                     ranges.set(id, null);
                     continue;
@@ -1545,24 +1787,36 @@ function annotationsExtension(runtime: {
                 >();
                 const nextKeys = new Map<string, string>();
                 const nextCounts = new Map<string, number | undefined>();
+                const nextY = new Map<string, YRefs>();
                 for (const { id, anchor, count } of meta.items) {
-                  const key = JSON.stringify(anchor);
+                  const key = annotationKey(anchor);
                   nextKeys.set(id, key);
                   nextCounts.set(id, count);
+                  const refs = anchor.y
+                    ? ((keys.get(id) === key ? y.get(id) : undefined) ?? {
+                        start: Y.decodeRelativePosition(anchor.y.start),
+                        end: Y.decodeRelativePosition(anchor.y.end),
+                      })
+                    : undefined;
+                  if (refs) nextY.set(id, refs);
                   nextRanges.set(
                     id,
                     keys.get(id) === key && ranges.has(id)
                       ? ranges.get(id)!
-                      : resolveInDoc(newState.doc, anchor),
+                      : // A Y anchor is the truth: when it no longer resolves the highlight is
+                        // orphaned — its quote is never looked for elsewhere (another occurrence).
+                        // The quote is read only for an anchor without one, or before the binding.
+                        resolveAnchorY(newState, anchor, refs),
                   );
                 }
                 ranges = nextRanges;
+                y = nextY;
                 keys = nextKeys;
                 counts = nextCounts;
               } else if (meta?.type === "active") active = meta.id;
               else if (meta?.type === "pulse") pulse = meta.id;
               else if (meta?.type === "options") options = meta.options;
-              const next = { ranges, keys, counts, active, pulse, options };
+              const next = { ranges, y, keys, counts, active, pulse, options };
               return {
                 ...next,
                 decorations: annotationDecorations(
@@ -1717,18 +1971,26 @@ const Uploads = Extension.create({
         key: UPLOAD_KEY,
         state: {
           init: () => DecorationSet.empty,
-          apply(tr, set) {
-            let next = set.map(tr.mapping, tr.doc);
+          apply(tr, set, _old, state) {
+            // A collaborator's change replaces whole blocks, so a placeholder inside one can't be
+            // mapped through it: in a shared document each placeholder is placed again from its
+            // Yjs relative position, never dropped.
+            const y =
+              tr.docChanged && isChangeOrigin(tr) ? yBinding(state) : null;
+            let next = y
+              ? placeUploads(set, tr, y)
+              : set.map(tr.mapping, tr.doc);
             const meta = tr.getMeta(UPLOAD_KEY) as UploadMeta | undefined;
-            if (meta && "add" in meta)
+            if (meta && "add" in meta) {
+              const binding = yBinding(state);
               next = next.add(tr.doc, [
-                PMDecoration.widget(
+                uploadWidget(
+                  meta.add,
                   meta.add.pos,
-                  () => uploadPlaceholder(meta.add),
-                  { id: meta.add.id, key: meta.add.id, side: -1 },
+                  binding ? relativeAt(binding, meta.add.pos, -1) : undefined,
                 ),
               ]);
-            else if (meta && "remove" in meta)
+            } else if (meta && "remove" in meta)
               next = next.remove(
                 next.find(
                   undefined,
@@ -1742,10 +2004,79 @@ const Uploads = Extension.create({
         props: {
           decorations: (state) => UPLOAD_KEY.getState(state),
         },
+        // In a shared document each placeholder's relative position is taken again after every
+        // change, once Yjs holds it (the binding syncs in its own view update): a local edit that
+        // rebuilds the block (a paragraph turned heading) would otherwise leave it pointing into
+        // deleted text, and a collaborator's next change would lose the placeholder.
+        view: () => ({
+          update: (view, previous) => {
+            if (previous.doc === view.state.doc) return;
+            queueMicrotask(() => {
+              if (view.isDestroyed) return;
+              const y = yBinding(view.state);
+              if (!y) return;
+              for (const placeholder of UPLOAD_KEY.getState(
+                view.state,
+              )?.find() ?? [])
+                (placeholder.spec as { ref?: Y.RelativePosition }).ref =
+                  relativeAt(y, placeholder.from, -1);
+            });
+          },
+        }),
       }),
     ];
   },
 });
+
+/** An upload's placeholder widget at `pos`; `ref` is its Yjs relative position when shared. */
+function uploadWidget(
+  upload: UploadWidget,
+  pos: number,
+  ref: Y.RelativePosition | undefined,
+) {
+  return PMDecoration.widget(pos, () => uploadPlaceholder(upload), {
+    id: upload.id,
+    key: upload.id,
+    side: -1,
+    upload,
+    ref,
+  });
+}
+
+/** Upload placeholders placed again after a collaborator's change, from their relative positions. */
+function placeUploads(
+  set: DecorationSet,
+  tr: Transaction,
+  y: NonNullable<ReturnType<typeof yBinding>>,
+): DecorationSet {
+  const mapped = set.map(tr.mapping, tr.doc);
+  const placed = set.find().flatMap((decoration) => {
+    const spec = decoration.spec as {
+      id: string;
+      upload: UploadWidget;
+      ref?: Y.RelativePosition;
+    };
+    const kept = mapped.find(
+      undefined,
+      undefined,
+      (each) => each.id === spec.id,
+    );
+    if (!spec.ref) return kept;
+    // A pending upload is never dropped by a collaborator's change: where its position no longer
+    // resolves (its block was replaced or deleted), it stays where the change mapped it, or where
+    // it was — the file still lands, near the place it was put.
+    const pos =
+      resolveRelative(y, spec.ref) ?? kept[0]?.from ?? decoration.from;
+    return [
+      uploadWidget(
+        spec.upload,
+        Math.min(Math.max(pos, 0), tr.doc.content.size),
+        spec.ref,
+      ),
+    ];
+  });
+  return DecorationSet.create(tr.doc, placed);
+}
 
 /** Where an upload's placeholder sits now, or null once it is gone (its text was deleted). */
 function uploadPos(state: EditorState, id: string): number | null {
@@ -1770,6 +2101,7 @@ const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
   { kind: "meeting", label: "Meetings" },
   { kind: "customer", label: "Customers" },
   { kind: "project", label: "Projects" },
+  { kind: "agent", label: "Your agents" },
 ];
 
 interface MentionMenuState {
@@ -1844,6 +2176,7 @@ const MENTION_ICON: Record<
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
+  agent: Bot,
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -2263,9 +2596,29 @@ function ImageMenu({
  * ----------------------------------------------------------------------------------------------*/
 
 /** What the extensions read from the component; refs, so the extensions are built once. */
+/** A tiny store: subscribers re-render when the version moves (a new `mentionLabel`). */
+class Versioned {
+  private version = 0;
+  private listeners = new Set<() => void>();
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => void this.listeners.delete(listener);
+  };
+  get = () => this.version;
+  bump() {
+    this.version++;
+    for (const listener of this.listeners) listener();
+  }
+}
+
 interface EditorRuntime {
   mentionHref: React.RefObject<TextEditProps["mentionHref"]>;
   mentionImage: React.RefObject<TextEditProps["mentionImage"]>;
+  /** A record mention's label for this reader (`mentionLabel`); `labels` bumps when it changes. */
+  mentionLabel: React.RefObject<TextEditProps["mentionLabel"]>;
+  labels: Versioned;
+  /** A shared document: record mentions are inserted without their title. */
+  collaborative: boolean;
   fileLinkPrefix: React.RefObject<string>;
   mention: {
     enabled: () => boolean;
@@ -2281,11 +2634,31 @@ interface EditorRuntime {
  */
 function mentionView(runtime: EditorRuntime) {
   return function MentionView({ node }: ReactNodeViewProps) {
-    const { kind, id, label } = node.attrs as {
+    const {
+      kind,
+      id,
+      label: stored,
+    } = node.attrs as {
       kind: MentionKind;
       id: string;
       label: string;
     };
+    // A record mention in a shared document carries no title: this reader's label comes from the
+    // host, and stays `…` when it has none.
+    React.useSyncExternalStore(
+      runtime.labels.subscribe,
+      runtime.labels.get,
+      runtime.labels.get,
+    );
+    // In a shared document a record's label is always this reader's — a title that reached the
+    // document anyway (an old copy, a peer's client) is never shown.
+    const own = isRecordMentionKind(kind)
+      ? (runtime.mentionLabel.current?.(kind, id) ?? "")
+      : "";
+    const label =
+      (runtime.collaborative && isRecordMentionKind(kind)
+        ? own
+        : stored || own) || "…";
     const hrefFor = runtime.mentionHref.current;
     return (
       // An atom: never editable text, never spellchecked.
@@ -2341,7 +2714,11 @@ function mentionBehaviour(runtime: EditorRuntime) {
           editor,
           pluginKey: MENTION_KEY,
           char: "@",
-          allowedPrefixes: [" "],
+          // "@Asha Rao": a name with spaces stays one query (B1); a collaborator's typing never
+          // opens this viewer's menu.
+          allowSpaces: true,
+          findSuggestionMatch: phraseMatch({ maxWords: 4, maxChars: 40 }),
+          shouldShow: localQuery(MENTION_KEY),
           allow: () =>
             runtime.mention.enabled() && !editor.isActive("codeBlock"),
           items: () => [],
@@ -2354,7 +2731,12 @@ function mentionBehaviour(runtime: EditorRuntime) {
                   attrs: {
                     kind: props.kind,
                     id: props.id,
-                    label: props.label.replace(/\s*\n\s*/g, " "),
+                    // A record's title is not everyone's to read: a shared document stores the
+                    // mention without it, and each reader's chip resolves it (`mentionLabel`).
+                    label:
+                      runtime.collaborative && isRecordMentionKind(props.kind)
+                        ? ""
+                        : props.label.replace(/\s*\n\s*/g, " "),
                   },
                 },
                 { type: "text", text: " " },
@@ -2401,7 +2783,56 @@ function mentionBehaviour(runtime: EditorRuntime) {
             };
           },
         }),
+        recordLabelsStripped(runtime),
       ];
+    },
+  });
+}
+
+/**
+ * A shared document never stores a record mention's title (a page or task the reader may not be
+ * allowed to see): whatever inserts one here — the menu, a paste, `setContent`, an import — the
+ * label is cleared before it syncs, and each reader's chip resolves its own (`mentionLabel`).
+ * Only this person's own changes are scanned, and only where they changed the document.
+ */
+function recordLabelsStripped(runtime: EditorRuntime) {
+  return new Plugin({
+    appendTransaction(transactions, _old, state) {
+      if (!runtime.collaborative) return null;
+      const ranges: [number, number][] = [];
+      transactions.forEach((tr, t) => {
+        if (!tr.docChanged || isChangeOrigin(tr)) return;
+        tr.mapping.maps.forEach((map, i) => {
+          const rest = tr.mapping.slice(i + 1);
+          map.forEach((_from, _to, start, end) => {
+            let from = rest.map(start, -1);
+            let to = rest.map(end, 1);
+            for (const later of transactions.slice(t + 1)) {
+              from = later.mapping.map(from, -1);
+              to = later.mapping.map(to, 1);
+            }
+            ranges.push([from, to]);
+          });
+        });
+      });
+      let out: Transaction | null = null;
+      const size = state.doc.content.size;
+      for (const [from, to] of ranges)
+        state.doc.nodesBetween(
+          Math.max(0, from),
+          Math.min(size, to),
+          (node, pos) => {
+            if (
+              node.type.name === "mention" &&
+              node.attrs.label &&
+              isRecordMentionKind(node.attrs.kind as MentionKind)
+            ) {
+              out ??= state.tr;
+              out.setNodeMarkup(pos, undefined, { ...node.attrs, label: "" });
+            }
+          },
+        );
+      return out;
     },
   });
 }
@@ -2476,77 +2907,174 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
 }
 
 /**
- * A toggle's node view, Notion-style: a real chevron button in the gutter (hover wash, pointer,
- * a 24px target that works on touch) that opens and closes the toggle; closed, only the title
- * line shows. The open state is the node's `open` attribute (`<details open>` in markdown).
+ * Each viewer's own open and closed toggles in a shared document, by the toggle's `blockId`. A
+ * chevron click there changes only this map — never the document — so a reader folding a toggle
+ * folds it for themselves, without an edit, a version or a collaborator's toggle moving. The
+ * author's default stays the node's `open` attribute ("Open by default").
  */
-function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
-  const open = node.attrs.open !== false;
-  const flip = () => {
-    const pos = getPos();
-    if (typeof pos !== "number") return;
-    const { state } = editor;
-    const tr = state.tr.setNodeAttribute(pos, "open", !open);
-    // Closing with the caret in the hidden body: move it to the end of the title line.
-    const summaryEnd = pos + 1 + node.firstChild!.nodeSize - 1;
-    if (
-      open &&
-      state.selection.from > summaryEnd &&
-      state.selection.to < pos + node.nodeSize
-    )
-      tr.setSelection(TextSelection.create(tr.doc, summaryEnd));
-    editor.view.dispatch(tr);
+class ToggleStates {
+  private open = new Map<string, boolean>();
+  private listeners = new Set<() => void>();
+  private version = 0;
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => void this.listeners.delete(listener);
   };
-  return (
-    <NodeViewWrapper
-      data-slot="toggle"
-      data-open={open ? "" : undefined}
-      // The body hides when closed. Tiptap's React content box nests the blocks one level down
-      // (`[data-node-view-content-react]`), so the rules reach the summary's siblings, not children.
-      className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden"
-    >
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xs"
-        contentEditable={false}
-        aria-expanded={open}
-        aria-label={open ? "Collapse toggle" : "Expand toggle"}
-        data-slot="toggle-chevron"
-        // Keep the caret where it is: a click must not move the selection or blur the editor.
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={flip}
-        // Notion's triangle: ▶ closed, turning 90° to ▼ open.
-        className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
-      >
-        <Play aria-hidden className="size-3 fill-current" />
-      </Button>
-      <NodeViewContent data-slot="toggle-content" className="min-w-0" />
-    </NodeViewWrapper>
-  );
+  snapshot = () => this.version;
+  get(id: unknown): boolean | undefined {
+    return typeof id === "string" ? this.open.get(id) : undefined;
+  }
+  set(id: string, open: boolean) {
+    this.open.set(id, open);
+    this.version++;
+    for (const listener of this.listeners) listener();
+  }
 }
 
-/** A toggle's editing keys: Enter in the summary goes to the body (a summary is one line). */
-const ToggleKeys = Extension.create({
-  name: "textEditToggleKeys",
-  addKeyboardShortcuts() {
-    // Enter in the summary goes to the body: a summary is one line.
-    const intoBody = () => {
-      const { $from } = this.editor.state.selection;
-      if ($from.parent.type.name !== "toggleSummary") return false;
-      const after = $from.after();
-      const tr = this.editor.state.tr;
-      // A closed toggle opens: its body is where the caret goes.
-      const toggle = $from.node($from.depth - 1);
-      if (toggle.type.name === "toggle" && toggle.attrs.open === false)
-        tr.setNodeAttribute($from.before($from.depth - 1), "open", true);
-      tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
-      this.editor.view.dispatch(tr.scrollIntoView());
-      return true;
+/** The toggles' runtime: per-viewer state in a shared document, null otherwise. */
+interface ToggleRuntime {
+  states: ToggleStates | null;
+}
+
+/** Whether the toggle at `node` shows open for this viewer. */
+function toggleOpen(runtime: ToggleRuntime, node: PMNode): boolean {
+  return runtime.states?.get(node.attrs.blockId) ?? node.attrs.open !== false;
+}
+
+/**
+ * A toggle's node view, Notion-style: a real chevron button in the gutter (hover wash, pointer,
+ * a 24px target that works on touch) that opens and closes the toggle; closed, only the title
+ * line shows. In a single-writer document the open state is the node's `open` attribute
+ * (`<details open>` in markdown); in a shared one it is each viewer's own (`ToggleStates`), and
+ * "Open by default" in the toggle's menu sets the attribute for everyone.
+ */
+function toggleView(runtime: ToggleRuntime) {
+  return function ToggleView({
+    node,
+    editor,
+    getPos,
+    updateAttributes,
+  }: ReactNodeViewProps) {
+    const states = runtime.states;
+    React.useSyncExternalStore(
+      states?.subscribe ?? noSubscribe,
+      states?.snapshot ?? zero,
+      states?.snapshot ?? zero,
+    );
+    const open = toggleOpen(runtime, node);
+    const blockId = node.attrs.blockId as string | null;
+    const flip = () => {
+      const pos = getPos();
+      if (typeof pos !== "number") return;
+      const { state } = editor;
+      const perViewer = Boolean(states && blockId);
+      // A shared document without an id for this toggle yet: nothing to key a viewer's state by,
+      // and a reader must not edit — the click waits for the id.
+      if (states && !blockId && !editor.isEditable) return;
+      const tr = perViewer
+        ? state.tr
+        : state.tr.setNodeAttribute(pos, "open", !open);
+      // Closing with the caret in the hidden body: move it to the end of the title line.
+      const summaryEnd = pos + 1 + node.firstChild!.nodeSize - 1;
+      if (
+        open &&
+        state.selection.from > summaryEnd &&
+        state.selection.to < pos + node.nodeSize
+      )
+        tr.setSelection(TextSelection.create(tr.doc, summaryEnd));
+      if (perViewer) states!.set(blockId!, !open);
+      if (tr.docChanged || tr.selectionSet) editor.view.dispatch(tr);
     };
-    return { Enter: intoBody, "Shift-Enter": intoBody };
-  },
-});
+    return (
+      <NodeViewWrapper
+        data-slot="toggle"
+        data-open={open ? "" : undefined}
+        // The body hides when closed. Tiptap's React content box nests the blocks one level down
+        // (`[data-node-view-content-react]`), so the rules reach the summary's siblings, not children.
+        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden"
+      >
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          contentEditable={false}
+          aria-expanded={open}
+          aria-label={open ? "Collapse toggle" : "Expand toggle"}
+          data-slot="toggle-chevron"
+          // Keep the caret where it is: a click must not move the selection or blur the editor.
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={flip}
+          // Notion's triangle: ▶ closed, turning 90° to ▼ open.
+          className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
+        >
+          <Play aria-hidden className="size-3 fill-current" />
+        </Button>
+        {states && editor.isEditable ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  contentEditable={false}
+                  aria-label="Toggle options"
+                  data-slot="toggle-options"
+                  onMouseDown={(event) => event.preventDefault()}
+                  // Shown while the toggle is hovered or holds focus, its menu is open, or on touch.
+                  className="absolute end-0 top-0 text-muted-foreground opacity-0 transition-opacity duration-150 group-hover/toggle:opacity-100 group-focus-within/toggle:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                />
+              }
+            >
+              <Ellipsis aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" data-text-edit-menu="">
+              <DropdownMenuCheckboxItem
+                checked={node.attrs.open !== false}
+                onClick={() =>
+                  updateAttributes({ open: node.attrs.open === false })
+                }
+              >
+                Open by default
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
+        <NodeViewContent data-slot="toggle-content" className="min-w-0" />
+      </NodeViewWrapper>
+    );
+  };
+}
+
+const noSubscribe = () => () => {};
+const zero = () => 0;
+
+/** A toggle's editing keys: Enter in the summary goes to the body (a summary is one line). */
+function toggleKeys(runtime: ToggleRuntime) {
+  return Extension.create({
+    name: "textEditToggleKeys",
+    addKeyboardShortcuts() {
+      const intoBody = () => {
+        const { $from } = this.editor.state.selection;
+        if ($from.parent.type.name !== "toggleSummary") return false;
+        const after = $from.after();
+        const tr = this.editor.state.tr;
+        // A closed toggle opens: its body is where the caret goes (this viewer's own state in a
+        // shared document).
+        const toggle = $from.node($from.depth - 1);
+        if (toggle.type.name === "toggle" && !toggleOpen(runtime, toggle)) {
+          const id = toggle.attrs.blockId as string | null;
+          if (runtime.states && id) runtime.states.set(id, true);
+          else tr.setNodeAttribute($from.before($from.depth - 1), "open", true);
+        }
+        tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
+        this.editor.view.dispatch(tr.scrollIntoView());
+        return true;
+      };
+      return { Enter: intoBody, "Shift-Enter": intoBody };
+    },
+  });
+}
 
 /** The video and audio types a drop, paste or pick lands as a player (through `onFileUpload`). */
 const INLINE_VIDEO_TYPES = [
@@ -2601,18 +3129,175 @@ function MediaView({ node, selected }: ReactNodeViewProps) {
   );
 }
 
+/**
+ * A collaborator's colours, by hue — literal classes, so Tailwind sees every one; only the hue key
+ * travels over awareness, never a colour string. The caret is a 2px bar in the solid tag colour,
+ * its name label the soft tag ground and ink, the selection a light wash.
+ */
+const COLLABORATOR_HUE: Record<
+  AvatarHue,
+  { caret: string; label: string; selection: string }
+> = {
+  blue: {
+    caret: "border-tag-blue",
+    label: "bg-tag-blue-subtle text-tag-blue-text",
+    selection: "bg-tag-blue/20",
+  },
+  cyan: {
+    caret: "border-tag-cyan",
+    label: "bg-tag-cyan-subtle text-tag-cyan-text",
+    selection: "bg-tag-cyan/20",
+  },
+  green: {
+    caret: "border-tag-green",
+    label: "bg-tag-green-subtle text-tag-green-text",
+    selection: "bg-tag-green/20",
+  },
+  lime: {
+    caret: "border-tag-lime",
+    label: "bg-tag-lime-subtle text-tag-lime-text",
+    selection: "bg-tag-lime/20",
+  },
+  yellow: {
+    caret: "border-tag-yellow",
+    label: "bg-tag-yellow-subtle text-tag-yellow-text",
+    selection: "bg-tag-yellow/20",
+  },
+  orange: {
+    caret: "border-tag-orange",
+    label: "bg-tag-orange-subtle text-tag-orange-text",
+    selection: "bg-tag-orange/20",
+  },
+  red: {
+    caret: "border-tag-red",
+    label: "bg-tag-red-subtle text-tag-red-text",
+    selection: "bg-tag-red/20",
+  },
+  pink: {
+    caret: "border-tag-pink",
+    label: "bg-tag-pink-subtle text-tag-pink-text",
+    selection: "bg-tag-pink/20",
+  },
+  magenta: {
+    caret: "border-tag-magenta",
+    label: "bg-tag-magenta-subtle text-tag-magenta-text",
+    selection: "bg-tag-magenta/20",
+  },
+  purple: {
+    caret: "border-tag-purple",
+    label: "bg-tag-purple-subtle text-tag-purple-text",
+    selection: "bg-tag-purple/20",
+  },
+};
+
+/** An unidentified collaborator's caret: neutral, with no name. */
+const UNKNOWN_COLLABORATOR = {
+  caret: "border-muted-foreground",
+  label: "bg-muted text-muted-foreground",
+  selection: "bg-muted-foreground/15",
+};
+
+/** A collaborator's hue as drawn: an agent always purple, an unknown hue blue; nobody, neutral. */
+function collaboratorHue(user: TextEditCollaborationUser | null) {
+  if (!user) return UNKNOWN_COLLABORATOR;
+  const hue = user.kind === "agent" ? "purple" : user.hue;
+  return COLLABORATOR_HUE[hue && hue in COLLABORATOR_HUE ? hue : "blue"];
+}
+
+/** How long a collaborator's name shows after their caret moves. */
+const CARET_LABEL_MS = 2000;
+
+/**
+ * A collaborator's caret: a 2px bar with their name above it, shown while they type or move and
+ * for 2s after (and on hover). Built anew for every move, so each move shows the name again.
+ */
+function collaboratorCaret(
+  user: TextEditCollaborationUser | null,
+): HTMLElement {
+  const hue = collaboratorHue(user);
+  const caret = document.createElement("span");
+  caret.setAttribute("data-slot", "text-edit-caret");
+  // A presence cue: a collaborator's name is not part of the text a screen reader reads.
+  caret.setAttribute("aria-hidden", "true");
+  caret.className = cn(
+    "group/caret relative -mx-px border-x pointer-events-auto",
+    hue.caret,
+  );
+  const label = document.createElement("span");
+  label.setAttribute("data-slot", "text-edit-caret-label");
+  label.setAttribute("data-active", "");
+  label.className = cn(
+    "pointer-events-none absolute start-[-1px] bottom-full z-10 rounded-sm px-1 py-px font-sans text-xs leading-none font-medium whitespace-nowrap select-none opacity-0 transition-opacity duration-150 group-hover/caret:opacity-100 data-active:opacity-100",
+    hue.label,
+  );
+  if (!user) return caret;
+  label.textContent = user.name;
+  caret.append(label);
+  setTimeout(() => label.removeAttribute("data-active"), CARET_LABEL_MS);
+  return caret;
+}
+
+/**
+ * Carets whose identity comes from `peer` (the server's word, by awareness client id), never from
+ * the fields a client writes into awareness — the upstream caret draws those as given.
+ */
+function trustedCarets(peer: TextEditCollaboration["peer"]) {
+  const identity = (clientId: number) => peer?.(clientId) ?? null;
+  return CollaborationCaret.extend({
+    addProseMirrorPlugins() {
+      const upstream = CollaborationCaret.config.addProseMirrorPlugins as
+        ((this: unknown) => Plugin[]) | undefined;
+      // The awareness listener (this viewer's own state, the users list) stays upstream's.
+      const [listener] = upstream?.call(this) ?? [];
+      return [
+        ...(listener ? [listener] : []),
+        yCursorPlugin(this.options.provider.awareness, {
+          cursorBuilder: (_claimed: unknown, clientId: number) =>
+            collaboratorCaret(identity(clientId)),
+          selectionBuilder: (_claimed: unknown, clientId: number) => ({
+            class: collaboratorHue(identity(clientId)).selection,
+          }),
+        }),
+      ];
+    },
+  });
+}
+
+/** The extensions a shared document adds: the Yjs binding and the collaborators' carets. */
+function collaborationExtensions(collaboration: TextEditCollaboration) {
+  const user: TextEditCollaborationUser = collaboration.user;
+  return [
+    Collaboration.configure({
+      document: collaboration.document,
+      field: collaboration.field ?? "default",
+    }),
+    trustedCarets(collaboration.peer).configure({
+      provider: collaboration.provider,
+      user: {
+        id: user.id,
+        name: user.name,
+        hue: user.kind === "agent" ? "purple" : user.hue,
+        kind: user.kind ?? "person",
+      },
+    }),
+  ];
+}
+
 function buildExtensions(
   placeholder: React.RefObject<string | undefined>,
   runtime: SlashRuntime,
   editorRuntime: EditorRuntime,
   annotationRuntime: Parameters<typeof annotationsExtension>[0],
   imageRuntime: ImageRuntime,
+  toggleRuntime: ToggleRuntime,
+  collaboration: TextEditCollaboration | null,
 ) {
   // The schema and its Markdown rules are the shared `text-edit-schema`; the editor adds its node
   // views and behaviour only, so a server reads and writes exactly the documents it edits.
   return textEditExtensions({
     lowlight: codeLowlight,
     fileLinkPrefix: () => editorRuntime.fileLinkPrefix.current,
+    ...(collaboration ? { collaboration: { isRemote: isChangeOrigin } } : {}),
     nodeViews: {
       taskItem: () =>
         ReactNodeViewRenderer(TaskItemView, {
@@ -2627,7 +3312,7 @@ function buildExtensions(
       mention: () =>
         ReactNodeViewRenderer(mentionView(editorRuntime), { as: "span" }),
       callout: () => ReactNodeViewRenderer(CalloutView),
-      toggle: () => ReactNodeViewRenderer(ToggleView),
+      toggle: () => ReactNodeViewRenderer(toggleView(toggleRuntime)),
       video: () => ReactNodeViewRenderer(MediaView),
       audio: () => ReactNodeViewRenderer(MediaView),
     },
@@ -2644,11 +3329,12 @@ function buildExtensions(
       Shortcuts,
       slashExtension(runtime),
       mentionBehaviour(editorRuntime),
-      ToggleKeys,
+      toggleKeys(toggleRuntime),
       fileChips(editorRuntime),
       HeadingIds,
       annotationsExtension(annotationRuntime),
       Uploads,
+      ...(collaboration ? collaborationExtensions(collaboration) : []),
     ],
   });
 }
@@ -4410,7 +5096,7 @@ export function TextEditEditor({
   onRevert,
   onSubmit,
   autosave = false,
-  escapeBehavior = autosave ? "blur" : "revert",
+  escapeBehavior: escapeBehaviorProp,
   saving = false,
   readOnly = false,
   disabled = false,
@@ -4419,6 +5105,7 @@ export function TextEditEditor({
   mentions,
   mentionHref,
   mentionImage,
+  mentionLabel,
   onImageUpload,
   onFileUpload,
   onUploadError,
@@ -4434,6 +5121,8 @@ export function TextEditEditor({
   annotationCounts = "never",
   annotationLabel = defaultAnnotationLabel,
   annotationCountLabel = defaultAnnotationCountLabel,
+  onPendingUploadsChange,
+  collaboration,
   aria,
   surfaceClassName,
   hintClassName,
@@ -4449,6 +5138,13 @@ export function TextEditEditor({
 }: TextEditEditorProps) {
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
+  // A shared document, fixed at creation: the Yjs document is the truth, so nothing here commits,
+  // reverts or applies a value — and Escape only blurs (A2).
+  const [collab] = React.useState(() => collaboration ?? null);
+  const escapeBehavior = collab
+    ? "blur"
+    : (escapeBehaviorProp ??
+      (autosave || variant === "document" ? "blur" : "revert"));
   // Fixed at creation: the parser is chosen once.
   const [markdown] = React.useState(format === "markdown");
   const serialize = React.useCallback(
@@ -4470,6 +5166,7 @@ export function TextEditEditor({
     onAnnotationHover,
     onCreateAnnotation,
     onAnnotationsLayout,
+    onPendingUploadsChange,
   });
   React.useEffect(() => {
     callbacks.current = {
@@ -4486,6 +5183,7 @@ export function TextEditEditor({
       onAnnotationHover,
       onCreateAnnotation,
       onAnnotationsLayout,
+      onPendingUploadsChange,
     };
   }, [
     onValueChange,
@@ -4501,6 +5199,7 @@ export function TextEditEditor({
     onAnnotationHover,
     onCreateAnnotation,
     onAnnotationsLayout,
+    onPendingUploadsChange,
   ]);
 
   const placeholderRef = React.useRef(placeholder);
@@ -4516,6 +5215,14 @@ export function TextEditEditor({
   mentionHrefRef.current = mentionHref;
   const mentionImageRef = React.useRef(mentionImage);
   mentionImageRef.current = mentionImage;
+  const mentionLabelRef = React.useRef(mentionLabel);
+  mentionLabelRef.current = mentionLabel;
+  // Chips read `mentionLabel` at render: a new one re-renders them.
+  const [labels] = React.useState(() => new Versioned());
+  React.useEffect(() => labels.bump(), [labels, mentionLabel]);
+  const [toggleRuntime] = React.useState<ToggleRuntime>(() => ({
+    states: collab ? new ToggleStates() : null,
+  }));
   const inlineImageTypesRef = React.useRef(inlineImageTypes);
   inlineImageTypesRef.current = inlineImageTypes;
   const fileLinkPrefixRef = React.useRef(fileLinkPrefix);
@@ -4537,6 +5244,7 @@ export function TextEditEditor({
     setMentionState(next);
   }, []);
 
+  const editorRef = React.useRef<Editor | null>(null);
   // The mention search: debounced 150ms, one AbortSignal per keystroke.
   const searchRef = React.useRef<{
     timer?: ReturnType<typeof setTimeout>;
@@ -4562,6 +5270,17 @@ export function TextEditEditor({
             if (controller.signal.aborted) return;
             const state = mentionStateRef.current;
             if (!state) return;
+            // No one by that name, and the phrase goes on past a space: it was a sentence.
+            const ed = editorRef.current;
+            if (
+              options.length === 0 &&
+              /\s$/.test(query) &&
+              ed &&
+              !ed.isDestroyed
+            ) {
+              exitSuggestion(ed.view, MENTION_KEY);
+              return;
+            }
             setMention({
               ...state,
               results: groupResults(options, source.kinds),
@@ -4627,6 +5346,9 @@ export function TextEditEditor({
       {
         mentionHref: mentionHrefRef,
         mentionImage: mentionImageRef,
+        mentionLabel: mentionLabelRef,
+        labels,
+        collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
         mention: {
           enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
@@ -4644,10 +5366,11 @@ export function TextEditEditor({
         canOpen: () => Boolean(callbacks.current.onAnnotationClick),
       },
       { slots: imageSlots, open: openImageRef },
+      toggleRuntime,
+      collab,
     ),
   );
 
-  const editorRef = React.useRef<Editor | null>(null);
   const {
     id: resolvedId,
     "aria-labelledby": resolvedLabelledBy,
@@ -4695,11 +5418,12 @@ export function TextEditEditor({
       ...(resolvedDescribedBy
         ? { "aria-describedby": resolvedDescribedBy }
         : {}),
-      role: "textbox",
-      "aria-multiline": "true",
+      // A read-only document is a document, not a field (B8): no textbox role to announce.
+      ...(editable || disabled
+        ? { role: "textbox", "aria-multiline": "true" }
+        : { role: "document" }),
       ...(saving ? { "aria-busy": "true" } : {}),
       ...(disabled ? { "aria-disabled": "true" } : {}),
-      ...(!disabled && !editable ? { "aria-readonly": "true" } : {}),
       ...(menuControls
         ? { "aria-autocomplete": "list", "aria-controls": menuControls }
         : {}),
@@ -4734,7 +5458,7 @@ export function TextEditEditor({
   const liveDocRef = React.useRef<PMNode | null>(null);
   const commit = React.useCallback(() => {
     const ed = editorRef.current;
-    if (!ed || ed.isDestroyed || baselineRef.current === null) return;
+    if (collab || !ed || ed.isDestroyed || baselineRef.current === null) return;
     const next = serialize(ed);
     if (next === baselineRef.current) return;
     baselineRef.current = next;
@@ -4747,7 +5471,7 @@ export function TextEditEditor({
    */
   const commitNow = React.useCallback(() => {
     const ed = editorRef.current;
-    if (!ed || ed.isDestroyed) return;
+    if (collab || !ed || ed.isDestroyed) return;
     if (baselineRef.current !== null) {
       commit();
       return;
@@ -4765,14 +5489,14 @@ export function TextEditEditor({
   /** The host saved the current document: it becomes the baseline Escape and commits compare to. */
   const markSaved = React.useCallback(() => {
     const ed = editorRef.current;
-    if (!ed || ed.isDestroyed) return;
+    if (collab || !ed || ed.isDestroyed) return;
     const next = serialize(ed);
     if (baselineRef.current !== null) baselineRef.current = next;
     committedRef.current = next;
   }, [serialize]);
   const revert = React.useCallback(() => {
     const ed = editorRef.current;
-    if (!ed || baselineRef.current === null) return;
+    if (collab || !ed || baselineRef.current === null) return;
     const previous = baselineRef.current;
     if (serialize(ed) !== previous) {
       ed.commands.setContent(previous, {
@@ -4873,9 +5597,11 @@ export function TextEditEditor({
         .finally(() => {
           if (preview) URL.revokeObjectURL(preview);
           uploadsRef.current.delete(id);
+          callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
           if (uploadsRef.current.size === 0) leaveViewRef.current?.();
         });
       uploadsRef.current.set(id, { controller, done });
+      callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
       return true;
     },
     [commitNow],
@@ -4925,8 +5651,14 @@ export function TextEditEditor({
 
   const editor = useEditor({
     extensions,
-    content: value ?? defaultValue,
-    ...(markdown ? { contentType: "markdown" as const } : {}),
+    // A shared document's content is its Yjs document's: never seeded from here (a client-seeded
+    // document duplicates its text when it meets the server's).
+    ...(collab
+      ? {}
+      : {
+          content: value ?? defaultValue,
+          ...(markdown ? { contentType: "markdown" as const } : {}),
+        }),
     editable,
     immediatelyRender: false,
     editorProps: {
@@ -5067,6 +5799,8 @@ export function TextEditEditor({
       },
     },
     onUpdate: ({ editor: ed }) => {
+      // A shared document is never serialized per keystroke (E3): its Markdown is derived on save.
+      if (collab) return;
       liveDocRef.current = ed.state.doc;
       callbacks.current.onValueChange?.(serialize(ed));
     },
@@ -5076,9 +5810,9 @@ export function TextEditEditor({
 
   // The document the host passed in is the committed one until something changes it.
   React.useEffect(() => {
-    if (editor && committedRef.current === null)
+    if (!collab && editor && committedRef.current === null)
       committedRef.current = serialize(editor);
-  }, [editor, serialize]);
+  }, [collab, editor, serialize]);
 
   // The file picker behind the image panel's Upload and the slash menu's File. Files land where
   // the caret was when it opened.
@@ -5119,7 +5853,7 @@ export function TextEditEditor({
 
   // Autosave: `onCommit` after an idle gap. Off unless `autosave` is set.
   React.useEffect(() => {
-    if (!editor || !autosave) return;
+    if (!editor || !autosave || collab) return;
     const delay = autosave === true ? 1000 : autosave;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const schedule = () => {
@@ -5167,7 +5901,7 @@ export function TextEditEditor({
     const previous = shownEditorRef.current;
     shownEditorRef.current = editor;
     const live = liveDocRef.current;
-    if (previous && previous !== editor && live) {
+    if (!collab && previous && previous !== editor && live) {
       editor.commands.setContent(live.toJSON(), { emitUpdate: false });
       committedRef.current = serialize(editor);
       baselineRef.current = null;
@@ -5183,7 +5917,7 @@ export function TextEditEditor({
   // Only a value that changed is news: a rebuilt editor already holds the live document.
   const seenValueRef = React.useRef<string | undefined>(undefined);
   React.useEffect(() => {
-    if (!editor || value === undefined) return;
+    if (!editor || value === undefined || collab) return;
     if (value === seenValueRef.current) return;
     seenValueRef.current = value;
     if (editor.isFocused) {
@@ -5268,7 +6002,7 @@ export function TextEditEditor({
   React.useEffect(() => {
     if (!editor) return;
     const onFocus = () => {
-      if (editor.isEditable && baselineRef.current === null)
+      if (!collab && editor.isEditable && baselineRef.current === null)
         baselineRef.current = serialize(editor);
     };
     const onBlur = ({ event }: { event: FocusEvent }) => {
@@ -5388,13 +6122,24 @@ export function TextEditEditor({
           top = null;
         }
         const offsets = rangeToOffsets(doc, range.from, range.to);
-        return {
-          id,
-          top,
-          anchor: anchorFromRange(anchorText(doc), offsets.start, offsets.end),
-        };
+        const anchor: TextEditAnchor = anchorFromRange(
+          anchorText(doc),
+          offsets.start,
+          offsets.end,
+        );
+        // A shared highlight's relative positions travel with it: persisting the moved anchor
+        // must not drop them (they are what keep it exact through collaborators' edits).
+        const refs = state.y.get(id);
+        if (refs)
+          anchor.y = {
+            start: Y.encodeRelativePosition(refs.start),
+            end: Y.encodeRelativePosition(refs.end),
+          };
+        return { id, top, anchor };
       });
-      const key = JSON.stringify(items);
+      const key = JSON.stringify(items, (_key, value: unknown) =>
+        value instanceof Uint8Array ? Array.from(value) : value,
+      );
       if (key === last) return;
       last = key;
       callbacks.current.onAnnotationsLayout?.(items);
@@ -5418,7 +6163,7 @@ export function TextEditEditor({
     };
   }, [editor, onAnnotationsLayout, rootRef]);
 
-  const getAnchorForSelection = React.useCallback((): TextAnchor | null => {
+  const getAnchorForSelection = React.useCallback((): TextEditAnchor | null => {
     const ed = editorRef.current;
     if (!ed || ed.isDestroyed) return null;
     const { from, to, empty } = ed.state.selection;
@@ -5426,7 +6171,10 @@ export function TextEditEditor({
     const { doc } = ed.state;
     const offsets = rangeToOffsets(doc, from, to);
     if (offsets.start === offsets.end) return null;
-    return anchorFromRange(anchorText(doc), offsets.start, offsets.end);
+    const anchor = anchorFromRange(anchorText(doc), offsets.start, offsets.end);
+    // A shared document's highlight also carries its Yjs relative positions.
+    const y = yAnchorOf(ed.state, from, to);
+    return y ? { ...anchor, y } : anchor;
   }, []);
 
   // The imperative handle the shell's `handleRef` delegates to.
@@ -5458,6 +6206,7 @@ export function TextEditEditor({
         uploadFiles(files, ed.state.selection.from);
       },
       pickFiles: () => pickRef.current?.(),
+      pendingUploads: () => uploadsRef.current.size,
       pulseAnnotation: (id: string) => {
         const ed = editorRef.current;
         if (!ed || ed.isDestroyed) return;

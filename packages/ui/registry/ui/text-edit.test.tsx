@@ -9,9 +9,22 @@ import {
   preloadTextEdit,
   TextEdit,
   type MentionOption,
+  type TextEditAnchor,
   type TextEditHandle,
 } from "./text-edit";
 import { anchorFromRange } from "../lib/text-anchor";
+import { markdownToDoc } from "../lib/text-edit-markdown";
+import * as Y from "yjs";
+import {
+  Awareness,
+  applyAwarenessUpdate,
+  encodeAwarenessUpdate,
+} from "y-protocols/awareness";
+import {
+  prosemirrorToYXmlFragment,
+  yXmlFragmentToProseMirrorRootNode,
+} from "@tiptap/y-tiptap";
+import { textEditSchema } from "../lib/text-edit-schema";
 import { Field as BaseField } from "@base-ui/react/field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -238,7 +251,7 @@ test("no a11y violations — non-editable", async () => {
     <TextEdit value="<p>read only</p>" readOnly aria-label="Body" />,
   );
   await expect
-    .element(screen.getByRole("textbox", { name: "Body" }))
+    .element(screen.getByRole("document", { name: "Body" }))
     .toBeInTheDocument();
   // color-contrast: see the note on the default-state a11y test above.
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
@@ -549,13 +562,15 @@ test("Markdown: a controlled value is applied as Markdown", async () => {
   });
 });
 
-test("readOnly marks the surface read-only", async () => {
+test("readOnly renders a document, not a field: no textbox role, nothing editable (B8)", async () => {
   const screen = await render(
     <TextEdit defaultValue="<p>Fixed</p>" readOnly aria-label="Body" />,
   );
-  const box = screen.getByRole("textbox", { name: "Body" });
+  const box = screen.getByRole("document", { name: "Body" });
   await expect.element(box).toHaveAttribute("contenteditable", "false");
-  await expect.element(box).toHaveAttribute("aria-readonly", "true");
+  await expect.element(box).not.toHaveAttribute("aria-readonly");
+  await expect.element(box).not.toHaveAttribute("aria-multiline");
+  expect(screen.container.querySelector('[role="textbox"]')).toBeNull();
   expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
   await expectNoA11yViolations(screen.container);
 });
@@ -632,13 +647,14 @@ test("leaving with a change commits once; leaving unchanged commits nothing", as
   expect(onCommit.mock.calls[0]?.[0]).toBe("Hello world");
 });
 
-test("Escape reverts to the value focus arrived with and commits nothing", async () => {
+test('escapeBehavior="revert": Escape reverts to the value focus arrived with and commits nothing', async () => {
   const onCommit = vi.fn();
   const onRevert = vi.fn();
   const screen = await markdownEditor({
     defaultValue: "Keep",
     onCommit,
     onRevert,
+    escapeBehavior: "revert",
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
   await box.click();
@@ -647,6 +663,23 @@ test("Escape reverts to the value focus arrived with and commits nothing", async
   await vi.waitFor(() => expect(onRevert).toHaveBeenCalled());
   expect(box.element().textContent).toBe("Keep");
   expect(onCommit).not.toHaveBeenCalled();
+});
+
+test("Escape in a document keeps its text, commits and blurs (A2) — never erases typed text", async () => {
+  const onCommit = vi.fn();
+  const onRevert = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Kept",
+    onCommit,
+    onRevert,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END} too`);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(onCommit).toHaveBeenCalledWith("Kept too"));
+  expect(onRevert).not.toHaveBeenCalled();
+  expect(box.element().contains(document.activeElement)).toBe(false);
 });
 
 test("escapeBehavior: an autosaving document keeps its text on Escape, commits and blurs", async () => {
@@ -692,6 +725,7 @@ test("markSaved advances the baseline, so Escape reverts only what came after th
     defaultValue: "A",
     handleRef,
     onCommit,
+    escapeBehavior: "revert",
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
   await box.click();
@@ -2774,4 +2808,719 @@ test("citations: an upload still in flight keeps the editor until it lands", asy
   expect(readView(screen)!.querySelector("img")?.getAttribute("src")).toBe(
     "/api/files/f1",
   );
+});
+
+/* --- B1: menus that take spaces and digits ---------------------------------------------------*/
+
+test("slash menu: `/heading 2` and `/head2` both find Heading 2; a sentence past a space closes it (B1)", async () => {
+  const screen = await markdownEditor();
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard("/heading 2");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent).toContain("Heading 2"),
+  );
+  expect(slashMenu()!.textContent).not.toContain("Heading 1");
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("h2")).not.toBeNull(),
+  );
+  await userEvent.keyboard("{Enter}/head2");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent).toContain("Heading 2"),
+  );
+  await userEvent.keyboard("{Escape}");
+  // and/or never opens a menu; a phrase that matches nothing closes at its next space.
+  await userEvent.keyboard(" and/or");
+  expect(slashMenu()).toBeNull();
+  await userEvent.keyboard(" /nothing like this ");
+  await vi.waitFor(() => expect(slashMenu()).toBeNull());
+});
+
+test("mentions: `@Asha Rao` searches the whole name; two spaces close the menu (B1)", async () => {
+  const search = vi.fn(async (query: string): Promise<MentionOption[]> =>
+    "asha rao".startsWith(query.toLowerCase())
+      ? [{ kind: "user", id: "u1", label: "Asha Rao" }]
+      : [],
+  );
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: { kinds: ["user"], search },
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@Asha Ra");
+  await vi.waitFor(() =>
+    expect(search).toHaveBeenLastCalledWith("Asha Ra", {
+      signal: expect.any(AbortSignal),
+    }),
+  );
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Asha Rao"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("[@Asha Rao](mention://user/u1)"),
+  );
+  await userEvent.keyboard("@a  ");
+  await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+});
+
+/* --- uploads pending (A7) ---------------------------------------------------------------------*/
+
+test("pendingUploads counts uploads still landing, and onPendingUploadsChange reports each change (A7)", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const onPendingUploadsChange = vi.fn();
+  const handleRef = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    onImageUpload,
+    onPendingUploadsChange,
+    handleRef,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteFiles(box.element(), [png()]);
+  await vi.waitFor(() =>
+    expect(onPendingUploadsChange).toHaveBeenLastCalledWith(1),
+  );
+  expect(handleRef.current!.pendingUploads()).toBe(1);
+  land({ src: "/files/shot.png" });
+  await vi.waitFor(() =>
+    expect(onPendingUploadsChange).toHaveBeenLastCalledWith(0),
+  );
+  expect(handleRef.current!.pendingUploads()).toBe(0);
+});
+
+/* --- collaboration ----------------------------------------------------------------------------*/
+
+/** Two Yjs documents kept in sync in memory, as a server would, each with its own awareness. */
+function sharedDocument(markdown = "") {
+  const a = new Y.Doc();
+  const b = new Y.Doc();
+  a.on("update", (update: Uint8Array, origin: unknown) => {
+    if (origin !== "peer") Y.applyUpdate(b, update, "peer");
+  });
+  b.on("update", (update: Uint8Array, origin: unknown) => {
+    if (origin !== "peer") Y.applyUpdate(a, update, "peer");
+  });
+  if (markdown)
+    prosemirrorToYXmlFragment(
+      markdownToDoc(markdown),
+      a.getXmlFragment("default"),
+    );
+  // Each side's awareness (carets, names) relayed to the other, as a server relays it.
+  const awareness = { a: new Awareness(a), b: new Awareness(b) };
+  const relay = (from: Awareness, to: Awareness) =>
+    from.on(
+      "update",
+      (
+        {
+          added,
+          updated,
+          removed,
+        }: Record<"added" | "updated" | "removed", number[]>,
+        origin: unknown,
+      ) => {
+        if (origin === "peer") return;
+        const changed = [...added, ...updated, ...removed];
+        applyAwarenessUpdate(to, encodeAwarenessUpdate(from, changed), "peer");
+      },
+    );
+  relay(awareness.a, awareness.b);
+  relay(awareness.b, awareness.a);
+  onTestFinished(() => {
+    awareness.a.destroy();
+    awareness.b.destroy();
+  });
+  const asha = { id: "u1", name: "Asha Rao", hue: "green" as const };
+  const ben = { id: "u2", name: "Ben Ito", hue: "orange" as const };
+  return {
+    a,
+    b,
+    awareness,
+    collaboration: (side: "a" | "b") => ({
+      document: side === "a" ? a : b,
+      provider: {
+        awareness: awareness[side],
+        on: () => undefined,
+        off: () => undefined,
+      },
+      user: side === "a" ? asha : ben,
+      // The server's word on who each connection is (by awareness client id).
+      peer: (clientId: number) =>
+        clientId === a.clientID ? asha : clientId === b.clientID ? ben : null,
+    }),
+  };
+}
+
+/** An editor's text without collaborators' caret labels (they sit in the editor's DOM). */
+function visibleText(element: Element): string {
+  const copy = element.cloneNode(true) as Element;
+  for (const caret of copy.querySelectorAll('[data-slot="text-edit-caret"]'))
+    caret.remove();
+  return copy.textContent ?? "";
+}
+
+/** The shared document's text, read from Yjs. */
+const sharedText = (doc: Y.Doc) =>
+  yXmlFragmentToProseMirrorRootNode(
+    doc.getXmlFragment("default"),
+    textEditSchema(),
+  ).textContent;
+
+async function twoEditors(
+  markdown: string,
+  props: {
+    a?: Partial<React.ComponentProps<typeof TextEdit>>;
+    b?: Partial<React.ComponentProps<typeof TextEdit>>;
+  } = {},
+) {
+  const shared = sharedDocument(markdown);
+  const screen = await render(
+    <>
+      <TextEdit
+        format="markdown"
+        aria-label="A"
+        collaboration={shared.collaboration("a")}
+        {...props.a}
+      />
+      <TextEdit
+        format="markdown"
+        aria-label="B"
+        collaboration={shared.collaboration("b")}
+        {...props.b}
+      />
+      <button type="button">Outside</button>
+    </>,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelectorAll(".ProseMirror")).toHaveLength(2),
+  );
+  return { screen, shared };
+}
+
+test("collaboration: two editors share one document live; ⌘Z undoes only this viewer's own typing", async () => {
+  const { screen, shared } = await twoEditors("Hello");
+  const a = screen.getByRole("textbox", { name: "A" });
+  const b = screen.getByRole("textbox", { name: "B" });
+  await vi.waitFor(() => expect(visibleText(b.element())).toBe("Hello"));
+  await a.click();
+  await userEvent.keyboard(`${END} from A`);
+  await vi.waitFor(() => expect(visibleText(b.element())).toBe("Hello from A"));
+  await b.click();
+  await userEvent.keyboard(`${END} and B`);
+  await vi.waitFor(() =>
+    expect(visibleText(a.element())).toBe("Hello from A and B"),
+  );
+  // A collaborator's caret shows in their hue, named — never a colour string.
+  await vi.waitFor(() =>
+    expect(
+      a.element().querySelector('[data-slot="text-edit-caret"]')?.className,
+    ).toContain("border-tag-orange"),
+  );
+  await a.click();
+  await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+  await vi.waitFor(() => expect(sharedText(shared.a)).toBe("Hello and B"));
+  expect(sharedText(shared.b)).toBe("Hello and B");
+});
+
+test("collaboration: Escape blurs, and a read-only viewer sees live text in a document, not a field", async () => {
+  const { screen } = await twoEditors("Shared", { b: { readOnly: true } });
+  const a = screen.getByRole("textbox", { name: "A" });
+  const viewer = screen.getByRole("document", { name: "B" });
+  await a.click();
+  await userEvent.keyboard(`${END} text`);
+  await userEvent.keyboard("{Escape}");
+  expect(a.element().contains(document.activeElement)).toBe(false);
+  expect(visibleText(a.element())).toBe("Shared text");
+  await vi.waitFor(() =>
+    expect(visibleText(viewer.element())).toBe("Shared text"),
+  );
+  expect(screen.container.querySelectorAll('[role="textbox"]')).toHaveLength(1);
+});
+
+test("collaboration: a viewer folds a toggle for themselves only — no change reaches the document (B7)", async () => {
+  const { screen, shared } = await twoEditors(
+    "<details open><summary>Title</summary>\n\nBody\n\n</details>",
+    { b: { readOnly: true } },
+  );
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelectorAll('[data-slot="toggle"][data-open]'),
+    ).toHaveLength(2),
+  );
+  const updates = vi.fn();
+  shared.b.on("update", updates);
+  const [, viewerToggle] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="toggle"]',
+  );
+  await userEvent.click(
+    viewerToggle!.querySelector<HTMLElement>('[data-slot="toggle-chevron"]')!,
+  );
+  await vi.waitFor(() => expect(viewerToggle).not.toHaveAttribute("data-open"));
+  const [editorToggle] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="toggle"]',
+  );
+  expect(editorToggle).toHaveAttribute("data-open");
+  expect(updates).not.toHaveBeenCalled();
+  // "Open by default" is the author's choice for everyone: a document change.
+  await userEvent.click(
+    editorToggle!.querySelector<HTMLElement>('[data-slot="toggle-options"]')!,
+  );
+  await userEvent.click(
+    await vi.waitFor(() => {
+      const item = [
+        ...document.querySelectorAll('[role="menuitemcheckbox"]'),
+      ].find((each) => each.textContent?.includes("Open by default"));
+      expect(item).toBeDefined();
+      return item as HTMLElement;
+    }),
+  );
+  await vi.waitFor(() => expect(updates).toHaveBeenCalled());
+  await vi.waitFor(() => expect(editorToggle).not.toHaveAttribute("data-open"));
+});
+
+test("collaboration: a record mention is stored without its title, and each reader's chip labels it", async () => {
+  const search = async (): Promise<MentionOption[]> => [
+    { kind: "page", id: "p1", label: "Q3 plan" },
+  ];
+  const { screen, shared } = await twoEditors("", {
+    a: { mentions: { kinds: ["page"], search }, mentionLabel: () => "Q3 plan" },
+    b: { mentionLabel: () => null },
+  });
+  await screen.getByRole("textbox", { name: "A" }).click();
+  await userEvent.keyboard("@Q3");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Q3 plan"),
+  );
+  await userEvent.keyboard("{Enter}");
+  const mention = () =>
+    yXmlFragmentToProseMirrorRootNode(
+      shared.b.getXmlFragment("default"),
+      textEditSchema(),
+    ).firstChild?.firstChild;
+  await vi.waitFor(() => expect(mention()?.type.name).toBe("mention"));
+  expect(mention()!.attrs).toMatchObject({ kind: "page", id: "p1", label: "" });
+  const chips = screen.container.querySelectorAll('[data-slot="inline-chip"]');
+  await vi.waitFor(() => expect(chips[0]?.textContent).toContain("Q3 plan"));
+  // A reader the host gives no label sees a placeholder, never someone else's title.
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelectorAll('[data-slot="inline-chip"]')[1]
+        ?.textContent,
+    ).toContain("…"),
+  );
+});
+
+test("collaboration: a highlight placed by Yjs positions follows a collaborator's edit before it", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("alpha beta gamma", {
+    a: { handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  // Select "beta" (offsets 6–10 in the paragraph).
+  const text = a.element().querySelector("p")!.firstChild!;
+  const range = document.createRange();
+  range.setStart(text, 6);
+  range.setEnd(text, 10);
+  const selection = window.getSelection()!;
+  selection.removeAllRanges();
+  selection.addRange(range);
+  const anchor = await vi.waitFor(() => {
+    const found = handleRef.current!.getAnchorForSelection();
+    expect(found?.quote).toBe("beta");
+    return found!;
+  });
+  expect(anchor.y?.start).toBeInstanceOf(Uint8Array);
+  // A third viewer of the same document draws the highlight from its Yjs positions.
+  const viewer = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="C"
+      readOnly
+      collaboration={{
+        document: shared.b,
+        provider: {
+          awareness: new Awareness(shared.b),
+          on: () => undefined,
+          off: () => undefined,
+        },
+        user: { id: "u3", name: "Cal", hue: "blue" },
+      }}
+      annotations={[{ id: "c1", anchor }]}
+    />,
+  );
+  const highlight = () =>
+    viewer.container.querySelector('[data-annotation="c1"]')?.textContent;
+  await vi.waitFor(() => expect(highlight()).toBe("beta"));
+  // A collaborator types before it: the highlight stays on its words.
+  await a.click();
+  await userEvent.keyboard(`{${MOD}>}{ArrowUp}{/${MOD}}`);
+  await userEvent.keyboard("{Home}new ");
+  await vi.waitFor(() =>
+    expect(viewer.container.querySelector(".ProseMirror")?.textContent).toBe(
+      "new alpha beta gamma",
+    ),
+  );
+  await vi.waitFor(() => expect(highlight()).toBe("beta"));
+});
+
+/** The shared document's first paragraph's text, as Yjs holds it. */
+const sharedParagraph = (doc: Y.Doc) =>
+  (doc.getXmlFragment("default").get(0) as Y.XmlElement).get(0) as Y.XmlText;
+
+test("collaboration: a Yjs highlight takes text typed inside it, and is orphaned once its quote is deleted", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("alpha beta gamma", {
+    a: { handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  const text = a.element().querySelector("p")!.firstChild!;
+  const range = document.createRange();
+  range.setStart(text, 6);
+  range.setEnd(text, 10);
+  window.getSelection()!.removeAllRanges();
+  window.getSelection()!.addRange(range);
+  const anchor = await vi.waitFor(() => {
+    const found = handleRef.current!.getAnchorForSelection();
+    expect(found?.quote).toBe("beta");
+    return found!;
+  });
+  const onAnnotationsLayout = vi.fn();
+  const viewer = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="C"
+      readOnly
+      collaboration={{
+        document: shared.b,
+        provider: {
+          awareness: new Awareness(shared.b),
+          on: () => undefined,
+          off: () => undefined,
+        },
+        user: { id: "u3", name: "Cal", hue: "blue" },
+      }}
+      annotations={[{ id: "c1", anchor }]}
+      onAnnotationsLayout={onAnnotationsLayout}
+    />,
+  );
+  const highlight = () =>
+    viewer.container.querySelector('[data-annotation="c1"]')?.textContent;
+  await vi.waitFor(() => expect(highlight()).toBe("beta"));
+  // The layout's anchor keeps its Yjs positions: persisting it never drops them.
+  await vi.waitFor(() =>
+    expect(
+      onAnnotationsLayout.mock.calls.at(-1)?.[0]?.[0]?.anchor?.y?.end,
+    ).toBeInstanceOf(Uint8Array),
+  );
+  // A collaborator types before the quote's last character: it is inside the highlight.
+  sharedParagraph(shared.a).insert(9, "XYZ");
+  await vi.waitFor(() => expect(highlight()).toBe("betXYZa"));
+  // The whole quote deleted: the highlight is orphaned, never moved onto the next word.
+  sharedParagraph(shared.a).delete(6, 7);
+  await vi.waitFor(() =>
+    expect(viewer.container.querySelector(".ProseMirror")?.textContent).toBe(
+      "alpha  gamma",
+    ),
+  );
+  await vi.waitFor(() => expect(highlight()).toBeUndefined());
+});
+
+test("collaboration: a pasted record mention keeps no title in the shared document", async () => {
+  const { screen, shared } = await twoEditors("", {
+    a: { mentionLabel: () => null },
+    b: { mentionLabel: () => null },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  const data = new DataTransfer();
+  data.setData("text/plain", "See [@Secret acquisition](mention://page/p1)");
+  a.element().dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: data,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  const mention = () => {
+    let found: { attrs: Record<string, unknown> } | null = null;
+    yXmlFragmentToProseMirrorRootNode(
+      shared.b.getXmlFragment("default"),
+      textEditSchema(),
+    ).descendants((node) => {
+      if (node.type.name === "mention") found = node;
+    });
+    return found as { attrs: Record<string, unknown> } | null;
+  };
+  await vi.waitFor(() => expect(mention()).not.toBeNull());
+  expect(mention()!.attrs).toMatchObject({ kind: "page", id: "p1", label: "" });
+  expect(screen.container.textContent).not.toContain("Secret");
+});
+
+test("collaboration: an upload lands even when a collaborator changes its paragraph meanwhile", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("alpha beta", {
+    a: { onImageUpload, handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  await userEvent.keyboard(END);
+  pasteFiles(a.element(), [png()]);
+  await vi.waitFor(() =>
+    expect(a.element().querySelector("[data-uploading]")).not.toBeNull(),
+  );
+  // A collaborator edits the same paragraph: Yjs replaces it in this editor.
+  sharedParagraph(shared.b).insert(0, "new ");
+  await vi.waitFor(() =>
+    expect(visibleText(a.element())).toContain("new alpha beta"),
+  );
+  expect(a.element().querySelector("[data-uploading]")).not.toBeNull();
+  expect(handleRef.current!.pendingUploads()).toBe(1);
+  land({ src: "/api/files/f1" });
+  await vi.waitFor(() => {
+    let image = false;
+    yXmlFragmentToProseMirrorRootNode(
+      shared.b.getXmlFragment("default"),
+      textEditSchema(),
+    ).descendants((node) => {
+      if (node.type.name === "image") image = true;
+    });
+    expect(image).toBe(true);
+  });
+  expect(handleRef.current!.pendingUploads()).toBe(0);
+});
+
+test("collaboration: a caret's name comes from the server's identity, never from what a client claims", async () => {
+  const { screen, shared } = await twoEditors("Hello");
+  await screen.getByRole("textbox", { name: "B" }).click();
+  // B claims to be Asha, and an agent.
+  shared.awareness.b.setLocalStateField("user", {
+    id: "u1",
+    name: "Asha Rao",
+    hue: "green",
+    kind: "agent",
+  });
+  const a = screen.getByRole("textbox", { name: "A" }).element();
+  await vi.waitFor(() =>
+    expect(
+      a.querySelector('[data-slot="text-edit-caret-label"]')?.textContent,
+    ).toBe("Ben Ito"),
+  );
+  expect(a.querySelector('[data-slot="text-edit-caret"]')?.className).toContain(
+    "border-tag-orange",
+  );
+});
+
+test("collaboration: a read-only viewer never assigns block ids — the server owns them", async () => {
+  const shared = sharedDocument();
+  prosemirrorToYXmlFragment(
+    textEditSchema().nodeFromJSON({
+      type: "doc",
+      content: [
+        { type: "paragraph", content: [{ type: "text", text: "No id" }] },
+      ],
+    }),
+    shared.a.getXmlFragment("default"),
+  );
+  const updates = vi.fn();
+  shared.b.on("update", updates);
+  const collaboration = {
+    ...shared.collaboration("b"),
+    provider: {
+      awareness: new Awareness(shared.b),
+      on: (_event: "synced", listener: () => void) => setTimeout(listener, 0),
+      off: () => undefined,
+    },
+  };
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="C"
+      readOnly
+      collaboration={collaboration}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")?.textContent).toBe(
+      "No id",
+    ),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(updates).not.toHaveBeenCalled();
+});
+
+test("collaboration: a collaborator's edit leaves an open slash menu open", async () => {
+  const { screen, shared } = await twoEditors("First\n\nSecond");
+  await screen.getByRole("textbox", { name: "A" }).click();
+  await userEvent.keyboard(`${END}{Enter}/hea`);
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  sharedParagraph(shared.b).insert(0, "B ");
+  await vi.waitFor(() =>
+    expect(
+      visibleText(screen.getByRole("textbox", { name: "A" }).element()),
+    ).toContain("B First"),
+  );
+  expect(slashMenu()).not.toBeNull();
+  expect(slashMenu()!.textContent).toMatch(/Heading/);
+});
+
+/** Select `from`–`to` of an editor's first paragraph text and read its anchor from `handleRef`. */
+async function anchorOf(
+  box: Element,
+  handleRef: React.RefObject<TextEditHandle | null>,
+  from: number,
+  to: number,
+  quote: string,
+) {
+  const text = box.querySelector("p")!.firstChild!;
+  const range = document.createRange();
+  range.setStart(text, from);
+  range.setEnd(text, to);
+  window.getSelection()!.removeAllRanges();
+  window.getSelection()!.addRange(range);
+  return vi.waitFor(() => {
+    const found = handleRef.current!.getAnchorForSelection();
+    expect(found?.quote).toBe(quote);
+    return found!;
+  });
+}
+
+/** A read-only third viewer of `doc` drawing one highlight (`c1`) from `anchor`. */
+async function highlightViewer(doc: Y.Doc, anchor: TextEditAnchor) {
+  const viewer = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="C"
+      readOnly
+      collaboration={{
+        document: doc,
+        provider: {
+          awareness: new Awareness(doc),
+          on: () => undefined,
+          off: () => undefined,
+        },
+        user: { id: "u3", name: "Cal", hue: "blue" },
+      }}
+      annotations={[{ id: "c1", anchor }]}
+    />,
+  );
+  return {
+    text: () => viewer.container.querySelector(".ProseMirror")?.textContent,
+    highlight: () =>
+      viewer.container.querySelector('[data-annotation="c1"]')?.textContent,
+  };
+}
+
+test("collaboration: a highlight on the document's first word survives a collaborator's edit", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("beta gamma", {
+    a: { handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  const anchor = await anchorOf(a.element(), handleRef, 0, 4, "beta");
+  const viewer = await highlightViewer(shared.b, anchor);
+  await vi.waitFor(() => expect(viewer.highlight()).toBe("beta"));
+  sharedParagraph(shared.a).insert(10, " delta");
+  await vi.waitFor(() => expect(viewer.text()).toBe("beta gamma delta"));
+  await vi.waitFor(() => expect(viewer.highlight()).toBe("beta"));
+});
+
+test("collaboration: a reopened highlight whose quote was deleted stays orphaned — never moved to another occurrence", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("one beta two beta", {
+    a: { handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  const anchor = await anchorOf(a.element(), handleRef, 4, 8, "beta");
+  sharedParagraph(shared.a).delete(4, 4);
+  const viewer = await highlightViewer(shared.b, anchor);
+  await vi.waitFor(() => expect(viewer.text()).toBe("one  two beta"));
+  await vi.waitFor(() => expect(viewer.highlight()).toBeUndefined());
+});
+
+test("collaboration: an upload survives its paragraph turned heading here, then a collaborator's edit", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const { screen, shared } = await twoEditors("intro\n\nalpha beta", {
+    a: { onImageUpload },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  // The editor's own commands place the caret and change the block: keyboard shortcuts for
+  // "end of line" differ by platform, and a DOM selection reaches the editor asynchronously.
+  const editor = (
+    (a.element().closest(".ProseMirror") ??
+      a.element().querySelector(".ProseMirror")) as unknown as {
+      editor: {
+        commands: { setTextSelection: (pos: number) => boolean };
+        chain: () => {
+          setTextSelection: (pos: number) => {
+            setNode: (
+              type: string,
+              attrs: Record<string, unknown>,
+            ) => { run: () => boolean };
+          };
+        };
+      };
+    }
+  ).editor;
+  editor.commands.setTextSelection(18); // the end of "alpha beta"
+  pasteFiles(a.element(), [png()]);
+  await vi.waitFor(() =>
+    expect(
+      a.element().querySelectorAll("p")[1]?.querySelector("[data-uploading]"),
+    ).not.toBeNull(),
+  );
+  // This person turns the paragraph into a heading: Yjs rebuilds the block.
+  editor.chain().setTextSelection(9).setNode("heading", { level: 1 }).run();
+  await vi.waitFor(() =>
+    expect(a.element().querySelector("h1")).not.toBeNull(),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  (
+    (shared.b.getXmlFragment("default").get(1) as Y.XmlElement).get(
+      0,
+    ) as Y.XmlText
+  ).insert(0, "new ");
+  await vi.waitFor(() =>
+    expect(visibleText(a.element())).toContain("new alpha beta"),
+  );
+  // Still where it was put: at the end of the heading's text, not pushed out of the block.
+  await vi.waitFor(() =>
+    expect(a.element().querySelector("h1 [data-uploading]")).not.toBeNull(),
+  );
+  land({ src: "/api/files/f1" });
+  await vi.waitFor(() => {
+    let image = false;
+    yXmlFragmentToProseMirrorRootNode(
+      shared.b.getXmlFragment("default"),
+      textEditSchema(),
+    ).descendants((node) => {
+      if (node.type.name === "image") image = true;
+    });
+    expect(image).toBe(true);
+  });
 });

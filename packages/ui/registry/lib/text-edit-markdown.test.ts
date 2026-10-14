@@ -110,3 +110,16 @@ test("the editor's Markdown is docToMarkdown, byte for byte", () => {
     editor.destroy();
   }
 });
+
+test("docToMarkdown fills a shared document's empty record labels from `labels`, and only those", () => {
+  const doc = markdownToDoc(
+    "[@](mention://page/p1) and [@Asha](mention://user/u1) and [@](mention://task/t9)",
+  );
+  expect(
+    docToMarkdown(doc, {
+      labels: (kind, id) => (kind === "page" && id === "p1" ? "Q3 plan" : null),
+    }),
+  ).toBe(
+    "[@Q3 plan](mention://page/p1) and [@Asha](mention://user/u1) and [@](mention://task/t9)",
+  );
+});
