@@ -10,6 +10,25 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.31] — October 14, 2026
+
+### 🧩 New components
+
+- **TextEdit**: `collaboration={{ document, provider, user, peer }}` edits a shared Yjs document live — collaborators' carets and selections in their tag hue with their name (an agent in purple), the identity taken only from `peer(clientId)` (the server's word), never from what a client writes into awareness, ⌘Z undoing only this viewer's changes, nothing serialized per keystroke, and the editor mounted at once (read-only viewers watch it move; `readCopy` paints first). A toggle's chevron is each viewer's own ("Open by default" in its ⋯ menu sets it for everyone), a page, task or file mention is stored without its title (pasted and imported ones too) and labelled per reader by the new `mentionLabel`, a comment made here carries `anchor.y` Yjs positions (`TextEditAnchor`, kept by `onAnnotationsLayout`) that keep the highlight on its words and orphan it once they are deleted, uploads in flight survive collaborators' edits, an open slash or `@` menu survives them too, and block ids are given only to blocks made here (a document's own are the server's). The slash and `@` menus take spaces and digits (`/heading 2`, `/head2`, `@Asha Rao`); `handleRef.pendingUploads()` and `onPendingUploadsChange` report uploads still landing. **AutoSaveIndicator** adds `connecting` and `offline`; **InlineChip** and mentions add the `agent` kind ("Your agents"). `docToMarkdown(doc, { labels })` fills label-less mentions. New dependencies `yjs`, `y-protocols`, `@tiptap/y-tiptap` and `@tiptap/extension-collaboration(-caret)`, in the editor's lazy chunk.
+  [docs](/docs/components/text-edit) ·
+  [`e5a1833`](https://github.com/VegaStack/vegastack-design/commit/e5a1833)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.8`** (was `0.8.7`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.30 → 0.25.31.
+
+### ⚠️ Breaking
+
+- **TextEdit**: Escape in a `document` editor now keeps the text, commits and blurs (it reverted unless `autosave` was set) — reverting a document erased text people had typed; `boxed` and `composer` fields still revert, and `escapeBehavior` still chooses either way. A `readOnly` editor is now a document (`role="document"`) rather than a read-only text box: no `aria-readonly` or `aria-multiline`, so assistive tech announces content, not a field.
+  [docs](/docs/components/text-edit) ·
+  [`e5a1833`](https://github.com/VegaStack/vegastack-design/commit/e5a1833)
+
 ## [0.25.30] — October 14, 2026
 
 ### 🧩 New components

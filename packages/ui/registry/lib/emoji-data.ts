@@ -1,4 +1,4 @@
-// @vegastack emoji-data@0.25.30 sha256-Iq/AmOl6Wos09Uo30LOwxfTrZB3OF3HwX9e7Qc1cXhY=
+// @vegastack emoji-data@0.25.31 sha256-sZrMyykfvVlKrkU7jfSzUQdpQEMBoq2jY+uNlWG8fDk=
 
 /* ------------------------------------------------------------------------------------------------
  * emoji-data — the curated emoji set behind `EmojiPicker` and `Reactions`, plus two lookups. Pure
