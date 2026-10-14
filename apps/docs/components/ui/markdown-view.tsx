@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.34 sha256-EkuWYdi4OI3EozPdx01YuLtWAIUN84WW29R1HeXSoJI=
+// @vegastack markdown-view@0.25.34 sha256-XK/NXL0W0iVBTPhu2NKppnLLjWmD9tXSmn+AULI/iCM=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -1813,7 +1813,7 @@ export function MarkdownView({
     Boolean(findQuery?.trim()) ||
     details.length > 0;
 
-  return (
+  const view = (
     <div
       data-slot="markdown-view"
       data-type-scale={typeScale}
@@ -1825,19 +1825,6 @@ export function MarkdownView({
       )}
       {...props}
     >
-      {effects ? (
-        <MarkdownViewEffects
-          viewId={viewId}
-          outline={onOutlineChange ? outline : undefined}
-          onOutlineChange={onOutlineChange}
-          onAnnotationsLayout={onAnnotationsLayout}
-          annotationIds={annotations?.map((annotation) => annotation.id)}
-          findQuery={findQuery}
-          onFindClose={onFindClose}
-          findLabels={findLabels}
-          printToggles={details.length > 0}
-        />
-      ) : null}
       {render(tree, {
         images: normalizeAllowedImageOrigins(allowedImageOrigins),
         headingOffset: Math.trunc(headingOffset),
@@ -1860,6 +1847,25 @@ export function MarkdownView({
         citation,
       })}
     </div>
+  );
+  if (!effects) return view;
+  // The effects render after the view, never inside it (the find bar is `fixed`, the live region
+  // `sr-only`): the document's first and last blocks stay its own.
+  return (
+    <>
+      {view}
+      <MarkdownViewEffects
+        viewId={viewId}
+        outline={onOutlineChange ? outline : undefined}
+        onOutlineChange={onOutlineChange}
+        onAnnotationsLayout={onAnnotationsLayout}
+        annotationIds={annotations?.map((annotation) => annotation.id)}
+        findQuery={findQuery}
+        onFindClose={onFindClose}
+        findLabels={findLabels}
+        printToggles={details.length > 0}
+      />
+    </>
   );
 }
 

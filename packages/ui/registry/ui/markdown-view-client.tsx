@@ -1,9 +1,8 @@
-// @vegastack markdown-view@0.25.34 sha256-EkuWYdi4OI3EozPdx01YuLtWAIUN84WW29R1HeXSoJI=
+// @vegastack markdown-view@0.25.34 sha256-XK/NXL0W0iVBTPhu2NKppnLLjWmD9tXSmn+AULI/iCM=
 
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
@@ -247,8 +246,8 @@ const defaultFindLabels = {
 
 /**
  * `MarkdownViewEffects` — `MarkdownView`'s one client leaf for behaviour after render. It finds the
- * view by its `data-view-id` and renders nothing inside it (the find bar is a portal), so the view
- * needs no ref, stays server-safe, and its first and last blocks stay its own.
+ * view by its `data-view-id` and renders after it, never inside it (the find bar is `fixed`), so the
+ * view needs no ref, stays server-safe, and its first and last blocks stay its own.
  * Rendered by `MarkdownView` only when one of these props is set.
  *
  * @example
@@ -406,13 +405,12 @@ export function MarkdownViewEffects({
     announce(labels.position(next + 1, matches.length));
   };
 
-  // The bar docks at the window's bottom end through a portal — never inside the text, so opening
-  // find moves nothing and the recipe's first- and last-child rules still see the document's own
-  // blocks. The live region is there too, mounted from the first client render.
-  if (!mounted) return null;
-  return createPortal(
+  // The bar docks at the window's bottom end (`fixed`), rendered after the view rather than inside
+  // it — opening find moves nothing, and the recipe's first- and last-child rules still see the
+  // document's own blocks. The live region sits beside it, mounted from the first render.
+  return (
     <>
-      {query ? (
+      {query && mounted ? (
         <div
           data-slot="markdown-find-bar"
           role="search"
@@ -467,8 +465,7 @@ export function MarkdownViewEffects({
         </div>
       ) : null}
       <Announcer />
-    </>,
-    document.body,
+    </>
   );
 }
 
