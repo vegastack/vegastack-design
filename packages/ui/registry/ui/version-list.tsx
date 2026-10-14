@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.35 sha256-ZvffCYLvIcM+qp3RhiAQu8T9jSCnxZWrCPOhBYkpO4o=
+// @vegastack version-list@0.25.35 sha256-dUgEO+YP33S9OSMgVKEz6e/D/YmjdyvlLwZ/3bpkI1o=
 
 "use client";
 
@@ -47,8 +47,12 @@ export const VERSION_KIND_LABELS: Record<VersionKind, string | null> = {
 export interface VersionItem {
   /** Stable id. */
   id: string;
-  /** Who wrote the text this version holds; a `badge` on the person ("Inactive") follows the name. */
-  author: Person;
+  /**
+   * Who wrote the text this version holds; a `badge` on the person ("Inactive") follows the name.
+   * `null` for a version the system kept with no person behind it (a page's text from before it
+   * moved to live editing): the row names no one — never a placeholder person.
+   */
+  author: Person | null;
   /** When that text was last saved. */
   at: Date | string | number;
   /** A name the author gave it; named versions lead with it. @default undefined */
@@ -241,25 +245,34 @@ export function VersionList({
                     </Badge>
                   ) : null}
                 </span>
-                <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                  <PersonAvatar person={version.author} className="size-4" />
-                  <span className="min-w-0 truncate">
-                    {version.author.name}
+                {version.author || version.name ? (
+                  <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    {version.author ? (
+                      <>
+                        <PersonAvatar
+                          person={version.author}
+                          className="size-4"
+                        />
+                        <span className="min-w-0 truncate">
+                          {version.author.name}
+                        </span>
+                        <PersonBadge badge={version.author.badge} />
+                      </>
+                    ) : null}
+                    {version.name ? (
+                      <>
+                        {version.author ? <span aria-hidden>·</span> : null}
+                        <RelativeTime
+                          date={version.at}
+                          mode="day"
+                          withTime
+                          now={now}
+                          className="shrink-0 tabular-nums"
+                        />
+                      </>
+                    ) : null}
                   </span>
-                  <PersonBadge badge={version.author.badge} />
-                  {version.name ? (
-                    <>
-                      <span aria-hidden>·</span>
-                      <RelativeTime
-                        date={version.at}
-                        mode="day"
-                        withTime
-                        now={now}
-                        className="shrink-0 tabular-nums"
-                      />
-                    </>
-                  ) : null}
-                </span>
+                ) : null}
                 {version.summary ? (
                   <span className="text-xs text-muted-foreground">
                     {version.summary}
