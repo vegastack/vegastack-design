@@ -607,6 +607,38 @@ player.
   file="components/preview/text-edit.tsx"
 />
 
+### Diagrams and other block views
+
+`blockViews` draws the fences it names with a renderer instead of as code — in the read view and
+the editor alike. With `blockViews={{ mermaid: mermaidBlockView }}` (from
+[Mermaid Block](/docs/components/mermaid-block)) a ` ```mermaid ` block is a **Diagram**: a
+header with **Preview** / **Code**, **Expand** and a ⋯ menu (Copy source, Copy SVG, Download SVG).
+Code shows the source — beside a live preview when the block is at least 720px wide — and the
+diagram redraws 400ms after you stop typing; a source that stops parsing keeps the last diagram
+that worked, dimmed, with the line and the problem under it. ⌘/Ctrl+Enter or Escape in the source
+goes back to the preview and moves the caret on past the block; the caret arriving inside a
+previewed block (arrow keys) opens its source; a double-click on the diagram does too. The mode is
+the viewer's own, never saved in the document — the document keeps an ordinary fenced code block,
+so exports, search and agents read the source. The slash menu and Turn into offer **Diagram**
+(only while `blockViews.mermaid` is set): a new block opens in Code with the view's starter.
+
+<ComponentPreview
+  name="mermaidBlockTextEdit"
+  file="components/preview/mermaid-block.tsx"
+/>
+
+```tsx
+import { TextEdit } from "@/components/ui/text-edit";
+import { mermaidBlockView } from "@/components/ui/mermaid-block";
+
+<TextEdit
+  format="markdown"
+  value={page.body}
+  onCommit={save}
+  blockViews={{ mermaid: mermaidBlockView }}
+/>;
+```
+
 ### Outline
 
 `onOutlineChange` receives the headings (`#`–`####`) with stable ids — the heading's words,
@@ -805,6 +837,7 @@ fires it with the current value. It's presentational only: the **host** decides 
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                                                                                                                      |
 | <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                                                                                                                            |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline.                                                                                                              |
+| <kbd>Esc</kbd> (in a diagram's source)                | Back to the diagram's preview (`blockViews`), as Cmd/Ctrl+Enter is there; the caret moves on past the block.                                                                                                                               |
 | <kbd>Esc</kbd>                                        | With `"blur"` (the default for a `document`, with `autosave` and always in `collaboration`): commit and blur. With `escapeBehavior="revert"` (the `boxed` and `composer` default): revert to the value focus found, blur, fire `onRevert`. |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link); the key stops here, so a page's own ⌘K palette does not open too.                                                                                                               |
 | <kbd>@</kbd>                                          | Open the mention menu (with `mentions`).                                                                                                                                                                                                   |

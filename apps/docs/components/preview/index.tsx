@@ -123,6 +123,7 @@ export * from "./activity-feed";
 export * from "./comment-margin";
 export * from "./version-list";
 export * from "./diff-view";
+export * from "./mermaid-block";
 export * from "./reactions";
 export * from "./issue-detail-01";
 export * from "./page-editor-01";

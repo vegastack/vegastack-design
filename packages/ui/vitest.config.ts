@@ -186,6 +186,8 @@ export default defineConfig({
       // DiffView's engine, imported dynamically: pre-bundled so its first load never reloads a
       // live test page.
       "diff",
+      // MermaidBlock's renderer, imported dynamically: same reason.
+      "mermaid",
       "@atlaskit/pragmatic-drag-and-drop/utils/combine",
       "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter",
       "@atlaskit/pragmatic-drag-and-drop/external/adapter",

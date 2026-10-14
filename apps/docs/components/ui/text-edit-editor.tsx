@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.38 sha256-/F5Md98fT4H9v0mLsQsLmEX1Ys1rIXESCollTV+1FH8=
+// @vegastack text-edit@0.25.38 sha256-uabZ8AVeJnoinedo+5ZIXR2ecVtfwDlm9l2Xk8X7u4Q=
 
 "use client";
 
@@ -137,6 +137,7 @@ import {
   Upload,
   UserRound,
   WrapText,
+  Workflow,
   Film,
   AudioLines,
 } from "lucide-react";
@@ -158,6 +159,13 @@ import {
   normalizeCodeLanguage,
 } from "@/components/ui/code-block";
 import { codeLowlight } from "@/lib/code-highlight";
+import {
+  BlockViewFrame,
+  initialBlockViewMode,
+  type BlockView,
+  type BlockViewMode,
+  type BlockViews,
+} from "@/components/ui/block-view";
 import {
   Command,
   CommandEmpty,
@@ -409,6 +417,16 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
     run: (ed, range) =>
       ed.chain().focus().deleteRange(range).setCodeBlock().run(),
   },
+  diagram: {
+    id: "diagram",
+    label: "Diagram",
+    keywords: "mermaid flowchart sequence gantt chart",
+    icon: Workflow,
+    run: (ed, range) => {
+      ed.chain().focus().deleteRange(range).run();
+      turnIntoBlockView(ed, "mermaid");
+    },
+  },
   table: {
     id: "table",
     label: "Table",
@@ -521,6 +539,7 @@ const BLOCK_COMMANDS: ReadonlySet<TextEditSlashCommand> = new Set([
   "callout",
   "toggle",
   "codeBlock",
+  "diagram",
   "table",
   "divider",
 ]);
@@ -799,6 +818,17 @@ function CodeBlockView({
   getPos,
 }: ReactNodeViewProps) {
   const language = (node.attrs.language as string | null) || undefined;
+  const blockView = blockViewOf(editor, language);
+  if (blockView && language)
+    return (
+      <BlockCodeView
+        node={node}
+        editor={editor}
+        getPos={getPos}
+        view={blockView}
+        language={language}
+      />
+    );
   const wrap = Boolean(node.attrs.wrap);
   const backIn = () => {
     // Back into the code block, at its end: a control took focus out of the editor.
@@ -877,6 +907,199 @@ function CodeBlockView({
           style={{ whiteSpace: "inherit" }}
         />
       </pre>
+    </NodeViewWrapper>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Block views (`blockViews`): a code block whose language the host draws (```mermaid → a diagram)
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Each editor's `blockViews`, for its node views and commands (kept current as it renders). */
+const blockViewsByEditor = new WeakMap<Editor, BlockViews>();
+
+function blockViewOf(
+  editor: Editor,
+  language: string | null | undefined,
+): BlockView | undefined {
+  return language ? blockViewsByEditor.get(editor)?.[language] : undefined;
+}
+
+/** Make the caret's block a `language` block view; an empty one gets the view's starter. */
+function turnIntoBlockView(ed: Editor, language: string) {
+  const starter = blockViewOf(ed, language)?.starter?.replace(/\n$/, "") ?? "";
+  const chain = ed.chain().focus();
+  if (ed.isActive("codeBlock"))
+    chain.updateAttributes("codeBlock", { language });
+  else chain.clearNodes().setCodeBlock({ language });
+  chain
+    .command(({ tr }) => {
+      const { $from } = tr.selection;
+      if (
+        starter &&
+        $from.parent.type.name === "codeBlock" &&
+        $from.parent.content.size === 0
+      )
+        tr.insertText(starter);
+      return true;
+    })
+    .run();
+}
+
+/** Asks a block view's node view to change its mode (the editor's ⌘Enter and Escape). */
+const BLOCK_VIEW_MODE_EVENT = "vs-block-view-mode";
+
+/** ⌘Enter or Escape with the caret in a block view's source: back to its preview. */
+function blockViewKey(view: EditorView, editor: Editor | null): boolean {
+  if (!editor) return false;
+  const { $from } = view.state.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name !== "codeBlock") continue;
+    if (!blockViewOf(editor, node.attrs.language as string | null))
+      return false;
+    const dom = view.nodeDOM($from.before(depth)) as HTMLElement | null;
+    const frame = dom?.querySelector?.("[data-slot=block-view]");
+    if (!frame) return false;
+    frame.dispatchEvent(
+      new CustomEvent<BlockViewMode>(BLOCK_VIEW_MODE_EVENT, {
+        detail: "preview",
+      }),
+    );
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Which events a code block's node view keeps from ProseMirror: Tiptap's default for a plain code
+ * block (its controls), plus every non-drag event inside a block view's header and preview, so a
+ * press on a diagram never moves the caret into its hidden source.
+ */
+function codeBlockStopEvent({ event }: { event: Event }): boolean {
+  const target = event.target as HTMLElement | null;
+  if (!target?.closest || target.closest("[data-node-view-content]"))
+    return false;
+  const drag = event.type.startsWith("drag") || event.type === "drop";
+  if (target.closest("[data-block-view-chrome]")) return !drag;
+  if (
+    ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(target.tagName) ||
+    target.isContentEditable
+  )
+    return !drag;
+  return !(drag || ["copy", "paste", "cut", "mousedown"].includes(event.type));
+}
+
+/**
+ * A code block a block view draws: the shared `BlockViewFrame` with the live source as its Code
+ * pane. The source (`NodeViewContent`) stays mounted and is hidden in Preview. The mode is this
+ * viewer's React state, never the document's: a new empty block (or one holding the starter) opens
+ * in Code; Preview moves the caret on past the block; the caret arriving inside opens Code.
+ */
+function BlockCodeView({
+  node,
+  editor,
+  getPos,
+  view,
+  language,
+}: Pick<ReactNodeViewProps, "node" | "editor" | "getPos"> & {
+  view: BlockView;
+  language: string;
+}) {
+  const source = currentCode(node);
+  const editable = editor.isEditable;
+  const [mode, setModeState] = React.useState<BlockViewMode>(() =>
+    initialBlockViewMode(view, source, editable),
+  );
+  const modeRef = React.useRef(mode);
+  modeRef.current = mode;
+  const frameRef = React.useRef<HTMLDivElement>(null);
+  const span = React.useCallback(() => {
+    const pos = getPos();
+    const current =
+      typeof pos === "number" ? editor.state.doc.nodeAt(pos) : null;
+    return current && typeof pos === "number"
+      ? { from: pos, to: pos + current.nodeSize }
+      : null;
+  }, [editor, getPos]);
+  const setMode = React.useCallback(
+    (next: BlockViewMode) => {
+      setModeState(next);
+      if (!editor.isEditable || editor.isDestroyed) return;
+      const at = span();
+      if (!at) return;
+      if (next === "code") {
+        editor.commands.focus(at.to - 1, { scrollIntoView: false });
+        return;
+      }
+      // Preview: a caret inside the source moves on to the next text after the block.
+      const { state } = editor;
+      const { from, to } = state.selection;
+      if (from <= at.from || to >= at.to) return;
+      const after = TextSelection.findFrom(state.doc.resolve(at.to), 1, true);
+      if (after) editor.view.dispatch(state.tr.setSelection(after));
+      else
+        frameRef.current
+          ?.querySelector<HTMLElement>(
+            "[data-slot=block-view-mode][aria-pressed=false]",
+          )
+          ?.focus();
+    },
+    [editor, span],
+  );
+  // The caret arriving inside a previewed block (arrow keys, a find) opens its source.
+  React.useEffect(() => {
+    if (!editable) return;
+    const onSelection = () => {
+      if (modeRef.current !== "preview" || !editor.isFocused) return;
+      const at = span();
+      const { from, to } = editor.state.selection;
+      if (at && from > at.from && to < at.to) setModeState("code");
+    };
+    editor.on("selectionUpdate", onSelection);
+    return () => {
+      editor.off("selectionUpdate", onSelection);
+    };
+  }, [editor, editable, span]);
+  React.useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const onMode = (event: Event) =>
+      setMode((event as CustomEvent<BlockViewMode>).detail);
+    frame.addEventListener(BLOCK_VIEW_MODE_EVENT, onMode);
+    return () => frame.removeEventListener(BLOCK_VIEW_MODE_EVENT, onMode);
+  }, [setMode]);
+  const wrap = Boolean(node.attrs.wrap);
+  return (
+    <NodeViewWrapper
+      data-slot="code-block"
+      data-language={language}
+      data-block-view=""
+      className="my-2"
+    >
+      <BlockViewFrame
+        ref={frameRef}
+        view={view}
+        source={source}
+        language={language}
+        mode={mode}
+        onModeChange={setMode}
+        editable={editable}
+        code={
+          <pre
+            data-slot="code-block-pre"
+            data-wrap={wrap ? "" : undefined}
+            style={codeBlockWrapStyle(wrap)}
+            className={codeBlockPreClassName}
+          >
+            <NodeViewContent<"code">
+              as="code"
+              className="font-mono"
+              style={{ whiteSpace: "inherit" }}
+            />
+          </pre>
+        }
+      />
     </NodeViewWrapper>
   );
 }
@@ -3613,7 +3836,10 @@ function buildExtensions(
           }),
         }),
       codeBlock: () =>
-        ReactNodeViewRenderer(CodeBlockView, { attrs: changeAttrsOf }),
+        ReactNodeViewRenderer(CodeBlockView, {
+          attrs: changeAttrsOf,
+          stopEvent: codeBlockStopEvent,
+        }),
       image: () => imageView(imageRuntime),
       mention: () =>
         ReactNodeViewRenderer(mentionView(editorRuntime), {
@@ -3854,11 +4080,22 @@ const BLOCK_TYPES = [
     icon: SquareCode,
     run: (ed: Editor) => ed.chain().focus().clearNodes().setCodeBlock().run(),
   },
+  {
+    // Only while the host draws ```mermaid (`blockViews.mermaid`).
+    id: "diagram",
+    label: "Diagram",
+    icon: Workflow,
+    run: (ed: Editor) => turnIntoBlockView(ed, "mermaid"),
+  },
 ] as const;
 
 /** The block type the selection sits in, innermost wrapper first. */
 function currentBlockType(ed: Editor): (typeof BLOCK_TYPES)[number]["id"] {
-  if (ed.isActive("codeBlock")) return "codeBlock";
+  if (ed.isActive("codeBlock"))
+    return ed.isActive("codeBlock", { language: "mermaid" }) &&
+      blockViewOf(ed, "mermaid")
+      ? "diagram"
+      : "codeBlock";
   for (const level of [1, 2, 3, 4] as const)
     if (ed.isActive("heading", { level })) return `h${level}`;
   if (ed.isActive("taskList")) return "taskList";
@@ -4225,7 +4462,9 @@ function TurnIntoPanel({
       }}
       className={cn(MENU_SURFACE, "flex w-52 flex-col")}
     >
-      {BLOCK_TYPES.map((type) => {
+      {BLOCK_TYPES.filter(
+        (type) => type.id !== "diagram" || blockViewOf(editor, "mermaid"),
+      ).map((type) => {
         const Icon = type.icon;
         return (
           <Button
@@ -5876,7 +6115,7 @@ function blockKind(node: PMNode): BlockKind | null {
     case "heading":
       return `h${Math.min(4, Math.max(1, Number(node.attrs.level) || 1))}` as BlockKind;
     case "codeBlock":
-      return "codeBlock";
+      return node.attrs.language === "mermaid" ? "diagram" : "codeBlock";
     case "blockquote":
       return "blockquote";
     case "callout":
@@ -6101,7 +6340,10 @@ function turnIntoChoices(editor: Editor, block: BlockTarget) {
   const current = blockKind(block.node);
   return {
     current,
-    types: BLOCK_TYPES.map((type) => ({
+    // Diagram only while the host draws ```mermaid (`blockViews.mermaid`).
+    types: BLOCK_TYPES.filter(
+      (type) => type.id !== "diagram" || blockViewOf(editor, "mermaid"),
+    ).map((type) => ({
       key: type.id,
       label: type.label,
       icon: type.icon as React.ComponentType,
@@ -6759,6 +7001,7 @@ export function TextEditEditor({
   onPendingUploadsChange,
   collaboration,
   diff,
+  blockViews,
   aria,
   surfaceClassName,
   hintClassName,
@@ -6856,10 +7099,15 @@ export function TextEditEditor({
 
   const placeholderRef = React.useRef(placeholder);
   placeholderRef.current = placeholder;
-  // `file` needs somewhere to send the file.
+  // `file` needs somewhere to send the file; `diagram` a view that draws ```mermaid.
   const allowedSlash = React.useMemo(
-    () => slashCommands.filter((command) => command !== "file" || onFileUpload),
-    [slashCommands, onFileUpload],
+    () =>
+      slashCommands.filter(
+        (command) =>
+          (command !== "file" || onFileUpload) &&
+          (command !== "diagram" || blockViews?.mermaid),
+      ),
+    [slashCommands, onFileUpload, blockViews],
   );
   const slashRef = React.useRef<readonly TextEditSlashCommand[]>(allowedSlash);
   slashRef.current = allowedSlash;
@@ -7470,6 +7718,14 @@ export function TextEditEditor({
         if (SLASH_KEY.getState(view.state)?.active) return false;
         if (MENTION_KEY.getState(view.state)?.active) return false;
         const mod = event.metaKey || event.ctrlKey;
+        // In a block view's source, ⌘Enter and Escape go back to its preview.
+        if (
+          ((event.key === "Enter" && mod) || event.key === "Escape") &&
+          blockViewKey(view, editorRef.current)
+        ) {
+          event.preventDefault();
+          return true;
+        }
         if (event.key === "Enter" && mod) {
           event.preventDefault();
           const ed = editorRef.current;
@@ -7603,6 +7859,8 @@ export function TextEditEditor({
   }, [editor, diffing, diffDoc]);
 
   editorRef.current = editor;
+  // Its node views and commands read the host's block views from here, during their own render.
+  if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
 
   // The document the host passed in is the committed one until something changes it.
   React.useEffect(() => {

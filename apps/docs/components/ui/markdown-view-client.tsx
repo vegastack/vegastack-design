@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.38 sha256-iEdvHSoKBQn4NMRiaj9wWAr1B6eRJgZWvsJ1uNAAcQU=
+// @vegastack markdown-view@0.25.38 sha256-UTC1SDx3owyr8yguF5YJ5uKZOO3qI+Q5XShY0qO5YxY=
 
 "use client";
 
@@ -1125,5 +1125,78 @@ export function MarkdownHeadingLink({
       copiedLabel="Link copied"
       className="ms-1 align-middle font-sans text-muted-foreground opacity-0 transition-opacity group-hover/heading:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100 print:hidden"
     />
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Block views (`blockViews`): a fence whose language maps to a renderer
+ * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * The server fallback's box, header and label — equal to `block-view`'s frame classes, so the
+ * swap to the frame moves nothing.
+ */
+const blockViewClassName =
+  "@container/block-view group/block-view relative w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border print:break-inside-avoid";
+const blockViewHeaderClassName =
+  "flex h-9 items-center gap-1 border-b border-border ps-3 pe-1.5 select-none print:hidden";
+const blockViewLabelClassName =
+  "min-w-0 flex-1 truncate text-xs text-muted-foreground";
+
+const LazyBlockView = React.lazy(() =>
+  import("@/components/ui/block-view").then((module) => ({
+    default: module.StaticBlockView,
+  })),
+);
+
+/** Props accepted by `MarkdownBlockView`. */
+export interface MarkdownBlockViewProps {
+  /** The `blockViews` entry for this fence's language. */
+  view: import("@/components/ui/block-view").BlockView;
+  /** The fence's language. */
+  language: string;
+  /** The fence's body. */
+  source: string;
+}
+
+/**
+ * `MarkdownBlockView` — a fence `MarkdownView` maps to a block view. On the server and until
+ * hydration it is the source in the frame's shape, its body holding the preview's reserved height,
+ * so nothing jumps when the preview takes over; then the frame loads (its own chunk) and the
+ * view's `render` draws the preview.
+ *
+ * @example
+ * <MarkdownBlockView view={mermaidBlockView} language="mermaid" source={source} />
+ */
+export function MarkdownBlockView({
+  view,
+  language,
+  source,
+}: MarkdownBlockViewProps) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  const fallback = (
+    <div
+      data-slot="block-view"
+      data-language={language}
+      data-mode="source"
+      className={cn(blockViewClassName, "my-2")}
+    >
+      <div className={blockViewHeaderClassName}>
+        <span className={blockViewLabelClassName}>{view.label}</span>
+      </div>
+      <pre
+        data-slot="block-view-fallback"
+        className="m-0 min-h-48 overflow-x-auto px-4 py-3 font-mono text-xs text-muted-foreground"
+      >
+        <code>{source}</code>
+      </pre>
+    </div>
+  );
+  if (!mounted) return fallback;
+  return (
+    <React.Suspense fallback={fallback}>
+      <LazyBlockView view={view} language={language} source={source} />
+    </React.Suspense>
   );
 }

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7ce63a44b4dd1da4b284cf087ef74dd7b3b45d57f5200cfc505c701b1f092528",
+  "contractSha256": "de3a407f98f537886f8f3e7965250ddc566feffe8be1ef21c9fcf01599aff121",
   "expectedCounts": {
-    "totalRegistryItems": 746,
-    "components": 162,
+    "totalRegistryItems": 748,
+    "components": 164,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1452,6 +1452,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "block-view",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-view.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "sidebar",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -1582,6 +1593,17 @@
         "packages/ui/registry/ui/diff-view.tsx"
       ],
       "docsSlug": "/docs/components/diff-view",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "mermaid-block",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/mermaid-block.tsx"
+      ],
+      "docsSlug": "/docs/components/mermaid-block",
       "contractStatus": "reconciled"
     },
     {

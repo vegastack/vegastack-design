@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.38 sha256-/F5Md98fT4H9v0mLsQsLmEX1Ys1rIXESCollTV+1FH8=
+// @vegastack text-edit@0.25.38 sha256-uabZ8AVeJnoinedo+5ZIXR2ecVtfwDlm9l2Xk8X7u4Q=
 
 "use client";
 
@@ -14,6 +14,7 @@ import {
 import {
   MarkdownView,
   documentPrintClassName,
+  type BlockViews,
   type MarkdownCitation,
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
@@ -44,6 +45,7 @@ export type TextEditSlashCommand =
   | "callout"
   | "toggle"
   | "codeBlock"
+  | "diagram"
   | "table"
   | "image"
   | "video"
@@ -54,7 +56,7 @@ export type TextEditSlashCommand =
 
 /**
  * Every slash command, in menu order — the default `slashCommands`. `file` shows only when
- * `onFileUpload` is set.
+ * `onFileUpload` is set, `diagram` only when `blockViews.mermaid` is.
  */
 export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "text",
@@ -69,6 +71,7 @@ export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "callout",
   "toggle",
   "codeBlock",
+  "diagram",
   "table",
   "image",
   "video",
@@ -1206,6 +1209,17 @@ export interface TextEditProps {
    * `diff.doc` replaces the shown one. @default undefined
    */
   diff?: TextEditDiffView;
+  /**
+   * Fenced languages drawn by a block view instead of as code — `{ mermaid: mermaidBlockView }`
+   * draws ```` ```mermaid ```` blocks as diagrams, in the read view and the editor alike. Each block
+   * shows a header with the view's label, Preview / Code (Code splits beside a live preview on a
+   * block at least 720px wide when the view sets `split`), Expand and a ⋯ menu. The mode is this
+   * viewer's own, never saved. ⌘/Ctrl+Enter in the source goes back to the preview, as does
+   * Escape; moving the caret into a previewed block opens its source. With `mermaid` set, the
+   * slash menu and Turn into offer **Diagram**, which inserts the view's `starter`.
+   * @default undefined
+   */
+  blockViews?: BlockViews;
 }
 
 /**
@@ -1724,6 +1738,7 @@ export function TextEdit(props: TextEditProps) {
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               fileContentType={props.fileContentType}
+              blockViews={props.blockViews}
               typeScale={typeScale}
               onOutlineChange={props.onOutlineChange}
             >
