@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.33 sha256-hsiLQmaUljXQY4j2GVNHl9Tyd/NF7GJ1bA/E/h0clL0=
+// @vegastack markdown-view@0.25.34 sha256-1yj+/dBAp/8vmnXROmwb71OHzZAsI/RyzDA4ntie3A8=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";

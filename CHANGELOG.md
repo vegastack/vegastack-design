@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.34] — October 14, 2026
+
+<!-- assembled from 1 changeset: b76d4ace2fda -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.11`** (was `0.8.10`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.33 → 0.25.34.
+
+### 🐛 Fixed
+
+- **date-time** / **RelativeTime** / **ApprovalCard**: a future time rounds to the nearest unit instead of cutting down, so a request that expires 7 days from now reads "Expires in 7 days" the moment after it is made (it read "in 6 days"); `formatRelative` "in 6d" becomes "in 7d" the same way. Past times still count completed units ("6 days ago").
+  [docs](https://design.vegastack.com/docs/components/relative-time) ·
+  [`6ca36dd`](https://github.com/VegaStack/vegastack-design/commit/6ca36dd)
+
 ## [0.25.33] — October 14, 2026
 
 <!-- assembled from 1 changeset: d2ac5e31997d -->
