@@ -3990,9 +3990,22 @@ test("find & replace: ⌘F opens the bar, Enter steps the matches, Replace all i
     "color-contrast",
   ]);
 
-  await screen.getByRole("button", { name: "Replace" }).click();
+  // DOM clicks: the bar re-renders on every transaction, which a pointer click's stability wait
+  // can read as movement on a slow runner.
+  (
+    screen
+      .getByRole("button", { name: "Replace", exact: true })
+      .element() as HTMLElement
+  ).click();
   await screen.getByRole("textbox", { name: "Replace with" }).fill("omega");
-  await screen.getByRole("button", { name: "Replace all" }).click();
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole("button", { name: "Replace all" }).element(),
+    ).not.toBeDisabled(),
+  );
+  (
+    screen.getByRole("button", { name: "Replace all" }).element() as HTMLElement
+  ).click();
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe("omega beta\n\nomega gamma"),
   );
