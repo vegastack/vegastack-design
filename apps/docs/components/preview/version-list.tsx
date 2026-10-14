@@ -14,17 +14,39 @@ const BO = {
   badge: "Inactive",
 };
 
+const AGENT = { name: "Claude (via Asha)", hue: "purple" as const };
+
 const VERSIONS: VersionItem[] = [
-  { id: "v6", author: ASHA, at: NOW - 0.2 * HOUR, kind: "auto" },
-  { id: "v5", author: BO, at: NOW - 1 * HOUR, kind: "conflict" },
+  { id: "v8", author: ASHA, at: NOW - 0.2 * HOUR, kind: "auto" },
+  {
+    id: "v7",
+    author: ASHA,
+    at: NOW - 1 * HOUR,
+    kind: "agent_checkpoint",
+    label: "Before Claude's edits",
+  },
+  { id: "v6", author: BO, at: NOW - 3 * HOUR, kind: "safety" },
+  {
+    id: "v5",
+    author: ASHA,
+    at: NOW - 20 * HOUR,
+    kind: "approved",
+    name: "Inspection sign-off",
+  },
   {
     id: "v4",
     author: ASHA,
-    at: NOW - 20 * HOUR,
+    at: NOW - 22 * HOUR,
     kind: "named",
     name: "Before the inspection",
   },
-  { id: "v3", author: ASHA, at: NOW - 30 * HOUR, kind: "restore" },
+  {
+    id: "v3",
+    author: ASHA,
+    at: NOW - 30 * HOUR,
+    kind: "restore",
+    name: "Before restoring 26 Sep",
+  },
   {
     id: "v2",
     author: BO,
@@ -32,23 +54,34 @@ const VERSIONS: VersionItem[] = [
     kind: "auto",
     summary: "Added the wiring section",
   },
+  {
+    id: "v1",
+    author: AGENT,
+    at: NOW - 80 * HOUR,
+    kind: "import",
+    name: "Before live editing",
+  },
 ];
 
 /**
- * A page's history: "Current", a lost save kept as "Unsaved copy", a named version, a restore, and
- * an inactive author's badge.
+ * A page's history: "Current", the text before an agent's edits and before a large deletion, an
+ * approved copy, a named version, the text before a restore and before live editing, and an
+ * inactive author's badge.
  * ↑/↓ move the selection; "Named only" filters; the next page loads on scroll.
  */
 export function versionList(): ReactNode {
-  const [selected, setSelected] = React.useState("v6");
+  const [selected, setSelected] = React.useState("v8");
   const [namedOnly, setNamedOnly] = React.useState(false);
   const [more, setMore] = React.useState(false);
-  const shown = namedOnly ? VERSIONS.filter((v) => v.name) : VERSIONS;
+  // "Named only": the versions people named and the approved copies.
+  const shown = namedOnly
+    ? VERSIONS.filter((v) => v.kind === "named" || v.kind === "approved")
+    : VERSIONS;
   return (
     <Wrapper className="block max-w-80">
       <VersionList
         versions={shown}
-        currentId="v6"
+        currentId="v8"
         selectedId={selected}
         onSelect={setSelected}
         namedOnly={namedOnly}

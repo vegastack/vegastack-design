@@ -25035,6 +25035,15 @@
           }
         },
         {
+          "name": "TextEditDiffView",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "TextEditAnchor",
           "kind": "type",
           "source": "packages/ui/registry/ui/text-edit.tsx",
@@ -30373,6 +30382,24 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VersionKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/version-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VERSION_KIND_LABELS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/version-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
           }
         }
       ],
@@ -41674,6 +41701,42 @@
         },
         {
           "name": "resetParseCaches",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TextEditChange",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditDiff",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "textEditDiffSchema",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "ychangeType",
           "kind": "function",
           "source": "packages/ui/registry/lib/text-edit-schema.ts",
           "ref": {

@@ -1,6 +1,6 @@
 ---
 title: Version List
-description: A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and scroll paging — as a keyboard listbox.
+description: A document's version history — time, author, name, a badge for how each version came to be, Named only and scroll paging — as a listbox.
 audience: public
 registry: version-list
 status: stable
@@ -32,9 +32,26 @@ import { VersionList } from "@/components/ui/version-list";
 ```
 
 Each row shows when the version's text was saved and who wrote it; a named version leads with its
-name. A restore is badged "Restored", a save that lost a race and was kept is "Unsaved copy", and
-`currentId` is "Current". An author's `badge` ("Inactive") follows their name. Pair it with [`DiffView`](/docs/components/diff-view) for the selected
-version.
+name. `kind` says how it came to be, as a badge (`VERSION_KIND_LABELS`):
+
+| `kind`             | Badge                   | When                                                                    |
+| ------------------ | ----------------------- | ----------------------------------------------------------------------- |
+| `auto`             | —                       | A checkpoint while people edit: the row shows its time                  |
+| `safety`           | Before a large deletion | The text just before a large deletion                                   |
+| `restore`          | Before a restore        | The text just before a restore — what Undo returns to                   |
+| `import`           | Before an import        | The text before an import or replace ("Before live editing" when named) |
+| `agent_checkpoint` | Before an agent's edits | The text before an agent's first edit                                   |
+| `named`            | —                       | A version someone named: the row leads with the name                    |
+| `approved`         | Approved                | A signed-off copy                                                       |
+
+A row with a `name` ("Before restoring 26 Sep", "Before live editing") shows no kind badge — the name
+says it — except an approved copy. `label` replaces a row's badge ("Before Claude's edits"), and
+`currentId` is "Current". Names are unique per document (case-insensitive), so two rows never read
+the same; the host enforces it when a version is named.
+
+An author's `badge` ("Inactive") follows their name. Pair it with a
+[`TextEdit`](/docs/components/text-edit#version-diff) `diff` view — the formatted diff of the selected
+version, "Compared with" its baseline — or [`DiffView`](/docs/components/diff-view) for plain text.
 
 <ComponentPreview
   name="versionList"
@@ -50,6 +67,7 @@ version.
 ### Loading and empty
 
 `loading` shows a skeleton; with no versions the list says "No versions yet" (`emptyState`).
+"Named only" is the host's filter — show the named versions and the approved copies.
 
 <ComponentPreview
   name="versionListStates"

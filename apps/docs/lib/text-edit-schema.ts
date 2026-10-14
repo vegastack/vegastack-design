@@ -1,7 +1,8 @@
-// @vegastack text-edit-schema@0.25.34 sha256-1a1Reoe2pIovuOCPKiENySi0KQh1DVpfWuow3LSGjSY=
+// @vegastack text-edit-schema@0.25.34 sha256-vFzfeM899viZ9PY2os3g2nfSxFCAjR6VRGI5h2/wYss=
 
 import {
   Extension,
+  Mark,
   Node,
   decodeHtmlEntities,
   getSchema,
@@ -91,6 +92,11 @@ export interface TextEditSchemaOptions {
    * tells a collaborator's change apart), so two viewers never race on one block.
    */
   collaboration?: { isRemote: (transaction: Transaction) => boolean };
+  /**
+   * A version diff's schema: `TextEditDiff`'s `ychange` mark and attribute, and code blocks that
+   * take the change mark (their text takes no other). Never for a live document.
+   */
+  diff?: boolean;
 }
 
 /**
@@ -732,9 +738,12 @@ const codeBlockMarkdown = {
 function codeBlockNode(
   lowlight: object | undefined,
   view: (() => NodeViewRenderer) | undefined,
+  diff = false,
 ) {
   const config = {
     ...codeBlockMarkdown,
+    // In a version diff a code block's changed lines carry the change mark.
+    ...(diff ? { marks: "ychange" } : {}),
     addInputRules(this: {
       type: Parameters<typeof textblockTypeInputRule>[0]["type"];
     }) {
@@ -1377,7 +1386,7 @@ export function textEditExtensions(
     CheckboxText,
     BlockText,
     ParagraphMd,
-    codeBlockNode(options.lowlight, view.codeBlock),
+    codeBlockNode(options.lowlight, view.codeBlock, options.diff),
     TaskListMd,
     taskItem.configure({ nested: true }),
     // Columns resize by dragging their border: `colwidth` is kept in the document, not in Markdown.
@@ -1409,6 +1418,7 @@ export function textEditExtensions(
           }
         : {}),
     }),
+    options.diff ? TextEditDiff : NoChanges,
     ...(options.plugins ?? []),
   ];
 }
@@ -1449,4 +1459,148 @@ let cachedSchema: Schema | undefined;
 export function textEditSchema(): Schema {
   cachedSchema ??= getSchema(textEditExtensions());
   return cachedSchema;
+}
+
+/** What a version diff marks: text and blocks the newer version `added` or `removed`. */
+export type TextEditChange = "added" | "removed";
+
+/**
+ * The change a `ychange` value records — y-prosemirror's `{ type, user }` object (what a Yjs
+ * snapshot diff writes) or the bare word; null for unchanged.
+ */
+export function ychangeType(value: unknown): TextEditChange | null {
+  const type =
+    typeof value === "string"
+      ? value
+      : value && typeof value === "object"
+        ? (value as { type?: unknown }).type
+        : null;
+  return type === "added" || type === "removed" ? type : null;
+}
+
+/**
+ * A version diff's markings, never part of a live document: a `ychange` mark on changed text
+ * (`<ins>`/`<del>`, `data-ychange`) and a `ychange` attribute on every other node (a whole block
+ * or atom added or removed: `data-ychange` on its element). The shape is y-prosemirror's — the
+ * one a Yjs snapshot diff (two version states in a `gc: false` history doc) produces — so a
+ * server walker's ProseMirror JSON renders as is. Not in `textEditSchema()`: a diff's schema is
+ * `textEditDiffSchema()` — `textEditExtensions({ diff: true })`.
+ *
+ * @example
+ * const doc = textEditDiffSchema().nodeFromJSON(diffJson);
+ */
+export const TextEditDiff = Extension.create({
+  name: "textEditDiff",
+  addExtensions() {
+    return [
+      Mark.create({
+        name: "ychange",
+        // Changed text keeps its other marks (bold, a link): the change is one more layer.
+        excludes: "",
+        inclusive: false,
+        addAttributes() {
+          return {
+            user: { default: null, rendered: false },
+            type: { default: null, rendered: false },
+            color: { default: null, rendered: false },
+          };
+        },
+        parseHTML() {
+          return [
+            { tag: "ins[data-ychange]", attrs: { type: "added" } },
+            { tag: "del[data-ychange]", attrs: { type: "removed" } },
+          ];
+        },
+        renderHTML({ mark }) {
+          const type = ychangeType(mark.attrs.type);
+          return [
+            type === "removed" ? "del" : "ins",
+            { "data-ychange": type ?? "added" },
+            0,
+          ];
+        },
+        // A diff is read, never saved: its Markdown is the newer text's, changes unmarked.
+        renderMarkdown: (node, h) => h.renderChildren(node),
+      }),
+    ];
+  },
+  addGlobalAttributes() {
+    const types = this.extensions
+      .filter(
+        (extension) =>
+          extension.type === "node" &&
+          extension.name !== "text" &&
+          extension.name !== "doc",
+      )
+      .map((extension) => extension.name);
+    return [
+      {
+        types,
+        attributes: {
+          ychange: {
+            default: null,
+            keepOnSplit: false,
+            parseHTML: (element: HTMLElement) =>
+              ychangeType(element.getAttribute("data-ychange")),
+            renderHTML: (attributes: Record<string, unknown>) => {
+              const type = ychangeType(attributes.ychange);
+              return type ? { "data-ychange": type } : {};
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+/**
+ * A live document's guard against a version diff: every node knows `ychange` only to refuse it
+ * (`nodeFromJSON`, `check()` throw), so a diff's JSON — removed passages included — can never be
+ * read as a document. Unknown attributes are otherwise dropped silently, keeping the removed text.
+ */
+const NoChanges = Extension.create({
+  name: "textEditNoChanges",
+  addGlobalAttributes() {
+    const types = this.extensions
+      .filter(
+        (extension) =>
+          extension.type === "node" &&
+          extension.name !== "text" &&
+          extension.name !== "doc",
+      )
+      .map((extension) => extension.name);
+    return [
+      {
+        types,
+        attributes: {
+          ychange: {
+            default: null,
+            rendered: false,
+            keepOnSplit: false,
+            parseHTML: () => null,
+            validate: (value: unknown) => {
+              if (value !== null && value !== undefined)
+                throw new RangeError(
+                  "A version diff's change marking (ychange) is never part of a document: read a diff with textEditDiffSchema()",
+                );
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+let cachedDiffSchema: Schema | undefined;
+
+/**
+ * The schema of a version diff: `textEditSchema()` plus `TextEditDiff`'s `ychange` mark and
+ * attribute. A server walker checks its ProseMirror JSON against it before sending it.
+ *
+ * @example
+ * textEditDiffSchema().nodeFromJSON(json).check();
+ */
+export function textEditDiffSchema(): Schema {
+  cachedDiffSchema ??= getSchema(textEditExtensions({ diff: true }));
+  return cachedDiffSchema;
 }
