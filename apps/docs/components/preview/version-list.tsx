@@ -14,8 +14,6 @@ const BO = {
   badge: "Inactive",
 };
 
-const AGENT = { name: "Claude (via Asha)", hue: "purple" as const };
-
 const VERSIONS: VersionItem[] = [
   { id: "v8", author: ASHA, at: NOW - 0.2 * HOUR, kind: "auto" },
   {
@@ -56,7 +54,8 @@ const VERSIONS: VersionItem[] = [
   },
   {
     id: "v1",
-    author: AGENT,
+    // Kept by the system: no person behind it.
+    author: null,
     at: NOW - 80 * HOUR,
     kind: "import",
     name: "Before live editing",
@@ -65,8 +64,8 @@ const VERSIONS: VersionItem[] = [
 
 /**
  * A page's history: "Current", the text before an agent's edits and before a large deletion, an
- * approved copy, a named version, the text before a restore and before live editing, and an
- * inactive author's badge.
+ * approved copy, a named version, the text before a restore and before live editing (kept by the
+ * system: no author), and an inactive author's badge.
  * ↑/↓ move the selection; "Named only" filters; the next page loads on scroll.
  */
 export function versionList(): ReactNode {

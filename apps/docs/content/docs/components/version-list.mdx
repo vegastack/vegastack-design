@@ -49,7 +49,9 @@ says it — except an approved copy. `label` replaces a row's badge ("Before Cla
 `currentId` is "Current". Names are unique per document (case-insensitive), so two rows never read
 the same; the host enforces it when a version is named.
 
-An author's `badge` ("Inactive") follows their name. Pair it with a
+An author's `badge` ("Inactive") follows their name. A version the system kept with no person
+behind it (a page's text from before live editing) has `author: null`: the row names no one, never
+a placeholder person. Pair it with a
 [`TextEdit`](/docs/components/text-edit#version-diff) `diff` view — the formatted diff of the selected
 version, "Compared with" its baseline — or [`DiffView`](/docs/components/diff-view) for plain text.
 

@@ -136,3 +136,30 @@ test("paging on scroll, the empty state and the skeleton", async () => {
     loading.container.querySelector('[data-slot="version-list-skeleton"]'),
   ).not.toBeNull();
 });
+
+test("a version the system kept names no one: no avatar, no placeholder person", async () => {
+  const screen = await render(
+    <VersionList
+      versions={[
+        {
+          id: "s",
+          author: null,
+          at: "2026-09-29T10:00:00Z",
+          kind: "import",
+          name: "Before live editing",
+        },
+        { id: "u", author: null, at: "2026-09-28T10:00:00Z", kind: "auto" },
+        { id: "p", author: asha, at: "2026-09-27T10:00:00Z", kind: "auto" },
+      ]}
+    />,
+  );
+  await expect.element(screen.getByText("Before live editing")).toBeVisible();
+  const [named, plain] = screen.container.querySelectorAll('[role="option"]');
+  expect(
+    named!.querySelector('[data-slot="person-avatar"], [data-slot="avatar"]'),
+  ).toBeNull();
+  // The named row still says when; the unnamed one is its time alone.
+  expect(named!.querySelectorAll("time").length).toBe(1);
+  expect(plain!.querySelectorAll("time").length).toBe(1);
+  await expectNoA11yViolations(screen.container);
+});
