@@ -308,11 +308,47 @@ client component, so pass `citation` from one.
 </MarkdownView>
 ```
 
+### Block views
+
+`blockViews` maps a fence's language to a renderer: with
+`blockViews={{ mermaid: mermaidBlockView }}` (from [Mermaid Block](/docs/components/mermaid-block)),
+a ` ```mermaid ` fence is a **Diagram** block — a header with the view's label,
+**Preview** / **Code** (buttons with `aria-pressed`; ⌘/Ctrl+Enter toggles and Escape goes back to
+the preview from the block's controls), **Expand** (a full-screen dialog with pan and pinch) and a
+⋯ menu with **Copy source** and the view's own actions (Copy SVG, Download SVG). Other fences stay
+code blocks. The preview is client-only: on the server, and before hydration, the fence shows its
+source in the same frame with the preview's height reserved, so nothing jumps when it draws. The
+mode is the reader's own and never saved. The entries hold functions, so pass `blockViews` from a
+client component, or an entry a client module exports (`mermaidBlockView` is one). `TextEdit`
+takes the same prop for its read view and its editor.
+
+<ComponentPreview
+  name="mermaidBlockMarkdownView"
+  file="components/preview/mermaid-block.tsx"
+/>
+
+```tsx
+import { MarkdownView } from "@/components/ui/markdown-view";
+import { mermaidBlockView } from "@/components/ui/mermaid-block";
+
+<MarkdownView blockViews={{ mermaid: mermaidBlockView }}>
+  {page.body}
+</MarkdownView>;
+```
+
+A view of your own is `{ label, render(source, { mode, theme }) }`, plus `defaultView`, `split`,
+`starter`, `hint` and `actions` where it needs them.
+
 ## API Reference
 
 <ApiTable
   path="../../packages/ui/registry/ui/markdown-view.tsx"
   name="MarkdownViewProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-view.tsx"
+  name="BlockView"
 />
 
 <ApiTable

@@ -98,6 +98,8 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     if (dependency.startsWith("marked@")) packages.add("marked");
     // `diff` (jsdiff), the engine behind `diff-view` (MK 2026-09-29).
     if (dependency.startsWith("diff@")) packages.add("diff");
+    // `mermaid`, the diagram renderer behind `mermaid-block` (MK 2026-10-14).
+    if (dependency.startsWith("mermaid@")) packages.add("mermaid");
     // The D1-D4 sanctioned engines (MK, 2026-07-27). `-hitbox` folds into the
     // pragmatic engine identity.
     if (dependency.startsWith("@tanstack/react-table"))
@@ -577,12 +579,12 @@ const expectedWaves = {
   "Forms/editing": 34,
   "Navigation/layout": 22,
   Overlays: 21,
-  "Data display": 31,
+  "Data display": 32,
   "Content/marketing": 15,
   "AI/chat": 9,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
-  "Shared internals": 5,
+  "Shared internals": 6,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
@@ -745,6 +747,7 @@ const expectedComponentWaveMembers = {
     "timeline",
     "view-toggle",
     "level-meter",
+    "mermaid-block",
   ],
   "Content/marketing": [
     "alert",
@@ -769,6 +772,7 @@ const expectedComponentWaveMembers = {
     "person-avatar",
     "picker-panel",
     "suggestion-menu",
+    "block-view",
   ],
   "AI/chat": [
     "approval-card",

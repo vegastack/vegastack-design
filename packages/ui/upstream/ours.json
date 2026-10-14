@@ -677,6 +677,18 @@
       "family": "media",
       "source": "Operator brief 2026-10-12 (Regent product view — one file tile for the Tasks attachment panel and product Files, Images and Accessories), requested by MK 2026-10-12",
       "rationale": "Upstream ships no file card. A fixed composition of our attachment, data-table-parts, dropdown-menu, file-viewer, image and file-kind parts: the Regent app's FileCard and UploadCard promoted so every file list shares one tile; no patch."
+    },
+    "mermaid-block": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Regent Pages v2 plan 12 §4.12 (DS release B.2) — mermaid@12.1.0 renderer exception approved by MK 2026-10-14 (Round 2)",
+      "rationale": "Upstream ships no diagram renderer. Ours: mermaid behind a pinned, strict configuration and a lazy import, composing upstream skeleton; no patch."
+    },
+    "block-view": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Regent Pages v2 plan 12 §4.12 (DS release B.2) — approved by MK 2026-10-14 (Round 2)",
+      "rationale": "Upstream ships no fenced-block renderer frame. The shared frame of TextEdit's and MarkdownView's blockViews, composing upstream button, dialog and dropdown-menu; no patch."
     }
   }
 }
