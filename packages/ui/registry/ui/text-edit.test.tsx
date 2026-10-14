@@ -4312,3 +4312,18 @@ test("collaboration: toggleState keeps a viewer's folded toggles (read on load, 
   );
   expect(viewerToggle()).not.toHaveAttribute("data-open");
 });
+
+test("find: ⌘F with words selected searches for them, and typing replaces the term", async () => {
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta gamma",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  selectTail(box.element().querySelector("p")!, 5);
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  const field = screen.getByRole("textbox", { name: "Find" });
+  await expect.element(field).toHaveValue("gamma");
+  await userEvent.keyboard("beta");
+  await expect.element(field).toHaveValue("beta");
+});

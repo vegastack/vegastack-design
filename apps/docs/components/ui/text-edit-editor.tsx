@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.40 sha256-P2I+gB0NXiQze5NUzyvnjwhZrF6gXtM6JIcc0kIe+OU=
+// @vegastack text-edit@0.25.40 sha256-BhSTdxBRsmJxcFJKWvj6R6Rpbl2Ev7WoH85pL4Ov43c=
 
 "use client";
 
@@ -6055,7 +6055,9 @@ function FindBar({
       editor.commands.setSearchTerm(initialTerm);
     }
     findRef.current?.focus();
-    findRef.current?.select();
+    // Selected once the new term is in the field (the next frame), so typing replaces it.
+    const frame = requestAnimationFrame(() => findRef.current?.select());
+    return () => cancelAnimationFrame(frame);
     // Only on each open: the term is the field's own after that.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusKey]);
@@ -7657,9 +7659,14 @@ export function TextEditEditor({
   openFindRef.current = () => {
     const ed = editorRef.current;
     if (!ed || ed.isDestroyed || !findReplace) return;
-    const { from, to, empty } = ed.state.selection;
+    const { selection } = ed.state;
+    const { from, to, empty, $from, $to } = selection;
     if (!findOpenRef.current) findCaretRef.current = from;
-    const text = empty ? "" : ed.state.doc.textBetween(from, to, " ", " ");
+    // Only selected words in one block are a term: a selected block (the block menu's) is not.
+    const text =
+      empty || !(selection instanceof TextSelection) || !$from.sameParent($to)
+        ? ""
+        : ed.state.doc.textBetween(from, to, " ", " ");
     setFind((previous) => ({
       key: (previous?.key ?? 0) + 1,
       term: text && text.length <= 100 && !text.includes("\n") ? text : null,
