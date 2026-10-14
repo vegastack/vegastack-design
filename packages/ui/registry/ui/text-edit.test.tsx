@@ -3469,13 +3469,33 @@ test("collaboration: an upload survives its paragraph turned heading here, then 
   });
   const a = screen.getByRole("textbox", { name: "A" });
   await a.click();
-  await userEvent.keyboard(END);
+  // The editor's own commands place the caret and change the block: keyboard shortcuts for
+  // "end of line" differ by platform, and a DOM selection reaches the editor asynchronously.
+  const editor = (
+    (a.element().closest(".ProseMirror") ??
+      a.element().querySelector(".ProseMirror")) as unknown as {
+      editor: {
+        commands: { setTextSelection: (pos: number) => boolean };
+        chain: () => {
+          setTextSelection: (pos: number) => {
+            setNode: (
+              type: string,
+              attrs: Record<string, unknown>,
+            ) => { run: () => boolean };
+          };
+        };
+      };
+    }
+  ).editor;
+  editor.commands.setTextSelection(18); // the end of "alpha beta"
   pasteFiles(a.element(), [png()]);
   await vi.waitFor(() =>
-    expect(a.element().querySelector("[data-uploading]")).not.toBeNull(),
+    expect(
+      a.element().querySelectorAll("p")[1]?.querySelector("[data-uploading]"),
+    ).not.toBeNull(),
   );
   // This person turns the paragraph into a heading: Yjs rebuilds the block.
-  await userEvent.keyboard(MAC ? "{Meta>}{ArrowLeft}{/Meta}# " : "{Home}# ");
+  editor.chain().setTextSelection(9).setNode("heading", { level: 1 }).run();
   await vi.waitFor(() =>
     expect(a.element().querySelector("h1")).not.toBeNull(),
   );
