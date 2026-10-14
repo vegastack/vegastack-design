@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.36 sha256-ZuLntIPTUBOWQ+eZV3IYKOUbgMXkOR4Hn+et82y/qCY=
+// @vegastack text-edit@0.25.36 sha256-0Ew27r9v+ni7aXgPEojMBWNfJZY4Fe4KFgdBl+USVgg=
 
 "use client";
 
@@ -1027,6 +1027,14 @@ export interface TextEditProps {
    * @default undefined
    */
   onCreateAnnotation?: (anchor: TextEditAnchor) => void;
+  /**
+   * Px every floating part — the selection bubble, the link panel, the slash and mention menus —
+   * keeps clear at the viewport's top and bottom, beyond its 8px edge gap: a sticky app header's
+   * height (`{ top: 56 }`) or a bottom bar's, so none ever sits under one. The selection bubble
+   * opens below the selection on a coarse pointer (the platform's own callout sits above).
+   * @default undefined
+   */
+  floatingSafeArea?: { top?: number; bottom?: number };
   /**
    * Each annotation's highlight top (px from this root's top; null when orphaned) and its current
    * anchor — for laying comments beside the text and persisting moved anchors. Called once per

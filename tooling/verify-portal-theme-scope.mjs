@@ -90,6 +90,10 @@ const EXPECTED_HOSTS = new Map([
   // and the caret in the editor, so no Base UI popup fits — a `position: fixed` listbox portaled to
   // `<body>` inside a `contents` wrapper carrying `useInternalThemeScope()`.
   ["packages/ui/registry/ui/suggestion-menu.tsx", ["createPortal"]],
+  // MarkdownView's selection Comment button (Regent Pages #469): like TextEdit's bubble it must
+  // leave the reader's selection where it is, so no Base UI popup fits — a `position: fixed`
+  // toolbar portaled to `<body>`, carrying `useInternalThemeScope()` on its own root.
+  ["packages/ui/registry/ui/markdown-view-client.tsx", ["createPortal"]],
 ]);
 
 function walk(dir, out = []) {

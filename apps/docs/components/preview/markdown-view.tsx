@@ -5,7 +5,10 @@ import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 import { Input } from "@/components/ui/input";
 // Copied INTO apps/docs via `shadcn add @vegastack/markdown-view` (dogfoods the registry) → auto-scanned.
-import { MarkdownView } from "@/components/ui/markdown-view";
+import {
+  MarkdownView,
+  type MarkdownAnnotation,
+} from "@/components/ui/markdown-view";
 
 // A rich sample exercising the full token-styled prose surface: heading, lead
 // paragraph with a link and inline code, a bullet list, a fenced code block,
@@ -354,6 +357,39 @@ export function markdownViewReadMode(): ReactNode {
           onFindClose={() => setQuery("")}
         >
           {READ}
+        </MarkdownView>
+      </div>
+    </Wrapper>
+  );
+}
+
+const COMMENTABLE = `## Renewal
+
+Check the annual price before renewal, and confirm the seat count with finance. A team that shrinks keeps its seats until the term ends.`;
+
+/**
+ * Comment on a selection: select words and press Comment. The anchor comes back over the same text
+ * highlights resolve against, so it highlights exactly the selected words; the button keeps clear
+ * of a 56px sticky header (`floatingSafeArea`).
+ */
+export function markdownViewComment(): ReactNode {
+  const [threads, setThreads] = React.useState<MarkdownAnnotation[]>([]);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto max-w-[47ch]">
+        <MarkdownView
+          typeScale="document"
+          annotations={threads}
+          annotationCounts="always"
+          onCreateAnnotation={(anchor) =>
+            setThreads((current) => [
+              ...current,
+              { id: `c${current.length + 1}`, anchor },
+            ])
+          }
+          floatingSafeArea={{ top: 56 }}
+        >
+          {COMMENTABLE}
         </MarkdownView>
       </div>
     </Wrapper>

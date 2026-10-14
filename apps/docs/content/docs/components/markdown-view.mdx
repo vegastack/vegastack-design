@@ -246,6 +246,39 @@ changed — opens any toggle around the current one, and shows a match bar with 
 </MarkdownView>
 ```
 
+### Comment on a selection
+
+`onCreateAnnotation` lets a reader comment without an editor: select words in the view and a small
+**Comment** button floats over them — the same button `TextEdit`'s read-only selection bubble
+shows (`commentLabel` renames it). Pressing it calls `onCreateAnnotation(anchor)` with
+`{ quote, prefix, suffix, start, end }`, computed over the same text `annotations` resolve
+against, so handing the anchor straight back as an annotation highlights exactly the selected
+words. A mention or an image counts whole; a selection of only whitespace, mentions, images or code
+shows nothing, and so does one that leaves the view. The button sits in a `<body>` portal above
+the selection — below it on a coarse pointer, where the platform's own callout sits above — flips
+and slides to stay in view, and hides while the selection is scrolled out. `floatingSafeArea` keeps
+it clear of a sticky app header or a bottom bar (`{ top: 56 }`); a selection under one counts as
+scrolled out. <kbd>Tab</kbd> moves to it from a selection made with the keyboard and
+
+<kbd>Esc</kbd> closes it until the selection changes. The view itself stays
+server-safe: the button is part of its client effects.
+
+<ComponentPreview
+  name="markdownViewComment"
+  file="components/preview/markdown-view.tsx"
+/>
+
+```tsx
+<MarkdownView
+  typeScale="document"
+  annotations={threads}
+  onCreateAnnotation={(anchor) => startThread(anchor)}
+  floatingSafeArea={{ top: 56 }}
+>
+  {page.markdown}
+</MarkdownView>
+```
+
 ### Citations
 
 A summary cites its sources with `[[n]]` markers (n = 1–999). With `citation`, each marker whose
@@ -347,6 +380,13 @@ politely. Overlapping highlights never nest: each thread has exactly one tab sto
 thread covers exactly its words, its count pill is that stop). A heading's
 copy-link button is named "Copy link to “Pricing”". A table that scrolls is a focusable region
 named "Table, scrolls sideways", so the arrow keys scroll it.
+
+With `onCreateAnnotation`, the selection's Comment button is a toolbar named "Selection actions"
+holding one button named by `commentLabel`. <kbd>Tab</kbd> from a selection inside the view (focus
+on the page or in the view) moves focus to it, <kbd>Shift</kbd>+<kbd>Tab</kbd> goes back,
+
+<kbd>Enter</kbd> comments and <kbd>Esc</kbd> closes it. A press on it keeps the
+selection.
 
 <StatesTested name="markdown-view" />
 

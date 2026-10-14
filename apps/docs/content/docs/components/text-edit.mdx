@@ -577,6 +577,26 @@ The anchor helpers are server-safe libs: `anchorFromRange(text, start, end)` and
 `resolveAnchor(text, anchor)` in `@/lib/text-anchor`; `anchorText(doc)`, `offsetsToRange` and
 `rangeToOffsets` (ProseMirror documents) in `@/lib/text-anchor-doc`.
 
+#### Floating parts and a sticky header
+
+Every floating part — the selection bubble, the link panel, the slash and mention menus — keeps 8px
+from the viewport's edges and flips to stay in view. `floatingSafeArea` adds room at the top and
+bottom for an app's own fixed chrome: pass a sticky header's height (`{ top: 56 }`) or a bottom
+bar's (`{ bottom: 64 }`) and no part ever opens under it — the bubble flips below a selection near
+the header, the slash menu above a caret near the bar — and a selection under the header counts as
+scrolled out, so its bubble hides. On a coarse pointer the selection bubble opens below the
+selection, where the platform's own selection callout is not.
+
+```tsx
+<TextEdit
+  format="markdown"
+  typeScale="document"
+  defaultValue={page.markdown}
+  onCommit={save}
+  floatingSafeArea={{ top: 56 }}
+/>
+```
+
 #### Count pills and the keyboard
 
 `annotationCounts` puts a count pill after each drawn highlight — the thread's `count` (absent
