@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.31 sha256-sPzoEih4TAJrgSn9Sv1JA65HlF8wbLiaMDmd/9mot8w=
+// @vegastack text-edit-schema@0.25.31 sha256-0nC1gG3bI1xIDsIRaHF5do6syJbYNP7vFy/OJ1MkdMg=
 
 import {
   Extension,
@@ -17,6 +17,7 @@ import {
 import type { Schema } from "@tiptap/pm/model";
 import type { Transaction } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
+import { Code } from "@tiptap/extension-code";
 import { CodeBlock } from "@tiptap/extension-code-block";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { HardBreak } from "@tiptap/extension-hard-break";
@@ -509,6 +510,14 @@ const LinkMd = Link.extend({
     return `[${h.renderChildren(node)}](${href}${title})`;
   },
 });
+
+/**
+ * Inline code that other marks may wrap: a linked, bold or struck-through code span
+ * (`` [`code`](/x) ``, `` **`code`** ``) is everyday Markdown, and Tiptap's code mark excludes every
+ * other mark — the parse threw, and an edit would have dropped the link. The marks keep their
+ * Markdown order: code innermost.
+ */
+const CodeMd = Code.extend({ excludes: "" });
 
 /**
  * The node a GFM task checkbox parses to: never in a document — the parse's normalization makes
@@ -1339,6 +1348,7 @@ export function textEditExtensions(
     : TaskItem;
   return [
     StarterKit.configure({
+      code: false,
       codeBlock: false,
       paragraph: false,
       underline: false,
@@ -1353,6 +1363,7 @@ export function textEditExtensions(
       dropcursor: { color: false, width: 2, class: "rounded-full bg-info" },
     }),
     HardBreakMd,
+    CodeMd,
     LinkMd.configure({
       openOnClick: false,
       autolink: true,

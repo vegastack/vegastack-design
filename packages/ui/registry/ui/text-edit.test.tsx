@@ -3126,18 +3126,7 @@ test("collaboration: a highlight placed by Yjs positions follows a collaborator'
   const a = screen.getByRole("textbox", { name: "A" });
   await a.click();
   // Select "beta" (offsets 6–10 in the paragraph).
-  const text = a.element().querySelector("p")!.firstChild!;
-  const range = document.createRange();
-  range.setStart(text, 6);
-  range.setEnd(text, 10);
-  const selection = window.getSelection()!;
-  selection.removeAllRanges();
-  selection.addRange(range);
-  const anchor = await vi.waitFor(() => {
-    const found = handleRef.current!.getAnchorForSelection();
-    expect(found?.quote).toBe("beta");
-    return found!;
-  });
+  const anchor = await anchorOf(a.element(), handleRef, 6, 10, "beta");
   expect(anchor.y?.start).toBeInstanceOf(Uint8Array);
   // A third viewer of the same document draws the highlight from its Yjs positions.
   const viewer = await render(
@@ -3183,17 +3172,7 @@ test("collaboration: a Yjs highlight takes text typed inside it, and is orphaned
   });
   const a = screen.getByRole("textbox", { name: "A" });
   await a.click();
-  const text = a.element().querySelector("p")!.firstChild!;
-  const range = document.createRange();
-  range.setStart(text, 6);
-  range.setEnd(text, 10);
-  window.getSelection()!.removeAllRanges();
-  window.getSelection()!.addRange(range);
-  const anchor = await vi.waitFor(() => {
-    const found = handleRef.current!.getAnchorForSelection();
-    expect(found?.quote).toBe("beta");
-    return found!;
-  });
+  const anchor = await anchorOf(a.element(), handleRef, 6, 10, "beta");
   const onAnnotationsLayout = vi.fn();
   const viewer = await render(
     <TextEdit
@@ -3380,7 +3359,34 @@ test("collaboration: a collaborator's edit leaves an open slash menu open", asyn
   expect(slashMenu()!.textContent).toMatch(/Heading/);
 });
 
-/** Select `from`–`to` of an editor's first paragraph text and read its anchor from `handleRef`. */
+/** The Tiptap editor behind an editor surface (Tiptap keeps it on its contenteditable). */
+function editorOf(box: Element) {
+  return (
+    (box.closest(".ProseMirror") ??
+      box.querySelector(".ProseMirror")) as unknown as {
+      editor: {
+        commands: {
+          setTextSelection: (
+            at: number | { from: number; to: number },
+          ) => boolean;
+        };
+        chain: () => {
+          setTextSelection: (pos: number) => {
+            setNode: (
+              type: string,
+              attrs: Record<string, unknown>,
+            ) => { run: () => boolean };
+          };
+        };
+      };
+    }
+  ).editor;
+}
+
+/**
+ * Select `from`–`to` of an editor's first paragraph text and read its anchor from `handleRef`.
+ * The selection is set through the editor's commands: a DOM selection reaches it asynchronously.
+ */
 async function anchorOf(
   box: Element,
   handleRef: React.RefObject<TextEditHandle | null>,
@@ -3388,12 +3394,7 @@ async function anchorOf(
   to: number,
   quote: string,
 ) {
-  const text = box.querySelector("p")!.firstChild!;
-  const range = document.createRange();
-  range.setStart(text, from);
-  range.setEnd(text, to);
-  window.getSelection()!.removeAllRanges();
-  window.getSelection()!.addRange(range);
+  editorOf(box).commands.setTextSelection({ from: from + 1, to: to + 1 });
   return vi.waitFor(() => {
     const found = handleRef.current!.getAnchorForSelection();
     expect(found?.quote).toBe(quote);
@@ -3471,22 +3472,7 @@ test("collaboration: an upload survives its paragraph turned heading here, then 
   await a.click();
   // The editor's own commands place the caret and change the block: keyboard shortcuts for
   // "end of line" differ by platform, and a DOM selection reaches the editor asynchronously.
-  const editor = (
-    (a.element().closest(".ProseMirror") ??
-      a.element().querySelector(".ProseMirror")) as unknown as {
-      editor: {
-        commands: { setTextSelection: (pos: number) => boolean };
-        chain: () => {
-          setTextSelection: (pos: number) => {
-            setNode: (
-              type: string,
-              attrs: Record<string, unknown>,
-            ) => { run: () => boolean };
-          };
-        };
-      };
-    }
-  ).editor;
+  const editor = editorOf(a.element());
   editor.commands.setTextSelection(18); // the end of "alpha beta"
   pasteFiles(a.element(), [png()]);
   await vi.waitFor(() =>
