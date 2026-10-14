@@ -10,6 +10,19 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.32] — October 14, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.9`** (was `0.8.8`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.31 → 0.25.32.
+
+### 🐛 Fixed
+
+- **text-edit-markdown** / **TextEdit**: inline code inside a link, bold, italic or strikethrough (``[`code`](/x)``, ``**`code`**``) no longer throws on parse — the code mark now combines with other marks. Link titles are kept for inline and reference-style links (`[text][ref]` + `[ref]: url "Title"`), written back as inline links with their title; corpus cases for both.
+  [docs](/docs/guides/markdown) ·
+  [`4b0d50d`](https://github.com/VegaStack/vegastack-design/commit/4b0d50d)
+
 ## [0.25.31] — October 14, 2026
 
 ### 🧩 New components
