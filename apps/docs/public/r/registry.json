@@ -423,7 +423,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.25.37",
-        "integrity": "sha256-iIoxIPZrgl7mnAqa+1Z0XrYKwZENv0D40Uy9sOg53lk="
+        "integrity": "sha256-Ab/cP1oASBwIO7W2WXDHKi/2WHjszOZET+GestNYZs0="
       }
     },
     {
@@ -22072,7 +22072,7 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.25.37",
-        "integrity": "sha256-+lfUB9q2kfrhXKY/Bv8Xv21THi2kKyB2q9P+75Xe6ss="
+        "integrity": "sha256-KyTYm/8No3Rrdril0KURFvodi60+cMeUbgcuaoqVQo8="
       }
     }
   ]

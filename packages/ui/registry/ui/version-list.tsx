@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.37 sha256-iIoxIPZrgl7mnAqa+1Z0XrYKwZENv0D40Uy9sOg53lk=
+// @vegastack version-list@0.25.37 sha256-Ab/cP1oASBwIO7W2WXDHKi/2WHjszOZET+GestNYZs0=
 
 "use client";
 
@@ -274,7 +274,11 @@ export function VersionList({
                           // says "agent" to a screen reader.
                           <PersonAgentLabel aria-hidden />
                         ) : null}
-                        <PersonBadge badge={version.author.badge} />
+                        {/* An agent already carries its label; a host's own "Agent" badge would repeat it. */}
+                        {version.author.kind === "agent" &&
+                        version.author.badge === "Agent" ? null : (
+                          <PersonBadge badge={version.author.badge} />
+                        )}
                       </>
                     ) : null}
                     {version.name ? (

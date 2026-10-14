@@ -1,4 +1,4 @@
-// @vegastack agent-edit-banner@0.25.37 sha256-+lfUB9q2kfrhXKY/Bv8Xv21THi2kKyB2q9P+75Xe6ss=
+// @vegastack agent-edit-banner@0.25.37 sha256-KyTYm/8No3Rrdril0KURFvodi60+cMeUbgcuaoqVQo8=
 
 "use client";
 
@@ -368,14 +368,17 @@ function MoreAgents({
         render={
           <Button
             variant="link"
-            size="sm"
-            className="h-6 px-0 align-baseline text-sm font-normal underline underline-offset-4"
+            size="xs"
+            className="px-0 align-baseline text-sm font-normal underline underline-offset-4"
           />
         }
       >
         {labels.moreAgents(agents.length)}
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80">
+      <PopoverContent
+        align="start"
+        className="max-h-[var(--available-height)] w-80 overflow-y-auto"
+      >
         <PopoverHeader>
           <PopoverTitle>{labels.moreAgentsTitle}</PopoverTitle>
         </PopoverHeader>

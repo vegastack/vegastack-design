@@ -3,7 +3,7 @@
   "accordion": "sha256-uoXTqbwlsoa0ZfNURGSPAUe5cYNVFUu67ax95LDiARs=",
   "action-bar": "sha256-6osNwf5KWyZixdEEVLHQMwFhl+b18oUiA4w9AXNYs90=",
   "activity-feed": "sha256-SMg6xq8Clbv1DOxTJrgsaJZWMb8iy7cI9vRFVQt9ZvE=",
-  "agent-edit-banner": "sha256-+lfUB9q2kfrhXKY/Bv8Xv21THi2kKyB2q9P+75Xe6ss=",
+  "agent-edit-banner": "sha256-KyTYm/8No3Rrdril0KURFvodi60+cMeUbgcuaoqVQo8=",
   "alert": "sha256-P13xkyJpffNLs2hNfICG8dWYXyZQUyrCswgAkWrIZag=",
   "alert-dialog": "sha256-pk31G1K/0hsOw3N2FIuABobaV49gLm0ZVa7nkE3KMmo=",
   "animated-number": "sha256-/7brtq1t6EgSMVZ70YH5NYc83nh3SLqhenrMyv0J7GM=",
@@ -742,7 +742,7 @@
   "use-tabs-swipe": "sha256-hp9WlwOWm/anjJGRPBjKOZhj6OpjMcQLjbPMMSsozuk=",
   "use-view-transition": "sha256-/Cs+CFyzdUe9t1TiA8ksLyvDVkk3yUpLPFbBU7DRCqA=",
   "value-change": "sha256-i5nWexZKUYKARh6YgsoTfnICsWpRqbvmXZ1Q9tesGVk=",
-  "version-list": "sha256-iIoxIPZrgl7mnAqa+1Z0XrYKwZENv0D40Uy9sOg53lk=",
+  "version-list": "sha256-Ab/cP1oASBwIO7W2WXDHKi/2WHjszOZET+GestNYZs0=",
   "video-player": "sha256-HnSa8Dt7aG39ojbeSTp60tul/vJ1ijyjmhXKq6fYvsA=",
   "view-toggle": "sha256-lYgEkF9Z9o8+qe/I5d4GiA2Y3Mqt1VxxMM+7vO/MWAM="
 }

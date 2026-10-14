@@ -112,7 +112,13 @@ test("an agent's row: the purple bot, its name with via and the Agent label, a f
       versions={[
         {
           id: "g",
-          author: { name: "Claude", kind: "agent", via: "Manoj" },
+          // As a host maps it: a person-style `badge: "Agent"` is not drawn twice.
+          author: {
+            name: "Claude",
+            kind: "agent",
+            via: "Manoj",
+            badge: "Agent",
+          },
           at: "2026-09-29T10:00:00Z",
           kind: "agent_checkpoint",
           name: "Before Claude (via Manoj)'s edits",
@@ -141,6 +147,7 @@ test("an agent's row: the purple bot, its name with via and the Agent label, a f
   expect(
     agentRow!.querySelector("[data-slot=person-agent-label]")?.textContent,
   ).toBe("Agent");
+  expect(agentRow!.querySelector("[data-slot=person-badge]")).toBeNull();
   expect(agentRow!.textContent).toContain("Claude edited 3 blocks");
   // A named row shows no kind badge: the title says it.
   expect(agentRow!.querySelector("[data-slot=badge]")).toBeNull();
