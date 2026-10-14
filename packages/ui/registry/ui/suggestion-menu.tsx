@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.36 sha256-Klrrieo3usB6KyP04jb9dG4QQbu4wETWDT4CYmb9gWg=
+// @vegastack suggestion-menu@0.25.36 sha256-TNRtomuRPR/QJae1n4t6xuiDP54IJ184h1tnSHDcEi4=
 
 "use client";
 
@@ -104,6 +104,12 @@ export interface SuggestionMenuProps extends Omit<
    * @default false
    */
   loading?: boolean;
+  /**
+   * Px the menu keeps clear at the viewport's top and bottom, beyond its 8px edge gap — a sticky
+   * app header's height (`{ top: 56 }`) or a bottom bar's.
+   * @default undefined
+   */
+  floatingSafeArea?: { top?: number; bottom?: number };
 }
 
 /** The popup surface: the combobox popup's chrome (border, radius, shadow, padding). */
@@ -206,11 +212,19 @@ export function suggestionMenuKeyDown(
   return false;
 }
 
-/** Below the caret unless it would not fit and above has more room; slid to stay on screen. */
-function place(node: HTMLElement, anchor: DOMRect) {
+/**
+ * Below the caret unless it would not fit and above has more room; slid to stay on screen, clear
+ * of the safe area at the viewport's top and bottom.
+ */
+function place(
+  node: HTMLElement,
+  anchor: DOMRect,
+  safeTop: number,
+  safeBottom: number,
+) {
   const below = anchor.bottom + CARET_GAP;
-  const roomBelow = window.innerHeight - below - VIEWPORT_GAP;
-  const roomAbove = anchor.top - CARET_GAP - VIEWPORT_GAP;
+  const roomBelow = window.innerHeight - below - VIEWPORT_GAP - safeBottom;
+  const roomAbove = anchor.top - CARET_GAP - VIEWPORT_GAP - safeTop;
   const flip = roomBelow < MAX_HEIGHT && roomAbove > roomBelow;
   const left = Math.max(
     VIEWPORT_GAP,
@@ -255,6 +269,7 @@ export function SuggestionMenu({
   status,
   emptyMessage = "No results",
   loading = false,
+  floatingSafeArea,
   className,
   style,
   ref,
@@ -276,7 +291,13 @@ export function SuggestionMenu({
   }, [open, message, announce]);
 
   React.useLayoutEffect(() => {
-    if (localRef.current && anchor) place(localRef.current, anchor);
+    if (localRef.current && anchor)
+      place(
+        localRef.current,
+        anchor,
+        floatingSafeArea?.top ?? 0,
+        floatingSafeArea?.bottom ?? 0,
+      );
   });
 
   // The active row scrolls into view inside the list only — never the page.

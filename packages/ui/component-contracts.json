@@ -15907,13 +15907,15 @@
             "checked",
             "disabled",
             "empty",
-            "open"
+            "open",
+            "annotated",
+            "selection-comment"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["semantic-html"],
+          "values": ["semantic-html", "keyboard-operable"],
           "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
         },
         "visual": {
@@ -15924,7 +15926,11 @@
       },
       "responsive": {
         "status": "modeled",
-        "risks": ["overflow-and-scroll"],
+        "risks": [
+          "overflow-and-scroll",
+          "viewport-positioning-and-collision",
+          "mobile-or-touch-mode"
+        ],
         "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
       },
       "motion": {
@@ -25092,7 +25098,7 @@
             "escape-blur",
             "mark-saved"
           ],
-          "evidence": "Observed from branches, state attributes, and inline source contract. escapeBehavior: Escape reverts (default) or, with autosave, commits and blurs; handleRef.markSaved() advances the revert baseline after a host save."
+          "evidence": "Observed from branches, state attributes, and inline source contract. escapeBehavior: Escape reverts (default) or, with autosave, commits and blurs; handleRef.markSaved() advances the revert baseline after a host save. floatingSafeArea pads every floating part (bubble, link panel, slash and mention menus) clear of a sticky header or bottom bar; the selection bubble opens below on a coarse pointer."
         },
         "accessibility": {
           "status": "observed",

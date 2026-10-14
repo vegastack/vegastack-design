@@ -199,6 +199,21 @@ test("sits below the caret, and flips above it when below is short", async () =>
   expect(list().getBoundingClientRect().bottom).toBeLessThanOrEqual(low.top);
 });
 
+test("floatingSafeArea: a bottom bar's height counts as no room below, so it flips above", async () => {
+  const mid = new DOMRect(40, 300, 0, 18);
+  await render(
+    <Menu
+      anchor={mid}
+      floatingSafeArea={{ bottom: window.innerHeight - 400 }}
+    />,
+  );
+  const list = document.querySelector<HTMLElement>(
+    '[data-slot="suggestion-menu"]',
+  )!;
+  expect(list.dataset.side).toBe("top");
+  expect(list.getBoundingClientRect().bottom).toBeLessThanOrEqual(mid.top);
+});
+
 test("renders nothing without an anchor", async () => {
   await render(<Menu anchor={null} />);
   expect(document.querySelector('[data-slot="suggestion-menu"]')).toBeNull();

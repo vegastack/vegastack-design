@@ -3792,3 +3792,84 @@ test("diff: node views carry their change, nothing is ever saved, `value` never 
   expect(onValueChange).not.toHaveBeenCalled();
   expect(onCommit).not.toHaveBeenCalled();
 });
+
+/** The bubble menu's positioned wrapper. */
+const bubbleWrapper = () => bubble()!.parentElement!;
+
+/** A selection of "25 A" in the editor, once its bubble menu shows; returns the selection's rect. */
+async function selectWithBubble() {
+  await vi.waitFor(() =>
+    expect(document.querySelector(".ProseMirror p")).not.toBeNull(),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const paragraph = document.querySelector(".ProseMirror p")!;
+  await userEvent.click(paragraph);
+  selectText(paragraph, "25 A");
+  await vi.waitFor(() => expect(bubble()).not.toBeNull(), { timeout: 3000 });
+  await vi.waitFor(() =>
+    expect(bubbleWrapper().style.visibility).toBe("visible"),
+  );
+  return window.getSelection()!.getRangeAt(0).getBoundingClientRect();
+}
+
+test("floatingSafeArea: the selection bubble flips below rather than sit under a sticky header", async () => {
+  await render(
+    <div style={{ paddingTop: 120 }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        defaultValue="Use a 25 A breaker"
+        floatingSafeArea={{ top: 100 }}
+      />
+    </div>,
+  );
+  const selected = await selectWithBubble();
+  await vi.waitFor(() =>
+    expect(bubbleWrapper().getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      selected.bottom,
+    ),
+  );
+});
+
+test("floatingSafeArea: the slash menu flips above when a bottom bar leaves too little room below", async () => {
+  const screen = await render(
+    <div style={{ position: "fixed", top: 150, left: 8, width: 300 }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Low"
+        floatingSafeArea={{ bottom: window.innerHeight - 260 }}
+      />
+    </div>,
+  );
+  await screen.getByRole("textbox", { name: "Low" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  expect(slashMenu()!.getAttribute("data-side")).toBe("top");
+});
+
+test("on a coarse pointer the selection bubble opens below the selection", async () => {
+  const matchMedia = window.matchMedia.bind(window);
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) =>
+    query === "(pointer: coarse)"
+      ? Object.defineProperty(matchMedia(query), "matches", { value: true })
+      : matchMedia(query),
+  );
+  onTestFinished(() => {
+    vi.restoreAllMocks();
+  });
+  await render(
+    <div style={{ paddingTop: 200 }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Touch"
+        defaultValue="Use a 25 A breaker"
+      />
+    </div>,
+  );
+  const selected = await selectWithBubble();
+  await vi.waitFor(() =>
+    expect(bubbleWrapper().getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      selected.bottom,
+    ),
+  );
+});

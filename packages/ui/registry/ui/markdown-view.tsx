@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.36 sha256-jid9rI4z1+neDu9bmFzPWEukgSqaQLKByCJJtVl0rVU=
+// @vegastack markdown-view@0.25.36 sha256-R+ifmOefmo7VnYIlaEuSlAz6OjXEFUqh3Se9fmkSuQU=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -1060,6 +1060,11 @@ interface RenderContext {
   fileLinkPrefix: string;
   fileContentType?: (href: string) => string | null | undefined;
   citation?: (n: number) => MarkdownCitation | null | undefined;
+  /**
+   * Mark what the anchor text reads differently from the DOM (`data-anchor-text`): a mention or
+   * file chip, a blocked image or media block — set while selections can be commented on.
+   */
+  anchorAttrs: boolean;
 }
 
 const TEXT_ALIGN = new Set(["left", "right", "center"]);
@@ -1269,6 +1274,9 @@ function renderNode(
           image={
             kind === "user" ? ctx.mentionImage?.(attrs.id ?? "") : undefined
           }
+          {...(ctx.anchorAttrs
+            ? { "data-anchor-text": `@${attrs.label ?? ""}` }
+            : {})}
         />
       );
     }
@@ -1307,6 +1315,7 @@ function renderNode(
             label={name}
             title={attrs.title}
             contentType={ctx.fileContentType?.(href)}
+            {...(ctx.anchorAttrs ? { "data-anchor-text": name } : {})}
           />
         );
       }
@@ -1342,6 +1351,7 @@ function renderNode(
           <span
             key={key}
             data-slot="markdown-image-blocked"
+            data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
             className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
           >
             {alt || "Remote image blocked"}
@@ -1512,6 +1522,8 @@ function renderNode(
           <span
             key={key}
             data-slot="markdown-image-blocked"
+            data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
+            data-anchor-block={ctx.anchorAttrs ? "" : undefined}
             className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
           >
             {tag === "video" ? "Remote video blocked" : "Remote audio blocked"}
@@ -1677,6 +1689,31 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   onAnnotationsLayout?: (items: MarkdownAnnotationLayout[]) => void;
   /**
+   * Comment on a selection. Set, selecting words inside the view shows a small floating
+   * "Comment" button — `TextEdit`'s read-only selection bubble — and pressing it calls this with
+   * the selection's anchor, computed over the same text `annotations` resolve against: pass it
+   * straight back as an annotation's `anchor` and exactly the selected words highlight. A mention
+   * or an image counts whole; a selection of only whitespace, mentions, images or code shows
+   * nothing. The button floats in a `<body>` portal above the selection (below it on a coarse
+   * pointer, where the platform's own callout sits above), flips and shifts to stay in view, hides
+   * while the selection is scrolled out, closes on Escape, and Tab moves to it from a selection
+   * made with the keyboard.
+   * @default undefined
+   */
+  onCreateAnnotation?: (anchor: MarkdownAnnotation["anchor"]) => void;
+  /**
+   * The selection button's label (`onCreateAnnotation`).
+   * @default "Comment"
+   */
+  commentLabel?: string;
+  /**
+   * Px the selection button keeps clear at the viewport's top and bottom, beyond its 8px edge gap
+   * — the height of a sticky app header or a bottom bar — so it never sits under one, and counts a
+   * selection under one as scrolled out.
+   * @default undefined
+   */
+  floatingSafeArea?: { top?: number; bottom?: number };
+  /**
    * The headings `#`–`####` with their ids, after render and whenever they change — an outline
    * rail, computed from the Markdown with no editor. Turns `headingIds` on.
    * @default undefined
@@ -1804,6 +1841,9 @@ export function MarkdownView({
   annotationLabel = defaultAnnotationLabel,
   annotationCountLabel = defaultAnnotationCountLabel,
   onAnnotationsLayout,
+  onCreateAnnotation,
+  commentLabel = "Comment",
+  floatingSafeArea,
   onOutlineChange,
   headingAnchors,
   headingLinkHref,
@@ -1869,6 +1909,11 @@ export function MarkdownView({
     });
   }
 
+  // The text comment anchors are offsets into, taken before highlights cut the tree: a selection's
+  // anchor is computed over it, so it resolves back onto exactly the selected words.
+  const anchorText = onCreateAnnotation
+    ? anchorTextOf(el("root", {}, tree)).text
+    : undefined;
   // Comment highlights, cut into the tree's text before it renders.
   if (annotations?.length) annotate(tree, annotations);
   const annotationQuotes = new Map<string, string>();
@@ -1881,6 +1926,7 @@ export function MarkdownView({
   const effects =
     onOutlineChange !== undefined ||
     onAnnotationsLayout !== undefined ||
+    onCreateAnnotation !== undefined ||
     Boolean(findQuery?.trim()) ||
     details.length > 0;
 
@@ -1916,6 +1962,7 @@ export function MarkdownView({
         fileLinkPrefix,
         fileContentType,
         citation,
+        anchorAttrs: onCreateAnnotation !== undefined,
       })}
     </div>
   );
@@ -1936,6 +1983,10 @@ export function MarkdownView({
         onFindClose={onFindClose}
         findLabels={findLabels}
         printToggles={details.length > 0}
+        onCreateAnnotation={onCreateAnnotation}
+        anchorText={anchorText}
+        commentLabel={commentLabel}
+        floatingSafeArea={floatingSafeArea}
       />
     </>
   );

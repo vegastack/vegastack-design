@@ -1,19 +1,27 @@
-// @vegastack markdown-view@0.25.36 sha256-jid9rI4z1+neDu9bmFzPWEukgSqaQLKByCJJtVl0rVU=
+// @vegastack markdown-view@0.25.36 sha256-R+ifmOefmo7VnYIlaEuSlAz6OjXEFUqh3Se9fmkSuQU=
 
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ChevronDown, ChevronUp, MessageSquarePlus, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import {
+  anchorFromRange,
+  resolveAnchor,
+  type TextAnchor,
+} from "@/lib/text-anchor";
 
 /* ------------------------------------------------------------------------------------------------
  * The client leaves of `MarkdownView` — everything it does that needs the DOM after render: the
  * table scroll cue, the outline report, the find highlights and their match bar, opening toggles
- * for print, reporting where comment highlights sit, and the heading copy-link button. The view
- * itself stays server-safe; each leaf renders only when its prop asks for it.
+ * for print, reporting where comment highlights sit, the selection's Comment button, and the
+ * heading copy-link button. The view itself stays server-safe; each leaf renders only when its
+ * prop asks for it.
  * ----------------------------------------------------------------------------------------------*/
 
 /**
@@ -275,6 +283,21 @@ export interface MarkdownViewEffectsProps {
     close?: string;
     label?: string;
   };
+  /**
+   * Shows the selection's Comment button and receives the anchor it makes.
+   * @default undefined
+   */
+  onCreateAnnotation?: (anchor: TextAnchor) => void;
+  /**
+   * The text anchors are offsets into, as the view built it from its tree — the selection's
+   * offsets are mapped onto it.
+   * @default undefined
+   */
+  anchorText?: string;
+  /** The selection button's label. @default "Comment" */
+  commentLabel?: string;
+  /** Px the selection button keeps clear at the viewport's top and bottom. @default undefined */
+  floatingSafeArea?: { top?: number; bottom?: number };
 }
 
 const defaultFindLabels = {
@@ -306,6 +329,10 @@ export function MarkdownViewEffects({
   onFindClose,
   printToggles = false,
   findLabels,
+  onCreateAnnotation,
+  anchorText,
+  commentLabel = "Comment",
+  floatingSafeArea,
 }: MarkdownViewEffectsProps) {
   // Mounted: the find bar renders from the first client effect on (its matches are the client's).
   const [mounted, setMounted] = React.useState(false);
@@ -501,8 +528,567 @@ export function MarkdownViewEffects({
           ) : null}
         </div>
       ) : null}
+      {onCreateAnnotation && mounted ? (
+        <SelectionComment
+          viewId={viewId}
+          anchorText={anchorText}
+          onCreateAnnotation={onCreateAnnotation}
+          label={commentLabel}
+          safeTop={floatingSafeArea?.top ?? 0}
+          safeBottom={floatingSafeArea?.bottom ?? 0}
+        />
+      ) : null}
       <Announcer />
     </>
+  );
+}
+
+/* --- comment on a selection -------------------------------------------------------------------*/
+
+/** The text an image, a line break, a rule or a media block reads as in the anchor text. */
+const LEAF_TEXT = "\uFFFC";
+
+/** Inline elements of the rendered view — a mention or file chip is a `span` or an `a`. */
+const DOM_INLINE = new Set([
+  "STRONG",
+  "EM",
+  "DEL",
+  "S",
+  "U",
+  "CODE",
+  "A",
+  "BR",
+  "IMG",
+  "SUP",
+  "SUB",
+  "MARK",
+  "SPAN",
+  "LABEL",
+  "INPUT",
+]);
+/** Blocks whose children are text. */
+const DOM_TEXT_BLOCKS = new Set([
+  "P",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "SUMMARY",
+  "TH",
+  "TD",
+]);
+/** What the view renders that its text does not hold: controls, pills, icons, SR-only hints. */
+const NOT_TEXT =
+  "[data-slot=text-edit-annotation-count],[data-slot=markdown-heading-link],[data-slot=checkbox],[data-slot=markdown-find-bar],button,input,svg,.sr-only";
+
+/** One run of the view's anchor text and the DOM it came from. */
+interface AnchorSegment {
+  node: Node;
+  start: number;
+  length: number;
+  /** A mention, a chip, a citation or a leaf: selected whole or not at all. */
+  atom: boolean;
+  /** Fenced code: counted, but never highlighted. */
+  code: boolean;
+}
+
+/**
+ * The view's text the way `MarkdownView` builds the anchor text from its tree (and `TextEdit`
+ * from its document): blocks joined by `"\n"`, a mention as `@label`, an image, a line break, a
+ * rule or a media block as `"￼"` — read off the rendered DOM, with every run recorded so a
+ * selection's boundary maps to an offset.
+ */
+function domAnchorText(root: HTMLElement): {
+  text: string;
+  segments: AnchorSegment[];
+} {
+  let text = "";
+  let first = true;
+  const segments: AnchorSegment[] = [];
+  const block = () => {
+    if (first) first = false;
+    else text += "\n";
+  };
+  const push = (node: Node, value: string, atom: boolean, code = false) => {
+    segments.push({
+      node,
+      start: text.length,
+      length: value.length,
+      atom,
+      code,
+    });
+    text += value;
+  };
+  const skipped = (node: Element) => node.matches(NOT_TEXT);
+  const inline = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const data = (node as Text).data;
+      // A soft line break inside a paragraph is quoted as a space.
+      if (data) push(node, data.replace(/\n/g, " "), false);
+      return;
+    }
+    if (!(node instanceof Element) || skipped(node)) return;
+    const own = node.getAttribute("data-anchor-text");
+    if (own !== null) return push(node, own, true);
+    if (node.matches("[data-slot=markdown-citation]"))
+      return push(node, `[[${node.textContent?.trim() ?? ""}]]`, true);
+    if (node.tagName === "IMG" || node.tagName === "BR")
+      return push(node, LEAF_TEXT, true);
+    node.childNodes.forEach(inline);
+  };
+  const blocks = (parent: Node) => {
+    let run = false;
+    parent.childNodes.forEach((child) => {
+      const isText = child.nodeType === Node.TEXT_NODE;
+      if (!isText && !(child instanceof Element)) return;
+      if (child instanceof Element && skipped(child)) return;
+      const element = child instanceof Element ? child : null;
+      if (
+        isText ||
+        (element &&
+          DOM_INLINE.has(element.tagName) &&
+          !element.hasAttribute("data-anchor-block"))
+      ) {
+        // Whitespace between blocks (HTML source) is not text.
+        if (!run && isText && !(child as Text).data.trim()) return;
+        if (!run) block();
+        run = true;
+        inline(child);
+        return;
+      }
+      run = false;
+      if (!element) return;
+      if (element.matches("[data-slot=code-block]")) {
+        block();
+        const code = element.querySelector("[data-slot=code-block-pre] code");
+        if (!code) return;
+        const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode())
+          if ((node as Text).data) push(node, (node as Text).data, false, true);
+      } else if (
+        element.hasAttribute("data-anchor-block") ||
+        ["HR", "VIDEO", "AUDIO"].includes(element.tagName)
+      ) {
+        block();
+        push(
+          element,
+          element.getAttribute("data-anchor-text") ?? LEAF_TEXT,
+          true,
+        );
+      } else if (DOM_TEXT_BLOCKS.has(element.tagName)) {
+        block();
+        element.childNodes.forEach(inline);
+      } else blocks(element);
+    });
+  };
+  blocks(root);
+  return { text, segments };
+}
+
+/** Where a node's own content ends, as a boundary offset. */
+const contentEnd = (node: Node) =>
+  node.nodeType === Node.TEXT_NODE
+    ? (node as Text).length
+    : node.childNodes.length;
+
+/**
+ * The anchor-text offset of a selection boundary. A boundary inside a text run maps character for
+ * character; one inside an atom takes the whole atom; one between runs moves to the next run's
+ * start (`start`) or the previous run's end (`end`), so a selection ending at a block's edge never
+ * quotes the line break after it.
+ */
+function boundaryOffset(
+  segments: AnchorSegment[],
+  container: Node,
+  offset: number,
+  side: "start" | "end",
+  textLength: number,
+): number {
+  for (const segment of segments) {
+    if (segment.node === container && !segment.atom)
+      return segment.start + Math.min(Math.max(offset, 0), segment.length);
+    if (segment.atom && segment.node.contains(container))
+      return side === "start" ? segment.start : segment.start + segment.length;
+  }
+  const point = document.createRange();
+  point.setStart(container, offset);
+  if (side === "start") {
+    for (const segment of segments)
+      if (point.comparePoint(segment.node, 0) >= 0) return segment.start;
+    return textLength;
+  }
+  for (let at = segments.length - 1; at >= 0; at--) {
+    const segment = segments[at]!;
+    if (point.comparePoint(segment.node, contentEnd(segment.node)) <= 0)
+      return segment.start + segment.length;
+  }
+  return 0;
+}
+
+/**
+ * The anchor for the selection `range` inside `root`, over `anchorText` (the view's own anchor
+ * text) — or `null` when it holds nothing to comment on: only whitespace, atoms or code.
+ */
+function selectionAnchor(
+  root: HTMLElement,
+  range: Range,
+  anchorText: string | undefined,
+): TextAnchor | null {
+  const { text, segments } = domAnchorText(root);
+  const start = boundaryOffset(
+    segments,
+    range.startContainer,
+    range.startOffset,
+    "start",
+    text.length,
+  );
+  const end = boundaryOffset(
+    segments,
+    range.endContainer,
+    range.endOffset,
+    "end",
+    text.length,
+  );
+  if (end <= start) return null;
+  // Something to comment on: words outside atoms and code.
+  const words = segments.some(
+    (segment) =>
+      !segment.atom &&
+      !segment.code &&
+      text
+        .slice(
+          Math.max(start, segment.start),
+          Math.min(end, segment.start + segment.length),
+        )
+        .trim() !== "",
+  );
+  if (!words) return null;
+  const anchor = anchorFromRange(text, start, end);
+  if (anchorText === undefined || anchorText === text) return anchor;
+  // The DOM read differently from the view's tree (markup the tree does not hold): the quote and
+  // its context find the same words in the view's own text.
+  const resolved = resolveAnchor(anchorText, anchor);
+  return resolved
+    ? anchorFromRange(anchorText, resolved.start, resolved.end)
+    : null;
+}
+
+/** Floating parts keep this far from the viewport's edges, and from the selection. */
+const VIEWPORT_GAP = 8;
+const SELECTION_GAP = 8;
+
+/** `TextEdit`'s menu surface. */
+const MENU_SURFACE =
+  "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
+
+/** Every scrolling ancestor's visible box, intersected with the viewport inside its safe area. */
+function visibleArea(root: HTMLElement, safeTop: number, safeBottom: number) {
+  let top = safeTop;
+  let bottom = window.innerHeight - safeBottom;
+  let left = 0;
+  let right = window.innerWidth;
+  for (
+    let node = root.parentElement;
+    node && node !== document.body && node !== document.documentElement;
+    node = node.parentElement
+  ) {
+    const style = getComputedStyle(node);
+    if (style.overflowX === "visible" && style.overflowY === "visible")
+      continue;
+    const box = node.getBoundingClientRect();
+    top = Math.max(top, box.top);
+    bottom = Math.min(bottom, box.bottom);
+    left = Math.max(left, box.left);
+    right = Math.min(right, box.right);
+  }
+  return { top, bottom, left, right };
+}
+
+/**
+ * Place the button by the selection's rect: above it (below on a coarse pointer), flipped to the
+ * other side when it does not fit inside the safe area, slid along to stay on screen, and hidden
+ * while the selection is scrolled out of view.
+ */
+function placeBubble(
+  node: HTMLElement,
+  root: HTMLElement,
+  rect: DOMRect,
+  safeTop: number,
+  safeBottom: number,
+) {
+  const area = visibleArea(root, safeTop, safeBottom);
+  const hidden =
+    rect.bottom < area.top ||
+    rect.top > area.bottom ||
+    rect.right < area.left ||
+    rect.left > area.right;
+  node.style.visibility = hidden ? "hidden" : "";
+  node.toggleAttribute("data-hidden", hidden);
+  const width = node.offsetWidth;
+  const height = node.offsetHeight;
+  const minTop = VIEWPORT_GAP + safeTop;
+  const maxBottom = window.innerHeight - VIEWPORT_GAP - safeBottom;
+  const above = rect.top - SELECTION_GAP - height;
+  const below = rect.bottom + SELECTION_GAP;
+  const fitsAbove = above >= minTop;
+  const fitsBelow = below + height <= maxBottom;
+  const coarse = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+  let side: "top" | "bottom" = coarse ? "bottom" : "top";
+  if (side === "top" && !fitsAbove && fitsBelow) side = "bottom";
+  else if (side === "bottom" && !fitsBelow && fitsAbove) side = "top";
+  const top = Math.max(
+    minTop,
+    Math.min(side === "top" ? above : below, maxBottom - height),
+  );
+  const left = Math.max(
+    VIEWPORT_GAP,
+    Math.min(
+      rect.left + rect.width / 2 - width / 2,
+      window.innerWidth - VIEWPORT_GAP - width,
+    ),
+  );
+  node.style.top = `${top}px`;
+  node.style.left = `${left}px`;
+  node.dataset.side = side;
+}
+
+/**
+ * The Comment button over a selection in the view — `TextEdit`'s read-only selection bubble. It
+ * shows once a selection inside the view holds words (never while the pointer is still selecting),
+ * floats in a `<body>` portal, and makes the selection's anchor on press.
+ */
+function SelectionComment({
+  viewId,
+  anchorText,
+  onCreateAnnotation,
+  label,
+  safeTop,
+  safeBottom,
+}: {
+  viewId: string;
+  anchorText?: string;
+  onCreateAnnotation: (anchor: TextAnchor) => void;
+  label: string;
+  safeTop: number;
+  safeBottom: number;
+}) {
+  const themeScope = useInternalThemeScope();
+  const [open, setOpen] = React.useState(false);
+  const bubbleRef = React.useRef<HTMLDivElement | null>(null);
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+  const current = React.useRef<{ range: Range; anchor: TextAnchor } | null>(
+    null,
+  );
+  // The selection the reader closed (Escape) or commented on: it stays closed until it changes.
+  const dismissed = React.useRef<string | null>(null);
+  // Where focus was before Tab moved it to the button, for Shift+Tab and Escape to go back to.
+  const returnFocus = React.useRef<HTMLElement | null>(null);
+  const latest = React.useRef({
+    anchorText,
+    onCreateAnnotation,
+    safeTop,
+    safeBottom,
+  });
+  React.useLayoutEffect(() => {
+    latest.current = { anchorText, onCreateAnnotation, safeTop, safeBottom };
+  });
+  const root = React.useCallback(
+    () =>
+      document.querySelector<HTMLElement>(
+        `[data-view-id="${CSS.escape(viewId)}"]`,
+      ),
+    [viewId],
+  );
+
+  const position = React.useCallback(() => {
+    const node = bubbleRef.current;
+    const view = root();
+    const selection = current.current;
+    if (!node || !view || !selection) return;
+    placeBubble(
+      node,
+      view,
+      selection.range.getBoundingClientRect(),
+      latest.current.safeTop,
+      latest.current.safeBottom,
+    );
+  }, [root]);
+
+  React.useLayoutEffect(() => {
+    if (open) position();
+  });
+
+  React.useEffect(() => {
+    let frame = 0;
+    // A press is selecting (or tapping the button): nothing is evaluated until it ends.
+    let selecting = false;
+    let pressingBubble = false;
+    const inBubble = (node: Node | null) =>
+      Boolean(node && bubbleRef.current?.contains(node));
+    const close = () => {
+      current.current = null;
+      setOpen(false);
+    };
+    const evaluate = () => {
+      frame = 0;
+      if (selecting || pressingBubble) return;
+      // Focus on the button leaves the selection as it was.
+      if (inBubble(document.activeElement)) return;
+      const view = root();
+      const selection = document.getSelection();
+      if (!view || !selection || !selection.rangeCount || selection.isCollapsed)
+        return close();
+      const range = selection.getRangeAt(0);
+      if (
+        !view.contains(range.startContainer) ||
+        !view.contains(range.endContainer)
+      )
+        return close();
+      const anchor = selectionAnchor(view, range, latest.current.anchorText);
+      if (!anchor) return close();
+      const key = `${anchor.start}:${anchor.end}`;
+      if (dismissed.current === key) return close();
+      dismissed.current = null;
+      current.current = { range: range.cloneRange(), anchor };
+      setOpen(true);
+      position();
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(evaluate);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (inBubble(event.target as Node)) {
+        pressingBubble = true;
+        return;
+      }
+      selecting = true;
+      if (current.current) close();
+    };
+    const onPointerUp = () => {
+      selecting = false;
+      // The button's own click lands after this; evaluate once it has.
+      requestAnimationFrame(() => {
+        pressingBubble = false;
+      });
+      schedule();
+    };
+    let reflow = 0;
+    const onScroll = () => {
+      if (reflow || !current.current) return;
+      reflow = requestAnimationFrame(() => {
+        reflow = 0;
+        position();
+      });
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!current.current || event.defaultPrevented) return;
+      const focusInBubble = inBubble(document.activeElement);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        dismissed.current = `${current.current.anchor.start}:${current.current.anchor.end}`;
+        if (focusInBubble) restoreFocus();
+        close();
+        return;
+      }
+      if (event.key !== "Tab" || event.altKey || event.ctrlKey || event.metaKey)
+        return;
+      if (focusInBubble) {
+        // Shift+Tab goes back to where Tab came from.
+        if (event.shiftKey && returnFocus.current?.isConnected) {
+          event.preventDefault();
+          restoreFocus();
+        }
+        return;
+      }
+      if (event.shiftKey) return;
+      const active = document.activeElement;
+      const view = root();
+      if (
+        active &&
+        active !== document.body &&
+        !(view && view.contains(active))
+      )
+        return;
+      event.preventDefault();
+      returnFocus.current =
+        active instanceof HTMLElement && active !== document.body
+          ? active
+          : null;
+      buttonRef.current?.focus();
+    };
+    const restoreFocus = () => {
+      const target = returnFocus.current;
+      returnFocus.current = null;
+      if (target?.isConnected) target.focus();
+      else (document.activeElement as HTMLElement | null)?.blur?.();
+    };
+    document.addEventListener("selectionchange", schedule);
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("pointerup", onPointerUp, true);
+    document.addEventListener("pointercancel", onPointerUp, true);
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener("resize", onScroll);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(reflow);
+      document.removeEventListener("selectionchange", schedule);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("pointerup", onPointerUp, true);
+      document.removeEventListener("pointercancel", onPointerUp, true);
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [root, position]);
+
+  const comment = () => {
+    const selection = current.current;
+    if (!selection) return;
+    dismissed.current = `${selection.anchor.start}:${selection.anchor.end}`;
+    latest.current.onCreateAnnotation(selection.anchor);
+    // The host may have moved focus (a composer); otherwise it goes back where it came from.
+    if (bubbleRef.current?.contains(document.activeElement)) {
+      const target = returnFocus.current;
+      returnFocus.current = null;
+      if (target?.isConnected) target.focus();
+      else buttonRef.current?.blur();
+    }
+    current.current = null;
+    setOpen(false);
+  };
+
+  if (!open || typeof document === "undefined") return null;
+  return createPortal(
+    <div
+      ref={bubbleRef}
+      data-slot="markdown-selection-menu"
+      role="toolbar"
+      aria-label="Selection actions"
+      // Fixed to the viewport, placed by `placeBubble` before the first paint.
+      style={{ position: "fixed", top: 0, left: 0 }}
+      className={cn(MENU_SURFACE, "flex items-center gap-0.5", themeScope)}
+      // A press on the surface keeps the selection.
+      onMouseDown={(event) => event.preventDefault()}
+    >
+      <Button
+        ref={buttonRef}
+        variant="ghost"
+        size="sm"
+        onClick={comment}
+        className="gap-1 px-2 text-xs"
+      >
+        <MessageSquarePlus />
+        {label}
+      </Button>
+    </div>,
+    document.body,
   );
 }
 

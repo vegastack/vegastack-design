@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.36 sha256-ZuLntIPTUBOWQ+eZV3IYKOUbgMXkOR4Hn+et82y/qCY=
+// @vegastack text-edit@0.25.36 sha256-0Ew27r9v+ni7aXgPEojMBWNfJZY4Fe4KFgdBl+USVgg=
 
 "use client";
 
@@ -5244,6 +5244,7 @@ export function TextEditEditor({
   onAnnotationHover,
   onCreateAnnotation,
   onAnnotationsLayout,
+  floatingSafeArea,
   annotationCounts = "never",
   annotationLabel = defaultAnnotationLabel,
   annotationCountLabel = defaultAnnotationCountLabel,
@@ -6390,14 +6391,39 @@ export function TextEditEditor({
   // Floating UI inside the bubble menus: fixed to the viewport, flipped and shifted into view —
   // and hidden while its selection is scrolled out of a clipping ancestor (the reference below
   // carries the editor as its context element, so that is the editor's own scrollers, not only
-  // the viewport).
-  const bubbleOptions = React.useMemo(
-    // `padding: -2`: a collapsed caret (a link or media panel opened from the slash menu) is a
-    // zero-width rect, which floating-ui counts as fully clipped the moment it touches a clipping
-    // edge — the start of an empty line. The menu would hide with focus in its field.
-    () => ({ ...FLOATING, placement: "top" as const, hide: { padding: -2 } }),
-    [],
-  );
+  // the viewport). `floatingSafeArea` keeps it off a sticky header or a bottom bar, and a
+  // selection under one counts as scrolled out. On a coarse pointer it opens below the selection:
+  // the platform's own callout sits above.
+  const safeTop = floatingSafeArea?.top ?? 0;
+  const safeBottom = floatingSafeArea?.bottom ?? 0;
+  const bubbleOptions = React.useMemo(() => {
+    const padding = {
+      top: VIEWPORT_GAP + safeTop,
+      bottom: VIEWPORT_GAP + safeBottom,
+      left: VIEWPORT_GAP,
+      right: VIEWPORT_GAP,
+    };
+    const coarse =
+      typeof window !== "undefined" &&
+      (window.matchMedia?.("(pointer: coarse)").matches ?? false);
+    return {
+      ...FLOATING,
+      flip: { padding },
+      shift: { padding },
+      placement: coarse ? ("bottom" as const) : ("top" as const),
+      // `-2`: a collapsed caret (a link or media panel opened from the slash menu) is a zero-width
+      // rect, which floating-ui counts as fully clipped the moment it touches a clipping edge —
+      // the start of an empty line. The menu would hide with focus in its field.
+      hide: {
+        padding: {
+          top: safeTop - 2,
+          bottom: safeBottom - 2,
+          left: -2,
+          right: -2,
+        },
+      },
+    };
+  }, [safeTop, safeBottom]);
   const showBubble = React.useCallback(
     ({ editor: ed, from, to, state }: MenuShowProps) =>
       panel !== null ||
@@ -6513,6 +6539,7 @@ export function TextEditEditor({
           data-menu="text-edit-slash"
           className="w-60"
           anchor={slash.rect}
+          floatingSafeArea={floatingSafeArea}
           options={slash.items.map((spec) => {
             const Icon = spec.icon;
             return {
@@ -6538,6 +6565,7 @@ export function TextEditEditor({
           data-menu="text-edit-mention"
           className="w-72"
           anchor={mentionMenu.rect}
+          floatingSafeArea={floatingSafeArea}
           options={mentionOptions(mentionMenu)}
           status={mentionStatus(mentionMenu)}
           emptyMessage="No matches"

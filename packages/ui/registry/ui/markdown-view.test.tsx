@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { beforeAll, expect, test, vi } from "vitest";
+import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { proseClassName } from "@vegastack/design";
 import { MarkdownView, markdownExtrasClassName } from "./markdown-view";
@@ -921,4 +921,237 @@ test("find folds case without misplacing matches when folding changes length", a
     expect(
       [...registry.get("vs-find")!].map((range) => range.toString()),
     ).toEqual(["x", "X"]);
+});
+
+/* --- comment on a selection ------------------------------------------------------------------*/
+
+/** The first text node in `root` holding `needle`, and where in it. */
+function findText(root: Element, needle: string) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const at = (node as Text).data.indexOf(needle);
+    if (at !== -1) return [node as Text, at] as const;
+  }
+  throw new Error(`no text "${needle}"`);
+}
+
+function selectRange(
+  startNode: Node,
+  startOffset: number,
+  endNode: Node,
+  endOffset: number,
+) {
+  const range = document.createRange();
+  range.setStart(startNode, startOffset);
+  range.setEnd(endNode, endOffset);
+  const selection = window.getSelection()!;
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+/** Select from `startText` (its first character) to the end of `endText`, each found in `root`. */
+function selectBetween(root: Element, startText: string, endText: string) {
+  const [startNode, startAt] = findText(root, startText);
+  const [endNode, endAt] = findText(root, endText);
+  selectRange(startNode, startAt, endNode, endAt + endText.length);
+}
+
+const selectionMenu = () =>
+  document.querySelector<HTMLElement>('[data-slot="markdown-selection-menu"]');
+const commentButton = () =>
+  selectionMenu()?.querySelector<HTMLButtonElement>("button") ?? null;
+const settle = () => new Promise((resolve) => setTimeout(resolve, 100));
+
+const SELECTION_DOC = [
+  "# Pricing plan",
+  "",
+  `Check the **annual price** with ${mentionMarkdown("user", "u1", "Ada Lovelace")} before renewal.`,
+  "",
+  "- first item",
+  "- second item",
+  "",
+  "```js",
+  "const price = 1;",
+  "```",
+  "",
+  "Last paragraph here.",
+].join("\n");
+
+test("onCreateAnnotation: a selection's Comment button hands over an anchor that highlights exactly the selected words", async () => {
+  const onCreateAnnotation = vi.fn();
+  onTestFinished(() => window.getSelection()?.removeAllRanges());
+  const screen = await render(
+    <MarkdownView typeScale="document" onCreateAnnotation={onCreateAnnotation}>
+      {SELECTION_DOC}
+    </MarkdownView>,
+  );
+  const view = screen.container.querySelector('[data-slot="markdown-view"]')!;
+  // Across a mark, a mention (counted whole, as `@label`) and a list.
+  selectBetween(view, "annual", "second");
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+  expect(commentButton()!.textContent).toBe("Comment");
+  expect(selectionMenu()!.getAttribute("role")).toBe("toolbar");
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+  commentButton()!.click();
+  expect(onCreateAnnotation).toHaveBeenCalledTimes(1);
+  const anchor = onCreateAnnotation.mock.calls[0]![0];
+  expect(anchor.quote).toBe(
+    "annual price with @Ada Lovelace before renewal.\nfirst item\nsecond",
+  );
+  expect(anchor.prefix).toBe("Pricing plan\nCheck the ");
+  expect(anchor.suffix.startsWith(" item\nconst price = 1;\nLast")).toBe(true);
+  expect(anchor.end - anchor.start).toBe(anchor.quote.length);
+  // Pressed: the button closes until the selection changes.
+  await vi.waitFor(() => expect(selectionMenu()).toBeNull());
+
+  // Handed straight back, it highlights the selected words — no more, no less.
+  await screen.rerender(
+    <MarkdownView
+      typeScale="document"
+      onCreateAnnotation={onCreateAnnotation}
+      annotations={[{ id: "new", anchor }]}
+    >
+      {SELECTION_DOC}
+    </MarkdownView>,
+  );
+  const segments = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-annotation="new"]',
+    ),
+  ];
+  expect(segments[0]!.textContent).toBe("annual price");
+  expect(segments.at(-1)!.textContent).toBe("second");
+  expect(
+    segments.some((segment) =>
+      segment.querySelector('[data-slot="inline-chip"]'),
+    ),
+  ).toBe(true);
+  expect(segments.map((segment) => segment.textContent)).toContain(
+    "first item",
+  );
+
+  // A selection starting inside the mention takes the whole mention.
+  const chip = view.querySelector('[data-slot="inline-chip-label"]')!;
+  const [label] = findText(chip, "Lovelace");
+  const [after, at] = findText(view, " before renewal");
+  selectRange(label, 2, after, at + 7);
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+  commentButton()!.click();
+  expect(onCreateAnnotation.mock.calls[1]![0].quote).toBe(
+    "@Ada Lovelace before",
+  );
+});
+
+test("onCreateAnnotation: whitespace, a mention alone or code shows no Comment button; a selection outside the view neither", async () => {
+  onTestFinished(() => window.getSelection()?.removeAllRanges());
+  const screen = await render(
+    <>
+      <p>Outside the view</p>
+      <MarkdownView onCreateAnnotation={() => {}}>{SELECTION_DOC}</MarkdownView>
+    </>,
+  );
+  const view = screen.container.querySelector('[data-slot="markdown-view"]')!;
+  const code = view.querySelector("pre code")!;
+  selectRange(code, 0, code, code.childNodes.length);
+  await settle();
+  expect(selectionMenu()).toBeNull();
+  const [space, at] = findText(view, " before renewal");
+  selectRange(space, at, space, at + 1);
+  await settle();
+  expect(selectionMenu()).toBeNull();
+  selectBetween(view, "Ada", "Lovelace");
+  await settle();
+  expect(selectionMenu()).toBeNull();
+  selectBetween(screen.container, "Outside", "view");
+  await settle();
+  expect(selectionMenu()).toBeNull();
+  // Words do show it.
+  selectBetween(view, "Last", "paragraph");
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+});
+
+test("onCreateAnnotation: Tab moves to the button from a keyboard selection, Escape closes it; commentLabel names it", async () => {
+  const onCreateAnnotation = vi.fn();
+  onTestFinished(() => window.getSelection()?.removeAllRanges());
+  const screen = await render(
+    <MarkdownView
+      onCreateAnnotation={onCreateAnnotation}
+      commentLabel="Add comment"
+    >
+      {SELECTION_DOC}
+    </MarkdownView>,
+  );
+  const view = screen.container.querySelector('[data-slot="markdown-view"]')!;
+  selectBetween(view, "Last", "paragraph");
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+  expect(commentButton()!.textContent).toBe("Add comment");
+  await userEvent.keyboard("{Tab}");
+  expect(document.activeElement).toBe(commentButton());
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(selectionMenu()).toBeNull());
+  // Closed for that selection only: a new one brings it back, and Enter on it comments.
+  selectBetween(view, "first", "item");
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+  await userEvent.keyboard("{Tab}");
+  await userEvent.keyboard("{Enter}");
+  expect(onCreateAnnotation).toHaveBeenCalledWith(
+    expect.objectContaining({ quote: "first item" }),
+  );
+});
+
+test("onCreateAnnotation: the button flips below to clear floatingSafeArea, opens below on a coarse pointer, and hides when its selection scrolls out", async () => {
+  onTestFinished(() => window.getSelection()?.removeAllRanges());
+  const screen = await render(
+    <div
+      data-testid="scroller"
+      style={{ height: 300, overflow: "auto", paddingTop: 120 }}
+    >
+      <MarkdownView
+        onCreateAnnotation={() => {}}
+        floatingSafeArea={{ top: 100 }}
+      >
+        {`Top line words.\n\n${"More text.\n\n".repeat(40)}`}
+      </MarkdownView>
+    </div>,
+  );
+  const scroller = screen.getByTestId("scroller").element() as HTMLElement;
+  const view = scroller.querySelector('[data-slot="markdown-view"]')!;
+  selectBetween(view, "Top", "words");
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+  const selected = window.getSelection()!.getRangeAt(0).getBoundingClientRect();
+  // Above would put it under the 100px header: it opens below the selection instead.
+  expect(selectionMenu()!.dataset.side).toBe("bottom");
+  expect(selectionMenu()!.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+    selected.bottom,
+  );
+  scroller.scrollTop = 600;
+  await vi.waitFor(() =>
+    expect(selectionMenu()!.style.visibility).toBe("hidden"),
+  );
+  scroller.scrollTop = 0;
+  await vi.waitFor(() => expect(selectionMenu()!.style.visibility).toBe(""));
+});
+
+test("onCreateAnnotation: on a coarse pointer the button opens below the selection", async () => {
+  const matchMedia = window.matchMedia.bind(window);
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) =>
+    query === "(pointer: coarse)"
+      ? Object.defineProperty(matchMedia(query), "matches", { value: true })
+      : matchMedia(query),
+  );
+  onTestFinished(() => {
+    vi.restoreAllMocks();
+    window.getSelection()?.removeAllRanges();
+  });
+  const screen = await render(
+    <div style={{ paddingTop: 200 }}>
+      <MarkdownView onCreateAnnotation={() => {}}>
+        Some words to select.
+      </MarkdownView>
+    </div>,
+  );
+  const view = screen.container.querySelector('[data-slot="markdown-view"]')!;
+  selectBetween(view, "words", "select");
+  await vi.waitFor(() => expect(commentButton()).not.toBeNull());
+  expect(selectionMenu()!.dataset.side).toBe("bottom");
 });
