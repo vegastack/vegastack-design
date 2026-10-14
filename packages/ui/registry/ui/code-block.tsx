@@ -1,4 +1,4 @@
-// @vegastack code-block@0.25.34 sha256-uEY5C/Ysm7DCNeF/kgNOYvlSvPK22cV9wgRDy1XcAgg=
+// @vegastack code-block@0.25.34 sha256-s2flU89H0kM8Z6n336QThUfU3oDhsGGdPavAUNYIkr4=
 
 "use client";
 
@@ -169,12 +169,21 @@ export const codeBlockSurfaceClassName =
  * ProseMirror's own `.ProseMirror pre { white-space: pre-wrap }` in the editor.
  */
 export const codeBlockPreClassName =
-  "hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono scrollbar-thin [scrollbar-color:var(--border)_transparent]";
-/** `white-space` for a code panel: `pre` scrolls sideways inside the block, `pre-wrap` wraps. */
+  "hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono scrollbar-thin [scrollbar-color:var(--border)_transparent] print:overflow-visible print:[--code-block-white-space:pre-wrap] print:[--code-block-overflow-wrap:anywhere]";
+/**
+ * `white-space` for a code panel: `pre` scrolls sideways inside the block, `pre-wrap` wraps. The
+ * unwrapped values read `--code-block-white-space` / `--code-block-overflow-wrap`, which the
+ * panel's own print rule sets, so a long line wraps on paper instead of running off it.
+ */
 export function codeBlockWrapStyle(wrap: boolean): React.CSSProperties {
   return wrap
     ? { whiteSpace: "pre-wrap", overflowWrap: "anywhere" }
-    : { whiteSpace: "pre", overflowWrap: "normal" };
+    : {
+        whiteSpace:
+          "var(--code-block-white-space, pre)" as React.CSSProperties["whiteSpace"],
+        overflowWrap:
+          "var(--code-block-overflow-wrap, normal)" as React.CSSProperties["overflowWrap"],
+      };
 }
 
 /** Room above the code for the controls, so the language label and the icons never cover line one. */

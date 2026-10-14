@@ -234,3 +234,41 @@ test("a Button rendered as a link announces as a button — why the link recipe 
     .element(screen.getByRole("button", { name: "Docs" }))
     .toBeInTheDocument();
 });
+
+test("A11Y-24: on a coarse pointer every size grows a 44px invisible hit area (class contract)", async () => {
+  // The Chromium lane cannot emulate `(pointer: coarse)`; the geometry lane measures the compiled
+  // rule (test/document-geometry.browser.test.tsx). Here: every size carries its inset.
+  const insets: Record<string, string> = {
+    xs: "pointer-coarse:after:-inset-2.75",
+    "icon-xs": "pointer-coarse:after:-inset-2.75",
+    sm: "pointer-coarse:after:-inset-2.25",
+    "icon-sm": "pointer-coarse:after:-inset-2.25",
+    default: "pointer-coarse:after:-inset-1.75",
+    icon: "pointer-coarse:after:-inset-1.75",
+    lg: "pointer-coarse:after:-inset-1.25",
+    "icon-lg": "pointer-coarse:after:-inset-1.25",
+  };
+  const screen = await render(
+    <div>
+      {Object.keys(insets).map((size) => (
+        <Button
+          key={size}
+          size={size as React.ComponentProps<typeof Button>["size"]}
+          aria-label={size}
+        >
+          {size.startsWith("icon") ? null : size}
+        </Button>
+      ))}
+    </div>,
+  );
+  for (const [size, inset] of Object.entries(insets)) {
+    const button = screen.getByRole("button", { name: size }).element();
+    expect(button.className, size).toContain(inset);
+    expect(button.className, size).toContain("pointer-coarse:after:absolute");
+    // Never into an interactive neighbour: flush on a side with a sibling control.
+    expect(button.className, size).toContain(
+      "pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0",
+    );
+    expect(button.className, size).toContain("relative");
+  }
+});

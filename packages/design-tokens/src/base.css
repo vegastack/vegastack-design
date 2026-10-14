@@ -260,3 +260,11 @@
     overscroll-behavior-y: none;
   }
 }
+
+/* PRINT — A DOCUMENT'S PAPER (Regent Pages v2, 2026-10-14). `DocumentLayout` puts itself on the
+   named page `document` (`page: document`, print only), so the pages it lands on take a paper
+   margin of 16mm top and bottom, 14mm at the sides; any other print keeps the browser's own. The
+   palette is forced light for print in `theme.css`, generated from the light tokens. */
+@page document {
+  margin: 16mm 14mm;
+}

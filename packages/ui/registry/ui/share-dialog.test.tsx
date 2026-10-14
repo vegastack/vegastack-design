@@ -484,3 +484,66 @@ test("share-dialog hints sit right after the People, Space access and Publish la
     .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
+
+const shareLevels = [
+  { value: "full", label: "Full access" },
+  { value: "edit", label: "Can edit" },
+  { value: "view", label: "Can view" },
+];
+
+test("share-dialog: Who can see this is closed at first and asks for its rows when opened", async () => {
+  await page.viewport(1280, 900);
+  const onAudienceOpenChange = vi.fn();
+  const screen = await render(
+    <ShareDialog
+      defaultOpen
+      levels={shareLevels}
+      people={[]}
+      audienceCount={31}
+      onAudienceOpenChange={onAudienceOpenChange}
+      audience={<p>Everyone in Product · 28</p>}
+    />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  const trigger = dialog.getByRole("button", {
+    name: "Who can see this · 31 people",
+  });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  expect(onAudienceOpenChange).toHaveBeenLastCalledWith(true);
+  await expect
+    .element(dialog.getByText("Everyone in Product · 28"))
+    .toBeVisible();
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("share-dialog: publishExposure says what the link exposes; onPublishRequest can keep it off", async () => {
+  await page.viewport(1280, 900);
+  const onCreatePublicLink = vi.fn();
+  let answer = false;
+  const onPublishRequest = vi.fn(async () => answer);
+  const screen = await render(
+    <ShareDialog
+      defaultOpen
+      defaultTab="publish"
+      levels={shareLevels}
+      people={[]}
+      publishExposure="Anyone with the link can view this page and 12 pages inside, without signing in."
+      onPublishRequest={onPublishRequest}
+      onCreatePublicLink={onCreatePublicLink}
+    />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  await expect
+    .element(
+      dialog.getByText("this page and 12 pages inside", { exact: false }),
+    )
+    .toBeVisible();
+  const toggle = dialog.getByRole("switch", { name: "Publish to the web" });
+  await toggle.click();
+  await vi.waitFor(() => expect(onPublishRequest).toHaveBeenCalledTimes(1));
+  expect(onCreatePublicLink).not.toHaveBeenCalled();
+  answer = true;
+  await toggle.click();
+  await vi.waitFor(() => expect(onCreatePublicLink).toHaveBeenCalledTimes(1));
+});

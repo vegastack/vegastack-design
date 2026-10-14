@@ -64,16 +64,42 @@ test("the editor surface and MarkdownView wear the same prose recipe", async () 
   expect(editable.className).toContain("[&_code]:font-mono");
 });
 
-test('headingScale="document" lays the document heading sizes over the prose recipe', async () => {
+test('typeScale="document" lays the document scale over the editor surface (TYP-20)', async () => {
   const screen = await render(
-    <TextEdit aria-label="Body" headingScale="document" />,
+    <TextEdit aria-label="Body" typeScale="document" />,
   );
   const editable = screen
     .getByRole("textbox", { name: "Body" })
     .element() as HTMLElement;
-  expect(editable.className).toContain("[&_h1]:text-3xl");
-  expect(editable.className).toContain("[&_h2]:text-2xl");
+  expect(editable.className).toContain("[&_h1]:text-2xl/8");
+  expect(editable.className).toContain("[&_h2]:text-xl/7");
+  expect(editable.className).toContain("pointer-coarse:text-base/6.5");
   expect(editable.className).not.toContain("[&_h1]:text-lg");
+});
+
+test("an outline alone never loads the editor: the read view reports the headings", async () => {
+  const onOutlineChange = vi.fn();
+  const screen = await render(
+    <TextEdit
+      aria-label="Body"
+      readOnly
+      format="markdown"
+      defaultValue={"# Intro\n\nText\n\n## Pricing\n\n## Pricing"}
+      onOutlineChange={onOutlineChange}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(onOutlineChange).toHaveBeenLastCalledWith([
+      { id: "intro", level: 1, text: "Intro" },
+      { id: "pricing", level: 2, text: "Pricing" },
+      { id: "pricing-1", level: 2, text: "Pricing" },
+    ]),
+  );
+  // Still the read view: no ProseMirror root was mounted for an outline.
+  expect(screen.container.querySelector(".ProseMirror")).toBeNull();
+  expect(screen.container.querySelector("#pricing-1")?.textContent).toBe(
+    "Pricing",
+  );
 });
 
 test("typing into the editor emits HTML via onValueChange", async () => {

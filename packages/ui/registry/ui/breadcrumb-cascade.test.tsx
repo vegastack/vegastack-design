@@ -319,3 +319,70 @@ test("BreadcrumbTrail spreads a step's itemProps and renders the current step wi
     document.querySelector('[data-current] [data-testid="current"]'),
   ).not.toBeNull();
 });
+
+const path = [
+  { label: "Product", href: "#product" },
+  { label: "Specs", href: "#specs" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "Pricing v2" },
+];
+
+test("BreadcrumbTrail compact: ‹ and the parent's name, a menu of the whole path with the current step marked", async () => {
+  const screen = await render(<BreadcrumbTrail compact steps={path} />);
+  const nav = screen.container.querySelector<HTMLElement>(
+    "[data-slot=breadcrumb-trail]",
+  )!;
+  expect(nav.hasAttribute("data-compact")).toBe(true);
+  const trigger = screen.getByRole("button", { name: "Pricing, show path" });
+  await expect.element(trigger).toHaveTextContent("Pricing");
+  // Only the trigger: no full trail rendered beside it.
+  expect(
+    screen.container.querySelectorAll("[data-slot=breadcrumb-link]"),
+  ).toHaveLength(0);
+  await trigger.click();
+  const menu = screen.getByRole("menu");
+  const items = menu.getByRole("menuitem");
+  await expect.element(items.nth(0)).toHaveTextContent("Product");
+  await expect.element(items.nth(3)).toHaveTextContent("Pricing v2");
+  await expect.element(items.nth(3)).toHaveAttribute("aria-current", "page");
+  await expect.element(items.nth(1)).toHaveAttribute("href", "#specs");
+  await expectNoA11yViolations(document.body);
+});
+
+test('BreadcrumbTrail compact="auto" follows its container: compact under 40rem, the full trail above', async () => {
+  function Frame({ width }: { width: number }) {
+    return (
+      <div style={{ width }}>
+        <BreadcrumbTrail compact="auto" steps={path} />
+      </div>
+    );
+  }
+  const screen = await render(<Frame width={360} />);
+  const nav = () =>
+    screen.container.querySelector<HTMLElement>(
+      "[data-slot=breadcrumb-trail]",
+    )!;
+  await vi.waitFor(() => expect(nav().hasAttribute("data-compact")).toBe(true));
+  await screen.rerender(<Frame width={900} />);
+  await vi.waitFor(() =>
+    expect(nav().hasAttribute("data-compact")).toBe(false),
+  );
+  // The full trail again: the root is always a link of its own.
+  await expect
+    .element(screen.getByRole("link", { name: "Product" }))
+    .toBeInTheDocument();
+});
+
+test("BreadcrumbTrail compact with one step shows the current page alone", async () => {
+  const screen = await render(
+    <BreadcrumbTrail compact steps={[{ label: "Library" }]} />,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=breadcrumb-page]")?.textContent,
+  ).toBe("Library");
+  expect(
+    screen.container.querySelector(
+      "[data-slot=breadcrumb-trail-compact] button",
+    ),
+  ).toBeNull();
+});

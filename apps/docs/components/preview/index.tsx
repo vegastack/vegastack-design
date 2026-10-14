@@ -47,6 +47,7 @@ export * from "./alert-dialog";
 export * from "./progress";
 export * from "./breadcrumb";
 export * from "./breadcrumb-cascade";
+export * from "./document-layout";
 export * from "./sheet";
 export * from "./drawer";
 export * from "./hover-card";

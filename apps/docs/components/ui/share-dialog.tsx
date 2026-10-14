@@ -1,9 +1,15 @@
-// @vegastack share-dialog@0.25.34 sha256-4DnCaDER/poRStZnv57NWanA4J62+o3f38KGmBsX500=
+// @vegastack share-dialog@0.25.34 sha256-l4LNlRMncP8LjqMfhViAJptZJoX6xgv50fHxGBM8qFU=
 
 "use client";
 
 import * as React from "react";
-import { GlobeIcon, RotateCcwIcon, UserLock, Lock } from "lucide-react";
+import {
+  ChevronDown,
+  GlobeIcon,
+  RotateCcwIcon,
+  UserLock,
+  Lock,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +22,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
   InputGroup,
@@ -216,6 +227,8 @@ export interface ShareDialogLabels {
   stopPublishingBody: string;
   /** A locked built-in row's tooltip, from its reason. */
   lockedReason: (reason: string) => string;
+  /** The "Who can see this" section's heading, with the head count once it is known. */
+  audienceHeading: (count?: number) => string;
 }
 
 const defaultLabels: ShareDialogLabels = {
@@ -268,6 +281,10 @@ const defaultLabels: ShareDialogLabels = {
   stopPublishingBody:
     "The public link stops working at once. People with access can still open it.",
   lockedReason: (reason) => `Set by role: ${reason}`,
+  audienceHeading: (count) =>
+    count === undefined
+      ? "Who can see this"
+      : `Who can see this · ${count.toLocaleString()} ${count === 1 ? "person" : "people"}`,
 };
 
 /** Props for `ShareDialog`. */
@@ -343,6 +360,29 @@ export interface ShareDialogProps {
   onPublicLinkExpiresChange?: (expires: ShareLinkExpiry) => void;
   /** Turns the public link off. @default undefined */
   onStopPublicLink?: () => void | Promise<void>;
+  /**
+   * Asked before the Publish switch turns the link on — confirm what it will expose ("Publish 13
+   * pages?") and resolve `false` to leave it off. Without it, the switch publishes at once.
+   * @default undefined
+   */
+  onPublishRequest?: () => boolean | Promise<boolean>;
+  /**
+   * What the public link exposes, under the Publish switch — "Anyone with the link can view this
+   * page and 12 pages inside, without signing in." Replaces `labels.publicHint` (on) and
+   * `labels.publishHintOff` (off) for a viewer who can publish, and wraps rather than truncates.
+   * @default undefined
+   */
+  publishExposure?: React.ReactNode;
+  /**
+   * "Who can see this": a collapsible section at the end of the Share tab, closed at first —
+   * load its rows in `onAudienceOpenChange`. Its heading is `labels.audienceHeading(audienceCount)`.
+   * @default undefined
+   */
+  audience?: React.ReactNode;
+  /** The head count in the "Who can see this" heading, once known. @default undefined */
+  audienceCount?: number;
+  /** Called when "Who can see this" opens or closes — load its rows on first open. @default undefined */
+  onAudienceOpenChange?: (open: boolean) => void;
   /** A public-link change is in flight; its controls wait. @default false */
   publicLinkPending?: boolean;
   /** The item's own link, for Copy link in the footer. Omit to hide Copy link. @default undefined */
@@ -454,6 +494,11 @@ export function ShareDialog({
   onResetPublicLink,
   onPublicLinkExpiresChange,
   onStopPublicLink,
+  onPublishRequest,
+  publishExposure,
+  audience,
+  audienceCount,
+  onAudienceOpenChange,
   publicLinkPending = false,
   linkUrl,
   footerNote,
@@ -818,6 +863,37 @@ export function ShareDialog({
       </p>
     ) : null;
 
+  // "Who can see this": closed at first, its rows the host's (loaded when it opens).
+  const audienceSection =
+    audience !== undefined ? (
+      <Collapsible
+        data-slot="share-audience"
+        onOpenChange={(open) => onAudienceOpenChange?.(open)}
+        className="flex flex-col gap-2"
+      >
+        <CollapsibleTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-mx-2 w-[calc(100%+var(--spacing)*4)] justify-between px-2 text-xs font-medium text-muted-foreground hover:text-foreground aria-expanded:text-foreground [&[data-panel-open]>svg]:rotate-180"
+            />
+          }
+        >
+          <span className="min-w-0 truncate">
+            {labels.audienceHeading(audienceCount)}
+          </span>
+          <ChevronDown
+            aria-hidden
+            className="transition-transform duration-150"
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent data-slot="share-audience-content">
+          {audience}
+        </CollapsibleContent>
+      </Collapsible>
+    ) : null;
+
   const shareBody = (
     <div data-slot="share-dialog-body" className="flex flex-col gap-4 pb-1">
       {inviteRow}
@@ -827,6 +903,7 @@ export function ShareDialog({
         <>
           {peopleSection}
           {generalSection}
+          {audienceSection}
           {publishedNotice}
           {footerNote ? (
             <p className="text-xs text-muted-foreground">{footerNote}</p>
@@ -851,13 +928,22 @@ export function ShareDialog({
             </span>
             {hints.publish}
           </span>
-          <span className="truncate text-xs text-muted-foreground">
-            {publicLink
-              ? labels.publicHint
-              : canPublish
-                ? labels.publishHintOff
-                : labels.notPublished}
-          </span>
+          {publishExposure !== undefined && (publicLink || canPublish) ? (
+            <span
+              data-slot="share-publish-exposure"
+              className="text-xs text-pretty text-muted-foreground"
+            >
+              {publishExposure}
+            </span>
+          ) : (
+            <span className="truncate text-xs text-muted-foreground">
+              {publicLink
+                ? labels.publicHint
+                : canPublish
+                  ? labels.publishHintOff
+                  : labels.notPublished}
+            </span>
+          )}
         </div>
         {canPublish ? (
           <Switch
@@ -865,8 +951,15 @@ export function ShareDialog({
             checked={publicLink !== null}
             disabled={publicLinkPending}
             onCheckedChange={(checked) => {
-              if (checked) void onCreatePublicLink?.();
-              else setConfirmStop(true);
+              if (!checked) {
+                setConfirmStop(true);
+                return;
+              }
+              // The host may confirm first (what the link exposes); a `false` leaves it off.
+              void (async () => {
+                if (onPublishRequest && !(await onPublishRequest())) return;
+                await onCreatePublicLink?.();
+              })();
             }}
           />
         ) : null}

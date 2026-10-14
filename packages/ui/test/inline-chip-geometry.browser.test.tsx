@@ -38,7 +38,7 @@ async function mountAll() {
   const screen = await render(
     <InlineChipProvider value={{ person: (id) => people[id] ?? null }}>
       <div style={{ width: 1200 }}>
-        <MarkdownView headingScale="document">{markdown}</MarkdownView>
+        <MarkdownView typeScale="document">{markdown}</MarkdownView>
         <p className="text-xs">
           Small <InlineChip kind="user" targetId="photo" label="Asha Rao" />{" "}
           <InlineChip kind="user" targetId="initials" label="Mahesh Anand" />

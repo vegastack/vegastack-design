@@ -150,3 +150,56 @@ export type ProseElement = keyof typeof prose;
  * string that never changes.
  */
 export const proseClassName: string = Object.values(prose).join(" ");
+
+/**
+ * THE document type scale — `typeScale="document"` on `MarkdownView` and `TextEdit` (TYP-20, MK
+ * 2026-10-14, Regent Pages v2 Round 2). A page read as a document: calm 14/24 body text on a fine
+ * pointer, 16/26 on a coarse pointer or a narrow window (the same 16px INT-13 already gives a
+ * touch editor, so reading and editing never jump and iOS never zooms), a 12px paragraph gap,
+ * and headings H1 24 · H2 20 · H3 16 with more room above than below. On 16px body text H3 steps
+ * up to 18 and H4 to 16, so a heading never sits at the body's own size.
+ *
+ * It is an OVERLAY on `prose`, never a replacement: compose it after the base recipe through
+ * `cn` (tailwind-merge resolves each `[&_h1]:text-lg` against its `[&_h1]:text-2xl/8`), or use
+ * `proseDocumentClassName`, which is that composition done once.
+ *
+ * The measure (about 67 characters a line) is the layout's, not the recipe's: `DocumentLayout`
+ * caps its text column at `--document-measure` (47ch), in the same font size this recipe sets.
+ *
+ * @example
+ * <div className={cn(proseClassName, proseDocument.root, proseDocument.h1)} />
+ */
+export const proseDocument = {
+  /** Body: 14/24 on a fine pointer, 16/26 on a coarse pointer or below the `sm` width. */
+  root: "text-sm/6 pointer-coarse:text-base/6.5 max-sm:text-base/6.5",
+  // Headings: semibold (the base recipe's weight), more room above than below. The first block
+  // keeps `first:mt-0` from the base recipe. `scroll-mt-18` clears a 56px sticky header + 16.
+  h1: "[&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:scroll-mt-18 [&_h1]:text-2xl/8",
+  h2: "[&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:scroll-mt-18 [&_h2]:text-xl/7",
+  h3: "[&_h3]:mt-6 [&_h3]:mb-1.5 [&_h3]:scroll-mt-18 [&_h3]:text-base/6 pointer-coarse:[&_h3]:text-lg/7 max-sm:[&_h3]:text-lg/7",
+  h4: "[&_h4]:mt-5 [&_h4]:mb-1 [&_h4]:scroll-mt-18 [&_h4]:text-sm/6 [&_h4]:font-semibold pointer-coarse:[&_h4]:text-base/6.5 max-sm:[&_h4]:text-base/6.5",
+  // A 12px gap between paragraphs; none before the first or after the last.
+  p: "[&_p]:my-3",
+  // Lists indent 24, items 4 apart, a nested list 4 below its item's text.
+  ul: "[&_ul]:my-3 [&_ul]:ms-6",
+  ol: "[&_ol]:my-3 [&_ol]:ms-6",
+  li: "[&_li_ul]:mt-1 [&_li_ul]:mb-0 [&_li_ol]:mt-1 [&_li_ol]:mb-0",
+  // A quote is a rule and an indent, never italic; blocks breathe 16 apart.
+  blockquote: "[&_blockquote]:my-4 [&_blockquote]:ps-4",
+  // No orange in documents: inline code is a grey chip in the body's own ink.
+  code: "[&_code]:text-foreground",
+  pre: "[&_pre:not([data-slot='code-block-pre'])]:my-4",
+  hr: "[&_hr]:my-6",
+  img: "[&_img]:my-4",
+  // Tables read at 14/20 at every pointer, 16 from the blocks around them (the scroll box is the
+  // consumer's: `MarkdownView`'s `markdown-table`, the editor's `.tableWrapper`).
+  table:
+    "[&_th]:text-sm/5 [&_td]:text-sm/5 [&_[data-slot=markdown-table]]:my-4 [&_.tableWrapper]:my-4",
+  // Callouts, toggles, code blocks and media sit 16 from their neighbours; a toggle's summary is
+  // a 24px row, 44px on a coarse pointer.
+  blocks:
+    "[&_[data-slot=callout]]:my-4 [&_[data-slot=code-block]]:my-4 [&_details]:my-4 [&_video]:my-4 [&_audio]:my-4 [&_summary]:min-h-6 pointer-coarse:[&_summary]:min-h-11",
+} as const;
+
+/** The element roles the document overlay covers. */
+export type ProseDocumentElement = keyof typeof proseDocument;

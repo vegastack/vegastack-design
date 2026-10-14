@@ -1,0 +1,170 @@
+---
+title: Document Layout
+description: A page read as a document — title, text at a reading measure, contents and a comment margin — on one grid with four tiers by its own width.
+audience: public
+registry: document-layout
+status: stable
+since: 0.25.35
+a11y: two labelled complementary landmarks, status skeleton
+preview: documentLayout
+---
+
+## Install
+
+<InstallSteps name="document-layout" />
+
+## Usage
+
+```tsx
+import {
+  DocumentLayout,
+  DocumentLayoutBody,
+  DocumentLayoutContents,
+  DocumentLayoutContentsList,
+  DocumentLayoutContentsRail,
+  DocumentLayoutFoot,
+  DocumentLayoutHeader,
+  DocumentLayoutMargin,
+} from "@/components/ui/document-layout";
+
+<DocumentLayout contents={outline.length > 1} margin={canComment}>
+  <DocumentLayoutHeader>
+    <h1 className="text-4xl font-semibold">Pricing v2</h1>
+    <p className="text-sm text-muted-foreground">Updated 3m ago</p>
+  </DocumentLayoutHeader>
+  <DocumentLayoutContents>
+    <DocumentLayoutContentsRail>{rail}</DocumentLayoutContentsRail>
+    <DocumentLayoutContentsList>{list}</DocumentLayoutContentsList>
+  </DocumentLayoutContents>
+  <DocumentLayoutBody>
+    <MarkdownView typeScale="document">{markdown}</MarkdownView>
+  </DocumentLayoutBody>
+  <DocumentLayoutFoot>{pagesInside}</DocumentLayoutFoot>
+  <DocumentLayoutMargin>{threads}</DocumentLayoutMargin>
+</DocumentLayout>;
+```
+
+`DocumentLayout` is the frame of a page people read and write as a document — a wiki page, a
+spec, its public view and a version's full view all wear the same one. The text sits at a calm
+reading measure, `--document-measure` (47ch: about 67 characters a line of Geist at the document
+type scale), with the title area above it and what follows it — sub-pages, the page's own
+comments — below, in the same column. Beside it, when there is room, a contents column and a
+comment margin.
+
+The layout follows its **own width**, not the window's (container queries in rem), so a collapsed
+sidebar or a split view lands in the right tier:
+
+| Tier | Width    | Columns                               | Comments                    |
+| ---- | -------- | ------------------------------------- | --------------------------- |
+| S    | < 36rem  | text, full width                      | the host's sheet or popover |
+| M    | 36–52rem | contents rail (24px) · text           | a popover at the highlight  |
+| L    | 52–64rem | contents rail · text · margin (18rem) | the margin                  |
+| XL   | ≥ 64rem  | contents list (13rem) · text · margin | the margin                  |
+
+It is one subtree at every width: a column with no room is `display: none`, never unmounted, so
+an editor inside never remounts when the window resizes. `margin` reserves the comment column from
+L up whenever the reader can comment or threads exist, so a first comment never shifts the text.
+`contents` turns the contents column on (two headings or more). Put the parts in reading order —
+header, contents, body, foot, margin. Server-safe: the tiers are CSS.
+
+<ComponentPreview
+  name="documentLayout"
+  file="components/preview/document-layout.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="document-layout" />
+
+## Examples
+
+### Wide
+
+`measure="wide"` lets the text grow into the room the window has, up to 60rem — each reader's
+choice, never the document's. The margin keeps its place where it fits.
+
+<ComponentPreview
+  name="documentLayoutWide"
+  file="components/preview/document-layout.tsx"
+/>
+
+### Skeleton
+
+`DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — a title bar, a
+meta bar and paragraphs of text bars at the document line pitch (a 14px bar every 24px, 16 every
+26 on a coarse pointer), 12px between paragraphs — so nothing moves when the page arrives. Pass it
+the `margin`, `contents` and `measure` the page will have. It is one `status` region, named by
+`label`.
+
+<ComponentPreview
+  name="documentLayoutSkeleton"
+  file="components/preview/document-layout.tsx"
+/>
+
+### The tier in script
+
+Branches CSS cannot take — comments in the margin or in a popover, the contents in a list or a
+sheet — read the tier with `useDocumentLayoutTier(ref)`. It reads `--document-layout-tier`, which
+the container queries set, so script and stylesheet never disagree about where a tier starts.
+`fallback` (default `"xl"`) is the answer on the server and before the first measurement.
+
+```tsx
+import { useDocumentLayoutTier } from "@/components/ui/document-layout";
+
+const ref = React.useRef<HTMLDivElement>(null);
+const tier = useDocumentLayoutTier(ref);
+
+<DocumentLayout ref={ref} margin>
+  …
+  {tier === "l" || tier === "xl" ? (
+    <DocumentLayoutMargin>{threads}</DocumentLayoutMargin>
+  ) : null}
+</DocumentLayout>;
+```
+
+### Print
+
+A document prints as one column of its header, body and foot — the contents and the comment margin
+drop out — on a named page with a 16mm × 14mm paper margin, in the light palette whatever the
+reader's theme. With `typeScale="document"`, `MarkdownView` and `TextEdit` add the text's own
+print rules: code wraps, tables print in full, highlights and controls drop out, and an external
+link prints its address.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout.tsx"
+  name="DocumentLayoutProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout.tsx"
+  name="DocumentLayoutSkeletonProps"
+/>
+
+`DocumentLayoutHeader`, `DocumentLayoutBody`, `DocumentLayoutFoot`, `DocumentLayoutContentsRail`
+and `DocumentLayoutContentsList` take a `div`'s native props; `DocumentLayoutContents` and
+`DocumentLayoutMargin` take an `aside`'s. The sticky contents column sits
+`--document-layout-sticky-top` (default `--spacing(8)`) below the top of the scroll container.
+
+## Accessibility
+
+- The contents and the margin are two `aside` landmarks, named "Contents" and "Comments" (override
+  with `aria-label`). Below their tier they are `display: none`, so they leave the accessibility
+  tree with the screen.
+- Source order is reading order: the title area, the contents, the text, what follows it, then
+  the comments — whatever the columns look like.
+- The skeleton is one `status` region named "Loading page" with `aria-busy`; its bars are hidden.
+
+| Key            | Action                                                       |
+| -------------- | ------------------------------------------------------------ |
+| <kbd>Tab</kbd> | Move through the contents, the text's links, then the margin |
+
+<StatesTested name="document-layout" />
+
+## Do / Don't
+
+<DoDont
+  do="Set margin whenever the reader can comment, so the text never moves when the first comment lands, and render the skeleton with the same margin, contents and measure as the page."
+  dont="Give the text column its own max-width or padding — the measure and the tiers are the layout's, and a second width fights the container queries."
+/>

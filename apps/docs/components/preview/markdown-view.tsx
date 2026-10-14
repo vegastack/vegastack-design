@@ -1,7 +1,9 @@
 "use client";
 
+import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+import { Input } from "@/components/ui/input";
 // Copied INTO apps/docs via `shadcn add @vegastack/markdown-view` (dogfoods the registry) → auto-scanned.
 import { MarkdownView } from "@/components/ui/markdown-view";
 
@@ -250,6 +252,110 @@ export function markdownViewCitations(): ReactNode {
       >
         {CITED}
       </MarkdownView>
+    </Wrapper>
+  );
+}
+
+const DOCUMENT = `# Pricing
+
+Pricing for the annual plan is set per seat and billed once a year. Teams that grow during the term add seats at the same rate, prorated to the renewal date.
+
+## Seats
+
+A team that shrinks keeps its seats until the term ends. Discounts apply from twenty seats, and every plan includes the same \`support\`, storage and security review.
+
+### Renewal
+
+- Annual plans renew on the same date each year
+- Monthly plans can move to annual at any time
+
+| Plan | Seats | Price |
+| --- | --- | --- |
+| Starter | 1–19 | $12 a seat |
+| Team | 20–99 | $10 a seat |
+`;
+
+/**
+ * The document type scale (`typeScale="document"`): 14/24 text at the reading rhythm — 12px
+ * between paragraphs, `#` 24 · `##` 20 · `###` 16 — the scale a page reads at, against the app's
+ * compact one in a comment.
+ */
+export function markdownViewDocument(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto max-w-[47ch]">
+        <MarkdownView typeScale="document">{DOCUMENT}</MarkdownView>
+      </div>
+    </Wrapper>
+  );
+}
+
+const READ = `# Pricing review
+
+Check the annual price before renewal, and confirm the seat count with finance.
+
+## Annual plan
+
+The annual price is set per seat. A team that shrinks keeps its seats until the term ends.
+
+<details><summary>Earlier prices</summary>
+
+The 2025 price was $14 a seat.
+
+</details>
+
+## Limits
+
+Seats are capped at 500 per workspace.`;
+
+/**
+ * Read mode: comment highlights (one active, with count pills), heading copy links, a toggle each
+ * reader opens for themself, and find — the matches highlighted without touching the DOM, with a
+ * match bar. No editor is loaded.
+ */
+export function markdownViewReadMode(): ReactNode {
+  const [active, setActive] = React.useState<string | null>("t1");
+  const [query, setQuery] = React.useState("price");
+  const [open, setOpen] = React.useState<Set<string>>(new Set());
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto flex max-w-[47ch] flex-col gap-4">
+        <Input
+          aria-label="Find in page"
+          placeholder="Find in page"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <MarkdownView
+          typeScale="document"
+          annotations={[
+            {
+              id: "t1",
+              anchor: { quote: "annual price", prefix: "Check the " },
+              count: 3,
+            },
+            { id: "t2", anchor: { quote: "seat count" } },
+          ]}
+          activeAnnotationId={active}
+          onAnnotationClick={setActive}
+          annotationCounts="always"
+          headingLinkHref={(anchor) => `#${anchor.slug}`}
+          toggleState={{
+            isOpen: (id, fallback) => open.has(id) || fallback,
+            onToggle: (id, next) =>
+              setOpen((current) => {
+                const copy = new Set(current);
+                if (next) copy.add(id);
+                else copy.delete(id);
+                return copy;
+              }),
+          }}
+          findQuery={query}
+          onFindClose={() => setQuery("")}
+        >
+          {READ}
+        </MarkdownView>
+      </div>
     </Wrapper>
   );
 }

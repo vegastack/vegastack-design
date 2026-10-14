@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "743c1e4a6ab71eb1acd6266270adb8cadbed4d30cd438a959dbd93850fd8a37a",
+  "contractSha256": "fcc90f88a621520807bd173a24d5d152753bdcc7e58b3b69c74bebef078f20f0",
   "expectedCounts": {
-    "totalRegistryItems": 744,
-    "components": 160,
+    "totalRegistryItems": 745,
+    "components": 161,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -815,6 +815,7 @@
       "family": "data-display",
       "sourceFiles": [
         "packages/ui/registry/ui/markdown-citation.tsx",
+        "packages/ui/registry/ui/markdown-view-client.tsx",
         "packages/ui/registry/ui/markdown-view.tsx"
       ],
       "docsSlug": "/docs/components/markdown-view",
@@ -1536,6 +1537,18 @@
         "packages/ui/registry/ui/record-layout.tsx"
       ],
       "docsSlug": "/docs/components/record-layout",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "document-layout",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/document-layout.tsx",
+        "packages/ui/registry/ui/use-document-layout-tier.ts"
+      ],
+      "docsSlug": "/docs/components/document-layout",
       "contractStatus": "reconciled"
     },
     {

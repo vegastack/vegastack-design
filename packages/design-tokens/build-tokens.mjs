@@ -127,11 +127,33 @@ function themePart(file, selector, colorScheme) {
 // popover trigger, an expanded collapsible, a menubar trigger, every `aria-expanded` control in
 // dark mode. The `:where()` form also matches the `.dark` ELEMENT itself, which upstream's does
 // not; nothing here puts a `dark:` utility on `<html>`, which is the only element that loses.
+// Print is paper: a page printed from dark mode prints in the LIGHT palette. Browsers drop
+// backgrounds when printing but keep text colours, so dark-mode ink (near-white) would land on
+// white paper. The block restates the light values under `.dark` inside `@media print`, generated
+// from the same `:root` block, so it can never drift from it; it is indented, so the shape gate
+// (`verify-theme-parity`, which reads top-level blocks) still sees exactly one of each scope.
+function printLight(rootCss) {
+  const open = rootCss.indexOf(":root {");
+  const body = rootCss.slice(
+    rootCss.indexOf("{", open) + 1,
+    rootCss.lastIndexOf("}"),
+  );
+  const declarations = body
+    .split("\n")
+    .filter((line) => /^\s*(color-scheme|--[a-z0-9-]+)\s*:/.test(line))
+    .map(
+      (line) => `    ${line.trim().replace(/\s*\/\*\*[\s\S]*?\*\/\s*$/, "")}`,
+    )
+    .join("\n");
+  return `@media print {\n  .dark {\n${declarations}\n  }\n}\n`;
+}
+const rootPart = themePart("_root.css", ":root", "light");
 const themeCss =
   `@custom-variant dark (&:is(.dark *));\n\n` +
   [
-    themePart("_root.css", ":root", "light"),
+    rootPart,
     themePart("_dark.css", ".dark", "dark"),
+    printLight(rootPart),
     compactOklch(readFileSync("dist/_inline.css", "utf8")),
   ].join("\n");
 verifyThemeParity(themeCss, { source: "generated dist/theme.css" });

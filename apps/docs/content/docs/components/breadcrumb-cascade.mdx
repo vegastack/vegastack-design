@@ -103,6 +103,23 @@ unbroken record name never overflows the header. Pass
 />
 ```
 
+### Compact trail
+
+In a narrow header — a phone, a split view — `compact` shortens the trail to `‹` and the parent
+step's name: one button that opens a menu of the whole path, each level stepping in, the current
+step marked with a check and `aria-current`. `compact="auto"` switches by the trail's container:
+compact under 40rem, the full trail above. The menu's entries are plain links (`linkRender`);
+`renderStep`, `renderCurrent` and drop targets belong to the full trail.
+
+<ComponentPreview
+  name="breadcrumbTrailCompact"
+  file="components/preview/breadcrumb-cascade.tsx"
+/>
+
+```tsx
+<BreadcrumbTrail compact="auto" linkRender={<Link />} steps={steps} />
+```
+
 ## API Reference
 
 <ApiTable
@@ -141,6 +158,9 @@ unbroken record name never overflows the header. Pass
   `DropdownMenu`: focus moves into it, the current segment carries `aria-current="page"` and a
   check, and <kbd>Esc</kbd> closes it with focus back on the trigger. While `loading` the menu is
   `aria-busy` and its one entry says "Loading…".
+- The compact trail's button is named by the parent step and "show path" ("Specs, show path"), so
+  what a voice user says matches what they see; its menu marks the current step with
+  `aria-current="page"`.
 - A drop target is pointer only, like every drag in the system: the keyboard path for a move is the
   host's "Move…" action (a `MoveDialog` or a `FolderTree` picker).
 

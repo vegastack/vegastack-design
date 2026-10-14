@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { beforeAll, expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { beforeAll, expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { proseClassName } from "@vegastack/design";
 import { MarkdownView, markdownExtrasClassName } from "./markdown-view";
@@ -136,6 +137,9 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
       "[&_.tableWrapper]:my-2",
       "[&_.tableWrapper]:w-full",
       "[&_.tableWrapper]:overflow-x-auto",
+      "[&_.tableWrapper]:[--scroll-fade-size:--spacing(6)]",
+      "[&_.tableWrapper]:[--scroll-fade-reveal:--spacing(6)]",
+      "supports-[animation-timeline:scroll()]:[&_.tableWrapper]:scroll-fade-x",
       "[&_.selectedCell]:bg-accent",
       "[&_td]:relative",
       "[&_th]:relative",
@@ -500,19 +504,40 @@ test("headingIds gives every heading a stable id, a repeat suffixed", async () =
   );
 });
 
-test("headingScale=\"document\" gives a page's headings a document scale; compact keeps the app's", async () => {
+test('typeScale="document" lays the document scale over the prose recipe; compact keeps the app\'s', async () => {
   const screen = await render(
     <>
-      <MarkdownView headingScale="document">{"## Scope"}</MarkdownView>
+      <MarkdownView typeScale="document">{"## Scope"}</MarkdownView>
       <MarkdownView>{"## Notes"}</MarkdownView>
     </>,
   );
   const [doc, compact] = screen.container.querySelectorAll<HTMLElement>(
     '[data-slot="markdown-view"]',
   );
-  expect(doc!.className).toContain("[&_h2]:text-2xl");
-  expect(doc!.className).not.toContain("[&_h2]:text-base");
-  expect(compact!.className).toContain("[&_h2]:text-base");
+  const docClasses = classes(doc!);
+  // TYP-20: 14/24 body (16/26 on a coarse pointer or a narrow window), 24 · 20 · 16 headings,
+  // 12px paragraphs, inline code in the body ink — each one replacing the base value.
+  for (const name of [
+    "text-sm/6",
+    "pointer-coarse:text-base/6.5",
+    "max-sm:text-base/6.5",
+    "[&_h1]:text-2xl/8",
+    "[&_h2]:text-xl/7",
+    "[&_h3]:text-base/6",
+    "[&_p]:my-3",
+    "[&_code]:text-foreground",
+  ])
+    expect(docClasses.has(name), name).toBe(true);
+  for (const name of [
+    "text-sm",
+    "[&_h2]:text-base",
+    "[&_p]:my-2",
+    "[&_code]:text-tag-orange-text",
+  ])
+    expect(docClasses.has(name), name).toBe(false);
+  expect(doc!.dataset.typeScale).toBe("document");
+  expect(classes(compact!).has("[&_h2]:text-base")).toBe(true);
+  expect(classes(compact!).has("[&_p]:my-2")).toBe(true);
 });
 
 test("citation turns [[n]] into a named marker; without it, and in code, the text stays", async () => {
@@ -576,4 +601,324 @@ test("video, audio, wrapped code, open toggles and alert callouts", async () => 
   const callout = root.querySelector('[data-slot="callout"]')!;
   expect(callout.getAttribute("data-tone")).toBe("caution");
   expect(callout.getAttribute("role")).toBe("note");
+});
+
+/* --- read mode: highlights, anchors, outline, toggles, find, tables (Pages v2 B.1) -------------*/
+
+const anchorOf = (quote: string, prefix = "", suffix = "") => ({
+  quote,
+  prefix,
+  suffix,
+});
+
+test("annotations highlight the quoted words — across marks, as one tab stop — and open on click, Enter and the pill", async () => {
+  const opened: string[] = [];
+  const screen = await render(
+    <MarkdownView
+      annotations={[
+        { id: "t1", anchor: anchorOf("annual price"), count: 3 },
+        { id: "t2", anchor: anchorOf("nowhere to be found") },
+      ]}
+      activeAnnotationId="t1"
+      annotationCounts="always"
+      onAnnotationClick={(id) => opened.push(id)}
+    >
+      {"Check the annual **price** before renewal.\n\nAnother paragraph."}
+    </MarkdownView>,
+  );
+  const segments = screen.container.querySelectorAll<HTMLElement>(
+    '[data-annotation="t1"]',
+  );
+  // "annual " and "price" (inside <strong>) are two segments of one highlight.
+  expect([...segments].map((s) => s.textContent)).toEqual(["annual ", "price"]);
+  expect(segments[1]!.closest("strong")).not.toBeNull();
+  // The unresolvable anchor draws nothing.
+  expect(screen.container.querySelector('[data-annotation="t2"]')).toBeNull();
+  const button = screen.getByRole("button", {
+    name: "3 comments on “annual price”",
+  });
+  await expect.element(button).toHaveAttribute("tabindex", "0");
+  expect(segments[0]!.hasAttribute("data-active")).toBe(true);
+  expect(segments[1]!.getAttribute("aria-hidden")).toBe("true");
+  await button.click();
+  (button.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  const pill = screen.container.querySelector<HTMLElement>(
+    '[data-annotation-count="t1"]',
+  )!;
+  expect(pill.textContent).toContain("3");
+  expect(pill.querySelector(".sr-only")?.textContent).toBe("3 comments");
+  pill.click();
+  expect(opened).toEqual(["t1", "t1", "t1"]);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("an annotation quoted twice with no context to tell them apart draws nothing; context picks one", async () => {
+  const screen = await render(
+    <MarkdownView
+      annotations={[
+        { id: "tie", anchor: anchorOf("price") },
+        { id: "second", anchor: anchorOf("price", "the second ") },
+      ]}
+    >
+      {"The first price.\n\nThe second price."}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector('[data-annotation="tie"]')).toBeNull();
+  const second = screen.container.querySelector('[data-annotation="second"]');
+  expect(second?.closest("p")?.textContent).toBe("The second price.");
+  // No click handler: plain highlights, never buttons.
+  expect(second?.getAttribute("role")).toBeNull();
+});
+
+test("headingAnchors give headings their slug and block id; headingLinkHref adds a copy-link button", async () => {
+  const screen = await render(
+    <MarkdownView
+      headingAnchors={[
+        { id: "a1b2c3d4", slug: "intro" },
+        { id: "stale999", slug: "old-title" },
+      ]}
+      headingLinkHref={(anchor) => `#${anchor.slug}~${anchor.id ?? ""}`}
+    >
+      {"# Intro\n\nText\n\n## Pricing"}
+    </MarkdownView>,
+  );
+  const intro = screen.container.querySelector("h1")!;
+  expect(intro.id).toBe("intro");
+  expect(intro.dataset.anchorId).toBe("a1b2c3d4");
+  // A stale entry (the heading was renamed) keeps the heading's own id and no block id.
+  const pricing = screen.container.querySelector("h2")!;
+  expect(pricing.id).toBe("pricing");
+  expect(pricing.dataset.anchorId).toBeUndefined();
+  await expect
+    .element(screen.getByRole("button", { name: "Copy link to “Intro”" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("onOutlineChange reports the headings from the Markdown, with their block ids", async () => {
+  const onOutlineChange = vi.fn();
+  await render(
+    <MarkdownView
+      onOutlineChange={onOutlineChange}
+      headingAnchors={[{ id: "h1id", slug: "setup" }]}
+    >
+      {"# Setup\n\n##### Deep\n\n## Wiring @[x]\n\n### Setup"}
+    </MarkdownView>,
+  );
+  await vi.waitFor(() =>
+    expect(onOutlineChange).toHaveBeenLastCalledWith([
+      { id: "setup", level: 1, text: "Setup", anchorId: "h1id" },
+      { id: "wiring-x", level: 2, text: "Wiring @[x]" },
+      { id: "setup-1", level: 3, text: "Setup" },
+    ]),
+  );
+  expect(onOutlineChange).toHaveBeenCalledTimes(1);
+});
+
+test("toggleState: each reader's own open toggles, by block id", async () => {
+  const toggled: [string, boolean][] = [];
+  const open = new Set(["second"]);
+  const screen = await render(
+    <MarkdownView
+      toggleState={{
+        isOpen: (id, fallback) => open.has(id) || fallback,
+        onToggle: (id, next) => toggled.push([id, next]),
+        ids: ["first", "second"],
+      }}
+    >
+      {
+        "<details><summary>One</summary>\n\nBody one\n\n</details>\n\n<details><summary>Two</summary>\n\nBody two\n\n</details>"
+      }
+    </MarkdownView>,
+  );
+  const [first, second] =
+    screen.container.querySelectorAll<HTMLDetailsElement>("details");
+  expect(first!.open).toBe(false);
+  expect(second!.open).toBe(true);
+  expect(first!.dataset.toggleId).toBe("first");
+  first!.querySelector("summary")!.click();
+  await vi.waitFor(() => expect(toggled).toEqual([["first", true]]));
+});
+
+test("findQuery highlights every match without touching the DOM, and the bar steps and closes", async () => {
+  const onFindClose = vi.fn();
+  const screen = await render(
+    <MarkdownView findQuery="price" onFindClose={onFindClose}>
+      {"The **price** is set.\n\nA second Price here."}
+    </MarkdownView>,
+  );
+  const bar = screen.getByRole("search", { name: "Find in page" });
+  const count = bar.element().querySelector("[data-slot=markdown-find-count]");
+  await vi.waitFor(() => expect(count?.textContent).toBe("1 of 2"));
+  const registry = (
+    CSS as unknown as { highlights?: Map<string, { size: number }> }
+  ).highlights;
+  if (registry) expect(registry.get("vs-find")?.size).toBe(2);
+  // The text is unchanged: no marks were inserted.
+  expect(screen.container.querySelector("mark")).toBeNull();
+  await bar.getByRole("button", { name: "Next match" }).click();
+  await vi.waitFor(() => expect(count?.textContent).toBe("2 of 2"));
+  await bar.getByRole("button", { name: "Close find" }).click();
+  expect(onFindClose).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a table that scrolls is a named, focusable region that fades at its far edge; one that fits is neither", async () => {
+  const wide = `| ${Array.from({ length: 14 }, (_, i) => `Column ${i}`).join(" | ")} |\n|${" --- |".repeat(14)}\n| ${Array.from({ length: 14 }, () => "a long cell value").join(" | ")} |`;
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <MarkdownView>{wide}</MarkdownView>
+      <MarkdownView>{"| A | B |\n| --- | --- |\n| 1 | 2 |"}</MarkdownView>
+    </div>,
+  );
+  const [scrolling, fitting] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="markdown-table"]',
+  );
+  await vi.waitFor(() => {
+    expect(scrolling!.getAttribute("role")).toBe("region");
+    expect(scrolling!.hasAttribute("data-scroll-end")).toBe(true);
+  });
+  expect(scrolling!.getAttribute("aria-label")).toBe("Table, scrolls sideways");
+  expect(scrolling!.tabIndex).toBe(0);
+  expect(scrolling!.hasAttribute("data-scroll-start")).toBe(false);
+  // This suite compiles no Tailwind: give the box the scrolling its class gives it in an app.
+  scrolling!.style.overflowX = "auto";
+  scrolling!.scrollLeft = 80;
+  await vi.waitFor(() =>
+    expect(scrolling!.hasAttribute("data-scroll-start")).toBe(true),
+  );
+  expect(fitting!.getAttribute("role")).toBeNull();
+  expect(fitting!.hasAttribute("tabindex")).toBe(false);
+  expect(fitting!.hasAttribute("data-scroll-end")).toBe(false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("onAnnotationsLayout reports where each highlight sits, null for one that drew nothing", async () => {
+  const onAnnotationsLayout = vi.fn();
+  await render(
+    <MarkdownView
+      onAnnotationsLayout={onAnnotationsLayout}
+      annotations={[
+        { id: "a", anchor: anchorOf("second") },
+        { id: "gone", anchor: anchorOf("absent words") },
+      ]}
+    >
+      {"First paragraph.\n\nThe second paragraph."}
+    </MarkdownView>,
+  );
+  await vi.waitFor(() => expect(onAnnotationsLayout).toHaveBeenCalled());
+  const [items] = onAnnotationsLayout.mock.calls.at(-1)!;
+  expect(items.map((item: { id: string }) => item.id)).toEqual(["a", "gone"]);
+  expect(items[0].top).toBeGreaterThan(0);
+  expect(items[1].top).toBeNull();
+});
+
+test("overlapping highlights: one tab stop per thread, none under aria-hidden, a click opens only its own thread", async () => {
+  const opened: string[] = [];
+  const screen = await render(
+    <MarkdownView
+      annotations={[
+        { id: "outer", anchor: anchorOf("the annual price before") },
+        { id: "inner", anchor: anchorOf("annual price") },
+        // Exactly the inner thread's words, listed later: it owns the segment, so the inner
+        // thread's pill becomes the inner thread's tab stop.
+        { id: "twin", anchor: anchorOf("annual price"), count: 2 },
+      ]}
+      onAnnotationClick={(id) => opened.push(id)}
+    >
+      {"Check the annual price before renewal."}
+    </MarkdownView>,
+  );
+  const root = screen.container;
+  // No highlight is nested in another.
+  expect(
+    root.querySelector(
+      "[data-slot=text-edit-annotation] [data-slot=text-edit-annotation]",
+    ),
+  ).toBeNull();
+  // Nothing focusable sits under aria-hidden.
+  expect(
+    root.querySelector(
+      "[aria-hidden=true] [tabindex], [aria-hidden=true][tabindex]",
+    ),
+  ).toBeNull();
+  const stops = [...root.querySelectorAll<HTMLElement>("[tabindex='0']")];
+  expect(stops.map((el) => el.getAttribute("aria-label"))).toEqual([
+    "Comment on “the annual price before”",
+    "2 comments on “annual price”",
+    "Comment on “annual price”",
+  ]);
+  const inner = root.querySelector<HTMLElement>(
+    "[data-annotation-focus][data-annotation=inner], [data-annotation-focus][data-annotation=twin]",
+  )!;
+  inner.click();
+  expect(opened).toHaveLength(1);
+  stops[2]!.focus();
+  await userEvent.keyboard("{Enter}");
+  expect(opened.at(-1)).toBe("inner");
+  await expectNoA11yViolations(root);
+});
+
+test("find: Enter on a bar button does what the button says; new text with the same query is searched again", async () => {
+  function View({ text }: { text: string }) {
+    return <MarkdownView findQuery="seat">{text}</MarkdownView>;
+  }
+  const screen = await render(
+    <View text={"One seat.\n\nTwo seats.\n\nThree seats."} />,
+  );
+  const bar = screen.getByRole("search", { name: "Find in page" });
+  const count = () =>
+    bar.element().querySelector("[data-slot=markdown-find-count]")?.textContent;
+  await vi.waitFor(() => expect(count()).toBe("1 of 3"));
+  await bar.getByRole("button", { name: "Next match" }).click();
+  await vi.waitFor(() => expect(count()).toBe("2 of 3"));
+  (
+    bar.getByRole("button", { name: "Previous match" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(count()).toBe("1 of 3"));
+  await screen.rerender(<View text={"One seat only."} />);
+  await vi.waitFor(() => expect(count()).toBe("1 of 1"));
+});
+
+test("find: each view keeps its own matches — closing one leaves the other's highlighted", async () => {
+  const registry = (
+    CSS as unknown as { highlights?: Map<string, { size: number }> }
+  ).highlights;
+  function Two({ second }: { second: boolean }) {
+    return (
+      <>
+        <MarkdownView findQuery="seat">{"A seat and a seat."}</MarkdownView>
+        <MarkdownView findQuery={second ? "seat" : undefined}>
+          {"One seat."}
+        </MarkdownView>
+      </>
+    );
+  }
+  const screen = await render(<Two second />);
+  if (!registry) return;
+  await vi.waitFor(() => expect(registry.get("vs-find")?.size).toBe(3));
+  await screen.rerender(<Two second={false} />);
+  await vi.waitFor(() => expect(registry.get("vs-find")?.size).toBe(2));
+});
+
+test("find folds case without misplacing matches when folding changes length", async () => {
+  const screen = await render(
+    <MarkdownView findQuery="x">{"İx and X"}</MarkdownView>,
+  );
+  const registry = (
+    CSS as unknown as {
+      highlights?: Map<string, Set<Range> & { size: number }>;
+    }
+  ).highlights;
+  const count = () =>
+    screen.container.ownerDocument.querySelector(
+      "[data-slot=markdown-find-count]",
+    )?.textContent;
+  await vi.waitFor(() => expect(count()).toBe("1 of 2"));
+  if (registry)
+    expect(
+      [...registry.get("vs-find")!].map((range) => range.toString()),
+    ).toEqual(["x", "X"]);
 });

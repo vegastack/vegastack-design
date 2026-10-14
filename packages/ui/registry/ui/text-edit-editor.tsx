@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.34 sha256-lRnzbNVVmWdXT8zaxnt5E4ttHpzAm/MoxagWU/I4Yxs=
+// @vegastack text-edit@0.25.34 sha256-0RDiNCr+RyM2KsWEt+DTknDEWGEOdxuMPM2SJmBuPJc=
 
 "use client";
 
@@ -188,6 +188,10 @@ import {
   CALLOUT_STYLE,
   MEDIA_AUDIO_CLASS,
   MEDIA_VIDEO_CLASS,
+  annotationActiveClassName,
+  annotationCountClassName,
+  annotationCountVisibilityClassName,
+  annotationHighlightClassName,
   calloutClassName,
   calloutContentClassName,
   markdownExtrasClassName,
@@ -1419,21 +1423,12 @@ const DEFAULT_ANNOTATION_OPTIONS: AnnotationOptions = {
   countLabel: defaultAnnotationCountLabel,
 };
 
-const ANNOTATION_CLASS =
-  "cursor-pointer rounded-xs underline decoration-warning-text/60 decoration-dashed underline-offset-4 transition-colors duration-150 hover:bg-warning/15";
-const ANNOTATION_ACTIVE_CLASS = "bg-warning/25 decoration-solid";
+// One look for a highlight and its pill in the editor and in `MarkdownView`'s read view.
+const ANNOTATION_CLASS = annotationHighlightClassName;
+const ANNOTATION_ACTIVE_CLASS = annotationActiveClassName;
 const ANNOTATION_PULSE_CLASS = "animate-pulse bg-warning/30";
-/**
- * The count pill: a 16px warning-tinted pill (the highlight's own hue) with a 24px invisible hit
- * area. `auto` shows it only on a coarse pointer or below the `lg` breakpoint, where a comment
- * margin has no room — CSS alone, no JS media branch.
- */
-const ANNOTATION_COUNT_CLASS =
-  "relative ms-0.5 h-4 min-w-4 select-none items-center justify-center rounded-full bg-warning/10 px-1 align-middle font-sans text-xs leading-none font-medium text-warning-text tabular-nums transition-colors duration-150 before:absolute before:-inset-1 before:content-[''] hover:bg-warning/20 data-active:bg-warning/30";
-const ANNOTATION_COUNT_VISIBILITY = {
-  auto: "hidden pointer-coarse:inline-flex max-lg:inline-flex",
-  always: "inline-flex",
-} as const;
+const ANNOTATION_COUNT_CLASS = annotationCountClassName;
+const ANNOTATION_COUNT_VISIBILITY = annotationCountVisibilityClassName;
 
 /** The count pill after a highlight: `contenteditable=false`, a button when there is a click handler. */
 function annotationCount(
