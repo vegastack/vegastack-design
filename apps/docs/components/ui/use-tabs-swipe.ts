@@ -1,4 +1,4 @@
-// @vegastack use-tabs-swipe@0.25.36 sha256-dR7Gdfxv3REuA7mrr9itteiQdGUQ3K7dA7Uwz+djIaU=
+// @vegastack use-tabs-swipe@0.25.37 sha256-hp9WlwOWm/anjJGRPBjKOZhj6OpjMcQLjbPMMSsozuk=
 
 "use client";
 
