@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.25.40 sha256-V+rDa2DOj9mb1Nh7nw6KcD5D7SrCuABsFcBjUH9Gu1U=
+// @vegastack chip-input@0.25.40 sha256-pdb18REuiRJkjBk18S9LIFKZONWUlbyydaWxe6QOEcI=
 
 "use client";
 
@@ -24,7 +24,11 @@ the real `Tag`, which already ships `onRemove` and a compliant 24px hit area.
 Validation model: entries are ADDED and marked, not silently dropped. A pasted list of
 20 addresses with 2 typos should show 20 chips with 2 flagged for fixing — a per-chip
 `data-invalid` (the one channel `Tag`/`Combobox` lack) — while duplicates are the only
-rejected class. Accepted/invalid/duplicate outcomes are announced politely.
+rejected class. Accepted/invalid/duplicate outcomes are announced politely, and every
+refusal (a duplicate, an entry past `max`) and every invalid entry also shows as one short
+line under the box until the next keystroke — a sighted user would otherwise see the typed
+text stay put with no reason. That line is a visual copy of the announcement, so it is
+`aria-hidden`; the live region stays the one spoken channel.
 
 Deliberately NOT done here:
 - No suggestion popup. An autocomplete-backed chip field is a Combobox composition, not
@@ -121,12 +125,14 @@ export interface ChipInputProps {
    * @default false
    */
   disabled?: boolean;
-  /** Extra classes for the field group root.
+  /** Extra classes for the root column (`data-slot="chip-input-root"`) that holds the box and
+   * its refusal line — where layout classes (`flex-1`, `col-span-*`, a min width) belong.
    * @default undefined
    */
   className?: string;
   /**
-   * Ref forwarded to the group root `<div>` (`data-slot="chip-input"`).
+   * Ref forwarded to the field box `<div>` (`data-slot="chip-input"`), which carries the
+   * `data-invalid` and `data-disabled` state.
 
    * @default undefined
    */
@@ -184,6 +190,11 @@ export function ChipInput({
   const isControlled = controlledValue !== undefined;
   const chips = isControlled ? controlledValue : internalValue;
   const [draft, setDraft] = React.useState("");
+  // The visible copy of the last refusal or invalid entry; cleared by the next keystroke.
+  const [notice, setNotice] = React.useState<{
+    text: string;
+    invalid: boolean;
+  } | null>(null);
   // One announcer, one policy, one live region — `use-announcer` owns the
   // sequence keying that makes an IDENTICAL consecutive announcement (a second
   // rejected duplicate) mutate the DOM and re-announce.
@@ -263,6 +274,13 @@ export function ChipInput({
         );
       if (overMax > 0 && max !== undefined) parts.push(maxLabel(max));
       if (parts.length > 0) setAnnouncement(parts.join(" · "));
+      // The visible line names only what didn't go as typed — never the plain "Added …".
+      const refusals = parts.slice(added > 0 ? 1 : 0);
+      setNotice(
+        refusals.length > 0
+          ? { text: refusals.join(" · "), invalid: invalid > 0 }
+          : null,
+      );
       // A refused entry at the cap stays in the input, so nothing typed is lost.
       return added > 0 || duplicates > 0;
     },
@@ -283,6 +301,7 @@ export function ChipInput({
       const removed = chips[index];
       const next = chips.filter((_, i) => i !== index);
       commitValue(next);
+      setNotice(null);
       if (removed != null) setAnnouncement(`Removed ${removed}`);
       internalInputRef.current?.focus();
     },
@@ -295,90 +314,115 @@ export function ChipInput({
   }, [draft, addEntries, splitOn]);
 
   return (
-    <InputGroup
-      ref={ref}
-      data-slot="chip-input"
-      data-field-group=""
-      data-invalid={hasInvalidChip ? "" : undefined}
-      data-disabled={disabled ? "" : undefined}
-      className={cn(chipFieldLayout, className)}
+    // The column that puts the refusal line UNDER the box wherever the field sits (a Field,
+    // a row's actions). `className` lands here, so layout classes (`flex-1`, `col-span-*`,
+    // `self-*`, a min width) still place the field in the consumer's layout; `ref` and every
+    // state attribute stay on the box.
+    <div
+      data-slot="chip-input-root"
+      className={cn("flex min-w-0 flex-col gap-1.5", className)}
     >
-      {chips.map((chip, index) => {
-        const invalid = isInvalidChip(chip);
-        return (
-          <Tag
-            // Duplicate chips are only possible with `allowDuplicates` — key by
-            // position then, identity otherwise.
-            key={allowDuplicates ? `${chip}-${index}` : chip}
-            data-invalid={invalid ? "" : undefined}
-            className={cn(
-              invalid && "border-destructive/50 text-destructive-text",
-            )}
-            onRemove={disabled ? undefined : () => removeChip(index)}
-            removeLabel={`Remove ${chip}`}
-          >
-            {chip}
-            {invalid ? (
-              // Real text in the accessible name — aria-description is an
-              // ARIA 1.3 draft with no shipped AT support.
-              <span className="sr-only">, invalid entry</span>
-            ) : null}
-          </Tag>
-        );
-      })}
-      <InputGroupInput
-        ref={mergedInputRef}
-        aria-label={ariaLabel}
-        aria-describedby={hasInvalidChip ? describeId : undefined}
-        aria-invalid={hasInvalidChip || undefined}
-        placeholder={chips.length === 0 ? placeholder : undefined}
-        disabled={disabled}
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-        onKeyDown={(event) => {
-          // Never commit mid-IME-composition — Enter there accepts the
-          // candidate, not the chip.
-          if (event.nativeEvent.isComposing) return;
-          if (event.key === "Enter" || event.key === ",") {
+      <InputGroup
+        ref={ref}
+        data-slot="chip-input"
+        data-field-group=""
+        data-invalid={hasInvalidChip ? "" : undefined}
+        data-disabled={disabled ? "" : undefined}
+        className={chipFieldLayout}
+      >
+        {chips.map((chip, index) => {
+          const invalid = isInvalidChip(chip);
+          return (
+            <Tag
+              // Duplicate chips are only possible with `allowDuplicates` — key by
+              // position then, identity otherwise.
+              key={allowDuplicates ? `${chip}-${index}` : chip}
+              data-invalid={invalid ? "" : undefined}
+              className={cn(
+                invalid && "border-destructive/50 text-destructive-text",
+              )}
+              onRemove={disabled ? undefined : () => removeChip(index)}
+              removeLabel={`Remove ${chip}`}
+            >
+              {chip}
+              {invalid ? (
+                // Real text in the accessible name — aria-description is an
+                // ARIA 1.3 draft with no shipped AT support.
+                <span className="sr-only">, invalid entry</span>
+              ) : null}
+            </Tag>
+          );
+        })}
+        <InputGroupInput
+          ref={mergedInputRef}
+          aria-label={ariaLabel}
+          aria-describedby={hasInvalidChip ? describeId : undefined}
+          aria-invalid={hasInvalidChip || undefined}
+          placeholder={chips.length === 0 ? placeholder : undefined}
+          disabled={disabled}
+          value={draft}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            setNotice(null);
+          }}
+          onKeyDown={(event) => {
+            // Never commit mid-IME-composition — Enter there accepts the
+            // candidate, not the chip.
+            if (event.nativeEvent.isComposing) return;
+            if (event.key === "Enter" || event.key === ",") {
+              event.preventDefault();
+              commitDraft();
+            } else if (
+              event.key === "Backspace" &&
+              draft.length === 0 &&
+              chips.length > 0
+            ) {
+              event.preventDefault();
+              removeChip(chips.length - 1);
+            }
+          }}
+          onBlur={commitDraft}
+          onPaste={(event) => {
+            const text = event.clipboardData.getData("text");
+            // `split`, never `.test()` — a caller-supplied /g regex would make
+            // `test` stateful and silently drop alternate pastes.
+            const parts = text.split(splitOn);
+            if (parts.length < 2) return;
             event.preventDefault();
-            commitDraft();
-          } else if (
-            event.key === "Backspace" &&
-            draft.length === 0 &&
-            chips.length > 0
-          ) {
-            event.preventDefault();
-            removeChip(chips.length - 1);
-          }
-        }}
-        onBlur={commitDraft}
-        onPaste={(event) => {
-          const text = event.clipboardData.getData("text");
-          // `split`, never `.test()` — a caller-supplied /g regex would make
-          // `test` stateful and silently drop alternate pastes.
-          const parts = text.split(splitOn);
-          if (parts.length < 2) return;
-          event.preventDefault();
-          addEntries(parts);
-        }}
-      />
-      {/* DS-21: the form value — one hidden input per chip under `name`. */}
-      {name
-        ? chips.map((chip, index) => (
-            <input
-              key={`${chip}-${index}`}
-              type="hidden"
-              name={name}
-              value={chip}
-            />
-          ))
-        : null}
-      {/* Static description target — separate from the live region so the
+            addEntries(parts);
+          }}
+        />
+        {/* DS-21: the form value — one hidden input per chip under `name`. */}
+        {name
+          ? chips.map((chip, index) => (
+              <input
+                key={`${chip}-${index}`}
+                type="hidden"
+                name={name}
+                value={chip}
+              />
+            ))
+          : null}
+        {/* Static description target — separate from the live region so the
           field's description never carries stale transient announcements. */}
-      <span id={describeId} className="sr-only">
-        Some entries are invalid
-      </span>
-      <Announcer />
-    </InputGroup>
+        <span id={describeId} className="sr-only">
+          Some entries are invalid
+        </span>
+        <Announcer />
+      </InputGroup>
+      {notice ? (
+        // `w-0 min-w-full`: the line wraps at the box's width instead of widening it.
+        <p
+          aria-hidden="true"
+          data-slot="chip-input-notice"
+          className={cn(
+            "w-0 min-w-full text-sm",
+            notice.invalid ? "text-destructive-text" : "text-muted-foreground",
+          )}
+        >
+          {notice.text}
+        </p>
+      ) : null}
+    </div>
   );
 }

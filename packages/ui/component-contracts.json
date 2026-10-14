@@ -5677,7 +5677,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["chip-input"]
+              "values": ["chip-input", "chip-input-notice", "chip-input-root"]
             }
           ],
           "cssVariables": []

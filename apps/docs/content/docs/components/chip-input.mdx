@@ -70,7 +70,9 @@ chip.
 ### Maximum entries
 
 `max` caps the number of chips. An entry past the cap is not added, stays in the input, and the
-reason is announced — "Up to 3 entries" by default, or your own copy from `maxLabel`.
+reason is announced and shown under the field until the next keystroke — "Up to 3 entries" by
+default, or your own copy from `maxLabel`. A skipped duplicate and an invalid entry show the same
+way.
 
 <ComponentPreview
   name="chipInputMax"
@@ -101,7 +103,9 @@ invalid field keeps its destructive border while focused.
   control assistive tech interacts with.
 - Accepted, invalid, duplicate, and removed outcomes are announced through a
   polite live region; invalid chips also carry a text description, never colour
-  alone.
+  alone. Refusals and invalid entries also show as one line under the field
+  (hidden from assistive tech, which already hears the announcement), cleared by
+  the next keystroke.
 - Every chip's remove button is named (`Remove …`) with a 24px hit area
   (from `Tag`).
 - The field is a field group: while the input inside holds focus its border
