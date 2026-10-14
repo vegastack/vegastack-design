@@ -254,7 +254,15 @@ Beside it, the same table in `MarkdownView`.
 
 ### Block handles
 
-The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a new place;
+The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a new place; a click on
+it (no drag), or <kbd>Shift</kbd> <kbd>F10</kbd> / the context-menu key for the caret's block, opens
+the block menu: **Turn into** ▸ (the block types, **Callout** ▸ by tone, **Toggle**), **Duplicate**
+(<kbd>Mod</kbd> <kbd>D</kbd>), **Copy link** (headings, with `headingLinkHref`), **Copy as Markdown**,
+**Move up** / **Move down**, **Open by default** (toggles) and **Delete**. On a touch screen the handle
+follows the caret's block (24px, a 44px hit area), a tap opens the menu as a bottom sheet with 44px
+rows, and a drag starts after a 350ms hold. Near the window's top or bottom edge a drag scrolls the
+page. In a shared document the dragged block is held by its Yjs position: if a collaborator removes it
+mid-drag, the drop is skipped with a toast instead of moving the wrong block.
 
 <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> does the same from
 the keyboard. A table's handle is its corner grip (see Tables).
@@ -271,6 +279,64 @@ the swap never moves the text. On a page with room the text keeps its column, an
   name="markdownBlockHandles"
   file="components/preview/text-edit.tsx"
 />
+
+### Find, emoji, heading links, word count and host slash items
+
+- **Find and replace** (`findReplace`): <kbd>Mod</kbd> <kbd>F</kbd> inside the editor opens a find
+  bar docked at the top of the text (`role="search"`, below `floatingSafeArea.top`), with the
+  selection's text as the term. It offers "3 of 12", previous / next (<kbd>Enter</kbd>,
+  <kbd>Shift</kbd> <kbd>Enter</kbd>, <kbd>Mod</kbd> <kbd>G</kbd>), match case,
+  whole word and regular expression (RE2, so no pattern can run away). While
+  editable it also has a Replace row; Replace all is one undo step. A match
+  inside a closed toggle opens it for this viewer. <kbd>Esc</kbd> closes the bar
+  with the caret back where it was. Outside the editor, the browser's own find
+  runs. `handleRef.openFind()` opens it from a menu ("Find in page" on a phone).
+  Matches inside mention chips are not searched.
+- **Emoji** (`emoji`): `:` and two or more letters, at the start of a block or after a space or `(`,
+  opens a menu of up to 8 matches from `emoji-data`, loaded on first use. The pick lands as the
+  character itself. `10:30`, `Note:` and `https://` never open it.
+- **Heading links** (`headingLinkHref`): a `#` button follows the hovered heading, or the caret's,
+  even read-only, and copies the link ("Link copied"). Build it from the anchor's slug and block id
+  (`#<slug>~<id>`). `scrollToHeading` takes that same `<slug>~<id>` and finds the heading by block id
+  first, so a renamed heading still resolves, then by slug. It opens closed toggles around the heading
+  and returns whether it found it.
+- **Word count** (`onStatsChange`, `handleRef.getStats()`): words (runs of non-space characters),
+  characters, reading minutes at 230 words a minute, and the selection's words. The counts are
+  reported when idle after a change, never per keystroke.
+- **Host slash items** (`slashActions`): your own `/` menu rows after the built-in ones, matched by
+  label and `keywords`. `onSelect` gets `insertMention`, the same chip the `@` menu inserts. A
+  `disabled` item shows its `disabledReason` and cannot be chosen.
+
+<ComponentPreview
+  name="textEditEditorTools"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  format="markdown"
+  collaboration={collaboration}
+  findReplace
+  emoji
+  headingLinkHref={({ slug, id }) =>
+    `/library/${pageId}#${slug}${id ? `~${id}` : ""}`
+  }
+  onStatsChange={setStats}
+  toggleState={toggles}
+  slashActions={[
+    {
+      id: "page",
+      label: "Page",
+      keywords: ["subpage"],
+      icon: <FilePlus />,
+      onSelect: async ({ insertMention }) => {
+        const page = await createSubPage(pageId);
+        insertMention({ kind: "page", id: page.id, label: page.title });
+      },
+    },
+  ]}
+/>
+```
 
 ### Placeholders
 
@@ -410,7 +476,9 @@ and Escape blurs. The editor mounts at once — `readOnly` too, so a viewer watc
 move (`readCopy` shows the stored Markdown until the editor is in).
 
 Two choices keep one person's view from becoming everyone's edit: a toggle's chevron opens and
-closes it for this viewer only ("Open by default", in the toggle's ⋯ menu, sets it for everyone),
+closes it for this viewer only ("Open by default", in the toggle's ⋯ menu, sets it for everyone;
+`toggleState` lets the host keep each viewer's choice across reloads, and a find result, heading
+link, comment or the caret inside a closed toggle opens it without recording that as a choice),
 and a page, task or file mention is stored without its title — each reader's chip asks
 `mentionLabel(kind, id)`, so nobody sees a title they may not open (a pasted or imported mention
 loses its title too). A comment highlight made here carries `anchor.y`, Yjs positions bound to its
@@ -574,10 +642,12 @@ import { mermaidBlockView } from "@/components/ui/mermaid-block";
 ### Outline
 
 `onOutlineChange` receives the headings (`#`–`####`) with stable ids — the heading's words,
-hyphenated, `-1`, `-2`… for a repeat — after load and 150ms after each change; the same ids are on
+hyphenated, `-1`, `-2`… for a repeat, plus the heading's `blockId` once the editor is in — after load
+and when idle after a change (300ms); the same ids are on
 the heading elements (and on `MarkdownView`'s with `headingIds`). It does not load the editor: the
 read view reports the outline from the Markdown until the editor is in. `handleRef` gives an imperative
-handle: `scrollToHeading(id)`, `flush()` (commit now, and wait for uploads in flight — before
+handle: `scrollToHeading(id)` (an outline id, a block id or `<slug>~<blockId>`; returns whether it
+found the heading), `getStats()`, `openFind()`, `flush()` (commit now, and wait for uploads in flight — before
 creating a comment or navigating), `focus()`, `getAnchorForSelection()`, `pulseAnnotation(id)` and
 `markSaved()` (the host saved the current document: it becomes the baseline Escape reverts to).
 

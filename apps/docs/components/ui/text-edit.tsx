@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.37 sha256-JBBlIZr3Xme+poYvWpYfCDCD/g3qoDO278Np+fJDeag=
+// @vegastack text-edit@0.25.38 sha256-uabZ8AVeJnoinedo+5ZIXR2ecVtfwDlm9l2Xk8X7u4Q=
 
 "use client";
 
@@ -154,6 +154,71 @@ export interface TextEditOutlineItem {
   level: 1 | 2 | 3 | 4;
   /** The heading's text; a mention reads as `@label`. */
   text: string;
+  /**
+   * The heading's block id (`blockId`), stable across renames — what a heading link carries after
+   * its slug (`#<slug>~<blockId>`). Absent before the editor is in, or when it has none yet.
+   */
+  blockId?: string;
+}
+
+/** What a host's `/` menu item can do once chosen (`TextEditSlashAction.onSelect`). */
+export interface TextEditSlashActionContext {
+  /**
+   * Insert a mention chip at the caret, followed by a space — the chip the `@` menu inserts. In a
+   * shared document a record's title is not stored (each reader's chip resolves it).
+   */
+  insertMention: (mention: { kind: string; id: string; label: string }) => void;
+}
+
+/** A host-defined `/` menu item (`slashActions`). */
+export interface TextEditSlashAction {
+  /** Stable id, unique among the host's items. */
+  id: string;
+  /** The row's text ("Page"). */
+  label: string;
+  /** Muted text after the label. @default undefined */
+  description?: string;
+  /** Extra words the `/` query matches. @default undefined */
+  keywords?: readonly string[];
+  /** The row's glyph (a lucide icon). */
+  icon: React.ReactNode;
+  /** Shown but not choosable. @default false */
+  disabled?: boolean;
+  /** Why it is disabled, shown in place of `description`. @default undefined */
+  disabledReason?: string;
+  /** Chosen: the typed `/query` is already gone. */
+  onSelect: (ctx: TextEditSlashActionContext) => void;
+}
+
+/** A heading's slug and block id — what `headingLinkHref` builds a link from. */
+export interface TextEditHeadingAnchor {
+  /** The heading's block id (`blockId`), stable across renames. Absent when it has none yet. */
+  id?: string;
+  /** The heading's slug: its words, hyphenated, `-1`, `-2`… for a repeat. */
+  slug: string;
+}
+
+/**
+ * Each viewer's own open and closed toggles in a shared document (`collaboration`), kept by the
+ * host — `MarkdownView`'s `toggleState`, so one record serves the read view and the editor.
+ */
+export interface TextEditToggleState {
+  /** Whether the toggle with this block id is open for this viewer; `fallback` is the document's default. */
+  isOpen: (id: string, fallback: boolean) => boolean;
+  /** The viewer opened or closed a toggle (a chevron click; never a find or link reveal). */
+  onToggle: (id: string, open: boolean) => void;
+}
+
+/** The document's size, as `getStats` and `onStatsChange` report it. */
+export interface TextEditStats {
+  /** Words: runs of non-space characters. */
+  words: number;
+  /** Characters of text (block breaks not counted). */
+  characters: number;
+  /** Minutes to read at 230 words a minute, rounded up (0 for an empty document). */
+  readingMinutes: number;
+  /** Words in the selection; 0 when nothing is selected. */
+  selectedWords: number;
 }
 
 /**
@@ -210,8 +275,20 @@ export interface TextEditAnnotationLayout {
 
 /** The imperative handle `handleRef` receives. */
 export interface TextEditHandle {
-  /** Scroll the heading with this outline id into view. */
-  scrollToHeading: (id: string) => void;
+  /**
+   * Scroll a heading into view: its outline id (slug), its block id, or a heading link's
+   * `<slug>~<blockId>` — the block id wins, so a renamed heading is still found, then the slug.
+   * Closed toggles around it open for this viewer. Returns whether the heading was found.
+   */
+  scrollToHeading: (id: string) => boolean;
+  /** The document's word and character counts, and the selection's words; null before the editor is in. */
+  getStats: () => TextEditStats | null;
+  /**
+   * Open the find bar (what <kbd>⌘F</kbd> does inside the editor): a page's "Find in page" on a
+   * phone. Mounts the editor first when it is not in yet. Needs an editable or read-only editor
+   * with `findReplace`.
+   */
+  openFind: () => void;
   /** Commit pending edits now (before a comment is created, before navigating); resolves once uploads in flight have landed. */
   flush: () => Promise<void>;
   /** Move focus into the editor. */
@@ -768,6 +845,14 @@ export interface TextEditProps {
    */
   slashCommands?: readonly TextEditSlashCommand[];
   /**
+   * The host's own `/` menu items, listed after the built-in ones and filtered by the same query
+   * (label and `keywords`). Choosing one removes the typed `/query` and calls `onSelect`, which can
+   * insert a mention chip at the caret through `ctx.insertMention` (a new sub-page, say). A
+   * `disabled` item shows muted with its `disabledReason` and cannot be chosen.
+   * @default []
+   */
+  slashActions?: readonly TextEditSlashAction[];
+  /**
    * Whether the placeholder yields to the "Type / for commands" hint while focused and empty.
    * Off keeps the placeholder (a comment box's "Add a comment…") in every state.
    * @default true
@@ -992,11 +1077,45 @@ export interface TextEditProps {
    */
   onOutlineChange?: (headings: TextEditOutlineItem[]) => void;
   /**
-   * The imperative handle: `scrollToHeading`, `flush`, `focus`, `getAnchorForSelection`,
-   * `pulseAnnotation`.
+   * The imperative handle: `scrollToHeading`, `getStats`, `openFind`, `flush`, `focus`,
+   * `getAnchorForSelection`, `pulseAnnotation`.
    * @default undefined
    */
   handleRef?: React.Ref<TextEditHandle>;
+  /**
+   * A heading's link, copied by the `#` button that shows on a hovered heading or the caret's, and
+   * by Copy link in a heading's block menu ("Link copied"). Resolved against the page's address;
+   * null shows no link for that heading. `MarkdownView`'s prop of the same name.
+   * @default undefined
+   */
+  headingLinkHref?: (anchor: TextEditHeadingAnchor) => string | null;
+  /**
+   * In a shared document, each viewer's own open and closed toggles, kept by the host (in
+   * `localStorage`, say) so a reload keeps them. A find result, a heading link or a comment inside a
+   * closed toggle opens it for the moment without recording it here.
+   * @default undefined
+   */
+  toggleState?: TextEditToggleState;
+  /**
+   * The document's word and character counts, when idle after a change (300ms) and once after
+   * load — a word-count popover, a size warning. Counting never runs per keystroke.
+   * @default undefined
+   */
+  onStatsChange?: (stats: TextEditStats) => void;
+  /**
+   * Find and replace: <kbd>⌘F</kbd> inside the editor opens a find bar docked at the top of the
+   * text (Replace only while editable), <kbd>⌘G</kbd> / <kbd>⇧⌘G</kbd> step through the matches,
+   * and <kbd>Esc</kbd> closes it with the caret back where it was. Outside the editor the
+   * browser's own find runs. `handleRef.openFind()` opens it from a menu.
+   * @default false
+   */
+  findReplace?: boolean;
+  /**
+   * Type <kbd>:</kbd> and two or more letters for an emoji menu (from `emoji-data`, loaded on
+   * first use); the pick lands as the character itself. `10:30`, `Note:` and `https://` never open it.
+   * @default false
+   */
+  emoji?: boolean;
   /**
    * Comment highlights, drawn as decorations over their anchored text (never written into the
    * document), and kept on the same words while the text around them changes. Setting it mounts
@@ -1317,16 +1436,40 @@ export function TextEdit(props: TextEditProps) {
   // Files handed to `uploadFiles` before the editor was in: uploaded once it is.
   const pendingFilesRef = React.useRef<File[]>([]);
   const pendingPickRef = React.useRef(false);
+  // `openFind` before the editor was in: opened once it is.
+  const pendingFindRef = React.useRef(false);
   React.useImperativeHandle(
     handleRef,
     () => ({
       scrollToHeading: (id) => {
         if (editorHandle.current && readyRef.current)
-          editorHandle.current.scrollToHeading(id);
-        else
-          rootRef.current
-            ?.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`)
-            ?.scrollIntoView({ block: "start", behavior: "smooth" });
+          return editorHandle.current.scrollToHeading(id);
+        // The read view: by block id (`data-anchor-id`), then by slug.
+        const tilde = id.lastIndexOf("~");
+        const slug = tilde >= 0 ? id.slice(0, tilde) : id;
+        const blockId = tilde >= 0 ? id.slice(tilde + 1) : id;
+        const root = rootRef.current;
+        const target =
+          (blockId
+            ? root?.querySelector<HTMLElement>(
+                `[data-anchor-id="${CSS.escape(blockId)}"]`,
+              )
+            : null) ??
+          root?.querySelector<HTMLElement>(`[id="${CSS.escape(slug)}"]`);
+        target?.scrollIntoView({ block: "start", behavior: "smooth" });
+        return Boolean(target);
+      },
+      getStats: () =>
+        editorHandle.current && readyRef.current
+          ? editorHandle.current.getStats()
+          : null,
+      openFind: () => {
+        if (editorHandle.current && readyRef.current)
+          editorHandle.current.openFind();
+        else {
+          pendingFindRef.current = true;
+          activate("end");
+        }
       },
       flush: () => editorHandle.current?.flush() ?? Promise.resolve(),
       focus: () => {
@@ -1402,6 +1545,10 @@ export function TextEdit(props: TextEditProps) {
     if (pendingPickRef.current) {
       pendingPickRef.current = false;
       editorHandle.current?.pickFiles();
+    }
+    if (pendingFindRef.current) {
+      pendingFindRef.current = false;
+      editorHandle.current?.openFind();
     }
   }, [ready]);
 

@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**163 components**, plus 467 animated-icon items, 15 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 19 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 747 registry items in total.
+**164 components**, plus 467 animated-icon items, 15 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 19 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 748 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -193,6 +193,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Chat
 
+- **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.
 - **`approval-card`** — An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
 

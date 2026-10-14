@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8f30b22af0a58cc10ca350323baa32fa6dcf1ddd57f8d582009c8f5aff00cf86",
+  "contractSha256": "de3a407f98f537886f8f3e7965250ddc566feffe8be1ef21c9fcf01599aff121",
   "inventory": {
-    "expected": 747,
-    "actual": 747,
-    "unique": 747
+    "expected": 748,
+    "actual": 748,
+    "unique": 748
   },
   "classes": {
-    "components": 163,
+    "components": 164,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -213,9 +213,10 @@
       ]
     },
     "AI/chat": {
-      "expected": 9,
-      "actual": 9,
+      "expected": 10,
+      "actual": 10,
       "members": [
+        "agent-edit-banner",
         "approval-card",
         "attachment",
         "bubble",
@@ -811,7 +812,7 @@
       ]
     }
   },
-  "componentRoutes": 157,
+  "componentRoutes": 158,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

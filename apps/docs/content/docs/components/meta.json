@@ -163,6 +163,7 @@
     "attachment",
     "tool-call-chip",
     "approval-card",
+    "agent-edit-banner",
     "message-scroller",
     "transcript",
     "questionnaire",

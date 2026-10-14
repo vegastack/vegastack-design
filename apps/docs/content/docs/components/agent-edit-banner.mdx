@@ -1,0 +1,123 @@
+---
+title: Agent Edit Banner
+description: The strip under a document's header after an agent changed it — who, how many changes, when — with View changes, Undo and a dismiss.
+audience: public
+registry: agent-edit-banner
+status: stable
+since: 0.25.38
+a11y: polite live region, named buttons, decorative agent look
+preview: agentEditBanner
+---
+
+## Install
+
+<InstallSteps name="agent-edit-banner" />
+
+## Usage
+
+```tsx
+import { AgentEditBanner } from "@/components/ui/agent-edit-banner";
+
+<AgentEditBanner
+  agent={{ name: "Claude", via: "Manoj" }}
+  changeCount={group.writes}
+  at={group.lastWriteAt}
+  status={undoing ? "undoing" : refused ? "refused" : "idle"}
+  onViewChanges={group.canDiff ? () => openDiff(group) : undefined}
+  onUndo={canEdit && group.canUndo ? () => undo(group) : undefined}
+  onOpenVersions={() => openVersions()}
+  onDismiss={() => dismiss(group.runIds)}
+/>;
+```
+
+The banner is presentational: the host owns the agent's runs, the undo, the refusal and the
+dismiss memory, and passes the state back. `agent` is the agent as a `Person` reads it — `name`
+("Claude") and `via` its owner ("Manoj") — so the line says "Claude (via Manoj)" and the refused
+sentence uses the short name. **The callbacks decide which buttons show**: leave out `onUndo` and
+`onViewChanges` when the agent's checkpoint is gone, and every callback but `onDismiss` for a
+read-only viewer. When the undo succeeds, remove the banner and show a toast.
+
+## Scope
+
+Pin it under a document's header, above the text, and reserve its space only while it shows.
+Render at most two; pass the rest to the second one's `moreAgents`, which ends its line with "+1
+more agent" and lists each in a popover with its own Undo. Every string comes in through `labels`
+(and `refusedReason` for the refused line), with the English defaults below.
+
+## Examples
+
+<ComponentPreview
+  name="agentEditBanner"
+  file="components/preview/agent-edit-banner.tsx"
+/>
+
+### States
+
+`undoing` spins Undo and disables both buttons. `refused` adds the reason line and swaps Undo for
+Open versions; pass `refusedReason` for another reason ("…because the page was restored since.").
+Without `onUndo` and `onViewChanges` (too old), or any action (a read-only viewer), the banner is
+words and the ✕ — or words alone without `onDismiss`. `kind="created"` reads "Created by Claude
+(via Manoj) · 5m ago".
+
+<ComponentPreview
+  name="agentEditBannerStates"
+  file="components/preview/agent-edit-banner.tsx"
+/>
+
+### Stacked
+
+The second banner ends with "+N more agents"; its popover lists the rest, each with its own Undo,
+spinner and refused line.
+
+<ComponentPreview
+  name="agentEditBannerStacked"
+  file="components/preview/agent-edit-banner.tsx"
+/>
+
+### Narrow
+
+Under a 42rem container the buttons take their own row under the text, which wraps beside the ✕;
+under 28rem Undo reads "Undo changes". On a coarse pointer every button has a 44px target.
+
+<ComponentPreview
+  name="agentEditBannerNarrow"
+  file="components/preview/agent-edit-banner.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-edit-banner.tsx"
+  name="AgentEditBannerProps"
+/>
+
+### AgentEditBannerMoreAgent
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-edit-banner.tsx"
+  name="AgentEditBannerMoreAgent"
+/>
+
+## Accessibility
+
+- The banner is an `Alert` status region with `aria-live="polite"`, so a banner that changes
+  while on screen is announced without interrupting; the relative time inside it ticks silently.
+- The buttons are named for the agent: "View Claude (via Manoj)'s changes" and "Undo Claude (via
+  Manoj)'s changes", so two stacked banners never offer two identical names.
+- The purple bot is decoration (hidden from assistive tech); the words say it was an agent.
+- While undoing, Undo is busy (`aria-busy`) and both buttons stay focusable but inert.
+
+| Key                                 | Action                                                      |
+| ----------------------------------- | ----------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the time, "+N more agents", the buttons and ✕. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate a button, or open the list of the other agents.    |
+| <kbd>Esc</kbd>                      | Close that list and return focus to "+N more agents".       |
+
+<StatesTested name="agent-edit-banner" />
+
+## Do / Don't
+
+<DoDont
+  do="Show it after an agent changed the document, with Undo for people who can edit, and remember a dismiss per viewer until the next run."
+  dont="Ask for confirmation before Undo (it is reversible), or use it for an agent asking permission — that is an ApprovalCard."
+/>

@@ -43,6 +43,8 @@ describe("affected component closure", () => {
       // FileViewer renders Markdown previews through MarkdownView (2026-09-30), and attachment,
       // library-01 and upload-dialog open a FileViewer.
       "attachment",
+      // block-view draws a fence's source with the code panel (B.2).
+      "block-view",
       "code-block",
       "comments",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
@@ -62,6 +64,7 @@ describe("affected component closure", () => {
       "packages/ui/registry/blocks/library-01/library-01.test.tsx",
       "packages/ui/registry/blocks/page-editor-01/page-editor-01.test.tsx",
       "packages/ui/registry/ui/attachment.test.tsx",
+      "packages/ui/registry/ui/block-view.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/file-card.test.tsx",
@@ -90,6 +93,8 @@ describe("affected component closure", () => {
       "issue-detail-01",
       "library-01",
       "markdown-view",
+      // mermaid-block's previews draw diagrams in a MarkdownView and a TextEdit (B.2).
+      "mermaid-block",
       "message",
       "page-editor-01",
       "sortable-list",
@@ -111,6 +116,7 @@ describe("affected component closure", () => {
     const result = plan(change("packages/ui/registry/ui/copy-button.tsx"));
     expect(result.affectedItems).toEqual([
       "attachment",
+      "block-view",
       "code-block",
       "comments",
       "copy-button",
@@ -155,6 +161,7 @@ describe("affected component closure", () => {
       // app-shell-01's user menu reads the theme through the provider (DS-80).
       "app-shell-01",
       "attachment",
+      "block-view",
       "code-block",
       "comments",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
