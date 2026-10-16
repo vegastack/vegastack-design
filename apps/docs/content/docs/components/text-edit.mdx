@@ -772,7 +772,9 @@ a whole block stay text and a list, and a paragraph that starts with `:::tasks{`
 
 `renderTaskQuery({ blockId, query, snapshot, editable })` draws the list with your own component,
 which fetches this reader's rows. It runs in the editor (`editable` follows the editor) and in the
-read view before it (`editable: false`). Without it, or where it returns `null`, the snapshot shows
+read view before it (`editable: false`). In an editable editor it also gets `setQuery(query)`,
+which replaces the list's filter as one local edit (undoable, carried to collaborators); read views
+get none. Without it, or where it returns `null`, the snapshot shows
 as `MarkdownTaskList`'s quiet card. Insert a list from your own slash item with
 `{ type: "taskQuery", attrs: { query, snapshot } }`. A collaborative editor gives it a `blockId`.
 
@@ -781,12 +783,12 @@ as `MarkdownTaskList`'s quiet card. Insert a list from your own slash item with
   format="markdown"
   value={body}
   onValueChange={setBody}
-  renderTaskQuery={({ blockId, query, editable }) => (
+  renderTaskQuery={({ blockId, query, setQuery }) => (
     <LiveTaskList
       pageId={pageId}
       blockId={blockId}
       query={query}
-      editable={editable}
+      onFilterChange={setQuery}
     />
   )}
 />

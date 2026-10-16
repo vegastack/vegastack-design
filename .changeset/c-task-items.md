@@ -9,3 +9,4 @@
 - **Closed targets:** `mentionStatus(kind, id)` on `TextEdit` and `MarkdownView` strikes a chip's label through and adds a small status tag ("Canceled"). The props behind it are `InlineChip`'s new `struck` and `status`.
 - **Products:** a new `product` mention kind with the package icon on a magenta tint. The `@` menu has a **Products** group after Projects.
 - **Section marks:** `sectionMarks` (`{ key, tone, label }`, keyed by a heading's `blockId`) draws a gutter dot and a `warning` or `info` bar along each marked section. They are decorations only: nothing is written to the document and no text moves. Clicking the dot calls `onSectionMark(key)`.
+- **`renderTaskQuery` `setQuery`:** in an editable editor the live task list gets `setQuery(query)`, which replaces its filter as one local edit; read views get none.

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.42 sha256-4O5oRtdCW8R0WPU59BcLJMmRCHohMAIX46QS0gQfjNc=
+// @vegastack markdown-view@0.25.42 sha256-eUdErsY+4MlZt7ULbtaZEAtRiiRRGh6KFa/j/O6Kf9M=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -259,6 +259,12 @@ export interface TaskQueryRenderProps {
   snapshot: string;
   /** Whether the reader can change the list's filter: an editable editor. */
   editable: boolean;
+  /**
+   * Replace the list's filter (an editable editor only; absent in read views): a local edit of
+   * the node's `query` — one undo step, carried to collaborators like any other edit. Keys are
+   * `[a-z][a-z0-9-]*`; others are dropped when the list is written as Markdown.
+   */
+  setQuery?: (query: Record<string, string>) => void;
 }
 
 /** A `tasks` element's `query` attribute (JSON) as its strings. */

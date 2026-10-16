@@ -4952,6 +4952,7 @@ test("taskQuery: renderTaskQuery draws the live list; it is an atom and its Mark
     query: { v: "1", status: "open", "x-new": "kept" },
     snapshot: TASK_ROWS,
     editable: true,
+    setQuery: expect.any(Function),
   });
   const view = screen.container.querySelector(
     '[data-slot="text-edit-task-query"]',
@@ -4970,6 +4971,40 @@ test("taskQuery: renderTaskQuery draws the live list; it is an atom and its Mark
   editor.commands.insertContent("!");
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(`Intro!\n\n${TASK_LIST}`),
+  );
+});
+
+test("taskQuery: setQuery rewrites the list's filter as one local edit; read views get none", async () => {
+  let set: ((query: Record<string, string>) => void) | undefined;
+  const onValueChange = vi.fn();
+  await markdownEditor({
+    defaultValue: TASK_LIST,
+    onValueChange,
+    renderTaskQuery: (props) => {
+      set = props.setQuery;
+      return <p>Live list</p>;
+    },
+  });
+  expect(set).toBeTypeOf("function");
+  set!({ v: "1", status: "done", assignee: "me" });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      `:::tasks{id="lb_9f2c" v="1" status="done" assignee="me"}\n${TASK_ROWS}\n:::`,
+    ),
+  );
+  const read = vi.fn((_props: { setQuery?: unknown }) => <p>Read</p>);
+  const view = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Read"
+      readOnly
+      defaultValue={TASK_LIST}
+      renderTaskQuery={read}
+    />,
+  );
+  await expect.element(view.getByText("Read")).toBeInTheDocument();
+  expect(read.mock.calls.every(([props]) => props.setQuery === undefined)).toBe(
+    true,
   );
 });
 

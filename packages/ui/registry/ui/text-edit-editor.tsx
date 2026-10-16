@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-XNNFT4nS0AgnAO0j8Pn17YTsAKaimoGnY4RgaGpQ7/0=
+// @vegastack text-edit@0.25.42 sha256-OqYo63c31KUZ6RgLYV01Sd/BWKW8laQXLCCMxhqmNeQ=
 
 "use client";
 
@@ -3680,15 +3680,29 @@ function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
  * inside. The host draws it (`renderTaskQuery`); without one — or where it draws nothing — the
  * stored snapshot shows as `MarkdownView`'s quiet list.
  */
-function TaskQueryView({ node, selected, editor }: ReactNodeViewProps) {
+function TaskQueryView({
+  node,
+  selected,
+  editor,
+  updateAttributes,
+}: ReactNodeViewProps) {
   const snapshot = String(node.attrs.snapshot ?? "");
   const query = node.attrs.query as Record<string, string> | null;
   const render = useTaskQueryRender(editor);
+  const editable = editor.isEditable;
   const drawn = render?.({
     blockId: String(node.attrs.blockId ?? ""),
     query: query && typeof query === "object" ? { ...query } : {},
     snapshot,
-    editable: editor.isEditable,
+    editable,
+    ...(editable && {
+      setQuery: (next: Record<string, string>) =>
+        updateAttributes({
+          query: Object.fromEntries(
+            Object.entries(next).map(([key, value]) => [key, String(value)]),
+          ),
+        }),
+    }),
   });
   return (
     <NodeViewWrapper
