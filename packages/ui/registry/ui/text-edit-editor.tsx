@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-G8eD8OYxs93pbjm0ZnlWLIls6dfLefQg6G167PtW/ac=
+// @vegastack text-edit@0.25.42 sha256-5Wg/brdNFlCpDPYychv/8u5l4uby8Y+pXOdtKpJHpJM=
 
 "use client";
 
@@ -243,6 +243,7 @@ import {
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import {
+  blockId as newBlockId,
   EMBED_CONTAINERS,
   textEditExtensions,
   ychangeType,
@@ -6421,20 +6422,23 @@ function taskItemText(node: PMNode): string {
   return line?.isTextblock ? line.textContent.trim() : "";
 }
 
+/** An unlinked checklist line Make task acts on: where it is and its text. */
+interface OfferedLine {
+  pos: number;
+  text: string;
+}
+
 /**
  * The unlinked checklist lines Make task acts on from `block`: every unlinked, non-empty task item
  * whose line the selection reaches when the selection covers the block, else the block alone.
  * Empty when the block is not an unlinked task item with text.
  */
-function makeTaskItems(
-  state: EditorState,
-  block: BlockTarget,
-): TextEditTaskItem[] {
+function makeTaskItems(state: EditorState, block: BlockTarget): OfferedLine[] {
   const { node, pos, range } = block;
   if (node.type.name !== "taskItem" || linkedTaskId(node) !== null) return [];
   const end = pos + node.nodeSize;
   if (range && range.to > range.from && range.from < end && range.to > pos) {
-    const items: TextEditTaskItem[] = [];
+    const items: OfferedLine[] = [];
     state.doc.nodesBetween(range.from, range.to, (child, at) => {
       if (child.isTextblock) return false;
       if (child.type.name !== "taskItem") return true;
@@ -6467,62 +6471,36 @@ function lineOffsetToPos(line: PMNode, offset: number): number {
   return at;
 }
 
-/** A line Make task offered (`onMakeTask`): where it is now and the text it was offered with. */
-interface TaskOffer {
-  /** Mapped through every edit since the offer; the last known position once `lost`. */
-  pos: number;
-  text: string;
-  /** An edit replaced the line's start (a collaborator's sync replaces the whole document). */
-  lost: boolean;
-}
-
-/** The offers `linkTaskItems` resolves, keyed by the position `onMakeTask` gave the host. */
-const TASK_OFFERS_KEY = new PluginKey<ReadonlyMap<number, TaskOffer>>(
+/**
+ * The lines Make task offered (`onMakeTask`), by `blockId` → the text offered. A line keeps its
+ * `blockId` through every edit and through Yjs, so the offer follows it however the document
+ * moves while the host works (a dialog); a deleted line is gone, never mistaken for another.
+ */
+const TASK_OFFERS_KEY = new PluginKey<ReadonlyMap<string, string>>(
   "textEditTaskOffers",
 );
 /** Offers kept for a host that never links them: the oldest go first. */
 const TASK_OFFERS_MAX = 200;
 
-/**
- * Make task's offers, mapped through every edit until the host links them: Make task can wait on
- * the host (a dialog), and the document moves meanwhile.
- */
 function taskOffersExtension() {
   return Extension.create({
     name: "textEditTaskOffers",
     addProseMirrorPlugins() {
       return [
-        new Plugin<ReadonlyMap<number, TaskOffer>>({
+        new Plugin<ReadonlyMap<string, string>>({
           key: TASK_OFFERS_KEY,
           state: {
             init: () => new Map(),
             apply(tr, offers) {
               const meta = tr.getMeta(TASK_OFFERS_KEY) as
-                | { offer?: readonly TextEditTaskItem[]; drop?: number[] }
+                | { offer?: readonly TextEditTaskItem[]; drop?: string[] }
                 | undefined;
-              if (!meta && (!tr.docChanged || offers.size === 0)) return offers;
-              const next = new Map<number, TaskOffer>();
-              for (const [key, offer] of offers) {
-                if (!tr.docChanged || offer.lost) {
-                  next.set(key, offer);
-                  continue;
-                }
-                const mapped = tr.mapping.mapResult(offer.pos, 1);
-                next.set(
-                  key,
-                  mapped.deletedAfter
-                    ? { ...offer, lost: true }
-                    : { ...offer, pos: mapped.pos },
-                );
-              }
-              for (const key of meta?.drop ?? []) next.delete(key);
-              for (const item of meta?.offer ?? []) {
-                next.delete(item.pos);
-                next.set(item.pos, {
-                  pos: item.pos,
-                  text: item.text,
-                  lost: false,
-                });
+              if (!meta) return offers;
+              const next = new Map(offers);
+              for (const key of meta.drop ?? []) next.delete(key);
+              for (const item of meta.offer ?? []) {
+                next.delete(item.key);
+                next.set(item.key, item.text);
               }
               for (const key of next.keys()) {
                 if (next.size <= TASK_OFFERS_MAX) break;
@@ -6537,42 +6515,73 @@ function taskOffersExtension() {
   });
 }
 
-/** Record Make task's lines so `linkTaskItems` can find them after later edits. */
-function offerTaskItems(editor: Editor, items: readonly TextEditTaskItem[]) {
-  editor.view.dispatch(
-    editor.state.tr
-      .setMeta(TASK_OFFERS_KEY, { offer: items })
-      .setMeta("addToHistory", false),
-  );
+/** Every task item's position by `blockId`, and the ids more than one item carries. */
+function taskItemsById(doc: PMNode) {
+  const byId = new Map<string, number>();
+  const shared = new Set<string>();
+  doc.descendants((node, pos) => {
+    if (node.isTextblock) return false;
+    const id = node.attrs.blockId as string | null | undefined;
+    if (node.type.name === "taskItem" && id) {
+      if (byId.has(id)) shared.add(id);
+      byId.set(id, pos);
+    }
+    return true;
+  });
+  return { byId, shared };
 }
 
 /**
- * Where the line `onMakeTask` offered at `key` is now: still an unlinked task item with the text
- * it was offered with, else null (a changed or removed line is never linked). When an edit lost
- * the line's position, the one unlinked line with that text, or the one still at its last known
- * position.
+ * Offer Make task's lines: each gets a `blockId` if it has none (or shares one with another line,
+ * as a pasted copy in a document without ids does), in one transaction that is no undo step, and
+ * is recorded so `linkTaskItems` can find it by that key after any later edit.
+ */
+function offerTaskItems(
+  editor: Editor,
+  lines: readonly OfferedLine[],
+): TextEditTaskItem[] {
+  const { state } = editor;
+  const { shared } = taskItemsById(state.doc);
+  const tr = state.tr;
+  const items: TextEditTaskItem[] = [];
+  for (const line of lines) {
+    const node = state.doc.nodeAt(line.pos);
+    if (!node || node.type.name !== "taskItem") continue;
+    let key = node.attrs.blockId as string | null | undefined;
+    if (!key || shared.has(key)) {
+      key = newBlockId();
+      tr.setNodeAttribute(line.pos, "blockId", key);
+    }
+    items.push({ key, text: line.text });
+  }
+  editor.view.dispatch(
+    tr
+      .setMeta(TASK_OFFERS_KEY, { offer: items })
+      .setMeta(TASK_SYNC_META, true)
+      .setMeta("addToHistory", false),
+  );
+  return items;
+}
+
+/**
+ * Where the line Make task offered as `key` is now: the one task item with that `blockId`, still
+ * unlinked and with the text it was offered with; else null (a line removed, edited or linked
+ * since, or never offered, is never linked).
  */
 function offeredTaskItem(
   doc: PMNode,
-  offers: ReadonlyMap<number, TaskOffer>,
-  key: number,
+  offers: ReadonlyMap<string, string>,
+  items: ReturnType<typeof taskItemsById>,
+  key: string,
 ): number | null {
-  const offer = offers.get(key);
-  if (!offer) return null;
-  const fits = (node: PMNode | null | undefined) =>
-    node?.type.name === "taskItem" &&
-    !linkedTaskId(node) &&
-    taskItemText(node) === offer.text;
-  const atLast = offer.pos <= doc.content.size && fits(doc.nodeAt(offer.pos));
-  if (!offer.lost) return atLast ? offer.pos : null;
-  const same: number[] = [];
-  doc.descendants((node, pos) => {
-    if (node.isTextblock) return false;
-    if (fits(node)) same.push(pos);
-    return true;
-  });
-  if (same.length === 1) return same[0]!;
-  return atLast ? offer.pos : null;
+  const text = offers.get(key);
+  const pos = items.byId.get(key);
+  if (text === undefined || pos === undefined || items.shared.has(key))
+    return null;
+  const node = doc.nodeAt(pos);
+  return node && !linkedTaskId(node) && taskItemText(node) === text
+    ? pos
+    : null;
 }
 
 /**
@@ -6604,9 +6613,9 @@ function lineAfterTitle(line: PMNode, label: string): Fragment {
 }
 
 /**
- * Link checklist lines to tasks (`linkTaskItems`): each line Make task offered becomes a leading
- * task chip and what `lineAfterTitle` keeps. A line found where the offer can no longer vouch
- * for it (removed, edited, already linked, never offered) is skipped. Nested content stays.
+ * Link checklist lines to tasks (`linkTaskItems`): each line Make task offered (found by its
+ * `blockId`, `offeredTaskItem`) becomes a leading task chip and what `lineAfterTitle` keeps. A
+ * line removed, edited or linked since, or never offered, is skipped. Nested content stays.
  */
 function linkTaskItemsIn(
   editor: Editor,
@@ -6617,10 +6626,11 @@ function linkTaskItemsIn(
   const { mention } = state.schema.nodes;
   const offers = TASK_OFFERS_KEY.getState(state);
   if (!mention || !offers) return 0;
+  const items = taskItemsById(state.doc);
   const targets = new Map<number, TextEditTaskLink>();
   for (const link of links) {
     if (!link.id) continue;
-    const at = offeredTaskItem(state.doc, offers, link.pos);
+    const at = offeredTaskItem(state.doc, offers, items, link.key);
     if (at !== null && !targets.has(at)) targets.set(at, link);
   }
   const tr = state.tr;
@@ -6649,7 +6659,7 @@ function linkTaskItemsIn(
   if (linked)
     editor.view.dispatch(
       tr.setMeta(TASK_SYNC_META, true).setMeta(TASK_OFFERS_KEY, {
-        drop: [...targets.values()].map((link) => link.pos),
+        drop: [...targets.values()].map((link) => link.key),
       }),
     );
   return linked;
@@ -6710,43 +6720,89 @@ function forEachStepRange(
   });
 }
 
+/** A linked line a step's range reaches: its task, box and `blockId`, and where it starts. */
+interface LinkedLine {
+  pos: number;
+  taskId: string;
+  checked: boolean;
+  blockId: string | null;
+}
+
+/** The linked lines between `from` and `to` (and their ancestors). */
+function linkedLines(doc: PMNode, from: number, to: number): LinkedLine[] {
+  const lines: LinkedLine[] = [];
+  const size = doc.content.size;
+  doc.nodesBetween(
+    Math.max(0, Math.min(from, size)),
+    Math.max(0, Math.min(to, size)),
+    (node, pos) => {
+      if (node.isTextblock) return false;
+      if (node.type.name !== "taskItem") return true;
+      const taskId = linkedTaskId(node);
+      if (taskId)
+        lines.push({
+          pos,
+          taskId,
+          checked: Boolean(node.attrs.checked),
+          blockId: (node.attrs.blockId as string | null | undefined) ?? null,
+        });
+      return true;
+    },
+  );
+  return lines;
+}
+
+/** How many of `lines` carry each `blockId`. */
+function idCounts(lines: readonly LinkedLine[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const line of lines)
+    if (line.blockId)
+      counts.set(line.blockId, (counts.get(line.blockId) ?? 0) + 1);
+  return counts;
+}
+
 /**
- * The linked lines `tr` ticked or unticked, by task id → checked. Each step's lines for a task are
- * compared like with like — the same number before and after, pairwise in order — so a line
- * pasted, deleted or newly linked is not a toggle, nor is an edit inside nested lines of one task
- * whose boxes differ.
+ * The linked lines `tr` ticked or unticked, by task id → checked: the same line before and after
+ * a step, with the same task and a different box. The same line is the one `blockId` (unique on
+ * each side), or — for lines without one — the line whose inside survives the step's mapping. A
+ * pasted line (UniqueID gives it a new id; without ids, the line it replaced is deleted), a
+ * deleted or newly linked one is never a toggle.
  */
 function taskToggles(tr: Transaction): Map<string, boolean> {
-  const occurrences = (doc: PMNode, from: number, to: number) => {
-    const found = new Map<string, boolean[]>();
-    const size = doc.content.size;
-    doc.nodesBetween(
-      Math.max(0, Math.min(from, size)),
-      Math.max(0, Math.min(to, size)),
-      (node) => {
-        if (node.isTextblock) return false;
-        if (node.type.name !== "taskItem") return true;
-        const id = linkedTaskId(node);
-        if (id) {
-          const states = found.get(id) ?? [];
-          states.push(Boolean(node.attrs.checked));
-          found.set(id, states);
-        }
-        return true;
-      },
-    );
-    return found;
-  };
   const toggles = new Map<string, boolean>();
-  forEachStepRange(tr, (old, from, to, next, newFrom, newTo) => {
-    const before = occurrences(old, from, to);
-    for (const [id, states] of occurrences(next, newFrom, newTo)) {
-      const was = before.get(id);
-      if (!was || was.length !== states.length) continue;
-      const now = new Set(
-        states.filter((checked, index) => checked !== was[index]),
-      );
-      if (now.size === 1) toggles.set(id, [...now][0]!);
+  tr.steps.forEach((step, index) => {
+    const before = tr.docs[index]!;
+    const after = tr.docs[index + 1] ?? tr.doc;
+    const map = step.getMap();
+    const ranges: [number, number, number, number][] = [];
+    map.forEach((from, to, newFrom, newTo) =>
+      ranges.push([from, to, newFrom, newTo]),
+    );
+    // An attribute step changes no range: the node at its position is the change.
+    const at = (step as { pos?: unknown }).pos;
+    if (ranges.length === 0 && typeof at === "number")
+      ranges.push([at, at + 1, at, at + 1]);
+    for (const [from, to, newFrom, newTo] of ranges) {
+      const now = linkedLines(after, newFrom, newTo);
+      const was = linkedLines(before, from, to);
+      const nowIds = idCounts(now);
+      const wasIds = idCounts(was);
+      for (const old of was) {
+        let next: LinkedLine | undefined;
+        if (old.blockId) {
+          if (nowIds.get(old.blockId) !== 1 || wasIds.get(old.blockId) !== 1)
+            continue;
+          next = now.find((line) => line.blockId === old.blockId);
+        } else {
+          const inside = map.mapResult(old.pos + 1, 1);
+          if (inside.deleted) continue;
+          next = now.find(
+            (line) => line.blockId === null && line.pos === inside.pos - 1,
+          );
+        }
+        if (next && next.taskId === old.taskId && next.checked !== old.checked)
+          toggles.set(old.taskId, next.checked);
+      }
     }
   });
   return toggles;
@@ -7146,10 +7202,7 @@ function blockActions(
         key: "make-task",
         label: tasks.length > 1 ? `Make ${tasks.length} tasks` : "Make task",
         icon: CircleCheck,
-        run: () => {
-          offerTaskItems(editor, tasks);
-          makeTask(tasks);
-        },
+        run: () => makeTask(offerTaskItems(editor, tasks)),
       },
       null,
     );

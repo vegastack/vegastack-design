@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-G8eD8OYxs93pbjm0ZnlWLIls6dfLefQg6G167PtW/ac=
+// @vegastack text-edit@0.25.42 sha256-5Wg/brdNFlCpDPYychv/8u5l4uby8Y+pXOdtKpJHpJM=
 
 "use client";
 
@@ -204,10 +204,13 @@ export interface TextEditMentionStatus {
   status?: string;
 }
 
-/** An unlinked checklist line `onMakeTask` offers: its position and its text. */
+/** An unlinked checklist line `onMakeTask` offers: its key and its text. */
 export interface TextEditTaskItem {
-  /** The task item's position in the document (pass it back to `linkTaskItems`). */
-  pos: number;
+  /**
+   * The line's `blockId` (Make task gives it one if it has none): pass it back to
+   * `linkTaskItems`. It follows the line through every edit, a collaborator's included.
+   */
+  key: string;
   /** The line's text, trimmed: the new task's suggested title. */
   text: string;
 }
@@ -215,10 +218,10 @@ export interface TextEditTaskItem {
 /** A checklist line to link to a task (`linkTaskItems`). */
 export interface TextEditTaskLink {
   /**
-   * The task item's position, as `onMakeTask` gave it: the editor follows that line through later
-   * edits, and skips it once it is removed, its text changed, or it was linked.
+   * The line's key, as `onMakeTask` gave it. The line is skipped once it is removed, its text
+   * changed, or it was linked.
    */
-  pos: number;
+  key: string;
   /** The task's id: the line's leading chip is `mention://task/<id>`. */
   id: string;
   /** The task's title, the chip's label (a shared document stores it empty). */

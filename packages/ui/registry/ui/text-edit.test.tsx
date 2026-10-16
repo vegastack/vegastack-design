@@ -3023,7 +3023,7 @@ test("Make N tasks: the block menu offers the selected unlinked lines; linkTaskI
   await userEvent.keyboard("{Shift>}{F10}{/Shift}");
   await screen.getByRole("menuitem", { name: "Make 2 tasks" }).click();
   await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledTimes(1));
-  const items = onMakeTask.mock.calls[0]![0] as { pos: number; text: string }[];
+  const items = onMakeTask.mock.calls[0]![0] as { key: string; text: string }[];
   expect(items.map((item) => item.text)).toEqual([
     "Order glass — by Friday",
     "Fix scaffolding",
@@ -3031,8 +3031,8 @@ test("Make N tasks: the block menu offers the selected unlinked lines; linkTaskI
   // The host created T-1 ("Order glass") and T-2: the title becomes the chip, the rest stays.
   expect(
     handle.current!.linkTaskItems([
-      { pos: items[0]!.pos, id: "t1", label: "Order glass" },
-      { pos: items[1]!.pos, id: "t2", label: "Fix scaffolding" },
+      { key: items[0]!.key, id: "t1", label: "Order glass" },
+      { key: items[1]!.key, id: "t2", label: "Fix scaffolding" },
     ]),
   ).toBe(2);
   await vi.waitFor(() =>
@@ -3060,7 +3060,7 @@ test("Make N tasks: the block menu offers the selected unlinked lines; linkTaskI
   ).toBe(false);
   expect(
     handle.current!.linkTaskItems([
-      { pos: items[0]!.pos, id: "t9", label: "Order glass" },
+      { key: items[0]!.key, id: "t9", label: "Order glass" },
     ]),
   ).toBe(0);
 });
@@ -3077,7 +3077,13 @@ async function makeTaskOn(
   await userEvent.keyboard("{Shift>}{F10}{/Shift}");
   await screen.getByRole("menuitem", { name: "Make task" }).click();
   await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledTimes(1));
-  return (onMakeTask.mock.lastCall![0] as { pos: number; text: string }[])[0]!;
+  return (onMakeTask.mock.lastCall![0] as { key: string; text: string }[])[0]!;
+}
+
+/** The position of the `index`th checklist line (its task item) in `editor`'s document. */
+function itemPos(editor: Editor, index: number) {
+  const line = editor.view.dom.querySelectorAll("li p")[index]!;
+  return editor.view.posAtDOM(line, 0) - 2;
 }
 
 test("linkTaskItems follows the offered line through edits made meanwhile, and never links a changed one", async () => {
@@ -3095,7 +3101,7 @@ test("linkTaskItems follows the offered line through edits made meanwhile, and n
   ) as unknown as Editor;
   const offered = await makeTaskOn(screen, onMakeTask, 0);
   // While the host's dialog is open, a new unlinked line lands where the offered one was.
-  editor.commands.insertContentAt(offered.pos, {
+  editor.commands.insertContentAt(itemPos(editor, 0), {
     type: "taskItem",
     attrs: { checked: false },
     content: [
@@ -3104,7 +3110,7 @@ test("linkTaskItems follows the offered line through edits made meanwhile, and n
   });
   expect(
     handle.current!.linkTaskItems([
-      { pos: offered.pos, id: "t1", label: "Order glass" },
+      { key: offered.key, id: "t1", label: "Order glass" },
     ]),
   ).toBe(1);
   await vi.waitFor(() =>
@@ -3115,10 +3121,10 @@ test("linkTaskItems follows the offered line through edits made meanwhile, and n
   // A line edited after it was offered is left as it is.
   const second = await makeTaskOn(screen, onMakeTask, 2);
   expect(second.text).toBe("Fix scaffolding");
-  editor.commands.insertContentAt(second.pos + 2, "Not ");
+  editor.commands.insertContentAt(itemPos(editor, 2) + 2, "Not ");
   expect(
     handle.current!.linkTaskItems([
-      { pos: second.pos, id: "t2", label: "Fix scaffolding" },
+      { key: second.key, id: "t2", label: "Fix scaffolding" },
     ]),
   ).toBe(0);
   await vi.waitFor(() =>
@@ -3142,13 +3148,13 @@ test("linkTaskItems never drops a mention on the line or the text after it", asy
   const ask = await makeTaskOn(screen, onMakeTask, 0);
   expect(
     handle.current!.linkTaskItems([
-      { pos: ask.pos, id: "t1", label: "Ask Asha Rao" },
+      { key: ask.key, id: "t1", label: "Ask Asha Rao" },
     ]),
   ).toBe(1);
   // A plain-text title before a mention: only the title goes.
   const ship = await makeTaskOn(screen, onMakeTask, 1);
   expect(
-    handle.current!.linkTaskItems([{ pos: ship.pos, id: "t2", label: "Ship" }]),
+    handle.current!.linkTaskItems([{ key: ship.key, id: "t2", label: "Ship" }]),
   ).toBe(1);
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(
@@ -3179,6 +3185,110 @@ test("onTaskItemToggle: typing inside nested lines of one task whose boxes diffe
   await vi.waitFor(() =>
     expect(onTaskItemToggle).toHaveBeenCalledExactlyOnceWith("t1", true),
   );
+});
+
+test("linkTaskItems: an offered line deleted meanwhile is skipped, never a line with the same text", async () => {
+  const onMakeTask = vi.fn();
+  const onValueChange = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass\n- [ ] Order glass",
+    onMakeTask,
+    onValueChange,
+    handleRef: handle,
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  const first = await makeTaskOn(screen, onMakeTask, 0);
+  const at = itemPos(editor, 0);
+  editor.commands.deleteRange({
+    from: at,
+    to: at + editor.state.doc.nodeAt(at)!.nodeSize,
+  });
+  await vi.waitFor(() =>
+    expect(editor.view.dom.querySelectorAll("li p")).toHaveLength(1),
+  );
+  expect(
+    handle.current!.linkTaskItems([
+      { key: first.key, id: "t1", label: "Order glass" },
+    ]),
+  ).toBe(0);
+  expect(editor.view.dom.querySelector('[data-slot="inline-chip"]')).toBeNull();
+});
+
+test("linkTaskItems: two offers never take each other's task, whatever moved between them", async () => {
+  const onMakeTask = vi.fn();
+  const onValueChange = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass",
+    onMakeTask,
+    onValueChange,
+    handleRef: handle,
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  const glass = await makeTaskOn(screen, onMakeTask, 0);
+  // A new line lands where the offered one was, and is offered too.
+  editor.commands.insertContentAt(itemPos(editor, 0), {
+    type: "taskItem",
+    attrs: { checked: false },
+    content: [
+      { type: "paragraph", content: [{ type: "text", text: "Call Bob" }] },
+    ],
+  });
+  const bob = await makeTaskOn(screen, onMakeTask, 0);
+  expect(bob.text).toBe("Call Bob");
+  expect(bob.key).not.toBe(glass.key);
+  expect(
+    handle.current!.linkTaskItems([
+      { key: glass.key, id: "t1", label: "Order glass" },
+    ]),
+  ).toBe(1);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [ ] Call Bob\n- [ ] [@Order glass](mention://task/t1)",
+    ),
+  );
+  expect(
+    handle.current!.linkTaskItems([
+      { key: bob.key, id: "t2", label: "Call Bob" },
+    ]),
+  ).toBe(1);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [ ] [@Call Bob](mention://task/t2)\n- [ ] [@Order glass](mention://task/t1)",
+    ),
+  );
+});
+
+test("onTaskItemToggle: a checked line of the same task pasted over an unchecked one is not a toggle", async () => {
+  const onTaskItemToggle = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue:
+      "- [ ] [@Order glass](mention://task/t1)\n- [x] [@Order glass](mention://task/t1) copy",
+    onTaskItemToggle,
+    onValueChange,
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  await vi.waitFor(() =>
+    expect(editor.view.dom.querySelectorAll("li p")).toHaveLength(2),
+  );
+  editor.commands.setNodeSelection(itemPos(editor, 1));
+  const { dom } = editor.view.serializeForClipboard(
+    editor.state.selection.content(),
+  );
+  editor.commands.setNodeSelection(itemPos(editor, 0));
+  editor.view.pasteHTML(dom.innerHTML);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).not.toContain("- [ ]"),
+  );
+  expect(onTaskItemToggle).not.toHaveBeenCalled();
 });
 
 test("Make task is absent without onMakeTask", async () => {

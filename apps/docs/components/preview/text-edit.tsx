@@ -1264,7 +1264,7 @@ export function textEditTasks(): ReactNode {
         }
         onMakeTask={(items) => {
           const links = items.map((item) => ({
-            pos: item.pos,
+            key: item.key,
             id: `T-${++nextId.current}`,
             label: item.text,
           }));

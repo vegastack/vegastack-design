@@ -348,11 +348,14 @@ the swap never moves the text. On a page with room the text keeps its column, an
   `setTaskItemChecked`.
 - **Make task** (`onMakeTask`): the block menu of an unlinked checklist line offers **Make task**,
   or **Make N tasks** when the selection reaches several unlinked lines (open it with ⇧F10, or
-  the grip with the lines selected). It calls `onMakeTask` with each line's position and trimmed
-  text. Create the tasks, then call `handleRef.linkTaskItems([{ pos, id, label }])` to put a task
-  chip at the start of each line. If the line starts with the title, the text after the title
-  stays after the chip ("Order glass — by Friday"); otherwise the whole line becomes the chip.
-  Nested lines stay. Linking is one undo step.
+  the grip with the lines selected). It calls `onMakeTask` with each line's `key` (its `blockId`,
+  given one if it has none) and trimmed text. Create the tasks, then call
+  `handleRef.linkTaskItems([{ key, id, label }])` to put a task chip at the start of each line.
+  The key follows the line through any edits made meanwhile, a collaborator's included; a line
+  removed, edited or already linked by then is skipped. If the line starts with the title as
+  plain text, the text after the title stays after the chip ("Order glass — by Friday");
+  otherwise the whole line stays after the chip, mentions included. Nested lines stay. Linking is
+  one undo step.
 - **The task changed elsewhere**: `handleRef.setTaskItemChecked(taskId, checked)` ticks or
   unticks every line linked to it. It is not an undo step and returns how many lines changed.
 - **Closed targets** (`mentionStatus(kind, id)`): return `{ struck: true, status: "Canceled" }` to
@@ -360,11 +363,12 @@ the swap never moves the text. On a page with room the text keeps its column, an
   render, and chips re-render when the function changes. The read view and `MarkdownView` take
   the same prop.
 - **Section marks** (`sectionMarks`): each `{ key, tone, label }` names a heading by its `blockId`.
-  It draws a dot in the gutter beside the heading, 26px before the text, left of the drag grip,
-  and a `warning` or `info` bar along the section, up to the next heading of the same or a
-  higher level. Leave about 34px of start gutter for them. They are decorations: nothing is
-  written to the document and no text moves. Typing maps them, and they are rebuilt only when
-  the marks change or an edit touches a heading or adds or removes a block. The dot is a button
+  It draws a dot in the gutter beside the heading, 32px before the text (50px on touch), clear
+  of the drag grip, and a `warning` or `info` bar along the section, up to the next heading of
+  the same or a higher level. Leave 44px of start gutter for them (62px on touch). Marks mount
+  the editor at once, so a read-only document shows them too. They are decorations: nothing is
+  written to the document and no text moves. Typing inside a block maps them; they are rebuilt
+  when the marks change or an edit adds, removes, replaces or retypes a top-level block. The dot is a button
   named by `label` (also its tooltip) that calls `onSectionMark(key)`. Headings carry a `blockId`
   in a shared document or in HTML with `data-blockid`, not in plain Markdown.
 
