@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.42 sha256-TvOGfiMflv6GT43FqNeruxU7DcmUHsoEnQfMmjE4Ysg=
+// @vegastack data-list@0.25.42 sha256-F622d6zwf35Q8Ja62CYjvW42wJ5TuGPCPHaDPJYoiGY=
 
 "use client";
 
@@ -1029,13 +1029,48 @@ function keyBelongsElsewhere(event: KeyboardEvent): boolean {
   );
 }
 
-/** A merged value with nothing to show: nothing, an empty string, or the "—" placeholder. */
-function isEmptyMergedValue(node: React.ReactNode): boolean {
+/** Plain text wrappers whose only content may be the "—" placeholder. */
+const PLACEHOLDER_WRAPPERS = new Set([
+  "span",
+  "div",
+  "p",
+  "small",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "code",
+]);
+
+/** `""` or the "—" placeholder, as text. */
+function isPlaceholderText(value: unknown): boolean {
   return (
-    node == null ||
-    node === false ||
-    (typeof node === "string" && (node.trim() === "" || node.trim() === "—"))
+    typeof value === "string" && (value.trim() === "" || value.trim() === "—")
   );
+}
+
+/**
+ * A merged value with nothing to show: nothing, an empty string, or the "—" placeholder — bare,
+ * or as the literal text of a plain wrapper (`<span className="tabular-nums">—</span>`, how a
+ * numeric column renders its placeholder). A wrapper that names itself (a label, a title, a
+ * role) or holds anything but that text stays, and a component's output is never inspected.
+ */
+function isEmptyMergedValue(node: React.ReactNode): boolean {
+  if (React.isValidElement<Record<string, unknown>>(node)) {
+    if (typeof node.type !== "string" || !PLACEHOLDER_WRAPPERS.has(node.type))
+      return false;
+    const props = node.props;
+    if (
+      props["aria-label"] != null ||
+      props["aria-labelledby"] != null ||
+      props.title != null ||
+      props.role != null ||
+      props.dangerouslySetInnerHTML != null
+    )
+      return false;
+    return isPlaceholderText(props.children);
+  }
+  return node == null || node === false || isPlaceholderText(node);
 }
 
 /** The `loadMore` prop: the paging state plus the footer's own labels. */
@@ -1801,8 +1836,10 @@ export function DataList<T>({
                     "mt-1 flex min-w-0 text-xs font-normal text-muted-foreground",
                     mergedLayout === "line"
                       ? // `line`: ONE text line that truncates — never a second or third line,
-                        // never an avatar (a picture in a meta line breaks its rhythm).
-                        "flex-row flex-nowrap gap-x-1 overflow-hidden whitespace-nowrap [&_[data-slot=avatar]]:hidden"
+                        // never an avatar (a picture in a meta line breaks its rhythm). Its
+                        // values share one centre line, so a chip, a time's 24px tooltip target
+                        // and plain text sit level with the dots between them.
+                        "flex-row flex-nowrap items-center gap-x-1 overflow-hidden whitespace-nowrap [&_[data-slot=avatar]]:hidden"
                       : "flex-col gap-0.5",
                   )}
                 >
@@ -1835,13 +1872,16 @@ export function DataList<T>({
                         }
                         className={cn(
                           mergedValueClass(merged),
+                          // `line`: each value is a centred row of its dot and ONE content box,
+                          // so a render that is itself a flex row (a person: avatar and name)
+                          // stays on the line instead of breaking under its dot.
                           mergedLayout === "line" &&
-                            "shrink truncate whitespace-nowrap wrap-normal",
+                            "flex shrink items-center overflow-hidden whitespace-nowrap wrap-normal",
                         )}
                       >
                         {mergedLayout === "line" && mergedIdx > 0 ? (
                           // `line`: a decorative dot before every value but the first.
-                          <span aria-hidden="true" className="me-1">
+                          <span aria-hidden="true" className="me-1 shrink-0">
                             ·
                           </span>
                         ) : null}
@@ -1849,7 +1889,20 @@ export function DataList<T>({
                         typeof merged.header === "string" ? (
                           <span className="sr-only">{merged.header}: </span>
                         ) : null}
-                        {node}
+                        {mergedLayout !== "line" ? (
+                          node
+                        ) : React.isValidElement(node) &&
+                          node.type !== React.Fragment ? (
+                          // One element (a chip, a time's 24px target, a person row): centred
+                          // as a flex item rather than sat on a baseline, and ellipsized.
+                          <span className="flex min-w-0 items-center [&>*]:min-w-0 [&>*]:overflow-hidden [&>*]:text-ellipsis [&>*]:whitespace-nowrap">
+                            {node}
+                          </span>
+                        ) : (
+                          // Text, a fragment or a list: inline in one truncating box, so its
+                          // spaces survive and it ends in an ellipsis.
+                          <span className="min-w-0 truncate">{node}</span>
+                        )}
                       </span>
                     ))}
                 </span>
