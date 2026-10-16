@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.42 sha256-ahET6AXcqgCabP039p8SSiAv/ROtLuK6wfuyFht39jI=
+// @vegastack mermaid-block@0.25.42 sha256-GeKp9kXeb7kCBRvP0QL/nKFQ+ZXz/fQ81GCaNxQ2WAU=
 
 "use client";
 
@@ -372,6 +372,10 @@ export function renderMermaid(
  * page hides `body`'s other children — a print stylesheet that isolates the document — and then
  * draws every label at `translate(NaN, NaN)`. Inline `!important` outranks such a rule.
  */
+/** A geometry attribute with `NaN` in it: the labels were never measured (not a label's own words). */
+const UNMEASURED =
+  /\s(?:transform|x|y|x1|y1|x2|y2|cx|cy|r|rx|ry|width|height|d|points|viewBox)="[^"]*\bNaN\b/;
+
 function measuringBox(): HTMLElement {
   const box = document.createElement("div");
   box.setAttribute("aria-hidden", "true");
@@ -422,7 +426,7 @@ async function draw(
         box,
       );
       // A drawing whose labels could not be measured is never kept: the next render tries again.
-      if (/\bNaN\b/.test(svg))
+      if (UNMEASURED.test(svg))
         return { error: { message: "The diagram couldn't be measured." } };
       cacheSet(key, svg);
       return { svg };
