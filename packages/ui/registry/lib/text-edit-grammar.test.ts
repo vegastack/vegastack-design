@@ -53,6 +53,7 @@ test("a record mention is anything but a person", () => {
     "meeting",
     "customer",
     "project",
+    "product",
   ]);
 });
 

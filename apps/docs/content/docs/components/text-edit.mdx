@@ -338,6 +338,62 @@ the swap never moves the text. On a page with room the text keeps its column, an
 />
 ```
 
+### Linked task lines and section marks
+
+- **Linked task lines**: a checklist line whose first inline is a task mention,
+  `- [x] [@Order glass](mention://task/t1)`, is linked to that task. `linkedTaskId(node)` returns
+  its id, or `null` for any other node. Its box is the task's done state.
+  `onTaskItemToggle(taskId, checked)` reports only this person's own ticks, including their undo.
+  It never reports a collaborator's tick, a `value` change or the host's own
+  `setTaskItemChecked`.
+- **Make task** (`onMakeTask`): the block menu of an unlinked checklist line offers **Make task**,
+  or **Make N tasks** when the selection reaches several unlinked lines (open it with ⇧F10, or
+  the grip with the lines selected). It calls `onMakeTask` with each line's `key` (its `blockId`,
+  given one if it has none) and trimmed text. Create the tasks, then call
+  `handleRef.linkTaskItems([{ key, id, label }])` to put a task chip at the start of each line.
+  The key follows the line through any edits made meanwhile, a collaborator's included; a line
+  removed, edited or already linked by then is skipped. If the line starts with the title as
+  plain text, the text after the title stays after the chip ("Order glass — by Friday");
+  otherwise the whole line stays after the chip, mentions included. Nested lines stay. Linking is
+  one undo step.
+- **The task changed elsewhere**: `handleRef.setTaskItemChecked(taskId, checked)` ticks or
+  unticks every line linked to it. It is not an undo step and returns how many lines changed.
+- **Closed targets** (`mentionStatus(kind, id)`): return `{ struck: true, status: "Canceled" }` to
+  strike a chip's label through and add a small status tag. Like `mentionLabel`, it is read at
+  render, and chips re-render when the function changes. The read view and `MarkdownView` take
+  the same prop.
+- **Section marks** (`sectionMarks`): each `{ key, tone, label }` names a heading by its `blockId`.
+  It draws a dot in the gutter beside the heading, 32px before the text (50px on touch), clear
+  of the drag grip, and a `warning` or `info` bar along the section, up to the next heading of
+  the same or a higher level. Leave 44px of start gutter for them (62px on touch). Marks mount
+  the editor at once, so a read-only document shows them too. They are decorations: nothing is
+  written to the document and no text moves. Typing inside a block maps them; they are rebuilt
+  when the marks change or an edit adds, removes, replaces or retypes a top-level block. The dot is a button
+  named by `label` (also its tooltip) that calls `onSectionMark(key)`. Headings carry a `blockId`
+  in a shared document or in HTML with `data-blockid`, not in plain Markdown.
+
+<ComponentPreview
+  name="textEditTasks"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  format="markdown"
+  collaboration={collaboration}
+  handleRef={handle}
+  mentionStatus={(kind, id) =>
+    kind === "task" && closed(id) ? { struck: true, status: label(id) } : null
+  }
+  onMakeTask={(items) => openMakeTaskDialog(items)} // then handle.current.linkTaskItems(links)
+  onTaskItemToggle={(taskId, checked) => setTaskDone(taskId, checked)}
+  sectionMarks={[
+    { key: heading.blockId, tone: "warning", label: "May be out of date" },
+  ]}
+  onSectionMark={(key) => openSectionChanges(key)}
+/>
+```
+
 ### Placeholders
 
 Keep `placeholder` to the recommended copy — "Add a description…", "Add a summary…", "Add a
@@ -430,7 +486,7 @@ editor is created.
 ### Mentions
 
 `mentions={{ kinds, search }}` turns on `@`: typed after a space, an opening bracket or at the start
-of a line it opens a menu grouped People · Pages · Files · Tasks · … · Your agents (only the `kinds`
+of a line it opens a menu grouped People · Pages · Files · Tasks · Meetings · Customers · Projects · Products · Your agents (only the `kinds`
 given, at most five each). The query may hold spaces — `@Asha Rao` searches the whole name — and two
 spaces in a row, or a phrase that matches no one past a space, close the menu. `search`
 runs 150ms after the last keystroke with an `AbortSignal` that aborts when the query changes; the
@@ -716,7 +772,9 @@ a whole block stay text and a list, and a paragraph that starts with `:::tasks{`
 
 `renderTaskQuery({ blockId, query, snapshot, editable })` draws the list with your own component,
 which fetches this reader's rows. It runs in the editor (`editable` follows the editor) and in the
-read view before it (`editable: false`). Without it, or where it returns `null`, the snapshot shows
+read view before it (`editable: false`). In an editable editor it also gets `setQuery(query)`,
+which replaces the list's filter as one local edit (undoable, carried to collaborators); read views
+get none. Without it, or where it returns `null`, the snapshot shows
 as `MarkdownTaskList`'s quiet card. Insert a list from your own slash item with
 `{ type: "taskQuery", attrs: { query, snapshot } }`. A collaborative editor gives it a `blockId`.
 
@@ -725,12 +783,12 @@ as `MarkdownTaskList`'s quiet card. Insert a list from your own slash item with
   format="markdown"
   value={body}
   onValueChange={setBody}
-  renderTaskQuery={({ blockId, query, editable }) => (
+  renderTaskQuery={({ blockId, query, setQuery }) => (
     <LiveTaskList
       pageId={pageId}
       blockId={blockId}
       query={query}
-      editable={editable}
+      onFilterChange={setQuery}
     />
   )}
 />

@@ -25,6 +25,7 @@ import type {
   TextEditAnnotationLayout,
   TextEditHandle,
   TextEditOutlineItem,
+  TextEditSectionMark,
   TextEditStats,
 } from "@/components/ui/text-edit";
 import { Wrapper } from "./wrapper";
@@ -1206,6 +1207,84 @@ export function textEditEditorTools(): ReactNode {
           ? `${stats.words.toLocaleString()} words · ${stats.characters.toLocaleString()} characters · about ${stats.readingMinutes} min read`
           : "Counting…"}
       </p>
+    </Wrapper>
+  );
+}
+
+const TASKS_HTML = [
+  '<h2 data-blockid="next">Next steps</h2>',
+  '<ul data-type="taskList">',
+  '<li data-type="taskItem" data-checked="false"><p>Confirm delivery slot</p></li>',
+  '<li data-type="taskItem" data-checked="false"><p>Book the crane for Friday</p></li>',
+  '<li data-type="taskItem" data-checked="false"><p><span data-type="mention" data-kind="task" data-id="T-142" data-label="Order glass for block B"></span></p></li>',
+  '<li data-type="taskItem" data-checked="true"><p><span data-type="mention" data-kind="task" data-id="T-139" data-label="Order from the old supplier"></span></p></li>',
+  "</ul>",
+  '<h2 data-blockid="pricing">Pricing</h2>',
+  '<p>The glazing team quotes per panel, using <span data-type="mention" data-kind="product" data-id="v1" data-label="Glazing kit 1200"></span>.</p>',
+  "<p>Delivery is extra.</p>",
+  '<h2 data-blockid="scope">Scope</h2>',
+  "<p>Blocks A and B only.</p>",
+].join("");
+
+/**
+ * Linked checklist lines and section marks: Make task on a line (or Make N tasks on a selection)
+ * links it to a new task; ticking a linked line reports the task; a canceled task's chip is
+ * struck. "Pricing" carries a warning mark — click its gutter dot to clear it.
+ */
+export function textEditTasks(): ReactNode {
+  const handle = useRef<TextEditHandle>(null);
+  const nextId = useRef(150);
+  const [marks, setMarks] = useState<TextEditSectionMark[]>([
+    { key: "pricing", tone: "warning", label: "May be out of date" },
+  ]);
+  return (
+    <Wrapper className="flex-col items-stretch ps-12 pointer-coarse:ps-16">
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            const changed = handle.current?.setTaskItemChecked("T-142", true);
+            toast.add({
+              title: changed ? "T-142 was done elsewhere" : "T-142 is done",
+            });
+          }}
+        >
+          Finish T-142 elsewhere
+        </Button>
+      </div>
+      <TextEdit
+        defaultValue={TASKS_HTML}
+        handleRef={handle}
+        aria-label="Notes with linked tasks"
+        mentionStatus={(kind, id) =>
+          kind === "task" && id === "T-139"
+            ? { struck: true, status: "Canceled" }
+            : null
+        }
+        onMakeTask={(items) => {
+          const links = items.map((item) => ({
+            key: item.key,
+            id: `T-${++nextId.current}`,
+            label: item.text,
+          }));
+          handle.current?.linkTaskItems(links);
+          toast.add({
+            title:
+              links.length > 1
+                ? `${links.length} tasks created`
+                : `${links[0]!.id} created`,
+          });
+        }}
+        onTaskItemToggle={(id, checked) =>
+          toast.add({ title: `${id} ${checked ? "marked Done" : "reopened"}` })
+        }
+        sectionMarks={marks}
+        onSectionMark={(key) => {
+          setMarks((current) => current.filter((mark) => mark.key !== key));
+          toast.add({ title: "Marked as fine for everyone" });
+        }}
+      />
     </Wrapper>
   );
 }

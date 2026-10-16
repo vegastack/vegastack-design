@@ -328,6 +328,10 @@ const DYNAMIC_DOM: Record<string, string> = {
   // resolved the annotations, which is the DOM these contracts measure.
   textEditAnnotationCounts:
     '.ProseMirror[contenteditable] [data-slot="text-edit-annotation-count"]',
+  // The section mark is a widget decoration: it exists only once the editor view has resolved
+  // `sectionMarks`, which is the gutter geometry these contracts measure.
+  textEditTasks:
+    '.ProseMirror[contenteditable] [data-slot="text-edit-section-mark"]',
   markdownTables: ".ProseMirror[contenteditable]",
   htmlTables: ".ProseMirror[contenteditable]",
   textEditMentions: ".ProseMirror[contenteditable]",

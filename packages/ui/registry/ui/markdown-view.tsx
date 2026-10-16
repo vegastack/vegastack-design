@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.42 sha256-qWlI5zLR+543855V8191Ot95qoO9CBPzlIMLi6cW8e0=
+// @vegastack markdown-view@0.25.42 sha256-4x3qXchkohwSaEWcUL2LmZ3TleLzunRIBRCYEAjGJYg=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -259,6 +259,14 @@ export interface TaskQueryRenderProps {
   snapshot: string;
   /** Whether the reader can change the list's filter: an editable editor. */
   editable: boolean;
+  /**
+   * Replace the list's filter (an editable editor only; absent in read views): a local edit of
+   * the node's `query` — one undo step, carried to collaborators like any other edit. Keys other
+   * than `[a-z][a-z0-9-]*` are dropped and line breaks in values become spaces, so the filter
+   * reads back as written. A call after the editor turns read-only does nothing.
+   * @default undefined
+   */
+  setQuery?: (query: Record<string, string>) => void;
 }
 
 /** A `tasks` element's `query` attribute (JSON) as its strings. */
@@ -1106,6 +1114,8 @@ const HTML_ATTRS = new Set([
   "data-checked",
   "data-snapshot",
   "data-query",
+  // `TextEdit` writes a block id as `data-blockId` (read lowercased); `data-block-id` is read too.
+  "data-blockid",
   "data-block-id",
   "width",
 ]);
@@ -1170,7 +1180,7 @@ function withEmbeds(nodes: DocNode[]): DocNode[] {
     // `TextEdit`'s HTML for a live task list: its snapshot rows, read like the Markdown directive.
     if (node.tag === "div" && node.attrs["data-type"] === "task-query")
       return el("tasks", {
-        id: node.attrs["data-block-id"] ?? "",
+        id: node.attrs["data-blockid"] ?? node.attrs["data-block-id"] ?? "",
         query: node.attrs["data-query"] ?? "{}",
         snapshot: node.attrs["data-snapshot"] ?? "",
       });
@@ -1287,6 +1297,7 @@ interface RenderContext {
   tableLabel?: string;
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   mentionImage?: (id: string) => string | null | undefined;
+  mentionStatus?: MarkdownViewProps["mentionStatus"];
   fileLinkPrefix: string;
   embeds?: EmbedProviders;
   fileContentType?: (href: string) => string | null | undefined;
@@ -1496,12 +1507,15 @@ function renderNode(
     }
     case "mention": {
       const kind = attrs.kind as MentionKind;
+      const closed = ctx.mentionStatus?.(kind, attrs.id ?? "");
       return (
         <InlineChip
           key={key}
           kind={kind}
           targetId={attrs.id ?? ""}
           label={attrs.label ?? ""}
+          struck={closed?.struck === true}
+          status={closed?.status}
           // The view's own props win over the provider's only when the host passed them.
           href={
             ctx.mentionHref ? ctx.mentionHref(kind, attrs.id ?? "") : undefined
@@ -2051,6 +2065,16 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   mentionImage?: (id: string) => string | null | undefined;
   /**
+   * A closed target's look, by kind and id: `{ struck: true, status: "Canceled" }` strikes the
+   * chip's label through and adds a small status tag (a canceled or duplicate task). `null` for a
+   * plain chip.
+   * @default undefined
+   */
+  mentionStatus?: (
+    kind: MentionKind,
+    id: string,
+  ) => { struck?: boolean; status?: string } | null | undefined;
+  /**
    * A link whose href starts with this renders as a file chip — an icon for the file's type and
    * its name. `""` turns file chips off.
    * @default "/api/files/"
@@ -2158,6 +2182,7 @@ export function MarkdownView({
   tableLabel,
   mentionHref,
   mentionImage,
+  mentionStatus,
   fileLinkPrefix = "/api/files/",
   embeds,
   fileContentType,
@@ -2266,6 +2291,7 @@ export function MarkdownView({
         tableLabel,
         mentionHref,
         mentionImage,
+        mentionStatus,
         fileLinkPrefix,
         embeds,
         fileContentType,

@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.42 sha256-t7LQfHyN2Mmsga3dY6vb1+5j6D58+yfhziO7GKsDrvE=
+// @vegastack text-edit-schema@0.25.42 sha256-5kYUtSAkG8mlAK342q5U3gzyWMnPI4JmS6IV9cca0vw=
 
 import {
   Extension,
@@ -105,8 +105,8 @@ export interface TextEditSchemaOptions {
 }
 
 /**
- * The blocks that carry a stable `blockId` (`data-block-id` in HTML): heading links, per-viewer
- * toggle state, anchors and section keys all point at it. Markdown never carries one — except a
+ * The blocks that carry a stable `blockId` (`data-blockId` in HTML, read back as `data-blockid`):
+ * heading links, per-viewer toggle state, anchors and section keys all point at it. Markdown never carries one — except a
  * live task list's (`taskQuery`), whose `:::tasks{id="…"}` is its `blockId`: its snapshots and
  * the host's records of it are keyed by that id.
  */
