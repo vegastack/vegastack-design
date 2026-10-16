@@ -259,7 +259,15 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
     .poll(
       async () => {
         await userEvent.hover(trigger);
-        return getComputedStyle(chevron).opacity;
+        const r = trigger.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          r.x + r.width / 2,
+          r.y + r.height / 2,
+        );
+        const op = getComputedStyle(chevron).opacity;
+        return op === "1"
+          ? op
+          : `${op} hover=${trigger.matches(":hover")} hit=${hit?.getAttribute("data-slot") ?? hit?.tagName} rect=${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.width)}x${Math.round(r.height)} win=${innerWidth}x${innerHeight}`;
       },
       { timeout: 5000, interval: 100 },
     )
