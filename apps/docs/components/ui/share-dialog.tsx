@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.42 sha256-5Gs+sPMFrqg2NJqr1AS5bbndSiNk51Pg8IILXty7hKU=
+// @vegastack share-dialog@0.25.42 sha256-oT86v9FrCrA9D6WldDBpwZrvvOFNsvJ3PFwwzf/B0iU=
 
 "use client";
 
@@ -385,6 +385,11 @@ export interface ShareDialogProps {
   onAudienceOpenChange?: (open: boolean) => void;
   /** A public-link change is in flight; its controls wait. @default false */
   publicLinkPending?: boolean;
+  /**
+   * More settings for the public link while it is on (what the link shows, say): rendered in the
+   * Publish tab under the link and its expiry, for a viewer who can publish. @default undefined
+   */
+  publicLinkOptions?: React.ReactNode;
   /** The item's own link, for Copy link in the footer. Omit to hide Copy link. @default undefined */
   linkUrl?: string;
   /** A muted note above the footer, such as "Admins can view this space." @default undefined */
@@ -500,6 +505,7 @@ export function ShareDialog({
   audienceCount,
   onAudienceOpenChange,
   publicLinkPending = false,
+  publicLinkOptions,
   linkUrl,
   footerNote,
   labels: labelsProp,
@@ -1040,6 +1046,14 @@ export function ShareDialog({
               >
                 {labels.stopPublishing}
               </Button>
+            </div>
+          ) : null}
+          {canPublish && publicLinkOptions ? (
+            <div
+              data-slot="share-public-link-options"
+              className="flex flex-col gap-2"
+            >
+              {publicLinkOptions}
             </div>
           ) : null}
         </div>
