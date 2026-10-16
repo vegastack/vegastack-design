@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-5wSXoo9hc/NyAJ32fRhhGVufmmIe5mVUA1n8h5udN3c=
+// @vegastack text-edit@0.25.42 sha256-itOHmLjo5rFqo9YwDmzXvmmLJR3FFrphGT3T5//N3kM=
 
 "use client";
 
@@ -6251,7 +6251,8 @@ function FindBar({
         <label htmlFor={inputId} className="sr-only">
           Find
         </label>
-        <div className="relative min-w-40 flex-1">
+        {/* The field gives way first, so the bar stays one row in a 27rem text column. */}
+        <div className="relative min-w-24 flex-1">
           <Search
             aria-hidden
             className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
