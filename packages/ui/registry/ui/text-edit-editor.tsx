@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-QpmSwUX4UhvUo5IOI41WQUk++Yh27dWHDy3g/1osX/o=
+// @vegastack text-edit@0.25.42 sha256-5wSXoo9hc/NyAJ32fRhhGVufmmIe5mVUA1n8h5udN3c=
 
 "use client";
 
@@ -8423,12 +8423,8 @@ export function TextEditEditor({
 
   editorRef.current = editor;
   if (editor) EDITOR_EMBEDS.set(editor, embeds);
-  // Before any node view mounts, its first render reads the host's function directly; after
-  // that, a new one reaches them after the commit (never a node view update during this render).
-  if (editor) {
-    const store = taskQueryStore(editor);
-    if (store.listeners.size === 0) store.render = renderTaskQuery;
-  }
+  // Published only once this render commits (before paint): an abandoned render never reaches a
+  // node view, and a new function re-renders every one already mounted.
   React.useLayoutEffect(() => {
     if (editor && !editor.isDestroyed)
       setTaskQueryRender(editor, renderTaskQuery);

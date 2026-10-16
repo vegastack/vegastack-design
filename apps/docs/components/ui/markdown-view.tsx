@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.42 sha256-d+NROfK6Bctj3TOeuZ4ZOcq7mPK2bTNvqXf/yz7rDEI=
+// @vegastack markdown-view@0.25.42 sha256-qWlI5zLR+543855V8191Ot95qoO9CBPzlIMLi6cW8e0=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1773,7 +1773,7 @@ function renderNode(
         editable: false,
       });
       // One atom in a comment anchor's text, as TextEdit counts the node, whoever draws it.
-      return drawn ? (
+      return drawn != null ? (
         <div
           key={key}
           data-slot="markdown-task-query"
