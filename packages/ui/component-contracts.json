@@ -15665,6 +15665,34 @@
           }
         },
         {
+          "name": "TaskQueryRenderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownTaskList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/markdown-view.tsx."
+          }
+        },
+        {
+          "name": "MarkdownTaskListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "markdownExtrasClassName",
           "kind": "constant",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
@@ -16151,6 +16179,19 @@
             {
               "name": "data-slot",
               "values": ["block-view", "block-view-fallback"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownTaskList": {
+          "attributes": [
+            {
+              "name": "data-checked",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["markdown-task-list", "markdown-task-list-row"]
             }
           ],
           "cssVariables": []
@@ -42346,6 +42387,60 @@
         },
         {
           "name": "markdownTitle",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseDirectiveAttrs",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TasksDirective",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "readTasksDirective",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "tasksDirectiveMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TaskListRow",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "parseTaskListRows",
           "kind": "function",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
           "ref": {

@@ -137,9 +137,14 @@ const sourceWords = (markdown: string) =>
 function docWords(doc: PMNode): Set<string> {
   const words = new Set(wordsOf(docToText(doc)));
   doc.descendants((node) => {
+    // A live task list's directive name and its `id` key are syntax; its `query` is an object.
+    if (node.type.name === "taskQuery") words.add("tasks").add("id");
     for (const value of Object.values(node.attrs))
       if (value !== null && value !== undefined)
-        for (const word of wordsOf(String(value))) words.add(word);
+        for (const word of wordsOf(
+          typeof value === "object" ? JSON.stringify(value) : String(value),
+        ))
+          words.add(word);
     for (const mark of node.marks)
       for (const value of Object.values(mark.attrs))
         if (value !== null && value !== undefined)
@@ -265,6 +270,10 @@ export const ADVERSARIAL: Record<string, string> = {
   "media lines": '<video src="/v.mp4"></video>\n',
   "nested quotes": "> > > quote\n",
   "headings between lines": "p\n# h\n",
+  "unclosed task lists":
+    ':::tasks{id="a" v="1"}\n- [ ] [@T](mention://task/t1) — To do\n',
+  "task lists":
+    ':::tasks{id="a" v="1"}\n- [ ] [@T](mention://task/t1) — To do\n:::\n\n',
 };
 
 /**
