@@ -1140,8 +1140,96 @@ test('mergedLayout="line" is one truncating line: empty values ("—") drop with
   expect(merged.textContent).toBe("KMK Manoj Kumar·13h ago");
   expect(merged.className).toContain("flex-nowrap");
   expect(merged.className).toContain("[&_[data-slot=avatar]]:hidden");
-  for (const value of merged.children)
-    expect(value.className).toContain("truncate");
+  // Each value clips, and its content sits in one truncating box after the dot.
+  for (const value of merged.children) {
+    expect(value.className).toContain("overflow-hidden");
+    expect(value.lastElementChild!.className).toContain("truncate");
+  }
+  expect(
+    Array.from(merged.children, (v) => v.lastElementChild!.textContent),
+  ).toEqual(["KMK Manoj Kumar", "13h ago"]);
+});
+
+test('mergedLayout="line": one content box per value; only a plain "—" wrapper drops', async () => {
+  // The layout itself (one centred line, ellipsis) is proven with real CSS in
+  // test/geometry.browser.test.tsx; this pins the structure it rests on.
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="Files"
+        mergedLayout="line"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          {
+            key: "team",
+            header: "Updated by",
+            render: () => (
+              <span className="flex min-w-0 items-center gap-2">
+                <span data-slot="avatar">KM</span>
+                <span className="min-w-0 truncate">K Manoj Kumar</span>
+              </span>
+            ),
+          },
+          {
+            key: "id",
+            header: "Review",
+            mergedRender: () => (
+              <>
+                <span>4</span> <span>to review</span>
+              </>
+            ),
+          },
+          {
+            key: "email",
+            header: "Size",
+            render: () => <span className="tabular-nums">—</span>,
+          },
+          // Not placeholders: a picture, a labelled mark and a self-closing control stay.
+          {
+            key: "a",
+            header: "Kind",
+            mergedRender: () => <img alt="PDF" src="" />,
+          },
+          {
+            key: "b",
+            header: "Lock",
+            mergedRender: () => <span aria-label="Locked">—</span>,
+          },
+          { key: "c", header: "Done", mergedRender: () => <input readOnly /> },
+        ]}
+        data={wideData.slice(0, 1)}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  expect(merged.className).toContain("items-center");
+  // Only the plain "—" wrapper dropped (with its dot): 5 values, 4 dots.
+  expect(merged.children).toHaveLength(5);
+  expect(
+    merged.querySelectorAll(':scope > * > [aria-hidden="true"]'),
+  ).toHaveLength(4);
+  expect(merged.querySelector("img[alt=PDF]")).not.toBeNull();
+  expect(merged.querySelector('[aria-label="Locked"]')).not.toBeNull();
+  expect(merged.querySelector("input")).not.toBeNull();
+  for (const value of merged.children) {
+    expect(value.className).toMatch(/(^| )flex( |$)/);
+    expect(value.className).toContain("items-center");
+  }
+  const [person, review] = Array.from(
+    merged.children,
+    (v) => v.lastElementChild!,
+  );
+  // One element: a centring flex box that ellipsizes it.
+  expect(person!.className).toContain("items-center");
+  expect(person!.className).toContain("[&>*]:text-ellipsis");
+  // A fragment stays together in one inline truncating box, its space kept.
+  expect(review!.className).toContain("truncate");
+  expect(review!.textContent).toBe("4 to review");
 });
 
 test("rowProps: data-* passthrough and a highlighted row", async () => {
