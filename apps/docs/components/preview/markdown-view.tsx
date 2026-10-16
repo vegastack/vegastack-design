@@ -222,6 +222,31 @@ export function markdownViewEmbeds(): ReactNode {
 }
 
 /**
+ * Live task lists — `:::tasks{…}` renders its stored snapshot as a quiet list card: task chips with
+ * their status labels, or "No matching tasks". A host draws the live list with `renderTaskQuery`.
+ */
+export function markdownViewTaskLists(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <MarkdownView mentionHref={(kind, id) => `#${kind}-${id}`}>
+        {[
+          "## Next steps",
+          "",
+          ':::tasks{id="lb_9f2c" v="1" space="page" assignee="me" status="open" sort="due" limit="25"}',
+          "- [ ] [@Order hinges](mention://task/t151) — To do",
+          "- [ ] [@Site survey](mention://task/t148) — In progress",
+          "- [x] [@Order glass for block B](mention://task/t142) — Done",
+          ":::",
+          "",
+          ':::tasks{id="lb_0e1a" v="1" status="done_7d"}',
+          ":::",
+        ].join("\n")}
+      </MarkdownView>
+    </Wrapper>
+  );
+}
+
+/**
  * TextEdit's Markdown constructs, rendered: mention chips (a page links through `mentionHref`, a
  * person and a `restricted:` target never do), a file chip, callouts in three tones, a toggle
  * (collapsed), and `headingIds` — the repeated heading gets `-1`.

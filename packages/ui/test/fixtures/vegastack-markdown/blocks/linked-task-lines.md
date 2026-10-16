@@ -1,0 +1,4 @@
+- [ ] [@Order glass for block B](mention://task/0192a1b2-0000-7000-8000-000000000003)
+- [x] [@Fix scaffolding](mention://task/0193a1b2-0000-7000-8000-000000000004)
+- [x] [@Old supplier](mention://task/restricted:0194) and a note after it
+- [ ] Confirm delivery slot

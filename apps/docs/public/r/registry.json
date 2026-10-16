@@ -1990,7 +1990,7 @@
         "version": "0.25.42",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-IxLdDpBSu2LH+PCQ6dFxugum+SmXjIUIT5/0Tgv+7yA="
+        "integrity": "sha256-BS9raIlK3fxhp8CxhSdLufX7sB//pOIldbkEX085AP0="
       }
     },
     {
@@ -2055,7 +2055,7 @@
         "version": "0.25.42",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-ehRU7WiXO2DxvcG8qli8wwV1hsED5HyURvMwTIYRL74="
+        "integrity": "sha256-t7LQfHyN2Mmsga3dY6vb1+5j6D58+yfhziO7GKsDrvE="
       }
     },
     {
@@ -16235,7 +16235,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.42",
-        "integrity": "sha256-MT3nZvniMLWCym8fxxmYS2STdSNhcGjQgKeGxeKdYQQ="
+        "integrity": "sha256-JHKdaKvYHg4hcDriCKU74AOvNOeCIe1mrMDdrpVPD+M="
       }
     },
     {
@@ -18321,7 +18321,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.42",
-        "integrity": "sha256-5Wg/brdNFlCpDPYychv/8u5l4uby8Y+pXOdtKpJHpJM="
+        "integrity": "sha256-yPybJdBA24OydZvqE0lTC9+DzyMeSli6Puc9dZJPhOc="
       }
     },
     {
