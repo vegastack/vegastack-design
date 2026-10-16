@@ -1,6 +1,6 @@
 import "./geometry.css"; // compiled Tailwind + @vegastack token theme
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { cdp, userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { Building2, CalendarDays, UserRound } from "lucide-react";
 import { PriorityIcon } from "../registry/ui/priority-icon";
@@ -248,19 +248,36 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
   };
   const before = offset();
   const rowBefore = row("assignee").getBoundingClientRect().height;
-  // Hover again on each poll: on a loaded runner the first pointer move can land before the
-  // chip has laid out, leaving the pointer just outside it.
-  await expect
-    .poll(async () => {
-      await userEvent.hover(trigger);
-      return getComputedStyle(chevron).opacity;
-    })
-    .toBe("1");
-  expect(offset()).toEqual(before);
-  expect(row("assignee").getBoundingClientRect().height).toBe(rowBefore);
-  expect(getComputedStyle(trigger).backgroundColor).not.toBe(
-    "rgba(0, 0, 0, 0)",
-  );
+  // Tailwind's `hover:` styles apply only under `(hover: hover)`, which headless Chromium on
+  // the Linux runners reports as false (no pointing device) while a desktop host reports true:
+  // the reveal is read as a mouse user sees it, the page's media set to a fine hovering pointer
+  // for this read and put back after.
+  const media = (features: { name: string; value: string }[]) =>
+    cdp().send("Emulation.setEmulatedMedia", { features });
+  await media([
+    { name: "hover", value: "hover" },
+    { name: "any-hover", value: "hover" },
+    { name: "pointer", value: "fine" },
+    { name: "any-pointer", value: "fine" },
+  ]);
+  try {
+    expect(matchMedia("(hover: hover)").matches).toBe(true);
+    // Hover again on each poll: on a loaded runner the first pointer move can land before the
+    // chip has laid out, leaving the pointer just outside it.
+    await expect
+      .poll(async () => {
+        await userEvent.hover(trigger);
+        return getComputedStyle(chevron).opacity;
+      })
+      .toBe("1");
+    expect(offset()).toEqual(before);
+    expect(row("assignee").getBoundingClientRect().height).toBe(rowBefore);
+    expect(getComputedStyle(trigger).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
+    );
+  } finally {
+    await media([]);
+  }
 });
 
 test("ghost-chip-open: the ▾ stays visible while the menu is open", async () => {
