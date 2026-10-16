@@ -55,6 +55,15 @@
    stylesheet reached the page at all, and it can only do that if its utilities compile. */
 @source './geometry.browser.test.tsx';
 
+/* ── a hovering pointer, on every host ──────────────────────────────────────────────────────────
+   Tailwind's `hover:` (and `group-hover:`, built on it) is `@media (hover: hover) { &:hover }`.
+   Headless Chromium in the Linux runner image reports no hovering pointer — measured 2026-10-16:
+   `matchMedia("(hover: hover)")` false while the element matched `:hover`; neither the
+   `--blink-settings` hover types nor CDP media emulation change it — so every `hover:` style
+   vanished in CI while each desktop host applied it (`ghost-chip-align` red in CI only). These
+   lanes read a hover the way a mouse user sees it, wherever they run. */
+@custom-variant hover (&:hover);
+
 /* ── motion neutralised, for this lane only ─────────────────────────────────────────────────────
    The geometry contracts measure a SETTLED layout: a fixture captured mid-transition can be
    transiently wider, shorter, or offset from its resting size, which is exactly the flake the old

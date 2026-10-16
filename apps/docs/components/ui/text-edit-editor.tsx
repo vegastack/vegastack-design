@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-RbA5KLoJ94UY0C7ChaUv6DF+kBonWVVZJFOWKC0bjoc=
+// @vegastack text-edit@0.25.42 sha256-itOHmLjo5rFqo9YwDmzXvmmLJR3FFrphGT3T5//N3kM=
 
 "use client";
 
@@ -225,6 +225,7 @@ import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
   MarkdownEmbed,
+  MarkdownTaskList,
   MEDIA_AUDIO_CLASS,
   MEDIA_VIDEO_CLASS,
   annotationActiveClassName,
@@ -234,6 +235,7 @@ import {
   calloutClassName,
   calloutContentClassName,
   markdownExtrasClassName,
+  type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import {
   CALLOUT_TONES,
@@ -3608,6 +3610,84 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
   );
 }
 
+/* --- live task lists ---------------------------------------------------------------------------*/
+
+type TaskQueryRender = (props: TaskQueryRenderProps) => React.ReactNode;
+
+/**
+ * Each editor's `renderTaskQuery` (the host's live task list) and the `taskQuery` node views
+ * reading it. A new function re-renders every node view, so a host's changed data or a reader's
+ * changed access never leaves an old drawing on screen.
+ */
+const EDITOR_TASK_QUERY = new WeakMap<
+  Editor,
+  { render: TaskQueryRender | undefined; listeners: Set<() => void> }
+>();
+
+function taskQueryStore(editor: Editor) {
+  let store = EDITOR_TASK_QUERY.get(editor);
+  if (!store) {
+    store = { render: undefined, listeners: new Set() };
+    EDITOR_TASK_QUERY.set(editor, store);
+  }
+  return store;
+}
+
+/** Hand `editor`'s node views the host's current `renderTaskQuery`. */
+function setTaskQueryRender(
+  editor: Editor,
+  render: TaskQueryRender | undefined,
+) {
+  const store = taskQueryStore(editor);
+  if (store.render === render) return;
+  store.render = render;
+  for (const listener of store.listeners) listener();
+}
+
+/** The host's current `renderTaskQuery`, re-rendering the caller when it changes. */
+function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
+  const store = taskQueryStore(editor);
+  return React.useSyncExternalStore(
+    React.useCallback(
+      (listener: () => void) => {
+        store.listeners.add(listener);
+        return () => store.listeners.delete(listener);
+      },
+      [store],
+    ),
+    () => store.render,
+    () => store.render,
+  );
+}
+
+/**
+ * A live task list's node view: an atom, selectable and draggable as a block, nothing editable
+ * inside. The host draws it (`renderTaskQuery`); without one — or where it draws nothing — the
+ * stored snapshot shows as `MarkdownView`'s quiet list.
+ */
+function TaskQueryView({ node, selected, editor }: ReactNodeViewProps) {
+  const snapshot = String(node.attrs.snapshot ?? "");
+  const query = node.attrs.query as Record<string, string> | null;
+  const render = useTaskQueryRender(editor);
+  const drawn = render?.({
+    blockId: String(node.attrs.blockId ?? ""),
+    query: query && typeof query === "object" ? { ...query } : {},
+    snapshot,
+    editable: editor.isEditable,
+  });
+  return (
+    <NodeViewWrapper
+      data-slot="text-edit-task-query"
+      data-drag-handle=""
+      contentEditable={false}
+      data-selected={selected ? "true" : undefined}
+      className="my-2 rounded-lg data-selected:outline-2 data-selected:outline-info"
+    >
+      {drawn ?? <MarkdownTaskList snapshot={snapshot} className="my-0" />}
+    </NodeViewWrapper>
+  );
+}
+
 /** The embed a pasted lone URL makes, when the caret sits in an empty paragraph that can hold one. */
 function embedForPaste(editor: Editor, text: string): PMNode | null {
   const { state } = editor;
@@ -4119,6 +4199,8 @@ function buildExtensions(
       video: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       audio: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       embed: () => ReactNodeViewRenderer(EmbedView, { attrs: changeAttrsOf }),
+      taskQuery: () =>
+        ReactNodeViewRenderer(TaskQueryView, { attrs: changeAttrsOf }),
     },
     plugins: [
       Placeholder.configure({
@@ -6169,7 +6251,8 @@ function FindBar({
         <label htmlFor={inputId} className="sr-only">
           Find
         </label>
-        <div className="relative min-w-40 flex-1">
+        {/* The field gives way first, so the bar stays one row in a 27rem text column. */}
+        <div className="relative min-w-24 flex-1">
           <Search
             aria-hidden
             className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -7293,6 +7376,7 @@ export function TextEditEditor({
   fileLinkPrefix = "/api/files/",
   inlineImageTypes = INLINE_IMAGE_TYPES,
   embeds,
+  renderTaskQuery,
   onOutlineChange,
   annotations,
   activeAnnotationId = null,
@@ -8340,6 +8424,12 @@ export function TextEditEditor({
 
   editorRef.current = editor;
   if (editor) EDITOR_EMBEDS.set(editor, embeds);
+  // Published only once this render commits (before paint): an abandoned render never reaches a
+  // node view, and a new function re-renders every one already mounted.
+  React.useLayoutEffect(() => {
+    if (editor && !editor.isDestroyed)
+      setTaskQueryRender(editor, renderTaskQuery);
+  }, [editor, renderTaskQuery]);
   // Its node views and commands read the host's block views from here, during their own render.
   if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
 

@@ -1245,3 +1245,78 @@ test("embeds: without the embeds prop, or for a provider left out, a video line 
   ).toBeNull();
   expect(plain.container.querySelector("button")).toBeNull();
 });
+
+const TASK_LIST = [
+  ':::tasks{id="lb_9f2c" v="1" space="page" status="open"}',
+  "- [ ] [@Order glass for block B](mention://task/t1) — To do",
+  "- [x] [@Fix scaffolding](mention://task/t2) — Done",
+  ":::",
+].join("\n");
+
+test("a live task list renders its snapshot as a quiet list card: chips, status labels, an empty state", async () => {
+  const screen = await render(
+    <MarkdownView mentionHref={(kind, id) => `/${kind}s/${id}`}>
+      {`Before\n\n${TASK_LIST}\n\n:::tasks{id="lb_0" v="1"}\n:::\n\nAfter`}
+    </MarkdownView>,
+  );
+  const lists = screen.container.querySelectorAll(
+    '[data-slot="markdown-task-list"]',
+  );
+  expect(lists).toHaveLength(2);
+  const [full, empty] = [...lists] as HTMLElement[];
+  expect(full).toHaveAttribute("role", "group");
+  expect(full).toHaveAttribute("aria-label", "Task list");
+  expect(full!.textContent).toContain("Task list");
+  const rows = full!.querySelectorAll('[data-slot="markdown-task-list-row"]');
+  expect(rows).toHaveLength(2);
+  expect(rows[0]!.textContent).toContain("Order glass for block B");
+  expect(rows[0]!.textContent).toContain("To do");
+  expect(rows[1]).toHaveAttribute("data-checked", "true");
+  expect(rows[1]!.textContent).toContain("Done");
+  expect(
+    rows[0]!.querySelector('[data-slot="inline-chip"]')?.getAttribute("href"),
+  ).toBe("/tasks/t1");
+  expect(empty!.textContent).toContain("No matching tasks");
+  // Nothing of the directive's syntax shows, and the text around it stays.
+  expect(screen.container.textContent).not.toContain(":::");
+  expect(screen.container.textContent).toContain("Before");
+  expect(screen.container.textContent).toContain("After");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("renderTaskQuery draws a live task list in place of its snapshot (read-only)", async () => {
+  const draw = vi.fn(() => <p>Live list</p>);
+  const screen = await render(
+    <MarkdownView renderTaskQuery={draw}>{TASK_LIST}</MarkdownView>,
+  );
+  await expect.element(screen.getByText("Live list")).toBeInTheDocument();
+  expect(draw).toHaveBeenCalledWith({
+    blockId: "lb_9f2c",
+    query: { v: "1", space: "page", status: "open" },
+    snapshot: TASK_LIST.split("\n").slice(1, 3).join("\n"),
+    editable: false,
+  });
+  expect(
+    screen.container.querySelector('[data-slot="markdown-task-list"]'),
+  ).toBeNull();
+});
+
+test("lines that do not make a live task list stay text and a list; TextEdit's HTML for one renders its snapshot", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {':::tasks{id="a"}\n- [ ] [@One](mention://task/t1) — To do'}
+    </MarkdownView>,
+  );
+  expect(screen.container.textContent).toContain(':::tasks{id="a"}');
+  expect(
+    screen.container.querySelector('[data-slot="markdown-task-list"]'),
+  ).toBeNull();
+  const html = await render(
+    <MarkdownView format="html">
+      {`<div data-type="task-query" data-block-id="lb_1" data-query="{&quot;v&quot;:&quot;1&quot;}" data-snapshot="- [x] [@Fix](mention://task/t2) — Done"></div>`}
+    </MarkdownView>,
+  );
+  const card = html.container.querySelector('[data-slot="markdown-task-list"]');
+  expect(card?.textContent).toContain("Fix");
+  expect(card?.textContent).toContain("Done");
+});
