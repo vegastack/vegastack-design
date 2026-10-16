@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.42 sha256-GeKp9kXeb7kCBRvP0QL/nKFQ+ZXz/fQ81GCaNxQ2WAU=
+// @vegastack mermaid-block@0.25.42 sha256-vEXoe2YT3Ou4oBepk4DFoLUk+gcGQzlP37OFGkWVilc=
 
 "use client";
 
@@ -372,9 +372,37 @@ export function renderMermaid(
  * page hides `body`'s other children — a print stylesheet that isolates the document — and then
  * draws every label at `translate(NaN, NaN)`. Inline `!important` outranks such a rule.
  */
-/** A geometry attribute with `NaN` in it: the labels were never measured (not a label's own words). */
-const UNMEASURED =
-  /\s(?:transform|x|y|x1|y1|x2|y2|cx|cy|r|rx|ry|width|height|d|points|viewBox)="[^"]*\bNaN\b/;
+const GEOMETRY = [
+  "transform",
+  "x",
+  "y",
+  "x1",
+  "y1",
+  "x2",
+  "y2",
+  "cx",
+  "cy",
+  "r",
+  "rx",
+  "ry",
+  "width",
+  "height",
+  "d",
+  "points",
+  "viewBox",
+] as const;
+
+/**
+ * Whether a drawing's geometry holds `NaN` — its labels were never measured. Read from the parsed
+ * SVG's attributes, so a label's own words ("NaN", `x="NaN"`) never count.
+ */
+function unmeasured(svg: string): boolean {
+  const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+  for (const element of doc.querySelectorAll("*"))
+    for (const name of GEOMETRY)
+      if (/\bNaN\b/.test(element.getAttribute(name) ?? "")) return true;
+  return false;
+}
 
 function measuringBox(): HTMLElement {
   const box = document.createElement("div");
@@ -426,7 +454,7 @@ async function draw(
         box,
       );
       // A drawing whose labels could not be measured is never kept: the next render tries again.
-      if (UNMEASURED.test(svg))
+      if (unmeasured(svg))
         return { error: { message: "The diagram couldn't be measured." } };
       cacheSet(key, svg);
       return { svg };
