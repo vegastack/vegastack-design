@@ -264,12 +264,12 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
       { timeout: 5000, interval: 100 },
     )
     .toBe("1");
-  still.remove();
   expect(offset()).toEqual(before);
   expect(row("assignee").getBoundingClientRect().height).toBe(rowBefore);
   expect(getComputedStyle(trigger).backgroundColor).not.toBe(
     "rgba(0, 0, 0, 0)",
   );
+  still.remove();
 });
 
 test("ghost-chip-open: the ▾ stays visible while the menu is open", async () => {
