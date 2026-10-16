@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-QgH4QEn1CeEQjp/wXm/3mHmJIMr/B3FNbVrOwNoYCD0=
+// @vegastack text-edit@0.25.42 sha256-5B46sMp5ob/pYMTh31BKSJoLvQcczAS7yzWcng8Ub+g=
 
 "use client";
 
@@ -3680,6 +3680,9 @@ function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
  * inside. The host draws it (`renderTaskQuery`); without one — or where it draws nothing — the
  * stored snapshot shows as `MarkdownView`'s quiet list.
  */
+/** A live task list's filter key, as the `:::tasks` directive writes one. */
+const TASK_QUERY_KEY = /^[a-z][a-z0-9-]*$/;
+
 function TaskQueryView({
   node,
   selected,
@@ -3696,12 +3699,21 @@ function TaskQueryView({
     snapshot,
     editable,
     ...(editable && {
-      setQuery: (next: Record<string, string>) =>
+      // Re-checked at call time (a host may keep the setter past a switch to read-only). Only
+      // what the directive can write back is stored: keys of its grammar, values on one line.
+      setQuery: (next: Record<string, string>) => {
+        if (!editor.isEditable) return;
         updateAttributes({
           query: Object.fromEntries(
-            Object.entries(next).map(([key, value]) => [key, String(value)]),
+            Object.entries(next)
+              .filter(([key]) => TASK_QUERY_KEY.test(key))
+              .map(([key, value]) => [
+                key,
+                String(value).replace(/[\r\n]+/g, " "),
+              ]),
           ),
-        }),
+        });
+      },
     }),
   });
   return (

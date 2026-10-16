@@ -4986,10 +4986,10 @@ test("taskQuery: setQuery rewrites the list's filter as one local edit; read vie
     },
   });
   expect(set).toBeTypeOf("function");
-  set!({ v: "1", status: "done", assignee: "me" });
+  set!({ v: "1", status: "done", assignee: "me", Bad: "x", "x-note": "a\nb" });
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(
-      `:::tasks{id="lb_9f2c" v="1" status="done" assignee="me"}\n${TASK_ROWS}\n:::`,
+      `:::tasks{id="lb_9f2c" v="1" status="done" assignee="me" x-note="a b"}\n${TASK_ROWS}\n:::`,
     ),
   );
   const read = vi.fn((_props: { setQuery?: unknown }) => <p>Read</p>);

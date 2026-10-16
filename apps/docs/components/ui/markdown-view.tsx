@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.42 sha256-eUdErsY+4MlZt7ULbtaZEAtRiiRRGh6KFa/j/O6Kf9M=
+// @vegastack markdown-view@0.25.42 sha256-iInWVj7rl82Mc4ueFAiNiJjXw8re9x6JZ2ecNMxVW94=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -261,8 +261,9 @@ export interface TaskQueryRenderProps {
   editable: boolean;
   /**
    * Replace the list's filter (an editable editor only; absent in read views): a local edit of
-   * the node's `query` — one undo step, carried to collaborators like any other edit. Keys are
-   * `[a-z][a-z0-9-]*`; others are dropped when the list is written as Markdown.
+   * the node's `query` — one undo step, carried to collaborators like any other edit. Keys other
+   * than `[a-z][a-z0-9-]*` are dropped and line breaks in values become spaces, so the filter
+   * reads back as written. A call after the editor turns read-only does nothing.
    */
   setQuery?: (query: Record<string, string>) => void;
 }
