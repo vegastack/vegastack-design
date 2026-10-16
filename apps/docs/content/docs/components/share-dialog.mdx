@@ -97,7 +97,9 @@ signing in." — and wraps rather than truncates. `onPublishRequest` is asked be
 publishing on: confirm what it will expose in an `AlertDialog` ("Publish 13 pages?") and resolve
 `false` to leave it off. `audience` adds a "Who can see this" section at the end of the Share tab,
 closed at first; its heading takes `audienceCount` once known, and `onAudienceOpenChange` tells the
-host when to load its rows.
+host when to load its rows. `publicLinkOptions` adds the host's own settings for a published link
+under its expiry — what the link shows, say ("Link shows: Latest version | Approved version") — for
+a viewer who can publish.
 
 <ComponentPreview
   name="shareDialogExposure"
