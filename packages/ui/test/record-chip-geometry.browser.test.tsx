@@ -249,45 +249,18 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
   const before = offset();
   const rowBefore = row("assignee").getBoundingClientRect().height;
   // Hover again on each poll: on a loaded runner the first pointer move can land before the
-  // chip has laid out, leaving the pointer just outside it. The reveal's fade is switched off
-  // for the read: a page the browser runs in the background (parallel test files) may never
-  // advance it, which says nothing about the hover itself.
-  const still = document.createElement("style");
-  still.textContent = "*, *::before, *::after { transition: none !important; }";
-  document.head.append(still);
+  // chip has laid out, leaving the pointer just outside it.
   await expect
-    .poll(
-      async () => {
-        await userEvent.hover(trigger);
-        const r = trigger.getBoundingClientRect();
-        const hit = document.elementFromPoint(
-          r.x + r.width / 2,
-          r.y + r.height / 2,
-        );
-        const op = getComputedStyle(chevron).opacity;
-        return op === "1"
-          ? op
-          : `${op} hover=${trigger.matches(":hover")} mq=${matchMedia("(hover: hover)").matches} grp=${chevron.closest(".group\\/button") === trigger} sheets=${[
-              ...document.styleSheets,
-            ].some((sh) => {
-              try {
-                return [...sh.cssRules].some((r) =>
-                  r.cssText.includes("group-hover\\/button"),
-                );
-              } catch {
-                return false;
-              }
-            })} hit=${hit?.getAttribute("data-slot") ?? hit?.tagName} rect=${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.width)}x${Math.round(r.height)} win=${innerWidth}x${innerHeight}`;
-      },
-      { timeout: 5000, interval: 100 },
-    )
+    .poll(async () => {
+      await userEvent.hover(trigger);
+      return getComputedStyle(chevron).opacity;
+    })
     .toBe("1");
   expect(offset()).toEqual(before);
   expect(row("assignee").getBoundingClientRect().height).toBe(rowBefore);
   expect(getComputedStyle(trigger).backgroundColor).not.toBe(
     "rgba(0, 0, 0, 0)",
   );
-  still.remove();
 });
 
 test("ghost-chip-open: the ▾ stays visible while the menu is open", async () => {
