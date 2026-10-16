@@ -234,21 +234,10 @@ export default defineConfig({
         // The pinned headless-shell renderer reproducibly SIGSEGVs after passing tests on
         // Linux. Use Playwright's supported full Chromium headless channel instead; the
         // same pinned image already ships it. Other manual engines keep their own launch.
-        //
-        // A desktop mouse, stated: headless Chromium in the Linux runner image reports no
-        // hovering pointer (`(hover: hover)` false, measured 2026-10-16), so Tailwind's `hover:`
-        // styles — inside `@media (hover: hover)` — never applied in CI while every desktop host
-        // applied them. These are the values a desktop host reports; CDP media emulation can't
-        // override hover or pointer.
         launchOptions:
           !process.env.VEGASTACK_BROWSER_ENGINE ||
           process.env.VEGASTACK_BROWSER_ENGINE === "chromium"
-            ? {
-                channel: "chromium",
-                args: [
-                  "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
-                ],
-              }
+            ? { channel: "chromium" }
             : undefined,
         contextOptions: {
           locale: "en-US",
