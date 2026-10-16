@@ -178,4 +178,15 @@ test("parseTaskListRows reads each row's box, task, label and status", () => {
     },
   ]);
   expect(parseTaskListRows("")).toEqual([]);
+  // Text after the mention that is not ` — <status>` is kept: the line reads as text.
+  expect(
+    parseTaskListRows("- [ ] [@A](mention://task/t1) important details"),
+  ).toEqual([
+    {
+      checked: false,
+      id: null,
+      label: "[@A](mention://task/t1) important details",
+      status: "",
+    },
+  ]);
 });

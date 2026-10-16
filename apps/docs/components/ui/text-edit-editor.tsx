@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-hKAuhwyAvYBDbEl0Bpn6tWT9lW16w9Pnm41Yos4Gvb4=
+// @vegastack text-edit@0.25.42 sha256-QpmSwUX4UhvUo5IOI41WQUk++Yh27dWHDy3g/1osX/o=
 
 "use client";
 
@@ -3612,11 +3612,53 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
 
 /* --- live task lists ---------------------------------------------------------------------------*/
 
-/** Each editor's `renderTaskQuery` (the host's live task list), read by its `taskQuery` node views. */
+type TaskQueryRender = (props: TaskQueryRenderProps) => React.ReactNode;
+
+/**
+ * Each editor's `renderTaskQuery` (the host's live task list) and the `taskQuery` node views
+ * reading it. A new function re-renders every node view, so a host's changed data or a reader's
+ * changed access never leaves an old drawing on screen.
+ */
 const EDITOR_TASK_QUERY = new WeakMap<
   Editor,
-  ((props: TaskQueryRenderProps) => React.ReactNode) | undefined
+  { render: TaskQueryRender | undefined; listeners: Set<() => void> }
 >();
+
+function taskQueryStore(editor: Editor) {
+  let store = EDITOR_TASK_QUERY.get(editor);
+  if (!store) {
+    store = { render: undefined, listeners: new Set() };
+    EDITOR_TASK_QUERY.set(editor, store);
+  }
+  return store;
+}
+
+/** Hand `editor`'s node views the host's current `renderTaskQuery`. */
+function setTaskQueryRender(
+  editor: Editor,
+  render: TaskQueryRender | undefined,
+) {
+  const store = taskQueryStore(editor);
+  if (store.render === render) return;
+  store.render = render;
+  for (const listener of store.listeners) listener();
+}
+
+/** The host's current `renderTaskQuery`, re-rendering the caller when it changes. */
+function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
+  const store = taskQueryStore(editor);
+  return React.useSyncExternalStore(
+    React.useCallback(
+      (listener: () => void) => {
+        store.listeners.add(listener);
+        return () => store.listeners.delete(listener);
+      },
+      [store],
+    ),
+    () => store.render,
+    () => store.render,
+  );
+}
 
 /**
  * A live task list's node view: an atom, selectable and draggable as a block, nothing editable
@@ -3626,7 +3668,8 @@ const EDITOR_TASK_QUERY = new WeakMap<
 function TaskQueryView({ node, selected, editor }: ReactNodeViewProps) {
   const snapshot = String(node.attrs.snapshot ?? "");
   const query = node.attrs.query as Record<string, string> | null;
-  const drawn = EDITOR_TASK_QUERY.get(editor)?.({
+  const render = useTaskQueryRender(editor);
+  const drawn = render?.({
     blockId: String(node.attrs.blockId ?? ""),
     query: query && typeof query === "object" ? { ...query } : {},
     snapshot,
@@ -8380,7 +8423,16 @@ export function TextEditEditor({
 
   editorRef.current = editor;
   if (editor) EDITOR_EMBEDS.set(editor, embeds);
-  if (editor) EDITOR_TASK_QUERY.set(editor, renderTaskQuery);
+  // Before any node view mounts, its first render reads the host's function directly; after
+  // that, a new one reaches them after the commit (never a node view update during this render).
+  if (editor) {
+    const store = taskQueryStore(editor);
+    if (store.listeners.size === 0) store.render = renderTaskQuery;
+  }
+  React.useLayoutEffect(() => {
+    if (editor && !editor.isDestroyed)
+      setTaskQueryRender(editor, renderTaskQuery);
+  }, [editor, renderTaskQuery]);
   // Its node views and commands read the host's block views from here, during their own render.
   if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
 

@@ -4400,6 +4400,27 @@ test("taskQuery: renderTaskQuery draws the live list; it is an atom and its Mark
   );
 });
 
+test("taskQuery: a new renderTaskQuery redraws the list (no stale rows after a data or access change)", async () => {
+  const screen = await markdownEditor({
+    defaultValue: TASK_LIST,
+    renderTaskQuery: () => <p>Old rows</p>,
+  });
+  await expect.element(screen.getByText("Old rows")).toBeInTheDocument();
+  await screen.rerender(
+    <>
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        defaultValue={TASK_LIST}
+        renderTaskQuery={() => <p>New rows</p>}
+      />
+      <button type="button">Outside</button>
+    </>,
+  );
+  await expect.element(screen.getByText("New rows")).toBeInTheDocument();
+  expect(screen.container.textContent).not.toContain("Old rows");
+});
+
 test("taskQuery: without renderTaskQuery the snapshot shows as a quiet list; the read view draws it too", async () => {
   const screen = await markdownEditor({ defaultValue: TASK_LIST });
   const card = screen.container.querySelector(

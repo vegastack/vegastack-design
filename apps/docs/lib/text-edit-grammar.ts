@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.42 sha256-ZxvM9YYZkBVjg5YIYMaiZMzYJSjIdTm4OljM+SJ5Mv0=
+// @vegastack text-edit-grammar@0.25.42 sha256-Ayy1W0IJNnZXOJLG0ocdiLoUeNwQrNbVCqzHqbk+pAY=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -448,15 +448,18 @@ export function parseTaskListRows(snapshot: string): TaskListRow[] {
     const checked = box[1] !== " ";
     const rest = box[2]!;
     const mention = parseMentionLink(rest);
-    if (mention?.kind === "task") {
-      const status = /^ — (.*)$/.exec(rest.slice(mention.raw.length));
+    const after = mention ? rest.slice(mention.raw.length) : "";
+    const status = /^ — (.*)$/.exec(after);
+    // A task mention alone, or with ` — <status>`; anything else after it is not a row's shape,
+    // so the whole line reads as text rather than losing its tail.
+    if (mention?.kind === "task" && (status || !after.trim()))
       rows.push({
         checked,
         id: mention.id,
         label: mention.label,
         status: status ? status[1]!.trim() : "",
       });
-    } else rows.push({ checked, id: null, label: rest.trim(), status: "" });
+    else rows.push({ checked, id: null, label: rest.trim(), status: "" });
   }
   return rows;
 }

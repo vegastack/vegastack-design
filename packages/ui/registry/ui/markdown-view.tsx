@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.42 sha256-bF9/v2HqfvIsvw4KLI36Z7s8ngsQ5VOGNHPEROkZMNs=
+// @vegastack markdown-view@0.25.42 sha256-d+NROfK6Bctj3TOeuZ4ZOcq7mPK2bTNvqXf/yz7rDEI=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1772,17 +1772,24 @@ function renderNode(
         snapshot,
         editable: false,
       });
-      return (
-        <React.Fragment key={key}>
-          {drawn ?? (
-            <MarkdownTaskList
-              snapshot={snapshot}
-              mentionHref={ctx.mentionHref}
-              data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
-              data-anchor-block={ctx.anchorAttrs ? "" : undefined}
-            />
-          )}
-        </React.Fragment>
+      // One atom in a comment anchor's text, as TextEdit counts the node, whoever draws it.
+      return drawn ? (
+        <div
+          key={key}
+          data-slot="markdown-task-query"
+          data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
+          data-anchor-block={ctx.anchorAttrs ? "" : undefined}
+        >
+          {drawn}
+        </div>
+      ) : (
+        <MarkdownTaskList
+          key={key}
+          snapshot={snapshot}
+          mentionHref={ctx.mentionHref}
+          data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
+          data-anchor-block={ctx.anchorAttrs ? "" : undefined}
+        />
       );
     }
     case "video":
