@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-sgKz2w7y1YvaVoLz3fohDC9kpaNNQvkLxtDqKq7Q7P0=
+// @vegastack text-edit@0.25.42 sha256-gugDJj3KBH7nQrdSrt8Jno+UHBbibkvA0cg/QYKd7Jw=
 
 "use client";
 
@@ -6662,9 +6662,9 @@ const SECTION_BLOCK_CLASS = {
   warning: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.warning),
   info: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.info),
 } as const;
-/** The gutter marker: a dot on the bar at the heading's first line, a 16×24 target around it. */
+/** The gutter marker: a dot on the bar at the heading's first line, a 24×24 target centred on it. */
 const SECTION_MARKER =
-  "absolute -start-[34px] top-[calc(0.5lh-12px)] z-[1] flex h-6 w-4 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
+  "absolute -start-[38px] top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
 const SECTION_DOT = {
   warning: "bg-warning",
   info: "bg-info",

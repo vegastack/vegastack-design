@@ -1238,7 +1238,7 @@ export function textEditTasks(): ReactNode {
     { key: "pricing", tone: "warning", label: "May be out of date" },
   ]);
   return (
-    <Wrapper className="flex-col items-stretch">
+    <Wrapper className="flex-col items-stretch ps-10">
       <div className="flex justify-end">
         <Button
           variant="outline"
