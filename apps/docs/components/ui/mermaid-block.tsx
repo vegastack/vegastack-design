@@ -1,9 +1,8 @@
-// @vegastack mermaid-block@0.25.42 sha256-MGz2jJuAytzHKZMVfNMVVPGyD2Ylb71ZgDua5C08s/c=
+// @vegastack mermaid-block@0.25.42 sha256-vEXoe2YT3Ou4oBepk4DFoLUk+gcGQzlP37OFGkWVilc=
 
 "use client";
 
 import * as React from "react";
-import { flushSync } from "react-dom";
 import { Copy, Download } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { tokens as designTokens } from "@vegastack/design-tokens";
@@ -129,7 +128,8 @@ const TOKEN_VARS: Record<keyof Tokens, keyof typeof designTokens.light> = {
  * The tokens of `theme` as `#rrggbb` (mermaid's colour maths reads hex, not oklch): each CSS
  * variable is painted on a 1×1 canvas and read back. A probe element reads them — inside a `.dark`
  * probe for the dark scheme — so a host's own token overrides apply. The light scheme on a dark
- * page has no selector to read it from, so it comes from the design tokens' own light values.
+ * page has no selector to read it from, and neither scheme can be read while printing, so those
+ * come from the design tokens' own values.
  */
 function readTokens(theme: MermaidTheme): Tokens {
   const probe = document.createElement("div");
@@ -138,6 +138,9 @@ function readTokens(theme: MermaidTheme): Tokens {
   document.body.append(probe);
   try {
     const pageDark = Boolean(probe.parentElement?.closest(".dark"));
+    // While printing, `.dark` restates the light palette (paper): the CSS can't tell the schemes
+    // apart then, so both come from the design tokens' own values.
+    const printing = window.matchMedia?.("print").matches ?? false;
     const style = getComputedStyle(probe);
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = 1;
@@ -148,8 +151,8 @@ function readTokens(theme: MermaidTheme): Tokens {
       keyof typeof designTokens.light,
     ][]) {
       const value =
-        theme === "light" && pageDark
-          ? designTokens.light[token]
+        printing || (theme === "light" && pageDark)
+          ? designTokens[theme][token]
           : style.getPropertyValue(`--${token}`).trim() ||
             designTokens[theme][token];
       out[name] = toHex(ctx, value);
@@ -363,6 +366,63 @@ export function renderMermaid(
   return pending;
 }
 
+/**
+ * Where mermaid lays a diagram out while it measures its labels: off screen, invisible, but with
+ * real layout and width. Mermaid's default (a box appended to `body`) measures nothing when the
+ * page hides `body`'s other children — a print stylesheet that isolates the document — and then
+ * draws every label at `translate(NaN, NaN)`. Inline `!important` outranks such a rule.
+ */
+const GEOMETRY = [
+  "transform",
+  "x",
+  "y",
+  "x1",
+  "y1",
+  "x2",
+  "y2",
+  "cx",
+  "cy",
+  "r",
+  "rx",
+  "ry",
+  "width",
+  "height",
+  "d",
+  "points",
+  "viewBox",
+] as const;
+
+/**
+ * Whether a drawing's geometry holds `NaN` — its labels were never measured. Read from the parsed
+ * SVG's attributes, so a label's own words ("NaN", `x="NaN"`) never count.
+ */
+function unmeasured(svg: string): boolean {
+  const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+  for (const element of doc.querySelectorAll("*"))
+    for (const name of GEOMETRY)
+      if (/\bNaN\b/.test(element.getAttribute(name) ?? "")) return true;
+  return false;
+}
+
+function measuringBox(): HTMLElement {
+  const box = document.createElement("div");
+  box.setAttribute("aria-hidden", "true");
+  box.dataset.slot = "mermaid-block-measure";
+  for (const [name, value] of [
+    ["display", "block"],
+    ["position", "fixed"],
+    ["top", "0"],
+    ["left", "-10000px"],
+    ["width", "1024px"],
+    ["visibility", "hidden"],
+    ["pointer-events", "none"],
+    ["contain", "layout style"],
+  ] as const)
+    box.style.setProperty(name, value, "important");
+  document.body.append(box);
+  return box;
+}
+
 async function draw(
   source: string,
   theme: MermaidTheme,
@@ -385,16 +445,23 @@ async function draw(
     if (hit !== undefined) return { svg: hit };
     const tokens = readTokens(theme);
     mermaid.initialize(pinnedConfig(theme, tokens));
+    const box = measuringBox();
     try {
       await mermaid.parse(source);
       const { svg } = await mermaid.render(
         `vs-mermaid-${++renderSeq}`,
         withClasses(source, tokens),
+        box,
       );
+      // A drawing whose labels could not be measured is never kept: the next render tries again.
+      if (unmeasured(svg))
+        return { error: { message: "The diagram couldn't be measured." } };
       cacheSet(key, svg);
       return { svg };
     } catch (error) {
       return { error: toRenderError(error) };
+    } finally {
+      box.remove();
     }
   });
 }
@@ -528,23 +595,45 @@ function useNearViewport(ref: React.RefObject<HTMLElement | null>): boolean {
 }
 
 /**
- * True while the page prints. Paper is light (the tokens print their light palette), so the
- * light SVG — pre-rendered on idle — swaps in synchronously before the print snapshot.
+ * Keep `data-scroll-start` / `data-scroll-end` on a sideways-scrolling box while there is more
+ * diagram toward that edge (the same cue `MarkdownView` tables wear), and report whether it
+ * scrolls at all. A passive `scroll` listener and a `ResizeObserver` keep them current.
  */
-function usePrinting(): boolean {
-  const [printing, setPrinting] = React.useState(false);
+function useScrollEdges(box: HTMLElement | null): boolean {
+  const [scrollable, setScrollable] = React.useState(false);
   React.useEffect(() => {
-    const before = () => flushSync(() => setPrinting(true));
-    const after = () => setPrinting(false);
-    window.addEventListener("beforeprint", before);
-    window.addEventListener("afterprint", after);
-    return () => {
-      window.removeEventListener("beforeprint", before);
-      window.removeEventListener("afterprint", after);
+    if (!box) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const max = box.scrollWidth - box.clientWidth;
+      // RTL scrolls from 0 toward negative offsets; the magnitude is what moved from the start.
+      const moved = Math.abs(box.scrollLeft);
+      const overflowing = max > 1;
+      box.toggleAttribute("data-scroll-start", overflowing && moved > 1);
+      box.toggleAttribute("data-scroll-end", overflowing && moved < max - 1);
+      setScrollable(overflowing);
     };
-  }, []);
-  return printing;
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    box.addEventListener("scroll", schedule, { passive: true });
+    const observer = new ResizeObserver(schedule);
+    observer.observe(box);
+    for (const child of box.children) observer.observe(child);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      box.removeEventListener("scroll", schedule);
+      observer.disconnect();
+    };
+  }, [box]);
+  return scrollable;
 }
+
+/** The edge fade of a scrolling diagram: 24px of mask at each edge with more beyond it. */
+const scrollEdgeFadeClassName =
+  "[--scroll-edge-s:0%] [--scroll-edge-e:0%] data-scroll-start:[--scroll-edge-s:--spacing(6)] data-scroll-end:[--scroll-edge-e:--spacing(6)] [mask-image:linear-gradient(to_right,transparent,black_var(--scroll-edge-s),black_calc(100%-var(--scroll-edge-e)),transparent)] rtl:[mask-image:linear-gradient(to_left,transparent,black_var(--scroll-edge-s),black_calc(100%-var(--scroll-edge-e)),transparent)] print:overflow-visible print:[mask-image:none]";
 
 const HEIGHT_KEY = "vs:mermaid-height:";
 
@@ -573,7 +662,7 @@ export interface MermaidBlockProps extends Omit<
   source: string;
   /**
    * The colour scheme to draw in. Omitted, it follows the page (`.dark` on an ancestor) and
-   * re-draws when that changes. Printing always draws light.
+   * re-draws when that changes. A dark drawing prints its light copy, drawn while the page is idle.
    * @default undefined
    */
   theme?: MermaidTheme;
@@ -586,7 +675,8 @@ export interface MermaidBlockProps extends Omit<
 
 /**
  * `MermaidBlock` — a mermaid diagram as a `<figure>` named by its `accTitle` (else "Diagram"),
- * drawn when it nears the viewport, at its natural width (a wide diagram scrolls sideways). The
+ * drawn when it nears the viewport, at its natural width (a wide diagram scrolls sideways, its
+ * overflowing edge faded, as a named region the keyboard can scroll). The
  * space it takes is reserved from its last measured height while it draws. When the source stops
  * parsing, the last diagram that worked stays, dimmed, with a status line naming the line and the
  * problem; with none to keep, "Couldn't draw this diagram" and the source. The SVG keeps its own
@@ -608,8 +698,7 @@ export function MermaidBlock({
   const figureRef = React.useRef<HTMLElement | null>(null);
   const setRef = React.useMemo(() => mergeRefs(figureRef, ref), [ref]);
   const pageTheme = usePageTheme(figureRef);
-  const printing = usePrinting();
-  const theme: MermaidTheme = printing ? "light" : (themeProp ?? pageTheme);
+  const theme: MermaidTheme = themeProp ?? pageTheme;
   const near = useNearViewport(figureRef);
   const { svg, error, pending } = useMermaidSvg(source, {
     debounce,
@@ -623,6 +712,8 @@ export function MermaidBlock({
     setReserved(readHeight(sourceHash));
   }, [sourceHash]);
   const svgRef = React.useRef<HTMLDivElement>(null);
+  const [scrollBox, setScrollBox] = React.useState<HTMLDivElement | null>(null);
+  const scrollable = useScrollEdges(scrollBox);
   React.useLayoutEffect(() => {
     const box = svgRef.current;
     if (svg && !error && box && box.offsetHeight > 0)
@@ -672,7 +763,7 @@ export function MermaidBlock({
       aria-label={accTitleOf(source) ?? "Diagram"}
       aria-busy={state === "loading" || undefined}
       className={cn(
-        "m-0 flex min-w-0 max-w-full flex-col overflow-x-auto overscroll-x-contain print:overflow-visible print:break-inside-avoid print:[print-color-adjust:exact]",
+        "m-0 flex min-w-0 max-w-full flex-col print:break-inside-avoid print:[print-color-adjust:exact]",
         className,
       )}
       style={
@@ -684,25 +775,37 @@ export function MermaidBlock({
     >
       {svg ? (
         <div
-          ref={svgRef}
-          data-slot="mermaid-block-svg"
+          ref={setScrollBox}
+          data-slot="mermaid-block-scroll"
+          role={scrollable ? "region" : undefined}
+          aria-label={scrollable ? "Diagram, scrolls sideways" : undefined}
+          tabIndex={scrollable ? 0 : undefined}
           className={cn(
-            "mx-auto w-max max-w-none p-4 transition-opacity duration-150 [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-none print:max-w-full print:[&_svg]:max-w-full",
-            error && "opacity-40",
-            theme === "dark" && printSvg && !error && "print:hidden",
+            "min-w-0 max-w-full overflow-x-auto overscroll-x-contain focus-visible:-outline-offset-2",
+            scrollEdgeFadeClassName,
           )}
-          // Mermaid's own output, sanitised by its DOMPurify pass (`securityLevel: "strict"`).
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
-      ) : null}
-      {svg && theme === "dark" && printSvg && !error ? (
-        <div
-          aria-hidden
-          data-slot="mermaid-block-print"
-          className="mx-auto hidden w-max max-w-full p-4 print:block [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-full"
-          // The light drawing, for paper: Mermaid's own sanitised output, as above.
-          dangerouslySetInnerHTML={{ __html: printSvg }}
-        />
+        >
+          <div
+            ref={svgRef}
+            data-slot="mermaid-block-svg"
+            className={cn(
+              "mx-auto w-max max-w-none p-4 transition-opacity duration-150 [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-none print:max-w-full print:[&_svg]:max-w-full",
+              error && "opacity-40",
+              theme === "dark" && printSvg && !error && "print:hidden",
+            )}
+            // Mermaid's own output, sanitised by its DOMPurify pass (`securityLevel: "strict"`).
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+          {theme === "dark" && printSvg && !error ? (
+            <div
+              aria-hidden
+              data-slot="mermaid-block-print"
+              className="mx-auto hidden w-max max-w-full p-4 print:block [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-full"
+              // The light drawing, for paper: Mermaid's own sanitised output, as above.
+              dangerouslySetInnerHTML={{ __html: printSvg }}
+            />
+          ) : null}
+        </div>
       ) : null}
       {svg ? null : failed ? (
         <pre

@@ -90,3 +90,34 @@ test("with no diagram that worked, it says so and shows the source", async () =>
   ).toBe("flowchart LR\n  a -->");
   await expectNoA11yViolations(screen.container);
 });
+
+test("draws measured labels while the page hides body's other children (print isolation)", async () => {
+  const style = document.createElement("style");
+  style.textContent = "body > * { display: none !important; }";
+  document.head.append(style);
+  try {
+    const result = await renderMermaid(
+      "flowchart LR\n  isolated[Isolated] -->|Edge label| other[Other]",
+      { theme: "light" },
+    );
+    expect("svg" in result).toBe(true);
+    const svg = "svg" in result ? result.svg : "";
+    expect(svg).not.toMatch(/transform="[^"]*NaN/);
+  } finally {
+    style.remove();
+  }
+  // The measuring box never outlives its render.
+  expect(
+    document.querySelector("[data-slot=mermaid-block-measure]"),
+  ).toBeNull();
+});
+
+test("a label that says NaN is a diagram like any other", async () => {
+  const result = await renderMermaid(
+    'flowchart LR\n  a["NaN x=\\"NaN\\""] --> b[Value]',
+    {
+      theme: "light",
+    },
+  );
+  expect("svg" in result).toBe(true);
+});

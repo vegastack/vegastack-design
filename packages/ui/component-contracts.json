@@ -31046,6 +31046,7 @@
               "values": [
                 "mermaid-block",
                 "mermaid-block-print",
+                "mermaid-block-scroll",
                 "mermaid-block-skeleton",
                 "mermaid-block-source",
                 "mermaid-block-status",
