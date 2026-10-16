@@ -87,15 +87,33 @@ open: muted, never a link.
 
 ### Kinds
 
-| Kind       | Icon             | Ground                | Ink                 | Click                     |
-| ---------- | ---------------- | --------------------- | ------------------- | ------------------------- |
-| `user`     | photo, else user | `--tag-blue-subtle`   | `--tag-blue-text`   | none; hover card          |
-| `page`     | file-text        | `--muted`             | `--foreground`      | `onOpen`, else `href`     |
-| `file`     | the file's type  | `--muted`             | `--foreground`      | `onOpen` (viewer), `href` |
-| `task`     | circle-check     | `--tag-green-subtle`  | `--tag-green-text`  | `onOpen`, else `href`     |
-| `meeting`  | calendar-days    | `--tag-orange-subtle` | `--tag-orange-text` | `onOpen`, else `href`     |
-| `customer` | building-2       | `--tag-purple-subtle` | `--tag-purple-text` | `onOpen`, else `href`     |
-| `project`  | folder-kanban    | `--tag-cyan-subtle`   | `--tag-cyan-text`   | `onOpen`, else `href`     |
+| Kind       | Icon             | Ground                 | Ink                  | Click                     |
+| ---------- | ---------------- | ---------------------- | -------------------- | ------------------------- |
+| `user`     | photo, else user | `--tag-blue-subtle`    | `--tag-blue-text`    | none; hover card          |
+| `page`     | file-text        | `--muted`              | `--foreground`       | `onOpen`, else `href`     |
+| `file`     | the file's type  | `--muted`              | `--foreground`       | `onOpen` (viewer), `href` |
+| `task`     | circle-check     | `--tag-green-subtle`   | `--tag-green-text`   | `onOpen`, else `href`     |
+| `meeting`  | calendar-days    | `--tag-orange-subtle`  | `--tag-orange-text`  | `onOpen`, else `href`     |
+| `customer` | building-2       | `--tag-purple-subtle`  | `--tag-purple-text`  | `onOpen`, else `href`     |
+| `project`  | folder-kanban    | `--tag-cyan-subtle`    | `--tag-cyan-text`    | `onOpen`, else `href`     |
+| `product`  | package          | `--tag-magenta-subtle` | `--tag-magenta-text` | `onOpen`, else `href`     |
+
+### Closed targets
+
+`struck` strikes the label through and `status` adds a small muted tag after it. Use them for a
+target that was closed without being done, such as a canceled or duplicate task. The chip keeps its
+tint and link and carries `data-struck`. `TextEdit` and `MarkdownView` set both from their
+`mentionStatus(kind, id)`.
+
+<ComponentPreview
+  name="inlineChipClosed"
+  file="components/preview/inline-chip.tsx"
+/>
+
+```tsx
+<InlineChip kind="product" targetId="v1" label="Glazing kit 1200" />
+<InlineChip kind="task" targetId="T-39" label="Old supplier" struck status="Canceled" />
+```
 
 ## API Reference
 

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-itOHmLjo5rFqo9YwDmzXvmmLJR3FFrphGT3T5//N3kM=
+// @vegastack text-edit@0.25.42 sha256-5B46sMp5ob/pYMTh31BKSJoLvQcczAS7yzWcng8Ub+g=
 
 "use client";
 
@@ -245,6 +245,7 @@ import {
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import {
+  blockId as newBlockId,
   EMBED_CONTAINERS,
   textEditExtensions,
   ychangeType,
@@ -278,6 +279,13 @@ import type {
   TextEditHeadingAnchor,
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
+import {
+  linkedTaskId,
+  type TextEditSectionMark,
+  type TextEditTaskItem,
+  type TextEditTaskLink,
+} from "@/components/ui/text-edit";
+import { Package } from "lucide-react";
 
 /*
  * The heavy half of `TextEdit`: the Tiptap editor itself. `text-edit.tsx` renders the saved
@@ -2463,6 +2471,7 @@ const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
   { kind: "meeting", label: "Meetings" },
   { kind: "customer", label: "Customers" },
   { kind: "project", label: "Projects" },
+  { kind: "product", label: "Products" },
   { kind: "agent", label: "Your agents" },
 ];
 
@@ -2538,6 +2547,7 @@ const MENTION_ICON: Record<
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
+  product: Package,
   agent: Bot,
 };
 
@@ -2985,6 +2995,8 @@ interface EditorRuntime {
   mentionImage: React.RefObject<TextEditProps["mentionImage"]>;
   /** A record mention's label for this reader (`mentionLabel`); `labels` bumps when it changes. */
   mentionLabel: React.RefObject<TextEditProps["mentionLabel"]>;
+  /** A closed target's struck chip and status tag (`mentionStatus`); read with the labels. */
+  mentionStatus: React.RefObject<TextEditProps["mentionStatus"]>;
   labels: Versioned;
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
@@ -3029,6 +3041,7 @@ function mentionView(runtime: EditorRuntime) {
         ? own
         : stored || own) || "…";
     const hrefFor = runtime.mentionHref.current;
+    const closed = runtime.mentionStatus.current?.(kind, id);
     return (
       // An atom: never editable text, never spellchecked.
       <NodeViewWrapper
@@ -3041,6 +3054,8 @@ function mentionView(runtime: EditorRuntime) {
           kind={kind}
           targetId={id}
           label={label}
+          struck={closed?.struck === true}
+          status={closed?.status}
           openOn="modifier"
           href={hrefFor ? hrefFor(kind, id) : undefined}
           image={
@@ -3665,15 +3680,41 @@ function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
  * inside. The host draws it (`renderTaskQuery`); without one — or where it draws nothing — the
  * stored snapshot shows as `MarkdownView`'s quiet list.
  */
-function TaskQueryView({ node, selected, editor }: ReactNodeViewProps) {
+/** A live task list's filter key, as the `:::tasks` directive writes one. */
+const TASK_QUERY_KEY = /^[a-z][a-z0-9-]*$/;
+
+function TaskQueryView({
+  node,
+  selected,
+  editor,
+  updateAttributes,
+}: ReactNodeViewProps) {
   const snapshot = String(node.attrs.snapshot ?? "");
   const query = node.attrs.query as Record<string, string> | null;
   const render = useTaskQueryRender(editor);
+  const editable = editor.isEditable;
   const drawn = render?.({
     blockId: String(node.attrs.blockId ?? ""),
     query: query && typeof query === "object" ? { ...query } : {},
     snapshot,
-    editable: editor.isEditable,
+    editable,
+    ...(editable && {
+      // Re-checked at call time (a host may keep the setter past a switch to read-only). Only
+      // what the directive can write back is stored: keys of its grammar, values on one line.
+      setQuery: (next: Record<string, string>) => {
+        if (!editor.isEditable) return;
+        updateAttributes({
+          query: Object.fromEntries(
+            Object.entries(next)
+              .filter(([key]) => TASK_QUERY_KEY.test(key))
+              .map(([key, value]) => [
+                key,
+                String(value).replace(/[\r\n]+/g, " "),
+              ]),
+          ),
+        });
+      },
+    }),
   });
   return (
     <NodeViewWrapper
@@ -6476,6 +6517,645 @@ function HeadingLink({
   );
 }
 
+/* --- linked task items (J9) ---------------------------------------------------------------------*/
+
+/**
+ * Marks a transaction this editor makes for the host (`linkTaskItems`, `setTaskItemChecked`): it
+ * is never reported as a person's toggle (`onTaskItemToggle`).
+ */
+const TASK_SYNC_META = "textEditTaskSync";
+
+/** The trimmed text of a task item's own line (its first paragraph). */
+function taskItemText(node: PMNode): string {
+  const line = node.firstChild;
+  return line?.isTextblock ? line.textContent.trim() : "";
+}
+
+/** An unlinked checklist line Make task acts on: where it is and its text. */
+interface OfferedLine {
+  pos: number;
+  text: string;
+}
+
+/**
+ * The unlinked checklist lines Make task acts on from `block`: every unlinked, non-empty task item
+ * whose line the selection reaches when the selection covers the block, else the block alone.
+ * Empty when the block is not an unlinked task item with text.
+ */
+function makeTaskItems(state: EditorState, block: BlockTarget): OfferedLine[] {
+  const { node, pos, range } = block;
+  if (node.type.name !== "taskItem" || linkedTaskId(node) !== null) return [];
+  const end = pos + node.nodeSize;
+  if (range && range.to > range.from && range.from < end && range.to > pos) {
+    const items: OfferedLine[] = [];
+    state.doc.nodesBetween(range.from, range.to, (child, at) => {
+      if (child.isTextblock) return false;
+      if (child.type.name !== "taskItem") return true;
+      // Only the lines the selection reaches into: a parent item whose nested line is selected
+      // is not one.
+      const lineEnd = at + 1 + (child.firstChild?.nodeSize ?? 0);
+      if (range.from < lineEnd && range.to > at + 1 && !linkedTaskId(child)) {
+        const text = taskItemText(child);
+        if (text) items.push({ pos: at, text });
+      }
+      return true;
+    });
+    if (items.some((item) => item.pos === pos)) return items;
+  }
+  const text = taskItemText(node);
+  return text ? [{ pos, text }] : [];
+}
+
+/** The position in `line` after `offset` characters of its text (atoms count as none). */
+function lineOffsetToPos(line: PMNode, offset: number): number {
+  let left = offset;
+  let at = 0;
+  for (let index = 0; index < line.childCount; index++) {
+    const child = line.child(index);
+    const length = child.isText ? (child.text ?? "").length : 0;
+    if (left <= length) return at + left;
+    left -= length;
+    at += child.nodeSize;
+  }
+  return at;
+}
+
+/**
+ * The lines Make task offered (`onMakeTask`), by `blockId` → the text offered. A line keeps its
+ * `blockId` through every edit and through Yjs, so the offer follows it however the document
+ * moves while the host works (a dialog); a deleted line is gone, never mistaken for another.
+ */
+const TASK_OFFERS_KEY = new PluginKey<ReadonlyMap<string, string>>(
+  "textEditTaskOffers",
+);
+/** Offers kept for a host that never links them: the oldest go first. */
+const TASK_OFFERS_MAX = 200;
+
+function taskOffersExtension() {
+  return Extension.create({
+    name: "textEditTaskOffers",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin<ReadonlyMap<string, string>>({
+          key: TASK_OFFERS_KEY,
+          state: {
+            init: () => new Map(),
+            apply(tr, offers) {
+              const meta = tr.getMeta(TASK_OFFERS_KEY) as
+                | { offer?: readonly TextEditTaskItem[]; drop?: string[] }
+                | undefined;
+              if (!meta) return offers;
+              const next = new Map(offers);
+              for (const key of meta.drop ?? []) next.delete(key);
+              for (const item of meta.offer ?? []) {
+                next.delete(item.key);
+                next.set(item.key, item.text);
+              }
+              for (const key of next.keys()) {
+                if (next.size <= TASK_OFFERS_MAX) break;
+                next.delete(key);
+              }
+              return next;
+            },
+          },
+          props: {
+            // A pasted or dropped line is a new line: it never carries an identity (an offer, a
+            // toggle's pairing). A collaborative editor's UniqueID gives it a fresh id; elsewhere
+            // it has none. A drag is treated the same whether it ends as a move or a copy (the
+            // modifier can change until the drop): a moved line's pending offer lapses, and its
+            // later ticks pair by position.
+            transformPasted: (slice) => withoutTaskItemIds(slice),
+          },
+        }),
+      ];
+    },
+  });
+}
+
+/** `slice` with no `blockId` on its task items. */
+function withoutTaskItemIds(slice: Slice): Slice {
+  const strip = (fragment: Fragment): Fragment => {
+    const nodes: PMNode[] = [];
+    fragment.forEach((node) => {
+      if (node.isText || node.isLeaf) {
+        nodes.push(node);
+        return;
+      }
+      const content = strip(node.content);
+      nodes.push(
+        node.type.name === "taskItem" && node.attrs.blockId
+          ? node.type.create(
+              { ...node.attrs, blockId: null },
+              content,
+              node.marks,
+            )
+          : node.copy(content),
+      );
+    });
+    return Fragment.from(nodes);
+  };
+  return new Slice(strip(slice.content), slice.openStart, slice.openEnd);
+}
+
+/** Every task item's position by `blockId`, and the ids more than one item carries. */
+function taskItemsById(doc: PMNode) {
+  const byId = new Map<string, number>();
+  const shared = new Set<string>();
+  doc.descendants((node, pos) => {
+    if (node.isTextblock) return false;
+    const id = node.attrs.blockId as string | null | undefined;
+    if (node.type.name === "taskItem" && id) {
+      if (byId.has(id)) shared.add(id);
+      byId.set(id, pos);
+    }
+    return true;
+  });
+  return { byId, shared };
+}
+
+/**
+ * Offer Make task's lines: each gets a `blockId` if it has none (or shares one with another line,
+ * as a pasted copy in a document without ids does), in one transaction that is no undo step, and
+ * is recorded so `linkTaskItems` can find it by that key after any later edit.
+ */
+function offerTaskItems(
+  editor: Editor,
+  lines: readonly OfferedLine[],
+): TextEditTaskItem[] {
+  const { state } = editor;
+  const { shared } = taskItemsById(state.doc);
+  const tr = state.tr;
+  const items: TextEditTaskItem[] = [];
+  for (const line of lines) {
+    const node = state.doc.nodeAt(line.pos);
+    if (!node || node.type.name !== "taskItem") continue;
+    let key = node.attrs.blockId as string | null | undefined;
+    if (!key || shared.has(key)) {
+      key = newBlockId();
+      tr.setNodeAttribute(line.pos, "blockId", key);
+    }
+    items.push({ key, text: line.text });
+  }
+  editor.view.dispatch(
+    tr
+      .setMeta(TASK_OFFERS_KEY, { offer: items })
+      .setMeta(TASK_SYNC_META, true)
+      .setMeta("addToHistory", false),
+  );
+  return items;
+}
+
+/**
+ * Where the line Make task offered as `key` is now: the one task item with that `blockId`, still
+ * unlinked and with the text it was offered with; else null (a line removed, edited or linked
+ * since, or never offered, is never linked).
+ */
+function offeredTaskItem(
+  doc: PMNode,
+  offers: ReadonlyMap<string, string>,
+  items: ReturnType<typeof taskItemsById>,
+  key: string,
+): number | null {
+  const text = offers.get(key);
+  const pos = items.byId.get(key);
+  if (text === undefined || pos === undefined || items.shared.has(key))
+    return null;
+  const node = doc.nodeAt(pos);
+  return node && !linkedTaskId(node) && taskItemText(node) === text
+    ? pos
+    : null;
+}
+
+/**
+ * What stays after a linked line's chip. A leading plain-text title (the line `onMakeTask`
+ * offered) is dropped, what follows it staying; otherwise the whole line stays, a space after the
+ * chip — a mention or other atom on the line, and the text after it, is never dropped.
+ */
+function lineAfterTitle(line: PMNode, label: string): Fragment {
+  // Only the line's leading run of plain text can be the title.
+  let plain = "";
+  for (let index = 0; index < line.childCount; index++) {
+    const child = line.child(index);
+    if (!child.isText) break;
+    plain += child.text ?? "";
+  }
+  const lead = plain.length - plain.trimStart().length;
+  // The rest after the title, from a word boundary ("Order glass — Friday").
+  const rest = plain.slice(lead + label.length);
+  if (
+    label &&
+    plain.slice(lead).startsWith(label) &&
+    (rest === "" || /^[\s\p{P}]/u.test(rest))
+  )
+    return line.content.cut(lineOffsetToPos(line, lead + label.length));
+  const first = line.firstChild;
+  if (!first || (first.isText && /^\s/.test(first.text ?? "")))
+    return line.content;
+  return Fragment.from(line.type.schema.text(" ")).append(line.content);
+}
+
+/**
+ * Link checklist lines to tasks (`linkTaskItems`): each line Make task offered (found by its
+ * `blockId`, `offeredTaskItem`) becomes a leading task chip and what `lineAfterTitle` keeps. A
+ * line removed, edited or linked since, or never offered, is skipped. Nested content stays.
+ */
+function linkTaskItemsIn(
+  editor: Editor,
+  links: readonly TextEditTaskLink[],
+  collaborative: boolean,
+): number {
+  const { state } = editor;
+  const { mention } = state.schema.nodes;
+  const offers = TASK_OFFERS_KEY.getState(state);
+  if (!mention || !offers) return 0;
+  const items = taskItemsById(state.doc);
+  const targets = new Map<number, TextEditTaskLink>();
+  for (const link of links) {
+    if (!link.id) continue;
+    const at = offeredTaskItem(state.doc, offers, items, link.key);
+    if (at !== null && !targets.has(at)) targets.set(at, link);
+  }
+  const tr = state.tr;
+  let linked = 0;
+  for (const [at, link] of [...targets].sort((a, b) => a[0] - b[0])) {
+    const pos = tr.mapping.map(at);
+    const node = tr.doc.nodeAt(pos);
+    if (!node || node.type.name !== "taskItem" || linkedTaskId(node)) continue;
+    const line = node.firstChild;
+    if (!line || line.type.name !== "paragraph") continue;
+    const label = link.label.replace(/\s*\n\s*/g, " ").trim();
+    const chip = mention.create({
+      kind: "task",
+      id: link.id,
+      // A shared document never stores a record's title (`recordLabelsStripped`).
+      label: collaborative ? "" : label,
+    });
+    const start = pos + 2;
+    tr.replaceWith(
+      start,
+      start + line.content.size,
+      Fragment.from(chip).append(lineAfterTitle(line, label)),
+    );
+    linked++;
+  }
+  if (linked)
+    editor.view.dispatch(
+      tr.setMeta(TASK_SYNC_META, true).setMeta(TASK_OFFERS_KEY, {
+        drop: [...targets.values()].map((link) => link.key),
+      }),
+    );
+  return linked;
+}
+
+/** Tick or untick every line linked to `taskId` (`setTaskItemChecked`): not an undo step. */
+function setLinkedTaskChecked(
+  editor: Editor,
+  taskId: string,
+  checked: boolean,
+): number {
+  const { state } = editor;
+  const tr = state.tr;
+  let changed = 0;
+  state.doc.descendants((node, pos) => {
+    if (node.isTextblock) return false;
+    if (
+      node.type.name === "taskItem" &&
+      Boolean(node.attrs.checked) !== checked &&
+      linkedTaskId(node) === taskId
+    ) {
+      tr.setNodeMarkup(pos, undefined, { ...node.attrs, checked });
+      changed++;
+    }
+    return true;
+  });
+  if (changed)
+    editor.view.dispatch(
+      tr.setMeta(TASK_SYNC_META, true).setMeta("addToHistory", false),
+    );
+  return changed;
+}
+
+/** Each step's changed ranges: in the document before it, and in the one after it. */
+function forEachStepRange(
+  tr: Transaction,
+  visit: (
+    before: PMNode,
+    from: number,
+    to: number,
+    after: PMNode,
+    newFrom: number,
+    newTo: number,
+  ) => void,
+) {
+  tr.steps.forEach((step, index) => {
+    const before = tr.docs[index]!;
+    const after = tr.docs[index + 1] ?? tr.doc;
+    let any = false;
+    step.getMap().forEach((from, to, newFrom, newTo) => {
+      any = true;
+      visit(before, from, to, after, newFrom, newTo);
+    });
+    // An attribute step changes no range: the node at its position is the change.
+    const at = (step as { pos?: unknown }).pos;
+    if (!any && typeof at === "number")
+      visit(before, at, at + 1, after, at, at + 1);
+  });
+}
+
+/** A linked line a step's range reaches: its task, box and `blockId`, and where it starts. */
+interface LinkedLine {
+  pos: number;
+  taskId: string;
+  checked: boolean;
+  blockId: string | null;
+}
+
+/** The linked lines between `from` and `to` (and their ancestors). */
+function linkedLines(doc: PMNode, from: number, to: number): LinkedLine[] {
+  const lines: LinkedLine[] = [];
+  const size = doc.content.size;
+  doc.nodesBetween(
+    Math.max(0, Math.min(from, size)),
+    Math.max(0, Math.min(to, size)),
+    (node, pos) => {
+      if (node.isTextblock) return false;
+      if (node.type.name !== "taskItem") return true;
+      const taskId = linkedTaskId(node);
+      if (taskId)
+        lines.push({
+          pos,
+          taskId,
+          checked: Boolean(node.attrs.checked),
+          blockId: (node.attrs.blockId as string | null | undefined) ?? null,
+        });
+      return true;
+    },
+  );
+  return lines;
+}
+
+/** How many of `lines` carry each `blockId`. */
+function idCounts(lines: readonly LinkedLine[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const line of lines)
+    if (line.blockId)
+      counts.set(line.blockId, (counts.get(line.blockId) ?? 0) + 1);
+  return counts;
+}
+
+/**
+ * The linked lines `tr` ticked or unticked, by task id → checked: the same line before and after
+ * a step, with the same task and a different box. The same line is the one `blockId` (unique on
+ * each side), or — for lines without one — the line whose inside survives the step's mapping. A
+ * pasted line (its copied id is cleared, `withoutTaskItemIds`), a deleted or newly linked one is
+ * never a toggle.
+ */
+function taskToggles(tr: Transaction): Map<string, boolean> {
+  const toggles = new Map<string, boolean>();
+  tr.steps.forEach((step, index) => {
+    const before = tr.docs[index]!;
+    const after = tr.docs[index + 1] ?? tr.doc;
+    const map = step.getMap();
+    const ranges: [number, number, number, number][] = [];
+    map.forEach((from, to, newFrom, newTo) =>
+      ranges.push([from, to, newFrom, newTo]),
+    );
+    // An attribute step changes no range: the node at its position is the change.
+    const at = (step as { pos?: unknown }).pos;
+    if (ranges.length === 0 && typeof at === "number")
+      ranges.push([at, at + 1, at, at + 1]);
+    for (const [from, to, newFrom, newTo] of ranges) {
+      const now = linkedLines(after, newFrom, newTo);
+      const was = linkedLines(before, from, to);
+      const nowIds = idCounts(now);
+      const wasIds = idCounts(was);
+      for (const old of was) {
+        let next: LinkedLine | undefined;
+        if (old.blockId) {
+          if (nowIds.get(old.blockId) !== 1 || wasIds.get(old.blockId) !== 1)
+            continue;
+          next = now.find((line) => line.blockId === old.blockId);
+        } else {
+          const inside = map.mapResult(old.pos + 1, 1);
+          if (inside.deleted) continue;
+          next = now.find(
+            (line) => line.blockId === null && line.pos === inside.pos - 1,
+          );
+        }
+        if (next && next.taskId === old.taskId && next.checked !== old.checked)
+          toggles.set(old.taskId, next.checked);
+      }
+    }
+  });
+  return toggles;
+}
+
+/** Whether `tr` was this person's own edit: not a collaborator's, not a value sync or task sync. */
+function isOwnEdit(tr: Transaction): boolean {
+  if (
+    !tr.docChanged ||
+    tr.getMeta(TASK_SYNC_META) ||
+    tr.getMeta("preventUpdate")
+  )
+    return false;
+  if (!isChangeOrigin(tr)) return true;
+  // A shared document's undo and redo come back through Yjs, but they are this person's own.
+  return Boolean(
+    (
+      tr.getMeta(ySyncPluginKey) as
+        { isUndoRedoOperation?: boolean } | undefined
+    )?.isUndoRedoOperation,
+  );
+}
+
+/* --- section marks (J1/J3) ----------------------------------------------------------------------*/
+
+const SECTION_MARKS_KEY = new PluginKey<SectionMarksState>(
+  "textEditSectionMarks",
+);
+
+interface SectionMarksState {
+  marks: readonly TextEditSectionMark[];
+  set: DecorationSet;
+}
+
+/**
+ * The section bar: a 2px rule in the block gutter, clear of the drag grip (which spans 20px→4px
+ * before the text; on touch 28px→4px, its hit area reaching 38px), drawn by `::after` so nothing
+ * moves. Its centre is 32px before the text (50px on touch), where the marker's 24px box ends at
+ * the grip's left edge (20px; 38px on touch). A block's rule reaches 24px up across the gap above
+ * it, so the bar runs unbroken from the heading to the section's last block.
+ */
+const SECTION_BAR =
+  "relative after:pointer-events-none after:absolute after:-start-[33px] pointer-coarse:after:-start-[51px] after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
+const SECTION_TONE = {
+  warning: "after:bg-warning",
+  info: "after:bg-info",
+} as const;
+const SECTION_HEADING_CLASS = {
+  warning: cn(SECTION_BAR, "after:top-0", SECTION_TONE.warning),
+  info: cn(SECTION_BAR, "after:top-0", SECTION_TONE.info),
+} as const;
+const SECTION_BLOCK_CLASS = {
+  warning: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.warning),
+  info: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.info),
+} as const;
+/**
+ * The gutter marker: a dot on the bar at the heading's first line, a 24×24 target centred on it
+ * (44px→20px before the text; 62px→38px on touch), ending where the block grip's box begins.
+ */
+const SECTION_MARKER =
+  "absolute -start-[44px] pointer-coarse:-start-[62px] top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
+const SECTION_DOT = {
+  warning: "bg-warning",
+  info: "bg-info",
+} as const;
+
+/** The marker widget's DOM: a button named by the mark, calling `onMark` on a click. */
+function sectionMarker(
+  mark: TextEditSectionMark,
+  onMark: (key: string) => void,
+) {
+  return () => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.contentEditable = "false";
+    button.dataset.slot = "text-edit-section-mark";
+    button.dataset.tone = mark.tone;
+    button.className = SECTION_MARKER;
+    button.title = mark.label;
+    button.setAttribute("aria-label", mark.label);
+    const dot = document.createElement("span");
+    dot.className = SECTION_DOT[mark.tone];
+    dot.setAttribute("aria-hidden", "true");
+    button.append(dot);
+    // The caret stays where it was; the click is the marker's.
+    button.addEventListener("mousedown", (event) => event.preventDefault());
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onMark(mark.key);
+    });
+    return button;
+  };
+}
+
+/**
+ * The marks' decorations over the document's top-level blocks: each marked heading (by
+ * `blockId`) gets the marker and its bar, and every block up to the next heading of the same or
+ * a higher level the bar too (a nested marked section's tone wins inside it).
+ */
+function sectionDecorations(
+  doc: PMNode,
+  marks: readonly TextEditSectionMark[],
+  onMark: (key: string) => void,
+): DecorationSet {
+  if (marks.length === 0) return DecorationSet.empty;
+  const byKey = new Map(marks.map((mark) => [mark.key, mark]));
+  const open: { level: number; mark: TextEditSectionMark | null }[] = [];
+  const decorations: PMDecoration[] = [];
+  doc.forEach((node, pos) => {
+    if (node.type.name === "heading") {
+      const level = Number(node.attrs.level) || 1;
+      while (open.length > 0 && open[open.length - 1]!.level >= level)
+        open.pop();
+      const id = node.attrs.blockId as string | null | undefined;
+      const mark = id ? byKey.get(id) : undefined;
+      if (mark) {
+        open.push({ level, mark });
+        decorations.push(
+          PMDecoration.node(pos, pos + node.nodeSize, {
+            class: SECTION_HEADING_CLASS[mark.tone],
+            "data-section-mark": mark.tone,
+          }),
+          PMDecoration.widget(pos + 1, sectionMarker(mark, onMark), {
+            side: -1,
+            ignoreSelection: true,
+            stopEvent: () => true,
+            key: `section-mark:${mark.key}:${mark.tone}:${mark.label}`,
+          }),
+        );
+        return;
+      }
+      // An unmarked heading inside a marked section is one of its blocks.
+      open.push({ level, mark: null });
+    }
+    const inner = [...open].reverse().find((section) => section.mark)?.mark;
+    if (inner)
+      decorations.push(
+        PMDecoration.node(pos, pos + node.nodeSize, {
+          class: SECTION_BLOCK_CLASS[inner.tone],
+          "data-section-mark": inner.tone,
+        }),
+      );
+  });
+  return DecorationSet.create(doc, decorations);
+}
+
+/**
+ * Whether `tr` changed the document's top-level structure — a block added, removed, replaced,
+ * retyped or re-attributed — where a section boundary or a block's decoration may move. An edit
+ * inside one top-level block is not.
+ */
+function touchesTopLevel(tr: Transaction): boolean {
+  const inside = (doc: PMNode, from: number, to: number) => {
+    const size = doc.content.size;
+    const $from = doc.resolve(Math.max(0, Math.min(from, size)));
+    const $to = doc.resolve(Math.max(0, Math.min(to, size)));
+    return $from.depth > 0 && $to.depth > 0 && $from.index(0) === $to.index(0);
+  };
+  let found = false;
+  forEachStepRange(tr, (before, from, to, after, newFrom, newTo) => {
+    if (!found && (!inside(before, from, to) || !inside(after, newFrom, newTo)))
+      found = true;
+  });
+  return found;
+}
+
+/**
+ * Section marks (`sectionMarks`) as decorations: nothing is written to the document. They are
+ * rebuilt when the marks change or an edit changes the top-level structure (`touchesTopLevel`);
+ * an edit inside one block maps them.
+ */
+function sectionMarksExtension(onMark: (key: string) => void) {
+  return Extension.create({
+    name: "textEditSectionMarks",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin<SectionMarksState>({
+          key: SECTION_MARKS_KEY,
+          state: {
+            init: () => ({ marks: [], set: DecorationSet.empty }),
+            apply(tr, previous, _oldState, newState) {
+              const marks = tr.getMeta(SECTION_MARKS_KEY) as
+                readonly TextEditSectionMark[] | undefined;
+              if (marks)
+                return {
+                  marks,
+                  set: sectionDecorations(newState.doc, marks, onMark),
+                };
+              if (!tr.docChanged || previous.marks.length === 0)
+                return previous;
+              if (touchesTopLevel(tr))
+                return {
+                  marks: previous.marks,
+                  set: sectionDecorations(newState.doc, previous.marks, onMark),
+                };
+              return {
+                marks: previous.marks,
+                set: previous.set.map(tr.mapping, tr.doc),
+              };
+            },
+          },
+          props: {
+            decorations: (state) => SECTION_MARKS_KEY.getState(state)?.set,
+          },
+        }),
+      ];
+    },
+  });
+}
+
 /* --- block menu (B2) ---------------------------------------------------------------------------*/
 
 /** The block a handle or ⇧F10 menu acts on. */
@@ -6483,12 +7163,16 @@ interface BlockTarget {
   pos: number;
   node: PMNode;
   dom: HTMLElement;
+  /** The selection when the menu opened: Make task acts on every checklist line it reaches. */
+  range?: { from: number; to: number };
 }
 
 /** What the block menu needs from the editor beyond the block itself. */
 interface BlockMenuRuntime {
   /** `headingLinkHref`: a heading's Copy link. */
   headingLink: (pos: number) => string | null;
+  /** `onMakeTask`: Make task on an unlinked checklist line. */
+  makeTask: () => ((items: TextEditTaskItem[]) => void) | undefined;
 }
 
 /** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
@@ -6650,15 +7334,27 @@ function blockActions(
   const { pos, node } = block;
   const { index, siblings } = siblingsOf(editor.view, pos);
   const link = node.type.name === "heading" ? runtime.headingLink(pos) : null;
-  const actions: (BlockAction | null)[] = [
-    {
-      key: "duplicate",
-      label: "Duplicate",
-      icon: CopyPlus,
-      shortcut: "⌘D",
-      run: () => duplicateBlock(editor, pos),
-    },
-  ];
+  const makeTask = runtime.makeTask();
+  const tasks =
+    makeTask && editor.isEditable ? makeTaskItems(editor.state, block) : [];
+  const actions: (BlockAction | null)[] = [];
+  if (makeTask && tasks.length > 0)
+    actions.push(
+      {
+        key: "make-task",
+        label: tasks.length > 1 ? `Make ${tasks.length} tasks` : "Make task",
+        icon: CircleCheck,
+        run: () => makeTask(offerTaskItems(editor, tasks)),
+      },
+      null,
+    );
+  actions.push({
+    key: "duplicate",
+    label: "Duplicate",
+    icon: CopyPlus,
+    shortcut: "⌘D",
+    run: () => duplicateBlock(editor, pos),
+  });
   if (link)
     actions.push({
       key: "link",
@@ -7021,7 +7717,8 @@ function caretBlock(editor: Editor): BlockTarget | null {
   const dom = editor.view.nodeDOM(pos);
   if (!node || !(dom instanceof HTMLElement) || node.type.name === "table")
     return null;
-  return { pos, node, dom };
+  const { from, to } = editor.state.selection;
+  return { pos, node, dom, range: { from, to } };
 }
 
 /**
@@ -7113,6 +7810,8 @@ function BlockHandle({
   const onPointerDown = (event: React.PointerEvent) => {
     if (!block) return;
     pinnedRef.current = true;
+    // The selection before the grip selects its block: Make task reads the lines it reaches.
+    const { from, to } = editor.state.selection;
     startBlockDrag(editor, block.pos, event, {
       setLine,
       onClick: () => {
@@ -7121,7 +7820,7 @@ function BlockHandle({
             NodeSelection.create(editor.state.doc, block.pos),
           ),
         );
-        openMenu(block);
+        openMenu({ ...block, range: { from, to } });
       },
       onEnd: () => {
         if (!menuOpenRef.current) pinnedRef.current = false;
@@ -7369,6 +8068,11 @@ export function TextEditEditor({
   mentionHref,
   mentionImage,
   mentionLabel,
+  mentionStatus: mentionStatusProp,
+  onTaskItemToggle,
+  onMakeTask,
+  sectionMarks,
+  onSectionMark,
   onImageUpload,
   onFileUpload,
   onUploadError,
@@ -7531,9 +8235,21 @@ export function TextEditEditor({
   mentionImageRef.current = mentionImage;
   const mentionLabelRef = React.useRef(mentionLabel);
   mentionLabelRef.current = mentionLabel;
-  // Chips read `mentionLabel` at render: a new one re-renders them.
+  const mentionStatusRef = React.useRef(mentionStatusProp);
+  mentionStatusRef.current = mentionStatusProp;
+  // Chips read `mentionLabel` and `mentionStatus` at render: a new one re-renders them.
   const [labels] = React.useState(() => new Versioned());
-  React.useEffect(() => labels.bump(), [labels, mentionLabel]);
+  React.useEffect(
+    () => labels.bump(),
+    [labels, mentionLabel, mentionStatusProp],
+  );
+  // Linked checklist lines and section marks: read through refs by the extensions and the menu.
+  const taskToggleRef = React.useRef(onTaskItemToggle);
+  taskToggleRef.current = onTaskItemToggle;
+  const makeTaskRef = React.useRef(onMakeTask);
+  makeTaskRef.current = onMakeTask;
+  const sectionMarkRef = React.useRef(onSectionMark);
+  sectionMarkRef.current = onSectionMark;
   const [toggleRuntime] = React.useState<ToggleRuntime>(() => ({
     // Shared or a diff: opening a toggle is this viewer's view, never a document change.
     states: quiet ? new ToggleStates(toggleStateRef) : null,
@@ -7663,6 +8379,7 @@ export function TextEditEditor({
         mentionHref: mentionHrefRef,
         mentionImage: mentionImageRef,
         mentionLabel: mentionLabelRef,
+        mentionStatus: mentionStatusRef,
         labels,
         collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
@@ -7686,6 +8403,8 @@ export function TextEditEditor({
       collab,
       diffing,
       [
+        sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
+        taskOffersExtension(),
         ...(findReplace
           ? [
               FindAndReplace.configure({
@@ -7800,6 +8519,7 @@ export function TextEditEditor({
         const anchor = headingAnchorAt(ed.state.doc, pos);
         return anchor ? href(anchor) : null;
       },
+      makeTask: () => makeTaskRef.current,
     }),
     [],
   );
@@ -8706,6 +9426,36 @@ export function TextEditEditor({
     };
   }, [editor, onStatsChange]);
 
+  // Linked checklist lines: this person's own ticks reach the host — never a collaborator's, a
+  // value sync or the host's own `setTaskItemChecked`.
+  React.useEffect(() => {
+    if (!editor) return;
+    const onTransaction = ({ transaction }: { transaction: Transaction }) => {
+      const notify = taskToggleRef.current;
+      if (!notify || !isOwnEdit(transaction)) return;
+      for (const [taskId, checked] of taskToggles(transaction))
+        notify(taskId, checked);
+    };
+    editor.on("transaction", onTransaction);
+    return () => {
+      editor.off("transaction", onTransaction);
+    };
+  }, [editor]);
+
+  // Section marks: rebuilt when the host's list changes (by content, not identity).
+  const sectionMarksKey = JSON.stringify(sectionMarks ?? []);
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.view.dispatch(
+      editor.state.tr
+        .setMeta(
+          SECTION_MARKS_KEY,
+          JSON.parse(sectionMarksKey) as TextEditSectionMark[],
+        )
+        .setMeta("addToHistory", false),
+    );
+  }, [editor, sectionMarksKey]);
+
   // Annotations: resolved into the document whenever the host's list changes.
   React.useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -8892,6 +9642,18 @@ export function TextEditEditor({
       },
       pickFiles: () => pickRef.current?.(),
       pendingUploads: () => uploadsRef.current.size,
+      linkTaskItems: (links: readonly TextEditTaskLink[]) => {
+        const ed = editorRef.current;
+        return ed && !ed.isDestroyed
+          ? linkTaskItemsIn(ed, links, collab !== null)
+          : 0;
+      },
+      setTaskItemChecked: (taskId: string, checked: boolean) => {
+        const ed = editorRef.current;
+        return ed && !ed.isDestroyed
+          ? setLinkedTaskChecked(ed, taskId, checked)
+          : 0;
+      },
       pulseAnnotation: (id: string) => {
         const ed = editorRef.current;
         if (!ed || ed.isDestroyed) return;

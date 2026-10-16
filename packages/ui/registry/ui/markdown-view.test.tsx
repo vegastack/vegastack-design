@@ -4,7 +4,10 @@ import { userEvent } from "vitest/browser";
 import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { proseClassName } from "@vegastack/design";
+import { getHTMLFromFragment } from "@tiptap/core";
 import { MarkdownView, markdownExtrasClassName } from "./markdown-view";
+import { markdownToDoc } from "../lib/text-edit-markdown";
+import { textEditSchema } from "../lib/text-edit-schema";
 import {
   headingIds,
   mentionMarkdown,
@@ -1311,12 +1314,26 @@ test("lines that do not make a live task list stay text and a list; TextEdit's H
   expect(
     screen.container.querySelector('[data-slot="markdown-task-list"]'),
   ).toBeNull();
+  // The HTML TextEdit writes (`editor.getHTML()`), not a hand-written attribute.
+  const source = getHTMLFromFragment(
+    markdownToDoc(TASK_LIST).content,
+    textEditSchema(),
+  );
   const html = await render(
-    <MarkdownView format="html">
-      {`<div data-type="task-query" data-block-id="lb_1" data-query="{&quot;v&quot;:&quot;1&quot;}" data-snapshot="- [x] [@Fix](mention://task/t2) — Done"></div>`}
-    </MarkdownView>,
+    <MarkdownView format="html">{source}</MarkdownView>,
   );
   const card = html.container.querySelector('[data-slot="markdown-task-list"]');
-  expect(card?.textContent).toContain("Fix");
+  expect(card?.textContent).toContain("Fix scaffolding");
   expect(card?.textContent).toContain("Done");
+  // Its block id reaches the host's live list.
+  const draw = vi.fn(() => <p>Live list</p>);
+  const live = await render(
+    <MarkdownView format="html" renderTaskQuery={draw}>
+      {source}
+    </MarkdownView>,
+  );
+  await expect.element(live.getByText("Live list")).toBeInTheDocument();
+  expect(draw).toHaveBeenCalledWith(
+    expect.objectContaining({ blockId: "lb_9f2c" }),
+  );
 });

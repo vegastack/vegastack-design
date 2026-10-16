@@ -138,3 +138,26 @@ export function inlineChipMarkdown(): ReactNode {
     </Wrapper>
   );
 }
+
+/** A product; a task closed without being done — struck through, with its status. */
+export function inlineChipClosed(): ReactNode {
+  return (
+    <Wrapper className="block text-sm leading-7">
+      <InlineChipProvider value={resolver}>
+        <p>
+          Quote{" "}
+          <InlineChip kind="product" targetId="v1" label="Glazing kit 1200" />{" "}
+          instead —{" "}
+          <InlineChip
+            kind="task"
+            targetId="T-39"
+            label="Order from the old supplier"
+            struck
+            status="Canceled"
+          />{" "}
+          is off.
+        </p>
+      </InlineChipProvider>
+    </Wrapper>
+  );
+}
