@@ -1579,6 +1579,106 @@ for (const [label, element] of DATA_LIST_CASES) {
 }
 
 /**
+ * `mergedLayout="line"` is ONE line whose pieces share its centre. Real cells are not plain
+ * text: a space chip is an inline-flex row with a 16px glyph, a person is a flex row (avatar,
+ * name), and a time with a tooltip is a 24px inline-flex pointer target. Inside a `block` value
+ * the person's flex row broke onto a second line under its dot, and the taller target and the
+ * chip sat on other baselines than the text and dots beside them (Regent Library rows, 375px).
+ */
+test('DataList mergedLayout="line" keeps every piece on one centred line', async () => {
+  const screen = await render(
+    <div style={{ width: "343px" }}>
+      <DataList
+        aria-label="Files"
+        mergedLayout="line"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "kind", header: "Kind" },
+          {
+            key: "space",
+            header: "Space",
+            render: () => (
+              <span className="inline-flex max-w-full min-w-0 items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex size-4 shrink-0"
+                />
+                <span data-piece className="min-w-0 truncate">
+                  General
+                </span>
+              </span>
+            ),
+          },
+          {
+            key: "updated",
+            header: "Updated",
+            render: () => (
+              <time
+                data-piece
+                className="relative inline-flex min-h-6 min-w-6 items-center justify-center"
+              >
+                5h ago
+              </time>
+            ),
+          },
+          {
+            key: "by",
+            header: "Updated by",
+            render: () => (
+              <span className="flex min-w-0 items-center gap-2">
+                <Avatar size="sm">
+                  <AvatarFallback>KM</AvatarFallback>
+                </Avatar>
+                <span data-piece className="min-w-0 truncate">
+                  K Manoj Kumar
+                </span>
+              </span>
+            ),
+          },
+          { key: "note", header: "Note", mergedRender: () => "Draft" },
+        ]}
+        data={[{ id: "a", name: "Deploy smoke 14-10", kind: "Page" }]}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await settle();
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-list-merged"]'),
+    )
+    .not.toBeNull();
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  // A phone row (375px less its gutters): merged, not squeezed — the squeeze is the separate
+  // last resort that lets merged text wrap.
+  expect(screen.container.querySelector("[data-squeezed]")).toBeNull();
+  const centre = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return r.top + r.height / 2;
+  };
+  const pieces = [
+    ...merged.querySelectorAll("[data-piece]"),
+    // The dots, and the bare-text value's own box.
+    ...merged.querySelectorAll(
+      ':scope > * > [aria-hidden="true"], :scope > * > .truncate',
+    ),
+  ];
+  expect(pieces.length).toBeGreaterThanOrEqual(6);
+  const line = centre(merged);
+  for (const piece of pieces)
+    expect
+      .soft(
+        Math.abs(centre(piece) - line),
+        `${piece.textContent} off the line's centre`,
+      )
+      .toBeLessThanOrEqual(1);
+  // One line: no taller than its tallest piece (the 24px time target).
+  expect(merged.getBoundingClientRect().height).toBeLessThanOrEqual(24.5);
+});
+
+/**
  * The squeeze reaches INTO a custom render. A cell's own `whitespace` does not reach a render's
  * `truncate` span or a Badge's `whitespace-nowrap`, and an auto-layout table sizes each column
  * from its content's min-content — so, before the squeeze released descendants, a `block
