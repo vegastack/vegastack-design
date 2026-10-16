@@ -1,4 +1,4 @@
-// @vegastack native-select@0.25.42 sha256-4saa3xzN2ydkGzy2cdpaWp7gBdt9FjMvu6lHOUew/LM=
+// @vegastack native-select@0.25.43 sha256-EXE2llf7imbnHMvDuVyrV+0RBbqagyGP7z2orVvthm8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
