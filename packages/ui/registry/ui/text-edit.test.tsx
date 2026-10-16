@@ -3291,6 +3291,80 @@ test("onTaskItemToggle: a checked line of the same task pasted over an unchecked
   expect(onTaskItemToggle).not.toHaveBeenCalled();
 });
 
+/** The clipboard HTML of the `index`th checklist line, as copying it writes it. */
+function copyLine(editor: Editor, index: number) {
+  editor.commands.setNodeSelection(itemPos(editor, index));
+  return editor.view.serializeForClipboard(editor.state.selection.content()).dom
+    .innerHTML;
+}
+
+test("onTaskItemToggle: a copy of the line pasted back over it after a tick is a new line, not a toggle", async () => {
+  const onTaskItemToggle = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [x] [@Order glass](mention://task/t1)",
+    onTaskItemToggle,
+    onValueChange,
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  await vi.waitFor(() =>
+    expect(editor.view.dom.querySelectorAll("li p")).toHaveLength(1),
+  );
+  // The line has an id, as one linked through Make task does.
+  editor.view.dispatch(
+    editor.state.tr.setNodeAttribute(itemPos(editor, 0), "blockId", "line1"),
+  );
+  const copy = copyLine(editor, 0);
+  expect(copy).toContain('data-blockid="line1"');
+  editor.view.dom.querySelector<HTMLElement>('[data-slot="checkbox"]')!.click();
+  await vi.waitFor(() =>
+    expect(onTaskItemToggle).toHaveBeenCalledExactlyOnceWith("t1", false),
+  );
+  editor.commands.setNodeSelection(itemPos(editor, 0));
+  editor.view.pasteHTML(copy);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [x] [@Order glass](mention://task/t1)",
+    ),
+  );
+  expect(onTaskItemToggle).toHaveBeenCalledTimes(1);
+});
+
+test("linkTaskItems: a pasted copy of an offered line is never linked through the offer", async () => {
+  const onMakeTask = vi.fn();
+  const onValueChange = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass\n- [ ] Fix scaffolding",
+    onMakeTask,
+    onValueChange,
+    handleRef: handle,
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  const offered = await makeTaskOn(screen, onMakeTask, 0);
+  const copy = copyLine(editor, 0);
+  const at = itemPos(editor, 0);
+  editor.commands.deleteRange({
+    from: at,
+    to: at + editor.state.doc.nodeAt(at)!.nodeSize,
+  });
+  editor.commands.setNodeSelection(itemPos(editor, 0));
+  editor.view.pasteHTML(copy);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("- [ ] Order glass"),
+  );
+  expect(
+    handle.current!.linkTaskItems([
+      { key: offered.key, id: "t1", label: "Order glass" },
+    ]),
+  ).toBe(0);
+  expect(editor.view.dom.querySelector('[data-slot="inline-chip"]')).toBeNull();
+});
+
 test("Make task is absent without onMakeTask", async () => {
   const screen = await markdownEditor({ defaultValue: "- [ ] Order glass" });
   await userEvent.click(

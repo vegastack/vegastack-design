@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-yPybJdBA24OydZvqE0lTC9+DzyMeSli6Puc9dZJPhOc=
+// @vegastack text-edit@0.25.42 sha256-mOjNsPEuDkBxdsvihrhiVkuo4SyXhj7jYj20xnAq6OI=
 
 "use client";
 
@@ -6591,10 +6591,42 @@ function taskOffersExtension() {
               return next;
             },
           },
+          props: {
+            // A pasted or dropped copy is a new line: it never carries the copied line's identity
+            // (an offer, a toggle's pairing). A collaborative editor's UniqueID gives it a fresh id;
+            // elsewhere it has none. A block moved by dragging keeps its own.
+            transformPasted: (slice, view) =>
+              view.dragging?.move ? slice : withoutTaskItemIds(slice),
+          },
         }),
       ];
     },
   });
+}
+
+/** `slice` with no `blockId` on its task items. */
+function withoutTaskItemIds(slice: Slice): Slice {
+  const strip = (fragment: Fragment): Fragment => {
+    const nodes: PMNode[] = [];
+    fragment.forEach((node) => {
+      if (node.isText || node.isLeaf) {
+        nodes.push(node);
+        return;
+      }
+      const content = strip(node.content);
+      nodes.push(
+        node.type.name === "taskItem" && node.attrs.blockId
+          ? node.type.create(
+              { ...node.attrs, blockId: null },
+              content,
+              node.marks,
+            )
+          : node.copy(content),
+      );
+    });
+    return Fragment.from(nodes);
+  };
+  return new Slice(strip(slice.content), slice.openStart, slice.openEnd);
 }
 
 /** Every task item's position by `blockId`, and the ids more than one item carries. */
@@ -6847,8 +6879,8 @@ function idCounts(lines: readonly LinkedLine[]): Map<string, number> {
  * The linked lines `tr` ticked or unticked, by task id → checked: the same line before and after
  * a step, with the same task and a different box. The same line is the one `blockId` (unique on
  * each side), or — for lines without one — the line whose inside survives the step's mapping. A
- * pasted line (UniqueID gives it a new id; without ids, the line it replaced is deleted), a
- * deleted or newly linked one is never a toggle.
+ * pasted line (its copied id is cleared, `withoutTaskItemIds`), a deleted or newly linked one is
+ * never a toggle.
  */
 function taskToggles(tr: Transaction): Map<string, boolean> {
   const toggles = new Map<string, boolean>();

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.42 sha256-JHKdaKvYHg4hcDriCKU74AOvNOeCIe1mrMDdrpVPD+M=
+// @vegastack markdown-view@0.25.42 sha256-4O5oRtdCW8R0WPU59BcLJMmRCHohMAIX46QS0gQfjNc=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1106,6 +1106,8 @@ const HTML_ATTRS = new Set([
   "data-checked",
   "data-snapshot",
   "data-query",
+  // `TextEdit` writes a block id as `data-blockId` (read lowercased); `data-block-id` is read too.
+  "data-blockid",
   "data-block-id",
   "width",
 ]);
@@ -1170,7 +1172,7 @@ function withEmbeds(nodes: DocNode[]): DocNode[] {
     // `TextEdit`'s HTML for a live task list: its snapshot rows, read like the Markdown directive.
     if (node.tag === "div" && node.attrs["data-type"] === "task-query")
       return el("tasks", {
-        id: node.attrs["data-block-id"] ?? "",
+        id: node.attrs["data-blockid"] ?? node.attrs["data-block-id"] ?? "",
         query: node.attrs["data-query"] ?? "{}",
         snapshot: node.attrs["data-snapshot"] ?? "",
       });
