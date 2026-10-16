@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-mOjNsPEuDkBxdsvihrhiVkuo4SyXhj7jYj20xnAq6OI=
+// @vegastack text-edit@0.25.42 sha256-XNNFT4nS0AgnAO0j8Pn17YTsAKaimoGnY4RgaGpQ7/0=
 
 "use client";
 
@@ -6592,11 +6592,12 @@ function taskOffersExtension() {
             },
           },
           props: {
-            // A pasted or dropped copy is a new line: it never carries the copied line's identity
-            // (an offer, a toggle's pairing). A collaborative editor's UniqueID gives it a fresh id;
-            // elsewhere it has none. A block moved by dragging keeps its own.
-            transformPasted: (slice, view) =>
-              view.dragging?.move ? slice : withoutTaskItemIds(slice),
+            // A pasted or dropped line is a new line: it never carries an identity (an offer, a
+            // toggle's pairing). A collaborative editor's UniqueID gives it a fresh id; elsewhere
+            // it has none. A drag is treated the same whether it ends as a move or a copy (the
+            // modifier can change until the drop): a moved line's pending offer lapses, and its
+            // later ticks pair by position.
+            transformPasted: (slice) => withoutTaskItemIds(slice),
           },
         }),
       ];
