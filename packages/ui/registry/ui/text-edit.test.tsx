@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { Editor } from "@tiptap/core";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
@@ -3064,6 +3065,122 @@ test("Make N tasks: the block menu offers the selected unlinked lines; linkTaskI
   ).toBe(0);
 });
 
+/** Make task on the `index`th checklist line through the block menu: the line it offered. */
+async function makeTaskOn(
+  screen: Awaited<ReturnType<typeof markdownEditor>>,
+  onMakeTask: ReturnType<typeof vi.fn>,
+  index: number,
+) {
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  onMakeTask.mockClear();
+  await userEvent.click(box.querySelectorAll("li p")[index]!);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await screen.getByRole("menuitem", { name: "Make task" }).click();
+  await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledTimes(1));
+  return (onMakeTask.mock.lastCall![0] as { pos: number; text: string }[])[0]!;
+}
+
+test("linkTaskItems follows the offered line through edits made meanwhile, and never links a changed one", async () => {
+  const onMakeTask = vi.fn();
+  const onValueChange = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass — by Friday\n- [ ] Fix scaffolding",
+    onMakeTask,
+    onValueChange,
+    handleRef: handle,
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  const offered = await makeTaskOn(screen, onMakeTask, 0);
+  // While the host's dialog is open, a new unlinked line lands where the offered one was.
+  editor.commands.insertContentAt(offered.pos, {
+    type: "taskItem",
+    attrs: { checked: false },
+    content: [
+      { type: "paragraph", content: [{ type: "text", text: "Call Bob" }] },
+    ],
+  });
+  expect(
+    handle.current!.linkTaskItems([
+      { pos: offered.pos, id: "t1", label: "Order glass" },
+    ]),
+  ).toBe(1);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [ ] Call Bob\n- [ ] [@Order glass](mention://task/t1) — by Friday\n- [ ] Fix scaffolding",
+    ),
+  );
+  // A line edited after it was offered is left as it is.
+  const second = await makeTaskOn(screen, onMakeTask, 2);
+  expect(second.text).toBe("Fix scaffolding");
+  editor.commands.insertContentAt(second.pos + 2, "Not ");
+  expect(
+    handle.current!.linkTaskItems([
+      { pos: second.pos, id: "t2", label: "Fix scaffolding" },
+    ]),
+  ).toBe(0);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain("- [ ] Not Fix scaffolding"),
+  );
+  expect(lastValue(onValueChange)).not.toContain("t2");
+});
+
+test("linkTaskItems never drops a mention on the line or the text after it", async () => {
+  const onMakeTask = vi.fn();
+  const onValueChange = vi.fn();
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue:
+      "- [ ] Ask [@Asha Rao](mention://user/u1) — Friday\n- [ ] Ship [@Q3 plan](mention://page/p1) soon",
+    onMakeTask,
+    onValueChange,
+    handleRef: handle,
+  });
+  // The title runs into a mention: the whole line stays after the chip.
+  const ask = await makeTaskOn(screen, onMakeTask, 0);
+  expect(
+    handle.current!.linkTaskItems([
+      { pos: ask.pos, id: "t1", label: "Ask Asha Rao" },
+    ]),
+  ).toBe(1);
+  // A plain-text title before a mention: only the title goes.
+  const ship = await makeTaskOn(screen, onMakeTask, 1);
+  expect(
+    handle.current!.linkTaskItems([{ pos: ship.pos, id: "t2", label: "Ship" }]),
+  ).toBe(1);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [ ] [@Ask Asha Rao](mention://task/t1) Ask [@Asha Rao](mention://user/u1) — Friday\n- [ ] [@Ship](mention://task/t2) [@Q3 plan](mention://page/p1) soon",
+    ),
+  );
+});
+
+test("onTaskItemToggle: typing inside nested lines of one task whose boxes differ is not a toggle", async () => {
+  const onTaskItemToggle = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue:
+      "- [ ] [@Order glass](mention://task/t1)\n  - [x] [@Order glass](mention://task/t1) again",
+    onTaskItemToggle,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(box.querySelectorAll("li li p")).toHaveLength(1),
+  );
+  await userEvent.click(box.querySelector("li li p")!);
+  await userEvent.keyboard("{End}!");
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("again!"));
+  expect(onTaskItemToggle).not.toHaveBeenCalled();
+  // The outer line's own tick still is one.
+  box.querySelector<HTMLElement>('[data-slot="checkbox"]')!.click();
+  await vi.waitFor(() =>
+    expect(onTaskItemToggle).toHaveBeenCalledExactlyOnceWith("t1", true),
+  );
+});
+
 test("Make task is absent without onMakeTask", async () => {
   const screen = await markdownEditor({ defaultValue: "- [ ] Order glass" });
   await userEvent.click(
@@ -3173,6 +3290,27 @@ test("sectionMarks: the marked heading's section to the next heading of its leve
   expect(
     box().querySelector('[data-slot="text-edit-section-mark"]'),
   ).toBeNull();
+});
+
+test("sectionMarks: a block turned into another kind keeps its section's bar", async () => {
+  const screen = await render(
+    <TextEdit
+      aria-label="Doc"
+      defaultValue='<h2 data-blockid="s1">Pricing</h2><p>Glass</p><p>Frames</p>'
+      sectionMarks={[{ key: "s1", tone: "info", label: "Changed" }]}
+    />,
+  );
+  const box = () =>
+    screen.getByRole("textbox", { name: "Doc" }).element() as HTMLElement;
+  const marked = () =>
+    [...box().querySelectorAll<HTMLElement>(":scope > *")]
+      .filter((block) => block.hasAttribute("data-section-mark"))
+      .map((block) => block.tagName);
+  await vi.waitFor(() => expect(marked()).toEqual(["H2", "P", "P"]));
+  const editor = editorOf(box()) as unknown as Editor;
+  // Inside "Glass": the same number of top-level blocks, one of them a new node.
+  editor.chain().setTextSelection(11).setCodeBlock().run();
+  await vi.waitFor(() => expect(marked()).toEqual(["H2", "DIV", "P"]));
 });
 
 /* --- collaboration ----------------------------------------------------------------------------*/

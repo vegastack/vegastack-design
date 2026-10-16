@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-gugDJj3KBH7nQrdSrt8Jno+UHBbibkvA0cg/QYKd7Jw=
+// @vegastack text-edit@0.25.42 sha256-G8eD8OYxs93pbjm0ZnlWLIls6dfLefQg6G167PtW/ac=
 
 "use client";
 
@@ -6467,10 +6467,146 @@ function lineOffsetToPos(line: PMNode, offset: number): number {
   return at;
 }
 
+/** A line Make task offered (`onMakeTask`): where it is now and the text it was offered with. */
+interface TaskOffer {
+  /** Mapped through every edit since the offer; the last known position once `lost`. */
+  pos: number;
+  text: string;
+  /** An edit replaced the line's start (a collaborator's sync replaces the whole document). */
+  lost: boolean;
+}
+
+/** The offers `linkTaskItems` resolves, keyed by the position `onMakeTask` gave the host. */
+const TASK_OFFERS_KEY = new PluginKey<ReadonlyMap<number, TaskOffer>>(
+  "textEditTaskOffers",
+);
+/** Offers kept for a host that never links them: the oldest go first. */
+const TASK_OFFERS_MAX = 200;
+
 /**
- * Link checklist lines to tasks (`linkTaskItems`): each line's text becomes a leading task chip.
- * When the line starts with the task's title (the line `onMakeTask` offered), what follows the
- * title stays after the chip; otherwise the whole line is replaced. Nested content stays.
+ * Make task's offers, mapped through every edit until the host links them: Make task can wait on
+ * the host (a dialog), and the document moves meanwhile.
+ */
+function taskOffersExtension() {
+  return Extension.create({
+    name: "textEditTaskOffers",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin<ReadonlyMap<number, TaskOffer>>({
+          key: TASK_OFFERS_KEY,
+          state: {
+            init: () => new Map(),
+            apply(tr, offers) {
+              const meta = tr.getMeta(TASK_OFFERS_KEY) as
+                | { offer?: readonly TextEditTaskItem[]; drop?: number[] }
+                | undefined;
+              if (!meta && (!tr.docChanged || offers.size === 0)) return offers;
+              const next = new Map<number, TaskOffer>();
+              for (const [key, offer] of offers) {
+                if (!tr.docChanged || offer.lost) {
+                  next.set(key, offer);
+                  continue;
+                }
+                const mapped = tr.mapping.mapResult(offer.pos, 1);
+                next.set(
+                  key,
+                  mapped.deletedAfter
+                    ? { ...offer, lost: true }
+                    : { ...offer, pos: mapped.pos },
+                );
+              }
+              for (const key of meta?.drop ?? []) next.delete(key);
+              for (const item of meta?.offer ?? []) {
+                next.delete(item.pos);
+                next.set(item.pos, {
+                  pos: item.pos,
+                  text: item.text,
+                  lost: false,
+                });
+              }
+              for (const key of next.keys()) {
+                if (next.size <= TASK_OFFERS_MAX) break;
+                next.delete(key);
+              }
+              return next;
+            },
+          },
+        }),
+      ];
+    },
+  });
+}
+
+/** Record Make task's lines so `linkTaskItems` can find them after later edits. */
+function offerTaskItems(editor: Editor, items: readonly TextEditTaskItem[]) {
+  editor.view.dispatch(
+    editor.state.tr
+      .setMeta(TASK_OFFERS_KEY, { offer: items })
+      .setMeta("addToHistory", false),
+  );
+}
+
+/**
+ * Where the line `onMakeTask` offered at `key` is now: still an unlinked task item with the text
+ * it was offered with, else null (a changed or removed line is never linked). When an edit lost
+ * the line's position, the one unlinked line with that text, or the one still at its last known
+ * position.
+ */
+function offeredTaskItem(
+  doc: PMNode,
+  offers: ReadonlyMap<number, TaskOffer>,
+  key: number,
+): number | null {
+  const offer = offers.get(key);
+  if (!offer) return null;
+  const fits = (node: PMNode | null | undefined) =>
+    node?.type.name === "taskItem" &&
+    !linkedTaskId(node) &&
+    taskItemText(node) === offer.text;
+  const atLast = offer.pos <= doc.content.size && fits(doc.nodeAt(offer.pos));
+  if (!offer.lost) return atLast ? offer.pos : null;
+  const same: number[] = [];
+  doc.descendants((node, pos) => {
+    if (node.isTextblock) return false;
+    if (fits(node)) same.push(pos);
+    return true;
+  });
+  if (same.length === 1) return same[0]!;
+  return atLast ? offer.pos : null;
+}
+
+/**
+ * What stays after a linked line's chip. A leading plain-text title (the line `onMakeTask`
+ * offered) is dropped, what follows it staying; otherwise the whole line stays, a space after the
+ * chip — a mention or other atom on the line, and the text after it, is never dropped.
+ */
+function lineAfterTitle(line: PMNode, label: string): Fragment {
+  // Only the line's leading run of plain text can be the title.
+  let plain = "";
+  for (let index = 0; index < line.childCount; index++) {
+    const child = line.child(index);
+    if (!child.isText) break;
+    plain += child.text ?? "";
+  }
+  const lead = plain.length - plain.trimStart().length;
+  // The rest after the title, from a word boundary ("Order glass — Friday").
+  const rest = plain.slice(lead + label.length);
+  if (
+    label &&
+    plain.slice(lead).startsWith(label) &&
+    (rest === "" || /^[\s\p{P}]/u.test(rest))
+  )
+    return line.content.cut(lineOffsetToPos(line, lead + label.length));
+  const first = line.firstChild;
+  if (!first || (first.isText && /^\s/.test(first.text ?? "")))
+    return line.content;
+  return Fragment.from(line.type.schema.text(" ")).append(line.content);
+}
+
+/**
+ * Link checklist lines to tasks (`linkTaskItems`): each line Make task offered becomes a leading
+ * task chip and what `lineAfterTitle` keeps. A line found where the offer can no longer vouch
+ * for it (removed, edited, already linked, never offered) is skipped. Nested content stays.
  */
 function linkTaskItemsIn(
   editor: Editor,
@@ -6479,30 +6615,23 @@ function linkTaskItemsIn(
 ): number {
   const { state } = editor;
   const { mention } = state.schema.nodes;
-  if (!mention) return 0;
+  const offers = TASK_OFFERS_KEY.getState(state);
+  if (!mention || !offers) return 0;
+  const targets = new Map<number, TextEditTaskLink>();
+  for (const link of links) {
+    if (!link.id) continue;
+    const at = offeredTaskItem(state.doc, offers, link.pos);
+    if (at !== null && !targets.has(at)) targets.set(at, link);
+  }
   const tr = state.tr;
   let linked = 0;
-  for (const link of [...links].sort((a, b) => a.pos - b.pos)) {
-    if (!link.id) continue;
-    const pos = tr.mapping.map(link.pos);
+  for (const [at, link] of [...targets].sort((a, b) => a[0] - b[0])) {
+    const pos = tr.mapping.map(at);
     const node = tr.doc.nodeAt(pos);
     if (!node || node.type.name !== "taskItem" || linkedTaskId(node)) continue;
     const line = node.firstChild;
     if (!line || line.type.name !== "paragraph") continue;
-    let text = "";
-    line.forEach((child) => {
-      if (child.isText) text += child.text ?? "";
-    });
     const label = link.label.replace(/\s*\n\s*/g, " ").trim();
-    const lead = text.length - text.trimStart().length;
-    // The rest of the line after the title, from a word boundary ("Order glass — Friday").
-    const rest = text.slice(lead + label.length);
-    const keepFrom =
-      label &&
-      text.slice(lead).startsWith(label) &&
-      (rest === "" || /^[\s\p{P}]/u.test(rest))
-        ? lineOffsetToPos(line, lead + label.length)
-        : line.content.size;
     const chip = mention.create({
       kind: "task",
       id: link.id,
@@ -6513,11 +6642,16 @@ function linkTaskItemsIn(
     tr.replaceWith(
       start,
       start + line.content.size,
-      Fragment.from(chip).append(line.content.cut(keepFrom)),
+      Fragment.from(chip).append(lineAfterTitle(line, label)),
     );
     linked++;
   }
-  if (linked) editor.view.dispatch(tr.setMeta(TASK_SYNC_META, true));
+  if (linked)
+    editor.view.dispatch(
+      tr.setMeta(TASK_SYNC_META, true).setMeta(TASK_OFFERS_KEY, {
+        drop: [...targets.values()].map((link) => link.pos),
+      }),
+    );
   return linked;
 }
 
@@ -6577,19 +6711,14 @@ function forEachStepRange(
 }
 
 /**
- * The linked lines `tr` ticked or unticked, by task id → checked: lines that existed before and
- * after it with a different box. A line pasted, deleted or newly linked is not a toggle.
+ * The linked lines `tr` ticked or unticked, by task id → checked. Each step's lines for a task are
+ * compared like with like — the same number before and after, pairwise in order — so a line
+ * pasted, deleted or newly linked is not a toggle, nor is an edit inside nested lines of one task
+ * whose boxes differ.
  */
 function taskToggles(tr: Transaction): Map<string, boolean> {
-  const before = new Map<string, boolean>();
-  const after = new Map<string, boolean>();
-  const collect = (
-    doc: PMNode,
-    from: number,
-    to: number,
-    into: Map<string, boolean>,
-    first: boolean,
-  ) => {
+  const occurrences = (doc: PMNode, from: number, to: number) => {
+    const found = new Map<string, boolean[]>();
     const size = doc.content.size;
     doc.nodesBetween(
       Math.max(0, Math.min(from, size)),
@@ -6598,19 +6727,28 @@ function taskToggles(tr: Transaction): Map<string, boolean> {
         if (node.isTextblock) return false;
         if (node.type.name !== "taskItem") return true;
         const id = linkedTaskId(node);
-        if (id && (!first || !into.has(id)))
-          into.set(id, Boolean(node.attrs.checked));
+        if (id) {
+          const states = found.get(id) ?? [];
+          states.push(Boolean(node.attrs.checked));
+          found.set(id, states);
+        }
         return true;
       },
     );
+    return found;
   };
-  forEachStepRange(tr, (old, from, to, next, newFrom, newTo) => {
-    collect(old, from, to, before, true);
-    collect(next, newFrom, newTo, after, false);
-  });
   const toggles = new Map<string, boolean>();
-  for (const [id, checked] of after)
-    if (before.has(id) && before.get(id) !== checked) toggles.set(id, checked);
+  forEachStepRange(tr, (old, from, to, next, newFrom, newTo) => {
+    const before = occurrences(old, from, to);
+    for (const [id, states] of occurrences(next, newFrom, newTo)) {
+      const was = before.get(id);
+      if (!was || was.length !== states.length) continue;
+      const now = new Set(
+        states.filter((checked, index) => checked !== was[index]),
+      );
+      if (now.size === 1) toggles.set(id, [...now][0]!);
+    }
+  });
   return toggles;
 }
 
@@ -6644,12 +6782,14 @@ interface SectionMarksState {
 }
 
 /**
- * The section bar: a 2px rule in the block gutter, left of the drag grip (its centre 26px before
- * the text), drawn by `::after` so nothing moves. A block's rule reaches 24px up across the gap
- * above it, so the bar runs unbroken from the heading to the section's last block.
+ * The section bar: a 2px rule in the block gutter, clear of the drag grip (which spans 20px→4px
+ * before the text; on touch 28px→4px, its hit area reaching 38px), drawn by `::after` so nothing
+ * moves. Its centre is 32px before the text (50px on touch), where the marker's 24px box ends at
+ * the grip's left edge (20px; 38px on touch). A block's rule reaches 24px up across the gap above
+ * it, so the bar runs unbroken from the heading to the section's last block.
  */
 const SECTION_BAR =
-  "relative after:pointer-events-none after:absolute after:-start-[27px] after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
+  "relative after:pointer-events-none after:absolute after:-start-[33px] pointer-coarse:after:-start-[51px] after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
 const SECTION_TONE = {
   warning: "after:bg-warning",
   info: "after:bg-info",
@@ -6662,9 +6802,12 @@ const SECTION_BLOCK_CLASS = {
   warning: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.warning),
   info: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.info),
 } as const;
-/** The gutter marker: a dot on the bar at the heading's first line, a 24×24 target centred on it. */
+/**
+ * The gutter marker: a dot on the bar at the heading's first line, a 24×24 target centred on it
+ * (44px→20px before the text; 62px→38px on touch), ending where the block grip's box begins.
+ */
 const SECTION_MARKER =
-  "absolute -start-[38px] top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
+  "absolute -start-[44px] pointer-coarse:-start-[62px] top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
 const SECTION_DOT = {
   warning: "bg-warning",
   info: "bg-info",
@@ -6751,32 +6894,30 @@ function sectionDecorations(
   return DecorationSet.create(doc, decorations);
 }
 
-/** Whether `tr` added, removed or changed a top-level heading (a section boundary may move). */
-function touchesHeading(tr: Transaction): boolean {
-  let found = false;
-  const scan = (doc: PMNode, from: number, to: number) => {
-    if (found) return;
+/**
+ * Whether `tr` changed the document's top-level structure — a block added, removed, replaced,
+ * retyped or re-attributed — where a section boundary or a block's decoration may move. An edit
+ * inside one top-level block is not.
+ */
+function touchesTopLevel(tr: Transaction): boolean {
+  const inside = (doc: PMNode, from: number, to: number) => {
     const size = doc.content.size;
-    doc.nodesBetween(
-      Math.max(0, Math.min(from, size)),
-      Math.max(0, Math.min(to, size)),
-      (node) => {
-        if (node.type.name === "heading") found = true;
-        return false;
-      },
-    );
+    const $from = doc.resolve(Math.max(0, Math.min(from, size)));
+    const $to = doc.resolve(Math.max(0, Math.min(to, size)));
+    return $from.depth > 0 && $to.depth > 0 && $from.index(0) === $to.index(0);
   };
+  let found = false;
   forEachStepRange(tr, (before, from, to, after, newFrom, newTo) => {
-    scan(before, from, to);
-    scan(after, newFrom, newTo);
+    if (!found && (!inside(before, from, to) || !inside(after, newFrom, newTo)))
+      found = true;
   });
   return found;
 }
 
 /**
  * Section marks (`sectionMarks`) as decorations: nothing is written to the document. They are
- * rebuilt only when the marks change or an edit touches a heading or adds or removes a top-level
- * block; any other edit maps them.
+ * rebuilt when the marks change or an edit changes the top-level structure (`touchesTopLevel`);
+ * an edit inside one block maps them.
  */
 function sectionMarksExtension(onMark: (key: string) => void) {
   return Extension.create({
@@ -6787,7 +6928,7 @@ function sectionMarksExtension(onMark: (key: string) => void) {
           key: SECTION_MARKS_KEY,
           state: {
             init: () => ({ marks: [], set: DecorationSet.empty }),
-            apply(tr, previous, oldState, newState) {
+            apply(tr, previous, _oldState, newState) {
               const marks = tr.getMeta(SECTION_MARKS_KEY) as
                 readonly TextEditSectionMark[] | undefined;
               if (marks)
@@ -6797,10 +6938,7 @@ function sectionMarksExtension(onMark: (key: string) => void) {
                 };
               if (!tr.docChanged || previous.marks.length === 0)
                 return previous;
-              if (
-                oldState.doc.childCount !== newState.doc.childCount ||
-                touchesHeading(tr)
-              )
+              if (touchesTopLevel(tr))
                 return {
                   marks: previous.marks,
                   set: sectionDecorations(newState.doc, previous.marks, onMark),
@@ -7008,7 +7146,10 @@ function blockActions(
         key: "make-task",
         label: tasks.length > 1 ? `Make ${tasks.length} tasks` : "Make task",
         icon: CircleCheck,
-        run: () => makeTask(tasks),
+        run: () => {
+          offerTaskItems(editor, tasks);
+          makeTask(tasks);
+        },
       },
       null,
     );
@@ -8067,6 +8208,7 @@ export function TextEditEditor({
       diffing,
       [
         sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
+        taskOffersExtension(),
         ...(findReplace
           ? [
               FindAndReplace.configure({

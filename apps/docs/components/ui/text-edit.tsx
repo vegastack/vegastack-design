@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-gugDJj3KBH7nQrdSrt8Jno+UHBbibkvA0cg/QYKd7Jw=
+// @vegastack text-edit@0.25.42 sha256-G8eD8OYxs93pbjm0ZnlWLIls6dfLefQg6G167PtW/ac=
 
 "use client";
 
@@ -214,7 +214,10 @@ export interface TextEditTaskItem {
 
 /** A checklist line to link to a task (`linkTaskItems`). */
 export interface TextEditTaskLink {
-  /** The task item's position, as `onMakeTask` gave it. */
+  /**
+   * The task item's position, as `onMakeTask` gave it: the editor follows that line through later
+   * edits, and skips it once it is removed, its text changed, or it was linked.
+   */
   pos: number;
   /** The task's id: the line's leading chip is `mention://task/<id>`. */
   id: string;
@@ -395,9 +398,9 @@ export interface TextEditHandle {
   pendingUploads: () => number;
   /**
    * Link checklist lines to tasks (after `onMakeTask` created them): each line's text becomes a
-   * leading task chip — text after a matching title stays after the chip, nested content stays
-   * below — and its box becomes the task's done state. A position that is no longer an unlinked
-   * task item is skipped. One undo step; never reported through `onTaskItemToggle`. Returns how
+   * leading task chip — text after a matching plain-text title stays after the chip, otherwise
+   * the whole line does (mentions included); nested content stays below — and its box becomes the
+   * task's done state. A line removed, edited or linked since `onMakeTask` offered it is skipped. One undo step; never reported through `onTaskItemToggle`. Returns how
    * many lines were linked (0 before the editor is in).
    */
   linkTaskItems: (links: readonly TextEditTaskLink[]) => number;
@@ -1488,8 +1491,14 @@ export function TextEdit(props: TextEditProps) {
   const collaborative = props.collaboration !== undefined;
   // A version diff needs its document model (its markings are not Markdown): at once, read-only.
   const diffing = props.diff !== undefined;
+  // Section marks are decorations on the document model: a read-only document shows them too.
+  const marking = (props.sectionMarks?.length ?? 0) > 0;
   const eager =
-    props.annotations !== undefined || composer || collaborative || diffing;
+    props.annotations !== undefined ||
+    composer ||
+    collaborative ||
+    diffing ||
+    marking;
   const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
