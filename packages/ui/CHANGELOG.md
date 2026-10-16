@@ -1,5 +1,37 @@
 # @vegastack/ui
 
+## 0.25.43
+
+### Patch Changes
+
+- [#664](https://github.com/vegastack/vegastack-design/pull/664) [`1813d14`](https://github.com/vegastack/vegastack-design/commit/1813d14c413fa61f96659adca24913510fb466ee) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **MermaidBlock and TextEdit find**:
+
+  - **MermaidBlock prints from dark mode:** each diagram is laid out in its own off-screen box with real layout, so a print stylesheet that hides the rest of the page no longer draws its labels at `translate(NaN, NaN)` (a blank diagram on paper), and a drawing that couldn't be measured is never cached. A diagram first drawn while printing takes its colours from the design tokens, not the print-time CSS.
+  - **No `flushSync`:** the dark drawing's light copy is swapped in by CSS for print; React no longer warns "flushSync was called from inside a lifecycle method".
+  - **Wide diagrams:** the diagram scrolls sideways in its own box with the table scroll cue (the overflowing edge fades) and is a named, focusable region ("Diagram, scrolls sideways") while it scrolls.
+  - **Find bar:** the find field gives way first, so the bar stays on one row in a 27rem text column.
+
+- [#659](https://github.com/vegastack/vegastack-design/pull/659) [`c1f2fd2`](https://github.com/vegastack/vegastack-design/commit/c1f2fd2afb7b9aecd542fbeada20e5126585743b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **TextEdit**, **InlineChip**, **MarkdownView**: linked task lines, Make task, closed-target chips, product mentions and section marks.
+
+  - **Linked task lines:** `linkedTaskId(node)` returns the task id of a checklist line whose first inline is a task mention (`- [x] [@Order glass](mention://task/t1)`). `onTaskItemToggle(taskId, checked)` reports only this person's own ticks. It never reports a collaborator's tick, a `value` change or `setTaskItemChecked`.
+  - **Make task:** with `onMakeTask`, the block menu of an unlinked checklist line offers **Make task**, or **Make N tasks** for the lines the selection reaches. `onMakeTask` gives each line a `key` (its `blockId`); `handleRef.linkTaskItems([{ key, id, label }])` turns each still-unchanged line into a leading task chip. Text after a matching plain-text title stays after the chip; otherwise the whole line stays, mentions included. `handleRef.setTaskItemChecked(taskId, checked)` ticks or unticks every line linked to a task that changed elsewhere.
+  - **Closed targets:** `mentionStatus(kind, id)` on `TextEdit` and `MarkdownView` strikes a chip's label through and adds a small status tag ("Canceled"). The props behind it are `InlineChip`'s new `struck` and `status`.
+  - **Products:** a new `product` mention kind with the package icon on a magenta tint. The `@` menu has a **Products** group after Projects.
+  - **Section marks:** `sectionMarks` (`{ key, tone, label }`, keyed by a heading's `blockId`) draws a gutter dot and a `warning` or `info` bar along each marked section. They are decorations only: nothing is written to the document and no text moves. Clicking the dot calls `onSectionMark(key)`.
+  - **`renderTaskQuery` `setQuery`:** in an editable editor the live task list gets `setQuery(query)`, which replaces its filter as one local edit; read views get none.
+
+- [#660](https://github.com/vegastack/vegastack-design/pull/660) [`7e846d1`](https://github.com/vegastack/vegastack-design/commit/7e846d15c55434e4d415d9a27da62f31a9b0c07b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **DataList** `mergedLayout="line"`: every value sits on the line's centre. A person (a flex row of avatar and name) no longer drops to a second line under its dot, and a chip or a time with its 24px tooltip target lines up with the plain text and the dots. A `"—"` wrapped in a plain element (`<span className="tabular-nums">—</span>`) now drops with its dot, like a bare one.
+
+- [#663](https://github.com/vegastack/vegastack-design/pull/663) [`3b00157`](https://github.com/vegastack/vegastack-design/commit/3b001579b67324e796f1495b408d74114d82fbfa) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 Test lanes: `geometry.css` reads `hover:` as plain `:hover` (`@custom-variant hover`). Headless Chromium in the Linux runner image reports `(hover: hover)` as false, so every `hover:` style vanished in CI while desktop hosts applied it (`ghost-chip-align` failed in CI only).
+
+- [#661](https://github.com/vegastack/vegastack-design/pull/661) [`5d1f4f3`](https://github.com/vegastack/vegastack-design/commit/5d1f4f351bfd46f5b75c28276c5e9ddb257f1e8f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **TextEdit and MarkdownView: live task lists.**
+
+  - **`taskQuery` block:** an atom `{ blockId, query, snapshot }`, selectable and draggable, and in `BLOCK_ID_TYPES`. Its Markdown is the `:::tasks{id="…" …}` container directive: the task mention rows (`- [ ] [@Title](mention://task/<id>) — <status>`), then `:::`. It round-trips byte for byte. `id` is its `blockId`, the one block id Markdown carries. The other attributes are its `query`, unknown keys included. Lines that do not make a whole block stay text and a list.
+  - **`renderTaskQuery`:** a new TextEdit prop. It draws the list with the host's own component, in the editor and in the read view. Without it the stored snapshot shows as a quiet card.
+  - **MarkdownView:** renders `:::tasks` as that card (`MarkdownTaskList`: "Task list", task chips with their status labels, or "No matching tasks"). It is server-safe and takes the same optional `renderTaskQuery`.
+  - **`text-edit-grammar`:** adds `readTasksDirective`, `tasksDirectiveMarkdown`, `parseDirectiveAttrs` and `parseTaskListRows`.
+    [docs](https://design.vegastack.com/docs/components/text-edit)
+
 ## 0.25.42
 
 ### Patch Changes

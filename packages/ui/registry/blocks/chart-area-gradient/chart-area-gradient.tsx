@@ -1,4 +1,4 @@
-// @vegastack chart-area-gradient@0.25.42 sha256-4tj9n5J5t5zOZe81S8d9xNyfZAW6F+Cgt56KSk86UTE=
+// @vegastack chart-area-gradient@0.25.43 sha256-8AwNjWlwMEgIEVr7j6vkGtmC7tOHNK0gnezj98NABuw=
 
 "use client";
 
