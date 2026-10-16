@@ -267,7 +267,17 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
         const op = getComputedStyle(chevron).opacity;
         return op === "1"
           ? op
-          : `${op} hover=${trigger.matches(":hover")} hit=${hit?.getAttribute("data-slot") ?? hit?.tagName} rect=${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.width)}x${Math.round(r.height)} win=${innerWidth}x${innerHeight}`;
+          : `${op} hover=${trigger.matches(":hover")} mq=${matchMedia("(hover: hover)").matches} grp=${chevron.closest(".group\\/button") === trigger} sheets=${[
+              ...document.styleSheets,
+            ].some((sh) => {
+              try {
+                return [...sh.cssRules].some((r) =>
+                  r.cssText.includes("group-hover\\/button"),
+                );
+              } catch {
+                return false;
+              }
+            })} hit=${hit?.getAttribute("data-slot") ?? hit?.tagName} rect=${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.width)}x${Math.round(r.height)} win=${innerWidth}x${innerHeight}`;
       },
       { timeout: 5000, interval: 100 },
     )
