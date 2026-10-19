@@ -784,7 +784,7 @@ side by side on one line, in the narrowest container you support; an outline `Bu
 alone is wider than the table leaves it nothing to squeeze, and the table scrolls sideways. Put
 long text in a link-variant `Button` or a plain `<a>`, which wrap.
 
-**A merged value always wraps.** It does not inherit the first column's posture: under a `mono` or
+**A stacked merged value always wraps** (`mergedLayout="line"` is one line that truncates, squeezed or not). It does not inherit the first column's posture: under a `mono` or
 `align: "end"` first column (both one line by default) every stacked value still breaks inside the
 cell — at a space, or anywhere when a single word is wider than the cell — and wears its own
 column's face, so prose under a mono invoice number is not set in mono. The first column's own
