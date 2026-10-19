@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.45 sha256-R02Q/oZow4uzNQ4DdRH+/9dFh54QUAldR1sdkze8LWE=
+// @vegastack mermaid-block@0.25.45 sha256-J+dQH++x78/gysd48wwu8Rg1b+c0k/LZb7XIM0Z7XgA=
 
 "use client";
 
@@ -50,8 +50,8 @@ const CACHE_SIZE = 50;
 /**
  * The configuration pinned on every render. `theme`/`look`/`layout` keep mermaid 12's classic
  * appearance and the bundled dagre layout (12's defaults would be ELK plus the redux/neo look);
- * `useMaxWidth: false` draws at natural width, so a wide diagram scrolls sideways at a legible size
- * instead of shrinking its labels.
+ * `useMaxWidth: false` draws at natural width; `MermaidBlock` then scales a wider diagram down to
+ * its column, and scrolls one sideways only below a legible size (`MIN_FIT_SCALE`).
  */
 function pinnedConfig(theme: MermaidTheme, t: Tokens): MermaidConfig {
   return {
@@ -635,6 +635,24 @@ function useScrollEdges(box: HTMLElement | null): boolean {
 const scrollEdgeFadeClassName =
   "[--scroll-edge-s:0%] [--scroll-edge-e:0%] data-scroll-start:[--scroll-edge-s:--spacing(6)] data-scroll-end:[--scroll-edge-e:--spacing(6)] [mask-image:linear-gradient(to_right,transparent,black_var(--scroll-edge-s),black_calc(100%-var(--scroll-edge-e)),transparent)] rtl:[mask-image:linear-gradient(to_left,transparent,black_var(--scroll-edge-s),black_calc(100%-var(--scroll-edge-e)),transparent)] print:overflow-visible print:[mask-image:none]";
 
+/**
+ * The smallest a diagram is scaled to fit its column: 0.6 of its drawn size keeps mermaid's 16px
+ * labels at about 10px. A diagram that would need less scrolls sideways at this scale instead.
+ */
+const MIN_FIT_SCALE = 0.6;
+
+/** A drawn SVG's natural width in px: its `width` attribute, else its `viewBox` width. */
+function naturalWidth(svg: string): number | undefined {
+  const tag = /<svg\b[^>]*>/i.exec(svg)?.[0];
+  if (!tag) return undefined;
+  const width = /\swidth="([\d.]+)(?:px)?"/i.exec(tag)?.[1];
+  const viewBox = /\sviewBox="[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)/i.exec(
+    tag,
+  )?.[1];
+  const value = Number(width ?? viewBox);
+  return value > 0 ? value : undefined;
+}
+
 const HEIGHT_KEY = "vs:mermaid-height:";
 
 function readHeight(sourceHash: string): number | undefined {
@@ -675,8 +693,10 @@ export interface MermaidBlockProps extends Omit<
 
 /**
  * `MermaidBlock` — a mermaid diagram as a `<figure>` named by its `accTitle` (else "Diagram"),
- * drawn when it nears the viewport, at its natural width (a wide diagram scrolls sideways, its
- * overflowing edge faded, as a named region the keyboard can scroll). The
+ * drawn when it nears the viewport, at its natural size or scaled down to fit its column's width
+ * (never up). One that would fall below a legible size (0.6 of its drawn size) stays at that size
+ * and scrolls sideways instead, its overflowing edge faded, as a named region the keyboard can
+ * scroll. The
  * space it takes is reserved from its last measured height while it draws. When the source stops
  * parsing, the last diagram that worked stays, dimmed, with a status line naming the line and the
  * problem; with none to keep, "Couldn't draw this diagram" and the source. The SVG keeps its own
@@ -712,6 +732,10 @@ export function MermaidBlock({
     setReserved(readHeight(sourceHash));
   }, [sourceHash]);
   const svgRef = React.useRef<HTMLDivElement>(null);
+  const natural = React.useMemo(
+    () => (svg ? naturalWidth(svg) : undefined),
+    [svg],
+  );
   const [scrollBox, setScrollBox] = React.useState<HTMLDivElement | null>(null);
   const scrollable = useScrollEdges(scrollBox);
   React.useLayoutEffect(() => {
@@ -789,10 +813,23 @@ export function MermaidBlock({
             ref={svgRef}
             data-slot="mermaid-block-svg"
             className={cn(
-              "mx-auto w-max max-w-none p-4 transition-opacity duration-150 [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-none print:max-w-full print:[&_svg]:max-w-full",
+              "p-4 transition-opacity duration-150 [&_svg]:mx-auto [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-none print:max-w-full print:[&_svg]:max-w-full",
+              // Fitted: the column's width, never above the drawn size nor below the legible floor
+              // (the box grows to that floor, and the scroll box scrolls it).
+              natural
+                ? "w-full min-w-[calc(var(--mermaid-min-width)+--spacing(8))] [&_svg]:w-[clamp(var(--mermaid-min-width),100%,var(--mermaid-natural-width))]"
+                : "mx-auto w-max max-w-none",
               error && "opacity-40",
               theme === "dark" && printSvg && !error && "print:hidden",
             )}
+            style={
+              natural
+                ? ({
+                    "--mermaid-natural-width": `${natural}px`,
+                    "--mermaid-min-width": `${natural * MIN_FIT_SCALE}px`,
+                  } as React.CSSProperties)
+                : undefined
+            }
             // Mermaid's own output, sanitised by its DOMPurify pass (`securityLevel: "strict"`).
             dangerouslySetInnerHTML={{ __html: svg }}
           />

@@ -519,7 +519,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.25.45",
-        "integrity": "sha256-R02Q/oZow4uzNQ4DdRH+/9dFh54QUAldR1sdkze8LWE="
+        "integrity": "sha256-J+dQH++x78/gysd48wwu8Rg1b+c0k/LZb7XIM0Z7XgA="
       }
     },
     {
@@ -2213,7 +2213,7 @@
         "whenToUse": "Building a tile surface with controls over an image — spread tileCornerClasses on the slot, tileOverlayButtonClasses on a ghost icon Button, tileGroupClass on the tile.",
         "whenNotToUse": "Chrome that does not sit over media — use a plain Button.",
         "version": "0.25.45",
-        "integrity": "sha256-b3S7HQFTt4UiU6ZyVXswyCXzXnZ+u9L/KTwAMRqks+U="
+        "integrity": "sha256-VzMu9dMcbaBhzX4GHwD8393EJYsm7w6kvkuXzPoxhq0="
       }
     },
     {
@@ -16183,7 +16183,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.45",
-        "integrity": "sha256-BvA9VGb+2WQkuzwZ9LuDtXh0MflBDqbTxshp05jAd/k="
+        "integrity": "sha256-1AF/uIiODvN6tQk+1VYEN9nGKlOxnLZ1vNUe/Pd5TKY="
       }
     },
     {
@@ -16235,7 +16235,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.45",
-        "integrity": "sha256-efT3XdBJRENO7rPlSwumsv0BIH1lFpIOXau34DtAkSg="
+        "integrity": "sha256-epDNH+t60bOk+T8hfaXqUWGDidhd/bU7iotsaJ6KonM="
       }
     },
     {
@@ -17865,7 +17865,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.45",
-        "integrity": "sha256-X/ehj7KtxXb7rasDCahzzwwJEugpwrAvbL+a0hZU6d8="
+        "integrity": "sha256-Yp4fbC1rX9ccPUamV49uXpmkuAUWzTHqbrNSylxxbR4="
       }
     },
     {
@@ -18321,7 +18321,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.45",
-        "integrity": "sha256-ORsIn45er/b9gHdLB9tM6oXqK51w5tGXcpZ6eCf3YXw="
+        "integrity": "sha256-hxWIFY9FgCwX4ldC6GpBcb3IL+8zATluBch7+V8L2GA="
       }
     },
     {

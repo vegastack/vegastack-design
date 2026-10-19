@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.45 sha256-ORsIn45er/b9gHdLB9tM6oXqK51w5tGXcpZ6eCf3YXw=
+// @vegastack text-edit@0.25.45 sha256-hxWIFY9FgCwX4ldC6GpBcb3IL+8zATluBch7+V8L2GA=
 
 "use client";
 
@@ -2605,7 +2605,7 @@ const MENTION_ICON: Record<
   user: UserRound,
   page: FileText,
   file: FileIcon,
-  task: CircleCheck,
+  task: ListTodo,
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
@@ -3117,6 +3117,7 @@ function mentionView(runtime: EditorRuntime) {
           targetId={id}
           label={label}
           struck={closed?.struck === true}
+          done={closed?.done === true}
           status={closed?.status}
           openOn="modifier"
           href={hrefFor ? hrefFor(kind, id) : undefined}

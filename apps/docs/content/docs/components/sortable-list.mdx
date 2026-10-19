@@ -133,6 +133,8 @@ uploading, the dashed border when idle, the destructive border and message on er
 
 `columns={4}` is a cap, not a fixed count: four tiles a row on a wide container, three and then two
 as it narrows (never below 8.5rem a tile) — the same grid `AttachmentGroup layout="tiles"` uses.
+`minTileWidth` raises that floor for a wider tile: a card with a name and a meta line passes `240`,
+one card a row on a phone and four on a desktop.
 The drag handle ⠿ sits in the tile's top-left overlay slot and the × in its top-right one, inset
 from the corner on a blurred scrim; both show on hover or focus within the tile, always on a touch
 screen.

@@ -138,3 +138,21 @@ test("an agent chip is the bot on the agent hue, named as an agent", async () =>
   expect(chip.textContent).toContain("Claude (via Manoj)");
   await expectNoA11yViolations(screen.container);
 });
+
+test("a task chip shows the task glyph until done; done swaps in the check", async () => {
+  const screen = await render(
+    <p>
+      <InlineChip kind="task" label="Open task" data-testid="open" />{" "}
+      <InlineChip kind="task" label="Done task" done data-testid="done" />
+    </p>,
+  );
+  const icon = (id: string) =>
+    screen
+      .getByTestId(id)
+      .element()
+      .querySelector("[data-slot=inline-chip-icon]")!;
+  expect(icon("open").getAttribute("class")).toContain("lucide-list-todo");
+  expect(screen.getByTestId("open").element()).not.toHaveAttribute("data-done");
+  expect(icon("done").getAttribute("class")).toContain("lucide-circle-check");
+  expect(screen.getByTestId("done").element()).toHaveAttribute("data-done", "");
+});

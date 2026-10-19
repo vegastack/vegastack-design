@@ -1,4 +1,4 @@
-// @vegastack tile-overlay@0.25.45 sha256-b3S7HQFTt4UiU6ZyVXswyCXzXnZ+u9L/KTwAMRqks+U=
+// @vegastack tile-overlay@0.25.45 sha256-VzMu9dMcbaBhzX4GHwD8393EJYsm7w6kvkuXzPoxhq0=
 
 /**
  * tile-overlay — the ONE visual recipe for media tiles and the chrome that floats over them:
@@ -63,9 +63,12 @@ export const tileColumnClasses = {
   6: "[--tile-columns:6]",
 } as const;
 
-/** A tile grid: `--tile-columns` equal tracks at most, fewer below 8.5rem a tile. `gap-3`. */
+/**
+ * A tile grid: `--tile-columns` equal tracks at most, fewer below `--tile-min` a tile (8.5rem;
+ * an inline style on the grid raises it). `gap-3`.
+ */
 export const tileGridClasses =
-  "grid gap-3 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(34),calc((100%_-_(var(--tile-columns)_-_1)_*_var(--spacing)*3)/var(--tile-columns)))),1fr))]";
+  "grid gap-3 [--tile-min:--spacing(34)] grid-cols-[repeat(auto-fill,minmax(min(100%,max(var(--tile-min),calc((100%_-_(var(--tile-columns)_-_1)_*_var(--spacing)*3)/var(--tile-columns)))),1fr))]";
 
 /**
  * A sideways-scrolling row's tiles (`AttachmentGroup layout="scroll"` children), each sized so
