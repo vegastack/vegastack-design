@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.43 sha256-O6HF0Po/PBS9xkGTVvEO5NjvwtKfi5mK96kwpfH3CkU=
+// @vegastack data-table-parts@0.25.43 sha256-aJx6BgVNrf8+maq2oJRxMCpT34uPZ0A+wN9fz5oAXxw=
 
 "use client";
 
@@ -195,7 +195,11 @@ export interface DataTableColumnRole {
  *   or a role is not enough: the helper's output lands on foreign elements that
  *   carry neither (review round 4). `data-table-parts.test.tsx` fails when an
  *   exported helper with a fixed height is missing from this list;
- * - `Avatar` and `Kbd`.
+ * - `Avatar` and `Kbd`;
+ * - DataList's merged `line` (`data-list-merged`, `data-layout="line"`) and everything in it: it
+ *   is ONE line that truncates, and it adds nothing to the cell's min-content (it contains its
+ *   inline size), so releasing it only broke its values mid-word ("Produc" / "t", "25" / "MB")
+ *   inside a squeezed phone row instead of ellipsizing them.
  *
  * Four things look like controls but are TEXT, and stay released:
  *
@@ -218,8 +222,8 @@ export interface DataTableColumnRole {
  */
 const SQUEEZE_CLASS =
   "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
-  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:whitespace-normal " +
-  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:wrap-anywhere " +
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line])_*]:whitespace-normal " +
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line])_*]:wrap-anywhere " +
   "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
   "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
   "in-data-squeezed:**:[&[class~='group/badge']]:h-auto " +
@@ -230,7 +234,8 @@ const SQUEEZE_CLASS =
  * The LAST rung, for fit cells only: `data-strained`, which a renderer sets once the fill cell is
  * released, nothing is left to merge (every remaining column is the primary or
  * `mobile: "visible"`) and the table STILL overflows. Only then does a fit cell give up its one
- * line, with exactly the squeeze's release (the same keep list, so a control still never wraps).
+ * line, with the squeeze's release (its keep list less DataList's merged `line`, which only a
+ * fill cell holds), so a control still never wraps.
  * It is reached by configuration, never by one long value: several `visible` columns of
  * unbreakable content in a phone-width container. A header still never breaks inside a word.
  * The list is the squeeze's, spelled out again, because Tailwind can only see a literal class.

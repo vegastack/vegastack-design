@@ -1656,7 +1656,7 @@ test('DataList mergedLayout="line" keeps every piece on one centred line', async
     '[data-slot="data-list-merged"]',
   )!;
   // A phone row (375px less its gutters): merged, not squeezed — the squeeze is the separate
-  // last resort that lets merged text wrap.
+  // last resort (it wraps stacked merged text; a `line` stays one line, the test below).
   expect(screen.container.querySelector("[data-squeezed]")).toBeNull();
   const centre = (el: Element) => {
     const r = el.getBoundingClientRect();
@@ -1680,6 +1680,131 @@ test('DataList mergedLayout="line" keeps every piece on one centred line', async
       .toBeLessThanOrEqual(1);
   // One line: no taller than its tallest piece (the 24px time target).
   expect(merged.getBoundingClientRect().height).toBeLessThanOrEqual(24.5);
+});
+
+/**
+ * A squeezed phone row keeps its merged `line` on one line. A folder row (space, time, person,
+ * size) next to a selection box and a row menu squeezes the table at 343px; the squeeze released
+ * every descendant of the fill cell, the merged line's values included, so each wrapped inside
+ * its own box — "Produc" / "t", "1w" / "ago", "25" / "MB" — in a three-line row (Regent Library,
+ * 375px, after #660). The line truncates instead and never widens the table.
+ */
+test('DataList mergedLayout="line" stays one line in a squeezed phone row', async () => {
+  const screen = await render(
+    <div style={{ width: "343px" }}>
+      <DataList
+        aria-label="Library"
+        mergedLayout="line"
+        selectable
+        rowActions={() => [{ label: "Rename", onSelect: () => {} }]}
+        columns={[
+          {
+            key: "name",
+            header: "Name",
+            // A nowrap render pins the fill cell's min-content past the phone width, so the
+            // table squeezes whatever the merged line does: the KEEP exclusion is what's tested.
+            render: (row: { id: string; name: string }) => (
+              <span className="whitespace-nowrap">{row.name}</span>
+            ),
+          },
+          {
+            key: "space",
+            header: "Space",
+            render: () => (
+              <span className="inline-flex max-w-full min-w-0 items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex size-4 shrink-0"
+                />
+                <span data-piece className="min-w-0 truncate">
+                  Product Management
+                </span>
+              </span>
+            ),
+          },
+          {
+            key: "updated",
+            header: "Updated",
+            nowrap: true,
+            render: () => (
+              <time
+                data-piece
+                className="relative inline-flex min-h-6 min-w-6 items-center justify-center"
+              >
+                1w ago
+              </time>
+            ),
+          },
+          {
+            key: "by",
+            header: "Updated by",
+            render: () => (
+              <span className="flex min-w-0 items-center gap-2">
+                <Avatar size="sm">
+                  <AvatarFallback>KM</AvatarFallback>
+                </Avatar>
+                <span data-piece className="min-w-0 truncate">
+                  K Manoj Kumar
+                </span>
+              </span>
+            ),
+          },
+          {
+            key: "size",
+            header: "Size",
+            nowrap: true,
+            render: () => (
+              <span data-piece className="tabular-nums">
+                25 MB
+              </span>
+            ),
+          },
+        ]}
+        data={[
+          { id: "a", name: "Sample Images (SALES) for the Q3 catalogue 2026" },
+        ]}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await settle();
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-list-merged"]'),
+    )
+    .not.toBeNull();
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  // Squeezed: the release is live, and the merged line is kept out of it.
+  expect(screen.container.querySelector("[data-squeezed]")).not.toBeNull();
+  const pieces = [...merged.querySelectorAll<HTMLElement>("[data-piece]")];
+  expect(pieces.length).toBe(4);
+  // Containment never collapses the line: it keeps a real width and shows its first value.
+  expect(merged.getBoundingClientRect().width).toBeGreaterThan(150);
+  expect(pieces[0]!.getBoundingClientRect().width).toBeGreaterThan(20);
+  for (const piece of pieces) {
+    // One text line each: never wrapped inside its own box.
+    expect
+      .soft(
+        piece.getBoundingClientRect().height,
+        `${piece.textContent} wrapped`,
+      )
+      .toBeLessThanOrEqual(24.5);
+    expect
+      .soft(getComputedStyle(piece).whiteSpace, `${piece.textContent}`)
+      .toBe("nowrap");
+  }
+  expect(merged.getBoundingClientRect().height).toBeLessThanOrEqual(24.5);
+  // The line fits its cell (it truncates), and the table never scrolls.
+  const cell = merged.closest("td")!;
+  expect(merged.getBoundingClientRect().right).toBeLessThanOrEqual(
+    cell.getBoundingClientRect().right + 0.5,
+  );
+  const table = screen.container.querySelector("table")!;
+  expect(table.parentElement!.scrollWidth).toBeLessThanOrEqual(
+    table.parentElement!.clientWidth + 1,
+  );
 });
 
 /**
