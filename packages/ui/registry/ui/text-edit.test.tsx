@@ -5019,13 +5019,20 @@ test("node views follow the editor's editability: checkboxes and live task lists
   });
   const editor = editorOf(
     screen.getByRole("textbox", { name: "Notes" }).element(),
-  ) as unknown as { setEditable: (on: boolean) => void };
+  ) as unknown as { setEditable: (on: boolean, emitUpdate?: boolean) => void };
   const box = () => screen.container.querySelector('[role="checkbox"]')!;
   await vi.waitFor(() => expect(box()).not.toHaveAttribute("data-disabled"));
   editor.setEditable(false);
   await vi.waitFor(() => expect(box()).toHaveAttribute("data-disabled"));
   expect(seen.at(-1)).toBe(false);
   editor.setEditable(true);
+  await vi.waitFor(() => expect(box()).not.toHaveAttribute("data-disabled"));
+  expect(seen.at(-1)).toBe(true);
+  // Silent changes (no `update` event, no transaction) are followed too.
+  editor.setEditable(false, false);
+  await vi.waitFor(() => expect(box()).toHaveAttribute("data-disabled"));
+  expect(seen.at(-1)).toBe(false);
+  editor.setEditable(true, false);
   await vi.waitFor(() => expect(box()).not.toHaveAttribute("data-disabled"));
   expect(seen.at(-1)).toBe(true);
 });

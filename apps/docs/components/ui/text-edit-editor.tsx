@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.43 sha256-YnqobXsjaHBaFHK74Dkk4iTGLqPeMFhQsi8F+OhzJP0=
+// @vegastack text-edit@0.25.43 sha256-c0+K6t89OSWmftVxsDaseUDWQY65ZYarLulUb/gTmC4=
 
 "use client";
 
@@ -721,21 +721,57 @@ interface SlashState {
 /* ------------------------------------------------------------------------------------------------
  * Node views
  * ----------------------------------------------------------------------------------------------*/
+/** Each editor's node views watching its editability (`useEditorEditable`). */
+const EDITABLE_WATCHERS = new WeakMap<Editor, Set<() => void>>();
+
+function editableWatchers(editor: Editor): Set<() => void> {
+  let set = EDITABLE_WATCHERS.get(editor);
+  if (!set) EDITABLE_WATCHERS.set(editor, (set = new Set()));
+  return set;
+}
+
+/**
+ * Tells `useEditorEditable` when the editor's editability changes. `setEditable` — silent
+ * (`emitUpdate: false`) or not — ends in `view.updateState`, which updates every plugin view, so
+ * this sees each change whether or not an event or a transaction goes with it.
+ */
+function editableWatchExtension() {
+  return Extension.create({
+    name: "textEditEditableWatch",
+    addProseMirrorPlugins() {
+      const editor = this.editor;
+      return [
+        new Plugin({
+          view: () => {
+            let last = editor.isEditable;
+            return {
+              update: () => {
+                if (editor.isEditable === last) return;
+                last = editor.isEditable;
+                for (const watcher of [...editableWatchers(editor)]) watcher();
+              },
+            };
+          },
+        }),
+      ];
+    },
+  });
+}
+
 /**
  * The editor's editability, re-rendering the calling node view when it changes. A node view is
  * otherwise redrawn only when its node or decorations change, so one that reads
  * `editor.isEditable` while rendering would keep the value it mounted with — a collaborative
- * editor mounts read-only until its room is ready. `setEditable` emits `update`.
+ * editor mounts read-only until its room is ready.
  */
 function useEditorEditable(editor: Editor): boolean {
   return React.useSyncExternalStore(
     React.useCallback(
       (onChange: () => void) => {
-        editor.on("update", onChange);
-        editor.on("transaction", onChange);
+        const watchers = editableWatchers(editor);
+        watchers.add(onChange);
         return () => {
-          editor.off("update", onChange);
-          editor.off("transaction", onChange);
+          watchers.delete(onChange);
         };
       },
       [editor],
@@ -8433,6 +8469,7 @@ export function TextEditEditor({
       [
         sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
         taskOffersExtension(),
+        editableWatchExtension(),
         ...(findReplace
           ? [
               FindAndReplace.configure({
