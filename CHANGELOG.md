@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.45] — October 20, 2026
+
+<!-- assembled from 1 changeset: 978f74d8dad3 -->
+
+### 🧩 New components
+
+- **DataList**: on a tight `mergedLayout="line"`, a figure (an end-aligned or mono column: a size, a count, an id) keeps its whole width and the text values beside it truncate first — "Produ… · 1w ago · K Manoj… · 25 MB", never "25 M…".
+  [`9c5f045`](https://github.com/VegaStack/vegastack-design/commit/9c5f045)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.44 → 0.25.45.
+
 ## [0.25.44] — October 19, 2026
 
 <!-- assembled from 2 changesets: 8e01b909eb1e -->
