@@ -1753,6 +1753,7 @@ test('DataList mergedLayout="line" stays one line in a squeezed phone row', asyn
             key: "size",
             header: "Size",
             nowrap: true,
+            align: "end",
             render: () => (
               <span data-piece className="tabular-nums">
                 25 MB
@@ -1795,6 +1796,15 @@ test('DataList mergedLayout="line" stays one line in a squeezed phone row', asyn
       .soft(getComputedStyle(piece).whiteSpace, `${piece.textContent}`)
       .toBe("nowrap");
   }
+  // A figure (an end-aligned column) keeps its whole width; the text values truncate first.
+  const size = pieces.find((p) => p.textContent === "25 MB")!;
+  const sizeValue = [...merged.children].find((v) => v.contains(size))!;
+  expect(sizeValue.scrollWidth).toBeLessThanOrEqual(
+    sizeValue.clientWidth + 0.5,
+  );
+  expect(size.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+    size.scrollWidth - 0.5,
+  );
   expect(merged.getBoundingClientRect().height).toBeLessThanOrEqual(24.5);
   // The line fits its cell (it truncates), and the table never scrolls.
   const cell = merged.closest("td")!;
