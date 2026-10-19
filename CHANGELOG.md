@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.46] — October 20, 2026
+
+<!-- assembled from 1 changeset: c7d7611d6599 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.45 → 0.25.46.
+
+### 🐛 Fixed
+
+- **InlineChip**, **MermaidBlock**, **SortableList**: a task chip shows the task glyph and only a finished task its check (`done`, set by `TextEdit` and `MarkdownView` from `mentionStatus`'s new `done`); a chip's icon and its label's first word never part on a wrap; a mermaid diagram scales down to fit its column (never above its drawn size) and scrolls sideways only below 0.6 of that size; `SortableList`'s `minTileWidth` raises a tile grid's 8.5rem floor so wider cards sit one a row on a phone.
+  [`bf6a775`](https://github.com/VegaStack/vegastack-design/commit/bf6a775)
+
 ## [0.25.45] — October 20, 2026
 
 <!-- assembled from 1 changeset: 978f74d8dad3 -->
