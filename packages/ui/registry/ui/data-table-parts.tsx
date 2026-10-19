@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.43 sha256-earBpNzUYRx19ruX8W9yQuNgjC9HZTOylWuipA/DiDk=
+// @vegastack data-table-parts@0.25.43 sha256-aJx6BgVNrf8+maq2oJRxMCpT34uPZ0A+wN9fz5oAXxw=
 
 "use client";
 
@@ -234,7 +234,8 @@ const SQUEEZE_CLASS =
  * The LAST rung, for fit cells only: `data-strained`, which a renderer sets once the fill cell is
  * released, nothing is left to merge (every remaining column is the primary or
  * `mobile: "visible"`) and the table STILL overflows. Only then does a fit cell give up its one
- * line, with exactly the squeeze's release (the same keep list, so a control still never wraps).
+ * line, with the squeeze's release (its keep list less DataList's merged `line`, which only a
+ * fill cell holds), so a control still never wraps.
  * It is reached by configuration, never by one long value: several `visible` columns of
  * unbreakable content in a phone-width container. A header still never breaks inside a word.
  * The list is the squeeze's, spelled out again, because Tailwind can only see a literal class.

@@ -249,7 +249,7 @@ test("columnCellClass carries alignment, the fill/fit posture and the mono face"
   expect(fit).toContain("in-data-strained:w-auto");
   expect(fit).not.toContain("in-data-squeezed");
   // Only the last rung (`data-strained`: nothing left to merge, still overflowing) releases it,
-  // with the squeeze's own keep list.
+  // with the squeeze's keep list less the merged line (only a fill cell holds one).
   expect(fit).toContain(
     `in-data-strained:**:not-[${STRAIN_KEEP},${STRAIN_KEEP}_*]:wrap-anywhere`,
   );

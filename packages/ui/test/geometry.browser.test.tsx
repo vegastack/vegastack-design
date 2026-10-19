@@ -1656,7 +1656,7 @@ test('DataList mergedLayout="line" keeps every piece on one centred line', async
     '[data-slot="data-list-merged"]',
   )!;
   // A phone row (375px less its gutters): merged, not squeezed — the squeeze is the separate
-  // last resort that lets merged text wrap.
+  // last resort (it wraps stacked merged text; a `line` stays one line, the test below).
   expect(screen.container.querySelector("[data-squeezed]")).toBeNull();
   const centre = (el: Element) => {
     const r = el.getBoundingClientRect();
@@ -1698,7 +1698,15 @@ test('DataList mergedLayout="line" stays one line in a squeezed phone row', asyn
         selectable
         rowActions={() => [{ label: "Rename", onSelect: () => {} }]}
         columns={[
-          { key: "name", header: "Name" },
+          {
+            key: "name",
+            header: "Name",
+            // A nowrap render pins the fill cell's min-content past the phone width, so the
+            // table squeezes whatever the merged line does: the KEEP exclusion is what's tested.
+            render: (row: { name: string }) => (
+              <span className="whitespace-nowrap">{row.name}</span>
+            ),
+          },
           {
             key: "space",
             header: "Space",
@@ -1752,7 +1760,9 @@ test('DataList mergedLayout="line" stays one line in a squeezed phone row', asyn
             ),
           },
         ]}
-        data={[{ id: "a", name: "Sample Images (SALES) for the Q3 catalogue" }]}
+        data={[
+          { id: "a", name: "Sample Images (SALES) for the Q3 catalogue 2026" },
+        ]}
         getRowId={(r) => r.id}
       />
     </div>,
@@ -1766,8 +1776,13 @@ test('DataList mergedLayout="line" stays one line in a squeezed phone row', asyn
   const merged = screen.container.querySelector<HTMLElement>(
     '[data-slot="data-list-merged"]',
   )!;
+  // Squeezed: the release is live, and the merged line is kept out of it.
+  expect(screen.container.querySelector("[data-squeezed]")).not.toBeNull();
   const pieces = [...merged.querySelectorAll<HTMLElement>("[data-piece]")];
   expect(pieces.length).toBe(4);
+  // Containment never collapses the line: it keeps a real width and shows its first value.
+  expect(merged.getBoundingClientRect().width).toBeGreaterThan(150);
+  expect(pieces[0]!.getBoundingClientRect().width).toBeGreaterThan(20);
   for (const piece of pieces) {
     // One text line each: never wrapped inside its own box.
     expect
