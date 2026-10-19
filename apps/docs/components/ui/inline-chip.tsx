@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.45 sha256-1AF/uIiODvN6tQk+1VYEN9nGKlOxnLZ1vNUe/Pd5TKY=
+// @vegastack inline-chip@0.25.45 sha256-9RMb+E8+TkwTtEJ8fj/Hb5ix2z8j3X8ep+OgVmjot64=
 
 "use client";
 
@@ -453,7 +453,14 @@ export function InlineChip({
         className={cn(ICON, "text-current")}
       />
     ) : (
-      <KindIcon aria-hidden data-slot="inline-chip-icon" className={ICON} />
+      <KindIcon
+        // A done task's check is its state, so it is named; every other glyph is decoration.
+        {...(kind === "task" && done
+          ? { role: "img", "aria-label": "Done" }
+          : { "aria-hidden": true })}
+        data-slot="inline-chip-icon"
+        className={ICON}
+      />
     );
 
   const shared = {
@@ -468,8 +475,6 @@ export function InlineChip({
     className: cn(CHIP, KIND_TONE[kind], className),
     ...props,
   };
-  // The lead and the label's first word never part on a wrap: they sit in one unbreakable run,
-  // and the rest of the label wraps as ordinary text.
   // The lead and the first word sit in a no-wrap run, so the line never breaks between them. A
   // long first word (over `LEAD_WORD_MAX` characters) is left to wrap as the text around it does,
   // so a narrow column can still break it. A struck label's line never

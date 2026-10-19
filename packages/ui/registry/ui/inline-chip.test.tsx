@@ -155,4 +155,6 @@ test("a task chip shows the task glyph until done; done swaps in the check", asy
   expect(screen.getByTestId("open").element()).not.toHaveAttribute("data-done");
   expect(icon("done").getAttribute("class")).toContain("lucide-circle-check");
   expect(screen.getByTestId("done").element()).toHaveAttribute("data-done", "");
+  expect(icon("done")).toHaveAttribute("aria-label", "Done");
+  expect(icon("open")).toHaveAttribute("aria-hidden", "true");
 });

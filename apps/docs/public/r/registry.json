@@ -519,7 +519,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.25.45",
-        "integrity": "sha256-J+dQH++x78/gysd48wwu8Rg1b+c0k/LZb7XIM0Z7XgA="
+        "integrity": "sha256-8w9FEOd5QSdhiGFB3xl3xUanYXHs/fCiWSlaI4Xb+vo="
       }
     },
     {
@@ -16183,7 +16183,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.45",
-        "integrity": "sha256-1AF/uIiODvN6tQk+1VYEN9nGKlOxnLZ1vNUe/Pd5TKY="
+        "integrity": "sha256-9RMb+E8+TkwTtEJ8fj/Hb5ix2z8j3X8ep+OgVmjot64="
       }
     },
     {

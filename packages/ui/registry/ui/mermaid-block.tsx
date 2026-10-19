@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.45 sha256-J+dQH++x78/gysd48wwu8Rg1b+c0k/LZb7XIM0Z7XgA=
+// @vegastack mermaid-block@0.25.45 sha256-8w9FEOd5QSdhiGFB3xl3xUanYXHs/fCiWSlaI4Xb+vo=
 
 "use client";
 
@@ -817,7 +817,7 @@ export function MermaidBlock({
               // Fitted: the column's width, never above the drawn size nor below the legible floor
               // (the box grows to that floor, and the scroll box scrolls it).
               natural
-                ? "w-full min-w-[calc(var(--mermaid-min-width)+--spacing(8))] [&_svg]:w-[clamp(var(--mermaid-min-width),100%,var(--mermaid-natural-width))]"
+                ? "w-full min-w-[calc(var(--mermaid-min-width)+--spacing(8))] print:min-w-0 [&_svg]:w-[clamp(var(--mermaid-min-width),100%,var(--mermaid-natural-width))]"
                 : "mx-auto w-max max-w-none",
               error && "opacity-40",
               theme === "dark" && printSvg && !error && "print:hidden",
