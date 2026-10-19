@@ -5008,6 +5008,35 @@ test("taskQuery: setQuery rewrites the list's filter as one local edit; read vie
   );
 });
 
+test("node views follow the editor's editability: checkboxes and live task lists redraw when it changes", async () => {
+  const seen: boolean[] = [];
+  const screen = await markdownEditor({
+    defaultValue: `- [ ] One\n\n${TASK_LIST}`,
+    renderTaskQuery: ({ editable }) => {
+      seen.push(editable);
+      return <p>Live list</p>;
+    },
+  });
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as { setEditable: (on: boolean, emitUpdate?: boolean) => void };
+  const box = () => screen.container.querySelector('[role="checkbox"]')!;
+  await vi.waitFor(() => expect(box()).not.toHaveAttribute("data-disabled"));
+  editor.setEditable(false);
+  await vi.waitFor(() => expect(box()).toHaveAttribute("data-disabled"));
+  expect(seen.at(-1)).toBe(false);
+  editor.setEditable(true);
+  await vi.waitFor(() => expect(box()).not.toHaveAttribute("data-disabled"));
+  expect(seen.at(-1)).toBe(true);
+  // Silent changes (no `update` event, no transaction) are followed too.
+  editor.setEditable(false, false);
+  await vi.waitFor(() => expect(box()).toHaveAttribute("data-disabled"));
+  expect(seen.at(-1)).toBe(false);
+  editor.setEditable(true, false);
+  await vi.waitFor(() => expect(box()).not.toHaveAttribute("data-disabled"));
+  expect(seen.at(-1)).toBe(true);
+});
+
 test("taskQuery: a new renderTaskQuery redraws the list (no stale rows after a data or access change)", async () => {
   const screen = await markdownEditor({
     defaultValue: TASK_LIST,

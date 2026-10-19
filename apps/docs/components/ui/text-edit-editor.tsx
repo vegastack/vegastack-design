@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.43 sha256-9Zs7X6GyMbOXR2utzr5U3Upi8ZdCjmG1W0ikDCP6/7Y=
+// @vegastack text-edit@0.25.43 sha256-c0+K6t89OSWmftVxsDaseUDWQY65ZYarLulUb/gTmC4=
 
 "use client";
 
@@ -721,18 +721,79 @@ interface SlashState {
 /* ------------------------------------------------------------------------------------------------
  * Node views
  * ----------------------------------------------------------------------------------------------*/
+/** Each editor's node views watching its editability (`useEditorEditable`). */
+const EDITABLE_WATCHERS = new WeakMap<Editor, Set<() => void>>();
+
+function editableWatchers(editor: Editor): Set<() => void> {
+  let set = EDITABLE_WATCHERS.get(editor);
+  if (!set) EDITABLE_WATCHERS.set(editor, (set = new Set()));
+  return set;
+}
+
+/**
+ * Tells `useEditorEditable` when the editor's editability changes. `setEditable` — silent
+ * (`emitUpdate: false`) or not — ends in `view.updateState`, which updates every plugin view, so
+ * this sees each change whether or not an event or a transaction goes with it.
+ */
+function editableWatchExtension() {
+  return Extension.create({
+    name: "textEditEditableWatch",
+    addProseMirrorPlugins() {
+      const editor = this.editor;
+      return [
+        new Plugin({
+          view: () => {
+            let last = editor.isEditable;
+            return {
+              update: () => {
+                if (editor.isEditable === last) return;
+                last = editor.isEditable;
+                for (const watcher of [...editableWatchers(editor)]) watcher();
+              },
+            };
+          },
+        }),
+      ];
+    },
+  });
+}
+
+/**
+ * The editor's editability, re-rendering the calling node view when it changes. A node view is
+ * otherwise redrawn only when its node or decorations change, so one that reads
+ * `editor.isEditable` while rendering would keep the value it mounted with — a collaborative
+ * editor mounts read-only until its room is ready.
+ */
+function useEditorEditable(editor: Editor): boolean {
+  return React.useSyncExternalStore(
+    React.useCallback(
+      (onChange: () => void) => {
+        const watchers = editableWatchers(editor);
+        watchers.add(onChange);
+        return () => {
+          watchers.delete(onChange);
+        };
+      },
+      [editor],
+    ),
+    () => editor.isEditable,
+    () => editor.isEditable,
+  );
+}
+
 /**
  * Task item node view: the system `Checkbox` beside a content box — the same DOM `MarkdownView`
  * renders for a GFM task item, so `prose.taskList` lays both out identically.
  */
 function TaskItemView({ node, updateAttributes, editor }: ReactNodeViewProps) {
   const checked = Boolean(node.attrs.checked);
+  const editable = useEditorEditable(editor);
   return (
     <NodeViewWrapper className="contents">
       <Checkbox
         contentEditable={false}
         checked={checked}
-        disabled={!editor.isEditable}
+        disabled={!editable}
         onCheckedChange={(next) => updateAttributes({ checked: next === true })}
         aria-label={checked ? "Mark task not done" : "Mark task done"}
         className="data-disabled:cursor-default data-disabled:opacity-100"
@@ -840,6 +901,7 @@ function CodeBlockView({
   updateAttributes,
   getPos,
 }: ReactNodeViewProps) {
+  useEditorEditable(editor);
   const language = (node.attrs.language as string | null) || undefined;
   const blockView = blockViewOf(editor, language);
   if (blockView && language)
@@ -3213,6 +3275,7 @@ function recordLabelsStripped(runtime: EditorRuntime) {
  * button that switches the tone; read-only it is the plain icon, as `MarkdownView` renders it.
  */
 function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
+  useEditorEditable(editor);
   const tone = (node.attrs.tone as CalloutTone) ?? "note";
   const style = CALLOUT_STYLE[tone] ?? CALLOUT_STYLE.note;
   const Icon = style.icon;
@@ -3412,6 +3475,7 @@ function toggleView(runtime: ToggleRuntime) {
     getPos,
     updateAttributes,
   }: ReactNodeViewProps) {
+    useEditorEditable(editor);
     const states = runtime.states;
     React.useSyncExternalStore(
       states?.subscribe ?? noSubscribe,
@@ -3692,7 +3756,7 @@ function TaskQueryView({
   const snapshot = String(node.attrs.snapshot ?? "");
   const query = node.attrs.query as Record<string, string> | null;
   const render = useTaskQueryRender(editor);
-  const editable = editor.isEditable;
+  const editable = useEditorEditable(editor);
   const drawn = render?.({
     blockId: String(node.attrs.blockId ?? ""),
     query: query && typeof query === "object" ? { ...query } : {},
@@ -8405,6 +8469,7 @@ export function TextEditEditor({
       [
         sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
         taskOffersExtension(),
+        editableWatchExtension(),
         ...(findReplace
           ? [
               FindAndReplace.configure({
