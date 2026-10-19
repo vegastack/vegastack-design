@@ -1,4 +1,4 @@
-// @vegastack use-list-nav@0.25.42 sha256-a9ts2oO4Qm0m2YayI7ZV3YirYP1jyGq8GA6szYEePVY=
+// @vegastack use-list-nav@0.25.43 sha256-nMcIBUTvSZ4NsTcJ4WVj389yk4KPto5hFNI1nBdg4Qg=
 
 "use client";
 

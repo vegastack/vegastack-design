@@ -1,4 +1,4 @@
-// @vegastack embed-providers@0.25.42 sha256-fF/12Fh9p9FEYIUQygrRixxjcuwiQUOOJWI/CI8mEAY=
+// @vegastack embed-providers@0.25.43 sha256-HlvtwjbnE3hesn+8hZyL51xxVjly470Qi2UFPmlfXbg=
 
 /**
  * embed-providers — the video hosts a document may embed (YouTube and Loom), as plain functions: a
