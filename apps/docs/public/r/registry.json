@@ -19138,7 +19138,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.42",
-        "integrity": "sha256-5Gs+sPMFrqg2NJqr1AS5bbndSiNk51Pg8IILXty7hKU="
+        "integrity": "sha256-oT86v9FrCrA9D6WldDBpwZrvvOFNsvJ3PFwwzf/B0iU="
       }
     },
     {
