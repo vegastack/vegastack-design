@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.25.44
+
+### Patch Changes
+
+- [#666](https://github.com/vegastack/vegastack-design/pull/666) [`f47cb07`](https://github.com/vegastack/vegastack-design/commit/f47cb07a5a462a5448467f032c41491f786f9833) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **DataList**: a `mergedLayout="line"` meta line stays ONE line in a squeezed phone row. The squeeze released every descendant of the fill cell, so a folder row's space, time, person and size each wrapped inside its own box ("Produc" / "t", "25" / "MB"). The line is now kept out of the release and contains its inline size, so it truncates and never widens the table.
+
+- [#667](https://github.com/vegastack/vegastack-design/pull/667) [`ca55b16`](https://github.com/vegastack/vegastack-design/commit/ca55b165430518fc3449b7291bdae4fb04a9e01b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **TextEdit**: node views follow the editor's editability. Checklist boxes, live task lists (`renderTaskQuery`'s `editable` and `setQuery`), callouts, toggles and code blocks redraw when `setEditable` runs, so an editor that mounts read-only and turns editable (a collaborative page whose room becomes ready) no longer keeps disabled checkboxes and a read-only task list.
+
 ## 0.25.43
 
 ### Patch Changes

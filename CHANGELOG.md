@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.44] — October 19, 2026
+
+<!-- assembled from 2 changesets: 8e01b909eb1e -->
+
+### 🧩 New components
+
+- **DataList**: a `mergedLayout="line"` meta line stays ONE line in a squeezed phone row. The squeeze released every descendant of the fill cell, so a folder row's space, time, person and size each wrapped inside its own box ("Produc" / "t", "25" / "MB"). The line is now kept out of the release and contains its inline size, so it truncates and never widens the table.
+  [`f47cb07`](https://github.com/VegaStack/vegastack-design/commit/f47cb07)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.43 → 0.25.44.
+
+### 🐛 Fixed
+
+- **TextEdit**: node views follow the editor's editability. Checklist boxes, live task lists (`renderTaskQuery`'s `editable` and `setQuery`), callouts, toggles and code blocks redraw when `setEditable` runs, so an editor that mounts read-only and turns editable (a collaborative page whose room becomes ready) no longer keeps disabled checkboxes and a read-only task list.
+  [`ca55b16`](https://github.com/VegaStack/vegastack-design/commit/ca55b16)
+
 ## [0.25.43] — October 19, 2026
 
 <!-- assembled from 6 changesets: e9b332ffb4de -->
