@@ -1703,7 +1703,7 @@ test('DataList mergedLayout="line" stays one line in a squeezed phone row', asyn
             header: "Name",
             // A nowrap render pins the fill cell's min-content past the phone width, so the
             // table squeezes whatever the merged line does: the KEEP exclusion is what's tested.
-            render: (row: { name: string }) => (
+            render: (row: { id: string; name: string }) => (
               <span className="whitespace-nowrap">{row.name}</span>
             ),
           },
