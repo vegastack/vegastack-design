@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.43 sha256-NznQoAtAZ+cjehZv6M85LXHUnxDIubcDnfR/P9BCQI0=
+// @vegastack markdown-view@0.25.44 sha256-Lc8su9cqq6TvRXKHx9z5hY8HvddbekZNQo5DrP7/NeY=
 
 "use client";
 
