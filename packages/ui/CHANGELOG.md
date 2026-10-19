@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.45
+
+### Patch Changes
+
+- [#669](https://github.com/vegastack/vegastack-design/pull/669) [`9c5f045`](https://github.com/vegastack/vegastack-design/commit/9c5f045a35af2ee8ef555b8057da4f34f2c88f1e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **DataList**: on a tight `mergedLayout="line"`, a figure (an end-aligned or mono column: a size, a count, an id) keeps its whole width and the text values beside it truncate first — "Produ… · 1w ago · K Manoj… · 25 MB", never "25 M…".
+
 ## 0.25.44
 
 ### Patch Changes
