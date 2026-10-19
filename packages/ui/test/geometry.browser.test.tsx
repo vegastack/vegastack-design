@@ -1683,6 +1683,116 @@ test('DataList mergedLayout="line" keeps every piece on one centred line', async
 });
 
 /**
+ * A squeezed phone row keeps its merged `line` on one line. A folder row (space, time, person,
+ * size) next to a selection box and a row menu squeezes the table at 343px; the squeeze released
+ * every descendant of the fill cell, the merged line's values included, so each wrapped inside
+ * its own box — "Produc" / "t", "1w" / "ago", "25" / "MB" — in a three-line row (Regent Library,
+ * 375px, after #660). The line truncates instead and never widens the table.
+ */
+test('DataList mergedLayout="line" stays one line in a squeezed phone row', async () => {
+  const screen = await render(
+    <div style={{ width: "343px" }}>
+      <DataList
+        aria-label="Library"
+        mergedLayout="line"
+        selectable
+        rowActions={() => [{ label: "Rename", onSelect: () => {} }]}
+        columns={[
+          { key: "name", header: "Name" },
+          {
+            key: "space",
+            header: "Space",
+            render: () => (
+              <span className="inline-flex max-w-full min-w-0 items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex size-4 shrink-0"
+                />
+                <span data-piece className="min-w-0 truncate">
+                  Product Management
+                </span>
+              </span>
+            ),
+          },
+          {
+            key: "updated",
+            header: "Updated",
+            nowrap: true,
+            render: () => (
+              <time
+                data-piece
+                className="relative inline-flex min-h-6 min-w-6 items-center justify-center"
+              >
+                1w ago
+              </time>
+            ),
+          },
+          {
+            key: "by",
+            header: "Updated by",
+            render: () => (
+              <span className="flex min-w-0 items-center gap-2">
+                <Avatar size="sm">
+                  <AvatarFallback>KM</AvatarFallback>
+                </Avatar>
+                <span data-piece className="min-w-0 truncate">
+                  K Manoj Kumar
+                </span>
+              </span>
+            ),
+          },
+          {
+            key: "size",
+            header: "Size",
+            nowrap: true,
+            render: () => (
+              <span data-piece className="tabular-nums">
+                25 MB
+              </span>
+            ),
+          },
+        ]}
+        data={[{ id: "a", name: "Sample Images (SALES) for the Q3 catalogue" }]}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await settle();
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-list-merged"]'),
+    )
+    .not.toBeNull();
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  const pieces = [...merged.querySelectorAll<HTMLElement>("[data-piece]")];
+  expect(pieces.length).toBe(4);
+  for (const piece of pieces) {
+    // One text line each: never wrapped inside its own box.
+    expect
+      .soft(
+        piece.getBoundingClientRect().height,
+        `${piece.textContent} wrapped`,
+      )
+      .toBeLessThanOrEqual(24.5);
+    expect
+      .soft(getComputedStyle(piece).whiteSpace, `${piece.textContent}`)
+      .toBe("nowrap");
+  }
+  expect(merged.getBoundingClientRect().height).toBeLessThanOrEqual(24.5);
+  // The line fits its cell (it truncates), and the table never scrolls.
+  const cell = merged.closest("td")!;
+  expect(merged.getBoundingClientRect().right).toBeLessThanOrEqual(
+    cell.getBoundingClientRect().right + 0.5,
+  );
+  const table = screen.container.querySelector("table")!;
+  expect(table.parentElement!.scrollWidth).toBeLessThanOrEqual(
+    table.parentElement!.clientWidth + 1,
+  );
+});
+
+/**
  * The squeeze reaches INTO a custom render. A cell's own `whitespace` does not reach a render's
  * `truncate` span or a Badge's `whitespace-nowrap`, and an auto-layout table sizes each column
  * from its content's min-content — so, before the squeeze released descendants, a `block

@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.43 sha256-jxNzOlMetg3ofAWMdtKahG/x5nzXY/xulb965yHSlxc=
+// @vegastack data-list@0.25.43 sha256-0q5W+q9urepvbbq/NiYIs/SHIwaEgtoLiVPdAXN8Fwo=
 
 "use client";
 
@@ -1838,8 +1838,11 @@ export function DataList<T>({
                       ? // `line`: ONE text line that truncates — never a second or third line,
                         // never an avatar (a picture in a meta line breaks its rhythm). Its
                         // values share one centre line, so a chip, a time's 24px tooltip target
-                        // and plain text sit level with the dots between them.
-                        "flex-row flex-nowrap items-center gap-x-1 overflow-hidden whitespace-nowrap [&_[data-slot=avatar]]:hidden"
+                        // and plain text sit level with the dots between them. It contains its inline
+                        // size: the cell's width decides the line's, never the line the cell's (a
+                        // nowrap line's full width would squeeze the table, and a squeezed table
+                        // releases text — the line is kept out of that release, `SQUEEZE_CLASS`).
+                        "flex-row flex-nowrap items-center gap-x-1 overflow-hidden whitespace-nowrap contain-inline-size [&_[data-slot=avatar]]:hidden"
                       : "flex-col gap-0.5",
                   )}
                 >

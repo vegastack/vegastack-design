@@ -210,13 +210,18 @@ test("fit columns stay on one line; the fill column wraps unless it is a figure 
  */
 const NOT_TEXT =
   "[data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']";
-const SQUEEZE_KEEP =
+const STRAIN_KEEP =
   `:is(button:not(${NOT_TEXT}),input,select,textarea,` +
   "[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline'])," +
   "[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab]," +
   `[class~='group/button']:not(${NOT_TEXT}),[class~='group/toggle'],` +
   "[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node']," +
   "[data-slot=avatar],[data-slot=kbd])";
+// The squeeze (fill cell) also keeps DataList's merged `line` whole: it truncates, never wraps.
+const SQUEEZE_KEEP = STRAIN_KEEP.replace(
+  /\)$/u,
+  ",[data-slot=data-list-merged][data-layout=line])",
+);
 
 test("columnCellClass carries alignment, the fill/fit posture and the mono face", () => {
   // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
@@ -246,7 +251,7 @@ test("columnCellClass carries alignment, the fill/fit posture and the mono face"
   // Only the last rung (`data-strained`: nothing left to merge, still overflowing) releases it,
   // with the squeeze's own keep list.
   expect(fit).toContain(
-    `in-data-strained:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere`,
+    `in-data-strained:**:not-[${STRAIN_KEEP},${STRAIN_KEEP}_*]:wrap-anywhere`,
   );
   // A fit column that opts out wraps between words only, and shares the leftover width.
   const prose = columnCellClass({ key: "note", nowrap: false });
