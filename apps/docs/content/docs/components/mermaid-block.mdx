@@ -40,9 +40,10 @@ engine (mermaid 12.1.0) loads in its own chunks the first time a diagram comes w
 viewport, and draws after the page's fonts are ready, so labels measure right. Colours are the
 design tokens of the scheme around it — light, or dark under `.dark` — re-drawn when it changes;
 writers can colour flowchart nodes with `class A start|step|decision|outcome|stop|muted`. The
-diagram is drawn at its natural width: a wide one scrolls sideways inside its box rather than
-shrinking its labels, its overflowing edge faded as a table's is, and the box is then a named
-region the keyboard can scroll. It prints at most the page's width, never split across pages, in
+diagram is drawn at its natural size, or scaled down to fit its column (never up). One that would
+fall below a legible size — 0.6 of its drawn size, about 10px labels — stays at that size and
+scrolls sideways inside its box instead, its overflowing edge faded as a table's is, and the box is
+then a named region the keyboard can scroll. Expand always shows it whole, to pan and zoom. It prints at most the page's width, never split across pages, in
 the light palette. Mermaid lays each diagram out in an off-screen box of its own, so a print
 stylesheet that hides the rest of the page never leaves the labels unmeasured.
 

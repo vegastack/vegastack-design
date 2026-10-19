@@ -121,3 +121,24 @@ test("a label that says NaN is a diagram like any other", async () => {
   );
   expect("svg" in result).toBe(true);
 });
+
+test("a drawn diagram carries its natural width and its legible floor for the fit", async () => {
+  const source = "flowchart LR\n  a[Site survey] --> b[Design] --> c[Sign-off]";
+  const screen = await render(<MermaidBlock source={source} />);
+  const figure = () =>
+    screen.container.querySelector("[data-slot=mermaid-block]")!;
+  await expect
+    .poll(() => figure().getAttribute("data-state"), { timeout: 10000 })
+    .toBe("ready");
+  const box = figure().querySelector<HTMLElement>(
+    "[data-slot=mermaid-block-svg]",
+  )!;
+  const natural = Number(box.querySelector("svg")!.getAttribute("width"));
+  expect(natural).toBeGreaterThan(0);
+  expect(box.style.getPropertyValue("--mermaid-natural-width")).toBe(
+    `${natural}px`,
+  );
+  expect(
+    parseFloat(box.style.getPropertyValue("--mermaid-min-width")),
+  ).toBeCloseTo(natural * 0.6, 3);
+});

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.45 sha256-ORsIn45er/b9gHdLB9tM6oXqK51w5tGXcpZ6eCf3YXw=
+// @vegastack text-edit@0.25.45 sha256-hxWIFY9FgCwX4ldC6GpBcb3IL+8zATluBch7+V8L2GA=
 
 "use client";
 
@@ -197,8 +197,13 @@ export interface TextEditSlashAction {
   onSelect: (ctx: TextEditSlashActionContext) => void;
 }
 
-/** How a mention chip shows a closed target (`mentionStatus`): struck through, with a status tag. */
+/**
+ * How a mention chip shows its target's state (`mentionStatus`): a done task's check, or a closed
+ * target struck through with a status tag.
+ */
 export interface TextEditMentionStatus {
+  /** A finished task: its chip leads with a check instead of the task glyph. @default false */
+  done?: boolean;
   /** Strike the chip's label through (a canceled or duplicate task). @default false */
   struck?: boolean;
   /** A small tag after the label ("Canceled", "Duplicate"). @default undefined */
@@ -1120,7 +1125,8 @@ export interface TextEditProps {
    */
   mentionLabel?: (kind: MentionKind, id: string) => string | null | undefined;
   /**
-   * A closed target's look, by kind and id: `{ struck: true, status: "Canceled" }` strikes the
+   * A target's state, by kind and id: `{ done: true }` gives a finished task's chip its check (a
+   * task chip shows the task glyph otherwise); `{ struck: true, status: "Canceled" }` strikes the
    * chip's label through and adds a small status tag. Read at render, like `mentionLabel`; chips
    * re-render when this function changes. `null` for a plain chip.
    * @default undefined

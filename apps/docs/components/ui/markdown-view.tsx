@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.45 sha256-efT3XdBJRENO7rPlSwumsv0BIH1lFpIOXau34DtAkSg=
+// @vegastack markdown-view@0.25.45 sha256-epDNH+t60bOk+T8hfaXqUWGDidhd/bU7iotsaJ6KonM=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1515,6 +1515,7 @@ function renderNode(
           targetId={attrs.id ?? ""}
           label={attrs.label ?? ""}
           struck={closed?.struck === true}
+          done={closed?.done === true}
           status={closed?.status}
           // The view's own props win over the provider's only when the host passed them.
           href={
@@ -2065,7 +2066,8 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   mentionImage?: (id: string) => string | null | undefined;
   /**
-   * A closed target's look, by kind and id: `{ struck: true, status: "Canceled" }` strikes the
+   * A target's state, by kind and id: `{ done: true }` gives a finished task's chip its check (a
+   * task chip shows the task glyph otherwise); `{ struck: true, status: "Canceled" }` strikes the
    * chip's label through and adds a small status tag (a canceled or duplicate task). `null` for a
    * plain chip.
    * @default undefined
@@ -2073,7 +2075,7 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   mentionStatus?: (
     kind: MentionKind,
     id: string,
-  ) => { struck?: boolean; status?: string } | null | undefined;
+  ) => { done?: boolean; struck?: boolean; status?: string } | null | undefined;
   /**
    * A link whose href starts with this renders as a file chip — an icon for the file's type and
    * its name. `""` turns file chips off.

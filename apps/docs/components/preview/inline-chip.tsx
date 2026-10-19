@@ -155,7 +155,14 @@ export function inlineChipClosed(): ReactNode {
             struck
             status="Canceled"
           />{" "}
-          is off.
+          is off;{" "}
+          <InlineChip
+            kind="task"
+            targetId="T-41"
+            label="Measure lux levels"
+            done
+          />{" "}
+          is done.
         </p>
       </InlineChipProvider>
     </Wrapper>

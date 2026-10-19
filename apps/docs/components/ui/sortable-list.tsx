@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.45 sha256-X/ehj7KtxXb7rasDCahzzwwJEugpwrAvbL+a0hZU6d8=
+// @vegastack sortable-list@0.25.45 sha256-Yp4fbC1rX9ccPUamV49uXpmkuAUWzTHqbrNSylxxbR4=
 
 "use client";
 
@@ -186,6 +186,13 @@ export interface SortableListProps<
    */
   columns?: 2 | 3 | 4 | 5 | 6;
   /**
+   * Grid with `columns` only: the narrowest a tile goes before the row holds one fewer, in px
+   * (a card with a name and a meta line needs more than a thumbnail's 8.5rem: `240` holds one
+   * card a row on a phone and four on a desktop).
+   * @default 136
+   */
+  minTileWidth?: number;
+  /**
    * Grid only: `outline` frames each tile; `bare` drops the tile's border and
    * padding so its content — an `Attachment` — is the tile's one frame.
    * @default "outline"
@@ -302,6 +309,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   lockedReason,
   layout = "list",
   columns,
+  minTileWidth,
   tile = "outline",
   disabled = false,
   footer,
@@ -435,6 +443,11 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
         ref={setGroupRef}
         data-drop-container={containerProps["data-drop-container"]}
         data-drop-over={containerProps["data-drop-over"]}
+        style={
+          grid && columns && minTileWidth
+            ? ({ "--tile-min": `${minTileWidth}px` } as React.CSSProperties)
+            : undefined
+        }
         className={
           grid
             ? columns

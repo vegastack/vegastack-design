@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.45 sha256-BvA9VGb+2WQkuzwZ9LuDtXh0MflBDqbTxshp05jAd/k=
+// @vegastack inline-chip@0.25.45 sha256-9RMb+E8+TkwTtEJ8fj/Hb5ix2z8j3X8ep+OgVmjot64=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   CircleCheck,
   FileText,
   FolderKanban,
+  ListTodo,
   Package,
   UserRound,
   type LucideIcon,
@@ -149,11 +150,12 @@ export function useInlineChipResolver(): InlineChipResolver | null {
   return React.useContext(InlineChipContext);
 }
 
+/** Each kind's glyph. A task leads with the check only once it is done (`done`). */
 const KIND_ICON: Record<InlineChipKind, LucideIcon> = {
   user: UserRound,
   page: FileText,
   file: FileText,
-  task: CircleCheck,
+  task: ListTodo,
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
@@ -308,6 +310,22 @@ export interface InlineChipProps extends Omit<
    * @default undefined
    */
   status?: string;
+  /**
+   * A finished target: a `task` chip leads with a check instead of the task glyph. Other kinds
+   * ignore it.
+   * @default false
+   */
+  done?: boolean;
+}
+
+/** The longest first word kept on the lead's line (longer ones wrap like any text). */
+const LEAD_WORD_MAX = 16;
+
+/** A label's first word (with any leading space) and the rest, which starts at the next space. */
+function splitFirstWord(label: string): { first: string; rest: string } {
+  const match = /^\s*\S*/.exec(label);
+  const end = match ? match[0].length : 0;
+  return { first: label.slice(0, end), rest: label.slice(end) };
 }
 
 /** A link or image URL that is relative or uses a safe protocol; anything else becomes `""`. */
@@ -352,6 +370,7 @@ export function InlineChip({
   openOn = "click",
   struck = false,
   status,
+  done = false,
   className,
   onKeyDown,
   ...props
@@ -410,7 +429,7 @@ export function InlineChip({
     }
   };
 
-  const KindIcon = KIND_ICON[kind];
+  const KindIcon = kind === "task" && done ? CircleCheck : KIND_ICON[kind];
   // A person chip leads with their avatar — the photo, else their initials on their colour — as
   // a comment's avatar does; other chips with a photo show it too.
   const lead =
@@ -434,7 +453,14 @@ export function InlineChip({
         className={cn(ICON, "text-current")}
       />
     ) : (
-      <KindIcon aria-hidden data-slot="inline-chip-icon" className={ICON} />
+      <KindIcon
+        // A done task's check is its state, so it is named; every other glyph is decoration.
+        {...(kind === "task" && done
+          ? { role: "img", "aria-label": "Done" }
+          : { "aria-hidden": true })}
+        data-slot="inline-chip-icon"
+        className={ICON}
+      />
     );
 
   const shared = {
@@ -443,24 +469,45 @@ export function InlineChip({
     "data-restricted": restricted ? "" : undefined,
     "data-inactive": person?.inactive ? "" : undefined,
     "data-struck": struck ? "" : undefined,
+    "data-done": kind === "task" && done ? "" : undefined,
     "data-interactive": opens || person ? "" : undefined,
     spellCheck: false,
     className: cn(CHIP, KIND_TONE[kind], className),
     ...props,
   };
+  // The lead and the first word sit in a no-wrap run, so the line never breaks between them. A
+  // long first word (over `LEAD_WORD_MAX` characters) is left to wrap as the text around it does,
+  // so a narrow column can still break it. A struck label's line never
+  // crosses the lead: text decoration skips an inline-block.
+  const { first, rest } = splitFirstWord(label);
+  const words =
+    first.trim().length <= LEAD_WORD_MAX ? (
+      <>
+        <span data-slot="inline-chip-lead" className="whitespace-nowrap">
+          {lead}
+          {/* The word itself still wraps where the line can't hold it (a narrow column). */}
+          <span className="whitespace-normal">{first}</span>
+        </span>
+        {rest}
+      </>
+    ) : (
+      <>
+        {lead}
+        {label}
+      </>
+    );
   // The ink sits on an inner span, so a prose root's link colour on the `<a>` never reaches it.
   const body = (
     <span data-slot="inline-chip-label" className="text-(--inline-chip-ink)">
-      {lead}
       {struck ? (
         <s
           data-slot="inline-chip-struck"
           className="decoration-(--inline-chip-ink)/60"
         >
-          {label}
+          {words}
         </s>
       ) : (
-        label
+        words
       )}
       {status ? (
         // A closed target's status ("Canceled"): the person surfaces' badge, at the chip's

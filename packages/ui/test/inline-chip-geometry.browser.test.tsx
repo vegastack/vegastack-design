@@ -59,6 +59,14 @@ async function mountAll() {
           />{" "}
           <InlineChip kind="user" targetId="initials" label="WWWWWWWWWWWW" />
         </p>
+        <p className="text-sm" style={{ width: 160 }}>
+          Use the{" "}
+          <InlineChip
+            kind="product"
+            label="Sub Flood lights green 1000 mm 120 W"
+            data-testid="product"
+          />
+        </p>
         <TextEdit
           format="markdown"
           aria-label="Notes"
@@ -179,4 +187,21 @@ test("inline-chip-editor: a mention in the editor is atomic and never spellcheck
     expect(view).toHaveAttribute("contenteditable", "false");
     expect(view).toHaveAttribute("spellcheck", "false");
   }
+});
+
+test("inline-chip-lead: a wrapping chip never breaks between its icon and the label's first word", async () => {
+  const screen = await mountAll();
+  const chip = screen.getByTestId("product").element();
+  const lead = chip.querySelector("[data-slot=inline-chip-lead]")!;
+  const icon = lead
+    .querySelector("[data-slot=inline-chip-icon]")!
+    .getBoundingClientRect();
+  const range = document.createRange();
+  range.selectNodeContents(lead.lastElementChild!);
+  const word = range.getBoundingClientRect();
+  expect(lead.textContent).toBe("Sub");
+  const centre = (r: DOMRect) => r.top + r.height / 2;
+  // On one line: their centres sit well within a line's height of each other.
+  expect(Math.abs(centre(word) - centre(icon))).toBeLessThan(6);
+  expect(chip.getClientRects().length).toBeGreaterThan(1);
 });
