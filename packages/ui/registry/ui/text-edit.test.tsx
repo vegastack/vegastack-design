@@ -4884,6 +4884,49 @@ test("paste from Notion: its to-do list is a checklist and its callout a callout
   );
 });
 
+test("paste from Notion: a callout alone is a callout, keeps its image, and a nested checked item leaves its parent unchecked", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      '<figure class="callout"><div><span class="icon">💡</span></div><div>Plain note</div></figure>',
+    "text/plain": "Plain note",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("> [!NOTE]\n> Plain note"),
+  );
+  await userEvent.keyboard(`${END}{Enter}{Enter}{Enter}`);
+  pasteData(box.element(), {
+    "text/html":
+      '<aside><p>Evidence:</p><img src="/a.png" alt="A"></aside><ul class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Parent</span><ul class="to-do-list"><li><div class="checkbox checkbox-on"></div> <span class="to-do-children-checked">Child</span></li></ul></li></ul>',
+    "text/plain": "Evidence:\nParent\nChild",
+  });
+  await vi.waitFor(() => {
+    const value = lastValue(onValueChange) as string;
+    expect(value).toContain("> Evidence:");
+    expect(value).toContain("![A](/a.png)");
+    expect(value).toContain("- [ ] Parent");
+    expect(value).toContain("- [x] Child");
+  });
+});
+
+test("paste as Markdown: an <aside> inside a code fence stays code", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/plain": "Example:\n\n```html\n<aside>\nhi\n</aside>\n```",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "Example:\n\n```html\n<aside>\nhi\n</aside>\n```",
+    ),
+  );
+});
+
 test("paste from Notion as Markdown: an <aside> callout becomes a callout", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({ onValueChange });

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-TizhIF8sKA1KUETjDHBxTWyzVR5p4Y7KMcig3HXRoYA=
+// @vegastack text-edit@0.25.50 sha256-kP2CoGchuj06pE3FgvLAGMe1sFDsbWMjyJVz1cx6jz0=
 
 "use client";
 
@@ -4495,7 +4495,7 @@ function looksLikeMarkdown(text: string) {
 
 /** Tags that make pasted HTML rich: with none of them it is only a wrapper around code or text. */
 const RICH_PASTE_TAGS =
-  "h1,h2,h3,h4,h5,h6,ul,ol,li,strong,b,em,i,a,table,blockquote,img";
+  "h1,h2,h3,h4,h5,h6,ul,ol,li,strong,b,em,i,a,table,blockquote,img,figure.callout,aside";
 
 /**
  * The pasted HTML is just a wrapper around its text — a `pre`/`code`, VS Code's monospace `div`s,
@@ -4580,10 +4580,12 @@ function notionPastedHTML(html: string): string {
     list.setAttribute("data-type", "taskList");
     for (const item of items) {
       const mark = box(item);
-      const checked =
-        mark?.classList.contains("checkbox-on") ||
-        (mark as HTMLInputElement | null)?.checked ||
-        Boolean(item.querySelector(".to-do-children-checked"));
+      // This item's own box (never a nested item's): Notion's on/off class, an input's state, or
+      // the item's own checked-text marker when there is no box.
+      const checked = mark
+        ? mark.classList.contains("checkbox-on") ||
+          (mark as HTMLInputElement).checked === true
+        : Boolean(item.querySelector(":scope > .to-do-children-checked"));
       mark?.remove();
       item.setAttribute("data-type", "taskItem");
       item.setAttribute("data-checked", checked ? "true" : "false");
@@ -4610,20 +4612,25 @@ function notionPastedHTML(html: string): string {
     const first = blocks.find((node) => node.textContent?.trim());
     if (first?.nodeType === Node.TEXT_NODE)
       first.textContent = (first.textContent ?? "").replace(LEADING_EMOJI, "");
+    // Inline runs (text, links, images) gather into paragraphs between the blocks; a run with
+    // anything but blank text in it is kept (an image alone too).
     const paragraph = doc.createElement("p");
+    const flush = () => {
+      if (paragraph.textContent?.trim() || paragraph.querySelector("*"))
+        content.append(paragraph.cloneNode(true));
+      paragraph.replaceChildren();
+    };
     for (const node of blocks)
       if (
         node.nodeType === Node.ELEMENT_NODE &&
-        /^(P|UL|OL|PRE|BLOCKQUOTE|H[1-6]|TABLE)$/.test(
+        /^(P|UL|OL|PRE|BLOCKQUOTE|H[1-6]|TABLE|DIV|FIGURE)$/.test(
           (node as Element).tagName,
         )
       ) {
-        if (paragraph.childNodes.length)
-          content.append(paragraph.cloneNode(true));
-        paragraph.replaceChildren();
+        flush();
         content.append(node);
       } else paragraph.append(node);
-    if (paragraph.textContent?.trim()) content.append(paragraph);
+    flush();
     wrapper.append(content);
     callout.replaceWith(wrapper);
     changed = true;
@@ -4636,18 +4643,48 @@ function notionPastedHTML(html: string): string {
  * becomes a GitHub alert (`> [!NOTE]`). Checklists (`- [ ]`) are already Markdown.
  */
 function notionMarkdown(text: string): string {
-  return text.replace(
-    /^<aside>[ \t]*\r?\n?([\s\S]*?)\r?\n?<\/aside>[ \t]*$/gm,
-    (_all, body: string) =>
-      [
-        "> [!NOTE]",
-        ...body
-          .replace(LEADING_EMOJI, "")
-          .trim()
-          .split(/\r?\n/)
-          .map((line) => (line ? `> ${line}` : ">")),
-      ].join("\n"),
-  );
+  const lines = text.split(/\r?\n/);
+  const out: string[] = [];
+  let fence: string | null = null;
+  for (let at = 0; at < lines.length; at++) {
+    const line = lines[at]!;
+    // Inside a fenced code block, text stays as written (an HTML example keeps its tags).
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence) {
+      if (marker && marker[0] === fence[0] && marker.length >= fence.length)
+        fence = null;
+      out.push(line);
+      continue;
+    }
+    if (marker) {
+      fence = marker;
+      out.push(line);
+      continue;
+    }
+    const open = /^<aside>\s*(.*)$/.exec(line);
+    const end = open
+      ? lines.findIndex(
+          (each, index) => index >= at && /<\/aside>\s*$/.test(each),
+        )
+      : -1;
+    if (!open || end < 0) {
+      out.push(line);
+      continue;
+    }
+    const body = lines
+      .slice(at, end + 1)
+      .join("\n")
+      .replace(/^<aside>\s*/, "")
+      .replace(/\s*<\/aside>\s*$/, "")
+      .replace(LEADING_EMOJI, "")
+      .trim();
+    out.push(
+      "> [!NOTE]",
+      ...body.split("\n").map((each) => (each ? `> ${each}` : ">")),
+    );
+    at = end;
+  }
+  return out.join("\n");
 }
 
 function sanitizePastedHTML(html: string) {
