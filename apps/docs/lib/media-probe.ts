@@ -1,4 +1,4 @@
-// @vegastack media-probe@0.25.49 sha256-wrTjXUpkuAJsRt91WeAxjRl4ifIrMflGNaVH0vL4mUo=
+// @vegastack media-probe@0.25.50 sha256-emoZOLaPi2y/gAmXav1oe7D+GaK3+rJI6Mr1YAAklks=
 
 /* ---
 `media-probe` reads what an upload screen wants to store beside a file, in the browser, before

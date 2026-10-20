@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.50] — October 20, 2026
+
+<!-- assembled from 1 changeset: 6af7d746a8d3 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.49 → 0.25.50.
+
+### 🐛 Fixed
+
+- **TextEdit** and **MarkdownView**: section marks are a flat partition. A marked `#`–`###` heading's bar now stops at the next `#`–`###` heading of any level, instead of running on through its sub-headings; a `####` and deeper stays a block of its section. `sectionHeading(level)` (exported from `markdown-view`) is the shared rule.
+  [`87d445b`](https://github.com/VegaStack/vegastack-design/commit/87d445b)
+
 ## [0.25.49] — October 20, 2026
 
 <!-- assembled from 1 changeset: 9e848f42b597 -->
