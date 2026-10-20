@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-feq65vDzmLc8XdmYmV7d1K57XHD4+2ZeSqN+k0RUaJk=
+// @vegastack comments@0.25.46 sha256-60dD8rDDLzIQgE7yMOj1ou9g+VCDEsqF4jV53Vrf3k8=
 
 "use client";
 
@@ -816,6 +816,8 @@ interface CommentBoxProps {
   onAttachFiles?: (files: File[]) => void;
   /** Inside the box under the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
+  /** How many uploads into the text are still pending (`TextEdit`'s `onPendingUploadsChange`). */
+  onPendingUploadsChange?: (count: number) => void;
 }
 
 function CommentBox({
@@ -841,6 +843,7 @@ function CommentBox({
   onUploadError,
   onAttachFiles,
   files,
+  onPendingUploadsChange,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const handle = React.useRef<TextEditHandle>(null);
@@ -933,6 +936,7 @@ function CommentBox({
     onImageUpload,
     onFileUpload,
     onUploadError,
+    onPendingUploadsChange,
   };
 
   return (
@@ -1224,7 +1228,10 @@ export function CommentComposer({
   // A reply is never folded (`compact` rests a new comment only), nor a draft with text or files.
   const folding = compact && !replyingTo;
   const folded = folding && !opened && !hasFiles && !body.trim();
-  const idle = !body.trim() && !hasFiles && !posting && !error;
+  // Uploads into the text are decorations until they land: the body reads empty meanwhile.
+  const [uploading, setUploading] = React.useState(0);
+  const idle =
+    !body.trim() && !hasFiles && !posting && !error && uploading === 0;
   const fold = React.useCallback((focusLine: boolean) => {
     refocusLine.current = focusLine;
     setOpened(false);
@@ -1367,6 +1374,7 @@ export function CommentComposer({
         onUploadError={onUploadError}
         onAttachFiles={onAttachFiles}
         files={files}
+        onPendingUploadsChange={folding ? setUploading : undefined}
         actions={
           <SendButton
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}

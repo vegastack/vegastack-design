@@ -467,6 +467,32 @@ test("CommentComposer compact: a draft with files stays open, its files and Send
     .toBeEnabled();
 });
 
+test("CommentComposer compact: an upload still on its way keeps the card open", async () => {
+  const screen = await render(
+    <CommentComposer
+      compact
+      onSubmit={() => {}}
+      onImageUpload={() => new Promise(() => {})}
+    />,
+  );
+  await screen.getByRole("button", { name: "Add a comment…" }).click();
+  const input = await vi.waitFor(() => {
+    const node = screen.container.querySelector<HTMLInputElement>(
+      '[data-slot="comment-box"] input[type="file"]',
+    );
+    if (!node) throw new Error("no picker yet");
+    return node;
+  });
+  await userEvent.upload(
+    input,
+    new File(["x"], "shot.png", { type: "image/png" }),
+  );
+  await userEvent.click(document.body);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toBeInTheDocument();
+});
+
 test("CommentComposer compact: a restored draft opens the card without taking focus", async () => {
   const screen = await render(
     <CommentComposer compact defaultValue="Half-written" onSubmit={() => {}} />,
