@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.50 sha256-+C+dphcxqhFZArJ4UAumY813HPAoBCHykRCPjByrDLc=
+// @vegastack markdown-view@0.25.50 sha256-fU7h4Lbi0m/mWZqwFrHZXX/UQraUrrxNAXV0vcMf2kE=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1295,6 +1295,8 @@ function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
 interface RenderContext {
   /** Rendering inside a line of text (a paragraph, a heading, a cell): no figures there. */
   inText?: boolean;
+  /** This image stands alone in its run (\`loneImages\`): titled, it is a figure. */
+  figure?: boolean;
   images: ReadonlySet<string>;
   headingOffset: number;
   annotationCounts: Map<string, number>;
@@ -1432,8 +1434,13 @@ function sectionsOf(
  */
 function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
   if (!ctx.sections?.size) return render(nodes, ctx);
+  const lone = loneImages(nodes);
   return nodes.map((node, index) => {
-    const out = renderNode(node, index, ctx);
+    const out = renderNode(
+      node,
+      index,
+      lone.has(node as El) ? { ...ctx, figure: true } : ctx,
+    );
     const section =
       typeof node === "string" ? undefined : ctx.sections!.get(node);
     if (!section || !React.isValidElement<{ className?: string }>(out))
@@ -1477,32 +1484,38 @@ function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
  * root's descendant rules (specificity (0,1,0) against (0,1,1)).
  */
 function render(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
-  return nodes.map((node, index) => renderNode(node, index, ctx));
+  const lone = ctx.inText ? null : loneImages(nodes);
+  return nodes.map((node, index) =>
+    renderNode(
+      node,
+      index,
+      lone?.has(node as El) ? { ...ctx, figure: true } : ctx,
+    ),
+  );
 }
 
 /**
- * The context an element's children render in. They are "in text" — a titled image stays an image,
- * never a figure — inside a line of text or inline markup (\`textual\`), and in a block container
- * whose children are a run of text (a tight list item's sentence) unless that run is one image
- * standing alone. Once in text, always in text.
+ * The images among `nodes` that stand alone in their run of inline content — no text, no other
+ * inline element beside them before the next block — so a titled one shows as a figure. An image
+ * inside a sentence (or inline markup, or a line of text: `inText`) stays an image.
  */
-function contentContext(
-  children: DocNode[],
-  ctx: RenderContext,
-  textual: boolean,
-): RenderContext {
-  if (ctx.inText) return ctx;
-  const significant = children.filter(
-    (child) => typeof child !== "string" || child.trim(),
-  );
-  const soleImage =
-    significant.length === 1 &&
-    typeof significant[0] !== "string" &&
-    significant[0]!.tag === "img";
-  const inlineRun = significant.some(
-    (child) => typeof child === "string" || INLINE_TAGS.has(child.tag),
-  );
-  return textual || (inlineRun && !soleImage) ? { ...ctx, inText: true } : ctx;
+function loneImages(nodes: DocNode[]): Set<El> {
+  const lone = new Set<El>();
+  let run: DocNode[] = [];
+  const close = () => {
+    const significant = run.filter(
+      (each) => typeof each !== "string" || each.trim(),
+    );
+    const only = significant.length === 1 ? significant[0] : null;
+    if (only && typeof only !== "string" && only.tag === "img") lone.add(only);
+    run = [];
+  };
+  for (const node of nodes) {
+    if (typeof node === "string" || INLINE_TAGS.has(node.tag)) run.push(node);
+    else close();
+  }
+  close();
+  return lone;
 }
 
 function renderNode(
@@ -1512,9 +1525,15 @@ function renderNode(
 ): React.ReactNode {
   if (typeof node === "string") return node;
   const { tag, attrs } = node;
+  // Inside a line of text or inline markup, an image is never a figure.
   const textual = TEXT_BLOCKS.has(tag) || INLINE_TAGS.has(tag);
   const children = () =>
-    render(node.children, contentContext(node.children, ctx, textual));
+    render(
+      node.children,
+      textual && !ctx.inText
+        ? { ...ctx, inText: true, figure: false }
+        : { ...ctx, figure: false },
+    );
 
   const heading = /^h([1-6])$/.exec(tag);
   if (heading) {
@@ -1838,7 +1857,7 @@ function renderNode(
           src={src}
           alt={alt}
           width={width}
-          title={ctx.inText ? attrs.title : undefined}
+          title={ctx.figure ? undefined : attrs.title}
           loading="lazy"
           decoding="async"
           referrerPolicy={remote ? "no-referrer" : undefined}
@@ -1846,7 +1865,7 @@ function renderNode(
       );
       // A titled image standing as a block (TextEdit's HTML, a tight list item) is a figure, its
       // title the caption; inside a line of text it stays an image with its title.
-      const caption = ctx.inText ? "" : (attrs.title?.trim() ?? "");
+      const caption = ctx.figure ? (attrs.title?.trim() ?? "") : "";
       return caption ? (
         <figure key={key} data-slot="markdown-figure" className="my-2">
           {picture}
@@ -1940,9 +1959,7 @@ function renderNode(
             disabled
             className="pointer-events-none inline-flex me-1.5 align-middle disabled:opacity-100"
           />
-          <div data-slot="task-item-content">
-            {render(body, contentContext(body, ctx, false))}
-          </div>
+          <div data-slot="task-item-content">{render(body, ctx)}</div>
         </li>
       );
     }

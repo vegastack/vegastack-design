@@ -1494,3 +1494,17 @@ test("an image in a tight checklist sentence stays inline", async () => {
   );
   expect(screen.container.querySelectorAll("figure")).toHaveLength(0);
 });
+
+test("in HTML, an image after a paragraph is a figure and one inside a sentence is not", async () => {
+  const screen = await render(
+    <MarkdownView format="html">
+      {
+        '<div><p>Before</p><img src="/a.png" alt="A" title="Cap A"></div>Text <img src="/b.png" alt="B" title="Cap B"> after'
+      }
+    </MarkdownView>,
+  );
+  const captions = [...screen.container.querySelectorAll("figcaption")].map(
+    (each) => each.textContent,
+  );
+  expect(captions).toEqual(["Cap A"]);
+});
