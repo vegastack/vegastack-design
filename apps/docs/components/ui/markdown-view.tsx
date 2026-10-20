@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.50 sha256-u5neBVjYeNwNZkHlwNC6XDtdpn4CBfUZnZMsrVcBq64=
+// @vegastack markdown-view@0.25.50 sha256-ZmpbGmijyu8Q6jomxzPLEwN90bMfGsFRITZMRyndG9o=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1487,10 +1487,26 @@ function renderNode(
 ): React.ReactNode {
   if (typeof node === "string") return node;
   const { tag, attrs } = node;
+  // Children are "in text" — no figures — inside a line of text (a paragraph, a heading, a cell),
+  // inside inline markup, and beside other content: only an image standing alone in a block
+  // container (a tight list item, a quote) is a figure there.
+  const significant = node.children.filter(
+    (child) => typeof child !== "string" || child.trim(),
+  );
+  const soleImage =
+    significant.length === 1 &&
+    typeof significant[0] !== "string" &&
+    significant[0]!.tag === "img";
+  // A block container holding a run of text (a tight list item's sentence) is a line of text too.
+  const inlineRun = significant.some(
+    (child) => typeof child === "string" || INLINE_TAGS.has(child.tag),
+  );
+  const textual =
+    TEXT_BLOCKS.has(tag) || INLINE_TAGS.has(tag) || (inlineRun && !soleImage);
   const children = () =>
     render(
       node.children,
-      TEXT_BLOCKS.has(tag) && !ctx.inText ? { ...ctx, inText: true } : ctx,
+      textual && !ctx.inText ? { ...ctx, inText: true } : ctx,
     );
 
   const heading = /^h([1-6])$/.exec(tag);

@@ -1475,3 +1475,15 @@ test("a titled block image in HTML or a tight list item is a figure; one inside 
     "In a list",
   );
 });
+
+test("an image inside a tight list item's sentence or in bold stays inline", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {'- Before ![A](/a.png "Cap") after\n- **![B](/b.png "Bold")**'}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelectorAll("figure")).toHaveLength(0);
+  expect(
+    screen.container.querySelector('img[alt="A"]')?.getAttribute("title"),
+  ).toBe("Cap");
+});
