@@ -7974,6 +7974,15 @@
           }
         },
         {
+          "name": "DataListReorderMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataListEmpty",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-list.tsx",
@@ -37904,6 +37913,15 @@
         },
         {
           "name": "DragIntoMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DragIntoReorder",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-drag-reorder.ts",
           "ref": {

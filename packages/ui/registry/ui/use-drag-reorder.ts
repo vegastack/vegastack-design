@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.25.47 sha256-x6aTeuXbNAEjl5/xX0KwfrIjc7ZIOlquWrnL6Qw+lzE=
+// @vegastack use-drag-reorder@0.25.47 sha256-MJ5EjT/bkP0BrqAVpvdiVDCvDNTrxhDe4rMkDOmlpaM=
 
 "use client";
 
@@ -1212,6 +1212,12 @@ export interface DragIntoMove {
   targetKey: string;
 }
 
+/** A drop of dragged items beside a target (`useDragInto`'s `onReorder`): before or after it. */
+export interface DragIntoReorder extends DragIntoMove {
+  /** Which side of the target the items land on: its top edge (before) or bottom edge (after). */
+  edge: "top" | "bottom";
+}
+
 /**
  * One desktop file dropped on a `useDragInto` target, with its path inside the drop — the same
  * shape as `use-file-drop`'s `FileDropEntry`, so one upload callback serves both.
@@ -1346,10 +1352,11 @@ export interface UseDragIntoOptions {
    */
   getDragPreviewLabel?: (ids: string[]) => string | undefined;
   /**
-   * Desktop files dropped on a target. With it every drop target also takes files dragged in from
-   * the desktop — the same zone, `data-drop-over` wash and hover-expand as an item drag — and
-   * folders keep their structure in each entry's `relativePath`. The innermost target takes the
-   * drop: an outer `useFileDrop` surface ignores it.
+   * Desktop files dropped on a target. With it a target takes files dragged in from the desktop
+   * in its `files` zone (its item `drop` zone unless set; never a reorder edge's) — the same
+   * `data-drop-over` wash and hover-expand as an item drag — and folders keep their structure in
+   * each entry's `relativePath`. The innermost target takes the drop: an outer `useFileDrop`
+   * surface ignores it.
    * @default undefined
    */
   onDropFiles?: (drop: DragIntoFileDrop) => void;
@@ -1359,6 +1366,19 @@ export interface UseDragIntoOptions {
    * @default undefined
    */
   onFilesOver?: (targetKey: string | null) => void;
+  /**
+   * Place dragged items BESIDE a target registered with `reorder: true`: a drop on its top or
+   * bottom quarter (top or bottom half when it takes no drop inside) lands before or after it,
+   * and the target shows `data-drop-edge="top" | "bottom"` while the pointer is there. Called only
+   * when `canReorder` allows it. The keyboard path is the host's Move up / Move down.
+   * @default undefined
+   */
+  onReorder?: (move: DragIntoReorder) => void;
+  /**
+   * Whether a reorder is allowed. A refused one shows no edge and drops nothing.
+   * @default undefined
+   */
+  canReorder?: (move: DragIntoReorder) => boolean;
 }
 
 /** What {@link useDragInto} returns. */
@@ -1367,16 +1387,24 @@ export interface UseDragIntoReturn {
    * Register one element (a callback ref plus its state flags) as a drag source (`drag`), a drop
    * target (`drop`), or both. `drop: "middle"` takes a drop only in the middle half of the
    * element — its top and bottom quarters are ignored, so a drag across a list of rows does not
-   * flicker; `"whole"` takes it anywhere (a section heading).
+   * flicker; `"whole"` takes it anywhere (a section heading). `reorder: true` makes its top and
+   * bottom edges `onReorder` drops (with `drop: "whole"`, the inside shrinks to the middle half).
    */
   getItemProps: (
     key: string,
-    options: { drag?: boolean; drop?: "middle" | "whole" | false },
+    options: {
+      drag?: boolean;
+      drop?: "middle" | "whole" | false;
+      reorder?: boolean;
+      /** Where desktop files drop (`onDropFiles`), when not where items do. @default drop */
+      files?: "middle" | "whole" | false;
+    },
   ) => {
     ref: (element: HTMLElement | null) => void;
     "data-dragging": "" | undefined;
     "data-drop-over": "" | undefined;
     "data-drop-invalid": "" | undefined;
+    "data-drop-edge": "top" | "bottom" | undefined;
   };
   /** The id being dragged, or `null`. */
   draggingId: string | null;
@@ -1408,11 +1436,14 @@ export function useDragInto({
   getDragPreviewLabel,
   onDropFiles,
   onFilesOver,
+  onReorder,
+  canReorder,
 }: UseDragIntoOptions): UseDragIntoReturn {
   const [draggingId, setDraggingId] = React.useState<string | null>(null);
   const [over, setOver] = React.useState<{
     key: string;
     valid: boolean;
+    edge?: "top" | "bottom";
   } | null>(null);
   const latest = React.useRef({
     onDrop,
@@ -1423,6 +1454,8 @@ export function useDragInto({
     getDragPreviewLabel,
     onDropFiles,
     onFilesOver,
+    onReorder,
+    canReorder,
   });
   latest.current = {
     onDrop,
@@ -1433,6 +1466,8 @@ export function useDragInto({
     getDragPreviewLabel,
     onDropFiles,
     onFilesOver,
+    onReorder,
+    canReorder,
   };
   // The target desktop files are over, reported through `onFilesOver` on every change.
   const filesOverRef = React.useRef<string | null>(null);
@@ -1476,8 +1511,13 @@ export function useDragInto({
       element: HTMLElement,
       key: string,
       drag: boolean,
-      drop: "middle" | "whole" | false,
+      dropOption: "middle" | "whole" | false,
+      reorder: boolean,
+      files: "middle" | "whole" | false,
     ) => {
+      // Beside-edges take the outer quarters: a target that also takes drops inside keeps only its
+      // middle half for them.
+      const drop = reorder && dropOption === "whole" ? "middle" : dropOption;
       const parts: Array<() => void> = [];
       if (drag)
         parts.push(
@@ -1523,34 +1563,61 @@ export function useDragInto({
             },
           }),
         );
-      if (drop) {
-        /** Where the pointer is: inside the zone, and whether the move is allowed there. */
+      if (drop || reorder || files) {
+        /**
+         * Where the pointer is: inside the zone or on a beside-edge (`reorder`), and whether the
+         * move is allowed there. A refused reorder edge reads as no zone at all.
+         */
         const read = (
           source: { data: Record<string | symbol, unknown> },
           input: { clientY: number },
         ) => {
           const rect = element.getBoundingClientRect();
           const y = input.clientY - rect.top;
+          const ids = idsOf(source.data);
+          const move: DragIntoMove = { ids, targetKey: key };
+          let edge: "top" | "bottom" | undefined;
+          if (reorder && !ids.includes(key)) {
+            // No inside zone: the halves meet, the midpoint belonging to the bottom. With one,
+            // the outer quarters.
+            const at = !drop
+              ? y < rect.height / 2
+                ? "top"
+                : "bottom"
+              : y < rect.height * 0.25
+                ? "top"
+                : y > rect.height * 0.75
+                  ? "bottom"
+                  : undefined;
+            if (
+              at &&
+              (latest.current.canReorder?.({ ...move, edge: at }) ?? true)
+            )
+              edge = at;
+          }
           const inside =
-            drop === "whole" ||
-            (y >= rect.height * 0.25 && y <= rect.height * 0.75);
-          const move: DragIntoMove = {
-            ids: idsOf(source.data),
-            targetKey: key,
-          };
+            edge === undefined &&
+            drop !== false &&
+            (drop === "whole" ||
+              (y >= rect.height * 0.25 && y <= rect.height * 0.75));
           const valid =
-            !move.ids.includes(key) && (latest.current.canDrop?.(move) ?? true);
-          return { inside, valid, move };
+            edge !== undefined ||
+            (!ids.includes(key) && (latest.current.canDrop?.(move) ?? true));
+          return { inside, valid, move, edge };
         };
-        const track = (inside: boolean, valid: boolean) => {
+        const track = (
+          inside: boolean,
+          valid: boolean,
+          edge?: "top" | "bottom",
+        ) => {
           setOver((prev) =>
-            !inside
+            !inside && edge === undefined
               ? prev?.key === key
                 ? null
                 : prev
-              : prev?.key === key && prev.valid === valid
+              : prev?.key === key && prev.valid === valid && prev.edge === edge
                 ? prev
-                : { key, valid },
+                : { key, valid, edge },
           );
           if (inside && valid) {
             if (hoverTimer.current?.key !== key) {
@@ -1565,95 +1632,107 @@ export function useDragInto({
             }
           } else if (hoverTimer.current?.key === key) clearHover();
         };
-        parts.push(
-          dropTargetForElements({
-            element,
-            canDrop: ({ source }) =>
-              !latest.current.disabled &&
-              source.data.instance === tokenRef.current,
-            onDragEnter: ({ source, location }) => {
-              const { inside, valid } = read(source, location.current.input);
-              track(inside, valid);
-            },
-            onDrag: ({ source, location }) => {
-              const { inside, valid } = read(source, location.current.input);
-              track(inside, valid);
-            },
-            onDragLeave: () => {
-              setOver((prev) => (prev?.key === key ? null : prev));
-              if (hoverTimer.current?.key === key) clearHover();
-            },
-            onDrop: ({ source, location }) => {
-              const { inside, valid, move } = read(
-                source,
-                location.current.input,
-              );
-              setOver(null);
-              clearHover();
-              if (inside && valid) latest.current.onDrop(move);
-            },
-          }),
-        );
-        // Desktop files: the same zone and wash, taken by the innermost target only.
-        let claimed = false;
-        const readFiles = (location: {
-          current: {
-            input: { clientY: number };
-            dropTargets: ReadonlyArray<{ element: Element }>;
-          };
-        }) => {
-          const rect = element.getBoundingClientRect();
-          const y = location.current.input.clientY - rect.top;
-          return (
-            location.current.dropTargets[0]?.element === element &&
-            (drop === "whole" ||
-              (y >= rect.height * 0.25 && y <= rect.height * 0.75))
+        if (drop || reorder)
+          parts.push(
+            dropTargetForElements({
+              element,
+              canDrop: ({ source }) =>
+                !latest.current.disabled &&
+                source.data.instance === tokenRef.current,
+              onDragEnter: ({ source, location }) => {
+                const { inside, valid, edge } = read(
+                  source,
+                  location.current.input,
+                );
+                track(inside, valid, edge);
+              },
+              onDrag: ({ source, location }) => {
+                const { inside, valid, edge } = read(
+                  source,
+                  location.current.input,
+                );
+                track(inside, valid, edge);
+              },
+              onDragLeave: () => {
+                setOver((prev) => (prev?.key === key ? null : prev));
+                if (hoverTimer.current?.key === key) clearHover();
+              },
+              onDrop: ({ source, location }) => {
+                const { inside, valid, move, edge } = read(
+                  source,
+                  location.current.input,
+                );
+                setOver(null);
+                clearHover();
+                if (edge) latest.current.onReorder?.({ ...move, edge });
+                else if (inside && valid) latest.current.onDrop(move);
+              },
+            }),
           );
-        };
-        const trackFiles = (inside: boolean) => {
-          track(inside, true);
-          if (inside) setFilesOver(key);
-          else if (filesOverRef.current === key) setFilesOver(null);
-        };
-        parts.push(
-          dropTargetForExternal({
-            element,
-            canDrop: ({ source }) =>
-              !latest.current.disabled &&
-              latest.current.onDropFiles !== undefined &&
-              containsFiles({ source }),
-            onDragEnter: ({ location }) => trackFiles(readFiles(location)),
-            onDrag: ({ location }) => trackFiles(readFiles(location)),
-            onDragLeave: () => {
-              setOver((prev) => (prev?.key === key ? null : prev));
-              if (hoverTimer.current?.key === key) clearHover();
-              if (filesOverRef.current === key) setFilesOver(null);
-            },
-            onDrop: ({ source, location }) => {
-              const inside = readFiles(location);
-              setOver((prev) => (prev?.key === key ? null : prev));
-              clearHover();
-              if (filesOverRef.current === key) setFilesOver(null);
-              const handler = latest.current.onDropFiles;
-              if (!inside || !handler) return;
-              // The native `drop` reaches this element after Pragmatic's window listener: mark
-              // it there, so an outer file-drop surface leaves it alone.
-              claimed = true;
-              void readDroppedEntries(source.items).then((entries) => {
-                if (entries.length > 0) handler({ targetKey: key, entries });
-              });
-            },
-          }),
-        );
-        const markClaimed = (event: DragEvent) => {
-          if (!claimed) return;
-          claimed = false;
-          (event as DragEvent & { [FILE_DROP_CLAIMED]?: boolean })[
-            FILE_DROP_CLAIMED
-          ] = true;
-        };
-        element.addEventListener("drop", markClaimed);
-        parts.push(() => element.removeEventListener("drop", markClaimed));
+        // Desktop files: their own zone (`files`, the item zone by default; its whole box for
+        // "whole" even beside reorder edges, which only items use), taken by the innermost
+        // target only.
+        if (files) {
+          let claimed = false;
+          const readFiles = (location: {
+            current: {
+              input: { clientY: number };
+              dropTargets: ReadonlyArray<{ element: Element }>;
+            };
+          }) => {
+            const rect = element.getBoundingClientRect();
+            const y = location.current.input.clientY - rect.top;
+            return (
+              location.current.dropTargets[0]?.element === element &&
+              (files === "whole" ||
+                (y >= rect.height * 0.25 && y <= rect.height * 0.75))
+            );
+          };
+          const trackFiles = (inside: boolean) => {
+            track(inside, true);
+            if (inside) setFilesOver(key);
+            else if (filesOverRef.current === key) setFilesOver(null);
+          };
+          parts.push(
+            dropTargetForExternal({
+              element,
+              canDrop: ({ source }) =>
+                !latest.current.disabled &&
+                latest.current.onDropFiles !== undefined &&
+                containsFiles({ source }),
+              onDragEnter: ({ location }) => trackFiles(readFiles(location)),
+              onDrag: ({ location }) => trackFiles(readFiles(location)),
+              onDragLeave: () => {
+                setOver((prev) => (prev?.key === key ? null : prev));
+                if (hoverTimer.current?.key === key) clearHover();
+                if (filesOverRef.current === key) setFilesOver(null);
+              },
+              onDrop: ({ source, location }) => {
+                const inside = readFiles(location);
+                setOver((prev) => (prev?.key === key ? null : prev));
+                clearHover();
+                if (filesOverRef.current === key) setFilesOver(null);
+                const handler = latest.current.onDropFiles;
+                if (!inside || !handler) return;
+                // The native `drop` reaches this element after Pragmatic's window listener: mark
+                // it there, so an outer file-drop surface leaves it alone.
+                claimed = true;
+                void readDroppedEntries(source.items).then((entries) => {
+                  if (entries.length > 0) handler({ targetKey: key, entries });
+                });
+              },
+            }),
+          );
+          const markClaimed = (event: DragEvent) => {
+            if (!claimed) return;
+            claimed = false;
+            (event as DragEvent & { [FILE_DROP_CLAIMED]?: boolean })[
+              FILE_DROP_CLAIMED
+            ] = true;
+          };
+          element.addEventListener("drop", markClaimed);
+          parts.push(() => element.removeEventListener("drop", markClaimed));
+        }
       }
       return combine(...parts);
     },
@@ -1666,9 +1745,16 @@ export function useDragInto({
       {
         drag = false,
         drop = false,
-      }: { drag?: boolean; drop?: "middle" | "whole" | false },
+        reorder = false,
+        files = drop,
+      }: {
+        drag?: boolean;
+        drop?: "middle" | "whole" | false;
+        reorder?: boolean;
+        files?: "middle" | "whole" | false;
+      },
     ) => {
-      const cacheKey = `${drag ? "d" : "-"}${drop || "-"}:${key}`;
+      const cacheKey = `${drag ? "d" : "-"}${drop || "-"}${reorder ? "r" : "-"}${files || "-"}:${key}`;
       let ref = refCache.current.get(cacheKey);
       if (!ref) {
         ref = (element: HTMLElement | null) => {
@@ -1678,7 +1764,10 @@ export function useDragInto({
             refCache.current.delete(cacheKey);
             return;
           }
-          cleanups.current.set(cacheKey, attach(element, key, drag, drop));
+          cleanups.current.set(
+            cacheKey,
+            attach(element, key, drag, drop, reorder, files),
+          );
         };
         refCache.current.set(cacheKey, ref);
       }
@@ -1686,9 +1775,12 @@ export function useDragInto({
         ref,
         "data-dragging": draggingId === key ? ("" as const) : undefined,
         "data-drop-over":
-          over?.key === key && over.valid ? ("" as const) : undefined,
+          over?.key === key && over.valid && !over.edge
+            ? ("" as const)
+            : undefined,
         "data-drop-invalid":
           over?.key === key && !over.valid ? ("" as const) : undefined,
+        "data-drop-edge": over?.key === key ? over.edge : undefined,
       };
     },
     [attach, draggingId, over],

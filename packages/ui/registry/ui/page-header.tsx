@@ -1,4 +1,4 @@
-// @vegastack page-header@0.25.47 sha256-c50a6zZqW2s10w1hXTAgUeMzw4mxh1cWySzLl/LMhHk=
+// @vegastack page-header@0.25.47 sha256-RcyaDSURyzzuY7hwvCufrgGQ36nHHxjBRkRHAqf1DMY=
 
 "use client";
 
@@ -356,7 +356,9 @@ export function PageHeader({
         {hasRight ? (
           <div
             data-slot="page-header-actions"
-            className="ms-auto flex shrink-0 items-center gap-2"
+            // On its own wrapped line a set wider than the screen wraps too, end-aligned, instead
+            // of running off the edge (three secondary buttons on a phone).
+            className="ms-auto flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2"
           >
             {actions}
             {secondaryMenu}

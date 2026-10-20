@@ -130,6 +130,10 @@ test("title row lets the actions wrap below the title at narrow widths (no crush
   ) as HTMLElement;
   expect(actions.classList.contains("ms-auto")).toBe(true);
   expect(actions.classList.contains("ml-auto")).toBe(false);
+  // A set wider than the screen wraps inside its own line, end-aligned, instead of running off it.
+  expect(actions.classList.contains("flex-wrap")).toBe(true);
+  expect(actions.classList.contains("max-w-full")).toBe(true);
+  expect(actions.classList.contains("justify-end")).toBe(true);
 });
 
 test("renders the secondary menu slot after the actions", async () => {

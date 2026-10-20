@@ -61,7 +61,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.25.47",
-        "integrity": "sha256-vfm1LEzaj6bsdA7yEwqkUQIC3ejKSzA05KhZhwoD3LE="
+        "integrity": "sha256-qxJMJqLh8yLeg+r66WKtfIvSBfoijL+PUAoEF/gS/R0="
       }
     },
     {
@@ -1586,7 +1586,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.47",
-        "integrity": "sha256-D3zGFG2lbbYdj0120uPGEznN5e0xM7iP+Z1D8c0I+u0="
+        "integrity": "sha256-hUZ6u1ueuc2eQTTHSOKOcvjbNHsrAfRZ5Sw8qHGEiIw="
       }
     },
     {
@@ -16829,7 +16829,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.25.47",
-        "integrity": "sha256-c50a6zZqW2s10w1hXTAgUeMzw4mxh1cWySzLl/LMhHk="
+        "integrity": "sha256-RcyaDSURyzzuY7hwvCufrgGQ36nHHxjBRkRHAqf1DMY="
       }
     },
     {
@@ -18668,7 +18668,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.25.47",
-        "integrity": "sha256-x6aTeuXbNAEjl5/xX0KwfrIjc7ZIOlquWrnL6Qw+lzE="
+        "integrity": "sha256-MJ5EjT/bkP0BrqAVpvdiVDCvDNTrxhDe4rMkDOmlpaM="
       }
     },
     {

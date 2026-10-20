@@ -93,6 +93,33 @@ primary actions stay visible and the bar never scrolls sideways.
 </ActionBar>
 ```
 
+### Closing the set
+
+`end` holds what closes the set — a separator and a Clear button — after `secondaryActions`, so a
+Clear never sits between the primary actions and the secondary ones. It stays a button beside the ⋯
+menu on a phone. `DataList`'s selection bar puts its Clear here.
+
+```tsx
+<ActionBar
+  status={`${count} selected`}
+  secondaryActions={[{ label: "Archive", onClick: archive }]}
+  end={
+    <>
+      <ActionBarSeparator />
+      <ActionBarButton
+        render={<Button variant="ghost" size="icon-sm" />}
+        aria-label="Clear selection"
+        onClick={clear}
+      >
+        <X />
+      </ActionBarButton>
+    </>
+  }
+>
+  <ActionBarButton onClick={move}>Move…</ActionBarButton>
+</ActionBar>
+```
+
 ### Batch progress (pending)
 
 While `pending`, the actions are inert and dimmed but the status stays
