@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.25.46 sha256-LqdAdm5iBJx3mftNx+RSFhxsJmwRL2yTjOYjZQiPAFA=
+// @vegastack table-of-contents@0.25.46 sha256-IKpdEmW5zXg7gpWcVE7oTPIDooCm12k4trOm1hdUSk8=
 
 "use client";
 
@@ -537,7 +537,14 @@ function TableOfContentsNav({
   }, [rail, expanded, close]);
 
   const choose = (id: string) => {
-    if (rail) close();
+    if (rail) {
+      // The panel turns inert as it closes: focus inside it goes back to the rail, not the page.
+      if (navRef.current?.contains(document.activeElement)) {
+        quiet.current = true;
+        triggerRef.current?.focus({ preventScroll: true });
+      }
+      close();
+    }
     navigate(id);
   };
   const focusActive = () => {
@@ -678,6 +685,7 @@ function TableOfContentsNav({
       onBlur={(event) => {
         if (event.currentTarget.contains(event.relatedTarget as Node | null))
           return;
+        quiet.current = false;
         later(closeTimer, RAIL_CLOSE_DELAY, false);
       }}
       onKeyDown={(event) => {
@@ -755,9 +763,10 @@ function TableOfContentsNav({
         inert={!expanded}
         className={cn(
           RAIL_PANEL,
+          // Beside the rail, never over it: the rail and its focus cue stay in view.
           side === "end"
-            ? "end-0 origin-top-right rtl:origin-top-left"
-            : "start-0 origin-top-left rtl:origin-top-right",
+            ? "end-[calc(100%+--spacing(1))] origin-top-right rtl:origin-top-left"
+            : "start-[calc(100%+--spacing(1))] origin-top-left rtl:origin-top-right",
           sticky
             ? "max-h-[min(32rem,calc(100dvh-var(--table-of-contents-top)-2rem))]"
             : "max-h-[min(32rem,calc(100dvh-8rem))]",
@@ -781,7 +790,8 @@ const PANEL_LINK =
 // reaches 44px wide.
 const RAIL_TRIGGER =
   "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:bg-transparent active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0 dark:hover:bg-transparent";
-// The panel floats over the page from the rail's top corner; closed, it is transparent and inert.
+// The panel floats over the page beside the rail, from its top corner; closed, it is transparent
+// and inert.
 const RAIL_PANEL =
   "pointer-events-none absolute top-0 flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
 

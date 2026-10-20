@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.46 sha256-mAItE/Aj91mH9WYr7tRg3lI0U9GilqpTyc76a/jslkw=
+// @vegastack markdown-view@0.25.46 sha256-OHBniLWs+nuXF+hz/eKZ72qDzxEFJ34h84CTQ6vGJSQ=
 
 "use client";
 
@@ -1388,6 +1388,14 @@ export interface MarkdownBlockViewProps {
   language: string;
   /** The fence's body. */
   source: string;
+  /**
+   * Classes for a box around the view — a marked section's bar (`sectionMarks`). Without it (and
+   * `data-section-mark`) the view is not wrapped.
+   * @default undefined
+   */
+  className?: string;
+  /** A marked section's tone, on the box around the view. @default undefined */
+  "data-section-mark"?: string;
 }
 
 /**
@@ -1403,7 +1411,30 @@ export function MarkdownBlockView({
   view,
   language,
   source,
+  className,
+  "data-section-mark": sectionMark,
 }: MarkdownBlockViewProps) {
+  const inner = (
+    <MarkdownBlockViewInner view={view} language={language} source={source} />
+  );
+  if (!className && !sectionMark) return inner;
+  // The box has no padding or border, so the view's own margins pass through it unchanged.
+  return (
+    <div
+      data-slot="markdown-block-view"
+      data-section-mark={sectionMark}
+      className={className}
+    >
+      {inner}
+    </div>
+  );
+}
+
+function MarkdownBlockViewInner({
+  view,
+  language,
+  source,
+}: Pick<MarkdownBlockViewProps, "view" | "language" | "source">) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
   const fallback = (

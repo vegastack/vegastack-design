@@ -451,6 +451,22 @@ test("CommentComposer compact: one quiet line that opens the card with the caret
     .toBeVisible();
 });
 
+test("CommentComposer compact: a draft with files stays open, its files and Send in view", async () => {
+  const screen = await render(
+    <CommentComposer
+      compact
+      hasFiles
+      files={<p>spec.pdf</p>}
+      onSubmit={() => {}}
+      onAttachFiles={() => {}}
+    />,
+  );
+  await expect.element(screen.getByText("spec.pdf")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Send comment" }))
+    .toBeEnabled();
+});
+
 test("CommentComposer compact: a restored draft opens the card without taking focus", async () => {
   const screen = await render(
     <CommentComposer compact defaultValue="Half-written" onSubmit={() => {}} />,

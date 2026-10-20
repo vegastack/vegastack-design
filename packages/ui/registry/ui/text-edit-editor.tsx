@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.46 sha256-71HgAn9gFebsWi6ollxzC9D+mVo+Tm2AOe7X3l+/FUQ=
+// @vegastack text-edit@0.25.46 sha256-1utDowoRVaP9gTPzSUGfc4LH3E81cO2oxyq6X1maNhQ=
 
 "use client";
 
@@ -6493,6 +6493,25 @@ const HEADING_LINK_SIZE = 24;
 const HEADING_LINK_GUTTER = HEADING_LINK_SIZE + 2;
 
 /**
+ * Whether a heading's `#` link sits in the gutter before it: on a fine pointer, with room for the
+ * link and the block grip beside it inside the editor's frame (a boxed editor, a Dialog, a Card).
+ * Otherwise it follows the heading's text, and the grip keeps its place.
+ */
+function headingLinkInGutter(
+  editor: Editor,
+  headingLeft: number,
+  coarse: boolean,
+): boolean {
+  if (coarse) return false;
+  const frame = handleFrame(editor);
+  return (
+    !frame ||
+    headingLeft - HEADING_LINK_GUTTER - HANDLE_GUTTER >=
+      frame.getBoundingClientRect().left + FRAME_INSET
+  );
+}
+
+/**
  * The `#` copy-link button for the hovered heading, or the caret's (works read-only too): one
  * floating button in the gutter just before the heading's first line, so nothing is decorated per
  * heading on every change and the text never moves — after the heading's text on a coarse
@@ -6570,13 +6589,14 @@ function HeadingLink({
   if (!(dom instanceof HTMLElement)) return null;
   const box = dom.getBoundingClientRect();
   const size = HEADING_LINK_SIZE;
-  // The first line's middle (the gutter) or, on touch, the end of the last line.
+  // The first line's middle (the gutter) or, without room there, the end of the last line.
+  const gutter = headingLinkInGutter(editor, box.left, coarse);
   const line = editor.view.coordsAtPos(
-    coarse ? pos + node.nodeSize - 1 : pos + 1,
+    gutter ? pos + 1 : pos + node.nodeSize - 1,
   );
-  const left = coarse
-    ? Math.min(line.right + 4, box.right - size)
-    : box.left - HEADING_LINK_GUTTER;
+  const left = gutter
+    ? box.left - HEADING_LINK_GUTTER
+    : Math.min(line.right + 4, box.right - size);
   return (
     <FloatingLayer>
       <Button
@@ -7858,10 +7878,11 @@ function BlockHandle({
   // heading's `#` link sits where the grip would (`HeadingLink`), and a marked section's dot
   // beside it: the grip moves out past them.
   const linked =
-    !coarse &&
+    !!box &&
     block?.node.type.name === "heading" &&
     block.node.content.size > 0 &&
-    runtime.headingLink(block.pos) !== null;
+    runtime.headingLink(block.pos) !== null &&
+    headingLinkInGutter(editor, box.left, coarse);
   const marked =
     linked &&
     block.dom.querySelector('[data-slot="text-edit-section-mark"]') !== null;

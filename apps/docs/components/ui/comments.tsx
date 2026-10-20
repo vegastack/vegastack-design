@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-I+Y43XIKI8ZgEJBScCvxmCWIpWdxUW81YiEi+PCh1IY=
+// @vegastack comments@0.25.46 sha256-lyK5YGxvP69pFrPiRMYq6pSzrcwrSaF3FoQUtAgzE+w=
 
 "use client";
 
@@ -1221,7 +1221,8 @@ export function CommentComposer({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const lineRef = React.useRef<HTMLButtonElement>(null);
   const refocusLine = React.useRef(false);
-  const folded = compact && !opened && !replyingTo;
+  // A draft with files (or a reply) is never folded away: its tray and Send stay in view.
+  const folded = compact && !opened && !replyingTo && !hasFiles;
   const idle = !body.trim() && !hasFiles && !posting && !error;
   const fold = React.useCallback((focusLine: boolean) => {
     refocusLine.current = focusLine;

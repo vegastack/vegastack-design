@@ -380,7 +380,7 @@ test("rail: side end anchors the panel to the inline-end edge", async () => {
   expect(root()).toHaveAttribute("data-side", "end");
   expect(
     document.querySelector('[data-slot="table-of-contents-panel"]')!.className,
-  ).toContain("end-0");
+  ).toContain("end-[calc(100%+--spacing(1))]");
 });
 
 test("trigger: opens a left sheet titled with the label; choosing an item closes it, then navigates", async () => {
