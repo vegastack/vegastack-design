@@ -3476,6 +3476,43 @@ test("sectionMarks: the marked heading's section to the next heading of its leve
   ).toBeNull();
 });
 
+test("headingLinkHref: the hovered heading's # sits in the gutter before its text, the grip beyond it; a press copies the absolute link", async () => {
+  const writeText = vi
+    .spyOn(navigator.clipboard, "writeText")
+    .mockResolvedValue(undefined);
+  onTestFinished(() => writeText.mockRestore());
+  const screen = await render(
+    <TextEdit
+      aria-label="Doc"
+      defaultValue="<h2>Pricing</h2><p>Text</p>"
+      headingLinkHref={(anchor) => `#${anchor.slug}`}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror h2")).not.toBeNull(),
+  );
+  const heading =
+    screen.container.querySelector<HTMLElement>(".ProseMirror h2")!;
+  await userEvent.hover(heading);
+  const link = screen.getByRole("button", { name: "Copy link to “Pricing”" });
+  await expect.element(link).toBeVisible();
+  // The harness compiles no Tailwind: read the placement the editor writes (a 24px box, 2px clear).
+  const text = heading.getBoundingClientRect();
+  const left = Number.parseFloat((link.element() as HTMLElement).style.left);
+  expect(left).toBe(text.left - 26);
+  const grip = document.querySelector<HTMLElement>(
+    '[data-slot="text-edit-block-handle"]',
+  );
+  if (grip)
+    expect(
+      Number.parseFloat(grip.style.left) + Number.parseFloat(grip.style.width),
+    ).toBeLessThanOrEqual(left);
+  await link.click();
+  expect(writeText).toHaveBeenCalledWith(
+    new URL("#pricing", window.location.href).href,
+  );
+});
+
 test("sectionMarks: a block turned into another kind keeps its section's bar", async () => {
   const screen = await render(
     <TextEdit

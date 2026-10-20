@@ -6,8 +6,6 @@ import {
   DocumentLayout,
   DocumentLayoutBody,
   DocumentLayoutContents,
-  DocumentLayoutContentsList,
-  DocumentLayoutContentsRail,
   DocumentLayoutFoot,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
@@ -22,10 +20,7 @@ function Page(props: React.ComponentProps<typeof DocumentLayout>) {
         <p>Updated 3m ago</p>
       </DocumentLayoutHeader>
       <DocumentLayoutContents>
-        <DocumentLayoutContentsRail>rail</DocumentLayoutContentsRail>
-        <DocumentLayoutContentsList>
-          <a href="#intro">Intro</a>
-        </DocumentLayoutContentsList>
+        <a href="#intro">Intro</a>
       </DocumentLayoutContents>
       <DocumentLayoutBody>
         <p>Body text.</p>
@@ -40,10 +35,10 @@ function Page(props: React.ComponentProps<typeof DocumentLayout>) {
   );
 }
 
-test("DocumentLayout renders its parts on one grid and reflects margin, contents and measure", async () => {
+test("DocumentLayout renders its parts on one grid and reflects margin and measure", async () => {
   const ref = React.createRef<HTMLDivElement>();
   const screen = await render(
-    <Page ref={ref} margin contents measure="wide" className="extra" />,
+    <Page ref={ref} margin measure="wide" className="extra" />,
   );
   const root = screen.container.querySelector<HTMLElement>(
     "[data-slot=document-layout]",
@@ -55,14 +50,12 @@ test("DocumentLayout renders its parts on one grid and reflects margin, contents
   )!;
   for (const el of [root, grid]) {
     expect(el.hasAttribute("data-margin")).toBe(true);
-    expect(el.hasAttribute("data-contents")).toBe(true);
     expect(el.dataset.measure).toBe("wide");
   }
   for (const slot of [
     "document-layout-header",
     "document-layout-contents",
-    "document-layout-contents-rail",
-    "document-layout-contents-list",
+    "document-layout-contents-inner",
     "document-layout-body",
     "document-layout-foot",
     "document-layout-margin",
@@ -75,18 +68,17 @@ test("DocumentLayout renders its parts on one grid and reflects margin, contents
   );
 });
 
-test("DocumentLayout without margin or contents writes neither flag; measure defaults to document", async () => {
+test("DocumentLayout without margin writes no flag; measure defaults to document", async () => {
   const screen = await render(<Page />);
   const grid = screen.container.querySelector<HTMLElement>(
     "[data-slot=document-layout-grid]",
   )!;
   expect(grid.hasAttribute("data-margin")).toBe(false);
-  expect(grid.hasAttribute("data-contents")).toBe(false);
   expect(grid.dataset.measure).toBe("document");
 });
 
 test("DocumentLayout's columns are two labelled landmarks", async () => {
-  const screen = await render(<Page margin contents />);
+  const screen = await render(<Page margin />);
   const contents = screen.container.querySelector(
     "aside[data-slot=document-layout-contents]",
   );

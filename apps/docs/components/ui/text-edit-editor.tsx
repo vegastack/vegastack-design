@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.46 sha256-7nh5SgokR7RU9cF6bbYkU7Xe0vE5ZClIZfi0sRmpEIQ=
+// @vegastack text-edit@0.25.46 sha256-Nz982kPiFO2esxjTD3g0kXaI206fk5Oe5vnEx1+L6D0=
 
 "use client";
 
@@ -109,6 +109,7 @@ import {
   FileText,
   GripHorizontal,
   GripVertical,
+  Hash,
   Heading1,
   Heading2,
   Heading3,
@@ -234,7 +235,10 @@ import {
   annotationHighlightClassName,
   calloutClassName,
   calloutContentClassName,
+  copyWithToast,
+  headingLinkClassName,
   markdownExtrasClassName,
+  sectionMarkClassNames,
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import {
@@ -6484,9 +6488,42 @@ function headingAnchorAt(
   return blockId ? { id: blockId, slug: entry.id } : { slug: entry.id };
 }
 
+/** The heading link's 24px box and its 2px clearance from the text, in the gutter before it. */
+const HEADING_LINK_SIZE = 24;
+const HEADING_LINK_GUTTER = HEADING_LINK_SIZE + 2;
+
+/**
+ * Whether a heading's `#` link sits in the gutter before it: on a fine pointer, with room for the
+ * link and the block grip beside it inside the editor's frame (a boxed editor, a Dialog, a Card).
+ * Otherwise it follows the heading's text, and the grip keeps its place.
+ */
+function headingLinkInGutter(
+  editor: Editor,
+  heading: HTMLElement,
+  coarse: boolean,
+): boolean {
+  if (coarse) return false;
+  const frame = handleFrame(editor);
+  if (!frame) return true;
+  // A marked heading's dot sits between the link and the grip.
+  const marker = heading.querySelector('[data-slot="text-edit-section-mark"]')
+    ? 24
+    : 0;
+  return (
+    heading.getBoundingClientRect().left -
+      HEADING_LINK_GUTTER -
+      marker -
+      HANDLE_GUTTER >=
+    frame.getBoundingClientRect().left + FRAME_INSET
+  );
+}
+
 /**
  * The `#` copy-link button for the hovered heading, or the caret's (works read-only too): one
- * floating button at the heading's end, so nothing is decorated per heading on every change.
+ * floating button in the gutter just before the heading's first line, so nothing is decorated per
+ * heading on every change and the text never moves — after the heading's text on a coarse
+ * pointer, where a narrow screen has no gutter. The block grip moves further out beside it
+ * (`BlockHandle`). A press copies the absolute link and confirms in a toast.
  */
 function HeadingLink({
   editor,
@@ -6498,6 +6535,7 @@ function HeadingLink({
   const hover = useHover<number>((a, b) => a === b);
   const [caret, setCaret] = React.useState<number | null>(null);
   const [, redraw] = React.useReducer((n: number) => n + 1, 0);
+  const coarse = useCoarsePointer();
 
   React.useEffect(() => {
     const dom = editor.view.dom;
@@ -6554,30 +6592,45 @@ function HeadingLink({
   const anchor = headingAnchorAt(editor.state.doc, pos);
   const link = anchor ? href(anchor) : null;
   if (!link) return null;
-  // The end of the heading's last line: the button sits just after its text.
-  const end = editor.view.coordsAtPos(pos + node.nodeSize - 1);
   const dom = editor.view.nodeDOM(pos);
   if (!(dom instanceof HTMLElement)) return null;
   const box = dom.getBoundingClientRect();
-  const size = 24;
+  const size = HEADING_LINK_SIZE;
+  // The first line's middle (the gutter) or, without room there, the end of the last line.
+  const gutter = headingLinkInGutter(editor, dom, coarse);
+  const line = editor.view.coordsAtPos(
+    gutter ? pos + 1 : pos + node.nodeSize - 1,
+  );
+  const left = gutter
+    ? box.left - HEADING_LINK_GUTTER
+    : Math.min(line.right + 4, box.right - size);
   return (
     <FloatingLayer>
-      <CopyButton
-        data-slot="text-edit-heading-link"
-        value={new URL(link, window.location.href).href}
+      <Button
+        type="button"
+        variant="ghost"
         size="icon-xs"
-        copyLabel={`Copy link to “${node.textContent}”`}
-        copiedLabel="Link copied"
+        data-slot="text-edit-heading-link"
+        aria-label={`Copy link to “${node.textContent}”`}
+        title="Copy link"
         onMouseEnter={hover.keep}
         onMouseLeave={hover.hideSoon}
         onMouseDown={(event) => event.preventDefault()}
+        onClick={() =>
+          void copyWithToast(
+            new URL(link, window.location.href).href,
+            "Link copied",
+          )
+        }
         style={{
           position: "fixed",
-          left: Math.min(end.right + 4, box.right - size),
-          top: (end.top + end.bottom) / 2 - size / 2,
+          left,
+          top: (line.top + line.bottom) / 2 - size / 2,
         }}
-        className="z-50 font-sans text-muted-foreground print:hidden"
-      />
+        className={cn("z-50", headingLinkClassName)}
+      >
+        <Hash aria-hidden />
+      </Button>
     </FloatingLayer>
   );
 }
@@ -7044,38 +7097,6 @@ interface SectionMarksState {
   set: DecorationSet;
 }
 
-/**
- * The section bar: a 2px rule in the block gutter, clear of the drag grip (which spans 20px→4px
- * before the text; on touch 28px→4px, its hit area reaching 38px), drawn by `::after` so nothing
- * moves. Its centre is 32px before the text (50px on touch), where the marker's 24px box ends at
- * the grip's left edge (20px; 38px on touch). A block's rule reaches 24px up across the gap above
- * it, so the bar runs unbroken from the heading to the section's last block.
- */
-const SECTION_BAR =
-  "relative after:pointer-events-none after:absolute after:-start-[33px] pointer-coarse:after:-start-[51px] after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
-const SECTION_TONE = {
-  warning: "after:bg-warning",
-  info: "after:bg-info",
-} as const;
-const SECTION_HEADING_CLASS = {
-  warning: cn(SECTION_BAR, "after:top-0", SECTION_TONE.warning),
-  info: cn(SECTION_BAR, "after:top-0", SECTION_TONE.info),
-} as const;
-const SECTION_BLOCK_CLASS = {
-  warning: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.warning),
-  info: cn(SECTION_BAR, "after:-top-6", SECTION_TONE.info),
-} as const;
-/**
- * The gutter marker: a dot on the bar at the heading's first line, a 24×24 target centred on it
- * (44px→20px before the text; 62px→38px on touch), ending where the block grip's box begins.
- */
-const SECTION_MARKER =
-  "absolute -start-[44px] pointer-coarse:-start-[62px] top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
-const SECTION_DOT = {
-  warning: "bg-warning",
-  info: "bg-info",
-} as const;
-
 /** The marker widget's DOM: a button named by the mark, calling `onMark` on a click. */
 function sectionMarker(
   mark: TextEditSectionMark,
@@ -7087,11 +7108,11 @@ function sectionMarker(
     button.contentEditable = "false";
     button.dataset.slot = "text-edit-section-mark";
     button.dataset.tone = mark.tone;
-    button.className = SECTION_MARKER;
+    button.className = sectionMarkClassNames.marker;
     button.title = mark.label;
     button.setAttribute("aria-label", mark.label);
     const dot = document.createElement("span");
-    dot.className = SECTION_DOT[mark.tone];
+    dot.className = sectionMarkClassNames.dot[mark.tone];
     dot.setAttribute("aria-hidden", "true");
     button.append(dot);
     // The caret stays where it was; the click is the marker's.
@@ -7130,7 +7151,7 @@ function sectionDecorations(
         open.push({ level, mark });
         decorations.push(
           PMDecoration.node(pos, pos + node.nodeSize, {
-            class: SECTION_HEADING_CLASS[mark.tone],
+            class: sectionMarkClassNames.heading[mark.tone],
             "data-section-mark": mark.tone,
           }),
           PMDecoration.widget(pos + 1, sectionMarker(mark, onMark), {
@@ -7149,7 +7170,7 @@ function sectionDecorations(
     if (inner)
       decorations.push(
         PMDecoration.node(pos, pos + node.nodeSize, {
-          class: SECTION_BLOCK_CLASS[inner.tone],
+          class: sectionMarkClassNames.block[inner.tone],
           "data-section-mark": inner.tone,
         }),
       );
@@ -7369,15 +7390,6 @@ function blockMarkdown(editor: Editor, node: PMNode): string {
     .trim();
 }
 
-async function copyText(text: string, done: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast.add({ title: done });
-  } catch {
-    toast.add({ title: "Couldn't copy. Try again.", type: "error" });
-  }
-}
-
 interface BlockAction {
   key: string;
   label: string;
@@ -7426,7 +7438,10 @@ function blockActions(
       label: "Copy link",
       icon: LinkIcon,
       run: () =>
-        void copyText(new URL(link, window.location.href).href, "Link copied"),
+        void copyWithToast(
+          new URL(link, window.location.href).href,
+          "Link copied",
+        ),
     });
   actions.push(
     {
@@ -7434,7 +7449,7 @@ function blockActions(
       label: "Copy as Markdown",
       icon: FileCode,
       run: () =>
-        void copyText(blockMarkdown(editor, node), "Copied as Markdown"),
+        void copyWithToast(blockMarkdown(editor, node), "Copied as Markdown"),
     },
     {
       key: "up",
@@ -7866,8 +7881,24 @@ function BlockHandle({
 
   const block = value && value.dom.isConnected ? value : null;
   const box = block?.dom.getBoundingClientRect();
-  // A bullet or number sits in the list's start padding, outside the item's box; clear it.
-  const marker = block?.node.type.name === "listItem" ? 20 : 0;
+  // A bullet or number sits in the list's start padding, outside the item's box; clear it. A
+  // heading's `#` link sits where the grip would (`HeadingLink`), and a marked section's dot
+  // beside it: the grip moves out past them.
+  const linked =
+    !!box &&
+    block?.node.type.name === "heading" &&
+    block.node.content.size > 0 &&
+    runtime.headingLink(block.pos) !== null &&
+    headingLinkInGutter(editor, block.dom, coarse);
+  const marked =
+    linked &&
+    block.dom.querySelector('[data-slot="text-edit-section-mark"]') !== null;
+  const marker =
+    block?.node.type.name === "listItem"
+      ? 20
+      : linked
+        ? HEADING_LINK_GUTTER + (marked ? 24 : 0)
+        : 0;
   const lineHeight = box ? Math.min(box.height, 24) : 0;
   // Touch: a 24px grip (44px hit area); otherwise the 16px grip.
   const size = coarse ? 24 : HANDLE_WIDTH;

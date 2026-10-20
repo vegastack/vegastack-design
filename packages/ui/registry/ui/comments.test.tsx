@@ -406,6 +406,108 @@ test("CommentComposer restores a draft from defaultValue, sends it, and starts e
   await expect.element(send).toBeDisabled();
 });
 
+test("CommentComposer compact: one quiet line that opens the card with the caret in it, folds back on Escape and after sending", async () => {
+  const onSubmit = vi.fn().mockResolvedValue(undefined);
+  const screen = await render(<CommentComposer compact onSubmit={onSubmit} />);
+  const line = screen.getByRole("button", { name: "Add a comment…" });
+  await expect.element(line).toBeVisible();
+  expect(
+    screen.container.querySelector('[data-slot="comment-box"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+
+  await line.click();
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await vi.waitFor(() =>
+    expect(box.element().contains(document.activeElement)).toBe(true),
+  );
+  // Escape on an empty card folds it back, focus on the line.
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Add a comment…" }).element(),
+    ),
+  );
+
+  await screen.getByRole("button", { name: "Add a comment…" }).click();
+  await vi.waitFor(() =>
+    expect(
+      screen
+        .getByRole("textbox", { name: "Comment" })
+        .element()
+        .contains(document.activeElement),
+    ).toBe(true),
+  );
+  await userEvent.keyboard("Looks right");
+  // A press elsewhere keeps a card that has text.
+  await userEvent.click(document.body);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toHaveTextContent("Looks right");
+  await screen.getByRole("button", { name: "Send comment" }).click();
+  await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("Looks right"));
+  await expect
+    .element(screen.getByRole("button", { name: "Add a comment…" }))
+    .toBeVisible();
+});
+
+test("CommentComposer compact: a draft with files stays open, its files and Send in view", async () => {
+  const screen = await render(
+    <CommentComposer
+      compact
+      hasFiles
+      files={<p>spec.pdf</p>}
+      onSubmit={() => {}}
+      onAttachFiles={() => {}}
+    />,
+  );
+  await expect.element(screen.getByText("spec.pdf")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Send comment" }))
+    .toBeEnabled();
+});
+
+test("CommentComposer compact: an upload still on its way keeps the card open", async () => {
+  const screen = await render(
+    <CommentComposer
+      compact
+      onSubmit={() => {}}
+      onImageUpload={() => new Promise(() => {})}
+    />,
+  );
+  await screen.getByRole("button", { name: "Add a comment…" }).click();
+  const input = await vi.waitFor(() => {
+    const node = screen.container.querySelector<HTMLInputElement>(
+      '[data-slot="comment-box"] input[type="file"]',
+    );
+    if (!node) throw new Error("no picker yet");
+    return node;
+  });
+  await userEvent.upload(
+    input,
+    new File(["x"], "shot.png", { type: "image/png" }),
+  );
+  await userEvent.click(document.body);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toBeInTheDocument();
+});
+
+test("CommentComposer compact: a restored draft opens the card without taking focus", async () => {
+  const screen = await render(
+    <CommentComposer compact defaultValue="Half-written" onSubmit={() => {}} />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toHaveTextContent("Half-written");
+  expect(
+    screen
+      .getByRole("textbox", { name: "Comment" })
+      .element()
+      .contains(document.activeElement),
+  ).toBe(false);
+});
+
 test('a thread\'s reply box restores a draft unfolded, reports changes, and reports "" after the reply posts', async () => {
   const onReply = vi.fn().mockResolvedValue(undefined);
   const onValueChange = vi.fn();

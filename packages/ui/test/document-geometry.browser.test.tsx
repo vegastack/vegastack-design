@@ -8,8 +8,6 @@ import {
   DocumentLayout,
   DocumentLayoutBody,
   DocumentLayoutContents,
-  DocumentLayoutContentsList,
-  DocumentLayoutContentsRail,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
   DocumentLayoutSkeleton,
@@ -76,6 +74,7 @@ function Page({
   width: number;
   measure?: "document" | "wide";
   margin?: boolean;
+  /** Render the contents rail (it takes no column, so the text never moves for it). */
   contents?: boolean;
   onTier?: (tier: DocumentLayoutTier) => void;
 }) {
@@ -86,19 +85,15 @@ function Page({
   }, [tier, onTier]);
   return (
     <div style={{ width }}>
-      <DocumentLayout
-        ref={ref}
-        margin={margin}
-        contents={contents}
-        measure={measure}
-      >
+      <DocumentLayout ref={ref} margin={margin} measure={measure}>
         <DocumentLayoutHeader>
           <h1 className="text-4xl font-semibold">Pricing v2</h1>
         </DocumentLayoutHeader>
-        <DocumentLayoutContents>
-          <DocumentLayoutContentsRail>·</DocumentLayoutContentsRail>
-          <DocumentLayoutContentsList>Intro</DocumentLayoutContentsList>
-        </DocumentLayoutContents>
+        {contents ? (
+          <DocumentLayoutContents>
+            <span data-testid="rail" className="block h-24 w-6" />
+          </DocumentLayoutContents>
+        ) : null}
         <DocumentLayoutBody>
           <MarkdownView typeScale="document">
             {`# Pricing\n\n${PROSE}\n\n## Seats\n\n${PROSE}\n\n### Terms\n\n${PROSE}`}
@@ -205,27 +200,45 @@ test("each width lands in its tier, read by useDocumentLayoutTier from the CSS",
   });
   await expectTier(700, "m", {
     "document-layout-contents": true,
-    "document-layout-contents-rail": true,
-    "document-layout-contents-list": false,
     "document-layout-margin": false,
   });
   await expectTier(900, "l", {
-    "document-layout-contents-rail": true,
+    "document-layout-contents": true,
     "document-layout-margin": true,
   });
   await expectTier(1120, "xl", {
-    "document-layout-contents-rail": false,
-    "document-layout-contents-list": true,
+    "document-layout-contents": true,
     "document-layout-margin": true,
   });
-  // XL: list 13rem + 2rem, text, margin 2rem + 18rem — side by side, never overlapping.
-  const list = slot("document-layout-contents").getBoundingClientRect();
+  // XL: text, margin 2rem + 18rem side by side; the rail floats at the inline-end edge, in the
+  // grid's 2.5rem gutter, clear of the margin.
+  const rail = slot("document-layout-contents").getBoundingClientRect();
   const body = slot("document-layout-body").getBoundingClientRect();
   const margin = slot("document-layout-margin").getBoundingClientRect();
-  expect(list.width).toBe(240);
+  const layout = slot("document-layout").getBoundingClientRect();
   expect(margin.width).toBe(320);
-  expect(body.left).toBeGreaterThanOrEqual(list.right);
   expect(margin.left).toBeGreaterThanOrEqual(body.right);
+  expect(rail.right).toBe(layout.right);
+  expect(rail.left).toBeGreaterThanOrEqual(margin.right);
+});
+
+test("the contents rail takes no column: the text sits where it does without one, at every tier", async () => {
+  await page.viewport(1440, 900);
+  for (const width of [700, 900, 1120]) {
+    const without = await render(<Page width={width} contents={false} />);
+    const left = slot("document-layout-body").getBoundingClientRect().left;
+    const textWidth = slot("document-layout-body").getBoundingClientRect()
+      .width;
+    await without.unmount();
+    const withRail = await render(<Page width={width} />);
+    expect(slot("document-layout-body").getBoundingClientRect().left).toBe(
+      left,
+    );
+    expect(slot("document-layout-body").getBoundingClientRect().width).toBe(
+      textWidth,
+    );
+    await withRail.unmount();
+  }
 });
 
 test("Wide grows the text column into the room the window has, up to 60rem", async () => {
@@ -240,7 +253,7 @@ test("the skeleton sketches lines at the text's own pitch, on the same grid", as
   await page.viewport(1440, 900);
   await render(
     <div style={{ width: 1120 }}>
-      <DocumentLayoutSkeleton margin contents />
+      <DocumentLayoutSkeleton margin />
     </div>,
   );
   const lines = [

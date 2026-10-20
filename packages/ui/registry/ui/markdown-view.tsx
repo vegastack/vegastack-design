@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.46 sha256-F2M/xcX+LEvZI7DbI5lsm8B0aK5AyPWLFaeGtsb8tC0=
+// @vegastack markdown-view@0.25.46 sha256-SI3r5G/AyDr9K3fZC+3TGYno0D5hG00cQ3SUgp/8FCg=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -44,6 +44,7 @@ import {
   MarkdownEmbed,
   MarkdownBlockView,
   MarkdownHeadingLink,
+  MarkdownSectionMarker,
   MarkdownTableScroll,
   MarkdownViewEffects,
   type MarkdownAnnotationLayout,
@@ -52,7 +53,11 @@ import {
 } from "@/components/ui/markdown-view-client";
 
 export type { MarkdownCitation } from "@/components/ui/markdown-citation";
-export { MarkdownEmbed } from "@/components/ui/markdown-view-client";
+export {
+  MarkdownEmbed,
+  copyWithToast,
+  headingLinkClassName,
+} from "@/components/ui/markdown-view-client";
 import type { BlockViews } from "@/components/ui/block-view";
 export type {
   BlockView,
@@ -1311,9 +1316,141 @@ interface RenderContext {
    * file chip, a blocked image or media block — set while selections can be commented on.
    */
   anchorAttrs: boolean;
+  /** Each top-level block a marked section reaches, with its section's mark (`sectionMarks`). */
+  sections?: Map<El, { mark: MarkdownSectionMark; heading: boolean }>;
+  onSectionMark?: (key: string) => void;
 }
 
 const TEXT_ALIGN = new Set(["left", "right", "center"]);
+
+/* --- section marks ----------------------------------------------------------------------------*/
+
+/**
+ * A marked section (`sectionMarks`): a gutter marker on its heading and a bar along its blocks,
+ * drawn beside the text — never moving it. `TextEdit` draws the same marks as decorations.
+ */
+export interface MarkdownSectionMark {
+  /** The section heading's block id (its `data-anchor-id`); the section runs to the next heading of the same or a higher level. */
+  key: string;
+  /** `warning` (may be out of date) or `info` (changed since you last read). */
+  tone: "warning" | "info";
+  /** The marker's accessible name and tooltip ("May be out of date"). */
+  label: string;
+}
+
+/**
+ * The section bar: a 2px rule in the block gutter, drawn by `::after` so nothing moves. A block's
+ * rule reaches 24px up across the gap above it, so the bar runs unbroken from the heading to the
+ * section's last block; the marker is a 24×24 target centred on it at the heading's first line.
+ *
+ * In the editor the bar clears the drag grip (which spans 20px→4px before the text; on touch
+ * 28px→4px, its hit area reaching 38px): its centre is 32px before the text (50px on touch),
+ * where the marker's box ends at the grip's left edge. A read view has no grip: 32px out, and 8px
+ * on a phone, whose gutter is 16px.
+ */
+const SECTION_BAR =
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
+const SECTION_MARKER =
+  "absolute top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
+
+/** A marked section's classes — its heading's, its other blocks', the marker's and its dot's — with the bar `at` its gutter offset and the marker's `marker` offset. */
+function sectionClasses(at: string, marker: string) {
+  return {
+    heading: {
+      warning: cn(SECTION_BAR, at, "after:top-0 after:bg-warning"),
+      info: cn(SECTION_BAR, at, "after:top-0 after:bg-info"),
+    },
+    block: {
+      warning: cn(SECTION_BAR, at, "after:-top-6 after:bg-warning"),
+      info: cn(SECTION_BAR, at, "after:-top-6 after:bg-info"),
+    },
+    marker: cn(SECTION_MARKER, marker),
+    dot: { warning: "bg-warning", info: "bg-info" },
+  } as const;
+}
+
+/** `TextEdit`'s section marks: the bar and marker clear of its drag grip. */
+export const sectionMarkClassNames = sectionClasses(
+  "after:-start-[33px] pointer-coarse:after:-start-[51px]",
+  "-start-[44px] pointer-coarse:-start-[62px]",
+);
+/** `MarkdownView`'s: no grip to clear, and inside a phone's 16px gutter. */
+const readSectionMarkClassNames = sectionClasses(
+  "after:-start-[33px] max-sm:after:-start-[9px]",
+  "-start-[44px] max-sm:-start-[16px] max-sm:w-4",
+);
+
+/**
+ * The top-level blocks each mark reaches: a marked heading (by block id) and every block up to the
+ * next heading of the same or a higher level (a nested marked section's tone wins inside it) —
+ * the same partition `TextEdit` decorates.
+ */
+function sectionsOf(
+  tree: DocNode[],
+  marks: readonly MarkdownSectionMark[],
+): Map<El, { mark: MarkdownSectionMark; heading: boolean }> {
+  const out = new Map<El, { mark: MarkdownSectionMark; heading: boolean }>();
+  if (marks.length === 0) return out;
+  const byKey = new Map(marks.map((mark) => [mark.key, mark]));
+  const open: { level: number; mark: MarkdownSectionMark | null }[] = [];
+  for (const node of tree) {
+    if (typeof node === "string") continue;
+    const heading = /^h([1-6])$/.exec(node.tag);
+    if (heading) {
+      const level = Number(heading[1]);
+      while (open.length > 0 && open[open.length - 1]!.level >= level)
+        open.pop();
+      const key = node.attrs["data-anchor-id"];
+      const mark = key ? byKey.get(key) : undefined;
+      if (mark) {
+        open.push({ level, mark });
+        out.set(node, { mark, heading: true });
+        continue;
+      }
+      // An unmarked heading inside a marked section is one of its blocks.
+      open.push({ level, mark: null });
+    }
+    const inner = [...open].reverse().find((section) => section.mark)?.mark;
+    if (inner) out.set(node, { mark: inner, heading: false });
+  }
+  return out;
+}
+
+/**
+ * The top-level blocks, each a marked section reaches wearing its bar (`sectionMarks`). A plain
+ * element wears it itself; a component's block (a table's scroll box, a code block, a diagram) is
+ * wrapped in a box that does, since its own overflow would clip the bar. The box has no padding
+ * or border, so the block's margins pass through it unchanged.
+ */
+function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
+  if (!ctx.sections?.size) return render(nodes, ctx);
+  return nodes.map((node, index) => {
+    const out = renderNode(node, index, ctx);
+    const section =
+      typeof node === "string" ? undefined : ctx.sections!.get(node);
+    if (!section || !React.isValidElement<{ className?: string }>(out))
+      return out;
+    const { tone } = section.mark;
+    const bar = section.heading
+      ? readSectionMarkClassNames.heading[tone]
+      : readSectionMarkClassNames.block[tone];
+    if (typeof out.type !== "string")
+      return (
+        <div
+          key={index}
+          data-slot="markdown-section-block"
+          data-section-mark={tone}
+          className={bar}
+        >
+          {out}
+        </div>
+      );
+    return React.cloneElement(out, {
+      className: cn(out.props.className, bar),
+      "data-section-mark": tone,
+    } as { className: string });
+  });
+}
 
 /**
  * The tree → React step. Every typographic rule lives in the shared `prose` recipe
@@ -1355,17 +1492,35 @@ function renderNode(
       attrs.id && ctx.headingLinkHref
         ? ctx.headingLinkHref({ id: anchorId, slug: attrs.id })
         : null;
+    const section = ctx.sections?.get(node);
     return React.createElement(
       `h${level}`,
       {
         key,
         id: attrs.id,
         "data-anchor-id": anchorId,
-        className: href ? "group/heading" : undefined,
+        // A tap on a heading focuses it (never a tab stop), which shows its link on touch.
+        tabIndex: href ? -1 : undefined,
+        className: href ? "group/heading relative outline-none" : undefined,
       },
-      children(),
+      section?.heading ? (
+        <MarkdownSectionMarker
+          key="section-mark"
+          markKey={section.mark.key}
+          tone={section.mark.tone}
+          label={section.mark.label}
+          onMark={ctx.onSectionMark}
+          className={readSectionMarkClassNames.marker}
+          dotClassName={readSectionMarkClassNames.dot[section.mark.tone]}
+        />
+      ) : null,
+      ...children(),
       href ? (
-        <MarkdownHeadingLink href={href} heading={headingText(node)} />
+        <MarkdownHeadingLink
+          key="heading-link"
+          href={href}
+          heading={headingText(node)}
+        />
       ) : null,
     );
   }
@@ -2021,11 +2176,25 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   headingAnchors?: readonly MarkdownHeadingAnchor[];
   /**
    * Where a heading's link points (a path or an absolute URL). Set, each heading with an id gets a
-   * copy-link button, shown on hover and focus and always on a coarse pointer. Return `null` for
-   * none.
+   * `#` copy-link button in the gutter before its text (after it on a coarse pointer), shown while
+   * the heading is hovered, focused or tapped; a press copies the absolute link and says so in a
+   * toast. Return `null` for none.
    * @default undefined
    */
   headingLinkHref?: (anchor: MarkdownHeadingAnchor) => string | null;
+  /**
+   * Marked sections, by their heading's block id (`headingAnchors` sets it): each draws a small
+   * marker in the gutter beside its heading (named `label`) and a `tone` bar along the section,
+   * beside the text — never moving it. The same marks `TextEdit` draws. A key matching no heading
+   * draws nothing.
+   * @default undefined
+   */
+  sectionMarks?: readonly MarkdownSectionMark[];
+  /**
+   * A section mark's marker was clicked: its `key`. Without it the marker is a labelled dot.
+   * @default undefined
+   */
+  onSectionMark?: (key: string) => void;
   /**
    * Each reader's own open or closed toggles: `isOpen` decides, `onToggle` hears every change.
    * Without it, a toggle opens as the document says and is forgotten on reload.
@@ -2177,6 +2346,8 @@ export function MarkdownView({
   onOutlineChange,
   headingAnchors,
   headingLinkHref,
+  sectionMarks,
+  onSectionMark,
   toggleState,
   findQuery,
   onFindClose,
@@ -2276,7 +2447,7 @@ export function MarkdownView({
       )}
       {...props}
     >
-      {render(tree, {
+      {renderTop(tree, {
         images: normalizeAllowedImageOrigins(allowedImageOrigins),
         headingOffset: Math.trunc(headingOffset),
         annotationCounts: new Map(
@@ -2301,6 +2472,10 @@ export function MarkdownView({
         blockViews,
         renderTaskQuery,
         anchorAttrs: onCreateAnnotation !== undefined,
+        sections: sectionMarks?.length
+          ? sectionsOf(tree, sectionMarks)
+          : undefined,
+        onSectionMark,
       })}
     </div>
   );

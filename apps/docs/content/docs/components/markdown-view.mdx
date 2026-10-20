@@ -272,8 +272,12 @@ words are gone or appear twice with nothing to tell them apart — with `activeA
 `onAnnotationClick`, count pills (`annotationCounts`) and `onAnnotationsLayout` (each highlight's
 top, for a comment margin). `onOutlineChange` reports the headings for a contents list.
 `headingAnchors` gives headings their server slug and block id (`data-anchor-id`), and
-`headingLinkHref` adds a copy-link button after each. `toggleState` keeps each reader's own open
-toggles. `findQuery` highlights every match with the CSS Custom Highlight API — the DOM is never
+`headingLinkHref` adds a `#` copy-link button in the gutter before each heading's text (after it
+on a coarse pointer), shown while the heading is hovered, focused or tapped — a press copies the
+absolute link and says so in a toast, and the text never moves. `sectionMarks` draws the same
+section markers and bars as `TextEdit` beside the text (a dot on the heading, a bar along its
+section; inside a phone's 16px gutter), and `onSectionMark` hears a marker's click. `toggleState`
+keeps each reader's own open toggles. `findQuery` highlights every match with the CSS Custom Highlight API — the DOM is never
 changed — opens any toggle around the current one, and shows a match bar with previous, next and
 `onFindClose`.
 
@@ -295,6 +299,10 @@ changed — opens any toggle around the current one, and shows a match bar with 
   onOutlineChange={setOutline}
   headingAnchors={page.anchors}
   headingLinkHref={(a) => `#${a.slug}~${a.id}`}
+  sectionMarks={[
+    { key: staleBlockId, tone: "warning", label: "May be out of date" },
+  ]}
+  onSectionMark={openReview}
   toggleState={toggles}
   findQuery={query}
   onFindClose={() => setQuery("")}

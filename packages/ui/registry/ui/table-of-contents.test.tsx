@@ -259,6 +259,24 @@ test("the spy recomputes when the items change", async () => {
   await expect.poll(active).toBe("Intro");
 });
 
+test("the spy finds a heading by its block id when no element carries its id", async () => {
+  await render(
+    <>
+      <h2 data-blockid="b-one">One</h2>
+      <div style={{ height: 2000 }} />
+      <h2 data-blockid="b-two">Two</h2>
+      <div style={{ height: 2000 }} />
+      <TableOfContents
+        items={[
+          { id: "one", level: 2, text: "One", blockId: "b-one" },
+          { id: "two", level: 2, text: "Two", blockId: "b-two" },
+        ]}
+      />
+    </>,
+  );
+  await expect.poll(active).toBe("One");
+});
+
 function HookProbe({ ids }: { ids: string[] }) {
   const id = useActiveHeading(ids);
   return <output>{id ?? "none"}</output>;
@@ -269,7 +287,7 @@ test("useActiveHeading reports null when no heading is in the DOM", async () => 
   await expect.element(screen.getByText("none")).toBeInTheDocument();
 });
 
-test("rail: collapsed ticks open into the labelled list on keyboard focus and close on Escape", async () => {
+test("rail: a column of dashes; keyboard focus opens the panel of links, Escape closes it and keeps focus on the rail", async () => {
   const screen = await render(
     <>
       <Button>Before</Button>
@@ -279,23 +297,46 @@ test("rail: collapsed ticks open into the labelled list on keyboard focus and cl
   const nav = screen.getByRole("navigation", { name: "On this page" });
   await expect.element(nav).toHaveAttribute("data-variant", "rail");
   expect(root().hasAttribute("data-expanded")).toBe(false);
-  expect(
-    document.querySelectorAll('[data-slot="table-of-contents-tick"]').length,
-  ).toBe(4);
+  const ticks = [
+    ...document.querySelectorAll('[data-slot="table-of-contents-tick"]'),
+  ];
+  expect(ticks).toHaveLength(4);
+  expect(ticks.map((tick) => tick.hasAttribute("data-active"))).toEqual([
+    false,
+    false,
+    true,
+    false,
+  ]);
+  const panel = document.querySelector<HTMLElement>(
+    '[data-slot="table-of-contents-panel"]',
+  )!;
+  // Closed, the panel is inert: its links are no tab stops.
+  expect(panel.inert).toBe(true);
   await expectNoA11yViolations(document.body, NO_CONTRAST);
 
   screen.getByRole("button", { name: "Before" }).element().focus();
   await userEvent.tab();
-  expect(document.activeElement).toBe(link("rcd"));
+  const trigger = screen.getByRole("button", { name: "On this page" });
+  expect(document.activeElement).toBe(trigger.element());
   await vi.waitFor(() =>
     expect(root().hasAttribute("data-expanded")).toBe(true),
   );
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  expect(panel.inert).toBe(false);
+  // Tab moves into the list, landing on the reached heading.
+  await userEvent.tab();
+  expect(document.activeElement).toBe(link("rcd"));
   await expectNoA11yViolations(document.body, NO_CONTRAST);
 
   await userEvent.keyboard("{Escape}");
   await vi.waitFor(() =>
     expect(root().hasAttribute("data-expanded")).toBe(false),
   );
+  expect(document.activeElement).toBe(trigger.element());
+  // ↓ on the rail opens it on the reached heading.
+  await userEvent.keyboard("{ArrowDown}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(link("rcd")));
+  expect(root().hasAttribute("data-expanded")).toBe(true);
 });
 
 test("rail: a pointer resting on it opens it, and choosing an item closes it", async () => {
@@ -303,10 +344,10 @@ test("rail: a pointer resting on it opens it, and choosing an item closes it", a
   await render(
     <TableOfContents items={ITEMS} variant="rail" onNavigate={onNavigate} />,
   );
-  const panel = document.querySelector<HTMLElement>(
-    '[data-slot="table-of-contents-panel"]',
+  const trigger = document.querySelector<HTMLElement>(
+    '[data-slot="table-of-contents-trigger"]',
   )!;
-  await userEvent.hover(panel);
+  await userEvent.hover(trigger);
   await vi.waitFor(() =>
     expect(root().hasAttribute("data-expanded")).toBe(true),
   );
@@ -315,6 +356,31 @@ test("rail: a pointer resting on it opens it, and choosing an item closes it", a
   await vi.waitFor(() =>
     expect(root().hasAttribute("data-expanded")).toBe(false),
   );
+});
+
+test("rail: a tap opens it and a press elsewhere closes it", async () => {
+  const screen = await render(
+    <>
+      <p>Elsewhere</p>
+      <TableOfContents items={ITEMS} variant="rail" />
+    </>,
+  );
+  await screen.getByRole("button", { name: "On this page" }).click();
+  await vi.waitFor(() =>
+    expect(root().hasAttribute("data-expanded")).toBe(true),
+  );
+  await userEvent.click(screen.getByText("Elsewhere"));
+  await vi.waitFor(() =>
+    expect(root().hasAttribute("data-expanded")).toBe(false),
+  );
+});
+
+test("rail: side end anchors the panel to the inline-end edge", async () => {
+  await render(<TableOfContents items={ITEMS} variant="rail" side="end" />);
+  expect(root()).toHaveAttribute("data-side", "end");
+  expect(
+    document.querySelector('[data-slot="table-of-contents-panel"]')!.className,
+  ).toContain("end-[calc(100%+--spacing(1))]");
 });
 
 test("trigger: opens a left sheet titled with the label; choosing an item closes it, then navigates", async () => {
@@ -352,6 +418,35 @@ test("trigger: opens a left sheet titled with the label; choosing an item closes
   );
 });
 
+test("open: the sheet opens and closes under the host's control, with no trigger of its own", async () => {
+  const onNavigate = vi.fn();
+  function Host() {
+    const [open, setOpen] = React.useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Menu item</Button>
+        <TableOfContents
+          items={ITEMS}
+          open={open}
+          onOpenChange={setOpen}
+          onNavigate={onNavigate}
+        />
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  expect(document.querySelector('[data-slot="sheet-content"]')).toBeNull();
+  await screen.getByRole("button", { name: "Menu item" }).click();
+  await expect
+    .element(screen.getByRole("dialog", { name: "On this page" }))
+    .toBeVisible();
+  link("wiring").click();
+  await vi.waitFor(() => expect(onNavigate).toHaveBeenCalledWith("wiring"));
+  await vi.waitFor(() =>
+    expect(document.querySelector('[data-slot="sheet-content"]')).toBeNull(),
+  );
+});
+
 test("the ref reaches the nav", async () => {
   const ref = React.createRef<HTMLElement>();
   await render(<TableOfContents items={ITEMS} ref={ref} />);
@@ -376,9 +471,9 @@ test("sticky: the top offset defaults to zero and a className spelling of it win
 test("rail: the open panel is a raised, solid overlay above the page's positioned content", async () => {
   await render(<TableOfContents items={ITEMS} variant="rail" />);
   expect(root().className).toContain("z-20");
-  const surface = document.querySelector<HTMLElement>(
-    '[data-slot="table-of-contents-surface"]',
+  const panel = document.querySelector<HTMLElement>(
+    '[data-slot="table-of-contents-panel"]',
   )!;
-  expect(surface.className).toContain("bg-popover");
-  expect(surface.className).toContain("shadow-md");
+  expect(panel.className).toContain("bg-popover");
+  expect(panel.className).toContain("shadow-md");
 });

@@ -71,7 +71,12 @@ placeholder; × or Esc calls `onCancelReply` and keeps the text. The `files` slo
 attached files (pending cards with progress and ×), part of what Send posts. With `onAttachFiles`,
 files pasted or dropped on the box join that tray — while files are dragged over it, a dashed
 "Drop files to attach" overlay shows. With `hasFiles`, Send is enabled with no text;
-`CommentThread`'s `composer` takes the same options for its reply row.
+`CommentThread`'s `composer` takes the same options for its reply row. With `compact`, the
+composer rests as one quiet "Add a comment…" line — for a page's own comments under its text,
+where an open card would weigh more than the text: a click, a tap or <kbd>Enter</kbd> opens the
+card with the caret in it, and it folds back to the line once it is empty and left (a press
+elsewhere, focus moving on, <kbd>Esc</kbd>) or after a comment is sent. A restored draft opens it
+without taking focus.
 
 Editing a comment turns its body into a compact `Input`-like box and its header actions into a
 ghost ✕ Cancel and a primary ✓ Save (disabled while empty or unchanged), both with tooltips naming

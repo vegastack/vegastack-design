@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.46 sha256-7nh5SgokR7RU9cF6bbYkU7Xe0vE5ZClIZfi0sRmpEIQ=
+// @vegastack text-edit@0.25.46 sha256-Nz982kPiFO2esxjTD3g0kXaI206fk5Oe5vnEx1+L6D0=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   documentPrintClassName,
   type BlockViews,
   type MarkdownCitation,
+  type MarkdownSectionMark,
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
@@ -236,16 +237,10 @@ export interface TextEditTaskLink {
 
 /**
  * A marked section (`sectionMarks`): a gutter marker on its heading and a bar along its blocks,
- * drawn as decorations — never written to the document and never moving the text.
+ * drawn as decorations — never written to the document and never moving the text. The same mark
+ * `MarkdownView` draws in a read view.
  */
-export interface TextEditSectionMark {
-  /** The section heading's `blockId`; the section runs to the next heading of the same or a higher level. */
-  key: string;
-  /** `warning` (may be out of date) or `info` (changed since you last read). */
-  tone: "warning" | "info";
-  /** The marker's accessible name and tooltip ("May be out of date"). */
-  label: string;
-}
+export type TextEditSectionMark = MarkdownSectionMark;
 
 /** What `linkedTaskId` reads: a ProseMirror node, or anything shaped like one. */
 export interface TextEditNodeLike {

@@ -60,7 +60,13 @@ function Article({
 }) {
   const scroller = React.useRef<HTMLDivElement>(null);
   return (
-    <div className="flex w-full gap-6">
+    <div
+      className={
+        toc.side === "end"
+          ? "flex w-full flex-row-reverse gap-6"
+          : "flex w-full gap-6"
+      }
+    >
       <TableOfContents
         {...toc}
         items={outline(prefix)}
@@ -109,14 +115,14 @@ export function tableOfContents(): ReactNode {
 }
 
 /**
- * The `rail` variant: short ticks whose width follows the level, the reached one thicker. Rest the
- * pointer on it, or Tab into it, and it opens into the labelled list over the article; Esc closes
- * it again.
+ * The `rail` variant at the article's inline-end edge: short dashes, shorter by level, the reached
+ * one thicker. Rest the pointer on it, Tab to it or tap it, and a floating panel of the headings
+ * opens over the article; Esc closes it again.
  */
 export function tableOfContentsRail(): ReactNode {
   return (
     <Wrapper className="block">
-      <Article prefix="toc-rail" toc={{ variant: "rail" }} />
+      <Article prefix="toc-rail" toc={{ variant: "rail", side: "end" }} />
     </Wrapper>
   );
 }

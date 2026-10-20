@@ -694,10 +694,73 @@ test("headingAnchors give headings their slug and block id; headingLinkHref adds
   const pricing = screen.container.querySelector("h2")!;
   expect(pricing.id).toBe("pricing");
   expect(pricing.dataset.anchorId).toBeUndefined();
-  await expect
-    .element(screen.getByRole("button", { name: "Copy link to “Intro”" }))
-    .toBeInTheDocument();
+  const copy = screen.getByRole("button", { name: "Copy link to “Intro”" });
+  await expect.element(copy).toBeInTheDocument();
+  // The `#` sits in the heading's gutter, after its text in the DOM: the heading reads "Intro".
+  expect(intro.textContent).toBe("Intro");
+  const writeText = vi
+    .spyOn(navigator.clipboard, "writeText")
+    .mockResolvedValue(undefined);
+  await copy.click();
+  expect(writeText).toHaveBeenCalledWith(
+    new URL("#intro~a1b2c3d4", window.location.href).href,
+  );
+  writeText.mockRestore();
   await expectNoA11yViolations(screen.container);
+});
+
+test("sectionMarks: the marked heading's section to the next heading of its level wears the bar; the marker calls onSectionMark", async () => {
+  const onSectionMark = vi.fn();
+  const marks = [
+    { key: "s1", tone: "warning" as const, label: "May be out of date" },
+    { key: "nowhere", tone: "info" as const, label: "Changed" },
+  ];
+  const markdown =
+    "Intro\n\n## Pricing\n\nGlass\n\n### Detail\n\nFrames\n\n## Scope\n\nLater";
+  const anchors = [
+    { id: "s1", slug: "pricing" },
+    { id: "d1", slug: "detail" },
+    { id: "s2", slug: "scope" },
+  ];
+  const screen = await render(
+    <MarkdownView
+      headingAnchors={anchors}
+      sectionMarks={marks}
+      onSectionMark={onSectionMark}
+    >
+      {markdown}
+    </MarkdownView>,
+  );
+  const view = screen.container.querySelector<HTMLElement>(
+    '[data-slot="markdown-view"]',
+  )!;
+  const marked = () =>
+    [...view.querySelectorAll<HTMLElement>(":scope > *")]
+      .filter((block) => block.hasAttribute("data-section-mark"))
+      .map((block) => block.textContent);
+  expect(marked()).toEqual(["Pricing", "Glass", "Detail", "Frames"]);
+  const marker = screen.getByRole("button", { name: "May be out of date" });
+  expect(marker.element().closest("h2")?.id).toBe("pricing");
+  await marker.click();
+  expect(onSectionMark).toHaveBeenCalledExactlyOnceWith("s1");
+  await expectNoA11yViolations(screen.container);
+  // Without onSectionMark the marker is a labelled dot, not a button.
+  await screen.rerender(
+    <MarkdownView headingAnchors={anchors} sectionMarks={marks}>
+      {markdown}
+    </MarkdownView>,
+  );
+  await expect
+    .element(screen.getByRole("img", { name: "May be out of date" }))
+    .toBeInTheDocument();
+  // No marks: nothing drawn.
+  await screen.rerender(
+    <MarkdownView headingAnchors={anchors} sectionMarks={[]}>
+      {markdown}
+    </MarkdownView>,
+  );
+  expect(marked()).toEqual([]);
+  expect(view.querySelector('[data-slot="markdown-section-mark"]')).toBeNull();
 });
 
 test("onOutlineChange reports the headings from the Markdown, with their block ids", async () => {

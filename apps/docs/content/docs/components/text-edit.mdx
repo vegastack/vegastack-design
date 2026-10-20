@@ -295,8 +295,10 @@ the swap never moves the text. On a page with room the text keeps its column, an
 - **Emoji** (`emoji`): `:` and two or more letters, at the start of a block or after a space or `(`,
   opens a menu of up to 8 matches from `emoji-data`, loaded on first use. The pick lands as the
   character itself. `10:30`, `Note:` and `https://` never open it.
-- **Heading links** (`headingLinkHref`): a `#` button follows the hovered heading, or the caret's,
-  even read-only, and copies the link ("Link copied"). Build it from the anchor's slug and block id
+- **Heading links** (`headingLinkHref`): a `#` button sits in the gutter just before the hovered
+  heading's first line, or the caret's (after the heading's text on a coarse pointer), even
+  read-only, and copies the link with a "Link copied" toast; the text never moves. The block grip
+  steps further out beside it (and past a section marker), as it does for a list's bullet. Build it from the anchor's slug and block id
   (`#<slug>~<id>`). `scrollToHeading` takes that same `<slug>~<id>` and finds the heading by block id
   first, so a renamed heading still resolves, then by slug. It opens closed toggles around the heading
   and returns whether it found it.
