@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-lyK5YGxvP69pFrPiRMYq6pSzrcwrSaF3FoQUtAgzE+w=
+// @vegastack comments@0.25.46 sha256-S7efAqMvzrixajt62T/lxV/ytSl8xZIDrgAhR2aISxA=
 
 "use client";
 
@@ -1222,12 +1222,14 @@ export function CommentComposer({
   const lineRef = React.useRef<HTMLButtonElement>(null);
   const refocusLine = React.useRef(false);
   // A draft with files (or a reply) is never folded away: its tray and Send stay in view.
-  const folded = compact && !opened && !replyingTo && !hasFiles;
+  const folded = compact && !opened && !replyingTo && !hasFiles && !body.trim();
   const idle = !body.trim() && !hasFiles && !posting && !error;
   const fold = React.useCallback((focusLine: boolean) => {
     refocusLine.current = focusLine;
     setOpened(false);
     setOpenedHere(false);
+    // The card opens empty next time, never on a draft that was cleared.
+    setGeneration((g) => g + 1);
   }, []);
   React.useEffect(() => {
     if (!folded || !refocusLine.current) return;

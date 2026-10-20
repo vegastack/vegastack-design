@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.46 sha256-1utDowoRVaP9gTPzSUGfc4LH3E81cO2oxyq6X1maNhQ=
+// @vegastack text-edit@0.25.46 sha256-Nz982kPiFO2esxjTD3g0kXaI206fk5Oe5vnEx1+L6D0=
 
 "use client";
 
@@ -6499,15 +6499,22 @@ const HEADING_LINK_GUTTER = HEADING_LINK_SIZE + 2;
  */
 function headingLinkInGutter(
   editor: Editor,
-  headingLeft: number,
+  heading: HTMLElement,
   coarse: boolean,
 ): boolean {
   if (coarse) return false;
   const frame = handleFrame(editor);
+  if (!frame) return true;
+  // A marked heading's dot sits between the link and the grip.
+  const marker = heading.querySelector('[data-slot="text-edit-section-mark"]')
+    ? 24
+    : 0;
   return (
-    !frame ||
-    headingLeft - HEADING_LINK_GUTTER - HANDLE_GUTTER >=
-      frame.getBoundingClientRect().left + FRAME_INSET
+    heading.getBoundingClientRect().left -
+      HEADING_LINK_GUTTER -
+      marker -
+      HANDLE_GUTTER >=
+    frame.getBoundingClientRect().left + FRAME_INSET
   );
 }
 
@@ -6590,7 +6597,7 @@ function HeadingLink({
   const box = dom.getBoundingClientRect();
   const size = HEADING_LINK_SIZE;
   // The first line's middle (the gutter) or, without room there, the end of the last line.
-  const gutter = headingLinkInGutter(editor, box.left, coarse);
+  const gutter = headingLinkInGutter(editor, dom, coarse);
   const line = editor.view.coordsAtPos(
     gutter ? pos + 1 : pos + node.nodeSize - 1,
   );
@@ -7882,7 +7889,7 @@ function BlockHandle({
     block?.node.type.name === "heading" &&
     block.node.content.size > 0 &&
     runtime.headingLink(block.pos) !== null &&
-    headingLinkInGutter(editor, box.left, coarse);
+    headingLinkInGutter(editor, block.dom, coarse);
   const marked =
     linked &&
     block.dom.querySelector('[data-slot="text-edit-section-mark"]') !== null;

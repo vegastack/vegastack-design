@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.25.46 sha256-IKpdEmW5zXg7gpWcVE7oTPIDooCm12k4trOm1hdUSk8=
+// @vegastack table-of-contents@0.25.46 sha256-tDt8N8cvKawSo0EH2CjhJ/mNaDN/HZRIHZVSOvcjcUM=
 
 "use client";
 
@@ -670,7 +670,9 @@ function TableOfContentsNav({
       }}
       onPointerLeave={(event) => {
         if (event.pointerType === "touch") return;
-        if (keyboardFocusWithin(event.currentTarget)) return;
+        // Focus inside (a click or a key opened it): it stays open until focus leaves, Escape
+        // or a press elsewhere, so a focused link never turns inert under the caret.
+        if (event.currentTarget.contains(document.activeElement)) return;
         later(closeTimer, RAIL_CLOSE_DELAY, false);
       }}
       onFocus={(event) => {

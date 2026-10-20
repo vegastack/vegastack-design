@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.46 sha256-OHBniLWs+nuXF+hz/eKZ72qDzxEFJ34h84CTQ6vGJSQ=
+// @vegastack markdown-view@0.25.46 sha256-udnNzqafWfTDAXJOkQ15xDIO3cac4dtoWcx+W3pRhVQ=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1416,7 +1416,12 @@ function sectionsOf(
   return out;
 }
 
-/** The top-level blocks, each a marked section reaches wearing its bar (`sectionMarks`). */
+/**
+ * The top-level blocks, each a marked section reaches wearing its bar (`sectionMarks`). A plain
+ * element wears it itself; a component's block (a table's scroll box, a code block, a diagram) is
+ * wrapped in a box that does, since its own overflow would clip the bar. The box has no padding
+ * or border, so the block's margins pass through it unchanged.
+ */
 function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
   if (!ctx.sections?.size) return render(nodes, ctx);
   return nodes.map((node, index) => {
@@ -1426,13 +1431,22 @@ function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
     if (!section || !React.isValidElement<{ className?: string }>(out))
       return out;
     const { tone } = section.mark;
+    const bar = section.heading
+      ? readSectionMarkClassNames.heading[tone]
+      : readSectionMarkClassNames.block[tone];
+    if (typeof out.type !== "string")
+      return (
+        <div
+          key={index}
+          data-slot="markdown-section-block"
+          data-section-mark={tone}
+          className={bar}
+        >
+          {out}
+        </div>
+      );
     return React.cloneElement(out, {
-      className: cn(
-        out.props.className,
-        section.heading
-          ? readSectionMarkClassNames.heading[tone]
-          : readSectionMarkClassNames.block[tone],
-      ),
+      className: cn(out.props.className, bar),
       "data-section-mark": tone,
     } as { className: string });
   });

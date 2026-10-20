@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.46 sha256-OHBniLWs+nuXF+hz/eKZ72qDzxEFJ34h84CTQ6vGJSQ=
+// @vegastack markdown-view@0.25.46 sha256-udnNzqafWfTDAXJOkQ15xDIO3cac4dtoWcx+W3pRhVQ=
 
 "use client";
 
@@ -1156,7 +1156,10 @@ export function MarkdownHeadingLink({
       data-slot="markdown-heading-link"
       className={cn(
         "absolute -start-[26px] top-0 flex h-[1lh] items-center opacity-0 transition-opacity group-hover/heading:opacity-100 group-focus/heading:opacity-100 has-focus-visible:opacity-100 print:hidden",
+        // A coarse pointer or a phone-width view has no gutter for it (and a section's marker
+        // takes the 16px there is): after the text.
         "pointer-coarse:static pointer-coarse:ms-1 pointer-coarse:inline-flex pointer-coarse:h-auto pointer-coarse:align-middle",
+        "max-sm:static max-sm:ms-1 max-sm:inline-flex max-sm:h-auto max-sm:align-middle",
       )}
     >
       <Button
@@ -1388,14 +1391,6 @@ export interface MarkdownBlockViewProps {
   language: string;
   /** The fence's body. */
   source: string;
-  /**
-   * Classes for a box around the view — a marked section's bar (`sectionMarks`). Without it (and
-   * `data-section-mark`) the view is not wrapped.
-   * @default undefined
-   */
-  className?: string;
-  /** A marked section's tone, on the box around the view. @default undefined */
-  "data-section-mark"?: string;
 }
 
 /**
@@ -1411,30 +1406,7 @@ export function MarkdownBlockView({
   view,
   language,
   source,
-  className,
-  "data-section-mark": sectionMark,
 }: MarkdownBlockViewProps) {
-  const inner = (
-    <MarkdownBlockViewInner view={view} language={language} source={source} />
-  );
-  if (!className && !sectionMark) return inner;
-  // The box has no padding or border, so the view's own margins pass through it unchanged.
-  return (
-    <div
-      data-slot="markdown-block-view"
-      data-section-mark={sectionMark}
-      className={className}
-    >
-      {inner}
-    </div>
-  );
-}
-
-function MarkdownBlockViewInner({
-  view,
-  language,
-  source,
-}: Pick<MarkdownBlockViewProps, "view" | "language" | "source">) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
   const fallback = (
