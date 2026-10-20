@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.49] — October 20, 2026
+
+<!-- assembled from 1 changeset: 9e848f42b597 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.48 → 0.25.49.
+
+### 🐛 Fixed
+
+- **TextEdit**, **CodeBlock**, **EmojiPicker**: the image panel's Link imports another site's image through `onExternalImage` (it no longer inserts a hotlink the page can't show), and an image that can't load keeps a visible frame; the image toolbar is Replace, Alt text, Open, Download and Copy link (no ⋯ menu; Delete stays in the block menu and on Backspace), and the new `imageDownloadHref` gives Download (toolbar and viewer) a link that saves the file; link and media panels open under the caret instead of over the text above; the caret in a link shows a link card (destination, Edit, Remove); the slash menu shows group headings (Text, Lists, Blocks, Media, Insert) and Divider sits with the blocks; the bubble toolbar puts Comment last; a toggle's chevron no longer looks pressed while open, and the toggle's own ⋯ menu is gone ("Open by default" is in the block menu); ⌘A in a code block selects its code first; code block controls are not printed; Enter in the emoji search picks the first result.
+  [`9e9294e`](https://github.com/VegaStack/vegastack-design/commit/9e9294e)
+
 ## [0.25.48] — October 20, 2026
 
 <!-- assembled from 1 changeset: aea887dc8ff5 -->
