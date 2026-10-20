@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.54
+
+### Patch Changes
+
+- [#687](https://github.com/vegastack/vegastack-design/pull/687) [`19da478`](https://github.com/vegastack/vegastack-design/commit/19da4789ac9c84d31cb6cbbf08d20a54f6b13332) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **StatSkeleton**: each bar sits in the line box of the text it stands in for (the label's 16px, the value's 20px or 32px), so a loading stat is exactly as tall as a loaded one — dashboard tiles no longer grow 8px when their counts arrive.
+
 ## 0.25.53
 
 ### Patch Changes
