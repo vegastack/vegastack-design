@@ -597,8 +597,11 @@ in a diff's schema (`TextEditDiff`), never in a document's.
 `onImageUpload(file, { signal })` takes images pasted, dropped, or picked in the image panel's
 **Upload** tab (the slash menu's Image). The image shows dimmed under a spinner until the promise
 resolves with `{ src }`, then lands in the document and commits — `onValueChange` and `onCommit`
-both fire, even when focus has already left. A rejection removes the placeholder and calls
-`onUploadError(file, error)`. `onFileUpload(file, { signal })` does the same for any other file
+both fire, even when focus has already left. The image lands with its size (`![alt|WxH](src)`,
+read from the file unless the promise gives one), so every read view reserves its box. A rejection
+calls `onUploadError(file, error)` and leaves the placeholder in place saying "Couldn't upload",
+with **Retry** and **Remove** — a failure never vanishes without a word; `onFailedUploadsChange(count)`
+reports how many wait, so a host guards leaving for them too. `onFileUpload(file, { signal })` does the same for any other file
 (dropped, pasted, or the Upload tab of the slash menu's File, Video or Audio) and inserts
 `[name](href)` — or a video or audio block for a playable video or audio type; a link whose href starts
 with `fileLinkPrefix` (default `/api/files/`) shows as a file chip. Without `onFileUpload`, other
@@ -961,7 +964,9 @@ fires it with the current value. It's presentational only: the **host** decides 
   (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu, with the same
   `aria-activedescendant` wiring. While a search runs, or when it fails or finds nothing, the menu
   is a `status` (“Searching…”, “Couldn't search”, “No matches”). A chip reads as its name.
-- An upload placeholder is a `role="status"` named “Uploading” and the file’s name.
+- An upload placeholder is a `role="status"` named “Uploading” and the file’s name; a failed one is
+  a `group` named “Couldn't upload” and the file’s name, its Retry and Remove buttons named for
+  the file.
 - A callout is a `role="note"` named by its tone; while editable its icon is a menu button,
   “Callout type: Note”, that picks the tone.
 - Comment highlights are decorations with a dashed underline. With `onAnnotationClick`, a read-only

@@ -53,8 +53,11 @@ remote images send no referrer:
 ```
 
 An image's width set by resizing it in `TextEdit` travels in its alt text — `![Diagram|320](src)`
-renders 320px wide (never wider than the text column) with the alt "Diagram"; `parseImageAlt` and
-`imageMarkdown` (from `@/lib/text-edit-grammar`) read and write that form. To open images in the `FileViewer` on a click, wrap the
+renders 320px wide (never wider than the text column) with the alt "Diagram"; `![Diagram|320x180](src)`
+also gives its height, so its box is reserved before it loads (`TextEdit` stores the size of every
+image it inserts). `parseImageAlt` and `imageMarkdown` (from `@/lib/text-edit-grammar`) read and
+write that form. An image on a line of its own is a block — a `figure`, its title the caption —
+laid out as `TextEdit` lays it out, so the read view and the editor match. To open images in the `FileViewer` on a click, wrap the
 view in `TextEdit`'s `ImageViewerScope`.
 
 ## Anatomy

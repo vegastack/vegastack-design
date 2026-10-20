@@ -1438,19 +1438,28 @@ test("lines that do not make a live task list stay text and a list; TextEdit's H
   );
 });
 
-test("an image with a title on its own line is a figure with the title as its caption", async () => {
+test("an image on its own line is a figure, its title the caption", async () => {
   const screen = await render(
     <MarkdownView>
-      {'Before\n\n![Chart](/chart.png "Q3 sales")\n\n![Plain](/plain.png)'}
+      {
+        'Before\n\n![Chart](/chart.png "Q3 sales")\n\n![Plain|320x180](/plain.png)'
+      }
     </MarkdownView>,
   );
-  const figure = screen.container.querySelector(
+  const [figure, plain] = screen.container.querySelectorAll(
     '[data-slot="markdown-figure"]',
   );
   expect(figure?.tagName).toBe("FIGURE");
   expect(figure?.querySelector("img")?.getAttribute("title")).toBeNull();
   expect(figure?.querySelector("figcaption")?.textContent).toBe("Q3 sales");
-  expect(screen.container.querySelectorAll("figure")).toHaveLength(1);
+  // An untitled image is a figure too (the editor's image block), without a caption; a stored
+  // size reserves its box before it loads.
+  expect(plain?.querySelector("figcaption")).toBeNull();
+  const image = plain?.querySelector("img");
+  expect(image?.getAttribute("width")).toBe("320");
+  expect(image?.getAttribute("height")).toBe("180");
+  expect(image?.style.aspectRatio).toBe("320 / 180");
+  expect(screen.container.querySelectorAll("p img")).toHaveLength(0);
 });
 
 test("a titled block image in HTML or a tight list item is a figure; one inside a line of text keeps its title", async () => {

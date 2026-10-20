@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.55 sha256-7+8YEErmQ2pcu4XTh4BY44TbLu4GsZYByv7f6Tsruc8=
+// @vegastack text-edit-grammar@0.25.55 sha256-qjPKu4iQIOw9YLqDiI1h8YNzcWvO5GkYCACik7ffSi8=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -173,24 +173,35 @@ export function headingIds(texts: readonly string[]): string[] {
 }
 
 /**
- * Read an image's Markdown alt text for a width: `![Diagram|320](src)` is a 320px-wide image whose
- * alt is "Diagram" (Obsidian's convention, so other renderers still show the image). Takes the alt
- * as written — `\\`, `\[`, `\]` and `\|` are escapes, so an escaped `\|320` (or `&#x7C;320`) is
- * alt text, not a width. Character references stay as written: decode them after.
+ * Read an image's Markdown alt text for its size: `![Diagram|320](src)` is a 320px-wide image whose
+ * alt is "Diagram", and `![Diagram|320x180](src)` also gives its height — so a page reserves the
+ * image's box before it loads (Obsidian's convention, so other renderers still show the image).
+ * Takes the alt as written — `\\`, `\[`, `\]` and `\|` are escapes, so an escaped `\|320` (or
+ * `&#x7C;320`) is alt text, not a width. Character references stay as written: decode them after.
  *
  * @example
  * parseImageAlt("Diagram|320"); // { alt: "Diagram", width: 320 }
+ * parseImageAlt("Diagram|320x180"); // { alt: "Diagram", width: 320, height: 180 }
  * parseImageAlt("Size \\|320"); // { alt: "Size |320" }
  */
-export function parseImageAlt(text: string): { alt: string; width?: number } {
+export function parseImageAlt(text: string): {
+  alt: string;
+  width?: number;
+  height?: number;
+} {
   const unescape = (value: string) => value.replace(/\\([\\[\]|])/g, "$1");
-  const match = /^(.*)\|(\d{1,5})$/s.exec(text);
+  const match = /^(.*)\|(\d{1,5})(?:x(\d{1,5}))?$/s.exec(text);
   if (match) {
-    // The `|` is the width's only when an even number of backslashes stands before it.
+    // The `|` is the size's only when an even number of backslashes stands before it.
     const slashes = /\\*$/.exec(match[1]!)![0].length;
     const width = Number(match[2]);
+    const height = match[3] ? Number(match[3]) : 0;
     if (slashes % 2 === 0 && width > 0)
-      return { alt: unescape(match[1]!), width };
+      return {
+        alt: unescape(match[1]!),
+        width,
+        ...(height > 0 ? { height } : {}),
+      };
   }
   return { alt: unescape(text) };
 }
@@ -223,22 +234,25 @@ export function markdownTitle(title: string): string {
 }
 
 /**
- * `imageMarkdown` — an image as markdown, its width (when set) kept in the alt text as
- * `parseImageAlt` reads it.
+ * `imageMarkdown` — an image as markdown, its width (when set) — and its height with it, when known
+ * — kept in the alt text as `parseImageAlt` reads it.
  *
  * @example
  * imageMarkdown({ src: "/a.png", alt: "Diagram", width: 320 }); // "![Diagram|320](/a.png)"
+ * imageMarkdown({ src: "/a.png", alt: "Diagram", width: 320, height: 180 }); // "![Diagram|320x180](/a.png)"
  */
 export function imageMarkdown({
   src,
   alt,
   title,
   width,
+  height,
 }: {
   src: string;
   alt?: string | null;
   title?: string | null;
   width?: number | null;
+  height?: number | null;
 }): string {
   // `&` that reads as an entity is written `&amp;`, and a `|` the alt merely ends with (`hello|123`,
   // no width) `&#x7C;` — an entity, not a backslash, so a table's own `\|` unescaping (an image in
@@ -247,8 +261,15 @@ export function imageMarkdown({
     /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
     "&amp;",
   );
-  if (/\|\d{1,5}$/.test(text)) text = text.replace(/\|(\d{1,5})$/, "&#x7C;$1");
-  if (width) text += `|${Math.round(width)}`;
+  if (/\|\d{1,5}(?:x\d{1,5})?$/.test(text))
+    text = text.replace(/\|(\d{1,5}(?:x\d{1,5})?)$/, "&#x7C;$1");
+  // A size the parser reads back (1–5 digits each): out of range, the width (or height) is left out.
+  const fits = (n: number | null | undefined): n is number =>
+    !!n && Math.round(n) > 0 && Math.round(n) <= 99_999;
+  if (fits(width)) {
+    text += `|${Math.round(width)}`;
+    if (fits(height)) text += `x${Math.round(height)}`;
+  }
   const target = markdownDestination(src);
   return title
     ? `![${text}](${target} "${markdownTitle(title)}")`

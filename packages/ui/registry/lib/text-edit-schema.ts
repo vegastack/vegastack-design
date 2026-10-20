@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.55 sha256-M9eU89KTM0u9ZYURtXfAq27MaOJXjWWOj2U/g36W3Y0=
+// @vegastack text-edit-schema@0.25.55 sha256-b6Jgo60udhF9D6nLCwzorJ7/nutR0OwgNxcnkkEX+As=
 
 import {
   Extension,
@@ -351,6 +351,7 @@ function cellLines(
           alt: node.attrs?.alt,
           title: node.attrs?.title,
           width: node.attrs?.width,
+          height: node.attrs?.height,
         })}`,
       ];
     case "video":
@@ -859,19 +860,33 @@ function imageNode(view: (() => NodeViewRenderer) | undefined) {
           renderHTML: (attributes) =>
             attributes.width ? { width: attributes.width } : {},
         },
-        // The width alone sizes an image; its height follows the aspect ratio.
-        height: { default: null, rendered: false },
+        // The width sizes an image; the height, when known, only gives its aspect ratio, so its
+        // box is reserved before it loads (`![alt|320x180](src)`).
+        height: {
+          default: null,
+          parseHTML: (element) => {
+            const height = Number.parseInt(
+              element.getAttribute("height") ?? "",
+              10,
+            );
+            return height > 0 && element.getAttribute("width") ? height : null;
+          },
+          renderHTML: (attributes) =>
+            attributes.width && attributes.height
+              ? { height: attributes.height }
+              : {},
+        },
       };
     },
     parseMarkdown: (token, helpers) => {
       const read = parseImageAlt(String(token.text ?? ""));
       const alt = decodeHtmlEntities(read.alt);
-      const width = read.width;
       return helpers.createNode("image", {
         src: decodeHtmlEntities(String(token.href ?? "")),
         title: token.title ?? null,
         alt,
-        width: width ?? null,
+        width: read.width ?? null,
+        height: read.height ?? null,
       });
     },
     renderMarkdown: (node) =>
@@ -880,6 +895,7 @@ function imageNode(view: (() => NodeViewRenderer) | undefined) {
         alt: node.attrs?.alt,
         title: node.attrs?.title,
         width: node.attrs?.width,
+        height: node.attrs?.height,
       }),
     ...(view ? { addNodeView: view } : {}),
   }).configure({ inline: false });
