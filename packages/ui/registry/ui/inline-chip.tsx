@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.57 sha256-ujQvmXpLHccsMqCzaJNfffVZDKGcu1wBtWEw3THutzI=
+// @vegastack inline-chip@0.25.57 sha256-WRSl1lz6ZDEnGm2TLe8jJRaDF4YLOpmu614gqpvhklU=
 
 "use client";
 
@@ -536,7 +536,12 @@ export function InlineChip({
   let chip: React.ReactElement;
   if (href) {
     chip = (
-      <a {...(shared as React.ComponentProps<"a">)} href={href} onClick={open}>
+      <a
+        {...(shared as React.ComponentProps<"a">)}
+        href={href}
+        onClick={open}
+        onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLElement>}
+      >
         {body}
       </a>
     );

@@ -323,7 +323,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.57",
-        "integrity": "sha256-MOH1MY/6lHcdsmC2uFc0ib/RFQYMqXPTHRrX4stHuQo="
+        "integrity": "sha256-7eN20pxPZ7sXETnojbcavCuzXy4dUVJh22TD0IfsV/M="
       }
     },
     {
@@ -488,7 +488,7 @@
         "whenToUse": "Internal to TextEdit and MarkdownView: pass blockViews to either rather than mounting it.",
         "whenNotToUse": "Showing code (CodeBlock) or a standalone diagram (MermaidBlock).",
         "version": "0.25.57",
-        "integrity": "sha256-4C4A9Zb2og+kNvYFvMxOaS0Gd867a62okE/TWWKW8iA="
+        "integrity": "sha256-XSgCB4ei51sX78bpQ780pn6d+7l4k1buGI/0UYb4+u4="
       }
     },
     {
@@ -519,7 +519,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.25.57",
-        "integrity": "sha256-KF34HfE1n1pKdZgsYR6eqdKC6a9yX6+MNO4Leo2nU5k="
+        "integrity": "sha256-76ykPiL8TP+1kH2OMXcI/kiLE3duu/q1U5r8wvji1ME="
       }
     },
     {
@@ -1586,7 +1586,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.57",
-        "integrity": "sha256-QcTdDzBdrY3uW50C7To538JZ0KlNewD1PUKchOg1lS4="
+        "integrity": "sha256-zOtAFTOgovd0fC/d6ZM9J9I/I687IaoJBcWovZtuLpY="
       }
     },
     {
@@ -16184,7 +16184,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.57",
-        "integrity": "sha256-ujQvmXpLHccsMqCzaJNfffVZDKGcu1wBtWEw3THutzI="
+        "integrity": "sha256-WRSl1lz6ZDEnGm2TLe8jJRaDF4YLOpmu614gqpvhklU="
       }
     },
     {
@@ -17866,7 +17866,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.57",
-        "integrity": "sha256-SwnRvqt1FWGRWszL1v9sfQGGSgxz0M1YhxmUk4w5D24="
+        "integrity": "sha256-PMSxlq0rRfE6nL2zVdIXdFapN7+hZ2Xyjf0YFyHNo9Q="
       }
     },
     {
@@ -19139,7 +19139,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.57",
-        "integrity": "sha256-jd1XlamebU/XqRloEoUA6uEZS6yJRJMSlxWXe3tWFMM="
+        "integrity": "sha256-Yl67O9USZ96Vcgt1TykKi5Zn2TZ6iHF8PK8mszD4Ogg="
       }
     },
     {

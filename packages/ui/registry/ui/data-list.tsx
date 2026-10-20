@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.57 sha256-QcTdDzBdrY3uW50C7To538JZ0KlNewD1PUKchOg1lS4=
+// @vegastack data-list@0.25.57 sha256-zOtAFTOgovd0fC/d6ZM9J9I/I687IaoJBcWovZtuLpY=
 
 "use client";
 
@@ -2443,15 +2443,16 @@ export function DataList<T>({
   const metaColumns = columns.slice(1);
   const cardMeta = (row: T, index: number) => {
     const id = rowIds[index]!;
+    const isSelected = selected.has(id);
     const parts = metaColumns
       .map((col) =>
         col.mergedRender
           ? col.mergedRender(row, index, {
               rowId: id,
               columnKey: col.key,
-              selected: false,
+              selected: isSelected,
             })
-          : renderCell(col, row, index, id, false),
+          : renderCell(col, row, index, id, isSelected),
       )
       .filter((part) => part != null && part !== "" && part !== false);
     if (parts.length === 0) return undefined;
@@ -2469,16 +2470,22 @@ export function DataList<T>({
   const defaultCard = (row: T, index: number, onBoard: boolean) => {
     const first = columns[0];
     const id = rowIds[index]!;
+    const title = first
+      ? renderCell(first, row, index, id, selected.has(id))
+      : null;
     if (onBoard)
       return boardCard ? (
         <BoardCard surface={false} {...boardCard(row)} />
       ) : (
         <BoardCard
           surface={false}
-          title={first ? renderCell(first, row, index, id, false) : null}
+          title={title}
           context={cardMeta(row, index)}
         />
       );
+    // As in the list: an `interactive` first column renders its own control, so the card is
+    // never a link around it (a link or button inside a link) — `onRowClick` still activates it.
+    const href = first?.interactive ? undefined : getRowHref?.(row);
     const thumb = thumbnailColumn
       ? thumbnailProps(thumbnailColumn.thumbnail!(row))
       : undefined;
@@ -2496,26 +2503,26 @@ export function DataList<T>({
         // `nested-interactive`). It stays a keyboard-reachable, labelled group that Enter/Space
         // still activates.
         role={
-          !getRowHref?.(row) && onRowClick
+          !href && onRowClick
             ? cardHasControls(onBoard)
               ? "group"
               : "button"
             : undefined
         }
         aria-label={
-          !getRowHref?.(row) && onRowClick && cardHasControls(onBoard)
+          !href && onRowClick && cardHasControls(onBoard)
             ? getRowLabel?.(row)
             : undefined
         }
-        tabIndex={!getRowHref?.(row) && onRowClick ? 0 : undefined}
+        tabIndex={!href && onRowClick ? 0 : undefined}
         onClick={(event) => {
-          if (!getRowHref?.(row) && !isFromInteractiveDescendant(event))
+          if (!href && !isFromInteractiveDescendant(event))
             onRowClick?.(row, index);
         }}
         onKeyDown={(event) => {
           if (
             event.target === event.currentTarget &&
-            !getRowHref?.(row) &&
+            !href &&
             onRowClick &&
             (event.key === "Enter" || event.key === " ")
           ) {
@@ -2523,14 +2530,14 @@ export function DataList<T>({
             onRowClick(row, index);
           }
         }}
-        href={onBoard ? undefined : getRowHref?.(row)}
+        href={href}
         linkRender={onBoard ? rowLinkRender : cardLinkRender}
         image={thumb ? thumb.src : undefined}
         imagePlaceholder={thumb?.placeholder}
         imageSrcSet={thumb?.srcSet}
         imageSizes={thumb?.sizes}
         fallback={thumbnailColumn ? thumbnailFallback : undefined}
-        title={first ? renderCell(first, row, index, id, false) : null}
+        title={title}
         meta={cardMeta(row, index)}
         actions={
           !onBoard && rowActions ? (
@@ -2690,15 +2697,17 @@ export function DataList<T>({
 
   const rowIndex = new Map<T, number>();
   data.forEach((row, index) => rowIndex.set(row, index));
+  // Lanes need both the sections and the accessor; otherwise one lane holds every row.
+  const sectionOf = sections ? getRowSection : undefined;
   const laneSections: readonly DataListSection[] =
-    sections && getRowSection ? sections : [{ id: "__all", label: "All" }];
+    sections && sectionOf ? sections : [{ id: "__all", label: "All" }];
   const boardLanes: BoardColumn<T>[] = laneSections.map((section) => ({
     id: section.id,
     title: section.label,
     icon: section.icon,
     label: typeof section.label === "string" ? section.label : undefined,
-    items: getRowSection
-      ? data.filter((row) => getRowSection(row) === section.id)
+    items: sectionOf
+      ? data.filter((row) => sectionOf(row) === section.id)
       : data,
     count: section.count,
     loading: section.loading ?? loading,

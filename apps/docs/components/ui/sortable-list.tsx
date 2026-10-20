@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.57 sha256-SwnRvqt1FWGRWszL1v9sfQGGSgxz0M1YhxmUk4w5D24=
+// @vegastack sortable-list@0.25.57 sha256-PMSxlq0rRfE6nL2zVdIXdFapN7+hZ2Xyjf0YFyHNo9Q=
 
 "use client";
 
@@ -357,10 +357,11 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   const touchRef = React.useRef(touchDrag);
   touchRef.current = touchDrag;
   const scroller = React.useRef<HTMLElement | null>(null);
+  // The drag as of `point` (also what it renders): a drop reads this, not the last render's state.
   const hitTest = React.useCallback(
     (point: PointerDragPoint) => {
       const current = touchRef.current;
-      if (!current) return;
+      if (!current) return null;
       const hit = document
         .elementFromPoint(point.x, point.y)
         ?.closest<HTMLElement>("[data-drag-item]");
@@ -377,8 +378,12 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
             : "bottom";
         over = { id, edge };
       }
-      if (current.over?.id !== over?.id || current.over?.edge !== over?.edge)
-        setTouchDrag({ id: current.id, over });
+      if (current.over?.id === over?.id && current.over?.edge === over?.edge)
+        return current;
+      const next = { id: current.id, over };
+      touchRef.current = next;
+      setTouchDrag(next);
+      return next;
     },
     [grid],
   );
@@ -394,8 +399,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
       hitTest(point);
     },
     onDrop: (point) => {
-      hitTest(point);
-      const current = touchRef.current;
+      const current = hitTest(point);
       setTouchDrag(null);
       const over = current?.over;
       if (!current || !over) return;

@@ -552,3 +552,33 @@ test("share-dialog: publishExposure says what the link exposes; onPublishRequest
   await toggle.click();
   await vi.waitFor(() => expect(onCreatePublicLink).toHaveBeenCalledTimes(1));
 });
+
+test("share-dialog: without public links the Share tab shows, even when Publish was asked for or chosen", async () => {
+  await page.viewport(1280, 900);
+  const base = {
+    open: true,
+    levels: shareLevels,
+    people: [],
+    search: () => Promise.resolve({ items: [PRIYA] }),
+  };
+  const screen = await render(
+    <ShareDialog {...base} defaultTab="publish" publicLinkAvailable={false} />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  const picker = () =>
+    dialog.element().querySelector<HTMLElement>('[data-slot="people-picker"]');
+  await vi.waitFor(() =>
+    expect(picker()?.checkVisibility({ visibilityProperty: true })).toBe(true),
+  );
+  // Publish chosen, then public links go away: Share takes over.
+  await screen.rerender(<ShareDialog {...base} defaultTab="publish" />);
+  await expect
+    .element(dialog.getByRole("switch", { name: "Publish to the web" }))
+    .toBeVisible();
+  await screen.rerender(
+    <ShareDialog {...base} defaultTab="publish" publicLinkAvailable={false} />,
+  );
+  await vi.waitFor(() =>
+    expect(picker()?.checkVisibility({ visibilityProperty: true })).toBe(true),
+  );
+});

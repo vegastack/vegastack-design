@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.57 sha256-jd1XlamebU/XqRloEoUA6uEZS6yJRJMSlxWXe3tWFMM=
+// @vegastack share-dialog@0.25.57 sha256-Yl67O9USZ96Vcgt1TykKi5Zn2TZ6iHF8PK8mszD4Ogg=
 
 "use client";
 
@@ -524,13 +524,15 @@ export function ShareDialog({
     setOpenState(next);
     onOpenChange?.(next);
   };
-  const [tab, setTab] = React.useState<"share" | "publish">(defaultTab);
+  const [chosenTab, setTab] = React.useState<"share" | "publish">(defaultTab);
   // Each opening starts on the tab the caller asked for.
   const [wasOpen, setWasOpen] = React.useState(open);
   if (wasOpen !== open) {
     setWasOpen(open);
     if (open) setTab(defaultTab);
   }
+  // Without public links there is no Publish tab: Share shows, whatever was chosen.
+  const tab = publicLinkAvailable ? chosenTab : "share";
 
   const [invitees, setInvitees] =
     React.useState<PeoplePickerOption[]>(defaultInvitees);

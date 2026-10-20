@@ -43,6 +43,17 @@ test("a linked chip is an anchor; onOpen takes a plain click and Enter, not a âŒ
   expect(onOpen).toHaveBeenCalledTimes(1);
 });
 
+test("a linked chip passes its keys to the caller's onKeyDown", async () => {
+  const onKeyDown = vi.fn();
+  const screen = await render(
+    <InlineChip kind="page" label="Q3 plan" href="#p1" onKeyDown={onKeyDown} />,
+  );
+  const link = screen.getByRole("link", { name: "Q3 plan" });
+  (link.element() as HTMLElement).focus();
+  await userEvent.keyboard("x");
+  expect(onKeyDown).toHaveBeenCalledTimes(1);
+});
+
 test("an unlinked chip with onOpen is a keyboard button", async () => {
   const onOpen = vi.fn(() => undefined);
   const screen = await render(

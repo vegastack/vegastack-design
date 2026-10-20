@@ -2916,3 +2916,84 @@ test("cursorId paints a controlled cursor without keyboardNavigation", async () 
     document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),
   ).toBe(true);
 });
+
+test("a selected grid card tells its title and meta renderers it is selected", async () => {
+  const seen = { name: [] as boolean[], role: [] as boolean[] };
+  const screen = await render(
+    <DataList<Row>
+      aria-label="People"
+      view="grid"
+      selectable
+      selectedIds={new Set(["a"])}
+      onSelectionChange={() => {}}
+      columns={[
+        {
+          key: "name",
+          header: "Name",
+          render: (row, _i, ctx) => {
+            if (row.id === "a") seen.name.push(ctx.selected);
+            return row.name;
+          },
+        },
+        {
+          key: "role",
+          header: "Role",
+          render: (row, _i, ctx) => {
+            if (row.id === "a") seen.role.push(ctx.selected);
+            return row.role;
+          },
+        },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+    />,
+  );
+  await expect.element(screen.getByText("Engineer")).toBeVisible();
+  expect(seen.name.at(-1)).toBe(true);
+  expect(seen.role.at(-1)).toBe(true);
+});
+
+test("a grid card whose first column is interactive is never a link around it", async () => {
+  const onRowClick = vi.fn();
+  const screen = await render(
+    <DataList<Row>
+      aria-label="People"
+      view="grid"
+      columns={[
+        {
+          key: "name",
+          header: "Name",
+          interactive: true,
+          render: (row) => <a href={`#edit-${row.id}`}>{row.name}</a>,
+        },
+        { key: "role", header: "Role" },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      getRowHref={(r) => `/people/${r.id}`}
+      onRowClick={onRowClick}
+    />,
+  );
+  await expect.element(screen.getByText("Ada")).toBeVisible();
+  expect(screen.container.querySelector("a a, a button")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("board view without sections keeps every row in its one lane, even with getRowSection", async () => {
+  const screen = await render(
+    <DataList
+      data={tasks}
+      columns={taskCols}
+      getRowId={(r) => r.id}
+      view="board"
+      boardHeight="auto"
+      getRowSection={(r) => r.due}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelectorAll('[data-slot="board-card"]').length,
+    ).toBe(tasks.length),
+  );
+});

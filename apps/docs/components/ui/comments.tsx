@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.57 sha256-MOH1MY/6lHcdsmC2uFc0ib/RFQYMqXPTHRrX4stHuQo=
+// @vegastack comments@0.25.57 sha256-7eN20pxPZ7sXETnojbcavCuzXy4dUVJh22TD0IfsV/M=
 
 "use client";
 
@@ -593,7 +593,7 @@ export function CommentItem({
               }}
               onSubmit={(value) => void save(value)}
               onRevert={cancel}
-              busy={saving}
+              sending={saving}
               invalid={!!error}
               mentions={mentions}
               mentionHref={mentionHref}
@@ -796,9 +796,15 @@ interface CommentBoxProps {
   onValueChange: (value: string) => void;
   onSubmit: (value: string) => void;
   onRevert?: () => void;
-  /** Escape keeps the text and calls this instead of reverting (a reply being cancelled). */
+  /** Escape (which keeps an unsent box's text) also calls this — a reply being cancelled. */
   onEscape?: () => void;
+  /** The host is busy (`aria-busy`); typing goes on. */
   busy?: boolean;
+  /**
+   * This box's text is being sent or saved: it holds still (read-only, no attaching) until that
+   * settles, so nothing typed meanwhile is lost when it clears; the caret comes back if it fails.
+   */
+  sending?: boolean;
   disabled?: boolean;
   invalid?: boolean;
   autoFocus?: boolean;
@@ -820,6 +826,8 @@ interface CommentBoxProps {
   onPendingUploadsChange?: (count: number) => void;
   /** Files were picked with the attach button (even while the editor is still loading). */
   onPick?: () => void;
+  /** The editor's handle — the host checks `pendingUploads()` before it sends. */
+  handleRef?: React.RefObject<TextEditHandle | null>;
 }
 
 function CommentBox({
@@ -832,6 +840,7 @@ function CommentBox({
   onRevert,
   onEscape,
   busy,
+  sending = false,
   disabled,
   invalid,
   autoFocus,
@@ -847,17 +856,29 @@ function CommentBox({
   files,
   onPendingUploadsChange,
   onPick,
+  handleRef,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const handle = React.useRef<TextEditHandle>(null);
+  const ownHandle = React.useRef<TextEditHandle>(null);
+  const handle = handleRef ?? ownHandle;
   React.useEffect(() => {
     if (autoFocus) focusEditor(ref.current);
   }, [autoFocus]);
+  // Read-only while saving drops the caret: a failed save (the box stays) puts it back.
+  const hadFocus = React.useRef(false);
+  React.useLayoutEffect(() => {
+    if (sending) {
+      hadFocus.current = !!ref.current?.contains(document.activeElement);
+    } else if (hadFocus.current) {
+      hadFocus.current = false;
+      focusEditor(ref.current);
+    }
+  }, [sending]);
   const canAttach =
     layout !== "edit" &&
     !!(onImageUpload || onFileUpload || onAttachFiles) &&
     !disabled;
-  const canDrop = canAttach && !!onAttachFiles;
+  const canDrop = canAttach && !sending && !!onAttachFiles;
   const fileInput = React.useRef<HTMLInputElement>(null);
   // Enter/leave fire for every child the drag crosses: count them.
   const drags = React.useRef(0);
@@ -880,6 +901,7 @@ function CommentBox({
                     size="icon-xs"
                     data-slot="comment-attach"
                     aria-label="Attach files"
+                    disabled={sending}
                     className={cn(
                       "rounded-full text-muted-foreground hover:text-foreground",
                       TOUCH_TARGET,
@@ -929,8 +951,10 @@ function CommentBox({
     onValueChange,
     onSubmit,
     onRevert,
-    escapeBehavior: onEscape ? ("blur" as const) : undefined,
-    saving: busy,
+    // Escape never throws away an unsent comment or reply; editing a posted one reverts.
+    escapeBehavior: layout === "edit" ? ("revert" as const) : ("blur" as const),
+    saving: busy || sending,
+    readOnly: sending,
     disabled,
     dragHandles: false,
     "aria-invalid": invalid ? true : undefined,
@@ -1232,8 +1256,10 @@ export function CommentComposer({
   // A reply is never folded (`compact` rests a new comment only), nor a draft with text or files.
   const folding = compact && !replyingTo;
   const folded = folding && !opened && !hasFiles && !body.trim();
-  // Uploads into the text are decorations until they land: the body reads empty meanwhile.
+  // Uploads into the text are decorations until they land: the body reads empty meanwhile, and
+  // nothing sends until they have (a send would post the text without them and cancel them).
   const [uploading, setUploading] = React.useState(0);
+  const box = React.useRef<TextEditHandle>(null);
   // Files picked into the text: the card stays until Escape or Send, whatever became of them
   // (a file the editor skips is never counted as pending).
   const [picked, setPicked] = React.useState(false);
@@ -1265,7 +1291,13 @@ export function CommentComposer({
   }, [folding, folded, idle, fold]);
 
   const submit = async (value: string) => {
-    if ((!value.trim() && !hasFiles) || posting) return;
+    if (
+      (!value.trim() && !hasFiles) ||
+      posting ||
+      uploading > 0 ||
+      (box.current?.pendingUploads() ?? 0) > 0
+    )
+      return;
     setPending(true);
     setErrorState(null);
     try {
@@ -1372,6 +1404,7 @@ export function CommentComposer({
         }}
         onSubmit={(value) => void submit(value)}
         busy={posting}
+        sending={pending}
         disabled={disabled}
         invalid={!!error}
         extraActions={attachments}
@@ -1383,13 +1416,14 @@ export function CommentComposer({
         onUploadError={onUploadError}
         onAttachFiles={onAttachFiles}
         files={files}
-        onPendingUploadsChange={folding ? setUploading : undefined}
+        onPendingUploadsChange={setUploading}
         onPick={folding ? () => setPicked(true) : undefined}
+        handleRef={box}
         actions={
           <SendButton
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
             loading={posting}
-            disabled={disabled || (!body.trim() && !hasFiles)}
+            disabled={disabled || uploading > 0 || (!body.trim() && !hasFiles)}
             onClick={() => void submit(body)}
           />
         }
@@ -1658,6 +1692,9 @@ export function CommentThread({
   const posting = pending || !!composer?.posting;
   const [error, setError] = React.useState<string | null>(null);
   const replyBox = React.useRef<HTMLDivElement>(null);
+  // An upload into the reply holds Send until it lands (see `CommentComposer`).
+  const [uploading, setUploading] = React.useState(0);
+  const box = React.useRef<TextEditHandle>(null);
   const { resolved, orphaned, quote, root } = thread;
   // A deleted first comment keeps its thread open for replies (the host's `onReply` decides).
   const canReply = !collapsed && !!onReply;
@@ -1667,7 +1704,9 @@ export function CommentThread({
       !canReply ||
       composer?.disabled ||
       (!body.trim() && !composer?.hasFiles) ||
-      posting
+      posting ||
+      uploading > 0 ||
+      (box.current?.pendingUploads() ?? 0) > 0
     )
       return;
     setPending(true);
@@ -1862,6 +1901,7 @@ export function CommentThread({
               }}
               onSubmit={(value) => void reply(value)}
               busy={posting}
+              sending={pending}
               disabled={composer?.disabled}
               invalid={!!error}
               extraActions={composer?.attachments}
@@ -1873,12 +1913,15 @@ export function CommentThread({
               onUploadError={composer?.onUploadError}
               onAttachFiles={composer?.onAttachFiles}
               files={composer?.files}
+              onPendingUploadsChange={setUploading}
+              handleRef={box}
               actions={
                 <SendButton
                   label={composer?.submitLabel ?? "Send reply"}
                   loading={posting}
                   disabled={
                     !!composer?.disabled ||
+                    uploading > 0 ||
                     (!draft.trim() && !composer?.hasFiles)
                   }
                   onClick={() => void reply(draft)}
