@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-xdRZJOEcLbdR8/x43ELW0mPp7nT1wgcCgd+l8jn0VRA=
+// @vegastack text-edit@0.25.51 sha256-SLYKqZLNaMLVfhZjGIggCQ2NjVJm96SDTCFGthmxjxE=
 
 "use client";
 
@@ -4768,18 +4768,61 @@ const FLOATING_SLOTS =
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
  * "+" bars, drop line; the slash and mention menus are `SuggestionMenu`, which portals itself):
- * `<body>`, so no overflow container clips it, with the theme scope restored on a
- * `display: contents` wrapper.
+ * `<body>` (or the portal of the modal the editor sits in, `FloatingHostContext`), so no overflow
+ * container clips it, with the theme scope restored on a
+ * `display: contents` wrapper. While a modal (a Dialog or Sheet opened over the editor) holds the
+ * editor `inert`, the layer hides, so nothing floats over the modal's backdrop.
  */
 function FloatingLayer({ children }: { children: React.ReactNode }) {
   const themeScope = useInternalThemeScope();
+  const { behindModal, host } = React.useContext(FloatingHostContext);
   if (typeof document === "undefined") return null;
   return createPortal(
-    <div data-slot="text-edit-layer" className={cn("contents", themeScope)}>
+    // Inside a modal's portal it marks itself a portal too: the modal's outside-marking exempts
+    // nested portals, so it is never hidden from assistive tech or made inert.
+    <div
+      data-slot="text-edit-layer"
+      data-base-ui-portal={host ? "" : undefined}
+      hidden={behindModal}
+      className={cn("contents", themeScope)}
+    >
       {children}
     </div>,
-    document.body,
+    host ?? document.body,
   );
+}
+
+/**
+ * Where the editor's floating parts go, and whether they hide. `host`: the portal of the modal the
+ * editor sits in (a Dialog or Sheet), else `null` for `<body>` — inside the modal's own portal,
+ * its outside-marking never makes them inert. `behindModal`: a modal holds the editor itself
+ * inert, so nothing of it floats over that modal's backdrop.
+ */
+const FloatingHostContext = React.createContext<{
+  behindModal: boolean;
+  host: HTMLElement | null;
+}>({ behindModal: false, host: null });
+
+/**
+ * Whether `element` is inside an `inert` subtree now — a modal Dialog or Sheet opened over it.
+ * Watches `inert` across the document, which a modal toggles on the page's other `<body>`
+ * children as it opens and closes.
+ */
+function useBehindModal(element: HTMLElement | null | undefined): boolean {
+  const [behind, setBehind] = React.useState(false);
+  React.useEffect(() => {
+    if (!element) return;
+    const read = () => setBehind(element.closest("[inert]") !== null);
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["inert"],
+      subtree: true,
+    });
+    return () => observer.disconnect();
+  }, [element]);
+  return behind;
 }
 
 /** Floating parts keep this far from the viewport's edges. */
@@ -8471,8 +8514,6 @@ const FLOATING = {
   shift: { padding: VIEWPORT_GAP },
 };
 
-const appendToBody = () => document.body;
-
 /* ------------------------------------------------------------------------------------------------
  * TextEdit
  * ----------------------------------------------------------------------------------------------*/
@@ -10527,18 +10568,33 @@ export function TextEditEditor({
       );
   }, [editor, panel, caretInLink, menuKeys, showBubble]);
 
+  // Behind a modal (a Dialog or Sheet opened over the editor) nothing of the editor floats over its
+  // backdrop: the bubble toolbar and every floating layer hide.
+  const [editorDom, setEditorDom] = React.useState<HTMLElement | null>(null);
+  React.useEffect(() => {
+    setEditorDom(editor && !editor.isDestroyed ? editor.view.dom : null);
+  }, [editor]);
+  const behindModal = useBehindModal(editorDom);
+  const host = editorDom?.closest<HTMLElement>("[data-base-ui-portal]") ?? null;
+  const floating = React.useMemo(
+    () => ({ behindModal, host }),
+    [behindModal, host],
+  );
+  const appendToHost = React.useCallback(() => host ?? document.body, [host]);
+
   return (
-    <>
+    <FloatingHostContext.Provider value={floating}>
       {(editable || canComment) && editor ? (
         <BubbleMenu
           ref={bubbleRef}
           editor={editor}
           pluginKey={menuKeys.bubble}
-          appendTo={appendToBody}
+          appendTo={appendToHost}
           options={bubbleOptions}
           getReferencedVirtualElement={bubbleReference}
           shouldShow={showBubble}
-          className={cn("z-50", themeScope)}
+          data-base-ui-portal={host ? "" : undefined}
+          className={cn("z-50", themeScope, behindModal && "hidden")}
         >
           <SelectionMenu
             editor={editor}
@@ -10697,6 +10753,6 @@ export function TextEditEditor({
       >
         <EditorContent editor={editor} />
       </div>
-    </>
+    </FloatingHostContext.Provider>
   );
 }

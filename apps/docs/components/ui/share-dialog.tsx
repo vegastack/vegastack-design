@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.50 sha256-AlAR8WZuBn9Icpdckwofm/nZWL9Hrdq4fqmuXENEMEE=
+// @vegastack share-dialog@0.25.51 sha256-znq9Pp1+llVtkP6b4SlCDRFzm+uJCf0lphvwscr/Xmk=
 
 "use client";
 
@@ -221,6 +221,8 @@ export interface ShareDialogLabels {
   notPublished: string;
   /** The button that turns publishing off. */
   stopPublishing: string;
+  /** The Publish tab's footer note while published: what the link never shows. */
+  publishPrivateNote: string;
   /** The stop-publishing confirmation's title. */
   stopPublishingTitle: string;
   /** The stop-publishing confirmation's body. */
@@ -277,6 +279,7 @@ const defaultLabels: ShareDialogLabels = {
   publishHintOff: "Off — only people with access can open it",
   notPublished: "Not published",
   stopPublishing: "Stop publishing",
+  publishPrivateNote: "Comments and version history stay private.",
   stopPublishingTitle: "Stop publishing?",
   stopPublishingBody:
     "The public link stops working at once. People with access can still open it.",
@@ -386,8 +389,9 @@ export interface ShareDialogProps {
   /** A public-link change is in flight; its controls wait. @default false */
   publicLinkPending?: boolean;
   /**
-   * More settings for the public link while it is on (what the link shows, say): rendered in the
-   * Publish tab under the link and its expiry, for a viewer who can publish. @default undefined
+   * More settings for the public link while it is on (what the link shows, say), for a viewer who
+   * can publish: rows of the Publish tab's settings grid under Expires, each a label then its
+   * control (two children, in a fragment), so every label and control lines up. @default undefined
    */
   publicLinkOptions?: React.ReactNode;
   /** The item's own link, for Copy link in the footer. Omit to hide Copy link. @default undefined */
@@ -1010,49 +1014,41 @@ export function ShareDialog({
             />
           </div>
           {canPublish ? (
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {labels.expires}
-                </span>
-                <Select
-                  items={EXPIRIES.map((value) => ({
-                    value,
-                    label: labels.expiry[value],
-                  }))}
-                  value={publicLink.expires}
-                  onValueChange={(value) =>
-                    onPublicLinkExpiresChange?.(value as ShareLinkExpiry)
-                  }
-                  disabled={publicLinkPending}
-                >
-                  <SelectTrigger size="sm" aria-label={labels.expires}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EXPIRIES.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {labels.expiry[value]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={publicLinkPending}
-                onClick={() => setConfirmStop(true)}
-              >
-                {labels.stopPublishing}
-              </Button>
-            </div>
-          ) : null}
-          {canPublish && publicLinkOptions ? (
+            // The link's settings as one grid: each label beside its control, the host's rows
+            // (`publicLinkOptions`) lined up with Expires.
             <div
               data-slot="share-public-link-options"
-              className="flex flex-col gap-2"
+              className="grid grid-cols-[auto_minmax(0,1fr)] items-center justify-items-start gap-x-3 gap-y-2"
             >
+              <span className="text-sm text-muted-foreground">
+                {labels.expires}
+              </span>
+              <Select
+                items={EXPIRIES.map((value) => ({
+                  value,
+                  label: labels.expiry[value],
+                }))}
+                value={publicLink.expires}
+                onValueChange={(value) =>
+                  onPublicLinkExpiresChange?.(value as ShareLinkExpiry)
+                }
+                disabled={publicLinkPending}
+              >
+                <SelectTrigger
+                  size="sm"
+                  aria-label={labels.expires}
+                  className="w-fit"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {EXPIRIES.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {labels.expiry[value]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {publicLinkOptions}
             </div>
           ) : null}
@@ -1083,6 +1079,25 @@ export function ShareDialog({
     </div>
   );
 
+  // The Publish tab's footer while published: what stays private, and Stop publishing.
+  const publishFooter =
+    publicLinkAvailable && publicLink && canPublish ? (
+      <div
+        data-slot="share-publish-footer"
+        className="flex w-full flex-wrap items-center justify-between gap-2"
+      >
+        <span className="text-xs text-muted-foreground">
+          {labels.publishPrivateNote}
+        </span>
+        <Button
+          variant="destructive"
+          disabled={publicLinkPending}
+          onClick={() => setConfirmStop(true)}
+        >
+          {labels.stopPublishing}
+        </Button>
+      </div>
+    ) : null;
   // The Share tab's footer. It keeps its box on the Publish tab (hidden and inert there), so the
   // dialog does not change height when the tabs switch.
   const footer = inviteMode ? (
@@ -1181,13 +1196,26 @@ export function ShareDialog({
             </div>
           </ResponsiveDialogBody>
         </Tabs>
-        {footer ? (
-          <ResponsiveDialogFooter
-            data-hidden={tab === "share" ? undefined : ""}
-            inert={tab !== "share"}
-            className={HIDDEN_BOX}
-          >
-            {footer}
+        {footer || publishFooter ? (
+          // One footer box, two layers in one grid cell: the Share tab's and the Publish tab's
+          // (Stop publishing), so switching tabs never resizes the dialog.
+          <ResponsiveDialogFooter className="grid grid-cols-1">
+            <div
+              data-hidden={tab === "share" ? undefined : ""}
+              inert={tab !== "share"}
+              className={`col-start-1 row-start-1 flex w-full min-w-0 justify-end ${HIDDEN_BOX}`}
+            >
+              {footer}
+            </div>
+            {publishFooter ? (
+              <div
+                data-hidden={tab === "publish" ? undefined : ""}
+                inert={tab !== "publish"}
+                className={`col-start-1 row-start-1 flex w-full min-w-0 ${HIDDEN_BOX}`}
+              >
+                {publishFooter}
+              </div>
+            ) : null}
           </ResponsiveDialogFooter>
         ) : null}
       </ResponsiveDialogContent>

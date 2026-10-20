@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.51] — October 20, 2026
+
+<!-- assembled from 1 changeset: f46b34492ea1 -->
+
+### 🔧 Changed components
+
+- **DocumentLayout**: with room for a comment margin on both sides (74rem), the text column sits in the middle of the canvas and the margin hangs to its right, instead of the pair being centred with the text off to the left. **ShareDialog**: the Publish tab lays the link's settings out as one grid (Expires and the host's `publicLinkOptions` rows, label beside control), and while published its own footer says what stays private and holds Stop publishing, in the same box as the Share tab's footer. **TextEdit**: behind a modal Dialog or Sheet (the editor inert) the bubble toolbar and every floating part hide, so nothing floats over the backdrop; an editor inside a modal keeps its own floating parts live.
+  [`3df6c23`](https://github.com/VegaStack/vegastack-design/commit/3df6c23)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.50 → 0.25.51.
+
 ## [0.25.50] — October 20, 2026
 
 <!-- assembled from 1 changeset: 6af7d746a8d3 -->

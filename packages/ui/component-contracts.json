@@ -25632,6 +25632,10 @@
         "TextEditEditor": {
           "attributes": [
             {
+              "name": "data-base-ui-portal",
+              "values": [""]
+            },
+            {
               "name": "data-menu",
               "values": [
                 "text-edit-emoji",
@@ -33257,6 +33261,7 @@
                 "share-public-link",
                 "share-public-link-options",
                 "share-publish-exposure",
+                "share-publish-footer",
                 "share-published-dot",
                 "share-published-notice"
               ]

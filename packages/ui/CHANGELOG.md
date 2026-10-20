@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.51
+
+### Patch Changes
+
+- [#681](https://github.com/vegastack/vegastack-design/pull/681) [`3df6c23`](https://github.com/vegastack/vegastack-design/commit/3df6c23193fc249038ca1afd46519b10050b7f29) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DocumentLayout**: with room for a comment margin on both sides (74rem), the text column sits in the middle of the canvas and the margin hangs to its right, instead of the pair being centred with the text off to the left. **ShareDialog**: the Publish tab lays the link's settings out as one grid (Expires and the host's `publicLinkOptions` rows, label beside control), and while published its own footer says what stays private and holds Stop publishing, in the same box as the Share tab's footer. **TextEdit**: behind a modal Dialog or Sheet (the editor inert) the bubble toolbar and every floating part hide, so nothing floats over the backdrop; an editor inside a modal keeps its own floating parts live.
+
 ## 0.25.50
 
 ### Patch Changes
