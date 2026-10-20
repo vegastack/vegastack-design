@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-/BAZverr9XQZ4Pb97FFDEzPEdeXIv1rVVOGst12pfgs=
+// @vegastack text-edit@0.25.50 sha256-TizhIF8sKA1KUETjDHBxTWyzVR5p4Y7KMcig3HXRoYA=
 
 "use client";
 
@@ -66,6 +66,7 @@ import {
 import {
   Decoration as PMDecoration,
   DecorationSet,
+  type EditorProps,
   type EditorView,
 } from "@tiptap/pm/view";
 import { Toolbar } from "@base-ui/react/toolbar";
@@ -142,6 +143,7 @@ import {
   Film,
   AudioLines,
   Captions,
+  ScanText,
   Pencil,
   Unlink,
 } from "lucide-react";
@@ -2703,7 +2705,7 @@ const IMAGE_GUIDES = [0.25, 0.5, 0.75, 1] as const;
 // An image that can't load (gone, or another site's the page may not show) keeps a visible frame
 // with its alt text, so its toolbar can still replace it.
 const IMAGE_CONTAINER =
-  "group/image relative my-2 max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg [&_img[data-broken]]:h-24 [&_img[data-broken]]:min-w-full [&_img[data-broken]]:border [&_img[data-broken]]:border-dashed [&_img[data-broken]]:border-border [&_img[data-broken]]:bg-muted [&_img[data-broken]]:p-3 [&_img[data-broken]]:text-sm [&_img[data-broken]]:text-muted-foreground";
+  "group/image relative my-2 flex-col items-start max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg [&_img[data-broken]]:h-24 [&_img[data-broken]]:min-w-full [&_img[data-broken]]:border [&_img[data-broken]]:border-dashed [&_img[data-broken]]:border-border [&_img[data-broken]]:bg-muted [&_img[data-broken]]:p-3 [&_img[data-broken]]:text-sm [&_img[data-broken]]:text-muted-foreground";
 const IMAGE_WRAPPER =
   "max-w-full rounded-lg outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-info group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-info";
 // Notion-style side handles: a pill bar inside the left and right edges, shown on hover, while
@@ -2716,6 +2718,8 @@ const IMAGE_HANDLE = cn(
 /** The hover toolbar's frame: top-right on the image, a blurred translucent pill. */
 const IMAGE_MENU_SLOT =
   "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-md border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden data-narrow:hidden";
+const IMAGE_CAPTION =
+  "mt-1.5 max-w-full text-sm leading-snug text-muted-foreground wrap-break-word select-text";
 const IMAGE_SIZE_LABEL =
   "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-md bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
 const IMAGE_GUIDE =
@@ -2739,6 +2743,11 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
     image.addEventListener("load", () => {
       delete image.dataset.broken;
     });
+    // The caption (Markdown's title, `![alt](src "caption")`): under the image, at its start.
+    const caption = document.createElement("div");
+    caption.className = IMAGE_CAPTION;
+    caption.dataset.slot = "text-edit-image-caption";
+    caption.contentEditable = "false";
     const sync = (next: PMNode) => {
       const { src, alt, title, width } = next.attrs as {
         src: string | null;
@@ -2750,8 +2759,10 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
         if (image.getAttribute("src") !== src) image.src = src;
       } else image.removeAttribute("src");
       image.alt = alt ?? "";
-      if (title) image.title = title;
-      else image.removeAttribute("title");
+      // The title is the caption, shown under the image rather than as a tooltip.
+      image.removeAttribute("title");
+      caption.textContent = title ?? "";
+      caption.hidden = !title;
       image.style.width = width ? `${width}px` : "";
       image.style.height = "";
       // A version diff: the image is marked (an outline — the inks cannot show on a picture), and
@@ -2874,6 +2885,7 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
     host.contentEditable = "false";
     host.dataset.slot = "text-edit-image-menu";
     wrapper.append(sizeLabel, host);
+    wrapper.after(caption);
     const remove = runtime.slots.add({ host, image, getPos });
     // An image narrower than its toolbar shows none (a double-click still opens it).
     const narrow =
@@ -2920,7 +2932,7 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
 }
 
 /**
- * Each image's hover toolbar (top-right, blurred): while editable Replace and Alt text, then Open,
+ * Each image's hover toolbar (top-right, blurred): while editable Replace, Caption and Alt text, then Open,
  * Download and Copy link. Delete is the block menu's (and Backspace on the selected image).
  */
 function ImageMenus({
@@ -3036,12 +3048,22 @@ function ImageMenu({
         </ImageToolButton>
       ) : null}
       {editable ? (
-        <ImageAltText
-          editor={editor}
-          slot={slot}
-          onLeave={onLeave}
-          onCommit={onCommit}
-        />
+        <>
+          <ImageTextAttribute
+            editor={editor}
+            slot={slot}
+            attribute="title"
+            onLeave={onLeave}
+            onCommit={onCommit}
+          />
+          <ImageTextAttribute
+            editor={editor}
+            slot={slot}
+            attribute="alt"
+            onLeave={onLeave}
+            onCommit={onCommit}
+          />
+        </>
       ) : null}
       {onOpen ? (
         <ImageToolButton label="Open" onClick={() => onOpen(slot.image)}>
@@ -3073,34 +3095,58 @@ function ImageMenu({
   );
 }
 
-/** The image's alt text, edited in a popover from its toolbar: Enter or closing saves it. */
-function ImageAltText({
+/** The image text attributes its toolbar edits: the alt text, and the caption (Markdown's title). */
+const IMAGE_TEXT = {
+  alt: {
+    label: "Alt text",
+    placeholder: "Describe the image for screen readers",
+    icon: ScanText,
+  },
+  title: {
+    label: "Caption",
+    placeholder: "Add a caption",
+    icon: Captions,
+  },
+} as const;
+
+/**
+ * One of the image's text attributes (`IMAGE_TEXT`), edited in a popover from its toolbar: Enter or
+ * closing saves it; an untouched draft saves nothing (a collaborator's newer text stays).
+ */
+function ImageTextAttribute({
   editor,
   slot,
+  attribute,
   onLeave,
   onCommit,
 }: {
   editor: Editor;
   slot: ImageSlot;
+  attribute: keyof typeof IMAGE_TEXT;
   /** The edit session's end check, once focus settles after the popover closes. */
   onLeave?: (next: EventTarget | null) => void;
   /** Commit the document now (an attribute edit made outside a typing session). */
   onCommit?: () => void;
 }) {
+  const copy = IMAGE_TEXT[attribute];
+  const Icon = copy.icon;
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
-  // What the field opened with: an untouched draft saves nothing (a collaborator's new text stays).
   const openedRef = React.useRef("");
   const inputId = React.useId();
-  const save = () => {
+  const current = () => {
     const pos = slot.getPos();
-    if (pos === undefined) return;
-    const node = editor.state.doc.nodeAt(pos);
-    if (!node || node.type.name !== "image") return;
-    if (value === openedRef.current) return;
-    const alt = value.trim() || null;
-    if ((node.attrs.alt ?? null) === alt) return;
-    editor.view.dispatch(editor.state.tr.setNodeAttribute(pos, "alt", alt));
+    const node = pos === undefined ? null : editor.state.doc.nodeAt(pos);
+    return node?.type.name === "image" ? { pos: pos!, node } : null;
+  };
+  const save = () => {
+    const found = current();
+    if (!found || value === openedRef.current) return;
+    const next = value.trim() || null;
+    if ((found.node.attrs[attribute] ?? null) === next) return;
+    editor.view.dispatch(
+      editor.state.tr.setNodeAttribute(found.pos, attribute, next),
+    );
     // Committed now (`onValueChange` and `onCommit`), whether or not an edit session was open.
     onCommit?.();
   };
@@ -3109,7 +3155,7 @@ function ImageAltText({
       open={open}
       onOpenChange={(next) => {
         if (next) {
-          openedRef.current = slot.image.getAttribute("alt") ?? "";
+          openedRef.current = String(current()?.node.attrs[attribute] ?? "");
           setValue(openedRef.current);
         } else {
           save();
@@ -3119,19 +3165,19 @@ function ImageAltText({
         setOpen(next);
       }}
     >
-      <MenuTip label="Alt text">
+      <MenuTip label={copy.label}>
         <PopoverTrigger
           render={
             <Button
               type="button"
               variant="ghost"
               size="icon-xs"
-              aria-label="Alt text"
+              aria-label={copy.label}
               onMouseDown={(event) => event.preventDefault()}
             />
           }
         >
-          <Captions />
+          <Icon />
         </PopoverTrigger>
       </MenuTip>
       <PopoverContent
@@ -3152,13 +3198,13 @@ function ImageAltText({
             htmlFor={inputId}
             className="px-1 text-xs font-medium text-muted-foreground"
           >
-            Alt text
+            {copy.label}
           </label>
           <Input
             id={inputId}
             size="sm"
             value={value}
-            placeholder="Describe the image for screen readers"
+            placeholder={copy.placeholder}
             autoFocus
             onChange={(event) => setValue(event.target.value)}
           />
@@ -4506,6 +4552,104 @@ function singleFence(text: string) {
 }
 
 /** Strip what the schema would drop anyway, before it is parsed: scripts, styles, handlers, `javascript:`. */
+/** A leading emoji (a Notion callout's icon) and the space after it. */
+const LEADING_EMOJI =
+  /^\s*\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*/u;
+
+/**
+ * Notion's clipboard HTML in the editor's terms: a to-do list (`ul.to-do-list`, each item's box a
+ * `div.checkbox-on|off`, or any list item led by a checkbox input) becomes a checklist, and a
+ * callout (`figure.callout`, or `aside`) a callout without its icon. Anything else is left as is.
+ */
+function notionPastedHTML(html: string): string {
+  if (
+    typeof DOMParser === "undefined" ||
+    !/to-do-list|checkbox|callout|<aside/i.test(html)
+  )
+    return html;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  let changed = false;
+  for (const list of doc.querySelectorAll("ul")) {
+    const items = [...list.children].filter((child) => child.tagName === "LI");
+    const box = (item: Element) =>
+      item.querySelector(
+        ":scope > .checkbox, :scope > input[type=checkbox], :scope > div > .checkbox",
+      );
+    if (!items.length) continue;
+    if (!list.classList.contains("to-do-list") && !items.every(box)) continue;
+    list.setAttribute("data-type", "taskList");
+    for (const item of items) {
+      const mark = box(item);
+      const checked =
+        mark?.classList.contains("checkbox-on") ||
+        (mark as HTMLInputElement | null)?.checked ||
+        Boolean(item.querySelector(".to-do-children-checked"));
+      mark?.remove();
+      item.setAttribute("data-type", "taskItem");
+      item.setAttribute("data-checked", checked ? "true" : "false");
+      // An item's text sits in a paragraph, as the checklist's schema holds it.
+      if (!item.querySelector(":scope > p")) {
+        const paragraph = doc.createElement("p");
+        paragraph.append(...[...item.childNodes]);
+        item.append(paragraph);
+      }
+    }
+    changed = true;
+  }
+  for (const callout of doc.querySelectorAll("figure.callout, aside")) {
+    callout
+      .querySelector(".icon")
+      ?.closest("div:not(.callout), span")
+      ?.remove();
+    const wrapper = doc.createElement("div");
+    wrapper.setAttribute("data-slot", "callout");
+    wrapper.setAttribute("data-tone", "note");
+    const content = doc.createElement("div");
+    content.setAttribute("data-slot", "callout-content");
+    const blocks = [...callout.childNodes];
+    const first = blocks.find((node) => node.textContent?.trim());
+    if (first?.nodeType === Node.TEXT_NODE)
+      first.textContent = (first.textContent ?? "").replace(LEADING_EMOJI, "");
+    const paragraph = doc.createElement("p");
+    for (const node of blocks)
+      if (
+        node.nodeType === Node.ELEMENT_NODE &&
+        /^(P|UL|OL|PRE|BLOCKQUOTE|H[1-6]|TABLE)$/.test(
+          (node as Element).tagName,
+        )
+      ) {
+        if (paragraph.childNodes.length)
+          content.append(paragraph.cloneNode(true));
+        paragraph.replaceChildren();
+        content.append(node);
+      } else paragraph.append(node);
+    if (paragraph.textContent?.trim()) content.append(paragraph);
+    wrapper.append(content);
+    callout.replaceWith(wrapper);
+    changed = true;
+  }
+  return changed ? doc.body.innerHTML : html;
+}
+
+/**
+ * Notion's Markdown in the editor's terms: an `<aside>` callout (Notion's export, its icon first)
+ * becomes a GitHub alert (`> [!NOTE]`). Checklists (`- [ ]`) are already Markdown.
+ */
+function notionMarkdown(text: string): string {
+  return text.replace(
+    /^<aside>[ \t]*\r?\n?([\s\S]*?)\r?\n?<\/aside>[ \t]*$/gm,
+    (_all, body: string) =>
+      [
+        "> [!NOTE]",
+        ...body
+          .replace(LEADING_EMOJI, "")
+          .trim()
+          .split(/\r?\n/)
+          .map((line) => (line ? `> ${line}` : ">")),
+      ].join("\n"),
+  );
+}
+
 function sanitizePastedHTML(html: string) {
   return html
     .replace(/<(script|style|iframe|object|embed)[\s\S]*?<\/\1>/gi, "")
@@ -9333,6 +9477,243 @@ export function TextEditEditor({
     [startExternalImage],
   );
 
+  // The view's event props, rebuilt each render (they read this render's state) but handed to
+  // Tiptap through one stable object: a new \`editorProps\` each render made \`useEditor\` call
+  // \`setOptions\` from an effect, redrawing the view (and creating React node views) inside React's
+  // commit — "flushSync was called from inside a lifecycle method" on every callout or code block.
+  const liveProps: EditorProps = {
+    handleDOMEvents: {
+      // A double-click on a file chip opens the file in the viewer.
+      dblclick: (_view, event) => {
+        const chip = (event.target as Element).closest?.<HTMLAnchorElement>(
+          "a[data-slot=file-chip]",
+        );
+        const open = openFileRef.current;
+        if (!chip || !open) return false;
+        event.preventDefault();
+        open(chip.getAttribute("href") ?? "", chip.textContent ?? "");
+        return true;
+      },
+    },
+    handleKeyDown: (view, event) => {
+      // The slash and mention menus own Enter, arrows and Escape while open.
+      if (SLASH_KEY.getState(view.state)?.active) return false;
+      if (MENTION_KEY.getState(view.state)?.active) return false;
+      const mod = event.metaKey || event.ctrlKey;
+      // In a block view's source, ⌘Enter and Escape go back to its preview.
+      if (
+        ((event.key === "Enter" && mod) || event.key === "Escape") &&
+        blockViewKey(view, editorRef.current)
+      ) {
+        event.preventDefault();
+        return true;
+      }
+      if (event.key === "Enter" && mod) {
+        event.preventDefault();
+        const ed = editorRef.current;
+        if (!ed) return true;
+        if (callbacks.current.onSubmit) {
+          const next = serialize(ed);
+          // Submitted is handled: a later blur must not commit the same text.
+          if (baselineRef.current !== null) baselineRef.current = next;
+          callbacks.current.onSubmit(next);
+        } else ed.commands.blur();
+        return true;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (escapeRef.current === "blur") {
+          // Keep what is typed: a document that saves as you type must never lose saved text.
+          commit();
+          editorRef.current?.commands.blur();
+        } else revert();
+        return true;
+      }
+      if (mod && event.shiftKey && event.key.toLowerCase() === "v") {
+        // Paste as plain text: the paste that follows inserts the text literally.
+        plainPasteRef.current = true;
+        setTimeout(() => (plainPasteRef.current = false), 1000);
+        return false;
+      }
+      // ⌘A in a code block (a diagram's source too) selects its code first; a second ⌘A, the page.
+      if (mod && !event.shiftKey && event.key.toLowerCase() === "a") {
+        const { $from, $to, from, to } = view.state.selection;
+        if (
+          $from.parent.type.name === "codeBlock" &&
+          $from.sameParent($to) &&
+          (from !== $from.start() || to !== $from.end())
+        ) {
+          event.preventDefault();
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, $from.start(), $from.end()),
+            ),
+          );
+          return true;
+        }
+      }
+      if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        // The editor's ⌘K is the link panel; an app's own ⌘K palette must not open too.
+        event.stopPropagation();
+        setPanel("link");
+        return true;
+      }
+      return false;
+    },
+    transformPastedHTML: (html) => {
+      // With `onExternalImage`, a pasted `data:` image is kept, as a file to upload.
+      for (const url of pastedFilesRef.current.keys()) URL.revokeObjectURL(url);
+      pastedFilesRef.current.clear();
+      const { onExternalImage: importing, onImageUpload: uploading } =
+        callbacks.current;
+      return sanitizePastedHTML(
+        notionPastedHTML(
+          importing && uploading
+            ? dataImagesToBlobs(html, pastedFilesRef.current)
+            : html,
+        ),
+      );
+    },
+    // With `onExternalImage`, another site's images (and pasted `data:` ones) never enter the
+    // document as they are: they leave the slice and import once the paste or drop has landed.
+    transformPasted: (slice, view) => {
+      if (!callbacks.current.onExternalImage || view.dragging) return slice;
+      const taken = takeExternalImages(slice, pastedFilesRef.current);
+      if (!taken.images.length) return slice;
+      externalRef.current = taken.images;
+      queueMicrotask(placeExternalImages);
+      return taken.slice;
+    },
+    // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
+    // link extension, which turns it into a link over the selection. Pasted files (a
+    // screenshot) upload, when the host takes uploads.
+    // Markdown in the plain-text flavour is parsed even beside HTML that only wraps it (a code
+    // editor's copy); real rich HTML still pastes rich. One fenced block becomes a code block.
+    // Inside a code block everything stays literal; Mod-Shift-V pastes as plain text.
+    handlePaste: (view, event) => {
+      const ed = editorRef.current;
+      // Images taken out of the slice import only when the slice itself is pasted (`passOn`).
+      const external = externalRef.current;
+      externalRef.current = null;
+      const passOn = () => {
+        externalRef.current = external;
+        return false;
+      };
+      const files = Array.from(event.clipboardData?.files ?? []);
+      const text = event.clipboardData?.getData("text/plain");
+      const plain = plainPasteRef.current;
+      plainPasteRef.current = false;
+      const supported = files.some((file) =>
+        inlineImageTypesRef.current.includes(
+          file.type.split(";")[0]!.trim().toLowerCase(),
+        )
+          ? Boolean(callbacks.current.onImageUpload)
+          : Boolean(callbacks.current.onFileUpload),
+      );
+      if (ed && files.length > 0 && !text && !supported) {
+        // Keep the selection, but say why nothing happened.
+        toast.add({
+          title:
+            files.length === 1
+              ? "This file can't be pasted here"
+              : "These files can't be pasted here",
+        });
+        return true;
+      }
+      if (ed && !ed.isDestroyed && supported && !text) {
+        const { from, to } = view.state.selection;
+        if (from !== to) view.dispatch(view.state.tr.deleteSelection());
+        if (uploadFiles(files, view.state.selection.from)) return true;
+      }
+      if (!ed || !text || ed.isActive("codeBlock")) return passOn();
+      // A lone YouTube or Loom link pasted into an empty paragraph becomes an embed.
+      const embed = plain ? null : embedForPaste(ed, text);
+      if (embed) {
+        pasteEmbed(ed, embed);
+        return true;
+      }
+      const insertLiteral = () => {
+        ed.commands.insertContent(
+          text.split(/\r?\n/).map((line) => ({
+            type: "paragraph",
+            content: line ? [{ type: "text", text: line }] : [],
+          })),
+        );
+        return true;
+      };
+      const insertCode = (code: string, language: string | null = null) => {
+        ed.commands.insertContent({
+          type: "codeBlock",
+          attrs: { language },
+          content: code ? [{ type: "text", text: code }] : [],
+        });
+        return true;
+      };
+      if (plain) return insertLiteral();
+      const html = event.clipboardData?.getData("text/html");
+      const wrapper = html ? codeWrapperKind(html) : null;
+      if (html && !wrapper) return passOn();
+      const fence = singleFence(text);
+      if (fence) return insertCode(fence.code, fence.language);
+      // Notion's Markdown (its callouts) read as the editor's.
+      const markdownText = notionMarkdown(text);
+      if (wrapper) {
+        // Copied from a code editor: markdown only on strong signals and when it isn't code.
+        if (!strongMarkdown(text) || looksLikeCode(text)) {
+          return wrapper === "code" && /\n./.test(text.trim())
+            ? insertCode(text.replace(/\r\n/g, "\n").replace(/\n+$/, ""))
+            : insertLiteral();
+        }
+      } else if (!looksLikeMarkdown(markdownText)) return false;
+      ed.commands.insertContent(markdownText, { contentType: "markdown" });
+      return true;
+    },
+    handleDrop: (view, event, _slice, moved) => {
+      const files = Array.from(event.dataTransfer?.files ?? []);
+      if (moved || files.length === 0) return false;
+      const pos =
+        view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
+        view.state.selection.from;
+      if (!uploadFiles(files, pos)) return false;
+      event.preventDefault();
+      externalRef.current = null;
+      return true;
+    },
+  };
+  const livePropsRef = React.useRef(liveProps);
+  livePropsRef.current = liveProps;
+  const [stableHandlers] = React.useState<EditorProps>(() => ({
+    handleDOMEvents: {
+      dblclick: (view, event) =>
+        livePropsRef.current.handleDOMEvents?.dblclick?.call(
+          view,
+          view,
+          event,
+        ) ?? false,
+    },
+    handleKeyDown: (view, event) =>
+      livePropsRef.current.handleKeyDown?.call(view, view, event) ?? false,
+    transformPastedHTML: (html, view) =>
+      livePropsRef.current.transformPastedHTML?.call(view, html, view) ?? html,
+    transformPasted: (slice, view, plain) =>
+      livePropsRef.current.transformPasted?.call(view, slice, view, plain) ??
+      slice,
+    handlePaste: (view, event, slice) =>
+      livePropsRef.current.handlePaste?.call(view, view, event, slice) ?? false,
+    handleDrop: (view, event, slice, moved) =>
+      livePropsRef.current.handleDrop?.call(view, view, event, slice, moved) ??
+      false,
+  }));
+  // The root's attributes change with the menus (`aria-activedescendant`) and the props: read
+  // through a ref by a stable function, so they never re-prop the editor either.
+  const attributesRef = React.useRef(editorAttributes);
+  attributesRef.current = editorAttributes;
+  const [editorProps] = React.useState<EditorProps>(() => ({
+    attributes: () => attributesRef.current,
+    ...stableHandlers,
+  }));
+
   const editor = useEditor({
     extensions,
     // A shared document's content is its Yjs document's: never seeded from here (a client-seeded
@@ -9347,208 +9728,7 @@ export function TextEditEditor({
           }),
     editable,
     immediatelyRender: false,
-    editorProps: {
-      attributes: editorAttributes,
-      handleDOMEvents: {
-        // A double-click on a file chip opens the file in the viewer.
-        dblclick: (_view, event) => {
-          const chip = (event.target as Element).closest?.<HTMLAnchorElement>(
-            "a[data-slot=file-chip]",
-          );
-          const open = openFileRef.current;
-          if (!chip || !open) return false;
-          event.preventDefault();
-          open(chip.getAttribute("href") ?? "", chip.textContent ?? "");
-          return true;
-        },
-      },
-      handleKeyDown: (view, event) => {
-        // The slash and mention menus own Enter, arrows and Escape while open.
-        if (SLASH_KEY.getState(view.state)?.active) return false;
-        if (MENTION_KEY.getState(view.state)?.active) return false;
-        const mod = event.metaKey || event.ctrlKey;
-        // In a block view's source, ⌘Enter and Escape go back to its preview.
-        if (
-          ((event.key === "Enter" && mod) || event.key === "Escape") &&
-          blockViewKey(view, editorRef.current)
-        ) {
-          event.preventDefault();
-          return true;
-        }
-        if (event.key === "Enter" && mod) {
-          event.preventDefault();
-          const ed = editorRef.current;
-          if (!ed) return true;
-          if (callbacks.current.onSubmit) {
-            const next = serialize(ed);
-            // Submitted is handled: a later blur must not commit the same text.
-            if (baselineRef.current !== null) baselineRef.current = next;
-            callbacks.current.onSubmit(next);
-          } else ed.commands.blur();
-          return true;
-        }
-        if (event.key === "Escape") {
-          event.preventDefault();
-          if (escapeRef.current === "blur") {
-            // Keep what is typed: a document that saves as you type must never lose saved text.
-            commit();
-            editorRef.current?.commands.blur();
-          } else revert();
-          return true;
-        }
-        if (mod && event.shiftKey && event.key.toLowerCase() === "v") {
-          // Paste as plain text: the paste that follows inserts the text literally.
-          plainPasteRef.current = true;
-          setTimeout(() => (plainPasteRef.current = false), 1000);
-          return false;
-        }
-        // ⌘A in a code block (a diagram's source too) selects its code first; a second ⌘A, the page.
-        if (mod && !event.shiftKey && event.key.toLowerCase() === "a") {
-          const { $from, $to, from, to } = view.state.selection;
-          if (
-            $from.parent.type.name === "codeBlock" &&
-            $from.sameParent($to) &&
-            (from !== $from.start() || to !== $from.end())
-          ) {
-            event.preventDefault();
-            view.dispatch(
-              view.state.tr.setSelection(
-                TextSelection.create(
-                  view.state.doc,
-                  $from.start(),
-                  $from.end(),
-                ),
-              ),
-            );
-            return true;
-          }
-        }
-        if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
-          event.preventDefault();
-          // The editor's ⌘K is the link panel; an app's own ⌘K palette must not open too.
-          event.stopPropagation();
-          setPanel("link");
-          return true;
-        }
-        return false;
-      },
-      transformPastedHTML: (html) => {
-        // With `onExternalImage`, a pasted `data:` image is kept, as a file to upload.
-        for (const url of pastedFilesRef.current.keys())
-          URL.revokeObjectURL(url);
-        pastedFilesRef.current.clear();
-        const { onExternalImage: importing, onImageUpload: uploading } =
-          callbacks.current;
-        return sanitizePastedHTML(
-          importing && uploading
-            ? dataImagesToBlobs(html, pastedFilesRef.current)
-            : html,
-        );
-      },
-      // With `onExternalImage`, another site's images (and pasted `data:` ones) never enter the
-      // document as they are: they leave the slice and import once the paste or drop has landed.
-      transformPasted: (slice, view) => {
-        if (!callbacks.current.onExternalImage || view.dragging) return slice;
-        const taken = takeExternalImages(slice, pastedFilesRef.current);
-        if (!taken.images.length) return slice;
-        externalRef.current = taken.images;
-        queueMicrotask(placeExternalImages);
-        return taken.slice;
-      },
-      // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
-      // link extension, which turns it into a link over the selection. Pasted files (a
-      // screenshot) upload, when the host takes uploads.
-      // Markdown in the plain-text flavour is parsed even beside HTML that only wraps it (a code
-      // editor's copy); real rich HTML still pastes rich. One fenced block becomes a code block.
-      // Inside a code block everything stays literal; Mod-Shift-V pastes as plain text.
-      handlePaste: (view, event) => {
-        const ed = editorRef.current;
-        // Images taken out of the slice import only when the slice itself is pasted (`passOn`).
-        const external = externalRef.current;
-        externalRef.current = null;
-        const passOn = () => {
-          externalRef.current = external;
-          return false;
-        };
-        const files = Array.from(event.clipboardData?.files ?? []);
-        const text = event.clipboardData?.getData("text/plain");
-        const plain = plainPasteRef.current;
-        plainPasteRef.current = false;
-        const supported = files.some((file) =>
-          inlineImageTypesRef.current.includes(
-            file.type.split(";")[0]!.trim().toLowerCase(),
-          )
-            ? Boolean(callbacks.current.onImageUpload)
-            : Boolean(callbacks.current.onFileUpload),
-        );
-        if (ed && files.length > 0 && !text && !supported) {
-          // Keep the selection, but say why nothing happened.
-          toast.add({
-            title:
-              files.length === 1
-                ? "This file can't be pasted here"
-                : "These files can't be pasted here",
-          });
-          return true;
-        }
-        if (ed && !ed.isDestroyed && supported && !text) {
-          const { from, to } = view.state.selection;
-          if (from !== to) view.dispatch(view.state.tr.deleteSelection());
-          if (uploadFiles(files, view.state.selection.from)) return true;
-        }
-        if (!ed || !text || ed.isActive("codeBlock")) return passOn();
-        // A lone YouTube or Loom link pasted into an empty paragraph becomes an embed.
-        const embed = plain ? null : embedForPaste(ed, text);
-        if (embed) {
-          pasteEmbed(ed, embed);
-          return true;
-        }
-        const insertLiteral = () => {
-          ed.commands.insertContent(
-            text.split(/\r?\n/).map((line) => ({
-              type: "paragraph",
-              content: line ? [{ type: "text", text: line }] : [],
-            })),
-          );
-          return true;
-        };
-        const insertCode = (code: string, language: string | null = null) => {
-          ed.commands.insertContent({
-            type: "codeBlock",
-            attrs: { language },
-            content: code ? [{ type: "text", text: code }] : [],
-          });
-          return true;
-        };
-        if (plain) return insertLiteral();
-        const html = event.clipboardData?.getData("text/html");
-        const wrapper = html ? codeWrapperKind(html) : null;
-        if (html && !wrapper) return passOn();
-        const fence = singleFence(text);
-        if (fence) return insertCode(fence.code, fence.language);
-        if (wrapper) {
-          // Copied from a code editor: markdown only on strong signals and when it isn't code.
-          if (!strongMarkdown(text) || looksLikeCode(text)) {
-            return wrapper === "code" && /\n./.test(text.trim())
-              ? insertCode(text.replace(/\r\n/g, "\n").replace(/\n+$/, ""))
-              : insertLiteral();
-          }
-        } else if (!looksLikeMarkdown(text)) return false;
-        ed.commands.insertContent(text, { contentType: "markdown" });
-        return true;
-      },
-      handleDrop: (view, event, _slice, moved) => {
-        const files = Array.from(event.dataTransfer?.files ?? []);
-        if (moved || files.length === 0) return false;
-        const pos =
-          view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
-          view.state.selection.from;
-        if (!uploadFiles(files, pos)) return false;
-        event.preventDefault();
-        externalRef.current = null;
-        return true;
-      },
-    },
+    editorProps,
     onUpdate: ({ editor: ed }) => {
       // A shared document is never serialized per keystroke (E3): its Markdown is derived on save.
       if (quiet) return;
@@ -9556,6 +9736,19 @@ export function TextEditEditor({
       callbacks.current.onValueChange?.(serialize(ed));
     },
   });
+
+  // New root attributes reach the view after React's commit (a microtask), as one view update —
+  // never from an effect, where a redraw that makes a React node view would \`flushSync\` mid-commit.
+  React.useEffect(() => {
+    if (!editor) return;
+    let live = true;
+    queueMicrotask(() => {
+      if (live && !editor.isDestroyed) editor.view.setProps({});
+    });
+    return () => {
+      live = false;
+    };
+  }, [editor, editorAttributes]);
 
   // A diff view follows its document: another pair of versions replaces it (never an edit).
   const diffDoc = diff?.doc;
@@ -9603,16 +9796,6 @@ export function TextEditEditor({
   React.useLayoutEffect(() => {
     if (editor) onReady(editor);
   }, [editor, onReady]);
-
-  React.useEffect(() => {
-    if (!editor) return;
-    editor.setOptions({
-      editorProps: {
-        ...editor.options.editorProps,
-        attributes: editorAttributes,
-      },
-    });
-  }, [editor, editorAttributes]);
 
   React.useEffect(() => {
     if (editor && editor.isEditable !== editable) editor.setEditable(editable);

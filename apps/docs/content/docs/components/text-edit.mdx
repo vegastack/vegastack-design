@@ -175,7 +175,7 @@ There is no toolbar. Type <kbd>/</kbd> for a filterable block menu under the hea
 (text, headings 1–4), Lists (bulleted, numbered, checklist), Blocks (quote, callout, toggle,
 divider, code block, diagram, table), Media (image, video, audio, file) and Insert (a link, then the
 host's own items); a filtered list drops the headings. `slashCommands` limits it.
-Select text for a bubble menu with Turn into, bold, italic, strikethrough, inline code, link and
+Pasting from Notion keeps its to-dos as a checklist and its callouts as callouts (its HTML, and its Markdown's `<aside>`). Select text for a bubble menu with Turn into, bold, italic, strikethrough, inline code, link and
 clear formatting. Every menu floats in a portal on `<body>` and flips to stay in view, so no
 overflow container clips it. The editor has no view mode: leaving it calls `onCommit` when the text
 changed, <kbd>Esc</kbd> reverts (`onRevert`), and `autosave` commits after an idle gap. Every
@@ -615,7 +615,7 @@ page until it is 0.
 
 An image works like Notion's. Hover it (or tap it on touch) for a small blurred toolbar at its
 top-right: **Replace** (the image panel, whose upload or link takes its place — another site's link
-imports through `onExternalImage`), **Alt text** (edited in place), **Open** (the `FileViewer`,
+imports through `onExternalImage`), **Caption** (Markdown's image title, `![alt](src "caption")`, shown under the image — `MarkdownView` renders it as a `figure` with a `figcaption`), **Alt text** (edited in place), **Open** (the `FileViewer`,
 paging through every image in the document; a double-click does the same), **Download** (from
 `imageDownloadHref(src)` when given, a link that saves the file, else the image itself) and **Copy
 link**. Delete is the block menu's, or <kbd>Backspace</kbd> on the selected image

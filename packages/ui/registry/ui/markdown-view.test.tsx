@@ -1437,3 +1437,18 @@ test("lines that do not make a live task list stay text and a list; TextEdit's H
     expect.objectContaining({ blockId: "lb_9f2c" }),
   );
 });
+
+test("an image with a title on its own line is a figure with the title as its caption", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {'Before\n\n![Chart](/chart.png "Q3 sales")\n\n![Plain](/plain.png)'}
+    </MarkdownView>,
+  );
+  const figure = screen.container.querySelector(
+    '[data-slot="markdown-figure"]',
+  );
+  expect(figure?.tagName).toBe("FIGURE");
+  expect(figure?.querySelector("img")?.getAttribute("title")).toBeNull();
+  expect(figure?.querySelector("figcaption")?.textContent).toBe("Q3 sales");
+  expect(screen.container.querySelectorAll("figure")).toHaveLength(1);
+});

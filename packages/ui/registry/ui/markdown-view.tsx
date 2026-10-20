@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.50 sha256-4XogKKzF2MLfcONPktrrPP4hI/6l2shZUGCzFoS6qcc=
+// @vegastack markdown-view@0.25.50 sha256-9/K+bjxU81idtKhYDZP6Ny6SSqN/6oIgJ5AgLkrqtCA=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -88,6 +88,12 @@ interface El {
   children: DocNode[];
 }
 type DocNode = string | El;
+
+/** An element's attributes without its title (a caption shown as a figure's, not as a tooltip). */
+function withoutTitle(attrs: Record<string, string>): Record<string, string> {
+  const { title: _title, ...rest } = attrs;
+  return rest;
+}
 
 const el = (
   tag: string,
@@ -1523,6 +1529,30 @@ function renderNode(
         />
       ) : null,
     );
+  }
+
+  // An image with a title (`![alt](src "caption")`) on a line of its own is a figure: the title is
+  // its caption, under it at its start, as TextEdit shows it (not a tooltip).
+  if (tag === "p") {
+    const only = node.children.filter(
+      (child) => typeof child !== "string" || child.trim(),
+    );
+    const image = only.length === 1 ? only[0] : null;
+    if (image && typeof image !== "string" && image.tag === "img") {
+      const title = image.attrs.title?.trim();
+      if (title)
+        return (
+          <figure key={key} data-slot="markdown-figure" className="my-2">
+            {renderNode({ ...image, attrs: withoutTitle(image.attrs) }, 0, ctx)}
+            <figcaption
+              data-slot="markdown-figure-caption"
+              className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
+            >
+              {title}
+            </figcaption>
+          </figure>
+        );
+    }
   }
 
   switch (tag) {
