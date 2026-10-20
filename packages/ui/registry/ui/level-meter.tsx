@@ -1,4 +1,4 @@
-// @vegastack level-meter@0.25.46 sha256-zaAt92K8iRJvMuUxzaXHkHKOSbB7Ii5IIFtAeSt4CpA=
+// @vegastack level-meter@0.25.47 sha256-YQr+ZvI9yuk3pHiSrF8NrHdCXuo8KsuzRR0iLt4ytnA=
 
 "use client";
 

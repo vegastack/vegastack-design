@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.46 sha256-F2YE67SscSXMKwENg0KvpOCBnzugHpXdfO97akrtkoo=
+// @vegastack document-layout@0.25.47 sha256-GJI1QiVJUxGQOkPRMuSOLGoGU6yjQuMmD/kI6/5k0Ds=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
