@@ -4918,11 +4918,13 @@ test("paste as Markdown: an <aside> inside a code fence stays code", async () =>
   const box = screen.getByRole("textbox", { name: "Notes" });
   await box.click();
   pasteData(box.element(), {
-    "text/plain": "Example:\n\n```html\n<aside>\nhi\n</aside>\n```",
+    "text/plain":
+      "Example:\n\n```md\n```html\n<aside>\nhi\n</aside>\n```\n\n<aside>First</aside>\n<aside>Second</aside>",
   });
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(
-      "Example:\n\n```html\n<aside>\nhi\n</aside>\n```",
+      // The serializer fences code that holds a ``` run with four backticks.
+      "Example:\n\n````md\n```html\n<aside>\nhi\n</aside>\n````\n\n> [!NOTE]\n> First\n\n> [!NOTE]\n> Second",
     ),
   );
 });
