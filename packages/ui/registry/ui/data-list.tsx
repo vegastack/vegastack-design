@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.56 sha256-WKUAh1z+PPwcPEpfVUB26slsYmTSX2TEdPKJiM9LJRk=
+// @vegastack data-list@0.25.56 sha256-Rcn5Hb3Oi6LAHEmcsrmum6pZiy4zSBfVSjluQb2Ixgk=
 
 "use client";
 
@@ -1018,10 +1018,13 @@ const EMPTY_GROUP_STATE: GroupState = {};
 /**
  * A reorder seam on a list row (`onReorderRow`): `data-drop-edge` paints a 2px line in the
  * drop-indicator blue (`drag-item`'s `bg-info`) along the row's top or bottom edge, as a
- * `::before` on every cell — a table row can't position one of its own.
+ * `::before` on every cell — a table row can't position one of its own — above the next row's
+ * cells. The line is the row's only cue: no hover, cursor or selection wash while it shows, so a
+ * place between rows never reads as the "into this row" wash (the doubled attribute outranks
+ * those washes' selectors without `!important`).
  */
 const DROP_EDGE_ROW_CLASS =
-  "[&[data-drop-edge]>td]:relative [&[data-drop-edge=top]>td]:before:absolute [&[data-drop-edge=top]>td]:before:inset-x-0 [&[data-drop-edge=top]>td]:before:-top-px [&[data-drop-edge=top]>td]:before:h-0.5 [&[data-drop-edge=top]>td]:before:bg-info [&[data-drop-edge=top]>td]:before:content-[''] [&[data-drop-edge=bottom]>td]:before:absolute [&[data-drop-edge=bottom]>td]:before:inset-x-0 [&[data-drop-edge=bottom]>td]:before:-bottom-px [&[data-drop-edge=bottom]>td]:before:h-0.5 [&[data-drop-edge=bottom]>td]:before:bg-info [&[data-drop-edge=bottom]>td]:before:content-['']";
+  "[&[data-drop-edge][data-drop-edge]]:bg-transparent [&[data-drop-edge][data-drop-edge]>:first-child]:bg-none [&[data-drop-edge]>td]:before:z-10 [&[data-drop-edge]>td]:relative [&[data-drop-edge=top]>td]:before:absolute [&[data-drop-edge=top]>td]:before:inset-x-0 [&[data-drop-edge=top]>td]:before:-top-px [&[data-drop-edge=top]>td]:before:h-0.5 [&[data-drop-edge=top]>td]:before:bg-info [&[data-drop-edge=top]>td]:before:content-[''] [&[data-drop-edge=bottom]>td]:before:absolute [&[data-drop-edge=bottom]>td]:before:inset-x-0 [&[data-drop-edge=bottom]>td]:before:-bottom-px [&[data-drop-edge=bottom]>td]:before:h-0.5 [&[data-drop-edge=bottom]>td]:before:bg-info [&[data-drop-edge=bottom]>td]:before:content-['']";
 
 /**
  * A row with keyboard focus inside it. `accent`/50 on a small link measured barely above 1:1, so

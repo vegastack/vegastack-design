@@ -1586,7 +1586,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.56",
-        "integrity": "sha256-WKUAh1z+PPwcPEpfVUB26slsYmTSX2TEdPKJiM9LJRk="
+        "integrity": "sha256-Rcn5Hb3Oi6LAHEmcsrmum6pZiy4zSBfVSjluQb2Ixgk="
       }
     },
     {
