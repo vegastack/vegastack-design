@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-60dD8rDDLzIQgE7yMOj1ou9g+VCDEsqF4jV53Vrf3k8=
+// @vegastack comments@0.25.46 sha256-vzyqFyMw5YlzPv5bPTVujIC4fg6mlwMAdOhdayKM6rg=
 
 "use client";
 
@@ -905,7 +905,12 @@ function CommentBox({
                 event.currentTarget.value = "";
                 if (!picked.length) return;
                 if (onAttachFiles) onAttachFiles(picked);
-                else handle.current?.uploadFiles(picked);
+                else {
+                  // Pending from the pick on, even while the editor is still loading and holds
+                  // them in a queue; the editor's own count takes over once it starts them.
+                  onPendingUploadsChange?.(picked.length);
+                  handle.current?.uploadFiles(picked);
+                }
               }}
             />
           </>
