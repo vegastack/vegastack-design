@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.25.47 sha256-J1CHkOF+u5UWy2TP5sDSjv6Ose5BbQkoyd55MwuZGLg=
+// @vegastack use-drag-reorder@0.25.47 sha256-MJ5EjT/bkP0BrqAVpvdiVDCvDNTrxhDe4rMkDOmlpaM=
 
 "use client";
 
@@ -1352,10 +1352,11 @@ export interface UseDragIntoOptions {
    */
   getDragPreviewLabel?: (ids: string[]) => string | undefined;
   /**
-   * Desktop files dropped on a target. With it every drop target also takes files dragged in from
-   * the desktop — the same zone, `data-drop-over` wash and hover-expand as an item drag — and
-   * folders keep their structure in each entry's `relativePath`. The innermost target takes the
-   * drop: an outer `useFileDrop` surface ignores it.
+   * Desktop files dropped on a target. With it a target takes files dragged in from the desktop
+   * in its `files` zone (its item `drop` zone unless set; never a reorder edge's) — the same
+   * `data-drop-over` wash and hover-expand as an item drag — and folders keep their structure in
+   * each entry's `relativePath`. The innermost target takes the drop: an outer `useFileDrop`
+   * surface ignores it.
    * @default undefined
    */
   onDropFiles?: (drop: DragIntoFileDrop) => void;
@@ -1395,6 +1396,8 @@ export interface UseDragIntoReturn {
       drag?: boolean;
       drop?: "middle" | "whole" | false;
       reorder?: boolean;
+      /** Where desktop files drop (`onDropFiles`), when not where items do. @default drop */
+      files?: "middle" | "whole" | false;
     },
   ) => {
     ref: (element: HTMLElement | null) => void;
@@ -1510,6 +1513,7 @@ export function useDragInto({
       drag: boolean,
       dropOption: "middle" | "whole" | false,
       reorder: boolean,
+      files: "middle" | "whole" | false,
     ) => {
       // Beside-edges take the outer quarters: a target that also takes drops inside keeps only its
       // middle half for them.
@@ -1559,7 +1563,7 @@ export function useDragInto({
             },
           }),
         );
-      if (drop || reorder) {
+      if (drop || reorder || files) {
         /**
          * Where the pointer is: inside the zone or on a beside-edge (`reorder`), and whether the
          * move is allowed there. A refused reorder edge reads as no zone at all.
@@ -1628,46 +1632,47 @@ export function useDragInto({
             }
           } else if (hoverTimer.current?.key === key) clearHover();
         };
-        parts.push(
-          dropTargetForElements({
-            element,
-            canDrop: ({ source }) =>
-              !latest.current.disabled &&
-              source.data.instance === tokenRef.current,
-            onDragEnter: ({ source, location }) => {
-              const { inside, valid, edge } = read(
-                source,
-                location.current.input,
-              );
-              track(inside, valid, edge);
-            },
-            onDrag: ({ source, location }) => {
-              const { inside, valid, edge } = read(
-                source,
-                location.current.input,
-              );
-              track(inside, valid, edge);
-            },
-            onDragLeave: () => {
-              setOver((prev) => (prev?.key === key ? null : prev));
-              if (hoverTimer.current?.key === key) clearHover();
-            },
-            onDrop: ({ source, location }) => {
-              const { inside, valid, move, edge } = read(
-                source,
-                location.current.input,
-              );
-              setOver(null);
-              clearHover();
-              if (edge) latest.current.onReorder?.({ ...move, edge });
-              else if (inside && valid) latest.current.onDrop(move);
-            },
-          }),
-        );
-        // Desktop files: the zone the target asked for (`dropOption`, its whole box for "whole"
-        // even beside reorder edges, which only items use), taken by the innermost target only.
-        // A reorder-only target takes no files.
-        if (drop) {
+        if (drop || reorder)
+          parts.push(
+            dropTargetForElements({
+              element,
+              canDrop: ({ source }) =>
+                !latest.current.disabled &&
+                source.data.instance === tokenRef.current,
+              onDragEnter: ({ source, location }) => {
+                const { inside, valid, edge } = read(
+                  source,
+                  location.current.input,
+                );
+                track(inside, valid, edge);
+              },
+              onDrag: ({ source, location }) => {
+                const { inside, valid, edge } = read(
+                  source,
+                  location.current.input,
+                );
+                track(inside, valid, edge);
+              },
+              onDragLeave: () => {
+                setOver((prev) => (prev?.key === key ? null : prev));
+                if (hoverTimer.current?.key === key) clearHover();
+              },
+              onDrop: ({ source, location }) => {
+                const { inside, valid, move, edge } = read(
+                  source,
+                  location.current.input,
+                );
+                setOver(null);
+                clearHover();
+                if (edge) latest.current.onReorder?.({ ...move, edge });
+                else if (inside && valid) latest.current.onDrop(move);
+              },
+            }),
+          );
+        // Desktop files: their own zone (`files`, the item zone by default; its whole box for
+        // "whole" even beside reorder edges, which only items use), taken by the innermost
+        // target only.
+        if (files) {
           let claimed = false;
           const readFiles = (location: {
             current: {
@@ -1679,7 +1684,7 @@ export function useDragInto({
             const y = location.current.input.clientY - rect.top;
             return (
               location.current.dropTargets[0]?.element === element &&
-              (dropOption === "whole" ||
+              (files === "whole" ||
                 (y >= rect.height * 0.25 && y <= rect.height * 0.75))
             );
           };
@@ -1741,13 +1746,15 @@ export function useDragInto({
         drag = false,
         drop = false,
         reorder = false,
+        files = drop,
       }: {
         drag?: boolean;
         drop?: "middle" | "whole" | false;
         reorder?: boolean;
+        files?: "middle" | "whole" | false;
       },
     ) => {
-      const cacheKey = `${drag ? "d" : "-"}${drop || "-"}${reorder ? "r" : "-"}:${key}`;
+      const cacheKey = `${drag ? "d" : "-"}${drop || "-"}${reorder ? "r" : "-"}${files || "-"}:${key}`;
       let ref = refCache.current.get(cacheKey);
       if (!ref) {
         ref = (element: HTMLElement | null) => {
@@ -1759,7 +1766,7 @@ export function useDragInto({
           }
           cleanups.current.set(
             cacheKey,
-            attach(element, key, drag, drop, reorder),
+            attach(element, key, drag, drop, reorder, files),
           );
         };
         refCache.current.set(cacheKey, ref);

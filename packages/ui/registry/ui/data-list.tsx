@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.47 sha256-KLxynU0GBqGoCBEj1c2XhTRZmwnmBMM8Ec9KzgURtRw=
+// @vegastack data-list@0.25.47 sha256-hUZ6u1ueuc2eQTTHSOKOcvjbNHsrAfRZ5Sw8qHGEiIw=
 
 "use client";
 
@@ -2281,8 +2281,10 @@ export function DataList<T>({
     return {
       ...into.getItemProps(id, {
         drag: (draggable || reorderable) && movable,
-        drop: canDropOnRow?.(row) ? "whole" : false,
+        // Rows go into a target only with `onDropInto`; desktop files only with `onDropFilesOnRow`.
+        drop: draggable && canDropOnRow?.(row) ? "whole" : false,
         reorder: reorderable,
+        files: fileDrops && canDropOnRow?.(row) ? "whole" : false,
       }),
       "data-move-locked":
         (draggable || reorderable) && !movable ? ("" as const) : undefined,

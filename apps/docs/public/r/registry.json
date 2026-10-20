@@ -1586,7 +1586,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.47",
-        "integrity": "sha256-KLxynU0GBqGoCBEj1c2XhTRZmwnmBMM8Ec9KzgURtRw="
+        "integrity": "sha256-hUZ6u1ueuc2eQTTHSOKOcvjbNHsrAfRZ5Sw8qHGEiIw="
       }
     },
     {
@@ -18668,7 +18668,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.25.47",
-        "integrity": "sha256-J1CHkOF+u5UWy2TP5sDSjv6Ose5BbQkoyd55MwuZGLg="
+        "integrity": "sha256-MJ5EjT/bkP0BrqAVpvdiVDCvDNTrxhDe4rMkDOmlpaM="
       }
     },
     {

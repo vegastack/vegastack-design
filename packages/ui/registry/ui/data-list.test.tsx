@@ -2662,6 +2662,29 @@ test("onDropFilesOnRow: desktop files dropped on a folder row go to that row, no
   expect(onRow).toHaveBeenCalledTimes(1);
 });
 
+test("onReorderRow without onDropInto: a folder that only takes uploads splits in halves for rows", async () => {
+  const onReorderRow = vi.fn();
+  await render(
+    <Files
+      onReorderRow={onReorderRow}
+      canDropOnRow={(r) => r.kind === "folder"}
+      onDropFilesOnRow={() => {}}
+    />,
+  );
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.4);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "f1",
+    edge: "before",
+  });
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.6);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "f1",
+    edge: "after",
+  });
+});
+
 test("with onReorderRow, desktop files still drop anywhere on a folder row (reorder edges are for rows)", async () => {
   const onRow = vi.fn();
   const onSurface = vi.fn();
