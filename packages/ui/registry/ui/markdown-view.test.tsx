@@ -1487,3 +1487,10 @@ test("an image inside a tight list item's sentence or in bold stays inline", asy
     screen.container.querySelector('img[alt="A"]')?.getAttribute("title"),
   ).toBe("Cap");
 });
+
+test("an image in a tight checklist sentence stays inline", async () => {
+  const screen = await render(
+    <MarkdownView>{'- [ ] Before ![A](/a.png "Cap") after'}</MarkdownView>,
+  );
+  expect(screen.container.querySelectorAll("figure")).toHaveLength(0);
+});

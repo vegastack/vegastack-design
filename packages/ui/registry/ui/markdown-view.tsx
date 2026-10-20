@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.50 sha256-ZmpbGmijyu8Q6jomxzPLEwN90bMfGsFRITZMRyndG9o=
+// @vegastack markdown-view@0.25.50 sha256-+C+dphcxqhFZArJ4UAumY813HPAoBCHykRCPjByrDLc=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1480,6 +1480,31 @@ function render(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
   return nodes.map((node, index) => renderNode(node, index, ctx));
 }
 
+/**
+ * The context an element's children render in. They are "in text" — a titled image stays an image,
+ * never a figure — inside a line of text or inline markup (\`textual\`), and in a block container
+ * whose children are a run of text (a tight list item's sentence) unless that run is one image
+ * standing alone. Once in text, always in text.
+ */
+function contentContext(
+  children: DocNode[],
+  ctx: RenderContext,
+  textual: boolean,
+): RenderContext {
+  if (ctx.inText) return ctx;
+  const significant = children.filter(
+    (child) => typeof child !== "string" || child.trim(),
+  );
+  const soleImage =
+    significant.length === 1 &&
+    typeof significant[0] !== "string" &&
+    significant[0]!.tag === "img";
+  const inlineRun = significant.some(
+    (child) => typeof child === "string" || INLINE_TAGS.has(child.tag),
+  );
+  return textual || (inlineRun && !soleImage) ? { ...ctx, inText: true } : ctx;
+}
+
 function renderNode(
   node: DocNode,
   key: number,
@@ -1487,27 +1512,9 @@ function renderNode(
 ): React.ReactNode {
   if (typeof node === "string") return node;
   const { tag, attrs } = node;
-  // Children are "in text" — no figures — inside a line of text (a paragraph, a heading, a cell),
-  // inside inline markup, and beside other content: only an image standing alone in a block
-  // container (a tight list item, a quote) is a figure there.
-  const significant = node.children.filter(
-    (child) => typeof child !== "string" || child.trim(),
-  );
-  const soleImage =
-    significant.length === 1 &&
-    typeof significant[0] !== "string" &&
-    significant[0]!.tag === "img";
-  // A block container holding a run of text (a tight list item's sentence) is a line of text too.
-  const inlineRun = significant.some(
-    (child) => typeof child === "string" || INLINE_TAGS.has(child.tag),
-  );
-  const textual =
-    TEXT_BLOCKS.has(tag) || INLINE_TAGS.has(tag) || (inlineRun && !soleImage);
+  const textual = TEXT_BLOCKS.has(tag) || INLINE_TAGS.has(tag);
   const children = () =>
-    render(
-      node.children,
-      textual && !ctx.inText ? { ...ctx, inText: true } : ctx,
-    );
+    render(node.children, contentContext(node.children, ctx, textual));
 
   const heading = /^h([1-6])$/.exec(tag);
   if (heading) {
@@ -1933,7 +1940,9 @@ function renderNode(
             disabled
             className="pointer-events-none inline-flex me-1.5 align-middle disabled:opacity-100"
           />
-          <div data-slot="task-item-content">{render(body, ctx)}</div>
+          <div data-slot="task-item-content">
+            {render(body, contentContext(body, ctx, false))}
+          </div>
         </li>
       );
     }
