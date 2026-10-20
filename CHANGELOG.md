@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.58] — October 21, 2026
+
+<!-- assembled from 2 changesets: b29a505dcaa6 -->
+
+### 🔧 Changed components
+
+- **MultiStepForm**: a pinned (`sticky`) actions row keeps a gap above its buttons in its own surface colour, so content scrolling under it stops short of the buttons instead of running into them, and while it is stuck over content a hairline marks its top edge. Resting at the end of the step, the row sits exactly where it did.
+  [`81fc154`](https://github.com/VegaStack/vegastack-design/commit/81fc154)
+- **Comments**: a comment, reply or edit holds still while it sends (read-only, attaching paused), so text typed meanwhile is never lost, and the caret comes back if sending fails. Send and Cmd/Ctrl+Enter wait until files uploading into the text have landed, so a comment never posts without them. Escape keeps an unsent comment or reply; only editing a posted comment reverts. **ShareDialog** shows the Share tab whenever public links are unavailable, instead of an empty dialog. **SortableList** drops a touch drag exactly where the finger lifts. **DataList** grid cards tell their renderers when they are selected, never wrap an `interactive` first column in their link, and the board keeps every row in its one lane when `getRowSection` comes without `sections`. **MermaidBlock** never prints an older diagram's drawing in place of the current one, and a diagram not yet drawn prints its source instead of a placeholder. **BlockView** prints the source when Code is chosen without a split preview, and the expanded view fits its canvas inside the screen in right-to-left layouts. **InlineChip** passes keys to `onKeyDown` on linked chips too.
+  [`53e2f3e`](https://github.com/VegaStack/vegastack-design/commit/53e2f3e)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.57 → 0.25.58.
+
 ## [0.25.57] — October 20, 2026
 
 <!-- assembled from 1 changeset: a94cf8904d39 -->
