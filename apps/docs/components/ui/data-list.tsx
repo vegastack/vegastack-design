@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.47 sha256-D3zGFG2lbbYdj0120uPGEznN5e0xM7iP+Z1D8c0I+u0=
+// @vegastack data-list@0.25.47 sha256-KLxynU0GBqGoCBEj1c2XhTRZmwnmBMM8Ec9KzgURtRw=
 
 "use client";
 
@@ -67,6 +67,7 @@ import {
 import {
   useDragInto,
   type DragIntoFileEntry,
+  type DragIntoReorder,
   type DragReorderMove,
 } from "@/components/ui/use-drag-reorder";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -354,6 +355,22 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   canDropOnRow?: (row: T) => boolean;
+  /**
+   * List view: rows drag to a place between other rows — a hand-arranged order. A drop on a row's
+   * top or bottom quarter (half, when the row takes no drop inside) lands the dragged rows before
+   * or after it, and a 2px line in the drop-indicator blue marks the seam while the pointer is
+   * there. A row's middle stays an `onDropInto` drop when `canDropOnRow` accepts it. Called for an
+   * allowed drop; return a promise for a server-gated move. The keyboard path is the host's own
+   * Move up / Move down. Not offered on the grid or board views.
+   * @default undefined
+   */
+  onReorderRow?: (move: DataListReorderMove) => void | Promise<void>;
+  /**
+   * Whether a reorder is allowed (folders stay before files, say). A refused one shows no seam.
+   * A row can never be placed beside itself.
+   * @default undefined
+   */
+  canReorderRow?: (move: DataListReorderMove) => boolean;
   /**
    * Whether one row can move — a view-only record. A row answering `false` is no drag source
    * (rows and grid cards, so the pointer never picks it up), is left out of a dragged selection,
@@ -742,6 +759,12 @@ export interface DataListDropMove {
   targetId: string;
 }
 
+/** A drop of dragged rows beside a row — what `onReorderRow` and `canReorderRow` receive. */
+export interface DataListReorderMove extends DataListDropMove {
+  /** Which side of the target row the rows land on. */
+  edge: "before" | "after";
+}
+
 /** The copy of an empty list's design-system `Empty`. */
 export interface DataListEmpty {
   /**
@@ -989,6 +1012,14 @@ export interface DataListSection {
 }
 
 const EMPTY_GROUP_STATE: GroupState = {};
+
+/**
+ * A reorder seam on a list row (`onReorderRow`): `data-drop-edge` paints a 2px line in the
+ * drop-indicator blue (`drag-item`'s `bg-info`) along the row's top or bottom edge, as a
+ * `::before` on every cell — a table row can't position one of its own.
+ */
+const DROP_EDGE_ROW_CLASS =
+  "[&[data-drop-edge]>td]:relative [&[data-drop-edge=top]>td]:before:absolute [&[data-drop-edge=top]>td]:before:inset-x-0 [&[data-drop-edge=top]>td]:before:-top-px [&[data-drop-edge=top]>td]:before:h-0.5 [&[data-drop-edge=top]>td]:before:bg-info [&[data-drop-edge=top]>td]:before:content-[''] [&[data-drop-edge=bottom]>td]:before:absolute [&[data-drop-edge=bottom]>td]:before:inset-x-0 [&[data-drop-edge=bottom]>td]:before:-bottom-px [&[data-drop-edge=bottom]>td]:before:h-0.5 [&[data-drop-edge=bottom]>td]:before:bg-info [&[data-drop-edge=bottom]>td]:before:content-['']";
 
 /**
  * A row with keyboard focus inside it. `accent`/50 on a small link measured barely above 1:1, so
@@ -1250,6 +1281,8 @@ export function DataList<T>({
   selectionBarLabel = "Selection actions",
   onDropInto,
   canDropInto,
+  onReorderRow,
+  canReorderRow,
   canDropOnRow,
   onDropFilesOnRow,
   onFilesOverRow,
@@ -1728,6 +1761,9 @@ export function DataList<T>({
           // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
           drag &&
             "data-dragging:opacity-50 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10",
+          // Reorder: the seam is a 2px line in the drop-indicator blue across the row's top or
+          // bottom edge, painted by every cell (a table row can't hold a positioned `::before`).
+          drag && reorderable && DROP_EDGE_ROW_CLASS,
           rowClassName,
           // A checked row keeps a persistent half-`muted` wash through hover and press
           // (SP-06), light enough that a `secondary` Badge in it stays visible — see
@@ -2189,6 +2225,13 @@ export function DataList<T>({
 
   // ---- drag rows INTO targets ---------------------------------------------------------------
   const draggable = onDropInto !== undefined;
+  // Reordering is a list's: a grid wraps and a board has its own lanes.
+  const reorderable = onReorderRow !== undefined && activeView === "list";
+  const reorderMove = (move: DragIntoReorder): DataListReorderMove => ({
+    ids: move.ids,
+    targetId: move.targetKey,
+    edge: move.edge === "top" ? "before" : "after",
+  });
   const rowMovable = (row: T) => canMoveItem?.(row) ?? true;
   const labelOfId = (id: string) => {
     const index = rowIds.indexOf(id);
@@ -2196,7 +2239,7 @@ export function DataList<T>({
   };
   const fileDrops = onDropFilesOnRow !== undefined;
   const into = useDragInto({
-    disabled: !draggable && !fileDrops,
+    disabled: !draggable && !fileDrops && !reorderable,
     scope: dragScope,
     // A dragged selection carries only its movable rows (`canMoveItem`).
     getDragIds: (id) =>
@@ -2225,22 +2268,31 @@ export function DataList<T>({
       ? ({ targetKey, entries }) => onDropFilesOnRow?.(targetKey, entries)
       : undefined,
     onFilesOver: onFilesOverRow,
+    onReorder: reorderable
+      ? (move) => void onReorderRow?.(reorderMove(move))
+      : undefined,
+    canReorder: reorderable
+      ? (move) => canReorderRow?.(reorderMove(move)) ?? true
+      : undefined,
   });
   const dragProps = (id: string, row: T) => {
-    if (!draggable && !fileDrops) return undefined;
+    if (!draggable && !fileDrops && !reorderable) return undefined;
     const movable = rowMovable(row);
     return {
       ...into.getItemProps(id, {
-        drag: draggable && movable,
+        drag: (draggable || reorderable) && movable,
         drop: canDropOnRow?.(row) ? "whole" : false,
+        reorder: reorderable,
       }),
-      "data-move-locked": draggable && !movable ? ("" as const) : undefined,
+      "data-move-locked":
+        (draggable || reorderable) && !movable ? ("" as const) : undefined,
     };
   };
   // A row link's own native drag (its URL) would win over the row's.
-  const cardLinkRender = draggable
-    ? React.cloneElement(rowLinkRender ?? <a />, { draggable: false })
-    : rowLinkRender;
+  const cardLinkRender =
+    draggable || reorderable
+      ? React.cloneElement(rowLinkRender ?? <a />, { draggable: false })
+      : rowLinkRender;
 
   const table = (
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
@@ -2725,19 +2777,24 @@ export function DataList<T>({
         containerRef={rootRef}
         aria-label={selectionBarLabel}
         secondaryActions={selectionSecondaryActions}
+        // Clear closes the set: after the secondary actions, never between them and the primary.
+        end={
+          <>
+            <ActionBarSeparator />
+            <ActionBarButton
+              render={<Button variant="ghost" size="icon-sm" />}
+              aria-label={clearSelectionLabel}
+              onClick={clearSelection}
+            >
+              <X />
+            </ActionBarButton>
+          </>
+        }
         {...(selectionMoreLabel !== undefined
           ? { moreLabel: selectionMoreLabel }
           : {})}
       >
         {selectionActions(selected, clearSelection)}
-        <ActionBarSeparator />
-        <ActionBarButton
-          render={<Button variant="ghost" size="icon-sm" />}
-          aria-label={clearSelectionLabel}
-          onClick={clearSelection}
-        >
-          <X />
-        </ActionBarButton>
       </ActionBar>
     ) : null;
 
