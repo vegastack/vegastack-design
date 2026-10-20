@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.55] — October 20, 2026
+
+<!-- assembled from 1 changeset: 7ba093d14299 -->
+
+### 🔧 Changed components
+
+- **DataList**, **SortableList**: a `DataList` list row that takes drops (`canDropOnRow`) takes them in its middle half only — its top and bottom quarters never nest, so a drag aimed between two rows can't land inside one (a grid card still takes a drop anywhere); `SortableList` `columns="cards"` lays a grid on `DataList`'s dense card grid, column for column and 12px apart, and a grid's gap no longer shrinks when a tile holds a small (`xs`/`sm`) control.
+  [`03d02e5`](https://github.com/VegaStack/vegastack-design/commit/03d02e5)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.54 → 0.25.55.
+
 ## [0.25.54] — October 20, 2026
 
 <!-- assembled from 1 changeset: 1b0687dea832 -->
