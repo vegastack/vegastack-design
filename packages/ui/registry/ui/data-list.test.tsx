@@ -2462,8 +2462,8 @@ test("onReorderRow: a row's top or bottom edge places the drag before or after i
     targetId: "d2",
     edge: "before",
   });
-  // A row that takes no drop inside splits in halves.
-  await dragTo(rowOf("d1"), rowOf("d2"), 0.6);
+  // A row that takes no drop inside splits in halves, the midpoint belonging to the bottom.
+  await dragTo(rowOf("d1"), rowOf("d2"), 0.5);
   expect(onReorderRow).toHaveBeenLastCalledWith({
     ids: ["d1"],
     targetId: "d2",
@@ -2604,7 +2604,7 @@ test("gridDensity dense sets the file-browser column ladder, loading skeleton in
 });
 
 /** Drive a desktop file drag (Pragmatic's external adapter) onto the middle of `target`. */
-async function dropFiles(target: HTMLElement, files: File[]) {
+async function dropFiles(target: HTMLElement, files: File[], y = 0.5) {
   const dt = new DataTransfer();
   for (const file of files) dt.items.add(file);
   const t = target.getBoundingClientRect();
@@ -2613,7 +2613,7 @@ async function dropFiles(target: HTMLElement, files: File[]) {
     cancelable: true,
     dataTransfer: dt,
     clientX: t.left + t.width / 2,
-    clientY: t.top + t.height / 2,
+    clientY: t.top + t.height * y,
   };
   for (const type of ["dragenter", "dragover"] as const) {
     target.dispatchEvent(new DragEvent(type, at));
@@ -2660,6 +2660,37 @@ test("onDropFilesOnRow: desktop files dropped on a folder row go to that row, no
   await dropFiles(rowOf("d1"), [report]);
   await expect.poll(() => onSurface.mock.calls.length).toBe(1);
   expect(onRow).toHaveBeenCalledTimes(1);
+});
+
+test("with onReorderRow, desktop files still drop anywhere on a folder row (reorder edges are for rows)", async () => {
+  const onRow = vi.fn();
+  const onSurface = vi.fn();
+  function Surface() {
+    const drop = useFileDrop({ onFilesAccepted: onSurface });
+    return (
+      <div {...drop.dropProps}>
+        <input {...drop.inputProps} />
+        <DataList<FileRow>
+          aria-label="Files"
+          columns={fileColumns}
+          data={files}
+          getRowId={(r) => r.id}
+          getRowLabel={(r) => r.name}
+          canDropOnRow={(r) => r.kind === "folder"}
+          onReorderRow={() => {}}
+          onDropFilesOnRow={onRow}
+        />
+      </div>
+    );
+  }
+  await render(<Surface />);
+  const report = new File(["q3"], "report.txt", { type: "text/plain" });
+  await dropFiles(rowOf("f1"), [report], 0.1);
+  await expect.poll(() => onRow.mock.calls.length).toBe(1);
+  expect(onRow).toHaveBeenCalledWith("f1", [
+    { file: expect.any(File), relativePath: "report.txt" },
+  ]);
+  expect(onSurface).not.toHaveBeenCalled();
 });
 
 test("a clickable grid card holding an interactive column is a labelled group, not a button", async () => {

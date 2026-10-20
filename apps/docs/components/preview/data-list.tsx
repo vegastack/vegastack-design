@@ -1551,9 +1551,8 @@ export function dataListGridSelection(): ReactNode {
 }
 
 /**
- * Drag rows onto a folder row, or onto a breadcrumb in the same `dragScope`; a selected row
- * carries the whole selection. A folder refuses itself, and the crumb of the folder already open
- * refuses everything. "Budget.xlsx" is view-only (`canMoveItem`): it opens but never drags.
+ * A hand-arranged list: drag a row by its top or bottom edge to place it, or use its Move up /
+ * Move down actions (the keyboard and touch path). Folders stay before files.
  */
 export function dataListReorder(): ReactNode {
   const [rows, setRows] = React.useState(() =>
@@ -1562,6 +1561,25 @@ export function dataListReorder(): ReactNode {
   const [log, setLog] = React.useState(
     "Drag a row by its top or bottom edge to place it.",
   );
+  const place = (ids: string[], targetId: string, edge: "before" | "after") => {
+    setRows((current) => {
+      const moving = current.filter((r) => ids.includes(r.id));
+      const rest = current.filter((r) => !ids.includes(r.id));
+      const at = rest.findIndex((r) => r.id === targetId);
+      rest.splice(edge === "before" ? at : at + 1, 0, ...moving);
+      return rest;
+    });
+    setLog(
+      `Placed ${ids.length === 1 ? "1 item" : `${ids.length} items`} ${edge} ${
+        LIBRARY.find((r) => r.id === targetId)?.name ?? targetId
+      }`,
+    );
+  };
+  // Neighbours of the same kind: folders and files each keep their own run.
+  const sibling = (row: LibraryRow, step: -1 | 1) => {
+    const group = rows.filter((r) => r.kind === row.kind);
+    return group[group.findIndex((r) => r.id === row.id) + step];
+  };
   return (
     <Wrapper className="flex flex-col gap-3">
       <DataList<LibraryRow>
@@ -1572,19 +1590,28 @@ export function dataListReorder(): ReactNode {
           const kindOf = (id: string) => rows.find((r) => r.id === id)?.kind;
           return ids.every((id) => kindOf(id) === kindOf(targetId));
         }}
-        onReorderRow={({ ids, targetId, edge }) => {
-          setRows((current) => {
-            const moving = current.filter((r) => ids.includes(r.id));
-            const rest = current.filter((r) => !ids.includes(r.id));
-            const at = rest.findIndex((r) => r.id === targetId);
-            rest.splice(edge === "before" ? at : at + 1, 0, ...moving);
-            return rest;
-          });
-          setLog(
-            `Placed ${ids.length === 1 ? "1 item" : `${ids.length} items`} ${edge} ${
-              LIBRARY.find((r) => r.id === targetId)?.name ?? targetId
-            }`,
-          );
+        onReorderRow={({ ids, targetId, edge }) => place(ids, targetId, edge)}
+        rowActions={(row) => {
+          const up = sibling(row, -1);
+          const down = sibling(row, 1);
+          return [
+            ...(up
+              ? [
+                  {
+                    label: "Move up",
+                    onSelect: () => place([row.id], up.id, "before"),
+                  },
+                ]
+              : []),
+            ...(down
+              ? [
+                  {
+                    label: "Move down",
+                    onSelect: () => place([row.id], down.id, "after"),
+                  },
+                ]
+              : []),
+          ];
         }}
       />
       <p className="text-xs text-muted-foreground" role="status">
@@ -1594,6 +1621,11 @@ export function dataListReorder(): ReactNode {
   );
 }
 
+/**
+ * Drag rows onto a folder row, or onto a breadcrumb in the same `dragScope`; a selected row
+ * carries the whole selection. A folder refuses itself, and the crumb of the folder already open
+ * refuses everything. "Budget.xlsx" is view-only (`canMoveItem`): it opens but never drags.
+ */
 export function dataListDragInto(): ReactNode {
   const [rows, setRows] = React.useState(LIBRARY);
   const [selected, setSelected] = React.useState<Set<string>>(new Set());

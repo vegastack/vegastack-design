@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.25.47 sha256-tRobrjcWM5Zwd12K0aDxp9n2MMHi93GpvOgITQgp2QE=
+// @vegastack use-drag-reorder@0.25.47 sha256-J1CHkOF+u5UWy2TP5sDSjv6Ose5BbQkoyd55MwuZGLg=
 
 "use client";
 
@@ -1574,11 +1574,15 @@ export function useDragInto({
           const move: DragIntoMove = { ids, targetKey: key };
           let edge: "top" | "bottom" | undefined;
           if (reorder && !ids.includes(key)) {
-            const band = drop ? 0.25 : 0.5;
-            const at =
-              y < rect.height * band
+            // No inside zone: the halves meet, the midpoint belonging to the bottom. With one,
+            // the outer quarters.
+            const at = !drop
+              ? y < rect.height / 2
                 ? "top"
-                : y > rect.height * (1 - band)
+                : "bottom"
+              : y < rect.height * 0.25
+                ? "top"
+                : y > rect.height * 0.75
                   ? "bottom"
                   : undefined;
             if (
@@ -1660,8 +1664,9 @@ export function useDragInto({
             },
           }),
         );
-        // Desktop files: the same zone and wash, taken by the innermost target only — never on
-        // a beside-edge (a reorder-only target takes no files).
+        // Desktop files: the zone the target asked for (`dropOption`, its whole box for "whole"
+        // even beside reorder edges, which only items use), taken by the innermost target only.
+        // A reorder-only target takes no files.
         if (drop) {
           let claimed = false;
           const readFiles = (location: {
@@ -1674,7 +1679,7 @@ export function useDragInto({
             const y = location.current.input.clientY - rect.top;
             return (
               location.current.dropTargets[0]?.element === element &&
-              (drop === "whole" ||
+              (dropOption === "whole" ||
                 (y >= rect.height * 0.25 && y <= rect.height * 0.75))
             );
           };
