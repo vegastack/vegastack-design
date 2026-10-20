@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.50
+
+### Patch Changes
+
+- [#678](https://github.com/vegastack/vegastack-design/pull/678) [`87d445b`](https://github.com/vegastack/vegastack-design/commit/87d445b0a9e5c07d3b67b49f23e8ea7cdd19c9da) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **TextEdit** and **MarkdownView**: section marks are a flat partition. A marked `#`–`###` heading's bar now stops at the next `#`–`###` heading of any level, instead of running on through its sub-headings; a `####` and deeper stays a block of its section. `sectionHeading(level)` (exported from `markdown-view`) is the shared rule.
+
 ## 0.25.49
 
 ### Patch Changes
