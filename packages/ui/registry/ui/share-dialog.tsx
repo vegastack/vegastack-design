@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.54 sha256-OO4LBxFCN7XqmTW5OA8g43LEfO9b8OqmrurZ24eCXcg=
+// @vegastack share-dialog@0.25.55 sha256-9bgsi5YE2gRCMYNXKQtWjJYS3WedtZTuT1Ow2xDN/z0=
 
 "use client";
 

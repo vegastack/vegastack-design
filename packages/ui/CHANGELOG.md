@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.55
+
+### Patch Changes
+
+- [#689](https://github.com/vegastack/vegastack-design/pull/689) [`03d02e5`](https://github.com/vegastack/vegastack-design/commit/03d02e5ee8bd4040927fdccc4bf56fac7575424a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DataList**, **SortableList**: a `DataList` list row that takes drops (`canDropOnRow`) takes them in its middle half only — its top and bottom quarters never nest, so a drag aimed between two rows can't land inside one (a grid card still takes a drop anywhere); `SortableList` `columns="cards"` lays a grid on `DataList`'s dense card grid, column for column and 12px apart, and a grid's gap no longer shrinks when a tile holds a small (`xs`/`sm`) control.
+
 ## 0.25.54
 
 ### Patch Changes
