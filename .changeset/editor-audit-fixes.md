@@ -1,0 +1,5 @@
+---
+"@vegastack/ui": patch
+---
+
+🐛 **TextEdit**, **CodeBlock**, **EmojiPicker**: the image panel's Link imports another site's image through `onExternalImage` (it no longer inserts a hotlink the page can't show), and an image that can't load keeps a visible frame; the image toolbar is Replace, Alt text, Open, Download and Copy link (no ⋯ menu; Delete stays in the block menu and on Backspace), and the new `imageDownloadHref` gives Download (toolbar and viewer) a link that saves the file; link and media panels open under the caret instead of over the text above; the caret in a link shows a link card (destination, Edit, Remove); the slash menu shows group headings (Text, Lists, Blocks, Media, Insert) and Divider sits with the blocks; the bubble toolbar puts Comment last; a toggle's chevron no longer looks pressed while open, and the toggle's own ⋯ menu is gone ("Open by default" is in the block menu); ⌘A in a code block selects its code first; code block controls are not printed; Enter in the emoji search picks the first result.

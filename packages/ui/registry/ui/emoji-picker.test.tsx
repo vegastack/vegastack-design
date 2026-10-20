@@ -124,6 +124,24 @@ test("selecting an emoji fires onValueChange with the character and closes", asy
     .toBeNull();
 });
 
+test("Enter in the search picks the first result", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<EmojiPicker onValueChange={onValueChange} />);
+  await screen.getByRole("button", { name: "Pick an emoji" }).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="emoji-picker"]'))
+    .not.toBeNull();
+  await userEvent.type(
+    screen.getByRole("searchbox", { name: "Search emoji" }),
+    "pizza",
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "pizza" }))
+    .toBeInTheDocument();
+  await userEvent.keyboard("{Enter}");
+  expect(onValueChange).toHaveBeenCalledWith("🍕");
+});
+
 test("closeOnSelect=false keeps the panel open after a pick", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
