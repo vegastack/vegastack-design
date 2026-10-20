@@ -253,6 +253,19 @@ test("with room for a margin on both sides the text column sits in the middle; t
   expect(margin.left).toBeGreaterThanOrEqual(body.right);
 });
 
+test("with less room the text moves as near the middle as the margin allows, never squeezing its measure", async () => {
+  await page.viewport(1440, 900);
+  await render(<Page width={1120} />);
+  const body = slot("document-layout-body").getBoundingClientRect();
+  const layout = slot("document-layout").getBoundingClientRect();
+  const margin = slot("document-layout-margin").getBoundingClientRect();
+  expect(body.width).toBeCloseTo(47 * 14 * 0.663, -1);
+  expect(
+    Math.abs(body.left + body.width / 2 - (layout.left + layout.width / 2)),
+  ).toBeLessThanOrEqual(24);
+  expect(margin.right).toBeLessThanOrEqual(layout.right - 40 + 1);
+});
+
 test("Wide grows the text column into the room the window has, up to 60rem", async () => {
   await page.viewport(1440, 900);
   await render(<Page width={1400} measure="wide" />);

@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.51 sha256-VfsfKoxQ+VArcVOmYr+pV/YgcuXxEy9aBiYBoVx1GiA=
+// @vegastack document-layout@0.25.51 sha256-hrrhbXNvfJGxBGABu2rBc5elnDUZmHWGK+AIbfpC3uU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -17,7 +17,8 @@ export { useDocumentLayoutTier } from "@/components/ui/use-document-layout-tier"
  *   S  < 36rem   text only, full width             (contents and comments are the host's sheet)
  *   M  36–52rem  text · contents rail              (comments: a popover at the highlight)
  *   L  52–64rem  text · margin 18rem · contents rail
- *   XL ≥ 64rem   the same as L, with room to spare; from 74rem the text column sits centred
+ *   XL ≥ 64rem   the same as L, with room to spare (with a margin, the text moves toward the
+ *                middle as the room allows, centred from about 72rem)
  *
  * The contents rail takes no column: it floats at the layout's inline-end edge, in a gutter the
  * grid keeps from the M tier whether or not a document has headings — so a contents list that
@@ -61,11 +62,12 @@ const GRID = cn(
   "[--document-layout-margin:0rem]",
   "[--document-layout-tier:s] @min-[36rem]/document-layout:[--document-layout-tier:m] @min-[52rem]/document-layout:[--document-layout-tier:l] @min-[64rem]/document-layout:[--document-layout-tier:xl]",
   "data-margin:@min-[52rem]/document-layout:[--document-layout-margin:20rem]",
-  // With room for a margin's width on BOTH sides (74rem), the text column sits in the middle of
-  // the canvas and the margin hangs to its right — not the text and margin centred as a pair, which
-  // reads as text pushed off-centre while the margin is still empty. Wide fills the room instead;
-  // paper never gets it (the margin does not print).
-  "not-print:data-margin:data-[measure=document]:@min-[74rem]/document-layout:ps-[calc(--spacing(10)+var(--document-layout-margin))]",
+  // With a comment margin, the text column sits as near the middle of the canvas as the room
+  // allows, the margin hanging to its right: the start gutter grows by up to the margin's width
+  // (fully centred from about 72rem), never past what leaves the text its measure. Not the text
+  // and margin centred as a pair, which reads as text pushed off-centre while the margin is still
+  // empty. Wide fills the room instead; paper never gets it (the margin does not print).
+  "not-print:data-margin:data-[measure=document]:@min-[52rem]/document-layout:ps-[clamp(--spacing(10),calc(100cqw-var(--spacing)*10-var(--document-layout-text)-var(--document-layout-margin)),calc(var(--spacing)*10+var(--document-layout-margin)))]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",
