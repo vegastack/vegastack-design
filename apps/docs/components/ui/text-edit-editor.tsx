@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.55 sha256-hJQlzrHBakn9pTYPRrw+EN95UMyS3P3cUq7o3d4bMG0=
+// @vegastack text-edit@0.25.55 sha256-Zw0GoIHxlkFKIREyDL20Qf8MMCSfpwb2BJ+Nrqbo/sc=
 
 "use client";
 
@@ -149,7 +149,7 @@ import {
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { dropIndicatorClasses } from "@/lib/drag-item";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -2365,9 +2365,14 @@ interface UploadWidget {
   name: string;
   /** An object URL of the image being uploaded; null for any other file. */
   preview: string | null;
+  /** The upload failed: the placeholder stays, saying so, with Retry and Remove. */
+  failed?: { retry: () => void; remove: () => void };
 }
 
-type UploadMeta = { add: UploadWidget } | { remove: string };
+type UploadMeta =
+  | { add: UploadWidget }
+  | { remove: string }
+  | { fail: { id: string; failed: NonNullable<UploadWidget["failed"]> } };
 
 const UPLOAD_KEY = new PluginKey<DecorationSet>("textEditUploads");
 
@@ -2384,27 +2389,103 @@ const LOADER_PATHS = [
   "m4.9 4.9 2.9 2.9",
 ];
 
+/** lucide `CircleAlert`'s strokes. */
+const ALERT_PATHS = [
+  "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z",
+  "M12 8v4",
+  "M12 16h.01",
+];
+
+/** A lucide icon's strokes as DOM: a ProseMirror widget is not a React tree. */
+function strokeIcon(
+  paths: readonly string[],
+  className: string,
+): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("class", cn("shrink-0", className));
+  for (const d of paths) {
+    const path = document.createElementNS(SVG_NS, "path");
+    path.setAttribute("d", d);
+    svg.append(path);
+  }
+  return svg;
+}
+
+/**
+ * A failed upload's placeholder: the file (a thumbnail of an image) with "Couldn't upload", Retry
+ * and Remove. It stays until one is chosen, so a failure never vanishes without a word.
+ */
+function failedUploadPlaceholder(
+  upload: UploadWidget & { failed: NonNullable<UploadWidget["failed"]> },
+): HTMLElement {
+  const root = document.createElement("span");
+  root.contentEditable = "false";
+  root.setAttribute("data-slot", "text-edit-upload");
+  root.setAttribute("data-failed", "");
+  root.setAttribute("data-kind", upload.preview ? "image" : "file");
+  root.setAttribute("role", "group");
+  root.setAttribute("aria-label", `Couldn't upload ${upload.name}`);
+  root.className =
+    "my-2 flex max-w-full items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-2 align-bottom text-sm leading-snug";
+  if (upload.preview) {
+    const thumb = document.createElement("img");
+    thumb.src = upload.preview;
+    thumb.alt = "";
+    thumb.className = "m-0 size-10 shrink-0 rounded-md object-cover opacity-60";
+    root.append(thumb);
+  } else root.append(strokeIcon(ALERT_PATHS, "size-4 text-destructive-text"));
+  const text = document.createElement("span");
+  text.className = "flex min-w-0 flex-1 flex-col";
+  const title = document.createElement("span");
+  title.className = "font-medium text-destructive-text";
+  title.textContent = "Couldn't upload";
+  const name = document.createElement("span");
+  name.className = "truncate text-muted-foreground";
+  name.textContent = upload.name;
+  text.append(title, name);
+  const button = (
+    label: string,
+    variant: "outline" | "ghost",
+    run: () => void,
+  ) => {
+    const element = document.createElement("button");
+    element.type = "button";
+    element.textContent = label;
+    // Named for its file: several failed uploads each have their own.
+    element.setAttribute("aria-label", `${label} ${upload.name}`);
+    element.className = buttonVariants({ variant, size: "xs" });
+    // The editor never sees the press: no caret moves and no selection changes under it.
+    element.addEventListener("mousedown", (event) => event.preventDefault());
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      run();
+    });
+    return element;
+  };
+  const actions = document.createElement("span");
+  actions.className = "flex shrink-0 items-center gap-1";
+  actions.append(
+    button("Retry", "outline", upload.failed.retry),
+    button("Remove", "ghost", upload.failed.remove),
+  );
+  root.append(text, actions);
+  return root;
+}
+
 /** The placeholder an upload shows until it resolves: the image dimmed under a spinner, or the file's name. */
 function uploadPlaceholder(upload: UploadWidget): HTMLElement {
-  // The system's one loader shape (lucide `Loader`, as `Spinner` draws it), built as DOM because
-  // a ProseMirror widget is not a React tree.
-  const spinner = (size: string) => {
-    const svg = document.createElementNS(SVG_NS, "svg");
-    svg.setAttribute("viewBox", "0 0 24 24");
-    svg.setAttribute("fill", "none");
-    svg.setAttribute("stroke", "currentColor");
-    svg.setAttribute("stroke-width", "2");
-    svg.setAttribute("stroke-linecap", "round");
-    svg.setAttribute("stroke-linejoin", "round");
-    svg.setAttribute("aria-hidden", "true");
-    svg.setAttribute("class", cn("shrink-0 animate-spin", size));
-    for (const d of LOADER_PATHS) {
-      const path = document.createElementNS(SVG_NS, "path");
-      path.setAttribute("d", d);
-      svg.append(path);
-    }
-    return svg;
-  };
+  if (upload.failed)
+    return failedUploadPlaceholder({ ...upload, failed: upload.failed });
+  // The system's one loader shape (lucide `Loader`, as `Spinner` draws it).
+  const spinner = (size: string) =>
+    strokeIcon(LOADER_PATHS, cn("animate-spin", size));
   const root = document.createElement("span");
   root.contentEditable = "false";
   root.setAttribute("data-slot", "text-edit-upload");
@@ -2471,6 +2552,29 @@ const Uploads = Extension.create({
                   (spec) => spec.id === meta.remove,
                 ),
               );
+            else if (meta && "fail" in meta) {
+              // The placeholder turns into its failed state where it stands.
+              const [was] = next.find(
+                undefined,
+                undefined,
+                (spec) => spec.id === meta.fail.id,
+              );
+              if (was) {
+                const spec = was.spec as {
+                  upload: UploadWidget;
+                  ref?: Y.RelativePosition;
+                };
+                next = next
+                  .remove([was])
+                  .add(tr.doc, [
+                    uploadWidget(
+                      { ...spec.upload, failed: meta.fail.failed },
+                      was.from,
+                      spec.ref,
+                    ),
+                  ]);
+              }
+            }
             return next;
           },
         },
@@ -2509,10 +2613,14 @@ function uploadWidget(
 ) {
   return PMDecoration.widget(pos, () => uploadPlaceholder(upload), {
     id: upload.id,
-    key: upload.id,
+    // A new key once failed, so the placeholder is drawn again in its failed state.
+    key: upload.failed ? `${upload.id}:failed` : upload.id,
     side: -1,
     upload,
     ref,
+    // Retry and Remove are the widget's own: the editor leaves their events alone.
+    stopEvent: () => Boolean(upload.failed),
+    ignoreSelection: Boolean(upload.failed),
   });
 }
 
@@ -2749,11 +2857,12 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
     caption.dataset.slot = "text-edit-image-caption";
     caption.contentEditable = "false";
     const sync = (next: PMNode) => {
-      const { src, alt, title, width } = next.attrs as {
+      const { src, alt, title, width, height } = next.attrs as {
         src: string | null;
         alt: string | null;
         title: string | null;
         width: number | null;
+        height: number | null;
       };
       if (src) {
         if (image.getAttribute("src") !== src) image.src = src;
@@ -2765,6 +2874,8 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
       caption.hidden = !title;
       image.style.width = width ? `${width}px` : "";
       image.style.height = "";
+      // A known size reserves the image's box before it loads, as the read view does.
+      image.style.aspectRatio = width && height ? `${width} / ${height}` : "";
       // A version diff: the image is marked (an outline — the inks cannot show on a picture), and
       // its alt text says so.
       const change = ychangeType(next.attrs.ychange);
@@ -2841,10 +2952,19 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
         if (pos === undefined) return;
         const next = Math.round(width);
         if (next === view.node.attrs.width) return;
+        // The height keeps the image's aspect ratio (unknown: none).
+        const { width: was, height: tall } = view.node.attrs as {
+          width: number | null;
+          height: number | null;
+        };
         editor
           .chain()
           .setNodeSelection(pos)
-          .updateAttributes("image", { width: next, height: null })
+          .updateAttributes("image", {
+            width: next,
+            height:
+              was && tall ? Math.max(1, Math.round((next * tall) / was)) : null,
+          })
           .run();
       },
       onUpdate: (next) => {
@@ -2864,6 +2984,8 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
       },
     });
     view.dom.dataset.slot = "text-edit-image-node";
+    // The view sets a stored height in px; the width alone sizes the image (the ratio follows).
+    image.style.height = "";
 
     // Tiptap ends a resize on `mouseup` only: end a touch drag the same way. The guides and
     // the maximum width are measured as a drag starts.
@@ -4029,6 +4151,58 @@ interface ExternalImage {
 }
 
 /** How many images one paste or drop imports; the rest land as links. */
+/** How long an image's size is waited for before it lands without one. */
+const IMAGE_SIZE_TIMEOUT_MS = 5_000;
+
+/** An image's natural size once it loads; null when it can't load, or after a few seconds. */
+function imageSize(
+  src: string,
+): Promise<{ width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    const probe = new Image();
+    const finish = (size: { width: number; height: number } | null) => {
+      clearTimeout(timer);
+      probe.onload = null;
+      probe.onerror = null;
+      resolve(size);
+    };
+    const timer = setTimeout(() => finish(null), IMAGE_SIZE_TIMEOUT_MS);
+    probe.onload = () =>
+      finish(
+        probe.naturalWidth > 0 && probe.naturalHeight > 0
+          ? { width: probe.naturalWidth, height: probe.naturalHeight }
+          : null,
+      );
+    probe.onerror = () => finish(null);
+    probe.src = src;
+  });
+}
+
+/**
+ * The size an image lands with: the host's (`width`, `height`), else its natural size — so its
+ * box is reserved before it loads. A host width without a height keeps the natural aspect ratio.
+ */
+function imageSizeAttrs(
+  given: { width?: number; height?: number },
+  natural: { width: number; height: number } | null,
+): { width: number | null; height: number | null } {
+  if (given.width)
+    return {
+      width: given.width,
+      height:
+        given.height ??
+        (natural
+          ? Math.max(
+              1,
+              Math.round((given.width * natural.height) / natural.width),
+            )
+          : null),
+    };
+  return natural
+    ? { width: natural.width, height: natural.height }
+    : { width: null, height: null };
+}
+
 const EXTERNAL_IMAGE_LIMIT = 20;
 /** How many imports run at once. */
 const EXTERNAL_IMAGE_CONCURRENCY = 3;
@@ -5097,6 +5271,16 @@ function LinkPanel({
   );
 }
 
+/** Longer than this, a link's text keeps its start and its end with "…" between them. */
+const LINK_CARD_CHARS = 34;
+
+/** `example.com/a/very/long/…/page.html`: the start and the end of a long link stay readable. */
+function middleTruncate(text: string): string {
+  if (text.length <= LINK_CARD_CHARS) return text;
+  const end = Math.floor((LINK_CARD_CHARS - 1) / 3);
+  return `${text.slice(0, LINK_CARD_CHARS - 1 - end)}…${text.slice(-end)}`;
+}
+
 /**
  * The card over a link the caret is in (Google Docs, Notion): the destination, which opens it (a
  * file link in the viewer, any other in a new tab), then Edit (the link panel) and Remove.
@@ -5147,12 +5331,16 @@ function LinkCard({
               window.open(href, "_blank", "noopener,noreferrer");
             }}
             title={href}
-            className="min-w-0 justify-start gap-1.5 px-2 font-normal text-info-text"
+            aria-label={`Open ${href}`}
+            // It gives way to the card's width (the Button never shrinks by default).
+            className="min-w-0 shrink justify-start gap-1.5 px-2 font-normal text-info-text"
           />
         }
       >
         <ExternalLink aria-hidden />
-        <span className="truncate">{shown || href}</span>
+        <span className="min-w-0 truncate">
+          {middleTruncate(shown || href)}
+        </span>
       </Toolbar.Button>
       <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
       <MenuTip label="Edit link">
@@ -8680,6 +8868,7 @@ export function TextEditEditor({
   annotationLabel = defaultAnnotationLabel,
   annotationCountLabel = defaultAnnotationCountLabel,
   onPendingUploadsChange,
+  onFailedUploadsChange,
   collaboration,
   diff,
   blockViews,
@@ -8742,6 +8931,7 @@ export function TextEditEditor({
     onCreateAnnotation,
     onAnnotationsLayout,
     onPendingUploadsChange,
+    onFailedUploadsChange,
   });
   React.useEffect(() => {
     callbacks.current = {
@@ -8761,6 +8951,7 @@ export function TextEditEditor({
       onCreateAnnotation,
       onAnnotationsLayout,
       onPendingUploadsChange,
+      onFailedUploadsChange,
     };
   }, [
     onValueChange,
@@ -8780,6 +8971,7 @@ export function TextEditEditor({
     onCreateAnnotation,
     onAnnotationsLayout,
     onPendingUploadsChange,
+    onFailedUploadsChange,
   ]);
 
   const placeholderRef = React.useRef(placeholder);
@@ -9252,6 +9444,18 @@ export function TextEditEditor({
     callbacks.current.onRevert?.();
   }, [markdown, serialize]);
 
+  /** Failed uploads still shown (Retry or Remove), with their image previews to let go of. */
+  const failedRef = React.useRef(new Map<string, string | null>());
+  const startUploadRef = React.useRef<
+    ((file: File, pos: number, as?: MediaKind) => boolean) | null
+  >(null);
+  /** No upload landing and none failed: an edit session that ended may hand its view back. */
+  const uploadsSettled = React.useCallback(() => {
+    callbacks.current.onFailedUploadsChange?.(failedRef.current.size);
+    if (uploadsRef.current.size === 0 && failedRef.current.size === 0)
+      leaveViewRef.current?.();
+  }, []);
+
   /** Upload `file` into the document at `pos`: a placeholder now, the image or link on success. */
   const startUpload = React.useCallback(
     (file: File, pos: number, as?: MediaKind): boolean => {
@@ -9274,6 +9478,9 @@ export function TextEditEditor({
       const id = `upload-${Math.random().toString(36).slice(2)}`;
       const controller = new AbortController();
       const preview = image ? URL.createObjectURL(file) : null;
+      // An image's size, read from the file while it uploads: stored with it, so its box is
+      // reserved before it loads (here and in every read view).
+      const natural = preview ? imageSize(preview) : Promise.resolve(null);
       ed.view.dispatch(
         ed.state.tr.setMeta(UPLOAD_KEY, {
           add: { id, pos, name: file.name, preview },
@@ -9299,27 +9506,72 @@ export function TextEditEditor({
           .run();
         commitNow();
       };
-      const drop = (error: unknown) => {
+      let failed = false;
+      const fail = (error: unknown) => {
         const current = editorRef.current;
-        if (current && !current.isDestroyed)
-          current.view.dispatch(
-            current.state.tr.setMeta(UPLOAD_KEY, {
+        const live = current && !current.isDestroyed ? current : null;
+        const removePlaceholder = () =>
+          live?.view.dispatch(
+            live.state.tr.setMeta(UPLOAD_KEY, {
               remove: id,
             } satisfies UploadMeta),
           );
-        if (!controller.signal.aborted)
+        if (controller.signal.aborted) return removePlaceholder();
+        // Nowhere left to show it (its text was deleted): the host's toast says so.
+        if (!live || uploadPos(live.state, id) === null) {
+          removePlaceholder();
           callbacks.current.onUploadError?.(file, error);
+          return;
+        }
+        // The placeholder stays, saying it failed, until Retry or Remove.
+        failed = true;
+        failedRef.current.set(id, preview);
+        const settle = (): number | null => {
+          if (!failedRef.current.has(id)) return null;
+          failedRef.current.delete(id);
+          if (preview) URL.revokeObjectURL(preview);
+          const now = editorRef.current;
+          if (!now || now.isDestroyed) return null;
+          const at = uploadPos(now.state, id);
+          now.view.dispatch(
+            now.state.tr.setMeta(UPLOAD_KEY, {
+              remove: id,
+            } satisfies UploadMeta),
+          );
+          return at;
+        };
+        live.view.dispatch(
+          live.state.tr.setMeta(UPLOAD_KEY, {
+            fail: {
+              id,
+              failed: {
+                retry: () => {
+                  const at = settle();
+                  if (at !== null) startUploadRef.current?.(file, at, kind);
+                  uploadsSettled();
+                },
+                remove: () => {
+                  settle();
+                  uploadsSettled();
+                },
+              },
+            },
+          } satisfies UploadMeta),
+        );
+        callbacks.current.onUploadError?.(file, error);
       };
       const done = (
         image
-          ? uploadImage!(file, { signal: controller.signal }).then((result) =>
+          ? Promise.all([
+              uploadImage!(file, { signal: controller.signal }),
+              natural,
+            ]).then(([result, size]) =>
               land({
                 type: "image",
                 attrs: {
                   src: result.src,
                   alt: result.alt ?? null,
-                  width: result.width ?? null,
-                  height: result.height ?? null,
+                  ...imageSizeAttrs(result, size),
                 },
               }),
             )
@@ -9335,19 +9587,30 @@ export function TextEditEditor({
               ),
             )
       )
-        .catch(drop)
+        .catch(fail)
         .finally(() => {
-          if (preview) URL.revokeObjectURL(preview);
+          if (preview && !failed) URL.revokeObjectURL(preview);
           uploadsRef.current.delete(id);
           callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
-          if (uploadsRef.current.size === 0) leaveViewRef.current?.();
+          uploadsSettled();
         });
       uploadsRef.current.set(id, { controller, done });
       callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
       return true;
     },
-    [commitNow],
+    [commitNow, uploadsSettled],
   );
+  React.useLayoutEffect(() => {
+    startUploadRef.current = startUpload;
+  }, [startUpload]);
+  React.useEffect(() => {
+    const failedUploads = failedRef.current;
+    return () => {
+      for (const preview of failedUploads.values())
+        if (preview) URL.revokeObjectURL(preview);
+      failedUploads.clear();
+    };
+  }, []);
   React.useEffect(() => {
     const uploads = uploadsRef.current;
     return () => {
@@ -9444,10 +9707,14 @@ export function TextEditEditor({
         controller.signal.aborted
           ? Promise.resolve()
           : importImage(image.src, { signal: controller.signal }).then(
-              (result) =>
+              async (result) =>
                 land({
                   type: "image",
-                  attrs: { src: result.src, alt: result.alt ?? image.alt },
+                  attrs: {
+                    src: result.src,
+                    alt: result.alt ?? image.alt,
+                    ...imageSizeAttrs({}, await imageSize(result.src)),
+                  },
                 }),
               () => {
                 if (controller.signal.aborted) return;
@@ -9487,12 +9754,12 @@ export function TextEditEditor({
         if (replace) ed.off("transaction", follow);
         uploadsRef.current.delete(id);
         callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
-        if (uploadsRef.current.size === 0) leaveViewRef.current?.();
+        uploadsSettled();
       });
       uploadsRef.current.set(id, { controller, done });
       callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
     },
-    [commitNow],
+    [commitNow, uploadsSettled],
   );
 
   /**
@@ -10039,7 +10306,7 @@ export function TextEditEditor({
   // The read view comes back once the session is over for good. Checked a task later, when focus
   // has settled: not while the editor or one of its floating parts holds focus, not while the
   // window itself is blurred (a file picker, another app — focus returns to the editor), and not
-  // while an upload is still landing (its settling re-runs this).
+  // while an upload is still landing or a failed one waits for Retry or Remove (settling re-runs this).
   const onLeaveViewRef = React.useRef(onLeaveView);
   onLeaveViewRef.current = onLeaveView;
   const leaveTimerRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -10051,7 +10318,12 @@ export function TextEditEditor({
       const onLeaveViewNow = onLeaveViewRef.current;
       if (!ed || ed.isDestroyed || !onLeaveViewNow) return;
       if (ed.view.hasFocus() || isInside(document.activeElement)) return;
-      if (!document.hasFocus() || uploadsRef.current.size > 0) return;
+      if (
+        !document.hasFocus() ||
+        uploadsRef.current.size > 0 ||
+        failedRef.current.size > 0
+      )
+        return;
       // Reached from an upload settling too, where no blur ran `leave()`: close the session
       // (commit is idempotent) before the editor is hidden.
       commit();
@@ -10076,6 +10348,27 @@ export function TextEditEditor({
     };
   }, [leavesView]);
   React.useEffect(() => () => clearTimeout(leaveTimerRef.current), []);
+
+  // A failed upload whose placeholder went with its text (deleted, a block replaced) is let go:
+  // its preview, its count and the hold it put on handing the read view back.
+  React.useEffect(() => {
+    if (!editor) return;
+    const reconcile = ({ transaction }: { transaction: Transaction }) => {
+      if (!transaction.docChanged || failedRef.current.size === 0) return;
+      let gone = false;
+      for (const [id, preview] of failedRef.current)
+        if (uploadPos(editor.state, id) === null) {
+          failedRef.current.delete(id);
+          if (preview) URL.revokeObjectURL(preview);
+          gone = true;
+        }
+      if (gone) uploadsSettled();
+    };
+    editor.on("transaction", reconcile);
+    return () => {
+      editor.off("transaction", reconcile);
+    };
+  }, [editor, uploadsSettled]);
 
   React.useEffect(() => {
     if (!editor) return;

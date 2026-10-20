@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.55 sha256-hJQlzrHBakn9pTYPRrw+EN95UMyS3P3cUq7o3d4bMG0=
+// @vegastack text-edit@0.25.55 sha256-Zw0GoIHxlkFKIREyDL20Qf8MMCSfpwb2BJ+Nrqbo/sc=
 
 "use client";
 
@@ -133,10 +133,11 @@ export interface TextEditImageUpload {
   /** Alt text for the image.
    * @default undefined */
   alt?: string;
-  /** Intrinsic width in px (HTML format only; Markdown has no size).
+  /** Intrinsic width in px. Read from the file when omitted: the size is stored with the image
+   * (`![alt|320x180](src)` in Markdown), so its box is reserved before it loads.
    * @default undefined */
   width?: number;
-  /** Intrinsic height in px (HTML format only).
+  /** Intrinsic height in px (with `width`).
    * @default undefined */
   height?: number;
 }
@@ -516,6 +517,8 @@ const editorBaseClassName = cn(
 const documentSurfaceClassName = cn(
   editorBaseClassName,
   Object.values(proseDocument).join(" "),
+  // An image block sits 16 from its neighbours, as the read view's (`markdown-figure`) does.
+  "[&_[data-slot=text-edit-image-node]]:my-4",
   documentPrintClassName,
 );
 
@@ -1183,7 +1186,8 @@ export interface TextEditProps {
   /**
    * Upload an image pasted, dropped or picked (the image panel's Upload, the slash menu's Image).
    * It shows dimmed under a spinner until the promise resolves with its URL, then commits — even
-   * after focus has left. A rejection removes it and calls `onUploadError`.
+   * after focus has left. A rejection leaves it in place as a failed upload (Retry, Remove) and
+   * calls `onUploadError`.
    * @default undefined
    */
   onImageUpload?: (
@@ -1200,10 +1204,17 @@ export interface TextEditProps {
     options: { signal: AbortSignal },
   ) => Promise<TextEditFileUpload>;
   /**
-   * Called when an upload rejects (its placeholder is already gone) — show a toast.
+   * Called when an upload rejects — show a toast. Its placeholder stays in the text, saying the
+   * upload failed, with Retry and Remove (`onFailedUploadsChange` counts them).
    * @default undefined
    */
   onUploadError?: (file: File, error: unknown) => void;
+  /**
+   * Called with the number of failed uploads still shown (waiting for Retry or Remove), each time
+   * it changes — so a host can guard leaving, as it does while uploads land.
+   * @default undefined
+   */
+  onFailedUploadsChange?: (count: number) => void;
   /**
    * The video providers shown as players: `EMBED_PROVIDERS` from `@/lib/embed-providers`, or a
    * subset. Opt-in — without it an `embed` block shows as a link to its URL, a pasted video link
@@ -1768,7 +1779,10 @@ export function TextEdit(props: TextEditProps) {
         } as React.CSSProperties)
       : undefined;
   const contentClassName = cn(
-    "relative min-w-0 max-w-full",
+    // Its own block formatting context: the first and last blocks' margins stay inside it, so the
+    // read view and the editor (whose root holds a file input and an announcer before it) start
+    // and end at the same place.
+    "relative flow-root min-w-0 max-w-full",
     minCss != null && "min-h-[var(--te-min-h)]",
     maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
     composer && COMPOSER_CONTENT,

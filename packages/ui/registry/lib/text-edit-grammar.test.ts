@@ -87,6 +87,25 @@ test("image alt widths, destinations and media lines", () => {
   expect(parseImageAlt("hello&#x7C;123")).toEqual({ alt: "hello&#x7C;123" });
   expect(parseImageAlt("hello\\|123")).toEqual({ alt: "hello|123" });
   expect(parseImageAlt("end\\\\|64")).toEqual({ alt: "end\\", width: 64 });
+  // A stored size: the height rides with the width, both ways; a height alone is no size.
+  expect(parseImageAlt("Diagram|320x180")).toEqual({
+    alt: "Diagram",
+    width: 320,
+    height: 180,
+  });
+  expect(
+    imageMarkdown({ src: "/a.png", alt: "Diagram", width: 320, height: 180 }),
+  ).toBe("![Diagram|320x180](/a.png)");
+  expect(imageMarkdown({ src: "/a.png", alt: "D", height: 180 })).toBe(
+    "![D](/a.png)",
+  );
+  // Out of the parser's range, a size is left out rather than read back as alt text.
+  expect(
+    imageMarkdown({ src: "/a.png", alt: "T", width: 320, height: 100_000 }),
+  ).toBe("![T|320](/a.png)");
+  expect(imageMarkdown({ src: "/a.png", alt: "hello|12x34" })).toBe(
+    "![hello&#x7C;12x34](/a.png)",
+  );
   expect(markdownDestination("https://a.b/c")).toBe("https://a.b/c");
   expect(markdownDestination("/a\\_b?x=&amp;")).toBe("/a\\\\_b?x=&amp;amp;");
   expect(markdownDestination("/w/Foo_(bar)")).toBe("</w/Foo_(bar)>");

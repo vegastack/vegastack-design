@@ -1739,15 +1739,17 @@ test("uploads: a pasted image shows the uploading overlay, then its final src â€
   );
 });
 
-test("uploads: a rejected upload removes its placeholder and calls onUploadError", async () => {
+test("uploads: a rejected upload stays as a failed placeholder with Retry and Remove", async () => {
   const error = new Error("Too large");
   const onImageUpload = vi.fn().mockRejectedValue(error);
   const onUploadError = vi.fn();
+  const onFailedUploadsChange = vi.fn();
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     defaultValue: "Text",
     onImageUpload,
     onUploadError,
+    onFailedUploadsChange,
     onValueChange,
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
@@ -1757,8 +1759,23 @@ test("uploads: a rejected upload removes its placeholder and calls onUploadError
   await vi.waitFor(() =>
     expect(onUploadError).toHaveBeenCalledWith(file, error),
   );
+  // It says so where it was, never vanishing: Retry uploads it again, Remove lets it go.
+  const failed = screen.getByRole("group", {
+    name: `Couldn't upload ${file.name}`,
+  });
+  await expect.element(failed).toBeVisible();
   expect(box.element().querySelector("[data-uploading]")).toBeNull();
-  expect(box.element().querySelector("img")).toBeNull();
+  expect(onFailedUploadsChange).toHaveBeenLastCalledWith(1);
+  await screen.getByRole("button", { name: `Retry ${file.name}` }).click();
+  await vi.waitFor(() => expect(onImageUpload).toHaveBeenCalledTimes(2));
+  await vi.waitFor(() => expect(onUploadError).toHaveBeenCalledTimes(2));
+  await screen.getByRole("button", { name: `Remove ${file.name}` }).click();
+  await vi.waitFor(() =>
+    expect(
+      box.element().querySelector("[data-slot=text-edit-upload]"),
+    ).toBeNull(),
+  );
+  expect(onFailedUploadsChange).toHaveBeenLastCalledWith(0);
   expect(onValueChange).not.toHaveBeenCalled();
 });
 

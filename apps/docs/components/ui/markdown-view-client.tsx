@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.55 sha256-iJtTnxmDTFCvoBQlbMI837uaekeRTvyCPFYmETRHaPE=
+// @vegastack markdown-view@0.25.55 sha256-0M9QZ++/3WhNUn0S2F/cFjMZW2VbL4atP9tStjNk6pY=
 
 "use client";
 
@@ -1421,7 +1421,9 @@ export function MarkdownBlockView({
       </div>
       <pre
         data-slot="block-view-fallback"
-        className="m-0 min-h-48 overflow-x-auto px-4 py-3 font-mono text-xs text-muted-foreground"
+        // Inline: the prose recipe's `pre` margins (a root rule) would beat a class and pad the box.
+        style={{ margin: 0 }}
+        className="min-h-48 overflow-x-auto px-4 py-3 font-mono text-xs text-muted-foreground"
       >
         <code>{source}</code>
       </pre>

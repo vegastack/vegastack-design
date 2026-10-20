@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.55 sha256-iJtTnxmDTFCvoBQlbMI837uaekeRTvyCPFYmETRHaPE=
+// @vegastack markdown-view@0.25.55 sha256-0M9QZ++/3WhNUn0S2F/cFjMZW2VbL4atP9tStjNk6pY=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -250,6 +250,8 @@ export const markdownExtrasClassName = cn(
   "[&_[data-slot=inline-chip]]:no-underline [&_[data-slot=inline-chip][data-interactive]:hover]:underline",
   // TextEdit's file links are link marks, not chips: the same ground, ink, padding and radius.
   "[&_[data-slot=file-chip]]:box-decoration-clone [&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:py-px [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground",
+  // An image block (`markdown-figure`): the editor's image box, 8 from its neighbours.
+  "[&_[data-slot=markdown-figure]]:my-2",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
   "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
@@ -441,6 +443,9 @@ function inline(tokens: Token[] | undefined): DocNode[] {
             alt: decode(sized.alt),
             "data-alt-read": "",
             ...(sized.width ? { width: String(sized.width) } : {}),
+            ...(sized.width && sized.height
+              ? { height: String(sized.height) }
+              : {}),
             ...(t.title ? { title: t.title } : {}),
           }),
         );
@@ -1114,6 +1119,7 @@ const HTML_ATTRS = new Set([
   "title",
   "src",
   "alt",
+  "height",
   "start",
   "colspan",
   "rowspan",
@@ -1579,31 +1585,15 @@ function renderNode(
     );
   }
 
-  // An image with a title (`![alt](src "caption")`) on a line of its own is a figure: the title is
-  // its caption, under it at its start, as TextEdit shows it (not a tooltip).
+  // An image on a line of its own is a block, as TextEdit has it: a figure (its title the caption,
+  // under it at its start, not a tooltip), so the read view and the editor lay it out alike.
   if (tag === "p") {
     const only = node.children.filter(
       (child) => typeof child !== "string" || child.trim(),
     );
     const image = only.length === 1 ? only[0] : null;
-    if (image && typeof image !== "string" && image.tag === "img") {
-      const title = image.attrs.title?.trim();
-      if (title)
-        return (
-          <figure key={key} data-slot="markdown-figure" className="my-2">
-            {renderNode({ ...image, attrs: withoutTitle(image.attrs) }, 0, {
-              ...ctx,
-              inText: true,
-            })}
-            <figcaption
-              data-slot="markdown-figure-caption"
-              className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
-            >
-              {title}
-            </figcaption>
-          </figure>
-        );
-    }
+    if (image && typeof image !== "string" && image.tag === "img")
+      return renderNode(image, key, { ...ctx, figure: true });
   }
 
   switch (tag) {
@@ -1827,9 +1817,9 @@ function renderNode(
     case "img": {
       const src = safeUrl(attrs.src ?? "");
       // A width set by resizing in `TextEdit`: `![alt|320](src)` in markdown, `width` in HTML.
-      const sized =
+      const sized: { alt: string; width?: number; height?: number } =
         attrs["data-alt-read"] !== undefined
-          ? { alt: attrs.alt ?? "", width: undefined }
+          ? { alt: attrs.alt ?? "" }
           : parseImageAlt(attrs.alt ?? "");
       const alt = sized.alt;
       if (!imageSourceAllowed(src, ctx.images)) {
@@ -1849,32 +1839,49 @@ function renderNode(
         new URL(src, "https://other-relative-image.invalid/").origin;
       const width =
         sized.width ?? (Number.parseInt(attrs.width ?? "", 10) || undefined);
+      const height = width
+        ? (sized.height ??
+          (Number.parseInt(attrs.height ?? "", 10) || undefined))
+        : undefined;
       const picture = (
         // Plain <img>: registry source is framework-agnostic (no next/image dependency). Frame and
-        // rhythm come from `prose.img` on the root.
+        // rhythm come from `prose.img` on the root. A known size reserves its box before it loads.
         <img
           data-slot="markdown-image"
           src={src}
           alt={alt}
           width={width}
+          height={height}
+          style={
+            ctx.figure || height
+              ? {
+                  // In its figure the image has no margin of its own: the figure keeps the rhythm.
+                  ...(ctx.figure ? { margin: 0 } : {}),
+                  ...(height ? { aspectRatio: `${width} / ${height}` } : {}),
+                }
+              : undefined
+          }
           title={ctx.figure ? undefined : attrs.title}
           loading="lazy"
           decoding="async"
           referrerPolicy={remote ? "no-referrer" : undefined}
         />
       );
-      // A titled image standing as a block (TextEdit's HTML, a tight list item) is a figure, its
-      // title the caption; inside a line of text it stays an image with its title.
-      const caption = ctx.figure ? (attrs.title?.trim() ?? "") : "";
-      return caption ? (
-        <figure key={key} data-slot="markdown-figure" className="my-2">
+      // An image standing as a block (a line of its own, TextEdit's HTML, a tight list item) is a
+      // figure, its title the caption — the box TextEdit draws, so the swap moves nothing; inside a
+      // line of text it stays an image with its title.
+      const caption = attrs.title?.trim() ?? "";
+      return ctx.figure ? (
+        <figure key={key} data-slot="markdown-figure">
           {picture}
-          <figcaption
-            data-slot="markdown-figure-caption"
-            className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
-          >
-            {caption}
-          </figcaption>
+          {caption ? (
+            <figcaption
+              data-slot="markdown-figure-caption"
+              className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
+            >
+              {caption}
+            </figcaption>
+          ) : null}
         </figure>
       ) : (
         <React.Fragment key={key}>{picture}</React.Fragment>
@@ -2610,6 +2617,8 @@ const documentProse = cn(
   proseDocumentClassName,
   markdownExtrasClassName,
   proseDocumentClassName,
+  // An image block and a block view (a diagram) sit 16 from their neighbours, as in the editor.
+  "[&_[data-slot=markdown-figure]]:my-4 [&_[data-slot=block-view]]:my-4",
   documentPrintClassName,
 );
 /**
