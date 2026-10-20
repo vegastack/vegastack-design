@@ -3456,14 +3456,14 @@ test("mentionStatus strikes a closed task's chip and tags its status; product ch
   expect(chips()[1]).not.toHaveAttribute("data-struck");
 });
 
-test("sectionMarks: the marked heading's section to the next heading of its level wears the bar; the marker calls onSectionMark", async () => {
+test("sectionMarks: the marked heading's section to the next # to ### heading of any level wears the bar; the marker calls onSectionMark", async () => {
   const onSectionMark = vi.fn();
   const onValueChange = vi.fn();
   const marks = [
     { key: "s1", tone: "warning" as const, label: "May be out of date" },
   ];
   const html =
-    '<p>Intro</p><h2 data-blockid="s1">Pricing</h2><p>Glass</p><h3>Detail</h3><p>Frames</p><h2 data-blockid="s2">Scope</h2><p>Later</p>';
+    '<p>Intro</p><h2 data-blockid="s1">Pricing</h2><p>Glass</p><h4>Note</h4><p>Ink</p><h3>Detail</h3><p>Frames</p><h2 data-blockid="s2">Scope</h2><p>Later</p>';
   const screen = await render(
     <TextEdit
       aria-label="Doc"
@@ -3482,8 +3482,9 @@ test("sectionMarks: the marked heading's section to the next heading of its leve
     [...box().querySelectorAll<HTMLElement>(":scope > *")]
       .filter((block) => block.hasAttribute("data-section-mark"))
       .map((block) => block.textContent);
+  // Flat sections: a #### is a block of its section; the ### under it starts the next one.
   await vi.waitFor(() =>
-    expect(marked()).toEqual(["Pricing", "Glass", "Detail", "Frames"]),
+    expect(marked()).toEqual(["Pricing", "Glass", "Note", "Ink"]),
   );
   const marker = box().querySelector<HTMLElement>(
     '[data-slot="text-edit-section-mark"]',
@@ -3499,12 +3500,13 @@ test("sectionMarks: the marked heading's section to the next heading of its leve
   await userEvent.click(marker);
   expect(onSectionMark).toHaveBeenCalledExactlyOnceWith("s1");
   // A new block typed inside the section joins it; nothing reaches the document.
-  // The end of "Frames", the section's last block.
-  await userEvent.click(box().querySelectorAll("p")[2]!);
-  editorOf(box()).commands.setTextSelection(38);
+  // The end of "Ink", the section's last block.
+  const ink = box().querySelectorAll("p")[2]!;
+  await userEvent.click(ink);
+  await userEvent.keyboard("{End}");
   await userEvent.keyboard("{Enter}More");
   await vi.waitFor(() =>
-    expect(marked()).toEqual(["Pricing", "Glass", "Detail", "Frames", "More"]),
+    expect(marked()).toEqual(["Pricing", "Glass", "Note", "Ink", "More"]),
   );
   expect(lastValue(onValueChange)).not.toContain("section");
   // No marks: no decorations.
@@ -3540,6 +3542,11 @@ test("headingLinkHref: the hovered heading's # sits in the gutter before its tex
   );
   const heading =
     screen.container.querySelector<HTMLElement>(".ProseMirror h2")!;
+  // Move onto the paragraph first: a pointer already resting where the heading lands sends no
+  // move of its own.
+  await userEvent.hover(
+    screen.container.querySelector<HTMLElement>(".ProseMirror p")!,
+  );
   await userEvent.hover(heading);
   const link = screen.getByRole("button", { name: "Copy link to “Pricing”" });
   await expect.element(link).toBeVisible();

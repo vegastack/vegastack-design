@@ -16076,6 +16076,15 @@
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "sectionHeading",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {

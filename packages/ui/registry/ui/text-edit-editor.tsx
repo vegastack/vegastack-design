@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.49 sha256-ECWYA+mJQRyJr2Xe55zE7HXYJzqanqPzGb1tsCRrxEA=
+// @vegastack text-edit@0.25.49 sha256-PB1rDCGQxHZI3cSSeO5p1XJgULG9hqJOR56zJhkJMto=
 
 "use client";
 
@@ -241,6 +241,7 @@ import {
   copyWithToast,
   headingLinkClassName,
   markdownExtrasClassName,
+  sectionHeading,
   sectionMarkClassNames,
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
@@ -7352,9 +7353,9 @@ function sectionMarker(
 }
 
 /**
- * The marks' decorations over the document's top-level blocks: each marked heading (by
- * `blockId`) gets the marker and its bar, and every block up to the next heading of the same or
- * a higher level the bar too (a nested marked section's tone wins inside it).
+ * The marks' decorations over the document's top-level blocks: each marked `#`–`###` heading (by
+ * `blockId`) gets the marker and its bar, and every block up to the next `#`–`###` heading, of
+ * any level, the bar too (`sectionHeading`: sections are flat, so marks never nest).
  */
 function sectionDecorations(
   doc: PMNode,
@@ -7363,40 +7364,34 @@ function sectionDecorations(
 ): DecorationSet {
   if (marks.length === 0) return DecorationSet.empty;
   const byKey = new Map(marks.map((mark) => [mark.key, mark]));
-  const open: { level: number; mark: TextEditSectionMark | null }[] = [];
+  // Sections are a flat partition: each `#`–`###` heading starts one, which runs to the next
+  // such heading whatever its level (a `####` and deeper is a block of its section).
+  let current: TextEditSectionMark | null = null;
   const decorations: PMDecoration[] = [];
   doc.forEach((node, pos) => {
-    if (node.type.name === "heading") {
-      const level = Number(node.attrs.level) || 1;
-      while (open.length > 0 && open[open.length - 1]!.level >= level)
-        open.pop();
+    if (node.type.name === "heading" && sectionHeading(node.attrs.level)) {
       const id = node.attrs.blockId as string | null | undefined;
-      const mark = id ? byKey.get(id) : undefined;
-      if (mark) {
-        open.push({ level, mark });
+      current = (id ? byKey.get(id) : undefined) ?? null;
+      if (current)
         decorations.push(
           PMDecoration.node(pos, pos + node.nodeSize, {
-            class: sectionMarkClassNames.heading[mark.tone],
-            "data-section-mark": mark.tone,
+            class: sectionMarkClassNames.heading[current.tone],
+            "data-section-mark": current.tone,
           }),
-          PMDecoration.widget(pos + 1, sectionMarker(mark, onMark), {
+          PMDecoration.widget(pos + 1, sectionMarker(current, onMark), {
             side: -1,
             ignoreSelection: true,
             stopEvent: () => true,
-            key: `section-mark:${mark.key}:${mark.tone}:${mark.label}`,
+            key: `section-mark:${current.key}:${current.tone}:${current.label}`,
           }),
         );
-        return;
-      }
-      // An unmarked heading inside a marked section is one of its blocks.
-      open.push({ level, mark: null });
+      return;
     }
-    const inner = [...open].reverse().find((section) => section.mark)?.mark;
-    if (inner)
+    if (current)
       decorations.push(
         PMDecoration.node(pos, pos + node.nodeSize, {
-          class: sectionMarkClassNames.block[inner.tone],
-          "data-section-mark": inner.tone,
+          class: sectionMarkClassNames.block[current.tone],
+          "data-section-mark": current.tone,
         }),
       );
   });

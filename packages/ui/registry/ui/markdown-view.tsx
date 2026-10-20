@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.49 sha256-5oe9QIRAE5wV7z85uRHBIoqBiRsPievOTjklviOdUaA=
+// @vegastack markdown-view@0.25.49 sha256-Pcwv855/8sV/QelJjyr8BmqQpyRDM90I8uhJzpKLcP0=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1330,7 +1330,7 @@ const TEXT_ALIGN = new Set(["left", "right", "center"]);
  * drawn beside the text — never moving it. `TextEdit` draws the same marks as decorations.
  */
 export interface MarkdownSectionMark {
-  /** The section heading's block id (its `data-anchor-id`); the section runs to the next heading of the same or a higher level. */
+  /** The section heading's block id (its `data-anchor-id`); the section runs to the next `#`–`###` heading, whatever its level. */
   key: string;
   /** `warning` (may be out of date) or `info` (changed since you last read). */
   tone: "warning" | "info";
@@ -1381,9 +1381,18 @@ const readSectionMarkClassNames = sectionClasses(
 );
 
 /**
+ * Whether a heading at `level` starts a section: `#`–`###`. Sections are a flat partition — each
+ * runs from its heading to the next such heading, whatever its level — so a page's marks never
+ * nest; a `####` and deeper is a block of its section. Shared with `TextEdit`.
+ */
+export function sectionHeading(level: unknown): boolean {
+  const n = Number(level) || 1;
+  return n >= 1 && n <= 3;
+}
+
+/**
  * The top-level blocks each mark reaches: a marked heading (by block id) and every block up to the
- * next heading of the same or a higher level (a nested marked section's tone wins inside it) —
- * the same partition `TextEdit` decorates.
+ * next section heading (`sectionHeading`) — the same partition `TextEdit` decorates.
  */
 function sectionsOf(
   tree: DocNode[],
@@ -1392,26 +1401,17 @@ function sectionsOf(
   const out = new Map<El, { mark: MarkdownSectionMark; heading: boolean }>();
   if (marks.length === 0) return out;
   const byKey = new Map(marks.map((mark) => [mark.key, mark]));
-  const open: { level: number; mark: MarkdownSectionMark | null }[] = [];
+  let current: MarkdownSectionMark | null = null;
   for (const node of tree) {
     if (typeof node === "string") continue;
     const heading = /^h([1-6])$/.exec(node.tag);
-    if (heading) {
-      const level = Number(heading[1]);
-      while (open.length > 0 && open[open.length - 1]!.level >= level)
-        open.pop();
+    if (heading && sectionHeading(Number(heading[1]))) {
       const key = node.attrs["data-anchor-id"];
-      const mark = key ? byKey.get(key) : undefined;
-      if (mark) {
-        open.push({ level, mark });
-        out.set(node, { mark, heading: true });
-        continue;
-      }
-      // An unmarked heading inside a marked section is one of its blocks.
-      open.push({ level, mark: null });
+      current = (key ? byKey.get(key) : undefined) ?? null;
+      if (current) out.set(node, { mark: current, heading: true });
+      continue;
     }
-    const inner = [...open].reverse().find((section) => section.mark)?.mark;
-    if (inner) out.set(node, { mark: inner, heading: false });
+    if (current) out.set(node, { mark: current, heading: false });
   }
   return out;
 }
