@@ -707,6 +707,43 @@ test("Send and Cmd/Ctrl+Enter wait for an upload into the text, for a comment an
   }
 });
 
+test("an upload left behind by a collapsed thread never holds the reopened reply's Send", async () => {
+  const onReply = vi.fn().mockResolvedValue(undefined);
+  // An upload that ignores its abort signal: it never settles.
+  const composer = { onImageUpload: () => new Promise<never>(() => {}) };
+  const thread = { id: "t1", root: rootComment, replies: [] };
+  const screen = await render(
+    <CommentThread thread={thread} onReply={onReply} composer={composer} />,
+  );
+  await userEvent.click(screen.getByRole("textbox", { name: "Reply" }));
+  await userEvent.upload(
+    screen.container.querySelector<HTMLInputElement>(
+      '[data-slot="comment-box"] input[type="file"]',
+    )!,
+    new File(["x"], "shot.png", { type: "image/png" }),
+  );
+  const send = screen.getByRole("button", { name: "Send reply" });
+  await expect.element(send).toBeDisabled();
+  await screen.rerender(
+    <CommentThread
+      thread={thread}
+      onReply={onReply}
+      composer={composer}
+      collapsed
+    />,
+  );
+  await screen.rerender(
+    <CommentThread thread={thread} onReply={onReply} composer={composer} />,
+  );
+  await userEvent.click(screen.getByRole("textbox", { name: "Reply" }));
+  await userEvent.keyboard("Fresh start");
+  await expect
+    .element(screen.getByRole("button", { name: "Send reply" }))
+    .toBeEnabled();
+  await userEvent.keyboard(submitKeys());
+  await vi.waitFor(() => expect(onReply).toHaveBeenCalledWith("Fresh start"));
+});
+
 test("Escape keeps an unsent comment or reply (an edit still reverts)", async () => {
   const onValueChange = vi.fn();
   const screen = await render(

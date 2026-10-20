@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.57 sha256-7eN20pxPZ7sXETnojbcavCuzXy4dUVJh22TD0IfsV/M=
+// @vegastack comments@0.25.57 sha256-6uPKrNHBYctJwn2HgXicDKW3z4vHEEkuXrStSKR2z5k=
 
 "use client";
 
@@ -874,6 +874,21 @@ function CommentBox({
       focusEditor(ref.current);
     }
   }, [sending]);
+  // The count is this editor's: once it is gone (a thread collapsed, a box cleared), its uploads
+  // are cancelled and never hold the host's Send again, whenever their promises settle.
+  const reportUploads = React.useRef(onPendingUploadsChange);
+  reportUploads.current = onPendingUploadsChange;
+  const mounted = React.useRef(false);
+  React.useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      reportUploads.current?.(0);
+    };
+  }, []);
+  const onUploads = React.useCallback((count: number) => {
+    if (mounted.current) reportUploads.current?.(count);
+  }, []);
   const canAttach =
     layout !== "edit" &&
     !!(onImageUpload || onFileUpload || onAttachFiles) &&
@@ -964,7 +979,7 @@ function CommentBox({
     onImageUpload,
     onFileUpload,
     onUploadError,
-    onPendingUploadsChange,
+    onPendingUploadsChange: onPendingUploadsChange ? onUploads : undefined,
   };
 
   return (
