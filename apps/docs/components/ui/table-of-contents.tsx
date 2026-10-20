@@ -1,11 +1,12 @@
-// @vegastack table-of-contents@0.25.46 sha256-oFcwRKKibSlnDNOeV9azpuBsjE8isPZVoyUB1T7niws=
+// @vegastack table-of-contents@0.25.46 sha256-LqdAdm5iBJx3mftNx+RSFhxsJmwRL2yTjOYjZQiPAFA=
 
 "use client";
 
 import * as React from "react";
 import { ListTree } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetBody,
@@ -28,9 +29,11 @@ labelled panel), rebuilt on this system's parts:
   when the container is scrolled to its bottom the last heading is forced active, which is what
   makes a short closing section ever light up. It is exported as `useActiveHeading` for hosts that
   draw their own outline.
-- The rail's motion is plain `transition-*` utilities, which the global reduced-motion reset in
-  base.css neutralises — no animation engine. The panel's surface fades in as its own layer, so no
-  border ever changes colour (FOC-14).
+- The rail is a column of short dashes (a button naming the outline) that opens a floating panel
+  of the headings on hover, keyboard focus or a tap, over the page and never beside it — so it
+  takes no room and moves nothing. Its motion is plain `transition-*` utilities, which the global
+  reduced-motion reset in base.css neutralises — no animation engine. The panel fades in whole,
+  so no border ever changes colour (FOC-14).
 - The keyboard model is `useListNav`: the list is one tab stop, ↑/↓/Home/End move, Enter or Space
   navigates. Items are real `<a href="#id">` links, so copy-link and middle-click keep working; a
   plain click is intercepted and handed to `onNavigate`.
@@ -44,10 +47,19 @@ export interface TableOfContentsItem {
   level: number;
   /** The heading's text. */
   text: string;
+  /**
+   * The heading's block id (`TextEdit`'s `blockId`, `MarkdownView`'s `anchorId`): the scroll spy
+   * finds the heading by its `data-blockid` or `data-anchor-id` when no element has `id` — a shared
+   * document's editor names its headings by block only.
+   */
+  blockId?: string;
 }
 
-/** The two looks: an always-labelled list, or a rail of ticks that opens into the list. */
+/** The two looks: an always-labelled list, or a rail of dashes that opens into the list. */
 export type TableOfContentsVariant = "list" | "rail";
+
+/** The edge a rail sits on, and its open panel is anchored to. */
+export type TableOfContentsSide = "start" | "end";
 
 /** Options for `useActiveHeading`. */
 export interface UseActiveHeadingOptions {
@@ -64,6 +76,12 @@ export interface UseActiveHeadingOptions {
    * @default Math.min(180, 28% of the container's visible height)
    */
   offset?: number;
+  /**
+   * Each id's block id, by id: a heading no element carries the id of is found by its
+   * `data-blockid` or `data-anchor-id` instead.
+   * @default undefined
+   */
+  blockIds?: ReadonlyMap<string, string>;
 }
 
 /** The activation line's cap, in px, and its share of the viewport — the reference's values. */
@@ -91,22 +109,41 @@ function nearestScroller(element: HTMLElement): HTMLElement | null {
   return null;
 }
 
+/** The heading element for `id`: by `id`, else by its block id. */
+function headingElement(
+  id: string,
+  blockIds: ReadonlyMap<string, string> | undefined,
+): HTMLElement | null {
+  const byId = document.getElementById(id);
+  if (byId) return byId;
+  const block = blockIds?.get(id);
+  if (!block) return null;
+  const value = CSS.escape(block);
+  return document.querySelector<HTMLElement>(
+    `[data-blockid="${value}"],[data-anchor-id="${value}"]`,
+  );
+}
+
 /** The heading `ids` has reached, per the activation-line rule — `null` when none is in the DOM. */
 function computeActiveHeading(
   ids: readonly string[],
   container: HTMLElement | null,
   offset: number | undefined,
+  blockIds?: ReadonlyMap<string, string>,
 ): string | null {
   const headings = ids
-    .map((id) => document.getElementById(id))
+    .map((id) => {
+      const element = headingElement(id, blockIds);
+      return element ? { id, element } : null;
+    })
     .filter(
-      (element): element is HTMLElement =>
-        element !== null && element.getClientRects().length > 0,
+      (heading): heading is { id: string; element: HTMLElement } =>
+        heading !== null && heading.element.getClientRects().length > 0,
     );
   const last = headings[headings.length - 1];
   if (!last) return null;
 
-  const own = container ?? nearestScroller(headings[0]!);
+  const own = container ?? nearestScroller(headings[0]!.element);
   const scroller = own ?? document.scrollingElement ?? document.documentElement;
   const viewportTop = own ? own.getBoundingClientRect().top : 0;
   const viewportHeight = own ? own.clientHeight : window.innerHeight;
@@ -121,7 +158,8 @@ function computeActiveHeading(
     (offset ?? Math.min(ACTIVATION_MAX, viewportHeight * ACTIVATION_RATIO));
   let active = headings[0]!.id;
   for (const heading of headings) {
-    if (heading.getBoundingClientRect().top <= line) active = heading.id;
+    if (heading.element.getBoundingClientRect().top <= line)
+      active = heading.id;
   }
   return active;
 }
@@ -131,7 +169,7 @@ function computeActiveHeading(
  * outline. Returns the id of the LAST heading whose top is at or above the activation line
  * (`offset`, by default `min(180px, 28%)` of the container's visible height below its top edge),
  * the first heading before any is reached, and the last heading once the container is scrolled to
- * its bottom. Headings are found with `document.getElementById`; the container defaults to the
+ * its bottom. Headings are found with `document.getElementById` (or by `blockIds`); the container defaults to the
  * first heading's nearest scrolling ancestor, else the window. Scroll is listened to on `window`
  * in the capture phase, so a nested scroller counts, and throttled to one read per frame;
  * it re-reads when `ids` change and on resize.
@@ -141,7 +179,7 @@ function computeActiveHeading(
  */
 export function useActiveHeading(
   ids: readonly string[],
-  { container, offset }: UseActiveHeadingOptions = {},
+  { container, offset, blockIds }: UseActiveHeadingOptions = {},
 ): string | null {
   const [active, setActive] = React.useState<string | null>(null);
   // One string, so a new array with the same ids does not restart the listeners.
@@ -160,6 +198,7 @@ export function useActiveHeading(
         list,
         container?.current ?? null,
         offset,
+        blockIds,
       );
       setActive((current) => (current === next ? current : next));
     };
@@ -179,7 +218,7 @@ export function useActiveHeading(
       window.removeEventListener("scroll", schedule, { capture: true });
       window.removeEventListener("resize", schedule);
     };
-  }, [key, container, offset]);
+  }, [key, container, offset, blockIds]);
 
   return active;
 }
@@ -219,12 +258,18 @@ export interface TableOfContentsProps extends Omit<
    */
   scrollContainer?: React.RefObject<HTMLElement | null>;
   /**
-   * `list` is an always-labelled, indented list. `rail` is a column of short ticks (their width
-   * follows the level, the active one is thicker) that opens into the labelled list on hover or
-   * keyboard focus, over the content beside it.
+   * `list` is an always-labelled, indented list. `rail` is a slim column of short dashes, one per
+   * heading (shorter by level, the reached one in the foreground ink and thicker) that opens a
+   * floating panel of the headings on hover, keyboard focus or a tap; Escape closes it.
    * @default "list"
    */
   variant?: TableOfContentsVariant;
+  /**
+   * A rail only: the edge it sits on, which its panel opens from — `end` for a rail at the page's
+   * inline-end edge (`DocumentLayoutContents`), `start` for one before the text.
+   * @default "start"
+   */
+  side?: TableOfContentsSide;
   /**
    * Stick to the top of the scroller, at `--table-of-contents-top` (zero by default; set it through
    * `className`, e.g. `[--table-of-contents-top:--spacing(14)]` for a 56px header), and scroll
@@ -255,6 +300,17 @@ export interface TableOfContentsProps extends Omit<
    * @default undefined
    */
   trigger?: React.ReactElement;
+  /**
+   * Show the outline in the `Sheet`, opened and closed by the host — for an "On this page" item in
+   * a menu, with no trigger of its own. Pair it with `onOpenChange`.
+   * @default undefined
+   */
+  open?: boolean;
+  /**
+   * Called when the sheet opens or closes (`trigger` or `open`).
+   * @default undefined
+   */
+  onOpenChange?: (open: boolean) => void;
 }
 
 // The offset is declared here, at zero, so an unset one is a decision rather than a dropped
@@ -266,15 +322,17 @@ const STICKY_MAX_HEIGHT = "max-h-[calc(100dvh-var(--table-of-contents-top))]";
 /**
  * `TableOfContents` — the "On this page" outline of a long document: links to its headings, the
  * one the reader has reached marked (`aria-current="location"`, a bar or a thicker tick, and
- * weight — never colour alone). A `list`, a `rail` of ticks that opens on hover or focus, or —
- * with `trigger` — a left `Sheet` for narrow screens. Renders nothing when no heading is in range.
+ * weight — never colour alone). A `list`, a `rail` of dashes that opens a floating panel on hover,
+ * focus or a tap, or — with `trigger` or `open` — a left `Sheet` for narrow screens. Renders
+ * nothing when no heading is in range.
  *
- * Wide and narrow are two instances the host shows by breakpoint: the inline one in a
- * `hidden lg:block` column, the `trigger` one in the header with `lg:hidden`.
+ * Wide and narrow are two instances the host shows by breakpoint: the rail in
+ * `DocumentLayoutContents` (hidden below its M tier), the sheet from a menu item below it.
  *
  * @example
  * <TableOfContents
  *   variant="rail"
+ *   side="end"
  *   items={outline}
  *   onNavigate={(id) => handle.current?.scrollToHeading(id)}
  * />
@@ -284,6 +342,8 @@ export function TableOfContents({
   minLevel = 1,
   maxLevel = 3,
   trigger,
+  open,
+  onOpenChange,
   label = "On this page",
   onNavigate,
   ...props
@@ -309,13 +369,15 @@ export function TableOfContents({
   );
 
   if (shown.length === 0) return null;
-  if (trigger)
+  if (trigger || open !== undefined)
     return (
       <TableOfContentsSheet
         {...props}
         items={shown}
         label={label}
         trigger={trigger}
+        open={open}
+        onOpenChange={onOpenChange}
         navigate={navigate}
       />
     );
@@ -331,7 +393,13 @@ export function TableOfContents({
 
 interface TableOfContentsNavProps extends Omit<
   TableOfContentsProps,
-  "trigger" | "minLevel" | "maxLevel" | "onNavigate" | "label"
+  | "trigger"
+  | "open"
+  | "onOpenChange"
+  | "minLevel"
+  | "maxLevel"
+  | "onNavigate"
+  | "label"
 > {
   label: string;
   navigate: (id: string) => void;
@@ -346,6 +414,7 @@ function TableOfContentsNav({
   onActiveIdChange,
   scrollContainer,
   variant = "list",
+  side = "start",
   sticky = true,
   label,
   showTitle = true,
@@ -353,12 +422,28 @@ function TableOfContentsNav({
   ...props
 }: TableOfContentsNavProps) {
   const titleId = React.useId();
+  const panelId = React.useId();
   const listRef = React.useRef<HTMLOListElement>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
   const rail = variant === "rail";
 
   const ids = React.useMemo(() => items.map((item) => item.id), [items]);
-  const spied = useActiveHeading(ids, { container: scrollContainer });
+  // One string, so new items with the same block ids keep the spy's listeners.
+  const blockKey = items
+    .map((item) => `${item.id}\u0000${item.blockId ?? ""}`)
+    .join("\u0001");
+  const blockIds = React.useMemo(() => {
+    const map = new Map<string, string>();
+    for (const entry of blockKey.split("\u0001")) {
+      const [id, block] = entry.split("\u0000");
+      if (id && block) map.set(id, block);
+    }
+    return map.size > 0 ? map : undefined;
+  }, [blockKey]);
+  const spied = useActiveHeading(ids, {
+    container: scrollContainer,
+    blockIds,
+  });
   const reported = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (spied === reported.current) return;
@@ -398,6 +483,15 @@ function TableOfContentsNav({
   }, [activeId, rail]);
 
   const [expanded, setExpanded] = React.useState(false);
+  const navRef = React.useRef<HTMLElement | null>(null);
+  const { ref: refProp, ...navProps } = props;
+  const navRefs = React.useMemo(
+    () => mergeRefs<HTMLElement>(navRef, refProp),
+    [refProp],
+  );
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  // Escape hands focus back to the trigger; that focus must not open the panel again.
+  const quiet = React.useRef(false);
   const openTimer = React.useRef<number | null>(null);
   const closeTimer = React.useRef<number | null>(null);
   const clearTimers = React.useCallback(() => {
@@ -427,13 +521,32 @@ function TableOfContentsNav({
       return true;
     }
   };
+  const close = React.useCallback(() => {
+    clearTimers();
+    setExpanded(false);
+  }, [clearTimers]);
+  // A tap opened it (no hover to leave): a press anywhere else closes it.
+  React.useEffect(() => {
+    if (!rail || !expanded) return;
+    const onDown = (event: PointerEvent) => {
+      if (navRef.current?.contains(event.target as Node)) return;
+      close();
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+  }, [rail, expanded, close]);
 
   const choose = (id: string) => {
-    if (rail) {
-      clearTimers();
-      setExpanded(false);
-    }
+    if (rail) close();
     navigate(id);
+  };
+  const focusActive = () => {
+    requestAnimationFrame(() => {
+      const links = listRef.current?.querySelectorAll<HTMLElement>(
+        '[data-slot="table-of-contents-link"]',
+      );
+      links?.[Math.max(activeIndex, 0)]?.focus();
+    });
   };
 
   const depthBase = Math.min(...items.map((item) => item.level));
@@ -481,29 +594,11 @@ function TableOfContentsNav({
                 event.preventDefault();
                 choose(item.id);
               }}
-              className={rail ? RAIL_LINK : LIST_LINK}
+              className={rail ? PANEL_LINK : LIST_LINK}
             >
-              {rail ? (
-                <span
-                  aria-hidden
-                  data-slot="table-of-contents-tick"
-                  className="flex w-4 shrink-0 items-center"
-                >
-                  <span
-                    className={cn(
-                      "h-0.5 rounded-full bg-muted-foreground/40 transition-colors group-hover/table-of-contents-link:bg-muted-foreground group-data-active/table-of-contents-link:h-1 group-data-active/table-of-contents-link:bg-foreground",
-                      depth === 0 ? "w-4" : depth === 1 ? "w-3" : "w-2",
-                    )}
-                  />
-                </span>
-              ) : null}
               <span
                 data-slot="table-of-contents-label"
-                className={
-                  rail
-                    ? "min-w-0 flex-1 truncate ps-[calc(var(--table-of-contents-depth,0)*--spacing(3))] opacity-0 transition-opacity duration-150 group-data-expanded/table-of-contents:opacity-100"
-                    : "min-w-0"
-                }
+                className="min-w-0 truncate"
               >
                 {item.text}
               </span>
@@ -520,19 +615,11 @@ function TableOfContentsNav({
       data-slot="table-of-contents-title"
       className={cn(
         "flex min-w-0 items-center gap-2 text-xs font-medium text-muted-foreground",
-        rail ? "h-7 px-1" : "pb-1",
+        rail ? "h-7 px-2" : "pb-1",
       )}
     >
-      <ListTree aria-hidden className={rail ? "size-4 shrink-0" : "size-3.5"} />
-      <span
-        className={cn(
-          "min-w-0 truncate",
-          rail &&
-            "opacity-0 transition-opacity duration-150 group-data-expanded/table-of-contents:opacity-100",
-        )}
-      >
-        {label}
-      </span>
+      <ListTree aria-hidden className="size-3.5 shrink-0" />
+      <span className="min-w-0 truncate">{label}</span>
     </p>
   ) : null;
   const naming = showTitle
@@ -563,92 +650,166 @@ function TableOfContentsNav({
 
   return (
     <nav
-      {...naming}
+      ref={navRefs}
+      aria-label={label}
       data-slot="table-of-contents"
       data-variant="rail"
+      data-side={side}
       data-expanded={expanded ? "" : undefined}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "touch") return;
+        if (expanded) clearTimers();
+        else later(openTimer, RAIL_OPEN_DELAY, true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "touch") return;
+        if (keyboardFocusWithin(event.currentTarget)) return;
+        later(closeTimer, RAIL_CLOSE_DELAY, false);
+      }}
+      onFocus={(event) => {
+        if (quiet.current) {
+          quiet.current = false;
+          return;
+        }
+        if (!keyboardFocusWithin(event.currentTarget)) return;
+        clearTimers();
+        setExpanded(true);
+      }}
+      onBlur={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget as Node | null))
+          return;
+        later(closeTimer, RAIL_CLOSE_DELAY, false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !expanded) return;
+        event.stopPropagation();
+        close();
+        quiet.current = true;
+        triggerRef.current?.focus();
+      }}
       className={cn(
         // `z-20`: the open panel is an overlay, so it paints over the page's own positioned
         // content (the title, the editor), never under it.
-        "group/table-of-contents relative z-20 w-6 shrink-0",
+        "group/table-of-contents relative z-20 flex w-6 shrink-0 flex-col",
+        side === "end" ? "items-end" : "items-start",
         sticky && STICKY,
         className,
       )}
-      {...props}
+      {...navProps}
     >
-      <div
-        data-slot="table-of-contents-panel"
-        onPointerEnter={(event) => {
-          if (event.pointerType === "touch") return;
-          if (expanded) clearTimers();
-          else later(openTimer, RAIL_OPEN_DELAY, true);
-        }}
-        onPointerLeave={(event) => {
-          if (keyboardFocusWithin(event.currentTarget)) return;
-          later(closeTimer, RAIL_CLOSE_DELAY, false);
-        }}
-        onFocus={(event) => {
-          if (!keyboardFocusWithin(event.currentTarget)) return;
+      <Button
+        variant="ghost"
+        size="icon"
+        ref={triggerRef}
+        type="button"
+        data-slot="table-of-contents-trigger"
+        aria-label={label}
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        onClick={() => {
           clearTimers();
           setExpanded(true);
-        }}
-        onBlur={(event) => {
-          if (event.currentTarget.contains(event.relatedTarget as Node | null))
-            return;
-          later(closeTimer, RAIL_CLOSE_DELAY, false);
+          focusActive();
         }}
         onKeyDown={(event) => {
-          if (event.key !== "Escape" || !expanded) return;
+          if (event.key !== "ArrowDown") return;
+          event.preventDefault();
           clearTimers();
-          setExpanded(false);
+          setExpanded(true);
+          focusActive();
         }}
         className={cn(
-          "relative z-10 flex w-6 flex-col transition-[width] duration-200 ease-out group-data-expanded/table-of-contents:w-64",
+          RAIL_TRIGGER,
+          side === "end" ? "items-end" : "items-start",
           sticky && STICKY_MAX_HEIGHT,
         )}
       >
-        <div
-          aria-hidden
-          data-slot="table-of-contents-surface"
-          className="pointer-events-none absolute inset-0 rounded-lg border border-border bg-popover opacity-0 shadow-md transition-opacity duration-150 group-data-expanded/table-of-contents:opacity-100"
-        />
-        <div
-          ref={scrollerRef}
-          className="relative flex min-h-0 flex-col gap-1 overflow-x-hidden overflow-y-auto overscroll-contain"
-        >
-          {title}
-          {list}
-        </div>
+        {items.map((item) => {
+          const depth = item.level - depthBase;
+          const active = item.id === activeId;
+          return (
+            <span
+              key={item.id}
+              aria-hidden
+              data-slot="table-of-contents-tick"
+              data-active={active ? "" : undefined}
+              className="flex h-2.5 shrink-0 items-center"
+            >
+              <span
+                className={cn(
+                  "rounded-full transition-colors",
+                  active
+                    ? "h-[3px] bg-foreground"
+                    : "h-0.5 bg-muted-foreground/35 group-hover/table-of-contents:bg-muted-foreground/60",
+                  depth === 0 ? "w-4" : depth === 1 ? "w-3" : "w-2",
+                )}
+              />
+            </span>
+          );
+        })}
+      </Button>
+      <div
+        id={panelId}
+        ref={scrollerRef}
+        data-slot="table-of-contents-panel"
+        inert={!expanded}
+        className={cn(
+          RAIL_PANEL,
+          side === "end"
+            ? "end-0 origin-top-right rtl:origin-top-left"
+            : "start-0 origin-top-left rtl:origin-top-right",
+          sticky
+            ? "max-h-[min(32rem,calc(100dvh-var(--table-of-contents-top)-2rem))]"
+            : "max-h-[min(32rem,calc(100dvh-8rem))]",
+        )}
+      >
+        {title}
+        {list}
       </div>
     </nav>
   );
 }
 
-// A row is 28px tall in both variants and at least 24px wide, so the link itself is the ≥24px
-// target (WCAG 2.5.8) with room around it, and needs no invisible hit area.
+// A row is 28px tall in the list and the rail's panel and at least 24px wide, so the link itself
+// is the ≥24px target (WCAG 2.5.8) with room around it, and needs no invisible hit area.
 const LIST_LINK =
   "group/table-of-contents-link relative -ms-px flex min-h-7 items-center rounded-e-md py-1 ps-[calc(--spacing(3)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] hover:text-foreground data-active:font-medium data-active:text-foreground data-active:before:opacity-100";
-const RAIL_LINK =
-  "group/table-of-contents-link flex h-7 min-w-6 items-center gap-2 rounded-md px-1 text-sm text-muted-foreground transition-colors hover:text-foreground data-active:font-medium data-active:text-foreground";
+const PANEL_LINK =
+  "flex min-h-7 items-center rounded-md py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground data-active:font-medium data-active:text-foreground";
+// The rail: a column of 10px rows, each holding one dash — 18 headings are 180px tall. A ghost
+// `Button` reshaped into the column (base.css paints its focus cue); on touch its hit area
+// reaches 44px wide.
+const RAIL_TRIGGER =
+  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:bg-transparent active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0 dark:hover:bg-transparent";
+// The panel floats over the page from the rail's top corner; closed, it is transparent and inert.
+const RAIL_PANEL =
+  "pointer-events-none absolute top-0 flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
 
 interface TableOfContentsSheetProps extends Omit<
   TableOfContentsProps,
-  "minLevel" | "maxLevel" | "onNavigate" | "label" | "trigger"
+  "minLevel" | "maxLevel" | "onNavigate" | "label"
 > {
   label: string;
-  trigger: React.ReactElement;
   navigate: (id: string) => void;
 }
 
 function TableOfContentsSheet({
   trigger,
+  open: openProp,
+  onOpenChange,
   label,
   navigate,
   variant: _variant,
+  side: _side,
   sticky: _sticky,
   ...props
 }: TableOfContentsSheetProps) {
-  const [open, setOpen] = React.useState(false);
+  const [openState, setOpenState] = React.useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    setOpenState(next);
+    onOpenChange?.(next);
+  };
   // Navigate once the sheet has closed: a modal sheet locks the page's scroll while it is open.
   const pending = React.useRef<string | null>(null);
   return (
@@ -662,7 +823,7 @@ function TableOfContentsSheet({
         navigate(id);
       }}
     >
-      <SheetTrigger render={trigger} />
+      {trigger ? <SheetTrigger render={trigger} /> : null}
       <SheetContent side="left" size="sm">
         <SheetHeader>
           <SheetTitle>{label}</SheetTitle>

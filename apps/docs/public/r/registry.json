@@ -245,7 +245,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.46",
-        "integrity": "sha256-YzHl7sB39ROv6miMpOWP3qwg+oLMbGE69QaGJ2LbW1o="
+        "integrity": "sha256-F2YE67SscSXMKwENg0KvpOCBnzugHpXdfO97akrtkoo="
       }
     },
     {
@@ -323,7 +323,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.46",
-        "integrity": "sha256-M7BqwAhJ0WaL+abvX4IP9UwMjgUDsUVVfecODFSLgV0="
+        "integrity": "sha256-I+Y43XIKI8ZgEJBScCvxmCWIpWdxUW81YiEi+PCh1IY="
       }
     },
     {
@@ -15931,6 +15931,7 @@
         "@vegastack/design-tokens@^0.8.12"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/sheet",
         "@vegastack/use-list-nav",
         "@vegastack/use-media-query"
@@ -15946,7 +15947,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.25.46",
-        "integrity": "sha256-oFcwRKKibSlnDNOeV9azpuBsjE8isPZVoyUB1T7niws="
+        "integrity": "sha256-LqdAdm5iBJx3mftNx+RSFhxsJmwRL2yTjOYjZQiPAFA="
       }
     },
     {
@@ -16208,7 +16209,7 @@
         "@vegastack/popover",
         "@vegastack/alert",
         "@vegastack/text-edit-grammar",
-        "@vegastack/copy-button",
+        "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
         "@vegastack/embed-providers",
@@ -16235,7 +16236,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.46",
-        "integrity": "sha256-F2M/xcX+LEvZI7DbI5lsm8B0aK5AyPWLFaeGtsb8tC0="
+        "integrity": "sha256-mAItE/Aj91mH9WYr7tRg3lI0U9GilqpTyc76a/jslkw="
       }
     },
     {
@@ -18321,7 +18322,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.46",
-        "integrity": "sha256-7nh5SgokR7RU9cF6bbYkU7Xe0vE5ZClIZfi0sRmpEIQ="
+        "integrity": "sha256-71HgAn9gFebsWi6ollxzC9D+mVo+Tm2AOe7X3l+/FUQ="
       }
     },
     {

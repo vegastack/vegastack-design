@@ -1,6 +1,6 @@
 ---
 title: Document Layout
-description: A page read as a document — title, text at a reading measure, contents and a comment margin — on one grid with four tiers by its own width.
+description: A page read as a document — title, text at a reading measure, a comment margin and a floating contents rail — on one grid with four tiers by its own width.
 audience: public
 registry: document-layout
 status: stable
@@ -20,22 +20,26 @@ import {
   DocumentLayout,
   DocumentLayoutBody,
   DocumentLayoutContents,
-  DocumentLayoutContentsList,
-  DocumentLayoutContentsRail,
   DocumentLayoutFoot,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
 } from "@/components/ui/document-layout";
 
-<DocumentLayout contents={outline.length > 1} margin={canComment}>
+<DocumentLayout margin={canComment}>
   <DocumentLayoutHeader>
     <h1 className="text-4xl font-semibold">Pricing v2</h1>
     <p className="text-sm text-muted-foreground">Updated 3m ago</p>
   </DocumentLayoutHeader>
-  <DocumentLayoutContents>
-    <DocumentLayoutContentsRail>{rail}</DocumentLayoutContentsRail>
-    <DocumentLayoutContentsList>{list}</DocumentLayoutContentsList>
-  </DocumentLayoutContents>
+  {outline.length > 1 ? (
+    <DocumentLayoutContents>
+      <TableOfContents
+        variant="rail"
+        side="end"
+        sticky={false}
+        items={outline}
+      />
+    </DocumentLayoutContents>
+  ) : null}
   <DocumentLayoutBody>
     <MarkdownView typeScale="document">{markdown}</MarkdownView>
   </DocumentLayoutBody>
@@ -48,24 +52,27 @@ import {
 spec, its public view and a version's full view all wear the same one. The text sits at a calm
 reading measure, `--document-measure` (47ch: about 67 characters a line of Geist at the document
 type scale), with the title area above it and what follows it — sub-pages, the page's own
-comments — below, in the same column. Beside it, when there is room, a contents column and a
-comment margin.
+comments — below, in the same column. Beside it, when there is room, a comment margin; and at
+the layout's inline-end edge, a contents rail that takes no column at all.
 
 The layout follows its **own width**, not the window's (container queries in rem), so a collapsed
 sidebar or a split view lands in the right tier:
 
-| Tier | Width    | Columns                               | Comments                    |
-| ---- | -------- | ------------------------------------- | --------------------------- |
-| S    | < 36rem  | text, full width                      | the host's sheet or popover |
-| M    | 36–52rem | contents rail (24px) · text           | a popover at the highlight  |
-| L    | 52–64rem | contents rail · text · margin (18rem) | the margin                  |
-| XL   | ≥ 64rem  | contents list (13rem) · text · margin | the margin                  |
+| Tier | Width    | Columns                      | Contents                 | Comments                    |
+| ---- | -------- | ---------------------------- | ------------------------ | --------------------------- |
+| S    | < 36rem  | text, full width             | the host's menu or sheet | the host's sheet or popover |
+| M    | 36–52rem | text                         | the rail, at the edge    | a popover at the highlight  |
+| L    | 52–64rem | text · margin (18rem)        | the rail, at the edge    | the margin                  |
+| XL   | ≥ 64rem  | text · margin, room to spare | the rail, at the edge    | the margin                  |
 
 It is one subtree at every width: a column with no room is `display: none`, never unmounted, so
 an editor inside never remounts when the window resizes. `margin` reserves the comment column from
 L up whenever the reader can comment or threads exist, so a first comment never shifts the text.
-`contents` turns the contents column on (two headings or more). Put the parts in reading order —
-header, contents, body, foot, margin. Server-safe: the tiers are CSS.
+From M up the grid keeps a 2.5rem gutter on each side whether or not a page has headings, and
+`DocumentLayoutContents` floats in the inline-end one: a `TableOfContents variant="rail" side="end"`
+there is a slim column of dashes that opens into the labelled list over the page — so headings
+that arrive (or go) never move the text. Put the parts in reading order — header, contents, body,
+foot, margin. Server-safe: the tiers are CSS.
 
 <ComponentPreview
   name="documentLayout"
@@ -93,7 +100,7 @@ choice, never the document's. The margin keeps its place where it fits.
 `DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — a title bar, a
 meta bar and paragraphs of text bars at the document line pitch (a 14px bar every 24px, 16 every
 26 on a coarse pointer), 12px between paragraphs — so nothing moves when the page arrives. Pass it
-the `margin`, `contents` and `measure` the page will have. It is one `status` region, named by
+the `margin` and `measure` the page will have. It is one `status` region, named by
 `label`.
 
 <ComponentPreview
@@ -103,8 +110,8 @@ the `margin`, `contents` and `measure` the page will have. It is one `status` re
 
 ### The tier in script
 
-Branches CSS cannot take — comments in the margin or in a popover, the contents in a list or a
-sheet — read the tier with `useDocumentLayoutTier(ref)`. It reads `--document-layout-tier`, which
+Branches CSS cannot take — comments in the margin or in a popover, the contents on the rail or
+in a menu — read the tier with `useDocumentLayoutTier(ref)`. It reads `--document-layout-tier`, which
 the container queries set, so script and stylesheet never disagree about where a tier starts.
 `fallback` (default `"xl"`) is the answer on the server and before the first measurement.
 
@@ -142,10 +149,10 @@ link prints its address.
   name="DocumentLayoutSkeletonProps"
 />
 
-`DocumentLayoutHeader`, `DocumentLayoutBody`, `DocumentLayoutFoot`, `DocumentLayoutContentsRail`
-and `DocumentLayoutContentsList` take a `div`'s native props; `DocumentLayoutContents` and
-`DocumentLayoutMargin` take an `aside`'s. The sticky contents column sits
-`--document-layout-sticky-top` (default `--spacing(8)`) below the top of the scroll container.
+`DocumentLayoutHeader`, `DocumentLayoutBody` and `DocumentLayoutFoot` take a `div`'s native
+props; `DocumentLayoutContents` and `DocumentLayoutMargin` take an `aside`'s. What the contents
+hold sticks `--document-layout-sticky-top` (default `--spacing(8)`) below the top of the scroll
+container.
 
 ## Accessibility
 
@@ -165,6 +172,6 @@ and `DocumentLayoutContentsList` take a `div`'s native props; `DocumentLayoutCon
 ## Do / Don't
 
 <DoDont
-  do="Set margin whenever the reader can comment, so the text never moves when the first comment lands, and render the skeleton with the same margin, contents and measure as the page."
+  do="Set margin whenever the reader can comment, so the text never moves when the first comment lands, and render the skeleton with the same margin and measure as the page."
   dont="Give the text column its own max-width or padding — the measure and the tiers are the layout's, and a second width fights the container queries."
 />

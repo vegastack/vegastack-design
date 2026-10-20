@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.46 sha256-F2M/xcX+LEvZI7DbI5lsm8B0aK5AyPWLFaeGtsb8tC0=
+// @vegastack markdown-view@0.25.46 sha256-mAItE/Aj91mH9WYr7tRg3lI0U9GilqpTyc76a/jslkw=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import {
   ChevronDown,
   ChevronUp,
+  Hash,
   MessageSquarePlus,
   Play,
   SquarePlay,
@@ -16,7 +17,7 @@ import {
 import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
-import { CopyButton } from "@/components/ui/copy-button";
+import { toast } from "@/components/ui/toast";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   anchorFromRange,
@@ -1115,9 +1116,31 @@ export interface MarkdownHeadingLinkProps {
 }
 
 /**
- * `MarkdownHeadingLink` — the copy-link button after a heading (`headingLinkHref`): hidden until
- * the heading is hovered or the button focused, always shown on a coarse pointer. A press copies
- * the section's absolute link.
+ * Copy `text`, then say so in a toast ("Link copied"), or that it couldn't. Shared by the read
+ * view's and the editor's heading links.
+ */
+export async function copyWithToast(text: string, done: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.add({ title: done });
+  } catch {
+    toast.add({ title: "Couldn't copy. Try again.", type: "error" });
+  }
+}
+
+/**
+ * The heading link's look — a muted `#` that darkens on hover — shared with `TextEdit`'s heading
+ * link, so the read view and the editor show the same button in the same place: in the gutter
+ * just before the heading's first line (a 24px box, 2px clear of the text), or after the text on
+ * a coarse pointer, where a narrow screen has no gutter.
+ */
+export const headingLinkClassName =
+  "font-sans text-muted-foreground hover:text-foreground print:hidden [&_svg]:size-3.5";
+
+/**
+ * `MarkdownHeadingLink` — the `#` copy-link button of a heading (`headingLinkHref`): in the
+ * gutter before the text (after it on a coarse pointer), hidden until the heading is hovered,
+ * focused or tapped. A press copies the section's absolute link and confirms in a toast.
  *
  * @example
  * <MarkdownHeadingLink href="#pricing~a1b2c3d4" heading="Pricing" />
@@ -1126,19 +1149,102 @@ export function MarkdownHeadingLink({
   href,
   heading,
 }: MarkdownHeadingLinkProps) {
-  const [absolute, setAbsolute] = React.useState(href);
-  React.useEffect(() => {
-    setAbsolute(new URL(href, window.location.href).href);
-  }, [href]);
+  // The box is one heading line tall (it inherits the heading's line height), so the `#` sits on
+  // the first line's middle whatever the heading's size.
   return (
-    <CopyButton
+    <span
       data-slot="markdown-heading-link"
-      value={absolute}
+      className={cn(
+        "absolute -start-[26px] top-0 flex h-[1lh] items-center opacity-0 transition-opacity group-hover/heading:opacity-100 group-focus/heading:opacity-100 has-focus-visible:opacity-100 print:hidden",
+        "pointer-coarse:static pointer-coarse:ms-1 pointer-coarse:inline-flex pointer-coarse:h-auto pointer-coarse:align-middle",
+      )}
+    >
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        aria-label={`Copy link to “${heading}”`}
+        title="Copy link"
+        onClick={() =>
+          void copyWithToast(
+            new URL(href, window.location.href).href,
+            "Link copied",
+          )
+        }
+        className={headingLinkClassName}
+      >
+        <Hash aria-hidden />
+      </Button>
+    </span>
+  );
+}
+
+/** Props accepted by `MarkdownSectionMarker`. */
+export interface MarkdownSectionMarkerProps {
+  /** The mark's key, passed back to `onMark`. */
+  markKey: string;
+  /** The mark's tone. */
+  tone: "warning" | "info";
+  /** The marker's accessible name and tooltip. */
+  label: string;
+  /** Called with `markKey` on a click; without it the marker is a labelled dot. */
+  onMark?: (key: string) => void;
+  /** The marker's classes (`sectionMarkClassNames.marker`, from the server-safe view). */
+  className: string;
+  /** The dot's classes (`sectionMarkClassNames.dot[tone]`). */
+  dotClassName: string;
+}
+
+/**
+ * `MarkdownSectionMarker` — a marked section's gutter marker (`sectionMarks`): a dot on the
+ * section's bar beside its heading's first line, a button when the host listens for it.
+ *
+ * @example
+ * <MarkdownSectionMarker
+ *   markKey="b1"
+ *   tone="warning"
+ *   label="May be out of date"
+ *   onMark={open}
+ *   className={sectionMarkClassNames.marker}
+ *   dotClassName={sectionMarkClassNames.dot.warning}
+ * />
+ */
+export function MarkdownSectionMarker({
+  markKey,
+  tone,
+  label,
+  onMark,
+  className,
+  dotClassName,
+}: MarkdownSectionMarkerProps) {
+  const dot = <span aria-hidden className={dotClassName} />;
+  if (!onMark)
+    return (
+      <span
+        role="img"
+        aria-label={label}
+        title={label}
+        data-slot="markdown-section-mark"
+        data-tone={tone}
+        className={cn(className, "cursor-default")}
+      >
+        {dot}
+      </span>
+    );
+  return (
+    <Button
+      type="button"
+      variant="ghost"
       size="icon-xs"
-      copyLabel={`Copy link to “${heading}”`}
-      copiedLabel="Link copied"
-      className="ms-1 align-middle font-sans text-muted-foreground opacity-0 transition-opacity group-hover/heading:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100 print:hidden"
-    />
+      aria-label={label}
+      title={label}
+      data-slot="markdown-section-mark"
+      data-tone={tone}
+      onClick={() => onMark(markKey)}
+      className={className}
+    >
+      {dot}
+    </Button>
   );
 }
 

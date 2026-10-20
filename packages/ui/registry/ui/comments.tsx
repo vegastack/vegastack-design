@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-M7BqwAhJ0WaL+abvX4IP9UwMjgUDsUVVfecODFSLgV0=
+// @vegastack comments@0.25.46 sha256-I+Y43XIKI8ZgEJBScCvxmCWIpWdxUW81YiEi+PCh1IY=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
   Copy,
   Ellipsis,
   Link,
+  MessageSquarePlus,
   Paperclip,
   Pencil,
   Reply,
@@ -1162,6 +1163,13 @@ export interface CommentComposerProps {
   files?: React.ReactNode;
   /** The draft carries files (`files`): Send is enabled and posts with no text. @default false */
   hasFiles?: boolean;
+  /**
+   * At rest, one quiet line ("Add a comment…") instead of the card: a click, a tap or Enter opens
+   * the card with the caret in it, and it folds back to the line once it is empty and left — a
+   * press elsewhere, focus moving on, Escape, or a comment sent. For a page's own comments under
+   * its text, where an open card would weigh more than the text. @default false
+   */
+  compact?: boolean;
   /** Classes for the composer. @default undefined */
   className?: string;
 }
@@ -1197,6 +1205,7 @@ export function CommentComposer({
   onAttachFiles,
   files,
   hasFiles = false,
+  compact = false,
   className,
 }: CommentComposerProps) {
   const [generation, setGeneration] = React.useState(0);
@@ -1205,6 +1214,35 @@ export function CommentComposer({
   const [body, setBody] = React.useState(defaultValue ?? "");
   const posting = postingProp ?? pending;
   const error = errorProp !== undefined ? errorProp : errorState;
+  // `compact`: the card opens on demand, and a draft (a restored one too) keeps it open.
+  const [opened, setOpened] = React.useState(() => !!defaultValue?.trim());
+  // Opened by the reader (not by a restored draft): the caret goes into the card.
+  const [openedHere, setOpenedHere] = React.useState(false);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const lineRef = React.useRef<HTMLButtonElement>(null);
+  const refocusLine = React.useRef(false);
+  const folded = compact && !opened && !replyingTo;
+  const idle = !body.trim() && !hasFiles && !posting && !error;
+  const fold = React.useCallback((focusLine: boolean) => {
+    refocusLine.current = focusLine;
+    setOpened(false);
+    setOpenedHere(false);
+  }, []);
+  React.useEffect(() => {
+    if (!folded || !refocusLine.current) return;
+    refocusLine.current = false;
+    lineRef.current?.focus();
+  }, [folded]);
+  // A press anywhere else folds an empty card (a file picker's dialog is no press, so it stays).
+  React.useEffect(() => {
+    if (!compact || folded || !idle) return;
+    const onDown = (event: PointerEvent) => {
+      if (rootRef.current?.contains(event.target as Node)) return;
+      fold(false);
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+  }, [compact, folded, idle, fold]);
 
   const submit = async (value: string) => {
     if ((!value.trim() && !hasFiles) || posting) return;
@@ -1215,6 +1253,7 @@ export function CommentComposer({
       setGeneration((g) => g + 1);
       setBody("");
       onValueChange?.("");
+      if (compact) fold(true);
     } catch (e) {
       setErrorState(errorMessage(e, "Couldn't post the comment."));
     } finally {
@@ -1222,9 +1261,54 @@ export function CommentComposer({
     }
   };
 
+  if (folded)
+    return (
+      <div
+        data-slot="comment-composer"
+        data-folded=""
+        className={cn("flex min-w-0 flex-col", className)}
+      >
+        <Button
+          ref={lineRef}
+          type="button"
+          variant="ghost"
+          disabled={disabled}
+          data-slot="comment-composer-line"
+          onClick={() => {
+            setOpened(true);
+            setOpenedHere(true);
+          }}
+          className="w-full justify-start gap-2 px-0 font-normal text-muted-foreground hover:bg-transparent hover:text-foreground dark:hover:bg-transparent"
+        >
+          <MessageSquarePlus aria-hidden />
+          {placeholder ?? "Add a comment…"}
+        </Button>
+      </div>
+    );
+
   return (
     <div
+      ref={rootRef}
       data-slot="comment-composer"
+      onBlur={
+        compact
+          ? (event) => {
+              const next = event.relatedTarget as Node | null;
+              if (!next || event.currentTarget.contains(next) || !idle) return;
+              fold(false);
+            }
+          : undefined
+      }
+      onKeyDown={
+        compact
+          ? (event) => {
+              // A mention or slash menu's Escape stops at the menu; one that reaches here is the
+              // box's own.
+              if (event.key !== "Escape" || !idle) return;
+              fold(true);
+            }
+          : undefined
+      }
       className={cn("flex min-w-0 flex-col gap-1.5", className)}
     >
       {replyingTo ? (
@@ -1261,7 +1345,7 @@ export function CommentComposer({
           placeholder ?? (replyingTo ? "Leave a reply…" : "Add a comment…")
         }
         onEscape={replyingTo ? onCancelReply : undefined}
-        autoFocus={autoFocus || generation > 0}
+        autoFocus={autoFocus || generation > 0 || openedHere}
         onValueChange={(next) => {
           setBody(next);
           onValueChange?.(next);

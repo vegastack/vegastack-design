@@ -6,14 +6,13 @@ import {
   DocumentLayout,
   DocumentLayoutBody,
   DocumentLayoutContents,
-  DocumentLayoutContentsList,
-  DocumentLayoutContentsRail,
   DocumentLayoutFoot,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
   DocumentLayoutSkeleton,
 } from "@/components/ui/document-layout";
 import { MarkdownView } from "@/components/ui/markdown-view";
+import { TableOfContents } from "@/components/ui/table-of-contents";
 
 const PAGE = `Pricing for the annual plan is set per seat and billed once a year. Teams that grow during the term add seats at the same rate, prorated to the renewal date, and a team that shrinks keeps its seats until the term ends.
 
@@ -30,35 +29,22 @@ Discounts apply from twenty seats. Every plan includes the same support, the sam
 
 Seats are capped at 500 per workspace; a larger organisation splits into workspaces.`;
 
-const OUTLINE = ["Seats", "Renewal", "Limits"];
+const OUTLINE = ["Seats", "Renewal", "Limits"].map((text) => ({
+  id: text.toLowerCase(),
+  level: 2,
+  text,
+}));
 
+/** The contents rail at the layout's inline-end edge: it opens into the list on hover or focus. */
 function Contents() {
   return (
     <DocumentLayoutContents>
-      <DocumentLayoutContentsRail>
-        <div aria-hidden className="flex flex-col gap-3 pt-3">
-          {OUTLINE.map((item) => (
-            <span key={item} className="h-0.5 w-3 rounded-full bg-border" />
-          ))}
-        </div>
-      </DocumentLayoutContentsRail>
-      <DocumentLayoutContentsList>
-        <p className="mb-2 text-xs font-medium text-muted-foreground">
-          On this page
-        </p>
-        <ul className="flex flex-col gap-1.5 text-sm">
-          {OUTLINE.map((item) => (
-            <li key={item}>
-              <a
-                href={`#${item.toLowerCase()}`}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {item}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </DocumentLayoutContentsList>
+      <TableOfContents
+        variant="rail"
+        side="end"
+        sticky={false}
+        items={OUTLINE}
+      />
     </DocumentLayoutContents>
   );
 }
@@ -80,14 +66,15 @@ function Header() {
 }
 
 /**
- * A page read as a document, at the width the preview has: the contents list and the comment
- * margin beside the text when there is room for them (XL at 64rem), the rail and margin at L, the
- * rail alone at M, the text alone at S. Resize the window to watch the tiers.
+ * A page read as a document, at the width the preview has: the comment margin beside the text
+ * from L (52rem), the contents rail floating at the inline-end edge from M (36rem) — it takes no
+ * column, so the text never moves for it — and the text alone at S. Resize the window to watch
+ * the tiers.
  */
 export function documentLayout(): ReactNode {
   return (
     <Wrapper className="block p-0 py-8">
-      <DocumentLayout contents margin className="px-4 sm:px-8">
+      <DocumentLayout margin className="px-4 sm:px-8">
         <Header />
         <Contents />
         <DocumentLayoutBody>
@@ -135,7 +122,7 @@ export function documentLayoutWide(): ReactNode {
 export function documentLayoutSkeleton(): ReactNode {
   return (
     <Wrapper className="block p-0 py-8">
-      <DocumentLayoutSkeleton contents margin className="px-4 sm:px-8" />
+      <DocumentLayoutSkeleton margin className="px-4 sm:px-8" />
     </Wrapper>
   );
 }

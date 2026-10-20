@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.46 sha256-YzHl7sB39ROv6miMpOWP3qwg+oLMbGE69QaGJ2LbW1o=
+// @vegastack document-layout@0.25.46 sha256-F2YE67SscSXMKwENg0KvpOCBnzugHpXdfO97akrtkoo=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -9,15 +9,19 @@ export { useDocumentLayoutTier } from "@/components/ui/use-document-layout-tier"
 
 /* ------------------------------------------------------------------------------------------------
  * DocumentLayout — a page read as a document: the title area, the text at a reading measure, what
- * follows the text (sub-pages, page comments), a contents list beside it and a comment margin on
- * the other side. One grid, four tiers by its OWN width (container queries in rem, so a collapsed
- * sidebar or a split view picks the right one), and one subtree at every width: a column that has
- * no room is `display: none`, never unmounted, so an editor inside never remounts.
+ * follows the text (sub-pages, page comments) and a comment margin beside it. One grid, four tiers
+ * by its OWN width (container queries in rem, so a collapsed sidebar or a split view picks the
+ * right one), and one subtree at every width: a column that has no room is `display: none`, never
+ * unmounted, so an editor inside never remounts.
  *
  *   S  < 36rem   text only, full width             (contents and comments are the host's sheet)
- *   M  36–52rem  contents rail · text              (comments: a popover at the highlight)
- *   L  52–64rem  contents rail · text · margin 18rem
- *   XL ≥ 64rem   contents list 13rem · text · margin 18rem
+ *   M  36–52rem  text · contents rail              (comments: a popover at the highlight)
+ *   L  52–64rem  text · margin 18rem · contents rail
+ *   XL ≥ 64rem   the same as L, with room to spare
+ *
+ * The contents rail takes no column: it floats at the layout's inline-end edge, in a gutter the
+ * grid keeps from the M tier whether or not a document has headings — so a contents list that
+ * arrives (or goes) never moves the text.
  *
  * The text column is `--document-measure` (47ch — about 67 characters of Geist at the document
  * type scale) or, Wide, up to 60rem. The grid wears the document body size, so `ch` is measured in
@@ -39,11 +43,6 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
    */
   margin?: boolean;
   /**
-   * The document has a contents list (two headings or more): a rail at M and L, a list at XL.
-   * @default false
-   */
-  contents?: boolean;
-  /**
    * The text column: `document` (`--document-measure`, 47ch) or `wide` (grows to 60rem into the
    * room the window has; each reader's own choice, never the document's).
    * @default "document"
@@ -51,37 +50,36 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   measure?: "document" | "wide";
 }
 
-// The grid. Three tracks — contents, text, margin — whose side tracks carry the 2rem gap inside
-// them (a zero track then costs no gap). The whole group centres in the canvas.
+// The grid. Two tracks — text and margin — whose margin track carries the 2rem gap inside it (a
+// zero track then costs no gap). The group centres in the canvas; from the M tier the grid keeps a
+// 2.5rem gutter on each side, the contents rail's room at the inline end, at every page.
 const GRID = cn(
-  "grid min-w-0 grid-cols-[[contents-start]_var(--document-layout-contents)_[contents-end_text-start]_minmax(0,var(--document-layout-text))_[text-end_margin-start]_var(--document-layout-margin)_[margin-end]] grid-rows-[auto_auto_1fr] content-start justify-center gap-y-6",
+  "relative grid min-w-0 grid-cols-[[text-start]_minmax(0,var(--document-layout-text))_[text-end_margin-start]_var(--document-layout-margin)_[margin-end]] grid-rows-[auto_auto_1fr] content-start justify-center gap-y-6 @min-[36rem]/document-layout:px-10",
   // The text track's width is measured in the document's own body size (TYP-20).
   "text-sm pointer-coarse:text-base max-sm:text-base",
   "[--document-measure:47ch] [--document-layout-text:var(--document-measure)] data-[measure=wide]:[--document-layout-text:60rem]",
-  "[--document-layout-contents:0rem] [--document-layout-margin:0rem]",
+  "[--document-layout-margin:0rem]",
   "[--document-layout-tier:s] @min-[36rem]/document-layout:[--document-layout-tier:m] @min-[52rem]/document-layout:[--document-layout-tier:l] @min-[64rem]/document-layout:[--document-layout-tier:xl]",
-  "data-contents:@min-[36rem]/document-layout:[--document-layout-contents:3.5rem] data-contents:@min-[64rem]/document-layout:[--document-layout-contents:15rem]",
   "data-margin:@min-[52rem]/document-layout:[--document-layout-margin:20rem]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
-  "print:block print:text-sm/6",
+  "print:block print:px-0 print:text-sm/6",
 );
 
 /**
  * `DocumentLayout` — the frame of a page read as a document: `DocumentLayoutHeader` (icon, title,
  * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one column at
- * the reading measure, with `DocumentLayoutContents` beside it and `DocumentLayoutMargin` (the
- * comment margin) on the other side. Put the parts in reading order: header, contents, body,
- * foot, margin. Prints as one column of header, body and foot.
+ * the reading measure, `DocumentLayoutMargin` (the comment margin) beside it, and
+ * `DocumentLayoutContents` floating at the inline-end edge. Put the parts in reading order:
+ * header, contents, body, foot, margin. Prints as one column of header, body and foot.
  *
  * @example
- * <DocumentLayout contents margin={canComment}>
+ * <DocumentLayout margin={canComment}>
  *   <DocumentLayoutHeader>
  *     <h1 className="text-4xl font-semibold">Pricing v2</h1>
  *   </DocumentLayoutHeader>
  *   <DocumentLayoutContents>
- *     <DocumentLayoutContentsRail>{rail}</DocumentLayoutContentsRail>
- *     <DocumentLayoutContentsList>{list}</DocumentLayoutContentsList>
+ *     <TableOfContents variant="rail" side="end" sticky={false} items={outline} />
  *   </DocumentLayoutContents>
  *   <DocumentLayoutBody>
  *     <MarkdownView typeScale="document">{markdown}</MarkdownView>
@@ -92,7 +90,6 @@ const GRID = cn(
  */
 export function DocumentLayout({
   margin = false,
-  contents = false,
   measure = "document",
   className,
   children,
@@ -102,7 +99,6 @@ export function DocumentLayout({
     <div
       data-slot="document-layout"
       data-margin={margin ? "" : undefined}
-      data-contents={contents ? "" : undefined}
       data-measure={measure}
       className={cn(
         "@container/document-layout w-full min-w-0 [--document-layout-sticky-top:--spacing(8)] print:[page:document]",
@@ -113,7 +109,6 @@ export function DocumentLayout({
       <div
         data-slot="document-layout-grid"
         data-margin={margin ? "" : undefined}
-        data-contents={contents ? "" : undefined}
         data-measure={measure}
         className={GRID}
       >
@@ -196,20 +191,22 @@ export function DocumentLayoutFoot({
 export type DocumentLayoutAsideProps = React.ComponentPropsWithRef<"aside">;
 
 /**
- * `DocumentLayoutContents` — the contents column, from the M tier when `DocumentLayout` has
- * `contents`: an `aside` named "Contents" that sticks `--document-layout-sticky-top` below the top
- * of the scroll container (default 2rem) and scrolls on its own when taller than the viewport.
- * Holds `DocumentLayoutContentsRail` (M and L) and `DocumentLayoutContentsList` (XL); the one not
- * shown is `display: none`. Below M the host offers its own "On this page" trigger.
+ * `DocumentLayoutContents` — the contents rail's place, from the M tier: an `aside` named
+ * "Contents" that floats at the layout's inline-end edge, in the 2.5rem gutter the grid keeps
+ * there, and takes no column — so headings that arrive never move the text. What it holds sticks
+ * `--document-layout-sticky-top` below the top of the scroll container (default 2rem). Put a
+ * `TableOfContents variant="rail" side="end"` in it: a column of short dashes that opens into the
+ * labelled list over the page. Below M it is `display: none`; the host offers "On this page" in
+ * its own menu.
  *
  * @example
  * <DocumentLayoutContents>
- *   <DocumentLayoutContentsRail>{rail}</DocumentLayoutContentsRail>
- *   <DocumentLayoutContentsList>{list}</DocumentLayoutContentsList>
+ *   <TableOfContents variant="rail" side="end" sticky={false} items={outline} />
  * </DocumentLayoutContents>
  */
 export function DocumentLayoutContents({
   className,
+  children,
   "aria-label": ariaLabel = "Contents",
   ...props
 }: DocumentLayoutAsideProps) {
@@ -218,52 +215,19 @@ export function DocumentLayoutContents({
       data-slot="document-layout-contents"
       aria-label={ariaLabel}
       className={cn(
-        "sticky top-(--document-layout-sticky-top) col-[contents] row-[1/span_3] hidden max-h-[calc(100dvh-var(--document-layout-sticky-top)*2)] min-w-0 self-start overflow-y-auto overscroll-contain pe-8 @min-[36rem]/document-layout:in-data-contents:block print:hidden",
+        // Out of the grid's flow (an absolute grid child takes no track), as tall as the grid.
+        "pointer-events-none absolute inset-y-0 end-0 hidden w-10 @min-[36rem]/document-layout:block print:hidden",
         className,
       )}
       {...props}
-    />
-  );
-}
-
-/**
- * `DocumentLayoutContentsRail` — the narrow contents rail (24px) shown at the M and L tiers.
- *
- * @example
- * <DocumentLayoutContentsRail><OutlineRail items={outline} /></DocumentLayoutContentsRail>
- */
-export function DocumentLayoutContentsRail({
-  className,
-  ...props
-}: DocumentLayoutPartProps) {
-  return (
-    <div
-      data-slot="document-layout-contents-rail"
-      className={cn("w-6 @min-[64rem]/document-layout:hidden", className)}
-      {...props}
-    />
-  );
-}
-
-/**
- * `DocumentLayoutContentsList` — the contents list (13rem) shown at the XL tier.
- *
- * @example
- * <DocumentLayoutContentsList><OutlineList items={outline} /></DocumentLayoutContentsList>
- */
-export function DocumentLayoutContentsList({
-  className,
-  ...props
-}: DocumentLayoutPartProps) {
-  return (
-    <div
-      data-slot="document-layout-contents-list"
-      className={cn(
-        "hidden min-w-0 @min-[64rem]/document-layout:block",
-        className,
-      )}
-      {...props}
-    />
+    >
+      <div
+        data-slot="document-layout-contents-inner"
+        className="pointer-events-auto sticky top-(--document-layout-sticky-top) flex justify-end pe-2"
+      >
+        {children}
+      </div>
+    </aside>
   );
 }
 
@@ -297,8 +261,6 @@ export function DocumentLayoutMargin({
 export interface DocumentLayoutSkeletonProps extends React.ComponentPropsWithRef<"div"> {
   /** Reserve the comment margin, as the page will. @default false */
   margin?: boolean;
-  /** Reserve the contents column, as the page will. @default false */
-  contents?: boolean;
   /** The text column, as the page will. @default "document" */
   measure?: "document" | "wide";
   /**
@@ -332,11 +294,10 @@ const LINE_WIDTHS = [
  * arrives. One `status` region, named by `label`.
  *
  * @example
- * <DocumentLayoutSkeleton margin={canComment} contents />
+ * <DocumentLayoutSkeleton margin={canComment} />
  */
 export function DocumentLayoutSkeleton({
   margin = false,
-  contents = false,
   measure = "document",
   lines = 8,
   label = "Loading page",
@@ -357,7 +318,6 @@ export function DocumentLayoutSkeleton({
       aria-label={label}
       aria-busy
       margin={margin}
-      contents={contents}
       measure={measure}
       className={className}
       {...props}

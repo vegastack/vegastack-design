@@ -406,6 +406,66 @@ test("CommentComposer restores a draft from defaultValue, sends it, and starts e
   await expect.element(send).toBeDisabled();
 });
 
+test("CommentComposer compact: one quiet line that opens the card with the caret in it, folds back on Escape and after sending", async () => {
+  const onSubmit = vi.fn().mockResolvedValue(undefined);
+  const screen = await render(<CommentComposer compact onSubmit={onSubmit} />);
+  const line = screen.getByRole("button", { name: "Add a comment…" });
+  await expect.element(line).toBeVisible();
+  expect(
+    screen.container.querySelector('[data-slot="comment-box"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+
+  await line.click();
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await vi.waitFor(() =>
+    expect(box.element().contains(document.activeElement)).toBe(true),
+  );
+  // Escape on an empty card folds it back, focus on the line.
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Add a comment…" }).element(),
+    ),
+  );
+
+  await screen.getByRole("button", { name: "Add a comment…" }).click();
+  await vi.waitFor(() =>
+    expect(
+      screen
+        .getByRole("textbox", { name: "Comment" })
+        .element()
+        .contains(document.activeElement),
+    ).toBe(true),
+  );
+  await userEvent.keyboard("Looks right");
+  // A press elsewhere keeps a card that has text.
+  await userEvent.click(document.body);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toHaveTextContent("Looks right");
+  await screen.getByRole("button", { name: "Send comment" }).click();
+  await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("Looks right"));
+  await expect
+    .element(screen.getByRole("button", { name: "Add a comment…" }))
+    .toBeVisible();
+});
+
+test("CommentComposer compact: a restored draft opens the card without taking focus", async () => {
+  const screen = await render(
+    <CommentComposer compact defaultValue="Half-written" onSubmit={() => {}} />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toHaveTextContent("Half-written");
+  expect(
+    screen
+      .getByRole("textbox", { name: "Comment" })
+      .element()
+      .contains(document.activeElement),
+  ).toBe(false);
+});
+
 test('a thread\'s reply box restores a draft unfolded, reports changes, and reports "" after the reply posts', async () => {
   const onReply = vi.fn().mockResolvedValue(undefined);
   const onValueChange = vi.fn();

@@ -12799,6 +12799,7 @@
         "@vegastack/design-tokens@^0.8.12"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/sheet",
         "@vegastack/use-list-nav",
         "@vegastack/use-media-query"
@@ -13049,7 +13050,7 @@
         "@vegastack/popover",
         "@vegastack/alert",
         "@vegastack/text-edit-grammar",
-        "@vegastack/copy-button",
+        "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
         "@vegastack/embed-providers",
