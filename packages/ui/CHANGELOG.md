@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.52
+
+### Patch Changes
+
+- [#684](https://github.com/vegastack/vegastack-design/pull/684) [`8868fc1`](https://github.com/vegastack/vegastack-design/commit/8868fc1dfeaaa7959a754d24cfdd83bf1dc2b791) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DocumentLayout**: with a comment margin, the text column moves as near the middle of the canvas as the room allows (fully centred from about 72rem, where the last release waited for 74rem), never squeezing its measure — at 1440 with a sidebar it now sits within 18px of the middle instead of a margin's width to the left.
+
 ## 0.25.51
 
 ### Patch Changes
