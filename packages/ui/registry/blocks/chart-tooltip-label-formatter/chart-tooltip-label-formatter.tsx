@@ -1,4 +1,4 @@
-// @vegastack chart-tooltip-label-formatter@0.25.46 sha256-aCG92T/EsXExYllSGMXtHEh5m5QLhftZz0VJg4oM9Ak=
+// @vegastack chart-tooltip-label-formatter@0.25.47 sha256-/SyfP1ScoDg8HJ4vKjtokguFBFdkNOaXecYfjR8i+KU=
 
 "use client";
 

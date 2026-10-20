@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.47] — October 20, 2026
+
+<!-- assembled from 2 changesets: 337f560504cd -->
+
+### 🧩 New components
+
+- **TableOfContents**: the rail is a slim column of dashes (a button with `aria-expanded`) that opens a floating panel of the headings on hover, keyboard focus or a tap — `side="end"` anchors it to a page's inline-end edge — and Escape closes it with focus back on the rail. `open` / `onOpenChange` open the sheet from a menu item, and an item's `blockId` lets the scroll spy find a shared document's headings. **MarkdownView** puts the `#` heading link in the gutter before the heading (after it on touch, shown on a tap) and copies with a toast, and draws `sectionMarks` (with `onSectionMark`) as `TextEdit` does, inside a phone's gutter too. **TextEdit**'s `#` heading link moves to the same gutter place, the block grip stepping out beside it. **CommentComposer** `compact` rests as one quiet "Add a comment…" line that opens the card on demand.
+  [`f27cf47`](https://github.com/VegaStack/vegastack-design/commit/f27cf47)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.46 → 0.25.47.
+
+### ⚠️ Breaking
+
+- **DocumentLayout**: the contents take no column. `DocumentLayoutContents` floats at the layout's inline-end edge, in a 2.5rem gutter the grid keeps from the M tier whether or not a page has headings, so a contents list that arrives never moves the text. `DocumentLayoutContentsRail`, `DocumentLayoutContentsList` and the `contents` prop (on `DocumentLayout` and `DocumentLayoutSkeleton`) are gone: put a `TableOfContents variant="rail" side="end"` in `DocumentLayoutContents`, and offer "On this page" from a menu below M.
+  [`f27cf47`](https://github.com/VegaStack/vegastack-design/commit/f27cf47)
+
 ## [0.25.46] — October 20, 2026
 
 <!-- assembled from 1 changeset: c7d7611d6599 -->
