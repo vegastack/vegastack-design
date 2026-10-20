@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.54] — October 20, 2026
+
+<!-- assembled from 1 changeset: 1b0687dea832 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.53 → 0.25.54.
+
+### 🐛 Fixed
+
+- **StatSkeleton**: each bar sits in the line box of the text it stands in for (the label's 16px, the value's 20px or 32px), so a loading stat is exactly as tall as a loaded one — dashboard tiles no longer grow 8px when their counts arrive.
+  [`19da478`](https://github.com/VegaStack/vegastack-design/commit/19da478)
+
 ## [0.25.53] — October 20, 2026
 
 <!-- assembled from 1 changeset: e3ab769fd37c -->
