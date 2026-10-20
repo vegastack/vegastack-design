@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.25.57 sha256-r6iS67H5QyNaeYkPnkIbqrPfc0hAEnAJ3kZdTZ1yJdc=
+// @vegastack multi-step-form@0.25.57 sha256-7T2rOGUKSHBB1bgdgNI1KiBUynKiPI1d6Das5kHsKts=
 
 "use client";
 
@@ -1570,13 +1570,16 @@ export function MultiStepFormActions({
   }, [sticky, node]);
   // The pinned row paints the surface it sits on, so content scrolling under it is covered by
   // the same colour: the page, or the card or overlay the form lives in — a card in an overlay
-  // is the nearer surface, so the overlay rules skip a row inside a card. Literal class strings,
-  // so Tailwind generates every one.
+  // is the nearer surface, so the overlay rules skip a row inside a card. It keeps the same gap
+  // above its buttons as below them (`pt-3`, given back by `-mt-3` so the resting row sits where
+  // an unpinned one would), and while `data-stuck` a hairline marks its top edge — a shadow, so
+  // it takes no space and toggling it moves nothing. Literal class strings, so Tailwind
+  // generates every one.
   const stickyClasses =
     sticky === true
-      ? "sticky bottom-0 z-10 bg-background pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))] in-data-[slot=card]:bg-card not-in-data-[slot=card]:in-data-[slot=dialog-content]:bg-popover not-in-data-[slot=card]:in-data-[slot=drawer-content]:bg-popover not-in-data-[slot=card]:in-data-[slot=sheet-content]:bg-popover"
+      ? "sticky bottom-0 z-10 -mt-3 bg-background pt-3 pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))] data-stuck:shadow-[0_-1px_0_0_var(--border)] in-data-[slot=card]:bg-card not-in-data-[slot=card]:in-data-[slot=dialog-content]:bg-popover not-in-data-[slot=card]:in-data-[slot=drawer-content]:bg-popover not-in-data-[slot=card]:in-data-[slot=sheet-content]:bg-popover"
       : sticky === "narrow"
-        ? "@max-md/multi-step-form:sticky @max-md/multi-step-form:bottom-0 @max-md/multi-step-form:z-10 @max-md/multi-step-form:bg-background @max-md/multi-step-form:pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))] @max-md/multi-step-form:in-data-[slot=card]:bg-card @max-md/multi-step-form:not-in-data-[slot=card]:in-data-[slot=dialog-content]:bg-popover @max-md/multi-step-form:not-in-data-[slot=card]:in-data-[slot=drawer-content]:bg-popover @max-md/multi-step-form:not-in-data-[slot=card]:in-data-[slot=sheet-content]:bg-popover"
+        ? "@max-md/multi-step-form:sticky @max-md/multi-step-form:bottom-0 @max-md/multi-step-form:z-10 @max-md/multi-step-form:-mt-3 @max-md/multi-step-form:pt-3 @max-md/multi-step-form:bg-background @max-md/multi-step-form:data-stuck:shadow-[0_-1px_0_0_var(--border)] @max-md/multi-step-form:pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))] @max-md/multi-step-form:in-data-[slot=card]:bg-card @max-md/multi-step-form:not-in-data-[slot=card]:in-data-[slot=dialog-content]:bg-popover @max-md/multi-step-form:not-in-data-[slot=card]:in-data-[slot=drawer-content]:bg-popover @max-md/multi-step-form:not-in-data-[slot=card]:in-data-[slot=sheet-content]:bg-popover"
         : undefined;
   if (overview) {
     // The section list IS the screen for a record being edited, so it carries the one action

@@ -182,8 +182,11 @@ running `beforeNext` and records the step as `skipped` rather than complete.
 
 On a long step, pass `sticky` to `MultiStepFormActions` so the refusal and the action row stay at
 the bottom of the scroll area while the step scrolls under them — `sticky="narrow"` pins only
-while the form is narrower than its `@md` container rung, a phone. The row reports `data-stuck`
-while it is actually pinned over content; the focus order does not change.
+while the form is narrower than its `@md` container rung, a phone. The pinned row keeps the same
+gap above its buttons as below them, in the surface it sits on, so content passing under it stops
+short of the buttons. The row reports `data-stuck` while it is actually pinned over content and
+then shows a hairline on its top edge, which takes no space; resting at the end of the step it
+shows none and sits where an unpinned row would. The focus order does not change.
 
 <ComponentPreview
   name="multiStepFormSticky"

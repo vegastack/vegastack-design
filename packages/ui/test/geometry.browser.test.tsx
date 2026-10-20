@@ -4537,8 +4537,28 @@ test("multi-step-form-sticky: sticky actions stay in view on a long step", async
     scroller.getBoundingClientRect().bottom + 0.5,
   );
   await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(true);
+  // Pinned: the same gap above the buttons as below them, and a hairline that takes no space.
+  const style = getComputedStyle(actions);
+  expect(style.paddingTop).toBe("12px");
+  expect(style.paddingTop).toBe(style.paddingBottom);
+  expect(style.borderTopWidth).toBe("0px");
+  expect(style.boxShadow).not.toBe("none");
+  const stuckHeight = actions.getBoundingClientRect().height;
   scroller.scrollTop = scroller.scrollHeight;
   await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(false);
+  // Resting: no edge, no layout shift, and the buttons sit where an unpinned row's would — the
+  // form's gap-6 below the step.
+  expect(getComputedStyle(actions).boxShadow).toBe("none");
+  expect(actions.getBoundingClientRect().height).toBe(stuckHeight);
+  const step = screen.container.querySelector<HTMLElement>(
+    '[data-slot="multi-step-form-step"]',
+  )!;
+  const row = actions.querySelector<HTMLElement>(
+    '[data-slot="multi-step-form-action-row"]',
+  )!;
+  expect(
+    row.getBoundingClientRect().top - step.getBoundingClientRect().bottom,
+  ).toBeCloseTo(24, 0);
 });
 
 test("multi-step-form-sticky: the pinned row paints its nearest surface, in both themes", async () => {
