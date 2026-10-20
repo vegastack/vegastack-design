@@ -142,3 +142,63 @@ test("a drawn diagram carries its natural width and its legible floor for the fi
     parseFloat(box.style.getPropertyValue("--mermaid-min-width")),
   ).toBeCloseTo(natural * 0.6, 3);
 });
+
+test("an older diagram's late light drawing never replaces the current one's print copy", async () => {
+  // Idle work runs at once, so the first diagram's light drawing is in flight when it changes.
+  vi.stubGlobal("requestIdleCallback", (run: () => void) => {
+    run();
+    return 0;
+  });
+  vi.stubGlobal("cancelIdleCallback", () => {});
+  try {
+    const older = "flowchart LR\n  olderstart --> olderend";
+    const current = "flowchart LR\n  currentstart --> currentend";
+    // The current diagram is drawn in both schemes already.
+    await renderMermaid(current, { theme: "dark" });
+    await renderMermaid(current, { theme: "light" });
+    // The older diagram draws slowly, so its light copy is still on its way when it changes.
+    const draw = mermaid.render.bind(mermaid);
+    vi.spyOn(mermaid, "render").mockImplementation(async (...args) => {
+      if (String(args[1]).includes("olderstart"))
+        await new Promise((r) => setTimeout(r, 400));
+      return draw(...args);
+    });
+    const screen = await render(<MermaidBlock theme="dark" source={older} />);
+    const figure = screen.getByRole("figure", { name: "Diagram" });
+    await expect
+      .poll(() => figure.element().getAttribute("data-state"), {
+        timeout: 10000,
+      })
+      .toBe("ready");
+    await screen.rerender(<MermaidBlock theme="dark" source={current} />);
+    // Let the older light drawing land.
+    await renderMermaid(older, { theme: "light" });
+    await new Promise((r) => setTimeout(r, 50));
+    const print = () =>
+      figure.element().querySelector("[data-slot=mermaid-block-print]");
+    await vi.waitFor(() =>
+      expect(print()?.textContent).toContain("currentstart"),
+    );
+    expect(print()?.textContent).not.toContain("olderstart");
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+test("a diagram never scrolled near keeps its source for print instead of a placeholder", async () => {
+  const source = "flowchart LR\n  accTitle: Far away\n  a --> b";
+  const screen = await render(
+    <div style={{ paddingTop: "5000px" }}>
+      <MermaidBlock source={source} />
+    </div>,
+  );
+  const figure = screen.getByRole("figure", { name: "Far away" });
+  expect(figure.element().getAttribute("data-state")).toBe("loading");
+  const fallback = figure
+    .element()
+    .querySelector<HTMLElement>("[data-slot=mermaid-block-source]");
+  expect(fallback?.textContent).toBe(source);
+  // Out of sight on screen; paper shows it.
+  expect(fallback!.className).toMatch(/(^| )hidden( |$)/);
+  expect(fallback!.className).toContain("print:block");
+});

@@ -687,3 +687,32 @@ test('align="start" keeps the handle and × on the first line of a tall row', as
   expect(handle).not.toBeNull();
   expect(remove.className).toContain("my-0.5");
 });
+
+test("a touch drop lands where the finger lifts, even before the next frame re-tests the target", async () => {
+  const onMove = vi.fn();
+  const screen = await render(<Controlled onMove={onMove} />);
+  const row = (id: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-drag-item="${id}"]`)!;
+  const at = (el: HTMLElement, fy: number) => {
+    const rect = el.getBoundingClientRect();
+    return {
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height * fy,
+    };
+  };
+  const touch = (type: string, point: { clientX: number; clientY: number }) =>
+    new PointerEvent(type, {
+      bubbles: true,
+      pointerId: 7,
+      pointerType: "touch",
+      isPrimary: true,
+      ...point,
+    });
+  row("alpha").dispatchEvent(touch("pointerdown", at(row("alpha"), 0.5)));
+  // The long press starts the drag.
+  await new Promise((r) => setTimeout(r, 350));
+  // Into Gamma's lower half and up, in the same task: no frame has run in between.
+  window.dispatchEvent(touch("pointermove", at(row("gamma"), 0.8)));
+  window.dispatchEvent(touch("pointerup", at(row("gamma"), 0.8)));
+  await vi.waitFor(() => expect(onMove).toHaveBeenCalledWith("alpha", 2));
+});

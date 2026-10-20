@@ -1,4 +1,4 @@
-// @vegastack block-view@0.25.57 sha256-4C4A9Zb2og+kNvYFvMxOaS0Gd867a62okE/TWWKW8iA=
+// @vegastack block-view@0.25.57 sha256-XSgCB4ei51sX78bpQ780pn6d+7l4k1buGI/0UYb4+u4=
 
 "use client";
 
@@ -343,7 +343,8 @@ export function BlockViewFrame({
           className={cn(
             "min-w-0",
             mode === "preview" && "hidden",
-            "print:hidden",
+            // Paper gets the preview; with none mounted (Code chosen, no split) the source prints.
+            (mode === "preview" || split) && "print:hidden",
           )}
         >
           {code}
@@ -351,7 +352,7 @@ export function BlockViewFrame({
             <p
               data-slot="block-view-hint"
               contentEditable={false}
-              className="m-0 px-4 pb-2 text-xs text-muted-foreground select-none"
+              className="m-0 px-4 pb-2 text-xs text-muted-foreground select-none print:hidden"
             >
               {hint}
             </p>
@@ -544,7 +545,8 @@ function PanZoom({
       >
         <div
           ref={contentRef}
-          className="absolute start-0 top-0 w-max origin-top-left"
+          // Physical `left-0`, in RTL too: the pan and fit maths measure from the left edge.
+          className="absolute top-0 left-0 w-max origin-top-left"
           style={{
             transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`,
           }}

@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.57 sha256-KF34HfE1n1pKdZgsYR6eqdKC6a9yX6+MNO4Leo2nU5k=
+// @vegastack mermaid-block@0.25.57 sha256-76ykPiL8TP+1kH2OMXcI/kiLE3duu/q1U5r8wvji1ME=
 
 "use client";
 
@@ -752,16 +752,25 @@ export function MermaidBlock({
     setPrintSvg(null);
     if (!svg || error || pending) return;
     const other: MermaidTheme = theme === "dark" ? "light" : "dark";
+    // A drawing that lands after the diagram moved on is dropped, never printed in its place.
+    let live = true;
     const run = () =>
-      void renderMermaid(source, { theme: other }).then((result) =>
-        setPrintSvg(other === "light" && "svg" in result ? result.svg : null),
-      );
+      void renderMermaid(source, { theme: other }).then((result) => {
+        if (live)
+          setPrintSvg(other === "light" && "svg" in result ? result.svg : null);
+      });
     if (typeof window.requestIdleCallback === "function") {
       const handle = window.requestIdleCallback(run, { timeout: 4000 });
-      return () => window.cancelIdleCallback(handle);
+      return () => {
+        live = false;
+        window.cancelIdleCallback(handle);
+      };
     }
     const timer = setTimeout(run, 1000);
-    return () => clearTimeout(timer);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
   }, [svg, error, pending, source, theme]);
 
   const failed = !svg && error !== null;
@@ -844,19 +853,25 @@ export function MermaidBlock({
           ) : null}
         </div>
       ) : null}
-      {svg ? null : failed ? (
+      {svg || failed ? null : (
+        <Skeleton
+          data-slot="mermaid-block-skeleton"
+          className="m-4 h-40 print:hidden"
+          style={reserved ? { height: Math.max(0, reserved - 32) } : undefined}
+        />
+      )}
+      {svg ? null : (
+        // Failed: the source on screen. Not drawn yet (never scrolled near): paper gets the
+        // source instead of a placeholder.
         <pre
           data-slot="mermaid-block-source"
-          className="m-0 overflow-x-auto px-4 pt-3 pb-1 font-mono text-xs text-muted-foreground"
+          className={cn(
+            "m-0 overflow-x-auto px-4 pt-3 pb-1 font-mono text-xs text-muted-foreground print:whitespace-pre-wrap",
+            !failed && "hidden print:block",
+          )}
         >
           <code>{source}</code>
         </pre>
-      ) : (
-        <Skeleton
-          data-slot="mermaid-block-skeleton"
-          className="m-4 h-40"
-          style={reserved ? { height: Math.max(0, reserved - 32) } : undefined}
-        />
       )}
       <p
         role="status"

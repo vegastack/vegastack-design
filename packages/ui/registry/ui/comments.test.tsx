@@ -576,6 +576,198 @@ test("composer.posting holds the reply box busy: Send and Cmd/Ctrl+Enter do noth
   );
 });
 
+function deferred<T = void>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
+const surfaceOf = (screen: { container: HTMLElement }) =>
+  screen.container.querySelector<HTMLElement>(
+    '[data-slot="comment-box"] .ProseMirror',
+  )!;
+
+test("text typed while a comment posts is never dropped: the box holds still until the post settles", async () => {
+  const post = deferred();
+  const onSubmit = vi.fn(() => post.promise);
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <CommentComposer onSubmit={onSubmit} onValueChange={onValueChange} />,
+  );
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await userEvent.click(box);
+  await userEvent.keyboard("First");
+  await screen.getByRole("button", { name: "Send comment" }).click();
+  await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("First"));
+  // While it posts, the text cannot change and nothing new can be attached.
+  await vi.waitFor(() =>
+    expect(surfaceOf(screen).getAttribute("contenteditable")).toBe("false"),
+  );
+  await userEvent.type(surfaceOf(screen), " more");
+  expect(onValueChange).not.toHaveBeenCalledWith("First more");
+  post.resolve();
+  await vi.waitFor(() => expect(onValueChange).toHaveBeenLastCalledWith(""));
+  expect(onValueChange).not.toHaveBeenCalledWith("First more");
+  // A failed post gives the text back, editable, with the caret in it.
+  const failed = deferred();
+  onSubmit.mockImplementation(() => failed.promise);
+  await userEvent.keyboard("Second");
+  await userEvent.keyboard(submitKeys());
+  await vi.waitFor(() =>
+    expect(surfaceOf(screen).getAttribute("contenteditable")).toBe("false"),
+  );
+  failed.reject(new Error("offline"));
+  await expect.element(screen.getByRole("alert")).toHaveTextContent("offline");
+  await vi.waitFor(() =>
+    expect(surfaceOf(screen).contains(document.activeElement)).toBe(true),
+  );
+  await userEvent.keyboard(" again");
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith("Second again"),
+  );
+});
+
+test("a reply typed into while it posts keeps the box still too", async () => {
+  const post = deferred();
+  const onReply = vi.fn(() => post.promise);
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <CommentThread
+      thread={{ id: "t1", root: rootComment, replies: [] }}
+      onReply={onReply}
+      composer={{
+        defaultValue: "Agreed",
+        onValueChange,
+        onImageUpload: () => new Promise(() => {}),
+      }}
+    />,
+  );
+  await screen.getByRole("button", { name: "Send reply" }).click();
+  await vi.waitFor(() => expect(onReply).toHaveBeenCalledWith("Agreed"));
+  await vi.waitFor(() =>
+    expect(surfaceOf(screen).getAttribute("contenteditable")).toBe("false"),
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Attach files" }))
+    .toBeDisabled();
+  post.resolve();
+  await vi.waitFor(() => expect(onValueChange).toHaveBeenLastCalledWith(""));
+});
+
+test("Send and Cmd/Ctrl+Enter wait for an upload into the text, for a comment and a reply", async () => {
+  for (const kind of ["comment", "reply"] as const) {
+    const upload = deferred<{ src: string }>();
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    const onImageUpload = () => upload.promise;
+    const screen = await render(
+      kind === "comment" ? (
+        <CommentComposer onSubmit={onSend} onImageUpload={onImageUpload} />
+      ) : (
+        <CommentThread
+          thread={{ id: "t1", root: rootComment, replies: [] }}
+          onReply={onSend}
+          composer={{ onImageUpload }}
+        />
+      ),
+    );
+    const name = kind === "comment" ? "Comment" : "Reply";
+    await userEvent.click(screen.getByRole("textbox", { name }));
+    await userEvent.keyboard("See this");
+    const input = screen.container.querySelector<HTMLInputElement>(
+      '[data-slot="comment-box"] input[type="file"]',
+    )!;
+    await userEvent.upload(
+      input,
+      new File(["x"], "shot.png", { type: "image/png" }),
+    );
+    const send = screen.getByRole("button", {
+      name: kind === "comment" ? "Send comment" : "Send reply",
+    });
+    await expect.element(send).toBeDisabled();
+    (send.element() as HTMLButtonElement).click();
+    await userEvent.click(surfaceOf(screen));
+    await userEvent.keyboard(submitKeys());
+    await new Promise((r) => setTimeout(r, 50));
+    expect(onSend).not.toHaveBeenCalled();
+    // The upload lands: the image is in the text and it sends whole.
+    upload.resolve({ src: "https://example.com/shot.png" });
+    await expect.element(send).toBeEnabled();
+    await send.click();
+    await vi.waitFor(() =>
+      expect(onSend).toHaveBeenCalledWith(
+        expect.stringContaining("https://example.com/shot.png"),
+      ),
+    );
+    expect(onSend.mock.calls[0]![0]).toContain("See this");
+    await screen.unmount();
+  }
+});
+
+test("an upload left behind by a collapsed thread never holds the reopened reply's Send", async () => {
+  const onReply = vi.fn().mockResolvedValue(undefined);
+  // An upload that ignores its abort signal: it never settles.
+  const composer = { onImageUpload: () => new Promise<never>(() => {}) };
+  const thread = { id: "t1", root: rootComment, replies: [] };
+  const screen = await render(
+    <CommentThread thread={thread} onReply={onReply} composer={composer} />,
+  );
+  await userEvent.click(screen.getByRole("textbox", { name: "Reply" }));
+  await userEvent.upload(
+    screen.container.querySelector<HTMLInputElement>(
+      '[data-slot="comment-box"] input[type="file"]',
+    )!,
+    new File(["x"], "shot.png", { type: "image/png" }),
+  );
+  const send = screen.getByRole("button", { name: "Send reply" });
+  await expect.element(send).toBeDisabled();
+  await screen.rerender(
+    <CommentThread
+      thread={thread}
+      onReply={onReply}
+      composer={composer}
+      collapsed
+    />,
+  );
+  await screen.rerender(
+    <CommentThread thread={thread} onReply={onReply} composer={composer} />,
+  );
+  await userEvent.click(screen.getByRole("textbox", { name: "Reply" }));
+  await userEvent.keyboard("Fresh start");
+  await expect
+    .element(screen.getByRole("button", { name: "Send reply" }))
+    .toBeEnabled();
+  await userEvent.keyboard(submitKeys());
+  await vi.waitFor(() => expect(onReply).toHaveBeenCalledWith("Fresh start"));
+});
+
+test("Escape keeps an unsent comment or reply (an edit still reverts)", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <>
+      <CommentComposer onSubmit={() => {}} onValueChange={onValueChange} />
+      <CommentThread
+        thread={{ id: "t1", root: rootComment, replies: [] }}
+        onReply={() => {}}
+      />
+    </>,
+  );
+  const comment = screen.getByRole("textbox", { name: "Comment" });
+  await userEvent.click(comment);
+  await userEvent.keyboard("Unsent thought");
+  await userEvent.keyboard("{Escape}");
+  await expect.element(comment).toHaveTextContent("Unsent thought");
+  expect(onValueChange).toHaveBeenLastCalledWith("Unsent thought");
+  const reply = screen.getByRole("textbox", { name: "Reply" });
+  await userEvent.click(reply);
+  await userEvent.keyboard("Unsent reply");
+  await userEvent.keyboard("{Escape}");
+  await expect.element(reply).toHaveTextContent("Unsent reply");
+});
+
 const editable: CommentData = {
   id: "e1",
   author: asha,
