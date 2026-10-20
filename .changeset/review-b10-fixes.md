@@ -1,5 +1,0 @@
----
-"@vegastack/ui": patch
----
-
-🔧 **Comments**: a comment, reply or edit holds still while it sends (read-only, attaching paused), so text typed meanwhile is never lost, and the caret comes back if sending fails. Send and Cmd/Ctrl+Enter wait until files uploading into the text have landed, so a comment never posts without them. Escape keeps an unsent comment or reply; only editing a posted comment reverts. **ShareDialog** shows the Share tab whenever public links are unavailable, instead of an empty dialog. **SortableList** drops a touch drag exactly where the finger lifts. **DataList** grid cards tell their renderers when they are selected, never wrap an `interactive` first column in their link, and the board keeps every row in its one lane when `getRowSection` comes without `sections`. **MermaidBlock** never prints an older diagram's drawing in place of the current one, and a diagram not yet drawn prints its source instead of a placeholder. **BlockView** prints the source when Code is chosen without a split preview, and the expanded view fits its canvas inside the screen in right-to-left layouts. **InlineChip** passes keys to `onKeyDown` on linked chips too.
