@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.58 sha256-ucoRA71D/Kf1ZaSMGFVXjblboxh219w/zadjND5ktXQ=
+// @vegastack text-edit@0.25.58 sha256-0PtcLkoz8RwPrL4PhJAhJopfIo1moKKs1TqCJW76Paw=
 
 "use client";
 
@@ -56,6 +56,7 @@ import {
   type EditorState,
   type Transaction,
 } from "@tiptap/pm/state";
+import { Mapping } from "@tiptap/pm/transform";
 import {
   CellSelection,
   TableMap,
@@ -291,6 +292,7 @@ import type {
 import type { AvatarHue } from "@/components/ui/avatar";
 import {
   linkedTaskId,
+  TEXT_EDIT_UPLOAD_ABORT,
   type TextEditSectionMark,
   type TextEditTaskItem,
   type TextEditTaskLink,
@@ -2140,6 +2142,116 @@ function yAnchorOf(state: EditorState, from: number, to: number) {
   };
 }
 
+/** A position held while others may edit: where it is now, or null once what it held is gone. */
+interface HeldPosition {
+  get: () => number | null;
+  /** Stop following (the position read last stays readable). */
+  release: () => void;
+}
+
+/**
+ * Hold `pos` across later changes, anyone's — a menu left open, a drag, a file dialog, an upload.
+ * A collaborator's change rebuilds this editor's whole document (the Yjs binding replaces it), so
+ * no mapping can follow one: in a shared document a block (`block`: the node starting at `pos`) is
+ * held by its own Yjs element, any other position by a Yjs relative position. A single-writer
+ * editor maps the position through each change. A held block is gone once it is deleted or
+ * replaced (turned into another type) — never another block in its place.
+ */
+function holdPosition(
+  editor: Editor,
+  pos: number,
+  block = false,
+): HeldPosition {
+  const { doc } = editor.state;
+  const node = block ? doc.nodeAt(pos) : null;
+  if (block && !node) return { get: () => null, release: () => {} };
+  const y = yBinding(editor.state);
+  if (y) {
+    const element = node ? yElementOf(y, node) : undefined;
+    if (element !== null) {
+      const rel = element ? null : relativeAt(y, pos, -1);
+      return {
+        get: () => {
+          const now = yBinding(editor.state);
+          if (!now) return null;
+          return element
+            ? yElementPos(now, element, editor.state.doc)
+            : resolveRelative(now, rel!);
+        },
+        release: () => {},
+      };
+    }
+  }
+  let at: number | null = pos;
+  const follow = ({
+    transaction,
+    appendedTransactions,
+  }: {
+    transaction: Transaction;
+    appendedTransactions?: readonly Transaction[];
+  }) => {
+    // The change and every transaction a plugin appended to it, in order.
+    for (const tr of [transaction, ...(appendedTransactions ?? [])]) {
+      if (at === null || !tr.docChanged) continue;
+      const mapped = tr.mapping.mapResult(at, block ? 1 : -1);
+      at = block && mapped.deletedAfter ? null : mapped.pos;
+    }
+  };
+  editor.on("transaction", follow);
+  return {
+    get: () => {
+      if (at === null || editor.isDestroyed) return null;
+      return !node || editor.state.doc.nodeAt(at)?.type === node.type
+        ? at
+        : null;
+    },
+    release: () => {
+      editor.off("transaction", follow);
+    },
+  };
+}
+
+/** The Yjs element the binding maps `node` to; null when there is no single one. */
+function yElementOf(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  node: PMNode,
+): Y.XmlElement | null {
+  let found: unknown = null;
+  for (const [type, mapped] of y.mapping)
+    if (mapped === node) {
+      if (found) return null;
+      found = type;
+    }
+  return found instanceof Y.XmlElement ? found : null;
+}
+
+/** Where the Yjs `element`'s block starts in `doc` now; null once it (or a block around it) is gone. */
+function yElementPos(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  element: Y.XmlElement,
+  doc: PMNode,
+): number | null {
+  type Typed = { _item: { deleted: boolean; parent: unknown } | null };
+  for (
+    let type = element as unknown as Typed | null;
+    type?._item;
+    type = type._item.parent as Typed | null
+  )
+    if (type._item.deleted) return null;
+  const inside = relativePositionToAbsolutePosition(
+    y.doc,
+    y.type,
+    Y.createRelativePositionFromTypeIndex(element, 0, -1),
+    y.mapping as never,
+  );
+  if (inside === null || inside < 1) return null;
+  // The binding's node for the element is the one there: never a neighbour after a rebuild.
+  const node = y.mapping.get(element);
+  return node !== undefined && doc.nodeAt(inside - 1) === node
+    ? inside - 1
+    : null;
+}
+
 /** An anchor's identity for "unchanged since last time": its text fields and its `y` bytes. */
 function annotationKey(anchor: TextEditAnchor): string {
   const { y, ...text } = anchor;
@@ -3657,6 +3769,8 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
  */
 class ToggleStates {
   private open = new Map<string, boolean>();
+  /** A read-only single-writer editor's folds, by the toggle's node (it has no ids): never kept. */
+  private local = new WeakMap<PMNode, boolean>();
   private listeners = new Set<() => void>();
   private version = 0;
   /** The host's own record (`toggleState`): read for a toggle this session has not flipped. */
@@ -3669,8 +3783,8 @@ class ToggleStates {
   };
   snapshot = () => this.version;
   /** Whether the toggle `id` shows open for this viewer; `fallback` is the document's default. */
-  get(id: unknown, fallback: boolean): boolean {
-    if (typeof id !== "string") return fallback;
+  get(id: FoldKey, fallback: boolean): boolean {
+    if (typeof id !== "string") return this.local.get(id) ?? fallback;
     const own = this.open.get(id);
     if (own !== undefined) return own;
     return this.host.current?.isOpen(id, fallback) ?? fallback;
@@ -3679,30 +3793,49 @@ class ToggleStates {
    * This viewer opened or closed a toggle. `persist` false is a passing reveal (a find result, a
    * link or a comment inside it): shown open now, not recorded as the viewer's choice.
    */
-  set(id: string, open: boolean, persist = true) {
-    this.open.set(id, open);
-    this.version++;
-    if (persist) this.host.current?.onToggle(id, open);
-    for (const listener of this.listeners) listener();
-  }
-  /** The host's record changed (a reload of it): re-read it. */
-  refresh() {
+  set(id: FoldKey, open: boolean, persist = true) {
+    if (typeof id !== "string") this.local.set(id, open);
+    else {
+      this.open.set(id, open);
+      if (persist) this.host.current?.onToggle(id, open);
+    }
     this.version++;
     for (const listener of this.listeners) listener();
   }
 }
 
-/** The toggles' runtime: per-viewer state in a shared document, null otherwise. */
+/** A toggle's key in `ToggleStates`: its `blockId` in a shared document, else its node. */
+type FoldKey = string | PMNode;
+
+/** The toggles' runtime: each viewer's own folds, and whether the document is shared (or a diff). */
 interface ToggleRuntime {
-  states: ToggleStates | null;
+  states: ToggleStates;
+  shared: boolean;
+}
+
+/**
+ * Whose fold a toggle's chevron changes: this viewer's own — in a shared document (by `blockId`;
+ * none until it has one) or a read-only one, which never edits — else null: the document's `open`
+ * attribute.
+ */
+function foldKey(
+  runtime: ToggleRuntime,
+  editor: Editor,
+  node: PMNode,
+): FoldKey | null {
+  if (runtime.shared) return (node.attrs.blockId as string | null) || null;
+  return editor.isEditable ? null : node;
 }
 
 /** Whether the toggle at `node` shows open for this viewer. */
-function toggleOpen(runtime: ToggleRuntime, node: PMNode): boolean {
+function toggleOpen(
+  runtime: ToggleRuntime,
+  editor: Editor,
+  node: PMNode,
+): boolean {
   const fallback = node.attrs.open !== false;
-  return runtime.states
-    ? runtime.states.get(node.attrs.blockId, fallback)
-    : fallback;
+  const key = foldKey(runtime, editor, node);
+  return key === null ? fallback : runtime.states.get(key, fallback);
 }
 
 /**
@@ -3723,13 +3856,14 @@ function expandAncestors(
   let opened = false;
   for (let depth = $pos.depth; depth > 0; depth--) {
     const node = $pos.node(depth);
-    if (node.type.name !== "toggle" || toggleOpen(runtime, node)) continue;
+    if (node.type.name !== "toggle" || toggleOpen(runtime, editor, node))
+      continue;
     // The title line always shows: only a position in the body needs the toggle open.
     const summaryEnd = $pos.before(depth) + 1 + node.firstChild!.nodeSize;
     if (pos < summaryEnd) continue;
-    const id = node.attrs.blockId as string | null;
-    if (runtime.states && id) runtime.states.set(id, true, false);
-    else if (!runtime.states && editor.isEditable)
+    const key = foldKey(runtime, editor, node);
+    if (key !== null) runtime.states.set(key, true, false);
+    else if (!runtime.shared && editor.isEditable)
       tr.setNodeAttribute($pos.before(depth), "open", true);
     else continue;
     opened = true;
@@ -3754,7 +3888,7 @@ function toggleReveal(runtime: ToggleRuntime) {
           view: () => ({
             update: (view, previous) => {
               if (
-                !runtime.states ||
+                !runtime.shared ||
                 !view.hasFocus() ||
                 previous.selection.eq(view.state.selection)
               )
@@ -3780,25 +3914,24 @@ function toggleReveal(runtime: ToggleRuntime) {
 function toggleView(runtime: ToggleRuntime) {
   return function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
     useEditorEditable(editor);
-    const states = runtime.states;
+    const { states } = runtime;
     React.useSyncExternalStore(
-      states?.subscribe ?? noSubscribe,
-      states?.snapshot ?? zero,
-      states?.snapshot ?? zero,
+      states.subscribe,
+      states.snapshot,
+      states.snapshot,
     );
-    const open = toggleOpen(runtime, node);
+    const open = toggleOpen(runtime, editor, node);
     const blockId = node.attrs.blockId as string | null;
     const flip = () => {
       const pos = getPos();
       if (typeof pos !== "number") return;
       const { state } = editor;
-      const perViewer = Boolean(states && blockId);
+      const key = foldKey(runtime, editor, node);
       // A shared document without an id for this toggle yet: nothing to key a viewer's state by,
       // and a reader must not edit — the click waits for the id.
-      if (states && !blockId && !editor.isEditable) return;
-      const tr = perViewer
-        ? state.tr
-        : state.tr.setNodeAttribute(pos, "open", !open);
+      if (runtime.shared && !blockId && !editor.isEditable) return;
+      const tr =
+        key !== null ? state.tr : state.tr.setNodeAttribute(pos, "open", !open);
       // Closing with the caret in the hidden body: move it to the end of the title line.
       const summaryEnd = pos + 1 + node.firstChild!.nodeSize - 1;
       if (
@@ -3807,7 +3940,7 @@ function toggleView(runtime: ToggleRuntime) {
         state.selection.to < pos + node.nodeSize
       )
         tr.setSelection(TextSelection.create(tr.doc, summaryEnd));
-      if (perViewer) states!.set(blockId!, !open);
+      if (key !== null) states.set(key, !open);
       if (tr.docChanged || tr.selectionSet) editor.view.dispatch(tr);
     };
     return (
@@ -3842,9 +3975,6 @@ function toggleView(runtime: ToggleRuntime) {
   };
 }
 
-const noSubscribe = () => () => {};
-const zero = () => 0;
-
 /** A toggle's editing keys: Enter in the summary goes to the body (a summary is one line). */
 function toggleKeys(runtime: ToggleRuntime) {
   return Extension.create({
@@ -3858,9 +3988,12 @@ function toggleKeys(runtime: ToggleRuntime) {
         // A closed toggle opens: its body is where the caret goes (this viewer's own state in a
         // shared document).
         const toggle = $from.node($from.depth - 1);
-        if (toggle.type.name === "toggle" && !toggleOpen(runtime, toggle)) {
-          const id = toggle.attrs.blockId as string | null;
-          if (runtime.states && id) runtime.states.set(id, true);
+        if (
+          toggle.type.name === "toggle" &&
+          !toggleOpen(runtime, this.editor, toggle)
+        ) {
+          const key = foldKey(runtime, this.editor, toggle);
+          if (key !== null) runtime.states.set(key, true);
           else tr.setNodeAttribute($from.before($from.depth - 1), "open", true);
         }
         tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
@@ -4142,6 +4275,12 @@ function isVideoFileUrl(url: string): boolean {
   }
 }
 
+/** The image an upload or import replaces (an image's Replace): where it was, and its `src`. */
+interface ImageToReplace {
+  pos: number;
+  src: string;
+}
+
 /** An image pasted or dropped from elsewhere, taken out of the slice to be imported. */
 interface ExternalImage {
   src: string;
@@ -4211,6 +4350,19 @@ const EXTERNAL_IMAGE_FAILED =
 const EXTERNAL_IMAGE_REPLACE_FAILED =
   "Couldn't import that image. The image wasn't replaced.";
 
+/**
+ * A URL's last path segment, decoded — kept as written where it is not valid percent-encoding
+ * (`100%.png`), so a name never throws.
+ */
+function urlFileName(url: string): string {
+  const segment = url.split(/[?#]/)[0]!.split("/").filter(Boolean).pop() ?? "";
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
 /** Whether an image `src` is another site's (not this origin's, not a `blob:` or relative URL). */
 function isExternalImage(src: string): boolean {
   if (typeof window === "undefined" || /^blob:/i.test(src)) return false;
@@ -4263,75 +4415,132 @@ function dataImagesToBlobs(html: string, files: Map<string, File>): string {
   );
 }
 
-/**
- * `fragment` without the images `take` claims (collected into `out`); a node left without the
- * content it needs (a cell that held only an image) is filled.
- */
-function withoutImages(
-  fragment: Fragment,
-  take: (image: PMNode) => boolean,
-  out: PMNode[],
-): Fragment {
-  const kept: PMNode[] = [];
-  fragment.forEach((child) => {
-    if (child.type.name === "image" && take(child)) {
-      out.push(child);
-      return;
-    }
-    if (!child.childCount) {
-      kept.push(child);
-      return;
-    }
-    const content = withoutImages(child.content, take, out);
-    if (content === child.content) kept.push(child);
-    else if (child.type.validContent(content)) kept.push(child.copy(content));
-    else {
-      const filled = child.type.createAndFill(
-        child.attrs,
-        content,
-        child.marks,
-      );
-      if (filled) kept.push(filled);
-    }
-  });
-  return kept.length === fragment.childCount &&
-    kept.every((node, index) => node === fragment.child(index))
-    ? fragment
-    : Fragment.from(kept);
-}
-
-/** `slice` without its external (and pasted `data:`) images, which are returned to import. */
-function takeExternalImages(
+/** The images in `slice` to import: another site's, and pasted `data:` ones (as files), by `src`. */
+function importableImages(
   slice: Slice,
   files: ReadonlyMap<string, File>,
-): { slice: Slice; images: ExternalImage[] } {
-  const taken: PMNode[] = [];
-  const content = withoutImages(
-    slice.content,
-    (image) => {
-      const src = String(image.attrs.src ?? "");
-      return files.has(src) || isExternalImage(src);
+): Map<string, ExternalImage[]> {
+  const images = new Map<string, ExternalImage[]>();
+  slice.content.descendants((node) => {
+    if (node.type.name !== "image") return true;
+    const src = String(node.attrs.src ?? "");
+    const file = files.get(src);
+    if (file || isExternalImage(src))
+      images.set(src, [
+        ...(images.get(src) ?? []),
+        {
+          src,
+          alt: (node.attrs.alt as string | null) ?? null,
+          ...(file ? { file } : {}),
+        },
+      ]);
+    return false;
+  });
+  return images;
+}
+
+/** A pasted image taken out to import, and where it sat. */
+interface PlacedImage {
+  image: ExternalImage;
+  pos: number;
+}
+
+/**
+ * Pasted images to import (`onExternalImage`): the paste lands with them, and in the same step —
+ * before it renders or reaches a collaborator — each leaves the document, recorded where it sat,
+ * so its import lands in its own place among the pasted blocks. A `data:` image always uploads (it
+ * is the person's own file); past `EXTERNAL_IMAGE_LIMIT`, another site's image lands as a link.
+ */
+function pastedImagesExtension(runtime: {
+  /** The images the paste being handled carries to import (taken: each paste has its own). */
+  take: () => Map<string, ExternalImage[]> | null;
+  place: (images: PlacedImage[]) => void;
+}) {
+  return Extension.create({
+    name: "textEditPastedImages",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          appendTransaction(transactions, _old, state) {
+            const index = transactions.findIndex(
+              (tr) =>
+                tr.docChanged &&
+                ["paste", "drop"].includes(tr.getMeta("uiEvent") as string),
+            );
+            if (index < 0) return null;
+            const pending = runtime.take();
+            if (!pending?.size) return null;
+            // Where the paste landed, in the document as it is now.
+            const paste = transactions[index]!;
+            const after = new Mapping();
+            for (const tr of transactions.slice(index + 1))
+              after.appendMapping(tr.mapping);
+            let from = Infinity;
+            let to = -Infinity;
+            paste.mapping.maps.forEach((map, step) => {
+              const rest = paste.mapping.slice(step + 1);
+              map.forEach((_a, _b, start, end) => {
+                from = Math.min(from, after.map(rest.map(start, -1), -1));
+                to = Math.max(to, after.map(rest.map(end, 1), 1));
+              });
+            });
+            if (from > to) return null;
+            const found: (PlacedImage & { node: PMNode })[] = [];
+            state.doc.nodesBetween(
+              Math.max(0, from),
+              Math.min(to, state.doc.content.size),
+              (node, pos) => {
+                if (node.type.name !== "image") return true;
+                const image = pending
+                  .get(String(node.attrs.src ?? ""))
+                  ?.shift();
+                if (image) found.push({ image, pos, node });
+                return false;
+              },
+            );
+            if (!found.length) return null;
+            const tr = state.tr;
+            const placed: (PlacedImage & { steps: number })[] = [];
+            let imports = found.filter((each) => !each.image.file).length;
+            // From the last: each step leaves the positions before it as they are.
+            for (const { image, pos, node } of found.reverse()) {
+              const external = !image.file;
+              if (external && imports-- > EXTERNAL_IMAGE_LIMIT) {
+                tr.replaceWith(
+                  pos,
+                  pos + node.nodeSize,
+                  state.schema.nodes.paragraph!.create(
+                    null,
+                    state.schema.text(image.src, [
+                      state.schema.marks.link!.create({ href: image.src }),
+                    ]),
+                  ),
+                );
+                continue;
+              }
+              // An empty line holds its place, so images side by side keep their order (and a
+              // cell or list item that held only the image stays valid); the image replaces it.
+              tr.replaceWith(
+                pos,
+                pos + node.nodeSize,
+                state.schema.nodes.paragraph!.create(),
+              );
+              placed.push({ image, pos: pos + 1, steps: tr.steps.length });
+            }
+            const images = placed
+              .map(({ image, pos, steps }) => ({
+                image,
+                pos: tr.mapping.slice(steps).map(pos),
+              }))
+              .reverse();
+            // Once this state is in the view: the uploads' placeholders go where the images were.
+            if (images.length) queueMicrotask(() => runtime.place(images));
+            return tr;
+          },
+        }),
+      ];
     },
-    taken,
-  );
-  if (!taken.length) return { slice, images: [] };
-  const open = Slice.maxOpen(content);
-  return {
-    slice: new Slice(
-      content,
-      Math.min(slice.openStart, open.openStart),
-      Math.min(slice.openEnd, open.openEnd),
-    ),
-    images: taken.map((image) => {
-      const src = String(image.attrs.src ?? "");
-      const file = files.get(src);
-      return {
-        src,
-        alt: (image.attrs.alt as string | null) ?? null,
-        ...(file ? { file } : {}),
-      };
-    }),
-  };
+  });
 }
 
 /**
@@ -5470,9 +5679,7 @@ function MediaPanel({
       : kind === "file"
         ? {
             type: "text",
-            text: decodeURIComponent(
-              safe.split(/[?#]/)[0]!.split("/").filter(Boolean).pop() ?? safe,
-            ),
+            text: urlFileName(safe) || safe,
             marks: [{ type: "link", attrs: { href: safe } }],
           }
         : kind === "image"
@@ -6026,9 +6233,9 @@ function resolveCell(view: EditorView, cell: HTMLElement) {
  * Drag the block at `pos` among its siblings (a line shows the drop slot), or `onClick` when the
  * pointer never travelled. Shared by the block handle and the table's corner grip.
  *
- * Safe while others edit: the block is held by a Yjs relative position from the press, and the
- * drop re-resolves it — when it is gone (deleted, or replaced by a collaborator) the move is
- * dropped with a toast. A remote change during the drag re-measures the slots. Near the top or
+ * Safe while others edit: the block is held from the press (`holdPosition`), and the drop
+ * re-resolves it — when it is gone (deleted, or replaced by a collaborator) the move is dropped
+ * with a toast. A remote change during the drag re-measures the slots. Near the top or
  * bottom of the window (48px) the page scrolls.
  */
 function startBlockDrag(
@@ -6041,14 +6248,13 @@ function startBlockDrag(
     onEnd: () => void;
   },
 ) {
-  const type = editor.state.doc.nodeAt(pos)?.type.name;
-  const y = yBinding(editor.state);
-  const held = y ? relativeAt(y, pos, 1) : null;
+  if (event.button !== 0) return;
+  const held = holdPosition(editor, pos, true);
   let rects: DOMRect[] = [];
   let left = 0;
   let right = 0;
   const measure = () => {
-    const { siblings } = siblingsOf(editor.view, currentPos() ?? pos);
+    const { siblings } = siblingsOf(editor.view, held.get() ?? pos);
     rects = siblings.map(
       (sibling) => sibling.dom?.getBoundingClientRect() ?? new DOMRect(),
     );
@@ -6064,20 +6270,6 @@ function startBlockDrag(
       frame ? frame.right - FRAME_INSET : Infinity,
     );
   };
-  /** The dragged block's position now: re-read from Yjs in a shared document; null when it is gone. */
-  function currentPos(): number | null {
-    if (!held) return pos;
-    const binding = yBinding(editor.state);
-    const at = binding ? resolveRelative(binding, held) : null;
-    if (at === null) return null;
-    // The relative position is bound to the block's first character: step out to the block.
-    const $at = editor.state.doc.resolve(at);
-    for (let depth = $at.depth; depth >= 0; depth--) {
-      const before = depth > 0 ? $at.before(depth) : 0;
-      if (depth > 0 && $at.node(depth).type.name === type) return before;
-    }
-    return editor.state.doc.nodeAt(at)?.type.name === type ? at : null;
-  }
   measure();
   let slot = -1;
   let pointerY = event.clientY;
@@ -6127,7 +6319,7 @@ function startBlockDrag(
     },
     onDrop: () => {
       if (slot < 0) return;
-      const now = currentPos();
+      const now = held.get();
       if (now === null) {
         toast.add({
           title: "That block changed while you moved it. Try again.",
@@ -6140,6 +6332,7 @@ function startBlockDrag(
     onEnd: () => {
       cancelAnimationFrame(frame);
       editor.off("transaction", onRemote);
+      held.release();
       handlers.setLine(null);
       handlers.onEnd();
     },
@@ -6147,6 +6340,23 @@ function startBlockDrag(
 }
 
 type TableMenuKind = "row" | "col" | "table";
+
+/**
+ * The table under `cursor`, held while a menu is open or a grip is dragged (`holdPosition`): its
+ * position now while its content is unchanged, else null — row and column indices taken from it
+ * then name other lines (a collaborator added or moved one), so the action must not run.
+ */
+function holdTable(editor: Editor, cursor: TableCursor): HeldPosition {
+  const held = holdPosition(editor, cursor.tablePos, true);
+  return {
+    get: () => {
+      const pos = held.get();
+      const node = pos === null ? null : editor.state.doc.nodeAt(pos);
+      return node && node.eq(cursor.table) ? pos : null;
+    },
+    release: held.release,
+  };
+}
 
 /** The hovered cell, as DOM indices (GFM tables have no spans, so they are the model's too). */
 interface TableTarget {
@@ -6298,18 +6508,36 @@ function TableControls({
   const editorDom = React.useRef<HTMLElement | null>(null);
   editorDom.current = editor.view.dom;
 
+  // The open menu's table: a collaborator's change to it closes the menu (its lines moved).
+  const menuTableRef = React.useRef<HeldPosition | null>(null);
   const openMenu = React.useCallback(
-    (kind: TableMenuKind) => {
+    (kind: TableMenuKind, cursor: TableCursor) => {
       pinnedRef.current = true;
+      menuTableRef.current?.release();
+      menuTableRef.current = holdTable(editor, cursor);
       setMenu(kind);
     },
-    [pinnedRef],
+    [editor, pinnedRef],
   );
   const closeMenu = React.useCallback(() => {
+    menuTableRef.current?.release();
+    menuTableRef.current = null;
     pinnedRef.current = false;
     setMenu(null);
     hideSoon();
   }, [pinnedRef, hideSoon]);
+  React.useEffect(() => {
+    const onRemote = ({ transaction }: { transaction: Transaction }) => {
+      const held = menuTableRef.current;
+      if (held && transaction.docChanged && isChangeOrigin(transaction))
+        if (held.get() === null) closeMenu();
+    };
+    editor.on("transaction", onRemote);
+    return () => {
+      editor.off("transaction", onRemote);
+      menuTableRef.current?.release();
+    };
+  }, [editor, closeMenu]);
 
   React.useEffect(() => {
     const dom = editor.view.dom;
@@ -6358,7 +6586,7 @@ function TableControls({
             : "row";
       if (!cells) selectTableLine(editor.view, cursor, "row");
       show({ table, row: cursor.row, col: cursor.col });
-      openMenu(kind);
+      openMenu(kind, cursor);
     };
     dom.addEventListener("mousemove", onMove);
     dom.addEventListener("mouseleave", hideSoon);
@@ -6405,10 +6633,11 @@ function TableControls({
     if (!open) return closeMenu();
     // Base UI opened it (a virtual click): select the line first, as a press does.
     selectTableLine(view, cursor, kind);
-    openMenu(kind);
+    openMenu(kind, cursor);
   };
 
   const dragLine = (axis: "row" | "col") => (event: React.PointerEvent) => {
+    if (event.button !== 0) return;
     const from = axis === "col" ? col : row;
     const movable = from >= (axis === "col" ? minCol : minRow);
     const rects =
@@ -6419,6 +6648,8 @@ function TableControls({
         : [...table.rows].map((r) => r.getBoundingClientRect());
     let to = from;
     let opened = false;
+    // The rows and columns are indices into the table as the press found it.
+    const held = holdTable(editor, cursor);
     // Synchronous (tiptap's `focus()` waits a frame): the edit session opens before the move.
     view.focus();
     pinnedRef.current = true;
@@ -6459,13 +6690,29 @@ function TableControls({
               },
         );
       },
-      onDrop: () => void moveTable(view, at, axis, from, to),
+      onDrop: () => {
+        const pos = held.get();
+        if (pos === null) {
+          toast.add({
+            title: "That table changed while you moved it. Try again.",
+          });
+          return;
+        }
+        moveTable(
+          view,
+          cellTextPos(cursor.table, pos, row, col),
+          axis,
+          from,
+          to,
+        );
+      },
       onClick: () => {
         opened = true;
         selectTableLine(view, cursor, axis);
-        openMenu(axis);
+        openMenu(axis, cursor);
       },
       onEnd: () => {
+        held.release();
         setLine(null);
         if (!opened) pinnedRef.current = false;
       },
@@ -6480,7 +6727,7 @@ function TableControls({
       onClick: () => {
         opened = true;
         selectTableLine(view, cursor, "table");
-        openMenu("table");
+        openMenu("table", cursor);
       },
       onEnd: () => {
         if (!opened) pinnedRef.current = false;
@@ -6868,12 +7115,11 @@ function findSnapshot(editor: Editor): FindSnapshot {
 const FIND_RESULT_CLASS =
   "[&_.find-and-replace-result]:rounded-[2px] [&_.find-and-replace-result]:bg-warning/35 [&_.find-and-replace-result-current]:bg-warning/60 [&_.find-and-replace-result-current]:underline [&_.find-and-replace-result-current]:decoration-2 [&_.find-and-replace-result-current]:underline-offset-2 print:[&_.find-and-replace-result]:bg-transparent";
 
-/** The find plugin's keys while the bar is open: ⌘G / ⇧⌘G step, Esc closes. */
+/** The find plugin's keys while the bar is open: ⌘G / ⇧⌘G step (Esc closes it: `handleKeyDown`). */
 interface FindRuntime {
   open: () => boolean;
   isOpen: () => boolean;
   step: (direction: 1 | -1) => boolean;
-  close: () => boolean;
 }
 
 function findKeys(runtime: FindRuntime) {
@@ -6885,7 +7131,6 @@ function findKeys(runtime: FindRuntime) {
         "Mod-f": () => this.editor.isEditable && runtime.open(),
         "Mod-g": () => runtime.isOpen() && runtime.step(1),
         "Shift-Mod-g": () => runtime.isOpen() && runtime.step(-1),
-        Escape: () => runtime.isOpen() && runtime.close(),
       };
     },
   });
@@ -6921,7 +7166,10 @@ function FindBar({
   const [snap, setSnap] = React.useState(() => findSnapshot(editor));
   const [term, setTerm] = React.useState(snap.term);
   const [replacing, setReplacing] = React.useState(false);
-  const [replacement, setReplacement] = React.useState("");
+  // The plugin's own replacement: what Replace and Replace all insert is what the field shows.
+  const [replacement, setReplacement] = React.useState(
+    () => FindAndReplacePluginKey.getState(editor.state)?.replaceTerm ?? "",
+  );
   const findRef = React.useRef<HTMLInputElement>(null);
   const { announce, Announcer } = useAnnouncer();
   const inputId = React.useId();
@@ -7347,11 +7595,18 @@ interface OfferedLine {
  * whose line the selection reaches when the selection covers the block, else the block alone.
  * Empty when the block is not an unlinked task item with text.
  */
-function makeTaskItems(state: EditorState, block: BlockTarget): OfferedLine[] {
+function makeTaskItems(state: EditorState, block: LiveBlock): OfferedLine[] {
   const { node, pos, range } = block;
   if (node.type.name !== "taskItem" || linkedTaskId(node) !== null) return [];
   const end = pos + node.nodeSize;
-  if (range && range.to > range.from && range.from < end && range.to > pos) {
+  const size = state.doc.content.size;
+  if (
+    range &&
+    range.to > range.from &&
+    range.from < end &&
+    range.to > pos &&
+    range.to <= size
+  ) {
     const items: OfferedLine[] = [];
     state.doc.nodesBetween(range.from, range.to, (child, at) => {
       if (child.isTextblock) return false;
@@ -7934,6 +8189,58 @@ interface BlockTarget {
   range?: { from: number; to: number };
 }
 
+/** A block as it is now: where it starts, the node, and the selection the menu opened with. */
+type LiveBlock = Pick<BlockTarget, "pos" | "node" | "range">;
+
+/**
+ * The block menu's block, held while the menu is open (`holdPosition`): a collaborator may edit
+ * meanwhile, so every action reads the block as it is when it runs, never where it was.
+ */
+interface MenuBlock extends BlockTarget {
+  /** The block now; null once it is gone (deleted, or replaced by another type). */
+  live: () => LiveBlock | null;
+  release: () => void;
+}
+
+function holdBlock(editor: Editor, block: BlockTarget): MenuBlock {
+  const at = holdPosition(editor, block.pos, true);
+  const from = block.range ? holdPosition(editor, block.range.from) : null;
+  const to = block.range ? holdPosition(editor, block.range.to) : null;
+  return {
+    ...block,
+    live: () => {
+      const pos = at.get();
+      const node = pos === null ? null : editor.state.doc.nodeAt(pos);
+      if (pos === null || !node) return null;
+      const start = from?.get() ?? null;
+      const end = to?.get() ?? null;
+      return {
+        pos,
+        node,
+        ...(start !== null && end !== null
+          ? { range: { from: start, to: end } }
+          : {}),
+      };
+    },
+    release: () => {
+      at.release();
+      from?.release();
+      to?.release();
+    },
+  };
+}
+
+const BLOCK_CHANGED = "That block changed meanwhile. Try again.";
+
+/** `action` on the menu's block as it is when it runs; a block gone meanwhile says so instead. */
+function onLiveBlock(block: MenuBlock, action: (now: LiveBlock) => void) {
+  return () => {
+    const now = block.live();
+    if (now) action(now);
+    else toast.add({ title: BLOCK_CHANGED });
+  };
+}
+
 /** What the block menu needs from the editor beyond the block itself. */
 interface BlockMenuRuntime {
   /** `headingLinkHref`: a heading's Copy link. */
@@ -8083,10 +8390,13 @@ interface BlockAction {
   checked?: boolean;
 }
 
-/** The menu's actions for `block`, in order; `null` marks the separator before Delete. */
+/**
+ * The menu's actions for `block`, in order; `null` marks the separator before Delete. What it
+ * shows is the block as the menu opened; what it does reads the block as it is then (`live`).
+ */
 function blockActions(
   editor: Editor,
-  block: BlockTarget,
+  block: MenuBlock,
   runtime: BlockMenuRuntime,
 ): (BlockAction | null)[] {
   const { pos, node } = block;
@@ -8095,6 +8405,13 @@ function blockActions(
   const makeTask = runtime.makeTask();
   const tasks =
     makeTask && editor.isEditable ? makeTaskItems(editor.state, block) : [];
+  const live = (action: (now: LiveBlock) => void) => onLiveBlock(block, action);
+  /** Move the block `step` slots among its siblings, as they are now. */
+  const move = (step: -1 | 1) =>
+    live((now) => {
+      const at = siblingsOf(editor.view, now.pos).index;
+      moveNodeTo(editor.view, now.pos, step < 0 ? at - 1 : at + 2);
+    });
   const actions: (BlockAction | null)[] = [];
   if (makeTask && tasks.length > 0)
     actions.push(
@@ -8102,7 +8419,10 @@ function blockActions(
         key: "make-task",
         label: tasks.length > 1 ? `Make ${tasks.length} tasks` : "Make task",
         icon: CircleCheck,
-        run: () => makeTask(offerTaskItems(editor, tasks)),
+        run: live((now) => {
+          const lines = makeTaskItems(editor.state, now);
+          if (lines.length > 0) makeTask(offerTaskItems(editor, lines));
+        }),
       },
       null,
     );
@@ -8111,7 +8431,7 @@ function blockActions(
     label: "Duplicate",
     icon: CopyPlus,
     shortcut: "⌘D",
-    run: () => duplicateBlock(editor, pos),
+    run: live((now) => duplicateBlock(editor, now.pos)),
   });
   if (link)
     actions.push({
@@ -8129,8 +8449,13 @@ function blockActions(
       key: "markdown",
       label: "Copy as Markdown",
       icon: FileCode,
-      run: () =>
-        void copyWithToast(blockMarkdown(editor, node), "Copied as Markdown"),
+      run: live(
+        (now) =>
+          void copyWithToast(
+            blockMarkdown(editor, now.node),
+            "Copied as Markdown",
+          ),
+      ),
     },
     {
       key: "up",
@@ -8138,7 +8463,7 @@ function blockActions(
       icon: ArrowUp,
       shortcut: "⌘⇧↑",
       disabled: index === 0,
-      run: () => moveNodeTo(editor.view, pos, index - 1),
+      run: move(-1),
     },
     {
       key: "down",
@@ -8146,7 +8471,7 @@ function blockActions(
       icon: ArrowDown,
       shortcut: "⌘⇧↓",
       disabled: index >= siblings.length - 1,
-      run: () => moveNodeTo(editor.view, pos, index + 2),
+      run: move(1),
     },
   );
   if (node.type.name === "toggle")
@@ -8155,14 +8480,15 @@ function blockActions(
       label: "Open by default",
       icon: ListCollapse,
       checked: node.attrs.open !== false,
-      run: () =>
+      run: live((now) =>
         editor.view.dispatch(
           editor.state.tr.setNodeAttribute(
-            pos,
+            now.pos,
             "open",
-            node.attrs.open === false,
+            now.node.attrs.open === false,
           ),
         ),
+      ),
     });
   actions.push(null, {
     key: "delete",
@@ -8170,18 +8496,19 @@ function blockActions(
     icon: Trash2,
     shortcut: "⌫",
     destructive: true,
-    run: () => {
-      const tr = editor.state.tr.delete(pos, pos + node.nodeSize);
+    run: live((now) => {
+      const tr = editor.state.tr.delete(now.pos, now.pos + now.node.nodeSize);
       editor.view.dispatch(tr.scrollIntoView());
       editor.commands.focus();
-    },
+    }),
   });
   return actions;
 }
 
 /** The Turn into choices for `block`: the block types, then a callout (by tone) and a toggle. */
-function turnIntoChoices(editor: Editor, block: BlockTarget) {
+function turnIntoChoices(editor: Editor, block: MenuBlock) {
   const current = blockKind(block.node);
+  const live = (action: (now: LiveBlock) => void) => onLiveBlock(block, action);
   return {
     current,
     // Diagram only while the host draws ```mermaid (`blockViews.mermaid`).
@@ -8191,18 +8518,18 @@ function turnIntoChoices(editor: Editor, block: BlockTarget) {
       key: type.id,
       label: type.label,
       icon: type.icon as React.ComponentType,
-      run: () => {
-        caretInto(editor, block.pos);
+      run: live((now) => {
+        caretInto(editor, now.pos);
         type.run(editor);
-      },
+      }),
     })),
     tones: CALLOUT_TONES.map((tone) => ({
       key: tone,
       label: CALLOUT_STYLE[tone].label,
       icon: CALLOUT_STYLE[tone].icon as React.ComponentType,
-      run: () => turnIntoCallout(editor, block.pos, tone),
+      run: live((now) => turnIntoCallout(editor, now.pos, tone)),
     })),
-    toggle: () => turnIntoToggle(editor, block.pos),
+    toggle: live((now) => turnIntoToggle(editor, now.pos)),
   };
 }
 
@@ -8217,7 +8544,7 @@ function BlockMenuItems({
   runtime,
 }: {
   editor: Editor;
-  block: BlockTarget;
+  block: MenuBlock;
   runtime: BlockMenuRuntime;
 }) {
   const turnable = TURNABLE.has(block.node.type.name);
@@ -8323,7 +8650,7 @@ function BlockMenuSheet({
   onClose,
 }: {
   editor: Editor;
-  block: BlockTarget | null;
+  block: MenuBlock | null;
   runtime: BlockMenuRuntime;
   onClose: () => void;
 }) {
@@ -8456,6 +8783,34 @@ function BlockMenuSheet({
   );
 }
 
+/**
+ * `block` as it is now, found again by its DOM (positions move with every edit since it was
+ * taken, a collaborator's included); null once it is gone.
+ */
+function blockNow(editor: Editor, block: BlockTarget): BlockTarget | null {
+  const { view } = editor;
+  const { doc } = view.state;
+  if (!block.dom.isConnected) return null;
+  let inside: number;
+  try {
+    inside = view.posAtDOM(block.dom, 0);
+  } catch {
+    return null;
+  }
+  const $inside = doc.resolve(Math.min(Math.max(inside, 0), doc.content.size));
+  const candidates = [inside - 1, inside];
+  for (let depth = $inside.depth; depth > 0; depth--)
+    candidates.push($inside.before(depth));
+  for (const pos of candidates) {
+    if (pos < 0 || pos >= doc.content.size || view.nodeDOM(pos) !== block.dom)
+      continue;
+    const node = doc.nodeAt(pos);
+    // The selection it carried belongs to the document it was taken in: never kept.
+    return node ? { dom: block.dom, pos, node } : null;
+  }
+  return null;
+}
+
 /** Whether the primary pointer is coarse (touch): the handle follows the caret, not the hover. */
 function useCoarsePointer() {
   const [coarse, setCoarse] = React.useState(false);
@@ -8498,7 +8853,9 @@ function BlockHandle({
     (a, b) => a.dom === b.dom && a.pos === b.pos,
   );
   const [line, setLine] = React.useState<DragLine | null>(null);
-  const [menu, setMenu] = React.useState<BlockTarget | null>(null);
+  const [menu, setMenu] = React.useState<MenuBlock | null>(null);
+  // The open menu's block, held until the menu closes.
+  const heldRef = React.useRef<MenuBlock | null>(null);
   const menuOpenRef = React.useRef(false);
   const coarse = useCoarsePointer();
   const handleRef = React.useRef<HTMLButtonElement>(null);
@@ -8508,15 +8865,20 @@ function BlockHandle({
       pinnedRef.current = true;
       menuOpenRef.current = true;
       show(block);
-      setMenu(block);
+      heldRef.current?.release();
+      heldRef.current = holdBlock(editor, block);
+      setMenu(heldRef.current);
     },
-    [pinnedRef, show],
+    [editor, pinnedRef, show],
   );
   const closeMenu = React.useCallback(() => {
+    heldRef.current?.release();
+    heldRef.current = null;
     setMenu(null);
     menuOpenRef.current = false;
     pinnedRef.current = false;
   }, [pinnedRef]);
+  React.useEffect(() => () => heldRef.current?.release(), []);
 
   React.useEffect(() => {
     const dom = editor.view.dom;
@@ -8585,19 +8947,32 @@ function BlockHandle({
   const size = coarse ? 24 : HANDLE_WIDTH;
 
   const onPointerDown = (event: React.PointerEvent) => {
-    if (!block) return;
+    // The hovered block where it is now: a collaborator's edit since the hover moved it.
+    const pressed = block && blockNow(editor, block);
+    if (!pressed) return;
     pinnedRef.current = true;
     // The selection before the grip selects its block: Make task reads the lines it reaches.
     const { from, to } = editor.state.selection;
-    startBlockDrag(editor, block.pos, event, {
+    const doc = editor.state.doc;
+    startBlockDrag(editor, pressed.pos, event, {
       setLine,
       onClick: () => {
+        // Found again on release: the document may have changed during the press.
+        const now = blockNow(editor, pressed);
+        if (!now) {
+          pinnedRef.current = false;
+          return;
+        }
         editor.view.dispatch(
           editor.state.tr.setSelection(
-            NodeSelection.create(editor.state.doc, block.pos),
+            NodeSelection.create(editor.state.doc, now.pos),
           ),
         );
-        openMenu({ ...block, range: { from, to } });
+        openMenu(
+          editor.state.doc === doc || editor.state.doc.eq(doc)
+            ? { ...now, range: { from, to } }
+            : now,
+        );
       },
       onEnd: () => {
         if (!menuOpenRef.current) pinnedRef.current = false;
@@ -9032,7 +9407,8 @@ export function TextEditEditor({
   sectionMarkRef.current = onSectionMark;
   const [toggleRuntime] = React.useState<ToggleRuntime>(() => ({
     // Shared or a diff: opening a toggle is this viewer's view, never a document change.
-    states: quiet ? new ToggleStates(toggleStateRef) : null,
+    states: new ToggleStates(toggleStateRef),
+    shared: quiet,
   }));
   const inlineImageTypesRef = React.useRef(inlineImageTypes);
   inlineImageTypesRef.current = inlineImageTypes;
@@ -9186,6 +9562,14 @@ export function TextEditEditor({
         sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
         taskOffersExtension(),
         editableWatchExtension(),
+        pastedImagesExtension({
+          take: () => {
+            const images = importRef.current;
+            importRef.current = null;
+            return images;
+          },
+          place: (images) => placeImagesRef.current(images),
+        }),
         ...(findReplace
           ? [
               FindAndReplace.configure({
@@ -9204,10 +9588,6 @@ export function TextEditEditor({
                   if (direction > 0) ed.commands.goToNextResult();
                   else ed.commands.goToPreviousResult();
                   revealFindRef.current();
-                  return true;
-                },
-                close: () => {
-                  closeFindRef.current();
                   return true;
                 },
               }),
@@ -9273,7 +9653,7 @@ export function TextEditEditor({
     const ed = editorRef.current;
     setFind(null);
     if (!ed || ed.isDestroyed) return;
-    ed.commands.clearSearch();
+    ed.chain().clearSearch().setReplaceTerm("").run();
     const at = findCaretRef.current;
     findCaretRef.current = null;
     if (at !== null)
@@ -9444,10 +9824,19 @@ export function TextEditEditor({
     callbacks.current.onRevert?.();
   }, [markdown, serialize]);
 
-  /** Failed uploads still shown (Retry or Remove), with their image previews to let go of. */
-  const failedRef = React.useRef(new Map<string, string | null>());
+  /**
+   * Failed uploads still shown (Retry or Remove), each with what to let go of once it goes: its
+   * image preview, and the hold on the image it would replace.
+   */
+  const failedRef = React.useRef(new Map<string, () => void>());
   const startUploadRef = React.useRef<
-    ((file: File, pos: number, as?: MediaKind) => boolean) | null
+    | ((
+        file: File,
+        pos: number,
+        as?: MediaKind,
+        replace?: ImageToReplace,
+      ) => boolean)
+    | null
   >(null);
   /** No upload landing and none failed: an edit session that ended may hand its view back. */
   const uploadsSettled = React.useCallback(() => {
@@ -9456,9 +9845,18 @@ export function TextEditEditor({
       leaveViewRef.current?.();
   }, []);
 
-  /** Upload `file` into the document at `pos`: a placeholder now, the image or link on success. */
+  /**
+   * Upload `file` into the document at `pos`: a placeholder now, the image or link on success.
+   * `replace` (an image's Replace): that image stays until the upload lands, then gives way to it
+   * in one step; a failed upload leaves it. Gone meanwhile, the upload lands where it was put.
+   */
   const startUpload = React.useCallback(
-    (file: File, pos: number, as?: MediaKind): boolean => {
+    (
+      file: File,
+      pos: number,
+      as?: MediaKind,
+      replace?: ImageToReplace,
+    ): boolean => {
       const ed = editorRef.current;
       const type = file.type.split(";")[0]!.trim().toLowerCase();
       const kind: MediaKind =
@@ -9478,6 +9876,16 @@ export function TextEditEditor({
       const id = `upload-${Math.random().toString(36).slice(2)}`;
       const controller = new AbortController();
       const preview = image ? URL.createObjectURL(file) : null;
+      // The image to replace, followed through every change while the upload runs (anyone's).
+      const target = replace ? holdPosition(ed, replace.pos, true) : null;
+      /** The image to replace, where it is now; null once it is gone or changed. */
+      const replaced = (state: EditorState) => {
+        const at = target?.get() ?? null;
+        const node = at === null ? null : state.doc.nodeAt(at);
+        return node?.type.name === "image" && node.attrs.src === replace?.src
+          ? { from: at!, to: at! + node.nodeSize }
+          : null;
+      };
       // An image's size, read from the file while it uploads: stored with it, so its box is
       // reserved before it loads (here and in every read view).
       const natural = preview ? imageSize(preview) : Promise.resolve(null);
@@ -9487,6 +9895,8 @@ export function TextEditEditor({
         } satisfies UploadMeta),
       );
       const land = (content: JSONContent) => {
+        // Landed: no longer in flight, so the placeholder giving way never reads as its removal.
+        uploadsRef.current.delete(id);
         const current = editorRef.current;
         if (!current || current.isDestroyed) return;
         const at = uploadPos(current.state, id);
@@ -9495,12 +9905,16 @@ export function TextEditEditor({
             remove: id,
           } satisfies UploadMeta),
         );
-        if (at === null) return;
+        const swap = replaced(current.state);
+        if (at === null && !swap) return;
         // An image, video or audio clip is a block of its own: after the block it was dropped in.
         current
           .chain()
           .insertContentAt(
-            content.type === "text" ? at : blockInsertRange(current.state, at),
+            swap ??
+              (content.type === "text"
+                ? at!
+                : blockInsertRange(current.state, at!)),
             content,
           )
           .run();
@@ -9525,11 +9939,15 @@ export function TextEditEditor({
         }
         // The placeholder stays, saying it failed, until Retry or Remove.
         failed = true;
-        failedRef.current.set(id, preview);
+        const letGo = () => {
+          target?.release();
+          if (preview) URL.revokeObjectURL(preview);
+        };
+        failedRef.current.set(id, letGo);
         const settle = (): number | null => {
           if (!failedRef.current.has(id)) return null;
           failedRef.current.delete(id);
-          if (preview) URL.revokeObjectURL(preview);
+          letGo();
           const now = editorRef.current;
           if (!now || now.isDestroyed) return null;
           const at = uploadPos(now.state, id);
@@ -9546,8 +9964,19 @@ export function TextEditEditor({
               id,
               failed: {
                 retry: () => {
+                  const still = editorRef.current
+                    ? replaced(editorRef.current.state)
+                    : null;
                   const at = settle();
-                  if (at !== null) startUploadRef.current?.(file, at, kind);
+                  if (at !== null)
+                    startUploadRef.current?.(
+                      file,
+                      at,
+                      kind,
+                      still && replace
+                        ? { pos: still.from, src: replace.src }
+                        : undefined,
+                    );
                   uploadsSettled();
                 },
                 remove: () => {
@@ -9590,6 +10019,7 @@ export function TextEditEditor({
         .catch(fail)
         .finally(() => {
           if (preview && !failed) URL.revokeObjectURL(preview);
+          if (!failed) target?.release();
           uploadsRef.current.delete(id);
           callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
           uploadsSettled();
@@ -9606,22 +10036,37 @@ export function TextEditEditor({
   React.useEffect(() => {
     const failedUploads = failedRef.current;
     return () => {
-      for (const preview of failedUploads.values())
-        if (preview) URL.revokeObjectURL(preview);
+      for (const letGo of failedUploads.values()) letGo();
       failedUploads.clear();
     };
   }, []);
+  // Unmounted mid-upload: a placeholder still in the text says the editor went away (a host may
+  // keep the file elsewhere), one already deleted that the person removed it.
   React.useEffect(() => {
     const uploads = uploadsRef.current;
     return () => {
-      for (const { controller } of uploads.values()) controller.abort();
+      const ed = editorRef.current;
+      for (const [id, { controller }] of uploads) {
+        let kept = false;
+        try {
+          kept = !!ed && uploadPos(ed.state, id) !== null;
+        } catch {
+          // A destroyed editor with no state left to read: the editor went away.
+          kept = true;
+        }
+        controller.abort(
+          kept
+            ? TEXT_EDIT_UPLOAD_ABORT.unmounted
+            : TEXT_EDIT_UPLOAD_ABORT.removed,
+        );
+      }
     };
   }, []);
 
   /** Pasted `data:` images as files, by the `blob:` URL the paste carries each under. */
   const pastedFilesRef = React.useRef(new Map<string, File>());
-  /** Images taken out of the paste or drop being handled: placed once it has landed. */
-  const externalRef = React.useRef<ExternalImage[] | null>(null);
+  /** The images the paste or drop being handled carries to import (`pastedImagesExtension`). */
+  const importRef = React.useRef<Map<string, ExternalImage[]> | null>(null);
   const importQueue = React.useRef({
     active: 0,
     waiting: [] as (() => void)[],
@@ -9634,50 +10079,29 @@ export function TextEditEditor({
       pos: number,
       failed: () => void,
       /**
-       * Replace this image (an image's Replace, `from`–`to` now): it stays until the import lands,
-       * then gives way in one step (one undo); a failed import leaves it.
+       * Replace this image (an image's Replace): it stays until the import lands, then gives way
+       * in one step (one undo); a failed import leaves it.
        */
-      replace?: { from: number; to: number; src: string },
+      replace?: ImageToReplace,
     ) => {
       const ed = editorRef.current;
       const importImage = callbacks.current.onExternalImage;
       if (!ed || ed.isDestroyed || !importImage) return;
       const id = `upload-${Math.random().toString(36).slice(2)}`;
       const controller = new AbortController();
-      const name =
-        decodeURIComponent(
-          image.src.split(/[?#]/)[0]!.split("/").filter(Boolean).pop() ?? "",
-        ) || "image";
+      const name = urlFileName(image.src) || "image";
       // The image being replaced, followed through every change while the import runs (anyone's):
-      // once a change removes, splits or rewrites it, it is lost and the replacement is dropped —
-      // never another image in its place.
-      let target = replace ? { from: replace.from, to: replace.to } : null;
-      const follow = ({
-        transaction,
-        appendedTransactions,
-      }: {
-        transaction: Transaction;
-        appendedTransactions?: readonly Transaction[];
-      }) => {
-        // The change and every transaction a plugin appended to it, in order.
-        for (const tr of [transaction, ...(appendedTransactions ?? [])]) {
-          if (!target || !tr.docChanged) continue;
-          const size = target.to - target.from;
-          const from = tr.mapping.mapResult(target.from, 1);
-          const to = tr.mapping.mapResult(target.to, -1);
-          target =
-            from.deleted || to.deleted || to.pos - from.pos !== size
-              ? null
-              : { from: from.pos, to: to.pos };
-        }
-      };
-      if (replace) ed.on("transaction", follow);
+      // once a change removes or rewrites it, it is lost and the replacement is dropped — never
+      // another image in its place.
+      const target = replace ? holdPosition(ed, replace.pos, true) : null;
       ed.view.dispatch(
         ed.state.tr.setMeta(UPLOAD_KEY, {
           add: { id, pos, name, preview: null },
         } satisfies UploadMeta),
       );
       const land = (content: JSONContent | null) => {
+        // Landed: no longer in flight, so the placeholder giving way never reads as its removal.
+        uploadsRef.current.delete(id);
         const current = editorRef.current;
         if (!current || current.isDestroyed) return;
         const at = uploadPos(current.state, id);
@@ -9689,16 +10113,12 @@ export function TextEditEditor({
         if (at === null || !content) return;
         let range = blockInsertRange(current.state, at);
         if (replace) {
-          const node = target ? current.state.doc.nodeAt(target.from) : null;
+          const from = target?.get() ?? null;
+          const node = from === null ? null : current.state.doc.nodeAt(from);
           // The image to replace is gone (removed or changed meanwhile): nothing lands.
-          if (
-            !target ||
-            node?.type.name !== "image" ||
-            node.attrs.src !== replace.src ||
-            node.nodeSize !== target.to - target.from
-          )
+          if (node?.type.name !== "image" || node.attrs.src !== replace.src)
             return;
-          range = target;
+          range = { from: from!, to: from! + node.nodeSize };
         }
         current.chain().insertContentAt(range, content).run();
         commitNow();
@@ -9751,7 +10171,7 @@ export function TextEditEditor({
         if (queue.active < EXTERNAL_IMAGE_CONCURRENCY) go();
         else queue.waiting.push(go);
       }).finally(() => {
-        if (replace) ed.off("transaction", follow);
+        target?.release();
         uploadsRef.current.delete(id);
         callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
         uploadsSettled();
@@ -9762,45 +10182,27 @@ export function TextEditEditor({
     [commitNow, uploadsSettled],
   );
 
-  /**
-   * Place the images the paste or drop that just landed left out: each imports where the pasted
-   * content ends (a `data:` image uploads as a file); past the limit, they land as links.
-   */
-  const placeExternalImages = React.useCallback(() => {
-    const images = externalRef.current;
-    externalRef.current = null;
-    const ed = editorRef.current;
-    if (!images?.length || !ed || ed.isDestroyed) return;
-    const at = ed.state.selection.to;
-    let warned = false;
-    const failed = () => {
-      if (warned) return;
-      warned = true;
-      toast.add({ title: EXTERNAL_IMAGE_FAILED });
-    };
-    const links: JSONContent[] = [];
-    images.forEach((image, index) => {
-      if (image.file) {
-        if (index < EXTERNAL_IMAGE_LIMIT) startUpload(image.file, at, "image");
-        pastedFilesRef.current.delete(image.src);
-        URL.revokeObjectURL(image.src);
-      } else if (index < EXTERNAL_IMAGE_LIMIT)
-        startExternalImage(image, at, failed);
-      else
-        links.push({
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: image.src,
-              marks: [{ type: "link", attrs: { href: image.src } }],
-            },
-          ],
-        });
-    });
-    if (links.length)
-      ed.chain().insertContentAt(blockInsertRange(ed.state, at), links).run();
-  }, [startExternalImage, startUpload]);
+  /** Import the images a paste or drop carried, each where it sat (a `data:` image uploads). */
+  const placeImages = React.useCallback(
+    (images: readonly PlacedImage[]) => {
+      let warned = false;
+      const failed = () => {
+        if (warned) return;
+        warned = true;
+        toast.add({ title: EXTERNAL_IMAGE_FAILED });
+      };
+      for (const { image, pos } of images) {
+        if (image.file) {
+          startUpload(image.file, pos, "image");
+          pastedFilesRef.current.delete(image.src);
+          URL.revokeObjectURL(image.src);
+        } else startExternalImage(image, pos, failed);
+      }
+    },
+    [startExternalImage, startUpload],
+  );
+  const placeImagesRef = React.useRef(placeImages);
+  placeImagesRef.current = placeImages;
 
   /** Set by Mod-Shift-V: the next paste is plain text. */
   const plainPasteRef = React.useRef(false);
@@ -9819,13 +10221,22 @@ export function TextEditEditor({
     const at = (as: MediaKind) => (files: File[]) => {
       const ed = editorRef.current;
       if (!ed || ed.isDestroyed) return;
-      // A selected image (the image's Replace) gives way to the upload.
+      // A selected image (the image's Replace) gives way to the first file once it has landed;
+      // until then — and for good if the upload fails — the image stays.
       const { selection } = ed.state;
-      const replacing =
+      const [first, ...rest] = files;
+      if (
+        first &&
         selection instanceof NodeSelection &&
-        selection.node.type.name === "image";
-      // The upload lands where the image was, not after the block the caret moves to.
-      if (replacing) ed.view.dispatch(ed.state.tr.deleteSelection());
+        selection.node.type.name === "image"
+      ) {
+        startUpload(first, selection.from, as, {
+          pos: selection.from,
+          src: String(selection.node.attrs.src ?? ""),
+        });
+        uploadFiles(rest, selection.to, as);
+        return;
+      }
       uploadFiles(files, selection.from, as);
     };
     const uploads: Partial<Record<MediaKind, (files: File[]) => void>> = {};
@@ -9836,7 +10247,7 @@ export function TextEditEditor({
       uploads.file = at("file");
     }
     return uploads;
-  }, [onImageUpload, onFileUpload, uploadFiles]);
+  }, [onImageUpload, onFileUpload, startUpload, uploadFiles]);
 
   // The image panel's Link with `onExternalImage`: another site's image is imported (rehosted)
   // like a pasted one — a placeholder now, the image (or a link, with a toast) once done. A
@@ -9856,11 +10267,7 @@ export function TextEditEditor({
           { src: url, alt: null },
           selection.to,
           () => toast.add({ title: EXTERNAL_IMAGE_REPLACE_FAILED }),
-          {
-            from: selection.from,
-            to: selection.to,
-            src: String(selection.node.attrs.src ?? ""),
-          },
+          { pos: selection.from, src: String(selection.node.attrs.src ?? "") },
         );
       else
         startExternalImage({ src: url, alt: null }, selection.from, () =>
@@ -9916,7 +10323,9 @@ export function TextEditEditor({
       }
       if (event.key === "Escape") {
         event.preventDefault();
-        if (escapeRef.current === "blur") {
+        // An open find bar closes first, the caret back where it was.
+        if (findOpenRef.current) closeFindRef.current();
+        else if (escapeRef.current === "blur") {
           // Keep what is typed: a document that saves as you type must never lose saved text.
           commit();
           editorRef.current?.commands.blur();
@@ -9969,15 +10378,15 @@ export function TextEditEditor({
         ),
       );
     },
-    // With `onExternalImage`, another site's images (and pasted `data:` ones) never enter the
-    // document as they are: they leave the slice and import once the paste or drop has landed.
+    // With `onExternalImage`, another site's images (and pasted `data:` ones) never stay in the
+    // document as they are: the paste lands with them, and `pastedImagesExtension` takes them out
+    // in the same step, each to import where it sat.
     transformPasted: (slice, view) => {
-      if (!callbacks.current.onExternalImage || view.dragging) return slice;
-      const taken = takeExternalImages(slice, pastedFilesRef.current);
-      if (!taken.images.length) return slice;
-      externalRef.current = taken.images;
-      queueMicrotask(placeExternalImages);
-      return taken.slice;
+      importRef.current =
+        callbacks.current.onExternalImage && !view.dragging
+          ? importableImages(slice, pastedFilesRef.current)
+          : null;
+      return slice;
     },
     // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
     // link extension, which turns it into a link over the selection. Pasted files (a
@@ -9987,13 +10396,6 @@ export function TextEditEditor({
     // Inside a code block everything stays literal; Mod-Shift-V pastes as plain text.
     handlePaste: (view, event) => {
       const ed = editorRef.current;
-      // Images taken out of the slice import only when the slice itself is pasted (`passOn`).
-      const external = externalRef.current;
-      externalRef.current = null;
-      const passOn = () => {
-        externalRef.current = external;
-        return false;
-      };
       const files = Array.from(event.clipboardData?.files ?? []);
       const text = event.clipboardData?.getData("text/plain");
       const plain = plainPasteRef.current;
@@ -10020,7 +10422,7 @@ export function TextEditEditor({
         if (from !== to) view.dispatch(view.state.tr.deleteSelection());
         if (uploadFiles(files, view.state.selection.from)) return true;
       }
-      if (!ed || !text || ed.isActive("codeBlock")) return passOn();
+      if (!ed || !text || ed.isActive("codeBlock")) return false;
       // A lone YouTube or Loom link pasted into an empty paragraph becomes an embed.
       const embed = plain ? null : embedForPaste(ed, text);
       if (embed) {
@@ -10047,7 +10449,7 @@ export function TextEditEditor({
       if (plain) return insertLiteral();
       const html = event.clipboardData?.getData("text/html");
       const wrapper = html ? codeWrapperKind(html) : null;
-      if (html && !wrapper) return passOn();
+      if (html && !wrapper) return false;
       const fence = singleFence(text);
       if (fence) return insertCode(fence.code, fence.language);
       // Notion's Markdown (its callouts) read as the editor's.
@@ -10071,7 +10473,6 @@ export function TextEditEditor({
         view.state.selection.from;
       if (!uploadFiles(files, pos)) return false;
       event.preventDefault();
-      externalRef.current = null;
       return true;
     },
   };
@@ -10169,10 +10570,18 @@ export function TextEditEditor({
   }, [quiet, editor, serialize]);
 
   // The file picker behind the image panel's Upload and the slash menu's File. Files land where
-  // the caret was when it opened.
-  const pickAtRef = React.useRef(0);
+  // the caret was when it opened, held while the dialog is open (others may edit meanwhile).
+  const pickAtRef = React.useRef<HeldPosition | null>(null);
+  React.useEffect(() => () => pickAtRef.current?.release(), []);
   const picker = useFileDrop({
-    onFilesAccepted: (files) => uploadFiles(files, pickAtRef.current),
+    onFilesAccepted: (files) => {
+      const ed = editorRef.current;
+      const held = pickAtRef.current;
+      pickAtRef.current = null;
+      held?.release();
+      if (!ed || ed.isDestroyed) return;
+      uploadFiles(files, held?.get() ?? ed.state.selection.from);
+    },
     accept: onFileUpload ? undefined : { "image/*": [] },
     paste: false,
     preventWindowDrop: false,
@@ -10180,7 +10589,8 @@ export function TextEditEditor({
   pickRef.current = () => {
     const ed = editorRef.current;
     if (!ed || ed.isDestroyed) return;
-    pickAtRef.current = ed.state.selection.from;
+    pickAtRef.current?.release();
+    pickAtRef.current = holdPosition(ed, ed.state.selection.from);
     picker.open();
   };
   const canUpload = Boolean(onImageUpload || onFileUpload);
@@ -10349,17 +10759,30 @@ export function TextEditEditor({
   }, [leavesView]);
   React.useEffect(() => () => clearTimeout(leaveTimerRef.current), []);
 
-  // A failed upload whose placeholder went with its text (deleted, a block replaced) is let go:
-  // its preview, its count and the hold it put on handing the read view back.
+  // An upload whose placeholder went with its text (deleted, a block replaced) is let go — in
+  // flight, it is stopped; failed:
+  // its preview, its hold on an image it would replace, its count and the hold it put on handing
+  // the read view back.
   React.useEffect(() => {
     if (!editor) return;
     const reconcile = ({ transaction }: { transaction: Transaction }) => {
-      if (!transaction.docChanged || failedRef.current.size === 0) return;
+      if (!transaction.docChanged) return;
+      // An upload still in flight whose placeholder was deleted (its text removed) is stopped
+      // now, saying so: the host can let go of the file at once. A placeholder an upload removes
+      // itself (it landed, or gave way to a retry) carries the upload meta.
+      if (!transaction.getMeta(UPLOAD_KEY))
+        for (const [id, { controller }] of uploadsRef.current)
+          if (
+            !controller.signal.aborted &&
+            uploadPos(editor.state, id) === null
+          )
+            controller.abort(TEXT_EDIT_UPLOAD_ABORT.removed);
+      if (failedRef.current.size === 0) return;
       let gone = false;
-      for (const [id, preview] of failedRef.current)
+      for (const [id, letGo] of failedRef.current)
         if (uploadPos(editor.state, id) === null) {
           failedRef.current.delete(id);
-          if (preview) URL.revokeObjectURL(preview);
+          letGo();
           gone = true;
         }
       if (gone) uploadsSettled();

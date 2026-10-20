@@ -25141,6 +25141,15 @@
           }
         },
         {
+          "name": "TEXT_EDIT_UPLOAD_ABORT",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The abort reasons an upload's signal carries, not a component."
+          }
+        },
+        {
           "name": "preloadTextEdit",
           "kind": "function",
           "source": "packages/ui/registry/ui/text-edit.tsx",

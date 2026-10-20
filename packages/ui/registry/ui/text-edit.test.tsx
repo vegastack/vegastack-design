@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogTitle } from "./dialog";
 import {
   linkedTaskId,
   preloadTextEdit,
+  TEXT_EDIT_UPLOAD_ABORT,
   TextEdit,
   type MentionOption,
   type TextEditAnchor,
@@ -5557,4 +5558,563 @@ test("taskQuery: a JSON insert without a blockId lands; Markdown writes it witho
   await expect
     .element(screen.getByText("No matching tasks"))
     .toBeInTheDocument();
+});
+
+/* --- adversarial review fixes (20-10-2026) ----------------------------------------------------*/
+
+/** A Yjs paragraph holding `text`, as a collaborator's client would add it. */
+function yParagraph(text: string) {
+  const paragraph = new Y.XmlElement("paragraph");
+  paragraph.insert(0, [new Y.XmlText(text)]);
+  return paragraph;
+}
+
+/** The shared document's top-level blocks, as text. */
+const sharedBlocks = (doc: Y.Doc) => {
+  const blocks: string[] = [];
+  yXmlFragmentToProseMirrorRootNode(
+    doc.getXmlFragment("default"),
+    textEditSchema(),
+  ).forEach((node) =>
+    blocks.push(node.type.name === "image" ? "[image]" : node.textContent),
+  );
+  return blocks;
+};
+
+test("collaboration: a block menu left open acts on its own block after a collaborator adds one before it", async () => {
+  const { screen, shared } = await twoEditors("AAA\n\nBBB\n\nCCC");
+  const a = screen.getByRole("textbox", { name: "A" });
+  await vi.waitFor(() => expect(visibleText(a.element())).toContain("CCC"));
+  await userEvent.click(a.element().querySelectorAll("p")[1]!);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  const remove = screen.getByRole("menuitem", { name: /Delete/ });
+  await expect.element(remove).toBeInTheDocument();
+  shared.b.getXmlFragment("default").insert(0, [yParagraph("ZZZ")]);
+  await vi.waitFor(() => expect(visibleText(a.element())).toContain("ZZZ"));
+  (remove.element() as HTMLElement).click();
+  await vi.waitFor(() =>
+    expect(sharedBlocks(shared.b)).toEqual(["ZZZ", "AAA", "CCC"]),
+  );
+});
+
+test("collaboration: the block grip acts on the hovered block after a collaborator adds one before it", async () => {
+  const { screen, shared } = await twoEditors("AAA\n\nBBB\n\nCCC");
+  const a = screen.getByRole("textbox", { name: "A" });
+  await vi.waitFor(() => expect(visibleText(a.element())).toContain("CCC"));
+  await userEvent.hover(a.element().querySelectorAll("p")[1]!);
+  const grip = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-block-handle"]');
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  shared.b.getXmlFragment("default").insert(0, [yParagraph("ZZZ")]);
+  await vi.waitFor(() => expect(visibleText(a.element())).toContain("ZZZ"));
+  const box = grip()!.getBoundingClientRect();
+  pointer("pointerdown", grip()!, box.left + 2, box.top + 2);
+  pointer("pointerup", window, box.left + 2, box.top + 2);
+  const remove = screen.getByRole("menuitem", { name: /Delete/ });
+  await expect.element(remove).toBeInTheDocument();
+  (remove.element() as HTMLElement).click();
+  await vi.waitFor(() =>
+    expect(sharedBlocks(shared.b)).toEqual(["ZZZ", "AAA", "CCC"]),
+  );
+});
+
+test("collaboration: a row drag across a collaborator's new row moves nothing — never another row", async () => {
+  const { toast } = await import("./toast");
+  const add = vi.spyOn(toast, "add");
+  onTestFinished(() => add.mockRestore());
+  const { screen, shared } = await twoEditors(TABLE);
+  const a = screen.getByRole("textbox", { name: "A" }).element();
+  await vi.waitFor(() => expect(a.querySelectorAll("td")).toHaveLength(4));
+  await userEvent.hover(a.querySelectorAll("td")[0]!);
+  const grip = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-table-grip"][data-axis="row"]',
+    );
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  const handle = grip()!;
+  const box = handle.getBoundingClientRect();
+  pointer("pointerdown", handle, box.left + 4, box.top + 4);
+  pointer("pointermove", window, box.left + 20, box.top + 20);
+  // A collaborator adds a row "N1" above the dragged row "1".
+  const table = shared.b.getXmlFragment("default").get(0) as Y.XmlElement;
+  const copy = (table.get(1) as Y.XmlElement).clone();
+  shared.b.transact(() => {
+    table.insert(1, [copy]);
+    const cell = copy.get(0) as Y.XmlElement;
+    ((cell.get(0) as Y.XmlElement).get(0) as Y.XmlText).insert(0, "N");
+  });
+  await vi.waitFor(() => expect(a.textContent).toContain("N1"));
+  const lastRow = a.querySelectorAll("tr")[3]!.getBoundingClientRect();
+  pointer("pointermove", window, lastRow.left + 4, lastRow.bottom - 2);
+  pointer("pointerup", window, lastRow.left + 4, lastRow.bottom - 2);
+  await vi.waitFor(() =>
+    expect(add).toHaveBeenCalledWith({
+      title: "That table changed while you moved it. Try again.",
+    }),
+  );
+  const rows = () =>
+    [...a.querySelectorAll("tr")].map((row) => row.cells[0]!.textContent);
+  expect(rows()).toEqual(["A", "N1", "1", "3"]);
+});
+
+test("image: Replace by Upload keeps the image until the upload lands; a failed upload leaves it", async () => {
+  let fail = true;
+  const onImageUpload = vi.fn(async () => {
+    if (fail) throw new Error("offline");
+    return { src: "/api/files/new" };
+  });
+  const onValueChange = vi.fn();
+  const md = `![Old](${PIXEL})\n\nAfter`;
+  const screen = await markdownEditor({
+    defaultValue: md,
+    onImageUpload,
+    onValueChange,
+  });
+  const upload = async () => {
+    await screen.getByRole("button", { name: "Replace" }).click();
+    const input = await vi.waitFor(() => {
+      const found = document.querySelector<HTMLInputElement>(
+        '[data-slot="tabs-content"] input[type="file"]',
+      );
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    await userEvent.upload(input, png());
+  };
+  await upload();
+  await vi.waitFor(() => expect(onImageUpload).toHaveBeenCalledTimes(1));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  // The original is still there; the failed upload only shows its own Retry.
+  expect(lastValue(onValueChange) ?? md).toBe(md);
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  expect(box.querySelector(`img[src="${PIXEL}"]`)).not.toBeNull();
+  fail = false;
+  await userEvent.click(box.querySelector(`img[src="${PIXEL}"]`)!);
+  await upload();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(
+      /^!\[\]\(\/api\/files\/new.*\n\nAfter$/,
+    ),
+  );
+  expect(lastValue(onValueChange)).not.toContain("Old");
+});
+
+test("external images: a pasted image imports in its own place among the pasted blocks", async () => {
+  const onExternalImage = vi.fn(async (url: string) => ({
+    src: url.endsWith("y.png") ? "/api/files/y" : "/api/files/x",
+  }));
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onExternalImage, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      '<p>Alpha</p><img src="https://cdn.example.com/100%.png" alt="X"><img src="https://cdn.example.com/y.png" alt="Y"><p>Beta</p>',
+    "text/plain": "Alpha Beta",
+  });
+  // A name that is not valid percent-encoding still imports.
+  await vi.waitFor(() => expect(onExternalImage).toHaveBeenCalledTimes(2));
+  // Side by side, they keep their order.
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(
+      /^Alpha\n\n!\[X\]\(\/api\/files\/x[^)]*\)\n\n!\[Y\]\(\/api\/files\/y[^)]*\)\n\nBeta$/,
+    ),
+  );
+});
+
+test("external images: every pasted data: image uploads — past the import limit too", async () => {
+  const onImageUpload = vi.fn(async () => ({ src: "/api/files/p" }));
+  const onExternalImage = vi.fn(async () => ({ src: "/api/files/x" }));
+  const screen = await markdownEditor({ onExternalImage, onImageUpload });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  const image = '<img src="data:image/png;base64,iVBORw0KGgo=">';
+  pasteData(box.element(), {
+    "text/html": `<p>Shots</p>${image.repeat(21)}`,
+    "text/plain": "Shots",
+  });
+  await vi.waitFor(() => expect(onImageUpload).toHaveBeenCalledTimes(21));
+});
+
+test("find: reopened, the Replace field shows what Replace all would insert (nothing left over)", async () => {
+  const { FindAndReplacePluginKey } =
+    await import("@tiptap/extension-find-and-replace");
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  await expect
+    .element(screen.getByRole("search", { name: "Find in page" }))
+    .toBeInTheDocument();
+  await userEvent.keyboard("alpha");
+  (
+    screen
+      .getByRole("button", { name: "Replace", exact: true })
+      .element() as HTMLElement
+  ).click();
+  await screen.getByRole("textbox", { name: "Replace with" }).fill("omega");
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[data-slot="text-edit-find"]')).toBeNull(),
+  );
+  const editor = editorOf(box.element()) as unknown as Editor;
+  expect(FindAndReplacePluginKey.getState(editor.state)?.replaceTerm).toBe("");
+  // Esc gives the caret back to the editor: reopen only once it is there.
+  await vi.waitFor(() => expect(document.activeElement).toBe(box.element()));
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  const toggle = screen.getByRole("button", { name: "Replace", exact: true });
+  await expect.element(toggle).toBeInTheDocument();
+  (toggle.element() as HTMLElement).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Replace with" }))
+    .toHaveValue("");
+});
+
+test("find: Escape closes the bar when focus is back in the text", async () => {
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  await userEvent.keyboard("alpha");
+  await expect
+    .element(screen.getByRole("search", { name: "Find in page" }))
+    .toBeInTheDocument();
+  await userEvent.click(box.element().querySelector("p")!);
+  await vi.waitFor(() => expect(document.activeElement).toBe(box.element()));
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[data-slot="text-edit-find"]')).toBeNull(),
+  );
+});
+
+test("a read-only editor folds a toggle for its reader only — the document never changes", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Read"
+      readOnly
+      annotations={[]}
+      defaultValue={
+        "<details open><summary>Title</summary>\n\nBody\n\n</details>"
+      }
+      onValueChange={onValueChange}
+    />,
+  );
+  const toggle = () =>
+    screen.container.querySelector<HTMLElement>(
+      '.ProseMirror [data-slot="toggle"]',
+    );
+  await vi.waitFor(() => expect(toggle()).toHaveAttribute("data-open"));
+  const editor = editorOf(toggle()!) as unknown as Editor;
+  const before = editor.state.doc;
+  await userEvent.click(
+    toggle()!.querySelector<HTMLElement>('[data-slot="toggle-chevron"]')!,
+  );
+  await vi.waitFor(() => expect(toggle()).not.toHaveAttribute("data-open"));
+  expect(editor.state.doc).toBe(before);
+  expect(onValueChange).not.toHaveBeenCalled();
+});
+
+test("collaboration: files picked while a collaborator adds a block before the caret land after the caret's block", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("alpha\n\nbeta", {
+    a: { onImageUpload, handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await vi.waitFor(() => expect(visibleText(a.element())).toContain("beta"));
+  await userEvent.click(a.element().querySelector("p")!);
+  await userEvent.keyboard("{End}");
+  const root = a.element().closest('[data-slot="text-edit"]')!;
+  const input = root.querySelector<HTMLInputElement>('input[type="file"]')!;
+  // The dialog never opens in a test: the input is what accepts the files.
+  const open = vi.spyOn(input, "click").mockImplementation(() => {});
+  onTestFinished(() => open.mockRestore());
+  handleRef.current!.pickFiles();
+  shared.b
+    .getXmlFragment("default")
+    .insert(0, [yParagraph("a much longer first block")]);
+  await vi.waitFor(() =>
+    expect(visibleText(a.element())).toContain("a much longer"),
+  );
+  await userEvent.upload(input, png());
+  await vi.waitFor(() => expect(onImageUpload).toHaveBeenCalledTimes(1));
+  land({ src: "/api/files/f1" });
+  await vi.waitFor(() =>
+    expect(sharedBlocks(shared.b)).toEqual([
+      "a much longer first block",
+      "alpha",
+      "[image]",
+      "beta",
+    ]),
+  );
+});
+
+test("flush() waits for files handed to uploadFiles before the editor was in", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const onValueChange = vi.fn();
+  let flushed = false;
+  let flushing: Promise<void> | undefined;
+  function Harness() {
+    const handle = React.useRef<TextEditHandle>(null);
+    // Runs right after the handle is attached, before the editor has mounted.
+    React.useLayoutEffect(() => {
+      handle.current!.uploadFiles([png()]);
+      flushing = handle.current!.flush().then(() => {
+        flushed = true;
+      });
+    }, []);
+    return (
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        handleRef={handle}
+        onImageUpload={onImageUpload}
+        onValueChange={onValueChange}
+      />
+    );
+  }
+  await render(<Harness />);
+  await vi.waitFor(() => expect(onImageUpload).toHaveBeenCalledTimes(1));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(flushed).toBe(false);
+  land({ src: "/api/files/f1" });
+  await flushing;
+  expect(lastValue(onValueChange)).toContain("/api/files/f1");
+});
+
+test("typing, Enter, Backspace and a paste on the read view while the editor loads all reach the editor", async () => {
+  const onValueChange = vi.fn();
+  const onImageUpload = vi.fn(() => new Promise<{ src: string }>(() => {}));
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Summary"
+      defaultValue="Ship it [[1]]"
+      citation={cite}
+      onValueChange={onValueChange}
+      onImageUpload={onImageUpload}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  const view = readView(screen)!;
+  const input = (inputType: string, data?: string) =>
+    view.dispatchEvent(
+      new InputEvent("beforeinput", {
+        inputType,
+        data: data ?? null,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  input("insertText", "ab");
+  input("insertParagraph");
+  input("insertText", "c");
+  input("deleteContentBackward");
+  pasteData(view, { "text/plain": "d " });
+  // A copied image: its HTML and its file — the file uploads, as a paste into the editor does.
+  const image = new DataTransfer();
+  image.setData("text/html", '<img src="https://cdn.example.com/shot.png">');
+  image.items.add(png());
+  view.dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: image,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  view.focus();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(/^ab\n\nd Ship it/),
+  );
+  await vi.waitFor(() => expect(onImageUpload).toHaveBeenCalledTimes(1));
+});
+
+test("a read-only document opens Find from the handle — without Replace", async () => {
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Summary"
+      defaultValue="Ship it [[1]]"
+      citation={cite}
+      readOnly
+      findReplace
+      handleRef={handle}
+    />,
+  );
+  handle.current!.openFind();
+  await expect
+    .element(screen.getByRole("search", { name: "Find in page" }))
+    .toBeInTheDocument();
+  expect(
+    document.querySelector(
+      '[data-slot="text-edit-find"] [aria-label="Replace"]',
+    ),
+  ).toBeNull();
+});
+
+test("the handle's focus() follows editability turned on after mounting", async () => {
+  const handle = React.createRef<TextEditHandle>();
+  function Harness({ readOnly }: { readOnly: boolean }) {
+    return (
+      <TextEdit
+        format="markdown"
+        aria-label="Summary"
+        defaultValue="Ship it [[1]]"
+        citation={cite}
+        readOnly={readOnly}
+        handleRef={handle}
+      />
+    );
+  }
+  const screen = await render(<Harness readOnly />);
+  await screen.rerender(<Harness readOnly={false} />);
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(visibleEditor(screen)).toBeNull();
+  handle.current!.focus();
+  await vi.waitFor(() => expect(visibleEditor(screen)).not.toBeNull());
+});
+
+test("read-only: comments, heading links and task lists show without the editor", async () => {
+  onTestFinished(() => window.getSelection()?.removeAllRanges());
+  const onCreateAnnotation = vi.fn();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Read"
+      readOnly
+      defaultValue={"# Plan\n\nShip the glass order"}
+      onCreateAnnotation={onCreateAnnotation}
+      headingLinkHref={(anchor) => `#${anchor.slug}`}
+    />,
+  );
+  await expect
+    .element(screen.getByText("Ship the glass order"))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="markdown-heading-link"]'),
+  ).not.toBeNull();
+  selectText(screen.getByText("Ship the glass order").element(), "glass");
+  const comment = await vi.waitFor(() => {
+    const button = document.querySelector<HTMLButtonElement>(
+      '[data-slot="markdown-selection-menu"] button',
+    );
+    expect(button).not.toBeNull();
+    return button!;
+  });
+  comment.click();
+  expect(onCreateAnnotation).toHaveBeenCalledWith(
+    expect.objectContaining({ quote: "glass" }),
+  );
+
+  // An HTML document holding only a live task list is not empty.
+  const { DOMSerializer } = await import("@tiptap/pm/model");
+  const holder = document.createElement("div");
+  holder.append(
+    DOMSerializer.fromSchema(textEditSchema()).serializeFragment(
+      markdownToDoc(TASK_LIST).content,
+    ),
+  );
+  const draw = vi.fn(() => <p>Live list</p>);
+  const html = await render(
+    <TextEdit
+      aria-label="Html"
+      readOnly
+      defaultValue={holder.innerHTML}
+      renderTaskQuery={draw}
+    />,
+  );
+  await expect.element(html.getByText("Live list")).toBeInTheDocument();
+});
+
+test("ImageViewerScope: turned off, its images are plain pictures again", async () => {
+  const { ImageViewerScope } = await import("./text-edit");
+  const { MarkdownView } = await import("./markdown-view");
+  function Harness({ disabled }: { disabled: boolean }) {
+    return (
+      <ImageViewerScope disabled={disabled}>
+        <MarkdownView>{"![Chart](/chart.png)"}</MarkdownView>
+      </ImageViewerScope>
+    );
+  }
+  const screen = await render(<Harness disabled={false} />);
+  const image = () => screen.container.querySelector("img")!;
+  await vi.waitFor(() => expect(image()).toHaveAttribute("role", "button"));
+  await screen.rerender(<Harness disabled />);
+  await vi.waitFor(() => expect(image()).not.toHaveAttribute("role"));
+  expect(image()).not.toHaveAttribute("tabindex");
+  expect(image()).not.toHaveAttribute("aria-label");
+});
+
+test("uploads: the signal says why it aborted — placeholder deleted, or editor unmounted", async () => {
+  const signals: AbortSignal[] = [];
+  let land: ((result: { src: string }) => void) | undefined;
+  const onImageUpload = vi.fn(
+    (_file: File, { signal }: { signal: AbortSignal }) => {
+      signals.push(signal);
+      return new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      });
+    },
+  );
+  const screen = await markdownEditor({
+    defaultValue: "Intro",
+    onImageUpload,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(END);
+  pasteFiles(box.element(), [png()]);
+  await vi.waitFor(() => expect(signals).toHaveLength(1));
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("[data-uploading]")).not.toBeNull(),
+  );
+  // The person deletes the text the placeholder sat in.
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}{Backspace}`);
+  await vi.waitFor(() => expect(signals[0]!.aborted).toBe(true));
+  expect(signals[0]!.reason).toBe(TEXT_EDIT_UPLOAD_ABORT.removed);
+
+  await userEvent.keyboard("Again");
+  // One that lands is never aborted: its placeholder giving way is not a removal.
+  pasteFiles(box.element(), [png()]);
+  await vi.waitFor(() => expect(signals).toHaveLength(2));
+  land!({ src: "/api/files/landed" });
+  await vi.waitFor(() =>
+    expect(
+      box.element().querySelector('img[src="/api/files/landed"]'),
+    ).not.toBeNull(),
+  );
+  expect(signals[1]!.aborted).toBe(false);
+
+  pasteFiles(box.element(), [png()]);
+  await vi.waitFor(() => expect(signals).toHaveLength(3));
+  expect(signals[2]!.aborted).toBe(false);
+  await screen.unmount();
+  expect(signals[2]!.aborted).toBe(true);
+  expect(signals[2]!.reason).toBe(TEXT_EDIT_UPLOAD_ABORT.unmounted);
 });
