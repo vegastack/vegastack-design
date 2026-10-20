@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.58 sha256-ucoRA71D/Kf1ZaSMGFVXjblboxh219w/zadjND5ktXQ=
+// @vegastack text-edit@0.25.58 sha256-0PtcLkoz8RwPrL4PhJAhJopfIo1moKKs1TqCJW76Paw=
 
 "use client";
 
@@ -668,6 +668,19 @@ function loadEditor(): Promise<EditorModule> {
 }
 
 /**
+ * Why an upload's `signal` aborted (`signal.reason`): `removed` — the person deleted its placeholder
+ * (let the file go); `unmounted` — the editor went away with the placeholder still in its text (a
+ * host may keep the file, as an attachment).
+ *
+ * @example
+ * if (signal.reason === TEXT_EDIT_UPLOAD_ABORT.unmounted) keepAsAttachment(file);
+ */
+export const TEXT_EDIT_UPLOAD_ABORT = {
+  unmounted: "text-edit:unmounted",
+  removed: "text-edit:removed",
+} as const;
+
+/**
  * `preloadTextEdit` — start loading the editor now, instead of on the first hover, focus or tap.
  * Once it has loaded, every `TextEdit` mounted afterwards swaps its editor in right after its
  * first paint. Call it where editing is about to start (a "New" dialog opening); a no-op on the
@@ -817,8 +830,12 @@ function useReadImages(
   enabled: boolean,
   open: (image: HTMLImageElement) => void,
 ) {
+  // The images made buttons, so turning the viewer off (or unmounting) gives them back as they were.
+  const madeRef = React.useRef(new Set<HTMLImageElement>());
   React.useEffect(() => {
     if (!enabled) return;
+    for (const image of madeRef.current)
+      if (!image.isConnected) madeRef.current.delete(image);
     for (const image of root.current?.querySelectorAll<HTMLImageElement>(
       "img[data-slot=markdown-image]",
     ) ?? []) {
@@ -830,8 +847,19 @@ function useReadImages(
         "aria-label",
         image.alt ? `Open image: ${image.alt}` : "Open image",
       );
+      madeRef.current.add(image);
     }
   });
+  React.useEffect(() => {
+    if (!enabled) return;
+    const made = madeRef.current;
+    return () => {
+      for (const image of made)
+        for (const name of ["data-viewer", "tabindex", "role", "aria-label"])
+          image.removeAttribute(name);
+      made.clear();
+    };
+  }, [enabled]);
   return {
     onClick: (event: React.MouseEvent) => {
       const image = enabled ? readImage(event.target) : null;
@@ -912,12 +940,108 @@ export function ImageViewerScope({
 /** Where the caret goes once the editor is in: the clicked point, or an end of the document. */
 type Intent = { x: number; y: number; checkbox: boolean } | "start" | "end";
 
+/** An edit made on the read view while the editor loaded, kept to replay into it. */
+type ReadInput =
+  | { text: string }
+  | { key: "Enter" | "Backspace" | "Delete" }
+  | { html: string; text: string; files: File[] };
+
+/** Keep a cancelled `beforeinput`: text joins the text before it, a deletion trims it first. */
+function keepInput(queue: ReadInput[], event: InputEvent) {
+  const last = queue.at(-1);
+  const typed = last && "text" in last && !("html" in last) ? last : null;
+  const trim = (pattern: RegExp) => {
+    typed!.text = typed!.text.replace(pattern, "");
+    if (!typed!.text) queue.pop();
+  };
+  switch (event.inputType) {
+    case "insertText":
+    case "insertReplacementText":
+      if (!event.data) return;
+      if (typed) typed.text += event.data;
+      else queue.push({ text: event.data });
+      return;
+    case "insertParagraph":
+    case "insertLineBreak":
+      queue.push({ key: "Enter" });
+      return;
+    case "deleteContentBackward":
+      if (typed) trim(/[\s\S]$/u);
+      else queue.push({ key: "Backspace" });
+      return;
+    case "deleteWordBackward":
+      if (typed) trim(/\S*\s*$/u);
+      else queue.push({ key: "Backspace" });
+      return;
+    case "deleteContentForward":
+    case "deleteWordForward":
+      queue.push({ key: "Delete" });
+      return;
+  }
+}
+
+/** Keep a cancelled paste or drop's content: its HTML, text and files. */
+function keepTransfer(queue: ReadInput[], data: DataTransfer | null) {
+  if (!data) return;
+  const html = data.getData("text/html");
+  const text = data.getData("text/plain");
+  const files = Array.from(data.files);
+  if (html || text || files.length) queue.push({ html, text, files });
+}
+
+/** Replay one kept edit into the editor at its caret, as the key or paste would have done. */
+function replayInput(editor: Editor, input: ReadInput) {
+  if ("html" in input) {
+    // The whole clipboard, through the editor's own paste handling (files upload, Markdown
+    // parses, a lone link embeds) — a drop on the loading view lands at the caret.
+    const data = new DataTransfer();
+    if (input.html) data.setData("text/html", input.html);
+    if (input.text) data.setData("text/plain", input.text);
+    for (const file of input.files) data.items.add(file);
+    editor.view.dom.dispatchEvent(
+      new ClipboardEvent("paste", {
+        clipboardData: data,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    return;
+  }
+  if ("text" in input) {
+    editor.commands.insertContent({ type: "text", text: input.text });
+    return;
+  }
+  const before = editor.state.doc;
+  editor.commands.keyboardShortcut(input.key);
+  if (input.key === "Enter" || editor.state.doc !== before) return;
+  // A character the browser itself would have deleted (no key binding takes plain text).
+  const { selection } = editor.state;
+  if (!selection.empty) {
+    editor.commands.deleteSelection();
+    return;
+  }
+  const { $from } = selection;
+  const back = input.key === "Backspace";
+  if (
+    back
+      ? $from.parentOffset === 0
+      : $from.parentOffset === $from.parent.content.size
+  )
+    return;
+  const at = selection.from;
+  editor.commands.deleteRange(
+    back ? { from: at - 1, to: at } : { from: at, to: at + 1 },
+  );
+}
+
 /** Whether a saved value holds nothing to show. */
 function isEmptyDocument(source: string, html: boolean): boolean {
   if (!html) return source.trim() === "";
+  // A block that is all attributes (an image, a player, a live task list) is something to show.
   return (
-    !/<(img|hr|table)\b/i.test(source) &&
-    source.replace(/<[^>]*>|&nbsp;/g, "").trim() === ""
+    !/<(img|hr|table|video|audio)\b|\bdata-type\s*=\s*["']?task-query\b/i.test(
+      source,
+    ) && source.replace(/<[^>]*>|&nbsp;/g, "").trim() === ""
   );
 }
 
@@ -1187,7 +1311,8 @@ export interface TextEditProps {
    * Upload an image pasted, dropped or picked (the image panel's Upload, the slash menu's Image).
    * It shows dimmed under a spinner until the promise resolves with its URL, then commits — even
    * after focus has left. A rejection leaves it in place as a failed upload (Retry, Remove) and
-   * calls `onUploadError`.
+   * calls `onUploadError`. `signal` aborts when its placeholder is deleted or the editor unmounts;
+   * `signal.reason` says which (`TEXT_EDIT_UPLOAD_ABORT`).
    * @default undefined
    */
   onImageUpload?: (
@@ -1585,7 +1710,8 @@ export function TextEdit(props: TextEditProps) {
   } | null>(null);
   const editorRef = React.useRef<Editor | null>(null);
   const intentRef = React.useRef<Intent | null>(null);
-  const typedRef = React.useRef("");
+  // What was typed, pasted or dropped on the read view while the editor loaded: replayed into it.
+  const inputRef = React.useRef<ReadInput[]>([]);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
   // Images open in the `FileViewer`: from the read view while it cannot edit (a click there starts
@@ -1593,8 +1719,15 @@ export function TextEdit(props: TextEditProps) {
   const imageViewer = useImageViewer(rootRef, props.imageDownloadHref);
   const readImages = useReadImages(rootRef, !editable, imageViewer.open);
 
-  const activate = (intent: Intent) => {
-    if (!editable) return;
+  // Read through a ref: the imperative handle keeps the first render's `activate`.
+  const editableRef = React.useRef(editable);
+  editableRef.current = editable;
+  /**
+   * Mount the editor and swap it in. Only an editable document, unless `view`: a reader's own
+   * use of the editor that edits nothing (Find in a read-only document).
+   */
+  const activate = (intent: Intent, view = false) => {
+    if (!editableRef.current && !view) return;
     intentRef.current ??= intent;
     setActive(true);
     setEngaged(true);
@@ -1647,6 +1780,19 @@ export function TextEdit(props: TextEditProps) {
   const pendingPickRef = React.useRef(false);
   // `openFind` before the editor was in: opened once it is.
   const pendingFindRef = React.useRef(false);
+  // `flush()` calls waiting for the files queued before the editor was in to be handed to it.
+  const handedRef = React.useRef<(() => void)[]>([]);
+  const handOver = React.useCallback(() => {
+    for (const resolve of handedRef.current.splice(0)) resolve();
+  }, []);
+  // Unmounted (or never able to edit) with files still queued: nothing will take them.
+  React.useEffect(() => {
+    if (!editable) {
+      pendingFilesRef.current = [];
+      handOver();
+    }
+  }, [editable, handOver]);
+  React.useEffect(() => handOver, [handOver]);
   React.useImperativeHandle(
     handleRef,
     () => ({
@@ -1677,10 +1823,16 @@ export function TextEdit(props: TextEditProps) {
           editorHandle.current.openFind();
         else {
           pendingFindRef.current = true;
-          activate("end");
+          activate("end", true);
         }
       },
-      flush: () => editorHandle.current?.flush() ?? Promise.resolve(),
+      // Files queued before the editor was in are uploads in flight too: wait for the editor to
+      // take them, then for every upload to land.
+      flush: async () => {
+        if (pendingFilesRef.current.length > 0 && editableRef.current)
+          await new Promise<void>((resolve) => handedRef.current.push(resolve));
+        await editorHandle.current?.flush();
+      },
       focus: () => {
         if (editorHandle.current && readyRef.current)
           editorHandle.current.focus();
@@ -1729,7 +1881,24 @@ export function TextEdit(props: TextEditProps) {
     const editor = editorRef.current;
     const intent = intentRef.current;
     intentRef.current = null;
-    if (!editor || editor.isDestroyed || !intent) return;
+    if (!editor || editor.isDestroyed) return;
+    // What was asked of the handle before the editor was in, whatever the intent.
+    const handOff = () => {
+      if (pendingFilesRef.current.length > 0) {
+        editorHandle.current?.uploadFiles(pendingFilesRef.current);
+        pendingFilesRef.current = [];
+      }
+      handOver();
+      if (pendingPickRef.current) {
+        pendingPickRef.current = false;
+        editorHandle.current?.pickFiles();
+      }
+      if (pendingFindRef.current) {
+        pendingFindRef.current = false;
+        editorHandle.current?.openFind();
+      }
+    };
+    if (!intent) return handOff();
     // Focus synchronously (Tiptap's `focus` command waits a frame), so no keystroke lands on
     // `<body>` between the swap and the caret.
     editor.view.focus();
@@ -1740,29 +1909,15 @@ export function TextEdit(props: TextEditProps) {
           ?.closest<HTMLElement>("[data-slot=checkbox]");
         if (box) {
           box.click();
-          return;
+          return handOff();
         }
       }
       const pos = editor.view.posAtCoords({ left: intent.x, top: intent.y });
       editor.commands.focus(pos?.pos ?? "end");
     } else editor.commands.focus(intent);
-    if (typedRef.current) {
-      editor.commands.insertContent(typedRef.current);
-      typedRef.current = "";
-    }
-    if (pendingFilesRef.current.length > 0) {
-      editorHandle.current?.uploadFiles(pendingFilesRef.current);
-      pendingFilesRef.current = [];
-    }
-    if (pendingPickRef.current) {
-      pendingPickRef.current = false;
-      editorHandle.current?.pickFiles();
-    }
-    if (pendingFindRef.current) {
-      pendingFindRef.current = false;
-      editorHandle.current?.openFind();
-    }
-  }, [ready]);
+    for (const input of inputRef.current.splice(0)) replayInput(editor, input);
+    handOff();
+  }, [ready, handOver]);
 
   const handleGutter = useHandleGutter(
     rootRef,
@@ -1790,13 +1945,12 @@ export function TextEdit(props: TextEditProps) {
   );
 
   // Nothing edits the read view itself (React owns its DOM): every native edit is cancelled, and
-  // typed text is kept and replayed into the editor once it is in.
+  // kept — typing, Enter, deletions, a paste or a drop — to replay into the editor once it is in.
   const guardReadView = React.useCallback((node: HTMLDivElement | null) => {
     if (!node) return;
     const onBeforeInput = (event: InputEvent) => {
       event.preventDefault();
-      if (event.inputType === "insertText" && event.data)
-        typedRef.current += event.data;
+      keepInput(inputRef.current, event);
     };
     node.addEventListener("beforeinput", onBeforeInput);
     return () => node.removeEventListener("beforeinput", onBeforeInput);
@@ -1858,8 +2012,14 @@ export function TextEdit(props: TextEditProps) {
       if (!isCitation(event.target)) activate("start");
     },
     ref: guardReadView,
-    onPaste: (event: React.ClipboardEvent) => event.preventDefault(),
-    onDrop: (event: React.DragEvent) => event.preventDefault(),
+    onPaste: (event: React.ClipboardEvent) => {
+      event.preventDefault();
+      keepTransfer(inputRef.current, event.clipboardData);
+    },
+    onDrop: (event: React.DragEvent) => {
+      event.preventDefault();
+      keepTransfer(inputRef.current, event.dataTransfer);
+    },
     // A link click places the caret, as in the editor, instead of navigating.
     onClick: (event: React.MouseEvent) => {
       if (editable && (event.target as Element).closest?.("a"))
@@ -1959,6 +2119,16 @@ export function TextEdit(props: TextEditProps) {
               blockViews={props.blockViews}
               typeScale={typeScale}
               onOutlineChange={props.onOutlineChange}
+              headingLinkHref={props.headingLinkHref}
+              headingIds={props.headingLinkHref !== undefined}
+              // A reader comments from the read view: it stands in for the editor while the
+              // document cannot be edited (an editable one loads the editor on the press).
+              onCreateAnnotation={
+                editable || !props.onCreateAnnotation
+                  ? undefined
+                  : // The view's selection anchors carry their offsets (`anchorFromRange`).
+                    (anchor) => props.onCreateAnnotation?.(anchor as TextAnchor)
+              }
             >
               {source}
             </MarkdownView>
