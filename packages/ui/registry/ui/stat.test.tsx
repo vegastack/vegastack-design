@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Stat,
@@ -64,24 +65,34 @@ test("has no accessibility violations", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("StatSkeleton puts each bar in its text's line box, so a loading stat is as tall as a loaded one", async () => {
-  const screen = await render(
-    <>
-      <StatSkeleton size="lg" />
-      <StatSkeleton />
-    </>,
-  );
-  const [lg, md] = [
-    ...screen.container.querySelectorAll('[data-slot="stat-skeleton"]'),
-  ];
-  const lines = (root: Element) =>
-    [...root.children].map((line) => line.className);
-  expect(lines(lg!)).toEqual([
-    "flex h-4 items-center",
-    "flex items-center h-8",
-  ]);
-  expect(lines(md!)).toEqual([
-    "flex h-4 items-center",
-    "flex items-center h-5",
-  ]);
+test("StatSkeleton is exactly as tall as a loaded Stat, at both sizes (compiled CSS)", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  try {
+    const screen = await render(
+      <div className="flex items-start gap-4">
+        <Stat size="lg" data-testid="lg">
+          <StatLabel>Overdue</StatLabel>
+          <StatValue>12</StatValue>
+        </Stat>
+        <div data-testid="lg-skeleton">
+          <StatSkeleton size="lg" />
+        </div>
+        <Stat data-testid="md">
+          <StatLabel>Estimated ARR</StatLabel>
+          <StatValue>$1M–$10M</StatValue>
+        </Stat>
+        <div data-testid="md-skeleton">
+          <StatSkeleton />
+        </div>
+      </div>,
+    );
+    const height = (id: string) =>
+      screen.getByTestId(id).element().getBoundingClientRect().height;
+    expect(height("lg-skeleton")).toBe(height("lg"));
+    expect(height("md-skeleton")).toBe(height("md"));
+  } finally {
+    sheet.remove();
+  }
 });
