@@ -4863,6 +4863,166 @@ test("external images: a replacement whose image is deleted while it imports lan
   expect(editor.getHTML().match(/<img/g)?.length).toBe(1);
 });
 
+test("inserting a callout or a code block logs no React error (stable editor props)", async () => {
+  const errors: string[] = [];
+  const spy = vi
+    .spyOn(console, "error")
+    .mockImplementation((...args) => void errors.push(String(args[0])));
+  onTestFinished(() => spy.mockRestore());
+  const screen = await markdownEditor();
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  for (const name of ["callout", "code"]) {
+    await userEvent.keyboard(`/${name}`);
+    await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+    await userEvent.keyboard("{Enter}");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    await userEvent.keyboard(`${END}{Enter}{Enter}{Enter}`);
+  }
+  expect(errors.filter((each) => /flushSync/.test(each))).toEqual([]);
+});
+
+test("image caption: Markdown's title shows under the image and is edited from the toolbar", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: `![Chart](${PIXEL} "Q3 sales")`,
+    onValueChange,
+  });
+  const caption = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-image-caption"]',
+    )!;
+  await vi.waitFor(() => expect(caption().textContent).toBe("Q3 sales"));
+  expect(caption().hidden).toBe(false);
+  expect(document.querySelector("img[title]")).toBeNull();
+  await screen.getByRole("button", { name: "Caption" }).click();
+  const field = await vi.waitFor(() => {
+    const input = document.querySelector<HTMLInputElement>(
+      'input[placeholder="Add a caption"]',
+    );
+    expect(input).not.toBeNull();
+    return input!;
+  });
+  await userEvent.clear(field);
+  await userEvent.type(field, "Q4 sales{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`![Chart](${PIXEL} "Q4 sales")`),
+  );
+  await vi.waitFor(() => expect(caption().textContent).toBe("Q4 sales"));
+});
+
+test("paste from Notion: its to-do list is a checklist and its callout a callout", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      '<ul class="to-do-list"><li><div class="checkbox checkbox-on"></div> <span class="to-do-children-checked">Ship it</span></li><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Tell the team</span></li></ul><figure class="callout"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">Remember the deadline</div></figure>',
+    "text/plain": "Ship it\nTell the team\nRemember the deadline",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [x] Ship it\n- [ ] Tell the team\n\n> [!NOTE]\n> Remember the deadline",
+    ),
+  );
+});
+
+test("paste from Notion: a callout alone is a callout, keeps its image, and a nested checked item leaves its parent unchecked", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      '<figure class="callout"><div><span class="icon">💡</span></div><div>Plain note</div></figure>',
+    "text/plain": "Plain note",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("> [!NOTE]\n> Plain note"),
+  );
+  await userEvent.keyboard(`${END}{Enter}{Enter}{Enter}`);
+  pasteData(box.element(), {
+    "text/html":
+      '<aside><p>Evidence:</p><img src="/a.png" alt="A"></aside><ul class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Parent</span><ul class="to-do-list"><li><div class="checkbox checkbox-on"></div> <span class="to-do-children-checked">Child</span></li></ul></li></ul>',
+    "text/plain": "Evidence:\nParent\nChild",
+  });
+  await vi.waitFor(() => {
+    const value = lastValue(onValueChange) as string;
+    expect(value).toContain("> Evidence:");
+    expect(value).toContain("![A](/a.png)");
+    expect(value).toContain("- [ ] Parent");
+    expect(value).toContain("- [x] Child");
+  });
+});
+
+test("paste from Notion: a callout inside a callout stays a callout", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      "<aside><p>Outer</p><aside><p>Inner</p></aside><p>After</p></aside>",
+    "text/plain": "Outer\nInner\nAfter",
+  });
+  await vi.waitFor(() =>
+    expect(
+      box
+        .element()
+        .querySelectorAll('[data-slot="callout"] [data-slot="callout"]'),
+    ).toHaveLength(1),
+  );
+});
+
+test("paste as Markdown: a callout inside a callout, and a closing tag in its code, stay where they belong", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/plain":
+      "<aside>\nOuter\n<aside>\nInner\n</aside>\n```\n</aside>\n```\nStill outer\n</aside>",
+  });
+  await vi.waitFor(() => {
+    const value = lastValue(onValueChange) as string;
+    expect(value).toContain("> Outer");
+    expect(value).toContain("> Still outer");
+    expect(value).not.toMatch(/^Still outer/m);
+  });
+});
+
+test("paste as Markdown: an <aside> inside a code fence stays code", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/plain":
+      "Example:\n\n```md\n```html\n<aside>\nhi\n</aside>\n```\n\n<aside>First</aside>\n<aside>Second</aside>",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      // The serializer fences code that holds a ``` run with four backticks.
+      "Example:\n\n````md\n```html\n<aside>\nhi\n</aside>\n````\n\n> [!NOTE]\n> First\n\n> [!NOTE]\n> Second",
+    ),
+  );
+});
+
+test("paste from Notion as Markdown: an <aside> callout becomes a callout", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/plain": "- [ ] Draft\n\n<aside>\n💡 Keep it short\n</aside>",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "- [ ] Draft\n\n> [!NOTE]\n> Keep it short",
+    ),
+  );
+});
+
 test("code block: ⌘A selects the code first, a second ⌘A the whole document", async () => {
   const screen = await markdownEditor({
     defaultValue: "Before\n\n```\nline one\nline two\n```",

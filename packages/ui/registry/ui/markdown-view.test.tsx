@@ -1437,3 +1437,74 @@ test("lines that do not make a live task list stay text and a list; TextEdit's H
     expect.objectContaining({ blockId: "lb_9f2c" }),
   );
 });
+
+test("an image with a title on its own line is a figure with the title as its caption", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {'Before\n\n![Chart](/chart.png "Q3 sales")\n\n![Plain](/plain.png)'}
+    </MarkdownView>,
+  );
+  const figure = screen.container.querySelector(
+    '[data-slot="markdown-figure"]',
+  );
+  expect(figure?.tagName).toBe("FIGURE");
+  expect(figure?.querySelector("img")?.getAttribute("title")).toBeNull();
+  expect(figure?.querySelector("figcaption")?.textContent).toBe("Q3 sales");
+  expect(screen.container.querySelectorAll("figure")).toHaveLength(1);
+});
+
+test("a titled block image in HTML or a tight list item is a figure; one inside a line of text keeps its title", async () => {
+  const html = await render(
+    <MarkdownView format="html">
+      {
+        '<img src="/a.png" alt="A" title="From HTML"><p>Text <img src="/b.png" alt="B" title="Inline"> more</p>'
+      }
+    </MarkdownView>,
+  );
+  expect(html.container.querySelector("figcaption")?.textContent).toBe(
+    "From HTML",
+  );
+  expect(
+    html.container.querySelector('img[alt="B"]')?.getAttribute("title"),
+  ).toBe("Inline");
+  expect(html.container.querySelectorAll("figure")).toHaveLength(1);
+  const list = await render(
+    <MarkdownView>{'- ![C](/c.png "In a list")'}</MarkdownView>,
+  );
+  expect(list.container.querySelector("li figcaption")?.textContent).toBe(
+    "In a list",
+  );
+});
+
+test("an image inside a tight list item's sentence or in bold stays inline", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {'- Before ![A](/a.png "Cap") after\n- **![B](/b.png "Bold")**'}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelectorAll("figure")).toHaveLength(0);
+  expect(
+    screen.container.querySelector('img[alt="A"]')?.getAttribute("title"),
+  ).toBe("Cap");
+});
+
+test("an image in a tight checklist sentence stays inline", async () => {
+  const screen = await render(
+    <MarkdownView>{'- [ ] Before ![A](/a.png "Cap") after'}</MarkdownView>,
+  );
+  expect(screen.container.querySelectorAll("figure")).toHaveLength(0);
+});
+
+test("in HTML, an image after a paragraph is a figure and one inside a sentence is not", async () => {
+  const screen = await render(
+    <MarkdownView format="html">
+      {
+        '<div><p>Before</p><img src="/a.png" alt="A" title="Cap A"></div>Text <img src="/b.png" alt="B" title="Cap B"> after'
+      }
+    </MarkdownView>,
+  );
+  const captions = [...screen.container.querySelectorAll("figcaption")].map(
+    (each) => each.textContent,
+  );
+  expect(captions).toEqual(["Cap A"]);
+});

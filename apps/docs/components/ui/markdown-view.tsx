@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.52 sha256-SMJx+GehNS4myqyvFGm7VfaBMxH4vE/7hXBvNYRCoKs=
+// @vegastack markdown-view@0.25.52 sha256-ahbf14DEtdoxD3y5YfMzq6Rm30RGIfS7suJfTS0IdRM=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -88,6 +88,12 @@ interface El {
   children: DocNode[];
 }
 type DocNode = string | El;
+
+/** An element's attributes without its title (a caption shown as a figure's, not as a tooltip). */
+function withoutTitle(attrs: Record<string, string>): Record<string, string> {
+  const { title: _title, ...rest } = attrs;
+  return rest;
+}
 
 const el = (
   tag: string,
@@ -1287,6 +1293,10 @@ function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
 }
 
 interface RenderContext {
+  /** Rendering inside a line of text (a paragraph, a heading, a cell): no figures there. */
+  inText?: boolean;
+  /** This image stands alone in its run (\`loneImages\`): titled, it is a figure. */
+  figure?: boolean;
   images: ReadonlySet<string>;
   headingOffset: number;
   annotationCounts: Map<string, number>;
@@ -1424,8 +1434,13 @@ function sectionsOf(
  */
 function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
   if (!ctx.sections?.size) return render(nodes, ctx);
+  const lone = loneImages(nodes);
   return nodes.map((node, index) => {
-    const out = renderNode(node, index, ctx);
+    const out = renderNode(
+      node,
+      index,
+      lone.has(node as El) ? { ...ctx, figure: true } : ctx,
+    );
     const section =
       typeof node === "string" ? undefined : ctx.sections!.get(node);
     if (!section || !React.isValidElement<{ className?: string }>(out))
@@ -1469,7 +1484,38 @@ function renderTop(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
  * root's descendant rules (specificity (0,1,0) against (0,1,1)).
  */
 function render(nodes: DocNode[], ctx: RenderContext): React.ReactNode[] {
-  return nodes.map((node, index) => renderNode(node, index, ctx));
+  const lone = ctx.inText ? null : loneImages(nodes);
+  return nodes.map((node, index) =>
+    renderNode(
+      node,
+      index,
+      lone?.has(node as El) ? { ...ctx, figure: true } : ctx,
+    ),
+  );
+}
+
+/**
+ * The images among `nodes` that stand alone in their run of inline content — no text, no other
+ * inline element beside them before the next block — so a titled one shows as a figure. An image
+ * inside a sentence (or inline markup, or a line of text: `inText`) stays an image.
+ */
+function loneImages(nodes: DocNode[]): Set<El> {
+  const lone = new Set<El>();
+  let run: DocNode[] = [];
+  const close = () => {
+    const significant = run.filter(
+      (each) => typeof each !== "string" || each.trim(),
+    );
+    const only = significant.length === 1 ? significant[0] : null;
+    if (only && typeof only !== "string" && only.tag === "img") lone.add(only);
+    run = [];
+  };
+  for (const node of nodes) {
+    if (typeof node === "string" || INLINE_TAGS.has(node.tag)) run.push(node);
+    else close();
+  }
+  close();
+  return lone;
 }
 
 function renderNode(
@@ -1479,7 +1525,15 @@ function renderNode(
 ): React.ReactNode {
   if (typeof node === "string") return node;
   const { tag, attrs } = node;
-  const children = () => render(node.children, ctx);
+  // Inside a line of text or inline markup, an image is never a figure.
+  const textual = TEXT_BLOCKS.has(tag) || INLINE_TAGS.has(tag);
+  const children = () =>
+    render(
+      node.children,
+      textual && !ctx.inText
+        ? { ...ctx, inText: true, figure: false }
+        : { ...ctx, figure: false },
+    );
 
   const heading = /^h([1-6])$/.exec(tag);
   if (heading) {
@@ -1523,6 +1577,33 @@ function renderNode(
         />
       ) : null,
     );
+  }
+
+  // An image with a title (`![alt](src "caption")`) on a line of its own is a figure: the title is
+  // its caption, under it at its start, as TextEdit shows it (not a tooltip).
+  if (tag === "p") {
+    const only = node.children.filter(
+      (child) => typeof child !== "string" || child.trim(),
+    );
+    const image = only.length === 1 ? only[0] : null;
+    if (image && typeof image !== "string" && image.tag === "img") {
+      const title = image.attrs.title?.trim();
+      if (title)
+        return (
+          <figure key={key} data-slot="markdown-figure" className="my-2">
+            {renderNode({ ...image, attrs: withoutTitle(image.attrs) }, 0, {
+              ...ctx,
+              inText: true,
+            })}
+            <figcaption
+              data-slot="markdown-figure-caption"
+              className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
+            >
+              {title}
+            </figcaption>
+          </figure>
+        );
+    }
   }
 
   switch (tag) {
@@ -1768,20 +1849,35 @@ function renderNode(
         new URL(src, "https://other-relative-image.invalid/").origin;
       const width =
         sized.width ?? (Number.parseInt(attrs.width ?? "", 10) || undefined);
-      return (
+      const picture = (
         // Plain <img>: registry source is framework-agnostic (no next/image dependency). Frame and
         // rhythm come from `prose.img` on the root.
         <img
-          key={key}
           data-slot="markdown-image"
           src={src}
           alt={alt}
           width={width}
-          title={attrs.title}
+          title={ctx.figure ? undefined : attrs.title}
           loading="lazy"
           decoding="async"
           referrerPolicy={remote ? "no-referrer" : undefined}
         />
+      );
+      // A titled image standing as a block (TextEdit's HTML, a tight list item) is a figure, its
+      // title the caption; inside a line of text it stays an image with its title.
+      const caption = ctx.figure ? (attrs.title?.trim() ?? "") : "";
+      return caption ? (
+        <figure key={key} data-slot="markdown-figure" className="my-2">
+          {picture}
+          <figcaption
+            data-slot="markdown-figure-caption"
+            className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
+          >
+            {caption}
+          </figcaption>
+        </figure>
+      ) : (
+        <React.Fragment key={key}>{picture}</React.Fragment>
       );
     }
     case "pre": {

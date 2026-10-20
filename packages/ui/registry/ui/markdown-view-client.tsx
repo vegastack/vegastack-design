@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.52 sha256-SMJx+GehNS4myqyvFGm7VfaBMxH4vE/7hXBvNYRCoKs=
+// @vegastack markdown-view@0.25.52 sha256-ahbf14DEtdoxD3y5YfMzq6Rm30RGIfS7suJfTS0IdRM=
 
 "use client";
 
@@ -596,7 +596,7 @@ const DOM_TEXT_BLOCKS = new Set([
 ]);
 /** What the view renders that its text does not hold: controls, pills, icons, SR-only hints. */
 const NOT_TEXT =
-  "[data-slot=text-edit-annotation-count],[data-slot=markdown-heading-link],[data-slot=checkbox],[data-slot=markdown-find-bar],button,input,svg,.sr-only";
+  "[data-slot=text-edit-annotation-count],[data-slot=markdown-heading-link],[data-slot=markdown-figure-caption],[data-slot=checkbox],[data-slot=markdown-find-bar],button,input,svg,.sr-only";
 
 /** One run of the view's anchor text and the DOM it came from. */
 interface AnchorSegment {
