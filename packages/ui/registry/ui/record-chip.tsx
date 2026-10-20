@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.25.52 sha256-58QLi1l86PH4CeBGG213q+Qmj3Fbpkhk8JObVuBbyts=
+// @vegastack record-chip@0.25.53 sha256-pE05aR4A5QHu+dbW+hB1P3BkIJ/4pnzTNLBokYAUSMs=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";

@@ -1,4 +1,4 @@
-// @vegastack code-highlight@0.25.52 sha256-1GsuvIgG1tsETNArVsQGA19o2ph64tNkCO+TSN5k+eQ=
+// @vegastack code-highlight@0.25.53 sha256-hf0mQwga7c8vHh7hmkTxUzGJyIIW0mlmoBr8x9Jlm4Q=
 
 import { common, createLowlight } from "lowlight";
 
