@@ -515,6 +515,35 @@ test("grid: columns caps a row with the shared responsive tile grid", async () =
   expect(group.className).not.toContain("grid-cols-4");
 });
 
+test('grid: columns="cards" is DataList\'s dense card grid, its gap kept whatever a tile holds', async () => {
+  await render(
+    <Controlled
+      layout="grid"
+      columns="cards"
+      initial={SIX}
+      renderItem={(item) => <span data-size="xs">{item.label}</span>}
+    />,
+  );
+  const root = document.querySelector(
+    '[data-slot="sortable-list"]',
+  ) as HTMLElement;
+  const group = root.querySelector('[data-slot="item-group"]') as HTMLElement;
+  // The columns follow the list's own width, at DataList's dense breakpoints (geometry: the app's
+  // Library home, where the two grids sit together).
+  expect(root.className).toContain("@container/sortable-list");
+  for (const step of [
+    "grid-cols-1",
+    "@lg/sortable-list:grid-cols-2",
+    "@3xl/sortable-list:grid-cols-3",
+    "@6xl/sortable-list:grid-cols-4",
+  ])
+    expect(group.className).toContain(step);
+  // ItemGroup's own small-item gaps would match the `xs` control and pull the gap in to 8px.
+  expect(group.className).toContain("has-data-[size=xs]:gap-3");
+  expect(group.className).not.toContain("has-data-[size=xs]:gap-2");
+  expect(group.className).not.toContain("gap-2.5");
+});
+
 test("grid: ←/→ step one tile, ↑/↓ move by a measured row", async () => {
   const onMove = vi.fn();
   const screen = await render(

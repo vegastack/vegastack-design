@@ -2413,6 +2413,9 @@ test("onDropInto: rows drag onto folder rows; a selected row carries the selecti
   await dragTo(rowOf("d1"), rowOf("f2")); // canDropInto refuses
   await dragTo(rowOf("d1"), rowOf("d2")); // not a folder
   await dragTo(rowOf("f1"), rowOf("f1")); // onto itself
+  // A folder row's top and bottom quarters are the gaps between rows: a drop there never nests.
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.1);
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.9);
   expect(onDropInto).not.toHaveBeenCalled();
 });
 

@@ -151,7 +151,9 @@ Set `onDropInto` and rows (list) or cards (grid) can be dragged onto drop target
 Dragging a selected row carries the whole selection, and its drag image reads "3 items"
 (`dragItemsLabel`). `canDropInto` refuses a move — a folder into itself or its own descendant — and a
 refused target shows `data-drop-invalid` in the destructive tint; an accepted one washes in the
-primary tint (`data-drop-over`). `onDropInto` receives `{ ids, targetId }` and may return a promise.
+primary tint (`data-drop-over`). A list row takes the drop in its middle half only — its top and
+bottom quarters never nest, so a drag aimed between two rows cannot land inside one — while a grid
+card takes it anywhere. `onDropInto` receives `{ ids, targetId }` and may return a promise.
 Drag is pointer only: keep a "Move…" row action as the keyboard and touch path.
 
 `canMoveItem(row)` locks single rows — a view-only record (here "Budget.xlsx"). A row it answers
