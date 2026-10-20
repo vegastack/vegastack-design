@@ -371,8 +371,8 @@ the swap never moves the text. On a page with room the text keeps its column, an
   the same prop.
 - **Section marks** (`sectionMarks`): each `{ key, tone, label }` names a heading by its `blockId`.
   It draws a dot in the gutter beside the heading, 32px before the text (50px on touch), clear
-  of the drag grip, and a `warning` or `info` bar along the section, up to the next heading of
-  the same or a higher level. Leave 44px of start gutter for them (62px on touch). Marks mount
+  of the drag grip, and a `warning` or `info` bar along the section, up to the next `#`–`###`
+  heading, whatever its level (sections never nest; a `####` is a block of its section). Leave 44px of start gutter for them (62px on touch). Marks mount
   the editor at once, so a read-only document shows them too. They are decorations: nothing is
   written to the document and no text moves. Typing inside a block maps them; they are rebuilt
   when the marks change or an edit adds, removes, replaces or retypes a top-level block. The dot is a button

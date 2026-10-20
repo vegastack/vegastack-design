@@ -675,6 +675,41 @@ test("an annotation quoted twice with no context to tell them apart draws nothin
   expect(second?.getAttribute("role")).toBeNull();
 });
 
+test("sectionMarks: back-to-back marked sections each keep their own tone; a #### never starts one", async () => {
+  const screen = await render(
+    <MarkdownView
+      headingAnchors={[
+        { id: "a", slug: "one" },
+        { id: "b", slug: "two" },
+        { id: "c", slug: "deep" },
+      ]}
+      sectionMarks={[
+        { key: "a", tone: "warning", label: "May be out of date" },
+        { key: "b", tone: "info", label: "Changed" },
+        { key: "c", tone: "warning", label: "Never drawn" },
+      ]}
+    >
+      {"## One\n\nFirst\n\n### Two\n\nSecond\n\n#### Deep\n\nThird"}
+    </MarkdownView>,
+  );
+  const tones = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="markdown-view"] > *',
+    ),
+  ].map((block) => `${block.textContent}:${block.dataset.sectionMark}`);
+  expect(tones).toEqual([
+    "One:warning",
+    "First:warning",
+    "Two:info",
+    "Second:info",
+    "Deep:info",
+    "Third:info",
+  ]);
+  expect(
+    screen.container.querySelectorAll('[data-slot="markdown-section-mark"]'),
+  ).toHaveLength(2);
+});
+
 test("headingAnchors give headings their slug and block id; headingLinkHref adds a copy-link button", async () => {
   const screen = await render(
     <MarkdownView
@@ -709,16 +744,17 @@ test("headingAnchors give headings their slug and block id; headingLinkHref adds
   await expectNoA11yViolations(screen.container);
 });
 
-test("sectionMarks: the marked heading's section to the next heading of its level wears the bar; the marker calls onSectionMark", async () => {
+test("sectionMarks: the marked heading's section to the next # to ### heading of any level wears the bar; the marker calls onSectionMark", async () => {
   const onSectionMark = vi.fn();
   const marks = [
     { key: "s1", tone: "warning" as const, label: "May be out of date" },
     { key: "nowhere", tone: "info" as const, label: "Changed" },
   ];
   const markdown =
-    "Intro\n\n## Pricing\n\nGlass\n\n### Detail\n\nFrames\n\n## Scope\n\nLater";
+    "Intro\n\n## Pricing\n\nGlass\n\n#### Note\n\nInk\n\n### Detail\n\nFrames\n\n## Scope\n\nLater";
   const anchors = [
     { id: "s1", slug: "pricing" },
+    { id: "n1", slug: "note" },
     { id: "d1", slug: "detail" },
     { id: "s2", slug: "scope" },
   ];
@@ -738,7 +774,8 @@ test("sectionMarks: the marked heading's section to the next heading of its leve
     [...view.querySelectorAll<HTMLElement>(":scope > *")]
       .filter((block) => block.hasAttribute("data-section-mark"))
       .map((block) => block.textContent);
-  expect(marked()).toEqual(["Pricing", "Glass", "Detail", "Frames"]);
+  // Flat sections: a #### is a block of its section; the ### under it starts the next one.
+  expect(marked()).toEqual(["Pricing", "Glass", "Note", "Ink"]);
   const marker = screen.getByRole("button", { name: "May be out of date" });
   expect(marker.element().closest("h2")?.id).toBe("pricing");
   await marker.click();
