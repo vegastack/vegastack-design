@@ -14261,6 +14261,15 @@
             "target": "nav",
             "rationale": "Props spread onto the root nav, ref included; with trigger, onto the nav inside the open sheet."
           }
+        },
+        {
+          "name": "TableOfContentsSide",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -14345,6 +14354,7 @@
       "engines": [],
       "docsSlug": "/docs/components/table-of-contents",
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/sheet",
         "@vegastack/use-list-nav",
         "@vegastack/use-media-query"
@@ -15873,7 +15883,7 @@
           "source": "packages/ui/registry/ui/markdown-view-client.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "MarkdownHeadingLink renders a CopyButton inside a heading; it takes no ref."
+            "rationale": "MarkdownHeadingLink renders a heading's # copy-link button; it takes no ref."
           }
         },
         {
@@ -16003,6 +16013,60 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "copyWithToast",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "headingLinkClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownSectionMark",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownSectionMarker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MarkdownSectionMarker renders a section's gutter marker inside a heading; it takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownSectionMarkerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "sectionMarkClassNames",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -16071,12 +16135,12 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/copy-button",
         "@vegastack/embed-providers",
         "@vegastack/inline-chip",
         "@vegastack/popover",
         "@vegastack/text-anchor",
         "@vegastack/text-edit-grammar",
+        "@vegastack/toast",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
@@ -16132,6 +16196,19 @@
             {
               "name": "data-slot",
               "values": ["markdown-heading-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownSectionMarker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["markdown-section-mark"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -29705,26 +29782,6 @@
           }
         },
         {
-          "name": "DocumentLayoutContentsRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/document-layout.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
-          }
-        },
-        {
-          "name": "DocumentLayoutContentsList",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/document-layout.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
-          }
-        },
-        {
           "name": "DocumentLayoutMargin",
           "kind": "component",
           "source": "packages/ui/registry/ui/document-layout.tsx",
@@ -29867,10 +29924,6 @@
         "DocumentLayout": {
           "attributes": [
             {
-              "name": "data-contents",
-              "values": [""]
-            },
-            {
               "name": "data-margin",
               "values": [""]
             },
@@ -29916,25 +29969,10 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["document-layout-contents"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DocumentLayoutContentsRail": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["document-layout-contents-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DocumentLayoutContentsList": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["document-layout-contents-list"]
+              "values": [
+                "document-layout-contents",
+                "document-layout-contents-inner"
+              ]
             }
           ],
           "cssVariables": []
@@ -30285,8 +30323,16 @@
         "CommentComposer": {
           "attributes": [
             {
+              "name": "data-folded",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
-              "values": ["comment-composer", "comment-composer-replying"]
+              "values": [
+                "comment-composer",
+                "comment-composer-line",
+                "comment-composer-replying"
+              ]
             }
           ],
           "cssVariables": []

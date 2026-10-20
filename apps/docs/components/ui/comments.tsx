@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-vzyqFyMw5YlzPv5bPTVujIC4fg6mlwMAdOhdayKM6rg=
+// @vegastack comments@0.25.46 sha256-+krou43vu4J7sWvrSp0rOQqRtuI0eRh9/CBf2muFoEc=
 
 "use client";
 
@@ -818,6 +818,8 @@ interface CommentBoxProps {
   files?: React.ReactNode;
   /** How many uploads into the text are still pending (`TextEdit`'s `onPendingUploadsChange`). */
   onPendingUploadsChange?: (count: number) => void;
+  /** Files were picked with the attach button (even while the editor is still loading). */
+  onPick?: () => void;
 }
 
 function CommentBox({
@@ -844,6 +846,7 @@ function CommentBox({
   onAttachFiles,
   files,
   onPendingUploadsChange,
+  onPick,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const handle = React.useRef<TextEditHandle>(null);
@@ -905,12 +908,8 @@ function CommentBox({
                 event.currentTarget.value = "";
                 if (!picked.length) return;
                 if (onAttachFiles) onAttachFiles(picked);
-                else {
-                  // Pending from the pick on, even while the editor is still loading and holds
-                  // them in a queue; the editor's own count takes over once it starts them.
-                  onPendingUploadsChange?.(picked.length);
-                  handle.current?.uploadFiles(picked);
-                }
+                else handle.current?.uploadFiles(picked);
+                onPick?.();
               }}
             />
           </>
@@ -1235,12 +1234,17 @@ export function CommentComposer({
   const folded = folding && !opened && !hasFiles && !body.trim();
   // Uploads into the text are decorations until they land: the body reads empty meanwhile.
   const [uploading, setUploading] = React.useState(0);
-  const idle =
+  // Files picked into the text: the card stays until Escape or Send, whatever became of them
+  // (a file the editor skips is never counted as pending).
+  const [picked, setPicked] = React.useState(false);
+  const empty =
     !body.trim() && !hasFiles && !posting && !error && uploading === 0;
+  const idle = empty && !picked;
   const fold = React.useCallback((focusLine: boolean) => {
     refocusLine.current = focusLine;
     setOpened(false);
     setOpenedHere(false);
+    setPicked(false);
     // The card opens empty next time, never on a draft that was cleared.
     setGeneration((g) => g + 1);
   }, []);
@@ -1320,7 +1324,7 @@ export function CommentComposer({
           ? (event) => {
               // A mention or slash menu's Escape stops at the menu; one that reaches here is the
               // box's own.
-              if (event.key !== "Escape" || !idle) return;
+              if (event.key !== "Escape" || !empty) return;
               fold(true);
             }
           : undefined
@@ -1380,6 +1384,7 @@ export function CommentComposer({
         onAttachFiles={onAttachFiles}
         files={files}
         onPendingUploadsChange={folding ? setUploading : undefined}
+        onPick={folding ? () => setPicked(true) : undefined}
         actions={
           <SendButton
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
