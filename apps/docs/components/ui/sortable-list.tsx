@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.54 sha256-cAAb7j/qx5bWZ9eU73oHTkgKdjm0WCIasRe8hqXOJgA=
+// @vegastack sortable-list@0.25.54 sha256-EKMv0gdQ/pmeeDO+Wy2rmcDCySqtiyxCuF63RK79Dww=
 
 "use client";
 
@@ -75,7 +75,8 @@ lock pins the row's own identity, not the positions around it.
 `layout="grid"` wraps the same list into tiles (image galleries, ordered media): auto-fill
 tracks at least `--spacing(28)` wide, or at most `columns` per row — fewer as the container
 narrows, never below 8.5rem a tile, so `columns={4}` is four on a desktop, three on a tablet
-and two on a phone (the `tile-overlay` recipe `AttachmentGroup` uses). The handle sits in the
+and two on a phone (the `tile-overlay` recipe `AttachmentGroup` uses); `columns="cards"` is
+`DataList`'s dense card grid instead, so sortable cards line up with the lists around them. The handle sits in the
 tile's top-left overlay slot and the actions in its top-right one, inset from the corner on a
 blurred scrim (`z-20`, above positioned tile content such as `Image` and an `Attachment`'s
 full-tile open button); both show on hover or focus within the tile, always on a touch
@@ -182,11 +183,14 @@ export interface SortableListProps<
    * Grid only: the most tiles a row holds — fewer as the container narrows, never
    * below 8.5rem a tile (`4` is four on a desktop, three on a tablet, two on a
    * phone). Without it the grid auto-fills tracks at least `--spacing(28)` wide.
+   * `"cards"` is `DataList`'s dense grid of default-size cards, column for column: one a
+   * row, two from a 32rem list, three from 48rem and four from 72rem, 12px apart — so
+   * a sortable row of `MediaCard`s lines up with the `DataList` grids beside it.
    * @default undefined
    */
-  columns?: 2 | 3 | 4 | 5 | 6;
+  columns?: 2 | 3 | 4 | 5 | 6 | "cards";
   /**
-   * Grid with `columns` only: the narrowest a tile goes before the row holds one fewer, in px
+   * Grid with numeric `columns` only: the narrowest a tile goes before the row holds one fewer, in px
    * (a card with a name and a meta line needs more than a thumbnail's 8.5rem: `240` holds one
    * card a row on a phone and four on a desktop).
    * @default 136
@@ -428,7 +432,11 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
       ref={ref}
       data-slot="sortable-list"
       data-layout={layout}
-      className={className}
+      // A card grid's columns follow the list's own width, as DataList's do.
+      className={cn(
+        grid && columns === "cards" && "@container/sortable-list",
+        className,
+      )}
     >
       {header != null && !grid ? (
         <div
@@ -444,18 +452,27 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
         data-drop-container={containerProps["data-drop-container"]}
         data-drop-over={containerProps["data-drop-over"]}
         style={
-          grid && columns && minTileWidth
+          grid && typeof columns === "number" && minTileWidth
             ? ({ "--tile-min": `${minTileWidth}px` } as React.CSSProperties)
             : undefined
         }
+        // ItemGroup's own `has-data-[size=sm]:gap-2.5` and `has-data-[size=xs]:gap-2` are
+        // replaced, not stacked: they match any small control inside an item (a size-`xs` chip in a
+        // card's meta line), and would pull the gap in from under the layout's own.
         className={
           grid
-            ? columns
-              ? cn(tileColumnClasses[columns], tileGridClasses)
-              : "grid grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))] gap-2"
-            : // ItemGroup's own `has-data-[size=sm]:gap-2.5` is replaced, not stacked: rows sit as
-              // close as a DataList's.
-              "flex flex-col gap-0.5 has-data-[size=sm]:gap-0.5"
+            ? columns === "cards"
+              ? // DataList's dense grid at its default card size, column for column.
+                "grid grid-cols-1 gap-3 has-data-[size=sm]:gap-3 has-data-[size=xs]:gap-3 @lg/sortable-list:grid-cols-2 @3xl/sortable-list:grid-cols-3 @6xl/sortable-list:grid-cols-4"
+              : columns
+                ? cn(
+                    tileColumnClasses[columns],
+                    tileGridClasses,
+                    "has-data-[size=sm]:gap-3 has-data-[size=xs]:gap-3",
+                  )
+                : "grid grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))] gap-2 has-data-[size=sm]:gap-2 has-data-[size=xs]:gap-2"
+            : // Rows sit as close as a DataList's.
+              "flex flex-col gap-0.5 has-data-[size=sm]:gap-0.5 has-data-[size=xs]:gap-0.5"
         }
       >
         {items.map((item) => {

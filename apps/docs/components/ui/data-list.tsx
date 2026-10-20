@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.54 sha256-bLOUCcNyP88PrJ89m07Z35gaJFbvvR5dRkBMDQejnQQ=
+// @vegastack data-list@0.25.54 sha256-+n5Y3gRwbzIZtXy2DYcwZv5uCPF53iHXiill+MIy5wc=
 
 "use client";
 
@@ -351,7 +351,9 @@ export interface DataListProps<T> extends Omit<
    */
   canDropInto?: (move: DataListDropMove) => boolean;
   /**
-   * Which rows are drop targets (a folder). Without it rows only drag, onto targets elsewhere.
+   * Which rows are drop targets (a folder). Without it rows only drag, onto targets elsewhere. A
+   * list row takes the drop in its middle half — its top and bottom quarters never nest, so a drag
+   * aimed between two rows cannot land inside one — and a grid card anywhere on it.
    * @default undefined
    */
   canDropOnRow?: (row: T) => boolean;
@@ -2275,14 +2277,22 @@ export function DataList<T>({
       ? (move) => canReorderRow?.(reorderMove(move)) ?? true
       : undefined,
   });
-  const dragProps = (id: string, row: T) => {
+  const dragProps = (id: string, row: T, card = false) => {
     if (!draggable && !fileDrops && !reorderable) return undefined;
     const movable = rowMovable(row);
     return {
       ...into.getItemProps(id, {
         drag: (draggable || reorderable) && movable,
         // Rows go into a target only with `onDropInto`; desktop files only with `onDropFilesOnRow`.
-        drop: draggable && canDropOnRow?.(row) ? "whole" : false,
+        // A list row takes a drop in its middle half only, so a drag aimed between two rows never
+        // lands inside one — the outer quarters are reorder seams (`onReorderRow`) or nothing. A
+        // grid card is a target across its whole box.
+        drop:
+          draggable && canDropOnRow?.(row)
+            ? card
+              ? "whole"
+              : "middle"
+            : false,
         reorder: reorderable,
         files: fileDrops && canDropOnRow?.(row) ? "whole" : false,
       }),
@@ -2548,7 +2558,7 @@ export function DataList<T>({
         const row = data[index]!;
         const id = rowIds[index]!;
         const isSelected = selectable && selected.has(id);
-        const drag = dragProps(id, row);
+        const drag = dragProps(id, row, true);
         return (
           <div
             role="listitem"
