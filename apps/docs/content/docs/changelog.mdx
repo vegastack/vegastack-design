@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.48] — October 20, 2026
+
+### 🔧 Changed components
+
+- **DataList**, **ActionBar**, **PageHeader**: `DataList` `onReorderRow` / `canReorderRow` drag list rows to a place between others — a drop on a row's top or bottom edge lands before or after it under a 2px drop-indicator seam (`data-drop-edge`), while a folder row's middle still takes `onDropInto` (`useDragInto` gains `reorder`, `onReorder` and `canReorder`); `ActionBar` `end` closes the set after `secondaryActions`, so the selection bar's Clear no longer sits between the primary action and the secondary ones; `PageHeader`'s actions wrap, end-aligned, instead of running off a phone screen.
+  [`59132c2`](https://github.com/VegaStack/vegastack-design/commit/59132c2)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.47 → 0.25.48.
+
 ## [0.25.47] — October 20, 2026
 
 ### 🧩 New components

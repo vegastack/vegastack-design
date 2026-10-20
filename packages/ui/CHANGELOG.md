@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.48
+
+### Patch Changes
+
+- [#673](https://github.com/vegastack/vegastack-design/pull/673) [`59132c2`](https://github.com/vegastack/vegastack-design/commit/59132c2ddb2c642d993c39b53d0ca71e1f8b4527) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DataList**, **ActionBar**, **PageHeader**: `DataList` `onReorderRow` / `canReorderRow` drag list rows to a place between others — a drop on a row's top or bottom edge lands before or after it under a 2px drop-indicator seam (`data-drop-edge`), while a folder row's middle still takes `onDropInto` (`useDragInto` gains `reorder`, `onReorder` and `canReorder`); `ActionBar` `end` closes the set after `secondaryActions`, so the selection bar's Clear no longer sits between the primary action and the secondary ones; `PageHeader`'s actions wrap, end-aligned, instead of running off a phone screen.
+
 ## 0.25.47
 
 ### Patch Changes
