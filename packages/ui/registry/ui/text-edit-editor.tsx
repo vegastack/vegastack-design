@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-QQ9pX96Gtv9+oCRaEB6vdqG1iDz2Fm71Mdsb4rLsWHg=
+// @vegastack text-edit@0.25.50 sha256-CB3HNftYhoHdyG71c3JxLMZqe/nXKEzh3oozAznYO0U=
 
 "use client";
 
@@ -4614,16 +4614,16 @@ function notionPastedHTML(html: string): string {
       first.textContent = (first.textContent ?? "").replace(LEADING_EMOJI, "");
     // Inline runs (text, links, images) gather into paragraphs between the blocks; a run with
     // anything but blank text in it is kept (an image alone too).
-    const paragraph = doc.createElement("p");
+    let paragraph = doc.createElement("p");
     const flush = () => {
       if (paragraph.textContent?.trim() || paragraph.querySelector("*"))
-        content.append(paragraph.cloneNode(true));
-      paragraph.replaceChildren();
+        content.append(paragraph);
+      paragraph = doc.createElement("p");
     };
     for (const node of blocks)
       if (
         node.nodeType === Node.ELEMENT_NODE &&
-        /^(P|UL|OL|PRE|BLOCKQUOTE|H[1-6]|TABLE|DIV|FIGURE)$/.test(
+        /^(P|UL|OL|PRE|BLOCKQUOTE|H[1-6]|TABLE|DIV|FIGURE|ASIDE)$/.test(
           (node as Element).tagName,
         )
       ) {

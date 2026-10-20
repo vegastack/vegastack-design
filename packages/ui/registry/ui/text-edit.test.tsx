@@ -4912,6 +4912,25 @@ test("paste from Notion: a callout alone is a callout, keeps its image, and a ne
   });
 });
 
+test("paste from Notion: a callout inside a callout stays a callout", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      "<aside><p>Outer</p><aside><p>Inner</p></aside><p>After</p></aside>",
+    "text/plain": "Outer\nInner\nAfter",
+  });
+  await vi.waitFor(() =>
+    expect(
+      box
+        .element()
+        .querySelectorAll('[data-slot="callout"] [data-slot="callout"]'),
+    ).toHaveLength(1),
+  );
+});
+
 test("paste as Markdown: a callout inside a callout, and a closing tag in its code, stay where they belong", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({ onValueChange });
