@@ -3605,6 +3605,7 @@ test("a modal over the editor hides its floating layer; an editor inside the mod
   const inside = layerOf("Inside")!;
   expect(inside.hidden).toBe(false);
   expect(inside.closest("[inert]")).toBeNull();
+  expect(inside.closest('[aria-hidden="true"]')).toBeNull();
   await screen.rerender(<Page open={false} />);
   await vi.waitFor(() => expect(layerOf("Behind")!.hidden).toBe(false));
 });

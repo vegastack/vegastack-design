@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-x/xuLdxxjfJ12zGzSFUExXYmLvZOM5DYkM7dy121LVY=
+// @vegastack text-edit@0.25.50 sha256-s5/MvPTzFpvxhqLbGJdCMhV8D4TQi9jQclp2rzWmZj8=
 
 "use client";
 
@@ -4548,8 +4548,11 @@ function FloatingLayer({ children }: { children: React.ReactNode }) {
   const { behindModal, host } = React.useContext(FloatingHostContext);
   if (typeof document === "undefined") return null;
   return createPortal(
+    // Inside a modal's portal it marks itself a portal too: the modal's outside-marking exempts
+    // nested portals, so it is never hidden from assistive tech or made inert.
     <div
       data-slot="text-edit-layer"
+      data-base-ui-portal={host ? "" : undefined}
       hidden={behindModal}
       className={cn("contents", themeScope)}
     >
@@ -10321,6 +10324,7 @@ export function TextEditEditor({
           options={bubbleOptions}
           getReferencedVirtualElement={bubbleReference}
           shouldShow={showBubble}
+          data-base-ui-portal={host ? "" : undefined}
           className={cn("z-50", themeScope, behindModal && "hidden")}
         >
           <SelectionMenu
