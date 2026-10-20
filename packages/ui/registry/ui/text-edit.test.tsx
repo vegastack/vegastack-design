@@ -1016,6 +1016,22 @@ test("slash menu offers every block, and Table inserts a GFM table", async () =>
   );
 });
 
+test("slash menu groups the full list under headings, and drops them once filtered", async () => {
+  const screen = await markdownEditor();
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const headings = () =>
+    [
+      ...slashMenu()!.querySelectorAll(
+        '[data-slot="suggestion-menu-group-label"]',
+      ),
+    ].map((each) => each.textContent);
+  expect(headings()).toEqual(["Text", "Lists", "Blocks", "Media", "Insert"]);
+  await userEvent.keyboard("ima");
+  await vi.waitFor(() => expect(headings()).toEqual([]));
+});
+
 test("slash menu is the shared SuggestionMenu: arrows move the textbox's aria-activedescendant", async () => {
   const screen = await markdownEditor();
   const box = screen.getByRole("textbox", { name: "Notes" });
@@ -2448,12 +2464,43 @@ test("image: dragging a side handle resizes it and stores the width in the Markd
   ).toHaveLength(0);
 });
 
-test("image: ⋯ Delete removes the image, and undo brings it back", async () => {
+test("image: the toolbar has Replace and Alt text and no ⋯ menu; Alt text saves on Enter", async () => {
+  const onValueChange = vi.fn();
+  const md = `Before\n\n![Chart](${PIXEL})`;
+  const screen = await markdownEditor({
+    defaultValue: md,
+    onValueChange,
+    onImageUpload: async () => ({ src: PIXEL }),
+  });
+  expect(
+    document.querySelector('[aria-label="More image actions"]'),
+  ).toBeNull();
+  await expect
+    .element(screen.getByRole("button", { name: "Replace" }))
+    .toBeInTheDocument();
+  // Alt text: edited in place, saved on Enter.
+  await screen.getByRole("button", { name: "Alt text" }).click();
+  const field = await vi.waitFor(() => {
+    const input = document.querySelector<HTMLInputElement>(
+      'input[placeholder="Describe the image for screen readers"]',
+    );
+    expect(input).not.toBeNull();
+    return input!;
+  });
+  await userEvent.clear(field);
+  await userEvent.type(field, "Sales chart{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Before\n\n![Sales chart](${PIXEL})`),
+  );
+});
+
+test("image: Backspace on the selected image removes it, and undo brings it back", async () => {
   const onValueChange = vi.fn();
   const md = `Before\n\n![Chart](${PIXEL})`;
   const screen = await markdownEditor({ defaultValue: md, onValueChange });
-  await screen.getByRole("button", { name: "More image actions" }).click();
-  await screen.getByRole("menuitem", { name: "Delete" }).click();
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("img")!);
+  await userEvent.keyboard("{Backspace}");
   await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("Before"));
   await userEvent.keyboard("{ControlOrMeta>}z{/ControlOrMeta}");
   await vi.waitFor(() => expect(lastValue(onValueChange)).toBe(md));
@@ -3723,10 +3770,13 @@ test("collaboration: a viewer folds a toggle for themselves only — no change r
   );
   expect(editorToggle).toHaveAttribute("data-open");
   expect(updates).not.toHaveBeenCalled();
-  // "Open by default" is the author's choice for everyone: a document change.
-  await userEvent.click(
-    editorToggle!.querySelector<HTMLElement>('[data-slot="toggle-options"]')!,
-  );
+  // "Open by default" is the author's choice for everyone: a document change, from the block menu
+  // (the toggle has no menu of its own).
+  expect(
+    editorToggle!.querySelector('[data-slot="toggle-options"]'),
+  ).toBeNull();
+  await screen.getByRole("textbox", { name: "A" }).click();
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
   await userEvent.click(
     await vi.waitFor(() => {
       const item = [
@@ -4662,6 +4712,144 @@ test("external images: another site's image imports through onExternalImage; a f
   expect(
     box.element().querySelector('[data-slot="text-edit-upload"]'),
   ).toBeNull();
+});
+
+test("external images: the image panel's Link imports another site's image through onExternalImage", async () => {
+  const onExternalImage = vi.fn(async () => ({ src: "/api/files/linked" }));
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onExternalImage, onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/image{Enter}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Image URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("cdn.example.com/cat.png{Enter}");
+  await vi.waitFor(() =>
+    expect(onExternalImage).toHaveBeenCalledWith(
+      "https://cdn.example.com/cat.png",
+      { signal: expect.any(AbortSignal) },
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("![](/api/files/linked)"),
+  );
+});
+
+test("external images: Replace with another site's link swaps the image in place once imported; a failed import keeps it", async () => {
+  let fail = false;
+  const onExternalImage = vi.fn(async () => {
+    if (fail) throw new Error("blocked");
+    return { src: "/api/files/new" };
+  });
+  const onValueChange = vi.fn();
+  const md = `![Old](${PIXEL})\n\nAfter`;
+  const screen = await markdownEditor({
+    defaultValue: md,
+    onExternalImage,
+    onValueChange,
+  });
+  const replace = async (url: string) => {
+    await screen.getByRole("button", { name: "Replace" }).click();
+    const field = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>(
+        '[aria-label="Image URL"]',
+      );
+      expect(input).not.toBeNull();
+      return input!;
+    });
+    await userEvent.type(field, `${url}{Enter}`);
+  };
+  fail = true;
+  await replace("https://cdn.example.com/broken.png");
+  await vi.waitFor(() => expect(onExternalImage).toHaveBeenCalledTimes(1));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(lastValue(onValueChange) ?? md).toBe(md);
+  fail = false;
+  await replace("https://cdn.example.com/new.png");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("![](/api/files/new)\n\nAfter"),
+  );
+});
+
+test("external images: a replacement whose image is deleted while it imports lands nowhere", async () => {
+  let resolve: (value: { src: string }) => void = () => {};
+  const onExternalImage = vi.fn(
+    () => new Promise<{ src: string }>((done) => (resolve = done)),
+  );
+  const onValueChange = vi.fn();
+  const md = `Before\n\n![Old](${PIXEL})\n\n![Old](${PIXEL})`;
+  const screen = await markdownEditor({
+    defaultValue: md,
+    onExternalImage,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  const editor = editorOf(box.element()) as unknown as Editor;
+  const second = () => {
+    let at = -1;
+    editor.state.doc.forEach((node, offset) => {
+      if (node.type.name === "image") at = offset;
+    });
+    return at;
+  };
+  editor.chain().focus().setNodeSelection(second()).run();
+  const replace = [
+    ...document.querySelectorAll<HTMLElement>('[aria-label="Replace"]'),
+  ].at(-1)!;
+  await userEvent.click(replace);
+  const field = await vi.waitFor(() => {
+    const input = document.querySelector<HTMLInputElement>(
+      '[aria-label="Image URL"]',
+    );
+    expect(input).not.toBeNull();
+    return input!;
+  });
+  await userEvent.type(field, "https://cdn.example.com/new.png{Enter}");
+  await vi.waitFor(() => expect(onExternalImage).toHaveBeenCalled());
+  editor.chain().setNodeSelection(second()).deleteSelection().run();
+  resolve({ src: "/api/files/new" });
+  await new Promise((done) => setTimeout(done, 100));
+  expect(editor.getHTML()).not.toContain("/api/files/new");
+  expect(editor.getHTML().match(/<img/g)?.length).toBe(1);
+});
+
+test("code block: ⌘A selects the code first, a second ⌘A the whole document", async () => {
+  const screen = await markdownEditor({
+    defaultValue: "Before\n\n```\nline one\nline two\n```",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("pre")!);
+  const editor = editorOf(box.element()) as unknown as Editor;
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  const text = () => {
+    const { from, to } = editor.state.selection;
+    return editor.state.doc.textBetween(from, to, "\n");
+  };
+  expect(text()).toBe("line one\nline two");
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  expect(text()).toContain("Before");
+});
+
+test("link card: the caret in a link shows where it goes, Edit and Remove", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Visit [the site](https://example.com/docs) today",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("a")!);
+  const card = await vi.waitFor(() => {
+    const found = document.querySelector('[data-slot="text-edit-link-card"]');
+    expect(found).not.toBeNull();
+    return found as HTMLElement;
+  });
+  expect(card.textContent).toContain("example.com/docs");
+  await userEvent.click(
+    card.querySelector<HTMLElement>('[aria-label="Remove link"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("Visit the site today"),
+  );
 });
 
 test("external images: without onExternalImage a pasted image is kept as it is", async () => {

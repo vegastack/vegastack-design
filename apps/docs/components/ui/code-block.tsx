@@ -1,4 +1,4 @@
-// @vegastack code-block@0.25.47 sha256-oVLEnde5NMKSTmze2AZjkJFr+wxmYzJa34CTnU3ZQiM=
+// @vegastack code-block@0.25.47 sha256-Qyx4x/oOYPO5pMHAWW6Xz8bx0XpiWf9qdxH+MkbIw50=
 
 "use client";
 
@@ -186,13 +186,16 @@ export function codeBlockWrapStyle(wrap: boolean): React.CSSProperties {
       };
 }
 
-/** Room above the code for the controls, so the language label and the icons never cover line one. */
-export const codeBlockControlsPadClassName = "pt-9";
-/** The controls (language top-left, icon buttons top-right): always shown, above the code. */
-export const codeBlockControlClassName = "absolute top-1.5 z-10";
+/**
+ * Room above the code for the controls, so the language label and the icons never cover line one.
+ * Paper has no controls: the code starts at the block's own padding.
+ */
+export const codeBlockControlsPadClassName = "pt-9 print:pt-3";
+/** The controls (language top-left, icon buttons top-right): always shown, above the code; never printed. */
+export const codeBlockControlClassName = "absolute top-1.5 z-10 print:hidden";
 /** The top-right icon row: wrap and copy. */
 export const codeBlockActionsClassName =
-  "absolute end-1.5 top-1.5 z-10 flex items-center gap-0.5";
+  "absolute end-1.5 top-1.5 z-10 flex items-center gap-0.5 print:hidden";
 
 /** Props accepted by `CodeBlock`. */
 export interface CodeBlockProps extends React.ComponentPropsWithRef<"figure"> {

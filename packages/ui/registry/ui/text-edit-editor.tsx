@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.47 sha256-Q/DY3rq/LHoPZnRhR1+aec0YeBYdPDeA7IToJHOsqmY=
+// @vegastack text-edit@0.25.47 sha256-RgpdFEZtfCTrTMObLJW5iNlWOsOFyddP8zzdVySK/PU=
 
 "use client";
 
@@ -141,6 +141,9 @@ import {
   Workflow,
   Film,
   AudioLines,
+  Captions,
+  Pencil,
+  Unlink,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
@@ -328,6 +331,34 @@ interface SlashSpec {
   run: (ed: Editor, range: Range, open: (panel: Panel) => void) => void;
 }
 
+/**
+ * The `/` menu's headings, in the menu's order: what the line is, lists, blocks, media, then what
+ * the caret inserts (a link, and the host's own items).
+ */
+const SLASH_GROUP: Record<TextEditSlashCommand, string> = {
+  text: "Text",
+  h1: "Text",
+  h2: "Text",
+  h3: "Text",
+  h4: "Text",
+  bulletList: "Lists",
+  orderedList: "Lists",
+  taskList: "Lists",
+  blockquote: "Blocks",
+  callout: "Blocks",
+  toggle: "Blocks",
+  divider: "Blocks",
+  codeBlock: "Blocks",
+  diagram: "Blocks",
+  table: "Blocks",
+  image: "Media",
+  video: "Media",
+  audio: "Media",
+  file: "Media",
+  link: "Insert",
+};
+const HOST_SLASH_GROUP = "Insert";
+
 const heading =
   (level: 1 | 2 | 3 | 4) =>
   (ed: Editor, range: Range): void =>
@@ -428,6 +459,15 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
       insertToggle(ed);
     },
   },
+  divider: {
+    id: "divider",
+    label: "Divider",
+    keywords: "hr rule separator line ---",
+    hint: "---",
+    icon: Minus,
+    run: (ed, range) =>
+      ed.chain().focus().deleteRange(range).setHorizontalRule().run(),
+  },
   codeBlock: {
     id: "codeBlock",
     label: "Code block",
@@ -499,15 +539,6 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
       ed.chain().focus().deleteRange(range).run();
       open("file");
     },
-  },
-  divider: {
-    id: "divider",
-    label: "Divider",
-    keywords: "hr rule separator line ---",
-    hint: "---",
-    icon: Minus,
-    run: (ed, range) =>
-      ed.chain().focus().deleteRange(range).setHorizontalRule().run(),
   },
   link: {
     id: "link",
@@ -717,6 +748,8 @@ function phraseMatch({
 
 interface SlashState {
   items: SlashSpec[];
+  /** What follows the `/`: empty for the full, grouped menu. */
+  query: string;
   index: number;
   rect: DOMRect | null;
   command: (spec: SlashSpec) => void;
@@ -1594,6 +1627,7 @@ function slashExtension(runtime: SlashRuntime) {
               const previous = runtime.get();
               runtime.set({
                 items: props.items,
+                query: props.query.trim(),
                 index:
                   previous && previous.items.length === props.items.length
                     ? Math.min(previous.index, props.items.length - 1)
@@ -2665,8 +2699,10 @@ const IMAGE_GUIDES = [0.25, 0.5, 0.75, 1] as const;
 
 // The image keeps one radius (`rounded-lg`, the media radius) at rest, hovered, selected and while
 // resizing; the selection is a thin primary outline hugging it (no frame, no extra spacing).
+// An image that can't load (gone, or another site's the page may not show) keeps a visible frame
+// with its alt text, so its toolbar can still replace it.
 const IMAGE_CONTAINER =
-  "group/image relative my-2 max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg";
+  "group/image relative my-2 max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg [&_img[data-broken]]:h-24 [&_img[data-broken]]:min-w-full [&_img[data-broken]]:border [&_img[data-broken]]:border-dashed [&_img[data-broken]]:border-border [&_img[data-broken]]:bg-muted [&_img[data-broken]]:p-3 [&_img[data-broken]]:text-sm [&_img[data-broken]]:text-muted-foreground";
 const IMAGE_WRAPPER =
   "max-w-full rounded-lg outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-info group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-info";
 // Notion-style side handles: a pill bar inside the left and right edges, shown on hover, while
@@ -2696,6 +2732,12 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
     image.draggable = false;
     // The prose recipe's image margin would pad the frame above and below.
     image.style.margin = "0";
+    image.addEventListener("error", () => {
+      image.dataset.broken = "";
+    });
+    image.addEventListener("load", () => {
+      delete image.dataset.broken;
+    });
     const sync = (next: PMNode) => {
       const { src, alt, title, width } = next.attrs as {
         src: string | null;
@@ -2877,22 +2919,31 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
 }
 
 /**
- * Each image's hover toolbar (top-right, blurred): Open, Download, Copy link, and — while
- * editable — a ⋯ menu with Replace and Delete.
+ * Each image's hover toolbar (top-right, blurred): while editable Replace and Alt text, then Open,
+ * Download and Copy link. Delete is the block menu's (and Backspace on the selected image).
  */
 function ImageMenus({
   editor,
   slots,
   editable,
   onOpen,
+  downloadHref,
   onReplace,
+  onLeave,
+  onCommit,
 }: {
   editor: Editor;
   slots: ImageSlots;
   editable: boolean;
   onOpen?: (image: HTMLImageElement) => void;
+  /** Where Download saves from, given the image's `src` (`imageDownloadHref`). */
+  downloadHref?: (src: string) => string | null | undefined;
   /** Select the image and open the image panel, whose insert replaces it. */
   onReplace?: (pos: number) => void;
+  /** The edit session's end check (`leave`). */
+  onLeave?: (next: EventTarget | null) => void;
+  /** Commit the document now (`commitNow`). */
+  onCommit?: () => void;
 }) {
   const mounted = React.useSyncExternalStore(
     slots.subscribe,
@@ -2906,7 +2957,10 @@ function ImageMenus({
         slot={slot}
         editable={editable}
         onOpen={onOpen}
+        downloadHref={downloadHref}
         onReplace={onReplace}
+        onLeave={onLeave}
+        onCommit={onCommit}
       />,
       slot.host,
       String(index),
@@ -2940,17 +2994,24 @@ function ImageMenu({
   slot,
   editable,
   onOpen,
+  downloadHref,
   onReplace,
+  onLeave,
+  onCommit,
 }: {
   editor: Editor;
   slot: ImageSlot;
   editable: boolean;
   onOpen?: (image: HTMLImageElement) => void;
+  downloadHref?: (src: string) => string | null | undefined;
   onReplace?: (pos: number) => void;
+  onLeave?: (next: EventTarget | null) => void;
+  onCommit?: () => void;
 }) {
   const src = slot.image.currentSrc || slot.image.src;
+  const raw = slot.image.getAttribute("src") ?? "";
   // A link worth copying: a real URL, not an upload's local preview.
-  const shareable = /^(https?:|\/)/i.test(slot.image.getAttribute("src") ?? "");
+  const shareable = /^(https?:|\/)/i.test(raw);
   const absolute = React.useMemo(() => {
     try {
       return new URL(src, document.baseURI).href;
@@ -2958,8 +3019,29 @@ function ImageMenu({
       return src;
     }
   }, [src]);
+  // The host's attachment link saves the file in place; the image's own URL opens in a new tab.
+  const saveFrom = (shareable ? downloadHref?.(raw) : null) ?? null;
   return (
     <>
+      {editable && onReplace ? (
+        <ImageToolButton
+          label="Replace"
+          onClick={() => {
+            const pos = slot.getPos();
+            if (pos !== undefined) onReplace(pos);
+          }}
+        >
+          <Replace />
+        </ImageToolButton>
+      ) : null}
+      {editable ? (
+        <ImageAltText
+          editor={editor}
+          slot={slot}
+          onLeave={onLeave}
+          onCommit={onCommit}
+        />
+      ) : null}
       {onOpen ? (
         <ImageToolButton label="Open" onClick={() => onOpen(slot.image)}>
           <Maximize2 />
@@ -2968,7 +3050,11 @@ function ImageMenu({
       <ImageToolButton
         label="Download"
         render={
-          <a href={src} download target="_blank" rel="noopener noreferrer" />
+          saveFrom ? (
+            <a href={saveFrom} download />
+          ) : (
+            <a href={src} download target="_blank" rel="noopener noreferrer" />
+          )
         }
         nativeButton={false}
       >
@@ -2982,56 +3068,102 @@ function ImageMenu({
           <LinkIcon />
         </ImageToolButton>
       ) : null}
-      {editable ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                aria-label="More image actions"
-              />
-            }
-          >
-            <Ellipsis />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            data-text-edit-menu=""
-            align="end"
-            className="w-auto min-w-40"
-          >
-            {onReplace ? (
-              <DropdownMenuItem
-                onClick={() => {
-                  const pos = slot.getPos();
-                  if (pos !== undefined) onReplace(pos);
-                }}
-              >
-                <Replace />
-                Replace
-              </DropdownMenuItem>
-            ) : null}
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => {
-                const pos = slot.getPos();
-                if (pos === undefined) return;
-                editor
-                  .chain()
-                  .focus()
-                  .setNodeSelection(pos)
-                  .deleteSelection()
-                  .run();
-              }}
-            >
-              <Trash2 />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : null}
     </>
+  );
+}
+
+/** The image's alt text, edited in a popover from its toolbar: Enter or closing saves it. */
+function ImageAltText({
+  editor,
+  slot,
+  onLeave,
+  onCommit,
+}: {
+  editor: Editor;
+  slot: ImageSlot;
+  /** The edit session's end check, once focus settles after the popover closes. */
+  onLeave?: (next: EventTarget | null) => void;
+  /** Commit the document now (an attribute edit made outside a typing session). */
+  onCommit?: () => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+  // What the field opened with: an untouched draft saves nothing (a collaborator's new text stays).
+  const openedRef = React.useRef("");
+  const inputId = React.useId();
+  const save = () => {
+    const pos = slot.getPos();
+    if (pos === undefined) return;
+    const node = editor.state.doc.nodeAt(pos);
+    if (!node || node.type.name !== "image") return;
+    if (value === openedRef.current) return;
+    const alt = value.trim() || null;
+    if ((node.attrs.alt ?? null) === alt) return;
+    editor.view.dispatch(editor.state.tr.setNodeAttribute(pos, "alt", alt));
+    // Committed now (`onValueChange` and `onCommit`), whether or not an edit session was open.
+    onCommit?.();
+  };
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        if (next) {
+          openedRef.current = slot.image.getAttribute("alt") ?? "";
+          setValue(openedRef.current);
+        } else {
+          save();
+          // Closed by a click elsewhere: the session ends (and commits) unless focus came back.
+          requestAnimationFrame(() => onLeave?.(document.activeElement));
+        }
+        setOpen(next);
+      }}
+    >
+      <MenuTip label="Alt text">
+        <PopoverTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Alt text"
+              onMouseDown={(event) => event.preventDefault()}
+            />
+          }
+        >
+          <Captions />
+        </PopoverTrigger>
+      </MenuTip>
+      <PopoverContent
+        align="end"
+        data-text-edit-menu=""
+        className="w-72 gap-2 p-2"
+      >
+        <form
+          className="flex flex-col gap-1.5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setOpen(false);
+            save();
+            editor.commands.focus();
+          }}
+        >
+          <label
+            htmlFor={inputId}
+            className="px-1 text-xs font-medium text-muted-foreground"
+          >
+            Alt text
+          </label>
+          <Input
+            id={inputId}
+            size="sm"
+            value={value}
+            placeholder="Describe the image for screen readers"
+            autoFocus
+            onChange={(event) => setValue(event.target.value)}
+          />
+        </form>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -3471,15 +3603,10 @@ function toggleReveal(runtime: ToggleRuntime) {
  * a 24px target that works on touch) that opens and closes the toggle; closed, only the title
  * line shows. In a single-writer document the open state is the node's `open` attribute
  * (`<details open>` in markdown); in a shared one it is each viewer's own (`ToggleStates`), and
- * "Open by default" in the toggle's menu sets the attribute for everyone.
+ * "Open by default" in the block menu sets the attribute for everyone.
  */
 function toggleView(runtime: ToggleRuntime) {
-  return function ToggleView({
-    node,
-    editor,
-    getPos,
-    updateAttributes,
-  }: ReactNodeViewProps) {
+  return function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
     useEditorEditable(editor);
     const states = runtime.states;
     React.useSyncExternalStore(
@@ -3517,7 +3644,7 @@ function toggleView(runtime: ToggleRuntime) {
         data-open={open ? "" : undefined}
         // The body hides when closed. Tiptap's React content box nests the blocks one level down
         // (`[data-node-view-content-react]`), so the rules reach the summary's siblings, not children.
-        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden print:[&:not([data-open])_[data-slot=toggle-summary]~*]:block print:[&_[data-slot=toggle-chevron]]:hidden print:[&_[data-slot=toggle-options]]:hidden"
+        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden print:[&:not([data-open])_[data-slot=toggle-summary]~*]:block print:[&_[data-slot=toggle-chevron]]:hidden"
       >
         <Button
           type="button"
@@ -3531,41 +3658,12 @@ function toggleView(runtime: ToggleRuntime) {
           onMouseDown={(event) => event.preventDefault()}
           onClick={flip}
           // Notion's triangle: ▶ closed, turning 90° to ▼ open.
-          className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
+          // An open toggle is not a pressed button: no fill while open, only on hover.
+          className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground hover:aria-expanded:bg-muted hover:aria-expanded:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
         >
-          <Play aria-hidden className="size-3 fill-current" />
+          <Play aria-hidden data-icon-tone="" className="size-3 fill-current" />
         </Button>
-        {states && editor.isEditable ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  contentEditable={false}
-                  aria-label="Toggle options"
-                  data-slot="toggle-options"
-                  onMouseDown={(event) => event.preventDefault()}
-                  // Shown while the toggle is hovered or holds focus, its menu is open, or on touch.
-                  className="absolute end-0 top-0 text-muted-foreground opacity-0 transition-opacity duration-150 group-hover/toggle:opacity-100 group-focus-within/toggle:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
-                />
-              }
-            >
-              <Ellipsis aria-hidden />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" data-text-edit-menu="">
-              <DropdownMenuCheckboxItem
-                checked={node.attrs.open !== false}
-                onClick={() =>
-                  updateAttributes({ open: node.attrs.open === false })
-                }
-              >
-                Open by default
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : null}
+
         <NodeViewContent data-slot="toggle-content" className="min-w-0" />
       </NodeViewWrapper>
     );
@@ -3886,6 +3984,8 @@ const EXTERNAL_IMAGE_LIMIT = 20;
 const EXTERNAL_IMAGE_CONCURRENCY = 3;
 const EXTERNAL_IMAGE_FAILED =
   "Couldn't import that image. A link was added instead.";
+const EXTERNAL_IMAGE_REPLACE_FAILED =
+  "Couldn't import that image. The image wasn't replaced.";
 
 /** Whether an image `src` is another site's (not this origin's, not a `blob:` or relative URL). */
 function isExternalImage(src: string): boolean {
@@ -4432,7 +4532,7 @@ const MENU_SURFACE =
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
@@ -4714,12 +4814,106 @@ function LinkPanel({
                 onClose();
               }}
             >
-              <Trash2 />
+              <Unlink />
             </Button>
           </MenuTip>
         </>
       ) : null}
     </form>
+  );
+}
+
+/**
+ * The card over a link the caret is in (Google Docs, Notion): the destination, which opens it (a
+ * file link in the viewer, any other in a new tab), then Edit (the link panel) and Remove.
+ */
+function LinkCard({
+  editor,
+  href,
+  onEdit,
+  onOpenFile,
+  onLeave,
+}: {
+  editor: Editor;
+  href: string;
+  onEdit: () => void;
+  onOpenFile?: (href: string) => boolean;
+  onLeave: (next: EventTarget | null) => void;
+}) {
+  let shown = href;
+  try {
+    const url = new URL(href, document.baseURI);
+    shown =
+      url.origin === window.location.origin
+        ? url.pathname + url.search + url.hash
+        : url.host + (url.pathname === "/" ? "" : url.pathname);
+  } catch {
+    // Not a URL: shown as written.
+  }
+  return (
+    <Toolbar.Root
+      data-slot="text-edit-link-card"
+      aria-label="Link"
+      // Focus leaving the card for somewhere outside the editor ends the edit session.
+      onBlur={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget as Node)) return;
+        if (!document.hasFocus()) return;
+        onLeave(event.relatedTarget);
+      }}
+      className={cn(MENU_SURFACE, "flex max-w-80 items-center gap-0.5")}
+    >
+      <Toolbar.Button
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              if (onOpenFile?.(href)) return;
+              window.open(href, "_blank", "noopener,noreferrer");
+            }}
+            title={href}
+            className="min-w-0 justify-start gap-1.5 px-2 font-normal text-info-text"
+          />
+        }
+      >
+        <ExternalLink aria-hidden />
+        <span className="truncate">{shown || href}</span>
+      </Toolbar.Button>
+      <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+      <MenuTip label="Edit link">
+        <Toolbar.Button
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Edit link"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={onEdit}
+            />
+          }
+        >
+          <Pencil />
+        </Toolbar.Button>
+      </MenuTip>
+      <MenuTip label="Remove link">
+        <Toolbar.Button
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Remove link"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() =>
+                editor.chain().focus().extendMarkRange("link").unsetLink().run()
+              }
+            />
+          }
+        >
+          <Unlink />
+        </Toolbar.Button>
+      </MenuTip>
+    </Toolbar.Root>
   );
 }
 
@@ -4764,6 +4958,7 @@ function MediaPanel({
   onClose,
   onLeave,
   onUpload,
+  onLink,
 }: {
   editor: Editor;
   kind: MediaKind;
@@ -4771,6 +4966,11 @@ function MediaPanel({
   onLeave: (next: EventTarget | null) => void;
   /** Upload picked or dropped files as this kind; absent when the host takes no such uploads. */
   onUpload?: (files: File[]) => void;
+  /**
+   * Take an image link the host imports itself (`onExternalImage`): true when it did, and the
+   * panel inserts nothing. Another site's image is never inserted as a hotlink the page can't show.
+   */
+  onLink?: (url: string) => boolean;
 }) {
   const copy = MEDIA_PANEL[kind];
   const [tab, setTab] = React.useState<"upload" | "link">(
@@ -4793,6 +4993,10 @@ function MediaPanel({
     const url = src.trim();
     if (!url) return;
     const safe = /^(https?:|\/)/i.test(url) ? url : `https://${url}`;
+    if (kind === "image" && onLink?.(safe)) {
+      onClose();
+      return;
+    }
     const match = kind === "video" ? matchEmbed(safe) : null;
     const embed = match && embedsOn(editor, match.provider) ? match : null;
     if (kind === "video" && embedding && !embed && !isVideoFileUrl(safe)) {
@@ -4986,6 +5190,7 @@ function SelectionMenu({
   onUpload,
   onComment,
   onOpenFile,
+  onImageLink,
 }: {
   editor: Editor;
   panel: Panel | null;
@@ -4993,6 +5198,8 @@ function SelectionMenu({
   onLeave: (next: EventTarget | null) => void;
   /** Upload files as each kind, where the host takes that kind of upload. */
   onUpload?: Partial<Record<MediaKind, (files: File[]) => void>>;
+  /** An image link the host imports (`onExternalImage`); true when it took it. */
+  onImageLink?: (url: string) => boolean;
   /** Open a file link in the viewer; false when it is not a file link. */
   onOpenFile?: (href: string) => boolean;
   /** Start a comment on the selection; absent when the host takes no comments. */
@@ -5006,6 +5213,10 @@ function SelectionMenu({
       strike: ed.isActive("strike"),
       code: ed.isActive("code"),
       link: ed.isActive("link"),
+      href: ed.isActive("link")
+        ? String(ed.getAttributes("link").href ?? "")
+        : "",
+      empty: ed.state.selection.empty,
       block: currentBlockType(ed),
       // A cell holds one line: no block to turn it into.
       cell: inTableCell(ed.state),
@@ -5036,10 +5247,22 @@ function SelectionMenu({
         onClose={close}
         onLeave={onLeave}
         onUpload={onUpload?.[panel]}
+        onLink={panel === "image" ? onImageLink : undefined}
       />
     );
   if (panel === "turnInto")
     return <TurnIntoPanel editor={editor} onClose={close} onLeave={onLeave} />;
+  // The caret in a link: its card — where it goes, Open, Edit and Remove.
+  if (editor.isEditable && state.empty && state.link)
+    return (
+      <LinkCard
+        editor={editor}
+        href={state.href}
+        onEdit={() => onPanelChange("link")}
+        onOpenFile={onOpenFile}
+        onLeave={onLeave}
+      />
+    );
 
   const commentButton = onComment ? (
     <Toolbar.Button
@@ -5076,12 +5299,6 @@ function SelectionMenu({
       aria-label="Selection formatting"
       className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
     >
-      {commentButton ? (
-        <>
-          {commentButton}
-          <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
-        </>
-      ) : null}
       {state?.cell ? null : (
         <>
           <Toolbar.Button
@@ -5152,6 +5369,14 @@ function SelectionMenu({
           }
         />
       </MenuTip>
+      {/* Formatting first (what the selection is, then its marks, its link, clearing them), the
+          conversation last. */}
+      {commentButton ? (
+        <>
+          <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+          {commentButton}
+        </>
+      ) : null}
     </Toolbar.Root>
   );
 }
@@ -8204,6 +8429,7 @@ export function TextEditEditor({
   editorHandle,
   onOpenImage,
   onOpenFile,
+  imageDownloadHref,
   slashActions = NO_SLASH_ACTIONS,
   headingLinkHref,
   toggleState,
@@ -8874,7 +9100,16 @@ export function TextEditEditor({
 
   /** Import an image from another site at `pos`: a placeholder now, the image or a link once done. */
   const startExternalImage = React.useCallback(
-    (image: ExternalImage, pos: number, failed: () => void) => {
+    (
+      image: ExternalImage,
+      pos: number,
+      failed: () => void,
+      /**
+       * Replace this image (an image's Replace, `from`–`to` now): it stays until the import lands,
+       * then gives way in one step (one undo); a failed import leaves it.
+       */
+      replace?: { from: number; to: number; src: string },
+    ) => {
       const ed = editorRef.current;
       const importImage = callbacks.current.onExternalImage;
       if (!ed || ed.isDestroyed || !importImage) return;
@@ -8884,12 +9119,36 @@ export function TextEditEditor({
         decodeURIComponent(
           image.src.split(/[?#]/)[0]!.split("/").filter(Boolean).pop() ?? "",
         ) || "image";
+      // The image being replaced, followed through every change while the import runs (anyone's):
+      // once a change removes, splits or rewrites it, it is lost and the replacement is dropped —
+      // never another image in its place.
+      let target = replace ? { from: replace.from, to: replace.to } : null;
+      const follow = ({
+        transaction,
+        appendedTransactions,
+      }: {
+        transaction: Transaction;
+        appendedTransactions?: readonly Transaction[];
+      }) => {
+        // The change and every transaction a plugin appended to it, in order.
+        for (const tr of [transaction, ...(appendedTransactions ?? [])]) {
+          if (!target || !tr.docChanged) continue;
+          const size = target.to - target.from;
+          const from = tr.mapping.mapResult(target.from, 1);
+          const to = tr.mapping.mapResult(target.to, -1);
+          target =
+            from.deleted || to.deleted || to.pos - from.pos !== size
+              ? null
+              : { from: from.pos, to: to.pos };
+        }
+      };
+      if (replace) ed.on("transaction", follow);
       ed.view.dispatch(
         ed.state.tr.setMeta(UPLOAD_KEY, {
           add: { id, pos, name, preview: null },
         } satisfies UploadMeta),
       );
-      const land = (content: JSONContent) => {
+      const land = (content: JSONContent | null) => {
         const current = editorRef.current;
         if (!current || current.isDestroyed) return;
         const at = uploadPos(current.state, id);
@@ -8898,11 +9157,21 @@ export function TextEditEditor({
             remove: id,
           } satisfies UploadMeta),
         );
-        if (at === null) return;
-        current
-          .chain()
-          .insertContentAt(blockInsertRange(current.state, at), content)
-          .run();
+        if (at === null || !content) return;
+        let range = blockInsertRange(current.state, at);
+        if (replace) {
+          const node = target ? current.state.doc.nodeAt(target.from) : null;
+          // The image to replace is gone (removed or changed meanwhile): nothing lands.
+          if (
+            !target ||
+            node?.type.name !== "image" ||
+            node.attrs.src !== replace.src ||
+            node.nodeSize !== target.to - target.from
+          )
+            return;
+          range = target;
+        }
+        current.chain().insertContentAt(range, content).run();
         commitNow();
       };
       const run = () =>
@@ -8916,6 +9185,12 @@ export function TextEditEditor({
                 }),
               () => {
                 if (controller.signal.aborted) return;
+                // A replacement that fails keeps the image it would have replaced.
+                if (replace) {
+                  land(null);
+                  failed();
+                  return;
+                }
                 land({
                   type: "paragraph",
                   content: [
@@ -8943,6 +9218,7 @@ export function TextEditEditor({
         if (queue.active < EXTERNAL_IMAGE_CONCURRENCY) go();
         else queue.waiting.push(go);
       }).finally(() => {
+        if (replace) ed.off("transaction", follow);
         uploadsRef.current.delete(id);
         callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
         if (uploadsRef.current.size === 0) leaveViewRef.current?.();
@@ -9012,12 +9288,12 @@ export function TextEditEditor({
       if (!ed || ed.isDestroyed) return;
       // A selected image (the image's Replace) gives way to the upload.
       const { selection } = ed.state;
-      if (
+      const replacing =
         selection instanceof NodeSelection &&
-        selection.node.type.name === "image"
-      )
-        ed.view.dispatch(ed.state.tr.deleteSelection());
-      uploadFiles(files, ed.state.selection.from, as);
+        selection.node.type.name === "image";
+      // The upload lands where the image was, not after the block the caret moves to.
+      if (replacing) ed.view.dispatch(ed.state.tr.deleteSelection());
+      uploadFiles(files, selection.from, as);
     };
     const uploads: Partial<Record<MediaKind, (files: File[]) => void>> = {};
     if (onImageUpload) uploads.image = at("image");
@@ -9028,6 +9304,39 @@ export function TextEditEditor({
     }
     return uploads;
   }, [onImageUpload, onFileUpload, uploadFiles]);
+
+  // The image panel's Link with `onExternalImage`: another site's image is imported (rehosted)
+  // like a pasted one — a placeholder now, the image (or a link, with a toast) once done. A
+  // selected image (its Replace) gives way to it. Without the hook, the link is inserted as is.
+  const panelImageLink = React.useCallback(
+    (url: string) => {
+      const ed = editorRef.current;
+      if (!ed || ed.isDestroyed || !callbacks.current.onExternalImage)
+        return false;
+      if (!isExternalImage(url)) return false;
+      const { selection } = ed.state;
+      const replacing =
+        selection instanceof NodeSelection &&
+        selection.node.type.name === "image";
+      if (replacing)
+        startExternalImage(
+          { src: url, alt: null },
+          selection.to,
+          () => toast.add({ title: EXTERNAL_IMAGE_REPLACE_FAILED }),
+          {
+            from: selection.from,
+            to: selection.to,
+            src: String(selection.node.attrs.src ?? ""),
+          },
+        );
+      else
+        startExternalImage({ src: url, alt: null }, selection.from, () =>
+          toast.add({ title: EXTERNAL_IMAGE_FAILED }),
+        );
+      return true;
+    },
+    [startExternalImage],
+  );
 
   const editor = useEditor({
     extensions,
@@ -9097,6 +9406,27 @@ export function TextEditEditor({
           plainPasteRef.current = true;
           setTimeout(() => (plainPasteRef.current = false), 1000);
           return false;
+        }
+        // ⌘A in a code block (a diagram's source too) selects its code first; a second ⌘A, the page.
+        if (mod && !event.shiftKey && event.key.toLowerCase() === "a") {
+          const { $from, $to, from, to } = view.state.selection;
+          if (
+            $from.parent.type.name === "codeBlock" &&
+            $from.sameParent($to) &&
+            (from !== $from.start() || to !== $from.end())
+          ) {
+            event.preventDefault();
+            view.dispatch(
+              view.state.tr.setSelection(
+                TextSelection.create(
+                  view.state.doc,
+                  $from.start(),
+                  $from.end(),
+                ),
+              ),
+            );
+            return true;
+          }
         }
         if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
           event.preventDefault();
@@ -9802,6 +10132,13 @@ export function TextEditEditor({
   // the platform's own callout sits above.
   const safeTop = floatingSafeArea?.top ?? 0;
   const safeBottom = floatingSafeArea?.bottom ?? 0;
+  // The caret in a link: its card sits under the link, like the panels.
+  const caretInLink =
+    useEditorState({
+      editor,
+      selector: ({ editor: ed }) =>
+        Boolean(ed && ed.state.selection.empty && ed.isActive("link")),
+    }) ?? false;
   const bubbleOptions = React.useMemo(() => {
     const padding = {
       top: VIEWPORT_GAP + safeTop,
@@ -9816,7 +10153,14 @@ export function TextEditEditor({
       ...FLOATING,
       flip: { padding },
       shift: { padding },
-      placement: coarse ? ("bottom" as const) : ("top" as const),
+      // A link or media panel opens under its line, at the caret's start, like the slash menu that
+      // opened it — never over the text above (the title, the previous block). The formatting
+      // toolbar sits above the selection.
+      placement: coarse
+        ? ("bottom" as const)
+        : (panel !== null && panel !== "turnInto") || caretInLink
+          ? ("bottom-start" as const)
+          : ("top" as const),
       // `-2`: a collapsed caret (a link or media panel opened from the slash menu) is a zero-width
       // rect, which floating-ui counts as fully clipped the moment it touches a clipping edge —
       // the start of an empty line. The menu would hide with focus in its field.
@@ -9829,10 +10173,15 @@ export function TextEditEditor({
         },
       },
     };
-  }, [safeTop, safeBottom]);
+  }, [safeTop, safeBottom, panel, caretInLink]);
   const showBubble = React.useCallback(
     ({ editor: ed, from, to, state }: MenuShowProps) =>
       panel !== null ||
+      // The caret in a link (editable): the link card.
+      (ed.isEditable &&
+        from === to &&
+        ed.isActive("link") &&
+        !ed.isActive("codeBlock")) ||
       ((ed.isEditable || canComment) &&
         from !== to &&
         // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
@@ -9912,7 +10261,7 @@ export function TextEditEditor({
       editor.view.dispatch(
         editor.state.tr.setMeta(menuKeys.bubble, "updatePosition"),
       );
-  }, [editor, panel, menuKeys, showBubble]);
+  }, [editor, panel, caretInLink, menuKeys, showBubble]);
 
   return (
     <>
@@ -9933,6 +10282,7 @@ export function TextEditEditor({
             onPanelChange={setPanel}
             onLeave={leave}
             onUpload={editable ? panelUploads : undefined}
+            onImageLink={editable ? panelImageLink : undefined}
             onOpenFile={openFileLink}
             onComment={canComment ? comment : undefined}
           />
@@ -9951,6 +10301,12 @@ export function TextEditEditor({
             return {
               key: spec.id,
               label: spec.label,
+              // Headings only on the full menu: a filtered list is short enough to scan.
+              group: slash.query
+                ? undefined
+                : spec.id.startsWith("host:")
+                  ? HOST_SLASH_GROUP
+                  : SLASH_GROUP[spec.id as TextEditSlashCommand],
               icon: spec.glyph ?? <Icon />,
               shortcut: spec.hint,
               description: spec.description,
@@ -10032,6 +10388,9 @@ export function TextEditEditor({
           slots={imageSlots}
           editable={editable}
           onOpen={onOpenImage}
+          downloadHref={imageDownloadHref}
+          onLeave={editable ? leave : undefined}
+          onCommit={editable ? commitNow : undefined}
           onReplace={
             editable
               ? (pos) => {

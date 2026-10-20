@@ -138,8 +138,11 @@ Inside, it composes these pieces:
   `data-invalid` when it wraps an `aria-invalid` control. Clicking its blank space focuses the end
   of the document.
 - **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
-  `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
-  link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`). It
+  `Toggle` buttons for bold, italic, strikethrough, inline code and link, Clear formatting, and
+  Comment last when the host takes comments; link swaps it for an inline URL input with Open and
+  Remove (`data-slot="text-edit-link"`). With the caret in a link, a link card
+  (`data-slot="text-edit-link-card"`) shows where it goes (a click opens it), Edit and Remove. Link
+  and media panels open under the caret's line. It
   opens only over a selection that holds text — select all in an empty editor shows nothing — and it
   stays on its selection while any scroller around the editor scrolls, hiding while the selection
   is scrolled out of view.
@@ -168,8 +171,10 @@ Inside, it composes these pieces:
 
 ### Slash menu, bubble menu and in-place editing
 
-There is no toolbar. Type <kbd>/</kbd> for a filterable block menu (text, headings 1–4, lists, a
-checklist, a quote, a code block, a table, an image, a divider, a link); `slashCommands` limits it.
+There is no toolbar. Type <kbd>/</kbd> for a filterable block menu under the headings Text
+(text, headings 1–4), Lists (bulleted, numbered, checklist), Blocks (quote, callout, toggle,
+divider, code block, diagram, table), Media (image, video, audio, file) and Insert (a link, then the
+host's own items); a filtered list drops the headings. `slashCommands` limits it.
 Select text for a bubble menu with Turn into, bold, italic, strikethrough, inline code, link and
 clear formatting. Every menu floats in a portal on `<body>` and flips to stay in view, so no
 overflow container clips it. The editor has no view mode: leaving it calls `onCommit` when the text
@@ -534,7 +539,7 @@ and Escape blurs. The editor mounts at once — `readOnly` too, so a viewer watc
 move (`readCopy` shows the stored Markdown until the editor is in).
 
 Two choices keep one person's view from becoming everyone's edit: a toggle's chevron opens and
-closes it for this viewer only ("Open by default", in the toggle's ⋯ menu, sets it for everyone;
+closes it for this viewer only ("Open by default", in the block menu, sets it for everyone;
 `toggleState` lets the host keep each viewer's choice across reloads, and a find result, heading
 link, comment or the caret inside a closed toggle opens it without recording that as a choice),
 and a page, task or file mention is stored without its title — each reader's chip asks
@@ -609,10 +614,13 @@ page until it is 0.
 ### Images
 
 An image works like Notion's. Hover it (or tap it on touch) for a small blurred toolbar at its
-top-right: **Open** shows it in the `FileViewer`, paging through every image in the document (a
-double-click does the same); **Download**; **Copy link**; and a ⋯ menu with **Replace** (the image
-panel, whose upload or link takes its place) and **Delete** (<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd>
-undoes). Selected, it shows a thin outline at the same `rounded-lg` radius, and pill handles on its
+top-right: **Replace** (the image panel, whose upload or link takes its place — another site's link
+imports through `onExternalImage`), **Alt text** (edited in place), **Open** (the `FileViewer`,
+paging through every image in the document; a double-click does the same), **Download** (from
+`imageDownloadHref(src)` when given, a link that saves the file, else the image itself) and **Copy
+link**. Delete is the block menu's, or <kbd>Backspace</kbd> on the selected image
+(<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd> undoes). An image that can't load keeps a dashed frame so it
+can still be replaced. Selected, it shows a thin outline at the same `rounded-lg` radius, and pill handles on its
 left and right edges resize it
 with the aspect ratio kept — Tiptap's own `ResizableNodeView`, from 48px up to
 the width left of the image — and while dragging, guides mark a quarter, a half,

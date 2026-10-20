@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.47 sha256-Q/DY3rq/LHoPZnRhR1+aec0YeBYdPDeA7IToJHOsqmY=
+// @vegastack text-edit@0.25.47 sha256-RgpdFEZtfCTrTMObLJW5iNlWOsOFyddP8zzdVySK/PU=
 
 "use client";
 
@@ -711,7 +711,11 @@ const IMAGE_TYPES: Record<string, string> = {
 };
 
 /** One document image as a `FileViewer` item: named by its alt text, else its file name. */
-function imageItem(image: HTMLImageElement, index: number): FileViewerItem {
+function imageItem(
+  image: HTMLImageElement,
+  index: number,
+  downloadHref?: (src: string) => string | null | undefined,
+): FileViewerItem {
   const src = image.currentSrc || image.src;
   let file = "";
   try {
@@ -727,7 +731,7 @@ function imageItem(image: HTMLImageElement, index: number): FileViewerItem {
     name: image.alt || file || "Image",
     contentType: IMAGE_TYPES[extension] ?? "image/*",
     src,
-    downloadHref: src,
+    downloadHref: downloadHref?.(image.getAttribute("src") ?? src) ?? src,
   };
 }
 
@@ -735,7 +739,10 @@ function imageItem(image: HTMLImageElement, index: number): FileViewerItem {
  * The document image viewer: `open(image)` shows that image in the `FileViewer`, paging through
  * every image inside `root`.
  */
-function useImageViewer(root: React.RefObject<HTMLElement | null>) {
+function useImageViewer(
+  root: React.RefObject<HTMLElement | null>,
+  downloadHref?: (src: string) => string | null | undefined,
+) {
   const [viewer, setViewer] = React.useState<{
     items: FileViewerItem[];
     index: number | null;
@@ -748,9 +755,12 @@ function useImageViewer(root: React.RefObject<HTMLElement | null>) {
       ].filter((each) => each.currentSrc || each.src);
       const index = images.indexOf(image);
       if (index === -1) return;
-      setViewer({ items: images.map(imageItem), index });
+      setViewer({
+        items: images.map((each, at) => imageItem(each, at, downloadHref)),
+        index,
+      });
     },
-    [root],
+    [root, downloadHref],
   );
   /** Show one file (a file chip) in the viewer: rendered when it can be, else its info and download. */
   const openFile = React.useCallback((item: FileViewerItem) => {
@@ -843,6 +853,12 @@ export interface ImageViewerScopeProps extends React.ComponentProps<"div"> {
    * @default false
    */
   disabled?: boolean;
+  /**
+   * The link the viewer's Download saves from, given an image's `src` (`TextEdit`'s
+   * `imageDownloadHref`). Without it, Download uses the `src`.
+   * @default undefined
+   */
+  imageDownloadHref?: (src: string) => string | null | undefined;
 }
 
 /**
@@ -857,6 +873,7 @@ export interface ImageViewerScopeProps extends React.ComponentProps<"div"> {
  */
 export function ImageViewerScope({
   disabled = false,
+  imageDownloadHref,
   className,
   children,
   onClick,
@@ -866,7 +883,7 @@ export function ImageViewerScope({
 }: ImageViewerScopeProps) {
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
-  const viewer = useImageViewer(rootRef);
+  const viewer = useImageViewer(rootRef, imageDownloadHref);
   const handlers = useReadImages(rootRef, !disabled, viewer.open);
   return (
     <div
@@ -1227,6 +1244,13 @@ export interface TextEditProps {
    */
   fileLinkPrefix?: string;
   /**
+   * The link an image's Download (its toolbar and the viewer) saves from, given the image's `src`
+   * — a link that answers as an attachment, say. Without it, or when it returns nothing, Download
+   * uses the `src` itself.
+   * @default undefined
+   */
+  imageDownloadHref?: (src: string) => string | null | undefined;
+  /**
    * `MarkdownView`'s `fileContentType`, for the read view shown before the editor activates.
    * @default undefined
    */
@@ -1555,7 +1579,7 @@ export function TextEdit(props: TextEditProps) {
   const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
   // Images open in the `FileViewer`: from the read view while it cannot edit (a click there starts
   // editing otherwise), and from the editor's image menu or a double-click.
-  const imageViewer = useImageViewer(rootRef);
+  const imageViewer = useImageViewer(rootRef, props.imageDownloadHref);
   const readImages = useReadImages(rootRef, !editable, imageViewer.open);
 
   const activate = (intent: Intent) => {

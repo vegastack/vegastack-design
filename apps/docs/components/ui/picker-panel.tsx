@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.25.47 sha256-psdOqtuIdDO7TvIx4/Lwvq1HLh+hkoegkYdrJYLNWVU=
+// @vegastack picker-panel@0.25.47 sha256-Ou5RxpVWQGR/NwVPQPWQIehzcFs4AHtaPbHul/Nuq/A=
 
 "use client";
 import * as React from "react";
@@ -190,6 +190,20 @@ export function PickerPanel({
           <PanelSearchField
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              // Enter picks the first result; ↓ moves into the grid. Never mid-composition (an
+              // IME's Enter confirms its candidate).
+              if (event.nativeEvent.isComposing) return;
+              if (event.key === "Enter" && query.trim() && flat.length) {
+                event.preventDefault();
+                onSelect(flat[0]!.key);
+              } else if (event.key === "ArrowDown" && flat.length) {
+                event.preventDefault();
+                root.current
+                  ?.querySelector<HTMLElement>("[data-slot=picker-panel-item]")
+                  ?.focus();
+              }
+            }}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
           />
