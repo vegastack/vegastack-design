@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-CB3HNftYhoHdyG71c3JxLMZqe/nXKEzh3oozAznYO0U=
+// @vegastack text-edit@0.25.50 sha256-xdRZJOEcLbdR8/x43ELW0mPp7nT1wgcCgd+l8jn0VRA=
 
 "use client";
 
@@ -3133,6 +3133,7 @@ function ImageTextAttribute({
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const openedRef = React.useRef("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const inputId = React.useId();
   const current = () => {
     const pos = slot.getPos();
@@ -3184,6 +3185,8 @@ function ImageTextAttribute({
         align="end"
         data-text-edit-menu=""
         className="w-72 gap-2 p-2"
+        // The field first, so typing goes straight in (never to the page's shortcuts).
+        initialFocus={() => inputRef.current ?? true}
       >
         <form
           className="flex flex-col gap-1.5"
@@ -3201,11 +3204,11 @@ function ImageTextAttribute({
             {copy.label}
           </label>
           <Input
+            ref={inputRef}
             id={inputId}
             size="sm"
             value={value}
             placeholder={copy.placeholder}
-            autoFocus
             onChange={(event) => setValue(event.target.value)}
           />
         </form>
