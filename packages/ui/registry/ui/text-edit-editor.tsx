@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-xDI/d1RnKD68CyxhQ/TU/eCE00nWm7wnt6oHJRa4uRE=
+// @vegastack text-edit@0.25.50 sha256-hXuu5beSiCCbPBwIFbavoCHttON1DpXqWVbc6fuEkkU=
 
 "use client";
 
@@ -4644,9 +4644,17 @@ function notionPastedHTML(html: string): string {
  */
 function notionMarkdown(text: string): string {
   const out: string[] = [];
+  /** The fence a line opens (a run of 3+ backticks or tildes), or null. */
+  const opens = (line: string) =>
+    /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1] ?? null;
+  /** Whether `line` closes `fence`: a bare run of its character, at least as long. */
+  const closes = (line: string, fence: string) => {
+    const run = /^ {0,3}(`{3,}|~{3,})[ \t]*$/.exec(line)?.[1];
+    return Boolean(run && run[0] === fence[0] && run.length >= fence.length);
+  };
   let fence: string | null = null;
-  // An open `<aside>`'s lines, until its `</aside>` (one forward pass: never a rescan).
-  let aside: string[] | null = null;
+  // An open `<aside>`: its body lines so far, and a fence open inside it.
+  let aside: { lines: string[]; fence: string | null } | null = null;
   let afterCallout = false;
   const emit = (line: string) => {
     // A callout is its own block: a blank line keeps it apart from what follows.
@@ -4654,60 +4662,66 @@ function notionMarkdown(text: string): string {
     afterCallout = false;
     out.push(line);
   };
+  const callout = (lines: string[]) => {
+    if (out.length && out[out.length - 1]!.trim()) out.push("");
+    out.push("> [!NOTE]");
+    let start = 0;
+    let end = lines.length;
+    while (start < end && !lines[start]!.trim()) start++;
+    while (end > start && !lines[end - 1]!.trim()) end--;
+    for (let at = start; at < end; at++) {
+      const line =
+        at === start ? lines[at]!.replace(LEADING_EMOJI, "") : lines[at]!;
+      out.push(line ? `> ${line}` : ">");
+    }
+    afterCallout = true;
+  };
+  const END = "</aside>";
   for (const line of text.split(/\r?\n/)) {
     if (aside) {
-      aside.push(line);
-      if (!/<\/aside>\s*$/.test(line)) continue;
-      const body = aside
-        .join("\n")
-        .replace(/^<aside>\s*/, "")
-        .replace(/\s*<\/aside>\s*$/, "")
-        .replace(LEADING_EMOJI, "")
-        .trim();
-      if (out.length && out[out.length - 1]!.trim()) out.push("");
-      out.push(
-        "> [!NOTE]",
-        ...body.split("\n").map((each) => (each ? `> ${each}` : ">")),
-      );
-      aside = null;
-      afterCallout = true;
+      // A `</aside>` inside the callout's own code is code.
+      if (aside.fence) {
+        if (closes(line, aside.fence)) aside.fence = null;
+        aside.lines.push(line);
+        continue;
+      }
+      const trimmed = line.trimEnd();
+      if (trimmed.endsWith(END)) {
+        aside.lines.push(trimmed.slice(0, -END.length));
+        callout(aside.lines);
+        aside = null;
+        continue;
+      }
+      aside.fence = opens(line);
+      aside.lines.push(line);
       continue;
     }
-    // Inside a fenced code block, text stays as written (an HTML example keeps its tags). Only a
-    // bare run of the opening fence's character, at least as long, closes it.
+    // Inside a fenced code block, text stays as written (an HTML example keeps its tags).
     if (fence) {
-      const close = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(line)?.[1];
-      if (close && close[0] === fence[0] && close.length >= fence.length)
-        fence = null;
+      if (closes(line, fence)) fence = null;
       emit(line);
       continue;
     }
-    const open = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    const open = opens(line);
     if (open) {
       fence = open;
       emit(line);
       continue;
     }
-    if (/^<aside>/.test(line)) {
-      aside = [line];
-      if (/<\/aside>\s*$/.test(line.slice("<aside>".length))) {
-        // Opened and closed on one line.
-        const body = line
-          .replace(/^<aside>\s*/, "")
-          .replace(/\s*<\/aside>\s*$/, "")
-          .replace(LEADING_EMOJI, "")
-          .trim();
-        if (out.length && out[out.length - 1]!.trim()) out.push("");
-        out.push("> [!NOTE]", `> ${body}`);
-        aside = null;
-        afterCallout = true;
-      }
+    if (line.startsWith("<aside>")) {
+      const rest = line.slice("<aside>".length);
+      const trimmed = rest.trimEnd();
+      if (trimmed.endsWith(END)) callout([trimmed.slice(0, -END.length)]);
+      else aside = { lines: [rest], fence: opens(rest) };
       continue;
     }
     emit(line);
   }
   // An `<aside>` never closed stays as it was written.
-  if (aside) for (const line of aside) emit(line);
+  if (aside) {
+    emit(`<aside>${aside.lines[0] ?? ""}`);
+    for (let at = 1; at < aside.lines.length; at++) emit(aside.lines[at]!);
+  }
   return out.join("\n");
 }
 
