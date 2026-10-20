@@ -23267,7 +23267,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["stat-skeleton"]
+              "values": [
+                "stat-skeleton",
+                "stat-skeleton-label",
+                "stat-skeleton-value"
+              ]
             }
           ],
           "cssVariables": []

@@ -2,7 +2,14 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Stat, StatDelta, StatEmpty, StatLabel, StatValue } from "./stat";
+import {
+  Stat,
+  StatDelta,
+  StatEmpty,
+  StatLabel,
+  StatSkeleton,
+  StatValue,
+} from "./stat";
 
 test("renders label over value at the default scale", async () => {
   const screen = await render(
@@ -55,4 +62,26 @@ test("has no accessibility violations", async () => {
     </Stat>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("StatSkeleton puts each bar in its text's line box, so a loading stat is as tall as a loaded one", async () => {
+  const screen = await render(
+    <>
+      <StatSkeleton size="lg" />
+      <StatSkeleton />
+    </>,
+  );
+  const [lg, md] = [
+    ...screen.container.querySelectorAll('[data-slot="stat-skeleton"]'),
+  ];
+  const lines = (root: Element) =>
+    [...root.children].map((line) => line.className);
+  expect(lines(lg!)).toEqual([
+    "flex h-4 items-center",
+    "flex items-center h-8",
+  ]);
+  expect(lines(md!)).toEqual([
+    "flex h-4 items-center",
+    "flex items-center h-5",
+  ]);
 });
