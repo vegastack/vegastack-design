@@ -121,8 +121,8 @@ text field (a toolbar search keeps its own select-all) or from a row's ⋯ menu,
 ### Selection bar
 
 `selectionActions` docks an `ActionBar` at the bottom of the screen, centred over the list, while
-anything is selected: the count (`selectionLabel`), your actions — compose `ActionBarButton` — and a
-"Clear selection" button. Your render gets the selected ids and a `clear()` to call after a bulk
+anything is selected: the count (`selectionLabel`), your actions — compose `ActionBarButton` — then any
+`selectionSecondaryActions`, and last a "Clear selection" button. Your render gets the selected ids and a `clear()` to call after a bulk
 action. On a phone the bar is capped at the screen width and its actions scroll sideways inside it.
 While the bar is open the list ends with a spacer of the bar's height, its gap and
 `--dock-inset-bottom` (a global audio player under it), so the last row and the loading tail stay
@@ -168,6 +168,23 @@ needs `onDropInto`.
 
 <ComponentPreview
   name="dataListDragInto"
+  file="components/preview/data-list.tsx"
+/>
+
+### Reorder by dragging
+
+A hand-arranged order: set `onReorderRow` and list rows drag to a place between others. A drop on a
+row's top or bottom quarter lands the dragged rows before or after it — its top or bottom half when
+the row takes no drop inside — and a 2px seam in the drop-indicator blue (`data-drop-edge="top"` or
+`"bottom"`) marks the place while the pointer is there. A folder row `canDropOnRow` accepts keeps
+its middle half for `onDropInto`, so one drag can either place or file. `canReorderRow` refuses a
+place — folders stay before files here — and a refused edge shows no seam. `onReorderRow` receives
+`{ ids, targetId, edge: "before" | "after" }` and may return a promise. It is the list view's; a
+grid or board doesn't offer it. Drag is pointer only: keep Move up and Move down row actions as the
+keyboard and touch path.
+
+<ComponentPreview
+  name="dataListReorder"
   file="components/preview/data-list.tsx"
 />
 
@@ -874,6 +891,15 @@ What `onDropInto` and `canDropInto` receive.
 <ApiTable
   path="../../packages/ui/registry/ui/data-list.tsx"
   name="DataListDropMove"
+/>
+
+### Reorder move
+
+What `onReorderRow` and `canReorderRow` receive.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list.tsx"
+  name="DataListReorderMove"
 />
 
 ### Row props

@@ -2345,8 +2345,8 @@ test("no a11y violations — list with a selection", async () => {
   await expectNoA11yViolations(document.body);
 });
 
-/** Drive a Pragmatic drag from `source` to the middle of `target`. */
-async function dragTo(source: HTMLElement, target: HTMLElement) {
+/** Drive a Pragmatic drag from `source` to `target`, `at` of the way down it (the middle). */
+async function dragTo(source: HTMLElement, target: HTMLElement, y = 0.5) {
   const dt = new DataTransfer();
   const s = source.getBoundingClientRect();
   const t = target.getBoundingClientRect();
@@ -2355,7 +2355,7 @@ async function dragTo(source: HTMLElement, target: HTMLElement) {
     cancelable: true,
     dataTransfer: dt,
     clientX: t.left + t.width / 2,
-    clientY: t.top + t.height / 2,
+    clientY: t.top + t.height * y,
   };
   source.dispatchEvent(
     new DragEvent("dragstart", {
@@ -2441,6 +2441,73 @@ test("canMoveItem locks a row: no drag source, left out of a dragged selection, 
   await dragTo(rowOf("d3"), rowOf("f1"));
   expect(onDropInto).toHaveBeenLastCalledWith({ ids: ["d3"], targetId: "f1" });
   await expectNoA11yViolations(document.body);
+});
+
+test("onReorderRow: a row's top or bottom edge places the drag before or after it; its middle still drops into a folder", async () => {
+  const onReorderRow = vi.fn();
+  const onDropInto = vi.fn();
+  await render(
+    <Files
+      onReorderRow={onReorderRow}
+      canReorderRow={({ targetId }) => targetId !== "d3"}
+      onDropInto={onDropInto}
+      canDropOnRow={(r) => r.kind === "folder"}
+    />,
+  );
+  expect(rowOf("d1").getAttribute("draggable")).toBe("true");
+
+  await dragTo(rowOf("d1"), rowOf("d2"), 0.1);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "d2",
+    edge: "before",
+  });
+  // A row that takes no drop inside splits in halves, the midpoint belonging to the bottom.
+  await dragTo(rowOf("d1"), rowOf("d2"), 0.5);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "d2",
+    edge: "after",
+  });
+  // A folder keeps its middle half for a drop into it.
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.5);
+  expect(onDropInto).toHaveBeenLastCalledWith({ ids: ["d1"], targetId: "f1" });
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.9);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "f1",
+    edge: "after",
+  });
+
+  onReorderRow.mockClear();
+  await dragTo(rowOf("d1"), rowOf("d3"), 0.1); // canReorderRow refuses
+  await dragTo(rowOf("d1"), rowOf("d1"), 0.1); // beside itself
+  expect(onReorderRow).not.toHaveBeenCalled();
+});
+
+test("onReorderRow marks the seam with data-drop-edge while the pointer is on it", async () => {
+  await render(<Files onReorderRow={() => {}} />);
+  const source = rowOf("d1");
+  const target = rowOf("d2");
+  const t = target.getBoundingClientRect();
+  const dt = new DataTransfer();
+  const at = (y: number) => ({
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: dt,
+    clientX: t.left + t.width / 2,
+    clientY: t.top + t.height * y,
+  });
+  source.dispatchEvent(new DragEvent("dragstart", at(0.5)));
+  await new Promise((r) => setTimeout(r, 60));
+  target.dispatchEvent(new DragEvent("dragenter", at(0.1)));
+  target.dispatchEvent(new DragEvent("dragover", at(0.1)));
+  await expect.poll(() => target.getAttribute("data-drop-edge")).toBe("top");
+  target.dispatchEvent(new DragEvent("dragover", at(0.9)));
+  await expect.poll(() => target.getAttribute("data-drop-edge")).toBe("bottom");
+  target.dispatchEvent(new DragEvent("drop", at(0.9)));
+  source.dispatchEvent(new DragEvent("dragend", at(0.9)));
+  await expect.poll(() => target.hasAttribute("data-drop-edge")).toBe(false);
 });
 
 test("without onDropInto rows are not draggable", async () => {
@@ -2537,7 +2604,7 @@ test("gridDensity dense sets the file-browser column ladder, loading skeleton in
 });
 
 /** Drive a desktop file drag (Pragmatic's external adapter) onto the middle of `target`. */
-async function dropFiles(target: HTMLElement, files: File[]) {
+async function dropFiles(target: HTMLElement, files: File[], y = 0.5) {
   const dt = new DataTransfer();
   for (const file of files) dt.items.add(file);
   const t = target.getBoundingClientRect();
@@ -2546,7 +2613,7 @@ async function dropFiles(target: HTMLElement, files: File[]) {
     cancelable: true,
     dataTransfer: dt,
     clientX: t.left + t.width / 2,
-    clientY: t.top + t.height / 2,
+    clientY: t.top + t.height * y,
   };
   for (const type of ["dragenter", "dragover"] as const) {
     target.dispatchEvent(new DragEvent(type, at));
@@ -2593,6 +2660,60 @@ test("onDropFilesOnRow: desktop files dropped on a folder row go to that row, no
   await dropFiles(rowOf("d1"), [report]);
   await expect.poll(() => onSurface.mock.calls.length).toBe(1);
   expect(onRow).toHaveBeenCalledTimes(1);
+});
+
+test("onReorderRow without onDropInto: a folder that only takes uploads splits in halves for rows", async () => {
+  const onReorderRow = vi.fn();
+  await render(
+    <Files
+      onReorderRow={onReorderRow}
+      canDropOnRow={(r) => r.kind === "folder"}
+      onDropFilesOnRow={() => {}}
+    />,
+  );
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.4);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "f1",
+    edge: "before",
+  });
+  await dragTo(rowOf("d1"), rowOf("f1"), 0.6);
+  expect(onReorderRow).toHaveBeenLastCalledWith({
+    ids: ["d1"],
+    targetId: "f1",
+    edge: "after",
+  });
+});
+
+test("with onReorderRow, desktop files still drop anywhere on a folder row (reorder edges are for rows)", async () => {
+  const onRow = vi.fn();
+  const onSurface = vi.fn();
+  function Surface() {
+    const drop = useFileDrop({ onFilesAccepted: onSurface });
+    return (
+      <div {...drop.dropProps}>
+        <input {...drop.inputProps} />
+        <DataList<FileRow>
+          aria-label="Files"
+          columns={fileColumns}
+          data={files}
+          getRowId={(r) => r.id}
+          getRowLabel={(r) => r.name}
+          canDropOnRow={(r) => r.kind === "folder"}
+          onReorderRow={() => {}}
+          onDropFilesOnRow={onRow}
+        />
+      </div>
+    );
+  }
+  await render(<Surface />);
+  const report = new File(["q3"], "report.txt", { type: "text/plain" });
+  await dropFiles(rowOf("f1"), [report], 0.1);
+  await expect.poll(() => onRow.mock.calls.length).toBe(1);
+  expect(onRow).toHaveBeenCalledWith("f1", [
+    { file: expect.any(File), relativePath: "report.txt" },
+  ]);
+  expect(onSurface).not.toHaveBeenCalled();
 });
 
 test("a clickable grid card holding an interactive column is a labelled group, not a button", async () => {

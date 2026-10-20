@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.25.47 sha256-vfm1LEzaj6bsdA7yEwqkUQIC3ejKSzA05KhZhwoD3LE=
+// @vegastack action-bar@0.25.47 sha256-qxJMJqLh8yLeg+r66WKtfIvSBfoijL+PUAoEF/gS/R0=
 
 "use client";
 
@@ -112,6 +112,13 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
    */
   moreLabel?: string;
   /**
+   * Controls that close the set, after `secondaryActions` — a separator and a Clear button. They
+   * join the toolbar's arrow-key order (compose {@link ActionBarButton} and
+   * {@link ActionBarSeparator}) and never fold into the ⋯ menu.
+   * @default undefined
+   */
+  end?: React.ReactNode;
+  /**
    * Accessible name for the toolbar.
    * @default "Actions"
    */
@@ -157,6 +164,7 @@ export function ActionBar({
   containerRef,
   secondaryActions,
   moreLabel = "More actions",
+  end,
   "aria-label": ariaLabel = "Actions",
   className,
   children,
@@ -317,6 +325,7 @@ export function ActionBar({
             ))
           )
         ) : null}
+        {end}
       </Toolbar.Group>
       <span
         role="status"

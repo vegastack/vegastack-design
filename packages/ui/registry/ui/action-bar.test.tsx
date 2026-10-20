@@ -272,3 +272,42 @@ test("below sm the secondary actions fold into a ⋯ menu; the primary ones stay
   expect(SECONDARY[0]!.onClick).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(document.body);
 });
+
+test("end closes the set after the secondary actions, and stays out of the ⋯ menu", async () => {
+  stubMediaQueries(() => false);
+  const screen = await render(
+    <ActionBar
+      status="2 selected"
+      secondaryActions={SECONDARY}
+      end={<ActionBarButton aria-label="Clear selection">×</ActionBarButton>}
+    >
+      <ActionBarButton>Share</ActionBarButton>
+    </ActionBar>,
+  );
+  const names = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="action-bar-actions"] button',
+    ),
+  ].map((b) => b.getAttribute("aria-label") ?? b.textContent);
+  expect(names).toEqual(["Share", "Move", "Archive", "Clear selection"]);
+});
+
+test("below sm, end stays a button beside the ⋯ menu", async () => {
+  stubMediaQueries((query) => query.includes("max-width"));
+  const screen = await render(
+    <ActionBar
+      status="2 selected"
+      secondaryActions={SECONDARY}
+      end={<ActionBarButton aria-label="Clear selection">×</ActionBarButton>}
+    >
+      <ActionBarButton>Share</ActionBarButton>
+    </ActionBar>,
+  );
+  const names = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="action-bar-actions"] button',
+    ),
+  ].map((b) => b.getAttribute("aria-label") ?? b.textContent);
+  expect(names).toEqual(["Share", "More actions", "Clear selection"]);
+  await expectNoA11yViolations(document.body);
+});
