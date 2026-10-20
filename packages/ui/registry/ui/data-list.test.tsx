@@ -2513,6 +2513,45 @@ test("onReorderRow marks the seam with data-drop-edge while the pointer is on it
   await expect.poll(() => target.hasAttribute("data-drop-edge")).toBe(false);
 });
 
+test("a folder row shows the seam alone on its edges and the into-wash alone in its middle", async () => {
+  await render(
+    <Files
+      onReorderRow={() => {}}
+      onDropInto={() => {}}
+      canDropOnRow={(r) => r.kind === "folder"}
+    />,
+  );
+  const source = rowOf("d1");
+  const target = rowOf("f1");
+  const t = target.getBoundingClientRect();
+  const dt = new DataTransfer();
+  const at = (y: number) => ({
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: dt,
+    clientX: t.left + t.width / 2,
+    clientY: t.top + t.height * y,
+  });
+  const state = () =>
+    `${target.getAttribute("data-drop-edge") ?? "-"}/${target.hasAttribute("data-drop-over") ? "over" : "-"}`;
+  source.dispatchEvent(new DragEvent("dragstart", at(0.5)));
+  await new Promise((r) => setTimeout(r, 60));
+  target.dispatchEvent(new DragEvent("dragenter", at(0.1)));
+  target.dispatchEvent(new DragEvent("dragover", at(0.1)));
+  await expect.poll(state).toBe("top/-");
+  target.dispatchEvent(new DragEvent("dragover", at(0.5)));
+  await expect.poll(state).toBe("-/over");
+  target.dispatchEvent(new DragEvent("dragover", at(0.9)));
+  await expect.poll(state).toBe("bottom/-");
+  // While the seam shows, no wash (hover, keyboard cursor, selection) paints the row.
+  expect(target.className).toContain(
+    "[&[data-drop-edge][data-drop-edge]]:bg-transparent",
+  );
+  target.dispatchEvent(new DragEvent("dragleave", at(0.9)));
+  source.dispatchEvent(new DragEvent("dragend", at(0.9)));
+  await expect.poll(state).toBe("-/-");
+});
+
 test("without onDropInto rows are not draggable", async () => {
   await render(<Files />);
   expect(rowOf("d1").hasAttribute("draggable")).toBe(false);
