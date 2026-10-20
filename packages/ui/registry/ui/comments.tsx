@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.46 sha256-S7efAqMvzrixajt62T/lxV/ytSl8xZIDrgAhR2aISxA=
+// @vegastack comments@0.25.46 sha256-feq65vDzmLc8XdmYmV7d1K57XHD4+2ZeSqN+k0RUaJk=
 
 "use client";
 
@@ -1221,8 +1221,9 @@ export function CommentComposer({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const lineRef = React.useRef<HTMLButtonElement>(null);
   const refocusLine = React.useRef(false);
-  // A draft with files (or a reply) is never folded away: its tray and Send stay in view.
-  const folded = compact && !opened && !replyingTo && !hasFiles && !body.trim();
+  // A reply is never folded (`compact` rests a new comment only), nor a draft with text or files.
+  const folding = compact && !replyingTo;
+  const folded = folding && !opened && !hasFiles && !body.trim();
   const idle = !body.trim() && !hasFiles && !posting && !error;
   const fold = React.useCallback((focusLine: boolean) => {
     refocusLine.current = focusLine;
@@ -1238,14 +1239,14 @@ export function CommentComposer({
   }, [folded]);
   // A press anywhere else folds an empty card (a file picker's dialog is no press, so it stays).
   React.useEffect(() => {
-    if (!compact || folded || !idle) return;
+    if (!folding || folded || !idle) return;
     const onDown = (event: PointerEvent) => {
       if (rootRef.current?.contains(event.target as Node)) return;
       fold(false);
     };
     document.addEventListener("pointerdown", onDown, true);
     return () => document.removeEventListener("pointerdown", onDown, true);
-  }, [compact, folded, idle, fold]);
+  }, [folding, folded, idle, fold]);
 
   const submit = async (value: string) => {
     if ((!value.trim() && !hasFiles) || posting) return;
@@ -1294,7 +1295,7 @@ export function CommentComposer({
       ref={rootRef}
       data-slot="comment-composer"
       onBlur={
-        compact
+        folding
           ? (event) => {
               const next = event.relatedTarget as Node | null;
               if (!next || event.currentTarget.contains(next) || !idle) return;
@@ -1303,7 +1304,7 @@ export function CommentComposer({
           : undefined
       }
       onKeyDown={
-        compact
+        folding
           ? (event) => {
               // A mention or slash menu's Escape stops at the menu; one that reaches here is the
               // box's own.
