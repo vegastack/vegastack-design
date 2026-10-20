@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.50 sha256-LO4Vm7WnxvIylQ13o6jKNXCSmHm2I3hOA/ZOVKA+GG4=
+// @vegastack markdown-view@0.25.50 sha256-u5neBVjYeNwNZkHlwNC6XDtdpn4CBfUZnZMsrVcBq64=
 
 import * as React from "react";
 import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
@@ -1293,6 +1293,8 @@ function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
 }
 
 interface RenderContext {
+  /** Rendering inside a line of text (a paragraph, a heading, a cell): no figures there. */
+  inText?: boolean;
   images: ReadonlySet<string>;
   headingOffset: number;
   annotationCounts: Map<string, number>;
@@ -1485,7 +1487,11 @@ function renderNode(
 ): React.ReactNode {
   if (typeof node === "string") return node;
   const { tag, attrs } = node;
-  const children = () => render(node.children, ctx);
+  const children = () =>
+    render(
+      node.children,
+      TEXT_BLOCKS.has(tag) && !ctx.inText ? { ...ctx, inText: true } : ctx,
+    );
 
   const heading = /^h([1-6])$/.exec(tag);
   if (heading) {
@@ -1543,7 +1549,10 @@ function renderNode(
       if (title)
         return (
           <figure key={key} data-slot="markdown-figure" className="my-2">
-            {renderNode({ ...image, attrs: withoutTitle(image.attrs) }, 0, ctx)}
+            {renderNode({ ...image, attrs: withoutTitle(image.attrs) }, 0, {
+              ...ctx,
+              inText: true,
+            })}
             <figcaption
               data-slot="markdown-figure-caption"
               className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
@@ -1798,20 +1807,35 @@ function renderNode(
         new URL(src, "https://other-relative-image.invalid/").origin;
       const width =
         sized.width ?? (Number.parseInt(attrs.width ?? "", 10) || undefined);
-      return (
+      const picture = (
         // Plain <img>: registry source is framework-agnostic (no next/image dependency). Frame and
         // rhythm come from `prose.img` on the root.
         <img
-          key={key}
           data-slot="markdown-image"
           src={src}
           alt={alt}
           width={width}
-          title={attrs.title}
+          title={ctx.inText ? attrs.title : undefined}
           loading="lazy"
           decoding="async"
           referrerPolicy={remote ? "no-referrer" : undefined}
         />
+      );
+      // A titled image standing as a block (TextEdit's HTML, a tight list item) is a figure, its
+      // title the caption; inside a line of text it stays an image with its title.
+      const caption = ctx.inText ? "" : (attrs.title?.trim() ?? "");
+      return caption ? (
+        <figure key={key} data-slot="markdown-figure" className="my-2">
+          {picture}
+          <figcaption
+            data-slot="markdown-figure-caption"
+            className="mt-1.5 text-sm leading-snug text-muted-foreground wrap-break-word"
+          >
+            {caption}
+          </figcaption>
+        </figure>
+      ) : (
+        <React.Fragment key={key}>{picture}</React.Fragment>
       );
     }
     case "pre": {

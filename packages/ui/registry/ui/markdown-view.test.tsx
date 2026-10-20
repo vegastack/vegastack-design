@@ -1452,3 +1452,26 @@ test("an image with a title on its own line is a figure with the title as its ca
   expect(figure?.querySelector("figcaption")?.textContent).toBe("Q3 sales");
   expect(screen.container.querySelectorAll("figure")).toHaveLength(1);
 });
+
+test("a titled block image in HTML or a tight list item is a figure; one inside a line of text keeps its title", async () => {
+  const html = await render(
+    <MarkdownView format="html">
+      {
+        '<img src="/a.png" alt="A" title="From HTML"><p>Text <img src="/b.png" alt="B" title="Inline"> more</p>'
+      }
+    </MarkdownView>,
+  );
+  expect(html.container.querySelector("figcaption")?.textContent).toBe(
+    "From HTML",
+  );
+  expect(
+    html.container.querySelector('img[alt="B"]')?.getAttribute("title"),
+  ).toBe("Inline");
+  expect(html.container.querySelectorAll("figure")).toHaveLength(1);
+  const list = await render(
+    <MarkdownView>{'- ![C](/c.png "In a list")'}</MarkdownView>,
+  );
+  expect(list.container.querySelector("li figcaption")?.textContent).toBe(
+    "In a list",
+  );
+});
