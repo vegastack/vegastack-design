@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-O6Q/gsvtRPp4uGqPUoC46UbG4AuGVQ5iuWO528XUp68=
+// @vegastack text-edit@0.25.50 sha256-x/xuLdxxjfJ12zGzSFUExXYmLvZOM5DYkM7dy121LVY=
 
 "use client";
 
@@ -4538,32 +4538,37 @@ const FLOATING_SLOTS =
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
  * "+" bars, drop line; the slash and mention menus are `SuggestionMenu`, which portals itself):
- * `<body>`, so no overflow container clips it, with the theme scope restored on a
+ * `<body>` (or the portal of the modal the editor sits in, `FloatingHostContext`), so no overflow
+ * container clips it, with the theme scope restored on a
  * `display: contents` wrapper. While a modal (a Dialog or Sheet opened over the editor) holds the
  * editor `inert`, the layer hides, so nothing floats over the modal's backdrop.
  */
 function FloatingLayer({ children }: { children: React.ReactNode }) {
   const themeScope = useInternalThemeScope();
-  const behindModal = React.useContext(BehindModalContext);
+  const { behindModal, host } = React.useContext(FloatingHostContext);
   if (typeof document === "undefined") return null;
   return createPortal(
-    // `data-base-ui-portal`: a modal opened later marks the page's other `<body>` children inert,
-    // but never a portal — so the floating parts of an editor INSIDE that modal stay live. Behind
-    // a modal they hide (`BehindModalContext`).
     <div
       data-slot="text-edit-layer"
-      data-base-ui-portal=""
       hidden={behindModal}
       className={cn("contents", themeScope)}
     >
       {children}
     </div>,
-    document.body,
+    host ?? document.body,
   );
 }
 
-/** The editor sits behind a modal (inside an `inert` subtree): its floating parts hide. */
-const BehindModalContext = React.createContext(false);
+/**
+ * Where the editor's floating parts go, and whether they hide. `host`: the portal of the modal the
+ * editor sits in (a Dialog or Sheet), else `null` for `<body>` — inside the modal's own portal,
+ * its outside-marking never makes them inert. `behindModal`: a modal holds the editor itself
+ * inert, so nothing of it floats over that modal's backdrop.
+ */
+const FloatingHostContext = React.createContext<{
+  behindModal: boolean;
+  host: HTMLElement | null;
+}>({ behindModal: false, host: null });
 
 /**
  * Whether `element` is inside an `inert` subtree now — a modal Dialog or Sheet opened over it.
@@ -8276,8 +8281,6 @@ const FLOATING = {
   shift: { padding: VIEWPORT_GAP },
 };
 
-const appendToBody = () => document.body;
-
 /* ------------------------------------------------------------------------------------------------
  * TextEdit
  * ----------------------------------------------------------------------------------------------*/
@@ -10300,20 +10303,24 @@ export function TextEditEditor({
     setEditorDom(editor && !editor.isDestroyed ? editor.view.dom : null);
   }, [editor]);
   const behindModal = useBehindModal(editorDom);
+  const host = editorDom?.closest<HTMLElement>("[data-base-ui-portal]") ?? null;
+  const floating = React.useMemo(
+    () => ({ behindModal, host }),
+    [behindModal, host],
+  );
+  const appendToHost = React.useCallback(() => host ?? document.body, [host]);
 
   return (
-    <BehindModalContext.Provider value={behindModal}>
+    <FloatingHostContext.Provider value={floating}>
       {(editable || canComment) && editor ? (
         <BubbleMenu
           ref={bubbleRef}
           editor={editor}
           pluginKey={menuKeys.bubble}
-          appendTo={appendToBody}
+          appendTo={appendToHost}
           options={bubbleOptions}
           getReferencedVirtualElement={bubbleReference}
           shouldShow={showBubble}
-          // A portal to Base UI (see `FloatingLayer`): a modal around the editor leaves it live.
-          data-base-ui-portal=""
           className={cn("z-50", themeScope, behindModal && "hidden")}
         >
           <SelectionMenu
@@ -10473,6 +10480,6 @@ export function TextEditEditor({
       >
         <EditorContent editor={editor} />
       </div>
-    </BehindModalContext.Provider>
+    </FloatingHostContext.Provider>
   );
 }

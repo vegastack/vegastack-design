@@ -6,6 +6,7 @@ import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
 import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
+import { Dialog, DialogContent, DialogTitle } from "./dialog";
 import {
   linkedTaskId,
   preloadTextEdit,
@@ -3567,25 +3568,45 @@ test("headingLinkHref: the hovered heading's # sits in the gutter before its tex
   );
 });
 
-test("behind a modal (an inert subtree) the editor's floating layer hides; an editor in a modal keeps its own live", async () => {
-  const screen = await render(
-    <div data-testid="page">
-      <TextEdit aria-label="Doc" defaultValue="<p>One</p><p>Two</p>" />
-    </div>,
-  );
-  await vi.waitFor(() =>
-    expect(screen.container.querySelector(".ProseMirror p")).not.toBeNull(),
-  );
-  const layer = () =>
-    document.querySelector<HTMLElement>('[data-slot="text-edit-layer"]')!;
-  await vi.waitFor(() => expect(layer()).not.toBeNull());
-  expect(layer().hidden).toBe(false);
-  // A portal to Base UI: a modal's outside-marking leaves the layer itself alone.
-  expect(layer().hasAttribute("data-base-ui-portal")).toBe(true);
-  (screen.getByTestId("page").element() as HTMLElement).inert = true;
-  await vi.waitFor(() => expect(layer().hidden).toBe(true));
-  (screen.getByTestId("page").element() as HTMLElement).inert = false;
-  await vi.waitFor(() => expect(layer().hidden).toBe(false));
+test("a modal over the editor hides its floating layer; an editor inside the modal keeps its own live, in the modal's portal", async () => {
+  function Page({ open }: { open: boolean }) {
+    return (
+      <>
+        <TextEdit aria-label="Behind" defaultValue="<p>One</p>" />
+        <Dialog open={open}>
+          <DialogContent>
+            <DialogTitle>Note</DialogTitle>
+            <TextEdit aria-label="Inside" defaultValue="<p>Two</p>" />
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+  const screen = await render(<Page open={false} />);
+  // The editor behind the modal portals its layer to <body>; the one inside, into the modal's
+  // portal.
+  const layerOf = (name: "Behind" | "Inside") =>
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        '[data-slot="text-edit-layer"]',
+      ),
+    ].find(
+      (layer) =>
+        (layer.closest("[data-base-ui-portal]") !== null) ===
+        (name === "Inside"),
+    );
+  await vi.waitFor(() => expect(layerOf("Behind")).toBeDefined());
+  expect(layerOf("Behind")!.hidden).toBe(false);
+  await screen.rerender(<Page open />);
+  await vi.waitFor(() => expect(layerOf("Inside")).toBeDefined());
+  // The editor behind the modal: its layer hides.
+  await vi.waitFor(() => expect(layerOf("Behind")!.hidden).toBe(true));
+  // The editor in the modal: its layer sits in the modal's portal, shown and never inert.
+  const inside = layerOf("Inside")!;
+  expect(inside.hidden).toBe(false);
+  expect(inside.closest("[inert]")).toBeNull();
+  await screen.rerender(<Page open={false} />);
+  await vi.waitFor(() => expect(layerOf("Behind")!.hidden).toBe(false));
 });
 
 test("sectionMarks: a block turned into another kind keeps its section's bar", async () => {
