@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.56] — October 20, 2026
+
+<!-- assembled from 1 changeset: 3f56ae54285d -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.55 → 0.25.56.
+
+### 🐛 Fixed
+
+- **TextEdit**, **MarkdownView**: an image stores its size (`![alt|320x180](src)`; `parseImageAlt` and `imageMarkdown` read and write the height), read from the file on upload and from the image on import, so the read view and the editor reserve its box before it loads; an image on a line of its own is a `figure` in `MarkdownView`, laid out as `TextEdit`'s image block (16px apart at the document scale in both), a diagram's block view sits 16 from its neighbours in the read view as in the editor and its server fallback no longer takes the `pre` margins, and the content box keeps its blocks' margins (`flow-root`) — the swap from the read view into the editor moves nothing. A failed upload stays in the text as "Couldn't upload" with Retry and Remove (new `onFailedUploadsChange` counts them) instead of vanishing. The link card truncates a long link in the middle (the full URL on hover and in its accessible name) and never overflows its card.
+  [`05b58bc`](https://github.com/VegaStack/vegastack-design/commit/05b58bc)
+
 ## [0.25.55] — October 20, 2026
 
 <!-- assembled from 1 changeset: 7ba093d14299 -->

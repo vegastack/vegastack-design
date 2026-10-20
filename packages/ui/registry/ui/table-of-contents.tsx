@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.25.55 sha256-wJreRXarXV2XRoor8OM178f91T0orlEYJ+uJPhQfSck=
+// @vegastack table-of-contents@0.25.56 sha256-ltPdo73r+1L4jomhkKIElQCb+Ln0MbKf2NTXsT2BJY0=
 
 "use client";
 
