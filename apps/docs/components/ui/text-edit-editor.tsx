@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-hXuu5beSiCCbPBwIFbavoCHttON1DpXqWVbc6fuEkkU=
+// @vegastack text-edit@0.25.50 sha256-QQ9pX96Gtv9+oCRaEB6vdqG1iDz2Fm71Mdsb4rLsWHg=
 
 "use client";
 
@@ -4592,7 +4592,7 @@ function notionPastedHTML(html: string): string {
       // An item's text sits in a paragraph, as the checklist's schema holds it.
       if (!item.querySelector(":scope > p")) {
         const paragraph = doc.createElement("p");
-        paragraph.append(...[...item.childNodes]);
+        while (item.firstChild) paragraph.append(item.firstChild);
         item.append(paragraph);
       }
     }
@@ -4654,7 +4654,8 @@ function notionMarkdown(text: string): string {
   };
   let fence: string | null = null;
   // An open `<aside>`: its body lines so far, and a fence open inside it.
-  let aside: { lines: string[]; fence: string | null } | null = null;
+  let aside: { lines: string[]; fence: string | null; depth: number } | null =
+    null;
   let afterCallout = false;
   const emit = (line: string) => {
     // A callout is its own block: a blank line keeps it apart from what follows.
@@ -4669,30 +4670,37 @@ function notionMarkdown(text: string): string {
     let end = lines.length;
     while (start < end && !lines[start]!.trim()) start++;
     while (end > start && !lines[end - 1]!.trim()) end--;
-    for (let at = start; at < end; at++) {
-      const line =
-        at === start ? lines[at]!.replace(LEADING_EMOJI, "") : lines[at]!;
-      out.push(line ? `> ${line}` : ">");
-    }
+    if (start < end) lines[start] = lines[start]!.replace(LEADING_EMOJI, "");
+    // The body is Notion Markdown too: an `<aside>` inside it is a callout inside this one.
+    const body = notionMarkdown(lines.slice(start, end).join("\n")).split("\n");
+    for (const line of body) out.push(line ? `> ${line}` : ">");
     afterCallout = true;
   };
   const END = "</aside>";
   for (const line of text.split(/\r?\n/)) {
     if (aside) {
-      // A `</aside>` inside the callout's own code is code.
+      // Code inside the callout is code: a fence opens before any tag is read.
       if (aside.fence) {
         if (closes(line, aside.fence)) aside.fence = null;
         aside.lines.push(line);
         continue;
       }
+      const fenced = opens(line);
+      if (fenced) {
+        aside.fence = fenced;
+        aside.lines.push(line);
+        continue;
+      }
+      // Nested callouts: each `<aside>` opens one level, each `</aside>` closes one.
       const trimmed = line.trimEnd();
-      if (trimmed.endsWith(END)) {
+      if (line.startsWith("<aside>")) aside.depth++;
+      if (trimmed.endsWith(END)) aside.depth--;
+      if (aside.depth === 0) {
         aside.lines.push(trimmed.slice(0, -END.length));
         callout(aside.lines);
         aside = null;
         continue;
       }
-      aside.fence = opens(line);
       aside.lines.push(line);
       continue;
     }
@@ -4712,7 +4720,7 @@ function notionMarkdown(text: string): string {
       const rest = line.slice("<aside>".length);
       const trimmed = rest.trimEnd();
       if (trimmed.endsWith(END)) callout([trimmed.slice(0, -END.length)]);
-      else aside = { lines: [rest], fence: opens(rest) };
+      else aside = { lines: [rest], fence: opens(rest), depth: 1 };
       continue;
     }
     emit(line);

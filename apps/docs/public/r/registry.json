@@ -18322,7 +18322,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.50",
-        "integrity": "sha256-hXuu5beSiCCbPBwIFbavoCHttON1DpXqWVbc6fuEkkU="
+        "integrity": "sha256-QQ9pX96Gtv9+oCRaEB6vdqG1iDz2Fm71Mdsb4rLsWHg="
       }
     },
     {
