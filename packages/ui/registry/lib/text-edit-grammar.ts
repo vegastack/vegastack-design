@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.47 sha256-oHWPQrgt10et4IxxG9dw5xNfsNpN/Dn6eCaPxLGyBKc=
+// @vegastack text-edit-grammar@0.25.48 sha256-kvFytdfeqNKb2KsFZYMyn36yooNpmxqMzP3jwI94tT0=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
