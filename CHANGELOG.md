@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.52] — October 20, 2026
+
+<!-- assembled from 1 changeset: 1eab312f67bc -->
+
+### 🔧 Changed components
+
+- **DocumentLayout**: with a comment margin, the text column moves as near the middle of the canvas as the room allows (fully centred from about 72rem, where the last release waited for 74rem), never squeezing its measure — at 1440 with a sidebar it now sits within 18px of the middle instead of a margin's width to the left.
+  [`8868fc1`](https://github.com/VegaStack/vegastack-design/commit/8868fc1)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.51 → 0.25.52.
+
 ## [0.25.51] — October 20, 2026
 
 <!-- assembled from 1 changeset: f46b34492ea1 -->
