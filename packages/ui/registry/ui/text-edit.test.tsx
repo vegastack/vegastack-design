@@ -3567,6 +3567,27 @@ test("headingLinkHref: the hovered heading's # sits in the gutter before its tex
   );
 });
 
+test("behind a modal (an inert subtree) the editor's floating layer hides; an editor in a modal keeps its own live", async () => {
+  const screen = await render(
+    <div data-testid="page">
+      <TextEdit aria-label="Doc" defaultValue="<p>One</p><p>Two</p>" />
+    </div>,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror p")).not.toBeNull(),
+  );
+  const layer = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-layer"]')!;
+  await vi.waitFor(() => expect(layer()).not.toBeNull());
+  expect(layer().hidden).toBe(false);
+  // A portal to Base UI: a modal's outside-marking leaves the layer itself alone.
+  expect(layer().hasAttribute("data-base-ui-portal")).toBe(true);
+  (screen.getByTestId("page").element() as HTMLElement).inert = true;
+  await vi.waitFor(() => expect(layer().hidden).toBe(true));
+  (screen.getByTestId("page").element() as HTMLElement).inert = false;
+  await vi.waitFor(() => expect(layer().hidden).toBe(false));
+});
+
 test("sectionMarks: a block turned into another kind keeps its section's bar", async () => {
   const screen = await render(
     <TextEdit

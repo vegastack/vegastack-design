@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-k/MQMjrTmiGVLEx0H4Ia3BWwyUsR0lvRJwSJwWj90jE=
+// @vegastack text-edit@0.25.50 sha256-O6Q/gsvtRPp4uGqPUoC46UbG4AuGVQ5iuWO528XUp68=
 
 "use client";
 
@@ -4540,20 +4540,51 @@ const FLOATING_SLOTS =
  * "+" bars, drop line; the slash and mention menus are `SuggestionMenu`, which portals itself):
  * `<body>`, so no overflow container clips it, with the theme scope restored on a
  * `display: contents` wrapper. While a modal (a Dialog or Sheet opened over the editor) holds the
- * page `inert`, the layer is hidden with it, so no toolbar floats over the modal's backdrop.
+ * editor `inert`, the layer hides, so nothing floats over the modal's backdrop.
  */
 function FloatingLayer({ children }: { children: React.ReactNode }) {
   const themeScope = useInternalThemeScope();
+  const behindModal = React.useContext(BehindModalContext);
   if (typeof document === "undefined") return null;
   return createPortal(
+    // `data-base-ui-portal`: a modal opened later marks the page's other `<body>` children inert,
+    // but never a portal — so the floating parts of an editor INSIDE that modal stay live. Behind
+    // a modal they hide (`BehindModalContext`).
     <div
       data-slot="text-edit-layer"
-      className={cn("contents inert:hidden", themeScope)}
+      data-base-ui-portal=""
+      hidden={behindModal}
+      className={cn("contents", themeScope)}
     >
       {children}
     </div>,
     document.body,
   );
+}
+
+/** The editor sits behind a modal (inside an `inert` subtree): its floating parts hide. */
+const BehindModalContext = React.createContext(false);
+
+/**
+ * Whether `element` is inside an `inert` subtree now — a modal Dialog or Sheet opened over it.
+ * Watches `inert` across the document, which a modal toggles on the page's other `<body>`
+ * children as it opens and closes.
+ */
+function useBehindModal(element: HTMLElement | null | undefined): boolean {
+  const [behind, setBehind] = React.useState(false);
+  React.useEffect(() => {
+    if (!element) return;
+    const read = () => setBehind(element.closest("[inert]") !== null);
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["inert"],
+      subtree: true,
+    });
+    return () => observer.disconnect();
+  }, [element]);
+  return behind;
 }
 
 /** Floating parts keep this far from the viewport's edges. */
@@ -10262,8 +10293,16 @@ export function TextEditEditor({
       );
   }, [editor, panel, caretInLink, menuKeys, showBubble]);
 
+  // Behind a modal (a Dialog or Sheet opened over the editor) nothing of the editor floats over its
+  // backdrop: the bubble toolbar and every floating layer hide.
+  const [editorDom, setEditorDom] = React.useState<HTMLElement | null>(null);
+  React.useEffect(() => {
+    setEditorDom(editor && !editor.isDestroyed ? editor.view.dom : null);
+  }, [editor]);
+  const behindModal = useBehindModal(editorDom);
+
   return (
-    <>
+    <BehindModalContext.Provider value={behindModal}>
       {(editable || canComment) && editor ? (
         <BubbleMenu
           ref={bubbleRef}
@@ -10273,7 +10312,9 @@ export function TextEditEditor({
           options={bubbleOptions}
           getReferencedVirtualElement={bubbleReference}
           shouldShow={showBubble}
-          className={cn("z-50", themeScope)}
+          // A portal to Base UI (see `FloatingLayer`): a modal around the editor leaves it live.
+          data-base-ui-portal=""
+          className={cn("z-50", themeScope, behindModal && "hidden")}
         >
           <SelectionMenu
             editor={editor}
@@ -10432,6 +10473,6 @@ export function TextEditEditor({
       >
         <EditorContent editor={editor} />
       </div>
-    </>
+    </BehindModalContext.Provider>
   );
 }

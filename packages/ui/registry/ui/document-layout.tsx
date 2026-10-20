@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.50 sha256-j74+K+2YbTSP0B4G0dIBmL9wxzq12Dx11FpHXWeRy4c=
+// @vegastack document-layout@0.25.50 sha256-gm2I9xRHkYob15eIhDLJfMsKfH6K1daiCs5+VPmILCk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -63,8 +63,9 @@ const GRID = cn(
   "data-margin:@min-[52rem]/document-layout:[--document-layout-margin:20rem]",
   // With room for a margin's width on BOTH sides (74rem), the text column sits in the middle of
   // the canvas and the margin hangs to its right — not the text and margin centred as a pair, which
-  // reads as text pushed off-centre while the margin is still empty. Wide fills the room instead.
-  "data-margin:data-[measure=document]:@min-[74rem]/document-layout:ps-[calc(--spacing(10)+var(--document-layout-margin))]",
+  // reads as text pushed off-centre while the margin is still empty. Wide fills the room instead;
+  // paper never gets it (the margin does not print).
+  "not-print:data-margin:data-[measure=document]:@min-[74rem]/document-layout:ps-[calc(--spacing(10)+var(--document-layout-margin))]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",
