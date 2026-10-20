@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.53
+
+### Patch Changes
+
+- [#683](https://github.com/vegastack/vegastack-design/pull/683) [`ac4dd66`](https://github.com/vegastack/vegastack-design/commit/ac4dd66a242760e50798720462a970fe21c1a10f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **TextEdit**, **MarkdownView**: an image's caption is its Markdown title (`![alt](src "caption")`) — the toolbar's **Caption** edits it, `TextEdit` shows it under the image and `MarkdownView` renders a `figure` with a `figcaption` (no tooltip); Notion paste maps its to-do lists to checklists and its callouts (`figure.callout`, `aside`, and Markdown's `<aside>`) to callouts; the editor hands Tiptap stable `editorProps`, so inserting a callout or a code block no longer logs React's "flushSync was called from inside a lifecycle method" (and the view is no longer re-propped on every render).
+
 ## 0.25.52
 
 ### Patch Changes
