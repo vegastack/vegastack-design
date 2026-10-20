@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.57
+
+### Patch Changes
+
+- [#693](https://github.com/vegastack/vegastack-design/pull/693) [`b390bb3`](https://github.com/vegastack/vegastack-design/commit/b390bb3781c7a111178e575715b425424a31efb0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DataList**: a reorder seam is the row's only cue — while `data-drop-edge` shows, the row drops its hover, keyboard-cursor and selection washes, and the 2px line paints above the next row's cells, so a place between rows never reads as the "into this row" wash.
+
 ## 0.25.56
 
 ### Patch Changes

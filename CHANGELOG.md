@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.57] — October 20, 2026
+
+<!-- assembled from 1 changeset: a94cf8904d39 -->
+
+### 🔧 Changed components
+
+- **DataList**: a reorder seam is the row's only cue — while `data-drop-edge` shows, the row drops its hover, keyboard-cursor and selection washes, and the 2px line paints above the next row's cells, so a place between rows never reads as the "into this row" wash.
+  [`b390bb3`](https://github.com/VegaStack/vegastack-design/commit/b390bb3)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.56 → 0.25.57.
+
 ## [0.25.56] — October 20, 2026
 
 <!-- assembled from 1 changeset: 3f56ae54285d -->
