@@ -1,4 +1,4 @@
-// @vegastack reactions@0.25.55 sha256-jWsiHQE5apiLcaRWm8OclJysYrZ/AIg99r1KdOHjvFQ=
+// @vegastack reactions@0.25.56 sha256-58NbfUIyNCnfyz++/Bv7cOMXhsnMaSo7AniJdeS98Ag=
 
 "use client";
 

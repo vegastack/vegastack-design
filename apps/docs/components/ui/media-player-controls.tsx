@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.25.55 sha256-4t42V5mW1zi64MKLMfBDNeN/t/AYB3iq9ni/W5yT9M0=
+// @vegastack media-player-controls@0.25.56 sha256-9Dsu+cSoTF/0VqNGy18S5L6M8I9+I1qyNriUWyhS5LU=
 
 "use client";
 
