@@ -17921,7 +17921,7 @@
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.25.53",
-        "integrity": "sha256-bkoNMd1zzf7Zi4osSDvGq0l7EB5HOeoHwZcSAV2N1Xg="
+        "integrity": "sha256-+/VcPDRm1SyzkEDxHiqHnjMFcz+cisAxoKxaC4g9pQE="
       },
       "registryDependencies": [
         "@vegastack/skeleton"

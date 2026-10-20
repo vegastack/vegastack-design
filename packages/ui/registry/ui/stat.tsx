@@ -1,4 +1,4 @@
-// @vegastack stat@0.25.53 sha256-bkoNMd1zzf7Zi4osSDvGq0l7EB5HOeoHwZcSAV2N1Xg=
+// @vegastack stat@0.25.53 sha256-+/VcPDRm1SyzkEDxHiqHnjMFcz+cisAxoKxaC4g9pQE=
 
 "use client";
 
@@ -166,8 +166,17 @@ export function StatSkeleton({ size = "md", className }: StatSkeletonProps) {
       data-size={size}
       className={cn("flex min-w-0 flex-col gap-1", className)}
     >
-      <Skeleton className="h-3 w-16" />
-      <Skeleton className={size === "lg" ? "h-7 w-14" : "h-4 w-12"} />
+      {/* Each bar sits in the line box of the text it stands in for (the label's 16px, the
+          value's 20px or 32px), so a stat is exactly as tall loading as loaded. */}
+      <div data-slot="stat-skeleton-label" className="flex h-4 items-center">
+        <Skeleton className="h-3 w-16" />
+      </div>
+      <div
+        data-slot="stat-skeleton-value"
+        className={cn("flex items-center", size === "lg" ? "h-8" : "h-5")}
+      >
+        <Skeleton className={size === "lg" ? "h-7 w-14" : "h-4 w-12"} />
+      </div>
     </div>
   );
 }
