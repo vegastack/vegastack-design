@@ -98,8 +98,11 @@ publishing on: confirm what it will expose in an `AlertDialog` ("Publish 13 page
 `false` to leave it off. `audience` adds a "Who can see this" section at the end of the Share tab,
 closed at first; its heading takes `audienceCount` once known, and `onAudienceOpenChange` tells the
 host when to load its rows. `publicLinkOptions` adds the host's own settings for a published link
-under its expiry — what the link shows, say ("Link shows: Latest version | Approved version") — for
-a viewer who can publish.
+as rows of the Publish tab's settings grid under Expires — each a label then its control, two
+children in a fragment, so they line up — what the link shows, say ("Link shows: Latest version |
+Approved version"), for a viewer who can publish. While published, the Publish tab's footer says
+what stays private and holds **Stop publishing**, in the same box as the Share tab's footer, so
+switching tabs never resizes the dialog.
 
 <ComponentPreview
   name="shareDialogExposure"

@@ -245,7 +245,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.50",
-        "integrity": "sha256-vIlITaCjNJzCyBRYF1ByEAUX+iVirNhnEvDeMIPX1do="
+        "integrity": "sha256-j74+K+2YbTSP0B4G0dIBmL9wxzq12Dx11FpHXWeRy4c="
       }
     },
     {
@@ -18322,7 +18322,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.50",
-        "integrity": "sha256-/BAZverr9XQZ4Pb97FFDEzPEdeXIv1rVVOGst12pfgs="
+        "integrity": "sha256-k/MQMjrTmiGVLEx0H4Ia3BWwyUsR0lvRJwSJwWj90jE="
       }
     },
     {
@@ -19139,7 +19139,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.50",
-        "integrity": "sha256-AlAR8WZuBn9Icpdckwofm/nZWL9Hrdq4fqmuXENEMEE="
+        "integrity": "sha256-qK8fPoQBvOumUIYuyw/oNSiqHoDu4MKY6ErbZ5Cg5zQ="
       }
     },
     {

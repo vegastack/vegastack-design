@@ -241,6 +241,18 @@ test("the contents rail takes no column: the text sits where it does without one
   }
 });
 
+test("with room for a margin on both sides the text column sits in the middle; the margin hangs to its right", async () => {
+  await page.viewport(1440, 900);
+  await render(<Page width={1400} />);
+  const body = slot("document-layout-body").getBoundingClientRect();
+  const layout = slot("document-layout").getBoundingClientRect();
+  const margin = slot("document-layout-margin").getBoundingClientRect();
+  expect(
+    Math.abs(body.left + body.width / 2 - (layout.left + layout.width / 2)),
+  ).toBeLessThanOrEqual(1);
+  expect(margin.left).toBeGreaterThanOrEqual(body.right);
+});
+
 test("Wide grows the text column into the room the window has, up to 60rem", async () => {
   await page.viewport(1440, 900);
   await render(<Page width={1400} measure="wide" />);

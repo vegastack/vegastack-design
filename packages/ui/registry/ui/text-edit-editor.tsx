@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.50 sha256-/BAZverr9XQZ4Pb97FFDEzPEdeXIv1rVVOGst12pfgs=
+// @vegastack text-edit@0.25.50 sha256-k/MQMjrTmiGVLEx0H4Ia3BWwyUsR0lvRJwSJwWj90jE=
 
 "use client";
 
@@ -4539,13 +4539,17 @@ const FLOATING_SLOTS =
  * The one portal the editor's own floating parts render through (drag handle, table grips and
  * "+" bars, drop line; the slash and mention menus are `SuggestionMenu`, which portals itself):
  * `<body>`, so no overflow container clips it, with the theme scope restored on a
- * `display: contents` wrapper.
+ * `display: contents` wrapper. While a modal (a Dialog or Sheet opened over the editor) holds the
+ * page `inert`, the layer is hidden with it, so no toolbar floats over the modal's backdrop.
  */
 function FloatingLayer({ children }: { children: React.ReactNode }) {
   const themeScope = useInternalThemeScope();
   if (typeof document === "undefined") return null;
   return createPortal(
-    <div data-slot="text-edit-layer" className={cn("contents", themeScope)}>
+    <div
+      data-slot="text-edit-layer"
+      className={cn("contents inert:hidden", themeScope)}
+    >
       {children}
     </div>,
     document.body,

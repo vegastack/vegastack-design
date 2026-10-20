@@ -63,7 +63,12 @@ test("share-dialog Publish: only the switch publishes; then copy, reset, expiry 
   await expect
     .element(dialog.getByRole("textbox", { name: "Public link" }))
     .toHaveValue("https://app.acme.com/s/Pw7mT4c");
-  await dialog.getByRole("button", { name: "Stop publishing" }).click();
+  // Stop publishing sits in the Publish tab's own footer, with what stays private.
+  const stop = dialog.getByRole("button", { name: "Stop publishing" });
+  expect(
+    stop.element().closest('[data-slot="share-publish-footer"]')?.textContent,
+  ).toContain("Comments and version history stay private.");
+  await stop.click();
   const confirm = screen.getByRole("alertdialog", { name: "Stop publishing?" });
   await expect.element(confirm).toBeVisible();
   await confirm.getByRole("button", { name: "Stop publishing" }).click();
