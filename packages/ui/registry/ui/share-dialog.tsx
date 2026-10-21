@@ -1238,8 +1238,13 @@ export function ShareDialog({
           <ResponsiveDialogBody>
             {/* Both panels stay mounted in ONE grid cell, the inactive one invisible and inert, so
                 the body is always as tall as the taller panel and switching tabs never resizes
-                the dialog or the sheet. */}
-            <div ref={panelsRef} data-slot="share-panels" className="grid">
+                the dialog or the sheet. The cell's track may shrink below its content's widest
+                line (`grid-cols-1`): at 320px the rows wrap instead of running off the sheet. */}
+            <div
+              ref={panelsRef}
+              data-slot="share-panels"
+              className="grid grid-cols-1"
+            >
               <TabsContent
                 value="share"
                 keepMounted

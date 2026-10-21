@@ -6530,10 +6530,15 @@ test("embeds: inserting a video link puts the caret on a line after the embed â€
   const box = screen.getByRole("textbox", { name: "Notes" });
   await box.click();
   await userEvent.keyboard(`${END}{Enter}/youtube{Enter}`);
-  await vi.waitFor(() =>
-    expect(document.querySelector('[aria-label="Video URL"]')).not.toBeNull(),
-  );
-  await userEvent.keyboard(`${YOUTUBE}{Enter}`);
+  const videoField = await vi.waitFor(() => {
+    const field = document.querySelector<HTMLInputElement>(
+      '[aria-label="Video URL"]',
+    );
+    expect(field).not.toBeNull();
+    return field!;
+  });
+  // Typed into the field itself: its focus arrives a frame after it shows.
+  await userEvent.type(videoField, `${YOUTUBE}{Enter}`);
   await vi.waitFor(() =>
     expect(
       box.element().querySelector('[data-slot="markdown-embed"]'),
@@ -6592,10 +6597,14 @@ test("image: inserted by link into an empty list item, the caret moves past it â
   const box = screen.getByRole("textbox", { name: "Notes" });
   await box.click();
   await userEvent.keyboard(`${END}{Enter}/image{Enter}`);
-  await vi.waitFor(() =>
-    expect(document.querySelector('[aria-label="Image URL"]')).not.toBeNull(),
-  );
-  await userEvent.keyboard("/files/pic.png{Enter}");
+  const imageField = await vi.waitFor(() => {
+    const field = document.querySelector<HTMLInputElement>(
+      '[aria-label="Image URL"]',
+    );
+    expect(field).not.toBeNull();
+    return field!;
+  });
+  await userEvent.type(imageField, "/files/pic.png{Enter}");
   await vi.waitFor(() =>
     expect(
       box.element().querySelector('img[src="/files/pic.png"]'),
