@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.61 sha256-Oakn0p6zWUxZdPcUoY6ptUCegdp1FtwRr0Y6btF20bM=
+// @vegastack text-edit@0.25.61 sha256-5fQq00WqrJ0765OyDQfFFM6PjKDqbIeq+YvyzoxMBdo=
 
 "use client";
 
@@ -114,11 +114,13 @@ export interface MentionOption {
 
 /** The `@` menu's source: which kinds it offers, and the search behind it. */
 export interface TextEditMentions {
-  /** The kinds the menu offers, grouped in the order People · Pages · Files · Tasks. */
+  /** The kinds the menu offers, grouped in `MENTION_KINDS` order (People · Pages · Files · …). */
   kinds: readonly MentionKind[];
   /**
-   * Results for what follows the `@` (debounced 150ms). The signal aborts when the query
-   * changes; the menu shows at most five per kind.
+   * Results for what follows the `@`: asked at once when the menu opens, then 120ms after the
+   * last keystroke. The signal aborts when the query changes; an answer is kept per query and
+   * shown at once when the query comes back (asked again after 30 seconds). The menu shows at
+   * most five per kind.
    */
   search: (
     query: string,

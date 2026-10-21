@@ -3,6 +3,7 @@
  * editor menus that open it (TextEdit's slash and mention menus, TemplateEditor's picker).
  */
 
+import "../../test/geometry.css"; // compiled Tailwind + @vegastack token theme
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
@@ -255,4 +256,49 @@ test("suggestionMenuKeyDown: arrows wrap, Enter and Tab pick, Escape closes and 
   expect(suggestionMenuKeyDown(key("ArrowDown"), held)).toBe(true);
   expect(suggestionMenuKeyDown(key("Enter"), held)).toBe(true);
   expect(suggestionMenuKeyDown(key("Tab"), held)).toBe(false);
+});
+
+test("loading with no rows shows placeholder rows as tall as the list grows; a search in flight never shrinks the menu", async () => {
+  const many: SuggestionMenuOption[] = Array.from({ length: 10 }, (_, at) => ({
+    key: `o${at}`,
+    label: `Option ${at}`,
+    description: "meta",
+    group: at < 5 ? "People" : "Pages",
+  }));
+  const screen = await render(<Menu options={[]} loading />);
+  const menu = () =>
+    document.querySelector<HTMLElement>('[data-slot="suggestion-menu"]')!;
+  const height = () => menu().getBoundingClientRect().height;
+  expect(
+    menu().querySelector('[data-slot="suggestion-menu-skeleton"]'),
+  ).not.toBeNull();
+  // Nothing to choose yet: no listbox, and nothing announced.
+  expect(menu().getAttribute("role")).toBeNull();
+  expect(menu().textContent).toBe("");
+  const opened = height();
+  expect(opened).toBeGreaterThan(200);
+
+  // The first answer lands in the same box.
+  await screen.rerender(<Menu options={many} />);
+  expect(rows()).toHaveLength(10);
+  expect(height()).toBe(opened);
+
+  // The next search narrows the rows while it runs: the box holds until it answers.
+  await screen.rerender(<Menu options={many.slice(0, 1)} loading />);
+  expect(height()).toBe(opened);
+  await screen.rerender(<Menu options={many.slice(0, 1)} />);
+  const short = height();
+  expect(short).toBeLessThan(opened);
+
+  // Nothing left that matches while the next search runs: placeholder rows in the same box.
+  await screen.rerender(<Menu options={[]} loading />);
+  expect(
+    menu().querySelector('[data-slot="suggestion-menu-skeleton"]'),
+  ).not.toBeNull();
+  expect(height()).toBe(short);
+  const region = document.querySelector(
+    '[data-slot="suggestion-menu-layer"] > [role="status"]',
+  )!;
+  await vi.waitFor(() => expect(region.textContent).toBe("Searching…"));
+  await expectNoA11yViolations(document.body);
 });

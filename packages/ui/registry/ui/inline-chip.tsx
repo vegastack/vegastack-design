@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.61 sha256-4PTDRSSUdNC4GpxkNYujIC41ams6SdQYm+hF43N/uIg=
+// @vegastack inline-chip@0.25.61 sha256-05McyFsTwP/XrsI/dD1g4yiVbxI+uxg5aMuR0GFpYls=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   CircleCheck,
   FileText,
   FolderKanban,
+  Layers,
   ListTodo,
   Package,
   UserRound,
@@ -28,10 +29,10 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * InlineChip — the one inline reference in running text: a person, page, file, task, meeting,
- * customer, project or product, in an editor, a rendered Markdown body or a comment. It is an INLINE box,
- * never inline-flex: an inline-flex box whose first item is an icon takes its baseline from the
- * icon's bottom edge, which lifts the label above the text beside it. Here the label is ordinary
- * inline text on the line's own baseline, the icon is a 1em glyph nudged down by the usual
+ * customer, project, product or product family, in an editor, a rendered Markdown body or a
+ * comment. It is an INLINE box, never inline-flex: an inline-flex box whose first item is an icon
+ * takes its baseline from the icon's bottom edge, which lifts the label above the text beside it.
+ * Here the label is ordinary inline text on the line's own baseline, the icon is a 1em glyph nudged down by the usual
  * `-0.125em`, and the tint is the inline box's own background — so the chip reads at the size,
  * baseline and line height of whatever it sits in (a paragraph, a heading, a list item) and wraps
  * with it (`box-decoration-clone` keeps the ground and padding on both lines).
@@ -47,6 +48,7 @@ export type InlineChipKind =
   | "customer"
   | "project"
   | "product"
+  | "family"
   | "agent";
 
 /** Every inline chip kind, in menu order. */
@@ -59,6 +61,7 @@ export const INLINE_CHIP_KINDS: readonly InlineChipKind[] = [
   "customer",
   "project",
   "product",
+  "family",
   "agent",
 ];
 
@@ -160,6 +163,7 @@ const KIND_ICON: Record<InlineChipKind, LucideIcon> = {
   customer: Building2,
   project: FolderKanban,
   product: Package,
+  family: Layers,
   agent: Bot,
 };
 
@@ -173,30 +177,21 @@ export const INLINE_CHIP_KIND_LABEL: Record<InlineChipKind, string> = {
   customer: "Customer",
   project: "Project",
   product: "Product",
+  family: "Family",
   agent: "Agent",
 };
 
 /**
- * Each kind's soft ground and ink, from the tag hues: people blue, tasks green, meetings orange,
- * customers purple, projects cyan, products magenta, agents purple (the agent hue everywhere — `PersonAvatar`'s bot);
- * pages and files on the neutral muted ground. A restricted chip
- * is muted whatever its kind.
+ * Each kind's ground and ink. A person is the one coloured chip (the tag blue, as on every person
+ * surface); every record — a page, file, task, meeting, customer, project, product, family or
+ * agent — wears the same neutral page chip and is told apart by its icon alone, so a paragraph of
+ * references reads as text rather than a legend. A restricted chip is muted whatever its kind.
  */
-const KIND_TONE: Record<InlineChipKind, string> = {
-  user: "bg-tag-blue-subtle [--inline-chip-ink:var(--color-tag-blue-text)]",
-  page: "bg-muted [--inline-chip-ink:var(--color-foreground)]",
-  file: "bg-muted [--inline-chip-ink:var(--color-foreground)]",
-  task: "bg-tag-green-subtle [--inline-chip-ink:var(--color-tag-green-text)]",
-  meeting:
-    "bg-tag-orange-subtle [--inline-chip-ink:var(--color-tag-orange-text)]",
-  customer:
-    "bg-tag-purple-subtle [--inline-chip-ink:var(--color-tag-purple-text)]",
-  project: "bg-tag-cyan-subtle [--inline-chip-ink:var(--color-tag-cyan-text)]",
-  product:
-    "bg-tag-magenta-subtle [--inline-chip-ink:var(--color-tag-magenta-text)]",
-  agent:
-    "bg-tag-purple-subtle [--inline-chip-ink:var(--color-tag-purple-text)]",
-};
+const PERSON_TONE =
+  "bg-tag-blue-subtle [--inline-chip-ink:var(--color-tag-blue-text)]";
+const RECORD_TONE = "bg-muted [--inline-chip-ink:var(--color-foreground)]";
+const toneOf = (kind: InlineChipKind) =>
+  kind === "user" ? PERSON_TONE : RECORD_TONE;
 
 /**
  * The chip's box: inline, padded 4px each side, the small radius, cloned on a wrap. It never
@@ -237,7 +232,7 @@ export const inlineChipProseClassName =
 
 /** The ground, ink, padding and radius of a chip of `kind` — for a chip the app cannot make an `InlineChip` (a link mark in an editor). */
 export function inlineChipClassName(kind: InlineChipKind): string {
-  return cn(CHIP, KIND_TONE[kind]);
+  return cn(CHIP, toneOf(kind));
 }
 
 /** Props accepted by `InlineChip`. */
@@ -245,7 +240,7 @@ export interface InlineChipProps extends Omit<
   React.ComponentPropsWithRef<"span">,
   "children" | "onClick"
 > {
-  /** What the chip points at; picks the icon and the tint. */
+  /** What the chip points at; picks the icon (and, for a person, the blue ground). */
   kind: InlineChipKind;
   /** The name shown. */
   label: string;
@@ -346,9 +341,10 @@ function safeUrl(value: string): string {
 }
 
 /**
- * `InlineChip` — a person, page, file, task, meeting, customer, project or product referenced inline. It
- * sits on the text's baseline at the text's size, tinted by kind. A person chip previews the
- * person (avatar, name, email) on hover or focus; any other chip previews what `preview` returns
+ * `InlineChip` — a person, page, file, task, meeting, customer, project, product or family
+ * referenced inline. It sits on the text's baseline at the text's size: a person on blue, every
+ * record on the one neutral ground with its kind's icon. A person chip previews the person
+ * (avatar, name, email) on hover or focus; any other chip previews what `preview` returns
  * and opens on click (`onOpen`, else its `href`), with ⌘/Ctrl-click opening a link in a new tab.
  *
  * @example
@@ -472,7 +468,7 @@ export function InlineChip({
     "data-done": kind === "task" && done ? "" : undefined,
     "data-interactive": opens || person ? "" : undefined,
     spellCheck: false,
-    className: cn(CHIP, KIND_TONE[kind], className),
+    className: cn(CHIP, toneOf(kind), className),
     ...props,
   };
   // The lead and the first word sit in a no-wrap run, so the line never breaks between them. A

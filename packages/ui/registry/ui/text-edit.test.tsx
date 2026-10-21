@@ -1646,8 +1646,8 @@ const png = () =>
     type: "image/png",
   });
 
-test("mentions: @as searches once after the debounce, Enter inserts a chip, Backspace removes it whole, Escape closes", async () => {
-  const search = vi.fn(async (): Promise<MentionOption[]> => [
+test("mentions: the menu asks at once, then once after the debounce; Enter inserts a chip, Backspace removes it whole, Escape closes", async () => {
+  const search = vi.fn(async (_query: string): Promise<MentionOption[]> => [
     { kind: "user", id: "u1", label: "Asha Rao" },
     { kind: "page", id: "p1", label: "Assembly notes" },
     { kind: "task", id: "t1", label: "Not offered" },
@@ -1660,12 +1660,17 @@ test("mentions: @as searches once after the debounce, Enter inserts a chip, Back
   await screen.getByRole("textbox", { name: "Notes" }).click();
   await userEvent.keyboard("@as");
   await vi.waitFor(() =>
+    expect(search).toHaveBeenLastCalledWith("as", {
+      signal: expect.any(AbortSignal),
+    }),
+  );
+  await vi.waitFor(() =>
     expect(mentionMenu()?.textContent).toContain("Asha Rao"),
   );
-  expect(search).toHaveBeenCalledTimes(1);
-  expect(search).toHaveBeenCalledWith("as", {
-    signal: expect.any(AbortSignal),
-  });
+  // The opening query goes out at once; the keystrokes after it collapse into one search.
+  expect(
+    search.mock.calls.map(([query]) => query).filter((query) => query !== ""),
+  ).toEqual(["as"]);
   // Grouped People · Pages; a kind the prop does not enable is never offered.
   const groups = [...mentionMenu()!.querySelectorAll('[role="group"]')];
   expect(groups.map((group) => group.firstElementChild?.textContent)).toEqual([
@@ -2959,6 +2964,91 @@ test("mentions: `@Asha Rao` searches the whole name; two spaces close the menu (
   );
   await userEvent.keyboard("@a  ");
   await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+});
+
+test("mentions: placeholder rows until the first answer; a query asked before shows at once", async () => {
+  let answer!: (options: MentionOption[]) => void;
+  const search = vi.fn((query: string): Promise<MentionOption[]> =>
+    query === ""
+      ? new Promise((resolve) => {
+          answer = resolve;
+        })
+      : Promise.resolve([{ kind: "family", id: "f1", label: "Linear" }]),
+  );
+  const screen = await markdownEditor({
+    mentions: { kinds: ["user", "family"], search },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(
+      mentionMenu()?.querySelector('[data-slot="suggestion-menu-skeleton"]'),
+    ).not.toBeNull(),
+  );
+  // No listbox until there are options: only the rows' shape.
+  expect(mentionMenu()!.getAttribute("role")).toBeNull();
+  answer(
+    Array.from({ length: 10 }, (_, at) => ({
+      kind: at < 5 ? ("user" as const) : ("family" as const),
+      id: `id${at}`,
+      label: `Option ${at}`,
+    })),
+  );
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.getAttribute("role")).toBe("listbox"),
+  );
+  expect(
+    [...mentionMenu()!.querySelectorAll('[role="group"]')].map(
+      (group) => group.firstElementChild?.textContent,
+    ),
+  ).toEqual(["People", "Families"]);
+
+  await userEvent.keyboard("lin");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Linear"),
+  );
+  const asked = search.mock.calls.length;
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+  await userEvent.keyboard(" @lin");
+  // Shown from this editor's answers before any search could answer.
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Linear"),
+  );
+  expect(search.mock.calls.slice(asked).map(([query]) => query)).not.toContain(
+    "lin",
+  );
+});
+
+test("mentions: a remembered empty answer for a phrase past a space closes the menu again, pasted or typed", async () => {
+  const search = vi.fn(async (_query: string): Promise<MentionOption[]> => []);
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: { kinds: ["user"], search },
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard("@nobody ");
+  await vi.waitFor(() =>
+    expect(search).toHaveBeenLastCalledWith("nobody ", {
+      signal: expect.any(AbortSignal),
+    }),
+  );
+  await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+  const asked = search.mock.calls.length;
+  // The same phrase again, all at once: answered from memory, and the menu closes cleanly.
+  pasteData(box.element(), { "text/plain": "@nobody " });
+  await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  expect(mentionMenu()).toBeNull();
+  expect(search.mock.calls.slice(asked).map(([query]) => query)).not.toContain(
+    undefined,
+  );
+  await userEvent.keyboard("{Enter}x");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(/^@nobody @nobody\s*\n\nx$/),
+  );
 });
 
 /* --- uploads pending (A7) ---------------------------------------------------------------------*/

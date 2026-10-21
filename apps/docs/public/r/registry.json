@@ -1990,7 +1990,7 @@
         "version": "0.25.61",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-VkVE9EP69t7Z0V+EsqulG1NjB/E0N+MWYyciqQaMG9A="
+        "integrity": "sha256-dUS2G6lwTIPTogc+UO3SmQ2b1omt3pkzdWWOVlHJWJA="
       }
     },
     {
@@ -2495,6 +2495,7 @@
         "@vegastack/design-tokens@^0.8.12"
       ],
       "registryDependencies": [
+        "@vegastack/skeleton",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -2508,7 +2509,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.25.61",
-        "integrity": "sha256-Ol+qRohoqkgtOgOywymNd75dOhizVojwLLn9km3wxjQ="
+        "integrity": "sha256-6TMJ/hlbsd3oBmMe+wKbZTZvpZ7yMbNEcBNgpKPIxoA="
       }
     },
     {
@@ -16157,7 +16158,7 @@
       "name": "inline-chip",
       "type": "registry:ui",
       "title": "Inline Chip",
-      "description": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "description": "The one inline reference in running text — a person, page, file, task, meeting, customer, project, product or family — on the text's baseline at its size, a person in blue and every record neutral with its kind's icon; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
       "categories": [
         "data-display"
       ],
@@ -16184,7 +16185,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.61",
-        "integrity": "sha256-4PTDRSSUdNC4GpxkNYujIC41ams6SdQYm+hF43N/uIg="
+        "integrity": "sha256-05McyFsTwP/XrsI/dD1g4yiVbxI+uxg5aMuR0GFpYls="
       }
     },
     {
@@ -18322,7 +18323,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.61",
-        "integrity": "sha256-Oakn0p6zWUxZdPcUoY6ptUCegdp1FtwRr0Y6btF20bM="
+        "integrity": "sha256-5fQq00WqrJ0765OyDQfFFM6PjKDqbIeq+YvyzoxMBdo="
       }
     },
     {
