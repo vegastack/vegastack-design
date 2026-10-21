@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.61 sha256-+jEWe7wGvL3FCwlc2+dDtUIURV50ltiotnbGKZMjIJg=
+// @vegastack text-edit@0.25.61 sha256-Oakn0p6zWUxZdPcUoY6ptUCegdp1FtwRr0Y6btF20bM=
 
 "use client";
 
@@ -7548,6 +7548,9 @@ function HeadingLink({
 }) {
   const hover = useHover<number>((a, b) => a === b);
   const [caret, setCaret] = React.useState<number | null>(null);
+  // While the page scrolls the link hides (a hover under a still pointer would otherwise ride
+  // along with a heading the pointer has left); it comes back a beat after the scroll ends.
+  const [scrolling, setScrolling] = React.useState(false);
   const [, redraw] = React.useReducer((n: number) => n + 1, 0);
   const coarse = useCoarsePointer();
 
@@ -7573,10 +7576,21 @@ function HeadingLink({
           : null,
       );
     };
-    const onScroll = () => redraw();
-    // The text above moved (an embed, a collaborator's edit): the button follows its heading.
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      setScrolling(true);
+      clearTimeout(settle);
+      settle = setTimeout(() => setScrolling(false), 150);
+    };
+    // The text changed (a collaborator's edit, an embed, typing in the heading): a hovered
+    // position may name another block now, so the hover is dropped until the pointer moves; the
+    // caret's heading is re-read, and the link redraws — its label, its URL and, after the text
+    // on a coarse pointer, its place follow the heading's new text.
     const onChange = ({ transaction }: { transaction: Transaction }) => {
-      if (transaction.docChanged) redraw();
+      if (!transaction.docChanged) return;
+      hover.show(null);
+      onSelection();
+      redraw();
     };
     editor.on("transaction", onChange);
     dom.addEventListener("mousemove", onMove);
@@ -7589,6 +7603,7 @@ function HeadingLink({
       passive: true,
     });
     return () => {
+      clearTimeout(settle);
       dom.removeEventListener("mousemove", onMove);
       dom.removeEventListener("mouseleave", hover.hideSoon);
       editor.off("selectionUpdate", onSelection);
@@ -7599,7 +7614,28 @@ function HeadingLink({
     };
   }, [editor, hover.show, hover.hideSoon]);
 
-  const pos = hover.value ?? caret;
+  const shown = scrolling ? null : (hover.value ?? caret);
+  // While it shows, the link follows its heading wherever the page moves it — a banner or an
+  // image arriving above, the margin opening, a resize — never left at stale coordinates.
+  const placed = React.useRef("");
+  React.useEffect(() => {
+    if (shown === null) return;
+    let frame = requestAnimationFrame(function follow() {
+      const dom = editor.isDestroyed ? null : editor.view.nodeDOM(shown);
+      if (dom instanceof HTMLElement) {
+        const box = dom.getBoundingClientRect();
+        const key = `${box.left},${box.top},${box.width},${box.height}`;
+        if (key !== placed.current) {
+          placed.current = key;
+          redraw();
+        }
+      }
+      frame = requestAnimationFrame(follow);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [editor, shown]);
+
+  const pos = shown;
   if (pos === null || editor.isDestroyed) return null;
   const node = editor.state.doc.nodeAt(pos);
   if (node?.type.name !== "heading" || node.content.size === 0) return null;

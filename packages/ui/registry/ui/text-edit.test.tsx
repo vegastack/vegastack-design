@@ -3586,6 +3586,92 @@ test("headingLinkHref: the hovered heading's # sits in the gutter before its tex
   );
 });
 
+test("headingLinkHref: the # follows its heading when the page moves above it, and hides while the page scrolls", async () => {
+  function Page({ banner }: { banner: boolean }) {
+    return (
+      <div>
+        {banner ? <div style={{ height: 120 }}>Banner</div> : null}
+        <TextEdit
+          aria-label="Doc"
+          defaultValue="<p>Date: today</p><h2>Pricing</h2><p>Text</p>"
+          headingLinkHref={(anchor) => `#${anchor.slug}`}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Page banner={false} />);
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror h2")).not.toBeNull(),
+  );
+  const heading = () =>
+    screen.container.querySelector<HTMLElement>(".ProseMirror h2")!;
+  await userEvent.hover(
+    screen.container.querySelector<HTMLElement>(".ProseMirror p")!,
+  );
+  await userEvent.hover(heading());
+  const link = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-heading-link"]');
+  await vi.waitFor(() => expect(link()).not.toBeNull());
+  const middle = () => {
+    const box = heading().getBoundingClientRect();
+    return box.top + box.height / 2;
+  };
+  const linkMiddle = () => {
+    const box = link()!.getBoundingClientRect();
+    return box.top + box.height / 2;
+  };
+  // The link sits on the heading's first line (the harness compiles no Tailwind, so the offset
+  // from the box's middle is whatever the line box makes it).
+  const offset = linkMiddle() - middle();
+  expect(Math.abs(offset)).toBeLessThan(12);
+  const before = heading().getBoundingClientRect().top;
+  // Content arrives above the editor: no scroll, no edit — the link still moves with its heading
+  // rather than staying beside the paragraph that now sits where the heading was.
+  await screen.rerender(<Page banner />);
+  expect(heading().getBoundingClientRect().top - before).toBe(120);
+  await vi.waitFor(() =>
+    expect(Math.abs(linkMiddle() - middle() - offset)).toBeLessThanOrEqual(1),
+  );
+  // A scroll hides it until the page settles.
+  window.dispatchEvent(new Event("scroll"));
+  await vi.waitFor(() => expect(link()).toBeNull());
+});
+
+test("headingLinkHref: the caret's heading keeps its # through scrolls and edits — hidden while scrolling, renamed as it changes", async () => {
+  const screen = await render(
+    <TextEdit
+      aria-label="Doc"
+      defaultValue="<h2>Pricing</h2><p>Text</p>"
+      headingLinkHref={(anchor) => `#${anchor.slug}`}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror h2")).not.toBeNull(),
+  );
+  const link = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-heading-link"]');
+  // The caret in the heading shows its link (no pointer involved).
+  await userEvent.click(
+    screen.container.querySelector<HTMLElement>(".ProseMirror h2")!,
+  );
+  await vi.waitFor(() => expect(link()).not.toBeNull());
+  // Scrolling hides it, each scroll restarting the wait; it comes back once the page settles.
+  window.dispatchEvent(new Event("scroll"));
+  await vi.waitFor(() => expect(link()).toBeNull());
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  window.dispatchEvent(new Event("scroll"));
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(link()).toBeNull();
+  await vi.waitFor(() => expect(link()).not.toBeNull());
+  // Typing in the heading renames the link's label at once.
+  await userEvent.keyboard("{End} plan");
+  await vi.waitFor(() =>
+    expect(link()!.getAttribute("aria-label")).toBe(
+      "Copy link to “Pricing plan”",
+    ),
+  );
+});
+
 test("a modal over the editor hides its floating layer; an editor inside the modal keeps its own live, in the modal's portal", async () => {
   function Page({ open }: { open: boolean }) {
     return (
