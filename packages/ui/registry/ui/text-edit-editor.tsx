@@ -4984,36 +4984,38 @@ function buildExtensions(
 /**
  * A key acts at the caret the reader sees. ProseMirror reads a caret the browser moved (a click,
  * an arrow key) on `selectionchange`, which the browser queues behind input already waiting: a key
- * pressed before it runs — Enter, Backspace, a shortcut — would act on the selection from before,
- * in a page opened a moment ago the start of the document (Enter there splits the first line, and
- * what follows is typed into it). So before any key is handled, a caret the editor hasn't read yet
- * is read — ProseMirror's own reading, as `selectionchange` would do it.
+ * pressed before it runs — Enter, Backspace, ⌘A, a shortcut — would act on the selection from
+ * before, in a page opened a moment ago the start of the document (Enter there splits the first
+ * line, and what follows is typed into it). So before anything handles a key, a caret the editor
+ * hasn't read yet is read — ProseMirror's own reading, as `selectionchange` would do it. A capture
+ * listener on the editor: it runs before every key handler (the editor's own props included), and
+ * only for the browser's own key events, never for a key ProseMirror replays while reading input.
  */
 const CaretFromDom = Extension.create({
   name: "textEditCaretFromDom",
-  // Before every keymap's `handleKeyDown`.
-  priority: 10_000,
   addProseMirrorPlugins() {
     return [
       new Plugin({
-        props: {
-          handleKeyDown(view) {
-            readPendingCaret(view);
-            return false;
-          },
+        view(view) {
+          const onKeyDown = (event: KeyboardEvent) => {
+            // An input method's key (229, or mid-composition): its text arrives through the DOM.
+            if (event.isComposing || event.keyCode === 229 || view.composing)
+              return;
+            if (!view.hasFocus()) return;
+            (
+              view as unknown as { domObserver?: { flush?: () => void } }
+            ).domObserver?.flush?.();
+          };
+          view.dom.addEventListener("keydown", onKeyDown, true);
+          return {
+            destroy: () =>
+              view.dom.removeEventListener("keydown", onKeyDown, true),
+          };
         },
       }),
     ];
   },
 });
-
-/** The browser's caret, if it moved since the editor last read it (never mid-composition). */
-function readPendingCaret(view: EditorView) {
-  if (view.composing || !view.hasFocus()) return;
-  (
-    view as unknown as { domObserver?: { flush?: () => void } }
-  ).domObserver?.flush?.();
-}
 
 /** Whether pasted plain text reads as markdown worth parsing rather than inserting verbatim. */
 function looksLikeMarkdown(text: string) {
