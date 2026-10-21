@@ -743,6 +743,12 @@ renders the panel expanded and a collapsed sidebar would jump on hydration. Put
 Policy. The provider starts from that mark, so hydration agrees with the screen and React warns
 about nothing.
 
+A default that depends on the window — say, collapsed on a tablet until someone opens it — goes
+in the same script: `collapsedWhen` (a media query) starts a panel nobody has opened or closed yet
+collapsed in a window it matches, and writes that start to the cookie. It is decided before the
+first paint, never by collapsing the panel after hydration, which would slide it shut and move the
+whole page. A person's own choice (the cookie) always wins.
+
 For a controlled provider, `useSidebarCookieOpen` returns `[open, setOpen]`: it starts from the
 same mark, reads the cookie after hydration when there is no mark, and its setter writes the cookie
 (`SameSite=Lax`). The controlled provider itself never writes one.
@@ -758,7 +764,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <SidebarStateScript collapsible="icon" />
+        <SidebarStateScript
+          collapsible="icon"
+          collapsedWhen="(min-width: 768px) and (max-width: 1024px)"
+        />
       </head>
       <body>{children}</body>
     </html>
