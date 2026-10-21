@@ -9,6 +9,42 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.62] — October 21, 2026
+
+<!-- assembled from 10 changesets: 16ea107a0494 -->
+
+### 🔧 Changed components
+
+- **Type ramp**: the copy tier (`text-xs`, `text-sm`, `text-base`) declares its letter-spacing as 0, so copy-size text inside heading type — a character count under a title, a badge or a meta line in a heading — no longer inherits the heading's negative tracking. Outside heading type nothing changes (body text was already 0); across every preview fixture, no other element's tracking moves.
+  [`454506c`](https://github.com/VegaStack/vegastack-design/commit/454506c)
+- **@vegastack/design**: released beside `@vegastack/design-tokens` 0.8.17 (the copy tier's zero tracking), so the preset's tokens range names that release.
+  [`4e6a569`](https://github.com/VegaStack/vegastack-design/commit/4e6a569)
+- **DocumentLayout**: meta lines under the title. `DocumentLayoutMeta` (a dotted line whose wrapped lines never start with a `·`; `variant="status"` reserves one line from `sm` and two on a phone and fits its chips — full words, then short forms longest first, then wrapping), with `DocumentLayoutMetaItem` (`icon`, `yields`), `DocumentLayoutMetaGroup` (`unit` · `flow`), `DocumentLayoutMetaField`, `DocumentLayoutMetaBadge` (`label` · `short`), `DocumentLayoutMetaWords`, `DocumentLayoutMetaButton`, `DocumentLayoutMetaLink` and `DocumentLayoutMetaSkeleton`. `DocumentLayoutContentsButton` is the floating "On this page" trigger below the M tier, and `DocumentLayoutTitle` takes `editable` (the text cursor over the row). An Add icon text button sits flush with the title.
+  [`fd223e2`](https://github.com/VegaStack/vegastack-design/commit/fd223e2)
+- **TextEdit**: stepping through Find matches no longer pops the selection toolbar over the find bar; a regular expression that doesn't compile says "Invalid pattern" (the field marked invalid) instead of "No results"; a pasted Notion callout whose icon is a lone emoji keeps no stray emoji line, and the emoji picks the tone (💡 a tip, ⚠ a warning, ❗ important, 🚫 caution, any other a note); inserting an embed, image, video or audio from its panel puts the caret on a line after it, so typing never replaces the block. **ShareDialog**: at 320px its rows wrap inside the sheet instead of running past its edge (the panels' grid track may shrink below its widest line).
+  [`a4dfb45`](https://github.com/VegaStack/vegastack-design/commit/a4dfb45)
+- **InlineChip**: a person is the one coloured chip (the tag blue); every record — page, file, task, meeting, customer, project, product, family and agent — wears the same neutral page chip and is told apart by its icon alone. Done, closed and restricted states are unchanged. A new `family` kind (a product family, the `layers` icon) joins `INLINE_CHIP_KINDS` and the Markdown grammar's `MENTION_KINDS`. **TextEdit**'s `@` menu opens on placeholder rows in its own row geometry instead of "Searching…", at the height its answer usually takes, and holds that height while a search is in flight, so rows never shift under the caret; the opening query is asked at once, later keystrokes after 120ms, and answers are kept per query so a query asked before shows instantly. Its row icons are neutral, as the chips are, and it offers "Families". **SuggestionMenu** shows placeholder rows while `loading` with nothing to show yet.
+  [`9911375`](https://github.com/VegaStack/vegastack-design/commit/9911375)
+- **ShareDialog**: Reset link asks first ("Reset the public link?"), as Stop publishing does, since the current link stops working at once. `publicLink.expiresAt` (the instant the link lapses) shows under Expires as "Until Oct 22 · 2:30 PM" in the viewer's zone, so a link opened again later says when it ends, not only the preset that was chosen.
+  [`30a4535`](https://github.com/VegaStack/vegastack-design/commit/30a4535)
+- **Sidebar**: `SidebarStateScript` takes `collapsedWhen`, a media query. With no `sidebar_state` cookie yet, a window it matches starts the panel collapsed before the first paint, and the cookie records it. A width-dependent default no longer has to collapse the panel after hydration, which slid it shut and shifted the page. A cookie (a person's own choice) always wins.
+  [`30391d7`](https://github.com/VegaStack/vegastack-design/commit/30391d7)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.8.17`** (was `0.8.12`).
+- **`@vegastack/design`** → **`0.8.17`** (was `0.8.16`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.61 → 0.25.62.
+
+### 🐛 Fixed
+
+- **TextEdit**: a heading's `#` link stays on its own heading. While it shows it follows the heading wherever the page moves it (content arriving above the editor, a resize), instead of staying at the coordinates it was drawn at — where it could sit beside a meta line or a paragraph that had moved into the heading's place. It hides while the page scrolls and returns a beat after, and a collaborator's edit drops a hovered position until the pointer moves again.
+  [`0289f34`](https://github.com/VegaStack/vegastack-design/commit/0289f34)
+- **DocumentLayout**: a `DocumentLayoutMeta` line prints (a public page's "Approved version · date" belongs on paper; hide a line with your own print rules where it doesn't), and `DocumentLayoutMetaItem` takes `nowrap`: a fact built around a `DocumentLayoutMetaLink` keeps its words on one line ("From meeting" and its date never wrap beside a long meeting name) while the link truncates. Plain facts still wrap.
+  [`ad344d8`](https://github.com/VegaStack/vegastack-design/commit/ad344d8)
+- **TextEdit**: a key acts at the caret the reader sees. ProseMirror read a caret the browser had just moved (a click, an arrow key) only on `selectionchange`, which the browser queues behind input already waiting, so Enter, Backspace or a shortcut pressed right after a click acted at the selection from before. In a shared page opened a moment ago, that was the document's start: Enter split the first line and what followed was typed into it, and it was saved that way. Every key now reads a pending caret first. New `TextEditHandle.clearHistory()` for a shared document: the host calls it when it replaced the text under the reader (a version restored), so ⌘Z doesn't undo the reader's earlier changes onto the new text and splice the old text into it letter by letter.
+  [`b5a4f3b`](https://github.com/VegaStack/vegastack-design/commit/b5a4f3b)
+
 ## [0.25.61] — October 21, 2026
 
 <!-- assembled from 1 changeset: 6d227d0413c6 -->

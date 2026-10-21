@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.8.17
+
+### Patch Changes
+
+- [#710](https://github.com/vegastack/vegastack-design/pull/710) [`454506c`](https://github.com/vegastack/vegastack-design/commit/454506c7e5ddcaa5efc2583dd41acc72cb362f88) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Type ramp**: the copy tier (`text-xs`, `text-sm`, `text-base`) declares its letter-spacing as 0, so copy-size text inside heading type — a character count under a title, a badge or a meta line in a heading — no longer inherits the heading's negative tracking. Outside heading type nothing changes (body text was already 0); across every preview fixture, no other element's tracking moves.
+
 ## 0.8.12
 
 ### Patch Changes

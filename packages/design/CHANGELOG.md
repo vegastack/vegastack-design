@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.8.17
+
+### Patch Changes
+
+- [#717](https://github.com/vegastack/vegastack-design/pull/717) [`4e6a569`](https://github.com/vegastack/vegastack-design/commit/4e6a569f3e45ef927e64862e8ef03d5aac7c11e6) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **@vegastack/design**: released beside `@vegastack/design-tokens` 0.8.17 (the copy tier's zero tracking), so the preset's tokens range names that release.
+
+- Updated dependencies [[`454506c`](https://github.com/vegastack/vegastack-design/commit/454506c7e5ddcaa5efc2583dd41acc72cb362f88)]:
+  - @vegastack/design-tokens@0.8.17
+
 ## 0.8.16
 
 ### Patch Changes
