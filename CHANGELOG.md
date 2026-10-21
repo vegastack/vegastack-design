@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.63] — October 21, 2026
+
+<!-- assembled from 2 changesets: e0217ab209ad -->
+
+### 🧩 New components
+
+- **TextEdit** turns a lone pasted link into what it names, as Notion and Google Docs do. The URL lands as text, then becomes a mention of the app's own record (the new `mentions.fromUrl`), a YouTube or Loom embed (where it can stand in for an empty paragraph), or a link. With **InlineChip**'s new `linkPreview` resolver, a link's text is the page's title when it answers within 1.5 seconds (link and title land as one step), and the link card shows the page's icon and title. A small paste popover offers the other choice (**Mention · Link**, **Embed · Link**) until the next keystroke, click or Escape; Tab moves into it. Each step is its own undo step, so ⌘Z right after a paste leaves the URL as text, in shared documents too. Pasting over a selection, in code or with ⌘⇧V never converts. The "Embedded" toast and its Undo are gone: the popover and ⌘Z replace them. Escape with a chip's card open (a click on a person shows it) closes only the card, and the caret stays beside the chip, so typing goes on there instead of being dropped. **InlineChip**'s card closes when a key is typed anywhere, so a person's card never stays over a comment box (or the text) being typed in.
+  [`a6f4201`](https://github.com/VegaStack/vegastack-design/commit/a6f4201)
+
+### 🔧 Changed components
+
+- **ShareDialog**: the publish hint ("Anyone with the link can view, without signing in", "Off — only people with access can open it") wraps instead of being cut off on a narrow sheet; checked at 320 and 375px, published or not, on both tabs. **Empty**: a long unbroken word in `EmptyTitle` or `EmptyDescription` (a quoted search) breaks inside the empty state instead of running past it (LAY-17). **MermaidBlock**: the error's **Details** toggle is a full 24px target.
+  [`bfce471`](https://github.com/VegaStack/vegastack-design/commit/bfce471)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.62 → 0.25.63.
+
 ## [0.25.62] — October 21, 2026
 
 <!-- assembled from 10 changesets: 16ea107a0494 -->

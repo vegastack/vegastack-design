@@ -1,4 +1,4 @@
-// @vegastack drag-item@0.25.62 sha256-cQqC5kiJxD4BlBeFcZYKbLMCnNvxHrDUbsQhkbGcX2Y=
+// @vegastack drag-item@0.25.63 sha256-YAEdA4xSbHrxV/10Tuon1p6JOVgxeGY3TGs/kIjy2Ec=
 
 /**
  * drag-item — the ONE visual recipe for an item that `use-drag-reorder` can move. The hook owns
