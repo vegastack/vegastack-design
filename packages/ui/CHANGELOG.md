@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.25.64
+
+### Patch Changes
+
+- [#724](https://github.com/vegastack/vegastack-design/pull/724) [`aeb74b1`](https://github.com/vegastack/vegastack-design/commit/aeb74b17b45b71eb06493e1ff0778aefa43c3817) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **InlineChip**: `InlineChipResolver.state(kind, id)` gives every chip without state of its own its record's state — a done task's check, a canceled or duplicate task struck through with its status — so one `InlineChipProvider` shows a record alike in an editor, a rendered body and a comment. A surface's own `mentionStatus` still wins. `TextEdit` and `MarkdownView` pass no state when theirs answers none.
+
+- [#721](https://github.com/vegastack/vegastack-design/pull/721) [`c959fa9`](https://github.com/vegastack/vegastack-design/commit/c959fa97bf86ea1cfadea0584364820c6aeb1d8e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DocumentLayout**: page tools without app styling — `DocumentLayoutFindBar` (a docked find field with status, Previous, Next, Close and optional match highlights), `DocumentLayoutJumpCue`, `DocumentLayoutFloatingButton`, `DocumentLayoutStarters` / `DocumentLayoutStarter`, `DocumentLayoutNote`, and `focusable` on `DocumentLayout`. **AppShell**: `AppShellHeaderSlot` (a fixed 32px place in the top bar) and `AppShellHeaderShow` (`narrow` · `wide`, by the bar's own width). **AutoSaveIndicator**: `compact="narrow"` shows the icon alone in a narrow bar. **CommentComposer**: `hint`, a quiet line under the box.
+
 ## 0.25.63
 
 ### Patch Changes

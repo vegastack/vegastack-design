@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.64] — October 21, 2026
+
+<!-- assembled from 2 changesets: 1834ee675342 -->
+
+### 🔧 Changed components
+
+- **InlineChip**: `InlineChipResolver.state(kind, id)` gives every chip without state of its own its record's state — a done task's check, a canceled or duplicate task struck through with its status — so one `InlineChipProvider` shows a record alike in an editor, a rendered body and a comment. A surface's own `mentionStatus` still wins. `TextEdit` and `MarkdownView` pass no state when theirs answers none.
+  [`aeb74b1`](https://github.com/VegaStack/vegastack-design/commit/aeb74b1)
+- **DocumentLayout**: page tools without app styling — `DocumentLayoutFindBar` (a docked find field with status, Previous, Next, Close and optional match highlights), `DocumentLayoutJumpCue`, `DocumentLayoutFloatingButton`, `DocumentLayoutStarters` / `DocumentLayoutStarter`, `DocumentLayoutNote`, and `focusable` on `DocumentLayout`. **AppShell**: `AppShellHeaderSlot` (a fixed 32px place in the top bar) and `AppShellHeaderShow` (`narrow` · `wide`, by the bar's own width). **AutoSaveIndicator**: `compact="narrow"` shows the icon alone in a narrow bar. **CommentComposer**: `hint`, a quiet line under the box.
+  [`c959fa9`](https://github.com/VegaStack/vegastack-design/commit/c959fa9)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.63 → 0.25.64.
+
 ## [0.25.63] — October 21, 2026
 
 <!-- assembled from 2 changesets: e0217ab209ad -->
