@@ -7,6 +7,8 @@ import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import { Dialog, DialogContent, DialogTitle } from "./dialog";
+import { InlineChipProvider } from "./inline-chip";
+import icon from "../../../../apps/docs/public/preview/avatar-1.svg?no-inline";
 import {
   linkedTaskId,
   preloadTextEdit,
@@ -4896,10 +4898,49 @@ function pasteData(target: Element, data: Record<string, string>) {
   );
 }
 
-test("embeds: a lone YouTube link pasted into an empty paragraph is a facade; Undo makes it a link", async () => {
-  const { toast } = await import("./toast");
-  const add = vi.spyOn(toast, "add");
-  onTestFinished(() => add.mockRestore());
+test("mentions: a click on a chip leaves the caret beside it — Escape closes its card and typing goes on there; End and Enter start the next line", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "First line\n\nOwner [@Asha Rao](mention://user/u1)",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  const chip = () =>
+    box.element().querySelector<HTMLElement>('[data-slot="inline-chip"]')!;
+  await userEvent.click(chip());
+  const card = () => document.querySelector('[data-slot="hover-card-content"]');
+  // The person's card opens on the click (after its delay); Escape closes only it.
+  await vi.waitFor(() => expect(card()).not.toBeNull());
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(card()).toBeNull());
+  expect(document.activeElement).toBe(box.element());
+  await userEvent.keyboard("x");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "First line\n\nOwner [@Asha Rao](mention://user/u1)x",
+    ),
+  );
+  // Q-page-26: the click opens the person's card; the line's end, Enter and typing go on below.
+  await userEvent.click(chip());
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  await userEvent.keyboard(`${MAC ? "{Meta>}{ArrowRight}{/Meta}" : "{End}"}`);
+  await userEvent.keyboard("{Enter}y");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "First line\n\nOwner [@Asha Rao](mention://user/u1)x\n\ny",
+    ),
+  );
+});
+
+const pastePopover = () =>
+  document.querySelector<HTMLElement>('[data-slot="text-edit-paste"]');
+const pasteChoice = (name: string) =>
+  [...(pastePopover()?.querySelectorAll("button") ?? [])].find(
+    (button) => button.textContent === name,
+  );
+
+test("embeds: a lone YouTube link pasted into an empty paragraph is a facade; the paste popover makes it a link", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     defaultValue: "Intro",
@@ -4917,25 +4958,320 @@ test("embeds: a lone YouTube link pasted into an empty paragraph is a facade; Un
   const play = screen.getByRole("button", { name: "Play YouTube video" });
   await expect.element(play).toBeInTheDocument();
   expect(box.element().querySelector("iframe")).toBeNull();
-  const notice = add.mock.calls.at(-1)?.[0] as {
-    title: string;
-    actionProps: { children: string; onClick: () => void };
-  };
-  expect(notice.title).toBe("Embedded");
-  expect(notice.actionProps.children).toBe("Undo");
-  notice.actionProps.onClick();
+  // Embed · Link, Embed in effect.
+  await vi.waitFor(() => expect(pastePopover()).not.toBeNull());
+  expect(
+    [...pastePopover()!.querySelectorAll("button")].map((b) => [
+      b.textContent,
+      b.getAttribute("aria-pressed"),
+    ]),
+  ).toEqual([
+    ["Embed", "true"],
+    ["Link", "false"],
+  ]);
+  pasteChoice("Link")!.click();
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(`Intro\n\n[${YOUTUBE}](${YOUTUBE})`),
   );
-  // Pasted beside text, the same link stays a link.
+  expect(pastePopover()).toBeNull();
+  // Pasted beside text, the same link stays a link — and Embed puts the player after the line.
+  const LOOM = "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184";
   await userEvent.keyboard(`${END}{Enter}See `);
-  pasteData(box.element(), {
-    "text/plain": "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184",
-  });
-  await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("See "));
+  pasteData(box.element(), { "text/plain": LOOM });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(`See [${LOOM}](${LOOM})`),
+  );
   expect(
     box.element().querySelector('[data-slot="markdown-embed"]'),
   ).toBeNull();
+  await vi.waitFor(() => expect(pasteChoice("Embed")).toBeDefined());
+  expect(pasteChoice("Link")!.getAttribute("aria-pressed")).toBe("true");
+  pasteChoice("Embed")!.click();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(
+      /See\s*\n\nhttps:\/\/www\.loom\.com\/share\/\w+$/,
+    ),
+  );
+});
+
+test("paste: an app link becomes its mention, Link turns it back, ⌘Z right after a paste leaves the URL as text", async () => {
+  const APP = "https://app.test/products/families/f1";
+  const fromUrl = vi.fn((url: string) =>
+    url.startsWith("https://app.test/")
+      ? Promise.resolve<MentionOption>({
+          kind: "family",
+          id: "f1",
+          label: "Linear",
+        })
+      : null,
+  );
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: { kinds: ["user", "family"], search: async () => [], fromUrl },
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), { "text/plain": APP });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("[@Linear](mention://family/f1)"),
+  );
+  expect(fromUrl).toHaveBeenCalledWith(APP, {
+    signal: expect.any(AbortSignal),
+  });
+  await vi.waitFor(() => expect(pasteChoice("Mention")).toBeDefined());
+  expect(pasteChoice("Mention")!.getAttribute("aria-pressed")).toBe("true");
+  // From the keyboard: Tab moves onto the choice in effect, the arrows to the other, Enter picks.
+  await userEvent.keyboard("{Tab}");
+  expect(document.activeElement).toBe(pasteChoice("Mention"));
+  await userEvent.keyboard("{ArrowRight}{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`[${APP}](${APP})`),
+  );
+  expect(pastePopover()).toBeNull();
+
+  // A fresh paste: ⌘Z right after takes back the mention, not the paste — the URL stays as text.
+  await userEvent.keyboard(" ");
+  pasteData(box.element(), { "text/plain": APP });
+  await vi.waitFor(() =>
+    expect(
+      box.element().querySelectorAll('[data-slot="inline-chip"]'),
+    ).toHaveLength(1),
+  );
+  // Any keystroke closes the popover; Escape only that.
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(pastePopover()).toBeNull());
+  await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(box.element().querySelector('[data-slot="inline-chip"]')).toBeNull(),
+  );
+  const paragraph = box.element().querySelector("p")!;
+  expect(paragraph.textContent).toBe(`${APP} ${APP}`);
+  expect(paragraph.querySelectorAll("a")).toHaveLength(1);
+});
+
+test("paste: plain-text paste (⌘⇧V), a link to another target and rich content are never converted", async () => {
+  const APP = "https://app.test/tasks/t1";
+  const fromUrl = vi.fn(() =>
+    Promise.resolve<MentionOption>({
+      kind: "task",
+      id: "t1",
+      label: "Order glass",
+    }),
+  );
+  const screen = await markdownEditor({
+    mentions: { kinds: ["user", "task"], search: async () => [], fromUrl },
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  // The shortcut alone: a real one would also paste the system clipboard, which differs by OS.
+  box.element().dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "V",
+      shiftKey: true,
+      metaKey: MAC,
+      ctrlKey: !MAC,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  // Shift released (the editor pastes plain text while it is held).
+  await userEvent.keyboard("{Shift}");
+  pasteData(box.element(), { "text/plain": APP });
+  await vi.waitFor(() => expect(box.element().textContent).toContain(APP));
+  // A link whose text is the URL but whose target is another pastes as that link.
+  pasteData(box.element(), {
+    "text/plain": APP,
+    "text/html": `<a href="https://app.test/tasks/other">${APP}</a>`,
+  });
+  // A URL inside richer content (a table cell) pastes as that content.
+  pasteData(box.element(), {
+    "text/plain": APP,
+    "text/html": `<table><tr><td>${APP}</td></tr></table>`,
+  });
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("table")).not.toBeNull(),
+  );
+  expect(fromUrl).not.toHaveBeenCalled();
+  expect(box.element().querySelector('[data-slot="inline-chip"]')).toBeNull();
+  expect(pastePopover()).toBeNull();
+});
+
+test("paste: typing on while the answer is on its way keeps the conversion (a space may autolink the URL to itself)", async () => {
+  const APP = "https://app.test/tasks/t1";
+  let answer!: (option: MentionOption | null) => void;
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: ["user", "task"],
+      search: async () => [],
+      fromUrl: () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        }),
+    },
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), { "text/plain": APP });
+  await userEvent.keyboard(" next");
+  answer({ kind: "task", id: "t1", label: "Order glass" });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "[@Order glass](mention://task/t1) next",
+    ),
+  );
+
+  // Made inline code before the answer: it stays code.
+  await userEvent.keyboard(" ");
+  pasteData(box.element(), { "text/plain": APP });
+  // Select exactly the pasted URL (the last copy of it), then make it code.
+  const walker = document.createTreeWalker(box.element(), NodeFilter.SHOW_TEXT);
+  let last: Text | null = null;
+  for (let n = walker.nextNode(); n; n = walker.nextNode())
+    if (n.textContent?.includes(APP)) last = n as Text;
+  const at = last!.textContent!.lastIndexOf(APP);
+  const range = document.createRange();
+  range.setStart(last!, at);
+  range.setEnd(last!, at + APP.length);
+  document.getSelection()!.removeAllRanges();
+  document.getSelection()!.addRange(range);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard(`{${MOD}>}e{/${MOD}}{ArrowRight}`);
+  answer({ kind: "task", id: "t1", label: "Order glass" });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(
+    box.element().querySelectorAll('[data-slot="inline-chip"]'),
+  ).toHaveLength(1);
+  expect(box.element().querySelector("code")?.textContent).toBe(APP);
+
+  // Typed straight onto the URL's end, it is another address: no mention of the first.
+  await userEvent.keyboard(" ");
+  pasteData(box.element(), { "text/plain": APP });
+  await userEvent.keyboard("2");
+  answer({ kind: "task", id: "t1", label: "Order glass" });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(
+    box.element().querySelectorAll('[data-slot="inline-chip"]'),
+  ).toHaveLength(1);
+  expect(box.element().textContent).toContain(`${APP}2`);
+});
+
+test("paste: submitting before the answer submits a link, and a late answer changes nothing", async () => {
+  const APP = "https://app.test/tasks/t1";
+  let answer!: (option: MentionOption | null) => void;
+  const onSubmit = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: ["user", "task"],
+      search: async () => [],
+      fromUrl: () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        }),
+    },
+    onSubmit,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), { "text/plain": APP });
+  await userEvent.keyboard(`{${MOD}>}{Enter}{/${MOD}}`);
+  expect(onSubmit).toHaveBeenLastCalledWith(`[${APP}](${APP})`);
+  answer({ kind: "task", id: "t1", label: "Order glass" });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(lastValue(onValueChange)).toBe(`[${APP}](${APP})`);
+});
+
+test("paste: leaving before the answer commits a link, and a late answer changes nothing", async () => {
+  const APP = "https://app.test/tasks/t1";
+  let answer!: (option: MentionOption | null) => void;
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: ["user", "task"],
+      search: async () => [],
+      fromUrl: () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        }),
+    },
+    onCommit,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), { "text/plain": APP });
+  // Focus moves on (the popover under the paste covers the button a click would hit).
+  (
+    screen.getByRole("button", { name: "Outside" }).element() as HTMLElement
+  ).focus();
+  await vi.waitFor(() =>
+    expect(onCommit).toHaveBeenLastCalledWith(`[${APP}](${APP})`),
+  );
+  const commits = onCommit.mock.calls.length;
+  answer({ kind: "task", id: "t1", label: "Order glass" });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(onCommit.mock.calls.length).toBe(commits);
+  expect(box.element().querySelector('[data-slot="inline-chip"]')).toBeNull();
+});
+
+test("paste: another site's link takes its page's title and the link card shows its icon; an edited link keeps its text", async () => {
+  let answer!: (preview: { title: string; icon: string }) => void;
+  const linkPreview = vi.fn(
+    (url: string) =>
+      new Promise<{ title: string; icon: string } | null>((resolve) => {
+        if (url.includes("later")) answer = resolve;
+        else resolve({ title: "Example  Domain", icon });
+      }),
+  );
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <InlineChipProvider value={{ linkPreview }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        onValueChange={onValueChange}
+      />
+    </InlineChipProvider>,
+  );
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  await box.click();
+  pasteData(box.element(), { "text/plain": "https://example.com/" });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "[Example Domain](https://example.com/)",
+    ),
+  );
+  // A link has nothing else to be: no popover.
+  expect(pastePopover()).toBeNull();
+  await userEvent.keyboard("{ArrowLeft}{ArrowLeft}");
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-link-card"]')?.textContent,
+    ).toContain("Example Domain"),
+  );
+  expect(
+    document
+      .querySelector('[data-slot="text-edit-link-icon"]')
+      ?.getAttribute("src"),
+  ).toBe(icon);
+
+  // The URL waits as text for its title (link and title are one undo step); edited meanwhile,
+  // the reader's text stays as typed.
+  await userEvent.keyboard(`${END} `);
+  pasteData(box.element(), { "text/plain": "https://example.com/later" });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(/ https:\/\/example\.com\/later$/),
+  );
+  await userEvent.keyboard("{ArrowLeft}{ArrowLeft}x");
+  answer({ title: "Later", icon });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(lastValue(onValueChange)).toMatch(/ https:\/\/example\.com\/latxer$/);
 });
 
 test("embeds: Play builds the player from the video id, sandboxed, with its own referrer policy", async () => {

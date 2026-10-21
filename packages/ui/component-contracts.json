@@ -15438,6 +15438,15 @@
           }
         },
         {
+          "name": "InlineChipLinkPreview",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "InlineChipPerson",
           "kind": "interface",
           "source": "packages/ui/registry/ui/inline-chip.tsx",
@@ -15622,6 +15631,10 @@
       "dataAttributes": {
         "InlineChip": {
           "attributes": [
+            {
+              "name": "data-inline-chip-card",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": [

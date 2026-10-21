@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.62 sha256-+3SOviYCkmzlobQzC9ScA45a7plf/ZG0dzsSaJuqqNs=
+// @vegastack inline-chip@0.25.62 sha256-yRjeb72eTxJc4avcQeApRuy1fPgrT1fmXCzXySwwMz8=
 
 "use client";
 
@@ -123,6 +123,24 @@ export interface InlineChipResolver {
     target: InlineChipTarget,
     event: React.MouseEvent | React.KeyboardEvent,
   ) => void | boolean;
+  /**
+   * Another site's page, as a link names it: its title and icon. `TextEdit` asks once per URL
+   * (and keeps the answer): a pasted link's text becomes the title, and the link card shows the
+   * icon and title. Fetch it on the app's server and serve the icon from there, so a reader's
+   * browser never contacts the site. `null` when there is nothing to show.
+   */
+  linkPreview?: (
+    url: string,
+    options: { signal: AbortSignal },
+  ) => Promise<InlineChipLinkPreview | null>;
+}
+
+/** What `InlineChipResolver.linkPreview` answers for a link. */
+export interface InlineChipLinkPreview {
+  /** The page's title. */
+  title: string;
+  /** Its icon's URL (the app's own, proxied copy). @default undefined */
+  icon?: string | null;
 }
 
 const InlineChipContext = React.createContext<InlineChipResolver | null>(null);
@@ -313,6 +331,16 @@ export interface InlineChipProps extends Omit<
   done?: boolean;
 }
 
+/** Keys that leave a chip's card open: modifiers alone, and Tab (which moves focus to the chip). */
+const CARD_KEEPING_KEYS = new Set([
+  "Shift",
+  "Meta",
+  "Control",
+  "Alt",
+  "CapsLock",
+  "Tab",
+]);
+
 /** The longest first word kept on the lead's line (longer ones wrap like any text). */
 const LEAD_WORD_MAX = 16;
 
@@ -372,6 +400,24 @@ export function InlineChip({
   ...props
 }: InlineChipProps) {
   const resolver = React.useContext(InlineChipContext);
+  // The card shows for a pointer resting on the chip (or focus on it), never in the way of
+  // typing: a key pressed outside it — in the text it covers, a comment box under it — closes it.
+  // Escape closes only the card: it goes no further (an editor keeps its caret, a dialog stays).
+  const [cardOpen, setCardOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (!cardOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (CARD_KEEPING_KEYS.has(event.key)) return;
+      const inCard = (event.target as Element | null)?.closest?.(
+        "[data-inline-chip-card]",
+      );
+      if (event.key === "Escape") event.stopPropagation();
+      else if (inCard) return;
+      setCardOpen(false);
+    };
+    document.addEventListener("keydown", close, true);
+    return () => document.removeEventListener("keydown", close, true);
+  }, [cardOpen]);
   const restricted = restrictedProp ?? targetId.startsWith("restricted:");
   const person =
     kind !== "user" || restricted
@@ -615,9 +661,13 @@ export function InlineChip({
 
   if (!card) return chip;
   return (
-    <HoverCard>
+    <HoverCard open={cardOpen} onOpenChange={setCardOpen}>
       <HoverCardTrigger delay={300} closeDelay={100} render={chip} />
-      <HoverCardContent align="start" className="w-60 p-2">
+      <HoverCardContent
+        align="start"
+        data-inline-chip-card=""
+        className="w-60 p-2"
+      >
         {card}
       </HoverCardContent>
     </HoverCard>
