@@ -1,4 +1,4 @@
-// @vegastack text-anchor@0.25.58 sha256-BVqG+gzJ2AdDQkxD1tVnjHNFEWxqWkqWCfbUHL+lG/0=
+// @vegastack text-anchor@0.25.59 sha256-7dDqGznmfKqooB0dlngWPbp0u1X/HLiGQUB7AGahi8M=
 
 /**
  * text-anchor — where a comment sits in a text, stored so it survives edits. Pure strings: no DOM,
