@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.59 sha256-p4v9g82whA+68jDrUMm03F+6w9Vu7MRc18b5sU780jU=
+// @vegastack markdown-view@0.25.59 sha256-gRaaFzmd5bPslol92g8zxgXrSW7TP9zImA8wICiA7jY=
 
 "use client";
 
@@ -184,10 +184,34 @@ function paintFind() {
   } else registry.delete(FIND_CURRENT);
 }
 
+/**
+ * `text` case-folded one code point at a time — upper-cased, then lower-cased, and that once more,
+ * so every case form of a letter meets (`Σ`, `σ`, `ς` → `σ`; `ß`, `ẞ`, `SS` → `ss`; never a
+ * whole-string fold, which depends on context) — with each folded unit's character in `text`:
+ * `[from, to)`.
+ */
+function fold(text: string): { text: string; from: number[]; to: number[] } {
+  let folded = "";
+  const from: number[] = [];
+  const to: number[] = [];
+  let offset = 0;
+  for (const char of text) {
+    // Twice, so a fold's own result is folded too: `ẞ` → `ß` → `ss`, as `ß` → `ss`.
+    const once = (each: string) => each.toLocaleUpperCase().toLocaleLowerCase();
+    const lower = [...once(char)].map(once).join("");
+    for (let unit = 0; unit < lower.length; unit++) {
+      from.push(offset);
+      to.push(offset + char.length);
+    }
+    folded += lower;
+    offset += char.length;
+  }
+  return { text: folded, from, to };
+}
+
 /** Every case-insensitive match of `query` in the view's text, as DOM ranges. */
 function findRanges(root: HTMLElement, query: string): Range[] {
-  const needle = query.trim().toLocaleLowerCase();
-  if (!needle) return [];
+  if (!query.trim()) return [];
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: (node) =>
       node.parentElement?.closest(
@@ -204,18 +228,11 @@ function findRanges(root: HTMLElement, query: string): Range[] {
     starts.push(text.length);
     text += (node as Text).data;
   }
-  // Case-fold code point by code point and keep where each folded unit came from: folding can
-  // change a string's length (`İ` folds to two units), so folded offsets are not text offsets.
-  let haystack = "";
-  const origin: number[] = [];
-  let offset = 0;
-  for (const char of text) {
-    const folded = char.toLocaleLowerCase();
-    for (let unit = 0; unit < folded.length; unit++) origin.push(offset);
-    haystack += folded;
-    offset += char.length;
-  }
-  origin.push(text.length);
+  // Case-fold code point by code point — the query exactly as the text, so `Σ` folds alike in both
+  // — and keep the character each folded unit came from: folding can change a string's length
+  // (`İ` folds to two units), so folded offsets are not text offsets.
+  const needle = fold(query.trim()).text;
+  const { text: haystack, from, to } = fold(text);
   const at = (position: number): [Text, number] => {
     let low = 0;
     let high = nodes.length - 1;
@@ -227,16 +244,19 @@ function findRanges(root: HTMLElement, query: string): Range[] {
     return [nodes[low]!, position - starts[low]!];
   };
   const ranges: Range[] = [];
+  let lastEnd = 0;
   for (
     let index = haystack.indexOf(needle);
     index !== -1 && ranges.length < 1000;
     index = haystack.indexOf(needle, index + needle.length)
   ) {
-    const start = origin[index]!;
-    // The text offset just past the match: where the next folded unit came from, or — when the
-    // match ends inside one character's folding — past that whole character.
-    let end = origin[index + needle.length]!;
-    if (end <= start) end = start + (text.codePointAt(start)! > 0xffff ? 2 : 1);
+    // From the first matched unit's character to the end of the last one's (a match that ends
+    // inside one character's folding covers that whole character).
+    const start = from[index]!;
+    const end = to[index + needle.length - 1]!;
+    // Two matches inside one expanded character (`s` in `ß` → `ss`) are one place in the text.
+    if (start < lastEnd) continue;
+    lastEnd = end;
     const [startNode, startOffset] = at(start);
     const [endNode, endOffset] = at(end - 1);
     const range = document.createRange();
@@ -404,6 +424,32 @@ export function MarkdownViewEffects({
     };
   }, [printToggles]);
 
+  // The view's rendered text changed shape — new text, or highlights cut into it (an annotation
+  // added or moved, with the same source): find's ranges and the highlights' layout are stale.
+  const query = findQuery?.trim() ?? "";
+  const hasLayout = onAnnotationsLayout !== undefined;
+  const watchDom = mounted && (query !== "" || hasLayout);
+  const [domVersion, setDomVersion] = React.useState(0);
+  React.useEffect(() => {
+    if (!watchDom) return;
+    const view = root();
+    if (!view) return;
+    let frame = 0;
+    const observer = new MutationObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setDomVersion((v) => v + 1));
+    });
+    observer.observe(view, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [watchDom, viewId]);
+
   // Where each comment highlight sits, once per frame when anything moved.
   const annotationsKey = (annotationIds ?? []).join("\u0000");
   const reportLayout = () => {
@@ -423,7 +469,6 @@ export function MarkdownViewEffects({
       }),
     );
   };
-  const hasLayout = onAnnotationsLayout !== undefined;
   React.useEffect(() => {
     if (!hasLayout) return;
     const view = root();
@@ -438,43 +483,55 @@ export function MarkdownViewEffects({
       cancelAnimationFrame(frame);
       observer.disconnect();
     };
-  }, [annotationsKey, hasLayout]);
+  }, [annotationsKey, hasLayout, domVersion]);
 
   // Find: every match highlighted (CSS Custom Highlight API, no DOM change), one current.
-  const query = findQuery?.trim() ?? "";
   const [matches, setMatches] = React.useState<Range[]>([]);
   const [current, setCurrent] = React.useState(0);
+  const searched = React.useRef("");
+  // Whether the current match is brought into view: on a new search or a step, never on a refresh.
+  const reveal = React.useRef(false);
   const { announce, Announcer } = useAnnouncer();
   const labels = { ...defaultFindLabels, ...findLabels };
   React.useEffect(() => {
     const view = root();
     if (!mounted) return;
     if (!view || !query) {
+      searched.current = "";
       setMatches([]);
       return;
     }
     const found = findRanges(view, query);
     setMatches(found);
-    setCurrent(0);
     findByView.set(viewId, { all: found, current: null });
     paintFind();
-    announce(found.length ? labels.position(1, found.length) : labels.none);
+    // A new search starts at its first match and says so; the same search over re-rendered text
+    // (its old ranges point into replaced nodes) keeps its place.
+    const search = `${viewId}\u0000${query}\u0000${content ?? ""}`;
+    if (searched.current !== search) {
+      searched.current = search;
+      reveal.current = true;
+      setCurrent(0);
+      announce(found.length ? labels.position(1, found.length) : labels.none);
+    } else setCurrent((at) => Math.min(at, Math.max(0, found.length - 1)));
     return () => {
       findByView.delete(viewId);
       paintFind();
     };
-    // Labels are strings the host passes per render; the query, the view and its text are the
-    // inputs — new text means new matches (old ranges would point into replaced nodes).
-  }, [query, mounted, content, viewId]);
+    // Labels are strings the host passes per render; the query, the view, its text and its
+    // rendered shape are the inputs.
+  }, [query, mounted, content, viewId, domVersion]);
   React.useEffect(() => {
     const range = matches[current];
     if (!range) return;
-    openAncestors(range.startContainer);
     const own = findByView.get(viewId);
     if (own) {
       own.current = range;
       paintFind();
     }
+    if (!reveal.current) return;
+    reveal.current = false;
+    openAncestors(range.startContainer);
     const target = range.startContainer.parentElement;
     target?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [matches, current]);
@@ -482,6 +539,7 @@ export function MarkdownViewEffects({
   const step = (by: number) => {
     if (!matches.length) return;
     const next = (current + by + matches.length) % matches.length;
+    reveal.current = true;
     setCurrent(next);
     announce(labels.position(next + 1, matches.length));
   };

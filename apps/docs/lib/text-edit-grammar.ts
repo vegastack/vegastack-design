@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.59 sha256-SmNpD0J4mnGzbRtzV1/lSZIk1TV0wqOMab18TdGY4cs=
+// @vegastack text-edit-grammar@0.25.59 sha256-+UtCrGpzxVDIKRgphtjxLlnLte299hM/SeSh3eYcp3U=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -152,13 +152,15 @@ export function mediaMarkdown(kind: "video" | "audio", src: string): string {
 
 /**
  * Stable ids for a document's headings, in order: the heading's words, lower-cased and joined with
- * hyphens, then `-1`, `-2`… for a repeat — so identical text always gets the same id.
+ * hyphens, then `-1`, `-2`… for a repeat — so identical text always gets the same id, and no two
+ * headings ever share one.
  *
  * @example
  * headingIds(["Setup", "Wiring plan", "Setup"]); // ["setup", "wiring-plan", "setup-1"]
  */
 export function headingIds(texts: readonly string[]): string[] {
   const seen = new Map<string, number>();
+  const used = new Set<string>();
   return texts.map((text) => {
     const base =
       text
@@ -166,9 +168,13 @@ export function headingIds(texts: readonly string[]): string[] {
         .trim()
         .replace(/[^\p{L}\p{N}\s-]/gu, "")
         .replace(/\s+/g, "-") || "heading";
-    const count = seen.get(base) ?? 0;
+    // A suffix never lands on an id already given (`A`, `A`, `A-1` → `a`, `a-1`, `a-1-1`).
+    let count = seen.get(base) ?? 0;
+    let id = count === 0 ? base : `${base}-${count}`;
+    while (used.has(id)) id = `${base}-${++count}`;
     seen.set(base, count + 1);
-    return count === 0 ? base : `${base}-${count}`;
+    used.add(id);
+    return id;
   });
 }
 
@@ -484,4 +490,240 @@ export function parseTaskListRows(snapshot: string): TaskListRow[] {
     else rows.push({ checked, id: null, label: rest.trim(), status: "" });
   }
   return rows;
+}
+
+/* --- bounded lexing: what both readers hand marked ---------------------------------------------*/
+
+/**
+ * Whether `src` is the tail of `source` — sampled at its start, middle and end, so the check costs
+ * the same however long the document is. Tokenizers use it to reuse a per-document pass across the
+ * suffixes marked hands them. A false match could only regroup text differently (a toggle's text,
+ * a link's), never drop any: what a tokenizer consumes is always sliced from `src` itself.
+ */
+export function isTailOf(source: string, src: string): boolean {
+  const offset = source.length - src.length;
+  if (offset < 0) return false;
+  const sample = 64;
+  const same = (at: number) =>
+    source.startsWith(src.slice(at, at + sample), offset + at);
+  return (
+    same(0) &&
+    same(Math.max(0, (src.length >> 1) - (sample >> 1))) &&
+    same(Math.max(0, src.length - sample))
+  );
+}
+
+/** How far an emphasis or strikethrough span may reach for its closer. */
+const SPAN_WINDOW = 16_384;
+/** How long a link or image (its text and destination) may be. */
+const LINK_WINDOW = 65_536;
+
+/**
+ * One `blockTokens` or `inlineTokens` call of a tracked lexer (`trackLexer`): the whole source it
+ * reads, and what a tokenizer learned about that source once (`memo`). Every `src` marked hands a
+ * tokenizer during the call is a tail of `source`, so one pass over `source` answers them all.
+ */
+export interface LexFrame {
+  source: string;
+  memo: Record<string, unknown>;
+}
+
+/** A marked lexer, as far as tracking reads it. */
+export interface LexerLike {
+  lex(src: string): unknown;
+  blockTokens(...args: never[]): unknown;
+  inlineTokens(...args: never[]): unknown;
+}
+
+/** Each tracked lexer's open calls, innermost last. */
+const FRAMES = new WeakMap<object, LexFrame[]>();
+
+/**
+ * `lexer`, with every `blockTokens` and `inlineTokens` call recorded while it runs (nested calls —
+ * a quote's blocks, a link's or an emphasis's text — each get their own frame and leave the
+ * enclosing one intact), so the bounded tokenizers index each source exactly once.
+ */
+export function trackLexer<L extends LexerLike>(lexer: L): L {
+  const frames: LexFrame[] = [];
+  FRAMES.set(lexer, frames);
+  for (const name of ["blockTokens", "inlineTokens"] as const) {
+    const run = lexer[name].bind(lexer) as (
+      src: string,
+      ...rest: unknown[]
+    ) => unknown;
+    (lexer as unknown as Record<string, unknown>)[name] = (
+      src: string,
+      ...rest: unknown[]
+    ) => {
+      frames.push({ source: src, memo: {} });
+      try {
+        return run(src, ...rest);
+      } finally {
+        frames.pop();
+      }
+    };
+  }
+  return lexer;
+}
+
+/**
+ * The open frame of the lexer a tokenizer runs for (`this`: a tokenizer, or an extension's
+ * `{ lexer }`), when `src` is a tail of its source; else null (an untracked lexer).
+ */
+export function lexFrame(context: unknown, src: string): LexFrame | null {
+  const lexer = (context as { lexer?: object } | null | undefined)?.lexer;
+  const frame = lexer ? FRAMES.get(lexer)?.at(-1) : undefined;
+  return frame && isTailOf(frame.source, src) ? frame : null;
+}
+
+/**
+ * marked's `Lexer`, tracked (`trackLexer`): `Lexer` news a tracked lexer and its statics lex with
+ * one, and `lex` is a tracked `instance.lexer`. Set both on a `Marked` instance — Tiptap's manager
+ * news `instance.Lexer` and calls `instance.lexer` — so every lexer it makes is tracked.
+ */
+export function trackedLexing<C extends new (options?: never) => LexerLike>(
+  Lexer: C,
+) {
+  type Options = ConstructorParameters<C>[0];
+  const create = (options?: Options) =>
+    trackLexer(
+      new (Lexer as unknown as new (options?: Options) => InstanceType<C>)(
+        options,
+      ),
+    );
+  const lex = (src: string, options?: Options) => create(options).lex(src);
+  const lexInline = (src: string, options?: Options) =>
+    create(options).inlineTokens(src as never);
+  // A constructor `new` returns the tracked lexer from; marked's statics read through it too.
+  const Tracked = Object.assign(
+    function TrackedLexer(options?: Options) {
+      return create(options);
+    },
+    { rules: (Lexer as unknown as { rules?: unknown }).rules, lex, lexInline },
+  );
+  return { Lexer: Tracked as unknown as C, lex };
+}
+
+/**
+ * Whether the `*`, `_` or `~` opening `src` has any delimiter run of its kind after it that could
+ * close it — a closing run never follows a space. Computed once per inline source (marked hands
+ * every call of one `inlineTokens` the same masked text), so a paragraph of unmatched delimiters
+ * costs one pass, not one per delimiter. Anything else is let through.
+ */
+function closerAhead(
+  src: string,
+  masked: string,
+  frame: LexFrame | null,
+): boolean {
+  const char = src[0];
+  if (char !== "*" && char !== "_" && char !== "~") return true;
+  let last = frame?.memo.masked === masked ? frame.memo.closers : undefined;
+  if (!last) {
+    const found: Record<string, number> = { "*": -1, _: -1, "~": -1 };
+    for (let i = 1; i < masked.length; i++) {
+      const each = masked[i]!;
+      // A run of the delimiter can close only when the character before the RUN is not a space.
+      if (!(each in found) || masked[i - 1] === each) continue;
+      if (!/\s/.test(masked[i - 1]!)) found[each] = i;
+    }
+    last = found;
+    if (frame) Object.assign(frame.memo, { masked, closers: found });
+  }
+  return (last as Record<string, number>)[char]! > masked.length - src.length;
+}
+
+/**
+ * Whether an inline link could close in `src`: a `)` must follow within the link's window. marked
+ * hands the link reader the rest of the source at every `[`; a source of `[a](` without a `)`
+ * would be read to its end each time. The last `)` is found once per source.
+ */
+function parenAhead(src: string, frame: LexFrame | null): boolean {
+  if (!frame) return src.slice(0, LINK_WINDOW).includes(")");
+  if (frame.memo.paren === undefined) {
+    const last = frame.source.lastIndexOf(")");
+    frame.memo.paren = last === -1 ? -1 : frame.source.length - last;
+  }
+  const fromEnd = frame.memo.paren as number;
+  return fromEnd > 0 && fromEnd <= src.length;
+}
+
+/** `src` and its masked twin (aligned at their ends, as marked keeps them) cut to the window. */
+function windowed(src: string, masked: string): [string, string] {
+  if (src.length <= SPAN_WINDOW) return [src, masked];
+  const start = masked.length - src.length;
+  return [src.slice(0, SPAN_WINDOW), masked.slice(start, start + SPAN_WINDOW)];
+}
+
+/** A list token, as far as the empty-task rule reads it (marked's `Tokens.List`). */
+interface ListLike {
+  items: {
+    task: boolean;
+    checked?: boolean;
+    tokens: { type: string; raw?: string }[];
+  }[];
+}
+
+/** The marked tokenizer methods the bounded ones wrap — marked's `Tokenizer.prototype`. */
+export interface BoundedBase {
+  emStrong(src: string, maskedSrc: string, prevChar?: string): unknown;
+  del(src: string, maskedSrc: string, prevChar?: string): unknown;
+  link(src: string): unknown;
+  list(src: string): unknown;
+}
+
+/**
+ * The tokenizers every VegaStack Markdown reader lexes with — the editor's parse
+ * (`@/lib/text-edit-markdown`) and `MarkdownView` — so both read a page alike and in linear time:
+ * - marked looks for the closer of every `*`, `_` and `~` delimiter across the rest of the
+ *   paragraph (quadratic on a paragraph of unmatched ones): emphasis and strikethrough are looked
+ *   for only when a closer exists, within a window far longer than any real span;
+ * - a link or image is read only when a `)` follows, and within a window;
+ * - an empty task item (`- [ ]`, `- [x]`: nothing after the box) is still a task — GFM wants text
+ *   after the box, but an editor writes empty ones and a person types them.
+ *
+ * Pass marked's `Tokenizer.prototype` (this file depends on nothing), and make the instance's lexers
+ * tracked (`trackedLexing`) so each source is indexed once — an untracked lexer still reads
+ * correctly, only without the per-source indexes:
+ * `marked.use({ tokenizer: boundedTokenizers(Tokenizer.prototype) })`.
+ */
+export function boundedTokenizers<T extends BoundedBase>(
+  base: T,
+): Pick<T, keyof BoundedBase> {
+  const tokenizers: BoundedBase = {
+    emStrong(src, maskedSrc, prevChar) {
+      if (!closerAhead(src, maskedSrc, lexFrame(this, src))) return undefined;
+      return base.emStrong.call(this, ...windowed(src, maskedSrc), prevChar);
+    },
+    del(src, maskedSrc, prevChar) {
+      if (!closerAhead(src, maskedSrc, lexFrame(this, src))) return undefined;
+      return base.del.call(this, ...windowed(src, maskedSrc), prevChar);
+    },
+    link(src) {
+      if (
+        (src[0] === "[" || src[0] === "!") &&
+        !parenAhead(src, lexFrame(this, src))
+      )
+        return undefined;
+      return base.link.call(this, src.slice(0, LINK_WINDOW));
+    },
+    list(src) {
+      const list = base.list.call(this, src) as ListLike | undefined;
+      if (!list) return undefined;
+      for (const item of list.items) {
+        const first = item.tokens[0];
+        const box = /^\[([ xX])\]$/.exec(String(first?.raw ?? "").trim());
+        if (item.task || !box) continue;
+        if (first?.type !== "text" && first?.type !== "paragraph") continue;
+        item.task = true;
+        item.checked = box[1] !== " ";
+        item.tokens[0] = {
+          type: "checkbox",
+          raw: `[${box[1]}] `,
+          checked: item.checked,
+        } as ListLike["items"][number]["tokens"][number];
+      }
+      return list;
+    },
+  };
+  return tokenizers as unknown as Pick<T, keyof BoundedBase>;
 }

@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.59 sha256-pwvjUvzfhb0qXKtmo89E/IChqRD0zBvfUbZ4pD7YtME=
+// @vegastack text-edit-schema@0.25.59 sha256-mfjex/J5S3O3Jz+4jHZ9NIfI0flvJkY6n9WBnaA9m4A=
 
 import {
   Extension,
@@ -40,6 +40,7 @@ import {
   tasksDirectiveMarkdown,
   codeFenceInfo,
   imageMarkdown,
+  isTailOf,
   markdownDestination,
   markdownTitle,
   mediaMarkdown,
@@ -364,7 +365,10 @@ function cellLines(
   }
 }
 
-/** A table as GFM: padded columns, the alignment row, every cell on one line. */
+/** The widest cell a table column pads to; a longer cell is written unpadded. */
+const TABLE_PAD_LIMIT = 200;
+
+/** A table as GFM: columns padded (up to `TABLE_PAD_LIMIT`), the alignment row, every cell on one line. */
 function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
   const rows = ((node.content ?? []) as JSONContent[]).map((row) =>
     ((row.content ?? []) as JSONContent[]).map((cell) => {
@@ -394,15 +398,18 @@ function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
   );
   const columns = rows.reduce((max, row) => Math.max(max, row.length), 0);
   if (columns === 0) return "";
-  const widths = Array.from({ length: columns }, (_, index) =>
-    rows.reduce(
-      (width, row) => Math.max(width, row[index]?.text.length ?? 0),
-      3,
-    ),
-  );
   const aligns = Array.from(
     { length: columns },
     (_, index) => rows.find((row) => row[index]?.align)?.[index]?.align ?? null,
+  );
+  // Columns pad to their widest cell — but only cells up to `TABLE_PAD_LIMIT` count, and a longer
+  // cell is written as is: one long cell never pads every row of its column, so a table's Markdown
+  // grows with its content (not rows × longest cell), and an ordinary table reads as it always has.
+  const widths = Array.from({ length: columns }, (_, index) =>
+    rows.reduce((width, row) => {
+      const length = row[index]?.text.length ?? 0;
+      return length <= TABLE_PAD_LIMIT ? Math.max(width, length) : width;
+    }, 3),
   );
   const pad = (text: string, width: number) =>
     text + " ".repeat(Math.max(0, width - text.length));
@@ -1143,25 +1150,6 @@ const FENCE_OPEN =
   /^( {0,3})((?:(?:[-+*]|\d{1,9}[.)])[ \t]+)*)(`{3,}|~{3,})(.*)$/;
 
 const TOGGLE_CACHE: { source: string; closes: ToggleCloses }[] = [];
-
-/**
- * Whether `src` is the tail of `source` — sampled at its start, middle and end, so the check costs
- * the same however long the document is. Tokenizers use it to reuse a per-document pass across the
- * suffixes marked hands them. A false match could only regroup text differently (a toggle's text,
- * a link's), never drop any: what a tokenizer consumes is always sliced from `src` itself.
- */
-export function isTailOf(source: string, src: string): boolean {
-  const offset = source.length - src.length;
-  if (offset < 0) return false;
-  const sample = 64;
-  const same = (at: number) =>
-    source.startsWith(src.slice(at, at + sample), offset + at);
-  return (
-    same(0) &&
-    same(Math.max(0, (src.length >> 1) - (sample >> 1))) &&
-    same(Math.max(0, src.length - sample))
-  );
-}
 
 /** The close of the toggle opening at the start of `src`, or null when it never closes. */
 function toggleClose(src: string): { bodyEnd: number; end: number } | null {
