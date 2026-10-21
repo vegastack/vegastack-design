@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.65 sha256-Xdm4WUHlrlOdA9tWXRUrNAdnSgwV5W6/iR9ee74s8BY=
+// @vegastack document-layout@0.25.65 sha256-yH0nDdnvHB2clOU66fa8WegVDFicaTVdLduX0AfXarY=
 
 "use client";
 
@@ -83,7 +83,9 @@ export function DocumentLayoutSectionHeader({
 }
 
 /** Props accepted by `DocumentLayoutSectionTitle`. */
-export interface DocumentLayoutSectionTitleProps extends React.ComponentPropsWithRef<"h2"> {
+export interface DocumentLayoutSectionTitleProps
+  // No `id`: the title's id is its section's, which names the section.
+  extends Omit<React.ComponentPropsWithRef<"h2">, "id"> {
   /**
    * How many the section holds, after the title in the muted ink ("Pages inside · 3").
    * @default undefined
@@ -107,10 +109,10 @@ export function DocumentLayoutSectionTitle({
   const id = React.useContext(SectionContext);
   return (
     <h2
-      id={id ?? undefined}
       data-slot="document-layout-section-title"
       className={cn("text-sm font-medium", className)}
       {...props}
+      id={id ?? undefined}
     >
       {children}
       {count == null ? null : (

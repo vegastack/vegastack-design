@@ -330,6 +330,10 @@ test("a foot section is named by its title; its pages are a list of links with i
   await expect
     .element(screen.getByRole("region", { name: "Pages inside · 2" }))
     .toBeInTheDocument();
+  // The section names itself by its title's id, whatever else the title is given.
+  const section = screen.getByRole("region").element();
+  const title = section.querySelector("h2")!;
+  expect(section.getAttribute("aria-labelledby")).toBe(title.id);
   expect(screen.getByRole("listitem").elements()).toHaveLength(2);
   const link = screen.getByRole("link", { name: /Install notes/ }).element();
   expect(link.getAttribute("href")).toBe("#install");
