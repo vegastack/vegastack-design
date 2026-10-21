@@ -15970,7 +15970,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.25.65",
-        "integrity": "sha256-0rtJUD4h8swIbQlL+yi/rnLlQAuob0foMUFhDXQllSI="
+        "integrity": "sha256-hnGCmGrWBEKpflwdRzB2IHWX+YxzM49xuHs/cHEVdbw="
       }
     },
     {

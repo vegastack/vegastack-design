@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.25.65 sha256-0rtJUD4h8swIbQlL+yi/rnLlQAuob0foMUFhDXQllSI=
+// @vegastack table-of-contents@0.25.65 sha256-hnGCmGrWBEKpflwdRzB2IHWX+YxzM49xuHs/cHEVdbw=
 
 "use client";
 
@@ -150,7 +150,10 @@ function computeActiveHeading(
   const scroller = own ?? document.scrollingElement ?? document.documentElement;
   const viewportTop = own ? own.getBoundingClientRect().top : 0;
   const viewportHeight = own ? own.clientHeight : window.innerHeight;
-  const scrollable = scroller.scrollHeight - scroller.clientHeight > 1;
+  // "At the bottom" allows 2px of rounding, so only a scroller with more than that to scroll is
+  // scrollable here: one that overflows by 2px reads as at its bottom at its top, and marked its
+  // last heading as the one being read before anything was scrolled.
+  const scrollable = scroller.scrollHeight - scroller.clientHeight > 2;
   const atBottom =
     Math.ceil(scroller.scrollTop + scroller.clientHeight) >=
     scroller.scrollHeight - 2;

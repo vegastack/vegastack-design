@@ -232,6 +232,43 @@ test("the spy marks the last heading above the activation line, and the last hea
   expect(onActiveIdChange).toHaveBeenLastCalledWith("s-end");
 });
 
+test("a container that overflows by only 2px at its top still marks its first heading", async () => {
+  function Fixture() {
+    const scroller = React.useRef<HTMLDivElement>(null);
+    return (
+      <div style={{ display: "flex" }}>
+        <TableOfContents
+          items={[
+            { id: "t-a", level: 2, text: "Alpha" },
+            { id: "t-b", level: 2, text: "Beta" },
+          ]}
+          scrollContainer={scroller}
+          sticky={false}
+        />
+        <div
+          ref={scroller}
+          data-testid="tight"
+          style={{ height: 300, overflowY: "auto", flex: 1 }}
+        >
+          <h2 id="t-a" style={{ margin: 0, height: 20 }}>
+            Alpha
+          </h2>
+          <div style={{ height: 200 }} />
+          <h2 id="t-b" style={{ margin: 0, height: 20 }}>
+            Beta
+          </h2>
+          <div style={{ height: 62 }} />
+        </div>
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  const tight = screen.getByTestId("tight").element() as HTMLElement;
+  expect(tight.scrollHeight - tight.clientHeight).toBe(2);
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  await expect.poll(active).toBe("Alpha");
+});
+
 test("without scrollContainer the spy finds the headings' own scroller", async () => {
   const screen = await render(<SpyFixture explicit={false} />);
   await expect.poll(active).toBe("Intro");
