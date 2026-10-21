@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.62 sha256-dJwEYyWAd43Vbe0ohk7fhg+HgbntQyNNhzrHyndMXlg=
+// @vegastack share-dialog@0.25.62 sha256-w2RPrtdSbCKej+PzBM+1vZQKUcrj7by5b2V5YSjf5PQ=
 
 "use client";
 
@@ -966,7 +966,8 @@ export function ShareDialog({
               {publishExposure}
             </span>
           ) : (
-            <span className="truncate text-xs text-muted-foreground">
+            // Wraps, never truncated: at 320px the whole hint still reads.
+            <span className="text-xs text-pretty text-muted-foreground">
               {publicLink
                 ? labels.publicHint
                 : canPublish
