@@ -44,9 +44,8 @@ test("renders a listitem with the name, the type icon and the description lines"
     ...card.querySelectorAll('[data-slot="attachment-description"]'),
   ];
   expect(lines.map((l) => l.textContent)).toEqual(["2.4 MB", "Asha · today"]);
-  // Only the first line reads in tabular figures.
-  expect(lines[0]!.className).toContain("tabular-nums");
-  expect(lines[1]!.className).not.toContain("tabular-nums");
+  // Every line reads in tabular figures (AttachmentDescription's own).
+  for (const line of lines) expect(line.className).toContain("tabular-nums");
   await expectNoA11yViolations(screen.container);
 });
 

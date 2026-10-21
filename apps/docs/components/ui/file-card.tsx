@@ -1,4 +1,4 @@
-// @vegastack file-card@0.25.64 sha256-JGJyJ1l8WA6UB6YrT9clz8LvrVIjvhMWAm1nGmnC50U=
+// @vegastack file-card@0.25.64 sha256-vsCsGamFypKdrNUCLWkYzE4xr1ZgvUOrbRCxYQDT6Ek=
 
 import * as React from "react";
 import { MoreHorizontal, RefreshCwIcon, XIcon } from "lucide-react";
@@ -204,12 +204,8 @@ export function FileCard({
         <AttachmentTitle>{name}</AttachmentTitle>
         {descriptions?.map((line, i) =>
           line == null ? null : (
-            <AttachmentDescription
-              key={i}
-              className={i === 0 ? "tabular-nums" : undefined}
-            >
-              {line}
-            </AttachmentDescription>
+            // Every line reads in tabular figures (AttachmentDescription's own, API-36).
+            <AttachmentDescription key={i}>{line}</AttachmentDescription>
           ),
         )}
       </AttachmentContent>
