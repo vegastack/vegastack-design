@@ -28,7 +28,7 @@ import {
   DocumentLayoutTitleGroup,
 } from "@/components/ui/document-layout";
 
-<DocumentLayout margin={canComment}>
+<DocumentLayout margin={threadCount > 0 || drafting}>
   <DocumentLayoutHeader>
     <DocumentLayoutTitleGroup>
       <DocumentLayoutIcon>📘</DocumentLayoutIcon>
@@ -82,8 +82,10 @@ the start rather than narrowing the text; the text gives way only when the width
 text, the margin and the gutters at once.
 
 It is one subtree at every width: a column with no room is `display: none`, never unmounted, so
-an editor inside never remounts when the window resizes. `margin` reserves the comment column from
-L up whenever the reader can comment or threads exist, so a first comment never shifts the text.
+an editor inside never remounts when the window resizes. `margin` shows the comment column from
+L up; set it only while the column holds something (open threads beside the text, or a comment
+being written), decided with the text so the first paint is right. A page without threads is
+centred, and its first comment shifts the block to the start.
 From M up the grid keeps its start gutter whether or not a page has headings, and
 `DocumentLayoutContents` sits in it, stacked above the text and the margin: a
 `TableOfContents variant="rail" side="start"` there is a slim column of dashes that opens into the
@@ -301,6 +303,6 @@ container.
 ## Do / Don't
 
 <DoDont
-  do="Set margin whenever the reader can comment, so the text never moves when the first comment lands, and render the skeleton with the same margin and measure as the page."
+  do="Set margin only while the margin holds threads or a draft, decided with the text (a server thread count) so the first paint is right, and render the skeleton with the same margin and measure as the page."
   dont="Give the text column its own max-width or padding — the column and the tiers are the layout's, and a second width fights the container queries."
 />

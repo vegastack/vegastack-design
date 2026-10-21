@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.65 sha256-OcsmTiP+HjTRMOZNlWQS4+Ir1Ne/oeZMRWbZ6BDg6i4=
+// @vegastack document-layout@0.25.65 sha256-iMmVzIffQ3Ij+Bn3MCv8rZSCIEJK4Z2kRGEGXr5QMWM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -83,8 +83,10 @@ export type DocumentLayoutTier = "s" | "m" | "l" | "xl" | "2xl";
 /** Props accepted by `DocumentLayout`. */
 export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> {
   /**
-   * Reserve the comment margin (from the L tier): set it whenever the reader can comment or
-   * threads exist, so a first comment never moves the text.
+   * Show the comment margin (from the L tier): set it only while the margin holds something —
+   * open threads beside the text or a comment being written — and decide it with the text (on
+   * the server, from the thread count), so the first paint is right. Without it the text is
+   * centred; the first comment shifts the block to the start.
    * @default false
    */
   margin?: boolean;
@@ -128,7 +130,7 @@ const GRID = cn(
  * contents, body, foot, margin. Prints as one column of header, body and foot.
  *
  * @example
- * <DocumentLayout margin={canComment}>
+ * <DocumentLayout margin={threadCount > 0 || drafting}>
  *   <DocumentLayoutHeader>
  *     <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
  *   </DocumentLayoutHeader>
@@ -534,7 +536,7 @@ const LINE_WIDTHS = [
  * paragraphs — so nothing moves when the page arrives. One `status` region, named by `label`.
  *
  * @example
- * <DocumentLayoutSkeleton margin={canComment} />
+ * <DocumentLayoutSkeleton margin={threadCount > 0} />
  */
 export function DocumentLayoutSkeleton({
   margin = false,
