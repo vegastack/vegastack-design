@@ -199,3 +199,24 @@ test("a task chip shows the task glyph until done; done swaps in the check", asy
   expect(icon("done")).toHaveAttribute("aria-label", "Done");
   expect(icon("open")).toHaveAttribute("aria-hidden", "true");
 });
+
+test("a key typed anywhere closes a chip's card, so it never covers what is being typed", async () => {
+  const screen = await render(
+    <p>
+      <InlineChip
+        kind="user"
+        label="Asha Rao"
+        person={{ name: "Asha Rao", email: "asha@acme.com" }}
+        data-testid="chip"
+      />
+      <input aria-label="Reply" />
+    </p>,
+  );
+  await userEvent.hover(screen.getByTestId("chip"));
+  const card = () => document.querySelector('[data-slot="hover-card-content"]');
+  await vi.waitFor(() => expect(card()).not.toBeNull());
+  // Typing into a box the card would cover closes it.
+  screen.getByRole("textbox", { name: "Reply" }).element().focus();
+  await userEvent.keyboard("h");
+  await vi.waitFor(() => expect(card()).toBeNull());
+});

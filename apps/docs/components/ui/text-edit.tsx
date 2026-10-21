@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.62 sha256-OEklzyUcuCUyoklC6CZNiTfQynl+UVjGphkvq2bXJTo=
+// @vegastack text-edit@0.25.62 sha256-IUru5baR4sfjpVGcqtWLHnc2BmeS1RAxyghU90wyuJs=
 
 "use client";
 
@@ -126,6 +126,21 @@ export interface TextEditMentions {
     query: string,
     options: { signal: AbortSignal },
   ) => Promise<MentionOption[]>;
+  /**
+   * A pasted link to one of the app's own records, as the mention it becomes. Return `null` at
+   * once for a link that is not the app's (it stays a link, titled through the
+   * `InlineChipProvider`'s `linkPreview`); return a promise for one that is — the record it
+   * names, as the reader may see it (a `restricted:` id for one they may not open), or `null`
+   * when it names nothing to mention, and the paste stays a link. The pasted URL lands at once
+   * as text; the mention replaces it when the answer comes, unless the text was edited
+   * meanwhile, and a small popover offers **Mention · Link** until the next keystroke, click or
+   * Escape. ⌘Z right after puts the URL back as text.
+   * @default undefined — a pasted link is a link
+   */
+  fromUrl?: (
+    url: string,
+    options: { signal: AbortSignal },
+  ) => Promise<MentionOption | null> | null;
 }
 
 /** What an image upload resolves to: the image's final URL (and optional alt text and size). */

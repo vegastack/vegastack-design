@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.62 sha256-OEklzyUcuCUyoklC6CZNiTfQynl+UVjGphkvq2bXJTo=
+// @vegastack text-edit@0.25.62 sha256-IUru5baR4sfjpVGcqtWLHnc2BmeS1RAxyghU90wyuJs=
 
 "use client";
 
@@ -59,6 +59,7 @@ import {
   type Transaction,
 } from "@tiptap/pm/state";
 import { Mapping } from "@tiptap/pm/transform";
+import { closeHistory } from "@tiptap/pm/history";
 import {
   CellSelection,
   TableMap,
@@ -222,7 +223,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { InlineChip } from "@/components/ui/inline-chip";
+import {
+  InlineChip,
+  useInlineChipResolver,
+  type InlineChipLinkPreview,
+  type InlineChipResolver,
+} from "@/components/ui/inline-chip";
 import {
   SuggestionMenu,
   suggestionMenuKeyDown,
@@ -4247,68 +4253,328 @@ function TaskQueryView({
   );
 }
 
-/** The embed a pasted lone URL makes, when the caret sits in an empty paragraph that can hold one. */
-function embedForPaste(editor: Editor, text: string): PMNode | null {
-  const { state } = editor;
-  const url = text.trim();
-  const match = /\s/.test(url) ? null : matchEmbed(url);
-  if (match && !embedsOn(editor, match.provider)) return null;
-  const type = state.schema.nodes.embed;
-  const { $from, empty } = state.selection;
-  if (!match || !type || !empty || $from.depth < 1) return null;
-  if ($from.parent.type.name !== "paragraph" || $from.parent.content.size)
-    return null;
-  if (!EMBED_CONTAINERS.has($from.node(-1).type.name)) return null;
-  return type.create({ provider: match.provider, url });
-}
+/* --- pasted links -----------------------------------------------------------------------------*/
 
 /**
- * Put `embed` where the caret's empty paragraph is, the caret after it (a new paragraph when it is
- * the last block), and toast "Embedded" with an Undo that turns it back into a link.
+ * What a lone pasted link is in the document: its URL as typed text (the paste itself, until its
+ * default applies), a link, a mention of the app's record (`TextEditMentions.fromUrl`) or a video
+ * embed.
  */
-function pasteEmbed(editor: Editor, embed: PMNode) {
-  const { state } = editor;
-  const { $from } = state.selection;
-  const from = $from.before();
-  const tr = state.tr.replaceWith(from, $from.after(), embed);
-  const after = from + embed.nodeSize;
-  if (tr.doc.resolve(after).nodeAfter === null)
-    tr.insert(after, state.schema.nodes.paragraph!.create());
-  tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
-  editor.view.dispatch(tr.scrollIntoView());
-  const url = String(embed.attrs.url);
-  toast.add({
-    title: "Embedded",
-    actionProps: {
-      children: "Undo",
-      onClick: () => unembed(editor, url, from),
+type PastedForm = "text" | "link" | "mention" | "embed";
+
+/** A form the paste popover offers. */
+type PastedChoice = Exclude<PastedForm, "text">;
+
+/** The lone link pasted last, what it is now, and what the paste popover offers instead. */
+interface PastedLink {
+  /** This paste: the tracker (`PASTED_KEY`) follows one at a time. */
+  id: number;
+  url: string;
+  /** The popover's choices, the default first: Mention · Link, Embed · Link, or Link alone. */
+  offers: readonly PastedChoice[];
+  /** What the document holds now. */
+  form: PastedForm;
+  /** A link's text: the URL, or its page's title. */
+  text: string;
+  /** The record it names, once the host answered `fromUrl`. */
+  mention: MentionOption | null;
+  /** The popover shows: until the next keystroke (Tab moves into it), click or Escape. */
+  open: boolean;
+  /** Aborts the host's `fromUrl` when another paste replaces this one. */
+  controller: AbortController;
+}
+
+/** Keys that are only modifiers: holding one (for ⌘Z) leaves the paste popover open. */
+const MODIFIER_KEYS = new Set(["Shift", "Meta", "Control", "Alt", "CapsLock"]);
+
+/** The elements a pasted URL's HTML may wrap it in and still be one lone link. */
+const LONE_URL_WRAPPERS = new Set([
+  "A",
+  "SPAN",
+  "B",
+  "STRONG",
+  "I",
+  "EM",
+  "U",
+  "FONT",
+  "P",
+  "DIV",
+  "BR",
+  "META",
+]);
+
+/** The longest URL a paste turns into a link, mention or embed. */
+const PASTED_URL_MAX = 2048;
+
+/**
+ * How long a pasted link waits for its page's title (`linkPreview`) before it becomes a link with
+ * the URL as its text — so the link and its title are one undo step, never two.
+ */
+const LINK_TITLE_WAIT_MS = 1500;
+
+/**
+ * The one http(s) URL a paste is, or null: its plain text is the URL and nothing else, and its
+ * HTML (when it has any) shows only that URL — a link copied with its own text pastes as written.
+ */
+function loneUrl(text: string, html: string | undefined): string | null {
+  const url = text.trim();
+  if (url.length > PASTED_URL_MAX || !/^https?:\/\/\S+$/i.test(url))
+    return null;
+  try {
+    new URL(url);
+  } catch {
+    return null;
+  }
+  if (html) {
+    // The URL and nothing else: inline wrappers only (a link copied from a page, a styled run),
+    // never a table, an image or a list around it — those paste as they are.
+    const { body } = new DOMParser().parseFromString(html, "text/html");
+    if (body.textContent?.trim() !== url) return null;
+    const href = new URL(url).href;
+    for (const element of body.querySelectorAll("*")) {
+      if (!LONE_URL_WRAPPERS.has(element.tagName)) return null;
+      // A link whose text is one address and whose target another pastes as that link.
+      if (element.tagName === "A") {
+        const target = element.getAttribute("href") ?? "";
+        if (!URL.canParse(target) || new URL(target).href !== href) return null;
+      }
+    }
+  }
+  return url;
+}
+
+/** A page title as one line of text. */
+const cleanTitle = (title: string | null | undefined) =>
+  title?.replace(/\s+/g, " ").trim() || undefined;
+
+/**
+ * Where the pasted link is: its exact range, and — in a shared document — that range as Yjs
+ * relative positions (`bindPasted`), so it survives the binding rebuilding the document for a
+ * collaborator's change.
+ */
+interface PastedRange {
+  id: number;
+  from: number;
+  to: number;
+  /**
+   * Its two ends as Yjs relative positions, bound to its first and last characters (a text or a
+   * link), or to the mention or embed itself: an end whose character is deleted no longer meets
+   * the other at its size, and the tracking ends.
+   */
+  rel: { start: Y.RelativePosition; end: Y.RelativePosition } | null;
+  /** The mention's or embed's own Yjs type: once deleted, the tracking ends. */
+  node: Y.XmlElement | null;
+  /**
+   * While the URL waits as text: the character after it when it landed (`""` at the end of its
+   * block) — anything typed onto its end but a space makes it another address. Null once it is a
+   * link, a mention or an embed.
+   */
+  after: string | null;
+}
+
+const PASTED_KEY = new PluginKey<PastedRange | null>("textEditPasted");
+
+/**
+ * Follows the pasted link's exact range: mapped through this editor's own changes, resolved again
+ * from its relative positions after a collaborator's (or the shared history's), and dropped when
+ * a change lands inside it. A change of what it holds is caught by `pastedRange`.
+ */
+function pastedTracker() {
+  return new Plugin<PastedRange | null>({
+    key: PASTED_KEY,
+    state: {
+      init: () => null,
+      apply(tr, value, _old, state) {
+        const meta = tr.getMeta(PASTED_KEY) as PastedRange | null | undefined;
+        if (meta !== undefined) return meta;
+        if (!value || !tr.docChanged) return value;
+        if (
+          (
+            tr.getMeta(ySyncPluginKey) as
+              { isChangeOrigin?: boolean } | undefined
+          )?.isChangeOrigin
+        ) {
+          const y = yBinding(state);
+          if (!y || !value.rel || value.node?._item?.deleted) return null;
+          const from = resolveRelative(y, value.rel.start);
+          const end = resolveRelative(y, value.rel.end);
+          const size = value.to - value.from;
+          if (from === null || end === null) return null;
+          // A node is anchored on itself (its end is its start); text on its first and last
+          // characters, so both ends must still span its size.
+          const to = value.node ? from + size : end;
+          return to - from === size ? { ...value, from, to } : null;
+        }
+        let { from, to } = value;
+        let touched = false;
+        tr.mapping.maps.forEach((map, step) => {
+          const doc = tr.docs[step + 1] ?? tr.doc;
+          map.forEach((start, end, newStart, newEnd) => {
+            if (start < to && end > from) touched = true;
+            // Text typed straight onto a URL still waiting to convert makes it another address
+            // (`…/t1` → `…/t12`); a space after it does not.
+            if (
+              value.after !== null &&
+              start === to &&
+              end === to &&
+              /^\S/.test(doc.textBetween(newStart, newEnd, "\n", "\ufffc"))
+            )
+              touched = true;
+          });
+          from = map.map(from, 1);
+          to = map.map(to, -1);
+        });
+        return touched || from >= to ? null : { ...value, from, to };
+      },
     },
   });
 }
 
-/** The embed of `url` nearest `near`, back to a paragraph linking its URL. */
-function unembed(editor: Editor, url: string, near: number) {
-  if (editor.isDestroyed) return;
-  let found: { pos: number; node: PMNode } | null = null;
-  editor.state.doc.descendants((node, pos) => {
-    if (node.type.name === "embed" && node.attrs.url === url) {
-      if (!found || Math.abs(pos - near) < Math.abs(found.pos - near))
-        found = { pos, node };
-      return false;
+/**
+ * In a shared document, where the tracked range starts as a relative position, taken now it is
+ * in Yjs: bound to its first character, or to the mention or embed itself (a position beside a
+ * node binds to its neighbour, which a collaborator's insertion would move it past).
+ */
+function bindPasted(view: EditorView) {
+  const range = PASTED_KEY.getState(view.state);
+  const y = yBinding(view.state);
+  if (!range || !y) return;
+  const node = view.state.doc.nodeAt(range.from);
+  if (node && !node.isText)
+    for (const [type, mapped] of y.mapping as Map<
+      Y.AbstractType<unknown>,
+      unknown
+    >)
+      if (mapped === node && type.parent) {
+        const parent = type.parent as Y.XmlElement;
+        range.node = type as Y.XmlElement;
+        const at = Y.createRelativePositionFromTypeIndex(
+          parent,
+          parent.toArray().indexOf(range.node),
+          0,
+        );
+        range.rel = { start: at, end: at };
+        return;
+      }
+  range.rel = {
+    start: relativeAt(y, range.from, 0),
+    end: relativeAt(y, range.to, -1),
+  };
+}
+
+/**
+ * The pasted link's range, while it still holds exactly what this paste left there: the URL as
+ * unlinked text, the whole link (URL or title, every character linked to the URL), the mention or
+ * the embed. Null once it was edited, split, undone or removed — nothing then replaces it.
+ */
+function pastedRange(
+  state: EditorState,
+  pasted: PastedLink,
+): PastedRange | null {
+  const range = PASTED_KEY.getState(state);
+  if (!range || range.id !== pasted.id) return null;
+  const { doc } = state;
+  const { from, to } = range;
+  if (to > doc.content.size) return null;
+  // Turned into a code block meanwhile (it holds neither links nor mentions): it stays as typed.
+  if (doc.resolve(from).parent.type.spec.code) return null;
+  if (pasted.form === "mention" || pasted.form === "embed") {
+    const node = doc.nodeAt(from);
+    const same =
+      pasted.form === "mention"
+        ? node?.type.name === "mention" &&
+          node.attrs.kind === pasted.mention?.kind &&
+          node.attrs.id === pasted.mention?.id
+        : node?.type.name === "embed" && node.attrs.url === pasted.url;
+    return same && from + node!.nodeSize === to ? range : null;
+  }
+  const want = pasted.form === "link" ? pasted.text : pasted.url;
+  if (doc.textBetween(from, to, "\n", "\ufffc") !== want) return null;
+  // Text typed straight onto the URL's end (`…/t1` → `…/t12`) makes it another address.
+  if (pasted.form === "text" && range.after !== null) {
+    const next = charAfter(doc, to);
+    if (next !== range.after && !/^\s?$/.test(next)) return null;
+  }
+  // A link: every character linked to the URL. Text: no link to anywhere else (typing a space
+  // after it may autolink it to itself, which changes nothing).
+  let linked = true;
+  let elsewhere = false;
+  doc.nodesBetween(from, to, (node) => {
+    if (!node.isText) return true;
+    const link = node.marks.find((mark) => mark.type.name === "link");
+    if (link?.attrs.href !== pasted.url) linked = false;
+    if (link && link.attrs.href !== pasted.url) elsewhere = true;
+    // Made inline code meanwhile: code holds neither links nor mentions.
+    if (node.marks.some((mark) => mark.type.name === "code")) {
+      elsewhere = true;
+      linked = false;
     }
-    return true;
+    return false;
   });
-  if (!found) return;
-  const { pos, node } = found as { pos: number; node: PMNode };
-  const { schema } = editor.state;
-  const link = schema.text(url, [schema.marks.link!.create({ href: url })]);
-  editor.view.dispatch(
-    editor.state.tr.replaceWith(
-      pos,
-      pos + node.nodeSize,
-      schema.nodes.paragraph!.create(null, link),
-    ),
-  );
+  return (pasted.form === "link" ? linked : !elsewhere) ? range : null;
+}
+
+/** The character after `pos` in its own block (`""` at the block's end; `\ufffc` for a node). */
+function charAfter(doc: PMNode, pos: number): string {
+  const $pos = doc.resolve(pos);
+  const end = Math.min($pos.parentOffset + 1, $pos.parent.content.size);
+  return $pos.parent.textBetween($pos.parentOffset, end, "\n", "\ufffc");
+}
+
+/**
+ * The block an embed can stand in for at `pos`: a paragraph in a container that holds embeds.
+ * Null where an embed cannot go (a list item, a table cell, a heading).
+ */
+function embedHost(doc: PMNode, pos: number) {
+  const $pos = doc.resolve(pos);
+  if ($pos.depth < 1 || $pos.parent.type.name !== "paragraph") return null;
+  if (!EMBED_CONTAINERS.has($pos.node(-1).type.name)) return null;
+  return { from: $pos.before(), to: $pos.after(), paragraph: $pos.parent };
+}
+
+/**
+ * Dispatch `tr` as an undo step of its own under either history — ProseMirror's (one editor) and
+ * the Yjs undo manager's (a shared document): nothing typed just before or just after joins it,
+ * so ⌘Z right after a paste's conversion takes back only that.
+ */
+function dispatchOwnStep(view: EditorView, tr: Transaction) {
+  const undo = (
+    yUndoPluginKey.getState(view.state) as
+      { undoManager?: { stopCapturing: () => void } } | undefined
+  )?.undoManager;
+  undo?.stopCapturing();
+  view.dispatch(closeHistory(tr));
+  undo?.stopCapturing();
+  // A change-less close: the next change starts a new step.
+  view.dispatch(closeHistory(view.state.tr));
+}
+
+/** The answers one host's `linkPreview` gave, by URL (each asked once per page load). */
+const LINK_PREVIEWS = new WeakMap<
+  NonNullable<InlineChipResolver["linkPreview"]>,
+  Map<string, Promise<InlineChipLinkPreview | null>>
+>();
+/** How many URLs' answers a host's `linkPreview` keeps. */
+const LINK_PREVIEW_CACHE_SIZE = 200;
+
+/** Another site's page title and icon for `url`, asked of the host once and kept. */
+function linkPreviewOf(
+  source: InlineChipResolver["linkPreview"] | undefined,
+  url: string,
+): Promise<InlineChipLinkPreview | null> | null {
+  if (!source || !/^https?:/i.test(url)) return null;
+  let answers = LINK_PREVIEWS.get(source);
+  if (!answers) LINK_PREVIEWS.set(source, (answers = new Map()));
+  let answer = answers.get(url);
+  if (!answer) {
+    answer = source(url, { signal: new AbortController().signal }).catch(
+      () => null,
+    );
+    answers.set(url, answer);
+    if (answers.size > LINK_PREVIEW_CACHE_SIZE)
+      answers.delete(answers.keys().next().value!);
+  }
+  return answer;
 }
 
 /** Whether `url` is a video file to play natively: one of this site's, or a video file's link. */
@@ -5359,7 +5625,7 @@ const MENU_SURFACE =
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
@@ -5724,6 +5990,123 @@ function middleTruncate(text: string): string {
   return `${text.slice(0, LINK_CARD_CHARS - 1 - end)}…${text.slice(-end)}`;
 }
 
+/** The paste popover's words for each choice. */
+const PASTED_CHOICE_LABEL: Record<PastedChoice, string> = {
+  mention: "Mention",
+  embed: "Embed",
+  link: "Link",
+};
+
+/**
+ * The paste popover (Notion, Google Docs): under a lone link just pasted, its choices — Mention ·
+ * Link or Embed · Link — the one in effect pressed. In passing: the next keystroke, a click
+ * elsewhere or Escape closes it; Tab moves into it (its arrows, Enter, and Escape back to the
+ * text), and ⌘Z right after puts the URL back as text either way. What the paste became is
+ * announced.
+ */
+function PasteMenu({
+  editor,
+  pasted,
+  onPick,
+  onClose,
+  onLeave,
+}: {
+  editor: Editor;
+  pasted: PastedLink;
+  onPick: (choice: PastedChoice) => void;
+  onClose: (refocus: boolean) => void;
+  /** Focus left for somewhere outside the editor: the edit session ends. */
+  onLeave: (next: EventTarget | null) => void;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const { announce, Announcer } = useAnnouncer();
+  // Text still resolving reads as its default.
+  const current: PastedChoice =
+    pasted.form === "text" ? pasted.offers[0]! : pasted.form;
+  React.useEffect(() => {
+    announce(
+      `${current === "embed" ? "Embedded" : `Pasted as a ${PASTED_CHOICE_LABEL[current].toLowerCase()}`}. Tab to change.`,
+    );
+  }, [announce, current]);
+  React.useLayoutEffect(() => {
+    const place = () => {
+      const node = ref.current;
+      if (!node || editor.isDestroyed) return;
+      const range = pastedRange(editor.state, pasted);
+      node.hidden = !range;
+      if (!range) return;
+      const start = editor.view.coordsAtPos(range.from);
+      const block =
+        pasted.form === "embed" ? editor.view.nodeDOM(range.from) : null;
+      const bottom =
+        block instanceof HTMLElement
+          ? block.getBoundingClientRect().bottom
+          : editor.view.coordsAtPos(range.to).bottom;
+      // Under the paste, or above it when the viewport's bottom is too close; never off screen.
+      const height = node.offsetHeight;
+      const below = bottom + 4 + height <= window.innerHeight - 8;
+      const top = below ? bottom + 4 : start.top - 4 - height;
+      node.style.left = `${Math.max(8, Math.min(start.left, window.innerWidth - node.offsetWidth - 8))}px`;
+      node.style.top = `${Math.max(8, Math.min(top, window.innerHeight - height - 8))}px`;
+    };
+    place();
+    editor.on("transaction", place);
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      editor.off("transaction", place);
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [editor, pasted]);
+  return (
+    <FloatingLayer>
+      <Toolbar.Root
+        ref={ref}
+        data-slot="text-edit-paste"
+        aria-label="Paste as"
+        style={{ position: "fixed" }}
+        // A click keeps the caret where it is; Tab is the way in.
+        onMouseDown={(event) => event.preventDefault()}
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+          event.preventDefault();
+          event.stopPropagation();
+          onClose(true);
+        }}
+        onBlur={(event) => {
+          if (event.currentTarget.contains(event.relatedTarget as Node)) return;
+          onClose(false);
+          if (document.hasFocus()) onLeave(event.relatedTarget);
+        }}
+        className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+      >
+        {pasted.offers.map((choice, at) => (
+          <React.Fragment key={choice}>
+            {at > 0 ? (
+              <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+            ) : null}
+            <Toolbar.Button
+              render={
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  aria-pressed={choice === current}
+                  onClick={() => onPick(choice)}
+                  className="aria-pressed:bg-accent aria-pressed:text-accent-foreground"
+                />
+              }
+            >
+              {PASTED_CHOICE_LABEL[choice]}
+            </Toolbar.Button>
+          </React.Fragment>
+        ))}
+      </Toolbar.Root>
+      <Announcer />
+    </FloatingLayer>
+  );
+}
+
 /**
  * The card over a link the caret is in (Google Docs, Notion): the destination, which opens it (a
  * file link in the viewer, any other in a new tab), then Edit (the link panel) and Remove.
@@ -5742,15 +6125,44 @@ function LinkCard({
   onLeave: (next: EventTarget | null) => void;
 }) {
   let shown = href;
+  let host = "";
   try {
     const url = new URL(href, document.baseURI);
-    shown =
-      url.origin === window.location.origin
-        ? url.pathname + url.search + url.hash
-        : url.host + (url.pathname === "/" ? "" : url.pathname);
+    const own = url.origin === window.location.origin;
+    shown = own
+      ? url.pathname + url.search + url.hash
+      : url.host + (url.pathname === "/" ? "" : url.pathname);
+    if (!own) host = url.host.replace(/^www\./, "");
   } catch {
     // Not a URL: shown as written.
   }
+  // Another site's page: its title and icon (`linkPreview`), once known.
+  const source = useInlineChipResolver()?.linkPreview;
+  const [preview, setPreview] = React.useState<{
+    href: string;
+    title: string;
+    icon: string | null;
+  } | null>(null);
+  const [iconFailed, setIconFailed] = React.useState(false);
+  React.useEffect(() => {
+    let live = true;
+    setIconFailed(false);
+    linkPreviewOf(host ? source : undefined, href)?.then((answer) => {
+      const title = answer?.title.replace(/\s+/g, " ").trim();
+      const icon = answer?.icon ?? "";
+      if (live && title)
+        setPreview({
+          href,
+          title,
+          // The host's own copy: a path on this site, or https.
+          icon: /^(?:\/(?!\/)|https:)/i.test(icon) ? icon : null,
+        });
+    });
+    return () => {
+      live = false;
+    };
+  }, [host, source, href]);
+  const page = preview?.href === href ? preview : null;
   return (
     <Toolbar.Root
       data-slot="text-edit-link-card"
@@ -5780,10 +6192,31 @@ function LinkCard({
           />
         }
       >
-        <ExternalLink aria-hidden />
-        <span className="min-w-0 truncate">
-          {middleTruncate(shown || href)}
-        </span>
+        {page?.icon && !iconFailed ? (
+          <img
+            src={page.icon}
+            alt=""
+            data-slot="text-edit-link-icon"
+            onError={() => setIconFailed(true)}
+            className="size-4 shrink-0 rounded-sm"
+          />
+        ) : (
+          <ExternalLink aria-hidden />
+        )}
+        {page ? (
+          <>
+            <span className="min-w-0 truncate text-foreground">
+              {page.title}
+            </span>
+            <span className="max-w-[40%] shrink-0 truncate text-muted-foreground">
+              {host}
+            </span>
+          </>
+        ) : (
+          <span className="min-w-0 truncate">
+            {middleTruncate(shown || href)}
+          </span>
+        )}
       </Toolbar.Button>
       <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
       <MenuTip label="Edit link">
@@ -9785,6 +10218,271 @@ export function TextEditEditor({
   }, []);
 
   const editorRef = React.useRef<Editor | null>(null);
+  const chipResolver = useInlineChipResolver();
+  const chipResolverRef = React.useRef(chipResolver);
+  chipResolverRef.current = chipResolver;
+
+  // The lone link pasted last (`pasteLink`): what it is now, and the paste popover's choices.
+  const [pasted, setPastedState] = React.useState<PastedLink | null>(null);
+  const pastedRef = React.useRef<PastedLink | null>(null);
+  const pasteIdRef = React.useRef(0);
+  /** Ends the edit session (`leave`, set once it exists). */
+  const leaveRef = React.useRef<(next: EventTarget | null) => void>(() => {});
+  const setPasted = React.useCallback((next: PastedLink | null) => {
+    pastedRef.current = next;
+    setPastedState(next);
+  }, []);
+  React.useEffect(() => () => pastedRef.current?.controller.abort(), []);
+
+  /**
+   * The pasted link as `form` — an undo step of its own, its range tracked on. The default keeps
+   * the popover open (it goes on the next keystroke); a choice from it closes it.
+   */
+  const applyPasted = React.useCallback(
+    (form: PastedChoice, opts: { keepOpen?: boolean; title?: string } = {}) => {
+      const ed = editorRef.current;
+      const pasted = pastedRef.current;
+      if (!ed || ed.isDestroyed || !pasted) return;
+      const open = Boolean(opts.keepOpen) && pasted.open;
+      // A mention still being looked up is already the default: nothing to change.
+      if (form === "mention" && !pasted.mention)
+        return setPasted({ ...pasted, open });
+      const range = pastedRange(ed.state, pasted);
+      if (!range) return setPasted(null);
+      if (form === pasted.form) return setPasted({ ...pasted, open });
+      const { state } = ed;
+      const { schema } = state;
+      const tr = state.tr;
+      const text = form === "link" ? (opts.title ?? pasted.url) : pasted.url;
+      let from = range.from;
+      let size: number;
+      if (form === "embed") {
+        const match = matchEmbed(pasted.url);
+        const host = embedHost(state.doc, range.from);
+        if (!match || !host || !schema.nodes.embed) return;
+        const embed = schema.nodes.embed.create({
+          provider: match.provider,
+          url: pasted.url,
+        });
+        // Alone in its paragraph, the link becomes the embed; beside text, the embed follows it.
+        if (host.paragraph.content.size === range.to - range.from) {
+          tr.replaceWith(host.from, host.to, embed);
+          from = host.from;
+        } else {
+          tr.delete(range.from, range.to);
+          from = tr.mapping.map(host.to);
+          tr.insert(from, embed);
+        }
+        size = embed.nodeSize;
+        if (tr.doc.resolve(from + size).nodeAfter === null)
+          tr.insert(from + size, schema.nodes.paragraph!.create());
+        tr.setSelection(TextSelection.near(tr.doc.resolve(from + size + 1)));
+      } else {
+        // The pasted text's own marks (bold, …) stay; a link's or a mention's are its own.
+        const marks =
+          pasted.form === "text"
+            ? (state.doc.nodeAt(range.from)?.marks ?? [])
+            : [];
+        const inline =
+          form === "mention"
+            ? schema.nodeFromJSON(
+                mentionChip(collab !== null, pasted.mention!)[0]!,
+              )
+            : schema.text(
+                text,
+                schema.marks.link!.create({ href: pasted.url }).addToSet(marks),
+              );
+        if (pasted.form === "embed") {
+          tr.replaceWith(
+            range.from,
+            range.to,
+            schema.nodes.paragraph!.create(null, inline),
+          );
+          from = range.from + 1;
+          tr.setSelection(TextSelection.create(tr.doc, from + inline.nodeSize));
+        } else tr.replaceWith(range.from, range.to, inline);
+        size = inline.nodeSize;
+      }
+      tr.setMeta(PASTED_KEY, {
+        id: pasted.id,
+        from,
+        to: from + size,
+        rel: null,
+        node: null,
+        after: null,
+      })
+        .setMeta("preventAutolink", true)
+        .scrollIntoView();
+      dispatchOwnStep(ed.view, tr);
+      bindPasted(ed.view);
+      setPasted({ ...pasted, form, text, open });
+    },
+    [collab, setPasted],
+  );
+
+  /**
+   * A paste still waiting for its answer becomes a link now — the edit session is ending (so what
+   * it commits, and the read view shows, is final) or another paste takes over the tracking. A
+   * late answer then changes nothing.
+   */
+  const settlePasted = React.useCallback(() => {
+    const now = pastedRef.current;
+    if (now?.form !== "text") return;
+    now.controller.abort();
+    applyPasted("link");
+  }, [applyPasted]);
+
+  /**
+   * A lone link pasted at the caret (not over a selection, not in code). It lands as the URL's
+   * text — an undo step of its own — then becomes its default in a second: a mention of the app's
+   * record once the host answers `fromUrl`, an embed where a video can stand in for an empty
+   * paragraph, else a link, titled when `linkPreview` answers within `LINK_TITLE_WAIT_MS`. With a
+   * second choice, the paste popover offers it.
+   */
+  const pasteLink = React.useCallback(
+    (url: string): boolean => {
+      const ed = editorRef.current;
+      if (!ed || ed.isDestroyed) return false;
+      // A caret in text: a gap cursor beside a block (or a node selected) pastes as it always did.
+      const { selection } = ed.state;
+      if (!(selection instanceof TextSelection) || !selection.empty)
+        return false;
+      if (ed.isActive("code")) return false;
+      // The paste before it, still waiting, settles first (as a link) and stops being tracked.
+      settlePasted();
+      pastedRef.current?.controller.abort();
+      const { state } = ed;
+      const { from, to } = state.selection;
+      const link = state.schema.marks.link;
+      if (!link) return false;
+      const controller = new AbortController();
+      const answer =
+        callbacks.current.mentions?.fromUrl?.(url, {
+          signal: controller.signal,
+        }) ?? null;
+      const match = answer ? null : matchEmbed(url);
+      const host =
+        match && embedsOn(ed, match.provider) && state.schema.nodes.embed
+          ? embedHost(state.doc, from)
+          : null;
+      const offers: PastedChoice[] = answer
+        ? ["mention", "link"]
+        : host
+          ? ["embed", "link"]
+          : ["link"];
+      const id = ++pasteIdRef.current;
+      const end = from + url.length;
+      const tr = state.tr
+        .insertText(url, from, to)
+        // Pasted inside or just after a link, the URL never takes that link's address.
+        .removeMark(from, end, link);
+      const after = charAfter(tr.doc, end);
+      dispatchOwnStep(
+        ed.view,
+        tr
+          .setMeta(PASTED_KEY, {
+            id,
+            from,
+            to: end,
+            rel: null,
+            node: null,
+            after,
+          })
+          .setMeta("preventAutolink", true)
+          .scrollIntoView(),
+      );
+      bindPasted(ed.view);
+      setPasted({
+        id,
+        url,
+        offers,
+        form: "text",
+        text: url,
+        mention: null,
+        open: offers.length > 1,
+        controller,
+      });
+      // Still this paste, still the URL as text: another paste or a choice meanwhile wins.
+      const current = () => {
+        const now = pastedRef.current;
+        return !controller.signal.aborted &&
+          now?.id === id &&
+          now.form === "text"
+          ? now
+          : null;
+      };
+      if (answer) {
+        const settle = (option: MentionOption | null) => {
+          const now = current();
+          if (!now) return;
+          if (option) {
+            setPasted({ ...now, mention: option });
+            applyPasted("mention", { keepOpen: true });
+          } else {
+            // Nothing to mention: a link, with nothing else to offer. A popover holding focus
+            // (Tab) hands it back to the text as it goes.
+            if (document.activeElement?.closest("[data-slot=text-edit-paste]"))
+              editorRef.current?.commands.focus();
+            setPasted({ ...now, offers: ["link"], open: false });
+            applyPasted("link");
+          }
+        };
+        Promise.resolve(answer).then(settle, () => settle(null));
+        return true;
+      }
+      // An embed by default only where it stands in for an empty paragraph.
+      if (host?.paragraph.content.size === 0) {
+        applyPasted("embed", { keepOpen: true });
+        return true;
+      }
+      const preview = linkPreviewOf(chipResolverRef.current?.linkPreview, url);
+      if (!preview) {
+        applyPasted("link", { keepOpen: true });
+        return true;
+      }
+      let settled = false;
+      const settle = (title?: string) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (current()) applyPasted("link", { keepOpen: true, title });
+      };
+      const timer = setTimeout(() => settle(), LINK_TITLE_WAIT_MS);
+      preview.then((answered) => settle(cleanTitle(answered?.title)));
+      return true;
+    },
+    [applyPasted, setPasted, settlePasted],
+  );
+  const pasteLinkRef = React.useRef(pasteLink);
+  pasteLinkRef.current = pasteLink;
+
+  /** Close the paste popover; `refocus` puts the caret back in the text. */
+  const closePasted = React.useCallback(
+    (refocus = false) => {
+      const now = pastedRef.current;
+      if (now?.open) setPasted({ ...now, open: false });
+      if (refocus) editorRef.current?.commands.focus();
+    },
+    [setPasted],
+  );
+
+  // A click anywhere but the paste popover closes it.
+  React.useEffect(() => {
+    if (!pasted?.open) return;
+    const close = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (target?.closest?.("[data-slot=text-edit-paste]")) return;
+      // Focus was in the popover (Tab): the editor already let it go, so its session ends here.
+      const focused = document.activeElement?.closest(
+        "[data-slot=text-edit-paste]",
+      );
+      closePasted();
+      if (focused) leaveRef.current(target);
+    };
+    document.addEventListener("pointerdown", close, true);
+    return () => document.removeEventListener("pointerdown", close, true);
+  }, [pasted?.open, closePasted]);
+
   // The mention search: one AbortSignal per keystroke, and answers kept per query for this
   // editor (`MentionSearchCache`): a query asked before shows at once (and is asked again when
   // older than `MENTION_FRESH_MS`); the menu's first query goes out at once, every later one
@@ -10701,6 +11399,23 @@ export function TextEditEditor({
       },
     },
     handleKeyDown: (view, event) => {
+      // The paste popover goes on the next keystroke (Tab moves into it); Escape only closes it.
+      if (pastedRef.current?.open && !MODIFIER_KEYS.has(event.key)) {
+        // Tab moves into the popover, onto the choice in effect.
+        const choice = document.querySelector<HTMLElement>(
+          "[data-slot=text-edit-paste] [aria-pressed=true]",
+        );
+        if (event.key === "Tab" && !event.shiftKey && choice) {
+          event.preventDefault();
+          choice.focus();
+          return true;
+        }
+        closePasted();
+        if (event.key === "Escape") {
+          event.preventDefault();
+          return true;
+        }
+      }
       // The slash and mention menus own Enter, arrows and Escape while open.
       if (SLASH_KEY.getState(view.state)?.active) return false;
       if (MENTION_KEY.getState(view.state)?.active) return false;
@@ -10718,6 +11433,8 @@ export function TextEditEditor({
         const ed = editorRef.current;
         if (!ed) return true;
         if (callbacks.current.onSubmit) {
+          // What is submitted is final: a paste still waiting becomes a link now.
+          settlePasted();
           const next = serialize(ed);
           // Submitted is handled: a later blur must not commit the same text.
           if (baselineRef.current !== null) baselineRef.current = next;
@@ -10792,8 +11509,8 @@ export function TextEditEditor({
           : null;
       return slice;
     },
-    // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
-    // link extension, which turns it into a link over the selection. Pasted files (a
+    // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL over a selection
+    // is left to the link extension, which links the selection. Pasted files (a
     // screenshot) upload, when the host takes uploads.
     // Markdown in the plain-text flavour is parsed even beside HTML that only wraps it (a code
     // editor's copy); real rich HTML still pastes rich. One fenced block becomes a code block.
@@ -10827,12 +11544,11 @@ export function TextEditEditor({
         if (uploadFiles(files, view.state.selection.from)) return true;
       }
       if (!ed || !text || ed.isActive("codeBlock")) return false;
-      // A lone YouTube or Loom link pasted into an empty paragraph becomes an embed.
-      const embed = plain ? null : embedForPaste(ed, text);
-      if (embed) {
-        pasteEmbed(ed, embed);
-        return true;
-      }
+      const html = event.clipboardData?.getData("text/html");
+      // A lone link: a mention of the app's record, an embed or a link (`pasteLink`), with the
+      // paste popover to choose another.
+      const url = plain ? null : loneUrl(text, html);
+      if (url && pasteLinkRef.current(url)) return true;
       const insertLiteral = () => {
         ed.commands.insertContent(
           text.split(/\r?\n/).map((line) => ({
@@ -10851,7 +11567,6 @@ export function TextEditEditor({
         return true;
       };
       if (plain) return insertLiteral();
-      const html = event.clipboardData?.getData("text/html");
       const wrapper = html ? codeWrapperKind(html) : null;
       if (html && !wrapper) return false;
       const fence = singleFence(text);
@@ -11010,6 +11725,15 @@ export function TextEditEditor({
   }, [editor, editable]);
 
   // Autosave: `onCommit` after an idle gap. Off unless `autosave` is set.
+  // The pasted link's range, followed through every change (`pastedTracker`).
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.registerPlugin(pastedTracker());
+    return () => {
+      if (!editor.isDestroyed) editor.unregisterPlugin(PASTED_KEY);
+    };
+  }, [editor]);
+
   React.useEffect(() => {
     if (!editor || !autosave || collab) return;
     const delay = autosave === true ? 1000 : autosave;
@@ -11099,6 +11823,7 @@ export function TextEditEditor({
   const leave = React.useCallback(
     (next: EventTarget | null) => {
       if (isInside(next)) return;
+      settlePasted();
       commit();
       baselineRef.current = null;
       setPanel(null);
@@ -11114,8 +11839,9 @@ export function TextEditEditor({
       }
       leaveViewRef.current?.();
     },
-    [commit, isInside, applyValue, menuKeys],
+    [commit, isInside, applyValue, menuKeys, settlePasted],
   );
+  leaveRef.current = leave;
 
   // The read view comes back once the session is over for good. Checked a task later, when focus
   // has settled: not while the editor or one of its floating parts holds focus, not while the
@@ -11477,6 +12203,7 @@ export function TextEditEditor({
       },
       openFind: () => openFindRef.current(),
       flush: async () => {
+        settlePasted();
         commitNow();
         await Promise.allSettled(
           [...uploadsRef.current.values()].map((upload) => upload.done),
@@ -11546,7 +12273,14 @@ export function TextEditEditor({
         }, 3000);
       },
     }),
-    [commitNow, getAnchorForSelection, markSaved, rootRef, uploadFiles],
+    [
+      commitNow,
+      getAnchorForSelection,
+      markSaved,
+      rootRef,
+      settlePasted,
+      uploadFiles,
+    ],
   );
 
   const canComment = Boolean(onCreateAnnotation);
@@ -11772,6 +12506,18 @@ export function TextEditEditor({
             const spec = slash.items[index]!;
             if (!spec.disabled) slash.command(spec);
           }}
+        />
+      ) : null}
+      {pasted?.open && editable && editor ? (
+        <PasteMenu
+          editor={editor}
+          pasted={pasted}
+          onPick={(choice) => {
+            applyPasted(choice);
+            editor.commands.focus();
+          }}
+          onClose={closePasted}
+          onLeave={leave}
         />
       ) : null}
       {mentionMenu && editable ? (
