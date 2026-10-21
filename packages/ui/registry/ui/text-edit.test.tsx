@@ -6552,13 +6552,15 @@ test("paste from Notion: an emoji beside an image in a callout's first line is c
   await box.click();
   pasteData(box.element(), {
     "text/html":
-      '<aside><p>💡<img src="/evidence.png" alt="Evidence"></p><p>Details</p></aside>',
+      '<aside><p>💡<img src="/evidence.png" alt="Evidence"></p><p>Details</p></aside><aside><a href="/reference">💡</a><p>More</p></aside>',
     "text/plain": "Details",
   });
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toContain("/evidence.png"),
   );
   expect(lastValue(onValueChange)).toContain("Details");
+  // A linked emoji is a link, kept.
+  expect(lastValue(onValueChange)).toContain("/reference");
 });
 
 test("find: on a match, ⌘K still opens the link panel", async () => {

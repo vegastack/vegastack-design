@@ -5048,6 +5048,10 @@ function singleFence(text: string) {
 /** A leading emoji (a Notion callout's icon) and the space after it. */
 const LEADING_EMOJI =
   /^\s*\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*/u;
+/** What an icon never is: content, kept wherever it sits (an image, a player, a link, a field). */
+const CALLOUT_ICON_CONTENT =
+  "img, picture, video, audio, iframe, svg, a, input";
+
 /** Text that is one emoji and nothing else (a pasted callout's icon). */
 const LONE_EMOJI =
   /^\s*\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*$/u;
@@ -5115,7 +5119,8 @@ function notionPastedHTML(html: string): string {
       callout.querySelector(".icon")?.closest("div:not(.callout), span") ??
       (lead &&
       LONE_EMOJI.test(lead.textContent ?? "") &&
-      !lead.querySelector("img, picture, video, audio, iframe, svg, a, input")
+      !lead.matches(CALLOUT_ICON_CONTENT) &&
+      !lead.querySelector(CALLOUT_ICON_CONTENT)
         ? lead
         : null);
     const icon = iconHost?.textContent?.trim() ?? "";
