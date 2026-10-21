@@ -5,6 +5,23 @@ import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   DocumentLayout,
+  DocumentLayoutBlock,
+  DocumentLayoutBlockAction,
+  DocumentLayoutBlockFooter,
+  DocumentLayoutBlockHeader,
+  DocumentLayoutBlockNote,
+  DocumentLayoutBlockRow,
+  DocumentLayoutBlockRowMain,
+  DocumentLayoutBlockRowRef,
+  DocumentLayoutBlockRows,
+  DocumentLayoutBlockTitle,
+  DocumentLayoutPageItem,
+  DocumentLayoutPageLink,
+  DocumentLayoutPageList,
+  DocumentLayoutSection,
+  DocumentLayoutSectionButton,
+  DocumentLayoutSectionHeader,
+  DocumentLayoutSectionTitle,
   DocumentLayoutBody,
   DocumentLayoutContents,
   DocumentLayoutFoot,
@@ -278,6 +295,88 @@ test("the decision bar is a named region with its text and answers", async () =>
   );
   await expect
     .element(screen.getByRole("region", { name: "Your review" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a foot section is named by its title; its pages are a list of links with icon, excerpt and meta", async () => {
+  const screen = await render(
+    <DocumentLayoutSection>
+      <DocumentLayoutSectionHeader>
+        <DocumentLayoutSectionTitle count="2">
+          Pages inside
+        </DocumentLayoutSectionTitle>
+      </DocumentLayoutSectionHeader>
+      <DocumentLayoutPageList>
+        <DocumentLayoutPageItem>
+          <DocumentLayoutPageLink
+            icon="📐"
+            title="Install notes"
+            excerpt="Mounting heights"
+            meta="2h ago"
+            render={<a href="#install" />}
+          />
+        </DocumentLayoutPageItem>
+        <DocumentLayoutPageItem>
+          <DocumentLayoutPageLink
+            title="Renewals"
+            render={<a href="#renewals" />}
+          />
+        </DocumentLayoutPageItem>
+      </DocumentLayoutPageList>
+      <DocumentLayoutSectionButton>Show more pages</DocumentLayoutSectionButton>
+    </DocumentLayoutSection>,
+  );
+  await expect
+    .element(screen.getByRole("region", { name: "Pages inside · 2" }))
+    .toBeInTheDocument();
+  // The section names itself by its title's id, whatever else the title is given.
+  const section = screen.getByRole("region").element();
+  const title = section.querySelector("h2")!;
+  expect(section.getAttribute("aria-labelledby")).toBe(title.id);
+  expect(screen.getByRole("listitem").elements()).toHaveLength(2);
+  const link = screen.getByRole("link", { name: /Install notes/ }).element();
+  expect(link.getAttribute("href")).toBe("#install");
+  expect(link.textContent).toContain("Mounting heights");
+  expect(link.textContent).toContain("2h ago");
+  // A page without its own icon shows the page icon (hidden), never an empty slot.
+  const plain = screen.getByRole("link", { name: "Renewals" }).element();
+  expect(plain.querySelector("svg[aria-hidden]")).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a live block holds rows as a list, a note and a footer action, and is not editable text", async () => {
+  const screen = await render(
+    <DocumentLayoutBlock>
+      <DocumentLayoutBlockHeader>
+        <DocumentLayoutBlockTitle>Open tasks</DocumentLayoutBlockTitle>
+      </DocumentLayoutBlockHeader>
+      <DocumentLayoutBlockRows aria-label="Tasks">
+        <DocumentLayoutBlockRow>
+          <DocumentLayoutBlockRowMain>
+            <DocumentLayoutBlockRowRef>T-12</DocumentLayoutBlockRowRef>
+            Order fixtures
+          </DocumentLayoutBlockRowMain>
+        </DocumentLayoutBlockRow>
+      </DocumentLayoutBlockRows>
+      <DocumentLayoutBlockNote>
+        Couldn&apos;t load tasks.
+        <DocumentLayoutBlockAction>Try again</DocumentLayoutBlockAction>
+      </DocumentLayoutBlockNote>
+      <DocumentLayoutBlockFooter>
+        <DocumentLayoutBlockAction>Open in Tasks</DocumentLayoutBlockAction>
+      </DocumentLayoutBlockFooter>
+    </DocumentLayoutBlock>,
+  );
+  const block = screen.container.querySelector(
+    '[data-slot="document-layout-block"]',
+  )!;
+  expect(block.getAttribute("contenteditable")).toBe("false");
+  await expect
+    .element(screen.getByRole("list", { name: "Tasks" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Try again" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });

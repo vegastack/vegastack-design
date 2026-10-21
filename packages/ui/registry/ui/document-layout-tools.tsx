@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.65 sha256-iMmVzIffQ3Ij+Bn3MCv8rZSCIEJK4Z2kRGEGXr5QMWM=
+// @vegastack document-layout@0.25.65 sha256-qg7ml+V0QTxASd8kdC4jLkqA2B87C5eKOZ8WQRzROT0=
 
 "use client";
 
@@ -376,9 +376,11 @@ export function DocumentLayoutDecisionBar({
         role="region"
         data-slot="document-layout-decision-bar"
         className={cn(
-          // Under the 56px top bar while the text scrolls; on a phone, floating at the bottom.
+          // Under the 56px top bar while the text scrolls, 24px above the text it leads (the gap the
+          // header keeps from the text); on a phone, floating at the bottom (no margin there: a fixed
+          // box's margin would lift it off its inset).
           "sticky top-14 z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
-          "max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))]",
+          "sm:mb-6 max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))]",
           className,
         )}
         {...props}

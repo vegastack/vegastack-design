@@ -826,10 +826,17 @@ test("first in the body, the decision bar stays under the top bar while the text
             Review this page
           </DocumentLayoutDecisionBarText>
         </DocumentLayoutDecisionBar>
-        <div style={{ height: 3000 }}>Text</div>
+        <div data-testid="text" style={{ height: 3000 }}>
+          Text
+        </div>
       </DocumentLayoutBody>
     </DocumentLayout>,
   );
+  // 24px between the bar and the text it leads, the gap the header keeps from the text.
+  expect(
+    document.querySelector("[data-testid=text]")!.getBoundingClientRect().top -
+      slot("document-layout-decision-bar").getBoundingClientRect().bottom,
+  ).toBe(24);
   window.scrollTo(0, 1200);
   await vi.waitFor(() =>
     expect(

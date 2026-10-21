@@ -205,7 +205,8 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/item"
       ],
       "files": [
         {
@@ -227,6 +228,11 @@
           "path": "packages/ui/registry/ui/document-layout-tools.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-tools.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-sections.tsx"
         }
       ],
       "meta": {

@@ -2,8 +2,27 @@
 
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DocumentLayout,
+  DocumentLayoutBlock,
+  DocumentLayoutBlockAction,
+  DocumentLayoutBlockFooter,
+  DocumentLayoutBlockHeader,
+  DocumentLayoutBlockRow,
+  DocumentLayoutBlockRowMain,
+  DocumentLayoutBlockRowMeta,
+  DocumentLayoutBlockRowRef,
+  DocumentLayoutBlockRows,
+  DocumentLayoutBlockTitle,
+  DocumentLayoutPageItem,
+  DocumentLayoutPageLink,
+  DocumentLayoutPageList,
+  DocumentLayoutSection,
+  DocumentLayoutSectionButton,
+  DocumentLayoutSectionHeader,
+  DocumentLayoutSectionTitle,
   DocumentLayoutBody,
   DocumentLayoutContents,
   DocumentLayoutFoot,
@@ -126,6 +145,89 @@ export function documentLayoutSkeleton(): ReactNode {
   return (
     <Wrapper className="block p-0 py-8">
       <DocumentLayoutSkeleton margin icon className="px-4 sm:px-8" />
+    </Wrapper>
+  );
+}
+
+/** What a document holds besides its prose: a live block in the text and its pages at the foot. */
+export function documentLayoutSections(): ReactNode {
+  return (
+    <Wrapper className="block p-0 py-8">
+      <DocumentLayout className="px-4 sm:px-8">
+        <Header />
+        <DocumentLayoutBody>
+          <DocumentLayoutBlock>
+            <DocumentLayoutBlockHeader>
+              <DocumentLayoutBlockTitle>
+                Open tasks · this page
+              </DocumentLayoutBlockTitle>
+              <Button variant="ghost" size="sm">
+                Filter
+              </Button>
+            </DocumentLayoutBlockHeader>
+            <DocumentLayoutBlockRows aria-label="Tasks">
+              <DocumentLayoutBlockRow>
+                <DocumentLayoutBlockRowMain>
+                  <DocumentLayoutBlockRowRef>T-12</DocumentLayoutBlockRowRef>
+                  Order the seat licences
+                </DocumentLayoutBlockRowMain>
+                <DocumentLayoutBlockRowMeta>
+                  due Oct 24
+                </DocumentLayoutBlockRowMeta>
+              </DocumentLayoutBlockRow>
+              <DocumentLayoutBlockRow>
+                <DocumentLayoutBlockRowMain>
+                  <DocumentLayoutBlockRowRef>T-14</DocumentLayoutBlockRowRef>
+                  Send the renewal dates to finance
+                </DocumentLayoutBlockRowMain>
+                <DocumentLayoutBlockRowMeta>
+                  due Oct 30
+                </DocumentLayoutBlockRowMeta>
+              </DocumentLayoutBlockRow>
+            </DocumentLayoutBlockRows>
+            <DocumentLayoutBlockFooter>
+              <DocumentLayoutBlockAction>
+                Open in Tasks →
+              </DocumentLayoutBlockAction>
+            </DocumentLayoutBlockFooter>
+          </DocumentLayoutBlock>
+        </DocumentLayoutBody>
+        <DocumentLayoutFoot>
+          <DocumentLayoutSection>
+            <DocumentLayoutSectionHeader>
+              <DocumentLayoutSectionTitle count={2}>
+                Pages inside
+              </DocumentLayoutSectionTitle>
+              <Button variant="ghost" size="sm">
+                <Plus aria-hidden />
+                Add page
+              </Button>
+            </DocumentLayoutSectionHeader>
+            <DocumentLayoutPageList>
+              <DocumentLayoutPageItem>
+                <DocumentLayoutPageLink
+                  icon="💺"
+                  title="Seat pricing"
+                  excerpt="Discounts apply from twenty seats."
+                  meta="2h ago"
+                  render={<a href="#seat-pricing" />}
+                />
+              </DocumentLayoutPageItem>
+              <DocumentLayoutPageItem>
+                <DocumentLayoutPageLink
+                  title="Renewal calendar"
+                  excerpt="Annual plans renew on the same date each year."
+                  meta="Yesterday"
+                  render={<a href="#renewal-calendar" />}
+                />
+              </DocumentLayoutPageItem>
+            </DocumentLayoutPageList>
+            <DocumentLayoutSectionButton>
+              Show more pages
+            </DocumentLayoutSectionButton>
+          </DocumentLayoutSection>
+        </DocumentLayoutFoot>
+      </DocumentLayout>
     </Wrapper>
   );
 }

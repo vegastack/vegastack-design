@@ -206,6 +206,33 @@ The tools a page lays over or around its text, each without a class of your own:
 - `DocumentLayout focusable` — the canvas takes focus from a click in its read text (never a tab
   stop) and shows no focus cue of its own.
 
+### Sections, pages and live blocks
+
+What a document holds besides its prose, again without a class of your own:
+
+- `DocumentLayoutSection` — a section at the foot ("Pages inside"), named by its
+  `DocumentLayoutSectionTitle` (`count` follows it in the muted ink: "Pages inside · 3"), its title
+  row a `DocumentLayoutSectionHeader` with an action at the end. `DocumentLayoutSectionButton` is
+  its quiet button: `look="more"` loads the rest ("Show more pages", "Load earlier"), `look="add"`
+  is the one line an empty section shows to someone who can fill it. `DocumentLayoutSectionSkeleton`
+  holds its place while it loads.
+- `DocumentLayoutPageList` with `DocumentLayoutPageItem` rows — the pages under a document, ruled
+  above, between and below. `DocumentLayoutPageLink` is a row's target: its emoji (`icon`, a page
+  icon without one), name, one-line `excerpt` and `meta`, the whole row the link; a ⋯ menu follows
+  it in the item.
+- `DocumentLayoutBlock` — a live block drawn into the text (a task list): a card with a
+  `DocumentLayoutBlockHeader` (`DocumentLayoutBlockTitle`, a ghost button at the end), then
+  `DocumentLayoutBlockRows` of `DocumentLayoutBlockRow`s (`DocumentLayoutBlockRowMain` with a
+  `DocumentLayoutBlockRowRef`, then `DocumentLayoutBlockRowMeta`, which wraps under the main line
+  below 640px), or a `DocumentLayoutBlockNote` ("No tasks match") or a
+  `DocumentLayoutBlockSkeleton`, and a `DocumentLayoutBlockFooter`. `DocumentLayoutBlockAction` is
+  the link-styled action inside it (Try again, Open in Tasks →).
+
+<ComponentPreview
+  name="documentLayoutSections"
+  file="components/preview/document-layout.tsx"
+/>
+
 ### Skeleton
 
 `DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — an icon row
@@ -278,6 +305,21 @@ link prints its address.
 <ApiTable
   path="../../packages/ui/registry/ui/document-layout-tools.tsx"
   name="DocumentLayoutFindBarProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout-sections.tsx"
+  name="DocumentLayoutSectionTitleProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout-sections.tsx"
+  name="DocumentLayoutSectionButtonProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout-sections.tsx"
+  name="DocumentLayoutPageLinkProps"
 />
 
 `DocumentLayoutHeader`, `DocumentLayoutTitleGroup`, `DocumentLayoutBody` and `DocumentLayoutFoot`
