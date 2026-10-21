@@ -27,8 +27,10 @@ preview and in this sentence alike.
 ## Optical metrics — the one thing that is not stock
 
 Geist's own specification splits a **copy** tier from a **heading** tier, and so does this system.
-The copy sizes here are 12 / 14 / 16 — exactly Geist's copy tier — so they are left completely
-alone, at zero letter-spacing and stock line-height. Everything from `text-lg` up carries optical
+The copy sizes here are 12 / 14 / 16 — exactly Geist's copy tier — so they keep stock size and
+line-height and declare only their zero letter-spacing, which stops copy-size text inside a
+heading inheriting the heading's tracking (a slash form such as `text-xs/6` sets no tracking, so
+pair `text-xs` with `leading-*` there). Everything from `text-lg` up carries optical
 metrics declared as per-size `--text-*--line-height` and `--text-*--letter-spacing` in the
 `@theme` bridge:
 

@@ -116,7 +116,8 @@ does this:
 
 - **`text-xs` / `text-sm` / `text-base` — stock size and leading, zero letter-spacing.** Geist's
   `copy-*` scale specifies exactly that. The bridge declares only the zero, so copy-size text inside
-  heading type never inherits the heading's tracking — never reach for `tracking-*` to undo it.
+  heading type does not inherit the heading's tracking — never reach for `tracking-*` to undo it. A
+  slash form (`text-xs/6`) sets no tracking; inside heading type write `text-xs leading-6`.
 - **`text-lg` and above — optical metrics.** Tracking runs −0.012em at 18px to −0.06em at 72px, and
   leading is a designed ramp rather than Tailwind's stock ratios.
 

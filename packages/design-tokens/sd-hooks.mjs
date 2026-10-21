@@ -120,8 +120,8 @@ StyleDictionary.registerTransform({
 // derives from `--radius` exactly as upstream derives it, and shadows are per-component
 // `shadow-sm/md/lg`.
 //
-// TYP-15 (ours, MK 2026-09-22) adds back ONE thing, and only above the copy tier: the heading
-// tier's optical metrics. See the HEADING TIER block below for why that is not a re-opening of
+// TYP-15 (ours, MK 2026-09-22) adds back ONE thing: the heading tier's optical metrics, and the
+// copy tier's explicit zero tracking (MK 2026-10-21) so copy text never inherits the heading's. See the HEADING TIER block below for why that is not a re-opening of
 // TYP-1.
 //
 // What remains is what upstream's own `globals.css` bridges — every semantic colour, the radius
