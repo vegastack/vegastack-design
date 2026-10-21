@@ -16,6 +16,7 @@ import {
   DocumentLayoutMetaField,
   DocumentLayoutMetaGroup,
   DocumentLayoutMetaItem,
+  DocumentLayoutMetaLink,
   DocumentLayoutSkeleton,
   DocumentLayoutTitle,
   DocumentLayoutTitleGroup,
@@ -679,4 +680,34 @@ test("on a phone the status row is two lines from the first paint; the clipped r
     "[data-slot=document-layout-meta-dot]",
   )!;
   expect(dot.getBoundingClientRect().right).toBeLessThanOrEqual(box.left + 1);
+});
+
+test("a fact stays on one line — its link truncates, its words never wrap — and meta lines print", async () => {
+  await page.viewport(1440, 900);
+  await render(
+    <div style={{ width: 320 }}>
+      <DocumentLayoutMeta>
+        <DocumentLayoutMetaItem>
+          From meeting
+          <DocumentLayoutMetaLink href="#m">
+            A very long weekly product sync about the lighting range and its
+            accessories
+          </DocumentLayoutMetaLink>
+          · Oct 14
+        </DocumentLayoutMetaItem>
+      </DocumentLayoutMeta>
+    </div>,
+  );
+  const item = slot("document-layout-meta-item");
+  expect(item.getBoundingClientRect().height).toBeLessThanOrEqual(20);
+  const link = slot("document-layout-meta-link");
+  expect(link.scrollWidth).toBeGreaterThan(link.clientWidth);
+  await cdp().send("Emulation.setEmulatedMedia", { media: "print" });
+  try {
+    expect(getComputedStyle(slot("document-layout-meta")).display).not.toBe(
+      "none",
+    );
+  } finally {
+    await cdp().send("Emulation.setEmulatedMedia", { media: "" });
+  }
 });

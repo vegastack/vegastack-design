@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.61 sha256-8QW056J2GuvQkFvhocVrv02XVlMmhCfY/Po9BsyHf2U=
+// @vegastack document-layout@0.25.61 sha256-z9n0YvA19JIMFb7gwiuV4auXLSJQpHsR2OAu/4XsLAw=
 
 "use client";
 
@@ -48,7 +48,8 @@ const STATUS =
 /**
  * `DocumentLayoutMeta` — a line of facts under a document's title (`DocumentLayoutMetaItem`s,
  * each opening with a `·`), or with `variant="status"` the status row of owner and chips. Put it
- * in `DocumentLayoutHeader`. Hidden in print.
+ * in `DocumentLayoutHeader`. It prints; hide a line that means nothing on paper with your print
+ * rules (an editor's status row, say).
  *
  * @example
  * <DocumentLayoutMeta>
@@ -75,7 +76,7 @@ export function DocumentLayoutMeta({
     <div
       data-slot="document-layout-meta"
       data-variant={variant}
-      className="min-w-0 overflow-clip [overflow-clip-margin:0.25rem] print:hidden"
+      className="min-w-0 overflow-clip [overflow-clip-margin:0.25rem]"
     >
       <div
         ref={refs}
@@ -183,7 +184,8 @@ export interface DocumentLayoutMetaItemProps extends React.ComponentPropsWithRef
 
 /**
  * `DocumentLayoutMetaItem` — one fact on a `DocumentLayoutMeta` line: its `·` separator, an
- * optional icon and its content, wrapping as one unit.
+ * optional icon and its content, on one line that wraps as a unit (its words never break inside
+ * it; a `DocumentLayoutMetaLink` in it truncates).
  *
  * @example
  * <DocumentLayoutMetaItem icon={<Video />}>From meeting</DocumentLayoutMetaItem>
@@ -200,7 +202,8 @@ export function DocumentLayoutMetaItem({
       data-slot="document-layout-meta-item"
       data-yields={yields ? "" : undefined}
       className={cn(
-        "inline-flex max-w-full min-w-0 items-center gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+        // One line: its words never wrap inside the fact (a `DocumentLayoutMetaLink` truncates).
+        "inline-flex max-w-full min-w-0 items-center gap-1.5 whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         // Gives way first on a tight status row; holds once the row wraps or the chip is compact.
         "data-yields:min-w-15 data-yields:shrink-[100] group-data-wrap/document-meta:data-yields:shrink-0 data-yields:has-data-compact:shrink-0",
         className,
