@@ -2051,10 +2051,12 @@ function StaticShell() {
   );
 }
 
-async function paintStaticShell() {
+async function paintStaticShell(collapsedWhen?: string) {
   const { renderToString } = await import("react-dom/server");
   const html = renderToString(<StaticShell />);
-  const scriptHtml = renderToString(<SidebarStateScript collapsible="icon" />);
+  const scriptHtml = renderToString(
+    <SidebarStateScript collapsible="icon" collapsedWhen={collapsedWhen} />,
+  );
   // Run the head script the way the parser would: before the body markup exists.
   const script = document.createElement("script");
   script.textContent = new DOMParser()
@@ -2090,6 +2092,56 @@ test("LAY-13: with the cookie false, the panel is collapsed before hydration (JS
     host.remove();
     script.remove();
     document.documentElement.removeAttribute("data-sidebar-state");
+  }
+});
+
+test("LAY-13: collapsedWhen starts a panel nobody chose collapsed before hydration, and keeps that start", async () => {
+  const clear = () => {
+    document.cookie = "sidebar_state=; path=/; max-age=0";
+    document.documentElement.removeAttribute("data-sidebar-state");
+  };
+  clear();
+  // No cookie, a matching window: collapsed at first paint, and the cookie records it.
+  let painted = await paintStaticShell("(min-width: 1px)");
+  try {
+    expect(document.documentElement.getAttribute("data-sidebar-state")).toBe(
+      "collapsed",
+    );
+    expect(slot(painted.host, "sidebar")!.getAttribute("data-state")).toBe(
+      "collapsed",
+    );
+    expect(document.cookie.split(/;\s*/)).toContain("sidebar_state=false");
+  } finally {
+    painted.host.remove();
+    painted.script.remove();
+    clear();
+  }
+  // A window it doesn't match: expanded, nothing written.
+  painted = await paintStaticShell("(max-width: 1px)");
+  try {
+    expect(document.documentElement.hasAttribute("data-sidebar-state")).toBe(
+      false,
+    );
+    expect(document.cookie).not.toContain("sidebar_state=");
+  } finally {
+    painted.host.remove();
+    painted.script.remove();
+    clear();
+  }
+  // A person's own choice wins over the width.
+  document.cookie = "sidebar_state=true; path=/";
+  painted = await paintStaticShell("(min-width: 1px)");
+  try {
+    expect(document.documentElement.hasAttribute("data-sidebar-state")).toBe(
+      false,
+    );
+    expect(slot(painted.host, "sidebar")!.getAttribute("data-state")).toBe(
+      "expanded",
+    );
+  } finally {
+    painted.host.remove();
+    painted.script.remove();
+    clear();
   }
 });
 
