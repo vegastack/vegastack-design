@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.25.62 sha256-JhiAgmYqrVU6YBayA3OA+FhXAXkiYKlZE2tTdQGzA5I=
+// @vegastack notifications-01@0.25.63 sha256-opWseWK0l34f2PBC7Q7wRVcMiRmMqzMzcy32GNe1yOc=
 
 /**
  * Sample data for `notifications-01`. Replace it with your notifications API; the shape is what

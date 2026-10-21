@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.25.63
+
+### Patch Changes
+
+- [#705](https://github.com/vegastack/vegastack-design/pull/705) [`a6f4201`](https://github.com/vegastack/vegastack-design/commit/a6f4201bbe137f3a79a18d067947f7ccdf8c711d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **TextEdit** turns a lone pasted link into what it names, as Notion and Google Docs do. The URL lands as text, then becomes a mention of the app's own record (the new `mentions.fromUrl`), a YouTube or Loom embed (where it can stand in for an empty paragraph), or a link. With **InlineChip**'s new `linkPreview` resolver, a link's text is the page's title when it answers within 1.5 seconds (link and title land as one step), and the link card shows the page's icon and title. A small paste popover offers the other choice (**Mention · Link**, **Embed · Link**) until the next keystroke, click or Escape; Tab moves into it. Each step is its own undo step, so ⌘Z right after a paste leaves the URL as text, in shared documents too. Pasting over a selection, in code or with ⌘⇧V never converts. The "Embedded" toast and its Undo are gone: the popover and ⌘Z replace them. Escape with a chip's card open (a click on a person shows it) closes only the card, and the caret stays beside the chip, so typing goes on there instead of being dropped. **InlineChip**'s card closes when a key is typed anywhere, so a person's card never stays over a comment box (or the text) being typed in.
+
+- [#719](https://github.com/vegastack/vegastack-design/pull/719) [`bfce471`](https://github.com/vegastack/vegastack-design/commit/bfce4719f055645e3c74ba1c8fc83c0d8913b842) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **ShareDialog**: the publish hint ("Anyone with the link can view, without signing in", "Off — only people with access can open it") wraps instead of being cut off on a narrow sheet; checked at 320 and 375px, published or not, on both tabs. **Empty**: a long unbroken word in `EmptyTitle` or `EmptyDescription` (a quoted search) breaks inside the empty state instead of running past it (LAY-17). **MermaidBlock**: the error's **Details** toggle is a full 24px target.
+
 ## 0.25.62
 
 ### Patch Changes
