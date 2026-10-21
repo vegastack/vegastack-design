@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.65 sha256-a4IwrqOU0Zc3lXH34Th0TqWq8rV5XBlYsGwwSu1ohto=
+// @vegastack document-layout@0.25.65 sha256-qg7ml+V0QTxASd8kdC4jLkqA2B87C5eKOZ8WQRzROT0=
 
 "use client";
 
@@ -597,7 +597,7 @@ export function DocumentLayoutBlockFooter({
 
 /**
  * `DocumentLayoutBlockAction` — a link-styled action inside the block's text (Try again, Open in
- * Tasks →): no padding of its own, so it sits in the line.
+ * Tasks →): no padding of its own, so it sits in the line, with a 24px target past its glyphs.
  *
  * @example
  * <DocumentLayoutBlockAction onClick={retry}>Try again</DocumentLayoutBlockAction>
@@ -610,7 +610,11 @@ export function DocumentLayoutBlockAction({
     <Button
       variant="link"
       size="sm"
-      className={cn("h-auto p-0", className)}
+      // In the line, 18px tall: a 4px hit area above and below makes its target 26px.
+      className={cn(
+        "h-auto p-0 after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']",
+        className,
+      )}
       {...props}
     />
   );
