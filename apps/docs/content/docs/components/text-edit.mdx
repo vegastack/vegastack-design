@@ -535,7 +535,9 @@ edit never loses the mention.
 The app owns the connection (Hocuspocus, or any provider with an `awareness`); the design system
 types it structurally and never imports one. Each collaborator's caret and selection draw in their
 tag hue with their name above the caret for two seconds after they move (an agent always in
-purple), and ⌘Z undoes only this viewer's own changes. Who a caret belongs to comes only from
+purple), and ⌘Z undoes only this viewer's own changes. A host that replaces the text under the
+reader (a version restored) calls `handleRef.current.clearHistory()`: undoing the reader's earlier
+changes onto the new text would splice the old text into it. Who a caret belongs to comes only from
 `peer(clientId)` — the collaboration server's authenticated identity for that connection — never
 from the name a client writes into awareness, so nobody can draw a caret as someone else; without
 `peer` a caret is a plain grey bar. The document is the truth: `value`, `onValueChange`,

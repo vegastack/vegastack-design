@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.61 sha256-prTZcbQ3OzP5T2owQfk/R3DzeYb1KxZmkqnoFFfiJEM=
+// @vegastack text-edit@0.25.61 sha256-WBW5UTmNocsoCDrmgiDkODMRpazmE47A1m9uiI465ek=
 
 "use client";
 
@@ -46,6 +46,7 @@ import {
   relativePositionToAbsolutePosition,
   ySyncPluginKey,
   yCursorPlugin,
+  yUndoPluginKey,
 } from "@tiptap/y-tiptap";
 import * as Y from "yjs";
 import { Fragment, Slice, type Node as PMNode } from "@tiptap/pm/model";
@@ -4961,6 +4962,7 @@ function buildExtensions(
             ? "Toggle"
             : (placeholder.current ?? ""),
       }),
+      CaretFromDom,
       VegaStackMarkdown,
       Shortcuts,
       slashExtension(runtime),
@@ -4978,6 +4980,59 @@ function buildExtensions(
     ],
   });
 }
+
+/**
+ * A key acts at the caret the reader sees. ProseMirror reads a caret the browser moved (a click,
+ * an arrow key) on `selectionchange`, which the browser queues behind input already waiting: a key
+ * pressed before it runs — Enter, Backspace, ⌘A, a shortcut — would act on the selection from
+ * before, in a page opened a moment ago the start of the document (Enter there splits the first
+ * line, and what follows is typed into it). So before anything handles a key, a caret the editor
+ * hasn't read yet is read — ProseMirror's own reading, as `selectionchange` would do it. A capture
+ * listener on the editor: it runs before every key handler (the editor's own props included), and
+ * only for the browser's own key events, never for a key ProseMirror replays while reading input.
+ */
+/** Keys that never act at the caret: modifiers alone, and an input method's dead or pending key. */
+const NOT_ACTING_KEYS = new Set([
+  "Shift",
+  "Control",
+  "Alt",
+  "Meta",
+  "CapsLock",
+  "Dead",
+  "Process",
+]);
+
+const CaretFromDom = Extension.create({
+  name: "textEditCaretFromDom",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        view(view) {
+          const onKeyDown = (event: KeyboardEvent) => {
+            // An input method's key (229, a dead key, mid-composition): its text arrives through
+            // the DOM. A modifier alone acts on nothing.
+            if (
+              event.isComposing ||
+              event.keyCode === 229 ||
+              view.composing ||
+              NOT_ACTING_KEYS.has(event.key)
+            )
+              return;
+            if (!view.hasFocus()) return;
+            (
+              view as unknown as { domObserver?: { flush?: () => void } }
+            ).domObserver?.flush?.();
+          };
+          view.dom.addEventListener("keydown", onKeyDown, true);
+          return {
+            destroy: () =>
+              view.dom.removeEventListener("keydown", onKeyDown, true),
+          };
+        },
+      }),
+    ];
+  },
+});
 
 /** Whether pasted plain text reads as markdown worth parsing rather than inserting verbatim. */
 function looksLikeMarkdown(text: string) {
@@ -11439,6 +11494,13 @@ export function TextEditEditor({
       },
       pickFiles: () => pickRef.current?.(),
       pendingUploads: () => uploadsRef.current.size,
+      clearHistory: () => {
+        const ed = editorRef.current;
+        if (!ed || ed.isDestroyed) return;
+        const undo = yUndoPluginKey.getState(ed.state) as
+          { undoManager?: Y.UndoManager } | undefined;
+        undo?.undoManager?.clear();
+      },
       linkTaskItems: (links: readonly TextEditTaskLink[]) => {
         const ed = editorRef.current;
         return ed && !ed.isDestroyed
