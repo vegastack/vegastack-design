@@ -1154,9 +1154,11 @@ utilities: `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10
 **Type metrics are the one exception, and they are global** (TYP-15/16/17/18, MK 2026-09-22).
 Geist's own spec splits a COPY tier from a HEADING tier, and so does this system:
 
-- **The copy tier — `text-xs` / `text-sm` / `text-base` — is untouched stock**, with zero
-  letter-spacing, exactly as Geist's `copy-*` scale specifies. Nothing in the `@theme` bridge
-  declares it.
+- **The copy tier — `text-xs` / `text-sm` / `text-base` — keeps its stock size and leading**,
+  with zero letter-spacing, exactly as Geist's `copy-*` scale specifies. The `@theme` bridge
+  declares only that zero, so copy-size text nested in heading type (a count, a badge, a meta line
+  under a title) does not inherit the heading's negative tracking (MK 2026-10-21). A slash form
+  (`text-xs/6`) sets no tracking: inside heading type use `text-xs leading-6`.
 - **The heading tier — `text-lg` and above — carries optical metrics**, declared once in the
   `@theme inline` bridge as per-size `--text-*--line-height` and `--text-*--letter-spacing`.
   Tracking runs -0.012em at 18px to -0.06em at 72px, and leading is a designed ramp rather than

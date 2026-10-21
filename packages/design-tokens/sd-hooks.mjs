@@ -120,8 +120,8 @@ StyleDictionary.registerTransform({
 // derives from `--radius` exactly as upstream derives it, and shadows are per-component
 // `shadow-sm/md/lg`.
 //
-// TYP-15 (ours, MK 2026-09-22) adds back ONE thing, and only above the copy tier: the heading
-// tier's optical metrics. See the HEADING TIER block below for why that is not a re-opening of
+// TYP-15 (ours, MK 2026-09-22) adds back ONE thing: the heading tier's optical metrics, and the
+// copy tier's explicit zero tracking (MK 2026-10-21) so copy text never inherits the heading's. See the HEADING TIER block below for why that is not a re-opening of
 // TYP-1.
 //
 // What remains is what upstream's own `globals.css` bridges — every semantic colour, the radius
@@ -148,10 +148,11 @@ StyleDictionary.registerFormat({
       "  /* ── TYP-15 (ours) — HEADING TIER OPTICAL METRICS ────────────────────────────────────",
       "     Geist's published spec splits a COPY tier (letter-spacing 0) from a HEADING tier whose",
       "     letter-spacing goes negative as size grows. This system's copy sizes are 12/14/16 —",
-      "     exactly Geist's copy tier — so `text-xs`, `text-sm` and `text-base` are NOT declared",
-      "     here: they stay stock, untouched, and the 202 component usages of them render",
-      "     byte-identically. Restating them at their stock values would be the same dead",
-      "     restatement `restated-motion-reduce` and `restated-focus` exist to reject.",
+      "     exactly Geist's copy tier — so `text-xs`, `text-sm` and `text-base` keep their stock",
+      "     size and leading and declare ONLY their letter-spacing, 0. Left undeclared, a copy-size",
+      "     element nested in heading type (a count, a badge, a meta line under a title) INHERITS",
+      "     the heading's negative tracking and reads cramped; declared, it is 0 wherever it sits.",
+      "     Outside heading type this is a no-op: body text is already 0 (MK, 21-10-2026).",
       "",
       "     SIZES ARE STOCK. Only `--line-height` and `--letter-spacing` move, so TYP-1 stays",
       "     **shadcn** and a pasted shadcn snippet still renders at upstream's size. The size is",
@@ -162,6 +163,9 @@ StyleDictionary.registerFormat({
       "     clips Geist's descenders once negative tracking pulls the glyphs together; Vercel runs",
       "     48px at 56px leading, not 48. And stock `text-lg` (1.556) is looser than `text-base`",
       "     (1.5) — non-monotonic, and backwards from the shape this ramp exists to produce. */",
+      "  --text-xs--letter-spacing: 0em;",
+      "  --text-sm--letter-spacing: 0em;",
+      "  --text-base--letter-spacing: 0em;",
       "  --text-lg: 1.125rem;",
       "  --text-lg--line-height: 1.625rem;",
       "  --text-lg--letter-spacing: -0.012em;",
