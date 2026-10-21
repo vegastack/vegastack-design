@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.63 sha256-xlV6lDdIV7KHcVUOy4VVkZIKIfF2evqrmQkSr5Z+6nM=
+// @vegastack text-edit@0.25.63 sha256-vsjT3S8cDpWiyGO9HeuhHQnxIp8XSvxiOBdv3gNCtlM=
 
 "use client";
 
@@ -3588,9 +3588,10 @@ function mentionView(runtime: EditorRuntime) {
           kind={kind}
           targetId={id}
           label={label}
-          struck={closed?.struck === true}
-          done={closed?.done === true}
-          status={closed?.status}
+          // No state of the surface's own: the chip asks the provider's (`InlineChipResolver.state`).
+          struck={closed ? closed.struck === true : undefined}
+          done={closed ? closed.done === true : undefined}
+          status={closed ? closed.status : undefined}
           openOn="modifier"
           href={hrefFor ? hrefFor(kind, id) : undefined}
           image={

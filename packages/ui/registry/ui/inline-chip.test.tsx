@@ -9,6 +9,7 @@ import {
   InlineChipProvider,
 } from "./inline-chip";
 import { MarkdownView } from "./markdown-view";
+import { TextEdit } from "./text-edit";
 
 test("the label sits on the surrounding text's baseline", async () => {
   const screen = await render(
@@ -219,4 +220,67 @@ test("a key typed anywhere closes a chip's card, so it never covers what is bein
   screen.getByRole("textbox", { name: "Reply" }).element().focus();
   await userEvent.keyboard("h");
   await vi.waitFor(() => expect(card()).toBeNull());
+});
+
+test("the provider's state shows on every surface — a bare chip, a rendered body, an editor; a surface's own state wins", async () => {
+  const state = (kind: string, id: string) =>
+    kind !== "task"
+      ? null
+      : id === "t-done"
+        ? { done: true }
+        : id === "t-cancel"
+          ? { struck: true, status: "Canceled" }
+          : null;
+  const body =
+    "[@Ship](mention://task/t-done) [@Old](mention://task/t-cancel) [@Open](mention://task/t-open)";
+  const screen = await render(
+    <InlineChipProvider value={{ state }}>
+      <div data-testid="bare">
+        <InlineChip kind="task" targetId="t-done" label="Ship" />
+        <InlineChip kind="task" targetId="t-cancel" label="Old" />
+        <InlineChip
+          kind="task"
+          targetId="t-cancel"
+          label="Own"
+          struck={false}
+        />
+      </div>
+      <div data-testid="view">
+        <MarkdownView>{body}</MarkdownView>
+      </div>
+      <div data-testid="edit">
+        <TextEdit format="markdown" aria-label="Notes" defaultValue={body} />
+      </div>
+    </InlineChipProvider>,
+  );
+  const chips = (id: string) =>
+    [
+      ...screen
+        .getByTestId(id)
+        .element()
+        .querySelectorAll<HTMLElement>("[data-slot=inline-chip]"),
+    ].map((chip) => [
+      chip.hasAttribute("data-done"),
+      chip.hasAttribute("data-struck"),
+    ]);
+  expect(chips("bare")).toEqual([
+    [true, false],
+    [false, true],
+    [false, false],
+  ]);
+  expect(chips("view")).toEqual([
+    [true, false],
+    [false, true],
+    [false, false],
+  ]);
+  await vi.waitFor(() =>
+    expect(chips("edit")).toEqual([
+      [true, false],
+      [false, true],
+      [false, false],
+    ]),
+  );
+  expect(screen.getByTestId("view").element().textContent).toContain(
+    "Canceled",
+  );
 });

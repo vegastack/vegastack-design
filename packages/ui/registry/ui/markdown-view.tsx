@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.63 sha256-oCeMPduxq5LGw8jyjmDyaGWgy+GTdeHd1sKsg0CONr8=
+// @vegastack markdown-view@0.25.63 sha256-RdefEA47X53rWnGIdIu6Lwti6DZppDN8IskfoaPcxUY=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1902,9 +1902,10 @@ function renderNode(
           kind={kind}
           targetId={attrs.id ?? ""}
           label={attrs.label ?? ""}
-          struck={closed?.struck === true}
-          done={closed?.done === true}
-          status={closed?.status}
+          // No state of the surface's own: the chip asks the provider's (`InlineChipResolver.state`).
+          struck={closed ? closed.struck === true : undefined}
+          done={closed ? closed.done === true : undefined}
+          status={closed ? closed.status : undefined}
           // The view's own props win over the provider's only when the host passed them.
           href={
             ctx.mentionHref ? ctx.mentionHref(kind, attrs.id ?? "") : undefined
