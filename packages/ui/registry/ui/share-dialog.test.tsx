@@ -613,22 +613,48 @@ test("share-dialog: without public links the Share tab shows, even when Publish 
   );
 });
 
-test("share-dialog at 320px: nothing runs past the sheet's edge, on either tab", async () => {
+test("share-dialog at 320 and 375px, published or not: nothing runs past the sheet's edge, and no hint is cut", async () => {
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
   document.head.append(sheet);
   onTestFinished(() => sheet.remove());
-  await page.viewport(320, 740);
-  for (const tab of ["share", "publish"] as const) {
-    const screen = await render(<ShareDemo defaultOpen defaultTab={tab} />);
-    const dialog = screen.getByRole("dialog", { name: "Share" });
-    await expect.element(dialog).toBeVisible();
-    const overflow = [
-      ...(dialog.element() as HTMLElement).querySelectorAll<HTMLElement>("*"),
-    ].filter(
-      (el) => el.getBoundingClientRect().right > window.innerWidth + 0.5,
-    );
-    expect(overflow.map((el) => el.dataset.slot ?? el.tagName)).toEqual([]);
-    screen.unmount();
-  }
+  for (const width of [320, 375])
+    for (const publicLinkOn of [false, true])
+      for (const tab of ["share", "publish"] as const) {
+        await page.viewport(width, 740);
+        const screen = await render(
+          <ShareDemo
+            defaultOpen
+            publicLinkOn={publicLinkOn}
+            defaultTab={tab}
+          />,
+        );
+        const dialog = screen.getByRole("dialog", { name: "Share" });
+        await expect.element(dialog).toBeVisible();
+        const root = dialog.element() as HTMLElement;
+        const where = `${width}px, ${publicLinkOn ? "published" : "not published"}, ${tab}`;
+        const overflow = [...root.querySelectorAll<HTMLElement>("*")].filter(
+          (el) => el.getBoundingClientRect().right > window.innerWidth + 0.5,
+        );
+        expect(
+          overflow.map((el) => el.dataset.slot ?? el.tagName),
+          where,
+        ).toEqual([]);
+        // A hint or label clipped by `truncate` loses words: none in the visible panel.
+        const cut = [
+          ...root.querySelectorAll<HTMLElement>(
+            "[data-slot=tabs-content]:not([data-hidden]) span",
+          ),
+        ].filter(
+          (el) =>
+            el.children.length === 0 &&
+            el.textContent?.trim() &&
+            el.scrollWidth > el.clientWidth + 1,
+        );
+        expect(
+          cut.map((el) => el.textContent),
+          where,
+        ).toEqual([]);
+        screen.unmount();
+      }
 });
