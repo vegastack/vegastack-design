@@ -115,7 +115,9 @@ chip carries `data-done`. `struck`
 strikes the label through and `status` adds a small muted tag after it. Use them for a target that
 was closed without being done, such as a canceled or duplicate task. The chip keeps its ground and
 link and carries `data-struck`. `TextEdit` and `MarkdownView` set all three from their
-`mentionStatus(kind, id)`.
+`mentionStatus(kind, id)`. Without one of their own, every chip — a bare one, in a rendered body,
+in an editor, in a comment — takes its state from the `InlineChipProvider`'s `state(kind, id)`, so
+one answer shows a record alike on every surface.
 
 <ComponentPreview
   name="inlineChipClosed"
@@ -148,6 +150,11 @@ link and carries `data-struck`. `TextEdit` and `MarkdownView` set all three from
 <ApiTable
   path="../../packages/ui/registry/ui/inline-chip.tsx"
   name="InlineChipLinkPreview"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inline-chip.tsx"
+  name="InlineChipState"
 />
 
 <ApiTable

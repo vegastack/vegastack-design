@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.63 sha256-QrzL6NZr5kTqVFPvu8S0cDhmmKkg1op0YialRdAIU0g=
+// @vegastack inline-chip@0.25.63 sha256-Kw2s0OGGVyzOrpul/DTFBNM8hZJTe6gxHHB8eiSjT6c=
 
 "use client";
 
@@ -112,6 +112,15 @@ export interface InlineChipResolver {
   href?: (kind: InlineChipKind, id: string) => string | null | undefined;
   /** The person behind a `user` chip, by id: the hover card shows them. */
   person?: (id: string) => InlineChipPerson | null | undefined;
+  /**
+   * A record's state, for every chip that isn't given its own (`done`, `struck`, `status`): a
+   * finished task's check, a canceled or duplicate task struck through with its status. One
+   * answer for every surface — an editor, a rendered body, a comment. Answer `null` for none.
+   */
+  state?: (
+    kind: InlineChipKind,
+    id: string,
+  ) => InlineChipState | null | undefined;
   /** A small preview for a non-person chip's hover card (a task's title and status). */
   preview?: (kind: InlineChipKind, id: string) => React.ReactNode;
   /**
@@ -133,6 +142,16 @@ export interface InlineChipResolver {
     url: string,
     options: { signal: AbortSignal },
   ) => Promise<InlineChipLinkPreview | null>;
+}
+
+/** A chip's record state (`InlineChipResolver.state`): the same three props a chip takes. */
+export interface InlineChipState {
+  /** A finished task: the check instead of the task glyph. @default false */
+  done?: boolean;
+  /** Closed without being done: the label struck through. @default false */
+  struck?: boolean;
+  /** A small tag after the label ("Canceled", "Duplicate"). @default undefined */
+  status?: string;
 }
 
 /** What `InlineChipResolver.linkPreview` answers for a link. */
@@ -392,14 +411,25 @@ export function InlineChip({
   preview: previewProp,
   restricted: restrictedProp,
   openOn = "click",
-  struck = false,
-  status,
-  done = false,
+  struck: struckProp,
+  status: statusProp,
+  done: doneProp,
   className,
   onKeyDown,
   ...props
 }: InlineChipProps) {
   const resolver = React.useContext(InlineChipContext);
+  // Its own state when given any; else the provider's, so every surface shows a record alike.
+  const own =
+    struckProp !== undefined ||
+    doneProp !== undefined ||
+    statusProp !== undefined;
+  const restrictedState = restrictedProp ?? targetId.startsWith("restricted:");
+  const given =
+    own || restrictedState ? null : resolver?.state?.(kind, targetId);
+  const struck = (own ? struckProp : given?.struck) === true;
+  const done = (own ? doneProp : given?.done) === true;
+  const status = own ? statusProp : (given?.status ?? undefined);
   // The card shows for a pointer resting on the chip (or focus on it), never in the way of
   // typing: a key pressed outside it — in the text it covers, a comment box under it — closes it.
   // Escape closes only the card: it goes no further (an editor keeps its caret, a dialog stays).

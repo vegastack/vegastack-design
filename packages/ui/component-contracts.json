@@ -15525,6 +15525,15 @@
           }
         },
         {
+          "name": "InlineChipState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "InlineChipTarget",
           "kind": "interface",
           "source": "packages/ui/registry/ui/inline-chip.tsx",
