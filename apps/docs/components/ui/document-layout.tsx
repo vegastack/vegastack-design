@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.65 sha256-iMmVzIffQ3Ij+Bn3MCv8rZSCIEJK4Z2kRGEGXr5QMWM=
+// @vegastack document-layout@0.25.65 sha256-Xdm4WUHlrlOdA9tWXRUrNAdnSgwV5W6/iR9ee74s8BY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -43,6 +43,32 @@ export {
   type DocumentLayoutStarterProps,
   type DocumentLayoutStartersProps,
 } from "@/components/ui/document-layout-tools";
+export {
+  DocumentLayoutBlock,
+  DocumentLayoutBlockAction,
+  DocumentLayoutBlockFooter,
+  DocumentLayoutBlockHeader,
+  DocumentLayoutBlockNote,
+  DocumentLayoutBlockRow,
+  DocumentLayoutBlockRowMain,
+  DocumentLayoutBlockRowMeta,
+  DocumentLayoutBlockRowRef,
+  DocumentLayoutBlockRows,
+  DocumentLayoutBlockSkeleton,
+  DocumentLayoutBlockTitle,
+  DocumentLayoutPageItem,
+  DocumentLayoutPageLink,
+  DocumentLayoutPageList,
+  DocumentLayoutSection,
+  DocumentLayoutSectionButton,
+  DocumentLayoutSectionHeader,
+  DocumentLayoutSectionSkeleton,
+  DocumentLayoutSectionTitle,
+  type DocumentLayoutPageLinkProps,
+  type DocumentLayoutSectionButtonProps,
+  type DocumentLayoutSectionProps,
+  type DocumentLayoutSectionTitleProps,
+} from "@/components/ui/document-layout-sections";
 
 /* ------------------------------------------------------------------------------------------------
  * DocumentLayout — a page read as a document: the title area, the text, what follows the text

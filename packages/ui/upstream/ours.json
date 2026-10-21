@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 116,
+    "total": 117,
     "fromExtras": 46
   },
   "items": {
@@ -705,6 +705,11 @@
       "disposition": "keep",
       "family": "internal",
       "source": "internal part of document-layout (its client tools: find bar, jump cue, starters, note). Regent O-7 follow-up, coordinator ruling A 2026-10-21 (no bespoke styling in the app)"
+    },
+    "document-layout-sections": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of document-layout (its foot sections, page list and live blocks). Regent O-7 batch 3, coordinator ruling A 2026-10-21 (no bespoke styling in the app)"
     },
     "entry-list": {
       "disposition": "keep",

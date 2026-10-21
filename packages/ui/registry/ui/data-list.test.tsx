@@ -889,6 +889,24 @@ test("every remaining `<table>` prop type-checks and flows through to the table 
  * Wrapping posture per column (D18) and the shared scroll region (B5-01).
  * ------------------------------------------------------------------------------------------- */
 
+test("a numeric column sets its body values in tabular figures, in the regular face", async () => {
+  await render(
+    <DataList
+      columns={[
+        { key: "name", header: "Name" },
+        { key: "amount", header: "Amount", align: "end", numeric: true },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const [, amount] = [
+    ...document.querySelectorAll('[data-slot="table-cell"]'),
+  ] as HTMLElement[];
+  expect(amount!.className).toContain("tabular-nums");
+  expect(amount!.className).not.toContain("font-mono");
+});
+
 test("cells wrap by default; end-aligned and mono columns stay on one line", async () => {
   await render(
     <DataList

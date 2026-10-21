@@ -30214,6 +30214,7 @@
       "wave": "Navigation/layout",
       "sourceFiles": [
         "packages/ui/registry/ui/document-layout-meta.tsx",
+        "packages/ui/registry/ui/document-layout-sections.tsx",
         "packages/ui/registry/ui/document-layout-tools.tsx",
         "packages/ui/registry/ui/document-layout.tsx",
         "packages/ui/registry/ui/use-document-layout-tier.ts"
@@ -30696,6 +30697,242 @@
             "target": "p",
             "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
           }
+        },
+        {
+          "name": "DocumentLayoutBlock",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockNote",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockRowMain",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockRowMeta",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockRowRef",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockRows",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutPageItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutPageLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props and ref reach the Item row (its `render` target) in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutPageLinkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutPageList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ul",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Props and ref reach the `section` inside the title-id context in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "h2",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSectionTitleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -30752,6 +30989,7 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/input-group",
+        "@vegastack/item",
         "@vegastack/skeleton"
       ],
       "npmDependencies": [
@@ -30849,6 +31087,177 @@
             {
               "name": "data-slot",
               "values": ["document-layout-meta-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutSectionHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-section-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutSectionTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-section-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutSectionButton": {
+          "attributes": [
+            {
+              "name": "data-look",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutSectionSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-section-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutPageList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-page-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutPageItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-page-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutPageLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-page-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlock": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockNote": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-note"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockRows": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-rows"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockRowMain": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-row-main"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockRowRef": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-row-ref"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockRowMeta": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-row-meta"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-footer"]
             }
           ],
           "cssVariables": []

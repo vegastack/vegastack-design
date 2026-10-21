@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.65 sha256-77NzO9GP51+8NZD9VT2u7T6DwdNamVmfpeOcFQwc9NA=
+// @vegastack data-table-parts@0.25.65 sha256-GuZsv7Veg8gZ9tU0L8tj4wfr36g5E410/VffxzTprb8=
 
 "use client";
 
@@ -83,6 +83,12 @@ export interface DataTableColumnLayout {
    * @default false
    */
   mono?: boolean;
+  /**
+   * Set this column's BODY values in tabular figures, in the regular face — for a count, an amount,
+   * a size or a date, so their digits line up down the column (`mono` already does for codes).
+   * @default false
+   */
+  numeric?: boolean;
   /**
    * Keep this column's cells on one line instead of wrapping. The primary
    * (first) column is the FILL column: it takes the width the others leave and
@@ -298,6 +304,7 @@ export function columnCellClass(
     // the cell to the control (review round 4). The last cell keeps the target's 12px instead.
     "last:has-[[role=checkbox],[role=switch],[role=radio]]:pe-3",
     column.mono && "font-mono text-sm tabular-nums",
+    column.numeric && "tabular-nums",
   );
 }
 
@@ -327,6 +334,7 @@ export function mergedValueClass(column: DataTableColumnLayout): string {
   return cn(
     "block min-w-0 whitespace-normal wrap-anywhere",
     column.mono ? "font-mono tabular-nums" : "font-sans",
+    column.numeric && "tabular-nums",
   );
 }
 

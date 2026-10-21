@@ -232,7 +232,8 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/item"
       ],
       "files": [
         {
@@ -254,13 +255,18 @@
           "path": "packages/ui/registry/ui/document-layout-tools.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-tools.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-sections.tsx"
         }
       ],
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.65",
-        "integrity": "sha256-iMmVzIffQ3Ij+Bn3MCv8rZSCIEJK4Z2kRGEGXr5QMWM="
+        "integrity": "sha256-Xdm4WUHlrlOdA9tWXRUrNAdnSgwV5W6/iR9ee74s8BY="
       }
     },
     {
@@ -1790,7 +1796,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.65",
-        "integrity": "sha256-77NzO9GP51+8NZD9VT2u7T6DwdNamVmfpeOcFQwc9NA="
+        "integrity": "sha256-GuZsv7Veg8gZ9tU0L8tj4wfr36g5E410/VffxzTprb8="
       }
     },
     {
