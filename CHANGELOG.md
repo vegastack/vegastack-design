@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.66] — October 21, 2026
+
+<!-- assembled from 2 changesets: bfaad348b936 -->
+
+### 🧩 New components
+
+- **DocumentLayout** sections, pages and live blocks: `DocumentLayoutSection` (named by `DocumentLayoutSectionTitle`, with `count`), `DocumentLayoutSectionHeader`, `DocumentLayoutSectionButton` (`more` · `add`), `DocumentLayoutSectionSkeleton`; `DocumentLayoutPageList`, `DocumentLayoutPageItem` and `DocumentLayoutPageLink` (icon, name, excerpt, meta); `DocumentLayoutBlock` with its header, title, rows (`DocumentLayoutBlockRow`, `…RowMain`, `…RowRef`, `…RowMeta`), note, skeleton, footer and `DocumentLayoutBlockAction`. `DocumentLayoutDecisionBar` keeps 24px between itself and the text it leads. **TableOfContents**: a scroller that overflows by only 2px no longer marks its last heading at its top. **DataList / DataGrid**: a column's `numeric` sets its body values in tabular figures.
+  [`db39dee`](https://github.com/VegaStack/vegastack-design/commit/db39dee)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.65 → 0.25.66.
+
+### 📚 Docs
+
+- DocumentLayout's `margin` guidance: show the comment margin only while it holds threads or a draft, decided with the text, so a page without threads is centred (Regent operator, 21-10-2026).
+  [`d896e40`](https://github.com/VegaStack/vegastack-design/commit/d896e40)
+
 ## [0.25.65] — October 21, 2026
 
 <!-- assembled from 1 changeset: 589f1618d809 -->

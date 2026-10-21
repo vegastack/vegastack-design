@@ -1,5 +1,0 @@
----
-"@vegastack/ui": patch
----
-
-🧩 **DocumentLayout** sections, pages and live blocks: `DocumentLayoutSection` (named by `DocumentLayoutSectionTitle`, with `count`), `DocumentLayoutSectionHeader`, `DocumentLayoutSectionButton` (`more` · `add`), `DocumentLayoutSectionSkeleton`; `DocumentLayoutPageList`, `DocumentLayoutPageItem` and `DocumentLayoutPageLink` (icon, name, excerpt, meta); `DocumentLayoutBlock` with its header, title, rows (`DocumentLayoutBlockRow`, `…RowMain`, `…RowRef`, `…RowMeta`), note, skeleton, footer and `DocumentLayoutBlockAction`. `DocumentLayoutDecisionBar` keeps 24px between itself and the text it leads. **TableOfContents**: a scroller that overflows by only 2px no longer marks its last heading at its top. **DataList / DataGrid**: a column's `numeric` sets its body values in tabular figures.
