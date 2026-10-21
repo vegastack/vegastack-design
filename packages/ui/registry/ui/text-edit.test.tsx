@@ -3975,6 +3975,70 @@ test("collaboration: two editors share one document live; ⌘Z undoes only this 
   expect(sharedText(shared.b)).toBe("Hello and B");
 });
 
+/** An editor's top-level blocks' text, collaborators' caret labels left out. */
+const blockTexts = (element: Element) =>
+  [...element.children].map((block) => visibleText(block));
+
+test("collaboration: a key pressed before the editor read a click's caret acts at that caret, not at the document's start", async () => {
+  const { screen } = await twoEditors("First\n\nSecond\n\nThird");
+  const a = screen.getByRole("textbox", { name: "A" });
+  await vi.waitFor(() =>
+    expect(blockTexts(a.element())).toEqual(["First", "Second", "Third"]),
+  );
+  // As a click leaves it: focus in the editor and the browser's caret at the end of "Second",
+  // its `selectionchange` still queued — Enter arrives in the same task, before it runs.
+  const second = a.element().children[1]!.firstChild!;
+  (a.element() as HTMLElement).focus();
+  window.getSelection()!.collapse(second, second.textContent!.length);
+  a.element().dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Enter",
+      code: "Enter",
+      keyCode: 13,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  await userEvent.keyboard("Fourth");
+  await vi.waitFor(() =>
+    expect(blockTexts(a.element())).toEqual([
+      "First",
+      "Second",
+      "Fourth",
+      "Third",
+    ]),
+  );
+});
+
+test("collaboration: clearHistory leaves ⌘Z nothing to undo once the text was replaced underneath", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("v1 alpha", { a: { handleRef } });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await vi.waitFor(() => expect(visibleText(a.element())).toBe("v1 alpha"));
+  // A's own edits: "v1 alpha" becomes "v2 one".
+  await a.click();
+  await userEvent.keyboard(
+    `${END}{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}one`,
+  );
+  await userEvent.keyboard("{Home}{ArrowRight}{Delete}2");
+  await vi.waitFor(() => expect(sharedText(shared.b)).toBe("v2 one"));
+  // B puts the old text back, changing only what differs — as a version restore does.
+  shared.b.transact(() =>
+    prosemirrorToYXmlFragment(
+      markdownToDoc("v1 alpha"),
+      shared.b.getXmlFragment("default"),
+    ),
+  );
+  await vi.waitFor(() => expect(sharedText(shared.a)).toBe("v1 alpha"));
+  handleRef.current!.clearHistory();
+  await a.click();
+  await userEvent.keyboard(`{${MOD}>}z{/${MOD}}{${MOD}>}z{/${MOD}}`);
+  // Undoing A's edits onto the restored text would splice "v2"/"one" into "v1 alpha".
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(sharedText(shared.a)).toBe("v1 alpha");
+  expect(sharedText(shared.b)).toBe("v1 alpha");
+});
+
 test("collaboration: Escape blurs, and a read-only viewer sees live text in a document, not a field", async () => {
   const { screen } = await twoEditors("Shared", { b: { readOnly: true } });
   const a = screen.getByRole("textbox", { name: "A" });

@@ -46,6 +46,7 @@ import {
   relativePositionToAbsolutePosition,
   ySyncPluginKey,
   yCursorPlugin,
+  yUndoPluginKey,
 } from "@tiptap/y-tiptap";
 import * as Y from "yjs";
 import { Fragment, Slice, type Node as PMNode } from "@tiptap/pm/model";
@@ -4961,6 +4962,7 @@ function buildExtensions(
             ? "Toggle"
             : (placeholder.current ?? ""),
       }),
+      CaretFromDom,
       VegaStackMarkdown,
       Shortcuts,
       slashExtension(runtime),
@@ -4977,6 +4979,40 @@ function buildExtensions(
       ...(collaboration ? collaborationExtensions(collaboration) : []),
     ],
   });
+}
+
+/**
+ * A key acts at the caret the reader sees. ProseMirror reads a caret the browser moved (a click,
+ * an arrow key) on `selectionchange`, which the browser queues behind input already waiting: a key
+ * pressed before it runs — Enter, Backspace, a shortcut — would act on the selection from before,
+ * in a page opened a moment ago the start of the document (Enter there splits the first line, and
+ * what follows is typed into it). So before any key is handled, a caret the editor hasn't read yet
+ * is read — ProseMirror's own reading, as `selectionchange` would do it.
+ */
+const CaretFromDom = Extension.create({
+  name: "textEditCaretFromDom",
+  // Before every keymap's `handleKeyDown`.
+  priority: 10_000,
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          handleKeyDown(view) {
+            readPendingCaret(view);
+            return false;
+          },
+        },
+      }),
+    ];
+  },
+});
+
+/** The browser's caret, if it moved since the editor last read it (never mid-composition). */
+function readPendingCaret(view: EditorView) {
+  if (view.composing || !view.hasFocus()) return;
+  (
+    view as unknown as { domObserver?: { flush?: () => void } }
+  ).domObserver?.flush?.();
 }
 
 /** Whether pasted plain text reads as markdown worth parsing rather than inserting verbatim. */
@@ -11439,6 +11475,13 @@ export function TextEditEditor({
       },
       pickFiles: () => pickRef.current?.(),
       pendingUploads: () => uploadsRef.current.size,
+      clearHistory: () => {
+        const ed = editorRef.current;
+        if (!ed || ed.isDestroyed) return;
+        const undo = yUndoPluginKey.getState(ed.state) as
+          { undoManager?: Y.UndoManager } | undefined;
+        undo?.undoManager?.clear();
+      },
       linkTaskItems: (links: readonly TextEditTaskLink[]) => {
         const ed = editorRef.current;
         return ed && !ed.isDestroyed

@@ -404,6 +404,12 @@ export interface TextEditHandle {
   /** How many uploads are still landing: a host shows "Uploading…" and guards leaving while any are. */
   pendingUploads: () => number;
   /**
+   * A shared document: forget what <kbd>⌘Z</kbd> would undo. For a host that replaced the text
+   * under the reader (a version restored): undoing their earlier changes onto the new text would
+   * splice the old text into it, letter by letter. Nothing happens in a document of one's own.
+   */
+  clearHistory: () => void;
+  /**
    * Link checklist lines to tasks (after `onMakeTask` created them): each line's text becomes a
    * leading task chip — text after a matching plain-text title stays after the chip, otherwise
    * the whole line does (mentions included); nested content stays below — and its box becomes the
@@ -1863,6 +1869,7 @@ export function TextEdit(props: TextEditProps) {
           activate("end");
         }
       },
+      clearHistory: () => editorHandle.current?.clearHistory(),
       pendingUploads: () =>
         (editorHandle.current?.pendingUploads() ?? 0) +
         pendingFilesRef.current.length,
