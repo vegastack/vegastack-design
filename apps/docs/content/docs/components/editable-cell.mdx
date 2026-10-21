@@ -88,7 +88,8 @@ cell inside the heading element rather than restyling its parts.
 
 Give a stored name its limit with `editor={{ type: "text", maxLength }}`: the field stops there, a
 paste keeps what fits and says so, and a quiet `n/max` count shows under the field from 90% of the
-limit — so a title never takes more than its store accepts and then loses it to a failed save.
+limit — so what is typed or pasted never runs past what the store accepts. (A value that is already
+longer is shown and kept as it is; `maxLength` only limits what is added.)
 
 ```tsx
 <h1 className="text-2xl font-semibold">

@@ -411,6 +411,8 @@ interface InlineTextEditorProps {
   onInvalid?: (draft: string) => void;
   /** The field's `maxlength`: a count shows near it, and a paste cut to fit says so. */
   maxLength?: number;
+  /** A paste was cut to fit `maxLength` (the cell announces it). */
+  onClipped?: () => void;
 }
 
 /**
@@ -456,6 +458,7 @@ function InlineTextEditor({
   validate,
   onInvalid,
   maxLength,
+  onClipped,
 }: InlineTextEditorProps) {
   const box = bare ? bareBoxClasses : boxClasses;
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
@@ -521,18 +524,44 @@ function InlineTextEditor({
   // `maxLength`: the count from 90% of it, and a paste that was cut to fit says so until the next
   // change (a paste's own change keeps it).
   const [clipped, setClipped] = React.useState(false);
-  const pasting = React.useRef(false);
   React.useEffect(() => {
     if (!isEditing) setClipped(false);
   }, [isEditing]);
   const counted =
     isEditing &&
     maxLength !== undefined &&
-    (clipped || edit.draft.length >= Math.floor(maxLength * 0.9));
+    (clipped || edit.draft.length >= maxLength * 0.9);
   const onDraftChange = (next: string) => {
-    if (pasting.current) pasting.current = false;
-    else if (clipped) setClipped(false);
+    setClipped(false);
     edit.setDraft(next);
+  };
+  /**
+   * A paste the field's `maxlength` cut short: measured once the browser has inserted what fit
+   * (the next task), as the field now holds it — so a paste that fit, one that changed nothing in
+   * a field with room, and the field's own newline handling are never reported.
+   */
+  const onPaste = (
+    event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    if (maxLength === undefined) return;
+    const field = event.currentTarget;
+    const kept =
+      field.value.length -
+      ((field.selectionEnd ?? 0) - (field.selectionStart ?? 0));
+    const raw = event.clipboardData.getData("text/plain");
+    const pasted =
+      field instanceof HTMLTextAreaElement
+        ? raw.replace(/\r\n?/g, "\n")
+        : raw.replace(/[\r\n]/g, "");
+    setTimeout(() => {
+      if (
+        field.value.length >= maxLength &&
+        field.value.length - kept < pasted.length
+      ) {
+        setClipped(true);
+        onClipped?.();
+      }
+    }, 0);
   };
 
   const fieldProps = {
@@ -543,20 +572,7 @@ function InlineTextEditor({
     placeholder,
     inputMode,
     maxLength,
-    onPaste: (
-      event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => {
-      if (maxLength === undefined) return;
-      const field = event.currentTarget;
-      const selected = (field.selectionEnd ?? 0) - (field.selectionStart ?? 0);
-      const pasted = event.clipboardData.getData("text/plain");
-      // The field's `maxlength` keeps the first characters that fit; the rest is said, not lost
-      // silently.
-      if (field.value.length - selected + pasted.length > maxLength) {
-        pasting.current = true;
-        setClipped(true);
-      }
-    },
+    onPaste,
     "aria-invalid": invalid || undefined,
     onBlur: () => {
       if (accepts(edit.draft)) edit.commit();
@@ -690,19 +706,16 @@ function InlineTextEditor({
         )
       ) : null}
       {counted ? (
-        // Under the box, over what follows: nothing moves when it shows.
+        // Under the box, over what follows, as wide as the box: nothing moves when it shows and it
+        // never leaves the box's side. The count is the field's description; a paste cut to fit
+        // is announced by the cell.
         <span
           id={`${textId}-count`}
           data-slot="editable-cell-count"
-          className="pointer-events-none absolute end-0 top-full z-10 mt-1 font-sans text-xs font-normal whitespace-nowrap text-muted-foreground tabular-nums"
+          className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 font-sans text-xs font-normal text-end text-pretty text-muted-foreground tabular-nums"
         >
           {edit.draft.length}/{maxLength}
-          {clipped ? (
-            <span role="status">
-              {" "}
-              · Only the first {maxLength} characters fit
-            </span>
-          ) : null}
+          {clipped ? ` · Only the first ${maxLength} characters fit` : null}
         </span>
       ) : null}
     </span>
@@ -1018,6 +1031,11 @@ export function EditableCell({
         }
         inputMode={number ? "decimal" : undefined}
         maxLength={editor.type === "text" ? editor.maxLength : undefined}
+        onClipped={() =>
+          setAnnouncement(
+            `Only the first ${editor.type === "text" ? editor.maxLength : ""} characters fit`,
+          )
+        }
         suffix={number?.unit}
         validate={
           number
