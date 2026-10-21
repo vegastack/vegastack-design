@@ -9,7 +9,10 @@ import {
   DocumentLayoutFoot,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
+  DocumentLayoutIcon,
   DocumentLayoutSkeleton,
+  DocumentLayoutTitle,
+  DocumentLayoutTitleGroup,
 } from "./document-layout";
 
 function Page(props: React.ComponentProps<typeof DocumentLayout>) {
@@ -62,9 +65,11 @@ test("DocumentLayout renders its parts on one grid and reflects margin and measu
   ])
     expect(grid.querySelector(`[data-slot=${slot}]`), slot).not.toBeNull();
   // The tiers, measure and columns are CSS: the grid carries the custom properties.
-  expect(grid.className).toContain("[--document-measure:47ch]");
   expect(grid.className).toContain(
-    "@min-[64rem]/document-layout:[--document-layout-tier:xl]",
+    "@min-[90rem]/document-layout:[--document-layout-tier:xl]",
+  );
+  expect(grid.className).toContain(
+    "@min-[120rem]/document-layout:[--document-layout-tier:2xl]",
   );
 });
 
@@ -108,5 +113,25 @@ test("DocumentLayoutSkeleton sketches paragraphs of 3, 2 and 3 lines as one name
       .querySelector("[data-slot=document-layout-grid]")
       ?.hasAttribute("data-margin"),
   ).toBe(true);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the title group holds an icon over a level-one title; reveal marks an icon shown on hover", async () => {
+  const screen = await render(
+    <DocumentLayoutTitleGroup>
+      <DocumentLayoutIcon reveal>
+        <button type="button">Add icon</button>
+      </DocumentLayoutIcon>
+      <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+    </DocumentLayoutTitleGroup>,
+  );
+  await expect
+    .element(screen.getByRole("heading", { level: 1, name: "Pricing v2" }))
+    .toBeInTheDocument();
+  const icon = screen.container.querySelector<HTMLElement>(
+    "[data-slot=document-layout-icon]",
+  )!;
+  expect(icon.hasAttribute("data-reveal")).toBe(true);
+  expect(icon.className).toContain("data-reveal:opacity-0");
   await expectNoA11yViolations(screen.container);
 });

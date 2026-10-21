@@ -9,20 +9,24 @@ import {
   DocumentLayoutBody,
   DocumentLayoutContents,
   DocumentLayoutHeader,
+  DocumentLayoutIcon,
   DocumentLayoutMargin,
   DocumentLayoutSkeleton,
+  DocumentLayoutTitle,
+  DocumentLayoutTitleGroup,
   useDocumentLayoutTier,
   type DocumentLayoutTier,
 } from "../registry/ui/document-layout";
 import { MarkdownView } from "../registry/ui/markdown-view";
+import { TableOfContents } from "../registry/ui/table-of-contents";
 import { TextEdit, preloadTextEdit } from "../registry/ui/text-edit";
-// The measure is set in `ch` of Geist: load the real face, or the lane measures a fallback font.
+// Characters a line are counted in Geist: load the real face, or the lane measures a fallback font.
 import geistVariable from "../../../apps/docs/node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2?url";
 
 /**
- * The document type scale (TYP-20), `DocumentLayout`'s measure and tiers, and Button's coarse hit
- * area (A11Y-24), measured in compiled CSS: a reading measure of about 67 characters, the 14/24
- * and 16/26 metrics, the tier each width lands in, no shift from the read view into the editor,
+ * The document type scale (TYP-20), `DocumentLayout`'s fluid column and tiers, and Button's
+ * coarse hit area (A11Y-24), measured in compiled CSS: the 14/24 and 16/26 metrics, the text
+ * column each width gets, the tier it lands in, no shift from the read view into the editor,
  * and a 44px target on a coarse pointer (emulated through CDP touch emulation, which makes
  * `(pointer: coarse)` match).
  */
@@ -74,7 +78,7 @@ function Page({
   width: number;
   measure?: "document" | "wide";
   margin?: boolean;
-  /** Render the contents rail (it takes no column, so the text never moves for it). */
+  /** Render the contents rail (its gutter is kept either way, so the text never moves for it). */
   contents?: boolean;
   onTier?: (tier: DocumentLayoutTier) => void;
 }) {
@@ -87,7 +91,7 @@ function Page({
     <div style={{ width }}>
       <DocumentLayout ref={ref} margin={margin} measure={measure}>
         <DocumentLayoutHeader>
-          <h1 className="text-4xl font-semibold">Pricing v2</h1>
+          <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
         </DocumentLayoutHeader>
         {contents ? (
           <DocumentLayoutContents>
@@ -109,7 +113,7 @@ const slot = (name: string) =>
   document.querySelector<HTMLElement>(`[data-slot=${name}]`)!;
 const px = (value: string) => Number.parseFloat(value);
 
-test("1440: 14/24 text at a measure of about 67 characters, 12px paragraphs, 24 · 20 · 16 headings", async () => {
+test("14/24 text, 12px paragraphs, 24 · 20 · 16 headings", async () => {
   await page.viewport(1440, 900);
   await render(<Page width={1120} />);
   const paragraph = document.querySelector<HTMLElement>(
@@ -119,15 +123,6 @@ test("1440: 14/24 text at a measure of about 67 characters, 12px paragraphs, 24 
   expect(style.fontSize).toBe("14px");
   expect(style.lineHeight).toBe("24px");
   expect(style.marginBottom).toBe("12px");
-  const lines = charactersPerLine(paragraph);
-  expect(lines.length).toBeGreaterThan(3);
-  const average = lines.reduce((sum, n) => sum + n, 0) / lines.length;
-  expect(average).toBeGreaterThanOrEqual(64);
-  expect(average).toBeLessThanOrEqual(71);
-  // The measure is the body column's width: 47ch of the body font.
-  expect(
-    slot("document-layout-body").getBoundingClientRect().width,
-  ).toBeCloseTo(47 * 14 * 0.663, -1);
   const sizes = ["h1", "h2", "h3"].map((tag) => {
     const heading = getComputedStyle(
       document.querySelector(`[data-slot=markdown-view] ${tag}`)!,
@@ -142,7 +137,7 @@ test("1440: 14/24 text at a measure of about 67 characters, 12px paragraphs, 24 
   ).toBe("0px");
 });
 
-test("a narrow window reads at 16/26 and keeps the same characters a line", async () => {
+test("a narrow window reads at 16/26 across the whole width", async () => {
   await page.viewport(600, 900);
   await render(<Page width={600} margin={false} contents={false} />);
   const paragraph = document.querySelector<HTMLElement>(
@@ -151,10 +146,7 @@ test("a narrow window reads at 16/26 and keeps the same characters a line", asyn
   const style = getComputedStyle(paragraph);
   expect(style.fontSize).toBe("16px");
   expect(style.lineHeight).toBe("26px");
-  const lines = charactersPerLine(paragraph);
-  const average = lines.reduce((sum, n) => sum + n, 0) / lines.length;
-  expect(average).toBeGreaterThanOrEqual(64);
-  expect(average).toBeLessThanOrEqual(71);
+  expect(slot("document-layout-body").getBoundingClientRect().width).toBe(600);
   // H3 steps up to 18 over 16px body text.
   expect(
     getComputedStyle(document.querySelector("[data-slot=markdown-view] h3")!)
@@ -178,7 +170,7 @@ test("a coarse pointer reads at 16/26 at any width", async () => {
 });
 
 test("each width lands in its tier, read by useDocumentLayoutTier from the CSS", async () => {
-  await page.viewport(1440, 900);
+  await page.viewport(2200, 900);
   const tiers: DocumentLayoutTier[] = [];
   const onTier = (tier: DocumentLayoutTier) => tiers.push(tier);
   const screen = await render(<Page width={500} onTier={onTier} />);
@@ -187,91 +179,260 @@ test("each width lands in its tier, read by useDocumentLayoutTier from the CSS",
   const expectTier = async (
     width: number,
     tier: DocumentLayoutTier,
-    visible: Record<string, boolean>,
+    contents: boolean,
+    margin: boolean,
   ) => {
     await screen.rerender(<Page width={width} onTier={onTier} />);
     await vi.waitFor(() => expect(tiers.at(-1)).toBe(tier));
-    for (const [name, on] of Object.entries(visible))
-      expect(shown(name), `${tier}: ${name}`).toBe(on);
+    expect(shown("document-layout-contents"), `${tier}: contents`).toBe(
+      contents,
+    );
+    expect(shown("document-layout-margin"), `${tier}: margin`).toBe(margin);
   };
-  await expectTier(500, "s", {
-    "document-layout-contents": false,
-    "document-layout-margin": false,
-  });
-  await expectTier(700, "m", {
-    "document-layout-contents": true,
-    "document-layout-margin": false,
-  });
-  await expectTier(900, "l", {
-    "document-layout-contents": true,
-    "document-layout-margin": true,
-  });
-  await expectTier(1120, "xl", {
-    "document-layout-contents": true,
-    "document-layout-margin": true,
-  });
-  // XL: text, margin 2rem + 18rem side by side; the rail floats at the inline-end edge, in the
-  // grid's 2.5rem gutter, clear of the margin.
-  const rail = slot("document-layout-contents").getBoundingClientRect();
-  const body = slot("document-layout-body").getBoundingClientRect();
-  const margin = slot("document-layout-margin").getBoundingClientRect();
-  const layout = slot("document-layout").getBoundingClientRect();
-  expect(margin.width).toBe(320);
-  expect(margin.left).toBeGreaterThanOrEqual(body.right);
-  expect(rail.right).toBe(layout.right);
-  expect(rail.left).toBeGreaterThanOrEqual(margin.right);
+  await expectTier(500, "s", false, false);
+  await expectTier(800, "m", true, false);
+  await expectTier(1120, "l", true, true);
+  await expectTier(1600, "xl", true, true);
+  await expectTier(2000, "2xl", true, true);
 });
 
-test("the contents rail takes no column: the text sits where it does without one, at every tier", async () => {
-  await page.viewport(1440, 900);
-  for (const width of [700, 900, 1120]) {
+/** The text column's width with and without the margin, and the block's place, at `width`. */
+async function measure(
+  width: number,
+  props: { margin?: boolean; measure?: "document" | "wide" } = {},
+) {
+  const screen = await render(<Page width={width} {...props} />);
+  const box = (name: string) => slot(name).getBoundingClientRect();
+  const result = {
+    layout: box("document-layout"),
+    body: box("document-layout-body"),
+    rail: box("document-layout-contents"),
+    margin: box("document-layout-margin"),
+  };
+  await screen.unmount();
+  return result;
+}
+
+test("the text is fluid — about three quarters of the layout — within each tier's bounds", async () => {
+  await page.viewport(2400, 900);
+  const text = async (width: number) =>
+    (await measure(width, { margin: false })).body.width;
+  // M: max(36rem, 75%); L: clamp(40rem, 75%, 52rem); XL 60rem; 2XL 64rem.
+  expect(await text(700)).toBe(576);
+  expect(await text(900)).toBe(675);
+  expect(await text(1100)).toBe(825);
+  expect(await text(1300)).toBe(832);
+  expect(await text(1600)).toBe(960);
+  expect(await text(2200)).toBe(1024);
+});
+
+test("characters a line at each tier's text width, in Geist at 14px", async () => {
+  await page.viewport(2400, 900);
+  const perTier: Record<string, number> = {};
+  for (const [tier, width] of [
+    ["m", 800],
+    ["l", 1300],
+    ["xl", 1600],
+    ["2xl", 2200],
+  ] as const) {
+    const screen = await render(<Page width={width} margin={false} />);
+    const lines = charactersPerLine(
+      document.querySelector<HTMLElement>("[data-slot=markdown-view] p")!,
+    );
+    perTier[tier] = Math.round(
+      lines.reduce((sum, n) => sum + n, 0) / lines.length,
+    );
+    await screen.unmount();
+  }
+  // About 88 a line at M's 36rem, rising to about 160 at 2XL's 64rem (0.663em a character).
+  expect(perTier.m).toBeGreaterThanOrEqual(80);
+  expect(perTier["2xl"]).toBeLessThanOrEqual(170);
+  expect(perTier.m! < perTier.l! && perTier.l! < perTier.xl!).toBe(true);
+  console.info("characters a line", JSON.stringify(perTier));
+});
+
+test("the contents rail sits in the gutter before the text and never moves it", async () => {
+  await page.viewport(2400, 900);
+  for (const width of [800, 1120, 1600, 2200]) {
+    const withRail = await measure(width);
     const without = await render(<Page width={width} contents={false} />);
-    const left = slot("document-layout-body").getBoundingClientRect().left;
-    const textWidth = slot("document-layout-body").getBoundingClientRect()
-      .width;
+    const body = slot("document-layout-body").getBoundingClientRect();
     await without.unmount();
-    const withRail = await render(<Page width={width} />);
-    expect(slot("document-layout-body").getBoundingClientRect().left).toBe(
-      left,
+    expect(body.left, `${width}`).toBe(withRail.body.left);
+    expect(body.width, `${width}`).toBe(withRail.body.width);
+    expect(withRail.rail.right, `${width}`).toBeLessThanOrEqual(
+      withRail.body.left,
     );
-    expect(slot("document-layout-body").getBoundingClientRect().width).toBe(
-      textWidth,
+    expect(withRail.rail.left, `${width}`).toBeGreaterThanOrEqual(
+      withRail.layout.left,
     );
-    await withRail.unmount();
   }
 });
 
-test("with room for a margin on both sides the text column sits in the middle; the margin hangs to its right", async () => {
-  await page.viewport(1440, 900);
-  await render(<Page width={1400} />);
-  const body = slot("document-layout-body").getBoundingClientRect();
-  const layout = slot("document-layout").getBoundingClientRect();
-  const margin = slot("document-layout-margin").getBoundingClientRect();
-  expect(
-    Math.abs(body.left + body.width / 2 - (layout.left + layout.width / 2)),
-  ).toBeLessThanOrEqual(1);
-  expect(margin.left).toBeGreaterThanOrEqual(body.right);
+test("a comment margin keeps the text's width and shifts the block to the start", async () => {
+  await page.viewport(2400, 900);
+  for (const width of [1600, 2200]) {
+    const plain = await measure(width, { margin: false });
+    const withMargin = await measure(width);
+    expect(withMargin.body.width, `${width}`).toBe(plain.body.width);
+    // The block — text and margin — is centred, so the text moves by half the margin.
+    expect(plain.body.left - withMargin.body.left, `${width}`).toBe(
+      withMargin.margin.width / 2,
+    );
+    expect(withMargin.margin.left).toBe(withMargin.body.right);
+    expect(withMargin.margin.width).toBe(384);
+    const middle = withMargin.layout.left + withMargin.layout.width / 2;
+    const block = (withMargin.body.left + withMargin.margin.right) / 2;
+    expect(Math.abs(block - middle)).toBeLessThanOrEqual(1);
+  }
 });
 
-test("with less room the text moves as near the middle as the margin allows, never squeezing its measure", async () => {
-  await page.viewport(1440, 900);
-  await render(<Page width={1120} />);
-  const body = slot("document-layout-body").getBoundingClientRect();
-  const layout = slot("document-layout").getBoundingClientRect();
-  const margin = slot("document-layout-margin").getBoundingClientRect();
-  expect(body.width).toBeCloseTo(47 * 14 * 0.663, -1);
-  expect(
-    Math.abs(body.left + body.width / 2 - (layout.left + layout.width / 2)),
-  ).toBeLessThanOrEqual(24);
-  expect(margin.right).toBeLessThanOrEqual(layout.right - 40 + 1);
+test("the text gives way only when the width can't hold text, margin and gutters", async () => {
+  await page.viewport(2400, 900);
+  // L from 60rem: at 960 the margin shows and the text takes what is left, 960 − 2 × 48 − 320.
+  expect((await measure(960)).body.width).toBe(544);
+  expect((await measure(960, { margin: false })).body.width).toBe(720);
+  // L at 1120: 75% is 840 (52rem caps it at 832), but 1120 − 2 × 48 − 320 leaves 704.
+  const tight = await measure(1120);
+  expect(tight.body.width).toBe(704);
+  expect(tight.margin.width).toBe(320);
+  expect(tight.body.left - tight.layout.left).toBe(48);
+  expect(tight.layout.right - tight.margin.right).toBe(48);
+  // Without the margin the same width keeps the tier's text.
+  expect((await measure(1120, { margin: false })).body.width).toBe(832);
 });
 
-test("Wide grows the text column into the room the window has, up to 60rem", async () => {
+test("Wide is the whole width less the gutters and the margin", async () => {
+  await page.viewport(2400, 900);
+  expect(
+    (await measure(1600, { measure: "wide", margin: false })).body.width,
+  ).toBe(1600 - 2 * 64);
+  expect((await measure(1600, { measure: "wide" })).body.width).toBe(
+    1600 - 2 * 64 - 384,
+  );
+  expect(
+    (await measure(800, { measure: "wide", margin: false })).body.width,
+  ).toBe(800 - 2 * 48);
+});
+
+test("the open contents panel takes the pointer over the text, and its frame bridges the gap from the rail", async () => {
   await page.viewport(1440, 900);
-  await render(<Page width={1400} measure="wide" />);
-  const width = slot("document-layout-body").getBoundingClientRect().width;
-  expect(width).toBeGreaterThan(47 * 14 * 0.663 + 100);
-  expect(width).toBeLessThanOrEqual(960);
+  const outline = ["Pricing", "Seats", "Terms"].map((text, index) => ({
+    id: `h-${index}`,
+    level: index + 1,
+    text,
+  }));
+  await render(
+    <div style={{ width: 1120 }}>
+      <DocumentLayout margin>
+        <DocumentLayoutContents>
+          <TableOfContents
+            variant="rail"
+            side="start"
+            sticky={false}
+            items={outline}
+          />
+        </DocumentLayoutContents>
+        <DocumentLayoutBody>
+          {/* Positioned content (an editor's blocks are) paints over static siblings. */}
+          <div className="relative h-96">Text</div>
+        </DocumentLayoutBody>
+        <DocumentLayoutMargin>
+          <div className="relative h-96">Thread</div>
+        </DocumentLayoutMargin>
+      </DocumentLayout>
+    </div>,
+  );
+  const nav = slot("table-of-contents");
+  const trigger = slot("table-of-contents-trigger");
+  await page.elementLocator(trigger).hover();
+  await vi.waitFor(() => expect(nav.hasAttribute("data-expanded")).toBe(true));
+  // Every point between the rail and the panel belongs to the outline: a pointer crossing it
+  // never leaves, so the panel never starts to close on the way.
+  const rail = trigger.getBoundingClientRect();
+  const panel = slot("table-of-contents-panel").getBoundingClientRect();
+  expect(panel.left).toBeGreaterThan(rail.right);
+  for (let x = Math.ceil(rail.right); x < panel.left; x++) {
+    const hit = document.elementFromPoint(x, rail.top + 4);
+    expect(nav.contains(hit), `x ${x}`).toBe(true);
+  }
+  // Every row is hit where it is drawn, over the positioned text.
+  const links = [
+    ...document.querySelectorAll<HTMLElement>(
+      "[data-slot=table-of-contents-link]",
+    ),
+  ];
+  expect(panel.right).toBeGreaterThan(
+    slot("document-layout-body").getBoundingClientRect().left,
+  );
+  for (const link of links) {
+    const rect = link.getBoundingClientRect();
+    const hit = document.elementFromPoint(
+      rect.left + rect.width / 2,
+      rect.top + rect.height / 2,
+    );
+    expect(link === hit || link.contains(hit), link.textContent ?? "").toBe(
+      true,
+    );
+  }
+  // Rows indent by level: 12px a step (once the panel has finished scaling in).
+  await vi.waitFor(() => {
+    const starts = links.map(
+      (link) =>
+        link
+          .querySelector("[data-slot=table-of-contents-label]")!
+          .getBoundingClientRect().left,
+    );
+    expect(starts[1]! - starts[0]!).toBe(12);
+    expect(starts[2]! - starts[1]!).toBe(12);
+  });
+});
+
+test("the skeleton's header is as tall as the page's — with an emoji or an Add icon", async () => {
+  await page.viewport(1440, 900);
+  const top = () => slot("document-layout-body").getBoundingClientRect().top;
+  const header = (icon: React.ReactNode) => (
+    <div style={{ width: 1120 }}>
+      <DocumentLayout margin>
+        <DocumentLayoutHeader>
+          <DocumentLayoutTitleGroup>
+            {icon}
+            <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+          </DocumentLayoutTitleGroup>
+          <p className="text-sm text-muted-foreground">Updated 3m ago</p>
+          <p className="text-sm text-muted-foreground">Owner Sanjay</p>
+        </DocumentLayoutHeader>
+        <DocumentLayoutBody>Text</DocumentLayoutBody>
+      </DocumentLayout>
+    </div>
+  );
+  const tops: number[] = [];
+  for (const icon of [
+    <DocumentLayoutIcon key="add" reveal>
+      <Button variant="ghost" size="xs">
+        Add icon
+      </Button>
+    </DocumentLayoutIcon>,
+    <DocumentLayoutIcon key="emoji">
+      <span aria-hidden>📘</span>
+    </DocumentLayoutIcon>,
+    <DocumentLayoutIcon key="change">
+      <Button variant="ghost" aria-label="Change icon">
+        <span aria-hidden>📘</span>
+      </Button>
+    </DocumentLayoutIcon>,
+  ]) {
+    const screen = await render(header(icon));
+    tops.push(top());
+    await screen.unmount();
+  }
+  expect(new Set(tops).size).toBe(1);
+  await render(
+    <div style={{ width: 1120 }}>
+      <DocumentLayoutSkeleton margin icon metaLines={2} />
+    </div>,
+  );
+  expect(top()).toBe(tops[0]);
 });
 
 test("the skeleton sketches lines at the text's own pitch, on the same grid", async () => {
@@ -296,9 +457,7 @@ test("the skeleton sketches lines at the text's own pitch, on the same grid", as
     lines[3]!.getBoundingClientRect().top -
       lines[2]!.getBoundingClientRect().bottom,
   ).toBe(12);
-  expect(
-    slot("document-layout-body").getBoundingClientRect().width,
-  ).toBeCloseTo(47 * 14 * 0.663, -1);
+  expect(slot("document-layout-body").getBoundingClientRect().width).toBe(704);
 });
 
 test("the editor swaps in for the read view at the document scale without moving the text", async () => {

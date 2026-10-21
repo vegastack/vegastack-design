@@ -8,8 +8,11 @@ import {
   DocumentLayoutContents,
   DocumentLayoutFoot,
   DocumentLayoutHeader,
+  DocumentLayoutIcon,
   DocumentLayoutMargin,
   DocumentLayoutSkeleton,
+  DocumentLayoutTitle,
+  DocumentLayoutTitleGroup,
 } from "@/components/ui/document-layout";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { TableOfContents } from "@/components/ui/table-of-contents";
@@ -35,13 +38,13 @@ const OUTLINE = ["Seats", "Renewal", "Limits"].map((text) => ({
   text,
 }));
 
-/** The contents rail at the layout's inline-end edge: it opens into the list on hover or focus. */
+/** The contents rail in the gutter before the text: it opens into the list on hover or focus. */
 function Contents() {
   return (
     <DocumentLayoutContents>
       <TableOfContents
         variant="rail"
-        side="end"
+        side="start"
         sticky={false}
         items={OUTLINE}
       />
@@ -52,12 +55,12 @@ function Contents() {
 function Header() {
   return (
     <DocumentLayoutHeader>
-      <span aria-hidden className="text-4xl leading-none">
-        📄
-      </span>
-      <h1 className="text-3xl font-semibold @min-[36rem]/document-layout:text-4xl">
-        Pricing v2
-      </h1>
+      <DocumentLayoutTitleGroup>
+        <DocumentLayoutIcon>
+          <span aria-hidden>📄</span>
+        </DocumentLayoutIcon>
+        <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+      </DocumentLayoutTitleGroup>
       <p className="truncate text-sm text-muted-foreground">
         Updated 3m ago by Sanjay · 3 pages inside
       </p>
@@ -66,10 +69,10 @@ function Header() {
 }
 
 /**
- * A page read as a document, at the width the preview has: the comment margin beside the text
- * from L (52rem), the contents rail floating at the inline-end edge from M (36rem) — it takes no
- * column, so the text never moves for it — and the text alone at S. Resize the window to watch
- * the tiers.
+ * A page read as a document, at the width the preview has: the comment margin after the text
+ * from L (60rem), the contents rail in the gutter before it from M (40rem) — the gutter is kept
+ * either way, so the text never moves for it — and the text alone at S. Resize the window to
+ * watch the tiers.
  */
 export function documentLayout(): ReactNode {
   return (
@@ -104,7 +107,7 @@ export function documentLayout(): ReactNode {
   );
 }
 
-/** Wide: the text column grows into the room the window has, up to 60rem — each reader's choice. */
+/** Wide: the text column fills the width less the gutters and the margin — each reader's choice. */
 export function documentLayoutWide(): ReactNode {
   return (
     <Wrapper className="block p-0 py-8">
@@ -122,7 +125,7 @@ export function documentLayoutWide(): ReactNode {
 export function documentLayoutSkeleton(): ReactNode {
   return (
     <Wrapper className="block p-0 py-8">
-      <DocumentLayoutSkeleton margin className="px-4 sm:px-8" />
+      <DocumentLayoutSkeleton margin icon className="px-4 sm:px-8" />
     </Wrapper>
   );
 }

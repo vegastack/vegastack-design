@@ -1,14 +1,14 @@
-// @vegastack document-layout@0.25.60 sha256-Gislz/WqVg8FuYcYrZQhvrAmaEhLS0Jo42n52OshER8=
+// @vegastack document-layout@0.25.60 sha256-u9X/PPxGzxvSU7dHMI0TfvV7MoGAH2cyyz1GHxM/fd8=
 
 "use client";
 
 import * as React from "react";
 import type { DocumentLayoutTier } from "@/components/ui/document-layout";
 
-const TIERS = new Set<DocumentLayoutTier>(["s", "m", "l", "xl"]);
+const TIERS = new Set<DocumentLayoutTier>(["s", "m", "l", "xl", "2xl"]);
 
 /**
- * `useDocumentLayoutTier` — the tier a `DocumentLayout` is at now (`s` · `m` · `l` · `xl`), for
+ * `useDocumentLayoutTier` — the tier a `DocumentLayout` is at now (`s` · `m` · `l` · `xl` · `2xl`), for
  * the branches CSS cannot take: comments in the margin or in a popover, the contents in a list or
  * a sheet. It reads `--document-layout-tier`, which the layout's container queries set, so the
  * script and the stylesheet can never disagree about the width a tier starts at. Re-read whenever

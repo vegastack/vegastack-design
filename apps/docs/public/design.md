@@ -975,8 +975,9 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   `proseDocument` overlay (`typeScale="document"` on `MarkdownView` and `TextEdit`): 14/24 text,
   16/26 on a coarse pointer or a narrow window (where INT-13 already makes editing 16px, so reading
   and editing never jump), 12px between paragraphs, `#` 24 · `##` 20 · `###` 16, inline code in the
-  body's ink, at `DocumentLayout`'s 47ch measure — about 67 characters a line. Compact prose stays
-  the app's own 14px scale everywhere else.
+  body's ink, in `DocumentLayout`'s fluid column (about three quarters of the layout within each
+  tier's bounds, MK 2026-10-21: 94 characters a line at 36rem up to about 160 at 64rem). Compact
+  prose stays the app's own 14px scale everywhere else.
 - **Surfaces** (BRD-1) — cards and floating surfaces draw a real 1px `border border-border`, never
   upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
   `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking

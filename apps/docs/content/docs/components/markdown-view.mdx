@@ -258,8 +258,8 @@ pointer or a narrow window, where editing is 16px too — 12px between paragraph
 · `###` 16 with more room above a heading than below, inline code in the body's ink, and print
 rules: code wraps, tables print in full, highlights and controls drop out, external links print
 their address. `TextEdit` takes the same `typeScale`, so a page reads and edits at identical
-metrics. Place it in a [`DocumentLayout`](/docs/components/document-layout) for the 47ch reading
-measure. A table that is wider than the text scrolls in its own box, fading at the edge with more
+metrics. Place it in a [`DocumentLayout`](/docs/components/document-layout) for the page's fluid
+text column. A table that is wider than the text scrolls in its own box, fading at the edge with more
 beyond it; while it scrolls the box is a named, focusable region.
 
 <ComponentPreview

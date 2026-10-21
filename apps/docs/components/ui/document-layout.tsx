@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.60 sha256-Gislz/WqVg8FuYcYrZQhvrAmaEhLS0Jo42n52OshER8=
+// @vegastack document-layout@0.25.60 sha256-u9X/PPxGzxvSU7dHMI0TfvV7MoGAH2cyyz1GHxM/fd8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -8,32 +8,40 @@ import { Skeleton } from "@/components/ui/skeleton";
 export { useDocumentLayoutTier } from "@/components/ui/use-document-layout-tier";
 
 /* ------------------------------------------------------------------------------------------------
- * DocumentLayout — a page read as a document: the title area, the text at a reading measure, what
- * follows the text (sub-pages, page comments) and a comment margin beside it. One grid, four tiers
- * by its OWN width (container queries in rem, so a collapsed sidebar or a split view picks the
- * right one), and one subtree at every width: a column that has no room is `display: none`, never
- * unmounted, so an editor inside never remounts.
+ * DocumentLayout — a page read as a document: the title area, the text, what follows the text
+ * (sub-pages, page comments), the contents rail in the gutter before the text and a comment
+ * margin after it. One grid, five tiers by its OWN width (container queries in rem, so a collapsed
+ * sidebar or a split view picks the right one), and one subtree at every width: a column that has
+ * no room is `display: none`, never unmounted, so an editor inside never remounts.
  *
- *   S  < 36rem   text only, full width             (contents and comments are the host's sheet)
- *   M  36–52rem  text · contents rail              (comments: a popover at the highlight)
- *   L  52–64rem  text · margin 18rem · contents rail
- *   XL ≥ 64rem   the same as L, with room to spare (with a margin, the text moves toward the
- *                middle as the room allows, centred from about 72rem)
+ *   tier  width        gutters  text column                    rail  margin
+ *   s     < 40rem      0        the full width                 —     — (the host's sheet)
+ *   m     40–60rem     3rem     max(36rem, 75%)                ✓     — (a popover)
+ *   l     60–90rem     3rem     clamp(40rem, 75%, 52rem)       ✓     20rem
+ *   xl    90–120rem    4rem     60rem                          ✓     24rem
+ *   2xl   ≥ 120rem     4rem     64rem                          ✓     24rem
  *
- * The contents rail takes no column: it floats at the layout's inline-end edge, in a gutter the
- * grid keeps from the M tier whether or not a document has headings — so a contents list that
- * arrives (or goes) never moves the text.
+ * The text column is fluid — about three quarters of the layout — between each tier's bounds;
+ * Wide (`measure="wide"`) is the whole width less the gutters (and the margin). The rail, text
+ * and margin are one block, centred: a comment margin shifts the block to the start rather than
+ * narrowing the text, and the text gives way only when the width cannot hold text, margin and
+ * gutters at once (the text track is `minmax(0, …)`).
  *
- * The text column is `--document-measure` (47ch — about 67 characters of Geist at the document
- * type scale) or, Wide, up to 60rem. The grid wears the document body size, so `ch` is measured in
- * the type the text is set in. Each tier also sets `--document-layout-tier` (`s` · `m` · `l` · `xl`)
- * on the grid, which `useDocumentLayoutTier` reads — CSS is the one source of the tier.
+ * The contents rail sits in the start gutter, beside the text, from the M tier — whether or not a
+ * document has headings, so a contents list that arrives (or goes) never moves the text. It
+ * stacks above the text and the margin, so its open panel takes the pointer over both.
+ *
+ * Each tier also sets `--document-layout-tier` (`s` · `m` · `l` · `xl` · `2xl`) on the grid,
+ * which `useDocumentLayoutTier` reads — CSS is the one source of the tier.
  *
  * Server-safe: no hooks here; `useDocumentLayoutTier` (re-exported) lives in its own client file.
  * ----------------------------------------------------------------------------------------------*/
 
-/** A layout tier: `s` (< 36rem), `m` (36–52rem), `l` (52–64rem) or `xl` (≥ 64rem). */
-export type DocumentLayoutTier = "s" | "m" | "l" | "xl";
+/**
+ * A layout tier, by the layout's own width: `s` (< 40rem), `m` (40–60rem), `l` (60–90rem), `xl`
+ * (90–120rem) or `2xl` (≥ 120rem). The rail shows from `m`, the comment margin from `l`.
+ */
+export type DocumentLayoutTier = "s" | "m" | "l" | "xl" | "2xl";
 
 /** Props accepted by `DocumentLayout`. */
 export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> {
@@ -44,30 +52,26 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
    */
   margin?: boolean;
   /**
-   * The text column: `document` (`--document-measure`, 47ch) or `wide` (grows to 60rem into the
-   * room the window has; each reader's own choice, never the document's).
+   * The text column: `document` (fluid, about three quarters of the layout within each tier's
+   * bounds) or `wide` (the whole width less the gutters and the margin; each reader's own
+   * choice, never the document's).
    * @default "document"
    */
   measure?: "document" | "wide";
 }
 
-// The grid. Two tracks — text and margin — whose margin track carries the 2rem gap inside it (a
-// zero track then costs no gap). The group centres in the canvas; from the M tier the grid keeps a
-// 2.5rem gutter on each side, the contents rail's room at the inline end, at every page.
+// The grid: four tracks — the start gutter (the rail's), the text, the margin (its 2rem gap
+// inside it, so a zero track costs no gap) and the end gutter — centred as one block. Every width
+// is a custom property the tiers set, so the hook, the skeleton and the page share one geometry.
 const GRID = cn(
-  "relative grid min-w-0 grid-cols-[[text-start]_minmax(0,var(--document-layout-text))_[text-end_margin-start]_var(--document-layout-margin)_[margin-end]] grid-rows-[auto_auto_1fr] content-start justify-center gap-y-6 @min-[36rem]/document-layout:px-10",
-  // The text track's width is measured in the document's own body size (TYP-20).
+  "relative grid min-w-0 grid-cols-[[rail-start]_var(--document-layout-gutter)_[rail-end_text-start]_minmax(0,var(--document-layout-text))_[text-end_margin-start]_var(--document-layout-margin)_[margin-end]_var(--document-layout-gutter)] grid-rows-[auto_auto_1fr] content-start justify-center gap-y-6",
   "text-sm pointer-coarse:text-base max-sm:text-base",
-  "[--document-measure:47ch] [--document-layout-text:var(--document-measure)] data-[measure=wide]:[--document-layout-text:60rem]",
-  "[--document-layout-margin:0rem]",
-  "[--document-layout-tier:s] @min-[36rem]/document-layout:[--document-layout-tier:m] @min-[52rem]/document-layout:[--document-layout-tier:l] @min-[64rem]/document-layout:[--document-layout-tier:xl]",
-  "data-margin:@min-[52rem]/document-layout:[--document-layout-margin:20rem]",
-  // With a comment margin, the text column sits as near the middle of the canvas as the room
-  // allows, the margin hanging to its right: the start gutter grows by up to the margin's width
-  // (fully centred from about 72rem), never past what leaves the text its measure. Not the text
-  // and margin centred as a pair, which reads as text pushed off-centre while the margin is still
-  // empty. Wide fills the room instead; paper never gets it (the margin does not print).
-  "not-print:data-margin:data-[measure=document]:@min-[52rem]/document-layout:ps-[clamp(--spacing(10),calc(100cqw-var(--spacing)*10-var(--document-layout-text)-var(--document-layout-margin)),calc(var(--spacing)*10+var(--document-layout-margin)))]",
+  "[--document-layout-tier:s] @min-[40rem]/document-layout:[--document-layout-tier:m] @min-[60rem]/document-layout:[--document-layout-tier:l] @min-[90rem]/document-layout:[--document-layout-tier:xl] @min-[120rem]/document-layout:[--document-layout-tier:2xl]",
+  "[--document-layout-gutter:0rem] @min-[40rem]/document-layout:[--document-layout-gutter:3rem] @min-[90rem]/document-layout:[--document-layout-gutter:4rem]",
+  // The text: fluid within each tier's bounds (`cqw` is the layout's own width). Wide asks for the
+  // whole width, which the `minmax(0, …)` track caps at what the gutters and margin leave.
+  "[--document-layout-text:100cqw] @min-[40rem]/document-layout:[--document-layout-text:max(36rem,75cqw)] @min-[60rem]/document-layout:[--document-layout-text:clamp(40rem,75cqw,52rem)] @min-[90rem]/document-layout:[--document-layout-text:60rem] @min-[120rem]/document-layout:[--document-layout-text:64rem] data-[measure=wide]:[--document-layout-text:100cqw]",
+  "[--document-layout-margin:0rem] data-margin:@min-[60rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",
@@ -75,18 +79,18 @@ const GRID = cn(
 
 /**
  * `DocumentLayout` — the frame of a page read as a document: `DocumentLayoutHeader` (icon, title,
- * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one column at
- * the reading measure, `DocumentLayoutMargin` (the comment margin) beside it, and
- * `DocumentLayoutContents` floating at the inline-end edge. Put the parts in reading order:
- * header, contents, body, foot, margin. Prints as one column of header, body and foot.
+ * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one fluid
+ * column, `DocumentLayoutContents` (the contents rail) in the gutter before it and
+ * `DocumentLayoutMargin` (the comment margin) after it. Put the parts in reading order: header,
+ * contents, body, foot, margin. Prints as one column of header, body and foot.
  *
  * @example
  * <DocumentLayout margin={canComment}>
  *   <DocumentLayoutHeader>
- *     <h1 className="text-4xl font-semibold">Pricing v2</h1>
+ *     <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
  *   </DocumentLayoutHeader>
  *   <DocumentLayoutContents>
- *     <TableOfContents variant="rail" side="end" sticky={false} items={outline} />
+ *     <TableOfContents variant="rail" side="start" sticky={false} items={outline} />
  *   </DocumentLayoutContents>
  *   <DocumentLayoutBody>
  *     <MarkdownView typeScale="document">{markdown}</MarkdownView>
@@ -151,8 +155,109 @@ export function DocumentLayoutHeader({
   );
 }
 
+/** Props accepted by `DocumentLayoutTitleGroup`. */
+export type DocumentLayoutTitleGroupProps = React.ComponentPropsWithRef<"div">;
+
 /**
- * `DocumentLayoutBody` — the text column at the reading measure: a `MarkdownView` or `TextEdit`
+ * `DocumentLayoutTitleGroup` — the page's icon over its title, 4px apart: a
+ * `DocumentLayoutIcon` (optional) and a `DocumentLayoutTitle`. Hovering or focusing anywhere in
+ * it shows a `DocumentLayoutIcon` that has `reveal`.
+ *
+ * @example
+ * <DocumentLayoutTitleGroup>
+ *   <DocumentLayoutIcon>📘</DocumentLayoutIcon>
+ *   <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+ * </DocumentLayoutTitleGroup>
+ */
+export function DocumentLayoutTitleGroup({
+  className,
+  ...props
+}: DocumentLayoutTitleGroupProps) {
+  return (
+    <div
+      data-slot="document-layout-title-group"
+      className={cn(
+        "group/document-title relative flex min-w-0 flex-col items-start gap-1",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `DocumentLayoutIcon`. */
+export interface DocumentLayoutIconProps extends React.ComponentPropsWithRef<"div"> {
+  /**
+   * Hidden until the title group is hovered or holds focus (a fine pointer only; a coarse
+   * pointer always sees it) — for an "Add icon" control on a page that has none. It keeps its
+   * row, so showing it moves nothing.
+   * @default false
+   */
+  reveal?: boolean;
+}
+
+/**
+ * `DocumentLayoutIcon` — the page's icon above its title, in a 32px row: an emoji at the title's
+ * own size (30px), or the control that changes it. A `Button` inside fits the row: an icon button
+ * hugs the emoji, a small text button ("Add icon") sits in it, flush with the title's text.
+ *
+ * @example
+ * <DocumentLayoutIcon reveal>
+ *   <Button variant="ghost" size="xs"><SmilePlus aria-hidden />Add icon</Button>
+ * </DocumentLayoutIcon>
+ */
+export function DocumentLayoutIcon({
+  reveal = false,
+  className,
+  ...props
+}: DocumentLayoutIconProps) {
+  return (
+    <div
+      data-slot="document-layout-icon"
+      data-reveal={reveal ? "" : undefined}
+      className={cn(
+        // One 32px row whatever it holds — an emoji, the button around one, "Add icon" — so
+        // adding or removing an icon never moves the title, and the skeleton reserves the same.
+        "flex h-8 items-center text-3xl leading-none",
+        "[&>[data-slot=button]]:-ms-1 [&>[data-slot=button]:has(>span:only-child)]:h-8 [&>[data-slot=button]:has(>span:only-child)]:px-1 [&>[data-slot=button]:has(>span:only-child)]:py-0 [&>[data-slot=button]:has(>span:only-child)]:text-3xl [&>[data-slot=button]:has(>span:only-child)]:leading-none",
+        "data-reveal:text-muted-foreground data-reveal:opacity-0 data-reveal:transition-opacity data-reveal:group-focus-within/document-title:opacity-100 data-reveal:group-hover/document-title:opacity-100 data-reveal:has-data-popup-open:opacity-100 data-reveal:pointer-coarse:opacity-100 print:hidden",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `DocumentLayoutTitle`. */
+export type DocumentLayoutTitleProps = React.ComponentPropsWithRef<"h1">;
+
+/**
+ * `DocumentLayoutTitle` — the page's title, the document type scale's top step: 30/36 semibold
+ * in the heading face, one step above the text's `#` (24/32). Long words break rather than
+ * overflow. Put the title's own editor (`EditableCell variant="heading"`) inside it to rename in
+ * place.
+ *
+ * @example
+ * <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+ */
+export function DocumentLayoutTitle({
+  className,
+  ...props
+}: DocumentLayoutTitleProps) {
+  return (
+    <h1
+      data-slot="document-layout-title"
+      className={cn(
+        "w-full min-w-0 font-heading text-3xl/9 font-semibold wrap-break-word text-foreground",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * `DocumentLayoutBody` — the fluid text column: a `MarkdownView` or `TextEdit`
  * at `typeScale="document"`.
  *
  * @example
@@ -199,16 +304,17 @@ export type DocumentLayoutAsideProps = React.ComponentPropsWithRef<"aside">;
 
 /**
  * `DocumentLayoutContents` — the contents rail's place, from the M tier: an `aside` named
- * "Contents" that floats at the layout's inline-end edge, in the 2.5rem gutter the grid keeps
- * there, and takes no column — so headings that arrive never move the text. What it holds sticks
- * `--document-layout-sticky-top` below the top of the scroll container (default 2rem). Put a
- * `TableOfContents variant="rail" side="end"` in it: a column of short dashes that opens into the
- * labelled list over the page. Below M it is `display: none`; the host offers "On this page" in
- * its own menu.
+ * "Contents" in the gutter before the text, as tall as the page, its content at the gutter's
+ * text-side edge. The gutter is kept whether or not the document has headings, so headings that
+ * arrive never move the text. What it holds sticks `--document-layout-sticky-top` below the top
+ * of the scroll container (default 2rem), and stacks above the text and the comment margin, so
+ * an open panel over them takes the pointer. Put a `TableOfContents variant="rail" side="start"`
+ * in it: a column of short dashes that opens into the labelled list over the text. Below M it is
+ * `display: none`; the host offers "On this page" in its own menu.
  *
  * @example
  * <DocumentLayoutContents>
- *   <TableOfContents variant="rail" side="end" sticky={false} items={outline} />
+ *   <TableOfContents variant="rail" side="start" sticky={false} items={outline} />
  * </DocumentLayoutContents>
  */
 export function DocumentLayoutContents({
@@ -222,15 +328,16 @@ export function DocumentLayoutContents({
       data-slot="document-layout-contents"
       aria-label={ariaLabel}
       className={cn(
-        // Out of the grid's flow (an absolute grid child takes no track), as tall as the grid.
-        "pointer-events-none absolute inset-y-0 end-0 hidden w-10 @min-[36rem]/document-layout:block print:hidden",
+        // Its own stacking layer over the text and the margin (the sticky box inside makes one
+        // too, which would otherwise trap the open panel under the margin that follows it).
+        "pointer-events-none relative z-20 col-[rail] row-[1/span_3] hidden min-w-0 @min-[40rem]/document-layout:block print:hidden",
         className,
       )}
       {...props}
     >
       <div
         data-slot="document-layout-contents-inner"
-        className="pointer-events-auto sticky top-(--document-layout-sticky-top) flex justify-end pe-2"
+        className="sticky top-(--document-layout-sticky-top) flex justify-end pe-3 *:pointer-events-auto"
       >
         {children}
       </div>
@@ -240,8 +347,10 @@ export function DocumentLayoutContents({
 
 /**
  * `DocumentLayoutMargin` — the comment margin, from the L tier when `DocumentLayout` has
- * `margin`: an `aside` named "Comments", as tall as the text, positioned (`relative`) so threads
- * can sit at their highlights' tops. Below L the host shows comments in a popover or a sheet.
+ * `margin`: an `aside` named "Comments" after the text (20rem, 24rem from XL, its 2rem gap
+ * included), as tall as the text, positioned (`relative`) so threads can sit at their
+ * highlights' tops. Cards in it take its whole width. Below L the host shows comments in a
+ * popover or a sheet.
  *
  * @example
  * <DocumentLayoutMargin>{threads.map((t) => <ThreadCard key={t.id} style={{ top: t.top }} />)}</DocumentLayoutMargin>
@@ -256,7 +365,7 @@ export function DocumentLayoutMargin({
       data-slot="document-layout-margin"
       aria-label={ariaLabel}
       className={cn(
-        "relative col-[margin] row-[1/span_3] hidden min-w-0 ps-8 @min-[52rem]/document-layout:in-data-margin:block print:hidden",
+        "relative col-[margin] row-[1/span_3] hidden min-w-0 ps-8 @min-[60rem]/document-layout:in-data-margin:block print:hidden",
         className,
       )}
       {...props}
@@ -270,6 +379,17 @@ export interface DocumentLayoutSkeletonProps extends React.ComponentPropsWithRef
   margin?: boolean;
   /** The text column, as the page will. @default "document" */
   measure?: "document" | "wide";
+  /**
+   * Reserve the icon row above the title (32px and the group's 4px), as a page whose
+   * `DocumentLayoutTitleGroup` holds a `DocumentLayoutIcon` will — an editable page always does.
+   * @default false
+   */
+  icon?: boolean;
+  /**
+   * How many 20px meta lines to sketch under the title (8px apart), as the page's header has.
+   * @default 1
+   */
+  metaLines?: number;
   /**
    * How many lines of text to sketch, in paragraphs of 3, 2 and 3 lines.
    * @default 8
@@ -295,10 +415,10 @@ const LINE_WIDTHS = [
 ];
 
 /**
- * `DocumentLayoutSkeleton` — the page's loading state on the SAME grid and tier as the page: a
- * title bar, a meta bar and paragraphs of text bars at the document line pitch (a 14px bar every
- * 24px, 16 every 26 on a coarse pointer), 12px between paragraphs — so nothing moves when the page
- * arrives. One `status` region, named by `label`.
+ * `DocumentLayoutSkeleton` — the page's loading state on the SAME grid and tier as the page: an
+ * icon row (`icon`), a title line, `metaLines` meta lines and paragraphs of text bars at the
+ * document line pitch (a 14px bar every 24px, 16 every 26 on a coarse pointer), 12px between
+ * paragraphs — so nothing moves when the page arrives. One `status` region, named by `label`.
  *
  * @example
  * <DocumentLayoutSkeleton margin={canComment} />
@@ -306,6 +426,8 @@ const LINE_WIDTHS = [
 export function DocumentLayoutSkeleton({
   margin = false,
   measure = "document",
+  icon = false,
+  metaLines = 1,
   lines = 8,
   label = "Loading page",
   className,
@@ -330,8 +452,24 @@ export function DocumentLayoutSkeleton({
       {...props}
     >
       <DocumentLayoutHeader aria-hidden>
-        <Skeleton className="h-9 w-3/5 @min-[36rem]/document-layout:h-10" />
-        <Skeleton className="h-5 w-2/5" />
+        <DocumentLayoutTitleGroup>
+          {icon ? (
+            <DocumentLayoutIcon>
+              <Skeleton className="size-7.5" />
+            </DocumentLayoutIcon>
+          ) : null}
+          {/* The title's 36px line, its bar inside it, as `DocumentLayoutTitle` sets it. */}
+          <div className="flex h-9 w-full items-center">
+            <Skeleton className="h-7 w-3/5" />
+          </div>
+        </DocumentLayoutTitleGroup>
+        {Array.from({ length: Math.max(0, metaLines) }, (_, index) => (
+          <div key={index} className="flex h-5 items-center">
+            <Skeleton
+              className={cn("h-3.5", index % 2 === 0 ? "w-2/5" : "w-1/4")}
+            />
+          </div>
+        ))}
       </DocumentLayoutHeader>
       <DocumentLayoutBody aria-hidden className="flex flex-col gap-3">
         {paragraphs.map((count, index) => (

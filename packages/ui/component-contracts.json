@@ -377,7 +377,13 @@
       },
       {
         "file": "packages/ui/test/document-geometry.browser.test.tsx",
-        "owners": ["document-layout", "markdown-view", "text-edit", "button"],
+        "owners": [
+          "document-layout",
+          "markdown-view",
+          "text-edit",
+          "button",
+          "table-of-contents"
+        ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       }
     ]
@@ -29756,7 +29762,7 @@
       "name": "document-layout",
       "registryType": "registry:ui",
       "title": "Document Layout",
-      "summary": "A page read as a document — the title area, the text at a reading measure, what follows it, a contents column and a comment margin — on one grid with four tiers by its own width, plus its skeleton and a tier hook.",
+      "summary": "A page read as a document — the title area, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "status": "stable",
       "since": "0.25.35",
       "family": "layout",
@@ -29783,6 +29789,36 @@
           "ref": {
             "status": "observed",
             "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutTitleGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "h1",
             "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
           }
         },
@@ -29855,6 +29891,33 @@
           }
         },
         {
+          "name": "DocumentLayoutTitleGroupProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutTitleProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DocumentLayoutPartProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/document-layout.tsx",
@@ -29909,6 +29972,7 @@
             "tier-m",
             "tier-l",
             "tier-xl",
+            "tier-2xl",
             "wide",
             "loading"
           ],
@@ -29978,6 +30042,37 @@
             {
               "name": "data-slot",
               "values": ["document-layout-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutTitleGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-title-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutIcon": {
+          "attributes": [
+            {
+              "name": "data-reveal",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["document-layout-icon"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-title"]
             }
           ],
           "cssVariables": []

@@ -193,7 +193,7 @@
       "name": "document-layout",
       "type": "registry:ui",
       "title": "Document Layout",
-      "description": "A page read as a document — the title area, the text at a reading measure, what follows it, a contents column and a comment margin — on one grid with four tiers by its own width, plus its skeleton and a tier hook.",
+      "description": "A page read as a document — the title area, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "categories": ["layout"],
       "dependencies": [
         "@vegastack/design@^0.8.15",
