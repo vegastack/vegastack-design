@@ -30,6 +30,7 @@ import { Placeholder } from "@tiptap/extensions";
 import {
   FindAndReplace,
   FindAndReplacePluginKey,
+  createSearchRegex,
 } from "@tiptap/extension-find-and-replace";
 import {
   Suggestion,
@@ -4320,6 +4321,53 @@ function isVideoFileUrl(url: string): boolean {
 }
 
 /**
+ * Where the block of `type` just inserted at `from` sits: the node the insert selected, else the
+ * first one of that type from `from` (a container that needs a leading line — an empty list item —
+ * keeps it, and the block lands after).
+ */
+function insertedAt(editor: Editor, from: number, type: string | undefined) {
+  const { selection, doc } = editor.state;
+  if (selection instanceof NodeSelection && selection.node.type.name === type)
+    return selection.from;
+  let found = from;
+  let seen = false;
+  const end = Math.min(selection.to + 1, doc.content.size);
+  doc.nodesBetween(from, end, (node, pos) => {
+    if (seen) return false;
+    if (node.type.name === type) {
+      found = pos;
+      seen = true;
+      return false;
+    }
+    return true;
+  });
+  return found;
+}
+
+/** Put the caret on the line after the block at `pos`, adding an empty one when none follows. */
+function caretAfterBlockAt(editor: Editor, pos: number) {
+  const { state } = editor;
+  const node = state.doc.nodeAt(pos);
+  if (!node || !node.isBlock || node.isTextblock) return;
+  const after = pos + node.nodeSize;
+  const tr = state.tr;
+  const $after = tr.doc.resolve(after);
+  const next = $after.nodeAfter;
+  // An empty line already there takes the caret; otherwise a new one does.
+  if (!(next?.type.name === "paragraph" && next.content.size === 0)) {
+    const paragraph = state.schema.nodes.paragraph;
+    if (
+      !paragraph ||
+      !$after.parent.canReplaceWith($after.index(), $after.index(), paragraph)
+    )
+      return;
+    tr.insert(after, paragraph.create());
+  }
+  tr.setSelection(TextSelection.create(tr.doc, after + 1));
+  editor.view.dispatch(tr.scrollIntoView());
+}
+
+/**
  * `content` (an image) keeping the alt text and caption of the image it replaces where it brings
  * none of its own: Replace swaps the picture, never what was written about it.
  */
@@ -5000,6 +5048,19 @@ function singleFence(text: string) {
 /** A leading emoji (a Notion callout's icon) and the space after it. */
 const LEADING_EMOJI =
   /^\s*\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*/u;
+/** Text that is one emoji and nothing else (a pasted callout's icon). */
+const LONE_EMOJI =
+  /^\s*\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*$/u;
+
+/** The callout tone a pasted callout's emoji icon reads as; a note for any other. */
+function calloutToneForEmoji(emoji: string): CalloutTone {
+  const icon = emoji.replace(/\uFE0F/g, "");
+  if (/^(?:💡|✅|✨|👍|🌱)$/u.test(icon)) return "tip";
+  if (/^(?:⚠|🚧|🔥)$/u.test(icon)) return "warning";
+  if (/^(?:❗|‼|📌|⭐|🔔)$/u.test(icon)) return "important";
+  if (/^(?:🚫|⛔|❌|🛑|☠)$/u.test(icon)) return "caution";
+  return "note";
+}
 
 /**
  * Notion's clipboard HTML in the editor's terms: a to-do list (`ul.to-do-list`, each item's box a
@@ -5044,13 +5105,24 @@ function notionPastedHTML(html: string): string {
     changed = true;
   }
   for (const callout of doc.querySelectorAll("figure.callout, aside")) {
-    callout
-      .querySelector(".icon")
-      ?.closest("div:not(.callout), span")
-      ?.remove();
+    // The callout's icon: Notion's `.icon`, or a leading element holding a lone emoji. It picks the
+    // tone (💡 a tip, ⚠️ a warning…) and never stays behind as a paragraph of its own.
+    const lead = [...callout.children].find((child) =>
+      child.textContent?.trim(),
+    );
+    // Only an element holding the emoji and nothing else: an image or a link beside it is content.
+    const iconHost =
+      callout.querySelector(".icon")?.closest("div:not(.callout), span") ??
+      (lead &&
+      LONE_EMOJI.test(lead.textContent ?? "") &&
+      !lead.querySelector("img, picture, video, audio, iframe, svg, a, input")
+        ? lead
+        : null);
+    const icon = iconHost?.textContent?.trim() ?? "";
+    iconHost?.remove();
     const wrapper = doc.createElement("div");
     wrapper.setAttribute("data-slot", "callout");
-    wrapper.setAttribute("data-tone", "note");
+    wrapper.setAttribute("data-tone", calloutToneForEmoji(icon));
     const content = doc.createElement("div");
     content.setAttribute("data-slot", "callout-content");
     const blocks = [...callout.childNodes];
@@ -5815,6 +5887,10 @@ function MediaPanel({
       .focus(undefined, { scrollIntoView: false })
       .insertContentAt(target, keepImageText(content, replaced))
       .run();
+    // A new block (an embed, an image, a player): the caret goes to the line after it, so typing
+    // continues the text instead of replacing the block. A replaced image stays selected.
+    if (kind !== "file" && !replaced)
+      caretAfterBlockAt(editor, insertedAt(editor, target.from, content.type));
     onClose();
   };
   const link = (
@@ -7234,6 +7310,16 @@ function findSnapshot(editor: Editor): FindSnapshot {
   };
 }
 
+/** Whether `from`–`to` is the find bar's current match (the selection Find put there). */
+function isFindMatch(state: EditorState, from: number, to: number): boolean {
+  const find = FindAndReplacePluginKey.getState(state);
+  const current =
+    find && find.searchTerm && find.currentIndex !== null
+      ? find.results[find.currentIndex]
+      : null;
+  return !!current && current.from === from && current.to === to;
+}
+
 /** The matches' tints: every match, and the current one (darker, underlined). */
 const FIND_RESULT_CLASS =
   "[&_.find-and-replace-result]:rounded-[2px] [&_.find-and-replace-result]:bg-warning/35 [&_.find-and-replace-result-current]:bg-warning/60 [&_.find-and-replace-result-current]:underline [&_.find-and-replace-result-current]:decoration-2 [&_.find-and-replace-result-current]:underline-offset-2 print:[&_.find-and-replace-result]:bg-transparent";
@@ -7319,16 +7405,27 @@ function FindBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusKey]);
 
+  // A regular expression that doesn't compile is not "no results": say so.
+  const badPattern =
+    snap.useRegex &&
+    snap.term !== "" &&
+    createSearchRegex(snap.term, {
+      useRegex: true,
+      caseSensitive: snap.caseSensitive,
+      wholeWord: snap.wholeWord,
+    }) === null;
   const count =
     snap.term === ""
       ? ""
-      : snap.results === 0
-        ? "No results"
-        : snap.current === null
-          ? snap.results === 1
-            ? "1 result"
-            : `${snap.results} results`
-          : `${snap.current + 1} of ${snap.results}`;
+      : badPattern
+        ? "Invalid pattern"
+        : snap.results === 0
+          ? "No results"
+          : snap.current === null
+            ? snap.results === 1
+              ? "1 result"
+              : `${snap.results} results`
+            : `${snap.current + 1} of ${snap.results}`;
   // "3 of 12", announced once it settles (250ms), never per keystroke.
   React.useEffect(() => {
     if (!count) return;
@@ -7432,6 +7529,7 @@ function FindBar({
             placeholder="Find"
             autoComplete="off"
             spellCheck={false}
+            aria-invalid={badPattern || undefined}
             onChange={(event) => {
               setTerm(event.target.value);
               editor.commands.setSearchTerm(event.target.value);
@@ -11443,20 +11541,22 @@ export function TextEditEditor({
   }, [safeTop, safeBottom, panel, caretInLink]);
   const showBubble = React.useCallback(
     ({ editor: ed, from, to, state }: MenuShowProps) =>
+      // A panel asked for opens; Find stepping onto a match brings no toolbar over the find bar.
       panel !== null ||
-      // The caret in a link (editable): the link card.
-      (ed.isEditable &&
-        from === to &&
-        ed.isActive("link") &&
-        !ed.isActive("codeBlock")) ||
-      ((ed.isEditable || canComment) &&
-        from !== to &&
-        // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
-        // format, so no menu.
-        state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
-        !(state.selection instanceof NodeSelection) &&
-        !(state.selection instanceof CellSelection) &&
-        !ed.isActive("codeBlock")),
+      (!isFindMatch(state, from, to) &&
+        // The caret in a link (editable): the link card.
+        ((ed.isEditable &&
+          from === to &&
+          ed.isActive("link") &&
+          !ed.isActive("codeBlock")) ||
+          ((ed.isEditable || canComment) &&
+            from !== to &&
+            // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
+            // format, so no menu.
+            state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
+            !(state.selection instanceof NodeSelection) &&
+            !(state.selection instanceof CellSelection) &&
+            !ed.isActive("codeBlock")))),
     [panel, canComment],
   );
   // The bubble menu's anchor: the selection's live rect, with the editor as its context element so

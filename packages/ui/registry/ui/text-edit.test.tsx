@@ -5116,7 +5116,7 @@ test("paste from Notion: its to-do list is a checklist and its callout a callout
   });
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(
-      "- [x] Ship it\n- [ ] Tell the team\n\n> [!NOTE]\n> Remember the deadline",
+      "- [x] Ship it\n- [ ] Tell the team\n\n> [!TIP]\n> Remember the deadline",
     ),
   );
 });
@@ -5128,7 +5128,7 @@ test("paste from Notion: a callout alone is a callout, keeps its image, and a ne
   await box.click();
   pasteData(box.element(), {
     "text/html":
-      '<figure class="callout"><div><span class="icon">💡</span></div><div>Plain note</div></figure>',
+      '<figure class="callout"><div><span class="icon">📝</span></div><div>Plain note</div></figure>',
     "text/plain": "Plain note",
   });
   await vi.waitFor(() =>
@@ -6443,4 +6443,163 @@ test("collaboration: a block menu whose block a collaborator deletes closes, and
       document.querySelector('[data-slot="text-edit-block-handle"]'),
     ).not.toBeNull(),
   );
+});
+
+/* --- page QA, round 2 (21-10-2026) -------------------------------------------------------------*/
+
+test("paste from Notion: a callout whose icon is a lone emoji element keeps no stray emoji line, and 💡 reads as a tip", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      '<figure class="callout"><div>💡</div><div>Notion callout text</div></figure><figure class="callout"><div>⚠️</div><div>Mind the gap</div></figure>',
+    "text/plain": "Notion callout text\nMind the gap",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "> [!TIP]\n> Notion callout text\n\n> [!WARNING]\n> Mind the gap",
+    ),
+  );
+});
+
+test("find: stepping onto a match shows no selection toolbar over the find bar", async () => {
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta alpha",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  await expect
+    .element(screen.getByRole("search", { name: "Find in page" }))
+    .toBeInTheDocument();
+  await userEvent.keyboard("alpha");
+  // With Replace open, step with the bar's own Next button (focus leaves the field).
+  (
+    screen
+      .getByRole("button", { name: "Replace", exact: true })
+      .element() as HTMLElement
+  ).click();
+  await userEvent.click(screen.getByRole("button", { name: "Next match" }));
+  await userEvent.click(screen.getByRole("button", { name: "Next match" }));
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole("search", { name: "Find in page" }).element()
+        .textContent,
+    ).toMatch(/\d of 2/),
+  );
+  // ⌘G from the text steps too, the editor focused.
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(`{${MOD}>}g{/${MOD}}`);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(bubble()).toBeNull();
+});
+
+test('find: a regular expression that doesn\'t compile says so, not "No results"', async () => {
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "apple pie",
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  const bar = screen.getByRole("search", { name: "Find in page" });
+  await expect.element(bar).toBeInTheDocument();
+  (
+    screen
+      .getByRole("button", { name: "Regular expression" })
+      .element() as HTMLElement
+  ).click();
+  await userEvent.keyboard("app(le");
+  await vi.waitFor(() =>
+    expect(bar.element().textContent).toMatch(/Invalid pattern/),
+  );
+  expect(
+    bar.element().querySelector("input")?.getAttribute("aria-invalid"),
+  ).toBe("true");
+});
+
+test("embeds: inserting a video link puts the caret on a line after the embed — typing never replaces it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Intro",
+    embeds: EMBED_PROVIDERS,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}/youtube{Enter}`);
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Video URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard(`${YOUTUBE}{Enter}`);
+  await vi.waitFor(() =>
+    expect(
+      box.element().querySelector('[data-slot="markdown-embed"]'),
+    ).not.toBeNull(),
+  );
+  await userEvent.keyboard("typed after");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro\n\n${YOUTUBE}\n\ntyped after`),
+  );
+});
+
+test("paste from Notion: an emoji beside an image in a callout's first line is content, never removed as its icon", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html":
+      '<aside><p>💡<img src="/evidence.png" alt="Evidence"></p><p>Details</p></aside>',
+    "text/plain": "Details",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain("/evidence.png"),
+  );
+  expect(lastValue(onValueChange)).toContain("Details");
+});
+
+test("find: on a match, ⌘K still opens the link panel", async () => {
+  const screen = await markdownEditor({
+    findReplace: true,
+    defaultValue: "alpha beta",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`{${MOD}>}f{/${MOD}}`);
+  await expect
+    .element(screen.getByRole("search", { name: "Find in page" }))
+    .toBeInTheDocument();
+  await userEvent.keyboard("alpha");
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(`{${MOD}>}g{/${MOD}}`);
+  await userEvent.keyboard(`{${MOD}>}k{/${MOD}}`);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Link URL" }))
+    .toBeInTheDocument();
+});
+
+test("image: inserted by link into an empty list item, the caret moves past it — typing never replaces it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- one",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}/image{Enter}`);
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Image URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("/files/pic.png{Enter}");
+  await vi.waitFor(() =>
+    expect(
+      box.element().querySelector('img[src="/files/pic.png"]'),
+    ).not.toBeNull(),
+  );
+  await userEvent.keyboard("after");
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("after"));
+  expect(lastValue(onValueChange)).toContain("/files/pic.png");
 });
