@@ -1,4 +1,4 @@
-// @vegastack status-pages-01@0.25.65 sha256-iI/1TrsYBW13gu6IgGaw+n5tTlOZMOqYVncdL65JBPA=
+// @vegastack status-pages-01@0.25.66 sha256-67/Bu1zvAzdY7QFi/SUYnmITWaKpuqQOIovU4Gr6pE4=
 
 import { NotFoundPage } from "./components/not-found-page";
 

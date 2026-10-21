@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.25.66
+
+### Patch Changes
+
+- [#725](https://github.com/vegastack/vegastack-design/pull/725) [`d896e40`](https://github.com/vegastack/vegastack-design/commit/d896e407467951b8dace13cc2f82fd94642af826) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 DocumentLayout's `margin` guidance: show the comment margin only while it holds threads or a draft, decided with the text, so a page without threads is centred (Regent operator, 21-10-2026).
+
+- [#728](https://github.com/vegastack/vegastack-design/pull/728) [`db39dee`](https://github.com/vegastack/vegastack-design/commit/db39deec9578ea1d16444cbaac49e15e8e4883fc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **DocumentLayout** sections, pages and live blocks: `DocumentLayoutSection` (named by `DocumentLayoutSectionTitle`, with `count`), `DocumentLayoutSectionHeader`, `DocumentLayoutSectionButton` (`more` · `add`), `DocumentLayoutSectionSkeleton`; `DocumentLayoutPageList`, `DocumentLayoutPageItem` and `DocumentLayoutPageLink` (icon, name, excerpt, meta); `DocumentLayoutBlock` with its header, title, rows (`DocumentLayoutBlockRow`, `…RowMain`, `…RowRef`, `…RowMeta`), note, skeleton, footer and `DocumentLayoutBlockAction`. `DocumentLayoutDecisionBar` keeps 24px between itself and the text it leads. **TableOfContents**: a scroller that overflows by only 2px no longer marks its last heading at its top. **DataList / DataGrid**: a column's `numeric` sets its body values in tabular figures.
+
 ## 0.25.65
 
 ### Patch Changes
