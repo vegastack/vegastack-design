@@ -1,0 +1,88 @@
+---
+title: Entry List
+description: A short, compact list of plain entries in a sheet, dialog or popover — a line of text, its muted details and small actions at its end.
+audience: public
+registry: entry-list
+status: stable
+since: 0.25.64
+a11y: a real list; details are text, actions are buttons
+preview: entryList
+---
+
+## Install
+
+<InstallSteps name="entry-list" />
+
+## Usage
+
+```tsx
+import {
+  Entry,
+  EntryActions,
+  EntryList,
+  EntryMeta,
+} from "@/components/ui/entry-list";
+
+<EntryList className="gap-1">
+  <Entry>
+    <span className="min-w-0">
+      Task Install glazing is now Done <EntryMeta>(Asha, 2h ago)</EntryMeta>
+    </span>
+    <EntryActions>
+      <Button variant="ghost" size="xs">
+        Open
+      </Button>
+    </EntryActions>
+  </Entry>
+</EntryList>;
+```
+
+`EntryList` is for the short lists inside a sheet, a dialog or a popover — what changed, who was
+asked, the edits since a date — where each entry is a line of 14px text, its details in the muted
+ink (`EntryMeta`) and small actions pushed to its end (`EntryActions`). It draws no padding, border
+or hover: an entry is not itself a target. For rows that are targets reach for `Item`; for records,
+`DataList`. Space the entries with a gap on the list.
+
+## Anatomy
+
+<Anatomy name="entry-list" />
+
+## Examples
+
+### Entries with actions
+
+<ComponentPreview name="entryList" file="components/preview/entry-list.tsx" />
+
+### Stacked details
+
+`layout="stack"` puts the details on their own line over the text — an edit: when and who, then
+what changed.
+
+<ComponentPreview
+  name="entryListStacked"
+  file="components/preview/entry-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/entry-list.tsx"
+  name="EntryProps"
+/>
+
+`EntryList` takes a `ul`'s native props, `Entry` an `li`'s, `EntryMeta` and `EntryActions` a
+`span`'s.
+
+## Accessibility
+
+- The list is a real `ul` of `li` entries, so assistive technology announces how many there are.
+- Details are text in the entry, read with it; actions are real buttons with their own names.
+
+<StatesTested name="entry-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Use EntryList for a handful of plain lines with details and small actions inside a panel."
+  dont="Use it for rows people click as a whole (Item) or for records with columns (DataList)."
+/>

@@ -287,6 +287,18 @@ generated JSX.
 
 <AttachmentPlayground />
 
+### Loading a list of files
+
+`AttachmentSkeletons` sketches file rows in their real shape — a 32px thumbnail, the name and the
+size line — while the list loads. `AttachmentDescription` sets its numbers in tabular figures, so
+sizes line up down a list.
+
+```tsx
+<div role="status" aria-label="Loading files">
+  <AttachmentSkeletons count={3} />
+</div>
+```
+
 ## API Reference
 
 ### Attachment

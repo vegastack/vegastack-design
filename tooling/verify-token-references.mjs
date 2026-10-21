@@ -106,6 +106,11 @@ const RUNTIME_VARIABLES = new Set([
   "--sidebar-width",
   "--sidebar-width-icon",
   "--sidebar-width-mobile",
+  // `DocumentLayoutDecisionBar` (Regent O-7, API-36) measures itself and writes its height (plus
+  // an 8px gap) onto its `DocumentLayout` as an inline style, removing it on unmount; the layout's
+  // phone floating buttons and the bar's own dock spacer read it with a 0px fallback. A measured
+  // runtime value, not a theme value, so it can live nowhere in the token contract.
+  "--document-layout-dock",
   // The page gutter: `AppShell` declares it on its root (and `AppShellHeader`/`AppShellPage` on
   // themselves) from `pageGutterClasses`, and `RecordLayoutRail` — a descendant of the page —
   // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so

@@ -550,6 +550,7 @@
         "@vegastack/file-viewer",
         "@vegastack/media-card",
         "@vegastack/progress",
+        "@vegastack/skeleton",
         "@vegastack/tile-overlay"
       ],
       "files": [
@@ -13293,6 +13294,30 @@
         "whenToUse": "The facts line under a record's title — type, date and time, duration, who recorded it.",
         "whenNotToUse": "Labelled key/value details (PropertyList) or status (Badge, StatusLine).",
         "version": "0.25.64"
+      }
+    },
+    {
+      "name": "entry-list",
+      "type": "registry:ui",
+      "title": "Entry List",
+      "description": "A short, compact list of plain entries in a sheet, dialog or popover: a line of text, its muted details and small actions at its end.",
+      "categories": ["display"],
+      "dependencies": [
+        "@vegastack/design@^0.8.17",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/entry-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/entry-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A handful of plain lines inside a panel — what changed, who was asked, the edits since a date — with their details and small actions.",
+        "whenNotToUse": "Rows that are targets themselves (Item), records with columns (DataList), facts under a title (MetaLine).",
+        "version": "0.25.63"
       }
     },
     {

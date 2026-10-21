@@ -1,10 +1,11 @@
-// @vegastack document-layout@0.25.64 sha256-sRUdq0aAC9i6DtOrzyVVB4lILOHLKCIkUbXOruZTIQ4=
+// @vegastack document-layout@0.25.64 sha256-LrvRW7LmN0FYxiAZDDcOu9SJJirf05RpcUDqcPP7xpg=
 
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -295,6 +296,131 @@ export function DocumentLayoutNote({
       data-slot="document-layout-note"
       className={cn(
         "mt-2 text-xs text-muted-foreground print:hidden",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `DocumentLayoutDecisionBar`. */
+export interface DocumentLayoutDecisionBarProps extends React.ComponentPropsWithRef<"div"> {
+  /** The bar's accessible name ("Your review"). */
+  "aria-label": string;
+}
+
+/**
+ * `DocumentLayoutDecisionBar` — a decision the reader owes the page ("Asha asked you to review
+ * this page · Request changes · Approve"): a card-surface bar that sticks under the top bar while
+ * the page scrolls, and on a phone floats at the bottom of the window, clear of the home
+ * indicator — the layout's floating buttons (`DocumentLayoutFloatingButton`,
+ * `DocumentLayoutContentsButton`) then float above it. A named region; hidden in print. Hold a `DocumentLayoutDecisionBarText` and
+ * `DocumentLayoutDecisionBarActions`.
+ *
+ * @example
+ * <DocumentLayoutDecisionBar aria-label="Your review">
+ *   <DocumentLayoutDecisionBarText>Asha asked you to review this page</DocumentLayoutDecisionBarText>
+ *   <DocumentLayoutDecisionBarActions><Button size="sm">Approve</Button></DocumentLayoutDecisionBarActions>
+ * </DocumentLayoutDecisionBar>
+ */
+export function DocumentLayoutDecisionBar({
+  ref,
+  className,
+  ...props
+}: DocumentLayoutDecisionBarProps) {
+  const own = React.useRef<HTMLDivElement>(null);
+  const refs = React.useMemo(() => mergeRefs<HTMLDivElement>(own, ref), [ref]);
+  // Where the room under the page's end goes: the layout's grid, found once mounted.
+  const [grid, setGrid] = React.useState<HTMLElement | null>(null);
+  // Publishes its height (and an 8px gap) on the layout, so its floating buttons clear it on a
+  // phone however tall a wrapped prompt or a row of answers makes it.
+  React.useLayoutEffect(() => {
+    const bar = own.current;
+    const layout = bar?.closest<HTMLElement>("[data-slot=document-layout]");
+    if (!bar || !layout) return;
+    setGrid(
+      layout.querySelector<HTMLElement>("[data-slot=document-layout-grid]"),
+    );
+    const publish = () =>
+      layout.style.setProperty(
+        "--document-layout-dock",
+        `${bar.offsetHeight + 8}px`,
+      );
+    publish();
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(publish);
+    observer?.observe(bar);
+    return () => {
+      observer?.disconnect();
+      layout.style.removeProperty("--document-layout-dock");
+    };
+  }, []);
+  return (
+    <>
+      {/* On a phone the bar floats over the window's bottom: this keeps that much room under the
+          page's end (the grid's last row), so its last lines scroll clear of the bar. */}
+      {grid
+        ? createPortal(
+            <div
+              aria-hidden
+              data-slot="document-layout-dock-space"
+              className="col-[text] row-start-4 hidden h-[calc(var(--document-layout-dock,0px)+--spacing(3)+env(safe-area-inset-bottom))] max-sm:block print:hidden"
+            />,
+            grid,
+          )
+        : null}
+      <div
+        ref={refs}
+        role="region"
+        data-slot="document-layout-decision-bar"
+        className={cn(
+          // Under the 56px top bar while the text scrolls; on a phone, floating at the bottom.
+          "sticky top-14 z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
+          "max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))]",
+          className,
+        )}
+        {...props}
+      />
+    </>
+  );
+}
+
+/**
+ * `DocumentLayoutDecisionBarText` — what is asked, taking the bar's free width.
+ *
+ * @example
+ * <DocumentLayoutDecisionBarText>Asha asked you to review this page</DocumentLayoutDecisionBarText>
+ */
+export function DocumentLayoutDecisionBarText({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<"p">) {
+  return (
+    <p
+      data-slot="document-layout-decision-bar-text"
+      className={cn("min-w-0 flex-1", className)}
+      {...props}
+    />
+  );
+}
+
+/**
+ * `DocumentLayoutDecisionBarActions` — the answers; on a phone a full row, spread to its ends.
+ *
+ * @example
+ * <DocumentLayoutDecisionBarActions><Button size="sm">Approve</Button></DocumentLayoutDecisionBarActions>
+ */
+export function DocumentLayoutDecisionBarActions({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      data-slot="document-layout-decision-bar-actions"
+      className={cn(
+        "flex flex-wrap gap-2 max-sm:w-full max-sm:justify-between",
         className,
       )}
       {...props}

@@ -239,7 +239,8 @@
     "OVL-21": ["drawer"],
     "LAY-17": ["alert-dialog", "dialog", "drawer", "empty", "popover", "sheet"],
     "TYP-19": ["dialog"],
-    "API-35": ["select"]
+    "API-35": ["select"],
+    "API-36": ["attachment", "badge", "popover", "sheet", "skeleton"]
   },
   "advisory": {
     "A11Y-2": [

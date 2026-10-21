@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.64 sha256-xOQU6f+23tNgnunwzyauintUqxmlHlSFZKADHkmnB0U=
+// @vegastack comments@0.25.64 sha256-RPY4fkCj5m8HUm78/NbTGiaLEZs27a+tuWE3RLX3z2o=
 
 "use client";
 
@@ -2383,6 +2383,31 @@ export function CommentListHeader({
 }
 
 /**
+ * `CommentThreadSkeleton` — one placeholder thread card, in its real shape: the author line and
+ * two lines of text — for a list loading more threads (a `LoadMore` skeleton). Hidden from
+ * assistive technology. @example <LoadMore skeleton={<CommentThreadSkeleton />} … />
+ */
+export function CommentThreadSkeleton() {
+  return (
+    <div
+      aria-hidden
+      data-slot="comment-thread-skeleton"
+      className="flex flex-col gap-1 rounded-lg border border-border px-4 py-3"
+    >
+      <div className="flex h-6 items-center gap-2">
+        <Skeleton className="size-5 shrink-0 rounded-full" />
+        <Skeleton className="h-3.5 w-28" />
+        <Skeleton className="h-3 w-10" />
+      </div>
+      <div className="flex flex-col gap-1.5 py-1">
+        <Skeleton className="h-3.5 w-full" />
+        <Skeleton className="h-3.5 w-2/3" />
+      </div>
+    </div>
+  );
+}
+
+/**
  * `CommentListSkeleton` — two placeholder thread cards and the composer's card while comments
  * load, in their real shapes. @example <CommentListSkeleton />
  */
@@ -2393,22 +2418,8 @@ export function CommentListSkeleton() {
       data-slot="comment-list-skeleton"
       className="flex flex-col gap-3"
     >
-      {[0, 1].map((i) => (
-        <div
-          key={i}
-          className="flex flex-col gap-1 rounded-lg border border-border px-4 py-3"
-        >
-          <div className="flex h-6 items-center gap-2">
-            <Skeleton className="size-5 shrink-0 rounded-full" />
-            <Skeleton className="h-3.5 w-28" />
-            <Skeleton className="h-3 w-10" />
-          </div>
-          <div className="flex flex-col gap-1.5 py-1">
-            <Skeleton className="h-3.5 w-full" />
-            <Skeleton className="h-3.5 w-2/3" />
-          </div>
-        </div>
-      ))}
+      <CommentThreadSkeleton />
+      <CommentThreadSkeleton />
       <div className="flex flex-col rounded-lg border border-border px-4 pt-3 pb-2">
         <Skeleton className="h-3.5 w-32" />
         <div className="flex justify-end gap-1 pt-5">

@@ -50,6 +50,7 @@ import {
   AttachmentMedia,
   AttachmentPreview,
   AttachmentProgress,
+  AttachmentSkeletons,
   AttachmentTitle,
   AttachmentTrigger,
 } from "./attachment";
@@ -1392,4 +1393,13 @@ test("API-28: a card wears the MediaCard surface — same fill, border and radiu
   ).toBe(screen.getByRole("button", { name: "Open two.zip" }).element());
   await screen.getByRole("button", { name: "Open two.zip" }).click();
   await expect.element(screen.getByRole("dialog")).toBeVisible();
+});
+
+test("AttachmentSkeletons sketches file rows, hidden from assistive technology", async () => {
+  const screen = await render(<AttachmentSkeletons count={2} />);
+  const root = screen.container.querySelector<HTMLElement>(
+    "[data-slot=attachment-skeletons]",
+  )!;
+  expect(root.getAttribute("aria-hidden")).toBe("true");
+  expect(root.children).toHaveLength(2);
 });

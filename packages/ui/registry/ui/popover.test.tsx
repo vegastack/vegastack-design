@@ -6,6 +6,8 @@ import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Popover,
+  PopoverAnchor,
+  PopoverBody,
   PopoverContent,
   PopoverDescription,
   PopoverHeader,
@@ -255,4 +257,44 @@ test("no a11y violations — open", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Open Popover" }));
   // The popup portals to <body>, so audit the whole document, not just the container.
   await expectNoA11yViolations(document.body);
+});
+
+test("PopoverContent size and an anchored popover with a scrolling body", async () => {
+  const screen = await render(
+    <Popover open>
+      <PopoverAnchor />
+      <PopoverContent size="lg" aria-label="Requests">
+        <PopoverBody>
+          <PopoverDescription>
+            Line one{"\n"}
+            <strong>12</strong> words
+          </PopoverDescription>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>,
+  );
+  const content = document.querySelector<HTMLElement>(
+    "[data-slot=popover-content]",
+  )!;
+  expect(content.className).toContain("w-96");
+  expect(
+    document
+      .querySelector("[data-slot=popover-anchor]")
+      ?.getAttribute("aria-hidden"),
+  ).toBe("true");
+  expect(document.querySelector("[data-slot=popover-body]")).not.toBeNull();
+  await expectNoA11yViolations(document.body);
+  void screen;
+});
+
+test("PopoverAnchor keeps its hidden, untabbable box whatever it renders", async () => {
+  await render(
+    <Popover>
+      <PopoverAnchor render={<span data-testid="custom" />} />
+    </Popover>,
+  );
+  const anchor = document.querySelector<HTMLElement>("[data-testid=custom]")!;
+  expect(anchor.getAttribute("aria-hidden")).toBe("true");
+  expect(anchor.tabIndex).toBe(-1);
+  expect(anchor.className).toContain("size-0");
 });

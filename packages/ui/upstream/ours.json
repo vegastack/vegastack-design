@@ -705,6 +705,12 @@
       "disposition": "keep",
       "family": "internal",
       "source": "internal part of document-layout (its client tools: find bar, jump cue, starters, note). Regent O-7 follow-up, coordinator ruling A 2026-10-21 (no bespoke styling in the app)"
+    },
+    "entry-list": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Regent O-7 follow-up, coordinator ruling A 2026-10-21 (no bespoke styling in the app)",
+      "rationale": "Upstream ships no compact entry list; a small composition with no patch."
     }
   }
 }

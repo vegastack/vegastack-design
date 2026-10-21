@@ -175,6 +175,28 @@ Pick the edge the panel pins to and whether it carries a close button, then copy
 
 <SheetPlayground />
 
+### Sections
+
+A sheet's body is usually a few sections. `SheetSection` holds a `SheetSectionHeader` — a
+`SheetSectionTitle` (14px medium) with an action pushed to its end — over its content, 8px apart;
+`SheetSectionDescription` is a section's muted line (its state, an empty note) and
+`SheetSectionLabel` a quiet 12px label over a run of cards ("Earlier"). Space the sections with a
+gap on `SheetBody`.
+
+```tsx
+<SheetBody className="flex flex-col gap-6">
+  <SheetSection>
+    <SheetSectionHeader>
+      <SheetSectionTitle>Edits since you verified</SheetSectionTitle>
+      <Button variant="ghost" size="xs">
+        Compare
+      </Button>
+    </SheetSectionHeader>
+    <SheetSectionDescription>No edits since.</SheetSectionDescription>
+  </SheetSection>
+</SheetBody>
+```
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="SheetProps" />

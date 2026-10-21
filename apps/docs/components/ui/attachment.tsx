@@ -1,4 +1,4 @@
-// @vegastack attachment@0.25.64 sha256-2hNQMkj8AOhRZ+zhUxKZjG1Avr8bdK0hn+UhU4kglLw=
+// @vegastack attachment@0.25.64 sha256-iYaLF9w7QKI6ZmROQ3RPIilafmFIiLrVF21LTlhXSyM=
 
 "use client";
 
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import { RECORD_CARD_SURFACE_CLASS } from "@/components/ui/media-card";
 import { ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   tileColumnClasses,
   tileCornerClasses,
@@ -351,7 +352,7 @@ function AttachmentDescription({
         // 3.98–4.35 band `--destructive-text` exists for. Same pair, same rule, as Alert, Badge,
         // Toast and the soft Button: a tinted status surface reads through the family's `-text`
         // ink, never through its fill.
-        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
+        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground tabular-nums group-data-[state=error]/attachment:text-destructive-text",
         "max-w-full",
         className,
       )}
@@ -551,7 +552,44 @@ function AttachmentGroup({
   return <AttachmentPreview>{group}</AttachmentPreview>;
 }
 
+/** The name bar's widths, cycled, so a column of placeholders never reads as one block. */
+const SKELETON_NAME_WIDTHS = ["w-40", "w-28", "w-36", "w-24"];
+
+/**
+ * `AttachmentSkeletons` — placeholder rows the shape of a list of files while it loads: a 32px
+ * thumbnail, the name and the size line, 8px apart. Hidden from assistive technology (name the
+ * loading region around it).
+ *
+ * @example
+ * <div role="status" aria-label="Loading files"><AttachmentSkeletons count={3} /></div>
+ */
+function AttachmentSkeletons({ count = 3 }: { count?: number }) {
+  return (
+    <div
+      aria-hidden
+      data-slot="attachment-skeletons"
+      className="flex flex-col gap-2"
+    >
+      {Array.from({ length: Math.max(0, count) }, (_, index) => (
+        <div key={index} className="flex items-center gap-3 p-1">
+          <Skeleton className="size-8 shrink-0 rounded-md" />
+          <div className="flex flex-col gap-1.5">
+            <Skeleton
+              className={cn(
+                "h-3.5",
+                SKELETON_NAME_WIDTHS[index % SKELETON_NAME_WIDTHS.length],
+              )}
+            />
+            <Skeleton className="h-3 w-12" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export {
+  AttachmentSkeletons,
   Attachment,
   AttachmentGroup,
   AttachmentPreview,

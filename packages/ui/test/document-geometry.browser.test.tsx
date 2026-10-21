@@ -8,6 +8,11 @@ import {
   DocumentLayout,
   DocumentLayoutBody,
   DocumentLayoutContents,
+  DocumentLayoutContentsButton,
+  DocumentLayoutDecisionBar,
+  DocumentLayoutDecisionBarActions,
+  DocumentLayoutDecisionBarText,
+  DocumentLayoutFloatingButton,
   DocumentLayoutHeader,
   DocumentLayoutIcon,
   DocumentLayoutMargin,
@@ -726,4 +731,110 @@ test("a nowrap fact stays on one line with its link truncated, a plain fact wrap
   } finally {
     await cdp().send("Emulation.setEmulatedMedia", { media: "" });
   }
+});
+
+test("on a phone both floating buttons clear a decision bar however tall it wraps", async () => {
+  await page.viewport(320, 700);
+  await render(
+    <DocumentLayout>
+      <DocumentLayoutBody>
+        <DocumentLayoutDecisionBar aria-label="Your review">
+          <DocumentLayoutDecisionBarText>
+            Asha Menon asked you to review this page before the supplier meeting
+            on Thursday · due Oct 24
+          </DocumentLayoutDecisionBarText>
+          <DocumentLayoutDecisionBarActions>
+            <Button size="sm" variant="ghost">
+              Compare
+            </Button>
+            <Button size="sm" variant="outline">
+              Request changes
+            </Button>
+            <Button size="sm">Approve</Button>
+          </DocumentLayoutDecisionBarActions>
+        </DocumentLayoutDecisionBar>
+        Text
+      </DocumentLayoutBody>
+      <DocumentLayoutContentsButton />
+      <DocumentLayoutFloatingButton>Edit</DocumentLayoutFloatingButton>
+    </DocumentLayout>,
+  );
+  const bar = slot("document-layout-decision-bar").getBoundingClientRect();
+  expect(bar.height).toBeGreaterThan(60);
+  await vi.waitFor(() => {
+    for (const name of [
+      "document-layout-contents-button",
+      "document-layout-floating-button",
+    ])
+      expect(
+        slot(name).getBoundingClientRect().bottom,
+        name,
+      ).toBeLessThanOrEqual(bar.top);
+  });
+});
+
+test("on a phone the page's last lines scroll clear of a decision bar", async () => {
+  await page.viewport(320, 700);
+  await render(
+    <DocumentLayout>
+      <DocumentLayoutBody>
+        <DocumentLayoutDecisionBar aria-label="Your review">
+          <DocumentLayoutDecisionBarText>
+            Asha Menon asked you to review this page before the supplier meeting
+            on Thursday
+          </DocumentLayoutDecisionBarText>
+          <DocumentLayoutDecisionBarActions>
+            <Button size="sm" variant="outline">
+              Request changes
+            </Button>
+            <Button size="sm">Approve</Button>
+          </DocumentLayoutDecisionBarActions>
+        </DocumentLayoutDecisionBar>
+        <div style={{ height: 2000 }} />
+        <p data-testid="last">The last line</p>
+      </DocumentLayoutBody>
+    </DocumentLayout>,
+  );
+  await vi.waitFor(() =>
+    expect(
+      getComputedStyle(slot("document-layout")).getPropertyValue(
+        "--document-layout-dock",
+      ),
+    ).not.toBe(""),
+  );
+  window.scrollTo(0, document.documentElement.scrollHeight);
+  await vi.waitFor(() => {
+    const bar = slot("document-layout-decision-bar").getBoundingClientRect();
+    const last = document
+      .querySelector("[data-testid=last]")!
+      .getBoundingClientRect();
+    expect(last.bottom).toBeLessThanOrEqual(bar.top);
+  });
+  window.scrollTo(0, 0);
+});
+
+test("first in the body, the decision bar stays under the top bar while the text scrolls", async () => {
+  await page.viewport(1440, 900);
+  await render(
+    <DocumentLayout>
+      <DocumentLayoutHeader>
+        <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+      </DocumentLayoutHeader>
+      <DocumentLayoutBody>
+        <DocumentLayoutDecisionBar aria-label="Your review">
+          <DocumentLayoutDecisionBarText>
+            Review this page
+          </DocumentLayoutDecisionBarText>
+        </DocumentLayoutDecisionBar>
+        <div style={{ height: 3000 }}>Text</div>
+      </DocumentLayoutBody>
+    </DocumentLayout>,
+  );
+  window.scrollTo(0, 1200);
+  await vi.waitFor(() =>
+    expect(
+      slot("document-layout-decision-bar").getBoundingClientRect().top,
+    ).toBe(56),
+  );
+  window.scrollTo(0, 0);
 });
