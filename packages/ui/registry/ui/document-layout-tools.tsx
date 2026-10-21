@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.63 sha256-SbE4AxKeHdtMFZWxt8bTsUQ+Q+mHxs1Ng3DwgPafrbk=
+// @vegastack document-layout@0.25.63 sha256-4rErQmqf47kjnNhDNSHKjAjNlN2mJqW/2JO4pTMlk/8=
 
 "use client";
 
@@ -27,7 +27,10 @@ export interface DocumentLayoutFindBarProps {
   value: string;
   /** Called with the query as it is typed. */
   onValueChange: (value: string) => void;
-  /** Where the find stands ("3 of 12", "No matches"); nothing while the query is empty. */
+  /**
+   * Where the find stands ("3 of 12", "No matches"); nothing while the query is empty.
+   * @default undefined
+   */
   status?: string;
   /** There are matches to step through (Previous and Next are disabled without). */
   hasMatches: boolean;
