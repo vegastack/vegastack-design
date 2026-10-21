@@ -59,10 +59,34 @@ test("share-dialog Publish: only the switch publishes; then copy, reset, expiry 
     .element(dialog.getByRole("button", { name: "Copy public link" }))
     .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
+  // Reset asks first, like Stop publishing: the live link stops at once.
   await dialog.getByRole("button", { name: "Reset link" }).click();
+  const reset = screen.getByRole("alertdialog", {
+    name: "Reset the public link?",
+  });
+  await expect.element(reset).toBeVisible();
+  await reset.getByRole("button", { name: "Cancel" }).click();
+  await expect
+    .element(dialog.getByRole("textbox", { name: "Public link" }))
+    .toHaveValue("https://app.acme.com/s/k3J9xQ2");
+  await dialog.getByRole("button", { name: "Reset link" }).click();
+  await screen
+    .getByRole("alertdialog", { name: "Reset the public link?" })
+    .getByRole("button", { name: "Reset link" })
+    .click();
   await expect
     .element(dialog.getByRole("textbox", { name: "Public link" }))
     .toHaveValue("https://app.acme.com/s/Pw7mT4c");
+  // A link that expires says when, not only the preset.
+  await dialog.getByRole("combobox", { name: "Expires" }).click();
+  await screen.getByRole("option", { name: "1 day" }).click();
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="share-public-link-expires-at"]')
+          ?.textContent,
+    )
+    .toMatch(/^Until \w{3} \d{1,2}/);
   // Stop publishing sits in the Publish tab's own footer, with what stays private.
   const stop = dialog.getByRole("button", { name: "Stop publishing" });
   expect(

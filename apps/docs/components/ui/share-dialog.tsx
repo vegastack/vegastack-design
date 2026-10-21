@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.61 sha256-J+31BTFwHtp01g6LYGvjLnTiRchPMaCXXKc9JuM1cCI=
+// @vegastack share-dialog@0.25.61 sha256-VrQ3u6b+K3gzsmAji6l7Rd1vG9j807eGx0IOXmF+OsA=
 
 "use client";
 
@@ -53,6 +53,7 @@ import {
   type PermissionMenuOption,
 } from "@/components/ui/permission-menu";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import { DateTime } from "@/components/ui/relative-time";
 import {
   ResponsiveDialog,
   ResponsiveDialogBody,
@@ -141,6 +142,12 @@ export interface SharePublicLink {
   url: string;
   /** When it stops working. */
   expires: ShareLinkExpiry;
+  /**
+   * The instant it stops working (ISO), shown beside Expires ("Until Oct 22, 2:30 PM"); `null` or
+   * absent for a link that never expires.
+   * @default undefined
+   */
+  expiresAt?: string | null;
 }
 
 /** Who in the item's space can open it. */
@@ -189,7 +196,13 @@ export interface ShareDialogLabels {
   publicLinkField: string;
   resetLink: string;
   resetLinkHint: string;
+  /** The reset confirmation's title. */
+  resetLinkTitle: string;
+  /** The reset confirmation's body. */
+  resetLinkBody: string;
   expires: string;
+  /** Before the instant a public link expires ("Until"). */
+  expiresUntil: string;
   expiry: Record<ShareLinkExpiry, string>;
   copyLink: string;
   copied: string;
@@ -257,7 +270,11 @@ const defaultLabels: ShareDialogLabels = {
   publicLinkField: "Public link",
   resetLink: "Reset link",
   resetLinkHint: "Reset link — the current link stops working",
+  resetLinkTitle: "Reset the public link?",
+  resetLinkBody:
+    "The current link stops working at once. Anyone who has it needs the new link.",
   expires: "Expires",
+  expiresUntil: "Until",
   expiry: { never: "Never", "1d": "1 day", "7d": "7 days", "30d": "30 days" },
   copyLink: "Copy link",
   copied: "Copied",
@@ -554,6 +571,7 @@ export function ShareDialog({
   const [message, setMessage] = React.useState("");
   const [inviting, setInviting] = React.useState(false);
   const [confirmStop, setConfirmStop] = React.useState(false);
+  const [confirmReset, setConfirmReset] = React.useState(false);
   const publishLabelId = React.useId();
   const publishTabRef = React.useRef<HTMLButtonElement>(null);
   const panelsRef = React.useRef<HTMLDivElement>(null);
@@ -995,7 +1013,8 @@ export function ShareDialog({
                           size="icon-xs"
                           aria-label={labels.resetLink}
                           disabled={publicLinkPending}
-                          onClick={() => onResetPublicLink?.()}
+                          // Asks first, like Stop publishing: the live link stops at once.
+                          onClick={() => setConfirmReset(true)}
                         />
                       }
                     >
@@ -1051,11 +1070,49 @@ export function ShareDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {publicLink.expiresAt ? (
+                // The instant it lapses, in the viewer's zone (a preset alone says nothing once
+                // time has passed).
+                <span
+                  data-slot="share-public-link-expires-at"
+                  className="col-start-2 -mt-1 text-xs text-muted-foreground"
+                >
+                  {labels.expiresUntil}{" "}
+                  <DateTime
+                    date={publicLink.expiresAt}
+                    variant="datetime"
+                    options={{ relativeDay: false }}
+                    title={false}
+                  />
+                </span>
+              ) : null}
               {publicLinkOptions}
             </div>
           ) : null}
         </div>
       ) : null}
+      <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{labels.resetLinkTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {labels.resetLinkBody}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                setConfirmReset(false);
+                void onResetPublicLink?.();
+              }}
+            >
+              {labels.resetLink}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <AlertDialog open={confirmStop} onOpenChange={setConfirmStop}>
         <AlertDialogContent>
           <AlertDialogHeader>

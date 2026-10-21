@@ -1,4 +1,4 @@
-// @vegastack share-01@0.25.61 sha256-tztuCYuAq4O1Z/u7w4lWxT+5Hoh2J3ObaNwK44nG0tk=
+// @vegastack share-01@0.25.61 sha256-/ml/gcuA3TkysFXmD0JuPgRKSuJRSCYW79Eoey2Lbzc=
 
 "use client";
 
@@ -127,6 +127,14 @@ export interface ShareDemoProps {
  *
  * @example <ShareDemo />
  */
+/** The instant a link chosen now with `expires` lapses (the server's own sum in an app). */
+const expiresAtOf = (expires: SharePublicLink["expires"]) =>
+  expires === "never"
+    ? null
+    : new Date(
+        Date.now() + { "1d": 1, "7d": 7, "30d": 30 }[expires] * 86_400_000,
+      ).toISOString();
+
 export function ShareDemo({
   publicLinkOn = false,
   readOnly = false,
@@ -194,7 +202,11 @@ export function ShareDemo({
         )
       }
       onPublicLinkExpiresChange={(expires) =>
-        setLink((current) => (current ? { ...current, expires } : current))
+        setLink((current) =>
+          current
+            ? { ...current, expires, expiresAt: expiresAtOf(expires) }
+            : current,
+        )
       }
       onStopPublicLink={() => setLink(null)}
       linkUrl="https://app.acme.com/tasks/REG-142"
