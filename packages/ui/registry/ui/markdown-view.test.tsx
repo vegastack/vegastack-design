@@ -8,6 +8,7 @@ import { getHTMLFromFragment } from "@tiptap/core";
 import { MarkdownView, markdownExtrasClassName } from "./markdown-view";
 import { markdownToDoc } from "../lib/text-edit-markdown";
 import { textEditSchema } from "../lib/text-edit-schema";
+import { anchorText } from "../lib/text-anchor-doc";
 import {
   headingIds,
   mentionMarkdown,
@@ -1516,4 +1517,230 @@ test("in HTML, an image after a paragraph is a figure and one inside a sentence 
     (each) => each.textContent,
   );
   expect(captions).toEqual(["Cap A"]);
+});
+
+/* --- adversarial review B9d ------------------------------------------------------------------*/
+
+/** The ms one render of `source` takes (best of `runs`). */
+async function renderTime(source: string, runs = 2): Promise<number> {
+  let best = Infinity;
+  for (let run = 0; run < runs; run++) {
+    const started = performance.now();
+    const screen = await render(<MarkdownView>{source}</MarkdownView>);
+    best = Math.min(best, performance.now() - started);
+    await screen.unmount();
+  }
+  return best;
+}
+
+test("the reader lexes adversarial Markdown in linear time: 10× the text costs well under 100× the time", async () => {
+  // Unmatched delimiters, unclosed links and unclosed toggles each made marked's own reader
+  // quadratic (24 KB of `*a ` took ~3 s); the reader shares TextEdit's bounded tokenizers.
+  const units = [
+    "*a ",
+    "_a ",
+    "~a ",
+    "[a](",
+    "<details><summary>a</summary>\n\n",
+    // Nested spans and blocks each lex text of their own: the document's indexes must survive them.
+    "**a _b_ c** ",
+    "[a](b) ",
+    "> quote\n\nplain\n\n",
+    // Eight levels of quotes, a paragraph after each: every level keeps its own index.
+    `${"> ".repeat(8)}quote\n\nplain\n\n`,
+  ];
+  for (const unit of units) {
+    // ~60 KB of each (6 KB against it), so every unit renders a comparable amount.
+    const count = Math.round(60_000 / unit.length);
+    await renderTime(unit.repeat(count / 40), 1);
+    const small = await renderTime(unit.repeat(count / 10));
+    const large = await renderTime(unit.repeat(count));
+    expect(large, unit).toBeLessThan(5_000);
+    expect(large / Math.max(small, 5), unit).toBeLessThan(50);
+  }
+}, 120_000);
+
+test("an empty checklist item is a task, checked or not — as TextEdit reads it", async () => {
+  const screen = await render(
+    <MarkdownView>{"- [x]\n- [ ] \n- [x] done"}</MarkdownView>,
+  );
+  const ticks = [
+    ...screen.container.querySelectorAll('[data-slot="checkbox"]'),
+  ];
+  expect(ticks.map((tick) => tick.hasAttribute("data-checked"))).toEqual([
+    true,
+    false,
+    true,
+  ]);
+  expect(screen.container.textContent).not.toContain("[x]");
+});
+
+test("a code block keeps its final newline — shown, copied and counted in anchors as TextEdit does", async () => {
+  const source = "```\nx\n\n```\n\nb b b";
+  const doc = markdownToDoc(source);
+  const editorText = anchorText(doc);
+  expect(editorText).toBe("x\n\nb b b");
+  // The second `b`, at the editor's offsets.
+  const screen = await render(
+    <MarkdownView
+      annotations={[
+        {
+          id: "c",
+          anchor: { quote: "b", prefix: "", suffix: "", start: 5, end: 6 },
+        },
+      ]}
+    >
+      {source}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("pre code")?.textContent).toBe("x\n");
+  const highlight = screen.container.querySelector("[data-annotation=c]");
+  expect(highlight?.textContent).toBe("b");
+  expect(highlight?.previousSibling?.textContent).toBe("b ");
+});
+
+test("HTML read mode rebuilds TextEdit's own nodes: video, toggles, mentions and callouts", async () => {
+  const html = [
+    '<video controls="" preload="metadata" src="/clip.mp4"></video>',
+    '<details open=""><div data-slot="toggle-summary">Title</div><p>Body</p></details>',
+    '<p>Hi <span data-type="mention" data-kind="user" data-id="u1" data-label="Asha">@Asha</span></p>',
+    '<div data-slot="callout" role="note" data-tone="tip"><div data-slot="callout-content"><p>Tip text</p></div></div>',
+  ].join("");
+  const screen = await render(
+    <MarkdownView format="html">{html}</MarkdownView>,
+  );
+  const root = screen.container;
+  expect(root.querySelector("video")?.getAttribute("src")).toBe("/clip.mp4");
+  const details = root.querySelector("details")!;
+  expect(details.open).toBe(true);
+  expect(details.querySelector("summary")?.textContent).toBe("Title");
+  expect(
+    root.querySelector('[data-slot="inline-chip"]')?.textContent,
+  ).toContain("Asha");
+  expect(
+    root.querySelector('[data-slot="callout"]')?.getAttribute("data-tone"),
+  ).toBe("tip");
+});
+
+test("a highlight over a mention or a link never hides it or makes it part of a button", async () => {
+  const screen = await render(
+    <MarkdownView
+      mentionHref={(kind, id) => `/${kind}/${id}`}
+      annotations={[
+        { id: "a", anchor: anchorOf("alpha @Beta gamma [link] end") },
+      ]}
+      onAnnotationClick={() => {}}
+    >
+      {"alpha [@Beta](mention://page/p1) gamma [[link]](/x) end"}
+    </MarkdownView>,
+  );
+  const root = screen.container;
+  expect(root.querySelectorAll("[data-annotation=a]").length).toBeGreaterThan(
+    1,
+  );
+  expect(
+    root.querySelector(
+      "[data-annotation][aria-hidden=true] a, a [data-annotation][aria-hidden=true]",
+    ),
+  ).toBeNull();
+  expect(root.querySelector("[role=button] a, a [role=button]")).toBeNull();
+  await expectNoA11yViolations(root);
+});
+
+test("find keeps live ranges when highlights restructure the same text, and folds the query as the text", async () => {
+  const registry = (CSS as unknown as { highlights?: Map<string, Set<Range>> })
+    .highlights;
+  function View({ annotated }: { annotated: boolean }) {
+    return (
+      <MarkdownView
+        findQuery="beta"
+        annotations={annotated ? [{ id: "h", anchor: anchorOf("beta") }] : []}
+      >
+        {"alpha beta gamma"}
+      </MarkdownView>
+    );
+  }
+  const screen = await render(<View annotated={false} />);
+  if (!registry) return;
+  const texts = () => [...(registry.get("vs-find") ?? [])].map(String);
+  await vi.waitFor(() => expect(texts()).toEqual(["beta"]));
+  await screen.rerender(<View annotated />);
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector("[data-annotation=h]"),
+    ).not.toBeNull(),
+  );
+  await vi.waitFor(() => expect(texts()).toEqual(["beta"]));
+  await screen.unmount();
+
+  const greek = await render(
+    <MarkdownView findQuery="ΟΣ">{"ΟΣ and ος"}</MarkdownView>,
+  );
+  await vi.waitFor(() => expect(texts()).toEqual(["ΟΣ", "ος"]));
+  await greek.unmount();
+  const german = await render(
+    <MarkdownView findQuery="STRAẞE">{"Straße and STRASSE"}</MarkdownView>,
+  );
+  await vi.waitFor(() => expect(texts()).toEqual(["Straße", "STRASSE"]));
+  await german.unmount();
+  const eszett = await render(
+    <MarkdownView findQuery="s">{"Straße"}</MarkdownView>,
+  );
+  await vi.waitFor(() => expect(texts()).toEqual(["S", "ß"]));
+  await eszett.unmount();
+  await render(<MarkdownView findQuery="ai">{"aİ"}</MarkdownView>);
+  await vi.waitFor(() => expect(texts()).toEqual(["aİ"]));
+});
+
+test("onAnnotationsLayout reports again when a highlight moves without the view resizing", async () => {
+  const onAnnotationsLayout = vi.fn();
+  function View({ quote }: { quote: string }) {
+    return (
+      <MarkdownView
+        onAnnotationsLayout={onAnnotationsLayout}
+        annotations={[{ id: "a", anchor: anchorOf(quote) }]}
+      >
+        {"First paragraph.\n\nSecond paragraph."}
+      </MarkdownView>
+    );
+  }
+  const screen = await render(<View quote="First" />);
+  await vi.waitFor(() => expect(onAnnotationsLayout).toHaveBeenCalled());
+  const top = () => onAnnotationsLayout.mock.calls.at(-1)![0][0].top as number;
+  const before = top();
+  await screen.rerender(<View quote="Second" />);
+  await vi.waitFor(() => expect(top()).toBeGreaterThan(before));
+});
+
+test("headingLinkHref alone turns heading ids on, so each heading gets its link", async () => {
+  const screen = await render(
+    <MarkdownView headingLinkHref={({ slug }) => `#${slug}`}>
+      {"## Setup\n\nText"}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("h2")?.id).toBe("setup");
+  expect(
+    screen.container.querySelector("h2 [data-slot=markdown-heading-link]"),
+  ).not.toBeNull();
+});
+
+test("a highlight ending in a link's text puts its pill after the link, never inside it", async () => {
+  const screen = await render(
+    <MarkdownView
+      annotations={[{ id: "l", anchor: anchorOf("link") }]}
+      onAnnotationClick={() => {}}
+    >
+      {"See [link](/x) now"}
+    </MarkdownView>,
+  );
+  const root = screen.container;
+  const link = root.querySelector("a[href='/x']")!;
+  expect(link.querySelector("[data-annotation=l]")).not.toBeNull();
+  expect(link.querySelector("[role=button]")).toBeNull();
+  const pill = root.querySelector("[data-annotation-count=l]")!;
+  expect(pill.getAttribute("tabindex")).toBe("0");
+  expect(
+    link.compareDocumentPosition(pill) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  await expectNoA11yViolations(root);
 });

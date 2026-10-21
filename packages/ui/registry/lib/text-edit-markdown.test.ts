@@ -124,3 +124,104 @@ test("docToMarkdown fills a shared document's empty record labels from `labels`,
     "[@Q3 plan](mention://page/p1) and [@Asha](mention://user/u1) and [@](mention://task/t9)",
   );
 });
+
+test("a table's Markdown grows with its content: one long cell never pads every row", () => {
+  // 1,000 short rows and one 10,000-character cell: padding each row to the widest cell wrote
+  // ~10 MB for a 16 KB table.
+  const rows = Array.from({ length: 1_000 }, (_, index) => `| ${index} |`);
+  const source = [
+    "| A |",
+    "| --- |",
+    `| ${"x".repeat(10_000)} |`,
+    ...rows,
+  ].join("\n");
+  const out = normalizeMarkdown(source);
+  expect(out.length).toBeLessThan(source.length * 2);
+  expect(normalizeMarkdown(out)).toBe(out);
+});
+
+test("a table whose widest cell is within the cap pads exactly as it always has", () => {
+  // The cap is 200 characters: stored pages keep their Markdown, and their section hashes.
+  const wide = "w".repeat(150);
+  expect(
+    normalizeMarkdown(
+      `| Name | Role | Note |\n|-|:-:|--:|\n| Ada | Eng | ${wide} |\n| Bo | PM |  |`,
+    ),
+  ).toBe(
+    [
+      `| Name | Role | ${"Note".padEnd(150)} |`,
+      `| ---- | :----: | ${"-".repeat(150)}: |`,
+      `| Ada  | Eng  | ${wide} |`,
+      `| Bo   | PM   | ${"".padEnd(150)} |`,
+    ].join("\n"),
+  );
+});
+
+test("writing a code span's edge spaces never changes a character the document holds", () => {
+  // Every private-use character (the stand-in's alphabet), and a run of the first one.
+  let all = "";
+  for (let code = 0xe000; code <= 0xf8ff; code++)
+    all += String.fromCharCode(code);
+  const first = String.fromCharCode(0xe000);
+  const tail = `${all.slice(0, 2)}${first}${first}`;
+  const doc = {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: all },
+          { type: "text", text: " a ", marks: [{ type: "code" }] },
+          { type: "text", text: tail },
+        ],
+      },
+    ],
+  };
+  // The code span's spaces held (one more each side), every other character as it was.
+  expect(docToMarkdown(doc)).toBe(`${all}\`  a  \`${tail}`);
+});
+
+test("nested emphasis and link text never cost the paragraph's indexes: parsing stays linear", () => {
+  // Best of two runs: a parse holds tens of thousands of marks, so GC noise is real; quadratic
+  // work costs 100× for 10× the text, linear ~10×.
+  const time = (source: string) => {
+    let best = Infinity;
+    for (let run = 0; run < 2; run++) {
+      const started = performance.now();
+      markdownToDoc(source);
+      best = Math.min(best, performance.now() - started);
+    }
+    return best;
+  };
+  for (const unit of ["**a _b_ c** ", "[a](b) "]) {
+    time(unit.repeat(1_000));
+    const small = time(unit.repeat(3_000));
+    const large = time(unit.repeat(30_000));
+    expect(large, unit).toBeLessThan(6_000);
+    expect(large / Math.max(small, 5), unit).toBeLessThan(50);
+  }
+}, 120_000);
+
+test("emphasis inside emphasis parses: the inner mark is dropped, never the text", () => {
+  const doc = markdownToDoc("*a _b_ c* and **x __y__ z**");
+  expect(docToText(doc)).toBe("a b c and x y z");
+  expect(docToMarkdown(doc)).toBe("*a b c* and **x y z**"); // An image lifted out of such a paragraph too.
+  expect(() => markdownToDoc("*a _b_ ![x](/x) c*")).not.toThrow();
+});
+
+test("a paragraph's indexes never answer for another that looks alike", () => {
+  // Two paragraphs differing in one place the old sampled cache never looked at.
+  const a = `*a ${"x".repeat(397)}`;
+  const b = `${a.slice(0, 100)}*${a.slice(101)}`;
+  const alone = docToMarkdown(markdownToDoc(b));
+  expect(docToMarkdown(markdownToDoc(`${a}\n\n${b}`)).split("\n\n")[1]).toBe(
+    alone,
+  );
+  expect(
+    markdownToDoc(b)
+      .toJSON()
+      .content[0].content.some(
+        (node: { marks?: unknown[] }) => node.marks?.length,
+      ),
+  ).toBe(true);
+});

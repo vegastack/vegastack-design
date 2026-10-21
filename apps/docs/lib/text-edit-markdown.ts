@@ -1,11 +1,21 @@
-// @vegastack text-edit-markdown@0.25.59 sha256-DkPC/rBlWpk1FuIihXzL7pRZd0r5LVG4eHeO4ykc6bg=
+// @vegastack text-edit-markdown@0.25.59 sha256-xU1P/Uk+idnk7JLYVEo2pY/QaKjfxhFTVbFasUgRH54=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
 import type { Node as PMNode } from "@tiptap/pm/model";
-import { Marked, Tokenizer, type TokenizerObject, type marked } from "marked";
+import {
+  Lexer,
+  Marked,
+  Tokenizer,
+  type TokenizerObject,
+  type marked,
+} from "marked";
 import { anchorText } from "@/lib/text-anchor-doc";
-import type { MentionKind } from "@/lib/text-edit-grammar";
+import {
+  boundedTokenizers,
+  trackedLexing,
+  type MentionKind,
+} from "@/lib/text-edit-grammar";
 import {
   BLOCK_ID_TYPES,
   EMBED_CONTAINERS,
@@ -13,7 +23,6 @@ import {
   blockId,
   embedOfParagraph,
   textEditExtensions,
-  isTailOf,
   resetParseCaches,
   textEditSchema,
   trimInline,
@@ -36,60 +45,6 @@ import {
  * - **canonical output** — no `&nbsp;` lines, one blank line between blocks, deterministic.
  */
 
-/** How far an emphasis or strikethrough span may reach for its closer. */
-const SPAN_WINDOW = 16_384;
-/** How long a link or image (its text and destination) may be. */
-const LINK_WINDOW = 65_536;
-
-/** Per paragraph: the last place each delimiter could close (it follows a non-space). */
-let closers: { masked: string; last: Record<string, number> } | null = null;
-
-/**
- * Whether the `*`, `_` or `~` opening `src` has any delimiter run of its kind after it that could
- * close it — a closing run never follows a space. Computed once per paragraph (marked hands every call the
- * same masked paragraph), so a paragraph of unmatched delimiters costs one pass, not one per
- * delimiter. Anything else is let through to marked.
- */
-function closerAhead(src: string, masked: string): boolean {
-  const char = src[0];
-  if (char !== "*" && char !== "_" && char !== "~") return true;
-  if (closers?.masked !== masked) {
-    const last: Record<string, number> = { "*": -1, _: -1, "~": -1 };
-    for (let i = 1; i < masked.length; i++) {
-      const each = masked[i]!;
-      // A run of the delimiter can close only when the character before the RUN is not a space.
-      if (!(each in last) || masked[i - 1] === each) continue;
-      if (!/\s/.test(masked[i - 1]!)) last[each] = i;
-    }
-    closers = { masked, last };
-  }
-  return closers.last[char]! > masked.length - src.length;
-}
-
-/** Per paragraph: where its last `)` is, counted from its end. */
-let parens: { source: string; lastFromEnd: number } | null = null;
-
-/**
- * Whether an inline link could close in `src`: a `)` must follow. marked hands the link reader the
- * rest of the paragraph at every `[`; a paragraph of `[a](` without a `)` would be read to its end
- * each time. The last `)` is found once per paragraph. (A false "no" could only leave a link as its
- * text, never drop text; the sampled tail check makes it practically impossible.)
- */
-function parenAhead(src: string): boolean {
-  if (!parens || !isTailOf(parens.source, src)) {
-    const last = src.lastIndexOf(")");
-    parens = { source: src, lastFromEnd: last === -1 ? -1 : src.length - last };
-  }
-  return parens.lastFromEnd > 0 && parens.lastFromEnd <= src.length;
-}
-
-/** `src` and its masked twin (aligned at their ends, as marked keeps them) cut to the window. */
-function windowed(src: string, masked: string): [string, string] {
-  if (src.length <= SPAN_WINDOW) return [src, masked];
-  const start = masked.length - src.length;
-  return [src.slice(0, SPAN_WINDOW), masked.slice(start, start + SPAN_WINDOW)];
-}
-
 /** A `<br>` tag in any spelling: a line break. */
 const BREAK_TAG = /^<br\s*\/?>$/i;
 
@@ -101,51 +56,9 @@ const BREAK_TAG = /^<br\s*\/?>$/i;
 function createMarked(): typeof marked {
   const instance = new Marked({ gfm: true });
   const tokenizer: TokenizerObject = {
-    // marked looks for the closer of every `*`, `_` and `~` delimiter across the rest of the
-    // paragraph — quadratic on a long paragraph of unmatched ones. Emphasis and strikethrough are
-    // looked for within a window (far longer than any real span); past it the delimiter is text.
-    emStrong(src, maskedSrc, prevChar) {
-      if (!closerAhead(src, maskedSrc)) return undefined;
-      return Tokenizer.prototype.emStrong.call(
-        this,
-        ...windowed(src, maskedSrc),
-        prevChar,
-      );
-    },
-    del(src, maskedSrc, prevChar) {
-      if (!closerAhead(src, maskedSrc)) return undefined;
-      return Tokenizer.prototype.del.call(
-        this,
-        ...windowed(src, maskedSrc),
-        prevChar,
-      );
-    },
-    list(src) {
-      const list = Tokenizer.prototype.list.call(this, src);
-      if (!list) return undefined;
-      // An empty task item (`- [ ]`, `- [x]` — nothing after the box) is still a task: GFM wants
-      // text after the box, but an editor writes empty ones and a person types them.
-      for (const item of list.items) {
-        const first = item.tokens[0];
-        const box = /^\[([ xX])\]$/.exec(String(first?.raw ?? "").trim());
-        if (item.task || !box) continue;
-        if (first?.type !== "text" && first?.type !== "paragraph") continue;
-        item.task = true;
-        item.checked = box[1] !== " ";
-        item.tokens[0] = {
-          type: "checkbox",
-          raw: `[${box[1]}] `,
-          checked: item.checked,
-        } as never;
-      }
-      return list;
-    },
-    link(src) {
-      if (src[0] === "[" || src[0] === "!") {
-        if (!parenAhead(src)) return undefined;
-      }
-      return Tokenizer.prototype.link.call(this, src.slice(0, LINK_WINDOW));
-    },
+    // Emphasis, strikethrough and links read in bounded time; an empty task item is a task — the
+    // rules `MarkdownView` reads with too.
+    ...boundedTokenizers(Tokenizer.prototype),
     tag(src) {
       const tag = Tokenizer.prototype.tag.call(this, src);
       if (!tag) return undefined;
@@ -168,6 +81,15 @@ function createMarked(): typeof marked {
       } as never;
     },
   };
+  // Every lexer the instance makes — Tiptap's manager news `instance.Lexer` and calls
+  // `instance.lexer` — is tracked, so the bounded tokenizers index each source once.
+  const lexing = trackedLexing(Lexer);
+  instance.Lexer = lexing.Lexer;
+  instance.lexer = ((src: string, options?: typeof instance.defaults) =>
+    lexing.lex(
+      src,
+      (options ?? instance.defaults) as never,
+    )) as typeof instance.lexer;
   instance.use({ tokenizer });
   // `MarkdownManager` types its option as the global `marked` namespace; an instance has the same
   // `Lexer`, `defaults` and `use` it calls.
@@ -263,18 +185,52 @@ function indexIn(siblings: JSONContent[], node: JSONContent): number {
 /**
  * Stands in for a code span's edge spaces while the span is written: Tiptap's writer moves a mark's
  * edge whitespace outside it (right for `**bold **`, wrong for code, whose spaces are content).
- * Written back as spaces once the document is serialized.
+ * Written back as spaces once the document is serialized; a plain space when no stand-in is free.
  */
-let CODE_SPACE = "\uE000";
+let CODE_SPACE = " ";
 
-/** A private-use character the document does not hold — the code-space stand-in for one write. */
-function unusedPrivateUse(doc: JSONContent): string {
-  const text = JSON.stringify(doc);
-  for (let code = 0xe000; code <= 0xf8ff; code++) {
-    const char = String.fromCharCode(code);
-    if (!text.includes(char)) return char;
-  }
-  return "\uE000";
+/** The private-use characters a stand-in is made of. */
+const PRIVATE_USE_FROM = 0xe000;
+const PRIVATE_USE_COUNT = 0x1900;
+
+/**
+ * The code-space stand-in for one write: a private-use character the document never holds, else a
+ * pair of two different ones it never holds side by side (a pair can never straddle the document's
+ * text and a stand-in: no prefix of it is also its suffix). Read in one pass over the document's
+ * text — every text node's run back to back, as a writer may join them — and its attributes.
+ */
+function codeSpaceFor(doc: JSONContent): string {
+  const parts: string[] = [];
+  const attrs: string[] = [];
+  const walk = (node: JSONContent) => {
+    if (node.text) parts.push(node.text);
+    if (node.attrs) attrs.push(JSON.stringify(node.attrs));
+    for (const mark of node.marks ?? [])
+      if (typeof mark !== "string" && mark.attrs)
+        attrs.push(JSON.stringify(mark.attrs));
+    node.content?.forEach(walk);
+  };
+  walk(doc);
+  const text = `${parts.join("")}\n${attrs.join("\n")}`;
+  const index = (at: number) => text.charCodeAt(at) - PRIVATE_USE_FROM;
+  const inRange = (code: number) => code >= 0 && code < PRIVATE_USE_COUNT;
+  const counts = new Uint32Array(PRIVATE_USE_COUNT);
+  for (let at = 0; at < text.length; at++)
+    if (inRange(index(at))) counts[index(at)]!++;
+  let first = 0;
+  for (let code = 1; code < PRIVATE_USE_COUNT; code++)
+    if (counts[code]! < counts[first]!) first = code;
+  const char = (code: number) => String.fromCharCode(PRIVATE_USE_FROM + code);
+  if (counts[first] === 0) return char(first);
+  const followers = new Uint8Array(PRIVATE_USE_COUNT);
+  for (let at = 0; at + 1 < text.length; at++)
+    if (index(at) === first && inRange(index(at + 1)))
+      followers[index(at + 1)] = 1;
+  for (let code = 0; code < PRIVATE_USE_COUNT; code++)
+    if (code !== first && !followers[code]) return char(first) + char(code);
+  // Only a document of tens of millions of private-use characters gets here: its code spans' edge
+  // spaces are written as spaces (the writer may move them outside the span; nothing is replaced).
+  return " ";
 }
 
 /**
@@ -361,14 +317,15 @@ export function createMarkdownManager(
   created.parse = (markdown: string) => {
     // Every per-document index serves only the parse that built it.
     resetParseCaches();
-    closers = null;
-    parens = null;
-    return normalizeParsed(parse(normalizeSource(markdown)));
+    return normalizeParsed(
+      withoutRepeatedMarks(parse(normalizeSource(markdown))),
+    );
   };
   const write = created.serialize.bind(created);
   created.serialize = (doc: JSONContent) => {
-    CODE_SPACE = unusedPrivateUse(doc);
-    return write(doc).replaceAll(CODE_SPACE, " ");
+    CODE_SPACE = codeSpaceFor(doc);
+    const written = write(doc);
+    return CODE_SPACE === " " ? written : written.replaceAll(CODE_SPACE, " ");
   };
   return created;
 }
@@ -600,6 +557,28 @@ function normalizeParsed(node: JSONContent): JSONContent {
 
 let sharedManager: MarkdownManager | undefined;
 const manager = () => (sharedManager ??= createMarkdownManager());
+
+/**
+ * `node` with no mark twice on one text: emphasis inside emphasis (`*a _b_ c*`) parses to the same
+ * mark twice, which the schema refuses — the inner one adds nothing, so it goes. Run on the whole
+ * parse before anything moves its nodes (images lifted out of a paragraph keep their marks).
+ */
+function withoutRepeatedMarks(node: JSONContent): JSONContent {
+  let out = node;
+  if (node.marks && node.marks.length > 1) {
+    const seen = new Set<string>();
+    const marks = node.marks.filter((mark) => {
+      const type = typeof mark === "string" ? mark : mark.type;
+      if (seen.has(type)) return false;
+      seen.add(type);
+      return true;
+    });
+    if (marks.length !== node.marks.length) out = { ...node, marks };
+  }
+  return out.content
+    ? { ...out, content: out.content.map(withoutRepeatedMarks) }
+    : out;
+}
 
 /**
  * Serialized Markdown, tidied: its ends trimmed — and an empty task item's marker keeps the space

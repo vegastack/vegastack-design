@@ -1,7 +1,7 @@
-// @vegastack markdown-view@0.25.59 sha256-p4v9g82whA+68jDrUMm03F+6w9Vu7MRc18b5sU780jU=
+// @vegastack markdown-view@0.25.59 sha256-gRaaFzmd5bPslol92g8zxgXrSW7TP9zImA8wICiA7jY=
 
 import * as React from "react";
-import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
+import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
 import {
   Info,
   Play,
@@ -21,14 +21,18 @@ import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
 import {
   CALLOUT_MARKER,
   MEDIA_BLOCK,
+  MENTION_KINDS,
   TOGGLE_CLOSE,
   TOGGLE_OPEN,
+  boundedTokenizers,
   headingIds,
+  lexFrame,
   parseCodeFenceInfo,
   parseImageAlt,
   parseMentionLink,
   parseTaskListRows,
   readTasksDirective,
+  trackedLexing,
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
@@ -484,21 +488,31 @@ function cellAttrs(align: string | null): Record<string, string> {
   return align ? { align } : {};
 }
 
+/** Per token list: each toggle opening's matching close (`toggleClose`), found in one pass. */
+const TOGGLE_CLOSES = new WeakMap<Token[], Map<number, number>>();
+
 /**
  * `<details><summary>Title</summary>` … `</details>`: marked reads the two tags as separate HTML
  * blocks around the body's own blocks. From the opening tag at `start`, the index of its matching
- * close (nested toggles counted), or -1.
+ * close (nested toggles counted), or -1. Every pair in `tokens` is matched once, with a stack, so
+ * a page of unclosed toggles costs one pass rather than one per toggle.
  */
 function toggleClose(tokens: Token[], start: number): number {
-  let depth = 0;
-  for (let at = start; at < tokens.length; at++) {
-    const t = tokens[at] as Tokens.Generic;
-    if (t.type !== "html") continue;
-    const text = String(t.text).trim();
-    if (TOGGLE_OPEN.test(text)) depth++;
-    else if (TOGGLE_CLOSE.test(text) && --depth === 0) return at;
+  let closes = TOGGLE_CLOSES.get(tokens);
+  if (!closes) {
+    closes = new Map();
+    const open: number[] = [];
+    tokens.forEach((token, at) => {
+      const t = token as Tokens.Generic;
+      if (t.type !== "html") return;
+      const text = String(t.text).trim();
+      if (TOGGLE_OPEN.test(text)) open.push(at);
+      else if (TOGGLE_CLOSE.test(text) && open.length)
+        closes!.set(open.pop()!, at);
+    });
+    TOGGLE_CLOSES.set(tokens, closes);
   }
-  return -1;
+  return closes.get(start) ?? -1;
 }
 
 /**
@@ -521,46 +535,104 @@ function embedOf(paragraph: Tokens.Generic): El | null {
  */
 const TASKS_TOKEN = "markdownTasks";
 
+/** All the places `needle` starts in `source`. */
+function indexesOf(source: string, needle: string): number[] {
+  const out: number[] = [];
+  for (
+    let at = source.indexOf(needle);
+    at !== -1;
+    at = source.indexOf(needle, at + 1)
+  )
+    out.push(at);
+  return out;
+}
+
+/** The first of the sorted `positions` at or after `from`, or -1. */
+function firstFrom(positions: number[], from: number): number {
+  let low = 0;
+  let high = positions.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (positions[mid]! < from) low = mid + 1;
+    else high = mid;
+  }
+  return low < positions.length ? positions[low]! : -1;
+}
+
 /**
- * How the view lexes Markdown: GFM, plus live task lists. A list can start where a paragraph's line
- * opens with `:::tasks{` (looked for within the paragraph only).
+ * Where a live task list may start inside the paragraph opening `src`: a line opening with
+ * `:::tasks{` before the paragraph's first blank line. The lines are found once per document
+ * (marked hands this every paragraph's rest of the document), so the look costs a binary search.
  */
-const LEX_OPTIONS: MarkedOptions = {
+function tasksStart(this: unknown, src: string): number | undefined {
+  // Indexed once per block source (`lexFrame`); an untracked lexer indexes this call's `src`.
+  const frame = lexFrame(this, src);
+  const source = frame?.source ?? src;
+  let lines = frame?.memo.taskLines as
+    { tasks: number[]; blanks: number[] } | undefined;
+  if (!lines) {
+    lines = {
+      tasks: indexesOf(source, "\n:::tasks{"),
+      blanks: indexesOf(source, "\n\n"),
+    };
+    if (frame) frame.memo.taskLines = lines;
+  }
+  const offset = source.length - src.length;
+  const at = firstFrom(lines.tasks, offset);
+  if (at === -1) return undefined;
+  const blank = firstFrom(lines.blanks, offset);
+  return blank === -1 || at <= blank ? at - offset + 1 : undefined;
+}
+
+/**
+ * How the view lexes Markdown: GFM with the bounded tokenizers `TextEdit`'s parse uses (emphasis,
+ * links and empty task items read alike, in linear time), plus live task lists.
+ */
+const lexing = trackedLexing(Lexer);
+const reader = new Marked({
   gfm: true,
-  extensions: {
-    renderers: {},
-    childTokens: {},
-    block: [
-      (src: string) => {
+  tokenizer: boundedTokenizers(Tokenizer.prototype),
+  extensions: [
+    {
+      name: TASKS_TOKEN,
+      level: "block",
+      start: tasksStart,
+      tokenizer(src: string) {
         const block = readTasksDirective(src);
         return block
-          ? ({
+          ? {
               type: TASKS_TOKEN,
               raw: block.raw,
               id: block.id ?? "",
               query: block.query,
               snapshot: block.snapshot,
-            } as Tokens.Generic)
+            }
           : undefined;
       },
-    ],
-    startBlock: [
-      (src: string) => {
-        const blank = src.indexOf("\n\n");
-        const at = src.indexOf("\n:::tasks{");
-        return at !== -1 && (blank === -1 || at <= blank) ? at + 1 : undefined;
-      },
-    ],
-  },
-};
+    },
+  ],
+});
 
-/** `source` as block tokens: GFM and live task lists. */
-const lex = (source: string) => Lexer.lex(source, LEX_OPTIONS);
+/** `source` as block tokens. */
+const lex = (source: string): Token[] =>
+  new lexing.Lexer(reader.defaults).lex(source);
 
-/** `embeds`: a lone video link here is an embed (the document, a quote, a callout, a toggle). */
-function blocks(tokens: Token[], embeds = true): DocNode[] {
+/** `source` as inline tokens, read as a paragraph's are. */
+const lexInline = (source: string): Token[] =>
+  new lexing.Lexer(reader.defaults).inlineTokens(source);
+
+/**
+ * `tokens[from, to)` as tree nodes. `embeds`: a lone video link here is an embed (the document, a
+ * quote, a callout, a toggle).
+ */
+function blocks(
+  tokens: Token[],
+  embeds = true,
+  from = 0,
+  to = tokens.length,
+): DocNode[] {
   const out: DocNode[] = [];
-  for (let index = 0; index < tokens.length; index++) {
+  for (let index = from; index < to; index++) {
     const t = tokens[index] as Tokens.Generic;
     switch (t.type) {
       case "space":
@@ -704,12 +776,8 @@ function blocks(tokens: Token[], embeds = true): DocNode[] {
         if (open && close !== -1) {
           out.push(
             el("details", open[1] ? { open: "" } : {}, [
-              el(
-                "summary",
-                {},
-                inline(Lexer.lexInline(open[2]!, { gfm: true })),
-              ),
-              ...blocks(tokens.slice(index + 1, close)),
+              el("summary", {}, inline(lexInline(open[2]!))),
+              ...blocks(tokens, true, index + 1, close),
             ]),
           );
           index = close;
@@ -866,6 +934,11 @@ interface TextPiece {
   end: number;
   /** A mention: highlighted whole or not at all. */
   atom: boolean;
+  /**
+   * The link it sits in (outermost), and the link's parent: its text is the link's name, so it is
+   * never hidden or made a button, and a count pill goes after the link, never inside it.
+   */
+  linked: { link: El; parent: El } | null;
 }
 
 /**
@@ -881,7 +954,11 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
     if (first) first = false;
     else text += "\n";
   };
-  const inline = (parent: El, index: number) => {
+  const inline = (
+    parent: El,
+    index: number,
+    linked: TextPiece["linked"] = null,
+  ) => {
     const node = parent.children[index]!;
     if (typeof node === "string") {
       // A soft line break inside a paragraph renders, and is quoted, as a space.
@@ -891,6 +968,7 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
         start: text.length,
         end: text.length + node.length,
         atom: false,
+        linked,
       });
       text += node.replace(/\n/g, " ");
       return;
@@ -903,6 +981,7 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
         start: text.length,
         end: text.length + label.length,
         atom: true,
+        linked,
       });
       text += label;
       return;
@@ -916,7 +995,13 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
       text += textOf(node);
       return;
     }
-    node.children.forEach((_, at) => inline(node, at));
+    node.children.forEach((_, at) =>
+      inline(
+        node,
+        at,
+        linked ?? (node.tag === "a" ? { link: node, parent } : null),
+      ),
+    );
   };
   const blocks = (parent: El) => {
     let run = false;
@@ -932,7 +1017,8 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
       run = false;
       if (child.tag === "pre") {
         block();
-        text += textOf(child).replace(/\n$/, "");
+        // A code block's text as written, a final newline included — as `TextEdit` reads it.
+        text += textOf(child);
       } else if (
         ["hr", "video", "audio", "embed", "tasks"].includes(child.tag)
       ) {
@@ -979,6 +1065,8 @@ function annotate(
   const replaced = new Map<El, Map<number, DocNode[]>>();
   const focused = new Set<string>();
   const lastNode = new Map<string, El>();
+  // A thread whose last segment sits in a link: its pill goes after that link.
+  const lastLink = new Map<string, TextPiece["linked"]>();
   const drawn: string[] = [];
   for (const piece of pieces) {
     const covering = ranges.filter(
@@ -1009,17 +1097,25 @@ function annotate(
       // ONE span per segment, never nested: where highlights overlap, the segment belongs to the
       // innermost (latest-starting) one, and lists every thread it is part of.
       const owner = over.reduce((a, b) => (b.start >= a.start ? b : a));
+      // Plain text only may be the thread's button or hidden from assistive technology: a
+      // mention (its chip a link) or a link's text stays as it is, its own control and name.
+      const plain = !piece.atom && !piece.linked;
       const wrapped = el(
         "annotation",
-        { id: owner.id, ids: over.map((r) => r.id).join(" ") },
+        {
+          id: owner.id,
+          ids: over.map((r) => r.id).join(" "),
+          ...(plain ? { plain: "" } : {}),
+        },
         [text],
       );
       for (const r of over) {
         if (!drawn.includes(r.id)) drawn.push(r.id);
         lastNode.set(r.id, wrapped);
+        lastLink.set(r.id, piece.linked);
       }
-      // A thread's one tab stop: the first segment it owns.
-      if (!focused.has(owner.id)) {
+      // A thread's one tab stop: the first plain segment it owns.
+      if (plain && !focused.has(owner.id)) {
         focused.add(owner.id);
         wrapped.attrs.focus = "";
       }
@@ -1033,14 +1129,27 @@ function annotate(
     parent.children = parent.children.flatMap(
       (child, index) => map.get(index) ?? [child],
     );
-  // Each thread's count pill follows its last segment. A thread that owns no segment (another
-  // covers exactly its words) has no highlight tab stop, so its pill is its keyboard path.
+  // Each thread's count pill follows its last segment. A thread that owns no plain segment
+  // (another covers exactly its words, or it quotes only a mention or link text) has no highlight
+  // tab stop, so its pill is its keyboard path.
+  const append = (attrs: Record<string, string>, key: string, id: string) => {
+    attrs[key] = attrs[key] ? `${attrs[key]} ${id}` : id;
+  };
+  const afterLink = new Map<El, El>();
   for (const [id, node] of lastNode) {
-    node.attrs.last = node.attrs.last ? `${node.attrs.last} ${id}` : id;
-    if (!focused.has(id))
-      node.attrs.pillFocus = node.attrs.pillFocus
-        ? `${node.attrs.pillFocus} ${id}`
-        : id;
+    const linked = lastLink.get(id);
+    // A pill (a button) never sits inside a link: it follows the link instead.
+    let holder = node;
+    if (linked) {
+      holder = afterLink.get(linked.link) ?? el("annotation-pills");
+      if (!afterLink.has(linked.link)) {
+        afterLink.set(linked.link, holder);
+        const at = linked.parent.children.indexOf(linked.link);
+        linked.parent.children.splice(at + 1, 0, holder);
+      }
+    }
+    append(holder.attrs, "last", id);
+    if (!focused.has(id)) append(holder.attrs, "pillFocus", id);
   }
   tree.splice(0, tree.length, ...holder.children);
   return drawn;
@@ -1090,6 +1199,11 @@ const HTML_TAGS = new Set([
   "sup",
   "sub",
   "mark",
+  // `TextEdit`'s toggles and media blocks (`renderHTML`).
+  "details",
+  "summary",
+  "video",
+  "audio",
 ]);
 const HTML_ALIASES: Record<string, string> = {
   b: "strong",
@@ -1135,6 +1249,13 @@ const HTML_ATTRS = new Set([
   "data-blockid",
   "data-block-id",
   "width",
+  // `TextEdit`'s HTML: a toggle's state, a mention's target, a callout's and a toggle's slots.
+  "open",
+  "data-kind",
+  "data-id",
+  "data-label",
+  "data-slot",
+  "data-tone",
 ]);
 
 function htmlAttrs(source: string): Record<string, string> {
@@ -1184,17 +1305,31 @@ function fromHtml(source: string): DocNode[] {
     if (!VOID_TAGS.has(tag)) stack.push(node);
   }
   text(source.slice(cursor));
-  return withEmbeds(root.children);
+  return withSchemaNodes(root.children);
 }
 
+/** The callout tones `TextEdit` writes (`data-tone`). */
+const CALLOUT_TONES = new Set(Object.keys(CALLOUT_STYLE));
+
 /**
- * `TextEdit`'s HTML for a video embed — a link inside `div[data-type=embed]` — as the tree's embed
- * node, when its link is an allowlisted video URL; any other such `div` keeps its link.
+ * `TextEdit`'s HTML (`renderHTML`) for the nodes the tree has its own elements for, rebuilt as
+ * those: a mention span as a mention, a toggle's summary `div` as its summary, a callout's `div`s
+ * as a callout, a live task list and a video embed (when its link is an allowlisted video URL; any
+ * other embed `div` keeps its link). Everything else stays as read.
  */
-function withEmbeds(nodes: DocNode[]): DocNode[] {
+function withSchemaNodes(nodes: DocNode[]): DocNode[] {
   return nodes.map((node) => {
     if (typeof node === "string") return node;
-    // `TextEdit`'s HTML for a live task list: its snapshot rows, read like the Markdown directive.
+    const slot = node.attrs["data-slot"];
+    if (node.tag === "span" && node.attrs["data-type"] === "mention") {
+      const kind = node.attrs["data-kind"] as MentionKind;
+      if ((MENTION_KINDS as readonly string[]).includes(kind))
+        return el("mention", {
+          kind,
+          id: node.attrs["data-id"] ?? "",
+          label: node.attrs["data-label"] ?? textOf(node).replace(/^@/, ""),
+        });
+    }
     if (node.tag === "div" && node.attrs["data-type"] === "task-query")
       return el("tasks", {
         id: node.attrs["data-blockid"] ?? node.attrs["data-block-id"] ?? "",
@@ -1208,7 +1343,25 @@ function withEmbeds(nodes: DocNode[]): DocNode[] {
       const url = link?.attrs.href ?? "";
       if (matchEmbed(url)) return el("embed", { url });
     }
-    node.children = withEmbeds(node.children);
+    const children = withSchemaNodes(node.children);
+    if (node.tag === "div" && slot === "toggle-summary")
+      return el("summary", {}, children);
+    if (node.tag === "div" && slot === "toggle")
+      return el("details", "open" in node.attrs ? { open: "" } : {}, children);
+    if (node.tag === "div" && slot === "callout") {
+      const tone = node.attrs["data-tone"] ?? "note";
+      const content = children.find(
+        (child): child is El =>
+          typeof child !== "string" &&
+          child.attrs["data-slot"] === "callout-content",
+      );
+      return el(
+        "callout",
+        { tone: CALLOUT_TONES.has(tone) ? tone : "note" },
+        content ? content.children : children,
+      );
+    }
+    node.children = children;
     return node;
   });
 }
@@ -1597,7 +1750,10 @@ function renderNode(
   }
 
   switch (tag) {
-    case "annotation": {
+    // A highlight segment and the count pills after it; `annotation-pills` holds only the pills
+    // of threads whose last segment is a link's text (a pill never sits inside a link).
+    case "annotation":
+    case "annotation-pills": {
       const id = attrs.id ?? "";
       const ids = (attrs.ids ?? id).split(" ");
       const active =
@@ -1615,40 +1771,45 @@ function renderNode(
         event.stopPropagation();
         open?.(id);
       };
-      const span = (
-        <span
-          key={key}
-          data-slot="text-edit-annotation"
-          data-annotation={id}
-          data-annotations={ids.length > 1 ? ids.join(" ") : undefined}
-          data-active={active ? "" : undefined}
-          data-annotation-focus={focus ? "" : undefined}
-          className={cn(
-            annotationHighlightClassName,
-            active && annotationActiveClassName,
-          )}
-          // In view mode the first segment a thread owns is its one tab stop, a button named for
-          // the whole quote; its other segments are hidden from assistive technology, which heard
-          // them in that name. Segments never nest, so nothing focusable sits under aria-hidden.
-          {...(open
-            ? focus
-              ? {
-                  role: "button",
-                  tabIndex: 0,
-                  "aria-label": label(id),
-                  onClick: activate,
-                  onKeyDown: (event: React.KeyboardEvent) => {
-                    if (event.key !== "Enter" && event.key !== " ") return;
-                    event.preventDefault();
-                    activate(event);
-                  },
-                }
-              : { "aria-hidden": true, onClick: activate }
-            : {})}
-        >
-          {children()}
-        </span>
-      );
+      const span =
+        tag === "annotation-pills" ? null : (
+          <span
+            key={key}
+            data-slot="text-edit-annotation"
+            data-annotation={id}
+            data-annotations={ids.length > 1 ? ids.join(" ") : undefined}
+            data-active={active ? "" : undefined}
+            data-annotation-focus={focus ? "" : undefined}
+            className={cn(
+              annotationHighlightClassName,
+              active && annotationActiveClassName,
+            )}
+            // In view mode the first plain segment a thread owns is its one tab stop, a button named
+            // for the whole quote; its other plain segments are hidden from assistive technology,
+            // which heard them in that name. A mention or a link's text is never hidden or made a
+            // button (it is a control of its own), and segments never nest — so nothing focusable
+            // ever sits under aria-hidden or inside the button.
+            {...(open
+              ? focus
+                ? {
+                    role: "button",
+                    tabIndex: 0,
+                    "aria-label": label(id),
+                    onClick: activate,
+                    onKeyDown: (event: React.KeyboardEvent) => {
+                      if (event.key !== "Enter" && event.key !== " ") return;
+                      event.preventDefault();
+                      activate(event);
+                    },
+                  }
+                : attrs.plain !== undefined
+                  ? { "aria-hidden": true, onClick: activate }
+                  : { onClick: activate }
+              : {})}
+          >
+            {children()}
+          </span>
+        );
       const pillFocus = new Set((attrs.pillFocus ?? "").split(" "));
       const pills = (attrs.last ?? "")
         .split(" ")
@@ -1709,6 +1870,7 @@ function renderNode(
           );
         });
       if (!pills.length) return span;
+      if (!span) return <React.Fragment key={key}>{pills}</React.Fragment>;
       return (
         <React.Fragment key={key}>
           {span}
@@ -1890,7 +2052,8 @@ function renderNode(
     case "pre": {
       const code = childElements(node).find((child) => child.tag === "code");
       const language = /language-([\w-]+)/.exec(code?.attrs.class ?? "")?.[1];
-      const raw = textOf(code ?? node).replace(/\n$/, "");
+      // The code as written: an intentional final newline stays (shown, copied, anchored).
+      const raw = textOf(code ?? node);
       // A language a block view draws (```mermaid): its preview, after hydration only.
       const view = language ? ctx.blockViews?.[language] : undefined;
       if (view && language)
@@ -2495,7 +2658,7 @@ export function MarkdownView({
     node.attrs["data-toggle"] = String(index);
   });
   const outline: MarkdownOutlineItem[] = [];
-  if (withHeadingIds || headingAnchors || onOutlineChange) {
+  if (withHeadingIds || headingAnchors || headingLinkHref || onOutlineChange) {
     const texts = headings.map(headingText);
     headingIds(texts).forEach((id, index) => {
       const node = headings[index]!;

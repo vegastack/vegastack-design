@@ -65,6 +65,9 @@ test("headingIds gives every heading a stable id, a repeat suffixed", () => {
     "setup-2",
     "heading",
   ]);
+  // A suffix never collides with another heading's own id, whichever comes first.
+  expect(headingIds(["A", "A", "A-1"])).toEqual(["a", "a-1", "a-1-1"]);
+  expect(headingIds(["A-1", "A", "A"])).toEqual(["a-1", "a", "a-2"]);
 });
 
 test("image alt widths, destinations and media lines", () => {
