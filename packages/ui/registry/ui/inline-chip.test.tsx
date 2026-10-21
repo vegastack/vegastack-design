@@ -3,7 +3,11 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { InlineChip, InlineChipProvider } from "./inline-chip";
+import {
+  INLINE_CHIP_KINDS,
+  InlineChip,
+  InlineChipProvider,
+} from "./inline-chip";
 import { MarkdownView } from "./markdown-view";
 
 test("the label sits on the surrounding text's baseline", async () => {
@@ -132,21 +136,47 @@ test("has no accessibility violations", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("an agent chip is the bot on the agent hue, named as an agent", async () => {
+test("a person is the one coloured chip; every other kind is the neutral page chip with its own icon", async () => {
   const screen = await render(
-    <InlineChip
-      kind="agent"
-      targetId="c1"
-      label="Claude (via Manoj)"
-      data-testid="chip"
-    />,
+    <p>
+      <InlineChip kind="user" label="Asha" data-testid="user" />
+      {INLINE_CHIP_KINDS.filter((kind) => kind !== "user").map((kind) => (
+        <InlineChip key={kind} kind={kind} label={kind} data-testid={kind} />
+      ))}
+    </p>,
   );
-  const chip = screen.getByTestId("chip").element();
-  expect(chip.getAttribute("class")).toContain("bg-tag-purple-subtle");
-  expect(chip.querySelector("svg")!.getAttribute("class")).toContain(
-    "lucide-bot",
-  );
-  expect(chip.textContent).toContain("Claude (via Manoj)");
+  const tone = (id: string) =>
+    screen.getByTestId(id).element().getAttribute("class") ?? "";
+  expect(tone("user")).toContain("bg-tag-blue-subtle");
+  const icons = new Set<string>();
+  for (const kind of INLINE_CHIP_KINDS.filter((k) => k !== "user")) {
+    expect(tone(kind)).toContain("bg-muted");
+    expect(tone(kind)).not.toMatch(/bg-tag-/);
+    if (kind !== "file")
+      icons.add(
+        screen
+          .getByTestId(kind)
+          .element()
+          .querySelector("svg")!
+          .getAttribute("class")!,
+      );
+  }
+  // Told apart by the icon alone (a file's follows its type).
+  expect(icons.size).toBe(INLINE_CHIP_KINDS.length - 2);
+  expect(
+    screen
+      .getByTestId("agent")
+      .element()
+      .querySelector("svg")!
+      .getAttribute("class"),
+  ).toContain("lucide-bot");
+  expect(
+    screen
+      .getByTestId("family")
+      .element()
+      .querySelector("svg")!
+      .getAttribute("class"),
+  ).toContain("lucide-layers");
   await expectNoA11yViolations(screen.container);
 });
 

@@ -2202,7 +2202,10 @@
         "@vegastack/design@^0.8.16",
         "@vegastack/design-tokens@^0.8.12"
       ],
-      "registryDependencies": ["@vegastack/use-announcer"],
+      "registryDependencies": [
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/suggestion-menu.tsx",
@@ -13003,7 +13006,7 @@
       "name": "inline-chip",
       "type": "registry:ui",
       "title": "Inline Chip",
-      "description": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "description": "The one inline reference in running text — a person, page, file, task, meeting, customer, project, product or family — on the text's baseline at its size, a person in blue and every record neutral with its kind's icon; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
       "categories": ["data-display"],
       "dependencies": [
         "lucide-react@^1.47.0",

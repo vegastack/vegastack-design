@@ -493,11 +493,16 @@ editor is created.
 ### Mentions
 
 `mentions={{ kinds, search }}` turns on `@`: typed after a space, an opening bracket or at the start
-of a line it opens a menu grouped People · Pages · Files · Tasks · Meetings · Customers · Projects · Products · Your agents (only the `kinds`
+of a line it opens a menu grouped People · Pages · Files · Tasks · Meetings · Customers · Projects · Products · Families · Your agents (only the `kinds`
 given, at most five each). The query may hold spaces — `@Asha Rao` searches the whole name — and two
-spaces in a row, or a phrase that matches no one past a space, close the menu. `search`
-runs 150ms after the last keystroke with an `AbortSignal` that aborts when the query changes; the
-menu shows "Searching…", "No matches" or "Couldn't search". <kbd>↑</kbd> <kbd>↓</kbd> move,
+spaces in a row, or a phrase that matches no one past a space, close the menu. `search` runs at
+once when the menu opens, then 120ms after the last keystroke, with an `AbortSignal` that aborts
+when the query changes. The menu opens on placeholder rows in its rows' geometry, as tall as its
+answer usually is, and holds its height while a search is in flight, keeping the rows that still
+match; an answer is kept per query, so a query asked before shows at once (and is asked again
+after 30 seconds). It says "No matches" or "Couldn't search" when there is nothing to pick.
+
+<kbd>↑</kbd> <kbd>↓</kbd> move,
 
 <kbd>Enter</kbd> or <kbd>Tab</kbd> pick, <kbd>Esc</kbd> closes. A pick becomes a
 chip, stored as `[@Asha Rao](mention://user/u1)`, that <kbd>Backspace</kbd>
@@ -962,8 +967,9 @@ fires it with the current value. It's presentational only: the **host** decides 
   it leads with a **Comment** button; read-only, the toolbar (“Selection actions”) holds only that.
 - The mention menu is a `listbox` labelled “Mention” whose `group`s are named by their headings
   (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu, with the same
-  `aria-activedescendant` wiring. While a search runs, or when it fails or finds nothing, the menu
-  is a `status` (“Searching…”, “Couldn't search”, “No matches”). A chip reads as its name.
+  `aria-activedescendant` wiring. Its placeholder rows are hidden from assistive technology; when
+  a search fails or finds nothing, the menu is a `status` (“Couldn't search”, “No matches”). A
+  chip reads as its name.
 - An upload placeholder is a `role="status"` named “Uploading” and the file’s name; a failed one is
   a `group` named “Couldn't upload” and the file’s name, its Retry and Remove buttons named for
   the file.

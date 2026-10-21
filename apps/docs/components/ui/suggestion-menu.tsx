@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.61 sha256-Ol+qRohoqkgtOgOywymNd75dOhizVojwLLn9km3wxjQ=
+// @vegastack suggestion-menu@0.25.61 sha256-6TMJ/hlbsd3oBmMe+wKbZTZvpZ7yMbNEcBNgpKPIxoA=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /* ------------------------------------------------------------------------------------------------
@@ -95,18 +96,28 @@ export interface SuggestionMenuProps extends Omit<
   /** A click on a row picks it. */
   onSelect: (index: number) => void;
   /**
-   * Shown instead of the rows (a search in flight, an error), and announced politely. With no
-   * rows and no status, the menu shows (and announces) `emptyMessage`.
+   * Shown instead of the rows (an error), and announced politely. With no rows and no status,
+   * the menu shows (and announces) `emptyMessage` — or, while `loading`, placeholder rows, and
+   * announces `loadingMessage`.
    * @default undefined
    */
   status?: string;
+  /**
+   * What the placeholder rows announce while a search with nothing to show yet runs.
+   * @default "Searching…"
+   */
+  loadingMessage?: string;
   /**
    * What an empty list says.
    * @default "No results"
    */
   emptyMessage?: string;
   /**
-   * A search is running: the rows on show are about to change (`aria-busy` on the listbox).
+   * A search is running: the rows on show are about to change (`aria-busy` on the listbox), and
+   * the menu holds its height until they do, so it never shrinks and regrows under the caret.
+   * With no rows yet it shows placeholder rows in the rows' own geometry (a grouped list's
+   * heading, icon, label and description) — as tall as the menu grows when it opens, as tall as
+   * it already is after that — so an answer lands in the box they hold.
    * @default false
    */
   loading?: boolean;
@@ -136,6 +147,43 @@ export const SUGGESTION_MENU_ROW =
 const GROUP_LABEL = "px-2 py-1.5 text-xs text-muted-foreground";
 /** `ComboboxStatus`'s visible row. */
 const STATUS = "px-2 py-1.5 text-sm text-muted-foreground";
+
+/** A placeholder row's label and description widths, varied so the list reads as text. */
+const SKELETON_ROWS: readonly [string, string][] = [
+  ["w-28", "w-14"],
+  ["w-36", "w-10"],
+  ["w-24", "w-16"],
+  ["w-32", "w-12"],
+  ["w-20", "w-14"],
+];
+
+/**
+ * The rows a first search stands in for: two groups of five, each a heading and rows with the
+ * row's geometry (a 20px icon, the label, the muted description). The surface clips them at its
+ * height, so the list opens as tall as its answer usually is.
+ */
+function SuggestionMenuSkeleton() {
+  return (
+    <div aria-hidden data-slot="suggestion-menu-skeleton">
+      {[0, 1].map((group) => (
+        <div key={group}>
+          <div className={GROUP_LABEL}>
+            <Skeleton className="h-4 w-16 rounded-sm" />
+          </div>
+          {SKELETON_ROWS.map(([label, description], at) => (
+            <div key={at} className={SUGGESTION_MENU_ROW}>
+              <Skeleton className="size-5 shrink-0 rounded-sm" />
+              <div className="min-w-0 flex-1">
+                <Skeleton className={cn("h-3.5 max-w-full", label)} />
+              </div>
+              <Skeleton className={cn("h-3 shrink-0", description)} />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /** Tallest the list grows (`ComboboxList`'s 18rem), and the least it shrinks to near an edge. */
 const MAX_HEIGHT = 288;
@@ -274,6 +322,7 @@ export function SuggestionMenu({
   onSelect,
   status,
   emptyMessage = "No results",
+  loadingMessage = "Searching…",
   loading = false,
   floatingSafeArea,
   className,
@@ -287,8 +336,15 @@ export function SuggestionMenu({
   const setRef = React.useMemo(() => mergeRefs(localRef, ref), [ref]);
 
   const showRows = options.length > 0 && status == null;
-  const message = showRows ? null : (status ?? emptyMessage);
+  const placeholder = !showRows && status == null && loading;
+  const message = showRows
+    ? null
+    : placeholder
+      ? loadingMessage
+      : (status ?? emptyMessage);
   const open = anchor !== null;
+  // The surface's height after the last render: held while a search is in flight.
+  const heldHeight = React.useRef(0);
 
   // The message is announced through a region mounted (empty) with the menu, outside the busy
   // listbox — a status that mounts already filled, or changes under `aria-busy`, may go unspoken.
@@ -297,13 +353,26 @@ export function SuggestionMenu({
   }, [open, message, announce]);
 
   React.useLayoutEffect(() => {
-    if (localRef.current && anchor)
-      place(
-        localRef.current,
-        anchor,
-        floatingSafeArea?.top ?? 0,
-        floatingSafeArea?.bottom ?? 0,
-      );
+    const node = localRef.current;
+    if (!node || !anchor) {
+      heldHeight.current = 0;
+      return;
+    }
+    place(
+      node,
+      anchor,
+      floatingSafeArea?.top ?? 0,
+      floatingSafeArea?.bottom ?? 0,
+    );
+    // Rows about to be replaced never let the surface shrink, and placeholder rows after the
+    // first answer never let it grow: the answer lands in the same box.
+    const held =
+      loading && heldHeight.current
+        ? `${Math.min(heldHeight.current, parseFloat(node.style.maxHeight) || MAX_HEIGHT)}px`
+        : "";
+    node.style.minHeight = held;
+    node.style.height = placeholder ? held : "";
+    heldHeight.current = node.offsetHeight;
   });
 
   // The active row scrolls into view inside the list only — never the page.
@@ -390,11 +459,12 @@ export function SuggestionMenu({
         // A list with no options is not a listbox (A11Y-7): the message is a status instead.
         role={showRows ? "listbox" : undefined}
         aria-label={showRows ? ariaLabel : undefined}
-        aria-busy={(showRows && loading) || undefined}
+        aria-busy={(loading && (showRows || placeholder)) || undefined}
+        data-loading={placeholder ? "" : undefined}
         style={{ position: "fixed", ...style }}
         // Keep focus (and the caret) in the editor.
         onMouseDown={(event) => event.preventDefault()}
-        className={cn(SURFACE, "w-64", className)}
+        className={cn(SURFACE, "w-64 data-loading:overflow-hidden", className)}
         {...props}
       >
         {showRows ? (
@@ -426,6 +496,8 @@ export function SuggestionMenu({
               </div>
             );
           })
+        ) : placeholder ? (
+          <SuggestionMenuSkeleton />
         ) : (
           <div data-slot="suggestion-menu-status" className={STATUS}>
             {message}

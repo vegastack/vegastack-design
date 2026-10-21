@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.61 sha256-Oakn0p6zWUxZdPcUoY6ptUCegdp1FtwRr0Y6btF20bM=
+// @vegastack text-edit@0.25.61 sha256-5fQq00WqrJ0765OyDQfFFM6PjKDqbIeq+YvyzoxMBdo=
 
 "use client";
 
@@ -297,7 +297,7 @@ import {
   type TextEditTaskItem,
   type TextEditTaskLink,
 } from "@/components/ui/text-edit";
-import { Package } from "lucide-react";
+import { Layers, Package } from "lucide-react";
 
 /*
  * The heavy half of `TextEdit`: the Tiptap editor itself. `text-edit.tsx` renders the saved
@@ -2795,6 +2795,7 @@ const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
   { kind: "customer", label: "Customers" },
   { kind: "project", label: "Projects" },
   { kind: "product", label: "Products" },
+  { kind: "family", label: "Families" },
   { kind: "agent", label: "Your agents" },
 ];
 
@@ -2822,19 +2823,64 @@ function groupResults(
   );
 }
 
+/** How long a keystroke waits for the next before the mention search asks. */
+const MENTION_DEBOUNCE_MS = 120;
+/** How long a cached answer is shown without asking again. */
+const MENTION_FRESH_MS = 30_000;
+/** How many queries one editor keeps answers for. */
+const MENTION_CACHE_SIZE = 50;
+
+/**
+ * One editor's mention answers by query, for one `mentions` source: a new source (other kinds,
+ * another subject) starts empty. Oldest out first past `MENTION_CACHE_SIZE`.
+ */
+class MentionSearchCache {
+  private source: unknown = null;
+  private answers = new Map<string, { at: number; options: MentionOption[] }>();
+  get(source: unknown, query: string) {
+    if (source !== this.source) return null;
+    const hit = this.answers.get(query);
+    return hit
+      ? { options: hit.options, fresh: Date.now() - hit.at < MENTION_FRESH_MS }
+      : null;
+  }
+  set(source: unknown, query: string, options: MentionOption[]) {
+    if (source !== this.source) {
+      this.source = source;
+      this.answers.clear();
+    }
+    this.answers.delete(query);
+    this.answers.set(query, { at: Date.now(), options });
+    if (this.answers.size > MENTION_CACHE_SIZE)
+      this.answers.delete(this.answers.keys().next().value!);
+  }
+}
+
+/** Whether every word of `query` starts a word of the option's label or description. */
+function matchesMentionQuery(option: MentionOption, query: string): boolean {
+  const words = `${option.label} ${option.description ?? ""}`
+    .toLowerCase()
+    .split(/[\s@.]+/);
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((part) => words.some((word) => word.startsWith(part)));
+}
+
 const MENTION_GROUP_LABEL = Object.fromEntries(
   MENTION_GROUPS.map((group) => [group.kind, group.label]),
 ) as Record<MentionKind, string>;
 
-/** What the mention menu says instead of rows: a search in flight, or a failed one. */
+/**
+ * What the mention menu says instead of rows: only a failed search. A search in flight keeps the
+ * rows on show, or shows placeholder rows (`SuggestionMenu`'s `loading`) before the first answer.
+ */
 function mentionStatus(state: MentionMenuState): string | undefined {
-  if (state.error) return "Couldn't search";
-  if (state.results === null) return "Searching…";
-  if (state.results.length === 0 && state.loading) return "Searching…";
-  return undefined;
+  return state.error ? "Couldn't search" : undefined;
 }
 
-/** The mention menu's rows: grouped by kind, each with its kind's tinted icon or its own. */
+/** The mention menu's rows: grouped by kind, each with its kind's icon (as its chip shows it) or its own. */
 function mentionOptions(state: MentionMenuState): SuggestionMenuOption[] {
   return flatOptions(state.results).map((option) => {
     const Icon = MENTION_ICON[option.kind];
@@ -2847,12 +2893,9 @@ function mentionOptions(state: MentionMenuState): SuggestionMenuOption[] {
         <span
           aria-hidden
           data-slot="text-edit-mention-icon"
-          data-tinted={option.icon ? undefined : ""}
-          className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm data-tinted:bg-info/10"
+          className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm"
         >
-          {option.icon ?? (
-            <Icon data-icon-tone="" className="size-3.5 text-info-text" />
-          )}
+          {option.icon ?? <Icon className="size-4" />}
         </span>
       ),
     };
@@ -2871,6 +2914,7 @@ const MENTION_ICON: Record<
   customer: Building2,
   project: FolderKanban,
   product: Package,
+  family: Layers,
   agent: Bot,
 };
 
@@ -9583,11 +9627,19 @@ export function TextEditEditor({
   }, []);
 
   const editorRef = React.useRef<Editor | null>(null);
-  // The mention search: debounced 150ms, one AbortSignal per keystroke.
+  // The mention search: one AbortSignal per keystroke, and answers kept per query for this
+  // editor (`MentionSearchCache`): a query asked before shows at once (and is asked again when
+  // older than `MENTION_FRESH_MS`); the menu's first query goes out at once, every later one
+  // `MENTION_DEBOUNCE_MS` after the last keystroke. While an answer is on its way the rows that
+  // still match stay (none left: placeholder rows, so Enter never picks a row that no longer
+  // matches).
   const searchRef = React.useRef<{
     timer?: ReturnType<typeof setTimeout>;
     controller?: AbortController;
   }>({});
+  /** The open menu has asked once: its later queries wait for the debounce. */
+  const askedRef = React.useRef(false);
+  const [searchCache] = React.useState(() => new MentionSearchCache());
   const stopSearch = React.useCallback(() => {
     clearTimeout(searchRef.current.timer);
     searchRef.current.controller?.abort();
@@ -9597,46 +9649,78 @@ export function TextEditEditor({
     (query: string) => {
       stopSearch();
       const source = callbacks.current.mentions;
-      if (!source) return;
       const current = mentionStateRef.current;
-      if (current) setMention({ ...current, loading: true, error: false });
+      if (!source || !current) return;
+      const first = !askedRef.current;
+      askedRef.current = true;
+      // An answer (cached or fresh) for `query`: its rows — or, when no one matches and the phrase
+      // goes on past a space, the menu closes (it was a sentence). A cached answer arrives inside
+      // the suggestion's own update, so its close waits for that update to finish (and for the
+      // menu to still be on this query).
+      const close = () => {
+        const ed = editorRef.current;
+        if (mentionStateRef.current?.query !== query || !ed || ed.isDestroyed)
+          return;
+        exitSuggestion(ed.view, MENTION_KEY);
+      };
+      const show = (options: MentionOption[], loading: boolean) => {
+        const state = mentionStateRef.current;
+        if (!state) return false;
+        if (!loading && options.length === 0 && /\s$/.test(query)) return true;
+        setMention({
+          ...state,
+          results: groupResults(options, source.kinds),
+          loading,
+          error: false,
+          index: 0,
+        });
+        return false;
+      };
+      const hit = searchCache.get(source, query);
+      if (hit) {
+        if (show(hit.options, !hit.fresh)) {
+          searchRef.current.timer = setTimeout(close);
+          return;
+        }
+        if (hit.fresh) return;
+      } else
+        setMention({
+          ...current,
+          results:
+            current.results?.filter((option) =>
+              matchesMentionQuery(option, query),
+            ) ?? null,
+          loading: true,
+          error: false,
+          index: 0,
+        });
       const controller = new AbortController();
       searchRef.current.controller = controller;
-      searchRef.current.timer = setTimeout(() => {
-        source.search(query, { signal: controller.signal }).then(
-          (options) => {
-            if (controller.signal.aborted) return;
-            const state = mentionStateRef.current;
-            if (!state) return;
-            // No one by that name, and the phrase goes on past a space: it was a sentence.
-            const ed = editorRef.current;
-            if (
-              options.length === 0 &&
-              /\s$/.test(query) &&
-              ed &&
-              !ed.isDestroyed
-            ) {
-              exitSuggestion(ed.view, MENTION_KEY);
-              return;
-            }
-            setMention({
-              ...state,
-              results: groupResults(options, source.kinds),
-              loading: false,
-              error: false,
-              index: 0,
-            });
-          },
-          () => {
-            if (controller.signal.aborted) return;
-            const state = mentionStateRef.current;
-            if (!state) return;
-            setMention({ ...state, results: [], loading: false, error: true });
-          },
-        );
-      }, 150);
+      searchRef.current.timer = setTimeout(
+        () => {
+          source.search(query, { signal: controller.signal }).then(
+            (options) => {
+              if (controller.signal.aborted) return;
+              searchCache.set(source, query, options);
+              if (show(options, false)) close();
+            },
+            () => {
+              if (controller.signal.aborted) return;
+              const state = mentionStateRef.current;
+              if (!state) return;
+              setMention({
+                ...state,
+                results: [],
+                loading: false,
+                error: true,
+              });
+            },
+          );
+        },
+        hit || first ? 0 : MENTION_DEBOUNCE_MS,
+      );
     },
-    [setMention, stopSearch],
+    [searchCache, setMention, stopSearch],
   );
   React.useEffect(() => stopSearch, [stopSearch]);
 
@@ -9694,7 +9778,10 @@ export function TextEditEditor({
           enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
           get: () => mentionStateRef.current,
           set: (next) => {
-            if (!next) stopSearch();
+            if (!next) {
+              stopSearch();
+              askedRef.current = false;
+            }
             setMention(next);
           },
           query: runSearch,

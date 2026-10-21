@@ -1,6 +1,6 @@
 ---
 title: Inline Chip
-description: The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline, tinted by kind.
+description: The one inline reference in running text, on its baseline — a person in blue, every record neutral with its kind's icon.
 audience: public
 registry: inline-chip
 status: stable
@@ -39,7 +39,7 @@ own props win over the provider.
 
 ## Scope
 
-- Owns: the chip's look (icon, tint and baseline alignment), its link or button semantics, ⌘-click,
+- Owns: the chip's look (icon, ground and baseline alignment), its link or button semantics, ⌘-click,
   and the hover card (a person's avatar, name and email, or the host's preview).
 - Does not own: resolving ids, routing, or the file viewer — the host passes `href`, `person`,
   `preview` and `onOpen`, directly or through `InlineChipProvider`.
@@ -56,7 +56,7 @@ own props win over the provider.
 
 The chip is an inline box, not an inline-flex one: its label is ordinary text on the line's
 baseline, its icon a 1em glyph, so it takes the size of a heading or a list item and wraps with its
-line, the tint continuing on each line. Its icon and the label's first word stay on one line: a
+line, the ground continuing on each line. Its icon and the label's first word stay on one line: a
 wrap breaks the label after them, not between the icon and its name. A first word over 16
 characters wraps like the text around it, so a narrow column can still break it.
 
@@ -89,16 +89,23 @@ open: muted, never a link.
 
 ### Kinds
 
-| Kind       | Icon             | Ground                 | Ink                  | Click                     |
-| ---------- | ---------------- | ---------------------- | -------------------- | ------------------------- |
-| `user`     | photo, else user | `--tag-blue-subtle`    | `--tag-blue-text`    | none; hover card          |
-| `page`     | file-text        | `--muted`              | `--foreground`       | `onOpen`, else `href`     |
-| `file`     | the file's type  | `--muted`              | `--foreground`       | `onOpen` (viewer), `href` |
-| `task`     | list-todo        | `--tag-green-subtle`   | `--tag-green-text`   | `onOpen`, else `href`     |
-| `meeting`  | calendar-days    | `--tag-orange-subtle`  | `--tag-orange-text`  | `onOpen`, else `href`     |
-| `customer` | building-2       | `--tag-purple-subtle`  | `--tag-purple-text`  | `onOpen`, else `href`     |
-| `project`  | folder-kanban    | `--tag-cyan-subtle`    | `--tag-cyan-text`    | `onOpen`, else `href`     |
-| `product`  | package          | `--tag-magenta-subtle` | `--tag-magenta-text` | `onOpen`, else `href`     |
+A person is the one coloured chip, on the tag blue every person surface uses. Every record wears
+the same neutral page chip and is told apart by its icon alone, so a paragraph of references
+reads as text rather than a legend; state still shows (a done task's check, a closed task struck
+through, a restricted target muted).
+
+| Kind       | Icon             | Ground              | Ink               | Click                     |
+| ---------- | ---------------- | ------------------- | ----------------- | ------------------------- |
+| `user`     | photo, else user | `--tag-blue-subtle` | `--tag-blue-text` | none; hover card          |
+| `page`     | file-text        | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `file`     | the file's type  | `--muted`           | `--foreground`    | `onOpen` (viewer), `href` |
+| `task`     | list-todo        | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `meeting`  | calendar-days    | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `customer` | building-2       | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `project`  | folder-kanban    | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `product`  | package          | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `family`   | layers           | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| `agent`    | bot              | `--muted`           | `--foreground`    | none                      |
 
 ### Done and closed targets
 
@@ -106,7 +113,7 @@ A task chip shows the task glyph whatever its task's state, so an open task neve
 `done` swaps it for a check named "Done" for screen readers once the task is finished, and the
 chip carries `data-done`. `struck`
 strikes the label through and `status` adds a small muted tag after it. Use them for a target that
-was closed without being done, such as a canceled or duplicate task. The chip keeps its tint and
+was closed without being done, such as a canceled or duplicate task. The chip keeps its ground and
 link and carries `data-struck`. `TextEdit` and `MarkdownView` set all three from their
 `mentionStatus(kind, id)`.
 
