@@ -687,3 +687,44 @@ test("InlineEditTrigger: chip layout sizes to its value", async () => {
   expect(el.dataset.layout).toBe("chip");
   expect(el.className).not.toContain("w-[calc(100%+0.75rem)]");
 });
+
+test("text maxLength: the field stops there, a count shows near it, and a paste cut to fit says so", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <EditableCell
+      value="Plan"
+      label="Page title"
+      wrap
+      editor={{ type: "text", maxLength: 10 }}
+      onCommit={onCommit}
+    />,
+  );
+  await screen.getByRole("button", { name: "Edit Page title" }).click();
+  const field = screen.getByRole("textbox", { name: "Page title" });
+  await expect.element(field).toHaveAttribute("maxlength", "10");
+  // Below 90% of the limit: no count.
+  expect(
+    document.querySelector('[data-slot="editable-cell-count"]'),
+  ).toBeNull();
+  await field.fill("Plan to Q3");
+  const count = () =>
+    document.querySelector('[data-slot="editable-cell-count"]')?.textContent;
+  await expect.poll(count).toBe("10/10");
+  await expect.element(field).toHaveAccessibleDescription("10/10");
+  // A paste longer than what is left: the browser keeps what fits, and the count says so.
+  const data = new DataTransfer();
+  data.setData("text/plain", "Q4 and beyond");
+  (field.element() as HTMLTextAreaElement).setSelectionRange(0, 10);
+  field
+    .element()
+    .dispatchEvent(
+      new ClipboardEvent("paste", { clipboardData: data, bubbles: true }),
+    );
+  await field.fill("Q4 and bey");
+  await expect.poll(count).toBe("10/10 · Only the first 10 characters fit");
+  // The next change clears the notice; the count stays while near the limit.
+  await userEvent.keyboard("{Backspace}");
+  await expect.poll(count).toBe("9/10");
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenCalledWith("Q4 and be");
+});

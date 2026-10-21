@@ -144,7 +144,15 @@ export interface EditableCellEditorProps {
  * rendering its own control against the same commit/cancel contract.
  */
 export type EditableCellEditor =
-  | { type: "text"; placeholder?: string }
+  | {
+      type: "text";
+      placeholder?: string;
+      /**
+       * The most characters the value may hold (the field's `maxlength`). Typing stops there, a
+       * paste keeps what fits and says so, and a quiet `n/max` count shows from 90% of it.
+       */
+      maxLength?: number;
+    }
   | {
       type: "number";
       /** A unit shown muted after the value and inside the edit box, e.g. `"mm"`. */
@@ -401,6 +409,8 @@ interface InlineTextEditorProps {
   validate?: (draft: string) => boolean;
   /** Called when a commit was refused by `validate`. */
   onInvalid?: (draft: string) => void;
+  /** The field's `maxlength`: a count shows near it, and a paste cut to fit says so. */
+  maxLength?: number;
 }
 
 /**
@@ -445,6 +455,7 @@ function InlineTextEditor({
   suffix,
   validate,
   onInvalid,
+  maxLength,
 }: InlineTextEditorProps) {
   const box = bare ? bareBoxClasses : boxClasses;
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
@@ -507,12 +518,45 @@ function InlineTextEditor({
     edit.onKeyDown(event);
   };
 
+  // `maxLength`: the count from 90% of it, and a paste that was cut to fit says so until the next
+  // change (a paste's own change keeps it).
+  const [clipped, setClipped] = React.useState(false);
+  const pasting = React.useRef(false);
+  React.useEffect(() => {
+    if (!isEditing) setClipped(false);
+  }, [isEditing]);
+  const counted =
+    isEditing &&
+    maxLength !== undefined &&
+    (clipped || edit.draft.length >= Math.floor(maxLength * 0.9));
+  const onDraftChange = (next: string) => {
+    if (pasting.current) pasting.current = false;
+    else if (clipped) setClipped(false);
+    edit.setDraft(next);
+  };
+
   const fieldProps = {
     "data-slot": "editable-cell-input",
     "aria-label": name === "value" ? "Edit value" : name,
+    "aria-describedby": counted ? `${textId}-count` : undefined,
     value: edit.draft,
     placeholder,
     inputMode,
+    maxLength,
+    onPaste: (
+      event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => {
+      if (maxLength === undefined) return;
+      const field = event.currentTarget;
+      const selected = (field.selectionEnd ?? 0) - (field.selectionStart ?? 0);
+      const pasted = event.clipboardData.getData("text/plain");
+      // The field's `maxlength` keeps the first characters that fit; the rest is said, not lost
+      // silently.
+      if (field.value.length - selected + pasted.length > maxLength) {
+        pasting.current = true;
+        setClipped(true);
+      }
+    },
     "aria-invalid": invalid || undefined,
     onBlur: () => {
       if (accepts(edit.draft)) edit.commit();
@@ -630,7 +674,7 @@ function InlineTextEditor({
             ref={edit.editRef}
             rows={1}
             {...fieldProps}
-            onChange={(event) => edit.setDraft(event.target.value)}
+            onChange={(event) => onDraftChange(event.target.value)}
           />
         ) : (
           <input
@@ -638,12 +682,28 @@ function InlineTextEditor({
             type="text"
             {...fieldProps}
             onChange={(event) => {
-              edit.setDraft(event.target.value);
+              onDraftChange(event.target.value);
               if (invalid && validate?.(event.target.value.trim()))
                 setInvalid(false);
             }}
           />
         )
+      ) : null}
+      {counted ? (
+        // Under the box, over what follows: nothing moves when it shows.
+        <span
+          id={`${textId}-count`}
+          data-slot="editable-cell-count"
+          className="pointer-events-none absolute end-0 top-full z-10 mt-1 font-sans text-xs font-normal whitespace-nowrap text-muted-foreground tabular-nums"
+        >
+          {edit.draft.length}/{maxLength}
+          {clipped ? (
+            <span role="status">
+              {" "}
+              · Only the first {maxLength} characters fit
+            </span>
+          ) : null}
+        </span>
       ) : null}
     </span>
   );
@@ -957,6 +1017,7 @@ export function EditableCell({
             : handleCommit
         }
         inputMode={number ? "decimal" : undefined}
+        maxLength={editor.type === "text" ? editor.maxLength : undefined}
         suffix={number?.unit}
         validate={
           number
