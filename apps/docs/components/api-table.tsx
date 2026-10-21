@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getApiDocs, noOwnPropsSentence, type ApiEntry } from "@/lib/api-table";
 import {
+  getContractInventory,
   getContractRecord,
   type ContractDataAttributes,
 } from "@/lib/contracts";
@@ -33,9 +34,19 @@ export interface ApiTableProps {
  * contract's `dataAttributes` for the part; a page documenting a type from outside the registry
  * (a hook, a block) simply has no data-attribute table.
  */
+/**
+ * The registry item a canonical source file belongs to: the item that lists it among its
+ * `sourceFiles` (`document-layout-meta.tsx` is part of `document-layout`), else the file's name.
+ */
 function registryNameFromPath(path: string) {
   const match = /\/registry\/ui\/([\w-]+)\.tsx?$/.exec(path);
-  return match?.[1];
+  if (!match) return undefined;
+  const file = path.slice(path.indexOf("packages/ui/registry/ui/"));
+  const { components, hooks, blocks } = getContractInventory();
+  const owner = [...components, ...hooks, ...blocks].find((record) =>
+    record.sourceFiles?.includes(file),
+  );
+  return owner?.name ?? match[1];
 }
 
 export function lookupDataAttributes(

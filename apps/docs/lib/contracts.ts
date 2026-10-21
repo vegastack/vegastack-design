@@ -54,6 +54,8 @@ export interface ContractRecord {
   };
   engines: { package: string; role: string }[];
   registryDependencies: string[];
+  /** The canonical files the item ships (a component split across files lists each). */
+  sourceFiles?: string[];
   dataAttributes?: Record<string, ContractDataAttributes>;
 }
 
