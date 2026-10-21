@@ -106,6 +106,25 @@ the generated JSX.
 
 <PopoverPlayground />
 
+### Sizes, long content and an anchor
+
+`size` sets the width: `default` (288px), `md` (320), `lg` (384, never wider than the window less
+2rem) or `fit` (the content's own, up to 320). `PopoverBody` holds content that may run long — it
+scrolls inside the popover from 70% of the window's height. `PopoverDescription` keeps line breaks
+in its text and inks a `strong` in the foreground. For a popover opened from elsewhere (a menu
+item), put a `PopoverAnchor` — an invisible 0×0 trigger — where it should point.
+
+```tsx
+<Popover open={open} onOpenChange={setOpen}>
+  <PopoverAnchor />
+  <PopoverContent size="fit" align="end">
+    <PopoverDescription>
+      <strong>12</strong> words selected
+    </PopoverDescription>
+  </PopoverContent>
+</Popover>
+```
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="PopoverContentProps" />

@@ -1,6 +1,8 @@
 # component: attachment
-# decisions: A11Y-2, A11Y-13, API-16, API-28, DOC-1, DOC-2, FOC-1, FOC-6
+# decisions: A11Y-2, A11Y-13, API-16, API-28, DOC-1, DOC-2, FOC-1, FOC-6, API-36
 # hunks:
+#   API-36: `AttachmentSkeletons` (placeholder file rows) and tabular figures in
+#     `AttachmentDescription`.
 #   FOC-1, FOC-6: `attachmentVariants` drops `focus-within:ring-1 focus-within:ring-ring/50`,
 #     and `AttachmentTrigger` drops `outline-none`. Upstream's arrangement is the CARD wearing a
 #     ring on behalf of the invisible full-bleed trigger inside it, with the trigger's own
@@ -74,10 +76,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..3c7c751 100644
+index f8ca4a8..6cf0052 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
-@@ -1,13 +1,135 @@
+@@ -1,13 +1,136 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
@@ -97,6 +99,7 @@ index f8ca4a8..3c7c751 100644
 +import type { FileViewerItem } from "@/components/ui/file-viewer";
 +import { RECORD_CARD_SURFACE_CLASS } from "@/components/ui/media-card";
 +import { ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
++import { Skeleton } from "@/components/ui/skeleton";
 +import {
 +  tileColumnClasses,
 +  tileCornerClasses,
@@ -220,7 +223,7 @@ index f8ca4a8..3c7c751 100644
    {
      variants: {
        size: {
-@@ -15,52 +137,150 @@ const attachmentVariants = cva(
+@@ -15,52 +138,150 @@ const attachmentVariants = cva(
            "gap-2 text-sm has-data-[slot=attachment-content]:px-2.5 has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-media]:p-2",
          sm: "gap-2.5 text-xs has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-media]:p-1.5",
          xs: "gap-1.5 rounded-lg text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
@@ -242,8 +245,7 @@ index f8ca4a8..3c7c751 100644
 +    ],
 +  },
 +);
- 
--function Attachment({
++
 +type AttachmentProps = React.ComponentProps<"div"> &
 +  VariantProps<typeof attachmentVariants> & {
 +    state?: "idle" | "uploading" | "processing" | "error" | "done";
@@ -283,7 +285,8 @@ index f8ca4a8..3c7c751 100644
 +    <AttachmentTile {...props} />
 +  );
 +}
-+
+ 
+-function Attachment({
 +function AttachmentTile({
    className,
    state = "done",
@@ -386,7 +389,7 @@ index f8ca4a8..3c7c751 100644
  
  function AttachmentMedia({
    className,
-@@ -74,7 +294,7 @@ function AttachmentMedia({
+@@ -74,7 +295,7 @@ function AttachmentMedia({
        className={cn(attachmentMediaVariants({ variant }), className)}
        {...props}
      />
@@ -395,7 +398,7 @@ index f8ca4a8..3c7c751 100644
  }
  
  function AttachmentContent({
-@@ -86,27 +306,33 @@ function AttachmentContent({
+@@ -86,27 +307,33 @@ function AttachmentContent({
        data-slot="attachment-content"
        className={cn(
          "max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
@@ -434,7 +437,7 @@ index f8ca4a8..3c7c751 100644
  }
  
  function AttachmentDescription({
-@@ -117,29 +343,87 @@ function AttachmentDescription({
+@@ -117,29 +344,87 @@ function AttachmentDescription({
      <span
        data-slot="attachment-description"
        className={cn(
@@ -445,7 +448,7 @@ index f8ca4a8..3c7c751 100644
 +        // 3.98–4.35 band `--destructive-text` exists for. Same pair, same rule, as Alert, Badge,
 +        // Toast and the soft Button: a tinted status surface reads through the family's `-text`
 +        // ink, never through its fill.
-+        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground group-data-[state=error]/attachment:text-destructive-text",
++        "mt-0.5 block min-w-0 truncate text-xs text-muted-foreground tabular-nums group-data-[state=error]/attachment:text-destructive-text",
          "max-w-full",
 -        className
 +        className,
@@ -529,7 +532,7 @@ index f8ca4a8..3c7c751 100644
  }
  
  function AttachmentAction({
-@@ -148,15 +432,20 @@ function AttachmentAction({
+@@ -148,15 +433,20 @@ function AttachmentAction({
    size = "icon-xs",
    ...props
  }: React.ComponentProps<typeof Button>) {
@@ -552,7 +555,7 @@ index f8ca4a8..3c7c751 100644
  }
  
  function AttachmentTrigger({
-@@ -170,38 +459,106 @@ function AttachmentTrigger({
+@@ -170,38 +460,143 @@ function AttachmentTrigger({
      props: mergeProps<"button">(
        {
          type: render ? type : (type ?? "button"),
@@ -572,19 +575,8 @@ index f8ca4a8..3c7c751 100644
      },
 -  })
 +  });
- }
- 
--function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
--  return (
--    <div
--      data-slot="attachment-group"
--      className={cn(
--        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
--        className
--      )}
--      {...props}
--    />
--  )
++}
++
 +function AttachmentGroup({
 +  className,
 +  layout = "scroll",
@@ -660,7 +652,53 @@ index f8ca4a8..3c7c751 100644
 +  return <AttachmentPreview>{group}</AttachmentPreview>;
  }
  
+-function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
++/** The name bar's widths, cycled, so a column of placeholders never reads as one block. */
++const SKELETON_NAME_WIDTHS = ["w-40", "w-28", "w-36", "w-24"];
++
++/**
++ * `AttachmentSkeletons` — placeholder rows the shape of a list of files while it loads: a 32px
++ * thumbnail, the name and the size line, 8px apart. Hidden from assistive technology (name the
++ * loading region around it).
++ *
++ * @example
++ * <div role="status" aria-label="Loading files"><AttachmentSkeletons count={3} /></div>
++ */
++function AttachmentSkeletons({ count = 3 }: { count?: number }) {
+   return (
+     <div
+-      data-slot="attachment-group"
+-      className={cn(
+-        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+-        className
+-      )}
+-      {...props}
+-    />
+-  )
++      aria-hidden
++      data-slot="attachment-skeletons"
++      className="flex flex-col gap-2"
++    >
++      {Array.from({ length: Math.max(0, count) }, (_, index) => (
++        <div key={index} className="flex items-center gap-3 p-1">
++          <Skeleton className="size-8 shrink-0 rounded-md" />
++          <div className="flex flex-col gap-1.5">
++            <Skeleton
++              className={cn(
++                "h-3.5",
++                SKELETON_NAME_WIDTHS[index % SKELETON_NAME_WIDTHS.length],
++              )}
++            />
++            <Skeleton className="h-3 w-12" />
++          </div>
++        </div>
++      ))}
++    </div>
++  );
+ }
+ 
  export {
++  AttachmentSkeletons,
    Attachment,
    AttachmentGroup,
 +  AttachmentPreview,

@@ -1,4 +1,4 @@
-// @vegastack badge@0.25.64 sha256-1XnzwbX2pCsaapoc9zBd8biXXdfd4aIsVvPtPOsGMto=
+// @vegastack badge@0.25.64 sha256-XlPGPe7vtJu7zSVJgMfHYvWebna3FulF9PMWfJipLDQ=
 
 "use client";
 
@@ -8,7 +8,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 const badgeVariants = cva(
-  "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 aria-invalid:border-destructive [&>svg]:pointer-events-none [&>svg]:size-3! [a,button]:relative [a,button]:overflow-visible [a,button]:after:absolute [a,button]:after:-inset-y-1 [a,button]:after:inset-x-0 [a,button]:after:content-['']",
+  "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 aria-invalid:border-destructive [&>svg]:pointer-events-none [&>svg]:size-3! [a,button]:relative [a,button]:cursor-pointer [a,button]:overflow-visible [a,button]:after:absolute [a,button]:after:-inset-y-1 [a,button]:after:inset-x-0 [a,button]:after:content-['']",
   {
     variants: {
       variant: {

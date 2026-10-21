@@ -1,4 +1,4 @@
-// @vegastack sheet@0.25.64 sha256-CFrRkCOOGV0JhSeLXPTO2kbSA4iBYuippJhK5uU05F0=
+// @vegastack sheet@0.25.64 sha256-VB4WvW252zjGQHdySm5AdwZCKcLnf4Q+2hlBRZLaTTA=
 
 "use client";
 
@@ -230,6 +230,92 @@ function SheetDescription({
   );
 }
 
+/**
+ * `SheetSection` — one part of a sheet's body: a header (`SheetSectionHeader`, holding a
+ * `SheetSectionTitle` and an action at its end) over its content, 8px apart. Space a body's
+ * sections with the body's own gap.
+ *
+ * @example
+ * <SheetSection>
+ *   <SheetSectionHeader><SheetSectionTitle>Open comments</SheetSectionTitle></SheetSectionHeader>
+ *   <SheetSectionDescription>No open comments.</SheetSectionDescription>
+ * </SheetSection>
+ */
+function SheetSection({
+  className,
+  ...props
+}: React.ComponentProps<"section">) {
+  return (
+    <section
+      data-slot="sheet-section"
+      className={cn("flex min-w-0 flex-col gap-2", className)}
+      {...props}
+    />
+  );
+}
+
+/** `SheetSectionHeader` — a section's title row: the title, then an action pushed to its end. */
+function SheetSectionHeader({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="sheet-section-header"
+      className={cn(
+        "flex min-w-0 items-center gap-2 *:data-[slot=button]:ms-auto",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** `SheetSectionTitle` — a section's heading: 14px medium, in the foreground ink. */
+function SheetSectionTitle({
+  className,
+  ...props
+}: React.ComponentProps<"h3">) {
+  return (
+    <h3
+      data-slot="sheet-section-title"
+      className={cn("text-sm font-medium text-foreground", className)}
+      {...props}
+    />
+  );
+}
+
+/**
+ * `SheetSectionLabel` — a quiet group label over a list ("Earlier"): 12px medium, muted — a
+ * heading for a run of cards rather than a section of its own.
+ */
+function SheetSectionLabel({
+  className,
+  ...props
+}: React.ComponentProps<"h3">) {
+  return (
+    <h3
+      data-slot="sheet-section-label"
+      className={cn("text-xs font-medium text-muted-foreground", className)}
+      {...props}
+    />
+  );
+}
+
+/** `SheetSectionDescription` — a section's line of muted text: its state, an empty note. */
+function SheetSectionDescription({
+  className,
+  ...props
+}: React.ComponentProps<"p">) {
+  return (
+    <p
+      data-slot="sheet-section-description"
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
+}
+
 export {
   Sheet,
   SheetTrigger,
@@ -241,4 +327,9 @@ export {
   SheetFooter,
   SheetTitle,
   SheetDescription,
+  SheetSection,
+  SheetSectionHeader,
+  SheetSectionTitle,
+  SheetSectionLabel,
+  SheetSectionDescription,
 };

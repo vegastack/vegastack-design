@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Skeleton } from "./skeleton";
+import { Skeleton, SkeletonText } from "./skeleton";
 
 /** The one element this component renders, addressed the way every fixture addresses it. */
 function skeletonsIn(container: Element): HTMLElement[] {
@@ -106,4 +106,17 @@ test("no a11y violations — inside a loading region (Form)", async () => {
     </section>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("SkeletonText sketches lines of text or rows, hidden from assistive technology", async () => {
+  const screen = await render(
+    <>
+      <SkeletonText lines={3} data-testid="text" />
+      <SkeletonText lines={2} variant="rows" data-testid="rows" />
+    </>,
+  );
+  const text = screen.getByTestId("text").element();
+  expect(text.getAttribute("aria-hidden")).toBe("true");
+  expect(text.children).toHaveLength(3);
+  expect(screen.getByTestId("rows").element().children).toHaveLength(2);
 });

@@ -260,7 +260,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.64",
-        "integrity": "sha256-sRUdq0aAC9i6DtOrzyVVB4lILOHLKCIkUbXOruZTIQ4="
+        "integrity": "sha256-LrvRW7LmN0FYxiAZDDcOu9SJJirf05RpcUDqcPP7xpg="
       }
     },
     {
@@ -338,7 +338,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.64",
-        "integrity": "sha256-xOQU6f+23tNgnunwzyauintUqxmlHlSFZKADHkmnB0U="
+        "integrity": "sha256-RPY4fkCj5m8HUm78/NbTGiaLEZs27a+tuWE3RLX3z2o="
       }
     },
     {
@@ -438,7 +438,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.25.64",
-        "integrity": "sha256-U0ecFe1tvdoHCTUr+W2KbcwFqolboCqbxMCxBQsY1Do="
+        "integrity": "sha256-iQcGMi7o33EBhyLzY95E0Ba2pDjIDYeWJXPPmdYpCuc="
       }
     },
     {
@@ -615,6 +615,7 @@
         "@vegastack/file-viewer",
         "@vegastack/media-card",
         "@vegastack/progress",
+        "@vegastack/skeleton",
         "@vegastack/tile-overlay"
       ],
       "files": [
@@ -628,7 +629,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.25.64",
-        "integrity": "sha256-2hNQMkj8AOhRZ+zhUxKZjG1Avr8bdK0hn+UhU4kglLw="
+        "integrity": "sha256-iYaLF9w7QKI6ZmROQ3RPIilafmFIiLrVF21LTlhXSyM="
       }
     },
     {
@@ -794,7 +795,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "An action — use a Button. A Badge is a label; it can be a link through render, but never a control.",
         "version": "0.25.64",
-        "integrity": "sha256-1XnzwbX2pCsaapoc9zBd8biXXdfd4aIsVvPtPOsGMto="
+        "integrity": "sha256-XlPGPe7vtJu7zSVJgMfHYvWebna3FulF9PMWfJipLDQ="
       }
     },
     {
@@ -16476,6 +16477,33 @@
       }
     },
     {
+      "name": "entry-list",
+      "type": "registry:ui",
+      "title": "Entry List",
+      "description": "A short, compact list of plain entries in a sheet, dialog or popover: a line of text, its muted details and small actions at its end.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.17",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/entry-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/entry-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A handful of plain lines inside a panel — what changed, who was asked, the edits since a date — with their details and small actions.",
+        "whenNotToUse": "Rows that are targets themselves (Item), records with columns (DataList), facts under a title (MetaLine).",
+        "version": "0.25.63",
+        "integrity": "sha256-zbxh2fOuTLdZnz8vbuWTRVKpACzRqsii8qz3Xuvi/6o="
+      }
+    },
+    {
       "name": "value-change",
       "type": "registry:ui",
       "title": "Value Change",
@@ -16903,7 +16931,7 @@
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.25.64",
-        "integrity": "sha256-1QPelXTW81G7cPsGpQ7YKc2sjLzgE764QI1BfjE8X0Y="
+        "integrity": "sha256-YgWEKepPtnihkX05Ow8CQtTW/5tBsvMeihOFksDxB1Q="
       }
     },
     {
@@ -17719,7 +17747,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.25.64",
-        "integrity": "sha256-CFrRkCOOGV0JhSeLXPTO2kbSA4iBYuippJhK5uU05F0="
+        "integrity": "sha256-VB4WvW252zjGQHdySm5AdwZCKcLnf4Q+2hlBRZLaTTA="
       }
     },
     {
@@ -17818,7 +17846,7 @@
         "whenToUse": "Reserve layout space while content loads to avoid layout shift.",
         "whenNotToUse": "Indeterminate progress with no known layout (Spinner) or determinate tasks (progress bar).",
         "version": "0.25.64",
-        "integrity": "sha256-d/IDZuCrcKSlPuT0OIORRAz1ureWRo4juq0JfXeFPI0="
+        "integrity": "sha256-ZS0xeDjJRvhNd/qtMoPc5Zjlgv5lc1YN2aL2LtiXA40="
       }
     },
     {

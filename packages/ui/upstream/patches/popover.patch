@@ -1,6 +1,9 @@
 # component: popover
-# decisions: BRD-1, DOC-1, DOC-2, OVL-13, LAY-17
+# decisions: BRD-1, DOC-1, DOC-2, OVL-13, LAY-17, API-36
 # hunks:
+#   API-36: `PopoverContent` takes `size` (`default` · `md` · `lg` · `fit`); `PopoverBody` scrolls long
+#     content; `PopoverAnchor` is an invisible 0×0 trigger; `PopoverDescription` keeps line breaks
+#     and inks a `strong` in the foreground.
 #   OVL-13: `PopoverContent` reads `useInternalThemeScope()` and attaches it to the Positioner
 #     INSIDE the portal — the same host shape `select`, `combobox` and `tooltip` carry.
 #     `tooling/verify-portal-theme-scope.mjs` inventories this host.
@@ -13,10 +16,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/popover.tsx b/popover.tsx
-index 3e7ac5f..a8c6419 100644
+index 3e7ac5f..259e983 100644
 --- a/popover.tsx
 +++ b/popover.tsx
-@@ -1,15 +1,16 @@
+@@ -1,29 +1,48 @@
 -"use client"
 +"use client";
  
@@ -38,17 +41,41 @@ index 3e7ac5f..a8c6419 100644
 +  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
  }
  
++/** A popover's width: 288px by default, 320 (`md`), 384 within the window (`lg`), or its content's own up to 320 (`fit`). */
++const POPOVER_SIZES = {
++  default: "w-72",
++  md: "w-80",
++  lg: "w-96 max-w-[calc(100vw-2rem)]",
++  fit: "w-auto max-w-80",
++} as const;
++
  function PopoverContent({
-@@ -24,6 +25,8 @@ function PopoverContent({
+   className,
+   align = "center",
+   alignOffset = 0,
+   side = "bottom",
+   sideOffset = 4,
++  size = "default",
+   ...props
+ }: PopoverPrimitive.Popup.Props &
+   Pick<
      PopoverPrimitive.Positioner.Props,
      "align" | "alignOffset" | "side" | "sideOffset"
-   >) {
+-  >) {
++  > & {
++    /**
++     * The popover's width: `default` 288px, `md` 320px, `lg` 384px (never wider than the window
++     * less 2rem), `fit` its content's own width up to 320px.
++     * @default "default"
++     */
++    size?: keyof typeof POPOVER_SIZES;
++  }) {
 +  const themeScope = useInternalThemeScope();
 +
    return (
      <PopoverPrimitive.Portal>
        <PopoverPrimitive.Positioner
-@@ -31,19 +34,19 @@ function PopoverContent({
+@@ -31,19 +50,61 @@ function PopoverContent({
          alignOffset={alignOffset}
          side={side}
          sideOffset={sideOffset}
@@ -60,7 +87,8 @@ index 3e7ac5f..a8c6419 100644
            className={cn(
 -            "z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -            className
-+            "z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm wrap-break-word text-popover-foreground shadow-md border border-border outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            POPOVER_SIZES[size],
++            "z-50 flex origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm wrap-break-word text-popover-foreground shadow-md border border-border outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
            )}
            {...props}
@@ -69,10 +97,51 @@ index 3e7ac5f..a8c6419 100644
      </PopoverPrimitive.Portal>
 -  )
 +  );
++}
++
++/**
++ * `PopoverBody` — a popover's content that may run long (a list of requests): it scrolls inside
++ * the popover from 70% of the window's height, its parts 12px apart.
++ */
++function PopoverBody({ className, ...props }: React.ComponentProps<"div">) {
++  return (
++    <div
++      data-slot="popover-body"
++      className={cn(
++        "flex max-h-[70vh] min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain",
++        className,
++      )}
++      {...props}
++    />
++  );
++}
++
++/**
++ * `PopoverAnchor` — an invisible 0×0 trigger, for a popover opened from elsewhere (a menu item, a
++ * shortcut) that still needs a place to appear: put it where the popover should point. Never a
++ * tab stop, hidden from assistive technology.
++ */
++function PopoverAnchor({
++  className,
++  render,
++  ...props
++}: Omit<PopoverPrimitive.Trigger.Props, "nativeButton">) {
++  // The hidden, untabbable 0×0 box is the anchor's whole point: it holds whatever `render` is.
++  return (
++    <PopoverPrimitive.Trigger
++      data-slot="popover-anchor"
++      nativeButton={false}
++      aria-hidden
++      tabIndex={-1}
++      className={cn("pointer-events-none absolute size-0", className)}
++      render={render ?? <span />}
++      {...props}
++    />
++  );
  }
  
  function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -53,7 +56,7 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -53,7 +114,7 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-0.5 text-sm", className)}
        {...props}
      />
@@ -81,7 +150,7 @@ index 3e7ac5f..a8c6419 100644
  }
  
  function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
-@@ -63,7 +66,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
+@@ -63,7 +124,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
        className={cn("font-medium", className)}
        {...props}
      />
@@ -90,8 +159,16 @@ index 3e7ac5f..a8c6419 100644
  }
  
  function PopoverDescription({
-@@ -76,7 +79,7 @@ function PopoverDescription({
-       className={cn("text-muted-foreground", className)}
+@@ -73,17 +134,23 @@ function PopoverDescription({
+   return (
+     <PopoverPrimitive.Description
+       data-slot="popover-description"
+-      className={cn("text-muted-foreground", className)}
++      // Line breaks in the text are kept (a quoted message); a `strong` is in the foreground ink.
++      className={cn(
++        "whitespace-pre-line text-muted-foreground [&_strong]:font-medium [&_strong]:text-foreground",
++        className,
++      )}
        {...props}
      />
 -  )
@@ -99,7 +176,11 @@ index 3e7ac5f..a8c6419 100644
  }
  
  export {
-@@ -86,4 +89,4 @@ export {
+   Popover,
++  PopoverAnchor,
++  PopoverBody,
+   PopoverContent,
+   PopoverDescription,
    PopoverHeader,
    PopoverTitle,
    PopoverTrigger,

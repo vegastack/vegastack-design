@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.64 sha256-sRUdq0aAC9i6DtOrzyVVB4lILOHLKCIkUbXOruZTIQ4=
+// @vegastack document-layout@0.25.64 sha256-LrvRW7LmN0FYxiAZDDcOu9SJJirf05RpcUDqcPP7xpg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -28,11 +28,15 @@ export {
 } from "@/components/ui/document-layout-meta";
 // The tools laid over or around the text (client parts): find, a jump cue, starters, a note.
 export {
+  DocumentLayoutDecisionBar,
+  DocumentLayoutDecisionBarActions,
+  DocumentLayoutDecisionBarText,
   DocumentLayoutFindBar,
   DocumentLayoutJumpCue,
   DocumentLayoutNote,
   DocumentLayoutStarter,
   DocumentLayoutStarters,
+  type DocumentLayoutDecisionBarProps,
   type DocumentLayoutFindBarProps,
   type DocumentLayoutJumpCueProps,
   type DocumentLayoutNoteProps,
@@ -414,6 +418,9 @@ export function DocumentLayoutContentsButton({
       data-slot="document-layout-contents-button"
       className={cn(
         "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 rounded-full bg-background shadow-md @min-[40rem]/document-layout:hidden print:hidden",
+        // A phone's decision bar holds the window's bottom: the button floats above it, by the
+        // height the bar measures and publishes (`--document-layout-dock`, unset without one).
+        "max-sm:bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--document-layout-dock,0px))]",
         className,
       )}
       {...props}
@@ -441,6 +448,9 @@ export function DocumentLayoutFloatingButton({
       data-slot="document-layout-floating-button"
       className={cn(
         "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 rounded-full shadow-lg print:hidden",
+        // A phone's decision bar holds the window's bottom: the button floats above it, by the
+        // height the bar measures and publishes (`--document-layout-dock`, unset without one).
+        "max-sm:bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--document-layout-dock,0px))]",
         className,
       )}
       {...props}

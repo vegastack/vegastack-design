@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 749,
-    "components": 164,
+    "totalRegistryItems": 750,
+    "components": 165,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 34,
     "Navigation/layout": 22,
     "Overlays": 21,
-    "Data display": 32,
+    "Data display": 33,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 10,
@@ -161,6 +161,7 @@
       "load-more",
       "media-card",
       "meta-line",
+      "entry-list",
       "value-change",
       "person-hover-card",
       "property-list",
@@ -2041,6 +2042,15 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "AttachmentSkeletons",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/attachment.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A fixed placeholder with no native props; it takes no ref."
+          }
         }
       ],
       "variants": {
@@ -2140,6 +2150,7 @@
         "@vegastack/file-viewer",
         "@vegastack/media-card",
         "@vegastack/progress",
+        "@vegastack/skeleton",
         "@vegastack/tile-overlay"
       ],
       "npmDependencies": [
@@ -2243,6 +2254,15 @@
             {
               "name": "data-slot",
               "values": ["attachment-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentSkeletons": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-skeletons"]
             }
           ],
           "cssVariables": []
@@ -19353,6 +19373,26 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "PopoverAnchor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/popover.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
+          }
+        },
+        {
+          "name": "PopoverBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/popover.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/popover.tsx."
+          }
         }
       ],
       "variants": {
@@ -19361,9 +19401,14 @@
         "rationale": "Upstream ships no variant dimension for this component."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "md", "lg", "fit"],
+            "evidence": "packages/ui/registry/ui/popover.tsx: POPOVER_SIZES (PopoverContent size)"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -19441,6 +19486,24 @@
             {
               "name": "data-slot",
               "values": ["popover-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverAnchor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-anchor"]
             }
           ],
           "cssVariables": []
@@ -22302,6 +22365,56 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "SheetSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
+          }
+        },
+        {
+          "name": "SheetSectionDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "p",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
+          }
+        },
+        {
+          "name": "SheetSectionHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
+          }
+        },
+        {
+          "name": "SheetSectionLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "h3",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
+          }
+        },
+        {
+          "name": "SheetSectionTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "h3",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sheet.tsx."
+          }
         }
       ],
       "variants": {
@@ -22484,6 +22597,51 @@
             }
           ],
           "cssVariables": []
+        },
+        "SheetSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetSectionHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-section-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetSectionTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-section-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetSectionLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-section-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetSectionDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-section-description"]
+            }
+          ],
+          "cssVariables": []
         }
       }
     },
@@ -22634,12 +22792,27 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "SkeletonText",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/skeleton.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/skeleton.tsx."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["text", "rows"],
+            "evidence": "packages/ui/registry/ui/skeleton.tsx: SkeletonText variant"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -22703,6 +22876,19 @@
             {
               "name": "data-slot",
               "values": ["skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SkeletonText": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["skeleton-text"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -28651,6 +28837,167 @@
       }
     },
     {
+      "name": "entry-list",
+      "registryType": "registry:ui",
+      "title": "Entry List",
+      "summary": "A short, compact list of plain entries in a sheet, dialog or popover: a line of text, its muted details and small actions at its end.",
+      "status": "stable",
+      "since": "0.25.64",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/entry-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Entry",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/entry-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/entry-list.tsx."
+          }
+        },
+        {
+          "name": "EntryActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/entry-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/entry-list.tsx."
+          }
+        },
+        {
+          "name": "EntryList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/entry-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ul",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/entry-list.tsx."
+          }
+        },
+        {
+          "name": "EntryMeta",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/entry-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/entry-list.tsx."
+          }
+        },
+        {
+          "name": "EntryProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/entry-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "stack"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "stack"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/entry-list",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.8.17",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "testFiles": ["packages/ui/registry/ui/entry-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "entry-list",
+      "dataAttributes": {
+        "EntryList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["entry-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Entry": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["entry"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EntryMeta": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["entry-meta"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EntryActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["entry-actions"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "value-change",
       "registryType": "registry:ui",
       "title": "Value Change",
@@ -30310,6 +30657,45 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DocumentLayoutDecisionBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutDecisionBarActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutDecisionBarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutDecisionBarText",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "p",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
         }
       ],
       "variants": {
@@ -30511,6 +30897,36 @@
             {
               "name": "data-slot",
               "values": ["document-layout-note"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutDecisionBar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "document-layout-decision-bar",
+                "document-layout-dock-space"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutDecisionBarText": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-decision-bar-text"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutDecisionBarActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-decision-bar-actions"]
             }
           ],
           "cssVariables": []
@@ -30819,6 +31235,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "CommentThreadSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A fixed placeholder with no native props; it takes no ref."
+          }
         }
       ],
       "variants": {
@@ -31040,6 +31465,15 @@
             {
               "name": "data-slot",
               "values": ["comment-list-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentThreadSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-thread-skeleton"]
             }
           ],
           "cssVariables": []

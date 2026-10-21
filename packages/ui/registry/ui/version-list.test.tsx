@@ -216,3 +216,10 @@ test("a version the system kept names no one: no avatar, no placeholder person",
   expect(plain!.querySelectorAll("time").length).toBe(1);
   await expectNoA11yViolations(screen.container);
 });
+
+test("headingHidden keeps the list's heading for assistive technology only", async () => {
+  const screen = await render(<VersionList versions={[]} headingHidden />);
+  const heading = screen.getByRole("heading", { name: "Version history" });
+  await expect.element(heading).toBeInTheDocument();
+  expect(heading.element().className).toContain("sr-only");
+});

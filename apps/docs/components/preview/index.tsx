@@ -140,6 +140,7 @@ export * from "./bubble";
 export * from "./attachment";
 export * from "./message-scroller";
 export * from "./transcript";
+export * from "./entry-list";
 export * from "./meta-line";
 export * from "./value-change";
 export * from "./file-card";

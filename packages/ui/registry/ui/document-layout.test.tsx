@@ -10,6 +10,9 @@ import {
   DocumentLayoutFoot,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
+  DocumentLayoutDecisionBar,
+  DocumentLayoutDecisionBarActions,
+  DocumentLayoutDecisionBarText,
   DocumentLayoutFindBar,
   DocumentLayoutFloatingButton,
   DocumentLayoutIcon,
@@ -258,6 +261,23 @@ test("page tools: the jump cue, starters, a note and the floating action render 
     .toBeInTheDocument();
   await expect
     .element(screen.getByRole("button", { name: "Edit" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the decision bar is a named region with its text and answers", async () => {
+  const screen = await render(
+    <DocumentLayoutDecisionBar aria-label="Your review">
+      <DocumentLayoutDecisionBarText>
+        Asha asked you to review this page
+      </DocumentLayoutDecisionBarText>
+      <DocumentLayoutDecisionBarActions>
+        <button type="button">Approve</button>
+      </DocumentLayoutDecisionBarActions>
+    </DocumentLayoutDecisionBar>,
+  );
+  await expect
+    .element(screen.getByRole("region", { name: "Your review" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });

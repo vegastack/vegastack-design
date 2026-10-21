@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "061944c7e8fe7f7db4dec21336d3cfc278a161c30851edc7cbd43e26829328b4",
+  "contractSha256": "3f043150a7ee2c58e78cd9fd9cfbe536b462fb1f06603711e6ec1bc281f663cc",
   "expectedCounts": {
-    "totalRegistryItems": 749,
-    "components": 164,
+    "totalRegistryItems": 750,
+    "components": 165,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1482,6 +1482,17 @@
         "packages/ui/registry/ui/meta-line.tsx"
       ],
       "docsSlug": "/docs/components/meta-line",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "entry-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/entry-list.tsx"
+      ],
+      "docsSlug": "/docs/components/entry-list",
       "contractStatus": "reconciled"
     },
     {

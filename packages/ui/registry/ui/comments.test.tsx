@@ -5,6 +5,7 @@ import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   CommentComposer,
+  CommentThreadSkeleton,
   CommentItem,
   CommentList,
   CommentThread,
@@ -1235,4 +1236,12 @@ test("CommentComposer hint shows a quiet line under the box", async () => {
   await expect
     .element(screen.getByText("Asha can't see this page yet"))
     .toHaveAttribute("data-slot", "comment-composer-hint");
+});
+
+test("CommentThreadSkeleton is one placeholder card, hidden from assistive technology", async () => {
+  const screen = await render(<CommentThreadSkeleton />);
+  const card = screen.container.querySelector(
+    "[data-slot=comment-thread-skeleton]",
+  )!;
+  expect(card.getAttribute("aria-hidden")).toBe("true");
 });

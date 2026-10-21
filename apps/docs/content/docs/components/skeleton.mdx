@@ -23,6 +23,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 <ComponentPreview name="skeleton" file="components/preview/skeleton.tsx" />
 
+## Anatomy
+
+<Anatomy name="skeleton" />
+
 ## Examples
 
 ### Avatar
@@ -68,6 +72,18 @@ The placeholder is direction-agnostic; sizing comes from the utilities you pass,
 surrounding flex or grid flips with the document.
 
 <ComponentPreview name="skeletonRtl" file="components/preview/skeleton.tsx" />
+
+### Lines of text
+
+`SkeletonText` sketches a few lines while text loads: `text` — 16px bars of varied widths 12px
+apart — or `rows` — full-width 20px bars 8px apart, for a list. It is hidden from assistive
+technology; name the loading region around it.
+
+```tsx
+<div role="status" aria-label="Loading">
+  <SkeletonText lines={3} />
+</div>
+```
 
 ## API Reference
 

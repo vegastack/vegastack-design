@@ -90,6 +90,11 @@ const EXPECTED_HOSTS = new Map([
   // and the caret in the editor, so no Base UI popup fits — a `position: fixed` listbox portaled to
   // `<body>` inside a `contents` wrapper carrying `useInternalThemeScope()`.
   ["packages/ui/registry/ui/suggestion-menu.tsx", ["createPortal"]],
+  // DocumentLayoutDecisionBar's dock space (Regent O-7, API-36): on a phone the bar floats over the
+  // window's bottom, so it portals an EMPTY, aria-hidden spacer into its own layout's grid (never
+  // `<body>`) to keep that much room under the page's end. It stays inside the theme subtree and
+  // paints nothing, so it carries no scope of its own.
+  ["packages/ui/registry/ui/document-layout-tools.tsx", ["createPortal"]],
   // MarkdownView's selection Comment button (Regent Pages #469): like TextEdit's bubble it must
   // leave the reader's selection where it is, so no Base UI popup fits — a `position: fixed`
   // toolbar portaled to `<body>`, carrying `useInternalThemeScope()` on its own root.

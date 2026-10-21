@@ -197,6 +197,10 @@ The tools a page lays over or around its text, each without a class of your own:
 - `DocumentLayoutStarters` with `DocumentLayoutStarter` pills — ways to start an empty page
   ("Start from: Meeting notes · Spec · More templates…"; `more` for the quiet last one).
 - `DocumentLayoutNote` — a quiet line under the text.
+- `DocumentLayoutDecisionBar` with `DocumentLayoutDecisionBarText` and
+  `DocumentLayoutDecisionBarActions` — a decision the reader owes the page ("Asha asked you to
+  review this page · Approve"). Put it first in `DocumentLayoutBody`: it sticks under the top bar
+  while the text is in view, and on a phone floats at the bottom with the floating buttons above it.
 - `DocumentLayout focusable` — the canvas takes focus from a click in its read text (never a tab
   stop) and shows no focus cue of its own.
 

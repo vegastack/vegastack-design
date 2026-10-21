@@ -1,6 +1,8 @@
 # component: sheet
-# decisions: A11Y-9, API-21, API-29, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, LAY-10
+# decisions: A11Y-9, API-21, API-29, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, LAY-10, API-36
 # hunks:
+#   API-36: section parts for a sheet's body — `SheetSection`, `SheetSectionHeader`,
+#     `SheetSectionTitle`, `SheetSectionLabel`, `SheetSectionDescription`.
 #   LAY-10: a bottom sheet pads its panel by `env(safe-area-inset-bottom)`, so its footer and last
 #     row clear a phone's home indicator (zero where there is none).
 #   API-29: `SheetContent` takes `beside="sidebar" | "sidebar-icon"`, which starts a left sheet at
@@ -42,7 +44,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..eba6696 100644
+index 1972cc1..7900a36 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
 @@ -1,26 +1,41 @@
@@ -289,16 +291,102 @@ index 1972cc1..eba6696 100644
  }
  
  function SheetDescription({
-@@ -123,7 +225,7 @@ function SheetDescription({
+@@ -123,7 +225,93 @@ function SheetDescription({
        className={cn("text-sm text-muted-foreground", className)}
        {...props}
      />
 -  )
 +  );
++}
++
++/**
++ * `SheetSection` — one part of a sheet's body: a header (`SheetSectionHeader`, holding a
++ * `SheetSectionTitle` and an action at its end) over its content, 8px apart. Space a body's
++ * sections with the body's own gap.
++ *
++ * @example
++ * <SheetSection>
++ *   <SheetSectionHeader><SheetSectionTitle>Open comments</SheetSectionTitle></SheetSectionHeader>
++ *   <SheetSectionDescription>No open comments.</SheetSectionDescription>
++ * </SheetSection>
++ */
++function SheetSection({
++  className,
++  ...props
++}: React.ComponentProps<"section">) {
++  return (
++    <section
++      data-slot="sheet-section"
++      className={cn("flex min-w-0 flex-col gap-2", className)}
++      {...props}
++    />
++  );
++}
++
++/** `SheetSectionHeader` — a section's title row: the title, then an action pushed to its end. */
++function SheetSectionHeader({
++  className,
++  ...props
++}: React.ComponentProps<"div">) {
++  return (
++    <div
++      data-slot="sheet-section-header"
++      className={cn(
++        "flex min-w-0 items-center gap-2 *:data-[slot=button]:ms-auto",
++        className,
++      )}
++      {...props}
++    />
++  );
++}
++
++/** `SheetSectionTitle` — a section's heading: 14px medium, in the foreground ink. */
++function SheetSectionTitle({
++  className,
++  ...props
++}: React.ComponentProps<"h3">) {
++  return (
++    <h3
++      data-slot="sheet-section-title"
++      className={cn("text-sm font-medium text-foreground", className)}
++      {...props}
++    />
++  );
++}
++
++/**
++ * `SheetSectionLabel` — a quiet group label over a list ("Earlier"): 12px medium, muted — a
++ * heading for a run of cards rather than a section of its own.
++ */
++function SheetSectionLabel({
++  className,
++  ...props
++}: React.ComponentProps<"h3">) {
++  return (
++    <h3
++      data-slot="sheet-section-label"
++      className={cn("text-xs font-medium text-muted-foreground", className)}
++      {...props}
++    />
++  );
++}
++
++/** `SheetSectionDescription` — a section's line of muted text: its state, an empty note. */
++function SheetSectionDescription({
++  className,
++  ...props
++}: React.ComponentProps<"p">) {
++  return (
++    <p
++      data-slot="sheet-section-description"
++      className={cn("text-sm text-muted-foreground", className)}
++      {...props}
++    />
++  );
  }
  
  export {
-@@ -132,7 +234,9 @@ export {
+@@ -132,7 +320,14 @@ export {
    SheetClose,
    SheetContent,
    SheetHeader,
@@ -308,4 +396,9 @@ index 1972cc1..eba6696 100644
    SheetTitle,
    SheetDescription,
 -}
++  SheetSection,
++  SheetSectionHeader,
++  SheetSectionTitle,
++  SheetSectionLabel,
++  SheetSectionDescription,
 +};

@@ -1,11 +1,13 @@
 # component: skeleton
-# decisions: DOC-2
+# decisions: DOC-2, API-36
 # hunks:
+#   API-36: `SkeletonText` — placeholder lines (`text` · `rows`) built from `Skeleton`, so an app
+#     never sizes bars by hand.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/skeleton.tsx b/skeleton.tsx
-index b7f61b3..d4fefef 100644
+index b7f61b3..2e7f365 100644
 --- a/skeleton.tsx
 +++ b/skeleton.tsx
 @@ -1,4 +1,4 @@
@@ -14,7 +16,7 @@ index b7f61b3..d4fefef 100644
  
  function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -7,7 +7,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+@@ -7,7 +7,55 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("animate-pulse rounded-md bg-muted", className)}
        {...props}
      />
@@ -23,4 +25,52 @@ index b7f61b3..d4fefef 100644
  }
  
 -export { Skeleton }
-+export { Skeleton };
++/** Line widths for `SkeletonText`'s `text` variant, cycled: a paragraph never reads as a block. */
++const TEXT_WIDTHS = ["w-48", "w-full", "w-3/4"];
++
++/**
++ * `SkeletonText` — placeholder lines while text loads: `text`, 16px bars of varied widths 12px
++ * apart (a few lines of a panel); `rows`, full-width 20px bars 8px apart (a list's rows). Hidden
++ * from assistive technology; name the loading region around it.
++ *
++ * @example
++ * <SkeletonText lines={3} />
++ */
++function SkeletonText({
++  lines = 3,
++  variant = "text",
++  className,
++  ...props
++}: React.ComponentProps<"div"> & {
++  /** How many lines. @default 3 */
++  lines?: number;
++  /** `text` lines of varied width, or full-width `rows`. @default "text" */
++  variant?: "text" | "rows";
++}) {
++  return (
++    <div
++      aria-hidden
++      data-slot="skeleton-text"
++      data-variant={variant}
++      className={cn(
++        "flex flex-col",
++        variant === "text" ? "gap-3" : "gap-2",
++        className,
++      )}
++      {...props}
++    >
++      {Array.from({ length: Math.max(0, lines) }, (_, index) => (
++        <Skeleton
++          key={index}
++          className={
++            variant === "text"
++              ? cn("h-4", TEXT_WIDTHS[index % TEXT_WIDTHS.length])
++              : "h-5 w-full"
++          }
++        />
++      ))}
++    </div>
++  );
++}
++
++export { Skeleton, SkeletonText };

@@ -15,6 +15,11 @@ import {
   SheetDescription,
   SheetFooter,
   SheetHeader,
+  SheetSection,
+  SheetSectionDescription,
+  SheetSectionHeader,
+  SheetSectionLabel,
+  SheetSectionTitle,
   SheetTitle,
   SheetTrigger,
 } from "./sheet";
@@ -589,4 +594,26 @@ test("LAY-10: a bottom sheet pads its panel by the bottom safe-area inset", asyn
   expect(bySlot("sheet-content")!.className).toContain(
     "data-[side=bottom]:pb-[env(safe-area-inset-bottom)]",
   );
+});
+
+test("sheet sections: a titled section with an action, a group label and a muted line", async () => {
+  const screen = await render(
+    <SheetSection aria-label="Edits">
+      <SheetSectionHeader>
+        <SheetSectionTitle>Edits since you verified</SheetSectionTitle>
+        <Button size="xs" variant="ghost">
+          Compare
+        </Button>
+      </SheetSectionHeader>
+      <SheetSectionLabel>Earlier</SheetSectionLabel>
+      <SheetSectionDescription>No edits since.</SheetSectionDescription>
+    </SheetSection>,
+  );
+  await expect
+    .element(screen.getByRole("heading", { name: "Edits since you verified" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByText("No edits since."))
+    .toHaveAttribute("data-slot", "sheet-section-description");
+  await expectNoA11yViolations(screen.container);
 });
