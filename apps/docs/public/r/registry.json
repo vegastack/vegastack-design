@@ -211,7 +211,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.25.63",
-        "integrity": "sha256-JZ7kyqRlYNRSSngmWVWYyFaOXxtc7rKJXDtAgQWS530="
+        "integrity": "sha256-DdkhwT9QSGwEtD7Ppw+5xVfg/jcXfgOT3gUb7plvavI="
       }
     },
     {
@@ -231,6 +231,7 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/input-group",
         "@vegastack/skeleton"
       ],
       "files": [
@@ -248,13 +249,18 @@
           "path": "packages/ui/registry/ui/document-layout-meta.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-meta.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-tools.tsx"
         }
       ],
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.63",
-        "integrity": "sha256-4ESQ2hQNNCpdEFBZEgI96OE9a8nNb2cAzWY90lSTZ+8="
+        "integrity": "sha256-4rErQmqf47kjnNhDNSHKjAjNlN2mJqW/2JO4pTMlk/8="
       }
     },
     {
@@ -332,7 +338,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.63",
-        "integrity": "sha256-TLbvVPTiwZTR1oWTPWmIAhZsjxPjMvmrAruVHfAMj+w="
+        "integrity": "sha256-qevgr0aWO5r9juMe/LN3uu2V4rVGLLYaMVIlWdl1lrc="
       }
     },
     {
@@ -695,7 +701,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.25.63",
-        "integrity": "sha256-FrTnu8f7sgK61lD74J17q81hgr3IGYTqnrLj4zoEQeA="
+        "integrity": "sha256-vOriRsLFMjiME9xIy6lwNZFihLWtz0/7UDmFbFRoJZ4="
       }
     },
     {

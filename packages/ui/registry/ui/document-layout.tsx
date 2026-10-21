@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.63 sha256-4ESQ2hQNNCpdEFBZEgI96OE9a8nNb2cAzWY90lSTZ+8=
+// @vegastack document-layout@0.25.63 sha256-4rErQmqf47kjnNhDNSHKjAjNlN2mJqW/2JO4pTMlk/8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -26,6 +26,19 @@ export {
   type DocumentLayoutMetaProps,
   type DocumentLayoutMetaWordsProps,
 } from "@/components/ui/document-layout-meta";
+// The tools laid over or around the text (client parts): find, a jump cue, starters, a note.
+export {
+  DocumentLayoutFindBar,
+  DocumentLayoutJumpCue,
+  DocumentLayoutNote,
+  DocumentLayoutStarter,
+  DocumentLayoutStarters,
+  type DocumentLayoutFindBarProps,
+  type DocumentLayoutJumpCueProps,
+  type DocumentLayoutNoteProps,
+  type DocumentLayoutStarterProps,
+  type DocumentLayoutStartersProps,
+} from "@/components/ui/document-layout-tools";
 
 /* ------------------------------------------------------------------------------------------------
  * DocumentLayout — a page read as a document: the title area, the text, what follows the text
@@ -78,6 +91,12 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
    * @default "document"
    */
   measure?: "document" | "wide";
+  /**
+   * The canvas takes focus from a click in its read text (`tabIndex={-1}`, never a tab stop), so
+   * a host knows the reader is in the page; it shows no focus cue of its own (the text does).
+   * @default false
+   */
+  focusable?: boolean;
 }
 
 // The grid: four tracks — the start gutter (the rail's), the text, the margin (its 2rem gap
@@ -122,6 +141,7 @@ const GRID = cn(
 export function DocumentLayout({
   margin = false,
   measure = "document",
+  focusable = false,
   className,
   children,
   ...props
@@ -131,8 +151,10 @@ export function DocumentLayout({
       data-slot="document-layout"
       data-margin={margin ? "" : undefined}
       data-measure={measure}
+      tabIndex={focusable ? -1 : undefined}
       className={cn(
         "@container/document-layout w-full min-w-0 [--document-layout-sticky-top:--spacing(8)] print:[page:document]",
+        focusable && "outline-none",
         className,
       )}
       {...props}
@@ -398,6 +420,31 @@ export function DocumentLayoutContentsButton({
     >
       <ListTree aria-hidden />
     </Button>
+  );
+}
+
+/**
+ * `DocumentLayoutFloatingButton` — a phone's one floating action ("Edit"): a large, round,
+ * labelled button at the window's bottom end, clear of the home indicator, above the text. Fixed,
+ * so it moves nothing. Hidden in print.
+ *
+ * @example
+ * <DocumentLayoutFloatingButton onClick={edit}><Pencil aria-hidden />Edit</DocumentLayoutFloatingButton>
+ */
+export function DocumentLayoutFloatingButton({
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      size="lg"
+      data-slot="document-layout-floating-button"
+      className={cn(
+        "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 rounded-full shadow-lg print:hidden",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 

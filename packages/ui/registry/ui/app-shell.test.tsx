@@ -8,6 +8,8 @@ import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellHeaderShow,
+  AppShellHeaderSlot,
   AppShellPage,
   AppShellSection,
   AppShellSidebar,
@@ -644,4 +646,34 @@ test("AppShellSection align=center centres a prose section; align is ignored at 
   expect(centre.dataset.align).toBe("center");
   expect(centre.className).toContain("mx-auto");
   expect(full.className).not.toContain("mx-auto");
+});
+
+test("AppShellHeaderSlot reserves its place; AppShellHeaderShow marks when it shows", async () => {
+  const screen = await render(
+    <AppShell>
+      <AppShellHeader
+        actions={
+          <>
+            <AppShellHeaderSlot data-testid="slot" />
+            <AppShellHeaderShow when="narrow" data-testid="narrow">
+              A
+            </AppShellHeaderShow>
+            <AppShellHeaderShow when="wide" data-testid="wide">
+              B
+            </AppShellHeaderShow>
+          </>
+        }
+      >
+        Title
+      </AppShellHeader>
+    </AppShell>,
+  );
+  const slot = screen.getByTestId("slot").element();
+  expect(slot.getAttribute("data-slot")).toBe("app-shell-header-slot");
+  expect(screen.getByTestId("narrow").element().getAttribute("data-when")).toBe(
+    "narrow",
+  );
+  expect(screen.getByTestId("wide").element().getAttribute("data-when")).toBe(
+    "wide",
+  );
 });

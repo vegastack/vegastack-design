@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7936c65eb4c8cc0cc098849b95e7b98c7e433710b280c2e4ae2a910a55718c6b",
+  "contractSha256": "a76c6ba16d2b3cee79e85d6ea66fd97342f3d268ae00ddbd7f7b4a0cb7cc736b",
   "expectedCounts": {
     "totalRegistryItems": 749,
     "components": 164,
@@ -1557,6 +1557,7 @@
       "family": "layout",
       "sourceFiles": [
         "packages/ui/registry/ui/document-layout-meta.tsx",
+        "packages/ui/registry/ui/document-layout-tools.tsx",
         "packages/ui/registry/ui/document-layout.tsx",
         "packages/ui/registry/ui/use-document-layout-tier.ts"
       ],

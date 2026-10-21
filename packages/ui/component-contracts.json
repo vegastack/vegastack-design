@@ -385,6 +385,11 @@
           "table-of-contents"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
+      },
+      {
+        "file": "packages/ui/test/app-shell-header-tools.browser.test.tsx",
+        "owners": ["app-shell", "auto-save-input", "sidebar"],
+        "globalInputGroups": ["tokens", "shared-runtime"]
       }
     ]
   },
@@ -1592,6 +1597,44 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "AppShellHeaderShow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellHeaderShowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellHeaderSlot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellHeaderSlotProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -1701,6 +1744,28 @@
                 "app-shell-header-actions",
                 "app-shell-header-middle"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellHeaderSlot": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-header-slot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellHeaderShow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-header-show"]
+            },
+            {
+              "name": "data-when",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -2690,8 +2755,12 @@
         "AutoSaveIndicator": {
           "attributes": [
             {
+              "name": "data-compact",
+              "values": []
+            },
+            {
               "name": "data-slot",
-              "values": ["auto-save-indicator"]
+              "values": ["auto-save-indicator", "auto-save-indicator-text"]
             },
             {
               "name": "data-state",
@@ -29789,6 +29858,7 @@
       "wave": "Navigation/layout",
       "sourceFiles": [
         "packages/ui/registry/ui/document-layout-meta.tsx",
+        "packages/ui/registry/ui/document-layout-tools.tsx",
         "packages/ui/registry/ui/document-layout.tsx",
         "packages/ui/registry/ui/use-document-layout-tier.ts"
       ],
@@ -30127,6 +30197,110 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DocumentLayoutFindBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A controlled composite (field, status, three buttons) with no native root props; it takes no ref."
+          }
+        },
+        {
+          "name": "DocumentLayoutFindBarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutFloatingButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutJumpCue",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props and ref reach the cue's Button inside the sticky band in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutJumpCueProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutNote",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "p",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutNoteProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutStarter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutStarterProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutStarters",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-tools.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutStartersProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -30182,6 +30356,7 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/input-group",
         "@vegastack/skeleton"
       ],
       "npmDependencies": [
@@ -30283,6 +30458,54 @@
           ],
           "cssVariables": []
         },
+        "DocumentLayoutFindBar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "document-layout-find-bar",
+                "document-layout-find-status"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutJumpCue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-jump-cue"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutStarters": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-starters"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutStarter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-starter"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutNote": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-note"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DocumentLayout": {
           "attributes": [
             {
@@ -30379,6 +30602,15 @@
             {
               "name": "data-slot",
               "values": ["document-layout-contents-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutFloatingButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-floating-button"]
             }
           ],
           "cssVariables": []
@@ -30736,6 +30968,7 @@
               "name": "data-slot",
               "values": [
                 "comment-composer",
+                "comment-composer-hint",
                 "comment-composer-line",
                 "comment-composer-replying"
               ]
