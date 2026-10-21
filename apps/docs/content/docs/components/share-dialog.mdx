@@ -67,6 +67,10 @@ controls — the switch, Reset, Expires and Stop publishing — and follows `can
 viewer who cannot publish sees the public link to copy while it is on, and "Not published"
 otherwise.
 
+Reset and Stop publishing both ask first, since either stops the live link at once. Pass
+`publicLink.expiresAt` (the instant it lapses) and the Publish tab says when — "Until Oct 22 · 2:30
+PM" under Expires — instead of only the preset that was chosen.
+
 Space access's mode is a quiet pill — no border, a tint and a ▾ on hover, like a
 [`RecordChip`](/docs/components/record-chip)'s ghost form. Leave `generalAccess.level` out when a
 space's members open the item with their own role there: no level shows beside the mode. While

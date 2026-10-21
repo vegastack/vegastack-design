@@ -15605,6 +15605,7 @@
         "@vegastack/people-picker",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
+        "@vegastack/relative-time",
         "@vegastack/responsive-dialog",
         "@vegastack/select",
         "@vegastack/skeleton",
