@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.61 sha256-z9n0YvA19JIMFb7gwiuV4auXLSJQpHsR2OAu/4XsLAw=
+// @vegastack document-layout@0.25.61 sha256-wG7cd9mZ8rXiQIk61M7CHp31d3gthzOUo29NCwTN3RQ=
 
 "use client";
 
@@ -180,12 +180,17 @@ export interface DocumentLayoutMetaItemProps extends React.ComponentPropsWithRef
    * short form). @default false
    */
   yields?: boolean;
+  /**
+   * Keep the fact's words on one line — for a fact built around a `DocumentLayoutMetaLink`, which
+   * truncates instead ("From meeting ‹name› · Oct 14"). Plain text wraps by default. @default false
+   */
+  nowrap?: boolean;
 }
 
 /**
  * `DocumentLayoutMetaItem` — one fact on a `DocumentLayoutMeta` line: its `·` separator, an
- * optional icon and its content, on one line that wraps as a unit (its words never break inside
- * it; a `DocumentLayoutMetaLink` in it truncates).
+ * optional icon and its content, wrapping as one unit. With `nowrap` its words stay on one line
+ * and a `DocumentLayoutMetaLink` in it truncates.
  *
  * @example
  * <DocumentLayoutMetaItem icon={<Video />}>From meeting</DocumentLayoutMetaItem>
@@ -193,6 +198,7 @@ export interface DocumentLayoutMetaItemProps extends React.ComponentPropsWithRef
 export function DocumentLayoutMetaItem({
   icon,
   yields = false,
+  nowrap = false,
   className,
   children,
   ...props
@@ -201,9 +207,9 @@ export function DocumentLayoutMetaItem({
     <span
       data-slot="document-layout-meta-item"
       data-yields={yields ? "" : undefined}
+      data-nowrap={nowrap ? "" : undefined}
       className={cn(
-        // One line: its words never wrap inside the fact (a `DocumentLayoutMetaLink` truncates).
-        "inline-flex max-w-full min-w-0 items-center gap-1.5 whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+        "inline-flex max-w-full min-w-0 items-center gap-1.5 data-nowrap:whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         // Gives way first on a tight status row; holds once the row wraps or the chip is compact.
         "data-yields:min-w-15 data-yields:shrink-[100] group-data-wrap/document-meta:data-yields:shrink-0 data-yields:has-data-compact:shrink-0",
         className,

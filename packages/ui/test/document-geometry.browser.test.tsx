@@ -682,12 +682,12 @@ test("on a phone the status row is two lines from the first paint; the clipped r
   expect(dot.getBoundingClientRect().right).toBeLessThanOrEqual(box.left + 1);
 });
 
-test("a fact stays on one line — its link truncates, its words never wrap — and meta lines print", async () => {
+test("a nowrap fact stays on one line with its link truncated, a plain fact wraps whole, and meta lines print", async () => {
   await page.viewport(1440, 900);
   await render(
     <div style={{ width: 320 }}>
       <DocumentLayoutMeta>
-        <DocumentLayoutMetaItem>
+        <DocumentLayoutMetaItem nowrap>
           From meeting
           <DocumentLayoutMetaLink href="#m">
             A very long weekly product sync about the lighting range and its
@@ -695,11 +695,27 @@ test("a fact stays on one line — its link truncates, its words never wrap — 
           </DocumentLayoutMetaLink>
           · Oct 14
         </DocumentLayoutMetaItem>
+        <DocumentLayoutMetaItem>
+          <span>
+            Updated yesterday by Alexandra Montgomery from the platform
+            engineering team
+          </span>
+        </DocumentLayoutMetaItem>
       </DocumentLayoutMeta>
     </div>,
   );
-  const item = slot("document-layout-meta-item");
-  expect(item.getBoundingClientRect().height).toBeLessThanOrEqual(20);
+  const [item, plain] = [
+    ...document.querySelectorAll<HTMLElement>(
+      "[data-slot=document-layout-meta-item]",
+    ),
+  ];
+  expect(item!.getBoundingClientRect().height).toBeLessThanOrEqual(20);
+  // A long plain fact wraps inside the line's width rather than running past the clip.
+  const box = slot("document-layout-meta").getBoundingClientRect();
+  expect(plain!.getBoundingClientRect().height).toBeGreaterThan(20);
+  expect(plain!.getBoundingClientRect().right).toBeLessThanOrEqual(
+    box.right + 1,
+  );
   const link = slot("document-layout-meta-link");
   expect(link.scrollWidth).toBeGreaterThan(link.clientWidth);
   await cdp().send("Emulation.setEmulatedMedia", { media: "print" });

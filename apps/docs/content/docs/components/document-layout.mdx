@@ -138,7 +138,8 @@ an icon moves nothing.
 `DocumentLayoutMeta` is a line of small facts under the title — who updated the page, where it came
 from, what links to it. Each `DocumentLayoutMetaItem` opens with a `·`, and the row is drawn one
 dot's width to the start of a clipped box, so a wrapped line never starts (or the line before it
-ends) with a stray dot. An item takes an `icon`; `DocumentLayoutMetaButton` is a fact that opens
+ends) with a stray dot. An item takes an `icon`, and `nowrap` keeps a fact built around a link on one line (the link
+truncates); `DocumentLayoutMetaButton` is a fact that opens
 something ("Used in 2 tasks") and `DocumentLayoutMetaLink` a fact's link (`render` takes the
 router's link).
 
