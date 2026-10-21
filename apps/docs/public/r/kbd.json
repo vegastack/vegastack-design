@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/kbd.tsx",
-      "content": "// @vegastack kbd@0.25.58 sha256-c04ed94pFLj1T7fyX+IJ8vDmJzkK/7AM519ApUlCvQo=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Kbd({ className, ...props }: React.ComponentProps<\"kbd\">) {\n  return (\n    <kbd\n      data-slot=\"kbd\"\n      className={cn(\n        \"pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction KbdGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <kbd\n      data-slot=\"kbd-group\"\n      className={cn(\"inline-flex items-center gap-1\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Kbd, KbdGroup };\n",
+      "content": "// @vegastack kbd@0.25.59 sha256-D1BPeGD3x52lnKL8yi76ccXyS1jEkoSMpD5ChGGGOWU=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Kbd({ className, ...props }: React.ComponentProps<\"kbd\">) {\n  return (\n    <kbd\n      data-slot=\"kbd\"\n      className={cn(\n        \"pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction KbdGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <kbd\n      data-slot=\"kbd-group\"\n      className={cn(\"inline-flex items-center gap-1\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Kbd, KbdGroup };\n",
       "type": "registry:ui",
       "target": "@ui/kbd.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
     "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
-    "version": "0.25.58",
-    "integrity": "sha256-c04ed94pFLj1T7fyX+IJ8vDmJzkK/7AM519ApUlCvQo="
+    "version": "0.25.59",
+    "integrity": "sha256-D1BPeGD3x52lnKL8yi76ccXyS1jEkoSMpD5ChGGGOWU="
   },
   "categories": [
     "data-display"

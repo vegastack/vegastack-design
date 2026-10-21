@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.59] — October 21, 2026
+
+<!-- assembled from 2 changesets: c5f2d96d8031 -->
+
+### 🧩 New components
+
+- **EditableCell**: the `text` editor takes `maxLength`, the field's `maxlength`. Typing stops at the limit; a paste keeps the characters that fit, and when the limit cut it short the count says "Only the first N characters fit" and the cell announces it; from 90% of the limit a quiet `n/max` count shows under the field (its description), as wide as the field and laid over what follows, so nothing moves. What is typed or pasted in place can no longer run past what the store accepts and then be lost to a failed save.
+  [`1dee53c`](https://github.com/VegaStack/vegastack-design/commit/1dee53c)
+
+### 🔧 Changed components
+
+- **TextEdit**: what you act on stays the thing you meant while others edit, and nothing you type, paste or upload is lost. The block menu, a block or table-row drag, the file picker and an image's Replace hold their block through a collaborator's edits — acting on it where it is now, never on the block that took its place (a table changed mid-drag moves nothing, with a toast). Replacing an image by Upload keeps the original until the upload lands, and a failed upload leaves it. Pasted images import each in its own place among the pasted blocks, every pasted `data:` image uploads (past the import limit too), and a file name that is not valid percent-encoding no longer stops an import. Typing, Enter, Backspace, a paste or a drop while the editor loads all reach it; `flush()` waits for files handed over before it loaded; the handle's `focus()` follows editability. A read-only document can open Find, folds toggles for its reader without changing the document, offers Comment on a selection with `onCreateAnnotation`, shows heading links with `headingLinkHref`, and renders an HTML body holding only a live task list. Find's Replace field shows what Replace all will insert, and Escape in the text closes Find. An upload whose placeholder is deleted stops at once, and an upload's `signal.reason` says why it aborted — `TEXT_EDIT_UPLOAD_ABORT.removed` (the placeholder was deleted) or `.unmounted` (the editor went away with it still in the text), so a host can keep the file as an attachment. **ImageViewerScope**: turned off, its images are plain pictures again.
+  [`3b2ae3d`](https://github.com/VegaStack/vegastack-design/commit/3b2ae3d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.58 → 0.25.59.
+
 ## [0.25.58] — October 21, 2026
 
 <!-- assembled from 2 changesets: b29a505dcaa6 -->
