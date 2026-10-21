@@ -62,9 +62,10 @@ document keeps an ordinary fenced code block, so exports, search and agents read
 ### Errors and other diagram types
 
 Every diagram type mermaid draws works. When a source stops parsing, the last diagram that worked
-stays, dimmed, with a status line: "Line 3: Expected '-->'. Showing the last diagram that worked."
-With nothing to keep, the block says "Couldn't draw this diagram", names the problem and shows the
-source. A browser that cannot run the engine (Safari before 17.4) gets the source too.
+stays, dimmed, with one calm status line: "This change can't be drawn — check line 3. Showing the
+last diagram that worked." With nothing to keep, the block says "Couldn't draw this diagram — check
+line 3." and shows the source. The parser's own words ("Expected '-->'.") sit behind **Details**. A
+browser that cannot run the engine (Safari before 17.4) gets the source too.
 
 <ComponentPreview
   name="mermaidBlockStates"

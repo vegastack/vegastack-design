@@ -519,7 +519,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.25.59",
-        "integrity": "sha256-yMwNGLg7Y++DGCxC8jGzRtSTjCeQrPaTJKKhzADI6oo="
+        "integrity": "sha256-gZUEJuq62lWk/Ve4pp6s7A484yqYPs2IKUh+r6v4Tq4="
       }
     },
     {
@@ -15878,7 +15878,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.25.59",
-        "integrity": "sha256-9WBq4JW2bULHn8iCJJWDaIMg+iQveMX6hwDriFwKN9Q="
+        "integrity": "sha256-h2CqsGoEZFHRp9PbG/88qWqGryrxnQb5Ap6kZ+ejVuw="
       }
     },
     {
@@ -18322,7 +18322,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.59",
-        "integrity": "sha256-4JdDD87akQstGxFz8iGz1RHDVgaxgHiJkVEEbvOlMHs="
+        "integrity": "sha256-jtZSImJJgR/KW6XyspJHS/zjkT8daWMkIewltbpOE8g="
       }
     },
     {

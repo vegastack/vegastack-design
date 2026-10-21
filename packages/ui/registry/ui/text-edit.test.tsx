@@ -4835,7 +4835,7 @@ test("external images: Replace with another site's link swaps the image in place
   fail = false;
   await replace("https://cdn.example.com/new.png");
   await vi.waitFor(() =>
-    expect(lastValue(onValueChange)).toBe("![](/api/files/new)\n\nAfter"),
+    expect(lastValue(onValueChange)).toBe("![Old](/api/files/new)\n\nAfter"),
   );
 });
 
@@ -5693,10 +5693,11 @@ test("image: Replace by Upload keeps the image until the upload lands; a failed 
   await upload();
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toMatch(
-      /^!\[\]\(\/api\/files\/new.*\n\nAfter$/,
+      /^!\[Old\]\(\/api\/files\/new.*\n\nAfter$/,
     ),
   );
-  expect(lastValue(onValueChange)).not.toContain("Old");
+  // The picture changed; its alt text stayed.
+  expect(lastValue(onValueChange)).not.toContain(PIXEL);
 });
 
 test("external images: a pasted image imports in its own place among the pasted blocks", async () => {
@@ -6117,4 +6118,153 @@ test("uploads: the signal says why it aborted — placeholder deleted, or editor
   await screen.unmount();
   expect(signals[2]!.aborted).toBe(true);
   expect(signals[2]!.reason).toBe(TEXT_EDIT_UPLOAD_ABORT.unmounted);
+});
+
+/* --- page QA (21-10-2026) ---------------------------------------------------------------------*/
+
+test("block menu: after Turn into, the grip still shows on the next hovered block", async () => {
+  const screen = await markdownEditor({ defaultValue: "One\n\nTwo\n\nThree" });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await screen.getByRole("menuitem", { name: /Turn into/ }).click();
+  await screen.getByRole("menuitemcheckbox", { name: "Heading 1" }).click();
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("h1")?.textContent).toBe("One"),
+  );
+  await vi.waitFor(() =>
+    expect(document.querySelector("[data-text-edit-menu]")).toBeNull(),
+  );
+  await userEvent.hover(box.element().querySelectorAll("p")[1]!);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-block-handle"]'),
+    ).not.toBeNull(),
+  );
+  // And the keyboard opens the menu again (⌘/ as ⇧F10).
+  await userEvent.click(box.element().querySelectorAll("p")[1]!);
+  await userEvent.keyboard(`{${MOD}>}/{/${MOD}}`);
+  await expect
+    .element(screen.getByRole("menu", { name: "Block options" }))
+    .toBeInTheDocument();
+});
+
+test("block menu: Copy as Markdown confirms with a toast", async () => {
+  const { toast } = await import("./toast");
+  const add = vi.spyOn(toast, "add");
+  onTestFinished(() => add.mockRestore());
+  const write = vi
+    .spyOn(navigator.clipboard, "writeText")
+    .mockResolvedValue(undefined);
+  onTestFinished(() => write.mockRestore());
+  const screen = await markdownEditor({ defaultValue: "**Bold** words" });
+  await userEvent.click(
+    screen
+      .getByRole("textbox", { name: "Notes" })
+      .element()
+      .querySelector("p")!,
+  );
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await screen.getByRole("menuitem", { name: /Copy as Markdown/ }).click();
+  await vi.waitFor(() =>
+    expect(add).toHaveBeenCalledWith({ title: "Copied as Markdown" }),
+  );
+  expect(write).toHaveBeenCalledWith("**Bold** words");
+});
+
+test("⌘K refuses text that is not a link, inline, and keeps the panel open", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Visit",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  selectText(box.element(), "Visit");
+  await userEvent.keyboard(`{${MOD}>}k{/${MOD}}`);
+  const field = screen.getByRole("textbox", { name: "Link URL" });
+  await field.fill("not a url at all");
+  await userEvent.keyboard("{Enter}");
+  const alert = await vi.waitFor(() => {
+    const found = document.querySelector(
+      '[data-slot="text-edit-link"] [role="alert"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  expect(alert.textContent).toMatch(/isn't a link/);
+  // Another site dressed as a path is refused too.
+  for (const sneaky of [
+    "/\\evil.example/x",
+    "//evil.example",
+    "javascript:alert(1)",
+  ]) {
+    await field.fill(sneaky);
+    await userEvent.keyboard("{Enter}");
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector('[data-slot="text-edit-link"] [role="alert"]'),
+      ).not.toBeNull(),
+    );
+  }
+  await expect.element(field).toHaveAttribute("aria-invalid", "true");
+  expect(lastValue(onValueChange) ?? "Visit").toBe("Visit");
+  // A bare domain, an email and a path are links.
+  await field.fill("example.com/docs");
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("[Visit](https://example.com/docs)"),
+  );
+});
+
+test("image: Replace by Link keeps the alt text and caption", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: `![A mountain](${PIXEL} "Sunrise over the ridge")\n\nAfter`,
+    onValueChange,
+    onImageUpload: async () => ({ src: "/api/files/unused" }),
+  });
+  await screen.getByRole("button", { name: "Replace" }).click();
+  // Choosing the Link tab puts the caret in its field.
+  const tab = await vi.waitFor(() => {
+    const found = [
+      ...document.querySelectorAll<HTMLElement>('[role="tab"]'),
+    ].find((each) => each.textContent === "Link");
+    expect(found).toBeDefined();
+    return found!;
+  });
+  await userEvent.click(tab);
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("aria-label")).toBe(
+      "Image URL",
+    ),
+  );
+  await userEvent.keyboard("/files/new.png{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toMatch(
+      /^!\[A mountain\]\(\/files\/new\.png "Sunrise over the ridge"\)\n\nAfter$/,
+    ),
+  );
+});
+
+test("collaboration: a block menu whose block a collaborator deletes closes, and the grip comes back", async () => {
+  const { screen, shared } = await twoEditors("AAA\n\nBBB\n\nCCC");
+  const a = screen.getByRole("textbox", { name: "A" });
+  await vi.waitFor(() => expect(visibleText(a.element())).toContain("CCC"));
+  await userEvent.click(a.element().querySelectorAll("p")[1]!);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await expect
+    .element(screen.getByRole("menu", { name: "Block options" }))
+    .toBeInTheDocument();
+  shared.b.getXmlFragment("default").delete(1, 1);
+  await vi.waitFor(() => expect(visibleText(a.element())).not.toContain("BBB"));
+  await vi.waitFor(() =>
+    expect(document.querySelector("[data-text-edit-menu]")).toBeNull(),
+  );
+  await userEvent.hover(a.element().querySelectorAll("p")[1]!);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-block-handle"]'),
+    ).not.toBeNull(),
+  );
 });
