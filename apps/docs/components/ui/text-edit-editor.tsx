@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.61 sha256-zC232VO12KljLGUUEqE7R8MVCS5by+93156kHkR4gCA=
+// @vegastack text-edit@0.25.61 sha256-Oakn0p6zWUxZdPcUoY6ptUCegdp1FtwRr0Y6btF20bM=
 
 "use client";
 
@@ -7582,12 +7582,15 @@ function HeadingLink({
       clearTimeout(settle);
       settle = setTimeout(() => setScrolling(false), 150);
     };
-    // The text changed (a collaborator's edit, an embed): a hovered position may name another
-    // block now, so the hover is dropped until the pointer moves; the caret's heading is re-read.
+    // The text changed (a collaborator's edit, an embed, typing in the heading): a hovered
+    // position may name another block now, so the hover is dropped until the pointer moves; the
+    // caret's heading is re-read, and the link redraws — its label, its URL and, after the text
+    // on a coarse pointer, its place follow the heading's new text.
     const onChange = ({ transaction }: { transaction: Transaction }) => {
       if (!transaction.docChanged) return;
       hover.show(null);
       onSelection();
+      redraw();
     };
     editor.on("transaction", onChange);
     dom.addEventListener("mousemove", onMove);
