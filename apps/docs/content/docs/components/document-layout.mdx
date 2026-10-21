@@ -133,6 +133,54 @@ an icon moves nothing.
 </DocumentLayoutTitleGroup>
 ```
 
+### Meta lines
+
+`DocumentLayoutMeta` is a line of small facts under the title — who updated the page, where it came
+from, what links to it. Each `DocumentLayoutMetaItem` opens with a `·`, and the row is drawn one
+dot's width to the start of a clipped box, so a wrapped line never starts (or the line before it
+ends) with a stray dot. An item takes an `icon`; `DocumentLayoutMetaButton` is a fact that opens
+something ("Used in 2 tasks") and `DocumentLayoutMetaLink` a fact's link (`render` takes the
+router's link).
+
+`variant="status"` is the status row: one reserved line from `sm` and two on a phone, from the
+first paint, so chips that stream in move nothing. Group its facts: a `DocumentLayoutMetaGroup`
+(`kind="unit"`) stays together — a `DocumentLayoutMetaField` ("Owner Sanjay") and its chip, wrapping
+inside only when even the chip's short form doesn't fit — and a
+`kind="flow"` group of flags flows with the row from `sm`; on a phone each group is a whole line.
+A `DocumentLayoutMetaBadge` with `label` and `short` keeps all its words while the row has room;
+on a tight row the chips drop to their short forms, the longest first (the whole label stays in
+the chip's tooltip), and only if those don't fit either does the row wrap. Pass what the chips say
+as `watch`, and `DocumentLayoutMetaSkeleton` while they stream in.
+
+```tsx
+<DocumentLayoutMeta variant="status" watch={[status, review]}>
+  <DocumentLayoutMetaGroup>
+    <DocumentLayoutMetaField label="Owner">
+      Sanjay Desai
+    </DocumentLayoutMetaField>
+    <DocumentLayoutMetaBadge
+      variant="success"
+      label="Verified · Oct 14"
+      short="Verified"
+    >
+      <BadgeCheck data-icon="inline-start" aria-hidden />
+    </DocumentLayoutMetaBadge>
+  </DocumentLayoutMetaGroup>
+  <DocumentLayoutMetaGroup kind="flow">
+    <DocumentLayoutMetaItem>
+      <DocumentLayoutMetaBadge variant="warning">
+        2 out of date
+      </DocumentLayoutMetaBadge>
+    </DocumentLayoutMetaItem>
+  </DocumentLayoutMetaGroup>
+</DocumentLayoutMeta>
+```
+
+Where the contents rail has no room (the S tier), `DocumentLayoutContentsButton` is a round "On
+this page" button floating at the window's bottom end — give it to `TableOfContents` as its
+`trigger`. `DocumentLayoutTitle` takes `editable` when the title renames in place (the text cursor
+over the whole row).
+
 ### Skeleton
 
 `DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — an icon row
@@ -190,6 +238,16 @@ link prints its address.
 <ApiTable
   path="../../packages/ui/registry/ui/document-layout.tsx"
   name="DocumentLayoutIconProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout-meta.tsx"
+  name="DocumentLayoutMetaProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout-meta.tsx"
+  name="DocumentLayoutMetaBadgeProps"
 />
 
 `DocumentLayoutHeader`, `DocumentLayoutTitleGroup`, `DocumentLayoutBody` and `DocumentLayoutFoot`

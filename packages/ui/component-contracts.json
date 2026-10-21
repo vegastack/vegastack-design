@@ -29769,12 +29769,13 @@
       "name": "document-layout",
       "registryType": "registry:ui",
       "title": "Document Layout",
-      "summary": "A page read as a document — the title area, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
+      "summary": "A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "status": "stable",
       "since": "0.25.35",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": [
+        "packages/ui/registry/ui/document-layout-meta.tsx",
         "packages/ui/registry/ui/document-layout.tsx",
         "packages/ui/registry/ui/use-document-layout-tier.ts"
       ],
@@ -29917,7 +29918,7 @@
         },
         {
           "name": "DocumentLayoutTitleProps",
-          "kind": "type",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/document-layout.tsx",
           "ref": {
             "status": "not-applicable",
@@ -29958,6 +29959,160 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A hook; returns the tier, takes no ref."
+          }
+        },
+        {
+          "name": "DocumentLayoutContentsButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMeta",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaField",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "a",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaWords",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaFieldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaWordsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-meta.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMetaBadgeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -30011,10 +30166,16 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/document-layout",
-      "registryDependencies": ["@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/skeleton"
+      ],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.8.12",
         "@vegastack/design@^0.8.16",
-        "@vegastack/design-tokens@^0.8.12"
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/document-layout.test.tsx"],
       "coverage": {
@@ -30027,6 +30188,84 @@
       },
       "previewModule": "document-layout",
       "dataAttributes": {
+        "DocumentLayoutMeta": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-meta", "document-layout-meta-row"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMetaItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-meta-item"]
+            },
+            {
+              "name": "data-yields",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMetaGroup": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["document-layout-meta-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMetaField": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-meta-field"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMetaWords": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "document-layout-meta-words",
+                "document-layout-meta-words-rest"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMetaBadge": {
+          "attributes": [
+            {
+              "name": "data-fitted",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMetaButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-meta-button"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DocumentLayout": {
           "attributes": [
             {
@@ -30078,6 +30317,10 @@
         "DocumentLayoutTitle": {
           "attributes": [
             {
+              "name": "data-editable",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["document-layout-title"]
             }
@@ -30110,6 +30353,15 @@
                 "document-layout-contents",
                 "document-layout-contents-inner"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutContentsButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-contents-button"]
             }
           ],
           "cssVariables": []

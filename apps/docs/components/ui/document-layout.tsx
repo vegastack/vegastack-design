@@ -1,11 +1,31 @@
-// @vegastack document-layout@0.25.61 sha256-rWT6K4XW0klF2MCSEtgx5/5LHVO8yYVFWfffiM1DOJE=
+// @vegastack document-layout@0.25.61 sha256-8QW056J2GuvQkFvhocVrv02XVlMmhCfY/Po9BsyHf2U=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { ListTree } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // The tier hook is the one client leaf; it lives in its own file so this one stays server-safe.
 export { useDocumentLayoutTier } from "@/components/ui/use-document-layout-tier";
+// The meta lines under the title (client parts: the status row fits its chips to the width).
+export {
+  DocumentLayoutMeta,
+  DocumentLayoutMetaBadge,
+  DocumentLayoutMetaButton,
+  DocumentLayoutMetaField,
+  DocumentLayoutMetaGroup,
+  DocumentLayoutMetaItem,
+  DocumentLayoutMetaLink,
+  DocumentLayoutMetaSkeleton,
+  DocumentLayoutMetaWords,
+  type DocumentLayoutMetaBadgeProps,
+  type DocumentLayoutMetaFieldProps,
+  type DocumentLayoutMetaGroupProps,
+  type DocumentLayoutMetaItemProps,
+  type DocumentLayoutMetaProps,
+  type DocumentLayoutMetaWordsProps,
+} from "@/components/ui/document-layout-meta";
 
 /* ------------------------------------------------------------------------------------------------
  * DocumentLayout — a page read as a document: the title area, the text, what follows the text
@@ -219,7 +239,7 @@ export function DocumentLayoutIcon({
         // One 32px row whatever it holds — an emoji, the button around one, "Add icon" — so
         // adding or removing an icon never moves the title, and the skeleton reserves the same.
         "flex h-8 items-center text-3xl leading-none",
-        "[&>[data-slot=button]]:-ms-1 [&>[data-slot=button]:has(>span:only-child)]:h-8 [&>[data-slot=button]:has(>span:only-child)]:px-1 [&>[data-slot=button]:has(>span:only-child)]:py-0 [&>[data-slot=button]:has(>span:only-child)]:text-3xl [&>[data-slot=button]:has(>span:only-child)]:leading-none",
+        "[&>[data-slot=button]]:-ms-1.5 [&>[data-slot=button]:has(>span:only-child)]:-ms-1 [&>[data-slot=button]:has(>span:only-child)]:h-8 [&>[data-slot=button]:has(>span:only-child)]:px-1 [&>[data-slot=button]:has(>span:only-child)]:py-0 [&>[data-slot=button]:has(>span:only-child)]:text-3xl [&>[data-slot=button]:has(>span:only-child)]:leading-none",
         "data-reveal:text-muted-foreground data-reveal:opacity-0 data-reveal:transition-opacity data-reveal:group-focus-within/document-title:opacity-100 data-reveal:group-hover/document-title:opacity-100 data-reveal:has-data-popup-open:opacity-100 data-reveal:pointer-coarse:opacity-100 print:hidden",
         className,
       )}
@@ -229,7 +249,10 @@ export function DocumentLayoutIcon({
 }
 
 /** Props accepted by `DocumentLayoutTitle`. */
-export type DocumentLayoutTitleProps = React.ComponentPropsWithRef<"h1">;
+export interface DocumentLayoutTitleProps extends React.ComponentPropsWithRef<"h1"> {
+  /** The title renames in place: the whole row shows the text cursor. @default false */
+  editable?: boolean;
+}
 
 /**
  * `DocumentLayoutTitle` — the page's title, the document type scale's top step: 30/36 semibold
@@ -241,14 +264,16 @@ export type DocumentLayoutTitleProps = React.ComponentPropsWithRef<"h1">;
  * <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
  */
 export function DocumentLayoutTitle({
+  editable = false,
   className,
   ...props
 }: DocumentLayoutTitleProps) {
   return (
     <h1
       data-slot="document-layout-title"
+      data-editable={editable ? "" : undefined}
       className={cn(
-        "w-full min-w-0 font-heading text-3xl/9 font-semibold wrap-break-word text-foreground",
+        "w-full min-w-0 font-heading text-3xl/9 font-semibold wrap-break-word text-foreground data-editable:cursor-text",
         className,
       )}
       {...props}
@@ -342,6 +367,37 @@ export function DocumentLayoutContents({
         {children}
       </div>
     </aside>
+  );
+}
+
+/**
+ * `DocumentLayoutContentsButton` — "On this page" where the contents rail has no room: a round
+ * button floating at the window's bottom end, below the S tier only (from M the rail shows), clear
+ * of the home indicator. Give it to `TableOfContents` as its `trigger`, so it opens the outline in
+ * a sheet. Fixed, so it moves nothing when the headings arrive. Hidden in print.
+ *
+ * @example
+ * <TableOfContents items={outline} trigger={<DocumentLayoutContentsButton />} />
+ */
+export function DocumentLayoutContentsButton({
+  className,
+  "aria-label": ariaLabel = "On this page",
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      variant="outline"
+      size="icon-lg"
+      aria-label={ariaLabel}
+      data-slot="document-layout-contents-button"
+      className={cn(
+        "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 rounded-full bg-background shadow-md @min-[40rem]/document-layout:hidden print:hidden",
+        className,
+      )}
+      {...props}
+    >
+      <ListTree aria-hidden />
+    </Button>
   );
 }
 
