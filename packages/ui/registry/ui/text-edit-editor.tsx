@@ -4991,6 +4991,17 @@ function buildExtensions(
  * listener on the editor: it runs before every key handler (the editor's own props included), and
  * only for the browser's own key events, never for a key ProseMirror replays while reading input.
  */
+/** Keys that never act at the caret: modifiers alone, and an input method's dead or pending key. */
+const NOT_ACTING_KEYS = new Set([
+  "Shift",
+  "Control",
+  "Alt",
+  "Meta",
+  "CapsLock",
+  "Dead",
+  "Process",
+]);
+
 const CaretFromDom = Extension.create({
   name: "textEditCaretFromDom",
   addProseMirrorPlugins() {
@@ -4998,8 +5009,14 @@ const CaretFromDom = Extension.create({
       new Plugin({
         view(view) {
           const onKeyDown = (event: KeyboardEvent) => {
-            // An input method's key (229, or mid-composition): its text arrives through the DOM.
-            if (event.isComposing || event.keyCode === 229 || view.composing)
+            // An input method's key (229, a dead key, mid-composition): its text arrives through
+            // the DOM. A modifier alone acts on nothing.
+            if (
+              event.isComposing ||
+              event.keyCode === 229 ||
+              view.composing ||
+              NOT_ACTING_KEYS.has(event.key)
+            )
               return;
             if (!view.hasFocus()) return;
             (
