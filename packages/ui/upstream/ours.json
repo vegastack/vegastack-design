@@ -695,6 +695,11 @@
       "family": "display",
       "source": "Regent Pages v2 plan 12 §4.12 (DS release B.2) — approved by MK 2026-10-14 (Round 2)",
       "rationale": "Upstream ships no fenced-block renderer frame. The shared frame of TextEdit's and MarkdownView's blockViews, composing upstream button, dialog and dropdown-menu; no patch."
+    },
+    "document-layout-meta": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of document-layout (its client meta lines: the status row fits its chips to the width). Regent Pages v2 page-chrome rework, operator ruling 2026-10-21 (everything from the DS, no local styles)"
     }
   }
 }

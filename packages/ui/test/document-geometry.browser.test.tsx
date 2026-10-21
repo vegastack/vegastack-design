@@ -11,6 +11,11 @@ import {
   DocumentLayoutHeader,
   DocumentLayoutIcon,
   DocumentLayoutMargin,
+  DocumentLayoutMeta,
+  DocumentLayoutMetaBadge,
+  DocumentLayoutMetaField,
+  DocumentLayoutMetaGroup,
+  DocumentLayoutMetaItem,
   DocumentLayoutSkeleton,
   DocumentLayoutTitle,
   DocumentLayoutTitleGroup,
@@ -595,4 +600,83 @@ test("print: a code block wraps its long lines on paper", async () => {
   } finally {
     await cdp().send("Emulation.setEmulatedMedia", { media: "" });
   }
+});
+
+/** A status row: owner and its chip as one unit, then a flag and a review chip with a short form. */
+function StatusRow({
+  width,
+  variant = "status",
+}: {
+  width: number;
+  variant?: "status" | "line";
+}) {
+  return (
+    <div style={{ width }}>
+      <DocumentLayoutMeta variant={variant} watch={[width]}>
+        <DocumentLayoutMetaGroup>
+          <DocumentLayoutMetaField label="Owner">
+            Sanjay Desai
+          </DocumentLayoutMetaField>
+          <DocumentLayoutMetaBadge label="Verified · Oct 14" short="Verified" />
+        </DocumentLayoutMetaGroup>
+        <DocumentLayoutMetaGroup kind="flow">
+          <DocumentLayoutMetaItem>
+            <DocumentLayoutMetaBadge variant="warning">
+              2 out of date
+            </DocumentLayoutMetaBadge>
+          </DocumentLayoutMetaItem>
+          <DocumentLayoutMetaItem yields>
+            <DocumentLayoutMetaBadge
+              label="Approved · Oct 19 by Asha Menon"
+              short="Approved"
+            />
+          </DocumentLayoutMetaItem>
+        </DocumentLayoutMetaGroup>
+      </DocumentLayoutMeta>
+    </div>
+  );
+}
+
+const metaRow = () => slot("document-layout-meta-row");
+
+test("the status row is one 24px line with room, its chips at full words; tight, they drop to short forms before it wraps", async () => {
+  await page.viewport(1440, 900);
+  const screen = await render(<StatusRow width={900} />);
+  await vi.waitFor(() =>
+    expect(metaRow().getBoundingClientRect().height).toBe(24),
+  );
+  expect(document.querySelectorAll("[data-compact]")).toHaveLength(0);
+  expect(metaRow().hasAttribute("data-wrap")).toBe(false);
+  // Narrower: the longest rest goes first, the row stays one line.
+  await screen.rerender(<StatusRow width={420} />);
+  await vi.waitFor(() =>
+    expect(document.querySelectorAll("[data-compact]").length).toBeGreaterThan(
+      0,
+    ),
+  );
+  expect(metaRow().getBoundingClientRect().height).toBe(24);
+  expect(metaRow().hasAttribute("data-wrap")).toBe(false);
+  // Too narrow even for short forms: it wraps instead of truncating.
+  await screen.rerender(<StatusRow width={220} />);
+  await vi.waitFor(() =>
+    expect(metaRow().hasAttribute("data-wrap")).toBe(true),
+  );
+  // A plain line is never fitted: what the status row left behind is cleared.
+  await screen.rerender(<StatusRow width={220} variant="line" />);
+  await vi.waitFor(() => {
+    expect(metaRow().hasAttribute("data-wrap")).toBe(false);
+    expect(document.querySelectorAll("[data-compact]")).toHaveLength(0);
+  });
+});
+
+test("on a phone the status row is two lines from the first paint; the clipped row never starts a line with a dot", async () => {
+  await page.viewport(375, 812);
+  await render(<StatusRow width={343} />);
+  expect(metaRow().getBoundingClientRect().height).toBeGreaterThanOrEqual(52);
+  const box = slot("document-layout-meta").getBoundingClientRect();
+  // The first dot sits outside the clip box, so it is never seen.
+  const dot = document.querySelector<HTMLElement>(
+    "[data-slot=document-layout-meta-dot]",
+  )!;
+  expect(dot.getBoundingClientRect().right).toBeLessThanOrEqual(box.left + 1);
 });

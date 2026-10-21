@@ -193,13 +193,19 @@
       "name": "document-layout",
       "type": "registry:ui",
       "title": "Document Layout",
-      "description": "A page read as a document — the title area, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
+      "description": "A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "categories": ["layout"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.16",
         "@vegastack/design-tokens@^0.8.12"
       ],
-      "registryDependencies": ["@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/skeleton"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/document-layout.tsx",
@@ -210,6 +216,11 @@
           "path": "packages/ui/registry/ui/use-document-layout-tier.ts",
           "type": "registry:ui",
           "target": "@ui/use-document-layout-tier.ts"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-meta.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-meta.tsx"
         }
       ],
       "meta": {

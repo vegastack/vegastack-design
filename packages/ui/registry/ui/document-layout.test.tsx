@@ -10,6 +10,12 @@ import {
   DocumentLayoutHeader,
   DocumentLayoutMargin,
   DocumentLayoutIcon,
+  DocumentLayoutMeta,
+  DocumentLayoutMetaBadge,
+  DocumentLayoutMetaButton,
+  DocumentLayoutMetaField,
+  DocumentLayoutMetaGroup,
+  DocumentLayoutMetaItem,
   DocumentLayoutSkeleton,
   DocumentLayoutTitle,
   DocumentLayoutTitleGroup,
@@ -133,5 +139,35 @@ test("the title group holds an icon over a level-one title; reveal marks an icon
   )!;
   expect(icon.hasAttribute("data-reveal")).toBe(true);
   expect(icon.className).toContain("data-reveal:opacity-0");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("meta lines: every fact opens with a hidden dot; a fitted chip carries its whole label as its title", async () => {
+  const screen = await render(
+    <>
+      <DocumentLayoutMeta>
+        <DocumentLayoutMetaItem>Updated 3m ago</DocumentLayoutMetaItem>
+        <DocumentLayoutMetaItem>
+          <DocumentLayoutMetaButton>Used in 2 tasks</DocumentLayoutMetaButton>
+        </DocumentLayoutMetaItem>
+      </DocumentLayoutMeta>
+      <DocumentLayoutMeta variant="status">
+        <DocumentLayoutMetaGroup>
+          <DocumentLayoutMetaField label="Owner">
+            Sanjay
+          </DocumentLayoutMetaField>
+          <DocumentLayoutMetaBadge label="Verified · Oct 14" short="Verified" />
+        </DocumentLayoutMetaGroup>
+      </DocumentLayoutMeta>
+    </>,
+  );
+  const dots = screen.container.querySelectorAll(
+    "[data-slot=document-layout-meta-dot]",
+  );
+  expect(dots).toHaveLength(3);
+  for (const dot of dots) expect(dot.getAttribute("aria-hidden")).toBe("true");
+  const badge = screen.container.querySelector("[data-slot=badge]")!;
+  expect(badge.getAttribute("title")).toBe("Verified · Oct 14");
+  expect(badge.textContent).toBe("Verified · Oct 14");
   await expectNoA11yViolations(screen.container);
 });
