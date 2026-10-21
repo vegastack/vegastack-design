@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.25.60
+
+### Patch Changes
+
+- [#704](https://github.com/vegastack/vegastack-design/pull/704) [`a32b576`](https://github.com/vegastack/vegastack-design/commit/a32b57651572a14067278edff317e17de19621c2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **TextEdit**: choosing a type in the block menu's **Turn into** closes the menu, and a menu whose block left the page closes with it, so the block grip never disappears for the rest of the page. ⌘/ (Ctrl+/) opens the block menu for the caret's block, as ⇧F10 does. ⌘K and the image, video, audio and file panels refuse text that isn't a link, inline: they take a web address, a bare domain, `mailto:`/`tel:` (links only) or a path, never saving "https://not a url". Replacing an image, by upload, import or link, keeps its alt text and caption. Choosing an insert panel's **Link** tab puts the caret in its field. **FileViewer**: a small image opens at its own size, never upscaled. **MermaidBlock**: a diagram that can't be drawn says "Couldn't draw this diagram — check line 2." with the parser's words behind **Details**.
+
+- [#698](https://github.com/vegastack/vegastack-design/pull/698) [`1d83aca`](https://github.com/vegastack/vegastack-design/commit/1d83aca03c9d1a75ca5837178c4f18e498286e76) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **TextEdit** pads a table's columns only up to 200 characters, so one very long cell no longer pads every row and a table's Markdown grows only with its content (ordinary tables are written exactly as before); writing a code span's edge spaces never changes another character the document holds; repeated headings never share an id. **MarkdownView** turns heading ids on when only `headingLinkHref` is passed, and reads Markdown with the same bounded rules as the editor, so long runs of unmatched `*`, `_`, `~`, unclosed links or unclosed toggles render in linear time; an empty checklist item (`- [x]`) is a checked task, as in the editor; a code block's final newline is kept when shown, copied and anchored; HTML read mode renders the editor's videos, toggles, mentions and callouts; a comment highlight over a mention or link never hides it from assistive technology or puts it inside a button; find keeps its matches when highlights reshape the text, folds the query exactly as the text (`ΟΣ`, `İ`) and covers a whole character a match ends inside; and the highlight layout is reported again when a highlight moves without the view resizing.
+
 ## 0.25.59
 
 ### Patch Changes
