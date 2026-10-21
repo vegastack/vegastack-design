@@ -260,7 +260,7 @@ Beside it, the same table in `MarkdownView`.
 ### Block handles
 
 The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a new place; a click on
-it (no drag), or <kbd>Shift</kbd> <kbd>F10</kbd> / the context-menu key for the caret's block, opens
+it (no drag), or <kbd>Mod</kbd> <kbd>/</kbd>, <kbd>Shift</kbd> <kbd>F10</kbd> or the context-menu key for the caret's block, opens
 the block menu: **Turn into** ▸ (the block types, **Callout** ▸ by tone, **Toggle**), **Duplicate**
 (<kbd>Mod</kbd> <kbd>D</kbd>), **Copy link** (headings, with `headingLinkHref`), **Copy as Markdown**,
 **Move up** / **Move down**, **Open by default** (toggles) and **Delete**. On a touch screen the handle
@@ -1014,6 +1014,7 @@ fires it with the current value. It's presentational only: the **host** decides 
 | <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.                                                                                                                    |
 | <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                                                                                                                                   |
 | <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                                                                                                                                          |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>/</kbd>                    | Open the block menu for the caret's block (as <kbd>Shift</kbd> + <kbd>F10</kbd> does outside a table); **Copy link** and **Copy as Markdown** there confirm with a toast.                                                                  |
 | <kbd>/</kbd>                                          | Open the slash menu.                                                                                                                                                                                                                       |
 | <kbd>Alt</kbd> + <kbd>Enter</kbd>                     | With the caret in (or at either end of) a comment highlight, open its thread (`onAnnotationClick`); elsewhere, unchanged.                                                                                                                  |
 | <kbd>Tab</kbd> (read-only)                            | Move to the next comment highlight (with `onAnnotationClick`); each highlight is one tab stop.                                                                                                                                             |

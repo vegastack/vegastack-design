@@ -69,8 +69,13 @@ test("draws a figure named by accTitle and keeps the last diagram on an error", 
     .toBe("error");
   expect(figure.element().querySelector("svg")).not.toBeNull();
   expect(screen.getByRole("status").element().textContent).toMatch(
-    /^Line 4: .+ Showing the last diagram that worked\.$/,
+    /^This change can't be drawn — check line 4\. Showing the last diagram that worked\.$/,
   );
+  // The parser's own words wait behind Details.
+  expect(
+    figure.element().querySelector("[data-slot=mermaid-block-detail] p")
+      ?.textContent,
+  ).toMatch(/\S/);
 });
 
 test("with no diagram that worked, it says so and shows the source", async () => {
@@ -82,8 +87,13 @@ test("with no diagram that worked, it says so and shows the source", async () =>
     .poll(() => figure.element().getAttribute("data-state"), { timeout: 10000 })
     .toBe("failed");
   expect(screen.getByRole("status").element().textContent).toMatch(
-    /^Couldn't draw this diagram\. Line 2: /,
+    /^Couldn't draw this diagram — check line 2\.$/,
   );
+  const detail = figure
+    .element()
+    .querySelector<HTMLDetailsElement>("[data-slot=mermaid-block-detail]")!;
+  expect(detail.open).toBe(false);
+  expect(detail.querySelector("p")?.textContent).toMatch(/\S/);
   expect(
     figure.element().querySelector("[data-slot=mermaid-block-source]")
       ?.textContent,

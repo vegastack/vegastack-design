@@ -31127,6 +31127,7 @@
               "name": "data-slot",
               "values": [
                 "mermaid-block",
+                "mermaid-block-detail",
                 "mermaid-block-print",
                 "mermaid-block-scroll",
                 "mermaid-block-skeleton",

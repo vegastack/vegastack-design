@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.59 sha256-4JdDD87akQstGxFz8iGz1RHDVgaxgHiJkVEEbvOlMHs=
+// @vegastack text-edit@0.25.59 sha256-jtZSImJJgR/KW6XyspJHS/zjkT8daWMkIewltbpOE8g=
 
 "use client";
 
@@ -4275,6 +4275,21 @@ function isVideoFileUrl(url: string): boolean {
   }
 }
 
+/**
+ * `content` (an image) keeping the alt text and caption of the image it replaces where it brings
+ * none of its own: Replace swaps the picture, never what was written about it.
+ */
+function keepImageText(
+  content: JSONContent,
+  replaced: PMNode | null | undefined,
+): JSONContent {
+  if (!replaced || content.type !== "image") return content;
+  const attrs = { ...content.attrs };
+  if (!attrs.alt) attrs.alt = replaced.attrs.alt ?? null;
+  if (!attrs.title) attrs.title = replaced.attrs.title ?? null;
+  return { ...content, attrs };
+}
+
 /** The image an upload or import replaces (an image's Replace): where it was, and its `src`. */
 interface ImageToReplace {
   pos: number;
@@ -5130,12 +5145,34 @@ function sanitizePastedHTML(html: string) {
     );
 }
 
-function normalizeHref(raw: string) {
+/**
+ * A typed link as an href, or null when it is not one. Taken: a web address (`http(s)://`), a bare
+ * domain (`example.com/page` → `https://`), `mailto:` and `tel:`, and a path or anchor inside the
+ * app (`/…`, `#…`). Anything else — words, another scheme — is refused, never saved as a broken
+ * `https://` link.
+ */
+function parseLink(raw: string): string | null {
   const value = raw.trim();
-  if (!value) return "";
-  if (/^(https?:|mailto:|tel:|\/|#)/i.test(value)) return value;
-  return `https://${value}`;
+  // Spaces never; a backslash never either (URL parsing reads `/\host` as another site).
+  if (!value || /[\s\\]/.test(value)) return null;
+  if (/^(?:\/(?!\/)|#)/.test(value)) return value;
+  if (/^(?:mailto|tel):\S/i.test(value)) return value;
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      return new URL(value).hostname ? value : null;
+    } catch {
+      return null;
+    }
+  }
+  return /^(?:localhost|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,})(?::\d{1,5})?(?:[/?#]\S*)?$/i.test(
+    value,
+  )
+    ? `https://${value}`
+    : null;
 }
+
+const LINK_INVALID =
+  "That isn't a link. Try example.com, a full web address, mailto: or a path starting with /.";
 
 /* ------------------------------------------------------------------------------------------------
  * Styling
@@ -5399,12 +5436,19 @@ function LinkPanel({
 }) {
   const current = (editor.getAttributes("link").href as string) ?? "";
   const [href, setHref] = React.useState(current);
+  const [invalid, setInvalid] = React.useState(false);
+  const errorId = React.useId();
   const formRef = useFocusOnShow<HTMLFormElement>((root) =>
     root.querySelector("input"),
   );
   const apply = (event: React.FormEvent) => {
     event.preventDefault();
-    const next = normalizeHref(href);
+    // Cleared: the link comes off. Not a link: say so here, and keep the panel open.
+    const next = href.trim() ? parseLink(href) : "";
+    if (next === null) {
+      setInvalid(true);
+      return;
+    }
     const chain = editor.chain().focus().extendMarkRange("link");
     if (!next) chain.unsetLink().run();
     else if (editor.state.selection.empty && !editor.isActive("link"))
@@ -5427,14 +5471,19 @@ function LinkPanel({
       onKeyDown={escapeTo(editor, onClose)}
       className={cn(
         MENU_SURFACE,
-        "flex w-80 max-w-[calc(100vw-1rem)] items-center gap-1",
+        "flex w-80 max-w-[calc(100vw-1rem)] flex-wrap items-center gap-1",
       )}
     >
       <Input
         aria-label="Link URL"
         placeholder="Paste or type a link"
         value={href}
-        onChange={(event) => setHref(event.target.value)}
+        onChange={(event) => {
+          setHref(event.target.value);
+          setInvalid(false);
+        }}
+        aria-invalid={invalid || undefined}
+        aria-describedby={invalid ? errorId : undefined}
         size="sm"
         className="min-w-0 flex-1"
       />
@@ -5475,6 +5524,15 @@ function LinkPanel({
             </Button>
           </MenuTip>
         </>
+      ) : null}
+      {invalid ? (
+        <p
+          id={errorId}
+          role="alert"
+          className="basis-full px-1 pb-0.5 text-xs text-destructive-text"
+        >
+          {LINK_INVALID}
+        </p>
       ) : null}
     </form>
   );
@@ -5648,6 +5706,14 @@ function MediaPanel({
     onUpload ? "upload" : "link",
   );
   const [src, setSrc] = React.useState("");
+  // Choosing the Link tab is choosing to type a link: the field takes focus.
+  const linkInputRef = React.useRef<HTMLInputElement>(null);
+  const pickedLinkRef = React.useRef(false);
+  React.useEffect(() => {
+    if (tab !== "link" || !pickedLinkRef.current) return;
+    pickedLinkRef.current = false;
+    linkInputRef.current?.focus();
+  }, [tab]);
   // The video panel's link: a YouTube or Loom link embeds; a video file link plays natively.
   const [error, setError] = React.useState<string | null>(null);
   const errorId = React.useId();
@@ -5663,7 +5729,12 @@ function MediaPanel({
     event.preventDefault();
     const url = src.trim();
     if (!url) return;
-    const safe = /^(https?:|\/)/i.test(url) ? url : `https://${url}`;
+    // A web address or a path: never an email, a phone number or an anchor.
+    const safe = parseLink(url);
+    if (safe === null || /^(?:mailto:|tel:|#)/i.test(safe)) {
+      setError(`That isn't a link. Paste the ${copy.label}'s web address.`);
+      return;
+    }
     if (kind === "image" && onLink?.(safe)) {
       onClose();
       return;
@@ -5691,10 +5762,14 @@ function MediaPanel({
       kind === "file" || selection instanceof NodeSelection
         ? { from: selection.from, to: selection.to }
         : blockInsertRange(editor.state, selection.from);
+    const replaced =
+      selection instanceof NodeSelection && selection.node.type.name === "image"
+        ? selection.node
+        : null;
     editor
       .chain()
       .focus(undefined, { scrollIntoView: false })
-      .insertContentAt(target, content)
+      .insertContentAt(target, keepImageText(content, replaced))
       .run();
     onClose();
   };
@@ -5702,6 +5777,7 @@ function MediaPanel({
     <form onSubmit={insert} className="flex flex-col gap-1">
       <div className="flex items-center gap-1">
         <Input
+          ref={linkInputRef}
           aria-label={`${copy.label[0]!.toUpperCase()}${copy.label.slice(1)} URL`}
           placeholder={
             embedding ? "Paste a YouTube, Loom or video link" : copy.url
@@ -5747,7 +5823,10 @@ function MediaPanel({
       {onUpload ? (
         <Tabs
           value={tab}
-          onValueChange={(next) => setTab(next as "upload" | "link")}
+          onValueChange={(next) => {
+            pickedLinkRef.current = next === "link";
+            setTab(next as "upload" | "link");
+          }}
         >
           <TabsList variant="line">
             <TabsTrigger value="upload">Upload</TabsTrigger>
@@ -8567,6 +8646,8 @@ function BlockMenuItems({
                 <DropdownMenuCheckboxItem
                   key={type.key}
                   checked={choices.current === type.key}
+                  // A choice made: the menu closes (its block is rebuilt as the new type).
+                  closeOnClick
                   onClick={type.run}
                 >
                   <type.icon />
@@ -8590,6 +8671,7 @@ function BlockMenuItems({
                         choices.current === "callout" &&
                         block.node.attrs.tone === tone.key
                       }
+                      closeOnClick
                       onClick={tone.run}
                     >
                       <tone.icon />
@@ -8600,6 +8682,7 @@ function BlockMenuItems({
               </DropdownMenuSub>
               <DropdownMenuCheckboxItem
                 checked={choices.current === "toggle"}
+                closeOnClick
                 onClick={choices.toggle}
               >
                 <ListCollapse />
@@ -8891,7 +8974,11 @@ function BlockHandle({
     };
     const onKey = (event: KeyboardEvent) => {
       const menuKey =
-        event.key === "ContextMenu" || (event.shiftKey && event.key === "F10");
+        event.key === "ContextMenu" ||
+        (event.shiftKey && event.key === "F10") ||
+        ((event.metaKey || event.ctrlKey) &&
+          !event.altKey &&
+          event.key === "/");
       // In a table its own controls answer (TableControls).
       if (menuKey && !inTableCell(editor.state)) {
         const block = caretBlock(editor);
@@ -8923,6 +9010,31 @@ function BlockHandle({
   }, [editor, show, hideSoon, pinnedRef, coarse, openMenu]);
 
   const block = value && value.dom.isConnected ? value : null;
+  // The open dropdown's block went from the page (Turn into rebuilt it, a collaborator deleted it):
+  // the dropdown goes with its trigger, so close the menu here — its own close never fires, and a
+  // menu left "open" would pin the handle off for good.
+  const lost = menu !== null && !coarse && block === null;
+  React.useEffect(() => {
+    if (lost) closeMenu();
+  }, [lost, closeMenu]);
+  // While the menu is open, every change (a collaborator's too) checks its block: gone, the menu
+  // closes; redrawn, the grip moves to its new element, so the open dropdown keeps its trigger.
+  React.useEffect(() => {
+    if (!menu) return;
+    const follow = () => {
+      const now = menu.live();
+      if (!now) {
+        closeMenu();
+        return;
+      }
+      const dom = editor.view.nodeDOM(now.pos);
+      if (!coarse && dom instanceof HTMLElement) show({ ...now, dom });
+    };
+    editor.on("transaction", follow);
+    return () => {
+      editor.off("transaction", follow);
+    };
+  }, [menu, coarse, editor, closeMenu, show]);
   const box = block?.dom.getBoundingClientRect();
   // A bullet or number sits in the list's start padding, outside the item's box; clear it. A
   // heading's `#` link sits where the grip would (`HeadingLink`), and a marked section's dot
@@ -8995,6 +9107,9 @@ function BlockHandle({
               data-slot="text-edit-block-handle"
               aria-label="Block options"
               title="Drag to move · click for options"
+              // Off the tab order (it follows the pointer); the keyboard opens the same menu for the
+              // caret's block with ⌘/ or ⇧F10.
+              aria-keyshortcuts="Meta+/ Control+/ Shift+F10"
               tabIndex={-1}
               onMouseEnter={keep}
               onMouseLeave={hideSoon}
@@ -9883,7 +9998,7 @@ export function TextEditEditor({
         const at = target?.get() ?? null;
         const node = at === null ? null : state.doc.nodeAt(at);
         return node?.type.name === "image" && node.attrs.src === replace?.src
-          ? { from: at!, to: at! + node.nodeSize }
+          ? { from: at!, to: at! + node.nodeSize, node }
           : null;
       };
       // An image's size, read from the file while it uploads: stored with it, so its box is
@@ -9911,11 +10026,12 @@ export function TextEditEditor({
         current
           .chain()
           .insertContentAt(
-            swap ??
-              (content.type === "text"
+            swap
+              ? { from: swap.from, to: swap.to }
+              : content.type === "text"
                 ? at!
-                : blockInsertRange(current.state, at!)),
-            content,
+                : blockInsertRange(current.state, at!),
+            keepImageText(content, swap?.node),
           )
           .run();
         commitNow();
@@ -10112,15 +10228,22 @@ export function TextEditEditor({
         );
         if (at === null || !content) return;
         let range = blockInsertRange(current.state, at);
+        let replaced: PMNode | null = null;
         if (replace) {
           const from = target?.get() ?? null;
-          const node = from === null ? null : current.state.doc.nodeAt(from);
+          replaced = from === null ? null : current.state.doc.nodeAt(from);
           // The image to replace is gone (removed or changed meanwhile): nothing lands.
-          if (node?.type.name !== "image" || node.attrs.src !== replace.src)
+          if (
+            replaced?.type.name !== "image" ||
+            replaced.attrs.src !== replace.src
+          )
             return;
-          range = { from: from!, to: from! + node.nodeSize };
+          range = { from: from!, to: from! + replaced.nodeSize };
         }
-        current.chain().insertContentAt(range, content).run();
+        current
+          .chain()
+          .insertContentAt(range, keepImageText(content, replaced))
+          .run();
         commitNow();
       };
       const run = () =>

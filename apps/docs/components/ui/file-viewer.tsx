@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.25.59 sha256-9WBq4JW2bULHn8iCJJWDaIMg+iQveMX6hwDriFwKN9Q=
+// @vegastack file-viewer@0.25.59 sha256-h2CqsGoEZFHRp9PbG/88qWqGryrxnQb5Ap6kZ+ejVuw=
 
 "use client";
 
@@ -781,7 +781,7 @@ function ImageStage({
           draggable={false}
           onLoad={() => setLoaded(true)}
           onError={onFail}
-          className="size-full bg-transparent [&_[data-slot=image-img]]:object-contain [&_[data-slot=image-placeholder]]:scale-100 [&_[data-slot=image-placeholder]]:bg-contain [&_[data-slot=image-placeholder]]:bg-no-repeat [&_[data-slot=image-skeleton]]:hidden"
+          className="size-full bg-transparent [&_[data-slot=image-img]]:object-scale-down [&_[data-slot=image-placeholder]]:scale-100 [&_[data-slot=image-placeholder]]:bg-contain [&_[data-slot=image-placeholder]]:bg-no-repeat [&_[data-slot=image-skeleton]]:hidden"
         />
       </div>
       {!loaded && !placeholder ? (

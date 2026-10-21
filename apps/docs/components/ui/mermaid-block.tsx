@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.59 sha256-yMwNGLg7Y++DGCxC8jGzRtSTjCeQrPaTJKKhzADI6oo=
+// @vegastack mermaid-block@0.25.59 sha256-gZUEJuq62lWk/Ve4pp6s7A484yqYPs2IKUh+r6v4Tq4=
 
 "use client";
 
@@ -774,11 +774,12 @@ export function MermaidBlock({
   }, [svg, error, pending, source, theme]);
 
   const failed = !svg && error !== null;
-  const where = error?.line ? `Line ${error.line}: ` : "";
+  // One calm sentence pointing at the line; the parser's own words sit behind Details.
+  const check = error?.line ? `check line ${error.line}` : "check its source";
   const status = error
     ? svg
-      ? `${where}${error.message} Showing the last diagram that worked.`
-      : `Couldn't draw this diagram. ${where}${error.message}`
+      ? `This change can't be drawn — ${check}. Showing the last diagram that worked.`
+      : `Couldn't draw this diagram — ${check}.`
     : "";
   const state = svg
     ? error
@@ -883,6 +884,20 @@ export function MermaidBlock({
       >
         {status}
       </p>
+      {error ? (
+        <details
+          data-slot="mermaid-block-detail"
+          className={cn(
+            "px-4 text-xs text-muted-foreground print:hidden",
+            failed ? "order-first pt-1" : "pb-3",
+          )}
+        >
+          <summary className="w-fit cursor-pointer select-none hover:text-foreground">
+            Details
+          </summary>
+          <p className="m-0 pt-1">{error.message}</p>
+        </details>
+      ) : null}
     </figure>
   );
 }

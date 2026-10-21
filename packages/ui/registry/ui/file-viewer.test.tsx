@@ -1,8 +1,9 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import geometryCss from "../../test/geometry.css?inline";
 import {
   FileViewer,
   parseCsv,
@@ -711,4 +712,29 @@ test("an Office file over 20 MB, or one that fails to read, shows the Download c
     .element(screen.getByRole("link", { name: "Download", exact: true }))
     .toHaveAttribute("href", "/d/broken");
   await expect.poll(kindShown).toBe("card");
+});
+
+test("a small image opens at its natural size, never upscaled, inside the viewport", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(<Harness initial={0} />);
+  await expect
+    .element(screen.getByRole("dialog", { name: "kitchen.jpg" }))
+    .toBeVisible();
+  const image = await vi.waitFor(() => {
+    const img = document.querySelector<HTMLImageElement>(
+      '[data-slot="file-viewer-image"] [data-slot="image-img"]',
+    );
+    expect(img?.complete && img.naturalWidth).toBeTruthy();
+    return img!;
+  });
+  // `scale-down`: its 40×30 pixels drawn as they are, never stretched to the stage.
+  expect(getComputedStyle(image).objectFit).toBe("scale-down");
+  const stage = document
+    .querySelector('[data-slot="file-viewer-image"]')!
+    .getBoundingClientRect();
+  expect(stage.bottom).toBeLessThanOrEqual(window.innerHeight);
+  expect(stage.right).toBeLessThanOrEqual(window.innerWidth);
 });
