@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.58 sha256-58LVhx3Fg/QhKVpn5lm7FlhLlUiDAvvReaS+uLS5Ivg=
+// @vegastack editable-cell@0.25.58 sha256-adzFHhgyA0m5lrqWt7HWUhns7L/8SUg7bmXC2psFOXw=
 
 "use client";
 
@@ -144,7 +144,15 @@ export interface EditableCellEditorProps {
  * rendering its own control against the same commit/cancel contract.
  */
 export type EditableCellEditor =
-  | { type: "text"; placeholder?: string }
+  | {
+      type: "text";
+      placeholder?: string;
+      /**
+       * The most characters the value may hold (the field's `maxlength`). Typing stops there, a
+       * paste keeps what fits and says so, and a quiet `n/max` count shows from 90% of it.
+       */
+      maxLength?: number;
+    }
   | {
       type: "number";
       /** A unit shown muted after the value and inside the edit box, e.g. `"mm"`. */
@@ -401,6 +409,10 @@ interface InlineTextEditorProps {
   validate?: (draft: string) => boolean;
   /** Called when a commit was refused by `validate`. */
   onInvalid?: (draft: string) => void;
+  /** The field's `maxlength`: a count shows near it, and a paste cut to fit says so. */
+  maxLength?: number;
+  /** A paste was cut to fit `maxLength` (the cell announces it). */
+  onClipped?: () => void;
 }
 
 /**
@@ -445,6 +457,8 @@ function InlineTextEditor({
   suffix,
   validate,
   onInvalid,
+  maxLength,
+  onClipped,
 }: InlineTextEditorProps) {
   const box = bare ? bareBoxClasses : boxClasses;
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
@@ -507,12 +521,57 @@ function InlineTextEditor({
     edit.onKeyDown(event);
   };
 
+  // `maxLength`: the count from 90% of it, and a paste that was cut to fit says so until the next
+  // change (a paste's own change keeps it).
+  const [clipped, setClipped] = React.useState(false);
+  React.useEffect(() => {
+    if (!isEditing) setClipped(false);
+  }, [isEditing]);
+  const counted =
+    isEditing &&
+    maxLength !== undefined &&
+    (clipped || edit.draft.length >= maxLength * 0.9);
+  const onDraftChange = (next: string) => {
+    setClipped(false);
+    edit.setDraft(next);
+  };
+  /**
+   * A paste the field's `maxlength` cut short: measured once the browser has inserted what fit
+   * (the next task), against the field as it now holds it. Engines differ on a single-line field's
+   * line breaks (Chromium makes them spaces) and refuse half a surrogate pair at the limit, so a
+   * break counts as one character and a field one short of the limit counts as full.
+   */
+  const onPaste = (
+    event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    if (maxLength === undefined) return;
+    const field = event.currentTarget;
+    const kept =
+      field.value.length -
+      ((field.selectionEnd ?? 0) - (field.selectionStart ?? 0));
+    const pasted = event.clipboardData
+      .getData("text/plain")
+      .replace(/\r\n?/g, "\n");
+    setTimeout(() => {
+      if (
+        field.value.length >= maxLength - 1 &&
+        field.value.length - kept < pasted.length
+      ) {
+        setClipped(true);
+        onClipped?.();
+      }
+    }, 0);
+  };
+
   const fieldProps = {
     "data-slot": "editable-cell-input",
     "aria-label": name === "value" ? "Edit value" : name,
+    "aria-describedby": counted ? `${textId}-count` : undefined,
     value: edit.draft,
     placeholder,
     inputMode,
+    maxLength,
+    onPaste,
     "aria-invalid": invalid || undefined,
     onBlur: () => {
       if (accepts(edit.draft)) edit.commit();
@@ -630,7 +689,7 @@ function InlineTextEditor({
             ref={edit.editRef}
             rows={1}
             {...fieldProps}
-            onChange={(event) => edit.setDraft(event.target.value)}
+            onChange={(event) => onDraftChange(event.target.value)}
           />
         ) : (
           <input
@@ -638,12 +697,25 @@ function InlineTextEditor({
             type="text"
             {...fieldProps}
             onChange={(event) => {
-              edit.setDraft(event.target.value);
+              onDraftChange(event.target.value);
               if (invalid && validate?.(event.target.value.trim()))
                 setInvalid(false);
             }}
           />
         )
+      ) : null}
+      {counted ? (
+        // Under the box, over what follows, as wide as the box: nothing moves when it shows and it
+        // never leaves the box's side. The count is the field's description; a paste cut to fit
+        // is announced by the cell.
+        <span
+          id={`${textId}-count`}
+          data-slot="editable-cell-count"
+          className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 font-sans text-xs font-normal text-end text-pretty wrap-anywhere text-muted-foreground tabular-nums"
+        >
+          {edit.draft.length}/{maxLength}
+          {clipped ? ` · Only the first ${maxLength} characters fit` : null}
+        </span>
       ) : null}
     </span>
   );
@@ -957,6 +1029,12 @@ export function EditableCell({
             : handleCommit
         }
         inputMode={number ? "decimal" : undefined}
+        maxLength={editor.type === "text" ? editor.maxLength : undefined}
+        onClipped={() =>
+          setAnnouncement(
+            `Only the first ${editor.type === "text" ? editor.maxLength : ""} characters fit`,
+          )
+        }
         suffix={number?.unit}
         validate={
           number
