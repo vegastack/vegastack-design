@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.25.61 sha256-R4Q/UKPLjv4leEBk8a/b5NMBXkh1+lqDYnfTTpWYEfA=
+// @vegastack sidebar@0.25.61 sha256-VqhhIRPWVIeKiymvvZWyTVTxbn5s4zeBE4YrglrwT9I=
 
 "use client";
 
@@ -67,19 +67,28 @@ function scriptLiteral(value: string) {
  * `<html>` with `data-sidebar-state`, and gives the desktop panel the `data-state` and
  * `data-collapsible` the sidebar's own recipes read, so a collapsed panel paints collapsed.
  * `collapsible` must match the `Sidebar`'s. The provider and `useSidebarCookieOpen` start from
- * that mark, so hydration agrees with the screen. Under a nonce-based Content Security Policy,
+ * that mark, so hydration agrees with the screen. `collapsedWhen` (a media query) starts a panel
+ * nobody has opened or closed yet — no cookie — collapsed in a window it matches, and keeps that
+ * start in the cookie: a default that depends on the width is decided before the first paint,
+ * never by collapsing the panel after hydration. Under a nonce-based Content Security Policy,
  * pass the request's `nonce`.
  */
 function SidebarStateScript({
   cookieName = SIDEBAR_COOKIE_NAME,
   collapsible = "offcanvas",
+  collapsedWhen,
   nonce,
 }: {
   cookieName?: string;
   collapsible?: "offcanvas" | "icon" | "none";
+  /**
+   * A media query: with no cookie yet, a window it matches starts collapsed (and the cookie
+   * records it). @default undefined
+   */
+  collapsedWhen?: string;
   nonce?: string;
 }) {
-  const source = `(function(n,m){try{if(document.cookie.split(/;\\s*/).indexOf(n+"=false")<0)return;var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)})`;
+  const source = `(function(n,m,q){try{var c=document.cookie.split(/;\\s*/);if(c.indexOf(n+"=false")<0){var chosen=c.some(function(p){return p.indexOf(n+"=")===0});if(chosen||!q||!window.matchMedia(q).matches)return;document.cookie=n+"=false; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax"}var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)},${collapsedWhen ? scriptLiteral(collapsedWhen) : "null"})`;
   return (
     <script
       data-slot="sidebar-state-script"
