@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.62 sha256-OoPG+sa5biM8y58hxBA1Gz0m+B4WqMwkSB2AptHWNtk=
+// @vegastack mermaid-block@0.25.62 sha256-SlvyVoV5CrCxgImqvYjbX8brBfdMOlS0z++bA+4yO+4=
 
 "use client";
 
@@ -889,10 +889,10 @@ export function MermaidBlock({
           data-slot="mermaid-block-detail"
           className={cn(
             "px-4 text-xs text-muted-foreground print:hidden",
-            failed ? "order-first pt-1" : "pb-3",
+            failed ? "order-first py-1" : "pb-3",
           )}
         >
-          <summary className="w-fit cursor-pointer select-none hover:text-foreground">
+          <summary className="flex min-h-6 w-fit cursor-pointer items-center select-none hover:text-foreground">
             Details
           </summary>
           <p className="m-0 pt-1">{error.message}</p>
