@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.64 sha256-kJC2uJGOtD/qU79bSNc6TK/++EYsL0VK2YssDiSZx0I=
+// @vegastack email-kit@0.25.65 sha256-tgBKnj613Rv7g1nahWuv+B6WEVlt0pWZEeDi5nA13yE=
 
 import type { ReactElement } from "react";
 import { render, toPlainText } from "react-email";
