@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.63 sha256-vsjT3S8cDpWiyGO9HeuhHQnxIp8XSvxiOBdv3gNCtlM=
+// @vegastack text-edit@0.25.63 sha256-y6HDQ8e7emlwGccLlBktBwfBQTQ4GWLUYc40Bd9giuE=
 
 "use client";
 
@@ -1290,7 +1290,8 @@ export interface TextEditProps {
    * A target's state, by kind and id: `{ done: true }` gives a finished task's chip its check (a
    * task chip shows the task glyph otherwise); `{ struck: true, status: "Canceled" }` strikes the
    * chip's label through and adds a small status tag. Read at render, like `mentionLabel`; chips
-   * re-render when this function changes. `null` for a plain chip.
+   * re-render when this function changes. `null` leaves the chip to the `InlineChipProvider`'s
+   * `state`; `{}` is a plain chip. Any state given here replaces the provider's whole answer.
    * @default undefined
    */
   mentionStatus?: (

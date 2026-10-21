@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.63 sha256-RdefEA47X53rWnGIdIu6Lwti6DZppDN8IskfoaPcxUY=
+// @vegastack markdown-view@0.25.63 sha256-/I1N2UV28R9176urs+yE+7sg1NDDzpfuNfmnjNHNGkg=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -366,6 +366,10 @@ export function MarkdownTaskList({
                   targetId={row.id}
                   label={row.label}
                   href={mentionHref ? mentionHref("task", row.id) : undefined}
+                  // The row is a snapshot: its checkbox and status say its state, never the
+                  // provider's live one.
+                  done={false}
+                  struck={false}
                 />
               ) : (
                 <span className="min-w-0">{row.label}</span>
@@ -2504,8 +2508,9 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * A target's state, by kind and id: `{ done: true }` gives a finished task's chip its check (a
    * task chip shows the task glyph otherwise); `{ struck: true, status: "Canceled" }` strikes the
-   * chip's label through and adds a small status tag (a canceled or duplicate task). `null` for a
-   * plain chip.
+   * chip's label through and adds a small status tag (a canceled or duplicate task). `null` leaves
+   * the chip to the `InlineChipProvider`'s `state`; `{}` is a plain chip. Any state given here
+   * replaces the provider's whole answer.
    * @default undefined
    */
   mentionStatus?: (

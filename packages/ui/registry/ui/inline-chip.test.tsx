@@ -251,6 +251,14 @@ test("the provider's state shows on every surface — a bare chip, a rendered bo
       <div data-testid="edit">
         <TextEdit format="markdown" aria-label="Notes" defaultValue={body} />
       </div>
+      <div data-testid="own">
+        <MarkdownView mentionStatus={(_, id) => (id === "t-done" ? {} : null)}>
+          {body}
+        </MarkdownView>
+      </div>
+      <div data-testid="restricted">
+        <InlineChip kind="task" targetId="restricted:t-done" label="Hidden" />
+      </div>
     </InlineChipProvider>,
   );
   const chips = (id: string) =>
@@ -283,4 +291,12 @@ test("the provider's state shows on every surface — a bare chip, a rendered bo
   expect(screen.getByTestId("view").element().textContent).toContain(
     "Canceled",
   );
+  // A surface's own answer wins (`{}`: plain); `null` leaves the chip to the provider.
+  expect(chips("own")).toEqual([
+    [false, false],
+    [false, true],
+    [false, false],
+  ]);
+  // A restricted target shows no state.
+  expect(chips("restricted")).toEqual([[false, false]]);
 });
