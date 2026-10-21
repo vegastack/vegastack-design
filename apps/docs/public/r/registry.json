@@ -18332,7 +18332,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.61",
-        "integrity": "sha256-5fQq00WqrJ0765OyDQfFFM6PjKDqbIeq+YvyzoxMBdo="
+        "integrity": "sha256-prTZcbQ3OzP5T2owQfk/R3DzeYb1KxZmkqnoFFfiJEM="
       }
     },
     {
@@ -19150,7 +19150,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.61",
-        "integrity": "sha256-eljWJ+JwUKkA+p1G0Ck2Cn2WNaPdp+YLZJAVkB0AIGQ="
+        "integrity": "sha256-rqmLy0VI3xIxvex36bgZucaNLMSgoN4azIRsjmlkdZc="
       }
     },
     {

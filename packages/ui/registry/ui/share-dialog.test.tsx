@@ -1,9 +1,10 @@
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, expect, onTestFinished, test, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/stacking.css";
+import geometryCss from "../../test/geometry.css?inline";
 // The block's demo is this suite's stateful fixture: it wires the dialog to sample state, so a
 // level change, a removal or a publish round-trips the way a host app's would.
 import { ShareDemo } from "../blocks/share-01/components/share-demo";
@@ -610,4 +611,24 @@ test("share-dialog: without public links the Share tab shows, even when Publish 
   await vi.waitFor(() =>
     expect(picker()?.checkVisibility({ visibilityProperty: true })).toBe(true),
   );
+});
+
+test("share-dialog at 320px: nothing runs past the sheet's edge, on either tab", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await page.viewport(320, 740);
+  for (const tab of ["share", "publish"] as const) {
+    const screen = await render(<ShareDemo defaultOpen defaultTab={tab} />);
+    const dialog = screen.getByRole("dialog", { name: "Share" });
+    await expect.element(dialog).toBeVisible();
+    const overflow = [
+      ...(dialog.element() as HTMLElement).querySelectorAll<HTMLElement>("*"),
+    ].filter(
+      (el) => el.getBoundingClientRect().right > window.innerWidth + 0.5,
+    );
+    expect(overflow.map((el) => el.dataset.slot ?? el.tagName)).toEqual([]);
+    screen.unmount();
+  }
 });
