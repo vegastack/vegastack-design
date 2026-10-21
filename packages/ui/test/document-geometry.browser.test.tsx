@@ -16,6 +16,7 @@ import {
   DocumentLayoutMetaField,
   DocumentLayoutMetaGroup,
   DocumentLayoutMetaItem,
+  DocumentLayoutMetaLink,
   DocumentLayoutSkeleton,
   DocumentLayoutTitle,
   DocumentLayoutTitleGroup,
@@ -679,4 +680,50 @@ test("on a phone the status row is two lines from the first paint; the clipped r
     "[data-slot=document-layout-meta-dot]",
   )!;
   expect(dot.getBoundingClientRect().right).toBeLessThanOrEqual(box.left + 1);
+});
+
+test("a nowrap fact stays on one line with its link truncated, a plain fact wraps whole, and meta lines print", async () => {
+  await page.viewport(1440, 900);
+  await render(
+    <div style={{ width: 320 }}>
+      <DocumentLayoutMeta>
+        <DocumentLayoutMetaItem nowrap>
+          From meeting
+          <DocumentLayoutMetaLink href="#m">
+            A very long weekly product sync about the lighting range and its
+            accessories
+          </DocumentLayoutMetaLink>
+          · Oct 14
+        </DocumentLayoutMetaItem>
+        <DocumentLayoutMetaItem>
+          <span>
+            Updated yesterday by Alexandra Montgomery from the platform
+            engineering team
+          </span>
+        </DocumentLayoutMetaItem>
+      </DocumentLayoutMeta>
+    </div>,
+  );
+  const [item, plain] = [
+    ...document.querySelectorAll<HTMLElement>(
+      "[data-slot=document-layout-meta-item]",
+    ),
+  ];
+  expect(item!.getBoundingClientRect().height).toBeLessThanOrEqual(20);
+  // A long plain fact wraps inside the line's width rather than running past the clip.
+  const box = slot("document-layout-meta").getBoundingClientRect();
+  expect(plain!.getBoundingClientRect().height).toBeGreaterThan(20);
+  expect(plain!.getBoundingClientRect().right).toBeLessThanOrEqual(
+    box.right + 1,
+  );
+  const link = slot("document-layout-meta-link");
+  expect(link.scrollWidth).toBeGreaterThan(link.clientWidth);
+  await cdp().send("Emulation.setEmulatedMedia", { media: "print" });
+  try {
+    expect(getComputedStyle(slot("document-layout-meta")).display).not.toBe(
+      "none",
+    );
+  } finally {
+    await cdp().send("Emulation.setEmulatedMedia", { media: "" });
+  }
 });

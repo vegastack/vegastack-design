@@ -30204,6 +30204,10 @@
         "DocumentLayoutMetaItem": {
           "attributes": [
             {
+              "name": "data-nowrap",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["document-layout-meta-item"]
             },
