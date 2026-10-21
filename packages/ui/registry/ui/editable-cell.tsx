@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.58 sha256-58LVhx3Fg/QhKVpn5lm7FlhLlUiDAvvReaS+uLS5Ivg=
+// @vegastack editable-cell@0.25.58 sha256-adzFHhgyA0m5lrqWt7HWUhns7L/8SUg7bmXC2psFOXw=
 
 "use client";
 
@@ -537,8 +537,9 @@ function InlineTextEditor({
   };
   /**
    * A paste the field's `maxlength` cut short: measured once the browser has inserted what fit
-   * (the next task), as the field now holds it — so a paste that fit, one that changed nothing in
-   * a field with room, and the field's own newline handling are never reported.
+   * (the next task), against the field as it now holds it. Engines differ on a single-line field's
+   * line breaks (Chromium makes them spaces) and refuse half a surrogate pair at the limit, so a
+   * break counts as one character and a field one short of the limit counts as full.
    */
   const onPaste = (
     event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -548,14 +549,12 @@ function InlineTextEditor({
     const kept =
       field.value.length -
       ((field.selectionEnd ?? 0) - (field.selectionStart ?? 0));
-    const raw = event.clipboardData.getData("text/plain");
-    const pasted =
-      field instanceof HTMLTextAreaElement
-        ? raw.replace(/\r\n?/g, "\n")
-        : raw.replace(/[\r\n]/g, "");
+    const pasted = event.clipboardData
+      .getData("text/plain")
+      .replace(/\r\n?/g, "\n");
     setTimeout(() => {
       if (
-        field.value.length >= maxLength &&
+        field.value.length >= maxLength - 1 &&
         field.value.length - kept < pasted.length
       ) {
         setClipped(true);
@@ -712,7 +711,7 @@ function InlineTextEditor({
         <span
           id={`${textId}-count`}
           data-slot="editable-cell-count"
-          className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 font-sans text-xs font-normal text-end text-pretty text-muted-foreground tabular-nums"
+          className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 font-sans text-xs font-normal text-end text-pretty wrap-anywhere text-muted-foreground tabular-nums"
         >
           {edit.draft.length}/{maxLength}
           {clipped ? ` · Only the first ${maxLength} characters fit` : null}

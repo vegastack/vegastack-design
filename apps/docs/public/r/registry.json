@@ -2416,7 +2416,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.58",
-        "integrity": "sha256-58LVhx3Fg/QhKVpn5lm7FlhLlUiDAvvReaS+uLS5Ivg="
+        "integrity": "sha256-adzFHhgyA0m5lrqWt7HWUhns7L/8SUg7bmXC2psFOXw="
       }
     },
     {
