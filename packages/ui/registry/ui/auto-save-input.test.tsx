@@ -500,3 +500,19 @@ test("AutoSaveIndicator: a live document's connecting and offline states, worded
   );
   await expect.element(region).toHaveTextContent("Connecting");
 });
+
+test("AutoSaveIndicator compact=narrow keeps its words in the text slot it hides in a narrow bar", async () => {
+  const screen = await render(
+    <AutoSaveIndicator
+      status="offline"
+      compact="narrow"
+      labels={{ offline: "Offline — keep this tab open" }}
+    />,
+  );
+  const status = screen.getByRole("status");
+  await expect.element(status).toHaveAttribute("data-compact", "narrow");
+  expect(
+    status.element().querySelector("[data-slot=auto-save-indicator-text]")
+      ?.textContent,
+  ).toBe("Offline — keep this tab open");
+});

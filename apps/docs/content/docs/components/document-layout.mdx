@@ -182,6 +182,24 @@ this page" button floating at the window's bottom end — give it to `TableOfCon
 `trigger`. `DocumentLayoutTitle` takes `editable` when the title renames in place (the text cursor
 over the whole row).
 
+### Page tools
+
+The tools a page lays over or around its text, each without a class of your own:
+
+- `DocumentLayoutFindBar` — find in the text: a search field docked at the top of the text on a
+  band of the page's background, with where the find stands ("3 of 12") and Previous, Next and
+  Close (Enter, Shift+Enter, Escape). The host finds the matches; pass `highlights` (two CSS
+  Custom Highlight names) and the bar paints them.
+- `DocumentLayoutJumpCue` — "2 new comments ↓", a pill pinned to the bottom of the view while
+  something new is out of sight; it takes no room.
+- `DocumentLayoutFloatingButton` — a phone's one floating action ("Edit"), at the window's bottom
+  end, clear of the home indicator.
+- `DocumentLayoutStarters` with `DocumentLayoutStarter` pills — ways to start an empty page
+  ("Start from: Meeting notes · Spec · More templates…"; `more` for the quiet last one).
+- `DocumentLayoutNote` — a quiet line under the text.
+- `DocumentLayout focusable` — the canvas takes focus from a click in its read text (never a tab
+  stop) and shows no focus cue of its own.
+
 ### Skeleton
 
 `DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — an icon row
@@ -249,6 +267,11 @@ link prints its address.
 <ApiTable
   path="../../packages/ui/registry/ui/document-layout-meta.tsx"
   name="DocumentLayoutMetaBadgeProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout-tools.tsx"
+  name="DocumentLayoutFindBarProps"
 />
 
 `DocumentLayoutHeader`, `DocumentLayoutTitleGroup`, `DocumentLayoutBody` and `DocumentLayoutFoot`

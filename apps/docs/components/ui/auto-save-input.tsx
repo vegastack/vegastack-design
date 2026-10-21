@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.25.63 sha256-FrTnu8f7sgK61lD74J17q81hgr3IGYTqnrLj4zoEQeA=
+// @vegastack auto-save-input@0.25.63 sha256-vOriRsLFMjiME9xIy6lwNZFihLWtz0/7UDmFbFRoJZ4=
 
 "use client";
 
@@ -553,6 +553,12 @@ export interface AutoSaveIndicatorProps extends Omit<
    * @default 'text'
    */
   variant?: "text" | "icon";
+  /**
+   * `text` only: where the wording yields to the icon alone (still read out). `narrow` — below
+   * `sm` and in a narrow `AppShellHeader` (under 40rem), for a status in a top bar's actions.
+   * @default undefined
+   */
+  compact?: "narrow";
 }
 
 /**
@@ -577,6 +583,7 @@ export function AutoSaveIndicator({
   status,
   labels,
   variant = "text",
+  compact,
   className,
   ref,
   ...props
@@ -660,8 +667,12 @@ export function AutoSaveIndicator({
       aria-atomic="true"
       data-slot="auto-save-indicator"
       data-state={status}
+      data-compact={compact}
       className={cn(
         "inline-flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground",
+        // In a top bar: one line, the words read out but not shown where the bar is narrow.
+        compact === "narrow" &&
+          "shrink-0 whitespace-nowrap max-sm:[&>[data-slot=auto-save-indicator-text]]:sr-only @max-[40rem]/app-shell-header:[&>[data-slot=auto-save-indicator-text]]:sr-only",
         status === "error" && "text-warning-text",
         status === "conflict" && "text-warning-text",
         status === "offline" && "text-warning-text",
@@ -680,7 +691,11 @@ export function AutoSaveIndicator({
       ) : status === "offline" ? (
         <CloudOff aria-hidden className="size-4 shrink-0" />
       ) : null}
-      {text ? <span className="truncate">{text}</span> : null}
+      {text ? (
+        <span data-slot="auto-save-indicator-text" className="truncate">
+          {text}
+        </span>
+      ) : null}
     </span>
   );
 }

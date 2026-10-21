@@ -204,6 +204,7 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/input-group",
         "@vegastack/skeleton"
       ],
       "files": [
@@ -221,6 +222,11 @@
           "path": "packages/ui/registry/ui/document-layout-meta.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-meta.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-tools.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-tools.tsx"
         }
       ],
       "meta": {

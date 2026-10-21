@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.25.63 sha256-JZ7kyqRlYNRSSngmWVWYyFaOXxtc7rKJXDtAgQWS530=
+// @vegastack app-shell@0.25.63 sha256-DdkhwT9QSGwEtD7Ppw+5xVfg/jcXfgOT3gUb7plvavI=
 
 "use client";
 
@@ -284,6 +284,69 @@ export function AppShellHeader({
         </div>
       ) : null}
     </header>
+  );
+}
+
+/** Props accepted by `AppShellHeaderSlot`. */
+export type AppShellHeaderSlotProps = React.ComponentPropsWithRef<"span">;
+
+/**
+ * `AppShellHeaderSlot` — a fixed 32px place in the top bar's actions for something that arrives
+ * late or changes shape (a save status, a connection icon): reserved from the first paint, so the
+ * buttons beside it never move. Wider content grows it. A tooltip trigger can render as it.
+ *
+ * @example
+ * <AppShellHeaderSlot><AutoSaveIndicator variant="icon" status={status} /></AppShellHeaderSlot>
+ */
+export function AppShellHeaderSlot({
+  className,
+  ...props
+}: AppShellHeaderSlotProps) {
+  return (
+    <span
+      data-slot="app-shell-header-slot"
+      className={cn(
+        "flex h-8 min-w-8 shrink-0 items-center justify-center",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `AppShellHeaderShow`. */
+export interface AppShellHeaderShowProps extends React.ComponentPropsWithRef<"span"> {
+  /**
+   * When its content shows: `narrow` — only while the top bar is under 40rem (its own width, so a
+   * collapsed sidebar or a split view counts); `wide` — only from 40rem.
+   */
+  when: "narrow" | "wide";
+}
+
+/**
+ * `AppShellHeaderShow` — shows its content in the top bar by the bar's own width: the people
+ * stack's faces of their own in a narrow bar, say, where the wide bar shows them elsewhere.
+ *
+ * @example
+ * <AppShellHeaderShow when="narrow"><AvatarStack people={here} max={2} /></AppShellHeaderShow>
+ */
+export function AppShellHeaderShow({
+  when,
+  className,
+  ...props
+}: AppShellHeaderShowProps) {
+  return (
+    <span
+      data-slot="app-shell-header-show"
+      data-when={when}
+      className={cn(
+        when === "narrow"
+          ? "hidden items-center @max-[40rem]/app-shell-header:inline-flex"
+          : "inline-flex items-center @max-[40rem]/app-shell-header:hidden",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 

@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.63 sha256-TLbvVPTiwZTR1oWTPWmIAhZsjxPjMvmrAruVHfAMj+w=
+// @vegastack comments@0.25.63 sha256-qevgr0aWO5r9juMe/LN3uu2V4rVGLLYaMVIlWdl1lrc=
 
 "use client";
 
@@ -1229,6 +1229,11 @@ export interface CommentComposerProps {
    * it: the box draws the one border). @default "default"
    */
   size?: "default" | "sm";
+  /**
+   * A quiet line under the box (12px, muted) — what the draft will do, say "@Asha can't see this
+   * page yet". Not an error (that is `error`). @default undefined
+   */
+  hint?: React.ReactNode;
   /** Classes for the composer. @default undefined */
   className?: string;
 }
@@ -1266,6 +1271,7 @@ export function CommentComposer({
   hasFiles = false,
   compact = false,
   size = "default",
+  hint,
   className,
 }: CommentComposerProps) {
   const [generation, setGeneration] = React.useState(0);
@@ -1460,6 +1466,14 @@ export function CommentComposer({
       {error ? (
         <p role="alert" className="text-xs text-destructive">
           {error}
+        </p>
+      ) : null}
+      {hint ? (
+        <p
+          data-slot="comment-composer-hint"
+          className="text-xs text-muted-foreground"
+        >
+          {hint}
         </p>
       ) : null}
     </div>

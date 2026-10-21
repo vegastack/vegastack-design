@@ -1227,3 +1227,12 @@ test("a question has an amber bar, Needs your reply, and choices that answer it"
     viewer.container.querySelector("[data-slot=comment-choices]"),
   ).toBeNull();
 });
+
+test("CommentComposer hint shows a quiet line under the box", async () => {
+  const screen = await render(
+    <CommentComposer onSubmit={() => {}} hint="Asha can't see this page yet" />,
+  );
+  await expect
+    .element(screen.getByText("Asha can't see this page yet"))
+    .toHaveAttribute("data-slot", "comment-composer-hint");
+});

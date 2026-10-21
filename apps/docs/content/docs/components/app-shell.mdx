@@ -193,6 +193,29 @@ queries: no measuring script and no first-paint flash.
 </AppShellHeader>
 ```
 
+Two parts cover the common cases without a class of your own. `AppShellHeaderSlot` is a fixed
+32px place for something that arrives late or changes shape — a save status, a connection icon —
+reserved from the first paint so the buttons beside it never move (a tooltip trigger can render
+as it). `AppShellHeaderShow when="narrow"` shows its content only while the bar is under 40rem,
+and `when="wide"` only from 40rem.
+
+```tsx
+<AppShellHeader
+  actions={
+    <>
+      <AppShellHeaderShow when="narrow">
+        <AvatarStack people={here} max={2} />
+      </AppShellHeaderShow>
+      <AppShellHeaderSlot>
+        <AutoSaveIndicator variant="icon" status={status} />
+      </AppShellHeaderSlot>
+    </>
+  }
+>
+  …
+</AppShellHeader>
+```
+
 ### Skeleton
 
 `AppShellSkeleton` composes a full loading shell — a sidebar column, a header line, and a

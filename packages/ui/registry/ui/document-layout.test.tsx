@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   DocumentLayout,
@@ -9,14 +10,20 @@ import {
   DocumentLayoutFoot,
   DocumentLayoutHeader,
   DocumentLayoutMargin,
+  DocumentLayoutFindBar,
+  DocumentLayoutFloatingButton,
   DocumentLayoutIcon,
+  DocumentLayoutJumpCue,
   DocumentLayoutMeta,
   DocumentLayoutMetaBadge,
   DocumentLayoutMetaButton,
   DocumentLayoutMetaField,
   DocumentLayoutMetaGroup,
   DocumentLayoutMetaItem,
+  DocumentLayoutNote,
   DocumentLayoutSkeleton,
+  DocumentLayoutStarter,
+  DocumentLayoutStarters,
   DocumentLayoutTitle,
   DocumentLayoutTitleGroup,
 } from "./document-layout";
@@ -169,5 +176,88 @@ test("meta lines: every fact opens with a hidden dot; a fitted chip carries its 
   const badge = screen.container.querySelector("[data-slot=badge]")!;
   expect(badge.getAttribute("title")).toBe("Verified · Oct 14");
   expect(badge.textContent).toBe("Verified · Oct 14");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the find bar steps with Enter and Shift+Enter, closes with Escape, and paints only valid highlight names", async () => {
+  const onNext = vi.fn();
+  const onPrevious = vi.fn();
+  const onClose = vi.fn();
+  const screen = await render(
+    <DocumentLayoutFindBar
+      value="seat"
+      onValueChange={() => {}}
+      status="1 of 3"
+      hasMatches
+      onNext={onNext}
+      onPrevious={onPrevious}
+      onClose={onClose}
+      highlights={{ all: "doc-find", current: "doc-find-now" }}
+    />,
+  );
+  const field = screen.getByRole("searchbox", { name: "Find in page" });
+  await userEvent.click(field);
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
+  await userEvent.keyboard("{Escape}");
+  expect(onNext).toHaveBeenCalledTimes(1);
+  expect(onPrevious).toHaveBeenCalledTimes(1);
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(document.head.innerHTML + document.body.innerHTML).toContain(
+    "::highlight(doc-find-now)",
+  );
+  await expectNoA11yViolations(screen.container);
+  await screen.rerender(
+    <DocumentLayoutFindBar
+      value=""
+      onValueChange={() => {}}
+      hasMatches={false}
+      onNext={onNext}
+      onPrevious={onPrevious}
+      onClose={onClose}
+      highlights={{ all: "x}body{color:red", current: "y" }}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Next match" }))
+    .toBeDisabled();
+  expect(document.documentElement.innerHTML).not.toContain("x}body");
+  // No matches: Enter steps nowhere, and the (empty) status region is already mounted.
+  await userEvent.click(
+    screen.getByRole("searchbox", { name: "Find in page" }),
+  );
+  await userEvent.keyboard("{Enter}");
+  expect(onNext).toHaveBeenCalledTimes(1);
+  expect(
+    screen.container.querySelector("[data-slot=document-layout-find-status]"),
+  ).not.toBeNull();
+});
+
+test("page tools: the jump cue, starters, a note and the floating action render as named, real controls", async () => {
+  const onJump = vi.fn();
+  const screen = await render(
+    <>
+      <DocumentLayoutJumpCue onClick={onJump}>
+        2 new comments
+      </DocumentLayoutJumpCue>
+      <DocumentLayoutStarters
+        label="Start from:"
+        aria-label="Start from a template"
+      >
+        <DocumentLayoutStarter>Spec</DocumentLayoutStarter>
+        <DocumentLayoutStarter more>More templates…</DocumentLayoutStarter>
+      </DocumentLayoutStarters>
+      <DocumentLayoutNote>Asha can't see this page yet</DocumentLayoutNote>
+      <DocumentLayoutFloatingButton>Edit</DocumentLayoutFloatingButton>
+    </>,
+  );
+  await screen.getByRole("button", { name: "2 new comments" }).click();
+  expect(onJump).toHaveBeenCalled();
+  await expect
+    .element(screen.getByRole("group", { name: "Start from a template" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Edit" }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });

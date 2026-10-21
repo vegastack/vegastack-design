@@ -121,6 +121,20 @@ reduced motion swaps instantly.
   file="components/preview/auto-save-input.tsx"
 />
 
+### In a top bar
+
+`compact="narrow"` keeps a `text` indicator to one line and, below `sm` or in a narrow
+`AppShellHeader` (under 40rem), shows the icon alone — the words are still read out. Use it for a
+document's connection state ("Reconnecting…") among a top bar's actions.
+
+```tsx
+<AutoSaveIndicator
+  status="connecting"
+  compact="narrow"
+  labels={{ connecting: "Reconnecting…" }}
+/>
+```
+
 ### A whole form (useAutoSave)
 
 `useAutoSave` saves a form object rather than one field: debounced (600ms), only the changed
