@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.65
+
+### Patch Changes
+
+- [#723](https://github.com/vegastack/vegastack-design/pull/723) [`8044584`](https://github.com/vegastack/vegastack-design/commit/8044584936819923fa0fad543cf7a288b6b89de9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **EntryList** (new): a short, compact list of plain entries in a sheet, dialog or popover — `EntryList`, `Entry` (`row` · `stack`), `EntryMeta`, `EntryActions`. **Sheet**: `SheetSection`, `SheetSectionHeader`, `SheetSectionTitle`, `SheetSectionLabel`, `SheetSectionDescription`. **Popover**: `PopoverContent size` (`default` · `md` · `lg` · `fit`), `PopoverBody` (scrolls from 70% of the window), `PopoverAnchor` (an invisible trigger to point an opened-from-elsewhere popover), and `PopoverDescription` keeps line breaks and inks a `strong`. **Skeleton**: `SkeletonText` (`text` · `rows`). **Attachment**: `AttachmentSkeletons`, and `AttachmentDescription` sets numbers in tabular figures. **VersionList**: `headingHidden`. **Comments**: `CommentThreadSkeleton`. **DocumentLayout**: `DocumentLayoutDecisionBar` with its text and actions. **Badge**: a badge rendered as a button or link shows the pointer.
+
 ## 0.25.64
 
 ### Patch Changes

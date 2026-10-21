@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.64 sha256-20rHwRB5638Q1hXZ4uCy+t/srNBpxNJM8xt7dkqyoco=
+// @vegastack text-edit-schema@0.25.65 sha256-NTSWOuZ82zONAXOaUa7XUp7C3KfT7gRZfAjZAnr2RcU=
 
 import {
   Extension,
