@@ -6544,6 +6544,8 @@ test("embeds: inserting a video link puts the caret on a line after the embed â€
       box.element().querySelector('[data-slot="markdown-embed"]'),
     ).not.toBeNull(),
   );
+  // The panel hands focus back to the text before anything is typed.
+  await vi.waitFor(() => expect(document.activeElement).toBe(box.element()));
   await userEvent.keyboard("typed after");
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(`Intro\n\n${YOUTUBE}\n\ntyped after`),
@@ -6610,6 +6612,7 @@ test("image: inserted by link into an empty list item, the caret moves past it â
       box.element().querySelector('img[src="/files/pic.png"]'),
     ).not.toBeNull(),
   );
+  await vi.waitFor(() => expect(document.activeElement).toBe(box.element()));
   await userEvent.keyboard("after");
   await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("after"));
   expect(lastValue(onValueChange)).toContain("/files/pic.png");
