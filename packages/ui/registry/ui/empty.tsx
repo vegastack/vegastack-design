@@ -1,4 +1,4 @@
-// @vegastack empty@0.25.62 sha256-RZWQ/XnJdH81olTpUFClEpt+ZPoGVbtfo/l652KZmGo=
+// @vegastack empty@0.25.62 sha256-y8fDafhslVFQmYUzENYC+SCnd1YLMWhVcRN6S9K0BtY=
 
 "use client";
 
@@ -93,7 +93,10 @@ function EmptyTitle({
     defaultTagName: "div",
     props: mergeProps<"div">(
       {
-        className: cn("font-heading text-sm font-medium", className),
+        className: cn(
+          "font-heading text-sm font-medium wrap-anywhere",
+          className,
+        ),
       },
       props,
     ),
@@ -109,7 +112,7 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
     <div
       data-slot="empty-description"
       className={cn(
-        "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        "text-sm/relaxed text-muted-foreground wrap-anywhere [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         className,
       )}
       {...props}

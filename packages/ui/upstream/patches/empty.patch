@@ -1,5 +1,5 @@
 # component: empty
-# decisions: API-16, API-22, API-29, DOC-2, TYP-15
+# decisions: API-16, API-22, API-29, DOC-2, TYP-15, LAY-17
 # hunks:
 #   API-29: `Empty` takes `size="sm"` (`data-size`), the compact inline empty: a 16px padding, an
 #     8px gap and no media margin.
@@ -17,13 +17,15 @@
 #     `mergeProps` + `render` + `state.slot`) instead of a fixed `<div>`, so a page sets the heading
 #     level on the part (`render={<h2 />}`). The default tag, the `data-slot` and the class list are
 #     upstream's, unchanged.
+#   LAY-17: `EmptyTitle` and `EmptyDescription` take `wrap-anywhere`, so a long unbroken word (a
+#     quoted search, a long name) breaks inside the empty state instead of running past it.
 #   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
 #     throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..71922e1 100644
+index e11ce34..00054d9 100644
 --- a/empty.tsx
 +++ b/empty.tsx
 @@ -1,17 +1,42 @@
@@ -105,7 +107,7 @@ index e11ce34..71922e1 100644
  
  function EmptyMedia({
    className,
-@@ -51,20 +79,27 @@ function EmptyMedia({
+@@ -51,20 +79,30 @@ function EmptyMedia({
        className={cn(emptyMediaVariants({ variant, className }))}
        {...props}
      />
@@ -133,7 +135,10 @@ index e11ce34..71922e1 100644
 +    defaultTagName: "div",
 +    props: mergeProps<"div">(
 +      {
-+        className: cn("font-heading text-sm font-medium", className),
++        className: cn(
++          "font-heading text-sm font-medium wrap-anywhere",
++          className,
++        ),
 +      },
 +      props,
 +    ),
@@ -145,11 +150,13 @@ index e11ce34..71922e1 100644
  }
  
  function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
-@@ -73,11 +108,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -72,12 +110,12 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+     <div
        data-slot="empty-description"
        className={cn(
-         "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+-        "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
 -        className
++        "text-sm/relaxed text-muted-foreground wrap-anywhere [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
 +        className,
        )}
        {...props}
@@ -159,7 +166,7 @@ index e11ce34..71922e1 100644
  }
  
  function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -86,11 +121,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -86,11 +124,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="empty-content"
        className={cn(
          "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-sm text-balance",
@@ -173,7 +180,7 @@ index e11ce34..71922e1 100644
  }
  
  export {
-@@ -100,4 +135,4 @@ export {
+@@ -100,4 +138,4 @@ export {
    EmptyDescription,
    EmptyContent,
    EmptyMedia,

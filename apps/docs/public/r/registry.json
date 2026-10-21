@@ -2548,7 +2548,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.25.62",
-        "integrity": "sha256-RZWQ/XnJdH81olTpUFClEpt+ZPoGVbtfo/l652KZmGo="
+        "integrity": "sha256-y8fDafhslVFQmYUzENYC+SCnd1YLMWhVcRN6S9K0BtY="
       }
     },
     {
