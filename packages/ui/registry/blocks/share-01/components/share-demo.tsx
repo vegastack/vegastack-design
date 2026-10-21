@@ -1,4 +1,4 @@
-// @vegastack share-01@0.25.61 sha256-/ml/gcuA3TkysFXmD0JuPgRKSuJRSCYW79Eoey2Lbzc=
+// @vegastack share-01@0.25.61 sha256-0hKZSb7hpYvOJYvShVsVGHaaWCZYrAQqR2B7oQaxur4=
 
 "use client";
 
@@ -121,12 +121,6 @@ export interface ShareDemoProps {
   hiddenSpace?: SpaceHint;
 }
 
-/**
- * `ShareDemo` — `ShareDialog` wired to sample state: levels change, rows are removed, the general
- * access and the public link toggle, and invites join the list.
- *
- * @example <ShareDemo />
- */
 /** The instant a link chosen now with `expires` lapses (the server's own sum in an app). */
 const expiresAtOf = (expires: SharePublicLink["expires"]) =>
   expires === "never"
@@ -135,6 +129,12 @@ const expiresAtOf = (expires: SharePublicLink["expires"]) =>
         Date.now() + { "1d": 1, "7d": 7, "30d": 30 }[expires] * 86_400_000,
       ).toISOString();
 
+/**
+ * `ShareDemo` — `ShareDialog` wired to sample state: levels change, rows are removed, the general
+ * access and the public link toggle, and invites join the list.
+ *
+ * @example <ShareDemo />
+ */
 export function ShareDemo({
   publicLinkOn = false,
   readOnly = false,

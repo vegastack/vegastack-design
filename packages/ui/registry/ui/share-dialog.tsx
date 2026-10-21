@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.61 sha256-VrQ3u6b+K3gzsmAji6l7Rd1vG9j807eGx0IOXmF+OsA=
+// @vegastack share-dialog@0.25.61 sha256-eljWJ+JwUKkA+p1G0Ck2Cn2WNaPdp+YLZJAVkB0AIGQ=
 
 "use client";
 
@@ -1070,7 +1070,7 @@ export function ShareDialog({
                   ))}
                 </SelectContent>
               </Select>
-              {publicLink.expiresAt ? (
+              {publicLink.expiresAt && publicLink.expires !== "never" ? (
                 // The instant it lapses, in the viewer's zone (a preset alone says nothing once
                 // time has passed).
                 <span
@@ -1103,7 +1103,10 @@ export function ShareDialog({
             <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
+              disabled={publicLinkPending}
               onClick={() => {
+                // Once per confirmation: the button stays mounted while the dialog closes.
+                if (!confirmReset) return;
                 setConfirmReset(false);
                 void onResetPublicLink?.();
               }}
@@ -1125,7 +1128,10 @@ export function ShareDialog({
             <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
+              disabled={publicLinkPending}
               onClick={() => {
+                // Once per confirmation: the button stays mounted while the dialog closes.
+                if (!confirmStop) return;
                 setConfirmStop(false);
                 void onStopPublicLink?.();
               }}

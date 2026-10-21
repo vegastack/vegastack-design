@@ -86,7 +86,12 @@ test("share-dialog Publish: only the switch publishes; then copy, reset, expiry 
         document.querySelector('[data-slot="share-public-link-expires-at"]')
           ?.textContent,
     )
-    .toMatch(/^Until \w{3} \d{1,2}/);
+    .toMatch(/^Until \w{3} \d{1,2}.+\d:\d{2}/);
+  expect(
+    document
+      .querySelector('[data-slot="share-public-link-expires-at"] time')
+      ?.getAttribute("datetime"),
+  ).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   // Stop publishing sits in the Publish tab's own footer, with what stays private.
   const stop = dialog.getByRole("button", { name: "Stop publishing" });
   expect(
