@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.61 sha256-aHBV4WRTB9yfm8ohmitB0h5Kmm2bViFdo34ARhB90y0=
+// @vegastack email-kit@0.25.62 sha256-nqjHGY0HkAdu1nPAFBg7FCyx8P8pGI17ei0Bik31M3s=
 
 /**
  * Classic Outlook (the Word engine) ignores `max-width`, so a fluid 600px column fills its whole
