@@ -1,6 +1,6 @@
 ---
 title: Document Layout
-description: A page read as a document — title, text at a reading measure, a comment margin and a floating contents rail — on one grid with four tiers by its own width.
+description: A page read as a document — title, a fluid text column, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width.
 audience: public
 registry: document-layout
 status: stable
@@ -22,19 +22,27 @@ import {
   DocumentLayoutContents,
   DocumentLayoutFoot,
   DocumentLayoutHeader,
+  DocumentLayoutIcon,
   DocumentLayoutMargin,
+  DocumentLayoutTitle,
+  DocumentLayoutTitleGroup,
 } from "@/components/ui/document-layout";
 
 <DocumentLayout margin={canComment}>
   <DocumentLayoutHeader>
-    <h1 className="text-4xl font-semibold">Pricing v2</h1>
-    <p className="text-sm text-muted-foreground">Updated 3m ago</p>
+    <DocumentLayoutTitleGroup>
+      <DocumentLayoutIcon>📘</DocumentLayoutIcon>
+      <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+    </DocumentLayoutTitleGroup>
+    <MetaLine>
+      <MetaLineItem>Updated 3m ago</MetaLineItem>
+    </MetaLine>
   </DocumentLayoutHeader>
   {outline.length > 1 ? (
     <DocumentLayoutContents>
       <TableOfContents
         variant="rail"
-        side="end"
+        side="start"
         sticky={false}
         items={outline}
       />
@@ -49,29 +57,38 @@ import {
 ```
 
 `DocumentLayout` is the frame of a page people read and write as a document — a wiki page, a
-spec, its public view and a version's full view all wear the same one. The text sits at a calm
-reading measure, `--document-measure` (47ch: about 67 characters a line of Geist at the document
-type scale), with the title area above it and what follows it — sub-pages, the page's own
-comments — below, in the same column. Beside it, when there is room, a comment margin; and at
-the layout's inline-end edge, a contents rail that takes no column at all.
+spec, its public view and a version's full view all wear the same one. The text column is fluid:
+about three quarters of the layout's width, between bounds that grow with each tier, so a large
+monitor gets a generous column rather than a narrow strip. The title area sits above the text and
+what follows it — sub-pages, the page's own comments — below, in the same column. Before the text,
+in its gutter, a contents rail; after it, when there is room, a comment margin.
 
 The layout follows its **own width**, not the window's (container queries in rem), so a collapsed
 sidebar or a split view lands in the right tier:
 
-| Tier | Width    | Columns                      | Contents                 | Comments                    |
-| ---- | -------- | ---------------------------- | ------------------------ | --------------------------- |
-| S    | < 36rem  | text, full width             | the host's menu or sheet | the host's sheet or popover |
-| M    | 36–52rem | text                         | the rail, at the edge    | a popover at the highlight  |
-| L    | 52–64rem | text · margin (18rem)        | the rail, at the edge    | the margin                  |
-| XL   | ≥ 64rem  | text · margin, room to spare | the rail, at the edge    | the margin                  |
+| Tier | Width     | Gutters | Text                     | Contents                 | Comments                    |
+| ---- | --------- | ------- | ------------------------ | ------------------------ | --------------------------- |
+| S    | < 40rem   | 0       | the full width           | the host's menu or sheet | the host's sheet or popover |
+| M    | 40–60rem  | 3rem    | max(36rem, 75%)          | the rail, in the gutter  | a popover at the highlight  |
+| L    | 60–90rem  | 3rem    | clamp(40rem, 75%, 52rem) | the rail, in the gutter  | the margin (20rem)          |
+| XL   | 90–120rem | 4rem    | 60rem                    | the rail, in the gutter  | the margin (24rem)          |
+| 2XL  | ≥ 120rem  | 4rem    | 64rem                    | the rail, in the gutter  | the margin (24rem)          |
+
+At the document type scale (14px Geist) that is about 94 characters a line at M's 36rem, 128 at
+L's 52rem, 150 at XL and 161 at 2XL; the 24px line height carries the longer lines.
+
+The rail, the text and the margin are one block, centred. A comment margin shifts the block to
+the start rather than narrowing the text; the text gives way only when the width cannot hold the
+text, the margin and the gutters at once.
 
 It is one subtree at every width: a column with no room is `display: none`, never unmounted, so
 an editor inside never remounts when the window resizes. `margin` reserves the comment column from
 L up whenever the reader can comment or threads exist, so a first comment never shifts the text.
-From M up the grid keeps a 2.5rem gutter on each side whether or not a page has headings, and
-`DocumentLayoutContents` floats in the inline-end one: a `TableOfContents variant="rail" side="end"`
-there is a slim column of dashes that opens into the labelled list over the page — so headings
-that arrive (or go) never move the text. Put the parts in reading order — header, contents, body,
+From M up the grid keeps its start gutter whether or not a page has headings, and
+`DocumentLayoutContents` sits in it, stacked above the text and the margin: a
+`TableOfContents variant="rail" side="start"` there is a slim column of dashes that opens into the
+labelled list over the text — so headings that arrive (or go) never move the text, and the open
+list takes the pointer wherever it lies. Put the parts in reading order — header, contents, body,
 foot, margin. Server-safe: the tiers are CSS.
 
 <ComponentPreview
@@ -87,21 +104,42 @@ foot, margin. Server-safe: the tiers are CSS.
 
 ### Wide
 
-`measure="wide"` lets the text grow into the room the window has, up to 60rem — each reader's
-choice, never the document's. The margin keeps its place where it fits.
+`measure="wide"` gives the text the whole width less the gutters (and the margin, where it
+shows) — each reader's choice, never the document's.
 
 <ComponentPreview
   name="documentLayoutWide"
   file="components/preview/document-layout.tsx"
 />
 
+### Title
+
+`DocumentLayoutTitle` is the document type scale's top step: 30/36 semibold in the heading face,
+one step above the text's `#` (24/32). `DocumentLayoutTitleGroup` holds an optional
+`DocumentLayoutIcon` over it, 4px apart: an emoji at the title's size, or the control that changes
+it. `reveal` hides an "Add icon" control until the title group is hovered or holds focus (always
+shown on a coarse pointer). The row is 32px whatever it holds, so showing, adding or removing
+an icon moves nothing.
+
+```tsx
+<DocumentLayoutTitleGroup>
+  <DocumentLayoutIcon reveal>
+    <Button variant="ghost" size="xs">
+      <SmilePlus aria-hidden />
+      Add icon
+    </Button>
+  </DocumentLayoutIcon>
+  <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+</DocumentLayoutTitleGroup>
+```
+
 ### Skeleton
 
-`DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — a title bar, a
-meta bar and paragraphs of text bars at the document line pitch (a 14px bar every 24px, 16 every
-26 on a coarse pointer), 12px between paragraphs — so nothing moves when the page arrives. Pass it
-the `margin` and `measure` the page will have. It is one `status` region, named by
-`label`.
+`DocumentLayoutSkeleton` is the page's loading state on the SAME grid and tier — an icon row
+(`icon`), a title line, `metaLines` meta lines (default 1) and paragraphs of text bars at the
+document line pitch (a 14px bar every 24px, 16 every 26 on a coarse pointer), 12px between
+paragraphs — so nothing moves when the page arrives. Pass it the `margin`, `measure`, `icon` and
+`metaLines` the page will have. It is one `status` region, named by `label`.
 
 <ComponentPreview
   name="documentLayoutSkeleton"
@@ -123,7 +161,7 @@ const tier = useDocumentLayoutTier(ref);
 
 <DocumentLayout ref={ref} margin>
   …
-  {tier === "l" || tier === "xl" ? (
+  {tier !== "s" && tier !== "m" ? (
     <DocumentLayoutMargin>{threads}</DocumentLayoutMargin>
   ) : null}
 </DocumentLayout>;
@@ -149,8 +187,13 @@ link prints its address.
   name="DocumentLayoutSkeletonProps"
 />
 
-`DocumentLayoutHeader`, `DocumentLayoutBody` and `DocumentLayoutFoot` take a `div`'s native
-props; `DocumentLayoutContents` and `DocumentLayoutMargin` take an `aside`'s. What the contents
+<ApiTable
+  path="../../packages/ui/registry/ui/document-layout.tsx"
+  name="DocumentLayoutIconProps"
+/>
+
+`DocumentLayoutHeader`, `DocumentLayoutTitleGroup`, `DocumentLayoutBody` and `DocumentLayoutFoot`
+take a `div`'s native props, `DocumentLayoutTitle` an `h1`'s; `DocumentLayoutContents` and `DocumentLayoutMargin` take an `aside`'s. What the contents
 hold sticks `--document-layout-sticky-top` (default `--spacing(8)`) below the top of the scroll
 container.
 
@@ -173,5 +216,5 @@ container.
 
 <DoDont
   do="Set margin whenever the reader can comment, so the text never moves when the first comment lands, and render the skeleton with the same margin and measure as the page."
-  dont="Give the text column its own max-width or padding — the measure and the tiers are the layout's, and a second width fights the container queries."
+  dont="Give the text column its own max-width or padding — the column and the tiers are the layout's, and a second width fights the container queries."
 />

@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.60 sha256-rzcX3Q2t5Pwh3pHA9gDMmfkMODTolV13mrI+DaMczos=
+// @vegastack comments@0.25.60 sha256-nROfqW4cQNuXj6lPzE2M6irApT+g1XCmnuROSpGYfLs=
 
 "use client";
 
@@ -790,6 +790,8 @@ interface CommentBoxProps {
    * `Input`-like box with no controls (the comment's header holds ✕ and ✓).
    */
   layout: "card" | "inline" | "edit";
+  /** `card` only: `sm` pads the card 12/8 instead of 16/12 — a comment margin's or popover's. */
+  size?: "default" | "sm";
   defaultValue?: string;
   placeholder?: string;
   label: string;
@@ -832,6 +834,7 @@ interface CommentBoxProps {
 
 function CommentBox({
   layout,
+  size = "default",
   defaultValue,
   placeholder,
   label,
@@ -1055,7 +1058,10 @@ function CommentBox({
         <TextEdit
           {...shared}
           variant="boxed"
-          className="px-4 pt-3 pb-2 dark:bg-transparent"
+          className={cn(
+            size === "sm" ? "px-3 pt-2 pb-1.5" : "px-4 pt-3 pb-2",
+            "dark:bg-transparent",
+          )}
           // Two 20px lines at rest; about twelve before it scrolls inside.
           minHeight="2.5rem"
           maxHeight="15rem"
@@ -1217,6 +1223,12 @@ export interface CommentComposerProps {
    * its text, where an open card would weigh more than the text. @default false
    */
   compact?: boolean;
+  /**
+   * The card's padding: `default` (16/12) under a record, `sm` (12/8) beside a document — a new
+   * thread in a comment margin or popover, where the composer IS the card (put nothing around
+   * it: the box draws the one border). @default "default"
+   */
+  size?: "default" | "sm";
   /** Classes for the composer. @default undefined */
   className?: string;
 }
@@ -1253,6 +1265,7 @@ export function CommentComposer({
   files,
   hasFiles = false,
   compact = false,
+  size = "default",
   className,
 }: CommentComposerProps) {
   const [generation, setGeneration] = React.useState(0);
@@ -1406,6 +1419,7 @@ export function CommentComposer({
       <CommentBox
         key={generation}
         layout="card"
+        size={size}
         label={replyingTo ? "Reply" : "Comment"}
         defaultValue={generation === 0 ? defaultValue : undefined}
         placeholder={

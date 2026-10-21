@@ -375,12 +375,22 @@ test("rail: a tap opens it and a press elsewhere closes it", async () => {
   );
 });
 
-test("rail: side end anchors the panel to the inline-end edge", async () => {
-  await render(<TableOfContents items={ITEMS} variant="rail" side="end" />);
+test("rail: side end anchors the panel to the inline-end edge, side start to the other", async () => {
+  const frame = () =>
+    document.querySelector('[data-slot="table-of-contents-panel-frame"]')!;
+  const screen = await render(
+    <TableOfContents items={ITEMS} variant="rail" side="end" />,
+  );
   expect(root()).toHaveAttribute("data-side", "end");
+  // The frame holds the panel and pads the gap to the rail — the hover bridge.
+  expect(frame().className).toContain("end-full pe-1");
   expect(
-    document.querySelector('[data-slot="table-of-contents-panel"]')!.className,
-  ).toContain("end-[calc(100%+--spacing(1))]");
+    frame().querySelector('[data-slot="table-of-contents-panel"]'),
+  ).not.toBeNull();
+  await screen.rerender(
+    <TableOfContents items={ITEMS} variant="rail" side="start" />,
+  );
+  expect(frame().className).toContain("start-full ps-1");
 });
 
 test("trigger: opens a left sheet titled with the label; choosing an item closes it, then navigates", async () => {

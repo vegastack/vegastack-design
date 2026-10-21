@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.25.60 sha256-z2WWH9+mkhldVOj+Irte7X1jj2/9YSWrukvMwL8egEY=
+// @vegastack table-of-contents@0.25.60 sha256-cotatbdlb5Hzug93n0ZPCTEyQMjsUzkY7maDQ9+GglA=
 
 "use client";
 
@@ -87,9 +87,12 @@ export interface UseActiveHeadingOptions {
 /** The activation line's cap, in px, and its share of the viewport — the reference's values. */
 const ACTIVATION_MAX = 180;
 const ACTIVATION_RATIO = 0.28;
-/** How long a pointer rests on the rail before it opens, and lingers off it before it closes. */
+/**
+ * How long a pointer rests on the rail before it opens, and the grace it has off the rail and
+ * panel before the panel closes (a diagonal path to a far heading crosses the page briefly).
+ */
 const RAIL_OPEN_DELAY = 200;
-const RAIL_CLOSE_DELAY = 120;
+const RAIL_CLOSE_DELAY = 300;
 const ID_SEPARATOR = "\u0000";
 
 /** The closest ancestor that scrolls vertically and has something to scroll; `null` for the page. */
@@ -758,24 +761,34 @@ function TableOfContentsNav({
           );
         })}
       </Button>
+      {/* The panel's frame: it starts at the rail's edge and pads the 4px gap, so a pointer on its
+          way from the rail to the panel never leaves the outline (the hover bridge). */}
       <div
-        id={panelId}
-        ref={scrollerRef}
-        data-slot="table-of-contents-panel"
-        inert={!expanded}
+        data-slot="table-of-contents-panel-frame"
         className={cn(
-          RAIL_PANEL,
-          // Beside the rail, never over it: the rail and its focus cue stay in view.
-          side === "end"
-            ? "end-[calc(100%+--spacing(1))] origin-top-right rtl:origin-top-left"
-            : "start-[calc(100%+--spacing(1))] origin-top-left rtl:origin-top-right",
-          sticky
-            ? "max-h-[min(32rem,calc(100dvh-var(--table-of-contents-top)-2rem))]"
-            : "max-h-[min(32rem,calc(100dvh-8rem))]",
+          "pointer-events-none absolute top-0 group-data-expanded/table-of-contents:pointer-events-auto",
+          side === "end" ? "end-full pe-1" : "start-full ps-1",
         )}
       >
-        {title}
-        {list}
+        <div
+          id={panelId}
+          ref={scrollerRef}
+          data-slot="table-of-contents-panel"
+          inert={!expanded}
+          className={cn(
+            RAIL_PANEL,
+            // Beside the rail, never over it: the rail and its focus cue stay in view.
+            side === "end"
+              ? "origin-top-right rtl:origin-top-left"
+              : "origin-top-left rtl:origin-top-right",
+            sticky
+              ? "max-h-[min(32rem,calc(100dvh-var(--table-of-contents-top)-2rem))]"
+              : "max-h-[min(32rem,calc(100dvh-8rem))]",
+          )}
+        >
+          {title}
+          {list}
+        </div>
       </div>
     </nav>
   );
@@ -786,16 +799,16 @@ function TableOfContentsNav({
 const LIST_LINK =
   "group/table-of-contents-link relative -ms-px flex min-h-7 items-center rounded-e-md py-1 ps-[calc(--spacing(3)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] hover:text-foreground data-active:font-medium data-active:text-foreground data-active:before:opacity-100";
 const PANEL_LINK =
-  "flex min-h-7 items-center rounded-md py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground data-active:font-medium data-active:text-foreground";
+  "relative flex min-h-7 items-center rounded-md py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground data-active:font-medium data-active:text-foreground before:absolute before:inset-y-1.5 before:start-0.5 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] data-active:before:opacity-100";
 // The rail: a column of 10px rows, each holding one dash — 18 headings are 180px tall. A ghost
 // `Button` reshaped into the column (base.css paints its focus cue); on touch its hit area
 // reaches 44px wide.
 const RAIL_TRIGGER =
   "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:bg-transparent active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0 dark:hover:bg-transparent";
-// The panel floats over the page beside the rail, from its top corner; closed, it is transparent
-// and inert.
+// The panel floats over the page beside the rail, from its top corner (its frame places it);
+// closed, it is transparent and inert. Long outlines scroll inside it.
 const RAIL_PANEL =
-  "pointer-events-none absolute top-0 flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
+  "pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
 
 interface TableOfContentsSheetProps extends Omit<
   TableOfContentsProps,

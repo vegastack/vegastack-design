@@ -20,7 +20,7 @@ import { TableOfContents } from "@/components/ui/table-of-contents";
 
 <TableOfContents
   variant="rail"
-  side="end"
+  side="start"
   items={outline} // TextEdit's onOutlineChange items, or { id, level, text, blockId? }[]
   onNavigate={(id) => handle.current?.scrollToHeading(id)}
 />;
@@ -41,7 +41,7 @@ the rest of the viewport. It renders nothing when no
 heading is in range, so an empty page shows no outline.
 
 **Wide and narrow are two instances.** Show the `rail` from a breakpoint — in
-`DocumentLayoutContents` it floats at the page's inline-end edge and takes no column — and below
+`DocumentLayoutContents` it sits in the gutter before the text (`side="start"`) — and below
 it the sheet: a `trigger` instance (a header button that opens the outline in a left `Sheet`), or
 an `open` one a menu item opens:
 
@@ -85,7 +85,10 @@ an `open` one a menu item opens:
 A slim column of short dashes, one per heading, shorter by level; the reached one is in the
 foreground ink and thicker. It takes no room beside the text. Rest the pointer on it, <kbd>Tab</kbd>
 to it or tap it, and a floating panel of the headings opens over the page from its top corner
-(`side`: `start`, or `end` for a rail at the page's inline-end edge); <kbd>↓</kbd> moves into the
+(`side`: `start`, or `end` for a rail at the page's inline-end edge). The panel's frame pads the
+gap to the rail, and a pointer has 300ms of grace off both before it closes, so moving from the
+rail onto a heading never loses it. Headings indent 12px a level, the reached one is marked with a
+bar and medium weight, and a long outline scrolls inside the panel. <kbd>↓</kbd> moves into the
 list, choosing a heading or leaving closes it, and <kbd>Esc</kbd> closes it with focus back on the
 rail. Each panel row is 28px tall, a full-size target.
 

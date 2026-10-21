@@ -167,7 +167,7 @@ starts with `icon-` is a component and never an icon.
 - **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
 - **`board`** — Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the ⋯ menu, a subtle top-down fade on each lane, + Add after the last card (the empty lane's action when it has none), Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
-- **`document-layout`** — A page read as a document — the title area, the text at a reading measure, what follows it, a contents column and a comment margin — on one grid with four tiers by its own width, plus its skeleton and a tier hook.
+- **`document-layout`** — A page read as a document — the title area, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.
 - **`record-layout`** — A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.
 - **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
 - **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
