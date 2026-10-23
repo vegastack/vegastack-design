@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.66 sha256-YhmX6YrLXEkkTR6WO29tF5Cb7c5EZEO9+IOdxHrKq1w=
+// @vegastack text-edit@0.25.66 sha256-PA2iaQUbsUnvzTRj04r5J+8swXRxZL8JrSkEHbsoiNk=
 
 "use client";
 
@@ -264,7 +264,6 @@ import {
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import {
-  appendParagraphAfterLastBlock,
   blockId as newBlockId,
   EMBED_CONTAINERS,
   textEditExtensions,
@@ -12623,7 +12622,7 @@ export function TextEditEditor({
             return;
           event.preventDefault();
           // A document that ends in a table or an atom gets an empty paragraph to type in.
-          if (!appendParagraphAfterLastBlock(editor.view))
+          if (!editor.chain().appendParagraphAfterLastBlock().focus().run())
             editor.commands.focus("end");
         }}
         className={cn(contentClassName, findReplace && FIND_RESULT_CLASS)}

@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.66 sha256-U/Zr+eEw8fNCzVq1byg32P/4i9uUXE4R0ew1fhsYfwI=
+// @vegastack text-edit-schema@0.25.66 sha256-RhqUpJ9py9SfvCwpEf36UigfPBwMW5KKCtVOiECzyTA=
 
 import {
   Extension,
@@ -9,6 +9,7 @@ import {
   mergeAttributes,
   textblockTypeInputRule,
   type AnyExtension,
+  type Editor,
   type JSONContent,
   type MarkdownParseHelpers,
   type MarkdownRendererHelpers,
@@ -1859,29 +1860,43 @@ function endsInBlockWithoutCaret(doc: PMNode): boolean {
 }
 
 /**
- * Adds an empty paragraph after the document's last block when that block has none to put a caret
- * in, and puts the caret in it. Returns whether it did.
- */
-export function appendParagraphAfterLastBlock(view: EditorView): boolean {
-  const { state } = view;
-  const paragraph = state.schema.nodes.paragraph;
-  if (!paragraph || !endsInBlockWithoutCaret(state.doc)) return false;
-  const at = state.doc.content.size;
-  const tr = state.tr.insert(at, paragraph.create());
-  view.dispatch(
-    tr.setSelection(TextSelection.create(tr.doc, at + 1)).scrollIntoView(),
-  );
-  view.focus();
-  return true;
-}
-
-/**
  * Notion's way out of a last block: click below it, or press ↓ (→ on a selected audio, video or
  * image) from its end, and an empty paragraph is there to type in. While the document ends that
  * way the editor keeps a strip of room under it to click (`te-open-end`).
  */
+const openEnd = (editor: Editor) =>
+  editor.chain().appendParagraphAfterLastBlock().focus().run();
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    textEditOpenEnd: { appendParagraphAfterLastBlock: () => ReturnType };
+  }
+}
+
 const OpenEnd = Extension.create({
   name: "textEditOpenEnd",
+  /**
+   * `editor.commands.appendParagraphAfterLastBlock()`: adds an empty paragraph after the last block
+   * when it has none to put a caret in, and puts the caret in it. False when there is nothing to do.
+   */
+  addCommands() {
+    return {
+      appendParagraphAfterLastBlock:
+        () =>
+        ({ state, tr, dispatch }) => {
+          const paragraph = state.schema.nodes.paragraph;
+          if (!paragraph || !endsInBlockWithoutCaret(state.doc)) return false;
+          if (dispatch) {
+            const at = state.doc.content.size;
+            tr.insert(at, paragraph.create());
+            tr.setSelection(
+              TextSelection.create(tr.doc, at + 1),
+            ).scrollIntoView();
+          }
+          return true;
+        },
+    };
+  },
   addProseMirrorPlugins() {
     const editor = this.editor;
     return [
@@ -1910,7 +1925,7 @@ const OpenEnd = Extension.create({
               )
                 return false;
               event.preventDefault();
-              return appendParagraphAfterLastBlock(view);
+              return openEnd(editor);
             },
           },
           handleKeyDown(view, event) {
@@ -1930,7 +1945,7 @@ const OpenEnd = Extension.create({
               return (
                 selection.from === lastPos &&
                 (event.key === "ArrowDown" || event.key === "ArrowRight") &&
-                appendParagraphAfterLastBlock(view)
+                openEnd(editor)
               );
             // In the last row of a last table, the caret on its last line.
             const found = tableAtSelection(view.state);
@@ -1941,7 +1956,7 @@ const OpenEnd = Extension.create({
               selection.$from.index(found.depth) ===
                 found.node.childCount - 1 &&
               view.endOfTextblock("down") &&
-              appendParagraphAfterLastBlock(view)
+              openEnd(editor)
             );
           },
         },
