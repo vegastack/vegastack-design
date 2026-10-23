@@ -1,4 +1,4 @@
-// @vegastack grid-clipboard@0.25.69 sha256-BdMdwJHkRa08TLTN1YCHrgf6QWdTMyz10L/rpL1NojY=
+// @vegastack grid-clipboard@0.25.69 sha256-lYiqaPvJSS+AF44IszZcEYNzssAZ3uPh/Uqyh45QUnE=
 
 /* ---
 `grid-clipboard` is the spreadsheet clipboard as data: what a grid writes when it copies a range
@@ -241,20 +241,29 @@ export function parseHtmlTable(html: string): GridClipboardMatrix | null {
   const doc = new DOMParser().parseFromString(html, "text/html");
   const table = doc.querySelector("table");
   if (!table) return null;
-  const grid: (GridClipboardCell | undefined)[][] = [];
   const rows = [...table.querySelectorAll("tr")].filter(
     (tr) => tr.closest("table") === table,
   );
-  rows.forEach((tr, r) => {
+  // A paste no grid could hold is not a table: it is refused whole, before it can exhaust memory.
+  if (rows.length > MAX_HTML_ROWS) return null;
+  const grid: (GridClipboardCell | undefined)[][] = [];
+  let cells = 0;
+  let width = 0;
+  for (let r = 0; r < rows.length; r += 1) {
     grid[r] ??= [];
     let c = 0;
-    for (const cell of tr.children) {
+    for (const cell of rows[r]!.children) {
       if (cell.nodeName !== "TD" && cell.nodeName !== "TH") continue;
       while (grid[r]![c] !== undefined) c += 1;
       const colSpan = span(cell.getAttribute("colspan"));
       const rowSpan = span(cell.getAttribute("rowspan"));
-      // A paste no grid could hold is not a table: stop before it can exhaust memory.
-      if (r + rowSpan > MAX_HTML_ROWS || c + colSpan > MAX_HTML_COLUMNS) return;
+      cells += colSpan * rowSpan;
+      if (
+        r + rowSpan > MAX_HTML_ROWS ||
+        c + colSpan > MAX_HTML_COLUMNS ||
+        cells > MAX_HTML_CELLS
+      )
+        return null;
       const value: GridClipboardCell = { text: cellText(cell) };
       const num = readNumberAttribute(cell);
       if (num !== undefined) value.number = num;
@@ -264,9 +273,9 @@ export function parseHtmlTable(html: string): GridClipboardMatrix | null {
           grid[r + dr]![c + dc] = dr === 0 && dc === 0 ? value : { text: "" };
         }
       c += colSpan;
+      width = Math.max(width, c);
     }
-  });
-  const width = Math.max(0, ...grid.map((row) => row.length));
+  }
   return grid.map((row) =>
     Array.from({ length: width }, (_, index) => row[index] ?? { text: "" }),
   );
@@ -275,6 +284,8 @@ export function parseHtmlTable(html: string): GridClipboardMatrix | null {
 /** The most rows and columns a pasted HTML table may span (a spreadsheet paste is far smaller). */
 const MAX_HTML_ROWS = 10_000;
 const MAX_HTML_COLUMNS = 1_000;
+/** The most cells a pasted HTML table may expand to, spans included. */
+const MAX_HTML_CELLS = 200_000;
 
 /** A `colspan`/`rowspan` as a whole number from 1 to 1,000 (HTML's own colspan ceiling). */
 function span(value: string | null): number {
@@ -328,7 +339,12 @@ function withSheetsNumbers(
   } catch {
     return matrix;
   }
-  if (!Array.isArray(types) || !Array.isArray(numbers)) return matrix;
+  if (
+    !Array.isArray(types) ||
+    !Array.isArray(numbers) ||
+    !Array.isArray(strings)
+  )
+    return matrix;
   // Every check must agree before a single number is trusted: the table's size, one type per
   // non-empty cell, one number per numeric type and one string per text type.
   const dims = size as { "1"?: unknown; "2"?: unknown } | undefined;
@@ -341,24 +357,39 @@ function withSheetsNumbers(
     filled !== types.length ||
     numeric + textual !== types.length ||
     numbers.length !== numeric ||
-    (Array.isArray(strings) && strings.length !== textual)
+    strings.length !== textual ||
+    !numbers.every(
+      (value) => typeof value === "number" && Number.isFinite(value),
+    )
   )
     return matrix;
+  // Its text cells must read exactly as the plain text does, in order — the one thing both
+  // sides state alike — or the table describes some other copy.
   let t = 0;
   let k = 0;
-  return matrix.map((row) =>
-    row.map((cell) => {
-      if (cell.text === "") return cell;
+  let j = 0;
+  const typed: GridClipboardMatrix = [];
+  for (const row of matrix) {
+    const out: GridClipboardCell[] = [];
+    for (const cell of row) {
+      if (cell.text === "") {
+        out.push(cell);
+        continue;
+      }
       const type = types[t];
       t += 1;
-      if (type !== 1) return cell;
-      const value = numbers[k];
-      k += 1;
-      return typeof value === "number" && Number.isFinite(value)
-        ? { ...cell, number: value }
-        : cell;
-    }),
-  );
+      if (type === 2) {
+        if (strings[j] !== cell.text) return matrix;
+        j += 1;
+        out.push(cell);
+      } else {
+        out.push({ ...cell, number: numbers[k] as number });
+        k += 1;
+      }
+    }
+    typed.push(out);
+  }
+  return typed;
 }
 
 /**

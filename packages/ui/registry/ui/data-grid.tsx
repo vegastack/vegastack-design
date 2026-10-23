@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.69 sha256-DHtp6mS+VPL9bZkQA6JyQT7gReYrD8LWVKA1pUIohb0=
+// @vegastack data-grid@0.25.69 sha256-Z5P1rr79zPH9DUercfKbVk/mPxIDkOYrkosiW74deXQ=
 
 "use client";
 
@@ -1012,7 +1012,10 @@ function GridCellImpl<T>({
       ref={ref}
       role={placed.primary ? "rowheader" : "gridcell"}
       aria-colindex={placed.ariaColIndex}
-      aria-readonly={column.editable ? undefined : true}
+      // Cells mode writes a `parse` column too (paste, clear, fill).
+      aria-readonly={
+        column.editable || (cellsMode && column.parse) ? undefined : true
+      }
       data-slot="data-grid-cell"
       data-grid-row={rowId}
       data-grid-key={key}
@@ -2760,6 +2763,8 @@ export function DataGrid<T>({
         else model.select({ rowId, colKey: key });
       },
       pointerOver(rowId, key) {
+        // A fill drag also crosses cells with the button held; it is not a selection drag.
+        if (fillCleanup.current) return;
         latest.current.selection.extendTo({ rowId, colKey: key });
       },
       fillStart(event) {

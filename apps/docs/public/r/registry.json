@@ -1569,7 +1569,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.69",
-        "integrity": "sha256-DHtp6mS+VPL9bZkQA6JyQT7gReYrD8LWVKA1pUIohb0="
+        "integrity": "sha256-Z5P1rr79zPH9DUercfKbVk/mPxIDkOYrkosiW74deXQ="
       }
     },
     {
@@ -1976,7 +1976,7 @@
         "whenToUse": "Copy and paste between a grid and spreadsheets (Excel, Google Sheets, Numbers, Airtable) — DataGrid's cells mode, or a host's own paste preview or import.",
         "whenNotToUse": "CSV files (a CSV parser), or rich text paste into an editor.",
         "version": "0.25.68",
-        "integrity": "sha256-BdMdwJHkRa08TLTN1YCHrgf6QWdTMyz10L/rpL1NojY="
+        "integrity": "sha256-lYiqaPvJSS+AF44IszZcEYNzssAZ3uPh/Uqyh45QUnE="
       }
     },
     {

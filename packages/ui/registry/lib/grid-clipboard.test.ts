@@ -335,7 +335,7 @@ test("a compact table whose size differs from the text's is not trusted", () => 
     [{ text: "1" }, { text: "2" }],
   ]);
   const fits = JSON.stringify({
-    "3": { "1": [1, 1], "3": [5, 6] },
+    "3": { "1": [1, 1], "3": [5, 6], "4": [] },
     "15": { "1": 1, "2": 2 },
   });
   expect(parseClipboard({ text: "1\t2", sheets: fits })).toEqual([
@@ -344,4 +344,20 @@ test("a compact table whose size differs from the text's is not trusted", () => 
       { text: "2", number: 6 },
     ],
   ]);
+});
+
+test("a compact table whose text cells read differently from the plain text is not trusted", () => {
+  const sheets = JSON.stringify({
+    "3": { "1": [2, 1], "3": [999], "4": ["wrong"] },
+    "15": { "1": 1, "2": 2 },
+  });
+  expect(parseClipboard({ text: "Alice\t10", sheets })).toEqual([
+    [{ text: "Alice" }, { text: "10" }],
+  ]);
+});
+
+test("an HTML table past the row budget is refused whole", () => {
+  const html = `<table>${"<tr><td>x</td></tr>".repeat(10_001)}</table>`;
+  expect(parseHtmlTable(html)).toBeNull();
+  expect(parseClipboard({ text: "a", html })).toEqual([[{ text: "a" }]]);
 });

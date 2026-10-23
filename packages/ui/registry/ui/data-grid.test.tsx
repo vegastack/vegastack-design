@@ -2361,3 +2361,25 @@ test("cells mode: a cancelled fill drag reports nothing, even on a later release
   expect(onFill).not.toHaveBeenCalled();
   expect(cellAt("d2", "amount").hasAttribute("data-fill-target")).toBe(false);
 });
+
+test("cells mode: a parse column is writable to assistive technology; a fill drag leaves the range alone", async () => {
+  const onFill = vi.fn();
+  await render(cellsGrid({ onFill }));
+  expect(cellAt("d1", "amount").hasAttribute("aria-readonly")).toBe(false);
+  await userEvent.click(cellAt("d1", "amount"));
+  const handle = cellAt("d1", "amount").querySelector<HTMLElement>(
+    '[data-slot="data-grid-fill-handle"]',
+  )!;
+  handle.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerId: 9 }),
+  );
+  cellAt("d3", "amount").dispatchEvent(
+    new PointerEvent("pointerover", {
+      bubbles: true,
+      buttons: 1,
+      pointerId: 9,
+    }),
+  );
+  window.dispatchEvent(new PointerEvent("pointercancel", { pointerId: 9 }));
+  expect(inRange()).toEqual(["d1:amount"]);
+});
