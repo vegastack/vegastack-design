@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.68 sha256-sxpN7+odcX8U6N9F8rMXzsXBX9pf35bRPeGzA9Fxdbk=
+// @vegastack data-table-parts@0.25.68 sha256-qr3mQQeRgK9g6RTXzTtKG5r09yNof2HLLfpetbdadLE=
 
 "use client";
 
@@ -2055,7 +2055,9 @@ export function GridSummaryCell({
   // grid's footer would otherwise build a Select per column on every sideways scroll step.
   const [armed, setArmed] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  const live = chosen != null || armed;
+  // Lazy only inside a grid that roves focus to the cell (it passes the cell's `tabIndex`); a
+  // standalone cell keeps its picker mounted so Tab reaches it.
+  const live = chosen != null || armed || props.tabIndex === undefined;
   return (
     <TableCell
       data-slot="grid-summary-cell"

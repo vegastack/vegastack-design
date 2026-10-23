@@ -1019,6 +1019,8 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
         <tfoot>
           <TableRow>
             <GridSummaryCell
+              // As a roving grid renders it: the cell takes focus, so the picker mounts lazily.
+              tabIndex={-1}
               columnLabel="Qty"
               options={[
                 { value: "sum", label: "Sum" },
@@ -1035,7 +1037,7 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
     );
   }
   const screen = await render(<Harness value={null} />);
-  // Unsummarised, the picker mounts on first hover or focus (a wide footer stays light).
+  // Unsummarised in a grid, the picker mounts on first hover or focus (a wide footer stays light).
   expect(screen.container.querySelector('[role="combobox"]')).toBeNull();
   (
     screen.container.querySelector(
@@ -1064,4 +1066,24 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
     screen.container.querySelector('[data-slot="grid-summary-loading"]'),
   ).not.toBeNull();
   await expectNoA11yViolations(screen.container);
+});
+
+test("GridSummaryCell standalone keeps its picker mounted, so Tab reaches it", async () => {
+  const screen = await render(
+    <Table>
+      <tfoot>
+        <TableRow>
+          <GridSummaryCell
+            columnLabel="Qty"
+            options={[{ value: "sum", label: "Sum" }]}
+            value={null}
+            onValueChange={() => {}}
+          />
+        </TableRow>
+      </tfoot>
+    </Table>,
+  );
+  await expect
+    .element(screen.getByRole("combobox", { name: "Summarize Qty" }))
+    .toBeInTheDocument();
 });

@@ -1289,10 +1289,8 @@ test("fixed layout: colgroup widths, frozen columns sticky at their offsets, pri
     expect(second.style.insetInlineStart).toBe("280px");
     expect(first.className).toContain("sticky");
     // Only the last frozen column carries the scroll-edge shadow.
-    expect(second.className).toContain("in-data-scrolled-x:after:opacity-100");
-    expect(first.className).not.toContain(
-      "in-data-scrolled-x:after:opacity-100",
-    );
+    expect(second.className).toContain("in-data-scrolled-x:shadow-");
+    expect(first.className).not.toContain("in-data-scrolled-x:shadow-");
     // The whole grid is one scroll box: the table is not wrapped in Table's own container.
     expect(table.closest('[data-slot="table-container"]')).toBeNull();
     expect(table.parentElement?.getAttribute("data-slot")).toBe(

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.68 sha256-UTcbblYIvWrsS18QQBlAiiWWmlCq84J/NWQVpE0Cj0M=
+// @vegastack data-grid@0.25.68 sha256-F4jX6nhfGGbm4OGv8nIR6qn7VRd0Gl83+jX89Ctg/q8=
 
 "use client";
 
@@ -639,6 +639,9 @@ const GROUP = "\uE000group";
 const TRAILING = "\uE000trailing";
 const GROUP_PREFIX = "\uE000group:";
 const MORE_PREFIX = "\uE000more:";
+/** Rows without columns — a group header, a group's load-more — hold one focus target. */
+const isLineRow = (rowId: string): boolean =>
+  rowId.startsWith(GROUP_PREFIX) || rowId.startsWith(MORE_PREFIX);
 const nodeKey = (rowId: string, key: string) => `${rowId}\uE001${key}`;
 
 /** A focus coordinate: a row (or `HEADER`/`FOOTER`/a group row) and a column key. */
@@ -767,8 +770,10 @@ const HEAD_BASE_CLASS =
 const FROZEN_CELL_CLASS =
   "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-selected/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))]";
 /** The frozen edge's shadow, shown while the viewport is scrolled sideways (`data-scrolled-x`). */
+// A box shadow, not a pseudo-element: body cells clip their overflow (one line, truncated), and a
+// cell's own shadow is painted outside its box, where the clip does not reach.
 const FROZEN_EDGE_CLASS =
-  "after:pointer-events-none after:absolute after:inset-y-0 after:start-full after:w-2 after:bg-linear-to-r after:from-foreground/10 after:to-transparent after:opacity-0 after:transition-opacity after:content-[''] rtl:after:bg-linear-to-l in-data-scrolled-x:after:opacity-100";
+  "in-data-scrolled-x:shadow-[6px_0_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)] rtl:in-data-scrolled-x:shadow-[-6px_0_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]";
 
 function stickyStyle(
   offset: number | undefined,
@@ -1061,20 +1066,37 @@ const GroupRowView = React.memo(function GroupRowView({
 });
 
 function GroupMoreRow({
+  itemId,
   loadMore,
   span,
   ariaRowIndex,
   rowHeight,
+  tabStop,
   measure,
   dataIndex,
 }: {
+  itemId: string;
   loadMore: LoadMoreState;
+  tabStop: boolean;
   span: number;
   ariaRowIndex: number;
   rowHeight: DataGridRowHeight | undefined;
   measure?: (node: Element | null) => void;
   dataIndex?: number;
 }) {
+  const api = useGridApi();
+  const failed = loadMore.error != null && loadMore.error !== false;
+  const ref = React.useCallback(
+    (node: HTMLElement | null) => {
+      // A failed page's Try again is reached through this cell (Enter or Space), so the grid
+      // stays one tab stop: the button inside leaves the tab order.
+      node
+        ?.querySelectorAll<HTMLElement>("button")
+        .forEach((button) => button.setAttribute("tabindex", "-1"));
+      api.register(itemId, GROUP, node);
+    },
+    [api, itemId],
+  );
   return (
     <tr
       ref={measure}
@@ -1083,7 +1105,15 @@ function GroupMoreRow({
       aria-rowindex={ariaRowIndex}
       className={cn("border-b", rowHeight && ROW_CLASS[rowHeight])}
     >
-      <td colSpan={span} className="p-0 align-middle">
+      <td
+        ref={failed ? ref : undefined}
+        colSpan={span}
+        className="p-0 align-middle focus-visible:-outline-offset-2"
+        data-grid-row={itemId}
+        data-grid-key={GROUP}
+        tabIndex={failed ? (tabStop ? 0 : -1) : undefined}
+        onFocus={failed ? () => api.focused(itemId, GROUP) : undefined}
+      >
         <div className="sticky start-0 w-fit max-w-full">
           <LoadMore {...loadMore} />
         </div>
@@ -1167,6 +1197,8 @@ interface GridBodyProps<T> {
   onVirtualizer: (
     virtualizer: Virtualizer<HTMLDivElement, Element> | null,
   ) => void;
+  /** Called after every body commit with whether `items` changed in it. */
+  onCommit: (itemsChanged: boolean) => void;
 }
 
 /**
@@ -1188,6 +1220,7 @@ function GridBody<T>({
   rowNumbers,
   ariaRowIndexBase,
   onVirtualizer,
+  onCommit,
 }: GridBodyProps<T>) {
   const rowPx = w.rowHeight ? ROW_PX[w.rowHeight] : undefined;
   const rowVirtualizer = useVirtualizer({
@@ -1202,8 +1235,12 @@ function GridBody<T>({
     scrollPaddingEnd: footerPx,
     overscan: 6,
   });
+  const committedItems = React.useRef(items);
   React.useLayoutEffect(() => {
     onVirtualizer(virtualize ? rowVirtualizer : null);
+    const itemsChanged = committedItems.current !== items;
+    committedItems.current = items;
+    onCommit(itemsChanged);
   });
   React.useEffect(() => () => onVirtualizer(null), [onVirtualizer]);
 
@@ -1239,7 +1276,7 @@ function GridBody<T>({
       : 0;
 
   return (
-    <tbody data-slot="data-grid-body">
+    <tbody data-slot="data-grid-body" className="[&>tr:last-child]:border-0">
       {top > 0 ? (
         <tr aria-hidden="true" data-slot="data-grid-virtual-pad">
           <td colSpan={w.span} className="p-0" style={{ height: top }} />
@@ -1269,6 +1306,8 @@ function GridBody<T>({
           return (
             <GroupMoreRow
               key={item.id}
+              itemId={item.id}
+              tabStop={tabRow === item.id}
               loadMore={item.loadMore}
               span={w.span}
               ariaRowIndex={ariaRowIndex}
@@ -1477,21 +1516,20 @@ export function DataGrid<T>({
     );
   }, [ordered, visibility, containerWidth, selectable, fixed]);
 
-  // Live widths while a resize is in flight (or until the host's `width` catches up).
+  // Live widths while a resize is in flight, and a committed one until the host answers: the next
+  // `columns` it passes is the authority (its persisted width, a normalised one, or the old one
+  // after a refusal), so a committed override is dropped then. A drag in flight is kept.
   const [widthOverrides, setWidthOverrides] = React.useState<
-    Record<string, number>
+    Record<string, { width: number; committed: boolean }>
   >({});
   React.useEffect(() => {
-    // A width the host now declares supersedes the override it was persisted from.
     setWidthOverrides((current) => {
-      let changed = false;
-      const next = { ...current };
-      for (const column of columns)
-        if (column.key in next && column.width === next[column.key]) {
-          delete next[column.key];
-          changed = true;
-        }
-      return changed ? next : current;
+      const kept = Object.entries(current).filter(
+        ([, entry]) => !entry.committed,
+      );
+      return kept.length === Object.keys(current).length
+        ? current
+        : Object.fromEntries(kept);
     });
   }, [columns]);
 
@@ -1503,7 +1541,7 @@ export function DataGrid<T>({
     visibleColumns.forEach((column, index) => {
       const primary = index === 0;
       const width =
-        widthOverrides[column.key] ??
+        widthOverrides[column.key]?.width ??
         column.width ??
         (primary ? PRIMARY_WIDTH : DEFAULT_WIDTH);
       const frozen = frozenRun && column.frozen === true;
@@ -1524,7 +1562,10 @@ export function DataGrid<T>({
               CELL_BASE_CLASS,
               "overflow-hidden text-ellipsis",
               alignClass(column.align),
-              rowHeight && CELL_PAD_CLASS[rowHeight],
+              // An editable cell's display is a padded 32px box: the cell drops its own vertical
+              // padding so the box fits a short (32px) or medium row exactly.
+              rowHeight &&
+                (column.editable ? "py-0" : CELL_PAD_CLASS[rowHeight]),
               column.mono && "font-mono text-sm tabular-nums",
               column.numeric && "tabular-nums",
               frozen && FROZEN_CELL_CLASS,
@@ -1805,7 +1846,14 @@ export function DataGrid<T>({
   const navRows = React.useMemo(
     () => [
       HEADER,
-      ...items.filter((item) => item.kind !== "more").map((item) => item.id),
+      // A group's load-more row is on the path only while its page failed (its Try again).
+      ...items
+        .filter(
+          (item) =>
+            item.kind !== "more" ||
+            (item.loadMore.error != null && item.loadMore.error !== false),
+        )
+        .map((item) => item.id),
       ...(summaryRow ? [FOOTER] : []),
     ],
     [items, summaryRow],
@@ -1901,7 +1949,7 @@ export function DataGrid<T>({
   /** Move the tab stop and DOM focus; scrolls a windowed-out target into view first. */
   const focusAt = (rowId: string, key: string) => {
     setActive({ rowId, key });
-    const isGroup = rowId.startsWith(GROUP_PREFIX);
+    const isGroup = isLineRow(rowId);
     const target = nodeKey(rowId, isGroup ? GROUP : key);
     const mounted = nodes.current.get(target);
     if (mounted) {
@@ -1931,6 +1979,7 @@ export function DataGrid<T>({
   );
   const current = {
     focusAt,
+    restoreFocus: () => restoreFocus(),
     rowsById,
     navKeys,
     navRows,
@@ -1948,14 +1997,12 @@ export function DataGrid<T>({
   // Focus follows the position, not the DOM node: when new data unmounts the focused cell (its
   // row moved out of the window, or left), focus goes back to the same row and column — scrolled
   // in — or, if the row is gone, to the tab stop that replaced it. A cell that unmounts because
-  // the reader scrolled it away is left alone: chasing it would fight the scroll.
-  const previousItems = React.useRef(items);
-  React.useLayoutEffect(() => {
-    const changed = previousItems.current !== items;
-    previousItems.current = items;
+  // the reader scrolled it away is left alone: chasing it would fight the scroll. The body
+  // decides, every commit, because a scroll re-renders the body alone.
+  const restoreFocus = () => {
     const lost = lostFocus.current;
     lostFocus.current = null;
-    if (!lost || !changed) return;
+    if (!lost) return;
     const focused = document.activeElement;
     if (focused instanceof HTMLElement && focused !== document.body) return;
     const target = navRowIndex.has(lost.rowId)
@@ -1963,11 +2010,19 @@ export function DataGrid<T>({
       : { rowId: navRows[firstItemNav] ?? HEADER, key: lost.key };
     focusAt(
       target.rowId,
-      target.rowId.startsWith(GROUP_PREFIX) || navKeys.includes(target.key)
+      isLineRow(target.rowId) || navKeys.includes(target.key)
         ? target.key
         : (navKeys[0] ?? SELECT),
     );
-  });
+  };
+  const onBodyCommit = React.useCallback((itemsChanged: boolean) => {
+    if (!itemsChanged) {
+      lostFocus.current = null;
+      return;
+    }
+    // After the parent's own commit, so the latest positions are in place.
+    requestAnimationFrame(() => latest.current.restoreFocus());
+  }, []);
 
   const api = React.useMemo<GridApi>(
     () => ({
@@ -2043,7 +2098,7 @@ export function DataGrid<T>({
         while (
           index > 0 &&
           index < rows.length &&
-          (rows[index]!.startsWith(GROUP_PREFIX) || rows[index] === FOOTER)
+          (isLineRow(rows[index]!) || rows[index] === FOOTER)
         );
         if (index > 0 && index < rows.length && rows[index] !== FOOTER)
           latest.current.focusAt(rows[index]!, key);
@@ -2080,7 +2135,10 @@ export function DataGrid<T>({
     commitSort(cycleSort(activeSort, key, { additive, maxKeys: maxSortKeys }));
 
   const resizeTo = (key: string, width: number, commit: boolean) => {
-    setWidthOverrides((current) => ({ ...current, [key]: width }));
+    setWidthOverrides((current) => ({
+      ...current,
+      [key]: { width, committed: commit },
+    }));
     if (commit) onColumnResize?.(key, width);
   };
   const resizeBounds = (column: DataGridColumn<T>) => ({
@@ -2099,12 +2157,27 @@ export function DataGrid<T>({
     if (nodes.length === 0) return;
     // Each value's INTRINSIC width: a range over its contents measures the text as laid out,
     // overflow included, so a column wider than its values can shrink too.
+    // Block and flex wrappers inside a cell are as wide as the column, so they are released to
+    // `max-content` for the one synchronous read and put back.
+    const released = nodes.flatMap((node) =>
+      [...node.querySelectorAll<HTMLElement>("*")].filter(
+        (child) => getComputedStyle(child).display !== "inline",
+      ),
+    );
+    const saved = released.map((child) => child.style.cssText);
+    for (const child of released) {
+      child.style.width = "max-content";
+      child.style.maxWidth = "none";
+    }
     const range = document.createRange();
     let widest = 0;
     for (const node of nodes) {
       range.selectNodeContents(node);
       widest = Math.max(widest, range.getBoundingClientRect().width);
     }
+    released.forEach((child, index) => {
+      child.style.cssText = saved[index]!;
+    });
     const { min, max } = resizeBounds(p.column);
     // The cell's inline padding (`px-2`); the sort glyph and the menu chevron when the header has them.
     const chrome =
@@ -2156,7 +2229,7 @@ export function DataGrid<T>({
       key &&
       rowId !== HEADER &&
       rowId !== FOOTER &&
-      !rowId.startsWith(GROUP_PREFIX) &&
+      !isLineRow(rowId) &&
       key !== SELECT
         ? cellMenu(rowId, key)
         : null;
@@ -2198,7 +2271,7 @@ export function DataGrid<T>({
     );
     if (!origin || !event.currentTarget.contains(origin)) return;
     const rowId = origin.dataset.gridRow!;
-    const isGroup = rowId.startsWith(GROUP_PREFIX);
+    const isGroup = isLineRow(rowId);
     const key = isGroup ? resolved.key : origin.dataset.gridKey!;
     const isRtl = getComputedStyle(event.currentTarget).direction === "rtl";
     const rowAt = navRowIndex.get(rowId) ?? 0;
@@ -2294,6 +2367,15 @@ export function DataGrid<T>({
         return go(Math.max(firstItemNav || 0, rowAt - pageSize()), keyAt);
       default:
         break;
+    }
+
+    // A failed group page: Enter or Space retries through the button inside.
+    if (rowId.startsWith(MORE_PREFIX)) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        origin.querySelector<HTMLElement>("button")?.click();
+      }
+      return;
     }
 
     // The summary row: the cell holds focus; Enter or Space opens its function picker.
@@ -2551,9 +2633,20 @@ export function DataGrid<T>({
   /** A closed function picker hands focus back to its cell, which roves. */
   const refocusFooter = (key: string) => (open: boolean) => {
     if (open) return;
-    requestAnimationFrame(() =>
-      nodes.current.get(nodeKey(FOOTER, key))?.focus(),
-    );
+    requestAnimationFrame(() => {
+      const cell = nodes.current.get(nodeKey(FOOTER, key));
+      const focused = document.activeElement;
+      // Not when focus has moved on (Tab out of the open picker): only back from the popup.
+      if (
+        !cell ||
+        (focused instanceof HTMLElement &&
+          focused !== document.body &&
+          !cell.contains(focused) &&
+          !focused.closest('[data-slot="select-content"]'))
+      )
+        return;
+      cell.focus();
+    });
   };
   const footerCell = (p: PlacedColumn<T>) => {
     const isTab = resolved.rowId === FOOTER && tabKey === p.key;
@@ -2565,9 +2658,12 @@ export function DataGrid<T>({
       "data-grid-key": p.key,
       onFocus: () => api.focused(FOOTER, p.key),
       style: stickyStyle(p.offset),
+      // Every footer cell paints its own background: rows scrolling under the sticky summary
+      // row showed through the row group's.
       className: cn(
+        "bg-background",
         alignClass(p.column.align),
-        p.offset != null && "sticky z-30 bg-background",
+        p.offset != null && "sticky z-30",
         "focus-visible:-outline-offset-2",
       ),
     };
@@ -2618,15 +2714,20 @@ export function DataGrid<T>({
             }
             tabIndex={resolved.rowId === FOOTER && tabKey === SELECT ? 0 : -1}
             onFocus={() => api.focused(FOOTER, SELECT)}
-            className={cn(selectOffset != null && "sticky z-30 bg-background")}
+            className={cn(
+              "bg-background",
+              selectOffset != null && "sticky z-30",
+            )}
             style={stickyStyle(selectOffset)}
           />
         ) : null}
         {w.frozen.map(footerCell)}
-        {fixed ? <SpacerCell /> : null}
+        {fixed ? <td aria-hidden="true" className="bg-background p-0" /> : null}
         {w.center.map(footerCell)}
-        {fixed ? <SpacerCell /> : null}
-        {headerTrailing ? <td aria-hidden="true" className="p-0" /> : null}
+        {fixed ? <td aria-hidden="true" className="bg-background p-0" /> : null}
+        {headerTrailing ? (
+          <td aria-hidden="true" className="bg-background p-0" />
+        ) : null}
       </TableRow>
     </tfoot>
   ) : null;
@@ -2727,6 +2828,7 @@ export function DataGrid<T>({
             rowNumbers={rowNumbers}
             ariaRowIndexBase={ariaRowIndexBase}
             onVirtualizer={onVirtualizer}
+            onCommit={onBodyCommit}
           />
         )}
         {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
