@@ -1,4 +1,4 @@
-// @vegastack date-time@0.25.66 sha256-SYWia8jx2o3YwwKKPiDaOq7jpfEJ6BhgDnFp8KUnZFo=
+// @vegastack date-time@0.25.67 sha256-VfWsszjGGl0nRSk/HnASpSjvnCbK5WyajJDBQnYj+7A=
 
 export type DateInput = Date | string | number;
 

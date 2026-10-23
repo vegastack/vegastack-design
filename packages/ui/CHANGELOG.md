@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.67
+
+### Patch Changes
+
+- [#729](https://github.com/vegastack/vegastack-design/pull/729) [`70a2787`](https://github.com/vegastack/vegastack-design/commit/70a278729e1a9d0779428011af9203ba7e382f31) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 **TextEdit**: a table column's width is its own (Notion) — the first resize, and every column added (160px), stores each column's width, so widening or adding a column no longer squeezes the others and a wide table scrolls inside its box. A document ending in a table, audio, video or image keeps room below it: clicking there, ↓ from the table's last row, or ↓ / → on the selected block adds an empty paragraph to type in. A `variant="composer"` comment box no longer shows a scrollbar after a mention (the chip's hit area overflowed its last line). (Regent operator, 23-10-2026.)
+
 ## 0.25.66
 
 ### Patch Changes

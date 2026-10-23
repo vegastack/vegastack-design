@@ -1,4 +1,4 @@
-// @vegastack use-optimistic-action@0.25.66 sha256-vKlKXyLgAOCdJ5e8gUyHZP+vrDSs8/E/TlLmgOki+Yo=
+// @vegastack use-optimistic-action@0.25.67 sha256-S9NXejSdrrwRoPBbpVythByaz51h7WeoN2waiZShi0k=
 
 "use client";
 

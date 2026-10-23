@@ -1,4 +1,4 @@
-// @vegastack load-more@0.25.66 sha256-WrKzui1BAs20rSuA7CliH2ls84leln1/OVUkNPyUizg=
+// @vegastack load-more@0.25.67 sha256-SouW1P6RSB/uN2/X5XPxVqc9XNc+9ALQuj/In0gEbEg=
 
 "use client";
 
