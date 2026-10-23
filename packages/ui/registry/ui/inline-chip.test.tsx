@@ -233,6 +233,16 @@ test("a task chip shows the task glyph until done; done swaps in the check", asy
   expect(icon("done").getAttribute("class")).toContain("lucide-circle-check");
   expect(screen.getByTestId("done").element()).toHaveAttribute("data-done", "");
   expect(icon("done")).toHaveAttribute("aria-label", "Done");
+  // Done is the state on any kind, a file included.
+  const file = await render(
+    <InlineChip kind="file" label="report.pdf" done data-testid="file" />,
+  );
+  expect(
+    file
+      .getByTestId("file")
+      .element()
+      .querySelector("[data-slot=inline-chip-icon]"),
+  ).toHaveAttribute("aria-label", "Done");
   expect(icon("open")).toHaveAttribute("aria-hidden", "true");
 });
 

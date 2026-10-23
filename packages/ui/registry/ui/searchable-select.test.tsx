@@ -780,3 +780,27 @@ test("onCreateOption: a single pick made while the new option is on its way wins
   await new Promise((resolve) => setTimeout(resolve, 50));
   expect(onValueChange.mock.calls.map(([v]) => v?.name)).toEqual(["Cinder"]);
 });
+
+test("onCreateOption: clearing while the new option is on its way keeps it cleared", async () => {
+  let land!: (project: Project) => void;
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <Picker
+      value={PROJECTS[0]}
+      clearable
+      onValueChange={onValueChange}
+      onCreateOption={() =>
+        new Promise<Project>((resolve) => {
+          land = resolve;
+        })
+      }
+    />,
+  );
+  await screen.getByRole("combobox").click();
+  await screen.getByPlaceholder("Search projects…").fill("Dune");
+  await userEvent.keyboard("{Enter}");
+  await screen.getByRole("button", { name: "Clear selection" }).click();
+  land({ id: "dune", name: "Dune" });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onValueChange.mock.calls.map(([v]) => v)).toEqual([null]);
+});

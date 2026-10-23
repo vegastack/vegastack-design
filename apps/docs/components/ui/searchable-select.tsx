@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.67 sha256-B2lXcRRYCZatpa59cZmxh0xA7SpsAj4jfG94dKkLjYg=
+// @vegastack searchable-select@0.25.67 sha256-4dJO1/fboATq4DfkIzMdF26zxCr6WIo19Br68ISZX1c=
 
 "use client";
 
@@ -956,6 +956,8 @@ export function SearchableSelect<
             // DS-22: this control unmounts the moment the value clears, which would drop focus
             // to <body>; hand it to the trigger first. No announcement — the change is visible.
             trigger?.focus();
+            // A clear supersedes an option still on its way (`onCreateOption`).
+            createdRef.current++;
             onValueChange?.(
               (isMultiple ? [] : null) as SearchableSelectValue<Item, Multiple>,
             );

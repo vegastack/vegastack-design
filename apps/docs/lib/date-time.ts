@@ -1,4 +1,4 @@
-// @vegastack date-time@0.25.67 sha256-hfsePjAUkWSO8FBQuJ/OLUfiDyuJ5LtMBUulMzDjfbo=
+// @vegastack date-time@0.25.67 sha256-x4hLj5QQ+Fsrwb3bplwktcyCuiJuWxKE55d/6kmReU4=
 
 export type DateInput = Date | string | number;
 
@@ -272,6 +272,8 @@ function calendarDayParts(isoDay: string): [number, number, number] | null {
   const match = CALENDAR_DAY.exec(isoDay);
   if (!match) return null;
   const [y, m, d] = [Number(match[1]), Number(match[2]) - 1, Number(match[3])];
+  // Year 0000 has no Common Era day to name (Intl would write it as year 1).
+  if (y < 1) return null;
   const utc = utcMidnight(y, m, d);
   return utc.getUTCFullYear() === y &&
     utc.getUTCMonth() === m &&

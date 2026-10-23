@@ -42,6 +42,7 @@ test("parseCalendarDay and toCalendarDay round-trip the local day; invalid days 
   expect(toCalendarDay("2026-10-08")).toBe("2026-10-08");
   for (const bad of [
     "",
+    "0000-01-01",
     "2026-02-30",
     "2026-13-01",
     "10/08/2026",

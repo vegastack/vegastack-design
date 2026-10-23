@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.67 sha256-UO6ysOIvQl0M98JN/ouh9Q8sRVzpS5HnxbkyhqMSfZc=
+// @vegastack inline-chip@0.25.67 sha256-s0upR1rxDrw5hOeIJ7DTli4fwx3t6iNiH39tVYhElTI=
 
 "use client";
 
@@ -487,13 +487,6 @@ export function InlineChip({
         data-slot="inline-chip-avatar"
         className={AVATAR}
       />
-    ) : kind === "file" ? (
-      <FileTypeIcon
-        contentType={contentType}
-        name={label}
-        data-slot="inline-chip-icon"
-        className={cn(ICON, "text-current")}
-      />
     ) : done ? (
       // A done target's check is its state, so it is named; every other glyph is decoration.
       <CircleCheck
@@ -501,6 +494,13 @@ export function InlineChip({
         aria-label="Done"
         data-slot="inline-chip-icon"
         className={ICON}
+      />
+    ) : kind === "file" ? (
+      <FileTypeIcon
+        contentType={contentType}
+        name={label}
+        data-slot="inline-chip-icon"
+        className={cn(ICON, "text-current")}
       />
     ) : React.isValidElement<{ className?: string }>(kindIcon) ? (
       React.cloneElement(kindIcon, {
