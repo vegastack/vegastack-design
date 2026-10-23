@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.68 sha256-52frabkUAEsPtTYtIcG4RWaE3lYMnoDUwWG3zjYoxls=
+// @vegastack data-table-parts@0.25.68 sha256-sxpN7+odcX8U6N9F8rMXzsXBX9pf35bRPeGzA9Fxdbk=
 
 "use client";
 
@@ -633,7 +633,7 @@ export function SortHeaderButton({
       size="sm"
       data-slot="data-table-sort"
       aria-label={name != null ? `Sort by ${name}` : undefined}
-      tabIndex={tabIndex}
+      {...(tabIndex !== undefined && { tabIndex })}
       onClick={onSort}
       className={cn(
         // The label carries upstream `TableHead`'s own type and ink (`text-sm font-medium`,
@@ -922,7 +922,7 @@ export function SelectAllHead({
         onCheckedChange={onToggle}
         disabled={disabled}
         aria-label={label}
-        tabIndex={controlTabIndex}
+        {...(controlTabIndex !== undefined && { tabIndex: controlTabIndex })}
         ref={controlRef}
       />
     </TableHead>
@@ -988,7 +988,7 @@ export function SelectionCell({
         checked={checked}
         onCheckedChange={onToggle}
         aria-label={label}
-        tabIndex={controlTabIndex}
+        {...(controlTabIndex !== undefined && { tabIndex: controlTabIndex })}
         ref={controlRef}
       />
     </TableCell>
@@ -1557,7 +1557,7 @@ export function SectionToggle({
       variant="ghost"
       size="xs"
       data-slot="section-toggle"
-      tabIndex={tabIndex}
+      {...(tabIndex !== undefined && { tabIndex })}
       aria-expanded={expanded}
       onClick={() => onExpandedChange(!expanded)}
       // `aria-expanded` on upstream's ghost Button means "this control's POPUP is open", and it
@@ -1735,9 +1735,19 @@ export function useRowSelection({
     [isControlled, onSelectionChange],
   );
 
-  const allSelected =
-    rowIds.length > 0 && rowIds.every((id) => selected.has(id));
-  const someSelected = rowIds.some((id) => selected.has(id));
+  // Memoised: a grid re-renders its parent on every column-window move, and these scan every
+  // loaded id — 50,000 of them in a spreadsheet-sized grid.
+  const { allSelected, someSelected } = React.useMemo(() => {
+    if (selected.size === 0) return { allSelected: false, someSelected: false };
+    let all = rowIds.length > 0;
+    let some = false;
+    for (const id of rowIds) {
+      if (selected.has(id)) some = true;
+      else all = false;
+      if (some && !all) break;
+    }
+    return { allSelected: all, someSelected: some };
+  }, [rowIds, selected]);
 
   const toggleAll = React.useCallback(() => {
     const next = new Set(selected);
@@ -1977,15 +1987,21 @@ export interface GridSummaryCellProps extends Omit<
    */
   loading?: boolean;
   /**
-   * The trigger's tab stop; a grid that roves focus over its footer passes `0` or `-1`.
+   * Content before the function picker — a summary row's leading "412 rows".
+   * @default undefined
+   */
+  leading?: React.ReactNode;
+  /**
+   * The trigger's tab stop. A grid that roves focus over its footer CELLS passes `-1` and opens
+   * the picker from the cell (so the arrow keys keep moving between cells).
    * @default undefined
    */
   triggerTabIndex?: number;
   /**
-   * Ref to the trigger — the focus target a roving grid moves to.
+   * Called when the picker opens or closes — a roving grid returns focus to the cell on close.
    * @default undefined
    */
-  triggerRef?: React.Ref<HTMLButtonElement>;
+  onOpenChange?: (open: boolean) => void;
   /**
    * The label of the "no function" item.
    * @default "None"
@@ -2023,74 +2039,125 @@ export function GridSummaryCell({
   onValueChange,
   result,
   loading = false,
+  leading,
   triggerTabIndex,
-  triggerRef,
+  onOpenChange,
   noneLabel = "None",
   placeholder = "Summarize",
   className,
+  onFocus,
+  onPointerEnter,
+  onPointerDown,
   ...props
 }: GridSummaryCellProps) {
   const chosen = options.find((option) => option.value === value) ?? null;
+  // An unsummarised cell mounts its picker only once it is hovered, focused or touched: a wide
+  // grid's footer would otherwise build a Select per column on every sideways scroll step.
+  const [armed, setArmed] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const live = chosen != null || armed;
   return (
     <TableCell
       data-slot="grid-summary-cell"
-      className={cn("py-1", className)}
+      className={cn("group/summary-cell py-1", className)}
+      onFocus={(event) => {
+        setArmed(true);
+        onFocus?.(event);
+      }}
+      onPointerEnter={(event) => {
+        setArmed(true);
+        onPointerEnter?.(event);
+      }}
+      onPointerDown={(event) => {
+        // A touch has no hover to arm with: the first tap arms and opens.
+        if (!live && event.pointerType !== "mouse") {
+          setArmed(true);
+          setOpen(true);
+        }
+        onPointerDown?.(event);
+      }}
       {...props}
     >
-      <Select
-        value={chosen ? chosen.value : SUMMARY_NONE}
-        onValueChange={(next) =>
-          onValueChange(
-            next == null || next === SUMMARY_NONE ? null : String(next),
-          )
-        }
-        items={[
-          { value: SUMMARY_NONE, label: noneLabel },
-          ...options.map((option) => ({
-            value: option.value,
-            label: option.label,
-          })),
-        ]}
-      >
-        <SelectTrigger
-          ref={triggerRef}
-          variant="ghost"
-          size="sm"
-          tabIndex={triggerTabIndex}
-          aria-label={
-            chosen
-              ? `${chosen.label} of ${columnLabel}`
-              : `${placeholder} ${columnLabel}`
-          }
-          data-empty={chosen ? undefined : ""}
-          className={cn(
-            "group/summary -mx-2 max-w-full min-w-0 gap-1 text-xs text-muted-foreground",
-            // Unsummarised: invisible until a fine pointer hovers the cell or the trigger has focus.
-            "data-empty:opacity-0 data-empty:pointer-fine:hover:opacity-100 data-empty:focus-visible:opacity-100 data-popup-open:opacity-100",
-          )}
-        >
-          <span className="min-w-0 truncate">
-            {chosen ? chosen.label : placeholder}
-          </span>
-          {chosen ? (
-            loading ? (
-              <Skeleton data-slot="grid-summary-loading" className="h-3 w-8" />
-            ) : (
-              <span className="font-medium text-foreground tabular-nums">
-                {result}
-              </span>
+      {leading != null ? (
+        <span className="me-2 align-middle text-xs text-muted-foreground">
+          {leading}
+        </span>
+      ) : null}
+      {live ? (
+        <Select
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next);
+            onOpenChange?.(next);
+          }}
+          value={chosen ? chosen.value : SUMMARY_NONE}
+          onValueChange={(next) =>
+            onValueChange(
+              next == null || next === SUMMARY_NONE ? null : String(next),
             )
-          ) : null}
-        </SelectTrigger>
-        <SelectContent alignItemWithTrigger={false} align="start">
-          <SelectItem value={SUMMARY_NONE}>{noneLabel}</SelectItem>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          }
+          items={[
+            { value: SUMMARY_NONE, label: noneLabel },
+            ...options.map((option) => ({
+              value: option.value,
+              label: option.label,
+            })),
+          ]}
+        >
+          <SelectTrigger
+            variant="ghost"
+            size="sm"
+            {...(triggerTabIndex !== undefined && {
+              tabIndex: triggerTabIndex,
+            })}
+            aria-label={
+              chosen
+                ? `${chosen.label} of ${columnLabel}`
+                : `${placeholder} ${columnLabel}`
+            }
+            data-empty={chosen ? undefined : ""}
+            className={cn(
+              "-mx-2 inline-flex max-w-full min-w-0 gap-1 text-xs text-muted-foreground",
+              // Unsummarised, on a fine pointer: invisible until the cell is hovered or focused, so a
+              // footer of unsummarised columns stays quiet. A touch screen cannot hover, so it always
+              // shows the prompt there.
+              "pointer-fine:data-empty:opacity-0 pointer-fine:group-hover/summary-cell:opacity-100 pointer-fine:group-focus-within/summary-cell:opacity-100 data-popup-open:opacity-100",
+            )}
+          >
+            <span className="min-w-0 truncate">
+              {chosen ? chosen.label : placeholder}
+            </span>
+            {chosen ? (
+              loading ? (
+                <Skeleton
+                  data-slot="grid-summary-loading"
+                  className="h-3 w-8"
+                />
+              ) : (
+                <span className="font-medium text-foreground tabular-nums">
+                  {result}
+                </span>
+              )
+            ) : null}
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false} align="start">
+            <SelectItem value={SUMMARY_NONE}>{noneLabel}</SelectItem>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <span
+          aria-hidden="true"
+          data-slot="grid-summary-placeholder"
+          className="text-xs text-muted-foreground pointer-fine:invisible"
+        >
+          {placeholder}
+        </span>
+      )}
     </TableCell>
   );
 }

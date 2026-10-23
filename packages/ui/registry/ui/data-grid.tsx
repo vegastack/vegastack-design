@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.68 sha256-7oSphfxN/hohAFS59N10NPeaHlsZmmJCZYyvn8JKLBs=
+// @vegastack data-grid@0.25.68 sha256-UTcbblYIvWrsS18QQBlAiiWWmlCq84J/NWQVpE0Cj0M=
 
 "use client";
 
@@ -328,6 +328,20 @@ export interface DataGridSummaryRow {
   loading?: readonly string[];
 }
 
+/** What a control inside the grid spreads to join its roving focus (`headerTrailing`). */
+export interface DataGridFocusProps {
+  /** `0` while the control holds the grid's one tab stop, else `-1`. */
+  tabIndex: number;
+  /** Registers the control as the focus target. */
+  ref: (node: HTMLElement | null) => void;
+  /** Reports the control as the active position. */
+  onFocus: () => void;
+  /** The control's position in the grid. */
+  "data-grid-row": string;
+  /** The control's position in the grid. */
+  "data-grid-key": string;
+}
+
 /** Row height preset; each is an exact height, so the virtualiser never measures. */
 export type DataGridRowHeight = "short" | "medium" | "tall";
 
@@ -424,10 +438,12 @@ export interface DataGridProps<T> {
    */
   virtualizeColumns?: boolean;
   /**
-   * Content of a trailing header cell after the last column — an "add field" button.
+   * A trailing header cell after the last column — an "add field" button. A render function:
+   * spread the focus props onto the one control it renders, so the control joins the header
+   * row's roving focus instead of becoming a second tab stop.
    * @default undefined
    */
-  headerTrailing?: React.ReactNode;
+  headerTrailing?: (focus: DataGridFocusProps) => React.ReactNode;
   /**
    * Controlled collapsed state per group id. Omit for uncontrolled.
 
@@ -595,18 +611,17 @@ const ROW_CLASS: Record<DataGridRowHeight, string> = {
   medium: "h-10",
   tall: "h-20",
 };
-// The cell's padding plus its content's clamp add up to the row height exactly, so a taller
-// value (an editor, a wrapped line) can never push a fixed row out of the virtualiser's sums.
+// The cell's padding plus one line of text add up to the row height, so a fixed row matches the
+// virtualiser's sums. One-line cells truncate on the cell itself — no wrapper element, because
+// every element a scroll tick inserts pays the page's whole style sheet; `tall` wraps up to
+// three lines inside a clamped block.
 const CELL_PAD_CLASS: Record<DataGridRowHeight, string> = {
   short: "py-1",
   medium: "py-2",
   tall: "py-2",
 };
-const CONTENT_CLASS: Record<DataGridRowHeight, string> = {
-  short: "max-h-6 truncate",
-  medium: "max-h-6 truncate",
-  tall: "max-h-16 line-clamp-3 whitespace-normal wrap-anywhere",
-};
+const TALL_CONTENT_CLASS =
+  "max-h-16 min-w-0 line-clamp-3 whitespace-normal wrap-anywhere";
 /** `TableHead`'s `h-10`. */
 const HEADER_PX = 40;
 const DEFAULT_WIDTH = 160;
@@ -617,13 +632,14 @@ const TRAILING_WIDTH = 48;
 
 // Focus coordinates for rows and columns that are not data. Private-use code points, so no real
 // row id or column key can collide with them.
-const HEADER = "header";
-const FOOTER = "footer";
-const SELECT = "select";
-const GROUP = "group";
-const GROUP_PREFIX = "group:";
-const MORE_PREFIX = "more:";
-const nodeKey = (rowId: string, key: string) => `${rowId}${key}`;
+const HEADER = "\uE000header";
+const FOOTER = "\uE000footer";
+const SELECT = "\uE000select";
+const GROUP = "\uE000group";
+const TRAILING = "\uE000trailing";
+const GROUP_PREFIX = "\uE000group:";
+const MORE_PREFIX = "\uE000more:";
+const nodeKey = (rowId: string, key: string) => `${rowId}\uE001${key}`;
 
 /** A focus coordinate: a row (or `HEADER`/`FOOTER`/a group row) and a column key. */
 interface GridPosition {
@@ -736,6 +752,17 @@ function Cell<T>({
   return <>{value == null ? null : String(value)}</>;
 }
 
+/*
+ * Body rows and cells are plain elements with `Table`'s look, not `TableRow`/`TableCell`: those
+ * carry `:has()` and `:last-child` selectors (`has-aria-expanded:`, `[&:has([role=checkbox])]:pe-0`,
+ * `[&_tr:last-child]:border-0`), and at 150 columns every row a scroll tick inserts re-matched them
+ * — style recalculation was most of the tick.
+ */
+const ROW_BASE_CLASS = "border-b hover:bg-muted/50";
+const CELL_BASE_CLASS = "p-2 align-middle whitespace-nowrap";
+const HEAD_BASE_CLASS =
+  "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
+
 /** Sticky frozen cells are opaque, so scrolled cells never show through; the row's state tints mix in. */
 const FROZEN_CELL_CLASS =
   "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-selected/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))]";
@@ -803,7 +830,7 @@ function GridCellImpl<T>({
     <Cell column={column} row={row} context={context} />
   );
   return (
-    <TableCell
+    <td
       ref={ref}
       role={placed.primary ? "rowheader" : "gridcell"}
       aria-colindex={placed.ariaColIndex}
@@ -816,11 +843,8 @@ function GridCellImpl<T>({
       className={placed.cellClass}
       style={stickyStyle(placed.offset)}
     >
-      {fixed ? (
-        <div
-          data-slot="data-grid-cell-content"
-          className={cn("min-w-0", CONTENT_CLASS[rowHeight ?? "medium"])}
-        >
+      {fixed && rowHeight === "tall" ? (
+        <div data-slot="data-grid-cell-content" className={TALL_CONTENT_CLASS}>
           {content}
         </div>
       ) : (
@@ -854,7 +878,7 @@ function GridCellImpl<T>({
           ))}
         </span>
       ) : null}
-    </TableCell>
+    </td>
   );
 }
 
@@ -878,16 +902,13 @@ interface GridRowProps<T> {
   dataIndex?: number;
 }
 
-function SpacerCell({ width }: { width: number }) {
-  return (
-    <td
-      aria-hidden="true"
-      data-slot="data-grid-spacer"
-      className="p-0"
-      style={{ width }}
-    />
-  );
-}
+/**
+ * The stand-in for the windowed-out columns on one side. Its width comes from its `<col>` alone,
+ * so a window move rewrites two `<col>`s rather than two cells in every row.
+ */
+const SpacerCell = React.memo(function SpacerCell() {
+  return <td aria-hidden="true" data-slot="data-grid-spacer" className="p-0" />;
+});
 
 function GridRowImpl<T>({
   row,
@@ -927,7 +948,7 @@ function GridRowImpl<T>({
     />
   );
   return (
-    <TableRow
+    <tr
       ref={measure}
       data-index={dataIndex}
       data-slot="data-grid-row"
@@ -936,6 +957,7 @@ function GridRowImpl<T>({
       aria-selected={w.selectable ? selected : undefined}
       className={cn(
         "group/row",
+        ROW_BASE_CLASS,
         w.rowHeight && ROW_CLASS[w.rowHeight],
         // A selected row keeps one wash through hover and press (SP-06), light enough that a
         // `secondary` Badge in it stays visible — see `SELECTED_ROW_CLASS`.
@@ -962,11 +984,11 @@ function GridRowImpl<T>({
         />
       ) : null}
       {w.frozen.map(cell)}
-      {w.fixed ? <SpacerCell width={w.padStart} /> : null}
+      {w.fixed ? <SpacerCell /> : null}
       {w.center.map(cell)}
-      {w.fixed ? <SpacerCell width={w.padEnd} /> : null}
+      {w.fixed ? <SpacerCell /> : null}
       {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
-    </TableRow>
+    </tr>
   );
 }
 
@@ -1005,21 +1027,18 @@ const GroupRowView = React.memo(function GroupRowView({
     [api, itemId],
   );
   return (
-    <TableRow
+    <tr
       ref={measure}
       data-index={dataIndex}
       data-slot="data-grid-group-row"
       data-group={groupId}
       data-collapsed={expanded ? undefined : ""}
       aria-rowindex={ariaRowIndex}
-      className={cn(
-        "bg-muted hover:bg-muted active:bg-muted",
-        rowHeight && ROW_CLASS[rowHeight],
-      )}
+      className={cn("border-b bg-muted", rowHeight && ROW_CLASS[rowHeight])}
     >
-      <TableCell
+      <td
         colSpan={span}
-        className="py-1"
+        className="px-2 py-1 align-middle"
         data-grid-row={itemId}
         data-grid-key={GROUP}
         onFocus={() => api.focused(itemId, GROUP)}
@@ -1036,8 +1055,8 @@ const GroupRowView = React.memo(function GroupRowView({
             onExpandedChange={(next) => api.toggleGroup(groupId, next)}
           />
         </div>
-      </TableCell>
-    </TableRow>
+      </td>
+    </tr>
   );
 });
 
@@ -1057,19 +1076,19 @@ function GroupMoreRow({
   dataIndex?: number;
 }) {
   return (
-    <TableRow
+    <tr
       ref={measure}
       data-index={dataIndex}
       data-slot="data-grid-group-more"
       aria-rowindex={ariaRowIndex}
-      className={cn("hover:bg-transparent", rowHeight && ROW_CLASS[rowHeight])}
+      className={cn("border-b", rowHeight && ROW_CLASS[rowHeight])}
     >
-      <TableCell colSpan={span} className="p-0">
+      <td colSpan={span} className="p-0 align-middle">
         <div className="sticky start-0 w-fit max-w-full">
           <LoadMore {...loadMore} />
         </div>
-      </TableCell>
-    </TableRow>
+      </td>
+    </tr>
   );
 }
 
@@ -1082,7 +1101,7 @@ function FixedSkeletonRows<T>({
   rows: number;
 }) {
   const bar = (placed: PlacedColumn<T>) => (
-    <TableCell
+    <td
       key={placed.key}
       className={placed.cellClass}
       style={stickyStyle(placed.offset)}
@@ -1095,31 +1114,35 @@ function FixedSkeletonRows<T>({
             : placed.column.align === "center" && "mx-auto",
         )}
       />
-    </TableCell>
+    </td>
   );
   return (
     <>
       {Array.from({ length: rows }, (_, index) => (
-        <TableRow
+        <tr
           key={`skeleton-${index}`}
           data-slot="data-grid-skeleton-row"
           aria-hidden="true"
-          className={cn("group/row", w.rowHeight && ROW_CLASS[w.rowHeight])}
+          className={cn("border-b", w.rowHeight && ROW_CLASS[w.rowHeight])}
         >
           {w.selectable ? (
-            <TableCell
-              className={cn("w-0", w.selectOffset != null && FROZEN_CELL_CLASS)}
+            <td
+              className={cn(
+                CELL_BASE_CLASS,
+                "w-0",
+                w.selectOffset != null && FROZEN_CELL_CLASS,
+              )}
               style={stickyStyle(w.selectOffset)}
             >
               <Skeleton className="size-3.5 rounded-sm" />
-            </TableCell>
+            </td>
           ) : null}
           {w.frozen.map(bar)}
-          <SpacerCell width={w.padStart} />
+          <SpacerCell />
           {w.center.map(bar)}
-          <SpacerCell width={w.padEnd} />
+          <SpacerCell />
           {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
-        </TableRow>
+        </tr>
       ))}
     </>
   );
@@ -1131,6 +1154,8 @@ interface GridBodyProps<T> {
   w: ColumnWindow<T>;
   virtualize: boolean;
   headerPx: number;
+  /** The sticky summary row's height, kept clear when a row scrolls in from below. */
+  footerPx: number;
   tabStop: GridPosition | null;
   editing: (GridPosition & { seed?: string }) | null;
   selected: ReadonlySet<string>;
@@ -1154,6 +1179,7 @@ function GridBody<T>({
   w,
   virtualize,
   headerPx,
+  footerPx,
   tabStop,
   editing,
   selected,
@@ -1171,6 +1197,9 @@ function GridBody<T>({
     getItemKey: (index) => items[index]?.id ?? index,
     // The header sits above the first row inside the same scroll box.
     scrollMargin: headerPx,
+    // A row scrolled into view lands clear of the sticky header and summary row.
+    scrollPaddingStart: headerPx,
+    scrollPaddingEnd: footerPx,
     overscan: 6,
   });
   React.useLayoutEffect(() => {
@@ -1210,7 +1239,7 @@ function GridBody<T>({
       : 0;
 
   return (
-    <TableBody data-slot="data-grid-body">
+    <tbody data-slot="data-grid-body">
       {top > 0 ? (
         <tr aria-hidden="true" data-slot="data-grid-virtual-pad">
           <td colSpan={w.span} className="p-0" style={{ height: top }} />
@@ -1275,7 +1304,7 @@ function GridBody<T>({
           <td colSpan={w.span} className="p-0" style={{ height: bottom }} />
         </tr>
       ) : null}
-    </TableBody>
+    </tbody>
   );
 }
 
@@ -1492,6 +1521,8 @@ export function DataGrid<T>({
         ariaColIndex,
         cellClass: fixed
           ? cn(
+              CELL_BASE_CLASS,
+              "overflow-hidden text-ellipsis",
               alignClass(column.align),
               rowHeight && CELL_PAD_CLASS[rowHeight],
               column.mono && "font-mono text-sm tabular-nums",
@@ -1500,6 +1531,7 @@ export function DataGrid<T>({
               "focus-visible:-outline-offset-2",
             )
           : cn(
+              CELL_BASE_CLASS,
               columnCellClass(column, { fill: primary }),
               // The roving cell lives inside the scroll viewport, which clips its overflow — an
               // outward focus outline would be cut off, so it is pulled inside (SP-03).
@@ -1535,7 +1567,7 @@ export function DataGrid<T>({
   const tableWidth =
     frozenWidth +
     centerPlaced.reduce((sum, p) => sum + p.width, 0) +
-    (headerTrailing != null ? TRAILING_WIDTH : 0);
+    (headerTrailing ? TRAILING_WIDTH : 0);
 
   // ---- column windowing ------------------------------------------------------
   const windowColumns = fixed && virtualizeColumns;
@@ -1546,6 +1578,8 @@ export function DataGrid<T>({
     estimateSize: (index) => centerPlaced[index]?.width ?? DEFAULT_WIDTH,
     getItemKey: (index) => centerPlaced[index]?.key ?? index,
     paddingStart: frozenWidth,
+    // A column scrolled into view lands clear of the frozen columns.
+    scrollPaddingStart: frozenWidth,
     overscan: 2,
   });
   const widthSignature = centerPlaced.map((p) => p.width).join(",");
@@ -1784,6 +1818,11 @@ export function DataGrid<T>({
     () => new Map(items.map((item, index) => [item.id, index])),
     [items],
   );
+  /** The header row's keys: the columns, then the trailing control when there is one. */
+  const headerKeys = React.useMemo(
+    () => (headerTrailing ? [...navKeys, TRAILING] : navKeys),
+    [navKeys, headerTrailing],
+  );
   const firstItemNav = navRows.length > 1 && navRows[1] !== FOOTER ? 1 : 0;
   const lastItemNav = navRows.length - (summaryRow ? 2 : 1);
 
@@ -1796,15 +1835,21 @@ export function DataGrid<T>({
         ? active.rowId
         : (navRows[firstItemNav] ?? HEADER),
     key:
-      active && navKeys.includes(active.key)
+      active &&
+      (navKeys.includes(active.key) ||
+        (active.key === TRAILING && headerTrailing != null))
         ? active.key
         : (navKeys[0] ?? SELECT),
   };
+  // The trailing control lives in the header alone; elsewhere its key means the last column.
+  if (resolved.key === TRAILING && resolved.rowId !== HEADER)
+    resolved.key = navKeys.at(-1) ?? SELECT;
   // A windowed-out column cannot hold the tab stop; the first rendered one does instead.
   const renderedKeys = [
     ...(selectable ? [SELECT] : []),
     ...w.frozen.map((p) => p.key),
     ...w.center.map((p) => p.key),
+    ...(headerTrailing ? [TRAILING] : []),
   ];
   const tabKey = renderedKeys.includes(resolved.key)
     ? resolved.key
@@ -1818,6 +1863,8 @@ export function DataGrid<T>({
 
   const nodes = React.useRef(new Map<string, HTMLElement>());
   const pendingFocus = React.useRef<string | null>(null);
+  /** A focused cell that unmounted this commit (a refetch moved or removed its row). */
+  const lostFocus = React.useRef<GridPosition | null>(null);
   const rowVirtualizerRef = React.useRef<Virtualizer<
     HTMLDivElement,
     Element
@@ -1898,11 +1945,38 @@ export function DataGrid<T>({
     latest.current = current;
   });
 
+  // Focus follows the position, not the DOM node: when new data unmounts the focused cell (its
+  // row moved out of the window, or left), focus goes back to the same row and column — scrolled
+  // in — or, if the row is gone, to the tab stop that replaced it. A cell that unmounts because
+  // the reader scrolled it away is left alone: chasing it would fight the scroll.
+  const previousItems = React.useRef(items);
+  React.useLayoutEffect(() => {
+    const changed = previousItems.current !== items;
+    previousItems.current = items;
+    const lost = lostFocus.current;
+    lostFocus.current = null;
+    if (!lost || !changed) return;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && focused !== document.body) return;
+    const target = navRowIndex.has(lost.rowId)
+      ? lost
+      : { rowId: navRows[firstItemNav] ?? HEADER, key: lost.key };
+    focusAt(
+      target.rowId,
+      target.rowId.startsWith(GROUP_PREFIX) || navKeys.includes(target.key)
+        ? target.key
+        : (navKeys[0] ?? SELECT),
+    );
+  });
+
   const api = React.useMemo<GridApi>(
     () => ({
       register(rowId, key, node) {
         const id = nodeKey(rowId, key);
         if (!node) {
+          const gone = nodes.current.get(id);
+          if (gone && gone.contains(document.activeElement))
+            lostFocus.current = { rowId, key };
           nodes.current.delete(id);
           return;
         }
@@ -1992,6 +2066,15 @@ export function DataGrid<T>({
     [],
   );
 
+  const registerTrailing = React.useCallback(
+    (node: HTMLElement | null) => api.register(HEADER, TRAILING, node),
+    [api],
+  );
+  const focusTrailing = React.useCallback(
+    () => api.focused(HEADER, TRAILING),
+    [api],
+  );
+
   // ---- header interactions -------------------------------------------------
   const handleSort = (key: string, additive: boolean) =>
     commitSort(cycleSort(activeSort, key, { additive, maxKeys: maxSortKeys }));
@@ -2007,22 +2090,26 @@ export function DataGrid<T>({
   /** Double-click: the widest rendered value (or the header label), within the bounds. */
   const autoFit = (p: PlacedColumn<T>) => {
     if (!viewport) return;
-    let widest = 0;
     const escaped = CSS.escape(p.key);
-    viewport
-      .querySelectorAll<HTMLElement>(
-        `[data-grid-key="${escaped}"] [data-slot="data-grid-cell-content"], [data-grid-key="${escaped}"] [data-slot="data-grid-head-label"]`,
-      )
-      .forEach((node) => {
-        widest = Math.max(widest, node.scrollWidth);
-      });
-    if (widest === 0) return;
+    const nodes = [
+      ...viewport.querySelectorAll<HTMLElement>(
+        `td[data-grid-key="${escaped}"], [data-grid-key="${escaped}"] [data-slot="data-grid-head-label"]`,
+      ),
+    ];
+    if (nodes.length === 0) return;
+    // Each value's INTRINSIC width: a range over its contents measures the text as laid out,
+    // overflow included, so a column wider than its values can shrink too.
+    const range = document.createRange();
+    let widest = 0;
+    for (const node of nodes) {
+      range.selectNodeContents(node);
+      widest = Math.max(widest, range.getBoundingClientRect().width);
+    }
     const { min, max } = resizeBounds(p.column);
-    // The cell's inline padding (`px-2`), and the header's chevron when it has a menu.
-    const next = Math.min(
-      max,
-      Math.max(min, Math.ceil(widest + 16 + (p.column.headerMenu ? 24 : 0))),
-    );
+    // The cell's inline padding (`px-2`); the sort glyph and the menu chevron when the header has them.
+    const chrome =
+      16 + (p.column.sortable ? 24 : 0) + (p.column.headerMenu ? 24 : 0);
+    const next = Math.min(max, Math.max(min, Math.ceil(widest + chrome)));
     resizeTo(p.key, next, true);
   };
 
@@ -2050,6 +2137,36 @@ export function DataGrid<T>({
       onColumnReorder(full);
     },
   });
+
+  /**
+   * Resolve the cell a menu gesture began on. Only a body cell with a menu opens one; anywhere
+   * else Base UI's handler is stopped and the grid has no menu.
+   */
+  const claimMenu = (
+    event: React.SyntheticEvent & { preventBaseUIHandler?: () => void },
+  ) => {
+    if (!cellMenu) return;
+    const cell = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-grid-row]",
+    );
+    const rowId = cell?.dataset.gridRow;
+    const key = cell?.dataset.gridKey;
+    const content =
+      rowId &&
+      key &&
+      rowId !== HEADER &&
+      rowId !== FOOTER &&
+      !rowId.startsWith(GROUP_PREFIX) &&
+      key !== SELECT
+        ? cellMenu(rowId, key)
+        : null;
+    if (content == null || !rowId || !key) {
+      event.preventBaseUIHandler?.();
+      return;
+    }
+    setMenuTarget({ rowId, key });
+    setActive({ rowId, key });
+  };
 
   const openCellMenu = (cell: HTMLElement) => {
     const rect = cell.getBoundingClientRect();
@@ -2085,13 +2202,18 @@ export function DataGrid<T>({
     const key = isGroup ? resolved.key : origin.dataset.gridKey!;
     const isRtl = getComputedStyle(event.currentTarget).direction === "rtl";
     const rowAt = navRowIndex.get(rowId) ?? 0;
-    const keyAt = Math.max(0, navKeys.indexOf(key));
+    // The header row also holds the trailing control; every other row has the columns alone.
+    const keys = rowId === HEADER ? headerKeys : navKeys;
+    const keyAt = Math.max(0, keys.indexOf(key));
     const mod = event.metaKey || event.ctrlKey;
     const placedColumn = placed.find((p) => p.key === key);
     const go = (row: number, col: number) => {
-      const rows = navRows.length - 1;
-      const nextRow = navRows[Math.max(0, Math.min(row, rows))]!;
-      const nextKey = navKeys[Math.max(0, Math.min(col, navKeys.length - 1))]!;
+      const nextRow = navRows[Math.max(0, Math.min(row, navRows.length - 1))]!;
+      const rowKeys = nextRow === HEADER ? headerKeys : navKeys;
+      const wanted = keys[Math.max(0, Math.min(col, keys.length - 1))]!;
+      const nextKey = rowKeys.includes(wanted)
+        ? wanted
+        : (rowKeys.at(-1) ?? wanted);
       event.preventDefault();
       focusAt(nextRow, nextKey);
     };
@@ -2155,7 +2277,7 @@ export function DataGrid<T>({
       case "ArrowLeft": {
         if (isGroup) return;
         const forward = (event.key === "ArrowRight") !== isRtl;
-        if (mod) return go(rowAt, forward ? navKeys.length - 1 : 0);
+        if (mod) return go(rowAt, forward ? keys.length - 1 : 0);
         return go(rowAt, keyAt + (forward ? 1 : -1));
       }
       case "Home":
@@ -2163,7 +2285,7 @@ export function DataGrid<T>({
         return go(rowAt, 0);
       case "End":
         if (mod) return go(lastItemNav, navKeys.length - 1);
-        return go(rowAt, navKeys.length - 1);
+        return go(rowAt, keys.length - 1);
       case "PageDown":
         if (rowAt === 0 || rowId === FOOTER) return;
         return go(Math.min(lastItemNav, rowAt + pageSize()), keyAt);
@@ -2172,6 +2294,20 @@ export function DataGrid<T>({
         return go(Math.max(firstItemNav || 0, rowAt - pageSize()), keyAt);
       default:
         break;
+    }
+
+    // The summary row: the cell holds focus; Enter or Space opens its function picker.
+    if (rowId === FOOTER) {
+      if (event.key === "Enter" || event.key === " ") {
+        const trigger = origin.querySelector<HTMLElement>(
+          '[data-slot="select-trigger"]',
+        );
+        if (trigger) {
+          event.preventDefault();
+          trigger.click();
+        }
+      }
+      return;
     }
 
     // Body cells: edit, type-to-edit, the cell menu.
@@ -2274,7 +2410,7 @@ export function DataGrid<T>({
       column.header
     );
     return (
-      <TableHead
+      <th
         key={key}
         {...(itemProps ?? {})}
         ref={itemProps ? mergeRefs(itemProps.ref, register) : register}
@@ -2297,6 +2433,7 @@ export function DataGrid<T>({
         tabIndex={isTab ? 0 : -1}
         onFocus={() => api.focused(HEADER, key)}
         className={cn(
+          HEAD_BASE_CLASS,
           fixed
             ? cn(
                 alignClass(column.align),
@@ -2362,12 +2499,12 @@ export function DataGrid<T>({
             onAutoFit={() => autoFit(p)}
           />
         ) : null}
-      </TableHead>
+      </th>
     );
   };
 
   const headerRow = (
-    <TableRow aria-rowindex={1}>
+    <tr aria-rowindex={1} className="border-b">
       {selectable ? (
         <SelectAllHead
           role="columnheader"
@@ -2390,25 +2527,34 @@ export function DataGrid<T>({
         />
       ) : null}
       {w.frozen.map(headerCell)}
-      {fixed ? (
-        <th aria-hidden="true" className="p-0" style={{ width: w.padStart }} />
-      ) : null}
+      {fixed ? <th aria-hidden="true" className="p-0" /> : null}
       {w.center.map(headerCell)}
-      {fixed ? (
-        <th aria-hidden="true" className="p-0" style={{ width: w.padEnd }} />
-      ) : null}
-      {headerTrailing != null ? (
+      {fixed ? <th aria-hidden="true" className="p-0" /> : null}
+      {headerTrailing ? (
         <th
           data-slot="data-grid-head-trailing"
           className="h-10 px-1 align-middle"
         >
-          {headerTrailing}
+          {headerTrailing({
+            tabIndex: resolved.rowId === HEADER && tabKey === TRAILING ? 0 : -1,
+            ref: registerTrailing,
+            onFocus: focusTrailing,
+            "data-grid-row": HEADER,
+            "data-grid-key": TRAILING,
+          })}
         </th>
       ) : null}
-    </TableRow>
+    </tr>
   );
 
   const summaryLoading = new Set(summaryRow?.loading ?? []);
+  /** A closed function picker hands focus back to its cell, which roves. */
+  const refocusFooter = (key: string) => (open: boolean) => {
+    if (open) return;
+    requestAnimationFrame(() =>
+      nodes.current.get(nodeKey(FOOTER, key))?.focus(),
+    );
+  };
   const footerCell = (p: PlacedColumn<T>) => {
     const isTab = resolved.rowId === FOOTER && tabKey === p.key;
     const register = (node: HTMLElement | null) =>
@@ -2425,19 +2571,22 @@ export function DataGrid<T>({
         "focus-visible:-outline-offset-2",
       ),
     };
-    if (summaryRow && p.column.summaryOptions && !p.primary)
+    if (summaryRow && p.column.summaryOptions)
       return (
         <GridSummaryCell
           key={p.key}
           {...common}
+          ref={register}
+          tabIndex={isTab ? 0 : -1}
+          leading={p.primary ? summaryRow.label : undefined}
+          onOpenChange={refocusFooter(p.key)}
           columnLabel={p.label}
           options={p.column.summaryOptions}
           value={summaryRow.value[p.key] ?? null}
           onValueChange={(next) => summaryRow.onValueChange(p.key, next)}
           result={summaryRow.results?.[p.key]}
           loading={summaryLoading.has(p.key)}
-          triggerTabIndex={isTab ? 0 : -1}
-          triggerRef={register}
+          triggerTabIndex={-1}
         />
       );
     return (
@@ -2474,12 +2623,10 @@ export function DataGrid<T>({
           />
         ) : null}
         {w.frozen.map(footerCell)}
-        {fixed ? <SpacerCell width={w.padStart} /> : null}
+        {fixed ? <SpacerCell /> : null}
         {w.center.map(footerCell)}
-        {fixed ? <SpacerCell width={w.padEnd} /> : null}
-        {headerTrailing != null ? (
-          <td aria-hidden="true" className="p-0" />
-        ) : null}
+        {fixed ? <SpacerCell /> : null}
+        {headerTrailing ? <td aria-hidden="true" className="p-0" /> : null}
       </TableRow>
     </tfoot>
   ) : null;
@@ -2534,18 +2681,17 @@ export function DataGrid<T>({
               <col key={p.key} style={{ width: p.width }} />
             ))}
             <col style={{ width: w.padEnd }} />
-            {headerTrailing != null ? (
-              <col style={{ width: TRAILING_WIDTH }} />
-            ) : null}
+            {headerTrailing ? <col style={{ width: TRAILING_WIDTH }} /> : null}
           </colgroup>
         ) : null}
-        <TableHeader
+        <thead
+          data-slot="table-header"
           className={cn(
             (maxHeight != null || fixed) && "sticky top-0 z-20 bg-background",
           )}
         >
           {headerRow}
-        </TableHeader>
+        </thead>
 
         {loading ? (
           <TableBody>
@@ -2572,6 +2718,7 @@ export function DataGrid<T>({
             w={w}
             virtualize={rowVirtual}
             headerPx={HEADER_PX}
+            footerPx={summaryRow ? HEADER_PX : 0}
             tabStop={bodyTabStop}
             editing={editing}
             selected={selected}
@@ -2734,33 +2881,10 @@ export function DataGrid<T>({
           >
             <ContextMenuTrigger
               {...viewportProps}
-              onContextMenu={(event) => {
-                // Only a body cell with a menu opens one; anywhere else the grid has none.
-                const cell = (event.target as HTMLElement).closest<HTMLElement>(
-                  "[data-grid-row]",
-                );
-                const rowId = cell?.dataset.gridRow;
-                const key = cell?.dataset.gridKey;
-                const content =
-                  rowId &&
-                  key &&
-                  rowId !== HEADER &&
-                  rowId !== FOOTER &&
-                  !rowId.startsWith(GROUP_PREFIX) &&
-                  key !== SELECT
-                    ? cellMenu(rowId, key)
-                    : null;
-                if (content == null || !rowId || !key) {
-                  (
-                    event as React.MouseEvent & {
-                      preventBaseUIHandler?: () => void;
-                    }
-                  ).preventBaseUIHandler?.();
-                  return;
-                }
-                setMenuTarget({ rowId, key });
-                setActive({ rowId, key });
-              }}
+              // A right click and a long press (Base UI opens that one from its own touch timer,
+              // with no contextmenu event) both resolve the cell first.
+              onContextMenu={claimMenu}
+              onTouchStart={claimMenu}
             >
               {viewportInner}
             </ContextMenuTrigger>

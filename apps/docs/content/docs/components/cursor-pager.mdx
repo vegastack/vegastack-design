@@ -18,7 +18,7 @@ preview: cursorPager
 ```tsx
 import { CursorPager } from "@/components/ui/cursor-pager";
 
-const [history, setHistory] = React.useState<string[]>([]);
+const [history, setHistory] = React.useState<(string | null)[]>([]);
 const [cursor, setCursor] = React.useState<string | null>(null);
 
 <CursorPager
@@ -30,7 +30,7 @@ const [cursor, setCursor] = React.useState<string | null>(null);
     setHistory(history.slice(0, -1));
   }}
   onNext={() => {
-    setHistory([...history, cursor ?? ""]);
+    setHistory([...history, cursor]);
     setCursor(page.nextCursor);
   }}
 />;

@@ -7702,6 +7702,15 @@
           }
         },
         {
+          "name": "DataGridFocusProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataGridLoadMore",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-grid.tsx",
@@ -7915,7 +7924,8 @@
                 "data-grid-sort-hint",
                 "data-grid-summary",
                 "data-grid-toolbar",
-                "table"
+                "table",
+                "table-header"
               ]
             },
             {
@@ -10033,7 +10043,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["grid-summary-cell", "grid-summary-loading"]
+              "values": [
+                "grid-summary-cell",
+                "grid-summary-loading",
+                "grid-summary-placeholder"
+              ]
             }
           ],
           "cssVariables": []

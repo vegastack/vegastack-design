@@ -1717,10 +1717,15 @@ test("summary row: a sticky footer of host values; the footer is the last row on
     ) as HTMLElement
   ).focus();
   await userEvent.keyboard("{ArrowRight}{ArrowDown}{ArrowDown}");
-  expect(activeCell()?.getAttribute("aria-label")).toBe("Sum of Qty");
-  await userEvent.keyboard("{Enter}");
+  // The footer CELL roves; the picker opens from it, so the arrows keep moving between rows.
+  expect(activeCell()?.dataset.gridRow).toBe("\uE000footer");
+  expect(activeCell()?.dataset.gridKey).toBe("c1");
+  await userEvent.keyboard("{ArrowUp}");
+  expect(activeCell()?.dataset.gridRow).toBe("r1");
+  await userEvent.keyboard("{ArrowDown}{Enter}");
   await screen.getByRole("option", { name: "Average" }).click();
   expect(onValueChange).toHaveBeenCalledWith("c1", "avg");
+  await expect.poll(() => activeCell()?.dataset.gridKey).toBe("c1");
   await expectNoA11yViolations(screen.container);
 });
 
@@ -1855,11 +1860,16 @@ test("headerTrailing renders after the last column; reorder makes scrolling head
       columns={wideColumns(4)}
       data={wideRows(2, 4)}
       getRowId={(row) => row.id}
-      headerTrailing={
-        <Button size="icon-sm" variant="ghost" aria-label="Add field">
+      headerTrailing={(focus) => (
+        <Button
+          {...focus}
+          size="icon-sm"
+          variant="ghost"
+          aria-label="Add field"
+        >
           +
         </Button>
-      }
+      )}
       onColumnReorder={onColumnReorder}
       columnPicker={false}
     />,
@@ -1868,9 +1878,19 @@ test("headerTrailing renders after the last column; reorder makes scrolling head
   expect(headRow.lastElementChild?.getAttribute("data-slot")).toBe(
     "data-grid-head-trailing",
   );
-  await expect
-    .element(screen.getByRole("button", { name: "Add field" }))
-    .toBeInTheDocument();
+  const add = screen
+    .getByRole("button", { name: "Add field" })
+    .element() as HTMLElement;
+  // The trailing control joins the header row's roving focus: not a second tab stop.
+  expect(add.getAttribute("tabindex")).toBe("-1");
+  (headRow.querySelector('[data-grid-key="c3"]') as HTMLElement).focus();
+  await userEvent.keyboard("{ArrowRight}");
+  expect(activeCell()).toBe(add);
+  expect(
+    screen.container.querySelectorAll('[role="grid"] [tabindex="0"]'),
+  ).toHaveLength(1);
+  await userEvent.keyboard("{ArrowDown}");
+  expect(activeCell()?.dataset.gridKey).toBe("c3");
   // Frozen headers stay put; the scrolling ones are drag items.
   expect(
     headRow
@@ -1883,4 +1903,62 @@ test("headerTrailing renders after the last column; reorder makes scrolling head
       ?.getAttribute("data-drag-item"),
   ).toBe("c2");
   await expectNoA11yViolations(screen.container);
+});
+
+test("a refetch that moves the focused row out of the window brings focus back to it", async () => {
+  const cleanup = sizeViewport(300, 800);
+  const rows = wideRows(400, 2);
+  const grid = (data: Wide[]) => (
+    <DataGrid
+      aria-label="Refetch"
+      columns={wideColumns(2)}
+      data={data}
+      getRowId={(row) => row.id}
+      sortMode="manual"
+      virtualize
+      rowHeight="short"
+      maxHeight="300px"
+      columnPicker={false}
+    />
+  );
+  try {
+    const screen = await render(grid(rows));
+    (
+      screen.container.querySelector(
+        '[data-grid-row="r2"][data-grid-key="c1"]',
+      ) as HTMLElement
+    ).focus();
+    // r2 moves to the end: its cell unmounts; focus follows the row, not the node.
+    await screen.rerender(
+      grid([...rows.filter((r) => r.id !== "r2"), rows[2]!]),
+    );
+    await expect.poll(() => activeCell()?.dataset.gridRow).toBe("r2");
+    expect(activeCell()?.dataset.gridKey).toBe("c1");
+    expect(activeRowIndex()).toBe("401");
+  } finally {
+    cleanup();
+  }
+});
+
+test("double-click on a resize handle fits the column to its content, shrinking it too", async () => {
+  const onColumnResize = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Fit"
+      columns={[
+        { key: "c0", header: "Name", width: 240 },
+        { key: "c1", header: "Q", width: 400 },
+      ]}
+      data={[{ id: "r0", c0: "Acme", c1: "7" }]}
+      getRowId={(row) => row.id}
+      onColumnResize={onColumnResize}
+      columnPicker={false}
+    />,
+  );
+  const handle = screen.container.querySelectorAll('[role="separator"]')[1]!;
+  handle.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+  expect(onColumnResize).toHaveBeenCalledTimes(1);
+  const [key, width] = onColumnResize.mock.calls[0]!;
+  expect(key).toBe("c1");
+  expect(width).toBeLessThan(120);
 });

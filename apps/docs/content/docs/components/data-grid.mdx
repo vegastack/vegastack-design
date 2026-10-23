@@ -69,7 +69,7 @@ component's own.
   rowHeight="short"
   maxHeight="70dvh"
   ariaRowCount={total + 1}
-  headerTrailing={<AddFieldButton />}
+  headerTrailing={(focus) => <AddFieldButton {...focus} />}
   summaryRow={{
     label: `${total} rows`,
     value: fns,
@@ -330,7 +330,15 @@ focused header with
 `GridSummaryCell` (in `data-table-parts`) is one footer cell: a quiet `Select` of the column's
 `summaryOptions` (with a built-in _None_) named _Sum of Qty_, and the host's result beside it. An
 unsummarised cell shows _Summarize_ only on hover or focus. The summary row is sticky at the bottom
-of the viewport and counts as a row in `aria-rowcount`.
+of the viewport and counts as a row in `aria-rowcount`. The primary column's cell shows
+`summaryRow.label` ("412 rows") before its own picker. The cells rove like any row; <kbd>Enter</kbd>
+or <kbd>Space</kbd> opens the picker, and closing it returns focus to the cell.
+
+### Trailing header control
+
+`headerTrailing` is a render function: spread the focus props it is handed onto its one control (an
+"add field" button, or a `PopoverTrigger`'s `render` button), and the control joins the header row's
+roving focus — <kbd>→</kbd> from the last header reaches it — instead of becoming a second tab stop.
 
 ## Do / Don't
 

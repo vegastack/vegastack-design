@@ -1035,6 +1035,15 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
     );
   }
   const screen = await render(<Harness value={null} />);
+  // Unsummarised, the picker mounts on first hover or focus (a wide footer stays light).
+  expect(screen.container.querySelector('[role="combobox"]')).toBeNull();
+  (
+    screen.container.querySelector(
+      '[data-slot="grid-summary-cell"]',
+    ) as HTMLElement
+  ).dispatchEvent(
+    new PointerEvent("pointerover", { pointerType: "mouse", bubbles: true }),
+  );
   const empty = screen.getByRole("combobox", { name: "Summarize Qty" });
   await expect.element(empty).toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
