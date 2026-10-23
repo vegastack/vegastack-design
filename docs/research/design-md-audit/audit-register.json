@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8148eee96b411e418b57d4b8e7578a636d21cd09346457f0d876aba9364bab88",
+  "contractSha256": "206dc80f68a1cc3c101e2e86e99d6d50d376040da9338453f7a560e9550d41fe",
   "expectedCounts": {
-    "totalRegistryItems": 750,
-    "components": 165,
+    "totalRegistryItems": 751,
+    "components": 166,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -441,6 +441,17 @@
         "packages/ui/registry/ui/data-list-pager.tsx"
       ],
       "docsSlug": "/docs/components/data-list-pager",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "cursor-pager",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/cursor-pager.tsx"
+      ],
+      "docsSlug": "/docs/components/cursor-pager",
       "contractStatus": "reconciled"
     },
     {

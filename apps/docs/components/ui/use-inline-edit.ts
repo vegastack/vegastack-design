@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.25.68 sha256-VKyfqNDA3D95vc6LgV3jHMlZaUez9wmXPbekpqedrA0=
+// @vegastack use-inline-edit@0.25.68 sha256-rh8wCKu0Q4nWWa+Oy1LcAHoai06kYQQ+eh9WENSGfpc=
 
 "use client";
 
@@ -82,6 +82,13 @@ export interface UseInlineEditOptions {
    * @default false
    */
   multiline?: boolean;
+  /**
+   * The draft a HOST-driven open starts from instead of `value` — type-to-edit in a grid, where the
+   * key that opened the editor replaces the value. Read when `editing` turns on; `start()` and an
+   * uncontrolled open always seed from `value`.
+   * @default undefined
+   */
+  seed?: string;
 }
 
 /** The opening pointer position — a `MouseEvent`/`PointerEvent` (React or DOM) satisfies it. */
@@ -162,6 +169,7 @@ export function useInlineEdit({
   disabled = false,
   trim = true,
   multiline = false,
+  seed,
 }: UseInlineEditOptions): UseInlineEditResult {
   const [internalEditing, setInternalEditing] = React.useState(false);
   const isEditingControlled = editing !== undefined;
@@ -202,11 +210,12 @@ export function useInlineEdit({
     if (isEditing && !previousEditing.current) {
       committedRef.current = false;
       if (!startedRef.current) caretRef.current = null;
+      // A host open may start from a seed (the typed key); `start()` never does.
+      setDraft(!startedRef.current && seed !== undefined ? seed : value);
       startedRef.current = false;
-      setDraft(value);
     }
     previousEditing.current = isEditing;
-  }, [isEditing, value]);
+  }, [isEditing, value, seed]);
 
   const start = React.useCallback(
     (from?: InlineEditStartPoint) => {

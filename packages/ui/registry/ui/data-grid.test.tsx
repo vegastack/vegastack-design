@@ -3,7 +3,10 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { Button } from "./button";
+import { ContextMenuItem } from "./context-menu";
 import { DataGrid, type DataGridColumn } from "./data-grid";
+import { DropdownMenuItem } from "./dropdown-menu";
 
 interface Deal {
   id: string;
@@ -177,7 +180,7 @@ test("responsive revelation: an oversized column merges into the primary cell", 
   ).toBeNull();
 });
 
-test("grouping renders one collapsible tbody section per value", async () => {
+test("grouping flattens into the one body: a group row per value, then its rows", async () => {
   const screen = await render(
     <DataGrid
       aria-label="Deals"
@@ -189,11 +192,25 @@ test("grouping renders one collapsible tbody section per value", async () => {
       getRowId={(d) => d.id}
     />,
   );
-  const sections = document.querySelectorAll('[data-slot="data-grid-section"]');
-  expect(sections).toHaveLength(2);
+  // One body for every group (the row virtualiser's list), not a tbody per section.
+  expect(document.querySelectorAll("tbody")).toHaveLength(1);
+  const groupRows = document.querySelectorAll(
+    '[data-slot="data-grid-group-row"]',
+  );
+  expect(groupRows).toHaveLength(2);
   expect(
-    document.querySelectorAll('[data-slot="data-grid-group-row"]'),
-  ).toHaveLength(2);
+    Array.from(document.querySelectorAll("tbody > tr")).map((row) =>
+      row.getAttribute("data-slot") === "data-grid-group-row"
+        ? `group:${row.getAttribute("data-group")}`
+        : row.textContent,
+    ),
+  ).toEqual([
+    "group:Open",
+    "AcmeOpen",
+    "InitechOpen",
+    "group:Won",
+    "GlobexWon",
+  ]);
   // Collapse "Open" (2 rows) — its rows disappear, the other section stays.
   await screen.getByRole("button", { name: /Open.*2/s }).click();
   await expect
@@ -401,7 +418,7 @@ test("virtualize windows the rows inside the fixed-height viewport", async () =>
   // scroll container actually constrains (the style-mirror technique).
   const style = document.createElement("style");
   style.textContent =
-    '[data-slot="data-grid-scroll"] { max-height: 240px; overflow-y: auto; display: block; } [data-slot="data-grid-virtual-pad"] { height: calc(var(--data-grid-virtual-pad) * 1px); }';
+    '[data-slot="grid-viewport"] { max-height: 240px; overflow: auto; display: block; }';
   document.head.appendChild(style);
   await render(
     <DataGrid
@@ -1015,7 +1032,7 @@ test("the load-more tail is the shared LoadMore and loads on scroll (DS-30)", as
   const footer = screen.container.querySelector('[data-slot="load-more"]');
   expect(footer).not.toBeNull();
   // Inside the grid's scroll viewport, after the table.
-  expect(footer!.closest('[data-slot="data-grid-scroll"]')).not.toBeNull();
+  expect(footer!.closest('[data-slot="grid-viewport"]')).not.toBeNull();
   expect(footer!.querySelector("button")).toBeNull();
   await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
   expect(
@@ -1144,7 +1161,7 @@ test("virtualized keyboard edges mount and focus targets, retaining one tab stop
   }));
   const style = document.createElement("style");
   style.textContent =
-    '[data-slot="data-grid-scroll"] { max-height: 240px; overflow-y: auto; display: block; } [data-slot="data-grid-virtual-pad"] { height: calc(var(--data-grid-virtual-pad) * 1px); }';
+    '[data-slot="grid-viewport"] { max-height: 240px; overflow: auto; display: block; }';
   document.head.append(style);
   const grid = (data: Deal[]) => (
     <DataGrid
@@ -1159,7 +1176,7 @@ test("virtualized keyboard edges mount and focus targets, retaining one tab stop
   try {
     const screen = await render(grid(many));
     screen.container
-      .querySelector<HTMLElement>('[role="gridcell"][tabindex="0"]')!
+      .querySelector<HTMLElement>('[data-slot="data-grid-cell"][tabindex="0"]')!
       .focus();
     await userEvent.keyboard("{Control>}{End}{/Control}");
     await expect
@@ -1177,19 +1194,693 @@ test("virtualized keyboard edges mount and focus targets, retaining one tab stop
           ?.getAttribute("aria-rowindex"),
       )
       .toBe("2");
+    // Sorting from the header moves the one tab stop to that header (the header row roves too).
     await screen.getByRole("button", { name: /Amount/ }).click();
-    expect(
-      screen.container.querySelectorAll('[role="gridcell"][tabindex="0"]'),
-    ).toHaveLength(1);
+    const stops = () =>
+      screen.container.querySelectorAll('[role="grid"] [tabindex="0"]').length;
+    expect(stops()).toBe(1);
     await screen.rerender(grid(many.slice(0, 3)));
-    await expect
-      .poll(
-        () =>
-          screen.container.querySelectorAll('[role="gridcell"][tabindex="0"]')
-            .length,
-      )
-      .toBe(1);
+    await expect.poll(stops).toBe(1);
   } finally {
     style.remove();
   }
+});
+
+// ── R2: the grid core at spreadsheet scale ─────────────────────────────────────────────────────
+
+interface Wide {
+  id: string;
+  [key: string]: string;
+}
+
+function wideColumns(
+  count: number,
+  extra: Partial<DataGridColumn<Wide>> = {},
+): DataGridColumn<Wide>[] {
+  return Array.from({ length: count }, (_, index) => ({
+    key: `c${index}`,
+    header: `Col ${index}`,
+    width: index === 0 ? 240 : 120,
+    frozen: index === 0,
+    ...extra,
+  }));
+}
+
+function wideRows(rows: number, columns: number): Wide[] {
+  return Array.from({ length: rows }, (_, r) => {
+    const row: Wide = { id: `r${r}` };
+    for (let c = 0; c < columns; c += 1) row[`c${c}`] = `R${r}C${c}`;
+    return row;
+  });
+}
+
+/** The grid's one viewport, given a real size (the harness has no compiled CSS). */
+function sizeViewport(height = 300, width = 600): () => void {
+  const style = document.createElement("style");
+  style.textContent = `[data-slot="grid-viewport"] { max-height: ${height}px; max-width: ${width}px; overflow: auto; display: block; position: relative; }
+  [data-slot="grid-viewport"] thead { position: sticky; top: 0; }
+  .sticky { position: sticky; }
+  .table-fixed { table-layout: fixed; }
+  tr.h-8 { height: 32px; } tr.h-10 { height: 40px; } tr.h-20 { height: 80px; }
+  thead tr { height: 40px; }`;
+  document.head.append(style);
+  return () => style.remove();
+}
+
+const activeCell = () => document.activeElement as HTMLElement | null;
+const activeRowIndex = () =>
+  activeCell()?.closest("tr")?.getAttribute("aria-rowindex") ?? null;
+const activeColIndex = () =>
+  activeCell()?.closest("td, th")?.getAttribute("aria-colindex") ?? null;
+
+test("fixed layout: colgroup widths, frozen columns sticky at their offsets, primary cells are row headers", async () => {
+  const cleanup = sizeViewport();
+  try {
+    const screen = await render(
+      <DataGrid
+        aria-label="Requests"
+        columns={[
+          { key: "c0", header: "Name", width: 240, frozen: true },
+          { key: "c1", header: "Ref", width: 100, frozen: true },
+          { key: "c2", header: "Qty", width: 120, numeric: true, align: "end" },
+        ]}
+        data={wideRows(3, 3)}
+        getRowId={(row) => row.id}
+        selectable
+        columnPicker={false}
+      />,
+    );
+    const table = screen.getByRole("grid").element() as HTMLTableElement;
+    expect(table.getAttribute("data-layout")).toBe("fixed");
+    expect(table.style.width).toBe("500px");
+    const cols = Array.from(table.querySelectorAll("col")).map(
+      (col) => col.style.width,
+    );
+    expect(cols).toEqual(["40px", "240px", "100px", "0px", "120px", "0px"]);
+    const first = table.querySelector<HTMLElement>(
+      '[data-grid-row="r0"][data-grid-key="c0"]',
+    )!;
+    const second = table.querySelector<HTMLElement>(
+      '[data-grid-row="r0"][data-grid-key="c1"]',
+    )!;
+    expect(first.getAttribute("role")).toBe("rowheader");
+    expect(second.getAttribute("role")).toBe("gridcell");
+    expect(first.style.insetInlineStart).toBe("40px");
+    expect(second.style.insetInlineStart).toBe("280px");
+    expect(first.className).toContain("sticky");
+    // Only the last frozen column carries the scroll-edge shadow.
+    expect(second.className).toContain("in-data-scrolled-x:after:opacity-100");
+    expect(first.className).not.toContain(
+      "in-data-scrolled-x:after:opacity-100",
+    );
+    // The whole grid is one scroll box: the table is not wrapped in Table's own container.
+    expect(table.closest('[data-slot="table-container"]')).toBeNull();
+    expect(table.parentElement?.getAttribute("data-slot")).toBe(
+      "grid-viewport",
+    );
+    await expectNoA11yViolations(screen.container);
+  } finally {
+    cleanup();
+  }
+});
+
+test("the frozen edge's scroll cue is one attribute on the viewport, set when the scroll leaves 0", async () => {
+  const cleanup = sizeViewport(300, 300);
+  try {
+    const screen = await render(
+      <DataGrid
+        aria-label="Requests"
+        columns={wideColumns(12)}
+        data={wideRows(5, 12)}
+        getRowId={(row) => row.id}
+        columnPicker={false}
+      />,
+    );
+    const viewport = screen.container.querySelector<HTMLElement>(
+      '[data-slot="grid-viewport"]',
+    )!;
+    expect(viewport.hasAttribute("data-scrolled-x")).toBe(false);
+    viewport.scrollLeft = 200;
+    await expect
+      .poll(() => viewport.hasAttribute("data-scrolled-x"))
+      .toBe(true);
+    const frozen = viewport.querySelector<HTMLElement>(
+      '[data-grid-row="r0"][data-grid-key="c0"]',
+    )!;
+    expect(frozen.getBoundingClientRect().left).toBe(
+      viewport.getBoundingClientRect().left,
+    );
+    viewport.scrollLeft = 0;
+    await expect
+      .poll(() => viewport.hasAttribute("data-scrolled-x"))
+      .toBe(false);
+  } finally {
+    cleanup();
+  }
+});
+
+test("sortMode manual: the header only signals; the rows keep the host's order", async () => {
+  const onSortChange = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sortMode="manual"
+      onSortChange={onSortChange}
+    />,
+  );
+  await screen.getByRole("button", { name: "Sort by Name" }).click();
+  expect(onSortChange).toHaveBeenCalledWith([
+    { key: "name", direction: "asc" },
+  ]);
+  await screen.getByRole("button", { name: "Sort by Amount" }).click();
+  expect(bodyCellTexts(0)).toEqual(["Acme", "Globex", "Initech"]);
+  expect(bodyCellTexts(2)).toEqual(["300", "100", "200"]);
+});
+
+test("the header row roves: ArrowUp from the body reaches it; Enter sorts; ArrowDown returns", async () => {
+  const onSortChange = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sortMode="manual"
+      onSortChange={onSortChange}
+    />,
+  );
+  (
+    screen.container.querySelector(
+      '[data-slot="data-grid-cell"][tabindex="0"]',
+    ) as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowRight}{ArrowUp}");
+  expect(activeCell()?.getAttribute("role")).toBe("columnheader");
+  expect(activeCell()?.textContent).toContain("Stage");
+  // The sort buttons are not tab stops of their own: the grid is one stop.
+  expect(
+    screen.container.querySelectorAll('[role="grid"] [tabindex="0"]'),
+  ).toHaveLength(1);
+  await userEvent.keyboard("{Enter}");
+  expect(onSortChange).toHaveBeenCalledWith([
+    { key: "stage", direction: "asc" },
+  ]);
+  await userEvent.keyboard("{ArrowDown}");
+  expect(activeRowIndex()).toBe("2");
+  expect(activeColIndex()).toBe("2");
+});
+
+test("a header menu opens from Enter or Shift+F10 on the focused header and is axe-clean", async () => {
+  const onPick = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({
+        headerMenu: (
+          <>
+            <DropdownMenuItem onClick={onPick}>Hide field</DropdownMenuItem>
+            <DropdownMenuItem>Sort descending</DropdownMenuItem>
+          </>
+        ),
+      })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row][data-grid-key="amount"][role="columnheader"]',
+  )!;
+  header.focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Hide field" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.querySelector('[role="menu"]')).toBeNull();
+  header.focus();
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await screen.getByRole("menuitem", { name: "Hide field" }).click();
+  expect(onPick).toHaveBeenCalledTimes(1);
+  // The chevron is a mouse affordance, not another tab stop.
+  expect(
+    screen.container
+      .querySelector('[data-slot="data-grid-head-menu"]')
+      ?.getAttribute("tabindex"),
+  ).toBe("-1");
+});
+
+test("resize: the header's separator, Alt+arrows on the focused header, and the new width at once", async () => {
+  const onColumnResize = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={[
+        { key: "c0", header: "Name", width: 240 },
+        { key: "c1", header: "Qty", width: 120 },
+      ]}
+      data={wideRows(2, 2)}
+      getRowId={(row) => row.id}
+      onColumnResize={onColumnResize}
+      columnPicker={false}
+    />,
+  );
+  const handles = screen.container.querySelectorAll('[role="separator"]');
+  expect(handles).toHaveLength(2);
+  expect(handles[1]!.getAttribute("aria-label")).toBe("Resize Qty");
+  expect(handles[1]!.getAttribute("aria-valuenow")).toBe("120");
+  const qty = screen.container.querySelector<HTMLElement>(
+    'th[data-grid-key="c1"]',
+  )!;
+  qty.focus();
+  await userEvent.keyboard("{Alt>}{ArrowRight}{/Alt}");
+  expect(onColumnResize).toHaveBeenLastCalledWith("c1", 128);
+  await userEvent.keyboard("{Alt>}{Shift>}{ArrowRight}{/Shift}{/Alt}");
+  expect(onColumnResize).toHaveBeenLastCalledWith("c1", 160);
+  const cols = screen.container.querySelectorAll("col");
+  expect((cols[2] as HTMLElement).style.width).toBe("160px");
+  // Alt+arrow resized; it did not move focus.
+  expect(activeCell()).toBe(qty);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("focus is kept by row id and column key: a refetch that moves the row keeps the tab stop on it", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sortMode="manual"
+    />,
+  );
+  const cell = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d3"][data-grid-key="stage"]',
+  )!;
+  cell.focus();
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={[
+        DEALS[2]!,
+        { id: "d4", name: "Umbrella", stage: "Won", amount: 50 },
+        DEALS[0]!,
+        DEALS[1]!,
+      ]}
+      getRowId={(d) => d.id}
+      sortMode="manual"
+    />,
+  );
+  const stop = screen.container.querySelector<HTMLElement>(
+    '[role="grid"] [tabindex="0"]',
+  )!;
+  expect(stop.dataset.gridRow).toBe("d3");
+  expect(stop.dataset.gridKey).toBe("stage");
+  expect(stop.closest("tr")?.getAttribute("aria-rowindex")).toBe("2");
+});
+
+test("column virtualisation: 150 columns render a window, aria-colcount is the true total, End reaches the last", async () => {
+  const cleanup = sizeViewport(300, 600);
+  try {
+    const screen = await render(
+      <DataGrid
+        aria-label="Wide"
+        columns={wideColumns(150)}
+        data={wideRows(30, 150)}
+        getRowId={(row) => row.id}
+        virtualize
+        virtualizeColumns
+        rowHeight="short"
+        maxHeight="300px"
+        columnPicker={false}
+      />,
+    );
+    const grid = screen.getByRole("grid").element() as HTMLElement;
+    expect(grid.getAttribute("aria-colcount")).toBe("150");
+    await expect
+      .poll(() => grid.querySelectorAll('thead [role="columnheader"]').length)
+      .toBeLessThan(15);
+    const firstRow = grid.querySelector('tbody tr[data-slot="data-grid-row"]')!;
+    // Every row renders the frozen cells, two spacers and the window — never 150 cells.
+    expect(firstRow.querySelectorAll("td").length).toBeLessThan(20);
+    (
+      grid.querySelector(
+        '[data-slot="data-grid-cell"][tabindex="0"]',
+      ) as HTMLElement
+    ).focus();
+    await userEvent.keyboard("{End}");
+    await expect.poll(activeColIndex).toBe("150");
+    expect(activeCell()?.textContent).toBe("R0C149");
+    await userEvent.keyboard("{Home}");
+    await expect.poll(activeColIndex).toBe("1");
+    // A tab stop survives the window moving on: exactly one, always.
+    const viewport = grid.parentElement!;
+    viewport.scrollLeft = 6000;
+    await expect
+      .poll(() => grid.querySelectorAll('[tabindex="0"]').length)
+      .toBe(1);
+  } finally {
+    cleanup();
+  }
+});
+
+test("virtualised rows: PageDown moves a screen, Ctrl+ArrowDown reaches the data edge, rows are counted truly", async () => {
+  const cleanup = sizeViewport(320, 800);
+  try {
+    const screen = await render(
+      <DataGrid
+        aria-label="Many"
+        columns={wideColumns(3)}
+        data={wideRows(500, 3)}
+        getRowId={(row) => row.id}
+        virtualize
+        rowHeight="short"
+        maxHeight="320px"
+        ariaRowCount={50_001}
+        columnPicker={false}
+      />,
+    );
+    const grid = screen.getByRole("grid").element() as HTMLElement;
+    expect(grid.getAttribute("aria-rowcount")).toBe("50001");
+    expect(
+      grid.querySelectorAll('[data-slot="data-grid-row"]').length,
+    ).toBeLessThan(40);
+    // Fixed heights: every row is exactly the preset.
+    const row = grid.querySelector<HTMLElement>('[data-slot="data-grid-row"]')!;
+    expect(row.className).toContain("h-8");
+    (
+      grid.querySelector(
+        '[data-slot="data-grid-cell"][tabindex="0"]',
+      ) as HTMLElement
+    ).focus();
+    await userEvent.keyboard("{PageDown}");
+    const afterPage = Number(activeRowIndex());
+    expect(afterPage).toBeGreaterThan(4);
+    await userEvent.keyboard("{Control>}{ArrowDown}{/Control}");
+    await expect.poll(activeRowIndex).toBe("501");
+    await userEvent.keyboard("{Control>}{ArrowUp}{/Control}");
+    await expect.poll(activeRowIndex).toBe("2");
+  } finally {
+    cleanup();
+  }
+});
+
+test("host sections flatten into the row virtualiser: group rows, each group's own load-more, collapse", async () => {
+  const cleanup = sizeViewport(300, 800);
+  const rows = wideRows(300, 2);
+  const onMoreB = vi.fn();
+  function Harness({ collapsed }: { collapsed?: boolean }) {
+    return (
+      <DataGrid
+        aria-label="Grouped"
+        columns={wideColumns(2)}
+        data={rows}
+        getRowId={(row) => row.id}
+        sortMode="manual"
+        sections={[
+          {
+            id: "a",
+            label: "Open",
+            count: 100,
+            rowIds: rows.slice(0, 100).map((r) => r.id),
+          },
+          {
+            id: "b",
+            label: "Won",
+            count: 900,
+            rowIds: rows.slice(100, 300).map((r) => r.id),
+            loadMore: { hasMore: true, onLoadMore: onMoreB },
+          },
+        ]}
+        groupState={collapsed ? { a: "collapsed" } : undefined}
+        virtualize
+        rowHeight="short"
+        maxHeight="300px"
+        columnPicker={false}
+      />
+    );
+  }
+  try {
+    const screen = await render(<Harness />);
+    const grid = screen.getByRole("grid").element() as HTMLElement;
+    // Grouping no longer turns virtualisation off: a window of rows, not 300.
+    expect(
+      grid.querySelectorAll('[data-slot="data-grid-row"]').length,
+    ).toBeLessThan(40);
+    expect(grid.getAttribute("aria-rowcount")).toBe("-1");
+    await expect
+      .element(screen.getByRole("button", { name: /Open.*100 rows/s }))
+      .toBeInTheDocument();
+    // Scrolling to the end of group b mounts its load-more row, which requests b's next page.
+    const viewport = grid.parentElement!;
+    viewport.scrollTop = viewport.scrollHeight;
+    await expect
+      .poll(() => grid.querySelector('[data-slot="data-grid-group-more"]'))
+      .not.toBeNull();
+    await expect.poll(() => onMoreB.mock.calls.length).toBeGreaterThan(0);
+    await screen.rerender(<Harness collapsed />);
+    viewport.scrollTop = 0;
+    await expect
+      .poll(() =>
+        grid
+          .querySelector('[data-slot="data-grid-row"]')
+          ?.getAttribute("aria-rowindex"),
+      )
+      .toBe("4");
+    // Group rows are on the roving path: ArrowUp from the first row lands on its group header.
+    // With nothing focused yet, the first item — the collapsed group's header — holds the tab stop.
+    expect(
+      grid.querySelector('[tabindex="0"]')?.getAttribute("data-slot"),
+    ).toBe("section-toggle");
+    (
+      grid.querySelector(
+        '[data-grid-row="r100"][data-grid-key="c0"]',
+      ) as HTMLElement
+    ).focus();
+    await userEvent.keyboard("{ArrowUp}");
+    expect(activeCell()?.getAttribute("data-slot")).toBe("section-toggle");
+    expect(activeCell()?.textContent).toContain("Won");
+    await expectNoA11yViolations(screen.container);
+  } finally {
+    cleanup();
+  }
+});
+
+test("summary row: a sticky footer of host values; the footer is the last row on the roving path", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={[
+        { key: "c0", header: "Name", width: 240 },
+        {
+          key: "c1",
+          header: "Qty",
+          width: 120,
+          summaryOptions: [
+            { value: "sum", label: "Sum" },
+            { value: "avg", label: "Average" },
+          ],
+        },
+      ]}
+      data={wideRows(2, 2)}
+      getRowId={(row) => row.id}
+      columnPicker={false}
+      summaryRow={{
+        label: "2 rows",
+        value: { c1: "sum" },
+        onValueChange,
+        results: { c1: "830" },
+      }}
+    />,
+  );
+  const grid = screen.getByRole("grid").element() as HTMLElement;
+  const foot = grid.querySelector("tfoot")!;
+  expect(foot.className).toContain("sticky");
+  expect(foot.textContent).toContain("2 rows");
+  await expect
+    .poll(
+      () =>
+        screen.getByRole("combobox", { name: "Sum of Qty" }).element()
+          .textContent,
+    )
+    .toContain("Sum830");
+  // The row count counts the summary row.
+  expect(grid.getAttribute("aria-rowcount")).toBe("4");
+  (
+    grid.querySelector(
+      '[data-slot="data-grid-cell"][tabindex="0"]',
+    ) as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowRight}{ArrowDown}{ArrowDown}");
+  expect(activeCell()?.getAttribute("aria-label")).toBe("Sum of Qty");
+  await userEvent.keyboard("{Enter}");
+  await screen.getByRole("option", { name: "Average" }).click();
+  expect(onValueChange).toHaveBeenCalledWith("c1", "avg");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("type-to-edit replaces the value; Enter commits and moves down, Tab commits and moves right", async () => {
+  const onCellCommit = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", editable: { type: "text" } },
+        { key: "stage", header: "Stage", editable: { type: "text" } },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sortMode="manual"
+      onCellCommit={onCellCommit}
+    />,
+  );
+  (
+    screen.container.querySelector(
+      '[data-grid-row="d1"][data-grid-key="name"]',
+    ) as HTMLElement
+  ).focus();
+  await userEvent.keyboard("Z");
+  const field = screen.getByRole("textbox");
+  await expect.element(field).toHaveValue("Z");
+  expect(document.activeElement?.tagName).toBe("INPUT");
+  await userEvent.keyboard("ed");
+  await expect.element(field).toHaveValue("Zed");
+  await userEvent.keyboard("{Enter}");
+  expect(onCellCommit).toHaveBeenLastCalledWith(DEALS[0], "name", "Zed");
+  await expect.poll(() => activeCell()?.dataset.gridRow).toBe("d2");
+  expect(activeCell()?.dataset.gridKey).toBe("name");
+  await userEvent.keyboard("{F2}{Tab}");
+  await expect.poll(() => activeCell()?.dataset.gridKey).toBe("stage");
+  expect(activeCell()?.dataset.gridRow).toBe("d2");
+});
+
+test("IME: a composing keystroke never moves, commits or opens an editor", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({ editable: { type: "text" } })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const cell = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-grid-cell"][tabindex="0"]',
+  )!;
+  cell.focus();
+  for (const key of ["ArrowDown", "Enter", "a"])
+    cell.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        isComposing: true,
+      }),
+    );
+  expect(activeCell()).toBe(cell);
+  expect(screen.container.querySelector("input")).toBeNull();
+});
+
+test("a cell menu opens on Shift+F10 at the focused cell and returns focus when it closes", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      cellMenu={(rowId, key) =>
+        key === "stage" ? (
+          <ContextMenuItem>{`Copy ${rowId}`}</ContextMenuItem>
+        ) : null
+      }
+    />,
+  );
+  const cell = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d2"][data-grid-key="stage"]',
+  )!;
+  cell.focus();
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Copy d2" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.querySelector('[role="menu"]')).toBeNull();
+  await expect.poll(activeCell).toBe(cell);
+});
+
+test("paged mode: no row windowing, a CursorPager under the grid, true row indexes from the offset", async () => {
+  const onNext = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Paged"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      virtualize
+      maxHeight="200px"
+      ariaRowIndexOffset={100}
+      ariaRowCount={1001}
+      pagedMode={{
+        label: "Rows 101–103",
+        hasPrevious: true,
+        hasNext: true,
+        onPrevious: () => {},
+        onNext,
+      }}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-virtual-pad"]'),
+  ).toBeNull();
+  expect(
+    screen.container
+      .querySelector('[data-slot="data-grid-row"]')
+      ?.getAttribute("aria-rowindex"),
+  ).toBe("102");
+  await screen.getByRole("button", { name: "Next" }).click();
+  expect(onNext).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("headerTrailing renders after the last column; reorder makes scrolling headers draggable", async () => {
+  const onColumnReorder = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={wideColumns(4)}
+      data={wideRows(2, 4)}
+      getRowId={(row) => row.id}
+      headerTrailing={
+        <Button size="icon-sm" variant="ghost" aria-label="Add field">
+          +
+        </Button>
+      }
+      onColumnReorder={onColumnReorder}
+      columnPicker={false}
+    />,
+  );
+  const headRow = screen.container.querySelector("thead tr")!;
+  expect(headRow.lastElementChild?.getAttribute("data-slot")).toBe(
+    "data-grid-head-trailing",
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Add field" }))
+    .toBeInTheDocument();
+  // Frozen headers stay put; the scrolling ones are drag items.
+  expect(
+    headRow
+      .querySelector('[data-grid-key="c0"]')
+      ?.hasAttribute("data-drag-item"),
+  ).toBe(false);
+  expect(
+    headRow
+      .querySelector('[data-grid-key="c2"]')
+      ?.getAttribute("data-drag-item"),
+  ).toBe("c2");
+  await expectNoA11yViolations(screen.container);
 });

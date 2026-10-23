@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8148eee96b411e418b57d4b8e7578a636d21cd09346457f0d876aba9364bab88",
+  "contractSha256": "206dc80f68a1cc3c101e2e86e99d6d50d376040da9338453f7a560e9550d41fe",
   "inventory": {
-    "expected": 750,
-    "actual": 750,
-    "unique": 750
+    "expected": 751,
+    "actual": 751,
+    "unique": 751
   },
   "classes": {
-    "components": 165,
+    "components": 166,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -142,8 +142,8 @@
       ]
     },
     "Data display": {
-      "expected": 33,
-      "actual": 33,
+      "expected": 34,
+      "actual": 34,
       "members": [
         "activity-feed",
         "board-card",
@@ -153,6 +153,7 @@
         "chip",
         "comment-margin",
         "comments",
+        "cursor-pager",
         "data-grid",
         "data-list",
         "data-list-pager",
@@ -813,7 +814,7 @@
       ]
     }
   },
-  "componentRoutes": 159,
+  "componentRoutes": 160,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

@@ -1,0 +1,92 @@
+---
+title: Cursor Pager
+description: Previous and Next for keyset paging — a range label and two buttons, no page numbers and no total.
+audience: public
+registry: cursor-pager
+status: stable
+since: 0.25.69
+a11y: navigation landmark, aria-disabled ends, live range
+preview: cursorPager
+---
+
+## Install
+
+<InstallSteps name="cursor-pager" />
+
+## Usage
+
+```tsx
+import { CursorPager } from "@/components/ui/cursor-pager";
+
+const [history, setHistory] = React.useState<string[]>([]);
+const [cursor, setCursor] = React.useState<string | null>(null);
+
+<CursorPager
+  label={`Rows ${history.length * 100 + 1}–${history.length * 100 + page.rows.length}`}
+  hasPrevious={history.length > 0}
+  hasNext={page.nextCursor != null}
+  onPrevious={() => {
+    setCursor(history.at(-1) ?? null);
+    setHistory(history.slice(0, -1));
+  }}
+  onNext={() => {
+    setHistory([...history, cursor ?? ""]);
+    setCursor(page.nextCursor);
+  }}
+/>;
+```
+
+A keyset-paged list knows whether a page exists on either side and what the current page holds,
+but not how many pages there are or where page 7 starts. `CursorPager` shows exactly that: a range
+label at the leading edge, and Previous and Next. It is **controlled** and owns no cursors — the
+host keeps the cursor history (the stack of cursors it came through) and fetches.
+
+[`DataGrid`](/docs/components/data-grid)'s `pagedMode` renders it under the grid, for people who
+page instead of scroll. For a list with a total and page numbers, reach for
+[`DataListPager`](/docs/components/data-list-pager).
+
+<ComponentPreview
+  name="cursorPager"
+  file="components/preview/cursor-pager.tsx"
+/>
+
+## Examples
+
+### At the first page, and while a page loads
+
+At either end the button stays in the tab order with `aria-disabled`; while `loading` both hold
+still and the pager is `aria-busy`.
+
+<ComponentPreview
+  name="cursorPagerStates"
+  file="components/preview/cursor-pager.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/cursor-pager.tsx"
+  name="CursorPagerProps"
+/>
+
+## Accessibility
+
+- A `navigation` landmark named _Pagination_ (`aria-label` renames it).
+- Previous and Next are buttons that stay focusable at either end (`aria-disabled`), rather than
+  disappearing.
+- A new `label` string is announced politely through one live region; the label on screen at first
+  render is not.
+
+| Key                                 | Action                       |
+| ----------------------------------- | ---------------------------- |
+| <kbd>Tab</kbd>                      | Move to Previous, then Next. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Go to that page.             |
+
+<StatesTested name="cursor-pager" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the cursor history in the host and push the current cursor before following the next one."
+  dont="Show a page number or a total you computed by counting pages — a keyset list does not know either."
+/>

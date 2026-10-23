@@ -5,6 +5,9 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Table, TableBody, TableHeader, TableRow } from "@/components/ui/table";
 import {
+  ColumnResizeHandle,
+  columnResizeKeyWidth,
+  GridSummaryCell,
   RowActionsMenu,
   SectionRow,
   alignClass,
@@ -885,4 +888,171 @@ test("the loading and empty states have no accessibility violations", async () =
     </Table>,
   );
   await expectNoA11yViolations(empty.container);
+});
+
+test("ColumnResizeHandle: a named vertical separator that steps 8px, 32px with Shift, and clamps", async () => {
+  const onResize = vi.fn();
+  const onResizeEnd = vi.fn();
+  function Harness() {
+    const [width, setWidth] = React.useState(160);
+    return (
+      <div style={{ position: "relative", width: "200px", height: "40px" }}>
+        Qty
+        <ColumnResizeHandle
+          label="Qty"
+          width={width}
+          min={64}
+          max={200}
+          onResize={(next) => {
+            onResize(next);
+            setWidth(next);
+          }}
+          onResizeEnd={onResizeEnd}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Harness />);
+  const handle = screen.getByRole("separator", { name: "Resize Qty" });
+  const el = handle.element() as HTMLElement;
+  expect(el.getAttribute("aria-orientation")).toBe("vertical");
+  expect(el.getAttribute("aria-valuenow")).toBe("160");
+  expect(el.getAttribute("aria-valuemin")).toBe("64");
+  expect(el.getAttribute("aria-valuemax")).toBe("200");
+  el.focus();
+  await userEvent.keyboard("{ArrowRight}");
+  expect(onResize).toHaveBeenLastCalledWith(168);
+  expect(onResizeEnd).toHaveBeenLastCalledWith(168);
+  await userEvent.keyboard("{Shift>}{ArrowLeft}{/Shift}");
+  expect(onResize).toHaveBeenLastCalledWith(136);
+  await userEvent.keyboard("{End}");
+  expect(el.getAttribute("aria-valuenow")).toBe("200");
+  await userEvent.keyboard("{Home}");
+  expect(el.getAttribute("aria-valuenow")).toBe("64");
+  // The hit area is 24px wide, whatever the visible line is.
+  expect(el.getBoundingClientRect().width).toBeGreaterThanOrEqual(24);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("ColumnResizeHandle: dragging resizes live and commits once on release; double-click fits", async () => {
+  const onResize = vi.fn();
+  const onResizeEnd = vi.fn();
+  const onAutoFit = vi.fn();
+  const screen = await render(
+    <div style={{ position: "relative", width: "200px", height: "40px" }}>
+      <ColumnResizeHandle
+        label="Qty"
+        width={160}
+        onResize={onResize}
+        onResizeEnd={onResizeEnd}
+        onAutoFit={onAutoFit}
+      />
+    </div>,
+  );
+  const el = screen.getByRole("separator").element() as HTMLElement;
+  const rect = el.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  el.dispatchEvent(
+    new PointerEvent("pointerdown", {
+      bubbles: true,
+      button: 0,
+      clientX: x,
+      clientY: y,
+      pointerId: 1,
+    }),
+  );
+  el.dispatchEvent(
+    new PointerEvent("pointermove", {
+      bubbles: true,
+      clientX: x + 20,
+      clientY: y,
+      pointerId: 1,
+    }),
+  );
+  el.dispatchEvent(
+    new PointerEvent("pointermove", {
+      bubbles: true,
+      clientX: x + 30,
+      clientY: y,
+      pointerId: 1,
+    }),
+  );
+  el.dispatchEvent(
+    new PointerEvent("pointerup", {
+      bubbles: true,
+      clientX: x + 30,
+      clientY: y,
+      pointerId: 1,
+    }),
+  );
+  expect(onResize.mock.calls.map((call) => call[0])).toEqual([180, 190]);
+  expect(onResizeEnd).toHaveBeenCalledTimes(1);
+  expect(onResizeEnd).toHaveBeenCalledWith(190);
+  el.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+  expect(onAutoFit).toHaveBeenCalledTimes(1);
+});
+
+test("columnResizeKeyWidth: arrows step, Shift quadruples, Home/End jump, RTL mirrors, others are null", () => {
+  expect(columnResizeKeyWidth("ArrowRight", false, 100)).toBe(108);
+  expect(columnResizeKeyWidth("ArrowLeft", true, 100)).toBe(68);
+  expect(columnResizeKeyWidth("ArrowLeft", true, 80)).toBe(64);
+  expect(columnResizeKeyWidth("Home", false, 300, { min: 90 })).toBe(90);
+  expect(columnResizeKeyWidth("End", false, 300, { max: 500 })).toBe(500);
+  expect(columnResizeKeyWidth("ArrowLeft", false, 100, { rtl: true })).toBe(
+    108,
+  );
+  expect(columnResizeKeyWidth("Enter", false, 100)).toBeNull();
+});
+
+test("GridSummaryCell: the trigger names the function and column, a change reports it, the result shows", async () => {
+  const onValueChange = vi.fn();
+  function Harness({
+    value,
+    loading,
+  }: {
+    value: string | null;
+    loading?: boolean;
+  }) {
+    return (
+      <Table>
+        <tfoot>
+          <TableRow>
+            <GridSummaryCell
+              columnLabel="Qty"
+              options={[
+                { value: "sum", label: "Sum" },
+                { value: "avg", label: "Average" },
+              ]}
+              value={value}
+              onValueChange={onValueChange}
+              result="830"
+              loading={loading}
+            />
+          </TableRow>
+        </tfoot>
+      </Table>
+    );
+  }
+  const screen = await render(<Harness value={null} />);
+  const empty = screen.getByRole("combobox", { name: "Summarize Qty" });
+  await expect.element(empty).toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+  await empty.click();
+  await screen.getByRole("option", { name: "Sum" }).click();
+  expect(onValueChange).toHaveBeenCalledWith("sum");
+
+  await screen.rerender(<Harness value="sum" />);
+  const chosen = screen.getByRole("combobox", { name: "Sum of Qty" });
+  await expect.poll(() => chosen.element().textContent).toContain("Sum830");
+  await expectNoA11yViolations(screen.container);
+  await chosen.click();
+  await screen.getByRole("option", { name: "None" }).click();
+  expect(onValueChange).toHaveBeenLastCalledWith(null);
+
+  await screen.rerender(<Harness value="sum" loading />);
+  expect(
+    screen.container.querySelector('[data-slot="grid-summary-loading"]'),
+  ).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
 });

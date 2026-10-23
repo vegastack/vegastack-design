@@ -16,6 +16,7 @@ function Host({
   onEditingChange,
   disabled,
   trim,
+  seed,
 }: UseInlineEditOptions) {
   const edit = useInlineEdit({
     value,
@@ -24,6 +25,7 @@ function Host({
     onEditingChange,
     disabled,
     trim,
+    seed,
   });
   return edit.isEditing ? (
     <input
@@ -305,4 +307,14 @@ test("onCommit is optional — a mode-only editor still opens and closes", async
   const toggle = screen.getByRole("button", { name: "Toggle" });
   await toggle.click();
   await expect.element(toggle).toHaveAttribute("data-editing");
+});
+
+test("a host open seeds the draft from `seed` (type-to-edit); a click open still seeds from the value", async () => {
+  const screen = await render(<Host value="Acme" editing={false} seed="Z" />);
+  await screen.rerender(<Host value="Acme" editing seed="Z" />);
+  const editor = screen.getByRole("textbox", { name: "Editor" });
+  await expect.element(editor).toHaveValue("Z");
+  await screen.rerender(<Host value="Acme" seed="Z" />);
+  await screen.rerender(<Host value="Acme" />);
+  await expect.element(await openEditor(screen)).toHaveValue("Acme");
 });

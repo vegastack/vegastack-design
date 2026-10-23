@@ -98,6 +98,7 @@
     "table",
     "data-list",
     "data-list-pager",
+    "cursor-pager",
     "load-more",
     "media-card",
     "thumbnail",

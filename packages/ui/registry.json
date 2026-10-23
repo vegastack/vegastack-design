@@ -1360,7 +1360,7 @@
       "name": "data-grid",
       "type": "registry:ui",
       "title": "Data Grid",
-      "description": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "description": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.",
       "categories": ["data"],
       "dependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -1372,13 +1372,17 @@
       "registryDependencies": [
         "@vegastack/auto-save-input",
         "@vegastack/button",
+        "@vegastack/context-menu",
+        "@vegastack/cursor-pager",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
         "@vegastack/load-more",
+        "@vegastack/skeleton",
         "@vegastack/table",
+        "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/truncated-text"
+        "@vegastack/use-drag-reorder"
       ],
       "files": [
         {
@@ -1388,7 +1392,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
+        "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.68"
       }
@@ -1462,6 +1466,31 @@
       "meta": {
         "whenToUse": "Paging a DataList (or any host-paged list) in place: the range, an optional rows-per-page chooser (omit onPageSizeChange for a fixed size), and page buttons in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
+        "version": "0.25.68"
+      }
+    },
+    {
+      "name": "cursor-pager",
+      "type": "registry:ui",
+      "title": "Cursor Pager",
+      "description": "Previous and Next for keyset (cursor) paging — a range label and two buttons, with no page numbers and no total.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.18",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/use-announcer"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/cursor-pager.tsx",
+          "type": "registry:ui",
+          "target": "@ui/cursor-pager.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Keyset-paged lists that page instead of scroll — DataGrid's pagedMode, or any host that keeps a cursor history and knows only whether a previous and a next page exist.",
+        "whenNotToUse": "Lists with a total and page numbers (DataListPager), or continuous paging on scroll (LoadMore).",
         "version": "0.25.68"
       }
     },
@@ -1568,7 +1597,7 @@
       "name": "data-table-parts",
       "type": "registry:ui",
       "title": "Data Table Parts",
-      "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
+      "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, the column resize handle, the summary cell, column class rules, and the selection/sort/controlled-state hooks.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -1581,6 +1610,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/panel-search",
+        "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"

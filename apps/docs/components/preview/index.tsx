@@ -131,6 +131,7 @@ export * from "./share-01";
 export * from "./share-dialog";
 export * from "./view-toggle";
 export * from "./data-list-pager";
+export * from "./cursor-pager";
 export * from "./load-more";
 export * from "./text-edit";
 export * from "./template-editor";

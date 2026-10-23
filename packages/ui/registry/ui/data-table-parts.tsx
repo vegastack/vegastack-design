@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.68 sha256-hYnBe1mtZJ11W8waMZoEDfzwktf9ql2cQ5ER5RjNFho=
+// @vegastack data-table-parts@0.25.68 sha256-52frabkUAEsPtTYtIcG4RWaE3lYMnoDUwWG3zjYoxls=
 
 "use client";
 
@@ -34,6 +34,13 @@ import {
 } from "@/components/ui/tooltip";
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { PanelActions } from "@/components/ui/panel-search";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 
@@ -555,6 +562,12 @@ export interface SortHeaderButtonProps {
    */
   label?: string;
   /**
+   * The button's tab stop. A grid that roves focus over its header cells passes `-1`, so the
+   * header row stays one stop and the cell (not the button) takes the keyboard.
+   * @default undefined
+   */
+  tabIndex?: number;
+  /**
    * Extra classes for the button.
    * @default undefined
    */
@@ -604,6 +617,7 @@ export function SortHeaderButton({
   onSort,
   align = "start",
   label,
+  tabIndex,
   className,
 }: SortHeaderButtonProps) {
   const leading = align === "end";
@@ -619,6 +633,7 @@ export function SortHeaderButton({
       size="sm"
       data-slot="data-table-sort"
       aria-label={name != null ? `Sort by ${name}` : undefined}
+      {...(tabIndex !== undefined && { tabIndex })}
       onClick={onSort}
       className={cn(
         // The label carries upstream `TableHead`'s own type and ink (`text-sm font-medium`,
@@ -858,6 +873,16 @@ export interface SelectAllHeadProps extends Omit<
    * @default "Select all rows"
    */
   label?: string;
+  /**
+   * The checkbox's tab stop; a grid that roves focus over its header passes `0` or `-1`.
+   * @default undefined
+   */
+  controlTabIndex?: number;
+  /**
+   * Ref to the checkbox — the focus target a roving grid moves to.
+   * @default undefined
+   */
+  controlRef?: React.Ref<HTMLElement>;
 }
 
 /**
@@ -874,6 +899,8 @@ export function SelectAllHead({
   onToggle,
   disabled = false,
   label = "Select all rows",
+  controlTabIndex,
+  controlRef,
   className,
   ...props
 }: SelectAllHeadProps) {
@@ -895,6 +922,8 @@ export function SelectAllHead({
         onCheckedChange={onToggle}
         disabled={disabled}
         aria-label={label}
+        {...(controlTabIndex !== undefined && { tabIndex: controlTabIndex })}
+        ref={controlRef}
       />
     </TableHead>
   );
@@ -911,6 +940,16 @@ export interface SelectionCellProps extends Omit<
   onToggle: () => void;
   /** Accessible name for the checkbox — name the row, not the column. */
   label: string;
+  /**
+   * The checkbox's tab stop; a grid that roves focus over its cells passes `0` or `-1`.
+   * @default undefined
+   */
+  controlTabIndex?: number;
+  /**
+   * Ref to the checkbox — the focus target a roving grid moves to.
+   * @default undefined
+   */
+  controlRef?: React.Ref<HTMLElement>;
 }
 
 /**
@@ -927,6 +966,8 @@ export function SelectionCell({
   checked,
   onToggle,
   label,
+  controlTabIndex,
+  controlRef,
   className,
   onClick,
   ...props
@@ -947,6 +988,8 @@ export function SelectionCell({
         checked={checked}
         onCheckedChange={onToggle}
         aria-label={label}
+        {...(controlTabIndex !== undefined && { tabIndex: controlTabIndex })}
+        ref={controlRef}
       />
     </TableCell>
   );
@@ -1478,6 +1521,16 @@ export interface SectionToggleProps {
    * @default (n) => `${n} rows` ("1 row" for one)
    */
   countLabel?: (count: number) => string;
+  /**
+   * The toggle's tab stop. A grid that roves focus over its rows passes `0` or `-1`.
+   * @default undefined
+   */
+  tabIndex?: number;
+  /**
+   * Ref to the toggle button — the focus target a roving grid moves to.
+   * @default undefined
+   */
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 const defaultCountLabel = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
@@ -1495,12 +1548,16 @@ export function SectionToggle({
   expanded,
   onExpandedChange,
   countLabel = defaultCountLabel,
+  tabIndex,
+  ref,
 }: SectionToggleProps) {
   return (
     <Button
+      ref={ref}
       variant="ghost"
       size="xs"
       data-slot="section-toggle"
+      {...(tabIndex !== undefined && { tabIndex })}
       aria-expanded={expanded}
       onClick={() => onExpandedChange(!expanded)}
       // `aria-expanded` on upstream's ghost Button means "this control's POPUP is open", and it
@@ -1708,4 +1765,332 @@ export function useRowSelection({
     toggleRow,
     setSelected: commit,
   };
+}
+
+/** Props accepted by `ColumnResizeHandle`. */
+export interface ColumnResizeHandleProps {
+  /** The column's name; the handle is announced as "Resize {label}". */
+  label: string;
+  /** The column's current width, in pixels (`aria-valuenow`). */
+  width: number;
+  /**
+   * The narrowest the column may become, in pixels.
+   * @default 64
+   */
+  min?: number;
+  /**
+   * The widest the column may become, in pixels.
+   * @default 960
+   */
+  max?: number;
+  /** Called with each new width while a drag moves, and for every keyboard step. */
+  onResize: (width: number) => void;
+  /**
+   * Called with the final width when a drag ends, and after every keyboard step — the moment a
+   * host persists it.
+   * @default undefined
+   */
+  onResizeEnd?: (width: number) => void;
+  /**
+   * Called on double-click: fit the column to its content (the host or the grid measures it).
+   * @default undefined
+   */
+  onAutoFit?: () => void;
+  /**
+   * The handle's tab stop. Standalone it is a stop of its own; a grid that roves focus over its
+   * header passes `-1` and drives the same steps from the header cell.
+   * @default 0
+   */
+  tabIndex?: number;
+  /**
+   * Extra classes for the handle.
+   * @default undefined
+   */
+  className?: string;
+}
+
+/** One keyboard step, in pixels; Shift multiplies it by four. */
+export const COLUMN_RESIZE_STEP = 8;
+
+/** The width a keyboard key resizes to, or `null` when the key is not a resize key. */
+export function columnResizeKeyWidth(
+  key: string,
+  shiftKey: boolean,
+  width: number,
+  {
+    min = 64,
+    max = 960,
+    rtl = false,
+  }: { min?: number; max?: number; rtl?: boolean } = {},
+): number | null {
+  const step = shiftKey ? COLUMN_RESIZE_STEP * 4 : COLUMN_RESIZE_STEP;
+  const grow = rtl ? "ArrowLeft" : "ArrowRight";
+  const shrink = rtl ? "ArrowRight" : "ArrowLeft";
+  const next =
+    key === grow
+      ? width + step
+      : key === shrink
+        ? width - step
+        : key === "Home"
+          ? min
+          : key === "End"
+            ? max
+            : null;
+  return next == null ? null : Math.min(max, Math.max(min, next));
+}
+
+/**
+ * `ColumnResizeHandle` — the grip on a header cell's trailing edge. A `separator` with
+ * `aria-orientation="vertical"` and its value range, so assistive technology hears "Resize Qty,
+ * 160". Drag moves the edge; <kbd>←</kbd>/<kbd>→</kbd> step 8px (<kbd>Shift</kbd> 32px),
+ * <kbd>Home</kbd>/<kbd>End</kbd> jump to the minimum and maximum; double-click fits the content.
+ * The hit area is 24px wide, centred on the edge, and its visible line shows on hover and focus.
+ * Put it inside a `relative` header cell.
+ *
+ * @example
+ * <TableHead className="relative">
+ *   Qty
+ *   <ColumnResizeHandle label="Qty" width={width} onResize={setWidth} onResizeEnd={save} />
+ * </TableHead>
+ */
+export function ColumnResizeHandle({
+  label,
+  width,
+  min = 64,
+  max = 960,
+  onResize,
+  onResizeEnd,
+  onAutoFit,
+  tabIndex = 0,
+  className,
+}: ColumnResizeHandleProps) {
+  const drag = React.useRef<{ x: number; width: number; last: number } | null>(
+    null,
+  );
+  const [resizing, setResizing] = React.useState(false);
+  const clamp = (next: number) =>
+    Math.round(Math.min(max, Math.max(min, next)));
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={`Resize ${label}`}
+      aria-valuenow={Math.round(width)}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      tabIndex={tabIndex}
+      data-slot="column-resize-handle"
+      data-resizing={resizing ? "" : undefined}
+      className={cn(
+        // 24px of hit area centred on the cell's trailing edge; the 2px line is the visible part.
+        "group/resize absolute inset-y-0 -end-3 z-10 flex w-6 cursor-col-resize touch-none justify-center outline-none select-none",
+        className,
+      )}
+      onClick={(event) => event.stopPropagation()}
+      onDoubleClick={(event) => {
+        event.stopPropagation();
+        onAutoFit?.();
+      }}
+      onPointerDown={(event) => {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        drag.current = { x: event.clientX, width, last: width };
+        setResizing(true);
+      }}
+      onPointerMove={(event) => {
+        const start = drag.current;
+        if (!start) return;
+        const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+        const delta = (event.clientX - start.x) * (rtl ? -1 : 1);
+        const next = clamp(start.width + delta);
+        if (next === start.last) return;
+        start.last = next;
+        onResize(next);
+      }}
+      onPointerUp={(event) => {
+        const start = drag.current;
+        if (!start) return;
+        drag.current = null;
+        setResizing(false);
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        if (start.last !== start.width) onResizeEnd?.(start.last);
+      }}
+      onPointerCancel={() => {
+        drag.current = null;
+        setResizing(false);
+      }}
+      onKeyDown={(event) => {
+        const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+        const next = columnResizeKeyWidth(event.key, event.shiftKey, width, {
+          min,
+          max,
+          rtl,
+        });
+        if (next == null) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (next === width) return;
+        onResize(next);
+        onResizeEnd?.(next);
+      }}
+    >
+      <span
+        aria-hidden
+        className="h-full w-0.5 bg-transparent transition-colors group-hover/resize:bg-border group-focus-visible/resize:bg-ring group-data-resizing/resize:bg-ring"
+      />
+    </div>
+  );
+}
+
+/** One summary function a footer cell offers (`Sum`, `Average`, …). */
+export interface GridSummaryOption {
+  /** The function's id, handed back through `onValueChange`. */
+  value: string;
+  /** What the menu and the trigger show: "Sum". */
+  label: string;
+}
+
+/** Props accepted by `GridSummaryCell`. */
+export interface GridSummaryCellProps extends Omit<
+  React.ComponentProps<"td">,
+  "children"
+> {
+  /** The column's name, for the trigger's accessible name ("Sum of Qty"). */
+  columnLabel: string;
+  /** The functions this column offers. A built-in "None" item (`null`) comes first. */
+  options: readonly GridSummaryOption[];
+  /** The chosen function, or `null` for none. */
+  value: string | null;
+  /** Called with the next function (`null` for none). */
+  onValueChange: (value: string | null) => void;
+  /**
+   * The computed result for the chosen function — the host computes it (on the server, over the
+   * filtered rows); the cell never computes over its rows.
+   * @default undefined
+   */
+  result?: React.ReactNode;
+  /**
+   * The result is being computed: a small skeleton stands in for it.
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * The trigger's tab stop; a grid that roves focus over its footer passes `0` or `-1`.
+   * @default undefined
+   */
+  triggerTabIndex?: number;
+  /**
+   * Ref to the trigger — the focus target a roving grid moves to.
+   * @default undefined
+   */
+  triggerRef?: React.Ref<HTMLButtonElement>;
+  /**
+   * The label of the "no function" item.
+   * @default "None"
+   */
+  noneLabel?: string;
+  /**
+   * The trigger's text while no function is chosen. It shows only on hover and focus, so a
+   * footer of unsummarised columns stays quiet.
+   * @default "Summarize"
+   */
+  placeholder?: string;
+}
+
+const SUMMARY_NONE = "\u0000none";
+
+/**
+ * `GridSummaryCell` — one footer cell of a grid's summary row: a quiet `Select` of the column's
+ * summary functions (None, Count, Sum, …) and the host's result beside the function's name. The
+ * value is a prop; the cell computes nothing. The trigger is named "Sum of Qty" (or "Summarize
+ * Qty" while none is chosen).
+ *
+ * @example
+ * <GridSummaryCell
+ *   columnLabel="Qty"
+ *   options={[{ value: "sum", label: "Sum" }, { value: "avg", label: "Average" }]}
+ *   value="sum"
+ *   onValueChange={setFn}
+ *   result="830"
+ * />
+ */
+export function GridSummaryCell({
+  columnLabel,
+  options,
+  value,
+  onValueChange,
+  result,
+  loading = false,
+  triggerTabIndex,
+  triggerRef,
+  noneLabel = "None",
+  placeholder = "Summarize",
+  className,
+  ...props
+}: GridSummaryCellProps) {
+  const chosen = options.find((option) => option.value === value) ?? null;
+  return (
+    <TableCell
+      data-slot="grid-summary-cell"
+      className={cn("py-1", className)}
+      {...props}
+    >
+      <Select
+        value={chosen ? chosen.value : SUMMARY_NONE}
+        onValueChange={(next) =>
+          onValueChange(
+            next == null || next === SUMMARY_NONE ? null : String(next),
+          )
+        }
+        items={[
+          { value: SUMMARY_NONE, label: noneLabel },
+          ...options.map((option) => ({
+            value: option.value,
+            label: option.label,
+          })),
+        ]}
+      >
+        <SelectTrigger
+          ref={triggerRef}
+          variant="ghost"
+          size="sm"
+          {...(triggerTabIndex !== undefined && { tabIndex: triggerTabIndex })}
+          aria-label={
+            chosen
+              ? `${chosen.label} of ${columnLabel}`
+              : `${placeholder} ${columnLabel}`
+          }
+          data-empty={chosen ? undefined : ""}
+          className={cn(
+            "group/summary -mx-2 max-w-full min-w-0 gap-1 text-xs text-muted-foreground",
+            // Unsummarised: invisible until a fine pointer hovers the cell or the trigger has focus.
+            "data-empty:opacity-0 data-empty:pointer-fine:hover:opacity-100 data-empty:focus-visible:opacity-100 data-popup-open:opacity-100",
+          )}
+        >
+          <span className="min-w-0 truncate">
+            {chosen ? chosen.label : placeholder}
+          </span>
+          {chosen ? (
+            loading ? (
+              <Skeleton data-slot="grid-summary-loading" className="h-3 w-8" />
+            ) : (
+              <span className="font-medium text-foreground tabular-nums">
+                {result}
+              </span>
+            )
+          ) : null}
+        </SelectTrigger>
+        <SelectContent alignItemWithTrigger={false} align="start">
+          <SelectItem value={SUMMARY_NONE}>{noneLabel}</SelectItem>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </TableCell>
+  );
 }

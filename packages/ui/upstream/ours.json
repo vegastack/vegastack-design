@@ -716,6 +716,12 @@
       "family": "display",
       "source": "Regent O-7 follow-up, coordinator ruling A 2026-10-21 (no bespoke styling in the app)",
       "rationale": "Upstream ships no compact entry list; a small composition with no patch."
+    },
+    "cursor-pager": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent Tables plan 1.1 (DS R2), approved by the operator 2026-10-23",
+      "rationale": "Upstream ships Pagination (page numbers) but no keyset pager; DataListPager needs page numbers and totals, which a cursor-paged list does not have. Composes upstream's button unchanged and carries no patch."
     }
   }
 }

@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.68 sha256-6dnIf+zoG1MjvJgtk3DNMNFQWq5JUzVI7kDYNZmcbBk=
+// @vegastack editable-cell@0.25.68 sha256-7DcJovr7C6bm/8bYDeFdo9ocYFCt7O1fknx5F2Clfyg=
 
 "use client";
 
@@ -240,10 +240,18 @@ export interface EditableCellProps {
   /**
    * Table navigation. When set, <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> and (single-line)
    * <kbd>Enter</kbd> / <kbd>Shift</kbd>+<kbd>Enter</kbd> save and then call it, so the host can
-   * move to the next or previous cell.
+   * move to the next or previous cell. `via` says which key did it, so a grid moves down on
+   * <kbd>Enter</kbd> and across on <kbd>Tab</kbd>.
    * @default undefined
    */
-  onNavigate?: (direction: "next" | "previous") => void;
+  onNavigate?: (direction: "next" | "previous", via: "tab" | "enter") => void;
+  /**
+   * The draft the text and number editors start from when a host opens them through `editing`,
+   * instead of `value` — type-to-edit, where the printable key that opened the editor replaces the
+   * value. Ignored by the `date`, `select` and `custom` editors and by a click or Enter open.
+   * @default undefined
+   */
+  editSeed?: string;
   /**
    * A hint shown on hover while displaying (the native tooltip), e.g. "Click to rename". A
    * truncated value shows the full value instead.
@@ -391,7 +399,9 @@ interface InlineTextEditorProps {
   /** Align the text with its surroundings by pulling the box into the gutter (the cell's `flush`). */
   flush?: boolean;
   /** Tab / Enter navigation after a save (the cell's `onNavigate`). */
-  onNavigate?: (direction: "next" | "previous") => void;
+  onNavigate?: (direction: "next" | "previous", via: "tab" | "enter") => void;
+  /** The draft a host-driven open starts from (the cell's `editSeed`). */
+  seed?: string;
   /** Native hover hint while displaying. */
   tooltip?: string;
   /**
@@ -452,6 +462,7 @@ function InlineTextEditor({
   fill = false,
   flush = false,
   onNavigate,
+  seed,
   tooltip,
   bare = false,
   inputMode,
@@ -471,6 +482,7 @@ function InlineTextEditor({
     onEditingChange,
     disabled: disabled || readOnly,
     multiline,
+    seed,
   });
   const isEditing = edit.isEditing;
   const wrapping = wrap || multiline;
@@ -506,7 +518,10 @@ function InlineTextEditor({
         event.preventDefault();
         if (!accepts(edit.draft)) return;
         edit.commit();
-        onNavigate(event.shiftKey ? "previous" : "next");
+        onNavigate(
+          event.shiftKey ? "previous" : "next",
+          isTab ? "tab" : "enter",
+        );
         return;
       }
     }
@@ -776,6 +791,7 @@ export function EditableCell({
   requiredMessage,
   saveErrorToast = true,
   onNavigate,
+  editSeed,
   tooltip,
   wrap = false,
   flush = false,
@@ -1069,6 +1085,7 @@ export function EditableCell({
         fill={variant === "cell"}
         flush={flush}
         onNavigate={onNavigate}
+        seed={editSeed}
         tooltip={tooltip}
         bare={variant === "heading"}
       />
