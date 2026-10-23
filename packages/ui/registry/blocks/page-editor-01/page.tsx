@@ -1,4 +1,4 @@
-// @vegastack page-editor-01@0.25.67 sha256-3G6gCxfNGr9nEwDvLHrOwzE1L5Zw2SAbDg5ZHzhR8fY=
+// @vegastack page-editor-01@0.25.68 sha256-yex2JQFZgzzdZwQdNnEWwniPbgCEYkL8jQ+v/c2NE/c=
 
 import { PageEditor } from "./components/page-editor";
 import { AppShellPage } from "@/components/ui/app-shell";

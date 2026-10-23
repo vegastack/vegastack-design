@@ -1,4 +1,4 @@
-// @vegastack card@0.25.67 sha256-+m+3KQYc9idJ05jucuov3F2uk/ZlX5IoeAhv0W3uVq0=
+// @vegastack card@0.25.68 sha256-NTFRHwHBi+Lifg6QP0rvcA+Bw8QahzFn/sxlE6UizzA=
 
 "use client";
 
