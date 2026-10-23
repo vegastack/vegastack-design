@@ -1,6 +1,6 @@
 ---
 title: Data Grid
-description: The full-parity grid — multi-key sort, column picker, grouping, load-more, virtualization, and APG cell navigation with inline editing.
+description: The full-parity grid — multi-key sort, frozen and resizable columns, grouping, row and column virtualization, a summary row, and APG cell editing.
 audience: public
 registry: data-grid
 status: stable
@@ -46,9 +46,39 @@ import { DataGrid } from "@/components/ui/data-grid";
 
 `DataGrid` is the commissioned full-parity sibling
 [`DataList`](/docs/components/data-list) always pointed to. The sorted row
-model comes from TanStack Table (the sanctioned engine); windowing from
-TanStack Virtual behind the `virtualize` flag; the APG grid keyboard layer —
-which no library ships — is the component's own.
+model comes from TanStack Table (the sanctioned engine); row and column
+windowing from TanStack Virtual behind the `virtualize` and `virtualizeColumns`
+flags; the APG grid keyboard layer — which no library ships — is the
+component's own.
+
+```tsx
+// Spreadsheet scale: the host sorts and groups on the server; both axes are windowed.
+<DataGrid
+  aria-label="Sample requests"
+  columns={fields} // { key, header, width, frozen, headerMenu, summaryOptions, … }
+  data={rows}
+  getRowId={(row) => row.id}
+  sortMode="manual"
+  sort={sort}
+  onSortChange={setSort}
+  onColumnResize={saveWidth}
+  onColumnReorder={saveOrder}
+  columnOrder={order}
+  virtualize
+  virtualizeColumns
+  rowHeight="short"
+  maxHeight="70dvh"
+  ariaRowCount={total + 1}
+  headerTrailing={(focus) => <AddFieldButton {...focus} />}
+  summaryRow={{
+    label: `${total} rows`,
+    value: fns,
+    onValueChange: setFn,
+    results,
+  }}
+  cellMenu={(rowId, key) => <CellMenuItems rowId={rowId} field={key} />}
+/>
+```
 
 **Two deliberate differences from `DataList`, for migrators:**
 
@@ -60,6 +90,12 @@ which no library ships — is the component's own.
 
 ## Scope
 
+**Reversed in 0.25.69** (Regent Tables, R2): the grid used to leave out column resize, a reorder
+affordance, aggregation footers, and grouped virtualization. It now hosts a 50,000-row,
+150-column, server-sorted grid — so frozen and resizable columns, header drag-to-reorder, a summary
+row, host-sorted rows, host groups and column windowing are in. It still computes nothing the host
+should: summary values, server sort orders and group pages come in as props.
+
 | Behaviour                           | Where it lives                                                                                                                                                      |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Data fetching, filters, saved views | Host — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot                                                                                  |
@@ -67,6 +103,16 @@ which no library ships — is the component's own.
 | Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                                                                                            |
 | Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                                                                                                  |
 | The shared table chrome             | `@vegastack/data-table-parts` — sort header, selection, async states; it arrives with this component ([shared internals](/docs/guides/components#shared-internals)) |
+
+### Two layouts
+
+| Layout         | Turns on when                                                                                            | Columns                                                                                                                                                                |
+| -------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auto (default) | —                                                                                                        | Fill and fit, like `DataList`; responsive revelation merges or drops columns on narrow screens.                                                                        |
+| Fixed          | Any column has `width`, `frozen` or `resizable`, or the grid has `onColumnResize` or `virtualizeColumns` | `table-layout: fixed` from a `<colgroup>`; every cell one line (truncating); the grid scrolls sideways instead of revealing; frozen columns stick to the inline start. |
+
+The grid renders its own `<table>` inside ONE scroll viewport (`data-slot="grid-viewport"`), so the
+sticky header, the sticky summary row and the frozen columns all resolve against the same box.
 
 ### The toolbar
 
@@ -82,14 +128,55 @@ all.
 
 ### Grouping
 
-One `group` column renders a collapsible `<tbody>` section per value — valid
-HTML where a div-based collapsible between `tbody` and `tr` is not. Grouping
-and `virtualize` are mutually exclusive. The group header is the shared `SectionToggle` DataList's
-sections use: the row count sits after the label in muted tabular numerals (no parentheses), and a
-screen reader hears it as "Open, 2 rows".
+One `group` column groups the rows by value on the client. Groups are **flattened into the one row
+list**: a group header is a row of its own, followed by its rows, so grouping and `virtualize`
+combine. The group header is the shared `SectionToggle` DataList's sections use: the row count sits
+after the label in muted tabular numerals (no parentheses), and a screen reader hears it as "Open,
+2 rows". The header rows are on the keyboard path: <kbd>↑</kbd>/<kbd>↓</kbd> stop on them and
+
+<kbd>Enter</kbd> or <kbd>Space</kbd> toggles.
 
 <ComponentPreview
   name="dataGridGrouped"
+  file="components/preview/data-grid.tsx"
+/>
+
+### Spreadsheet scale
+
+150 columns × 50,000 rows: a frozen primary column, resizable columns (drag the edge, double-click to
+fit, or <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> on a focused header), both axes windowed, fixed
+`short` rows, and a sticky summary row whose values the host computes. The grid renders the frozen
+cells, two spacer cells and the columns in view — never 150 cells a row.
+
+<ComponentPreview
+  name="dataGridSpreadsheet"
+  file="components/preview/data-grid.tsx"
+/>
+
+For the 8 ms scroll budget the structure is fixed: one scroll box, fixed row heights, memoised rows
+and cells. Keep `columns` and `cellStatus` stable (`useMemo`, `useCallback`) and give a changed row a
+new object — a cell re-renders only when its row object or its column definition changes.
+
+### Host groups
+
+`sections` hands the grid the server's groups: each names its rows (`rowIds`), its total `count`,
+and its own `loadMore`, so every expanded group pages its own keyset. The grid flattens them into
+the one virtual list — group header, the group's loaded rows, then the group's load-more row while it
+has more.
+
+<ComponentPreview
+  name="dataGridServerGroups"
+  file="components/preview/data-grid.tsx"
+/>
+
+### Paged mode
+
+`pagedMode` turns row windowing off and puts a [`CursorPager`](/docs/components/cursor-pager)
+(Previous / Next, no page numbers) under the grid, for people who page instead of scroll. Column
+windowing stays on. `ariaRowIndexOffset` keeps the row numbers true across pages.
+
+<ComponentPreview
+  name="dataGridPaged"
   file="components/preview/data-grid.tsx"
 />
 
@@ -97,8 +184,11 @@ screen reader hears it as "Open, 2 rows".
 
 Editable columns open [`EditableCell`](/docs/components/editable-cell) in
 `focusMode="managed"` — the grid owns reachability, the cell owns the editor
-and its async status. <kbd>Enter</kbd>/<kbd>F2</kbd> edits; <kbd>Escape</kbd>
-restores grid navigation; a rejected commit reverts and announces.
+and its async status. <kbd>Enter</kbd>/<kbd>F2</kbd> edits keeping the value;
+typing a character edits replacing it (text and number editors); <kbd>Enter</kbd>
+commits and moves down, <kbd>Tab</kbd>/<kbd>Shift</kbd>+<kbd>Tab</kbd> commit and
+move across; <kbd>Escape</kbd> restores grid navigation; a rejected commit
+reverts and announces. While an IME is composing, no key commits or moves.
 
 <ComponentPreview
   name="dataGridEditable"
@@ -172,12 +262,18 @@ font.
 
 ## Accessibility
 
-- Real `role="grid"` semantics on a native table: `columnheader`/`gridcell`
-  with `aria-colcount`, `aria-rowcount` (−1 while more rows exist),
-  `aria-rowindex`/`aria-colindex`, and `aria-readonly` on non-editable cells.
-- One roving tab stop for the whole grid: arrows move the active cell
-  (RTL-aware), <kbd>Home</kbd>/<kbd>End</kbd> jump within the row,
-  <kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd> to the grid's corners.
+- Real `role="grid"` semantics on a native table: `columnheader`/`gridcell`,
+  the primary column's cells as `rowheader`, `aria-colcount` and
+  `aria-rowcount` with TRUE totals (`ariaRowCount`/`ariaColCount` when only
+  some rows or columns are loaded; −1 while more rows exist and no total is
+  given), `aria-rowindex`/`aria-colindex` on every row and cell, and
+  `aria-readonly` on non-editable cells.
+- One roving tab stop for the whole grid, kept by **row id and column key**
+  (never by index), so it survives a refetch that moves its row. It roves over
+  the header row, the group rows, the body and the summary row; the sort
+  buttons, menu chevrons, resize handles and checkboxes inside are not stops
+  of their own. Arrows move the active cell (RTL-aware); a windowed-out target
+  scrolls in and takes focus as it mounts.
 - <kbd>Enter</kbd>/<kbd>F2</kbd> opens the cell editor and **suspends grid
   navigation**; <kbd>Escape</kbd> closes it and restores focus to the cell;
   edit-mode entry announces politely.
@@ -197,22 +293,56 @@ font.
 - The scroll viewport is keyboard-reachable exactly when it scrolls, and the
   roving cell's focus outline is pulled inside so the viewport cannot clip it.
 
-| Key                                              | Action                                        |
-| ------------------------------------------------ | --------------------------------------------- |
-| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> | Move the active cell.                         |
-| <kbd>Home</kbd> / <kbd>End</kbd>                 | First / last cell in the row.                 |
-| <kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>   | First / last cell of the grid.                |
-| <kbd>Enter</kbd> / <kbd>F2</kbd>                 | Edit the focused cell (suspends grid nav).    |
-| <kbd>Escape</kbd>                                | Close the editor, restore grid focus.         |
-| <kbd>↓</kbd> on the last row                     | Load the next page (when `loadMore.hasMore`). |
+| Key                                                                               | Action                                                                        |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>                                  | Move the active cell; <kbd>↑</kbd> from the first row reaches the header row. |
+| <kbd>Home</kbd> / <kbd>End</kbd>                                                  | First / last cell in the row.                                                 |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>                       | First / last cell of the grid.                                                |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+arrow                                                | The data edge in that direction.                                              |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>                                           | One screen of rows.                                                           |
+| <kbd>Enter</kbd> / <kbd>F2</kbd>                                                  | Edit the focused cell, keeping the value (suspends grid nav).                 |
+| A character                                                                       | Edit, replacing the value (text and number editors).                          |
+| <kbd>Enter</kbd> / <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> while editing | Commit and move down / right / left.                                          |
+| <kbd>Escape</kbd>                                                                 | Close the editor, restore grid focus.                                         |
+| <kbd>Enter</kbd> on a header                                                      | Open its menu (`headerMenu`), else sort (shift adds a key).                   |
+| <kbd>Shift</kbd>+<kbd>F10</kbd> / the menu key                                    | The focused cell's menu (`cellMenu`) or the header's menu.                    |
+| <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> on a header                              | Resize by 8px (<kbd>Shift</kbd>: 32px).                                       |
+| <kbd>Space</kbd> on a checkbox or group row                                       | Toggle it.                                                                    |
+| <kbd>↓</kbd> on the last row                                                      | Load the next page (when `loadMore.hasMore`).                                 |
+| <kbd>Tab</kbd> (not editing)                                                      | Leave the grid — it is one tab stop.                                          |
 
 The states the verification lanes exercise for this item (generated from `component-contracts.json`):
 
 <StatesTested name="data-grid" />
 
+### Column resize handle
+
+`ColumnResizeHandle` (in `data-table-parts`) is the header's trailing-edge grip: a `separator` with
+`aria-orientation="vertical"` and its `aria-valuenow`/`min`/`max`, named _Resize Qty_. Standalone it
+is a tab stop with <kbd>←</kbd>/<kbd>→</kbd> (8px, <kbd>Shift</kbd> 32px) and
+
+<kbd>Home</kbd>/<kbd>End</kbd>; inside the grid the same steps run from the
+focused header with
+<kbd>Alt</kbd>. Its hit area is 24px wide.
+
+### Summary row
+
+`GridSummaryCell` (in `data-table-parts`) is one footer cell: a quiet `Select` of the column's
+`summaryOptions` (with a built-in _None_) named _Sum of Qty_, and the host's result beside it. An
+unsummarised cell shows _Summarize_ only on hover or focus. The summary row is sticky at the bottom
+of the viewport and counts as a row in `aria-rowcount`. The primary column's cell shows
+`summaryRow.label` ("412 rows") before its own picker. The cells rove like any row; <kbd>Enter</kbd>
+or <kbd>Space</kbd> opens the picker, and closing it returns focus to the cell.
+
+### Trailing header control
+
+`headerTrailing` is a render function: spread the focus props it is handed onto its one control (an
+"add field" button, or a `PopoverTrigger`'s `render` button), and the control joins the header row's
+roving focus — <kbd>→</kbd> from the last header reaches it — instead of becoming a second tab stop.
+
 ## Do / Don't
 
 <DoDont
-  do="Reach for DataList first — DataGrid earns its weight only when you need grouping, inline editing, multi-key sort, or virtualization."
-  dont="Wire cell-level overflow-hidden for truncation — use min-w-0 + an inner truncate span; cell clipping breaks the checkbox hit-area invariant."
+  do="Reach for DataList first — DataGrid earns its weight only when you need grouping, inline editing, multi-key sort, frozen or resizable columns, or virtualization."
+  dont="Rebuild columns or cellStatus on every render of a large grid — cells are memoised on the row object and the column definition, so a fresh array re-renders every cell."
 />

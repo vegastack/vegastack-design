@@ -223,7 +223,7 @@ test("data-grid: a merged primary cell names each revealed value separately", as
   // so a value lifted out of its column is never read without its context.
   await expect
     .element(
-      page.getByRole("gridcell", { name: "Acme Stage: Open Amount: 300" }),
+      page.getByRole("rowheader", { name: "Acme Stage: Open Amount: 300" }),
     )
     .toBeInTheDocument();
 });

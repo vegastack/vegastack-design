@@ -2661,7 +2661,7 @@ test("DataGrid at 320px: merged values under a mono first column do not scroll t
     )
     .not.toBeNull();
   const container = screen.container.querySelector<HTMLElement>(
-    '[data-slot="table-container"]',
+    '[data-slot="grid-viewport"]',
   )!;
   await expect
     .poll(() => container.scrollWidth - container.clientWidth)

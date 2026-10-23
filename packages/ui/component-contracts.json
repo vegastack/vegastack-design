@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 750,
-    "components": 165,
+    "totalRegistryItems": 751,
+    "components": 166,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 34,
     "Navigation/layout": 22,
     "Overlays": 21,
-    "Data display": 33,
+    "Data display": 34,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 10,
@@ -155,6 +155,7 @@
       "data-grid",
       "data-list",
       "data-list-pager",
+      "cursor-pager",
       "diff-view",
       "file-card",
       "inbox",
@@ -7666,7 +7667,7 @@
       "name": "data-grid",
       "registryType": "registry:ui",
       "title": "Data Grid",
-      "summary": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "summary": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -7693,6 +7694,15 @@
         },
         {
           "name": "DataGridColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridFocusProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
@@ -7728,7 +7738,34 @@
           }
         },
         {
+          "name": "DataGridRowHeight",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridSection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataGridSort",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridSummaryRow",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
@@ -7754,22 +7791,30 @@
             "idle",
             "sorted",
             "multi-sorted",
+            "manual-sorted",
             "selecting",
             "grouped",
             "group-collapsed",
+            "group-loading-more",
             "editing",
             "committing",
             "loading",
             "loading-more",
             "empty",
-            "virtualized"
+            "virtualized",
+            "columns-virtualized",
+            "frozen",
+            "resizing",
+            "summarized",
+            "paged",
+            "menu-open"
           ],
-          "evidence": "Controlled DataGridSort[] with shift-click additive keys and ordinals; header + per-row checkboxes; per-value collapsible tbody sections; EditableCell managed editing with async commit; skeleton loading, Empty state, loadMore paging, and useVirtualizer windowing."
+          "evidence": "Controlled DataGridSort[] with shift-click additive keys and ordinals, client (engine) or manual (host) order; header + per-row checkboxes; client group columns and host sections flattened into one row list with per-group load-more rows; EditableCell managed editing (Enter/F2, type-to-edit seed) with async commit; skeleton loading, Empty state, loadMore paging, CursorPager paged mode; row and column useVirtualizer windowing; frozen sticky columns; ColumnResizeHandle drag/keyboard; GridSummaryCell footer; header DropdownMenu and cell ContextMenu."
         },
         "accessibility": {
           "status": "observed",
           "values": ["keyboard", "labeled", "status-announcement", "aria-grid"],
-          "evidence": "role=grid over a native table with aria-rowcount/colcount and per-cell indices; one roving tab stop with RTL-aware arrow navigation, Home/End and Ctrl+Home/End; Enter/F2 suspends grid nav into EditableCell and Escape restores the cell; aria-sort with visible sort ordinals; polite live region for edit-mode entry and load-more."
+          "evidence": "role=grid over a native table with true aria-rowcount/colcount (host totals) and per-row/per-cell indices; primary cells are rowheader; one roving tab stop keyed by row id and column key over header, group, body and summary rows (RTL-aware arrows, Home/End, Ctrl/Cmd+Home/End and arrows, PageUp/PageDown); Enter/F2 or a printable key suspends grid nav into EditableCell, Enter/Tab commit and move, Escape restores the cell; IME composition never moves or commits; Shift+F10 opens the cell or header menu; Alt+arrows resize; aria-sort with visible sort ordinals; polite live region for edit-mode entry, resize and load-more."
         },
         "visual": {
           "status": "observed",
@@ -7779,7 +7824,10 @@
             "sorted-header",
             "editing-cell",
             "loading",
-            "empty"
+            "empty",
+            "frozen-edge",
+            "resizing",
+            "summary"
           ],
           "evidence": "data-selected rows tint with accent; sorted headers show direction glyphs plus multi-key ordinals; the active editor renders EditableCell's managed field; skeleton rows and the Empty composition cover the async states."
         }
@@ -7790,7 +7838,7 @@
           "text-truncation-and-flex-shrink",
           "horizontal-scroll-containment"
         ],
-        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default (each merged value wraps on its own rule and keeps its header as an sr-only prefix); a column that opts into mobile:'hidden' is counted, and a sorted column that left the header row is stated, in the toolbar the grid is described by, so narrow viewports never lose data silently. The container scrolls, never the page."
+        "rationale": "ResizeObserver-driven column revelation MERGES overflow columns into the primary cell by default (each merged value wraps on its own rule and keeps its header as an sr-only prefix); a column that opts into mobile:'hidden' is counted, and a sorted column that left the header row is stated, in the toolbar the grid is described by, so narrow viewports never lose data silently. The container scrolls, never the page. The fixed layout (widths, frozen or resizable columns, column windowing) scrolls sideways inside the one grid viewport instead of revealing; frozen columns stay sticky to the inline start."
       },
       "motion": {
         "status": "observed",
@@ -7803,24 +7851,28 @@
       "engines": [
         {
           "package": "@tanstack/react-table",
-          "role": "sorted row-model engine"
+          "role": "sorted row-model engine (client sort mode only)"
         },
         {
           "package": "@tanstack/react-virtual",
-          "role": "row windowing/measurement engine"
+          "role": "row and column windowing/measurement engine"
         }
       ],
       "docsSlug": "/docs/components/data-grid",
       "registryDependencies": [
         "@vegastack/auto-save-input",
         "@vegastack/button",
+        "@vegastack/context-menu",
+        "@vegastack/cursor-pager",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
         "@vegastack/load-more",
+        "@vegastack/skeleton",
         "@vegastack/table",
+        "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/truncated-text"
+        "@vegastack/use-drag-reorder"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -7843,46 +7895,49 @@
         "DataGrid": {
           "attributes": [
             {
-              "name": "data-collapsed",
-              "values": [""]
-            },
-            {
               "name": "data-grid-id",
               "values": []
             },
             {
-              "name": "data-group",
+              "name": "data-grid-key",
               "values": []
             },
             {
-              "name": "data-selected",
-              "values": [""]
+              "name": "data-grid-row",
+              "values": []
+            },
+            {
+              "name": "data-layout",
+              "values": ["auto", "fixed"]
             },
             {
               "name": "data-slot",
               "values": [
                 "data-grid",
-                "data-grid-cell",
                 "data-grid-footer",
-                "data-grid-group-row",
                 "data-grid-head",
+                "data-grid-head-label",
+                "data-grid-head-menu",
+                "data-grid-head-trailing",
                 "data-grid-hidden-hint",
-                "data-grid-merged",
                 "data-grid-more",
-                "data-grid-row",
-                "data-grid-scroll",
-                "data-grid-section",
                 "data-grid-sort-hint",
+                "data-grid-summary",
                 "data-grid-toolbar",
-                "data-grid-virtual-pad"
+                "table",
+                "table-header"
               ]
+            },
+            {
+              "name": "data-sortable",
+              "values": [""]
             },
             {
               "name": "data-sorted",
               "values": []
             }
           ],
-          "cssVariables": ["--data-grid-virtual-pad"]
+          "cssVariables": []
         }
       }
     },
@@ -8497,6 +8552,112 @@
                 "data-list-pager-previous",
                 "data-list-pager-range",
                 "data-list-pager-size"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "cursor-pager",
+      "registryType": "registry:ui",
+      "title": "Cursor Pager",
+      "summary": "Previous and Next for keyset (cursor) paging — a range label and two buttons, with no page numbers and no total.",
+      "status": "stable",
+      "since": "0.25.69",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/cursor-pager.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CursorPager",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/cursor-pager.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/cursor-pager.tsx."
+          }
+        },
+        {
+          "name": "CursorPagerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/cursor-pager.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "first-page", "last-page", "loading"],
+          "evidence": "hasPrevious/hasNext gate each button; loading holds both."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "status-announcement"],
+          "evidence": "A named navigation landmark; aria-disabled ends that stay focusable; a polite live region announces a new range label."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "disabled"],
+          "evidence": "Ghost buttons with chevrons; disabled ends dim."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps: the label truncates and the buttons keep their size."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/cursor-pager",
+      "registryDependencies": ["@vegastack/button", "@vegastack/use-announcer"],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.18",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "testFiles": ["packages/ui/registry/ui/cursor-pager.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "cursor-pager",
+      "dataAttributes": {
+        "CursorPager": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "cursor-pager",
+                "cursor-pager-label",
+                "cursor-pager-next",
+                "cursor-pager-previous"
               ]
             }
           ],
@@ -9170,6 +9331,60 @@
       "sourceFiles": ["packages/ui/registry/ui/data-table-parts.tsx"],
       "publicSymbols": [
         {
+          "name": "alignClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "COLUMN_RESIZE_STEP",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "columnCellClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "ColumnResizeHandle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A grip owned by its header cell; it forwards no ref — the cell is the host's ref target."
+          }
+        },
+        {
+          "name": "ColumnResizeHandleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "columnResizeKeyWidth",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
           "name": "ColumnRevelation",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -9179,25 +9394,16 @@
           }
         },
         {
-          "name": "DEFAULT_COLUMN_MIN_WIDTH",
-          "kind": "component-constant",
+          "name": "cycleSort",
+          "kind": "function",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
           "name": "DataTableColumnLayout",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataTableColumnRole",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
@@ -9215,12 +9421,39 @@
           }
         },
         {
+          "name": "DataTableColumnRole",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataTableHeaderColumn",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DEFAULT_COLUMN_MIN_WIDTH",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "defaultActionsLabel",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -9243,6 +9476,34 @@
           }
         },
         {
+          "name": "GridSummaryCell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableCell",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "GridSummaryCellProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GridSummaryOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "GroupState",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -9252,8 +9513,80 @@
           }
         },
         {
+          "name": "headerCellClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "isNowrapColumn",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "isRowActionItem",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A type guard; renders nothing."
+          }
+        },
+        {
+          "name": "mergedValueClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "offscreenSortSummary",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "pickShortcut",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "revealColumns",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
           "name": "RowAction",
           "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowActionItem",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
@@ -9267,6 +9600,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "RowActionSeparator",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9285,24 +9627,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SELECTED_ROW_CLASS",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "SELECTION_COLUMN_WIDTH",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -9361,6 +9685,24 @@
           }
         },
         {
+          "name": "SELECTED_ROW_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SELECTION_COLUMN_WIDTH",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
           "name": "SelectionCell",
           "kind": "component",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -9398,6 +9740,25 @@
           }
         },
         {
+          "name": "SortableHead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableHead",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortableHeadProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "SortDirection",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -9423,133 +9784,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SortableHead",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "TableHead",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SortableHeadProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UseRowSelectionOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UseRowSelectionResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "alignClass",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "columnCellClass",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "cycleSort",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "defaultActionsLabel",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "headerCellClass",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "isNowrapColumn",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "mergedValueClass",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "offscreenSortSummary",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "pickShortcut",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "revealColumns",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -9580,7 +9814,7 @@
           }
         },
         {
-          "name": "RowActionItem",
+          "name": "UseRowSelectionOptions",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
@@ -9589,21 +9823,12 @@
           }
         },
         {
-          "name": "RowActionSeparator",
+          "name": "UseRowSelectionResult",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "isRowActionItem",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A type guard; renders nothing."
           }
         }
       ],
@@ -9675,6 +9900,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/panel-search",
+        "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"
@@ -9792,6 +10018,36 @@
             {
               "name": "data-slot",
               "values": ["section-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ColumnResizeHandle": {
+          "attributes": [
+            {
+              "name": "data-resizing",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["column-resize-handle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GridSummaryCell": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "grid-summary-cell",
+                "grid-summary-loading",
+                "grid-summary-placeholder"
+              ]
             }
           ],
           "cssVariables": []

@@ -752,3 +752,33 @@ test("text maxLength: a paste the limit cut short says so until the next change;
   await new Promise((resolve) => setTimeout(resolve, 20));
   expect(count()).toBe("");
 });
+
+test("editSeed starts a host-opened text edit from the typed key; onNavigate says which key moved", async () => {
+  const onNavigate = vi.fn();
+  const onSave = vi.fn();
+  function Harness({ editing }: { editing: boolean }) {
+    return (
+      <EditableCell
+        value="Acme"
+        label="Name"
+        focusMode="managed"
+        editing={editing}
+        editSeed="G"
+        onEditingChange={() => {}}
+        onNavigate={onNavigate}
+        onSave={onSave}
+      />
+    );
+  }
+  const screen = await render(<Harness editing={false} />);
+  await screen.rerender(<Harness editing />);
+  const field = screen.getByRole("textbox", { name: "Name" });
+  await expect.element(field).toHaveValue("G");
+  await userEvent.keyboard("lobex{Tab}");
+  expect(onSave).toHaveBeenCalledWith("Globex");
+  expect(onNavigate).toHaveBeenCalledWith("next", "tab");
+  await screen.rerender(<Harness editing={false} />);
+  await screen.rerender(<Harness editing />);
+  await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
+  expect(onNavigate).toHaveBeenLastCalledWith("previous", "enter");
+});

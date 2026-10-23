@@ -1530,7 +1530,7 @@
       "name": "data-grid",
       "type": "registry:ui",
       "title": "Data Grid",
-      "description": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "description": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.",
       "categories": [
         "data"
       ],
@@ -1544,13 +1544,17 @@
       "registryDependencies": [
         "@vegastack/auto-save-input",
         "@vegastack/button",
+        "@vegastack/context-menu",
+        "@vegastack/cursor-pager",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
         "@vegastack/load-more",
+        "@vegastack/skeleton",
         "@vegastack/table",
+        "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/truncated-text"
+        "@vegastack/use-drag-reorder"
       ],
       "files": [
         {
@@ -1560,10 +1564,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
+        "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.68",
-        "integrity": "sha256-u1h3VmpK/SW3DeEWBEfT4FNeJTs3dSjjQWHrqA160dY="
+        "integrity": "sha256-B1AIbHcpyzLPn9Jpu/9LTBaIZqHIf3P8iW+mFwXgZxA="
       }
     },
     {
@@ -1642,6 +1646,37 @@
         "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.25.68",
         "integrity": "sha256-Tz5tW9xWT4TJc5ysIbn9XZaujSKB/J2Ky9LCr09pI78="
+      }
+    },
+    {
+      "name": "cursor-pager",
+      "type": "registry:ui",
+      "title": "Cursor Pager",
+      "description": "Previous and Next for keyset (cursor) paging — a range label and two buttons, with no page numbers and no total.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.18",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/cursor-pager.tsx",
+          "type": "registry:ui",
+          "target": "@ui/cursor-pager.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Keyset-paged lists that page instead of scroll — DataGrid's pagedMode, or any host that keeps a cursor history and knows only whether a previous and a next page exist.",
+        "whenNotToUse": "Lists with a total and page numbers (DataListPager), or continuous paging on scroll (LoadMore).",
+        "version": "0.25.68",
+        "integrity": "sha256-Tkzv9d/G+cCwZijq915QbWr0QbsAlRYTfBV07J3IrFo="
       }
     },
     {
@@ -1766,7 +1801,7 @@
       "name": "data-table-parts",
       "type": "registry:ui",
       "title": "Data Table Parts",
-      "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
+      "description": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, the column resize handle, the summary cell, column class rules, and the selection/sort/controlled-state hooks.",
       "categories": [
         "data"
       ],
@@ -1781,6 +1816,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/panel-search",
+        "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"
@@ -1796,7 +1832,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.68",
-        "integrity": "sha256-hYnBe1mtZJ11W8waMZoEDfzwktf9ql2cQ5ER5RjNFho="
+        "integrity": "sha256-qr3mQQeRgK9g6RTXzTtKG5r09yNof2HLLfpetbdadLE="
       }
     },
     {
@@ -2439,7 +2475,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.68",
-        "integrity": "sha256-6dnIf+zoG1MjvJgtk3DNMNFQWq5JUzVI7kDYNZmcbBk="
+        "integrity": "sha256-7DcJovr7C6bm/8bYDeFdo9ocYFCt7O1fknx5F2Clfyg="
       }
     },
     {
@@ -18771,7 +18807,7 @@
         "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
         "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.25.68",
-        "integrity": "sha256-VKyfqNDA3D95vc6LgV3jHMlZaUez9wmXPbekpqedrA0="
+        "integrity": "sha256-rh8wCKu0Q4nWWa+Oy1LcAHoai06kYQQ+eh9WENSGfpc="
       }
     },
     {
