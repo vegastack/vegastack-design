@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.66 sha256-LQfJ/VUbEg0fViyDEZsdFAAWhzh39xR9ecv+XiLzdvU=
+// @vegastack text-edit@0.25.66 sha256-PA2iaQUbsUnvzTRj04r5J+8swXRxZL8JrSkEHbsoiNk=
 
 "use client";
 
@@ -12621,7 +12621,9 @@ export function TextEditEditor({
           if (!editor || !editable || event.target !== event.currentTarget)
             return;
           event.preventDefault();
-          editor.commands.focus("end");
+          // A document that ends in a table or an atom gets an empty paragraph to type in.
+          if (!editor.chain().appendParagraphAfterLastBlock().focus().run())
+            editor.commands.focus("end");
         }}
         className={cn(contentClassName, findReplace && FIND_RESULT_CLASS)}
         style={contentStyle}

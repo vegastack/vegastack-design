@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.66 sha256-HU/yHxA+vHE+tJBKHGXFfiTPoKQvoHNrieCFcMnyBd0=
+// @vegastack text-edit-schema@0.25.66 sha256-RhqUpJ9py9SfvCwpEf36UigfPBwMW5KKCtVOiECzyTA=
 
 import {
   Extension,
@@ -9,14 +9,24 @@ import {
   mergeAttributes,
   textblockTypeInputRule,
   type AnyExtension,
+  type Editor,
   type JSONContent,
   type MarkdownParseHelpers,
   type MarkdownRendererHelpers,
   type MarkdownToken,
   type NodeViewRenderer,
 } from "@tiptap/core";
-import type { Schema } from "@tiptap/pm/model";
-import type { Transaction } from "@tiptap/pm/state";
+import type { Node as PMNode, Schema } from "@tiptap/pm/model";
+import {
+  NodeSelection,
+  Plugin,
+  PluginKey,
+  TextSelection,
+  type EditorState,
+  type Transaction,
+} from "@tiptap/pm/state";
+import { TableMap, columnResizingPluginKey } from "@tiptap/pm/tables";
+import type { EditorView } from "@tiptap/pm/view";
 import StarterKit from "@tiptap/starter-kit";
 import { Code } from "@tiptap/extension-code";
 import { CodeBlock } from "@tiptap/extension-code-block";
@@ -1614,6 +1624,10 @@ export function textEditExtensions(
       cellMinWidth: 100,
     }),
     TableKit.configure({ table: false }),
+    TableColumnWidths.configure({
+      isRemote: options.collaboration?.isRemote ?? (() => false),
+    }),
+    OpenEnd,
     imageNode(view.image),
     mentionNode(view.mention),
     calloutNode(view.callout),
@@ -1665,6 +1679,289 @@ const BlockIds = UniqueID.extend({
       this.storage as { needsInitialIdGeneration?: boolean }
     ).needsInitialIdGeneration = false;
     return plugins;
+  },
+});
+
+/* ------------------------------------------------------------------------------------------------
+ * Table columns that hold their width, and a way out of a block that ends the document
+ * ----------------------------------------------------------------------------------------------*/
+
+/** A column added to a table that already holds its widths starts this wide (px). */
+const NEW_COLUMN_WIDTH = 160;
+/** The narrowest a column is laid out (`cellMinWidth` of the table). */
+const COLUMN_MIN_WIDTH = 100;
+
+/** The table the selection is in: its node and the position before it. */
+function tableAtSelection(
+  state: EditorState,
+): { node: PMNode; pos: number; depth: number } | null {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth > 0; depth -= 1) {
+    const node = $from.node(depth);
+    if (node.type.name === "table")
+      return { node, pos: $from.before(depth), depth };
+  }
+  return null;
+}
+
+/** Every column of `table` has a stored width. */
+function columnsAreFixed(table: PMNode): boolean {
+  const map = TableMap.get(table);
+  for (let col = 0; col < map.width; col += 1) {
+    let fixed = false;
+    for (let row = 0; row < map.height && !fixed; row += 1) {
+      const pos = map.map[row * map.width + col]!;
+      const rect = map.findCell(pos);
+      const widths = table.nodeAt(pos)?.attrs.colwidth as number[] | null;
+      fixed = Boolean(widths?.[col - rect.left]);
+    }
+    if (!fixed) return false;
+  }
+  return true;
+}
+
+/** The widths (px) a table's first row is laid out at now, one per column; null where unknown. */
+function laidOutColumns(table: PMNode, dom: unknown): (number | null)[] {
+  const widths: (number | null)[] = Array(TableMap.get(table).width).fill(null);
+  const row = dom instanceof HTMLElement ? dom.querySelector("tr") : null;
+  if (!row) return widths;
+  let col = 0;
+  table.firstChild?.forEach((cell, _offset, index) => {
+    const span = (cell.attrs.colspan as number) || 1;
+    const box = row.children[index]?.getBoundingClientRect().width;
+    for (let i = 0; i < span; i += 1)
+      widths[col + i] = box
+        ? Math.max(COLUMN_MIN_WIDTH, Math.round(box / span))
+        : null;
+    col += span;
+  });
+  return widths;
+}
+
+/** Writes `widths` into every cell's `colwidth`, so the table is exactly their sum wide. */
+function fixColumns(tr: Transaction, tablePos: number, widths: number[]) {
+  const table = tr.doc.nodeAt(tablePos);
+  if (!table) return tr;
+  const map = TableMap.get(table);
+  for (const pos of new Set(map.map)) {
+    const cell = table.nodeAt(pos)!;
+    const { left, right } = map.findCell(pos);
+    const colwidth = widths.slice(left, right);
+    const current = cell.attrs.colwidth as number[] | null;
+    if (current && colwidth.every((width, i) => current[i] === width)) continue;
+    tr.setNodeMarkup(tablePos + 1 + pos, undefined, {
+      ...cell.attrs,
+      colwidth,
+    });
+  }
+  return tr;
+}
+
+const TABLE_WIDTHS_KEY = new PluginKey("textEditTableColumnWidths");
+
+/**
+ * Notion's table columns: a column's width belongs to that column alone. Left to the browser, a
+ * table whose columns are not all sized spreads its width over the others, so widening one column
+ * (or adding one) squeezed its neighbours. Here the first resize, and every column added, writes
+ * each column's current width (`colwidth`, never in Markdown), the table becomes the sum of its
+ * columns, and a table wider than its box scrolls inside it (`.tableWrapper`).
+ */
+const TableColumnWidths = Extension.create<{
+  isRemote: (transaction: Transaction) => boolean;
+}>({
+  name: "textEditTableColumnWidths",
+  addOptions() {
+    return { isRemote: () => false };
+  },
+  addProseMirrorPlugins() {
+    const { isRemote } = this.options;
+    let editorView: EditorView | null = null;
+    return [
+      new Plugin({
+        key: TABLE_WIDTHS_KEY,
+        view(view) {
+          editorView = view;
+          return {
+            destroy() {
+              editorView = null;
+            },
+          };
+        },
+        props: {
+          handleDOMEvents: {
+            // Grabbing a column border: freeze the other columns where they are before the drag.
+            mousedown(view, event) {
+              if (!view.editable || event.button !== 0) return false;
+              const handle = columnResizingPluginKey.getState(
+                view.state,
+              )?.activeHandle;
+              if (handle == null || handle < 0) return false;
+              const $cell = view.state.doc.resolve(handle);
+              const tablePos = $cell.before($cell.depth - 1);
+              const table = view.state.doc.nodeAt(tablePos);
+              if (!table || columnsAreFixed(table)) return false;
+              const declared = laidOutColumns(table, view.nodeDOM(tablePos));
+              if (declared.some((width) => width == null)) return false;
+              view.dispatch(
+                fixColumns(
+                  view.state.tr.setMeta("addToHistory", false),
+                  tablePos,
+                  declared as number[],
+                ),
+              );
+              return false;
+            },
+          },
+        },
+        // A column added: the old columns keep the width they had, the new one gets a default.
+        appendTransaction(transactions, oldState, newState) {
+          if (!transactions.some((tr) => tr.docChanged)) return null;
+          if (transactions.some((tr) => isRemote(tr))) return null;
+          const found = tableAtSelection(newState);
+          if (!found || !editorView) return null;
+          let oldPos = found.pos;
+          for (let i = transactions.length - 1; i >= 0; i -= 1)
+            oldPos = transactions[i]!.mapping.invert().map(oldPos, -1);
+          const before = oldState.doc.nodeAt(oldPos);
+          if (before?.type.name !== "table") return null;
+          const width = TableMap.get(found.node).width;
+          if (width <= TableMap.get(before).width) return null;
+          // Each new cell of the first row either is an old one (same node) or is new.
+          const old = laidOutColumns(before, editorView.nodeDOM(oldPos));
+          const oldCells: { node: PMNode; left: number }[] = [];
+          let left = 0;
+          before.firstChild?.forEach((cell) => {
+            oldCells.push({ node: cell, left });
+            left += (cell.attrs.colspan as number) || 1;
+          });
+          const widths: number[] = [];
+          found.node.firstChild?.forEach((cell) => {
+            const span = (cell.attrs.colspan as number) || 1;
+            const same = oldCells.find((old) => old.node === cell);
+            for (let i = 0; i < span; i += 1)
+              widths.push(
+                (same ? old[same.left + i] : null) ??
+                  (cell.attrs.colwidth as number[] | null)?.[i] ??
+                  NEW_COLUMN_WIDTH,
+              );
+          });
+          if (widths.length !== width) return null;
+          return fixColumns(newState.tr, found.pos, widths);
+        },
+      }),
+    ];
+  },
+});
+
+/** The document ends in a block no caret can sit after: a table, or an atom (audio, video, image…). */
+function endsInBlockWithoutCaret(doc: PMNode): boolean {
+  const last = doc.lastChild;
+  return Boolean(last && (last.isAtom || last.type.name === "table"));
+}
+
+/**
+ * Notion's way out of a last block: click below it, or press ↓ (→ on a selected audio, video or
+ * image) from its end, and an empty paragraph is there to type in. While the document ends that
+ * way the editor keeps a strip of room under it to click (`te-open-end`).
+ */
+const openEnd = (editor: Editor) =>
+  editor.chain().appendParagraphAfterLastBlock().focus().run();
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    textEditOpenEnd: { appendParagraphAfterLastBlock: () => ReturnType };
+  }
+}
+
+const OpenEnd = Extension.create({
+  name: "textEditOpenEnd",
+  /**
+   * `editor.commands.appendParagraphAfterLastBlock()`: adds an empty paragraph after the last block
+   * when it has none to put a caret in, and puts the caret in it. False when there is nothing to do.
+   */
+  addCommands() {
+    return {
+      appendParagraphAfterLastBlock:
+        () =>
+        ({ state, tr, dispatch }) => {
+          const paragraph = state.schema.nodes.paragraph;
+          if (!paragraph || !endsInBlockWithoutCaret(state.doc)) return false;
+          if (dispatch) {
+            const at = state.doc.content.size;
+            tr.insert(at, paragraph.create());
+            tr.setSelection(
+              TextSelection.create(tr.doc, at + 1),
+            ).scrollIntoView();
+          }
+          return true;
+        },
+    };
+  },
+  addProseMirrorPlugins() {
+    const editor = this.editor;
+    return [
+      new Plugin({
+        key: new PluginKey("textEditOpenEnd"),
+        props: {
+          attributes: (state): Record<string, string> =>
+            editor.isEditable && endsInBlockWithoutCaret(state.doc)
+              ? { class: "te-open-end" }
+              : {},
+          handleDOMEvents: {
+            mousedown(view, event) {
+              if (
+                !view.editable ||
+                event.button !== 0 ||
+                event.target !== view.dom
+              )
+                return false;
+              const { doc } = view.state;
+              const last = doc.lastChild;
+              if (!last || !endsInBlockWithoutCaret(doc)) return false;
+              const dom = view.nodeDOM(doc.content.size - last.nodeSize);
+              if (
+                !(dom instanceof HTMLElement) ||
+                event.clientY <= dom.getBoundingClientRect().bottom
+              )
+                return false;
+              event.preventDefault();
+              return openEnd(editor);
+            },
+          },
+          handleKeyDown(view, event) {
+            if (
+              event.shiftKey ||
+              event.altKey ||
+              event.ctrlKey ||
+              event.metaKey ||
+              !view.editable
+            )
+              return false;
+            const { doc, selection } = view.state;
+            const last = doc.lastChild;
+            if (!last || !endsInBlockWithoutCaret(doc)) return false;
+            const lastPos = doc.content.size - last.nodeSize;
+            if (selection instanceof NodeSelection)
+              return (
+                selection.from === lastPos &&
+                (event.key === "ArrowDown" || event.key === "ArrowRight") &&
+                openEnd(editor)
+              );
+            // In the last row of a last table, the caret on its last line.
+            const found = tableAtSelection(view.state);
+            return (
+              event.key === "ArrowDown" &&
+              selection.empty &&
+              found?.pos === lastPos &&
+              selection.$from.index(found.depth) ===
+                found.node.childCount - 1 &&
+              view.endOfTextblock("down") &&
+              openEnd(editor)
+            );
+          },
+        },
+      }),
+    ];
   },
 });
 

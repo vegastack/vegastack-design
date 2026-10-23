@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.66 sha256-LQfJ/VUbEg0fViyDEZsdFAAWhzh39xR9ecv+XiLzdvU=
+// @vegastack text-edit@0.25.66 sha256-PA2iaQUbsUnvzTRj04r5J+8swXRxZL8JrSkEHbsoiNk=
 
 "use client";
 
@@ -522,6 +522,8 @@ const editorBaseClassName = cn(
   // Fixed layout: columns keep their width (equal, or as resized) while you type, and text wraps
   // inside its cell instead of pushing the other columns right.
   "[&_table]:table-fixed",
+  // A document ending in a table or an atom keeps room under it to click, where the caret goes.
+  "[&.te-open-end]:pb-6",
   // Column resizing (editable only): a thin primary line on the hovered column border, and the
   // resize cursor while the pointer is on it.
   "[&_td]:relative [&_th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
@@ -594,7 +596,7 @@ const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 p-[3px]";
 const COMPOSER_LEADING =
   "col-start-1 row-start-1 flex shrink-0 items-center gap-1 self-end";
 const COMPOSER_CONTENT =
-  "row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
+  "row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0 [&_[data-slot=inline-chip]]:before:hidden";
 const COMPOSER_ACTIONS =
   "row-start-1 flex shrink-0 items-center gap-1 self-end";
 // An empty footer (a host passing a wrapper with no files in it) takes no room.
@@ -1636,7 +1638,7 @@ function useHandleGutter(
  * - **Tables** — Notion's simple table: bordered, rounded, a muted header row. Hover a row or column
  *   for its ⠿ grip — click for its menu (insert, move, duplicate, clear, delete), drag to reorder;
  *   the corner grip selects the table (header toggles in HTML, delete); "+" bars add a row or column
- *   at the end; drag a column border to resize. Tab / ⇧Tab move between cells (Tab in the last cell
+ *   at the end; drag a column border to resize (the others keep their width; a wide table scrolls). Tab / ⇧Tab move between cells (Tab in the last cell
  *   adds a row), ⇧F10 opens the menu from the keyboard, and a fully selected table deletes with ⌫.
  * - **Blocks** — a ⋮⋮ handle drags any block (and any list item) to a new place; ⌘⇧↑ / ⌘⇧↓ too.
  * - **Markdown** — input rules (`#`–`####`, `- `, `* `, `1. `, `[ ] `, `> `, ```` ```lang ````,
