@@ -1448,6 +1448,15 @@ test("a document ending in a table: clicking below it, or ↓ from its last row,
     }),
   );
   await vi.waitFor(() => expect(box.lastElementChild!.tagName).toBe("P"));
+  // Type only once the caret sits in that paragraph (the click's selection lands a frame later).
+  await vi.waitFor(() => {
+    expect(document.activeElement).toBe(box);
+    expect(
+      box.lastElementChild!.contains(
+        document.getSelection()?.anchorNode ?? null,
+      ),
+    ).toBe(true);
+  });
   await userEvent.keyboard("after");
   await vi.waitFor(() =>
     expect(box.lastElementChild!.textContent).toBe("after"),
@@ -6274,7 +6283,8 @@ test("taskQuery: a host's live block kind reads with its kind, renderLiveBlock d
   editor.state.doc.descendants((node) => {
     if (node.type.name === "taskQuery") kinds.push(node.attrs.kind);
   });
-  expect(kinds).toEqual(["table", "tasks"]);
+  // A task list stores no kind (`null`), so its shared state is what it always was.
+  expect(kinds).toEqual(["table", null]);
   // A task list's HTML is unchanged: only another kind writes `data-kind`.
   expect(editor.getHTML()).toContain('data-kind="table"');
   expect(editor.getHTML().match(/data-kind="tasks"/g)).toBeNull();
@@ -6283,6 +6293,26 @@ test("taskQuery: a host's live block kind reads with its kind, renderLiveBlock d
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(`Intro!\n\n${TABLE}\n\n${TASK_LIST}`),
   );
+});
+
+test("taskQuery: a task list's shared state carries no kind; another kind's does", async () => {
+  const attrsOf = (markdown: string, kinds?: string[]) => {
+    const doc = markdownToDoc(markdown, kinds ? { liveBlockKinds: kinds } : {});
+    const y = new Y.Doc();
+    const fragment = y.getXmlFragment("default");
+    prosemirrorToYXmlFragment(doc, fragment);
+    const element = fragment
+      .toArray()
+      .find(
+        (node): node is Y.XmlElement =>
+          node instanceof Y.XmlElement && node.nodeName === "taskQuery",
+      )!;
+    return element.getAttributes();
+  };
+  expect(attrsOf(TASK_LIST)).not.toHaveProperty("kind");
+  expect(attrsOf(':::table{id="b1"}\n:::', ["tasks", "table"])).toMatchObject({
+    kind: "table",
+  });
 });
 
 test("taskQuery: a name the host does not read stays text, and a paragraph opening like one is escaped", async () => {

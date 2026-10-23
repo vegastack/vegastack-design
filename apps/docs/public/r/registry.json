@@ -1914,7 +1914,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.25.67",
-        "integrity": "sha256-NkFkUoCndrA210rl7K6PdObk2HtlpAl1Sh6+G4MvCPg="
+        "integrity": "sha256-hfsePjAUkWSO8FBQuJ/OLUfiDyuJ5LtMBUulMzDjfbo="
       }
     },
     {
@@ -2012,7 +2012,7 @@
         "version": "0.25.67",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-B786gntB7kKDph4HfC6I3q3VGIghRP+pMHS3vmwxm/g="
+        "integrity": "sha256-VE6TT+Pl1u6t7KeoWJX+fO89M/SNAwC323TULP1F2ck="
       }
     },
     {
@@ -2077,7 +2077,7 @@
         "version": "0.25.67",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-q4gHoSRIzp6fCqcc8ofR/XBLa+LL/Xw/HasZYrNgEYo="
+        "integrity": "sha256-Z8PkzDB2rryHvknaWjCojjWWJH1/KP0p2un7OKZHfec="
       }
     },
     {
@@ -2110,7 +2110,7 @@
         "version": "0.25.67",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-XZxTsLNZ8aITJO3D9EhBzkq8+IfDfrQ0M6HwGfTMMwE="
+        "integrity": "sha256-NoC+b4UPUvWaL+s75D8Xq1TGbFI7f0/mNZztys1DfSM="
       }
     },
     {
@@ -17573,7 +17573,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.67",
-        "integrity": "sha256-G/o9OZc0Qae7rFQ5SEmlgK9I39gnQjDwIUNqybYhp5o="
+        "integrity": "sha256-B2lXcRRYCZatpa59cZmxh0xA7SpsAj4jfG94dKkLjYg="
       }
     },
     {
@@ -18373,7 +18373,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.67",
-        "integrity": "sha256-3kgZ+EYFTAboP7L1x+XA2u193oefHUDMjPhZh9yN2gs="
+        "integrity": "sha256-FJzgkKTfKnLtmYyDTzCuquG5DA4WiIyyaKsltlmhDpQ="
       }
     },
     {

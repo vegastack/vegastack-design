@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.67 sha256-q4gHoSRIzp6fCqcc8ofR/XBLa+LL/Xw/HasZYrNgEYo=
+// @vegastack text-edit-schema@0.25.67 sha256-Z8PkzDB2rryHvknaWjCojjWWJH1/KP0p2un7OKZHfec=
 
 import {
   Extension,
@@ -1455,6 +1455,11 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
   });
 }
 
+/** A live block's `kind` attribute: `null` for a task list (`tasks`), else its name. */
+function liveKindAttr(kind: unknown): string | null {
+  return typeof kind === "string" && kind && kind !== "tasks" ? kind : null;
+}
+
 /** A `taskQuery` node's `query` attribute: an object of strings (anything else reads as none). */
 function queryAttr(value: unknown): Record<string, string> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -1465,8 +1470,8 @@ function queryAttr(value: unknown): Record<string, string> {
 }
 
 /**
- * A live block — an atom block `{ blockId, kind, query, snapshot }`: `kind` is its name (`tasks`,
- * a live task list, unless the host reads others: `liveBlockKinds`), `query` its filter (the
+ * A live block — an atom block `{ blockId, kind, query, snapshot }`: `kind` is its name (`null`
+ * for `tasks`, a live task list; another name when the host reads others: `liveBlockKinds`), `query` its filter (the
  * directive's attributes other than `id`, unknown keys kept), `snapshot` the rows last stored
  * (`- [ ] [@Title](mention://task/<id>) — <status>` lines). Markdown: `:::<kind>{id="…" …}`, the
  * rows, `:::` (`readLiveBlock`) — the one block whose `blockId` is written. The node keeps its
@@ -1489,14 +1494,14 @@ function taskQueryNode(
     selectable: true,
     addAttributes() {
       return {
+        // `null` is a live task list (`tasks`): a task list's node stores no `kind`, so its
+        // Markdown, HTML and shared-document state are exactly what they were before kinds.
         kind: {
-          default: "tasks",
-          parseHTML: (element) => element.getAttribute("data-kind") ?? "tasks",
-          // A live task list's HTML is unchanged: only another kind is written.
+          default: null,
+          parseHTML: (element) =>
+            liveKindAttr(element.getAttribute("data-kind")),
           renderHTML: (attrs) =>
-            attrs.kind && attrs.kind !== "tasks"
-              ? { "data-kind": String(attrs.kind) }
-              : {},
+            attrs.kind ? { "data-kind": String(attrs.kind) } : {},
         },
         query: {
           default: {},
@@ -1553,7 +1558,7 @@ function taskQueryNode(
     parseMarkdown: (token, helpers) =>
       helpers.createNode("taskQuery", {
         ...(token.blockId ? { blockId: token.blockId } : {}),
-        kind: token.kind ?? "tasks",
+        kind: liveKindAttr(token.kind),
         query: token.query ?? {},
         snapshot: token.snapshot ?? "",
       }),

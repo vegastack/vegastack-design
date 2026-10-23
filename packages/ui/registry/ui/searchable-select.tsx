@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.67 sha256-G/o9OZc0Qae7rFQ5SEmlgK9I39gnQjDwIUNqybYhp5o=
+// @vegastack searchable-select@0.25.67 sha256-B2lXcRRYCZatpa59cZmxh0xA7SpsAj4jfG94dKkLjYg=
 
 "use client";
 
@@ -606,16 +606,25 @@ export function SearchableSelect<
           : a === b || itemToKey(a) === itemToKey(b),
     [isItemEqualToValue, itemToKey],
   );
-  // The add row's choice: the host makes the option, which is then the selection (or joins it).
-  const create = (text: string, rest: Item[]) => {
+  // The add row's choice: the host makes the option, which is then the selection (or joins the
+  // selection as it is when the option arrives). A newer pick (single) or a newer add supersedes
+  // one still on its way, so a late answer never undoes what the reader did since.
+  const selectionRef = React.useRef(selectedList);
+  React.useLayoutEffect(() => {
+    selectionRef.current = selectedList;
+  });
+  const createdRef = React.useRef(0);
+  const create = (text: string) => {
+    const ticket = ++createdRef.current;
     onCreateOption?.(text).then(
-      (item) =>
+      (item) => {
+        if (ticket !== createdRef.current) return;
         onValueChange?.(
-          (isMultiple ? [...rest, item] : item) as SearchableSelectValue<
-            Item,
-            Multiple
-          >,
-        ),
+          (isMultiple
+            ? [...selectionRef.current, item]
+            : item) as SearchableSelectValue<Item, Multiple>,
+        );
+      },
       () => {},
     );
   };
@@ -719,12 +728,10 @@ export function SearchableSelect<
         ) => {
           const row = (Array.isArray(next) ? next : [next]).find(isCreateRow);
           if (row) {
-            const rest = Array.isArray(next)
-              ? next.filter((each): each is Item => !isCreateRow(each))
-              : [];
-            create(row[CREATE_ROW], rest);
+            create(row[CREATE_ROW]);
             return;
           }
+          if (!isMultiple) createdRef.current++;
           onValueChange?.(next as SearchableSelectValue<Item, Multiple>);
         }}
         filter={filter}

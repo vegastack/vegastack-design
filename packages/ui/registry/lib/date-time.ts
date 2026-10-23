@@ -1,4 +1,4 @@
-// @vegastack date-time@0.25.67 sha256-NkFkUoCndrA210rl7K6PdObk2HtlpAl1Sh6+G4MvCPg=
+// @vegastack date-time@0.25.67 sha256-hfsePjAUkWSO8FBQuJ/OLUfiDyuJ5LtMBUulMzDjfbo=
 
 export type DateInput = Date | string | number;
 
@@ -260,12 +260,19 @@ export function formatDuration(
 /** `YYYY-MM-DD` — a calendar day as stored: a date with no time and no zone (a due date). */
 const CALENDAR_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+/** Midnight UTC of a day; `Date.UTC` alone would read years 0–99 as 1900–1999. */
+function utcMidnight(y: number, m: number, d: number): Date {
+  const date = new Date(0);
+  date.setUTCFullYear(y, m, d);
+  return date;
+}
+
 /** A `YYYY-MM-DD` string's year, month index and day, or `null` when it names no real day. */
 function calendarDayParts(isoDay: string): [number, number, number] | null {
   const match = CALENDAR_DAY.exec(isoDay);
   if (!match) return null;
   const [y, m, d] = [Number(match[1]), Number(match[2]) - 1, Number(match[3])];
-  const utc = new Date(Date.UTC(y, m, d));
+  const utc = utcMidnight(y, m, d);
   return utc.getUTCFullYear() === y &&
     utc.getUTCMonth() === m &&
     utc.getUTCDate() === d
@@ -285,7 +292,11 @@ const pad2 = (n: number) => String(n).padStart(2, "0");
  */
 export function parseCalendarDay(isoDay: string): Date | undefined {
   const parts = calendarDayParts(isoDay);
-  return parts ? new Date(parts[0], parts[1], parts[2]) : undefined;
+  if (!parts) return undefined;
+  // Local midnight, set field by field so years 0–99 stay themselves.
+  const date = new Date(2000, 0, 1);
+  date.setFullYear(parts[0], parts[1], parts[2]);
+  return date;
 }
 
 /**
@@ -309,7 +320,7 @@ export function toCalendarDay(
   const [y, m, d] = timeZone
     ? calendarDay(date, timeZone)
     : [date.getFullYear(), date.getMonth(), date.getDate()];
-  return `${y}-${pad2(m + 1)}-${pad2(d)}`;
+  return `${String(y).padStart(4, "0")}-${pad2(m + 1)}-${pad2(d)}`;
 }
 
 /** How `formatCalendarDate` writes a day. */
@@ -349,7 +360,7 @@ export function formatCalendarDate(
   if (!parts) return "";
   return clean(
     dtf(locale, { ...CALENDAR_FORMATS[format], timeZone: "UTC" }).format(
-      new Date(Date.UTC(parts[0], parts[1], parts[2])),
+      utcMidnight(parts[0], parts[1], parts[2]),
     ),
   );
 }

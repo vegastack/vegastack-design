@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.67 sha256-B786gntB7kKDph4HfC6I3q3VGIghRP+pMHS3vmwxm/g=
+// @vegastack text-edit-grammar@0.25.67 sha256-VE6TT+Pl1u6t7KeoWJX+fO89M/SNAwC323TULP1F2ck=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -77,10 +77,10 @@ export const MENTION_LINK_SOURCE = String.raw`\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(me
 export const MENTION_LINK = new RegExp(`^${MENTION_LINK_SOURCE}`);
 
 /**
- * The same link as a PostgreSQL regular expression (`regexp_replace`, text search). Groups: 1 the
- * label's last character, 2 the kind.
+ * The same link as a PostgreSQL regular expression (`regexp_replace`, text search), with the same
+ * groups as `MENTION_LINK_SOURCE`: 1 the label (escapes kept), 2 the kind, 3 the id.
  */
-export const MENTION_LINK_SQL = String.raw`\[@([^\\\[\]\n]|\\[^\n])*\]\(mention://(${MENTION_KIND_PATTERN})/[^\s()]+\)`;
+export const MENTION_LINK_SQL = String.raw`\[@((?:[^\\\[\]\n]|\\[^\n])*)\]\(mention://(${MENTION_KIND_PATTERN})/([^\s()]+)\)`;
 
 /** A label as a mention link (or any bracketed text) carries it: `\`, `[` and `]` escaped. */
 export function escapeMentionLabel(label: string): string {

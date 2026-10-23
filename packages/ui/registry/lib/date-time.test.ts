@@ -51,5 +51,8 @@ test("parseCalendarDay and toCalendarDay round-trip the local day; invalid days 
     expect(formatCalendarDate(bad)).toBe("");
   }
   expect(toCalendarDay("2026-02-30")).toBe("");
+  // Years 0–99 are themselves, not 1900–1999.
+  expect(toCalendarDay(parseCalendarDay("0099-01-01")!)).toBe("0099-01-01");
+  expect(formatCalendarDate("0099-01-01")).toMatch(/^Jan 1, 0*99$/);
   expect(toCalendarDay(new Date(Number.NaN))).toBe("");
 });

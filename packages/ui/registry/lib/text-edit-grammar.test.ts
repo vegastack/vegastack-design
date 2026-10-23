@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import {
   MENTION_KIND_PATTERN,
   MENTION_LINK_SOURCE,
+  MENTION_LINK_SQL,
   codeFenceInfo,
   escapeMentionLabel,
   headingIds,
@@ -55,6 +56,15 @@ test("any well-formed kind is a mention; an uppercase, empty or one-letter kind 
   ]) {
     expect(parseMentionLink(`[@a](mention://${bad}/1)`)).toBeNull();
     expect(isMentionKind(bad)).toBe(false);
+  }
+  // The SQL pattern has the same groups: label (escapes kept), kind, id.
+  for (const link of [
+    "[@Alice](mention://subfamily/s1)",
+    "[@Q3 \\[draft\\]](mention://page/p1)",
+  ]) {
+    const js = new RegExp(`^${MENTION_LINK_SOURCE}$`).exec(link)!;
+    const sql = new RegExp(`^${MENTION_LINK_SQL}$`).exec(link)!;
+    expect(sql.slice(1)).toEqual(js.slice(1));
   }
   // The pattern is the one a database CHECK and `MENTION_LINK_SQL` use.
   expect(MENTION_KIND_PATTERN).toBe("[a-z][a-z0-9_]{1,31}");

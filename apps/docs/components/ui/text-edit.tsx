@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.67 sha256-3kgZ+EYFTAboP7L1x+XA2u193oefHUDMjPhZh9yN2gs=
+// @vegastack text-edit@0.25.67 sha256-FJzgkKTfKnLtmYyDTzCuquG5DA4WiIyyaKsltlmhDpQ=
 
 "use client";
 
@@ -1424,7 +1424,7 @@ export interface TextEditProps {
    * the read view before it. Called with the block's kind and the same props as
    * `renderTaskQuery`. Given, it is asked for every kind, `tasks` included, and `renderTaskQuery`
    * is not used. Returning `null`/`undefined` leaves the snapshot (`MarkdownTaskList`). Insert one
-   * with `{ type: "taskQuery", attrs: { kind, query, snapshot } }`.
+   * with `{ type: "taskQuery", attrs: { kind, query, snapshot } }` (`kind: null` is a task list).
    * @default undefined
    */
   renderLiveBlock?: LiveBlockRender;

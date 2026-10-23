@@ -225,3 +225,19 @@ test("a paragraph's indexes never answer for another that looks alike", () => {
       ),
   ).toBe(true);
 });
+
+test("a host's live block names survive the server's read and write; others stay text", () => {
+  const table = ':::table{id="b1" view="v1"}\n:::';
+  expect(normalizeMarkdown(table, { liveBlockKinds: ["tasks", "table"] })).toBe(
+    table,
+  );
+  expect(
+    markdownToDoc(table, { liveBlockKinds: ["tasks", "table"] }).firstChild
+      ?.attrs.kind,
+  ).toBe("table");
+  expect(normalizeMarkdown(table)).toBe(`\\${table.split("\n")[0]}\n:::`);
+  const tasks =
+    ':::tasks{id="a" v="1"}\n- [ ] [@A](mention://task/t1) — To do\n:::';
+  expect(normalizeMarkdown(tasks)).toBe(tasks);
+  expect(markdownToDoc(tasks).firstChild?.attrs.kind).toBeNull();
+});

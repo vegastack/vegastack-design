@@ -812,8 +812,8 @@ pasted images are kept as they are.
 
 ### Live task lists
 
-A live task list is a `taskQuery` block, an atom `{ blockId, kind, query, snapshot }` with `kind`
-`"tasks"`. It is selectable
+A live task list is a `taskQuery` block, an atom `{ blockId, kind, query, snapshot }` whose
+`kind` is `null` (a task list stores no kind, so its shared state is unchanged). It is selectable
 and draggable like an image, and nothing inside it is edited. Its Markdown is a container
 directive:
 
