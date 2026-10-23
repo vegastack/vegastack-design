@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.68] — October 23, 2026
+
+### 🔧 Changed components
+
+- **Open references** (Regent R1): the design system no longer lists an app's record kinds. **text-edit-grammar**: a mention kind is any `[a-z][a-z0-9_]{1,31}` (`MENTION_KIND_PATTERN`, `isMentionKind`); `MentionKind` is `"user" | "agent"` (`BUILT_IN_MENTION_KINDS`) or any host kind, and `MENTION_LINK_SOURCE` / `MENTION_LINK_SQL` are built from the pattern, both with groups 1 label, 2 kind, 3 id (`MENTION_KINDS` is gone). Live blocks are `:::<name>{…}` … `:::` for the names a host reads: `readLiveBlock(source, { names })` and `liveBlockMarkdown({ kind, … })` replace `readTasksDirective` / `tasksDirectiveMarkdown`, and `:::tasks` reads and writes byte for byte as before; **text-edit-markdown**'s `markdownToDoc` and `normalizeMarkdown` take `liveBlockKinds`. **TextEdit**: `mentions.kinds` is `MentionKindConfig[]` (`{ id, noun, plural, icon?, order }`: the group heading, its icon, its order); a `MentionOption.group` ("Recent") shows under its own heading, first; `liveBlockKinds` and `renderLiveBlock(kind, props)` read and draw any live block, stored as the `taskQuery` node with a new `kind` attribute (`null` for `tasks`, so a task list's Markdown, HTML and shared state are unchanged; `renderTaskQuery` still draws `tasks`). **MarkdownView**: the same `liveBlockKinds` and `renderLiveBlock`; a mention of any well-formed kind renders as a chip. **InlineChip**: `InlineChipResolver.kinds` names each host kind's icon and noun; an unnamed kind shows a link glyph and "Item"; `done` shows the check on any kind (`INLINE_CHIP_KINDS` and `INLINE_CHIP_KIND_LABEL` are gone). **date-time**: `formatCalendarDate(day, { locale, format })`, `parseCalendarDay` and `toCalendarDay` — a stored day never shifts with the reader's zone; **EditableCell**'s date editor uses them. **SearchableSelect**: `onCreateOption(query)` adds an "Add “query”" row while no option matches exactly, and selects the option it resolves with (`createLabel`). [docs](/docs/components/text-edit) ·
+  [`453a08c`](https://github.com/VegaStack/vegastack-design/commit/453a08c)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.18`** (was `0.8.17`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.67 → 0.25.68.
+
 ## [0.25.67] — October 23, 2026
 
 ### 📦 npm
