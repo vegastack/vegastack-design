@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.69] — October 24, 2026
+
+<!-- assembled from 1 changeset: 42be6aed1f46 -->
+
+### 🧩 New components
+
+- **DataGrid grid core** (Regent R2): the grid now hosts a 50,000-row, 150-column, server-sorted grid. **DataGrid**: `sortMode="manual"` renders `data` in the host's order and only signals sorts; a FIXED layout (any column `width`, `frozen` or `resizable`, or `onColumnResize` / `virtualizeColumns`) sizes columns from a `<colgroup>`, keeps every cell to one line and scrolls sideways; a leading run of `frozen` columns sticks to the inline start with a scroll-edge shadow; `onColumnResize` adds the header resize handle (drag, double-click to fit, <kbd>Alt</kbd>+arrows); `onColumnReorder` makes the scrolling headers draggable; `virtualizeColumns` windows the columns; `rowHeight` (`short` / `medium` / `tall`) fixes row heights; client `group` columns and the new host `sections` (each with its own `loadMore`) are flattened into the one row virtualiser, so grouping and `virtualize` combine; `summaryRow` adds a sticky footer of per-column functions (`summaryOptions`) with host-computed values; `cellMenu` and column `headerMenu` open from a right click or <kbd>Shift</kbd>+<kbd>F10</kbd>; `headerTrailing` (a render function handed `DataGridFocusProps`) adds a control after the last column on the header row's roving path; `pagedMode` turns row windowing off and shows a `CursorPager`; `ariaRowCount`, `ariaColCount` and `ariaRowIndexOffset` keep the ARIA totals true. Focus is kept by row id and column key and roves over the header, group, body and summary rows (one tab stop); primary cells are `rowheader`s; <kbd>PageUp</kbd>/<kbd>PageDown</kbd>, <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+arrows, type-to-edit and Enter/Tab commit-and-move are new, and an IME composition never moves or commits. The grid renders its own `<table>` in one scroll viewport (`data-slot="grid-viewport"`, formerly `data-grid-scroll`). **CursorPager** (new): Previous / Next for keyset paging, with no page numbers or total. **data-table-parts**: `ColumnResizeHandle`, `columnResizeKeyWidth`, `GridSummaryCell` (with `leading` and `onOpenChange`); `useRowSelection` memoises its all/some scan; `SortHeaderButton` and `SectionToggle` take `tabIndex` (and `SectionToggle` a `ref`); `SelectAllHead` and `SelectionCell` take `controlTabIndex` / `controlRef`. **EditableCell**: `editSeed` starts a host-opened text or number edit from the typed key, and `onNavigate` receives which key moved (`"tab" | "enter"`); **useInlineEdit** takes the matching `seed`. [docs](https://design.vegastack.com/docs/components/data-grid) ·
+  [`1273a5a`](https://github.com/VegaStack/vegastack-design/commit/1273a5a)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.19`** (was `0.8.18`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.68 → 0.25.69.
+
 ## [0.25.68] — October 23, 2026
 
 <!-- assembled from 1 changeset: 781844e110ea -->
