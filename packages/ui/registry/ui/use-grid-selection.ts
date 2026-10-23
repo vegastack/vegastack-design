@@ -1,4 +1,4 @@
-// @vegastack use-grid-selection@0.25.69 sha256-uegmvwGuQqBUZc1+p8sdyw17jcaluwNvclLSWYRdQWY=
+// @vegastack use-grid-selection@0.25.69 sha256-BDI07CTkv8xmUvSS+k1cDvphrvdqe7WQF6utbuw1cyc=
 
 "use client";
 
@@ -87,6 +87,11 @@ export interface UseGridSelectionResult {
   selectAll: () => void;
   /** Clear the selection. */
   clear: () => void;
+  /**
+   * The range as last set, read synchronously — for a handler running before the next render
+   * (a focus that follows a click in the same event).
+   */
+  current: () => GridRange | null;
 }
 
 function indexMap(ids: readonly string[]): Map<string, number> {
@@ -165,8 +170,12 @@ export function useGridSelection({
     () => (range ? gridRangeBounds(range, rowIndex, colIndex) : null),
     [range, rowIndex, colIndex],
   );
-  // A range whose row or column left is no range at all.
+  // A range whose row or column left is no range at all — and is forgotten, so neither a later
+  // Shift+click nor the row coming back revives it.
   const live = bounds ? range : null;
+  React.useEffect(() => {
+    if (range && !bounds) commit(null);
+  }, [range, bounds, commit]);
 
   const isSelected = React.useCallback(
     (rowId: string, colKey: string) => {
@@ -260,6 +269,7 @@ export function useGridSelection({
     });
   }, [commit]);
   const clear = React.useCallback(() => commit(null), [commit]);
+  const current = React.useCallback(() => latest.current.range, []);
 
   return {
     anchor: live?.anchor ?? null,
@@ -274,5 +284,6 @@ export function useGridSelection({
     selectColumn,
     selectAll,
     clear,
+    current,
   };
 }

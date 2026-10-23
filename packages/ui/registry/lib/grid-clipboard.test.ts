@@ -310,3 +310,38 @@ test("expandPaste: one value fills the range, an even divisor tiles, anything el
   ]);
   expect(expandPaste({ rows: 1, columns: 1 }, [])).toEqual([]);
 });
+
+test("an empty quoted field is a cell; a trailing row of one empty cell survives the round trip", () => {
+  expect(parseTsv('""')).toEqual([[""]]);
+  expect(parseTsv('a\n""')).toEqual([["a"], [""]]);
+  const rows = [["a"], [""]];
+  expect(parseTsv(serializeTsv(rows))).toEqual(rows);
+});
+
+test("hostile HTML spans are bounded: no endless expansion", () => {
+  const matrix = parseHtmlTable(
+    '<table><tr><td colspan="Infinity">x</td><td rowspan="1e9">y</td></tr></table>',
+  )!;
+  expect(matrix.length).toBeLessThanOrEqual(1000);
+  expect(matrix[0]![0]!.text).toBe("x");
+});
+
+test("a compact table whose size differs from the text's is not trusted", () => {
+  const sheets = JSON.stringify({
+    "3": { "1": [1, 1], "3": [5, 6] },
+    "15": { "1": 2, "2": 1 },
+  });
+  expect(parseClipboard({ text: "1\t2", sheets })).toEqual([
+    [{ text: "1" }, { text: "2" }],
+  ]);
+  const fits = JSON.stringify({
+    "3": { "1": [1, 1], "3": [5, 6] },
+    "15": { "1": 1, "2": 2 },
+  });
+  expect(parseClipboard({ text: "1\t2", sheets: fits })).toEqual([
+    [
+      { text: "1", number: 5 },
+      { text: "2", number: 6 },
+    ],
+  ]);
+});

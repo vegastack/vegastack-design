@@ -81,3 +81,13 @@ test("a range follows its ids when rows reorder, and ends when its row leaves", 
   expect(result.current.bounds).toBeNull();
   expect(result.current.isSelected("r2", "name")).toBe(false);
 });
+
+test("a range whose row left is forgotten: a later extend starts fresh, the row's return revives nothing", async () => {
+  const { result, act, rerender } = await setup();
+  await act(() => result.current.select({ rowId: "r1", colKey: "name" }));
+  await rerender({ rowIds: ["r2", "r3", "r4"] });
+  await act(() => result.current.extendTo({ rowId: "r3", colKey: "qty" }));
+  expect(result.current.anchor).toEqual({ rowId: "r3", colKey: "qty" });
+  await rerender({ rowIds: ROWS });
+  expect(result.current.isSelected("r1", "name")).toBe(false);
+});

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.69 sha256-Id2Le/UasnOmGUPtEO+3bLkurcOQLYFtguhigMvcRLg=
+// @vegastack data-grid@0.25.69 sha256-DHtp6mS+VPL9bZkQA6JyQT7gReYrD8LWVKA1pUIohb0=
 
 "use client";
 
@@ -2135,6 +2135,10 @@ export function DataGrid<T>({
   // ---- cells mode: ranges, clipboard, fill --------------------------------
   const cellsMode = selectionMode === "cells";
   const dataKeys = React.useMemo(() => placed.map((p) => p.key), [placed]);
+  const dataKeyIndex = React.useMemo(
+    () => new Map(dataKeys.map((key, index) => [key, index])),
+    [dataKeys],
+  );
   const selection = useGridSelection({
     rowIds: cellsMode ? visibleIds : EMPTY_KEYS,
     colKeys: cellsMode ? dataKeys : EMPTY_KEYS,
@@ -2148,6 +2152,9 @@ export function DataGrid<T>({
     // Announce the size, not every move at the same size.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rangeSize]);
+  // A fill drag's window listeners, removed on release, cancel or unmount.
+  const fillCleanup = React.useRef<(() => void) | null>(null);
+  React.useEffect(() => () => fillCleanup.current?.(), []);
   const [fillRows, setFillRows] = React.useState<{
     top: number;
     bottom: number;
@@ -2289,14 +2296,16 @@ export function DataGrid<T>({
   };
 
   // ---- cells mode operations ------------------------------------------------
+  /** A row's index among the loaded data rows, or -1 (constant time: `rowNumbers` is a map). */
+  const rowIndexOf = (rowId: string) => (rowNumbers.get(rowId) ?? 0) - 1;
   /** Whether paste, clear, cut and fill may write a column. */
   const writable = (column: DataGridColumn<T>) =>
     column.editable != null || column.parse != null;
   /** The cells an operation acts on: the range, or the active data cell alone. */
   const operationBounds = (): GridRangeBounds | null => {
     if (range) return range;
-    const r = visibleIds.indexOf(resolved.rowId);
-    const c = dataKeys.indexOf(resolved.key);
+    const r = rowIndexOf(resolved.rowId);
+    const c = dataKeyIndex.get(resolved.key) ?? -1;
     return r === -1 || c === -1
       ? null
       : { top: r, bottom: r, left: c, right: c, rows: 1, columns: 1 };
@@ -2309,6 +2318,20 @@ export function DataGrid<T>({
     rowIds: visibleIds.slice(top, bottom + 1),
     keys: dataKeys.slice(bounds.left, bounds.right + 1),
   });
+  /** A fill target: the columns a fill may write (read-only ones are left alone). */
+  const fillTargetOf = (
+    bounds: GridRangeBounds,
+    top: number,
+    bottom: number,
+  ) => {
+    const block = blockOf(bounds, top, bottom);
+    return {
+      rowIds: block.rowIds,
+      keys: block.keys.filter((key) =>
+        writable(placed[dataKeyIndex.get(key)!]!.column),
+      ),
+    };
+  };
   /** Ask the host to write a batch, then say what happened ("Pasted 12 cells · 2 skipped"). */
   const commitCells = async (
     changes: CellChange[],
@@ -2320,7 +2343,14 @@ export function DataGrid<T>({
         announce(`${skippedBefore} cells can't be changed`);
       return;
     }
-    const results = await onCellsCommit(changes);
+    let results: CellCommitResult[];
+    try {
+      results = await onCellsCommit(changes);
+    } catch {
+      // The host's write failed outright: nothing was written, and the grid says so.
+      announce("Couldn't save — nothing changed");
+      return;
+    }
     const failed = results.filter((result) => result.status !== "ok").length;
     const ok = results.length - failed;
     const skipped = skippedBefore + failed;
@@ -2339,7 +2369,7 @@ export function DataGrid<T>({
       const row = rowsById.get(rowId);
       if (row === undefined) continue;
       for (const key of keys) {
-        const column = placed[dataKeys.indexOf(key)]!.column;
+        const column = placed[dataKeyIndex.get(key)!]!.column;
         if (!writable(column)) {
           skipped += 1;
           continue;
@@ -2362,7 +2392,7 @@ export function DataGrid<T>({
     const matrix = rowIds.map((rowId) => {
       const row = rowsById.get(rowId)!;
       return keys.map((key) => {
-        const column = placed[dataKeys.indexOf(key)]!.column;
+        const column = placed[dataKeyIndex.get(key)!]!.column;
         if (column.format) return column.format(row);
         const value = readValue(column, row);
         return value == null ? "" : String(value);
@@ -2443,29 +2473,34 @@ export function DataGrid<T>({
   const fillDown = () => {
     const bounds = operationBounds();
     if (!bounds || !onFill) return;
-    if (bounds.rows > 1)
-      onFill({
-        source: blockOf(bounds, bounds.top, bounds.top),
-        target: blockOf(bounds, bounds.top + 1, bounds.bottom),
-        series: false,
-      });
-    else if (bounds.top > 0)
-      onFill({
-        source: blockOf(bounds, bounds.top - 1, bounds.top - 1),
-        target: blockOf(bounds),
-        series: false,
-      });
+    const [source, target] =
+      bounds.rows > 1
+        ? [
+            blockOf(bounds, bounds.top, bounds.top),
+            fillTargetOf(bounds, bounds.top + 1, bounds.bottom),
+          ]
+        : bounds.top > 0
+          ? [
+              blockOf(bounds, bounds.top - 1, bounds.top - 1),
+              fillTargetOf(bounds, bounds.top, bounds.bottom),
+            ]
+          : [null, null];
+    if (source && target && target.keys.length > 0)
+      onFill({ source, target, series: false });
   };
   /** The fill handle: drag up or down from the range; release reports the fill. */
   const fillStart = (event: React.PointerEvent) => {
     const bounds = operationBounds();
     if (!bounds || !onFill || !viewport) return;
+    fillCleanup.current?.();
+    const pointerId = event.pointerId;
     let target: { top: number; bottom: number } | null = null;
     const move = (pointer: PointerEvent) => {
+      if (pointer.pointerId !== pointerId) return;
       const cell = document
         .elementFromPoint(pointer.clientX, pointer.clientY)
         ?.closest<HTMLElement>("[data-grid-row]");
-      const index = cell ? visibleIds.indexOf(cell.dataset.gridRow ?? "") : -1;
+      const index = cell ? rowIndexOf(cell.dataset.gridRow ?? "") : -1;
       if (index === -1) return;
       target =
         index > bounds.bottom
@@ -2475,14 +2510,25 @@ export function DataGrid<T>({
             : null;
       setFillRows(target);
     };
-    const up = (pointer: PointerEvent) => {
+    const stop = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", cancel);
+      fillCleanup.current = null;
       setFillRows(null);
+    };
+    const cancel = (pointer: PointerEvent) => {
+      if (pointer.pointerId === pointerId) stop();
+    };
+    const up = (pointer: PointerEvent) => {
+      if (pointer.pointerId !== pointerId) return;
+      stop();
       if (!target) return;
+      const fillTarget = fillTargetOf(bounds, target.top, target.bottom);
+      if (fillTarget.keys.length === 0) return;
       onFill({
         source: blockOf(bounds),
-        target: blockOf(bounds, target.top, target.bottom),
+        target: fillTarget,
         series: pointer.altKey,
       });
       selection.select({
@@ -2496,7 +2542,8 @@ export function DataGrid<T>({
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
-    void event;
+    window.addEventListener("pointercancel", cancel);
+    fillCleanup.current = stop;
   };
   /** A clipboard event the grid owns: cells mode, not editing, from a cell (not a field). */
   const ownsClipboard = (event: React.ClipboardEvent) => {
@@ -2505,7 +2552,7 @@ export function DataGrid<T>({
     if (target.closest("input, textarea, [contenteditable='true']"))
       return false;
     const cell = target.closest<HTMLElement>("[data-grid-row]");
-    return cell != null && visibleIds.includes(cell.dataset.gridRow ?? "");
+    return cell != null && rowNumbers.has(cell.dataset.gridRow ?? "");
   };
   const handleCopy = (event: React.ClipboardEvent) => {
     if (!ownsClipboard(event)) return;
@@ -2545,6 +2592,9 @@ export function DataGrid<T>({
   );
   const current = {
     selection,
+    cellsMode,
+    rowNumbers,
+    dataKeyIndex,
     fillStart,
     focusAt,
     restoreFocus: (lost: GridPosition) => restoreFocus(lost),
@@ -2621,6 +2671,20 @@ export function DataGrid<T>({
         }
       },
       focused(rowId, key) {
+        // Cells mode: focus that lands on a data cell outside the range's focus (an editor's
+        // Enter or Tab, a programmatic move) collapses the range onto it, so every operation
+        // acts where the reader is.
+        const {
+          selection: model,
+          cellsMode: cells,
+          rowNumbers: numbers,
+          dataKeyIndex: keysAt,
+        } = latest.current;
+        if (cells && numbers.has(rowId) && keysAt.has(key)) {
+          const range = model.current();
+          if (range?.focus.rowId !== rowId || range.focus.colKey !== key)
+            model.select({ rowId, colKey: key });
+        }
         setActive((current) =>
           key === GROUP
             ? {
@@ -2880,7 +2944,7 @@ export function DataGrid<T>({
       event.preventDefault();
       // Cells mode: a plain move collapses the range onto the new cell.
       if (cellsMode) {
-        if (visibleIds.includes(nextRow) && dataKeys.includes(nextKey))
+        if (rowNumbers.has(nextRow) && dataKeyIndex.has(nextKey))
           selection.select({ rowId: nextRow, colKey: nextKey });
         else selection.clear();
       }
@@ -2889,7 +2953,7 @@ export function DataGrid<T>({
 
     // Cells mode, on a data cell: ranges, clipboard keys, clear, fill, undo.
     const onDataCell =
-      cellsMode && visibleIds.includes(rowId) && dataKeys.includes(key);
+      cellsMode && rowNumbers.has(rowId) && dataKeyIndex.has(key);
     if (onDataCell) {
       const arrows: Record<string, "up" | "down" | "left" | "right"> = {
         ArrowUp: "up",

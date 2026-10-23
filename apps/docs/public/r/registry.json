@@ -1569,7 +1569,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.69",
-        "integrity": "sha256-Id2Le/UasnOmGUPtEO+3bLkurcOQLYFtguhigMvcRLg="
+        "integrity": "sha256-DHtp6mS+VPL9bZkQA6JyQT7gReYrD8LWVKA1pUIohb0="
       }
     },
     {
@@ -1976,7 +1976,7 @@
         "whenToUse": "Copy and paste between a grid and spreadsheets (Excel, Google Sheets, Numbers, Airtable) — DataGrid's cells mode, or a host's own paste preview or import.",
         "whenNotToUse": "CSV files (a CSV parser), or rich text paste into an editor.",
         "version": "0.25.68",
-        "integrity": "sha256-csW3kYcnIdv3ST7TqUYZnAQgjYgfxD4Djjk7jU0l6Ek="
+        "integrity": "sha256-BdMdwJHkRa08TLTN1YCHrgf6QWdTMyz10L/rpL1NojY="
       }
     },
     {
@@ -18881,7 +18881,7 @@
         "whenToUse": "A grid or table with spreadsheet-style cell ranges that must survive reordering, refetching and windowing — DataGrid's cells mode uses it.",
         "whenNotToUse": "Row selection with checkboxes (useRowSelection in data-table-parts), or a one-dimensional list (useListNav).",
         "version": "0.25.68",
-        "integrity": "sha256-uegmvwGuQqBUZc1+p8sdyw17jcaluwNvclLSWYRdQWY="
+        "integrity": "sha256-BDI07CTkv8xmUvSS+k1cDvphrvdqe7WQF6utbuw1cyc="
       }
     },
     {

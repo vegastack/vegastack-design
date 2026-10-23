@@ -1,4 +1,4 @@
-// @vegastack grid-clipboard@0.25.69 sha256-csW3kYcnIdv3ST7TqUYZnAQgjYgfxD4Djjk7jU0l6Ek=
+// @vegastack grid-clipboard@0.25.69 sha256-BdMdwJHkRa08TLTN1YCHrgf6QWdTMyz10L/rpL1NojY=
 
 /* ---
 `grid-clipboard` is the spreadsheet clipboard as data: what a grid writes when it copies a range
@@ -75,6 +75,8 @@ export function parseTsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
+  // A quoted field exists even when it is empty (`""`).
+  let quoted = false;
   let i = 0;
   const n = text.length;
   const endRow = () => {
@@ -82,6 +84,7 @@ export function parseTsv(text: string): string[][] {
     rows.push(row);
     row = [];
     field = "";
+    quoted = false;
   };
   while (i < n) {
     const ch = text[i]!;
@@ -111,6 +114,7 @@ export function parseTsv(text: string): string[][] {
         (j >= n || next === "\t" || next === "\n" || next === "\r")
       ) {
         field = value.replace(/\r\n?/g, "\n");
+        quoted = true;
         i = j;
         continue;
       }
@@ -122,6 +126,7 @@ export function parseTsv(text: string): string[][] {
     if (ch === "\t") {
       row.push(field);
       field = "";
+      quoted = false;
       i += 1;
     } else if (ch === "\n" || ch === "\r") {
       endRow();
@@ -132,7 +137,7 @@ export function parseTsv(text: string): string[][] {
     }
   }
   // The last row: present unless the text ended on a row end (dropped, once).
-  if (field !== "" || row.length > 0) endRow();
+  if (field !== "" || quoted || row.length > 0) endRow();
   else if (n === 0) return [];
   return rectangular(rows);
 }
@@ -153,11 +158,14 @@ function needsQuotes(value: string): boolean {
 export function serializeTsv(rows: readonly (readonly string[])[]): string {
   return rows
     .map((row) =>
-      row
-        .map((value) =>
-          needsQuotes(value) ? `"${value.replace(/"/g, '""')}"` : value,
-        )
-        .join("\t"),
+      // A row of one empty cell is written `""`: an empty line would read as no row at all.
+      row.length === 1 && row[0] === ""
+        ? '""'
+        : row
+            .map((value) =>
+              needsQuotes(value) ? `"${value.replace(/"/g, '""')}"` : value,
+            )
+            .join("\t"),
     )
     .join("\n");
 }
@@ -243,8 +251,10 @@ export function parseHtmlTable(html: string): GridClipboardMatrix | null {
     for (const cell of tr.children) {
       if (cell.nodeName !== "TD" && cell.nodeName !== "TH") continue;
       while (grid[r]![c] !== undefined) c += 1;
-      const colSpan = Math.max(1, Number(cell.getAttribute("colspan")) || 1);
-      const rowSpan = Math.max(1, Number(cell.getAttribute("rowspan")) || 1);
+      const colSpan = span(cell.getAttribute("colspan"));
+      const rowSpan = span(cell.getAttribute("rowspan"));
+      // A paste no grid could hold is not a table: stop before it can exhaust memory.
+      if (r + rowSpan > MAX_HTML_ROWS || c + colSpan > MAX_HTML_COLUMNS) return;
       const value: GridClipboardCell = { text: cellText(cell) };
       const num = readNumberAttribute(cell);
       if (num !== undefined) value.number = num;
@@ -260,6 +270,16 @@ export function parseHtmlTable(html: string): GridClipboardMatrix | null {
   return grid.map((row) =>
     Array.from({ length: width }, (_, index) => row[index] ?? { text: "" }),
   );
+}
+
+/** The most rows and columns a pasted HTML table may span (a spreadsheet paste is far smaller). */
+const MAX_HTML_ROWS = 10_000;
+const MAX_HTML_COLUMNS = 1_000;
+
+/** A `colspan`/`rowspan` as a whole number from 1 to 1,000 (HTML's own colspan ceiling). */
+function span(value: string | null): number {
+  const n = Math.floor(Number(value));
+  return Number.isFinite(n) && n >= 1 ? Math.min(n, 1000) : 1;
 }
 
 /** The exact number a source wrote on a cell: Excel's `x:num`, older Sheets' `data-sheets-value`. */
@@ -294,6 +314,8 @@ function withSheetsNumbers(
 ): GridClipboardMatrix {
   let types: unknown;
   let numbers: unknown;
+  let strings: unknown;
+  let size: unknown;
   try {
     const parsed = JSON.parse(sheets) as Record<
       string,
@@ -301,12 +323,27 @@ function withSheetsNumbers(
     >;
     types = parsed["3"]?.["1"];
     numbers = parsed["3"]?.["3"];
+    strings = parsed["3"]?.["4"];
+    size = parsed["15"];
   } catch {
     return matrix;
   }
   if (!Array.isArray(types) || !Array.isArray(numbers)) return matrix;
+  // Every check must agree before a single number is trusted: the table's size, one type per
+  // non-empty cell, one number per numeric type and one string per text type.
+  const dims = size as { "1"?: unknown; "2"?: unknown } | undefined;
+  if (dims?.["1"] !== matrix.length || dims?.["2"] !== (matrix[0]?.length ?? 0))
+    return matrix;
   const filled = matrix.flat().filter((cell) => cell.text !== "").length;
-  if (filled !== types.length) return matrix;
+  const numeric = types.filter((type) => type === 1).length;
+  const textual = types.filter((type) => type === 2).length;
+  if (
+    filled !== types.length ||
+    numeric + textual !== types.length ||
+    numbers.length !== numeric ||
+    (Array.isArray(strings) && strings.length !== textual)
+  )
+    return matrix;
   let t = 0;
   let k = 0;
   return matrix.map((row) =>

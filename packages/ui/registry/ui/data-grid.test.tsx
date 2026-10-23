@@ -2207,11 +2207,12 @@ test("the fill handle drags down and reports the rows it covered; Alt continues 
     '[data-slot="data-grid-fill-handle"]',
   )!;
   handle.dispatchEvent(
-    new PointerEvent("pointerdown", { bubbles: true, button: 0 }),
+    new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerId: 3 }),
   );
   const target = cellAt("d3", "amount").getBoundingClientRect();
   window.dispatchEvent(
     new PointerEvent("pointermove", {
+      pointerId: 3,
       clientX: target.left + 4,
       clientY: target.top + 4,
     }),
@@ -2219,7 +2220,9 @@ test("the fill handle drags down and reports the rows it covered; Alt continues 
   await expect
     .poll(() => cellAt("d2", "amount").hasAttribute("data-fill-target"))
     .toBe(true);
-  window.dispatchEvent(new PointerEvent("pointerup", { altKey: true }));
+  window.dispatchEvent(
+    new PointerEvent("pointerup", { pointerId: 3, altKey: true }),
+  );
   expect(onFill).toHaveBeenCalledWith({
     source: { rowIds: ["d1"], keys: ["amount"] },
     target: { rowIds: ["d2", "d3"], keys: ["amount"] },
@@ -2283,4 +2286,78 @@ test("IME: a composing Shift+Arrow never extends the range", async () => {
     }),
   );
   expect(inRange()).toEqual([]);
+});
+
+test("cells mode: after an edit's Enter moves down, Delete clears the new cell, not the old one", async () => {
+  const onCellsCommit = vi.fn(async (changes: unknown[]) =>
+    changes.map(() => ({
+      status: "ok" as const,
+      value: null,
+      version: 1,
+      changeId: "c",
+    })),
+  );
+  await render(cellsGrid({ onCellsCommit, onCellCommit: () => {} }));
+  await userEvent.click(cellAt("d1", "name"));
+  await userEvent.keyboard("{F2}x{Enter}");
+  await expect.poll(() => activeCell()?.dataset.gridRow).toBe("d2");
+  await userEvent.keyboard("{Delete}");
+  await expect.poll(() => onCellsCommit.mock.calls.length).toBe(1);
+  expect(onCellsCommit.mock.calls[0]![0]).toEqual([
+    { rowId: "d2", key: "name", value: null, previous: "Globex" },
+  ]);
+});
+
+test("cells mode: a fill leaves read-only columns out; a failed batch is announced, not thrown", async () => {
+  const onFill = vi.fn();
+  const onCellsCommit = vi.fn(async () => {
+    throw new Error("offline");
+  });
+  const screen = await render(
+    cellsGrid({
+      onFill,
+      onCellsCommit,
+      columns: [
+        { key: "name", header: "Name", editable: { type: "text" } },
+        { key: "stage", header: "Stage" },
+      ],
+    }),
+  );
+  cellAt("d1", "name").focus();
+  await userEvent.keyboard(
+    "{Shift>}{ArrowRight}{ArrowDown}{/Shift}{Control>}d{/Control}",
+  );
+  expect(onFill).toHaveBeenCalledWith({
+    source: { rowIds: ["d1"], keys: ["name", "stage"] },
+    target: { rowIds: ["d2"], keys: ["name"] },
+    series: false,
+  });
+  await userEvent.keyboard("{Delete}");
+  await expect
+    .poll(() => statusText(screen.container))
+    .toContain("Couldn't save — nothing changed");
+});
+
+test("cells mode: a cancelled fill drag reports nothing, even on a later release", async () => {
+  const onFill = vi.fn();
+  await render(cellsGrid({ onFill }));
+  await userEvent.click(cellAt("d1", "amount"));
+  const handle = cellAt("d1", "amount").querySelector<HTMLElement>(
+    '[data-slot="data-grid-fill-handle"]',
+  )!;
+  handle.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerId: 7 }),
+  );
+  const target = cellAt("d3", "amount").getBoundingClientRect();
+  window.dispatchEvent(
+    new PointerEvent("pointermove", {
+      pointerId: 7,
+      clientX: target.left + 4,
+      clientY: target.top + 4,
+    }),
+  );
+  window.dispatchEvent(new PointerEvent("pointercancel", { pointerId: 7 }));
+  window.dispatchEvent(new PointerEvent("pointerup", { pointerId: 7 }));
+  expect(onFill).not.toHaveBeenCalled();
+  expect(cellAt("d2", "amount").hasAttribute("data-fill-target")).toBe(false);
 });
