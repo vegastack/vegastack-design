@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.67] — October 23, 2026
+
+<!-- assembled from 1 changeset: 8b8675fe8618 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.66 → 0.25.67.
+
+### 🐛 Fixed
+
+- **TextEdit**: a table column's width is its own (Notion) — the first resize, and every column added (160px), stores each column's width, so widening or adding a column no longer squeezes the others and a wide table scrolls inside its box. A document ending in a table, audio, video or image keeps room below it: clicking there, ↓ from the table's last row, or ↓ / → on the selected block adds an empty paragraph to type in. A `variant="composer"` comment box no longer shows a scrollbar after a mention (the chip's hit area overflowed its last line). (Regent operator, 23-10-2026.)
+  [`70a2787`](https://github.com/VegaStack/vegastack-design/commit/70a2787)
+
 ## [0.25.66] — October 21, 2026
 
 <!-- assembled from 2 changesets: bfaad348b936 -->

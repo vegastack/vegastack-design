@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.25.66 sha256-jCqccQVo8bvPSL2SXhwZtp7KKO1/O680yGongo80Zrc=
+// @vegastack emoji-picker@0.25.67 sha256-W6SudjxBJRHZaOHUhpznkkOU6K0IVgYStkghBGqxY5Q=
 
 "use client";
 
