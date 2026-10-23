@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.68 sha256-F4jX6nhfGGbm4OGv8nIR6qn7VRd0Gl83+jX89Ctg/q8=
+// @vegastack data-grid@0.25.68 sha256-B1AIbHcpyzLPn9Jpu/9LTBaIZqHIf3P8iW+mFwXgZxA=
 
 "use client";
 
@@ -1086,17 +1086,22 @@ function GroupMoreRow({
 }) {
   const api = useGridApi();
   const failed = loadMore.error != null && loadMore.error !== false;
+  const cell = React.useRef<HTMLElement | null>(null);
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
-      // A failed page's Try again is reached through this cell (Enter or Space), so the grid
-      // stays one tab stop: the button inside leaves the tab order.
-      node
-        ?.querySelectorAll<HTMLElement>("button")
-        .forEach((button) => button.setAttribute("tabindex", "-1"));
+      cell.current = node;
       api.register(itemId, GROUP, node);
     },
     [api, itemId],
   );
+  // A failed page's Try again is reached through this cell (Enter or Space), so the grid stays
+  // one tab stop: the button inside leaves the tab order — re-applied every render, because the
+  // tail re-creates its button after each failed retry.
+  React.useLayoutEffect(() => {
+    cell.current
+      ?.querySelectorAll<HTMLElement>("button")
+      .forEach((button) => button.setAttribute("tabindex", "-1"));
+  });
   return (
     <tr
       ref={measure}
@@ -1979,7 +1984,7 @@ export function DataGrid<T>({
   );
   const current = {
     focusAt,
-    restoreFocus: () => restoreFocus(),
+    restoreFocus: (lost: GridPosition) => restoreFocus(lost),
     rowsById,
     navKeys,
     navRows,
@@ -1999,10 +2004,7 @@ export function DataGrid<T>({
   // in — or, if the row is gone, to the tab stop that replaced it. A cell that unmounts because
   // the reader scrolled it away is left alone: chasing it would fight the scroll. The body
   // decides, every commit, because a scroll re-renders the body alone.
-  const restoreFocus = () => {
-    const lost = lostFocus.current;
-    lostFocus.current = null;
-    if (!lost) return;
+  const restoreFocus = (lost: GridPosition) => {
     const focused = document.activeElement;
     if (focused instanceof HTMLElement && focused !== document.body) return;
     const target = navRowIndex.has(lost.rowId)
@@ -2015,14 +2017,28 @@ export function DataGrid<T>({
         : (navKeys[0] ?? SELECT),
     );
   };
-  const onBodyCommit = React.useCallback((itemsChanged: boolean) => {
-    if (!itemsChanged) {
-      lostFocus.current = null;
-      return;
-    }
+  // The loss a data change caused, captured at that commit so a later measuring commit (which
+  // changes no data) cannot discard it before the restore runs.
+  const scheduleRestore = React.useCallback(() => {
+    const lost = lostFocus.current;
+    lostFocus.current = null;
+    if (!lost) return;
     // After the parent's own commit, so the latest positions are in place.
-    requestAnimationFrame(() => latest.current.restoreFocus());
+    requestAnimationFrame(() => latest.current.restoreFocus(lost));
   }, []);
+  const onBodyCommit = React.useCallback(
+    (itemsChanged: boolean) => {
+      if (itemsChanged) scheduleRestore();
+      else lostFocus.current = null;
+    },
+    [scheduleRestore],
+  );
+  // When new data empties the grid the body unmounts and never reports; the parent restores
+  // focus to the tab stop that is left (child effects run first, so a loss the body handled is
+  // already gone).
+  React.useLayoutEffect(() => {
+    scheduleRestore();
+  }, [items, scheduleRestore]);
 
   const api = React.useMemo<GridApi>(
     () => ({

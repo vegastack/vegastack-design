@@ -1960,3 +1960,25 @@ test("double-click on a resize handle fits the column to its content, shrinking 
   expect(key).toBe("c1");
   expect(width).toBeLessThan(120);
 });
+
+test("a refetch that empties the grid hands focus to the header that is left", async () => {
+  const grid = (data: Deal[]) => (
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={data}
+      getRowId={(d) => d.id}
+    />
+  );
+  const screen = await render(grid(DEALS));
+  (
+    screen.container.querySelector(
+      '[data-grid-row="d2"][data-grid-key="stage"]',
+    ) as HTMLElement
+  ).focus();
+  await screen.rerender(grid([]));
+  await expect
+    .poll(() => activeCell()?.getAttribute("role"))
+    .toBe("columnheader");
+  expect(activeCell()?.dataset.gridKey).toBe("stage");
+});
