@@ -1332,6 +1332,144 @@ test("the corner grip deletes the table; the + bars add a row and a column", asy
   await vi.waitFor(() => expect(box.querySelector("table")).toBeNull());
 });
 
+test("a composer hides the mention chip's hit area, which would overflow its scroll box after the last line", async () => {
+  const screen = await render(
+    <TextEdit variant="composer" format="markdown" aria-label="Comment" />,
+  );
+  const content = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit-content"]',
+  )!;
+  expect(content.className).toContain("overflow-y-auto");
+  expect(content.className).toContain(
+    "[&_[data-slot=inline-chip]]:before:hidden",
+  );
+});
+
+/** The app's table classes (`w-full`, `table-fixed`, a scrolling wrapper), which the suite's CSS lacks. */
+function styleTables() {
+  const sheet = document.createElement("style");
+  sheet.textContent =
+    ".tableWrapper{max-width:100%;overflow-x:auto}.tableWrapper table{width:100%;table-layout:fixed;border-collapse:collapse}";
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+}
+
+/** The widths (px) the table's columns are laid out at, from its first row. */
+const columnWidths = (box: Element) =>
+  [...box.querySelector("tr")!.children].map(
+    (cell) => cell.getBoundingClientRect().width,
+  );
+
+test("adding a column keeps the others as wide as they were; the new one is 160px", async () => {
+  styleTables();
+  const screen = await markdownEditor({ defaultValue: TABLE });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const before = columnWidths(box);
+  await userEvent.click(box.querySelectorAll("td")[0]!);
+  await userEvent.hover(box.querySelectorAll("td")[0]!);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector(
+        '[data-slot="text-edit-table-add"][data-axis="col"]',
+      ),
+    ).not.toBeNull(),
+  );
+  await userEvent.click(
+    document.querySelector(
+      '[data-slot="text-edit-table-add"][data-axis="col"]',
+    )!,
+  );
+  await vi.waitFor(() =>
+    expect(box.querySelector("tr")!.children.length).toBe(3),
+  );
+  const after = columnWidths(box);
+  expect(Math.abs(after[0]! - before[0]!)).toBeLessThanOrEqual(1);
+  expect(Math.abs(after[1]! - before[1]!)).toBeLessThanOrEqual(1);
+  // 160px of column, less the table's border and cell padding.
+  expect(after[2]!).toBeGreaterThan(145);
+  expect(after[2]!).toBeLessThanOrEqual(160);
+});
+
+test("dragging a column border changes that column only", async () => {
+  styleTables();
+  const screen = await markdownEditor({ defaultValue: TABLE });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const before = columnWidths(box);
+  const cell = box.querySelector("th")!;
+  const edge = cell.getBoundingClientRect();
+  const y = edge.top + edge.height / 2;
+  const fire = (type: string, target: EventTarget, x: number) =>
+    target.dispatchEvent(
+      new MouseEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        clientX: x,
+        clientY: y,
+        button: 0,
+      }),
+    );
+  fire("mousemove", cell, edge.right - 1);
+  await vi.waitFor(() => expect(box).toHaveClass("resize-cursor"));
+  fire("mousedown", cell, edge.right - 1);
+  fire("mousemove", window, edge.right + 59);
+  fire("mouseup", window, edge.right + 59);
+  await vi.waitFor(() =>
+    expect(columnWidths(box)[0]!).toBeGreaterThan(before[0]! + 50),
+  );
+  const after = columnWidths(box);
+  expect(Math.abs(after[1]! - before[1]!)).toBeLessThanOrEqual(1);
+});
+
+test("a document ending in a table: clicking below it, or ↓ from its last row, gives a paragraph to type in", async () => {
+  const screen = await markdownEditor({ defaultValue: TABLE });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  expect(box.lastElementChild!.matches(".tableWrapper")).toBe(true);
+  const table = box.querySelector(".tableWrapper")!.getBoundingClientRect();
+  box.dispatchEvent(
+    new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+      clientX: table.left + 10,
+      clientY: table.bottom + 8,
+      button: 0,
+    }),
+  );
+  await vi.waitFor(() => expect(box.lastElementChild!.tagName).toBe("P"));
+  await userEvent.keyboard("after");
+  await vi.waitFor(() =>
+    expect(box.lastElementChild!.textContent).toBe("after"),
+  );
+});
+
+test("↓ from the last row of a last table adds a paragraph", async () => {
+  const screen = await markdownEditor({ defaultValue: TABLE });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelectorAll("td")[3]!);
+  await userEvent.keyboard("{ArrowDown}");
+  await vi.waitFor(() => expect(box.lastElementChild!.tagName).toBe("P"));
+});
+
+test("a document ending in an audio block: clicking below it gives a paragraph to type in", async () => {
+  const audio = await markdownEditor({
+    defaultValue: 'x\n\n<audio src="https://example.com/a.mp3"></audio>',
+  });
+  const audioBox = audio.getByRole("textbox", { name: "Notes" }).element();
+  expect(
+    audioBox.lastElementChild!.querySelector("audio, [data-type=audio]"),
+  ).not.toBeNull();
+  const media = audioBox.lastElementChild!.getBoundingClientRect();
+  audioBox.dispatchEvent(
+    new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+      clientX: media.left + 10,
+      clientY: media.bottom + 8,
+      button: 0,
+    }),
+  );
+  await vi.waitFor(() => expect(audioBox.lastElementChild!.tagName).toBe("P"));
+});
+
 test("Tab and Shift+Tab move between table cells", async () => {
   const screen = await markdownEditor({ defaultValue: TABLE });
   const box = screen.getByRole("textbox", { name: "Notes" }).element();

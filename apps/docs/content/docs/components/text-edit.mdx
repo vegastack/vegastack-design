@@ -235,8 +235,13 @@ There is no toolbar; everything is on hover, for the hovered table only:
   Delete table; drag it to move the table. A fully selected table also deletes with
   <kbd>Backspace</kbd> or <kbd>Delete</kbd>.
 - **"+" bars** below and beside the table add a row or a column at the end.
-- **Column borders** drag to resize (`col-resize` cursor, a thin line on the border). Markdown has no
-  column widths, so in `format="markdown"` a width lasts for the session; HTML keeps it.
+- **Column borders** drag to resize (`col-resize` cursor, a thin line on the border). A column's width
+  is its own, as in Notion: the first resize, and every column added (160px), stores each column's
+  width, so the others never give way and a table wider than its box scrolls sideways inside it.
+  Markdown has no column widths, so in `format="markdown"` a width lasts for the session; HTML keeps it.
+- **After a last table** (or a last audio, video or image block) there is room to click under it, and
+  clicking there, ↓ from the table's last row, or ↓ / → on the selected block adds an empty paragraph
+  to type in. A comment box (`variant="composer"`) shows no scrollbar after a mention.
 
 <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd> move between cells and
 <kbd>Tab</kbd> in the last cell adds a row; <kbd>Enter</kbd> stays in the cell;
