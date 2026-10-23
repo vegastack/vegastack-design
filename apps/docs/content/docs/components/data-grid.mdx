@@ -180,6 +180,42 @@ windowing stays on. `ariaRowIndexOffset` keeps the row numbers true across pages
   file="components/preview/data-grid.tsx"
 />
 
+### Cells mode
+
+`selectionMode="cells"` makes the grid a spreadsheet surface. A range is kept by row id and column
+key (`use-grid-selection`), so it survives a refetch and windowing; it covers loaded rows only.
+
+- **Select**: <kbd>Shift</kbd>+arrows, <kbd>Shift</kbd>+click or a drag extend the range;
+  <kbd>Shift</kbd>+<kbd>Space</kbd> takes the row, <kbd>Ctrl</kbd>+
+  <kbd>Space</kbd> the column,
+  <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> everything; a plain move or
+  <kbd>Escape</kbd>
+  collapses it. A range of more than one cell is announced ("4 by 3 cells
+  selected").
+- **Copy, cut, paste** go through the `copy`, `cut` and `paste` events (never the async Clipboard
+  API) as TSV plus a bare HTML table, read by `grid-clipboard`: Excel, Google Sheets (with its exact
+  numbers), Numbers and Airtable. One pasted value fills the range; a pattern that divides it
+  tiles. Each column's `parse(cell, row)` turns a pasted cell into its value and `format(row)`
+  writes its copy text. A column with neither `parse` nor `editable` is read-only to paste, clear
+  and fill. Rows that run past the last loaded row go to `onPasteOverflow` — the host asks "Add 38
+  rows?". A paste into an open editor is the editor's.
+- **Write**: a paste, a clear (<kbd>Delete</kbd>) or a cut is ONE `onCellsCommit(changes)` batch;
+  the host answers per cell (`ok`, `conflict`, `invalid`, `stale_schema`) and the grid announces
+  "Pasted 120 cells · 4 skipped".
+- **Fill**: drag the handle on the range's corner up or down, or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>D</kbd>
+  to fill down; `onFill({ source, target, series })` — <kbd>Alt</kbd> while dragging asks for a
+  series. The host computes the values.
+- **Undo** <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Z</kbd> and **redo** <kbd>⇧⌘Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>
+  reach `onUndo` / `onRedo`; the host owns the history.
+- **Someone else's change**: `remoteChanges` (keyed by `gridCellKey(rowId, key)`) pulses the cell
+  with the system's highlight-on-change ring (`motion-flash`, gone under reduced motion) and shows
+  the author in its corner for 1.5s; only the focused cell's `announcement` is spoken.
+
+<ComponentPreview
+  name="dataGridCells"
+  file="components/preview/data-grid.tsx"
+/>
+
 ### Inline editing
 
 Editable columns open [`EditableCell`](/docs/components/editable-cell) in
@@ -293,23 +329,29 @@ font.
 - The scroll viewport is keyboard-reachable exactly when it scrolls, and the
   roving cell's focus outline is pulled inside so the viewport cannot clip it.
 
-| Key                                                                               | Action                                                                        |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>                                  | Move the active cell; <kbd>↑</kbd> from the first row reaches the header row. |
-| <kbd>Home</kbd> / <kbd>End</kbd>                                                  | First / last cell in the row.                                                 |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>                       | First / last cell of the grid.                                                |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+arrow                                                | The data edge in that direction.                                              |
-| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>                                           | One screen of rows.                                                           |
-| <kbd>Enter</kbd> / <kbd>F2</kbd>                                                  | Edit the focused cell, keeping the value (suspends grid nav).                 |
-| A character                                                                       | Edit, replacing the value (text and number editors).                          |
-| <kbd>Enter</kbd> / <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> while editing | Commit and move down / right / left.                                          |
-| <kbd>Escape</kbd>                                                                 | Close the editor, restore grid focus.                                         |
-| <kbd>Enter</kbd> on a header                                                      | Open its menu (`headerMenu`), else sort (shift adds a key).                   |
-| <kbd>Shift</kbd>+<kbd>F10</kbd> / the menu key                                    | The focused cell's menu (`cellMenu`) or the header's menu.                    |
-| <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> on a header                              | Resize by 8px (<kbd>Shift</kbd>: 32px).                                       |
-| <kbd>Space</kbd> on a checkbox or group row                                       | Toggle it.                                                                    |
-| <kbd>↓</kbd> on the last row                                                      | Load the next page (when `loadMore.hasMore`).                                 |
-| <kbd>Tab</kbd> (not editing)                                                      | Leave the grid — it is one tab stop.                                          |
+| Key                                                                                                                           | Action                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>                                                                              | Move the active cell; <kbd>↑</kbd> from the first row reaches the header row. |
+| <kbd>Home</kbd> / <kbd>End</kbd>                                                                                              | First / last cell in the row.                                                 |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>                                                                   | First / last cell of the grid.                                                |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+arrow                                                                                            | The data edge in that direction.                                              |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>                                                                                       | One screen of rows.                                                           |
+| <kbd>Enter</kbd> / <kbd>F2</kbd>                                                                                              | Edit the focused cell, keeping the value (suspends grid nav).                 |
+| A character                                                                                                                   | Edit, replacing the value (text and number editors).                          |
+| <kbd>Enter</kbd> / <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> while editing                                             | Commit and move down / right / left.                                          |
+| <kbd>Escape</kbd>                                                                                                             | Close the editor, restore grid focus.                                         |
+| <kbd>Enter</kbd> on a header                                                                                                  | Open its menu (`headerMenu`), else sort (shift adds a key).                   |
+| <kbd>Shift</kbd>+<kbd>F10</kbd> / the menu key                                                                                | The focused cell's menu (`cellMenu`) or the header's menu.                    |
+| <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> on a header                                                                          | Resize by 8px (<kbd>Shift</kbd>: 32px).                                       |
+| <kbd>Space</kbd> on a checkbox or group row                                                                                   | Toggle it.                                                                    |
+| <kbd>Shift</kbd>+arrows, <kbd>Shift</kbd>+click (cells mode)                                                                  | Extend the range.                                                             |
+| <kbd>Shift</kbd>+<kbd>Space</kbd> · <kbd>Ctrl</kbd>+<kbd>Space</kbd> · <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> (cells mode) | Select the row · the column · everything.                                     |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>X</kbd>, <kbd>V</kbd> (cells mode)                                            | Copy, cut, paste.                                                             |
+| <kbd>Delete</kbd> / <kbd>Backspace</kbd> (cells mode)                                                                         | Clear the range.                                                              |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>D</kbd> (cells mode)                                                                        | Fill down.                                                                    |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Z</kbd>, <kbd>⇧⌘Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd> (cells mode)                         | Undo, redo (the host's).                                                      |
+| <kbd>↓</kbd> on the last row                                                                                                  | Load the next page (when `loadMore.hasMore`).                                 |
+| <kbd>Tab</kbd> (not editing)                                                                                                  | Leave the grid — it is one tab stop.                                          |
 
 The states the verification lanes exercise for this item (generated from `component-contracts.json`):
 

@@ -469,3 +469,132 @@ export function dataGridPaged(): ReactNode {
     </Wrapper>
   );
 }
+
+/* ── Cells mode (R3): ranges, copy and paste, clear, fill, undo, remote changes ── */
+
+interface Sample {
+  id: string;
+  name: string;
+  status: string;
+  qty: number;
+}
+
+const SAMPLES: Sample[] = Array.from({ length: 8 }, (_, index) => ({
+  id: `s${index + 1}`,
+  name: `Sample request ${index + 1}`,
+  status: ["Requested", "Sent", "Received", "Closed"][index % 4]!,
+  qty: (index + 1) * 2,
+}));
+
+export function dataGridCells(): ReactNode {
+  const [rows, setRows] = useState(SAMPLES);
+  const [history, setHistory] = useState<Sample[][]>([]);
+  const [future, setFuture] = useState<Sample[][]>([]);
+  const apply = (next: Sample[]) => {
+    setHistory((past) => [...past, rows]);
+    setFuture([]);
+    setRows(next);
+  };
+  const columns: DataGridColumn<Sample>[] = [
+    {
+      key: "name",
+      header: "Name",
+      width: 220,
+      frozen: true,
+      editable: { type: "text" },
+    },
+    {
+      key: "status",
+      header: "Status",
+      width: 140,
+      editable: {
+        type: "select",
+        options: ["Requested", "Sent", "Received", "Closed"].map((value) => ({
+          value,
+          label: value,
+        })),
+      },
+    },
+    {
+      key: "qty",
+      header: "Qty",
+      width: 100,
+      align: "end",
+      numeric: true,
+      // A pasted cell's exact number when the source had one, else its text read as a number.
+      parse: (cell) => cell.number ?? Number(cell.text.replace(/,/g, "")),
+    },
+  ];
+  return (
+    <Wrapper className="block">
+      <DataGrid<Sample>
+        aria-label="Sample requests, cells"
+        columns={columns}
+        data={rows}
+        getRowId={(row) => row.id}
+        sortMode="manual"
+        columnPicker={false}
+        rowHeight="medium"
+        selectionMode="cells"
+        onCellCommit={(row, key, value) =>
+          apply(rows.map((r) => (r.id === row.id ? { ...r, [key]: value } : r)))
+        }
+        onCellsCommit={async (changes) => {
+          const results = changes.map((change) =>
+            change.key === "qty" &&
+            change.value !== null &&
+            !Number.isFinite(change.value)
+              ? { status: "invalid" as const, reason: "Qty must be a number" }
+              : {
+                  status: "ok" as const,
+                  value: change.value,
+                  version: 1,
+                  changeId: `${change.rowId}:${change.key}`,
+                },
+          );
+          apply(
+            rows.map((row) => {
+              const next = { ...row } as Record<string, unknown>;
+              changes.forEach((change, index) => {
+                if (change.rowId === row.id && results[index]!.status === "ok")
+                  next[change.key] =
+                    change.value ?? (change.key === "qty" ? 0 : "");
+              });
+              return next as unknown as Sample;
+            }),
+          );
+          return results;
+        }}
+        onFill={({ source, target }) =>
+          apply(
+            rows.map((row) => {
+              const at = target.rowIds.indexOf(row.id);
+              if (at === -1) return row;
+              const from = rows.find(
+                (r) => r.id === source.rowIds[at % source.rowIds.length],
+              )!;
+              const next = { ...row } as Record<string, unknown>;
+              for (const key of target.keys)
+                next[key] = (from as unknown as Record<string, unknown>)[key];
+              return next as unknown as Sample;
+            }),
+          )
+        }
+        onUndo={() => {
+          const previous = history.at(-1);
+          if (!previous) return;
+          setFuture((next) => [rows, ...next]);
+          setHistory((past) => past.slice(0, -1));
+          setRows(previous);
+        }}
+        onRedo={() => {
+          const next = future[0];
+          if (!next) return;
+          setHistory((past) => [...past, rows]);
+          setFuture((rest) => rest.slice(1));
+          setRows(next);
+        }}
+      />
+    </Wrapper>
+  );
+}

@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "067a0868c70139a41c7458163715b8a158fda8ec77b5bd2dd4c7a4108d4c7776",
+  "contractSha256": "8aa338f2d5c48912bb5f839d1cdeb87e5c7a55384ffd1b81c6049d2d0b6b0ab1",
   "inventory": {
-    "expected": 751,
-    "actual": 751,
-    "unique": 751
+    "expected": 753,
+    "actual": 753,
+    "unique": 753
   },
   "classes": {
     "components": 166,
     "animatedIcons": 467,
-    "hooks": 15,
+    "hooks": 16,
     "blocks": 15,
     "chartBlocks": 68,
-    "libs": 20
+    "libs": 21
   },
   "waves": {
     "Core controls": {
@@ -232,13 +232,14 @@
     },
     "Hooks": {
       "expected": 15,
-      "actual": 15,
+      "actual": 16,
       "members": [
         "use-animation-replay",
         "use-announcer",
         "use-async-search",
         "use-drag-reorder",
         "use-file-drop",
+        "use-grid-selection",
         "use-inline-edit",
         "use-list-nav",
         "use-media-query",

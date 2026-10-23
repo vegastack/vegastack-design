@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 751,
+    "totalRegistryItems": 753,
     "components": 166,
     "animatedIcons": 467,
-    "hooks": 15,
+    "hooks": 16,
     "blocks": 15,
-    "libs": 20,
+    "libs": 21,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -7675,12 +7675,39 @@
       "sourceFiles": ["packages/ui/registry/ui/data-grid.tsx"],
       "publicSymbols": [
         {
+          "name": "CellChange",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CellCommitResult",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataGrid",
           "kind": "component",
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Generic function component; no stable public ref target is forwarded — the grid's focus model is the roving-cell API, not a root ref."
+          }
+        },
+        {
+          "name": "DataGridCellBlock",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -7694,6 +7721,15 @@
         },
         {
           "name": "DataGridColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridFill",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
@@ -7729,7 +7765,25 @@
           }
         },
         {
+          "name": "DataGridPasteOverflow",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataGridProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridRemoteChange",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
@@ -7772,6 +7826,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "gridCellKey",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -7807,7 +7870,12 @@
             "resizing",
             "summarized",
             "paged",
-            "menu-open"
+            "menu-open",
+            "range-selected",
+            "copying",
+            "pasting",
+            "filling",
+            "remote-change"
           ],
           "evidence": "Controlled DataGridSort[] with shift-click additive keys and ordinals, client (engine) or manual (host) order; header + per-row checkboxes; client group columns and host sections flattened into one row list with per-group load-more rows; EditableCell managed editing (Enter/F2, type-to-edit seed) with async commit; skeleton loading, Empty state, loadMore paging, CursorPager paged mode; row and column useVirtualizer windowing; frozen sticky columns; ColumnResizeHandle drag/keyboard; GridSummaryCell footer; header DropdownMenu and cell ContextMenu."
         },
@@ -7867,12 +7935,14 @@
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
+        "@vegastack/grid-clipboard",
         "@vegastack/load-more",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-grid-selection"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -40051,6 +40121,142 @@
       }
     },
     {
+      "name": "use-grid-selection",
+      "registryType": "registry:hook",
+      "title": "useGridSelection",
+      "summary": "A spreadsheet range selection as state, kept by row id and column key: anchor and focus, select, extend, extendTo, row, column and all, and the range's bounds in the current order.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-grid-selection.ts"],
+      "publicSymbols": [
+        {
+          "name": "GridCell",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GridRange",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GridRangeBounds",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "gridRangeBounds",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "GridSelectionDirection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useGridSelection",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseGridSelectionOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseGridSelectionResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-grid-selection.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["empty", "single-cell", "range", "row", "column", "all"],
+          "evidence": "select collapses, extend/extendTo grow from the anchor, selectRow/selectColumn/selectAll, clear; a range whose row or column left resolves to none."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure state; the grid owns keyboard, focus and announcements."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-grid-selection.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
@@ -43508,6 +43714,169 @@
         "packages/ui/registry/lib/date-time.test.ts",
         "packages/ui/registry/ui/relative-time.test.tsx"
       ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "grid-clipboard",
+      "registryType": "registry:lib",
+      "title": "Grid Clipboard",
+      "summary": "The spreadsheet clipboard as data: parse TSV, clipboard HTML and Google Sheets' typed values into a cell matrix; write TSV and HTML for a copied range; fit a paste to a selected range.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/grid-clipboard.ts"],
+      "publicSymbols": [
+        {
+          "name": "GridClipboardCell",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GridClipboardMatrix",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GridClipboardData",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SHEETS_COMPACT_TABLE_TYPE",
+          "kind": "const",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseTsv",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "serializeTsv",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "serializeHtmlTable",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseHtmlTable",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseClipboard",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "GridClipboardRange",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "expandPaste",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/grid-clipboard.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Plain parse and serialise functions; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM output; HTML input is parsed inert and only its text read."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns data; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/grid-clipboard.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

@@ -5,7 +5,7 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { ContextMenuItem } from "./context-menu";
-import { DataGrid, type DataGridColumn } from "./data-grid";
+import { DataGrid, gridCellKey, type DataGridColumn } from "./data-grid";
 import { DropdownMenuItem } from "./dropdown-menu";
 
 interface Deal {
@@ -1981,4 +1981,306 @@ test("a refetch that empties the grid hands focus to the header that is left", a
     .poll(() => activeCell()?.getAttribute("role"))
     .toBe("columnheader");
   expect(activeCell()?.dataset.gridKey).toBe("stage");
+});
+
+// ── R3: cells mode — ranges, clipboard, fill, batch commit ─────────────────────────────────────
+
+function cellsGrid(
+  props: Partial<React.ComponentProps<typeof DataGrid<Deal>>> = {},
+) {
+  return (
+    <DataGrid<Deal>
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", editable: { type: "text" } },
+        { key: "stage", header: "Stage", editable: { type: "text" } },
+        {
+          key: "amount",
+          header: "Amount",
+          align: "end",
+          parse: (cell) => cell.number ?? Number(cell.text.replace(/,/g, "")),
+        },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sortMode="manual"
+      selectionMode="cells"
+      {...props}
+    />
+  );
+}
+
+const statusText = (root: HTMLElement) =>
+  [...root.querySelectorAll('[role="status"]')]
+    .map((node) => node.textContent)
+    .join(" | ");
+const cellAt = (rowId: string, key: string) =>
+  document.querySelector<HTMLElement>(
+    `[data-grid-row="${rowId}"][data-grid-key="${key}"]`,
+  )!;
+const inRange = () =>
+  [...document.querySelectorAll<HTMLElement>("[data-in-range]")].map(
+    (cell) => `${cell.dataset.gridRow}:${cell.dataset.gridKey}`,
+  );
+
+function clipboardEvent(
+  type: "copy" | "cut" | "paste",
+  data: Record<string, string> = {},
+) {
+  const transfer = new DataTransfer();
+  for (const [mime, value] of Object.entries(data))
+    transfer.setData(mime, value);
+  return new ClipboardEvent(type, {
+    clipboardData: transfer,
+    bubbles: true,
+    cancelable: true,
+  });
+}
+
+test("cells mode: Shift+arrows and Shift+click extend a range by id; a plain move collapses it", async () => {
+  const screen = await render(cellsGrid());
+  cellAt("d1", "name").focus();
+  await userEvent.keyboard("{Shift>}{ArrowDown}{ArrowRight}{/Shift}");
+  expect(inRange()).toEqual(["d1:name", "d1:stage", "d2:name", "d2:stage"]);
+  expect(cellAt("d2", "stage").getAttribute("aria-selected")).toBe("true");
+  expect(cellAt("d3", "name").getAttribute("aria-selected")).toBe("false");
+  await expect
+    .poll(() => statusText(screen.container))
+    .toContain("2 by 2 cells selected");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(inRange()).toEqual(["d3:stage"]);
+  await userEvent.click(cellAt("d1", "name"));
+  await userEvent.click(cellAt("d3", "amount"), { modifiers: ["Shift"] });
+  expect(inRange()).toHaveLength(9);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("cells mode: Shift+Space a row, Ctrl+Space a column, ⌘/Ctrl+A all, Escape back to one cell", async () => {
+  await render(cellsGrid());
+  cellAt("d2", "stage").focus();
+  await userEvent.keyboard("{Shift>} {/Shift}");
+  expect(inRange()).toEqual(["d2:name", "d2:stage", "d2:amount"]);
+  await userEvent.keyboard("{Control>} {/Control}");
+  expect(inRange()).toEqual(["d1:stage", "d2:stage", "d3:stage"]);
+  await userEvent.keyboard("{Control>}a{/Control}");
+  expect(inRange()).toHaveLength(9);
+  await userEvent.keyboard("{Escape}");
+  expect(inRange()).toEqual(["d2:stage"]);
+});
+
+test("copy writes the range as TSV and HTML; only the loaded rows", async () => {
+  await render(cellsGrid());
+  cellAt("d1", "name").focus();
+  await userEvent.keyboard("{Shift>}{ArrowDown}{ArrowRight}{/Shift}");
+  const event = clipboardEvent("copy");
+  cellAt("d2", "stage").dispatchEvent(event);
+  expect(event.defaultPrevented).toBe(true);
+  expect(event.clipboardData!.getData("text/plain")).toBe(
+    "Acme\tOpen\nGlobex\tWon",
+  );
+  expect(event.clipboardData!.getData("text/html")).toContain(
+    "<td>Globex</td>",
+  );
+});
+
+test("paste: one batch to onCellsCommit, typed through parse, read-only cells skipped and counted", async () => {
+  const onCellsCommit = vi.fn(async (changes: unknown[]) =>
+    changes.map(() => ({
+      status: "ok" as const,
+      value: null,
+      version: 1,
+      changeId: "c",
+    })),
+  );
+  const screen = await render(
+    cellsGrid({
+      onCellsCommit,
+      columns: [
+        { key: "name", header: "Name", editable: { type: "text" } },
+        { key: "stage", header: "Stage" },
+        {
+          key: "amount",
+          header: "Amount",
+          parse: (cell) => cell.number ?? Number(cell.text),
+        },
+      ],
+    }),
+  );
+  cellAt("d1", "name").focus();
+  cellAt("d1", "name").dispatchEvent(
+    clipboardEvent("paste", { "text/plain": "Zed\tWon\t12\nYak\tLost\t7" }),
+  );
+  await expect.poll(() => onCellsCommit.mock.calls.length).toBe(1);
+  expect(onCellsCommit.mock.calls[0]![0]).toEqual([
+    { rowId: "d1", key: "name", value: "Zed", previous: "Acme" },
+    { rowId: "d1", key: "amount", value: 12, previous: 300 },
+    { rowId: "d2", key: "name", value: "Yak", previous: "Globex" },
+    { rowId: "d2", key: "amount", value: 7, previous: 100 },
+  ]);
+  // The pasted block becomes the range; the result is announced.
+  expect(inRange()).toHaveLength(6);
+  await expect
+    .poll(() => statusText(screen.container))
+    .toContain("Pasted 4 cells · 2 skipped");
+});
+
+test("paste: one value fills the range; rows past the last loaded row go to onPasteOverflow", async () => {
+  const onCellsCommit = vi.fn(async (changes: unknown[]) =>
+    changes.map(() => ({ status: "invalid" as const, reason: "x" })),
+  );
+  const onPasteOverflow = vi.fn();
+  await render(cellsGrid({ onCellsCommit, onPasteOverflow }));
+  cellAt("d1", "stage").focus();
+  await userEvent.keyboard("{Shift>}{ArrowDown}{ArrowDown}{/Shift}");
+  cellAt("d3", "stage").dispatchEvent(
+    clipboardEvent("paste", { "text/plain": "Won" }),
+  );
+  await expect.poll(() => onCellsCommit.mock.calls.length).toBe(1);
+  expect(onCellsCommit.mock.calls[0]![0]).toHaveLength(3);
+  cellAt("d3", "stage").focus();
+  await userEvent.keyboard("{Escape}");
+  cellAt("d3", "stage").dispatchEvent(
+    clipboardEvent("paste", { "text/plain": "a\nb\nc" }),
+  );
+  await expect.poll(() => onPasteOverflow.mock.calls.length).toBe(1);
+  expect(onPasteOverflow.mock.calls[0]![0]).toEqual({
+    matrix: [[{ text: "b" }], [{ text: "c" }]],
+    keys: ["stage"],
+    afterRowId: "d3",
+  });
+});
+
+test("a paste into an open editor is the editor's; Delete clears the range in one batch", async () => {
+  const onCellsCommit = vi.fn(async (changes: unknown[]) =>
+    changes.map(() => ({
+      status: "ok" as const,
+      value: null,
+      version: 1,
+      changeId: "c",
+    })),
+  );
+  await render(cellsGrid({ onCellsCommit }));
+  cellAt("d1", "name").focus();
+  await userEvent.keyboard("{F2}");
+  const field = document.querySelector("input")!;
+  field.dispatchEvent(clipboardEvent("paste", { "text/plain": "x\ty" }));
+  expect(onCellsCommit).not.toHaveBeenCalled();
+  await userEvent.keyboard("{Escape}");
+  await userEvent.keyboard("{Shift>}{ArrowRight}{/Shift}{Delete}");
+  await expect.poll(() => onCellsCommit.mock.calls.length).toBe(1);
+  expect(onCellsCommit.mock.calls[0]![0]).toEqual([
+    { rowId: "d1", key: "name", value: null, previous: "Acme" },
+    { rowId: "d1", key: "stage", value: null, previous: "Open" },
+  ]);
+});
+
+test("⌘/Ctrl+D fills down through the range; undo and redo keys reach the host", async () => {
+  const onFill = vi.fn();
+  const onUndo = vi.fn();
+  const onRedo = vi.fn();
+  await render(cellsGrid({ onFill, onUndo, onRedo }));
+  cellAt("d1", "stage").focus();
+  await userEvent.keyboard(
+    "{Shift>}{ArrowDown}{ArrowDown}{/Shift}{Control>}d{/Control}",
+  );
+  expect(onFill).toHaveBeenCalledWith({
+    source: { rowIds: ["d1"], keys: ["stage"] },
+    target: { rowIds: ["d2", "d3"], keys: ["stage"] },
+    series: false,
+  });
+  await userEvent.keyboard(
+    "{Control>}z{/Control}{Control>}{Shift>}z{/Shift}{/Control}{Control>}y{/Control}",
+  );
+  expect(onUndo).toHaveBeenCalledTimes(1);
+  expect(onRedo).toHaveBeenCalledTimes(2);
+  // The range's bottom-right cell carries the fill handle.
+  expect(
+    cellAt("d3", "stage").querySelector('[data-slot="data-grid-fill-handle"]'),
+  ).not.toBeNull();
+});
+
+test("the fill handle drags down and reports the rows it covered; Alt continues a series", async () => {
+  const onFill = vi.fn();
+  await render(cellsGrid({ onFill }));
+  await userEvent.click(cellAt("d1", "amount"));
+  const handle = cellAt("d1", "amount").querySelector<HTMLElement>(
+    '[data-slot="data-grid-fill-handle"]',
+  )!;
+  handle.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, button: 0 }),
+  );
+  const target = cellAt("d3", "amount").getBoundingClientRect();
+  window.dispatchEvent(
+    new PointerEvent("pointermove", {
+      clientX: target.left + 4,
+      clientY: target.top + 4,
+    }),
+  );
+  await expect
+    .poll(() => cellAt("d2", "amount").hasAttribute("data-fill-target"))
+    .toBe(true);
+  window.dispatchEvent(new PointerEvent("pointerup", { altKey: true }));
+  expect(onFill).toHaveBeenCalledWith({
+    source: { rowIds: ["d1"], keys: ["amount"] },
+    target: { rowIds: ["d2", "d3"], keys: ["amount"] },
+    series: true,
+  });
+});
+
+test("a remote change pulses its cell, shows its author, and is announced only when focused", async () => {
+  const at = Date.now();
+  const screen = await render(cellsGrid());
+  cellAt("d2", "stage").focus();
+  await screen.rerender(
+    cellsGrid({
+      remoteChanges: new Map([
+        [
+          gridCellKey("d2", "stage"),
+          {
+            by: <span>AR</span>,
+            at,
+            announcement: "Asha changed Stage to Won",
+          },
+        ],
+        [
+          gridCellKey("d1", "name"),
+          { by: <span>BK</span>, at, announcement: "Ben changed Name" },
+        ],
+      ]),
+    }),
+  );
+  expect(cellAt("d2", "stage").querySelector(".motion-flash")).not.toBeNull();
+  expect(
+    cellAt("d2", "stage").querySelector('[data-slot="data-grid-remote"]')
+      ?.textContent,
+  ).toBe("AR");
+  await expect
+    .poll(() => statusText(screen.container))
+    .toContain("Asha changed Stage to Won");
+  expect(statusText(screen.container)).not.toContain("Ben changed");
+  // The cue is brief.
+  await expect
+    .poll(
+      () =>
+        cellAt("d2", "stage").querySelector('[data-slot="data-grid-remote"]'),
+      {
+        timeout: 3000,
+      },
+    )
+    .toBeNull();
+});
+
+test("IME: a composing Shift+Arrow never extends the range", async () => {
+  await render(cellsGrid());
+  const cell = cellAt("d1", "name");
+  cell.focus();
+  cell.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "ArrowDown",
+      shiftKey: true,
+      bubbles: true,
+      isComposing: true,
+    }),
+  );
+  expect(inRange()).toEqual([]);
 });

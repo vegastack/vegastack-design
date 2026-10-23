@@ -722,6 +722,11 @@
       "family": "data",
       "source": "Regent Tables plan 1.1 (DS R2), approved by the operator 2026-10-23",
       "rationale": "Upstream ships Pagination (page numbers) but no keyset pager; DataListPager needs page numbers and totals, which a cursor-paged list does not have. Composes upstream's button unchanged and carries no patch."
+    },
+    "use-grid-selection": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it (Regent Tables plan 1.2, DS R3)"
     }
   }
 }
