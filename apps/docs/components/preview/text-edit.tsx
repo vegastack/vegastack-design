@@ -8,7 +8,13 @@ import {
   encodeAwarenessUpdate,
 } from "y-protocols/awareness";
 import dynamic from "next/dynamic";
-import { ArrowUp, FilePlus } from "lucide-react";
+import {
+  ArrowUp,
+  File as FileIcon,
+  FilePlus,
+  FileText,
+  ListTodo,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { MarkdownView } from "@/components/ui/markdown-view";
@@ -18,7 +24,9 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
+import { InlineChipProvider } from "@/components/ui/inline-chip";
 import type {
+  MentionKindConfig,
   MentionOption,
   TextEditCollaboration,
   TextEditAnnotation,
@@ -549,6 +557,19 @@ const PEOPLE: MentionOption[] = [
   { kind: "task", id: "t1", label: "Wire the east panel" },
 ];
 
+/** The kinds the `@` menu offers: the app names its record kinds, the design system only people and agents. */
+const MENTION_KINDS: MentionKindConfig[] = [
+  { id: "user", noun: "Person", plural: "People", order: 0 },
+  { id: "page", noun: "Page", plural: "Pages", icon: <FileText />, order: 1 },
+  { id: "file", noun: "File", plural: "Files", icon: <FileIcon />, order: 2 },
+  { id: "task", noun: "Task", plural: "Tasks", icon: <ListTodo />, order: 3 },
+];
+
+/** The same kinds for every chip below the provider. */
+const CHIP_KINDS = Object.fromEntries(
+  MENTION_KINDS.map(({ id, icon, noun }) => [id, { icon, noun }]),
+);
+
 /** A stand-in for the host's search: filters the list above, after a short wait. */
 const searchPeople = (query: string, { signal }: { signal: AbortSignal }) =>
   new Promise<MentionOption[]>((resolve, reject) => {
@@ -577,17 +598,16 @@ export function textEditMentions(): ReactNode {
   );
   return (
     <Wrapper className="flex-col items-stretch">
-      <TextEdit
-        format="markdown"
-        value={markdown}
-        onValueChange={setMarkdown}
-        mentions={{
-          kinds: ["user", "page", "file", "task"],
-          search: searchPeople,
-        }}
-        mentionHref={(kind, id) => `#${kind}-${id}`}
-        aria-label="Notes with mentions"
-      />
+      <InlineChipProvider value={{ kinds: CHIP_KINDS }}>
+        <TextEdit
+          format="markdown"
+          value={markdown}
+          onValueChange={setMarkdown}
+          mentions={{ kinds: MENTION_KINDS, search: searchPeople }}
+          mentionHref={(kind, id) => `#${kind}-${id}`}
+          aria-label="Notes with mentions"
+        />
+      </InlineChipProvider>
       <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}
       </pre>

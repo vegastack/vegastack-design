@@ -652,3 +652,155 @@ test("no a11y violations — wrap, open", async () => {
   await screen.getByRole("combobox").click();
   await expectNoA11yViolations(document.body);
 });
+
+test("onCreateOption: an Add row for text no option has; Enter adds it and selects it", async () => {
+  const created: Project = { id: "dune", name: "Dune" };
+  const onCreateOption = vi.fn(async () => created);
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <Picker onCreateOption={onCreateOption} onValueChange={onValueChange} />,
+  );
+  await screen.getByRole("combobox").click();
+  const search = screen.getByPlaceholder("Search projects…");
+  // An exact label (any case, spaces around) offers no row.
+  await search.fill(" atlas ");
+  await expect
+    .element(screen.getByRole("option", { name: "Atlas" }))
+    .toBeVisible();
+  await expect
+    .poll(() => document.querySelector("[data-slot=searchable-select-create]"))
+    .toBeNull();
+  await search.fill("Dune ");
+  const add = screen.getByRole("option", { name: "Add “Dune”" });
+  await expect.element(add).toBeVisible();
+  // It stands in for the empty message, and is reached like any option.
+  await expect
+    .poll(() => document.body.textContent)
+    .not.toContain("No project found.");
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(onCreateOption).toHaveBeenCalledWith("Dune"));
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith(created),
+  );
+  expect(onValueChange).toHaveBeenCalledTimes(1);
+});
+
+test("onCreateOption with multiple: the new option joins the selection", async () => {
+  const created: Project = { id: "dune", name: "Dune" };
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <SearchableSelect<Project, true>
+      multiple
+      items={PROJECTS}
+      value={[PROJECTS[0]!]}
+      onValueChange={onValueChange}
+      itemToKey={(project) => project.id}
+      itemToStringLabel={(project) => project.name}
+      onCreateOption={async () => created}
+      createLabel={(query) => `Create ${query}`}
+      searchLabel="Search projects"
+      searchPlaceholder="Search projects…"
+      aria-label="Projects"
+    />,
+  );
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  await screen.getByPlaceholder("Search projects…").fill("Dune");
+  await screen.getByRole("option", { name: "Create Dune" }).click();
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith([PROJECTS[0], created]),
+  );
+});
+
+test("onCreateOption: a pick made while the new option is on its way is kept", async () => {
+  const created: Project = { id: "dune", name: "Dune" };
+  let land!: (project: Project) => void;
+  function Host() {
+    const [value, setValue] = React.useState<Project[]>([PROJECTS[0]!]);
+    return (
+      <>
+        <SearchableSelect<Project, true>
+          multiple
+          items={PROJECTS}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(project) => project.id}
+          itemToStringLabel={(project) => project.name}
+          onCreateOption={() =>
+            new Promise<Project>((resolve) => {
+              land = resolve;
+            })
+          }
+          searchLabel="Search projects"
+          searchPlaceholder="Search projects…"
+          aria-label="Projects"
+        />
+        <output data-testid="value">
+          {value.map((p) => p.name).join(",")}
+        </output>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  const search = screen.getByPlaceholder("Search projects…");
+  await search.fill("Dune");
+  await screen.getByRole("option", { name: "Add “Dune”" }).click();
+  await search.fill("");
+  await screen.getByRole("option", { name: "Borealis" }).click();
+  await expect
+    .element(screen.getByTestId("value"))
+    .toHaveTextContent("Atlas,Borealis");
+  land(created);
+  await expect
+    .element(screen.getByTestId("value"))
+    .toHaveTextContent("Atlas,Borealis,Dune");
+});
+
+test("onCreateOption: a single pick made while the new option is on its way wins", async () => {
+  let land!: (project: Project) => void;
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <Picker
+      onValueChange={onValueChange}
+      onCreateOption={() =>
+        new Promise<Project>((resolve) => {
+          land = resolve;
+        })
+      }
+    />,
+  );
+  await screen.getByRole("combobox").click();
+  await screen.getByPlaceholder("Search projects…").fill("Dune");
+  await userEvent.keyboard("{Enter}");
+  await screen.getByRole("combobox").click();
+  await screen.getByPlaceholder("Search projects…").fill("Cin");
+  await screen.getByRole("option", { name: "Cinder" }).click();
+  land({ id: "dune", name: "Dune" });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onValueChange.mock.calls.map(([v]) => v?.name)).toEqual(["Cinder"]);
+});
+
+test("onCreateOption: clearing while the new option is on its way keeps it cleared", async () => {
+  let land!: (project: Project) => void;
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <Picker
+      value={PROJECTS[0]}
+      clearable
+      onValueChange={onValueChange}
+      onCreateOption={() =>
+        new Promise<Project>((resolve) => {
+          land = resolve;
+        })
+      }
+    />,
+  );
+  await screen.getByRole("combobox").click();
+  await screen.getByPlaceholder("Search projects…").fill("Dune");
+  await userEvent.keyboard("{Enter}");
+  await screen.getByRole("button", { name: "Clear selection" }).click();
+  land({ id: "dune", name: "Dune" });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onValueChange.mock.calls.map(([v]) => v)).toEqual([null]);
+});

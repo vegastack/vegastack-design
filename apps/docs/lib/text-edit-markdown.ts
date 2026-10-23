@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.67 sha256-XZxTsLNZ8aITJO3D9EhBzkq8+IfDfrQ0M6HwGfTMMwE=
+// @vegastack text-edit-markdown@0.25.67 sha256-NoC+b4UPUvWaL+s75D8Xq1TGbFI7f0/mNZztys1DfSM=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -556,7 +556,21 @@ function normalizeParsed(node: JSONContent): JSONContent {
 }
 
 let sharedManager: MarkdownManager | undefined;
-const manager = () => (sharedManager ??= createMarkdownManager());
+/**
+ * The shared manager — or, for a host's live block names (`liveBlockKinds`), one per set of
+ * names, made the first time it is asked for.
+ */
+const kindManagers = new Map<string, MarkdownManager>();
+const manager = (liveBlockKinds?: readonly string[]) => {
+  if (!liveBlockKinds) return (sharedManager ??= createMarkdownManager());
+  const key = liveBlockKinds.join(",");
+  let found = kindManagers.get(key);
+  if (!found) {
+    found = createMarkdownManager(textEditExtensions({ liveBlockKinds }));
+    kindManagers.set(key, found);
+  }
+  return found;
+};
 
 /**
  * `node` with no mark twice on one text: emphasis inside emphasis (`*a _b_ c*`) parses to the same
@@ -641,6 +655,12 @@ function assignBlockIds(node: JSONContent, next: () => string): JSONContent {
 export interface MarkdownToDocOptions {
   /** Makes each new block id. Default: a random UUID (`blockId`). */
   blockId?: () => string;
+  /**
+   * The live block names to read (`:::<name>{…}` … `:::`), as the editor's `liveBlockKinds`; any
+   * other name stays text.
+   * @default ["tasks"]
+   */
+  liveBlockKinds?: readonly string[];
 }
 
 /**
@@ -655,7 +675,7 @@ export function markdownToDoc(
   markdown: string,
   options: MarkdownToDocOptions = {},
 ): PMNode {
-  const json = manager().parse(markdown);
+  const json = manager(options.liveBlockKinds).parse(markdown);
   const content = json.content?.length ? json.content : [{ type: "paragraph" }];
   const doc = textEditSchema().nodeFromJSON(
     assignBlockIds({ type: "doc", content }, options.blockId ?? blockId),
@@ -718,8 +738,11 @@ function withLabels(
  * @example
  * normalizeMarkdown("* one\n* two"); // "- one\n- two"
  */
-export function normalizeMarkdown(markdown: string): string {
-  return docToMarkdown(markdownToDoc(markdown));
+export function normalizeMarkdown(
+  markdown: string,
+  options: Pick<MarkdownToDocOptions, "liveBlockKinds"> = {},
+): string {
+  return docToMarkdown(markdownToDoc(markdown, options));
 }
 
 /**

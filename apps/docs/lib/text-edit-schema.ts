@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.67 sha256-xTvlrpokkHVPAsRQ0JU4qbKUkxdvcgknhJzO3qlR4mQ=
+// @vegastack text-edit-schema@0.25.67 sha256-Z8PkzDB2rryHvknaWjCojjWWJH1/KP0p2un7OKZHfec=
 
 import {
   Extension,
@@ -46,8 +46,10 @@ import { UniqueID } from "@tiptap/extension-unique-id";
 import {
   CALLOUT_BLOCK,
   MEDIA_BLOCK,
-  readTasksDirective,
-  tasksDirectiveMarkdown,
+  DEFAULT_LIVE_BLOCK_KINDS,
+  LIVE_BLOCK_NAME,
+  readLiveBlock,
+  liveBlockMarkdown,
   codeFenceInfo,
   imageMarkdown,
   isTailOf,
@@ -113,12 +115,19 @@ export interface TextEditSchemaOptions {
    * take the change mark (their text takes no other). Never for a live document.
    */
   diff?: boolean;
+  /**
+   * The live block names Markdown reads (`:::<name>{…}` … `:::`), each stored as a `taskQuery`
+   * node with that `kind`. A block of any other name stays text and a list. Read once, when the
+   * extensions are built.
+   * @default DEFAULT_LIVE_BLOCK_KINDS — `["tasks"]`
+   */
+  liveBlockKinds?: readonly string[];
 }
 
 /**
  * The blocks that carry a stable `blockId` (`data-blockId` in HTML, read back as `data-blockid`):
  * heading links, per-viewer toggle state, anchors and section keys all point at it. Markdown never carries one — except a
- * live task list's (`taskQuery`), whose `:::tasks{id="…"}` is its `blockId`: its snapshots and
+ * live block's (`taskQuery`), whose `:::<kind>{id="…"}` is its `blockId`: its snapshots and
  * the host's records of it are keyed by that id.
  */
 export const BLOCK_ID_TYPES = [
@@ -479,6 +488,9 @@ export function trimInline(run: JSONContent[]): JSONContent[] {
   return nodes.filter((node) => node.type !== "text" || node.text);
 }
 
+/** A line a live block could open (`:::<name>{`), whichever names the reader takes. */
+const LIVE_BLOCK_START = new RegExp(`^:::${LIVE_BLOCK_NAME}\\{`);
+
 /**
  * Text at the start of a line that Markdown would read as block syntax — a heading, a quote, a list
  * item, a rule, a setext underline, an HTML block, or leading spaces (indented code). Each line of
@@ -488,8 +500,8 @@ function escapeLineStart(line: string): string {
   if (/^[ \t]/.test(line))
     return `${line[0] === "\t" ? "&#9;" : "&#32;"}${line.slice(1)}`;
   if (/^#{1,6}(?:[ \t]|$)/.test(line)) return `\\${line}`;
-  // A live task list's opening line (`:::tasks{…}`).
-  if (line.startsWith(":::tasks{")) return `\\${line}`;
+  // A live block's opening line (`:::tasks{…}`, or any name a host may read: `liveBlockKinds`).
+  if (LIVE_BLOCK_START.test(line)) return `\\${line}`;
   if (
     /^(?:>|<[a-zA-Z/!?]|=+[ \t]*$|[-+](?:[ \t]|$)|(?:-[ \t]*){3,}$)/.test(line)
   )
@@ -1443,6 +1455,11 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
   });
 }
 
+/** A live block's `kind` attribute: `null` for a task list (`tasks`), else its name. */
+function liveKindAttr(kind: unknown): string | null {
+  return typeof kind === "string" && kind && kind !== "tasks" ? kind : null;
+}
+
 /** A `taskQuery` node's `query` attribute: an object of strings (anything else reads as none). */
 function queryAttr(value: unknown): Record<string, string> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -1453,14 +1470,22 @@ function queryAttr(value: unknown): Record<string, string> {
 }
 
 /**
- * A live task list — an atom block `{ blockId, query, snapshot }`: `query` is its filter (the
+ * A live block — an atom block `{ blockId, kind, query, snapshot }`: `kind` is its name (`null`
+ * for `tasks`, a live task list; another name when the host reads others: `liveBlockKinds`), `query` its filter (the
  * directive's attributes other than `id`, unknown keys kept), `snapshot` the rows last stored
- * (`- [ ] [@Title](mention://task/<id>) — <status>` lines). Markdown: `:::tasks{id="…" …}`, the
- * rows, `:::` (`readTasksDirective`) — the one block whose `blockId` is written. The host draws it
- * live (`TextEdit`'s `renderTaskQuery`); without one, and in `MarkdownView`, the snapshot shows as
- * a quiet read-only list.
+ * (`- [ ] [@Title](mention://task/<id>) — <status>` lines). Markdown: `:::<kind>{id="…" …}`, the
+ * rows, `:::` (`readLiveBlock`) — the one block whose `blockId` is written. The node keeps its
+ * stored name, `taskQuery`, whatever its kind (every shared document's state holds that name).
+ * The host draws it live (`TextEdit`'s `renderLiveBlock`, or `renderTaskQuery` for `tasks`);
+ * without one, and in `MarkdownView`, the snapshot shows as a quiet read-only list.
  */
-function taskQueryNode(view: (() => NodeViewRenderer) | undefined) {
+function taskQueryNode(
+  view: (() => NodeViewRenderer) | undefined,
+  liveBlockKinds: readonly string[],
+) {
+  const names = liveBlockKinds.filter((name) =>
+    new RegExp(`^${LIVE_BLOCK_NAME}$`).test(name),
+  );
   return Node.create({
     name: "taskQuery",
     group: "block",
@@ -1469,6 +1494,15 @@ function taskQueryNode(view: (() => NodeViewRenderer) | undefined) {
     selectable: true,
     addAttributes() {
       return {
+        // `null` is a live task list (`tasks`): a task list's node stores no `kind`, so its
+        // Markdown, HTML and shared-document state are exactly what they were before kinds.
+        kind: {
+          default: null,
+          parseHTML: (element) =>
+            liveKindAttr(element.getAttribute("data-kind")),
+          renderHTML: (attrs) =>
+            attrs.kind ? { "data-kind": String(attrs.kind) } : {},
+        },
         query: {
           default: {},
           parseHTML: (element) => {
@@ -1507,13 +1541,14 @@ function taskQueryNode(view: (() => NodeViewRenderer) | undefined) {
     markdownTokenizer: {
       name: "taskQuery",
       level: "block",
-      start: lineStart(/:::tasks\{/),
+      start: lineStart(new RegExp(`:::(?:${names.join("|") || "(?!)"})\\{`)),
       tokenize: (src: string) => {
-        const block = readTasksDirective(src);
+        const block = readLiveBlock(src, { names });
         if (!block) return undefined;
         return {
           type: "taskQuery",
           raw: block.raw,
+          kind: block.kind,
           blockId: block.id,
           query: block.query,
           snapshot: block.snapshot,
@@ -1523,11 +1558,13 @@ function taskQueryNode(view: (() => NodeViewRenderer) | undefined) {
     parseMarkdown: (token, helpers) =>
       helpers.createNode("taskQuery", {
         ...(token.blockId ? { blockId: token.blockId } : {}),
+        kind: liveKindAttr(token.kind),
         query: token.query ?? {},
         snapshot: token.snapshot ?? "",
       }),
     renderMarkdown: (node) =>
-      tasksDirectiveMarkdown({
+      liveBlockMarkdown({
+        kind: node.attrs?.kind,
         id: node.attrs?.blockId,
         query: queryAttr(node.attrs?.query),
         snapshot: node.attrs?.snapshot,
@@ -1570,7 +1607,8 @@ function fileChipAttribute(prefix: () => string) {
 /**
  * Every extension of `TextEdit`'s document, configured exactly as the editor uses it, then the
  * caller's `plugins`. The schema is the same whatever the options: node views, highlighting and
- * plugins change how a document renders and behaves, never what it holds.
+ * plugins change how a document renders and behaves, never what it holds (`liveBlockKinds`
+ * changes which Markdown blocks read as live blocks, not the nodes that hold them).
  *
  * @example
  * // A server: the schema and Markdown rules only.
@@ -1636,7 +1674,10 @@ export function textEditExtensions(
     mediaNode("video", view.video),
     mediaNode("audio", view.audio),
     embedNode(view.embed),
-    taskQueryNode(view.taskQuery),
+    taskQueryNode(
+      view.taskQuery,
+      options.liveBlockKinds ?? DEFAULT_LIVE_BLOCK_KINDS,
+    ),
     fileChipAttribute(options.fileLinkPrefix ?? (() => "")),
     // Stable block ids: the attribute is always in the schema; only a collaborative editor assigns
     // ids as blocks appear (a server assigns them when it converts Markdown: `markdownToDoc`).

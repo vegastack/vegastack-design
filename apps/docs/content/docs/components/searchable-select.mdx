@@ -183,6 +183,20 @@ lists the headings that come first whatever the rows' order.
   file="components/preview/searchable-select.tsx"
 />
 
+### Add an option
+
+`onCreateOption(query)` lets the reader add what they typed. While the search text matches no
+option's label exactly (ignoring case and the spaces around it), the list ends with an
+"Add “text”" row (`createLabel`), reached with the arrows and Enter like any option, and the empty
+message gives way to it. Choosing it calls `onCreateOption` with the trimmed text; the option the
+promise resolves with becomes the selection, or joins it with `multiple`. A rejected promise
+selects nothing, so report the failure from your handler.
+
+<ComponentPreview
+  name="searchableSelectCreate"
+  file="components/preview/searchable-select.tsx"
+/>
+
 ### Disabled
 
 <ComponentPreview

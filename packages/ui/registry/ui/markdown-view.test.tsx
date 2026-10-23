@@ -138,6 +138,8 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
       "[&_p.is-editor-empty:first-child]:before:text-muted-foreground/60",
       "[&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
       "[&.ProseMirror-focused_p.is-editor-empty:first-child]:before:content-['Type_/_for_commands']",
+      // The room under a last table or audio block, to click past it (`te-open-end`).
+      "[&.te-open-end]:pb-6",
       "[&_.tableWrapper]:max-w-full",
       "[&_.tableWrapper]:my-2",
       "[&_.tableWrapper]:w-full",
@@ -1403,6 +1405,40 @@ test("renderTaskQuery draws a live task list in place of its snapshot (read-only
   expect(
     screen.container.querySelector('[data-slot="markdown-task-list"]'),
   ).toBeNull();
+});
+
+test("live block names come from the host: `:::table` reads only when listed, and renderLiveBlock gets its kind", async () => {
+  const TABLE =
+    ':::table{id="b1" view="v1"}\n- [ ] [@Row](mention://row/r1)\n:::';
+  const plain = await render(<MarkdownView>{TABLE}</MarkdownView>);
+  expect(plain.container.textContent).toContain(':::table{id="b1" view="v1"}');
+  const draw = vi.fn((kind: string) => <p>Live {kind}</p>);
+  const live = await render(
+    <MarkdownView liveBlockKinds={["tasks", "table"]} renderLiveBlock={draw}>
+      {`${TABLE}\n\n${TASK_LIST}`}
+    </MarkdownView>,
+  );
+  await expect.element(live.getByText("Live table")).toBeInTheDocument();
+  await expect.element(live.getByText("Live tasks")).toBeInTheDocument();
+  expect(draw).toHaveBeenCalledWith("table", {
+    blockId: "b1",
+    query: { view: "v1" },
+    snapshot: "- [ ] [@Row](mention://row/r1)",
+    editable: false,
+  });
+  // renderTaskQuery draws only `tasks`; any other kind keeps its stored snapshot.
+  const tasksOnly = await render(
+    <MarkdownView
+      liveBlockKinds={["tasks", "table"]}
+      renderTaskQuery={() => <p>Task rows</p>}
+    >
+      {`${TABLE}\n\n${TASK_LIST}`}
+    </MarkdownView>,
+  );
+  await expect.element(tasksOnly.getByText("Task rows")).toBeInTheDocument();
+  expect(
+    tasksOnly.container.querySelectorAll('[data-slot="markdown-task-list"]'),
+  ).toHaveLength(1);
 });
 
 test("lines that do not make a live task list stay text and a list; TextEdit's HTML for one renders its snapshot", async () => {

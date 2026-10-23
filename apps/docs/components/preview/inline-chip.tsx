@@ -2,7 +2,15 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import { CircleDot } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  CircleDot,
+  FileText,
+  FolderKanban,
+  ListTodo,
+  Package,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/inline-chip` (dogfoods the registry) → auto-scanned.
 import {
@@ -19,7 +27,18 @@ const PEOPLE: Record<string, { name: string; email: string; image?: string }> =
     u2: { name: "Ben Okafor", email: "ben@acme.com" },
   };
 
+/** The app's record kinds: each one's glyph and noun (the design system knows only people, agents and files). */
+const HOST_KINDS: InlineChipResolver["kinds"] = {
+  page: { icon: <FileText />, noun: "Page" },
+  task: { icon: <ListTodo />, noun: "Task" },
+  meeting: { icon: <CalendarDays />, noun: "Meeting" },
+  customer: { icon: <Building2 />, noun: "Customer" },
+  project: { icon: <FolderKanban />, noun: "Project" },
+  product: { icon: <Package />, noun: "Product" },
+};
+
 const resolver: InlineChipResolver = {
+  kinds: HOST_KINDS,
   href: (kind, id) => `#${kind}-${id}`,
   person: (id) => PEOPLE[id],
   preview: (kind, id) =>
@@ -106,20 +125,26 @@ export function inlineChipContexts(): ReactNode {
 export function inlineChipStates(): ReactNode {
   return (
     <Wrapper className="block text-sm leading-7">
-      <p>
-        <InlineChip
-          kind="user"
-          label="Asha Rao"
-          person={{
-            name: "Asha Rao",
-            email: "asha@acme.com",
-            image: "/preview/avatar-1.svg",
-          }}
-        />{" "}
-        shared{" "}
-        <InlineChip kind="page" targetId="restricted:p9" label="Private page" />{" "}
-        — a page you cannot open.
-      </p>
+      <InlineChipProvider value={{ kinds: HOST_KINDS }}>
+        <p>
+          <InlineChip
+            kind="user"
+            label="Asha Rao"
+            person={{
+              name: "Asha Rao",
+              email: "asha@acme.com",
+              image: "/preview/avatar-1.svg",
+            }}
+          />{" "}
+          shared{" "}
+          <InlineChip
+            kind="page"
+            targetId="restricted:p9"
+            label="Private page"
+          />{" "}
+          — a page you cannot open.
+        </p>
+      </InlineChipProvider>
     </Wrapper>
   );
 }

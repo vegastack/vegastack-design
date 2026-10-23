@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.67 sha256-sSnmw0+9Jim+2k7DV1H/VsoUj111KiG3JrAy69kBo/g=
+// @vegastack text-edit@0.25.67 sha256-FJzgkKTfKnLtmYyDTzCuquG5DA4WiIyyaKsltlmhDpQ=
 
 "use client";
 
@@ -17,6 +17,7 @@ import {
   type BlockViews,
   type MarkdownCitation,
   type MarkdownSectionMark,
+  type LiveBlockRender,
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
@@ -92,9 +93,30 @@ export const TEXT_EDIT_COMPACT_SLASH_COMMANDS: readonly TextEditSlashCommand[] =
  * Mentions, uploads, outline, comment anchors
  * ----------------------------------------------------------------------------------------------*/
 
+/**
+ * One kind the `@` menu offers (`TextEditMentions.kinds`): its id (`MENTION_KIND_PATTERN`), how
+ * it is named and drawn, and where its group sits.
+ */
+export interface MentionKindConfig {
+  /** The kind's id — written into the Markdown as `mention://<id>/…`. */
+  id: MentionKind;
+  /** One of it, in a sentence: "Page", "Family". */
+  noun: string;
+  /** The menu's group heading: "Pages", "Families". */
+  plural: string;
+  /**
+   * The kind's icon, in the menu and on the chip (16px in the menu, 1em on a chip). A built-in
+   * kind (`user`, `agent`) has its own; any other falls back to a link glyph.
+   * @default the built-in kind's icon, else a link glyph
+   */
+  icon?: React.ReactNode;
+  /** Where its group sits in the menu: lower first; kinds with the same order keep array order. */
+  order: number;
+}
+
 /** One result the `@` menu offers. */
 export interface MentionOption {
-  /** What it is: a person, a page, a file or a task. */
+  /** What it is: one of the menu's `kinds`. */
   kind: MentionKind;
   /** The target's id — written into the Markdown as `mention://<kind>/<id>`. */
   id: string;
@@ -110,12 +132,22 @@ export interface MentionOption {
    * @default undefined
    */
   icon?: React.ReactNode;
+  /**
+   * Shows the option under this heading ("Recent") instead of its kind's: every such group comes
+   * first, in the order its options arrive, ahead of the kinds' groups. Its kind must still be one
+   * of the menu's `kinds`.
+   * @default undefined — the kind's own group
+   */
+  group?: string;
 }
 
 /** The `@` menu's source: which kinds it offers, and the search behind it. */
 export interface TextEditMentions {
-  /** The kinds the menu offers, grouped in `MENTION_KINDS` order (People · Pages · Files · …). */
-  kinds: readonly MentionKind[];
+  /**
+   * The kinds the menu offers, each a group under its `plural` heading, in `order` (People ·
+   * Pages · Files · …). A result of a kind not listed here is not shown.
+   */
+  kinds: readonly MentionKindConfig[];
   /**
    * Results for what follows the `@`: asked at once when the menu opens, then 120ms after the
    * last keystroke. The signal aborts when the query changes; an answer is kept per query and
@@ -1387,6 +1419,23 @@ export interface TextEditProps {
    */
   renderTaskQuery?: (props: TaskQueryRenderProps) => React.ReactNode;
   /**
+   * Draws a live block of any kind — a `taskQuery` node with that `kind` attribute, `:::<kind>{…}`
+   * in Markdown (a name in `liveBlockKinds`) — with the host's own component, in the editor and in
+   * the read view before it. Called with the block's kind and the same props as
+   * `renderTaskQuery`. Given, it is asked for every kind, `tasks` included, and `renderTaskQuery`
+   * is not used. Returning `null`/`undefined` leaves the snapshot (`MarkdownTaskList`). Insert one
+   * with `{ type: "taskQuery", attrs: { kind, query, snapshot } }` (`kind: null` is a task list).
+   * @default undefined
+   */
+  renderLiveBlock?: LiveBlockRender;
+  /**
+   * The live block names Markdown reads (`:::<name>{…}` … `:::`), read when the editor is
+   * created; a block of any other name stays text and a list. A shared document's blocks come
+   * from its state, whatever their kind.
+   * @default ["tasks"]
+   */
+  liveBlockKinds?: readonly string[];
+  /**
    * Import an image pasted or dropped from another site: resolve with where your storage keeps a
    * copy (`src`). Each such image (one whose `src` is not this origin's or a `blob:`) is taken out
    * of the paste, shows an upload placeholder in its place, and lands as the stored image — or, when
@@ -2142,6 +2191,8 @@ export function TextEdit(props: TextEditProps) {
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}
               renderTaskQuery={props.renderTaskQuery}
+              renderLiveBlock={props.renderLiveBlock}
+              liveBlockKinds={props.liveBlockKinds}
               fileContentType={props.fileContentType}
               blockViews={props.blockViews}
               typeScale={typeScale}

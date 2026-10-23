@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.67 sha256-rgbSkG4W7aU0GVOR2GN+Iv6UeRkIDbbvLWb8FNyuleQ=
+// @vegastack markdown-view@0.25.67 sha256-2WxyWPU8ciNKc5c36nQymXVONB8WJMikzD+JSUxp7Xg=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -20,8 +20,9 @@ import { CodeBlock } from "@/components/ui/code-block";
 import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
 import {
   CALLOUT_MARKER,
+  DEFAULT_LIVE_BLOCK_KINDS,
+  LIVE_BLOCK_NAME,
   MEDIA_BLOCK,
-  MENTION_KINDS,
   TOGGLE_CLOSE,
   TOGGLE_OPEN,
   boundedTokenizers,
@@ -30,8 +31,9 @@ import {
   parseCodeFenceInfo,
   parseImageAlt,
   parseMentionLink,
+  isMentionKind,
   parseTaskListRows,
-  readTasksDirective,
+  readLiveBlock,
   trackedLexing,
   type CalloutTone,
   type MentionKind,
@@ -266,9 +268,12 @@ export const MEDIA_VIDEO_CLASS =
 /** An audio block: the native player, full width. */
 export const MEDIA_AUDIO_CLASS = "my-2 block w-full max-w-full";
 
-/** What a host's `renderTaskQuery` draws a live task list from (`TextEdit`, `MarkdownView`). */
+/**
+ * What a host's `renderLiveBlock` (or, for a live task list, `renderTaskQuery`) draws a live block
+ * from (`TextEdit`, `MarkdownView`).
+ */
 export interface TaskQueryRenderProps {
-  /** The list's block id — the directive's `id`, which the host keys the list by. */
+  /** The block's id — the directive's `id`, which the host keys the block by. */
   blockId: string;
   /** Its filter: the directive's other attributes (`v`, `space`, `assignee`, `status`, …), as written. */
   query: Record<string, string>;
@@ -284,6 +289,33 @@ export interface TaskQueryRenderProps {
    * @default undefined
    */
   setQuery?: (query: Record<string, string>) => void;
+}
+
+/** What a host's `renderLiveBlock` draws a live block from: the same props as a task list's. */
+export type LiveBlockRenderProps = TaskQueryRenderProps;
+
+/**
+ * Draws a live block of `kind` (`:::<kind>{…}`), or returns `null`/`undefined` to leave its stored
+ * snapshot.
+ */
+export type LiveBlockRender = (
+  kind: string,
+  props: LiveBlockRenderProps,
+) => React.ReactNode;
+
+/**
+ * The one drawing a host's two hooks make: `renderLiveBlock` for every kind when given, else
+ * `renderTaskQuery` for `tasks` alone. `undefined` when the host passed neither.
+ */
+export function liveBlockRenderer(
+  renderLiveBlock: LiveBlockRender | undefined,
+  renderTaskQuery:
+    ((props: TaskQueryRenderProps) => React.ReactNode) | undefined,
+): LiveBlockRender | undefined {
+  if (renderLiveBlock) return renderLiveBlock;
+  if (!renderTaskQuery) return undefined;
+  return (kind, props) =>
+    kind === "tasks" ? renderTaskQuery(props) : undefined;
 }
 
 /** A `tasks` element's `query` attribute (JSON) as its strings. */
@@ -534,8 +566,8 @@ function embedOf(paragraph: Tokens.Generic): El | null {
 }
 
 /**
- * A live task list (`:::tasks{…}` … `:::`, `readTasksDirective`) as one block token. Lines that do
- * not make one stay text and a list.
+ * A live block (`:::<name>{…}` … `:::`, `readLiveBlock`) of a name the view reads, as one block
+ * token. Lines that do not make one stay text and a list.
  */
 const TASKS_TOKEN = "markdownTasks";
 
@@ -564,58 +596,83 @@ function firstFrom(positions: number[], from: number): number {
 }
 
 /**
- * Where a live task list may start inside the paragraph opening `src`: a line opening with
- * `:::tasks{` before the paragraph's first blank line. The lines are found once per document
- * (marked hands this every paragraph's rest of the document), so the look costs a binary search.
+ * Where a live block of one of `names` may start inside the paragraph opening `src`: a line
+ * opening with `:::<name>{` before the paragraph's first blank line. The lines are found once per
+ * document (marked hands this every paragraph's rest of the document), so the look costs a binary
+ * search.
  */
-function tasksStart(this: unknown, src: string): number | undefined {
-  // Indexed once per block source (`lexFrame`); an untracked lexer indexes this call's `src`.
-  const frame = lexFrame(this, src);
-  const source = frame?.source ?? src;
-  let lines = frame?.memo.taskLines as
-    { tasks: number[]; blanks: number[] } | undefined;
-  if (!lines) {
-    lines = {
-      tasks: indexesOf(source, "\n:::tasks{"),
-      blanks: indexesOf(source, "\n\n"),
-    };
-    if (frame) frame.memo.taskLines = lines;
-  }
-  const offset = source.length - src.length;
-  const at = firstFrom(lines.tasks, offset);
-  if (at === -1) return undefined;
-  const blank = firstFrom(lines.blanks, offset);
-  return blank === -1 || at <= blank ? at - offset + 1 : undefined;
+function liveBlockStart(names: readonly string[]) {
+  const key = `liveLines:${names.join(",")}`;
+  return function (this: unknown, src: string): number | undefined {
+    // Indexed once per block source (`lexFrame`); an untracked lexer indexes this call's `src`.
+    const frame = lexFrame(this, src);
+    const source = frame?.source ?? src;
+    let lines = frame?.memo[key] as
+      { starts: number[]; blanks: number[] } | undefined;
+    if (!lines) {
+      lines = {
+        starts: names
+          .flatMap((name) => indexesOf(source, `\n:::${name}{`))
+          .sort((a, b) => a - b),
+        blanks: indexesOf(source, "\n\n"),
+      };
+      if (frame) frame.memo[key] = lines;
+    }
+    const offset = source.length - src.length;
+    const at = firstFrom(lines.starts, offset);
+    if (at === -1) return undefined;
+    const blank = firstFrom(lines.blanks, offset);
+    return blank === -1 || at <= blank ? at - offset + 1 : undefined;
+  };
 }
 
 /**
  * How the view lexes Markdown: GFM with the bounded tokenizers `TextEdit`'s parse uses (emphasis,
- * links and empty task items read alike, in linear time), plus live task lists.
+ * links and empty task items read alike, in linear time), plus the live blocks of `names` — one
+ * reader per set of names, made the first time it is asked for.
  */
 const lexing = trackedLexing(Lexer);
-const reader = new Marked({
-  gfm: true,
-  tokenizer: boundedTokenizers(Tokenizer.prototype),
-  extensions: [
-    {
-      name: TASKS_TOKEN,
-      level: "block",
-      start: tasksStart,
-      tokenizer(src: string) {
-        const block = readTasksDirective(src);
-        return block
-          ? {
-              type: TASKS_TOKEN,
-              raw: block.raw,
-              id: block.id ?? "",
-              query: block.query,
-              snapshot: block.snapshot,
-            }
-          : undefined;
-      },
-    },
-  ],
-});
+const readers = new Map<string, Marked>();
+function readerFor(liveBlockKinds: readonly string[]): Marked {
+  const names = liveBlockKinds.filter((name) =>
+    new RegExp(`^${LIVE_BLOCK_NAME}$`).test(name),
+  );
+  const key = names.join(",");
+  let reader = readers.get(key);
+  if (!reader) {
+    reader = new Marked({
+      gfm: true,
+      tokenizer: boundedTokenizers(Tokenizer.prototype),
+      extensions: names.length
+        ? [
+            {
+              name: TASKS_TOKEN,
+              level: "block",
+              start: liveBlockStart(names),
+              tokenizer(src: string) {
+                const block = readLiveBlock(src, { names });
+                return block
+                  ? {
+                      type: TASKS_TOKEN,
+                      raw: block.raw,
+                      kind: block.kind,
+                      id: block.id ?? "",
+                      query: block.query,
+                      snapshot: block.snapshot,
+                    }
+                  : undefined;
+              },
+            },
+          ]
+        : [],
+    });
+    readers.set(key, reader);
+  }
+  return reader;
+}
+
+/** The reader of the document being lexed now (`fromMarkdown` sets it for its synchronous run). */
+let reader = readerFor(DEFAULT_LIVE_BLOCK_KINDS);
 
 /** `source` as block tokens. */
 const lex = (source: string): Token[] =>
@@ -726,6 +783,7 @@ function blocks(
       case TASKS_TOKEN:
         out.push(
           el("tasks", {
+            kind: String(t.kind ?? "tasks"),
             id: String(t.id ?? ""),
             query: JSON.stringify(t.query ?? {}),
             snapshot: String(t.snapshot ?? ""),
@@ -1159,8 +1217,17 @@ function annotate(
   return drawn;
 }
 
-function fromMarkdown(source: string): DocNode[] {
-  return blocks(lex(source));
+function fromMarkdown(
+  source: string,
+  liveBlockKinds: readonly string[],
+): DocNode[] {
+  const outer = reader;
+  reader = readerFor(liveBlockKinds);
+  try {
+    return blocks(lex(source));
+  } finally {
+    reader = outer;
+  }
 }
 
 /* --- HTML → tree ------------------------------------------------------------------------------*/
@@ -1326,8 +1393,8 @@ function withSchemaNodes(nodes: DocNode[]): DocNode[] {
     if (typeof node === "string") return node;
     const slot = node.attrs["data-slot"];
     if (node.tag === "span" && node.attrs["data-type"] === "mention") {
-      const kind = node.attrs["data-kind"] as MentionKind;
-      if ((MENTION_KINDS as readonly string[]).includes(kind))
+      const kind = node.attrs["data-kind"] ?? "";
+      if (isMentionKind(kind))
         return el("mention", {
           kind,
           id: node.attrs["data-id"] ?? "",
@@ -1336,6 +1403,7 @@ function withSchemaNodes(nodes: DocNode[]): DocNode[] {
     }
     if (node.tag === "div" && node.attrs["data-type"] === "task-query")
       return el("tasks", {
+        kind: node.attrs["data-kind"] ?? "tasks",
         id: node.attrs["data-blockid"] ?? node.attrs["data-block-id"] ?? "",
         query: node.attrs["data-query"] ?? "{}",
         snapshot: node.attrs["data-snapshot"] ?? "",
@@ -1482,8 +1550,8 @@ interface RenderContext {
   citation?: (n: number) => MarkdownCitation | null | undefined;
   /** Fenced languages drawn by a block view (```mermaid → a diagram). */
   blockViews?: BlockViews;
-  /** Draws a live task list in place of its stored snapshot. */
-  renderTaskQuery?: (props: TaskQueryRenderProps) => React.ReactNode;
+  /** Draws a live block in place of its stored snapshot (`liveBlockRenderer`). */
+  renderLiveBlock?: LiveBlockRender;
   /**
    * Mark what the anchor text reads differently from the DOM (`data-anchor-text`): a mention or
    * file chip, a blocked image or media block — set while selections can be commented on.
@@ -2207,7 +2275,7 @@ function renderNode(
       );
     case "tasks": {
       const snapshot = attrs.snapshot ?? "";
-      const drawn = ctx.renderTaskQuery?.({
+      const drawn = ctx.renderLiveBlock?.(attrs.kind ?? "tasks", {
         blockId: attrs.id ?? "",
         query: queryOf(attrs.query),
         snapshot,
@@ -2540,6 +2608,20 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   renderTaskQuery?: (props: TaskQueryRenderProps) => React.ReactNode;
   /**
+   * Draws a live block of any kind (`:::<kind>{…}` … `:::`, a name in `liveBlockKinds`) in place
+   * of its stored snapshot, called with the block's kind and `editable: false`. Given, it is asked
+   * for every kind, `tasks` included, and `renderTaskQuery` is not used. Returning
+   * `null`/`undefined` leaves the snapshot (`MarkdownTaskList`).
+   * @default undefined
+   */
+  renderLiveBlock?: LiveBlockRender;
+  /**
+   * The live block names this view reads (`:::<name>{…}` … `:::`); a block of any other name
+   * stays text and a list. Markdown only.
+   * @default DEFAULT_LIVE_BLOCK_KINDS — `["tasks"]`
+   */
+  liveBlockKinds?: readonly string[];
+  /**
    * A file chip's content type, by its href, when the host knows it (a comment's own files): the
    * chip's icon then follows the type, not only the name's extension.
    * @default undefined
@@ -2634,6 +2716,8 @@ export function MarkdownView({
   citation,
   blockViews,
   renderTaskQuery,
+  renderLiveBlock,
+  liveBlockKinds = DEFAULT_LIVE_BLOCK_KINDS,
   className,
   ...props
 }: MarkdownViewProps) {
@@ -2643,7 +2727,8 @@ export function MarkdownView({
 
   if (!source.trim()) return null;
 
-  const parsed = format === "html" ? fromHtml(source) : fromMarkdown(source);
+  const parsed =
+    format === "html" ? fromHtml(source) : fromMarkdown(source, liveBlockKinds);
   const tree = citation && format !== "html" ? withCitations(parsed) : parsed;
 
   // Headings: ids (their words, or the host's slugs and block ids) and the outline.
@@ -2742,7 +2827,7 @@ export function MarkdownView({
         fileContentType,
         citation,
         blockViews,
-        renderTaskQuery,
+        renderLiveBlock: liveBlockRenderer(renderLiveBlock, renderTaskQuery),
         anchorAttrs: onCreateAnnotation !== undefined,
         sections: sectionMarks?.length
           ? sectionsOf(tree, sectionMarks)

@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.67 sha256-2l6l5VIsBVZ/x267sxoPg/9eYzeuAGKBb/eIA41B7i8=
+// @vegastack text-edit-grammar@0.25.67 sha256-VE6TT+Pl1u6t7KeoWJX+fO89M/SNAwC323TULP1F2ck=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -11,8 +11,9 @@
  * strikethrough and autolinks; plus `[@label](mention://<kind>/<id>)` mentions, GitHub's
  * `> [!NOTE]` callouts, `<details><summary>…</summary>` toggles, `<video>`/`<audio>` blocks on a
  * line of their own, `![alt|320](src)` image widths, `lang wrap` fence info and `<br>` line breaks
- * (in a table cell or a heading), and `:::tasks{…}` … `:::` live task lists (a container directive
- * whose rows are task mention lines). Any other raw HTML is literal text.
+ * (in a table cell or a heading), and `:::<name>{…}` … `:::` live blocks — `:::tasks` live task
+ * lists and any other block name the host reads (a container directive whose rows are task item
+ * lines). Any other raw HTML is literal text.
  */
 
 /** The VegaStack Markdown version this grammar and `@/lib/text-edit-markdown` read and write. */
@@ -20,52 +21,66 @@ export const VEGASTACK_MARKDOWN_VERSION = 1 as const;
 
 /* --- mentions ------------------------------------------------------------------------------------*/
 
-/** Every mention kind, in menu order. */
-export const MENTION_KINDS = [
-  "user",
-  "page",
-  "file",
-  "task",
-  "meeting",
-  "customer",
-  "project",
-  "product",
-  "family",
-  "agent",
-] as const;
+/**
+ * The mention kinds the design system knows itself: a person and a member's agent. Every other
+ * kind (a page, a task, a customer, …) is the host's: any id matching `MENTION_KIND_PATTERN`
+ * reads and writes, and the host names and draws it (`TextEditMentions.kinds`,
+ * `InlineChipResolver.kinds`).
+ */
+export const BUILT_IN_MENTION_KINDS = ["user", "agent"] as const;
 
-/** What a mention points at. */
-export type MentionKind = (typeof MENTION_KINDS)[number];
+/** What a mention points at: a built-in kind, or any host kind matching `MENTION_KIND_PATTERN`. */
+export type MentionKind =
+  (typeof BUILT_IN_MENTION_KINDS)[number] | (string & {});
 
 /**
- * A record mention (a page, a file, a task, …: anything but a person or a member's agent). Its
- * label is a record's title, which only readers who can open the record may see — so a shared
- * document stores it empty and each reader's chip resolves it. A person's or an agent's name is
- * visible to every member, so theirs is stored.
+ * A mention kind's id, as a regular-expression source (no anchors, no groups): a lowercase letter,
+ * then 1–31 lowercase letters, digits or `_`. The same text is a valid PostgreSQL pattern.
  */
-export function isRecordMentionKind(
-  kind: MentionKind,
-): kind is Exclude<MentionKind, "user" | "agent"> {
+export const MENTION_KIND_PATTERN = "[a-z][a-z0-9_]{1,31}";
+
+const MENTION_KIND_ID = new RegExp(`^${MENTION_KIND_PATTERN}$`);
+
+/**
+ * Whether `kind` is a well-formed mention kind (`MENTION_KIND_PATTERN`) — a built-in or a host's.
+ *
+ * @example
+ * isMentionKind("family"); // true
+ * isMentionKind("Family"); // false
+ */
+export function isMentionKind(kind: string): kind is MentionKind {
+  return MENTION_KIND_ID.test(kind);
+}
+
+/**
+ * A record mention (anything but a person or a member's agent). Its label is a record's title,
+ * which only readers who can open the record may see — so a shared document stores it empty and
+ * each reader's chip resolves it. A person's or an agent's name is visible to every member, so
+ * theirs is stored.
+ */
+export function isRecordMentionKind(kind: MentionKind): boolean {
   return kind !== "user" && kind !== "agent";
 }
 
 /** A target the reader may not open: the link carries the real id after this prefix. */
 export const RESTRICTED_MENTION_PREFIX = "restricted:";
 
-const KINDS = MENTION_KINDS.join("|");
-
 /**
- * `[@<label>](mention://<kind>/<id>)`, unanchored — the source of `MENTION_LINK`. The label escapes
- * `\`, `[` and `]` with a backslash; the id has no whitespace or parentheses. Build a scanning
+ * `[@<label>](mention://<kind>/<id>)`, unanchored — the source of `MENTION_LINK`. Groups: 1 the
+ * label, 2 the kind, 3 the id. The label escapes `\`, `[` and `]` with a backslash; the kind
+ * matches `MENTION_KIND_PATTERN`; the id has no whitespace or parentheses. Build a scanning
  * expression from it (`new RegExp(MENTION_LINK_SOURCE, "g")`) rather than sharing a global one.
  */
-export const MENTION_LINK_SOURCE = String.raw`\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(mention:\/\/(${KINDS})\/([^\s()]+)\)`;
+export const MENTION_LINK_SOURCE = String.raw`\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(mention:\/\/(${MENTION_KIND_PATTERN})\/([^\s()]+)\)`;
 
 /** A mention link at the start of a string. */
 export const MENTION_LINK = new RegExp(`^${MENTION_LINK_SOURCE}`);
 
-/** The same link as a PostgreSQL regular expression (`regexp_replace`, text search). */
-export const MENTION_LINK_SQL = String.raw`\[@([^\\\[\]\n]|\\[^\n])*\]\(mention://(${KINDS})/[^\s()]+\)`;
+/**
+ * The same link as a PostgreSQL regular expression (`regexp_replace`, text search), with the same
+ * groups as `MENTION_LINK_SOURCE`: 1 the label (escapes kept), 2 the kind, 3 the id.
+ */
+export const MENTION_LINK_SQL = String.raw`\[@((?:[^\\\[\]\n]|\\[^\n])*)\]\(mention://(${MENTION_KIND_PATTERN})/([^\s()]+)\)`;
 
 /** A label as a mention link (or any bracketed text) carries it: `\`, `[` and `]` escaped. */
 export function escapeMentionLabel(label: string): string {
@@ -357,19 +372,35 @@ function directiveValue(value: string): string {
   return value.replace(/\n/g, " ").replace(/["\\]/g, "\\$&");
 }
 
-/** `:::tasks{…}` — a live task list's opening line, at column 0; its attributes are group 1. */
-const TASKS_DIRECTIVE_OPEN = /^:::tasks\{([^\n]*)\}[ \t]*(?:\n|$)/;
+/**
+ * A live block's name — the word after `:::` — as a regular-expression source: a lowercase
+ * letter, then lowercase letters, digits or `_`. Which names a document reads is the host's list
+ * (`liveBlockKinds`); any other name stays text.
+ */
+export const LIVE_BLOCK_NAME = "[a-z][a-z0-9_]*";
+
+/** The live blocks read when the host names none: the live task list alone. */
+export const DEFAULT_LIVE_BLOCK_KINDS: readonly string[] = ["tasks"];
+
+const LIVE_BLOCK_NAME_ID = new RegExp(`^${LIVE_BLOCK_NAME}$`);
+
+/** `:::<name>{…}` — a live block's opening line, at column 0: the name is group 1, attributes 2. */
+const LIVE_BLOCK_OPEN = new RegExp(
+  `^:::(${LIVE_BLOCK_NAME})\\{([^\\n]*)\\}[ \\t]*(?:\\n|$)`,
+);
 
 /** `:::` — the line that closes a container directive. */
 const DIRECTIVE_CLOSE = /^:::[ \t]*(?:\n|$)/;
 
-/** A live task list's row: `- [ ] ` or `- [x] ` and its text. */
+/** A live block's row: `- [ ] ` or `- [x] ` and its text. */
 const TASK_ROW = /^- \[[ xX]\] [^\n]*\S[^\n]*$/;
 
-/** A live task list read from Markdown (`readTasksDirective`). */
-export interface TasksDirective {
+/** A live block read from Markdown (`readLiveBlock`). */
+export interface LiveBlockDirective {
   /** Everything the block spans: its opening line, rows and closing line (and that line's newline). */
   raw: string;
+  /** The block's name, after `:::` — `"tasks"` for a live task list. */
+  kind: string;
   /** The `id` attribute — the block's `blockId`. `null` when the directive has none. */
   id: string | null;
   /** Every other attribute, in order, unknown keys included. */
@@ -378,8 +409,18 @@ export interface TasksDirective {
   snapshot: string;
 }
 
+/** Options for `readLiveBlock`. */
+export interface ReadLiveBlockOptions {
+  /**
+   * The block names the host reads (`liveBlockKinds`); a block of any other name stays text.
+   * @default DEFAULT_LIVE_BLOCK_KINDS
+   */
+  names?: readonly string[];
+}
+
 /**
- * Read a live task list at the start of `source` — `:::tasks{<attrs>}`, its rows, `:::`:
+ * Read a live block at the start of `source` — `:::<name>{<attrs>}`, its rows, `:::` — where
+ * `<name>` is one of `names` (a live task list, `tasks`, when none are given):
  *
  * ```md
  * :::tasks{id="lb_9f2c" v="1" status="open"}
@@ -388,17 +429,21 @@ export interface TasksDirective {
  * ```
  *
  * Each row is a task item line (`- [ ] …`, `- [x] …`). `null` when `source` does not start with one
- * — no closing line, a line that is not a row, attributes that do not parse — so the lines stay
- * text and a list, as a renderer without directives shows them. Reads only the block's own lines.
+ * — another name, no closing line, a line that is not a row, attributes that do not parse — so
+ * the lines stay text and a list, as a renderer without directives shows them. Reads only the
+ * block's own lines.
  *
  * @example
- * readTasksDirective(':::tasks{id="a" v="1"}\n:::');
- * // { raw: ':::tasks{id="a" v="1"}\n:::', id: "a", query: { v: "1" }, snapshot: "" }
+ * readLiveBlock(':::tasks{id="a" v="1"}\n:::');
+ * // { raw: ':::tasks{id="a" v="1"}\n:::', kind: "tasks", id: "a", query: { v: "1" }, snapshot: "" }
  */
-export function readTasksDirective(source: string): TasksDirective | null {
-  const open = TASKS_DIRECTIVE_OPEN.exec(source);
-  if (!open) return null;
-  const attrs = parseDirectiveAttrs(open[1]!);
+export function readLiveBlock(
+  source: string,
+  { names = DEFAULT_LIVE_BLOCK_KINDS }: ReadLiveBlockOptions = {},
+): LiveBlockDirective | null {
+  const open = LIVE_BLOCK_OPEN.exec(source);
+  if (!open || !names.includes(open[1]!)) return null;
+  const attrs = parseDirectiveAttrs(open[2]!);
   if (!attrs) return null;
   const rows: string[] = [];
   for (let at = open[0].length; at <= source.length;) {
@@ -409,6 +454,7 @@ export function readTasksDirective(source: string): TasksDirective | null {
       const { id = null, ...query } = attrs;
       return {
         raw: source.slice(0, Math.min(end + 1, source.length)),
+        kind: open[1]!,
         id,
         query,
         snapshot: rows.join("\n"),
@@ -422,22 +468,26 @@ export function readTasksDirective(source: string): TasksDirective | null {
 }
 
 /**
- * A live task list as Markdown — the opening line (`id` first, then `query` in its order), the
- * snapshot's rows, `:::`. A snapshot line that is not a row is left out, so the block always reads
- * back as one.
+ * A live block as Markdown — the opening line (`:::<kind>`, `id` first, then `query` in its
+ * order), the snapshot's rows, `:::`. A snapshot line that is not a row is left out, so the block
+ * always reads back as one. A `kind` that is not a well-formed name (`LIVE_BLOCK_NAME`) writes
+ * `tasks`.
  *
  * @example
- * tasksDirectiveMarkdown({ id: "a", query: { v: "1" }, snapshot: "" }); // ':::tasks{id="a" v="1"}\n:::'
+ * liveBlockMarkdown({ kind: "tasks", id: "a", query: { v: "1" }, snapshot: "" }); // ':::tasks{id="a" v="1"}\n:::'
  */
-export function tasksDirectiveMarkdown({
+export function liveBlockMarkdown({
+  kind,
   id,
   query,
   snapshot,
 }: {
+  kind?: string | null;
   id?: string | null;
   query?: Record<string, unknown> | null;
   snapshot?: string | null;
 }): string {
+  const name = kind && LIVE_BLOCK_NAME_ID.test(kind) ? kind : "tasks";
   const pairs: string[] = [];
   if (id) pairs.push(`id="${directiveValue(String(id))}"`);
   for (const [key, value] of Object.entries(query ?? {}))
@@ -446,7 +496,7 @@ export function tasksDirectiveMarkdown({
   const rows = (snapshot ?? "")
     .split("\n")
     .filter((line) => TASK_ROW.test(line));
-  return [`:::tasks{${pairs.join(" ")}}`, ...rows, ":::"].join("\n");
+  return [`:::${name}{${pairs.join(" ")}}`, ...rows, ":::"].join("\n");
 }
 
 /** One row of a live task list's snapshot (`parseTaskListRows`). */

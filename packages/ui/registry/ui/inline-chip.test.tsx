@@ -3,13 +3,21 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { Building2, Layers, ListTodo } from "lucide-react";
 import {
-  INLINE_CHIP_KINDS,
   InlineChip,
   InlineChipProvider,
+  type InlineChipResolver,
 } from "./inline-chip";
 import { MarkdownView } from "./markdown-view";
 import { TextEdit } from "./text-edit";
+
+/** The record kinds a host names (`InlineChipResolver.kinds`). */
+const HOST_KINDS: InlineChipResolver["kinds"] = {
+  task: { icon: <ListTodo />, noun: "Task" },
+  customer: { icon: <Building2 />, noun: "Customer" },
+  family: { icon: <Layers />, noun: "Family" },
+};
 
 test("the label sits on the surrounding text's baseline", async () => {
   const screen = await render(
@@ -138,55 +146,82 @@ test("has no accessibility violations", async () => {
 });
 
 test("a person is the one coloured chip; every other kind is the neutral page chip with its own icon", async () => {
+  const others = ["agent", "file", "task", "customer", "family", "subfamily"];
   const screen = await render(
-    <p>
-      <InlineChip kind="user" label="Asha" data-testid="user" />
-      {INLINE_CHIP_KINDS.filter((kind) => kind !== "user").map((kind) => (
-        <InlineChip key={kind} kind={kind} label={kind} data-testid={kind} />
-      ))}
-    </p>,
+    <InlineChipProvider value={{ kinds: HOST_KINDS }}>
+      <p>
+        <InlineChip kind="user" label="Asha" data-testid="user" />
+        {others.map((kind) => (
+          <InlineChip key={kind} kind={kind} label={kind} data-testid={kind} />
+        ))}
+      </p>
+    </InlineChipProvider>,
   );
   const tone = (id: string) =>
     screen.getByTestId(id).element().getAttribute("class") ?? "";
+  const glyph = (id: string) =>
+    screen
+      .getByTestId(id)
+      .element()
+      .querySelector("[data-slot=inline-chip-icon]")!
+      .getAttribute("class")!;
   expect(tone("user")).toContain("bg-tag-blue-subtle");
-  const icons = new Set<string>();
-  for (const kind of INLINE_CHIP_KINDS.filter((k) => k !== "user")) {
+  for (const kind of others) {
     expect(tone(kind)).toContain("bg-muted");
     expect(tone(kind)).not.toMatch(/bg-tag-/);
-    if (kind !== "file")
-      icons.add(
-        screen
-          .getByTestId(kind)
-          .element()
-          .querySelector("svg")!
-          .getAttribute("class")!,
-      );
   }
-  // Told apart by the icon alone (a file's follows its type).
-  expect(icons.size).toBe(INLINE_CHIP_KINDS.length - 2);
-  expect(
-    screen
-      .getByTestId("agent")
-      .element()
-      .querySelector("svg")!
-      .getAttribute("class"),
-  ).toContain("lucide-bot");
+  // Built-ins draw their own glyph, a host kind the host's, an unnamed kind a link.
+  expect(glyph("agent")).toContain("lucide-bot");
+  expect(glyph("task")).toContain("lucide-list-todo");
+  expect(glyph("customer")).toContain("lucide-building-2");
+  expect(glyph("family")).toContain("lucide-layers");
+  expect(glyph("subfamily")).toContain("lucide-link-2");
+  // The host's glyph is set like a built-in one: 1em, nudged to the baseline, decorative.
+  expect(glyph("family")).toContain("size-[1em]");
   expect(
     screen
       .getByTestId("family")
       .element()
-      .querySelector("svg")!
-      .getAttribute("class"),
-  ).toContain("lucide-layers");
+      .querySelector("[data-slot=inline-chip-icon]"),
+  ).toHaveAttribute("aria-hidden", "true");
   await expectNoA11yViolations(screen.container);
+});
+
+test("the hover card names the kind with the host's noun, else Item", async () => {
+  const screen = await render(
+    <InlineChipProvider value={{ kinds: HOST_KINDS, preview: () => "Linear" }}>
+      <p>
+        <InlineChip kind="family" label="Linear" data-testid="family" />{" "}
+        <InlineChip kind="subfamily" label="Linear 2" data-testid="sub" />
+      </p>
+    </InlineChipProvider>,
+  );
+  await userEvent.hover(screen.getByTestId("family"));
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector("[data-inline-chip-card]")?.textContent,
+    ).toContain("Family"),
+  );
+  await userEvent.unhover(screen.getByTestId("family"));
+  await vi.waitFor(() =>
+    expect(document.querySelector("[data-inline-chip-card]")).toBeNull(),
+  );
+  await userEvent.hover(screen.getByTestId("sub"));
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector("[data-inline-chip-card]")?.textContent,
+    ).toContain("Item"),
+  );
 });
 
 test("a task chip shows the task glyph until done; done swaps in the check", async () => {
   const screen = await render(
-    <p>
-      <InlineChip kind="task" label="Open task" data-testid="open" />{" "}
-      <InlineChip kind="task" label="Done task" done data-testid="done" />
-    </p>,
+    <InlineChipProvider value={{ kinds: HOST_KINDS }}>
+      <p>
+        <InlineChip kind="task" label="Open task" data-testid="open" />{" "}
+        <InlineChip kind="task" label="Done task" done data-testid="done" />
+      </p>
+    </InlineChipProvider>,
   );
   const icon = (id: string) =>
     screen
@@ -198,6 +233,16 @@ test("a task chip shows the task glyph until done; done swaps in the check", asy
   expect(icon("done").getAttribute("class")).toContain("lucide-circle-check");
   expect(screen.getByTestId("done").element()).toHaveAttribute("data-done", "");
   expect(icon("done")).toHaveAttribute("aria-label", "Done");
+  // Done is the state on any kind, a file included.
+  const file = await render(
+    <InlineChip kind="file" label="report.pdf" done data-testid="file" />,
+  );
+  expect(
+    file
+      .getByTestId("file")
+      .element()
+      .querySelector("[data-slot=inline-chip-icon]"),
+  ).toHaveAttribute("aria-label", "Done");
   expect(icon("open")).toHaveAttribute("aria-hidden", "true");
 });
 

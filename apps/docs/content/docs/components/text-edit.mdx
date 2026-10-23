@@ -498,8 +498,13 @@ editor is created.
 ### Mentions
 
 `mentions={{ kinds, search }}` turns on `@`: typed after a space, an opening bracket or at the start
-of a line it opens a menu grouped People · Pages · Files · Tasks · Meetings · Customers · Projects · Products · Families · Your agents (only the `kinds`
-given, at most five each). The query may hold spaces — `@Asha Rao` searches the whole name — and two
+of a line it opens a menu grouped by kind, at most five each. The design system knows two kinds,
+`user` and `agent`; every other kind is the app's, and `kinds` names each one the menu offers —
+`{ id, noun, plural, icon?, order }`, its group heading the `plural`, the groups in `order` (ties
+in array order). A kind's id is any `[a-z][a-z0-9_]{1,31}`, so `[@Linear](mention://subfamily/s1)`
+reads and writes like a built-in. An option with a `group` ("Recent") shows under that heading
+instead, every such group first, in the order its options arrive. Give the same kinds to the
+`InlineChipProvider`'s `kinds` so every chip draws the kind's icon and noun. The query may hold spaces — `@Asha Rao` searches the whole name — and two
 spaces in a row, or a phrase that matches no one past a space, close the menu. `search` runs at
 once when the menu opens, then 120ms after the last keystroke, with an `AbortSignal` that aborts
 when the query changes. The menu opens on placeholder rows in its rows' geometry, as tall as its
@@ -545,7 +550,16 @@ as text, in a shared document too. Leaving the text before an answer comes leave
   format="markdown"
   defaultValue={page.body}
   mentions={{
-    kinds: ["user", "page"],
+    kinds: [
+      { id: "user", noun: "Person", plural: "People", order: 0 },
+      {
+        id: "page",
+        noun: "Page",
+        plural: "Pages",
+        icon: <FileText />,
+        order: 1,
+      },
+    ],
     search: (q, { signal }) => searchMentions(q, signal),
   }}
   mentionHref={(kind, id) => (kind === "page" ? `/library/${id}` : null)}
@@ -798,7 +812,8 @@ pasted images are kept as they are.
 
 ### Live task lists
 
-A live task list is a `taskQuery` block, an atom `{ blockId, query, snapshot }`. It is selectable
+A live task list is a `taskQuery` block, an atom `{ blockId, kind, query, snapshot }` whose
+`kind` is `null` (a task list stores no kind, so its shared state is unchanged). It is selectable
 and draggable like an image, and nothing inside it is edited. Its Markdown is a container
 directive:
 
@@ -811,8 +826,14 @@ directive:
 `blockId` is the directive's `id`. It is the one block id Markdown carries, because the host keys
 the list's records by it. `query` holds every other attribute as written, unknown keys included.
 `snapshot` holds the rows last stored. The block round-trips byte for byte. Lines that do not make
-a whole block stay text and a list, and a paragraph that starts with `:::tasks{` is written
-`\:::tasks{`, so it never turns into one. MarkdownView § Live task lists has the full grammar.
+a whole block stay text and a list, and a paragraph that starts with `:::<name>{` is written
+`\:::<name>{`, so it never turns into one. MarkdownView § Live task lists has the full grammar.
+
+The same node holds any other live block the app reads: `liveBlockKinds={["tasks", "table"]}`
+reads `:::table{…}` … `:::` as a `taskQuery` node with `kind: "table"` (the node keeps its stored
+name whatever its kind, since every shared document's state holds it). A name not in the list
+stays text. `renderLiveBlock(kind, props)` draws every kind, `tasks` included, with the same props
+as `renderTaskQuery`; without it `renderTaskQuery` draws `tasks` alone.
 
 `renderTaskQuery({ blockId, query, snapshot, editable })` draws the list with your own component,
 which fetches this reader's rows. It runs in the editor (`editable` follows the editor) and in the
@@ -820,7 +841,8 @@ read view before it (`editable: false`). In an editable editor it also gets `set
 which replaces the list's filter as one local edit (undoable, carried to collaborators); read views
 get none. Without it, or where it returns `null`, the snapshot shows
 as `MarkdownTaskList`'s quiet card. Insert a list from your own slash item with
-`{ type: "taskQuery", attrs: { query, snapshot } }`. A collaborative editor gives it a `blockId`.
+`{ type: "taskQuery", attrs: { query, snapshot } }` (add `kind` for another block). A
+collaborative editor gives it a `blockId`.
 
 ```tsx
 <TextEdit
