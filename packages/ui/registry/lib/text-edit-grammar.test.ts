@@ -1,12 +1,14 @@
 import { expect, test } from "vitest";
 import {
-  MENTION_KINDS,
+  MENTION_KIND_PATTERN,
   MENTION_LINK_SOURCE,
   codeFenceInfo,
   escapeMentionLabel,
   headingIds,
   imageMarkdown,
+  isMentionKind,
   isRecordMentionKind,
+  liveBlockMarkdown,
   markdownDestination,
   mediaMarkdown,
   mentionMarkdown,
@@ -15,12 +17,11 @@ import {
   parseDirectiveAttrs,
   parseMentionLink,
   parseTaskListRows,
-  readTasksDirective,
-  tasksDirectiveMarkdown,
+  readLiveBlock,
 } from "./text-edit-grammar";
 
 test("mentionMarkdown writes what parseMentionLink reads, escapes and all", () => {
-  for (const kind of MENTION_KINDS) {
+  for (const kind of ["user", "agent", "page", "family", "sub_family2"]) {
     const md = mentionMarkdown(kind, "x1", "Plan [draft] \\ v2\nnext");
     expect(md).toBe(`[@Plan \\[draft\\] \\\\ v2 next](mention://${kind}/x1)`);
     expect(parseMentionLink(`${md} tail`)).toEqual({
@@ -30,8 +31,33 @@ test("mentionMarkdown writes what parseMentionLink reads, escapes and all", () =
       label: "Plan [draft] \\ v2 next",
     });
   }
-  expect(parseMentionLink("[@a](mention://robot/1)")).toBeNull();
   expect(parseMentionLink("see [@a](mention://user/1)")).toBeNull();
+});
+
+test("any well-formed kind is a mention; an uppercase, empty or one-letter kind is not", () => {
+  // A kind the design system has never heard of reads and round-trips: the host names it.
+  const md = "[@Linear 2](mention://subfamily/sf1)";
+  expect(parseMentionLink(md)).toEqual({
+    raw: md,
+    kind: "subfamily",
+    id: "sf1",
+    label: "Linear 2",
+  });
+  expect(mentionMarkdown("subfamily", "sf1", "Linear 2")).toBe(md);
+  expect(isMentionKind("subfamily")).toBe(true);
+  for (const bad of [
+    "Family",
+    "",
+    "a",
+    "9lives",
+    "sub-family",
+    "x".repeat(33),
+  ]) {
+    expect(parseMentionLink(`[@a](mention://${bad}/1)`)).toBeNull();
+    expect(isMentionKind(bad)).toBe(false);
+  }
+  // The pattern is the one a database CHECK and `MENTION_LINK_SQL` use.
+  expect(MENTION_KIND_PATTERN).toBe("[a-z][a-z0-9_]{1,31}");
 });
 
 test("MENTION_LINK_SOURCE scans a whole text", () => {
@@ -44,18 +70,11 @@ test("MENTION_LINK_SOURCE scans a whole text", () => {
   expect(escapeMentionLabel("a[b]\\")).toBe("a\\[b\\]\\\\");
 });
 
-test("a record mention is anything but a person", () => {
+test("a record mention is anything but a person or an agent", () => {
   expect(isRecordMentionKind("user")).toBe(false);
-  expect(MENTION_KINDS.filter(isRecordMentionKind)).toEqual([
-    "page",
-    "file",
-    "task",
-    "meeting",
-    "customer",
-    "project",
-    "product",
-    "family",
-  ]);
+  expect(isRecordMentionKind("agent")).toBe(false);
+  expect(isRecordMentionKind("page")).toBe(true);
+  expect(isRecordMentionKind("subfamily")).toBe(true);
 });
 
 test("headingIds gives every heading a stable id, a repeat suffixed", () => {
@@ -139,31 +158,51 @@ test('parseDirectiveAttrs reads key="value" pairs, escapes and unknown keys; ref
   expect(parseDirectiveAttrs('Id="a"')).toBeNull();
 });
 
-test("readTasksDirective reads a whole live task list, or nothing", () => {
+test("readLiveBlock reads a whole live task list, or nothing", () => {
   const rows =
     "- [ ] [@Order glass](mention://task/t1) — To do\n- [x] [@Fix](mention://task/t2) — Done";
   const md = `:::tasks{id="lb_9f2c" v="1" status="open"}\n${rows}\n:::`;
-  expect(readTasksDirective(`${md}\n\nafter`)).toEqual({
+  expect(readLiveBlock(`${md}\n\nafter`)).toEqual({
     raw: `${md}\n`,
+    kind: "tasks",
     id: "lb_9f2c",
     query: { v: "1", status: "open" },
     snapshot: rows,
   });
-  expect(readTasksDirective(':::tasks{v="1"}\n:::')).toEqual({
+  expect(readLiveBlock(':::tasks{v="1"}\n:::')).toEqual({
     raw: ':::tasks{v="1"}\n:::',
+    kind: "tasks",
     id: null,
     query: { v: "1" },
     snapshot: "",
   });
   // No closing line, a line that is not a row, or attributes that do not parse: text.
-  expect(readTasksDirective(`:::tasks{id="a"}\n${rows}`)).toBeNull();
-  expect(readTasksDirective(':::tasks{id="a"}\nprose\n:::')).toBeNull();
-  expect(readTasksDirective(":::tasks{id=a}\n:::")).toBeNull();
-  expect(readTasksDirective(' :::tasks{id="a"}\n:::')).toBeNull();
+  expect(readLiveBlock(`:::tasks{id="a"}\n${rows}`)).toBeNull();
+  expect(readLiveBlock(':::tasks{id="a"}\nprose\n:::')).toBeNull();
+  expect(readLiveBlock(":::tasks{id=a}\n:::")).toBeNull();
+  expect(readLiveBlock(' :::tasks{id="a"}\n:::')).toBeNull();
 });
 
-test("tasksDirectiveMarkdown writes what readTasksDirective reads: id first, rows only", () => {
-  const md = tasksDirectiveMarkdown({
+test("readLiveBlock reads only the names the host reads; others stay text", () => {
+  const table = ':::table{id="b1" view="v1"}\n:::';
+  expect(readLiveBlock(table)).toBeNull();
+  expect(readLiveBlock(table, { names: ["tasks", "table"] })).toMatchObject({
+    kind: "table",
+    id: "b1",
+    query: { view: "v1" },
+  });
+  expect(
+    readLiveBlock(':::tasks{id="a"}\n:::', { names: ["table"] }),
+  ).toBeNull();
+  // A name outside `[a-z][a-z0-9_]*` is never a block, listed or not.
+  expect(
+    readLiveBlock(':::Table{id="b1"}\n:::', { names: ["Table"] }),
+  ).toBeNull();
+});
+
+test("liveBlockMarkdown writes what readLiveBlock reads: id first, rows only; `:::tasks` byte for byte", () => {
+  const md = liveBlockMarkdown({
+    kind: "tasks",
     id: "lb_1",
     query: { v: "1", note: 'a "b" \\ c', id: "ignored" },
     snapshot: "- [ ] [@A](mention://task/t1) — To do\nnot a row\n:::",
@@ -171,11 +210,30 @@ test("tasksDirectiveMarkdown writes what readTasksDirective reads: id first, row
   expect(md).toBe(
     ':::tasks{id="lb_1" v="1" note="a \\"b\\" \\\\ c"}\n- [ ] [@A](mention://task/t1) — To do\n:::',
   );
-  expect(readTasksDirective(md)).toMatchObject({
+  expect(readLiveBlock(md)).toMatchObject({
+    kind: "tasks",
     id: "lb_1",
     query: { v: "1", note: 'a "b" \\ c' },
   });
-  expect(tasksDirectiveMarkdown({ query: {}, snapshot: "" })).toBe(
+  expect(liveBlockMarkdown({ query: {}, snapshot: "" })).toBe(
+    ":::tasks{}\n:::",
+  );
+  // Every stored `:::tasks` block reads and writes back unchanged.
+  const stored =
+    ':::tasks{id="lb_9f2c" v="1" status="open"}\n- [ ] [@Order glass](mention://task/t1) — To do\n- [x] [@Fix](mention://task/t2) — Done\n:::';
+  const read = readLiveBlock(stored)!;
+  expect(
+    liveBlockMarkdown({
+      kind: read.kind,
+      id: read.id,
+      query: read.query,
+      snapshot: read.snapshot,
+    }),
+  ).toBe(stored);
+  expect(
+    liveBlockMarkdown({ kind: "table", id: "b1", query: { view: "v1" } }),
+  ).toBe(':::table{id="b1" view="v1"}\n:::');
+  expect(liveBlockMarkdown({ kind: "Bad-Name", query: {} })).toBe(
     ":::tasks{}\n:::",
   );
 });

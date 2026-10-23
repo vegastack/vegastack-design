@@ -14,6 +14,7 @@ import {
   preloadTextEdit,
   TEXT_EDIT_UPLOAD_ABORT,
   TextEdit,
+  type MentionKindConfig,
   type MentionOption,
   type TextEditAnchor,
   type TextEditHandle,
@@ -34,6 +35,18 @@ import {
 import { textEditSchema } from "../lib/text-edit-schema";
 import { Field as BaseField } from "@base-ui/react/field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+
+/** The `@` menu kinds a host names (`TextEditMentions.kinds`), in this order. */
+const TEST_KINDS: Record<string, { noun: string; plural: string }> = {
+  user: { noun: "Person", plural: "People" },
+  page: { noun: "Page", plural: "Pages" },
+  file: { noun: "File", plural: "Files" },
+  task: { noun: "Task", plural: "Tasks" },
+  family: { noun: "Family", plural: "Families" },
+  agent: { noun: "Agent", plural: "Your agents" },
+};
+const mentionKinds = (...ids: string[]): MentionKindConfig[] =>
+  ids.map((id, order) => ({ id, ...TEST_KINDS[id]!, order }));
 
 // TextEdit renders a light read view and loads its editor on intent; these tests exercise the
 // editor itself, so load it up front — every TextEdit then swaps it in right after mounting.
@@ -1794,7 +1807,7 @@ test("mentions: the menu asks at once, then once after the debounce; Enter inser
   ]);
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
-    mentions: { kinds: ["user", "page"], search },
+    mentions: { kinds: mentionKinds("user", "page"), search },
     onValueChange,
   });
   await screen.getByRole("textbox", { name: "Notes" }).click();
@@ -3085,7 +3098,7 @@ test("mentions: `@Asha Rao` searches the whole name; two spaces close the menu (
   );
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
-    mentions: { kinds: ["user"], search },
+    mentions: { kinds: mentionKinds("user"), search },
     onValueChange,
   });
   await screen.getByRole("textbox", { name: "Notes" }).click();
@@ -3116,7 +3129,7 @@ test("mentions: placeholder rows until the first answer; a query asked before sh
       : Promise.resolve([{ kind: "family", id: "f1", label: "Linear" }]),
   );
   const screen = await markdownEditor({
-    mentions: { kinds: ["user", "family"], search },
+    mentions: { kinds: mentionKinds("user", "family"), search },
   });
   await screen.getByRole("textbox", { name: "Notes" }).click();
   await userEvent.keyboard("@");
@@ -3160,11 +3173,61 @@ test("mentions: placeholder rows until the first answer; a query asked before sh
   );
 });
 
+test("mentions: groups follow the kinds' order under their plural; an option's own group (Recent) comes first", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    { kind: "page", id: "p1", label: "Q3 plan" },
+    { kind: "user", id: "u1", label: "Asha Rao" },
+    { kind: "subfamily", id: "s1", label: "Linear 2", group: "Recent" },
+    { kind: "family", id: "f1", label: "Linear" },
+    { kind: "page", id: "p2", label: "Spec", group: "Recent" },
+    // A kind the menu does not offer is not shown, in its group or another.
+    { kind: "meeting", id: "m1", label: "Kick-off", group: "Recent" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: [
+        { id: "user", noun: "Person", plural: "People", order: 0 },
+        { id: "family", noun: "Family", plural: "Families", order: 2 },
+        { id: "page", noun: "Page", plural: "Pages", order: 1 },
+        {
+          id: "subfamily",
+          noun: "Sub-family",
+          plural: "Sub-families",
+          order: 2,
+        },
+      ],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.getAttribute("role")).toBe("listbox"),
+  );
+  const groups = [...mentionMenu()!.querySelectorAll('[role="group"]')];
+  expect(groups.map((group) => group.firstElementChild?.textContent)).toEqual([
+    "Recent",
+    "People",
+    "Pages",
+    "Families",
+  ]);
+  expect(groups[0]!.textContent).toContain("Linear 2");
+  expect(groups[0]!.textContent).toContain("Spec");
+  expect(mentionMenu()!.textContent).not.toContain("Kick-off");
+  // A host kind without its own icon shows the link glyph.
+  expect(
+    groups[0]!
+      .querySelector('[data-slot="text-edit-mention-icon"] svg')
+      ?.getAttribute("class"),
+  ).toContain("lucide-link-2");
+  await expectNoA11yViolations(mentionMenu()!);
+});
+
 test("mentions: a remembered empty answer for a phrase past a space closes the menu again, pasted or typed", async () => {
   const search = vi.fn(async (_query: string): Promise<MentionOption[]> => []);
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
-    mentions: { kinds: ["user"], search },
+    mentions: { kinds: mentionKinds("user"), search },
     onValueChange,
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
@@ -4279,7 +4342,10 @@ test("collaboration: a record mention is stored without its title, and each read
     { kind: "page", id: "p1", label: "Q3 plan" },
   ];
   const { screen, shared } = await twoEditors("", {
-    a: { mentions: { kinds: ["page"], search }, mentionLabel: () => "Q3 plan" },
+    a: {
+      mentions: { kinds: mentionKinds("page"), search },
+      mentionLabel: () => "Q3 plan",
+    },
     b: { mentionLabel: () => null },
   });
   await screen.getByRole("textbox", { name: "A" }).click();
@@ -5145,7 +5211,11 @@ test("paste: an app link becomes its mention, Link turns it back, ⌘Z right aft
   );
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
-    mentions: { kinds: ["user", "family"], search: async () => [], fromUrl },
+    mentions: {
+      kinds: mentionKinds("user", "family"),
+      search: async () => [],
+      fromUrl,
+    },
     onValueChange,
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
@@ -5198,7 +5268,11 @@ test("paste: plain-text paste (⌘⇧V), a link to another target and rich conte
     }),
   );
   const screen = await markdownEditor({
-    mentions: { kinds: ["user", "task"], search: async () => [], fromUrl },
+    mentions: {
+      kinds: mentionKinds("user", "task"),
+      search: async () => [],
+      fromUrl,
+    },
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
   await box.click();
@@ -5241,7 +5315,7 @@ test("paste: typing on while the answer is on its way keeps the conversion (a sp
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     mentions: {
-      kinds: ["user", "task"],
+      kinds: mentionKinds("user", "task"),
       search: async () => [],
       fromUrl: () =>
         new Promise((resolve) => {
@@ -5303,7 +5377,7 @@ test("paste: submitting before the answer submits a link, and a late answer chan
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     mentions: {
-      kinds: ["user", "task"],
+      kinds: mentionKinds("user", "task"),
       search: async () => [],
       fromUrl: () =>
         new Promise((resolve) => {
@@ -5329,7 +5403,7 @@ test("paste: leaving before the answer commits a link, and a late answer changes
   const onCommit = vi.fn();
   const screen = await markdownEditor({
     mentions: {
-      kinds: ["user", "task"],
+      kinds: mentionKinds("user", "task"),
       search: async () => [],
       fromUrl: () =>
         new Promise((resolve) => {
@@ -6174,6 +6248,59 @@ test("taskQuery: renderTaskQuery draws the live list; it is an atom and its Mark
   editor.commands.insertContent("!");
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(`Intro!\n\n${TASK_LIST}`),
+  );
+});
+
+test("taskQuery: a host's live block kind reads with its kind, renderLiveBlock draws it, and both kinds round-trip byte for byte", async () => {
+  const TABLE = ':::table{id="b1" view="v1"}\n:::';
+  const draw = vi.fn((kind: string) => <p>Live {kind}</p>);
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: `Intro\n\n${TABLE}\n\n${TASK_LIST}`,
+    liveBlockKinds: ["tasks", "table"],
+    renderLiveBlock: draw,
+    onValueChange,
+  });
+  await expect.element(screen.getByText("Live table")).toBeInTheDocument();
+  await expect.element(screen.getByText("Live tasks")).toBeInTheDocument();
+  expect(draw).toHaveBeenCalledWith(
+    "table",
+    expect.objectContaining({ blockId: "b1", query: { view: "v1" } }),
+  );
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  const kinds: unknown[] = [];
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "taskQuery") kinds.push(node.attrs.kind);
+  });
+  expect(kinds).toEqual(["table", "tasks"]);
+  // A task list's HTML is unchanged: only another kind writes `data-kind`.
+  expect(editor.getHTML()).toContain('data-kind="table"');
+  expect(editor.getHTML().match(/data-kind="tasks"/g)).toBeNull();
+  editor.commands.setTextSelection(6);
+  editor.commands.insertContent("!");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro!\n\n${TABLE}\n\n${TASK_LIST}`),
+  );
+});
+
+test("taskQuery: a name the host does not read stays text, and a paragraph opening like one is escaped", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: ':::table{id="b1"}',
+    onValueChange,
+  });
+  expect(
+    screen.container.querySelector('[data-slot="text-edit-task-query"]'),
+  ).toBeNull();
+  const editor = editorOf(
+    screen.getByRole("textbox", { name: "Notes" }).element(),
+  ) as unknown as Editor;
+  editor.commands.setTextSelection(editor.state.doc.content.size - 1);
+  editor.commands.insertContent("!");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe('\\:::table{id="b1"}!'),
   );
 });
 

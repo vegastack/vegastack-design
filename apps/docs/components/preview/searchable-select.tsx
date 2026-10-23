@@ -326,6 +326,45 @@ export function searchableSelectMultiple(): ReactNode {
   );
 }
 
+interface Tag {
+  id: string;
+  name: string;
+}
+
+/**
+ * Add an option — type a name no option has and the list ends with "Add “name”"; Enter (or a
+ * click) adds it and selects it.
+ */
+export function searchableSelectCreate(): ReactNode {
+  const [tags, setTags] = React.useState<Tag[]>([
+    { id: "urgent", name: "Urgent" },
+    { id: "review", name: "Needs review" },
+  ]);
+  const [value, setValue] = React.useState<Tag[]>([]);
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xs">
+        <SearchableSelect<Tag, true>
+          multiple
+          items={tags}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(tag) => tag.id}
+          itemToStringLabel={(tag) => tag.name}
+          onCreateOption={async (name) => {
+            const tag = { id: name.toLowerCase(), name };
+            setTags((all) => [...all, tag]);
+            return tag;
+          }}
+          searchLabel="Search or add a tag"
+          placeholder="Select tags"
+          aria-label="Tags"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
 interface Member extends Person {
   id: string;
   email: string;

@@ -1,21 +1,9 @@
-// @vegastack inline-chip@0.25.67 sha256-R4usQAaaO+9rh5OXLN8LEnq81VrKW8ERkhiFn+ZTsL4=
+// @vegastack inline-chip@0.25.67 sha256-UO6ysOIvQl0M98JN/ouh9Q8sRVzpS5HnxbkyhqMSfZc=
 
 "use client";
 
 import * as React from "react";
-import {
-  Bot,
-  Building2,
-  CalendarDays,
-  CircleCheck,
-  FileText,
-  FolderKanban,
-  Layers,
-  ListTodo,
-  Package,
-  UserRound,
-  type LucideIcon,
-} from "lucide-react";
+import { Bot, CircleCheck, Link2, UserRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
 import { PersonAvatar } from "@/components/ui/person-avatar";
@@ -28,8 +16,8 @@ import {
 } from "@/components/ui/hover-card";
 
 /* ------------------------------------------------------------------------------------------------
- * InlineChip — the one inline reference in running text: a person, page, file, task, meeting,
- * customer, project, product or product family, in an editor, a rendered Markdown body or a
+ * InlineChip — the one inline reference in running text: a person, an agent, a file or any record
+ * kind the host names (`InlineChipResolver.kinds`), in an editor, a rendered Markdown body or a
  * comment. It is an INLINE box, never inline-flex: an inline-flex box whose first item is an icon
  * takes its baseline from the icon's bottom edge, which lifts the label above the text beside it.
  * Here the label is ordinary inline text on the line's own baseline, the icon is a 1em glyph nudged down by the usual
@@ -38,32 +26,23 @@ import {
  * with it (`box-decoration-clone` keeps the ground and padding on both lines).
  * ----------------------------------------------------------------------------------------------*/
 
-/** What an inline chip points at. */
-export type InlineChipKind =
-  | "user"
-  | "page"
-  | "file"
-  | "task"
-  | "meeting"
-  | "customer"
-  | "project"
-  | "product"
-  | "family"
-  | "agent";
+/**
+ * What an inline chip points at: a person (`user`), a member's agent, a file (a file link's chip),
+ * or any kind the host names and draws (`InlineChipResolver.kinds`).
+ */
+export type InlineChipKind = "user" | "agent" | "file" | (string & {});
 
-/** Every inline chip kind, in menu order. */
-export const INLINE_CHIP_KINDS: readonly InlineChipKind[] = [
-  "user",
-  "page",
-  "file",
-  "task",
-  "meeting",
-  "customer",
-  "project",
-  "product",
-  "family",
-  "agent",
-];
+/** How the host names and draws one of its kinds (`InlineChipResolver.kinds`). */
+export interface InlineChipKindConfig {
+  /**
+   * The kind's glyph, set at 1em before the label. A `file` chip leads with its file type's icon
+   * whatever this is.
+   * @default a link glyph
+   */
+  icon?: React.ReactNode;
+  /** One of it, in a sentence: the hover card's kind word and the chip's description ("Page"). */
+  noun: string;
+}
 
 /** A person behind a `user` chip: the hover card's avatar, name and email. */
 export interface InlineChipPerson {
@@ -108,6 +87,12 @@ export interface InlineChipTarget {
  * or `Comments` can link, open and preview without threading props. A chip's own props win.
  */
 export interface InlineChipResolver {
+  /**
+   * The host's kinds, by id: each one's glyph and noun. A kind not listed here (and not built in:
+   * `user`, `agent`, `file`) shows a link glyph and the noun "Item".
+   * @default undefined
+   */
+  kinds?: Readonly<Record<string, InlineChipKindConfig>>;
   /** Where a chip links, by kind and id. `null` for no link. */
   href?: (kind: InlineChipKind, id: string) => string | null | undefined;
   /** The person behind a `user` chip, by id: the hover card shows them. */
@@ -190,38 +175,24 @@ export function useInlineChipResolver(): InlineChipResolver | null {
   return React.useContext(InlineChipContext);
 }
 
-/** Each kind's glyph. A task leads with the check only once it is done (`done`). */
-const KIND_ICON: Record<InlineChipKind, LucideIcon> = {
-  user: UserRound,
-  page: FileText,
-  file: FileText,
-  task: ListTodo,
-  meeting: CalendarDays,
-  customer: Building2,
-  project: FolderKanban,
-  product: Package,
-  family: Layers,
-  agent: Bot,
+/** The built-in kinds' glyphs and nouns; a `file` chip's glyph is its file type's icon. */
+const BUILT_IN_KIND: Record<
+  string,
+  { icon?: React.ReactElement; noun: string }
+> = {
+  user: { icon: <UserRound />, noun: "Person" },
+  agent: { icon: <Bot />, noun: "Agent" },
+  file: { noun: "File" },
 };
 
-/** The hover card's kind word, and the chip's accessible description. */
-export const INLINE_CHIP_KIND_LABEL: Record<InlineChipKind, string> = {
-  user: "Person",
-  page: "Page",
-  file: "File",
-  task: "Task",
-  meeting: "Meeting",
-  customer: "Customer",
-  project: "Project",
-  product: "Product",
-  family: "Family",
-  agent: "Agent",
-};
+/** A kind's noun: the host's, else the built-in one, else "Item". */
+function kindNoun(kind: InlineChipKind, resolver: InlineChipResolver | null) {
+  return resolver?.kinds?.[kind]?.noun ?? BUILT_IN_KIND[kind]?.noun ?? "Item";
+}
 
 /**
  * Each kind's ground and ink. A person is the one coloured chip (the tag blue, as on every person
- * surface); every record — a page, file, task, meeting, customer, project, product, family or
- * agent — wears the same neutral page chip and is told apart by its icon alone, so a paragraph of
+ * surface); every other chip — an agent, a file, any record — wears the same neutral page chip and is told apart by its icon alone, so a paragraph of
  * references reads as text rather than a legend. A restricted chip is muted whatever its kind.
  */
 const PERSON_TONE =
@@ -343,8 +314,7 @@ export interface InlineChipProps extends Omit<
    */
   status?: string;
   /**
-   * A finished target: a `task` chip leads with a check instead of the task glyph. Other kinds
-   * ignore it.
+   * A finished target (a done task): the chip leads with a check instead of its kind's glyph.
    * @default false
    */
   done?: boolean;
@@ -388,8 +358,7 @@ function safeUrl(value: string): string {
 }
 
 /**
- * `InlineChip` — a person, page, file, task, meeting, customer, project, product or family
- * referenced inline. It sits on the text's baseline at the text's size: a person on blue, every
+ * `InlineChip` — a person, an agent, a file or any record the host names, referenced inline. It sits on the text's baseline at the text's size: a person on blue, every
  * record on the one neutral ground with its kind's icon. A person chip previews the person
  * (avatar, name, email) on hover or focus; any other chip previews what `preview` returns
  * and opens on click (`onOpen`, else its `href`), with ⌘/Ctrl-click opening a link in a new tab.
@@ -501,7 +470,8 @@ export function InlineChip({
     }
   };
 
-  const KindIcon = kind === "task" && done ? CircleCheck : KIND_ICON[kind];
+  const kindIcon = resolver?.kinds?.[kind]?.icon ??
+    BUILT_IN_KIND[kind]?.icon ?? <Link2 />;
   // A person chip leads with their avatar — the photo, else their initials on their colour — as
   // a comment's avatar does; other chips with a photo show it too.
   const lead =
@@ -524,15 +494,24 @@ export function InlineChip({
         data-slot="inline-chip-icon"
         className={cn(ICON, "text-current")}
       />
-    ) : (
-      <KindIcon
-        // A done task's check is its state, so it is named; every other glyph is decoration.
-        {...(kind === "task" && done
-          ? { role: "img", "aria-label": "Done" }
-          : { "aria-hidden": true })}
+    ) : done ? (
+      // A done target's check is its state, so it is named; every other glyph is decoration.
+      <CircleCheck
+        role="img"
+        aria-label="Done"
         data-slot="inline-chip-icon"
         className={ICON}
       />
+    ) : React.isValidElement<{ className?: string }>(kindIcon) ? (
+      React.cloneElement(kindIcon, {
+        "aria-hidden": true,
+        "data-slot": "inline-chip-icon",
+        className: cn(ICON, kindIcon.props.className),
+      } as React.HTMLAttributes<HTMLElement>)
+    ) : (
+      <span aria-hidden data-slot="inline-chip-icon" className={ICON}>
+        {kindIcon}
+      </span>
     );
 
   const shared = {
@@ -541,7 +520,7 @@ export function InlineChip({
     "data-restricted": restricted ? "" : undefined,
     "data-inactive": person?.inactive ? "" : undefined,
     "data-struck": struck ? "" : undefined,
-    "data-done": kind === "task" && done ? "" : undefined,
+    "data-done": done ? "" : undefined,
     "data-interactive": opens || person ? "" : undefined,
     spellCheck: false,
     className: cn(CHIP, toneOf(kind), className),
@@ -679,7 +658,7 @@ export function InlineChip({
       className="flex min-w-0 flex-col gap-1"
     >
       <span className="text-xs text-muted-foreground">
-        {INLINE_CHIP_KIND_LABEL[kind]}
+        {kindNoun(kind, resolver)}
       </span>
       {typeof preview === "string" ? (
         <span className="text-sm font-medium wrap-anywhere">{preview}</span>

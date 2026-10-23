@@ -1914,7 +1914,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.25.67",
-        "integrity": "sha256-VfWsszjGGl0nRSk/HnASpSjvnCbK5WyajJDBQnYj+7A="
+        "integrity": "sha256-NkFkUoCndrA210rl7K6PdObk2HtlpAl1Sh6+G4MvCPg="
       }
     },
     {
@@ -2012,7 +2012,7 @@
         "version": "0.25.67",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-2l6l5VIsBVZ/x267sxoPg/9eYzeuAGKBb/eIA41B7i8="
+        "integrity": "sha256-B786gntB7kKDph4HfC6I3q3VGIghRP+pMHS3vmwxm/g="
       }
     },
     {
@@ -2077,7 +2077,7 @@
         "version": "0.25.67",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-xTvlrpokkHVPAsRQ0JU4qbKUkxdvcgknhJzO3qlR4mQ="
+        "integrity": "sha256-q4gHoSRIzp6fCqcc8ofR/XBLa+LL/Xw/HasZYrNgEYo="
       }
     },
     {
@@ -2425,7 +2425,8 @@
         "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/date-time"
       ],
       "files": [
         {
@@ -2438,7 +2439,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.67",
-        "integrity": "sha256-k3sr1RlG9L3KDXYYrY+tVVSq33fZuHjMB47N2yQ5z7w="
+        "integrity": "sha256-0S/DR4WbSt3quwSCFiIx1F4aP6gUINoQCSvTToeNOy0="
       }
     },
     {
@@ -16207,7 +16208,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.67",
-        "integrity": "sha256-R4usQAaaO+9rh5OXLN8LEnq81VrKW8ERkhiFn+ZTsL4="
+        "integrity": "sha256-UO6ysOIvQl0M98JN/ouh9Q8sRVzpS5HnxbkyhqMSfZc="
       }
     },
     {
@@ -16259,7 +16260,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.67",
-        "integrity": "sha256-rgbSkG4W7aU0GVOR2GN+Iv6UeRkIDbbvLWb8FNyuleQ="
+        "integrity": "sha256-2WxyWPU8ciNKc5c36nQymXVONB8WJMikzD+JSUxp7Xg="
       }
     },
     {
@@ -17572,7 +17573,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.67",
-        "integrity": "sha256-FYkKiJ07JXtw8Rn87jZ8wMPaXjbrXssP6f3uNfz8DBs="
+        "integrity": "sha256-G/o9OZc0Qae7rFQ5SEmlgK9I39gnQjDwIUNqybYhp5o="
       }
     },
     {
@@ -18372,7 +18373,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.67",
-        "integrity": "sha256-sSnmw0+9Jim+2k7DV1H/VsoUj111KiG3JrAy69kBo/g="
+        "integrity": "sha256-3kgZ+EYFTAboP7L1x+XA2u193oefHUDMjPhZh9yN2gs="
       }
     },
     {

@@ -94,23 +94,22 @@ the same neutral page chip and is told apart by its icon alone, so a paragraph o
 reads as text rather than a legend; state still shows (a done task's check, a closed task struck
 through, a restricted target muted).
 
-| Kind       | Icon             | Ground              | Ink               | Click                     |
-| ---------- | ---------------- | ------------------- | ----------------- | ------------------------- |
-| `user`     | photo, else user | `--tag-blue-subtle` | `--tag-blue-text` | none; hover card          |
-| `page`     | file-text        | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `file`     | the file's type  | `--muted`           | `--foreground`    | `onOpen` (viewer), `href` |
-| `task`     | list-todo        | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `meeting`  | calendar-days    | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `customer` | building-2       | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `project`  | folder-kanban    | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `product`  | package          | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `family`   | layers           | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
-| `agent`    | bot              | `--muted`           | `--foreground`    | none                      |
+The design system knows three kinds; every other kind is the app's. The provider's
+`kinds: { [id]: { icon?, noun } }` gives each app kind its glyph (set at 1em on the baseline) and
+its noun (the hover card's kind word); a kind it does not name shows a link glyph and "Item".
+
+| Kind     | Icon             | Ground              | Ink               | Click                     |
+| -------- | ---------------- | ------------------- | ----------------- | ------------------------- |
+| `user`   | photo, else user | `--tag-blue-subtle` | `--tag-blue-text` | none; hover card          |
+| `agent`  | bot              | `--muted`           | `--foreground`    | none                      |
+| `file`   | the file's type  | `--muted`           | `--foreground`    | `onOpen` (viewer), `href` |
+| app kind | `kinds[id].icon` | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
+| unnamed  | link-2           | `--muted`           | `--foreground`    | `onOpen`, else `href`     |
 
 ### Done and closed targets
 
-A task chip shows the task glyph whatever its task's state, so an open task never reads as done;
-`done` swaps it for a check named "Done" for screen readers once the task is finished, and the
+A chip shows its kind's glyph whatever its target's state, so an open task never reads as done;
+`done` swaps it for a check named "Done" for screen readers once the target is finished, and the
 chip carries `data-done`. `struck`
 strikes the label through and `status` adds a small muted tag after it. Use them for a target that
 was closed without being done, such as a canceled or duplicate task. The chip keeps its ground and

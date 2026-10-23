@@ -68,6 +68,7 @@ add the absolute time in a hover tooltip ("Sep 25, 2026 · 2:30 PM IST").
 | Page headers, greetings                  | `formatLongDate`; `hourOfDay` for the greeting              | Thursday, September 24                              |
 | Schedules, events                        | `formatDateRange`, `formatTimeOfDay`                        | Sep 25 · 2–3:30 PM                                  |
 | Grouped lists (inbox, activity)          | `groupByDay`                                                | Today / Yesterday / This week / Last week / Earlier |
+| Stored calendar days (a date field)      | `formatCalendarDate`; `parseCalendarDay` / `toCalendarDay`  | Oct 8, 2026 — the same day in every zone            |
 | API / JSON                               | ISO strings — never formatted text                          | 2026-09-25T09:00:00.000Z                            |
 
 ## Anatomy
@@ -133,6 +134,22 @@ Returns `{ label, tone }` — tone is `overdue`, `soon` (today/tomorrow) or `nor
   name="dateTimeDue"
   file="components/preview/relative-time.tsx"
 />
+
+### Calendar days
+
+A day stored without a time (`"2026-10-08"`: a due date, a date field) is not an instant, so it
+never goes through a zone. `formatCalendarDate(day, { locale, format })` writes the day it names —
+`short` "Oct 8, 2026", `long` "October 8, 2026", `numeric` "10/8/2026" — for a reader in UTC−8 and
+in UTC+13 alike, and `""` for an invalid day. `parseCalendarDay(day)` gives the local-midnight
+`Date` a `DatePicker` takes, and `toCalendarDay(date)` turns the picked `Date` back into the day,
+with no shift; `toCalendarDay(instant, { timeZone })` is the day an instant falls on in a zone
+("today" for a viewer).
+
+```ts
+formatCalendarDate("2026-10-08"); // "Oct 8, 2026"
+toCalendarDay(parseCalendarDay("2026-10-08")!); // "2026-10-08"
+toCalendarDay(new Date(), { timeZone }); // today, for this viewer
+```
 
 ### groupByDay
 

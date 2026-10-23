@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.67 sha256-sSnmw0+9Jim+2k7DV1H/VsoUj111KiG3JrAy69kBo/g=
+// @vegastack text-edit@0.25.67 sha256-3kgZ+EYFTAboP7L1x+XA2u193oefHUDMjPhZh9yN2gs=
 
 "use client";
 
@@ -99,10 +99,8 @@ import {
   Bold,
   Bot,
   ChevronDown,
-  Building2,
-  CalendarDays,
   CircleCheck,
-  FolderKanban,
+  Link2,
   Code,
   Copy,
   Download,
@@ -111,7 +109,6 @@ import {
   Eraser,
   ExternalLink,
   File as FileIcon,
-  FileText,
   GripHorizontal,
   GripVertical,
   Hash,
@@ -254,10 +251,12 @@ import {
   markdownExtrasClassName,
   sectionHeading,
   sectionMarkClassNames,
-  type TaskQueryRenderProps,
+  liveBlockRenderer,
+  type LiveBlockRender,
 } from "@/components/ui/markdown-view";
 import {
   CALLOUT_TONES,
+  DEFAULT_LIVE_BLOCK_KINDS,
   headingIds,
   isRecordMentionKind,
   type CalloutTone,
@@ -285,6 +284,7 @@ import {
   rangeToOffsets,
 } from "@/lib/text-anchor-doc";
 import type {
+  MentionKindConfig,
   MentionOption,
   TextEditAnchor,
   TextEditCollaboration,
@@ -305,7 +305,6 @@ import {
   type TextEditTaskItem,
   type TextEditTaskLink,
 } from "@/components/ui/text-edit";
-import { Layers, Package } from "lucide-react";
 
 /*
  * The heavy half of `TextEdit`: the Tiptap editor itself. `text-edit.tsx` renders the saved
@@ -2793,19 +2792,31 @@ function uploadPos(state: EditorState, id: string): number | null {
 
 const MENTION_KEY = new PluginKey("textEditMention");
 
-/** The mention kinds in menu order, with their group headings. */
-const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
-  { kind: "user", label: "People" },
-  { kind: "page", label: "Pages" },
-  { kind: "file", label: "Files" },
-  { kind: "task", label: "Tasks" },
-  { kind: "meeting", label: "Meetings" },
-  { kind: "customer", label: "Customers" },
-  { kind: "project", label: "Projects" },
-  { kind: "product", label: "Products" },
-  { kind: "family", label: "Families" },
-  { kind: "agent", label: "Your agents" },
-];
+/** The built-in kinds' glyphs (`user`, `agent`); a host kind without its own icon takes `Link2`. */
+const BUILT_IN_MENTION_ICON: Record<string, React.ReactElement> = {
+  user: <UserRound />,
+  agent: <Bot />,
+};
+
+/** A kind's menu icon: the host's, else the built-in glyph, else a link glyph — 16px. */
+function mentionKindIcon(config: MentionKindConfig | undefined, kind: string) {
+  const icon = config?.icon ?? BUILT_IN_MENTION_ICON[kind] ?? <Link2 />;
+  return React.isValidElement<{ className?: string }>(icon)
+    ? React.cloneElement(icon, {
+        className: cn("size-4", icon.props.className),
+      })
+    : icon;
+}
+
+/** The menu's kinds in group order: by `order`, ties in the array's order. */
+function orderedKinds(
+  kinds: readonly MentionKindConfig[],
+): MentionKindConfig[] {
+  return kinds
+    .map((kind, index) => ({ kind, index }))
+    .sort((a, b) => a.kind.order - b.kind.order || a.index - b.index)
+    .map(({ kind }) => kind);
+}
 
 interface MentionMenuState {
   query: string;
@@ -2820,15 +2831,31 @@ interface MentionMenuState {
 
 const flatOptions = (results: MentionOption[] | null) => results ?? [];
 
-/** At most five per kind, grouped People · Pages · Files · Tasks, only the enabled kinds. */
+/**
+ * The menu's rows, only of the enabled kinds: first every option's own group (`group`, "Recent")
+ * in the order the groups arrive, then each kind's group in `order` — at most five per group.
+ */
 function groupResults(
   options: readonly MentionOption[],
-  kinds: readonly MentionKind[],
+  kinds: readonly MentionKindConfig[],
 ): MentionOption[] {
-  return MENTION_GROUPS.filter((group) => kinds.includes(group.kind)).flatMap(
-    (group) =>
-      options.filter((option) => option.kind === group.kind).slice(0, 5),
-  );
+  const enabled = new Set(kinds.map((kind) => kind.id));
+  const offered = options.filter((option) => enabled.has(option.kind));
+  const own = [
+    ...new Set(
+      offered.flatMap((option) => (option.group ? [option.group] : [])),
+    ),
+  ];
+  return [
+    ...own.flatMap((group) =>
+      offered.filter((option) => option.group === group).slice(0, 5),
+    ),
+    ...orderedKinds(kinds).flatMap((kind) =>
+      offered
+        .filter((option) => !option.group && option.kind === kind.id)
+        .slice(0, 5),
+    ),
+  ];
 }
 
 /** How long a keystroke waits for the next before the mention search asks. */
@@ -2876,10 +2903,6 @@ function matchesMentionQuery(option: MentionOption, query: string): boolean {
     .every((part) => words.some((word) => word.startsWith(part)));
 }
 
-const MENTION_GROUP_LABEL = Object.fromEntries(
-  MENTION_GROUPS.map((group) => [group.kind, group.label]),
-) as Record<MentionKind, string>;
-
 /**
  * What the mention menu says instead of rows: only a failed search. A search in flight keeps the
  * rows on show, or shows placeholder rows (`SuggestionMenu`'s `loading`) before the first answer.
@@ -2888,43 +2911,34 @@ function mentionStatus(state: MentionMenuState): string | undefined {
   return state.error ? "Couldn't search" : undefined;
 }
 
-/** The mention menu's rows: grouped by kind, each with its kind's icon (as its chip shows it) or its own. */
-function mentionOptions(state: MentionMenuState): SuggestionMenuOption[] {
+/**
+ * The mention menu's rows: under their own group or their kind's `plural`, each with its kind's
+ * icon (as its chip shows it) or its own.
+ */
+function mentionOptions(
+  state: MentionMenuState,
+  kinds: readonly MentionKindConfig[],
+): SuggestionMenuOption[] {
+  const byId = new Map(kinds.map((kind) => [kind.id, kind]));
   return flatOptions(state.results).map((option) => {
-    const Icon = MENTION_ICON[option.kind];
+    const config = byId.get(option.kind);
     return {
-      key: `${option.kind}:${option.id}`,
+      key: `${option.group ? `${option.group}:` : ""}${option.kind}:${option.id}`,
       label: option.label,
       description: option.description,
-      group: MENTION_GROUP_LABEL[option.kind],
+      group: option.group ?? config?.plural ?? option.kind,
       icon: (
         <span
           aria-hidden
           data-slot="text-edit-mention-icon"
           className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm"
         >
-          {option.icon ?? <Icon className="size-4" />}
+          {option.icon ?? mentionKindIcon(config, option.kind)}
         </span>
       ),
     };
   });
 }
-
-const MENTION_ICON: Record<
-  MentionKind,
-  React.ComponentType<React.ComponentProps<"svg">>
-> = {
-  user: UserRound,
-  page: FileText,
-  file: FileIcon,
-  task: ListTodo,
-  meeting: CalendarDays,
-  customer: Building2,
-  project: FolderKanban,
-  product: Package,
-  family: Layers,
-  agent: Bot,
-};
 
 /* ------------------------------------------------------------------------------------------------
  * Images — Tiptap's `ResizableNodeView` (the official Image extension's resize), with a width that
@@ -3535,6 +3549,8 @@ interface EditorRuntime {
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
   fileLinkPrefix: React.RefObject<string>;
+  /** The live block names Markdown reads (`liveBlockKinds`), fixed when the editor is created. */
+  liveBlockKinds: readonly string[];
   mention: {
     enabled: () => boolean;
     get: () => MentionMenuState | null;
@@ -4150,43 +4166,42 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
   );
 }
 
-/* --- live task lists ---------------------------------------------------------------------------*/
-
-type TaskQueryRender = (props: TaskQueryRenderProps) => React.ReactNode;
+/* --- live blocks -----------------------------------------------------------------------------*/
 
 /**
- * Each editor's `renderTaskQuery` (the host's live task list) and the `taskQuery` node views
- * reading it. A new function re-renders every node view, so a host's changed data or a reader's
- * changed access never leaves an old drawing on screen.
+ * Each editor's live block drawing (the host's `renderLiveBlock`, or `renderTaskQuery` for a task
+ * list: `liveBlockRenderer`) and the `taskQuery` node views reading it. A new function re-renders
+ * every node view, so a host's changed data or a reader's changed access never leaves an old
+ * drawing on screen.
  */
-const EDITOR_TASK_QUERY = new WeakMap<
+const EDITOR_LIVE_BLOCK = new WeakMap<
   Editor,
-  { render: TaskQueryRender | undefined; listeners: Set<() => void> }
+  { render: LiveBlockRender | undefined; listeners: Set<() => void> }
 >();
 
-function taskQueryStore(editor: Editor) {
-  let store = EDITOR_TASK_QUERY.get(editor);
+function liveBlockStore(editor: Editor) {
+  let store = EDITOR_LIVE_BLOCK.get(editor);
   if (!store) {
     store = { render: undefined, listeners: new Set() };
-    EDITOR_TASK_QUERY.set(editor, store);
+    EDITOR_LIVE_BLOCK.set(editor, store);
   }
   return store;
 }
 
-/** Hand `editor`'s node views the host's current `renderTaskQuery`. */
-function setTaskQueryRender(
+/** Hand `editor`'s node views the host's current live block drawing. */
+function setLiveBlockRender(
   editor: Editor,
-  render: TaskQueryRender | undefined,
+  render: LiveBlockRender | undefined,
 ) {
-  const store = taskQueryStore(editor);
+  const store = liveBlockStore(editor);
   if (store.render === render) return;
   store.render = render;
   for (const listener of store.listeners) listener();
 }
 
-/** The host's current `renderTaskQuery`, re-rendering the caller when it changes. */
-function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
-  const store = taskQueryStore(editor);
+/** The host's current live block drawing, re-rendering the caller when it changes. */
+function useLiveBlockRender(editor: Editor): LiveBlockRender | undefined {
+  const store = liveBlockStore(editor);
   return React.useSyncExternalStore(
     React.useCallback(
       (listener: () => void) => {
@@ -4200,14 +4215,15 @@ function useTaskQueryRender(editor: Editor): TaskQueryRender | undefined {
   );
 }
 
-/**
- * A live task list's node view: an atom, selectable and draggable as a block, nothing editable
- * inside. The host draws it (`renderTaskQuery`); without one — or where it draws nothing — the
- * stored snapshot shows as `MarkdownView`'s quiet list.
- */
-/** A live task list's filter key, as the `:::tasks` directive writes one. */
+/** A live block's filter key, as its `:::<kind>` directive writes one. */
 const TASK_QUERY_KEY = /^[a-z][a-z0-9-]*$/;
 
+/**
+ * A live block's node view (a task list, or any kind the host reads): an atom, selectable and
+ * draggable as a block, nothing editable inside. The host draws it (`renderLiveBlock`, or
+ * `renderTaskQuery` for a task list); without one — or where it draws nothing — the stored
+ * snapshot shows as `MarkdownView`'s quiet list.
+ */
 function TaskQueryView({
   node,
   selected,
@@ -4216,9 +4232,10 @@ function TaskQueryView({
 }: ReactNodeViewProps) {
   const snapshot = String(node.attrs.snapshot ?? "");
   const query = node.attrs.query as Record<string, string> | null;
-  const render = useTaskQueryRender(editor);
+  const render = useLiveBlockRender(editor);
   const editable = useEditorEditable(editor);
-  const drawn = render?.({
+  const kind = String(node.attrs.kind ?? "tasks");
+  const drawn = render?.(kind, {
     blockId: String(node.attrs.blockId ?? ""),
     query: query && typeof query === "object" ? { ...query } : {},
     snapshot,
@@ -4244,6 +4261,7 @@ function TaskQueryView({
   return (
     <NodeViewWrapper
       data-slot="text-edit-task-query"
+      data-kind={kind}
       data-drag-handle=""
       contentEditable={false}
       data-selected={selected ? "true" : undefined}
@@ -5182,6 +5200,7 @@ function buildExtensions(
   return textEditExtensions({
     lowlight: codeLowlight,
     fileLinkPrefix: () => editorRuntime.fileLinkPrefix.current,
+    liveBlockKinds: editorRuntime.liveBlockKinds,
     ...(collaboration ? { collaboration: { isRemote: isChangeOrigin } } : {}),
     // A version diff's `ychange` mark and attribute: only ever in a diff view's schema.
     diff,
@@ -10018,6 +10037,8 @@ export function TextEditEditor({
   inlineImageTypes = INLINE_IMAGE_TYPES,
   embeds,
   renderTaskQuery,
+  renderLiveBlock,
+  liveBlockKinds,
   onOutlineChange,
   annotations,
   activeAnnotationId = null,
@@ -10631,6 +10652,7 @@ export function TextEditEditor({
         labels,
         collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
+        liveBlockKinds: liveBlockKinds ?? DEFAULT_LIVE_BLOCK_KINDS,
         mention: {
           enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
           get: () => mentionStateRef.current,
@@ -11676,10 +11698,14 @@ export function TextEditEditor({
   if (editor) EDITOR_EMBEDS.set(editor, embeds);
   // Published only once this render commits (before paint): an abandoned render never reaches a
   // node view, and a new function re-renders every one already mounted.
+  const liveBlockRender = React.useMemo(
+    () => liveBlockRenderer(renderLiveBlock, renderTaskQuery),
+    [renderLiveBlock, renderTaskQuery],
+  );
   React.useLayoutEffect(() => {
     if (editor && !editor.isDestroyed)
-      setTaskQueryRender(editor, renderTaskQuery);
-  }, [editor, renderTaskQuery]);
+      setLiveBlockRender(editor, liveBlockRender);
+  }, [editor, liveBlockRender]);
   // Its node views and commands read the host's block views from here, during their own render.
   if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
 
@@ -12529,7 +12555,7 @@ export function TextEditEditor({
           className="w-72"
           anchor={mentionMenu.rect}
           floatingSafeArea={floatingSafeArea}
-          options={mentionOptions(mentionMenu)}
+          options={mentionOptions(mentionMenu, mentions?.kinds ?? [])}
           status={mentionStatus(mentionMenu)}
           emptyMessage="No matches"
           loading={mentionMenu.loading}

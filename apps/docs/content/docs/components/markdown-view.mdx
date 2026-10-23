@@ -242,8 +242,13 @@ support shows the same lines as text and a list. `TextEdit`'s HTML for a list
 (`div[data-type="task-query"]`) renders the same card.
 
 `renderTaskQuery({ blockId, query, snapshot, editable })` lets a host draw the live list in its
-place, with `editable: false` here. `TextEdit` passes it on to the read view it shows first. The
-grammar comes from `@/lib/text-edit-grammar`: `readTasksDirective`, `tasksDirectiveMarkdown` and
+place, with `editable: false` here. `TextEdit` passes it on to the read view it shows first.
+
+The directive's name is open: `liveBlockKinds` (default `["tasks"]`) lists the names the view
+reads, each `[a-z][a-z0-9_]*`, and a block of any other name stays text. `renderLiveBlock(kind,
+props)` draws every kind, `tasks` included; without it `renderTaskQuery` draws `tasks` alone, and
+any block it does not draw shows its stored snapshot. The grammar comes from
+`@/lib/text-edit-grammar`: `readLiveBlock(source, { names })`, `liveBlockMarkdown` and
 `parseTaskListRows`.
 
 <ComponentPreview

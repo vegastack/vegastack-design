@@ -652,3 +652,62 @@ test("no a11y violations — wrap, open", async () => {
   await screen.getByRole("combobox").click();
   await expectNoA11yViolations(document.body);
 });
+
+test("onCreateOption: an Add row for text no option has; Enter adds it and selects it", async () => {
+  const created: Project = { id: "dune", name: "Dune" };
+  const onCreateOption = vi.fn(async () => created);
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <Picker onCreateOption={onCreateOption} onValueChange={onValueChange} />,
+  );
+  await screen.getByRole("combobox").click();
+  const search = screen.getByPlaceholder("Search projects…");
+  // An exact label (any case, spaces around) offers no row.
+  await search.fill(" atlas ");
+  await expect
+    .element(screen.getByRole("option", { name: "Atlas" }))
+    .toBeVisible();
+  await expect
+    .poll(() => document.querySelector("[data-slot=searchable-select-create]"))
+    .toBeNull();
+  await search.fill("Dune ");
+  const add = screen.getByRole("option", { name: "Add “Dune”" });
+  await expect.element(add).toBeVisible();
+  // It stands in for the empty message, and is reached like any option.
+  await expect
+    .poll(() => document.body.textContent)
+    .not.toContain("No project found.");
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(onCreateOption).toHaveBeenCalledWith("Dune"));
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith(created),
+  );
+  expect(onValueChange).toHaveBeenCalledTimes(1);
+});
+
+test("onCreateOption with multiple: the new option joins the selection", async () => {
+  const created: Project = { id: "dune", name: "Dune" };
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <SearchableSelect<Project, true>
+      multiple
+      items={PROJECTS}
+      value={[PROJECTS[0]!]}
+      onValueChange={onValueChange}
+      itemToKey={(project) => project.id}
+      itemToStringLabel={(project) => project.name}
+      onCreateOption={async () => created}
+      createLabel={(query) => `Create ${query}`}
+      searchLabel="Search projects"
+      searchPlaceholder="Search projects…"
+      aria-label="Projects"
+    />,
+  );
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  await screen.getByPlaceholder("Search projects…").fill("Dune");
+  await screen.getByRole("option", { name: "Create Dune" }).click();
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith([PROJECTS[0], created]),
+  );
+});

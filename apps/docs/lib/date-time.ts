@@ -1,4 +1,4 @@
-// @vegastack date-time@0.25.67 sha256-VfWsszjGGl0nRSk/HnASpSjvnCbK5WyajJDBQnYj+7A=
+// @vegastack date-time@0.25.67 sha256-NkFkUoCndrA210rl7K6PdObk2HtlpAl1Sh6+G4MvCPg=
 
 export type DateInput = Date | string | number;
 
@@ -251,6 +251,107 @@ export function formatDuration(
   if (h > 0) return m > 0 ? `${unit(h, "h")} ${unit(m, "m")}` : unit(h, "h");
   if (m > 0) return unit(m, "m");
   return unit(s, "s");
+}
+
+// ---------------------------------------------------------------------------
+// Calendar days
+// ---------------------------------------------------------------------------
+
+/** `YYYY-MM-DD` — a calendar day as stored: a date with no time and no zone (a due date). */
+const CALENDAR_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** A `YYYY-MM-DD` string's year, month index and day, or `null` when it names no real day. */
+function calendarDayParts(isoDay: string): [number, number, number] | null {
+  const match = CALENDAR_DAY.exec(isoDay);
+  if (!match) return null;
+  const [y, m, d] = [Number(match[1]), Number(match[2]) - 1, Number(match[3])];
+  const utc = new Date(Date.UTC(y, m, d));
+  return utc.getUTCFullYear() === y &&
+    utc.getUTCMonth() === m &&
+    utc.getUTCDate() === d
+    ? [y, m, d]
+    : null;
+}
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+
+/**
+ * A calendar day (`"2026-10-08"`) as a LOCAL-midnight `Date` — the date model a calendar grid and
+ * `DatePicker` use — with no zone shift. `undefined` for an empty, malformed or impossible day
+ * (`"2026-02-30"`).
+ *
+ * @example
+ * parseCalendarDay("2026-10-08"); // Thu Oct 08 2026 00:00 (local)
+ */
+export function parseCalendarDay(isoDay: string): Date | undefined {
+  const parts = calendarDayParts(isoDay);
+  return parts ? new Date(parts[0], parts[1], parts[2]) : undefined;
+}
+
+/**
+ * The calendar day of `value`, as `"YYYY-MM-DD"`. A `Date` without `timeZone` gives its LOCAL day
+ * (the day a date picker chose: no zone shift); with `timeZone`, the day the instant falls on
+ * there ("today" for a viewer). A `"YYYY-MM-DD"` string is checked and returned as is. `""` for
+ * anything invalid.
+ *
+ * @example
+ * toCalendarDay(parseCalendarDay("2026-10-08")!); // "2026-10-08"
+ * toCalendarDay("2026-10-08T10:30:00Z", { timeZone: "Pacific/Tongatapu" }); // "2026-10-08"
+ */
+export function toCalendarDay(
+  value: DateInput,
+  { timeZone }: Pick<DateTimeOptions, "timeZone"> = {},
+): string {
+  if (typeof value === "string" && CALENDAR_DAY.test(value))
+    return calendarDayParts(value) ? value : "";
+  const date = toDate(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const [y, m, d] = timeZone
+    ? calendarDay(date, timeZone)
+    : [date.getFullYear(), date.getMonth(), date.getDate()];
+  return `${y}-${pad2(m + 1)}-${pad2(d)}`;
+}
+
+/** How `formatCalendarDate` writes a day. */
+export interface FormatCalendarDateOptions {
+  /** BCP-47 locale. @default "en-US" */
+  locale?: string;
+  /**
+   * `short` "Oct 8, 2026" · `long` "October 8, 2026" · `numeric` "10/8/2026" (each in `locale`'s
+   * order). The year always shows: a stored day has no "now" to drop it against.
+   * @default "short"
+   */
+  format?: "short" | "long" | "numeric";
+}
+
+const CALENDAR_FORMATS: Record<
+  NonNullable<FormatCalendarDateOptions["format"]>,
+  Intl.DateTimeFormatOptions
+> = {
+  short: { year: "numeric", month: "short", day: "numeric" },
+  long: { year: "numeric", month: "long", day: "numeric" },
+  numeric: { year: "numeric", month: "numeric", day: "numeric" },
+};
+
+/**
+ * A calendar day (`"2026-10-08"`) for display — the same day for every viewer, whatever their
+ * zone (it is formatted as the day it names, never as an instant). `""` for an invalid day.
+ *
+ * @example
+ * formatCalendarDate("2026-10-08"); // "Oct 8, 2026"
+ * formatCalendarDate("2026-10-08", { locale: "en-GB", format: "long" }); // "8 October 2026"
+ */
+export function formatCalendarDate(
+  isoDay: string,
+  { locale, format = "short" }: FormatCalendarDateOptions = {},
+): string {
+  const parts = calendarDayParts(isoDay);
+  if (!parts) return "";
+  return clean(
+    dtf(locale, { ...CALENDAR_FORMATS[format], timeZone: "UTC" }).format(
+      new Date(Date.UTC(parts[0], parts[1], parts[2])),
+    ),
+  );
 }
 
 // ---------------------------------------------------------------------------

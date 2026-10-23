@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.67 sha256-k3sr1RlG9L3KDXYYrY+tVVSq33fZuHjMB47N2yQ5z7w=
+// @vegastack editable-cell@0.25.67 sha256-0S/DR4WbSt3quwSCFiIx1F4aP6gUINoQCSvTToeNOy0=
 
 "use client";
 
@@ -11,6 +11,7 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useInlineEdit } from "@/components/ui/use-inline-edit";
 import { useOverflow } from "@/components/ui/use-overflow";
 import { DatePicker } from "@/components/ui/date-picker";
+import { parseCalendarDay, toCalendarDay } from "@/lib/date-time";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
   Select,
@@ -721,24 +722,6 @@ function InlineTextEditor({
   );
 }
 
-/** `"2026-10-08"` → a local-midnight `Date`, or `undefined` for an empty or malformed value. */
-function parseIsoDate(value: string): Date | undefined {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return undefined;
-  const date = new Date(
-    Number(match[1]),
-    Number(match[2]) - 1,
-    Number(match[3]),
-  );
-  return Number.isNaN(date.getTime()) ? undefined : date;
-}
-
-/** A `Date` → its local calendar date as `"YYYY-MM-DD"`. */
-function toIsoDate(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
 function formatIsoDate(
   value: string,
   options: Intl.DateTimeFormatOptions = {
@@ -748,7 +731,7 @@ function formatIsoDate(
   },
   locale?: string,
 ): string {
-  const date = parseIsoDate(value);
+  const date = parseCalendarDay(value);
   return date ? new Intl.DateTimeFormat(locale, options).format(date) : value;
 }
 
@@ -973,8 +956,8 @@ export function EditableCell({
       <DatePicker
         size="sm"
         variant="ghost"
-        value={parseIsoDate(displayValue)}
-        onValueChange={(date) => handleCommit(date ? toIsoDate(date) : "")}
+        value={parseCalendarDay(displayValue)}
+        onValueChange={(date) => handleCommit(date ? toCalendarDay(date) : "")}
         placeholder={editor.placeholder}
         formatOptions={editor.formatOptions}
         locale={editor.locale}
@@ -982,7 +965,7 @@ export function EditableCell({
         disabled={disabled}
         aria-label={label}
         renderValue={
-          renderValue ? (date) => renderValue(toIsoDate(date)) : undefined
+          renderValue ? (date) => renderValue(toCalendarDay(date)) : undefined
         }
         className={cn(
           INLINE_EDIT_TINT,

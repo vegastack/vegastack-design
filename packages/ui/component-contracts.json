@@ -11879,6 +11879,7 @@
         "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/date-picker",
+        "@vegastack/date-time",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
@@ -15491,7 +15492,7 @@
       "name": "inline-chip",
       "registryType": "registry:ui",
       "title": "Inline Chip",
-      "summary": "The one inline reference in running text — a person, page, file, task, meeting, customer, project, product or family — on the text's baseline at its size, a person in blue and every record neutral with its kind's icon; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "summary": "The one inline reference in running text — a person, an agent, a file or any record kind the host names (its icon and noun) — on the text's baseline at its size, a person in blue and every record neutral with its kind's icon; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
       "status": "stable",
       "since": "0.23.102",
       "family": "data-display",
@@ -15626,21 +15627,12 @@
           }
         },
         {
-          "name": "INLINE_CHIP_KINDS",
-          "kind": "constant",
+          "name": "InlineChipKindConfig",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/inline-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "INLINE_CHIP_KIND_LABEL",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/inline-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -16201,6 +16193,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LiveBlockRender",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "liveBlockRenderer",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LiveBlockRenderProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -25733,6 +25752,15 @@
         },
         {
           "name": "TextEditTaskLink",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionKindConfig",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -42837,7 +42865,7 @@
       "name": "date-time",
       "registryType": "registry:lib",
       "title": "Date Time",
-      "summary": "The one Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
+      "summary": "The one Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, the calendar-day helpers (formatCalendarDate, parseCalendarDay, toCalendarDay — no zone shift), and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/date-time.ts"],
@@ -43138,6 +43166,42 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "formatCalendarDate",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FormatCalendarDateOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "parseCalendarDay",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "toCalendarDay",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -43184,7 +43248,10 @@
         "rationale": "No DOM of its own; consumers own layout."
       },
       "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/ui/relative-time.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/lib/date-time.test.ts",
+        "packages/ui/registry/ui/relative-time.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -43780,15 +43847,6 @@
           }
         },
         {
-          "name": "MENTION_KINDS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "MentionKind",
           "kind": "type",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
@@ -44014,33 +44072,6 @@
           }
         },
         {
-          "name": "TasksDirective",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "readTasksDirective",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "tasksDirectiveMarkdown",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "TaskListRow",
           "kind": "interface",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
@@ -44128,6 +44159,87 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "BUILT_IN_MENTION_KINDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "DEFAULT_LIVE_BLOCK_KINDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "isMentionKind",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LIVE_BLOCK_NAME",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LiveBlockDirective",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "liveBlockMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MENTION_KIND_PATTERN",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "readLiveBlock",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "ReadLiveBlockOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],

@@ -2144,7 +2144,8 @@
         "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/date-time"
       ],
       "files": [
         {
