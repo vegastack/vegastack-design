@@ -488,21 +488,29 @@ test("an empty date-time editor focuses its day picker; a link list names what +
     .poll(() => unsafe.parentElement!.getAttribute("tabindex"))
     .toBe("0");
   await expectNoA11yViolations(screen.container);
-  // The host's provider changes what the chip renders; the wrapper follows both ways.
-  const plain = [{ id: "p", label: "Provided", kind: "customer" as const }];
-  await screen.rerender(
-    <InlineChipProvider value={{ href: () => "/c/p" }}>
-      <FieldCellDisplay type="link" value={plain} />
-    </InlineChipProvider>,
+  // The host's provider changes what the chip renders; the wrapper follows both ways. One element
+  // instance keeps the display itself from re-rendering: only the provider's readers update.
+  const stable = (
+    <FieldCellDisplay
+      type="link"
+      value={[{ id: "p", label: "Provided", kind: "customer" }]}
+    />
   );
   const wrapper = () =>
     screen.getByText("Provided").element().closest("[data-slot=inline-chip]")!
       .parentElement!;
+  await screen.rerender(
+    <InlineChipProvider value={{}}>{stable}</InlineChipProvider>,
+  );
+  await expect.poll(() => wrapper().getAttribute("tabindex")).toBe("0");
+  await screen.rerender(
+    <InlineChipProvider value={{ href: () => "/c/p" }}>
+      {stable}
+    </InlineChipProvider>,
+  );
   await expect.poll(() => wrapper().hasAttribute("tabindex")).toBe(false);
   await screen.rerender(
-    <InlineChipProvider value={{}}>
-      <FieldCellDisplay type="link" value={plain} />
-    </InlineChipProvider>,
+    <InlineChipProvider value={{}}>{stable}</InlineChipProvider>,
   );
   await expect.poll(() => wrapper().getAttribute("tabindex")).toBe("0");
 });
