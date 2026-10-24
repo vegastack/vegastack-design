@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.20
+
+### Patch Changes
+
+- [#735](https://github.com/vegastack/vegastack-design/pull/735) [`f7f9449`](https://github.com/vegastack/vegastack-design/commit/f7f9449597b939ba77456ec723050fd6bcd908a2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **DataGrid cells mode** (Regent R3): `selectionMode="cells"` adds spreadsheet ranges kept by row id and column key — <kbd>Shift</kbd>+arrows, <kbd>Shift</kbd>+click and drag extend; <kbd>Shift</kbd>+<kbd>Space</kbd>, <kbd>Ctrl</kbd>+<kbd>Space</kbd> and <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> take a row, a column and everything; copy, cut and paste through the clipboard events as TSV and HTML; <kbd>Delete</kbd> clears; a paste, clear or cut is one `onCellsCommit(changes)` batch answered per cell (`CellChange`, `CellCommitResult`) and announced ("Pasted 120 cells · 4 skipped"); rows past the last loaded row go to `onPasteOverflow`; the fill handle and <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>D</kbd> call `onFill({ source, target, series })`; undo and redo keys reach `onUndo` / `onRedo`; `remoteChanges` (keyed by `gridCellKey`) pulses a cell with `motion-flash`, shows its author for 1.5s and announces it only on the focused cell. Columns gain `parse(cell, row)` and `format(row)`. **useGridSelection** (new hook): the range model. **grid-clipboard** (new lib): `parseTsv`, `serializeTsv`, `parseHtmlTable`, `serializeHtmlTable`, `parseClipboard` (Google Sheets' compact-table typed values, Excel's `x:num`) and `expandPaste`, tested against the recorded G3 clipboards. [docs](https://design.vegastack.com/docs/components/data-grid)
+
 ## 0.8.19
 
 ### Patch Changes
