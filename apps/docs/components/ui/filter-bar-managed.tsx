@@ -1,14 +1,25 @@
-// @vegastack filter-bar-managed@0.25.70 sha256-u11+pcwc5eRa+93+nTnoLgOnSVqlZxMw11BIUWTo2qs=
+// @vegastack filter-bar-managed@0.25.70 sha256-K0wyla4toVCIdv6Z5DuOgNJ8PJxHwnD/7sSnZJajbw8=
 
 "use client";
 
 import * as React from "react";
-import { Plus, X } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, Plus, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
+import { DatePicker } from "@/components/ui/date-picker";
 import { FilterChip } from "@/components/ui/filter-bar";
+import {
+  PeoplePicker,
+  type PeoplePickerOption,
+} from "@/components/ui/people-picker";
+import { SortableList } from "@/components/ui/sortable-list";
+import {
+  useAsyncSearch,
+  type AsyncSearchLoader,
+} from "@/components/ui/use-async-search";
+import { parseCalendarDay, toCalendarDay } from "@/lib/date-time";
 import {
   SearchableSelect,
   type SearchableSelectProps,
@@ -119,6 +130,19 @@ export interface FilterField<V = unknown> {
    */
   unit?: string;
   /**
+   * The people a `person` field offers (`PersonValueEditor`). A list here, or `search` for a
+   * directory.
+   * @default undefined
+   */
+  people?: readonly PeoplePickerOption[];
+  /**
+   * Finds people (a `person` field) or records (a `link` field) for a typed query, one keyset
+   * page at a time. A person condition stores ids, so a `person` field searched this way (rather
+   * than listed in `people`) needs `formatValue` for the chips and `describeFilter` to show names.
+   * @default undefined
+   */
+  search?: AsyncSearchLoader<PeoplePickerOption | FilterRecordOption>;
+  /**
    * Format a value for the read-only chip summary.
 
    * @default undefined
@@ -166,7 +190,9 @@ export interface FilterBuilderProps<V = unknown> {
    * `string`, every field type needs an entry here. Editors are host code — a
    * date field should render the host's date picker, not a text box. `range` and `list` keys
    * override the shape defaults; a `range` operator ("between") never falls back to the
-   * field type's single-value editor — it gets `range`, else `NumberRangeEditor`.
+   * field type's single-value editor — it gets `range`, else `NumberRangeEditor`. A
+   * `<type>:range` or `<type>:list` key (`"date:range"`, `"person:list"`) wins over both for
+   * that type alone.
    * @default undefined
    */
   editors?: Record<string, React.ComponentType<FilterValueEditorProps<V>>>;
@@ -391,9 +417,33 @@ function formatFilterValue<V>(
   if (value === undefined || value === null || value === "") return "";
   if (field?.formatValue) return field.formatValue(value as V);
   const optionLabel = (v: unknown) =>
-    field?.options?.find((o) => o.value === v)?.label ?? String(v);
+    v === FILTER_ME
+      ? "me"
+      : (field?.options?.find((o) => o.value === v)?.label ??
+        field?.people?.find((p) => p.id === v)?.name ??
+        String(v));
   if (Array.isArray(value)) return value.map(optionLabel).join(listJoin);
+  if (typeof value === "boolean") return value ? "checked" : "unchecked";
   if (typeof value === "object") {
+    // The R4 shapes: a link's record, a relative date, a date range; else a number range.
+    if ("label" in value && "id" in value)
+      return String((value as FilterLinkValue).label);
+    if ("relative" in value) {
+      const relative = value as FilterRelativeDate;
+      return relative.relative === "today"
+        ? "today"
+        : relative.relative === "this_week"
+          ? "this week"
+          : `the last ${relative.days ?? 7} days`;
+    }
+    if ("from" in value || "to" in value) {
+      const { from, to } = value as { from?: string; to?: string };
+      return from && to
+        ? `${from} – ${to}`
+        : from
+          ? `from ${from}`
+          : `until ${to}`;
+    }
     const { min, max } = value as { min?: number; max?: number };
     return formatRange(min, max, field?.unit);
   }
@@ -984,7 +1034,10 @@ export function FilterBuilder<V = unknown>({
           // single-value editor registered for the field's type never answers a range — it
           // would store one number where the operator needs two bounds.
           const Editor: React.ComponentType<FilterValueEditorProps<V>> =
-            shape === "range"
+            (shape !== "scalar"
+              ? editors?.[`${field.type}:${shape}`]
+              : undefined) ??
+            (shape === "range"
               ? (editors?.range ?? NumberRangeEditor<V>)
               : ((shape === "list" ? editors?.list : undefined) ??
                 editors?.[field.type] ??
@@ -992,7 +1045,7 @@ export function FilterBuilder<V = unknown>({
                   ? OptionsValueEditor<V>
                   : field.options
                     ? OptionValueEditor<V>
-                    : TextValueEditor<V>));
+                    : TextValueEditor<V>)));
           const rowError = conditionError?.(child, childPath);
           const invalid = missingValue || rowError !== undefined;
           const editorId = `${rowId(childPath)}-value`;
@@ -1237,6 +1290,815 @@ export function FilterBuilder<V = unknown>({
       className={cn("flex min-w-0 flex-col gap-2", className)}
     >
       {renderGroup(value, [])}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * R4 value editors: date, person, checkbox, link
+ * ----------------------------------------------------------------------------------------------*/
+
+/** The person value meaning "whoever is reading" — `PersonValueEditor`'s "Me". */
+export const FILTER_ME = "@me";
+
+/** A relative date a `DateValueEditor` stores instead of a day. */
+export interface FilterRelativeDate {
+  /** Today, this week (Monday to Sunday in the reader's week), or the last `days` days. */
+  relative: "today" | "this_week" | "last_days";
+  /**
+   * How many days `last_days` covers.
+   * @default 7
+   */
+  days?: number;
+}
+
+/**
+ * What a date condition holds: an ISO calendar day ("2026-10-24"), a relative date, or — for a
+ * `range` operator ("between") — `{ from, to }` days.
+ */
+export type FilterDateValue =
+  string | FilterRelativeDate | { from?: string; to?: string };
+
+/** One record a `link` field's `search` finds. */
+export interface FilterRecordOption {
+  /** The record's id — what the condition stores. */
+  value: string;
+  /** Its name. */
+  label: string;
+  /**
+   * The record kind's icon, from the host.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
+}
+
+/** What a `link` condition holds: the record's id and the name it was chosen by. */
+export interface FilterLinkValue {
+  id: string;
+  label: string;
+}
+
+/** The value shape of the condition's operator (an editor gets the operator's value only). */
+function shapeFor<V>(field: FilterField<V>, operator: string) {
+  return valueShapeOf(field.operators.find((op) => op.value === operator));
+}
+
+const DATE_MODES = ["on", "today", "this_week", "last_days"] as const;
+type DateMode = (typeof DATE_MODES)[number];
+
+/**
+ * A date value editor. A single-day operator ("is", "before", "after") offers a day from the
+ * calendar or a relative date — Today, This week, Last N days; a `range` operator ("between")
+ * takes two days. Days are ISO calendar days, so a reader's time zone never moves them.
+ *
+ * @example
+ * editors={{ date: DateValueEditor }}
+ */
+export function DateValueEditor<V>({
+  field,
+  operator,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+}: FilterValueEditorProps<V>) {
+  const commit = (next: FilterDateValue | undefined) =>
+    onValueChange(next as V | undefined);
+  const day = (iso: string | undefined) =>
+    iso ? parseCalendarDay(iso) : undefined;
+  if (shapeFor(field, operator) === "range") {
+    const range = (value ?? {}) as { from?: string; to?: string };
+    const set = (next: { from?: string; to?: string }) =>
+      commit(next.from || next.to ? next : undefined);
+    return (
+      <span
+        role="group"
+        aria-label={ariaLabel}
+        data-slot="filter-date-range-editor"
+        className="flex min-w-0 flex-wrap items-center gap-2"
+      >
+        <DatePicker
+          id={id}
+          size="sm"
+          aria-label="From"
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
+          disabled={disabled}
+          value={day(range.from)}
+          onValueChange={(date) =>
+            set({ ...range, from: date ? toCalendarDay(date) : undefined })
+          }
+        />
+        <span aria-hidden="true" className="text-muted-foreground">
+          –
+        </span>
+        <DatePicker
+          size="sm"
+          aria-label="To"
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
+          disabled={disabled}
+          value={day(range.to)}
+          onValueChange={(date) =>
+            set({ ...range, to: date ? toCalendarDay(date) : undefined })
+          }
+        />
+      </span>
+    );
+  }
+  const relative =
+    value != null && typeof value === "object" && "relative" in value
+      ? (value as FilterRelativeDate)
+      : null;
+  const mode: DateMode = relative ? relative.relative : "on";
+  const modeLabels: Record<DateMode, string> = {
+    on: "Exact date",
+    today: "Today",
+    this_week: "This week",
+    last_days: "Last N days",
+  };
+  return (
+    <span
+      role="group"
+      aria-label={ariaLabel}
+      data-slot="filter-date-editor"
+      className="flex min-w-0 flex-wrap items-center gap-2"
+    >
+      <Select
+        items={modeLabels}
+        value={mode}
+        onValueChange={(next) => {
+          const chosen = (next ?? "on") as DateMode;
+          if (chosen === "on") commit(undefined);
+          else if (chosen === "last_days")
+            commit({ relative: "last_days", days: relative?.days ?? 7 });
+          else commit({ relative: chosen });
+        }}
+        disabled={disabled}
+      >
+        <SelectTrigger
+          size="sm"
+          aria-label={`${ariaLabel}: kind of date`}
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
+          className="w-fit min-w-32"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {DATE_MODES.map((m) => (
+            <SelectItem key={m} value={m}>
+              {modeLabels[m]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {mode === "on" ? (
+        <DatePicker
+          id={id}
+          size="sm"
+          aria-label={ariaLabel}
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
+          disabled={disabled}
+          value={typeof value === "string" ? day(value) : undefined}
+          onValueChange={(date) =>
+            commit(date ? toCalendarDay(date) : undefined)
+          }
+        />
+      ) : mode === "last_days" ? (
+        <NumberField
+          id={id}
+          aria-label="Days"
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
+          disabled={disabled}
+          min={1}
+          className="w-24"
+          value={relative?.days ?? 7}
+          onValueChange={(days) =>
+            commit({ relative: "last_days", days: Math.max(1, days ?? 1) })
+          }
+        />
+      ) : null}
+    </span>
+  );
+}
+
+/**
+ * A person value editor on `PeoplePicker`: the field's `people` (or its `search`), with "Me" first
+ * — stored as `FILTER_ME`, so a saved view means whoever opens it. A `list` operator ("is any
+ * of") picks several.
+ *
+ * @example
+ * editors={{ person: PersonValueEditor }}
+ */
+export function PersonValueEditor<V>({
+  field,
+  operator,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+  meLabel = "Me",
+}: FilterValueEditorProps<V> & {
+  /**
+   * The name of the "whoever is reading" option.
+   * @default "Me"
+   */
+  meLabel?: string;
+}) {
+  const me: PeoplePickerOption = { id: FILTER_ME, name: meLabel };
+  // The condition stores ids; the options chosen from a `search` are remembered for their names.
+  const [seen, setSeen] = React.useState<Record<string, PeoplePickerOption>>(
+    {},
+  );
+  const optionOf = (personId: string): PeoplePickerOption =>
+    personId === FILTER_ME
+      ? me
+      : (field.people?.find((p) => p.id === personId) ??
+        seen[personId] ?? { id: personId, name: personId });
+  const remember = (options: readonly PeoplePickerOption[]) =>
+    setSeen((current) => ({
+      ...current,
+      ...Object.fromEntries(options.map((o) => [o.id, o])),
+    }));
+  const common = {
+    options: field.people,
+    search: field.search as AsyncSearchLoader<PeoplePickerOption> | undefined,
+    leadingOptions: [me],
+    size: "sm" as const,
+    disabled,
+    id,
+    "aria-label": ariaLabel,
+    "aria-invalid": ariaInvalid,
+    "aria-describedby": ariaDescribedBy,
+  };
+  if (shapeFor(field, operator) === "list") {
+    const ids = Array.isArray(value) ? (value as string[]) : [];
+    return (
+      <PeoplePicker
+        {...common}
+        multiple
+        value={ids.map(optionOf)}
+        onValueChange={(next) => {
+          remember(next);
+          onValueChange(
+            (next.length > 0 ? next.map((o) => o.id) : undefined) as
+              V | undefined,
+          );
+        }}
+      />
+    );
+  }
+  return (
+    <PeoplePicker
+      {...common}
+      value={typeof value === "string" ? optionOf(value) : null}
+      onValueChange={(next) => {
+        if (next) remember([next]);
+        onValueChange((next?.id ?? undefined) as V | undefined);
+      }}
+    />
+  );
+}
+
+/**
+ * A checkbox value editor: Checked or Unchecked, stored as `true` or `false`.
+ *
+ * @example
+ * editors={{ checkbox: CheckboxValueEditor }}
+ */
+export function CheckboxValueEditor<V>({
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+  checkedLabel = "Checked",
+  uncheckedLabel = "Unchecked",
+}: FilterValueEditorProps<V> & {
+  /** @default "Checked" */
+  checkedLabel?: string;
+  /** @default "Unchecked" */
+  uncheckedLabel?: string;
+}) {
+  return (
+    <Select
+      items={{ true: checkedLabel, false: uncheckedLabel }}
+      value={typeof value === "boolean" ? String(value) : null}
+      onValueChange={(next) =>
+        onValueChange(
+          (next == null ? undefined : next === "true") as V | undefined,
+        )
+      }
+      disabled={disabled}
+    >
+      <SelectTrigger
+        id={id}
+        size="sm"
+        aria-label={ariaLabel}
+        aria-invalid={ariaInvalid || undefined}
+        aria-describedby={ariaDescribedBy}
+        className="w-fit min-w-32"
+      >
+        <SelectValue placeholder="Choose…" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="true">{checkedLabel}</SelectItem>
+        <SelectItem value="false">{uncheckedLabel}</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+/**
+ * A link value editor: searches the field's records through the host's `search` (keyset paged,
+ * debounced, race-safe) and stores the one chosen as `{ id, label }`, shown as a `RecordChip`.
+ *
+ * @example
+ * editors={{ link: LinkValueEditor }}
+ */
+export function LinkValueEditor<V>({
+  field,
+  value,
+  onValueChange,
+  "aria-label": ariaLabel,
+  disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+  placeholder = "Find a record…",
+  searchLabel = "Search records",
+}: FilterValueEditorProps<V> & {
+  /** @default "Find a record…" */
+  placeholder?: string;
+  /** @default "Search records" */
+  searchLabel?: string;
+}) {
+  const loader = React.useCallback<AsyncSearchLoader<FilterRecordOption>>(
+    async (query, context) =>
+      field.search
+        ? ((await field.search(query, context)) as {
+            items: FilterRecordOption[];
+            nextCursor?: string | null;
+          })
+        : { items: [] },
+    [field],
+  );
+  // A condition switched to another link field searches that field's records, from page one.
+  const search = useAsyncSearch(loader, { deps: [field.key] });
+  const chosen = value as FilterLinkValue | undefined;
+  const current: FilterRecordOption | null = chosen
+    ? { value: chosen.id, label: chosen.label }
+    : null;
+  return (
+    <SearchableSelect<FilterRecordOption>
+      {...optionPicker}
+      remote
+      items={search.items}
+      onSearchChange={search.onSearchChange}
+      loading={search.loading}
+      error={search.error}
+      loadMore={search.loadMore}
+      value={current}
+      onValueChange={(next) =>
+        onValueChange(
+          (next ? { id: next.value, label: next.label } : undefined) as
+            V | undefined,
+        )
+      }
+      // Plain content: the option row and the trigger are the only interactive parts.
+      renderItem={(option) => (
+        <span className="flex min-w-0 items-center gap-1.5">
+          {option.icon ? (
+            <span
+              aria-hidden
+              className="flex shrink-0 text-muted-foreground [&_svg]:size-3.5"
+            >
+              {option.icon}
+            </span>
+          ) : null}
+          <span className="min-w-0 truncate">{option.label}</span>
+        </span>
+      )}
+      id={id}
+      aria-label={ariaLabel}
+      aria-invalid={ariaInvalid}
+      aria-describedby={ariaDescribedBy}
+      disabled={disabled}
+      placeholder={placeholder}
+      searchLabel={searchLabel}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * R4: SortBuilder and GroupByPicker
+ * ----------------------------------------------------------------------------------------------*/
+
+/** One sort key: a vocabulary field and a direction. */
+export interface SortBuilderEntry {
+  key: string;
+  dir: "asc" | "desc";
+}
+
+/** Props accepted by `SortBuilder`. */
+export interface SortBuilderProps {
+  /** The fields that can sort — the same vocabulary `FilterBuilder` takes. */
+  vocabulary: readonly Pick<FilterField, "key" | "label">[];
+  /** The sort keys, first one first. */
+  value: readonly SortBuilderEntry[];
+  /** Called with the next keys. */
+  onChange: (value: SortBuilderEntry[]) => void;
+  /**
+   * The most keys.
+   * @default 3
+   */
+  max?: number;
+  /**
+   * Show the keys as removable `FilterChip`s instead of the editor.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Disable every control.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Accessible name of the list.
+   * @default "Sort"
+   */
+  "aria-label"?: string;
+  /** Extra classes for the root.
+   * @default undefined
+   */
+  className?: string;
+}
+
+/**
+ * Row ids that stay with a ROW, not with the field it shows: changing a row's field keeps its id
+ * (so its picker keeps focus), a move or a remove carries the ids along, and a list replaced from
+ * outside gets fresh ones.
+ */
+function useRowIds(count: number) {
+  const ids = React.useRef<string[]>([]);
+  const next = React.useRef(0);
+  const fresh = () => `row-${(next.current += 1)}`;
+  if (ids.current.length !== count)
+    ids.current = Array.from(
+      { length: count },
+      (_, i) => ids.current[i] ?? fresh(),
+    );
+  return {
+    ids: ids.current,
+    move: (from: number, to: number) => {
+      const list = [...ids.current];
+      const [moved] = list.splice(from, 1);
+      list.splice(to, 0, moved!);
+      ids.current = list;
+    },
+    remove: (index: number) => {
+      ids.current = ids.current.filter((_, i) => i !== index);
+    },
+  };
+}
+
+function remaining<T extends { key: string }>(
+  vocabulary: readonly T[],
+  taken: readonly string[],
+  keep?: string,
+) {
+  return vocabulary.filter((f) => f.key === keep || !taken.includes(f.key));
+}
+
+/** A field picker row control both builders share: a `Select` over the fields still free. */
+function FieldSelect({
+  fields,
+  value,
+  onChange,
+  disabled,
+  label,
+}: {
+  fields: readonly { key: string; label: string }[];
+  value: string;
+  onChange: (key: string) => void;
+  disabled?: boolean;
+  label: string;
+}) {
+  return (
+    <Select
+      items={Object.fromEntries(fields.map((f) => [f.key, f.label]))}
+      value={value}
+      onValueChange={(next) => {
+        if (next != null) onChange(String(next));
+      }}
+      disabled={disabled}
+    >
+      <SelectTrigger size="sm" aria-label={label} className="w-fit min-w-36">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {fields.map((f) => (
+          <SelectItem key={f.key} value={f.key}>
+            {f.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+/**
+ * `SortBuilder` — up to three sort keys, first one first: a field and a direction per row, drag
+ * (or the keyboard move mode) to reorder on `SortableList`, × to remove, "Add sort" to append the
+ * next free field. `readOnly` shows the keys as removable `FilterChip`s. It edits data; the host
+ * sorts.
+ *
+ * @example
+ * <SortBuilder
+ *   vocabulary={[{ key: "due", label: "Due" }, { key: "qty", label: "Qty" }]}
+ *   value={[{ key: "due", dir: "asc" }]}
+ *   onChange={setSort}
+ * />
+ */
+export function SortBuilder({
+  vocabulary,
+  value,
+  onChange,
+  max = 3,
+  readOnly = false,
+  disabled = false,
+  "aria-label": ariaLabel = "Sort",
+  className,
+}: SortBuilderProps) {
+  const labelOf = (key: string) =>
+    vocabulary.find((f) => f.key === key)?.label ?? key;
+  const taken = value.map((entry) => entry.key);
+  const free = remaining(vocabulary, taken);
+  const rows = useRowIds(value.length);
+  if (readOnly)
+    return (
+      <div
+        data-slot="sort-builder"
+        data-read-only=""
+        data-disabled={disabled ? "" : undefined}
+        role="group"
+        aria-label={ariaLabel}
+        // A frozen summary is not keyboard-editable either (as FilterBuilder's).
+        inert={disabled || undefined}
+        className={cn(
+          "flex flex-wrap gap-1.5",
+          disabled && "opacity-50",
+          className,
+        )}
+      >
+        {value.map((entry, index) => (
+          <FilterChip
+            key={entry.key}
+            label={labelOf(entry.key)}
+            icon={
+              entry.dir === "asc" ? (
+                <ArrowUpNarrowWide aria-hidden />
+              ) : (
+                <ArrowDownWideNarrow aria-hidden />
+              )
+            }
+            value={entry.dir === "asc" ? "ascending" : "descending"}
+            removeLabel={`Remove sort by ${labelOf(entry.key)}`}
+            onRemove={() => onChange(value.filter((_, i) => i !== index))}
+          />
+        ))}
+      </div>
+    );
+  const items = value.map((entry, index) => ({
+    ...entry,
+    index,
+    id: rows.ids[index]!,
+    label: labelOf(entry.key),
+  }));
+  return (
+    <div
+      data-slot="sort-builder"
+      className={cn("flex min-w-0 flex-col gap-2", className)}
+    >
+      <SortableList
+        aria-label={ariaLabel}
+        items={items}
+        disabled={disabled}
+        onReorder={({ from, to }) => {
+          const next = [...value];
+          const [moved] = next.splice(from.index, 1);
+          next.splice(to.index, 0, moved!);
+          rows.move(from.index, to.index);
+          onChange(next);
+        }}
+        onRemove={(item) => {
+          rows.remove(item.index);
+          onChange(value.filter((_, i) => i !== item.index));
+        }}
+        removeLabel={(label) => `Remove sort by ${label}`}
+        renderItem={(item) => (
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
+            <FieldSelect
+              fields={remaining(vocabulary, taken, item.key)}
+              value={item.key}
+              disabled={disabled}
+              label={`Sort field ${items.indexOf(item) + 1}`}
+              onChange={(key) =>
+                onChange(
+                  value.map((e) => (e.key === item.key ? { ...e, key } : e)),
+                )
+              }
+            />
+            <Select
+              items={{ asc: "Ascending", desc: "Descending" }}
+              value={item.dir}
+              onValueChange={(dir) =>
+                onChange(
+                  value.map((e, i) =>
+                    i === item.index
+                      ? { ...e, dir: dir === "desc" ? "desc" : "asc" }
+                      : e,
+                  ),
+                )
+              }
+              disabled={disabled}
+            >
+              <SelectTrigger
+                size="sm"
+                aria-label={`${item.label} direction`}
+                className="w-fit min-w-32"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="asc">Ascending</SelectItem>
+                <SelectItem value="desc">Descending</SelectItem>
+              </SelectContent>
+            </Select>
+          </span>
+        )}
+      />
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-fit"
+        data-slot="sort-builder-add"
+        disabled={disabled || value.length >= max || free.length === 0}
+        onClick={() => onChange([...value, { key: free[0]!.key, dir: "asc" }])}
+      >
+        <Plus /> Add sort
+      </Button>
+    </div>
+  );
+}
+
+/** Props accepted by `GroupByPicker`. */
+export interface GroupByPickerProps {
+  /** The fields that can group — the same vocabulary `FilterBuilder` takes. */
+  vocabulary: readonly Pick<FilterField, "key" | "label">[];
+  /** The grouping fields, outermost first. */
+  value: readonly string[];
+  /** Called with the next fields. */
+  onChange: (value: string[]) => void;
+  /**
+   * The most levels.
+   * @default 2
+   */
+  max?: number;
+  /**
+   * Show the levels as removable `FilterChip`s instead of the editor.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Disable every control.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Accessible name of the list.
+   * @default "Group by"
+   */
+  "aria-label"?: string;
+  /** Extra classes for the root.
+   * @default undefined
+   */
+  className?: string;
+}
+
+/**
+ * `GroupByPicker` — up to two grouping levels, outermost first: a field per row, drag to reorder,
+ * × to remove, "Add group" for the next free field. `readOnly` shows them as `FilterChip`s. The
+ * host groups.
+ *
+ * @example
+ * <GroupByPicker
+ *   vocabulary={[{ key: "status", label: "Status" }, { key: "owner", label: "Owner" }]}
+ *   value={["status"]}
+ *   onChange={setGroups}
+ * />
+ */
+export function GroupByPicker({
+  vocabulary,
+  value,
+  onChange,
+  max = 2,
+  readOnly = false,
+  disabled = false,
+  "aria-label": ariaLabel = "Group by",
+  className,
+}: GroupByPickerProps) {
+  const labelOf = (key: string) =>
+    vocabulary.find((f) => f.key === key)?.label ?? key;
+  const free = remaining(vocabulary, value);
+  const rows = useRowIds(value.length);
+  if (readOnly)
+    return (
+      <div
+        data-slot="group-by-picker"
+        data-read-only=""
+        data-disabled={disabled ? "" : undefined}
+        role="group"
+        aria-label={ariaLabel}
+        // A frozen summary is not keyboard-editable either (as FilterBuilder's).
+        inert={disabled || undefined}
+        className={cn(
+          "flex flex-wrap gap-1.5",
+          disabled && "opacity-50",
+          className,
+        )}
+      >
+        {value.map((key) => (
+          <FilterChip
+            key={key}
+            label="Group"
+            value={labelOf(key)}
+            removeLabel={`Remove grouping by ${labelOf(key)}`}
+            onRemove={() => onChange(value.filter((k) => k !== key))}
+          />
+        ))}
+      </div>
+    );
+  const items = value.map((key, index) => ({
+    key,
+    index,
+    id: rows.ids[index]!,
+    label: labelOf(key),
+  }));
+  return (
+    <div
+      data-slot="group-by-picker"
+      className={cn("flex min-w-0 flex-col gap-2", className)}
+    >
+      <SortableList
+        aria-label={ariaLabel}
+        items={items}
+        disabled={disabled}
+        onReorder={({ from, to }) => {
+          const next = [...value];
+          const [moved] = next.splice(from.index, 1);
+          next.splice(to.index, 0, moved!);
+          rows.move(from.index, to.index);
+          onChange(next);
+        }}
+        onRemove={(item) => {
+          rows.remove(item.index);
+          onChange(value.filter((_, i) => i !== item.index));
+        }}
+        removeLabel={(label) => `Remove grouping by ${label}`}
+        renderItem={(item) => (
+          <FieldSelect
+            fields={remaining(vocabulary, value, item.key)}
+            value={item.key}
+            disabled={disabled}
+            label={`Group level ${item.index + 1}`}
+            onChange={(key) =>
+              onChange(value.map((k, i) => (i === item.index ? key : k)))
+            }
+          />
+        )}
+      />
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-fit"
+        data-slot="group-by-picker-add"
+        disabled={disabled || value.length >= max || free.length === 0}
+        onClick={() => onChange([...value, free[0]!.key])}
+      >
+        <Plus /> Add group
+      </Button>
     </div>
   );
 }

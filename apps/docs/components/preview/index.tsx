@@ -106,6 +106,7 @@ export * from "./upload-panel";
 export * from "./color-picker";
 export * from "./emoji-picker";
 export * from "./data-grid";
+export * from "./view-tabs";
 export * from "./data-list";
 export * from "./media-card";
 export * from "./thumbnail";

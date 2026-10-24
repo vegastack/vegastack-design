@@ -1,0 +1,98 @@
+---
+title: View Tabs
+description: A table's saved views as a tab row — shared views, then the reader's own, a lock on locked views, a create menu, and one Select on narrow screens.
+audience: public
+registry: view-tabs
+status: stable
+since: 0.25.71
+a11y: tablist with roving focus; a named Select when narrow
+preview: viewTabs
+---
+
+## Install
+
+<InstallSteps name="view-tabs" />
+
+## Usage
+
+```tsx
+import { ViewTabs } from "@/components/ui/view-tabs";
+
+<ViewTabs
+  views={[
+    { id: "all", name: "All requests", kind: "grid", scope: "shared" },
+    { id: "status", name: "By status", kind: "board", scope: "locked" },
+    { id: "mine", name: "My follow-ups", kind: "grid", scope: "personal" },
+  ]}
+  value={view}
+  onValueChange={setView}
+  onCreate={(kind, scope) => createView(kind, scope)}
+  getViewActions={(view) => (
+    <DropdownMenuItem onClick={() => rename(view)}>Rename</DropdownMenuItem>
+  )}
+/>;
+```
+
+`ViewTabs` is the row of saved views over a table or a list. Shared views come first (a locked view
+carries a lock), then a divider and the reader's own under **Mine**. Each tab shows the view's kind
+— a grid or a board — and its name. `onCreate` adds a **+** menu: a grid or a board view, shared or
+personal (`canCreateShared={false}` hides the shared choices). `getViewActions` puts the open view's
+items (rename, duplicate, delete) in a ⋯ menu after the tabs.
+
+It is built on [`Tabs`](/docs/components/tabs) `variant="line"`, which scrolls and keeps the active
+tab in view. Below `@3xl` of its own container the row becomes one `Select` with the same two
+groups. For a list/grid layout switch over the same data, use
+[`ViewToggle`](/docs/components/view-toggle) instead.
+
+## Scope
+
+| Behaviour                                              | Where it lives                  |
+| ------------------------------------------------------ | ------------------------------- |
+| Which views exist, their order and who may change them | Host                            |
+| Saving a changed view ("Save for everyone", "Reset")   | Host                            |
+| Rename, duplicate, delete                              | Host — through `getViewActions` |
+
+## Examples
+
+### Narrow containers
+
+<ComponentPreview
+  name="viewTabsNarrow"
+  file="components/preview/view-tabs.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/view-tabs.tsx"
+  name="ViewTabsProps"
+/>
+
+### View
+
+<ApiTable
+  path="../../packages/ui/registry/ui/view-tabs.tsx"
+  name="ViewTabsView"
+/>
+
+## Accessibility
+
+- The tab row is a `tablist` named by `aria-label` (default "Views"): one tab stop, arrows move,
+  Enter or Space opens a view. A locked view is read as "By status, locked".
+- The **+** button is named "New view"; the ⋯ button "{view} options".
+- Narrow, the row is one `Select` with the same name and the same Shared and Mine groups.
+
+| Key                                 | Action                                 |
+| ----------------------------------- | -------------------------------------- |
+| <kbd>←</kbd> <kbd>→</kbd>           | Move between views.                    |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the focused view.                 |
+| <kbd>Tab</kbd>                      | Leave the row for the + and ⋯ buttons. |
+
+<StatesTested name="view-tabs" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep a view's personal changes in the host and offer Save for everyone where the reader may change shared views."
+  dont="Use ViewTabs to switch a list between rows and cards — that is ViewToggle."
+/>

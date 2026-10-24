@@ -4,8 +4,16 @@ import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
+  CheckboxValueEditor,
+  DateValueEditor,
   describeFilter,
+  FILTER_ME,
   FilterBuilder,
+  GroupByPicker,
+  LinkValueEditor,
+  PersonValueEditor,
+  SortBuilder,
+  type SortBuilderEntry,
   formatRange,
   NumberRangeEditor,
   NumberValueEditor,
@@ -1033,4 +1041,357 @@ test("between always gets the min–max editor, even with a number editor regist
   await expect
     .element(screen.getByRole("textbox", { name: "Maximum" }))
     .toBeInTheDocument();
+});
+
+// ── R4: value editors, SortBuilder, GroupByPicker ───────────────────────────────────────────────
+
+const R4_VOCABULARY: FilterField<unknown>[] = [
+  {
+    key: "due",
+    label: "Due",
+    type: "date",
+    operators: [
+      { value: "on", label: "is" },
+      { value: "between", label: "is between", valueShape: "range" },
+    ],
+  },
+  {
+    key: "owner",
+    label: "Owner",
+    type: "person",
+    people: [
+      { id: "u1", name: "Asha Rao" },
+      { id: "u2", name: "Ben Kim" },
+    ],
+    operators: [
+      { value: "is", label: "is" },
+      { value: "any", label: "is any of", valueShape: "list" },
+    ],
+  },
+  {
+    key: "done",
+    label: "Done",
+    type: "checkbox",
+    operators: [{ value: "is", label: "is" }],
+  },
+  {
+    key: "customer",
+    label: "Customer",
+    type: "link",
+    search: async (query) => ({
+      items: [
+        { value: "c1", label: "Acme Lighting" },
+        { value: "c2", label: "Globex" },
+      ].filter((o) => o.label.toLowerCase().includes(query.toLowerCase())),
+    }),
+    operators: [{ value: "is", label: "is" }],
+  },
+];
+
+const R4_EDITORS = {
+  date: DateValueEditor,
+  "date:range": DateValueEditor,
+  person: PersonValueEditor,
+  "person:list": PersonValueEditor,
+  checkbox: CheckboxValueEditor,
+  link: LinkValueEditor,
+};
+
+function R4Builder({
+  initial,
+  onChange,
+}: {
+  initial: Extract<FilterNode<unknown>, { type: "group" }>;
+  onChange?: (v: Extract<FilterNode<unknown>, { type: "group" }>) => void;
+}) {
+  const [tree, setTree] = React.useState(initial);
+  return (
+    <FilterBuilder<unknown>
+      vocabulary={R4_VOCABULARY}
+      editors={R4_EDITORS}
+      value={tree}
+      onValueChange={(next) => {
+        setTree(next);
+        onChange?.(next);
+      }}
+    />
+  );
+}
+
+test("nested and/or to depth 3 with every new value editor is axe-clean", async () => {
+  const screen = await render(
+    <R4Builder
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          {
+            type: "condition",
+            field: "due",
+            operator: "on",
+            value: { relative: "this_week" },
+          },
+          {
+            type: "group",
+            op: "or",
+            children: [
+              {
+                type: "condition",
+                field: "owner",
+                operator: "is",
+                value: FILTER_ME,
+              },
+              {
+                type: "group",
+                op: "and",
+                children: [
+                  {
+                    type: "condition",
+                    field: "done",
+                    operator: "is",
+                    value: false,
+                  },
+                  {
+                    type: "condition",
+                    field: "customer",
+                    operator: "is",
+                    value: { id: "c1", label: "Acme Lighting" },
+                  },
+                  {
+                    type: "condition",
+                    field: "due",
+                    operator: "between",
+                    value: { from: "2026-10-01", to: "2026-10-31" },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }}
+    />,
+  );
+  expect(document.querySelectorAll("fieldset")).toHaveLength(3);
+  expect(
+    document.querySelector('[data-slot="filter-date-range-editor"]'),
+  ).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("DateValueEditor: a relative date or an exact day; last N days keeps its count", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <R4Builder
+      initial={{
+        type: "group",
+        op: "and",
+        children: [{ type: "condition", field: "due", operator: "on" }],
+      }}
+      onChange={onChange}
+    />,
+  );
+  await screen.getByRole("combobox", { name: /kind of date/ }).click();
+  await screen.getByRole("option", { name: "Last N days" }).click();
+  expect(onChange.mock.lastCall![0].children[0].value).toEqual({
+    relative: "last_days",
+    days: 7,
+  });
+  await expectNoA11yViolations(screen.container);
+});
+
+test("PersonValueEditor offers Me first and stores ids; describeFilter reads them", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <R4Builder
+      initial={{
+        type: "group",
+        op: "and",
+        children: [{ type: "condition", field: "owner", operator: "is" }],
+      }}
+      onChange={onChange}
+    />,
+  );
+  await screen.getByRole("button", { name: /Owner/ }).first().click();
+  const options = screen.getByRole("option");
+  await expect.poll(() => options.elements()[0]?.textContent).toContain("Me");
+  await screen.getByRole("option", { name: /Ben Kim/ }).click();
+  expect(onChange.mock.lastCall![0].children[0].value).toBe("u2");
+  expect(
+    describeFilter(
+      {
+        type: "group",
+        op: "and",
+        children: [
+          {
+            type: "condition",
+            field: "owner",
+            operator: "is",
+            value: FILTER_ME,
+          },
+        ],
+      },
+      R4_VOCABULARY,
+    ),
+  ).toContain("me");
+});
+
+test("CheckboxValueEditor stores a boolean; LinkValueEditor searches and stores id and name", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <R4Builder
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          { type: "condition", field: "done", operator: "is" },
+          { type: "condition", field: "customer", operator: "is" },
+        ],
+      }}
+      onChange={onChange}
+    />,
+  );
+  const triggers = screen.getByRole("combobox");
+  await screen.getByRole("combobox", { name: /Done/ }).click();
+  await screen.getByRole("option", { name: "Unchecked" }).click();
+  expect(onChange.mock.lastCall![0].children[0].value).toBe(false);
+  void triggers;
+  await screen.getByRole("combobox", { name: /Customer/ }).click();
+  await userEvent.keyboard("glo");
+  await screen.getByRole("option", { name: /Globex/ }).click();
+  expect(onChange.mock.lastCall![0].children[1].value).toEqual({
+    id: "c2",
+    label: "Globex",
+  });
+  await expectNoA11yViolations(screen.container);
+});
+
+const SORT_FIELDS = [
+  { key: "due", label: "Due" },
+  { key: "qty", label: "Qty" },
+  { key: "name", label: "Name" },
+  { key: "owner", label: "Owner" },
+];
+
+function SortHarness({
+  onChange,
+  max,
+}: {
+  onChange?: (v: SortBuilderEntry[]) => void;
+  max?: number;
+}) {
+  const [value, setValue] = React.useState<SortBuilderEntry[]>([
+    { key: "due", dir: "asc" },
+    { key: "qty", dir: "desc" },
+  ]);
+  return (
+    <SortBuilder
+      vocabulary={SORT_FIELDS}
+      value={value}
+      max={max}
+      onChange={(next) => {
+        setValue(next);
+        onChange?.(next);
+      }}
+    />
+  );
+}
+
+test("SortBuilder: add up to the max, change direction, reorder from the keyboard, remove", async () => {
+  const onChange = vi.fn();
+  const screen = await render(<SortHarness onChange={onChange} />);
+  await expectNoA11yViolations(screen.container);
+  await screen.getByRole("button", { name: "Add sort" }).click();
+  expect(onChange.mock.lastCall![0]).toEqual([
+    { key: "due", dir: "asc" },
+    { key: "qty", dir: "desc" },
+    { key: "name", dir: "asc" },
+  ]);
+  // Three is the most.
+  await expect
+    .element(screen.getByRole("button", { name: "Add sort" }))
+    .toBeDisabled();
+  await screen.getByRole("combobox", { name: "Due direction" }).click();
+  await screen.getByRole("option", { name: "Descending" }).click();
+  expect(onChange.mock.lastCall![0][0]).toEqual({ key: "due", dir: "desc" });
+  // The move-mode keyboard path SortableList owns.
+  const handle = screen.getByRole("button", { name: "Reorder Qty" });
+  (handle.element() as HTMLElement).focus();
+  await userEvent.keyboard(" {ArrowUp} ");
+  expect(
+    onChange.mock.lastCall![0].map((e: SortBuilderEntry) => e.key),
+  ).toEqual(["qty", "due", "name"]);
+  await screen.getByRole("button", { name: "Remove sort by Name" }).click();
+  expect(onChange.mock.lastCall![0]).toHaveLength(2);
+});
+
+test("SortBuilder read-only: removable chips with the direction", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <SortBuilder
+      readOnly
+      vocabulary={SORT_FIELDS}
+      value={[{ key: "due", dir: "desc" }]}
+      onChange={onChange}
+    />,
+  );
+  expect(screen.container.textContent).toContain("descending");
+  await screen.getByRole("button", { name: "Remove sort by Due" }).click();
+  expect(onChange).toHaveBeenCalledWith([]);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("GroupByPicker: two levels at most, each field once; read-only chips", async () => {
+  function Harness() {
+    const [value, setValue] = React.useState<string[]>(["owner"]);
+    return (
+      <GroupByPicker
+        vocabulary={SORT_FIELDS}
+        value={value}
+        onChange={setValue}
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("button", { name: "Add group" }).click();
+  expect(document.querySelectorAll('[aria-label^="Group level"]')).toHaveLength(
+    2,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Add group" }))
+    .toBeDisabled();
+  await expectNoA11yViolations(screen.container);
+  await screen.rerender(
+    <GroupByPicker
+      readOnly
+      vocabulary={SORT_FIELDS}
+      value={["owner"]}
+      onChange={() => {}}
+    />,
+  );
+  expect(screen.container.textContent).toContain("Owner");
+});
+
+test("SortBuilder: changing a row's field keeps the row (its picker keeps focus); a disabled summary is inert", async () => {
+  const screen = await render(<SortHarness />);
+  const picker = screen.getByRole("combobox", { name: "Sort field 1" });
+  await picker.click();
+  await screen.getByRole("option", { name: "Name" }).click();
+  await expect
+    .poll(() => document.activeElement?.getAttribute("aria-label"))
+    .toBe("Sort field 1");
+  const onChange = vi.fn();
+  await screen.rerender(
+    <SortBuilder
+      readOnly
+      disabled
+      vocabulary={SORT_FIELDS}
+      value={[{ key: "due", dir: "asc" }]}
+      onChange={onChange}
+    />,
+  );
+  expect(
+    screen.container
+      .querySelector('[data-slot="sort-builder"]')
+      ?.hasAttribute("inert"),
+  ).toBe(true);
 });

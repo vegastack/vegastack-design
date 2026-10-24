@@ -4,8 +4,16 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/filter-bar-managed` (dogfoods the registry) → auto-scanned.
 import {
+  CheckboxValueEditor,
+  DateValueEditor,
   describeFilter,
+  FILTER_ME,
   FilterBuilder,
+  GroupByPicker,
+  LinkValueEditor,
+  PersonValueEditor,
+  SortBuilder,
+  type SortBuilderEntry,
   type FilterField,
   type FilterNode,
   NumberValueEditor,
@@ -298,6 +306,125 @@ export function filterBarManagedSentence(): ReactNode {
         summary="sentence"
         prefix="Required when"
       />
+    </Wrapper>
+  );
+}
+
+/* ── R4: the date, person, checkbox and link editors; SortBuilder and GroupByPicker ── */
+
+const TABLE_VOCABULARY: FilterField<unknown>[] = [
+  {
+    key: "due",
+    label: "Due",
+    type: "date",
+    operators: [
+      { value: "on", label: "is" },
+      { value: "before", label: "is before" },
+      { value: "between", label: "is between", valueShape: "range" },
+    ],
+  },
+  {
+    key: "owner",
+    label: "Owner",
+    type: "person",
+    people: [
+      { id: "u1", name: "Asha Rao", email: "asha@example.com" },
+      { id: "u2", name: "Ben Kim", email: "ben@example.com" },
+    ],
+    operators: [
+      { value: "is", label: "is" },
+      { value: "any", label: "is any of", valueShape: "list" },
+    ],
+  },
+  {
+    key: "sample",
+    label: "Sample sent",
+    type: "checkbox",
+    operators: [{ value: "is", label: "is" }],
+  },
+  {
+    key: "customer",
+    label: "Customer",
+    type: "link",
+    search: async (query) => ({
+      items: ["Acme Lighting", "Globex", "Initech", "Umbrella"]
+        .filter((name) => name.toLowerCase().includes(query.toLowerCase()))
+        .map((name) => ({ value: name.toLowerCase(), label: name })),
+    }),
+    operators: [{ value: "is", label: "is" }],
+  },
+];
+
+export function filterBarManagedTableEditors(): ReactNode {
+  const [tree, setTree] = useState<
+    Extract<FilterNode<unknown>, { type: "group" }>
+  >({
+    type: "group",
+    op: "and",
+    children: [
+      {
+        type: "condition",
+        field: "due",
+        operator: "on",
+        value: { relative: "this_week" },
+      },
+      { type: "condition", field: "owner", operator: "is", value: FILTER_ME },
+      { type: "condition", field: "sample", operator: "is", value: false },
+    ],
+  });
+  return (
+    <Wrapper className="block">
+      <FilterBuilder<unknown>
+        vocabulary={TABLE_VOCABULARY}
+        editors={{
+          date: DateValueEditor,
+          "date:range": DateValueEditor,
+          person: PersonValueEditor,
+          "person:list": PersonValueEditor,
+          checkbox: CheckboxValueEditor,
+          link: LinkValueEditor,
+        }}
+        value={tree}
+        onValueChange={setTree}
+      />
+    </Wrapper>
+  );
+}
+
+const SORT_FIELDS = [
+  { key: "due", label: "Due" },
+  { key: "qty", label: "Qty" },
+  { key: "status", label: "Status" },
+  { key: "owner", label: "Owner" },
+];
+
+export function filterBarManagedSortGroup(): ReactNode {
+  const [sort, setSort] = useState<SortBuilderEntry[]>([
+    { key: "due", dir: "asc" },
+  ]);
+  const [groups, setGroups] = useState<string[]>(["status"]);
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <SortBuilder vocabulary={SORT_FIELDS} value={sort} onChange={setSort} />
+      <GroupByPicker
+        vocabulary={SORT_FIELDS}
+        value={groups}
+        onChange={setGroups}
+      />
+      <div className="flex flex-wrap gap-1.5">
+        <SortBuilder
+          readOnly
+          vocabulary={SORT_FIELDS}
+          value={sort}
+          onChange={setSort}
+        />
+        <GroupByPicker
+          readOnly
+          vocabulary={SORT_FIELDS}
+          value={groups}
+          onChange={setGroups}
+        />
+      </div>
     </Wrapper>
   );
 }

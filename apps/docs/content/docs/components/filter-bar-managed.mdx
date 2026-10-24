@@ -161,6 +161,47 @@ fields on the server (every field it offers must also be in `vocabulary`).
   name="OptionValueEditorProps"
 />
 
+### Dates, people, checkboxes and links
+
+Four more editors cover a table's field types. `DateValueEditor` takes an exact day from the
+calendar or a relative date — Today, This week, Last N days (`{ relative, days }`), stored as ISO
+calendar days so no time zone moves them; for a `range` operator it takes two days (`{ from, to }`).
+`PersonValueEditor` offers the field's `people` (or its `search`) on `PeoplePicker`, with **Me**
+first, stored as `FILTER_ME` so a saved view means whoever opens it; a `list` operator picks several.
+`CheckboxValueEditor` stores `true` or `false`. `LinkValueEditor` searches records through the
+field's `search` (keyset paged, debounced, race-safe) and stores `{ id, label }`.
+
+A `<type>:range` or `<type>:list` key in `editors` (`"date:range"`, `"person:list"`) wins over the
+shape defaults for that type alone, so one editor can serve a type's every operator.
+
+<ComponentPreview
+  name="filterBarManagedTableEditors"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+### Sort and group
+
+`SortBuilder` edits up to three sort keys (`{ key, dir }`, first one first) and `GroupByPicker` up
+to two grouping levels (outermost first), both from the same field vocabulary. Rows reorder by drag
+or `SortableList`'s keyboard move mode, × removes one, and "Add sort" / "Add group" append the next
+free field. With `readOnly` both show removable `FilterChip`s. They edit data; the host sorts and
+groups.
+
+<ComponentPreview
+  name="filterBarManagedSortGroup"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
+  name="SortBuilderProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
+  name="GroupByPickerProps"
+/>
+
 ### Depth and condition caps
 
 At a cap the add affordance stays focusable with `aria-disabled` (FRM-4), and the reason renders as

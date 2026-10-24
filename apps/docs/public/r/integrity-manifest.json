@@ -143,7 +143,7 @@
   "file-kind": "sha256-CA5fOCwhsueRYVMmkS074suEAgTNjjp0XLq5DEcvWpM=",
   "file-viewer": "sha256-ChSSJNXX19RP+gWrfUPJneqx6ecKl1MTL8117UrUlmo=",
   "filter-bar": "sha256-+6oi+jQG+cSPYaffNEKZ2y+A9TneBE2L27mW9CkhweQ=",
-  "filter-bar-managed": "sha256-u11+pcwc5eRa+93+nTnoLgOnSVqlZxMw11BIUWTo2qs=",
+  "filter-bar-managed": "sha256-K0wyla4toVCIdv6Z5DuOgNJ8PJxHwnD/7sSnZJajbw8=",
   "folder-tree": "sha256-RZ6PAWuUP3S/SI5xBikUsaxFmrrP27b5903XBlXmsnI=",
   "geo-data": "sha256-wer4q/xRfY5ED+azG57hu9ojQhRWeTXxhgvdVAbWR+w=",
   "grid-clipboard": "sha256-soEt8PQMBvE5t+NH7Vp95Upo4sFfQ7Dulq32ITkz8B4=",
@@ -751,5 +751,6 @@
   "value-change": "sha256-rzoNg4gfRD27ghPuVkzbxMeNl4fwFHRC5rFlLYMtC9o=",
   "version-list": "sha256-KulaN0fNvLfd/0zWO0jareDMdgndqu9cO7O7cVV+P9U=",
   "video-player": "sha256-Rs3Ibgjpqna9PHUeQGGVJYh12tjVGd8mFwQOrJvZ9fw=",
+  "view-tabs": "sha256-YAZGrdx7/u99LwwzeAaP6BqGiEqCM3IwfUZuDKMIIhk=",
   "view-toggle": "sha256-4gAWetv+ADZlKVR+F3u/J7lUL+Pc4n4FlcjOrOiiyjI="
 }
