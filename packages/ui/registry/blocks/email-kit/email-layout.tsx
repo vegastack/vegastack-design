@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.73 sha256-z7Us0HmYqdJunXucMuzyEZhBg/4DI1rOnNRR0LMyWSY=
+// @vegastack email-kit@0.25.74 sha256-6zuSU7z05U6fIUeWEJjF/UOCatJ4Ci58CkfFda51fjM=
 
 import type { ReactNode } from "react";
 import {
