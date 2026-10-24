@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.73 sha256-wQFgr98ib76FwKpUAMH10Hsa+BxSCvxS2jVo9JvwGuE=
+// @vegastack markdown-view@0.25.73 sha256-fFFKgMg1PwKcz/qlabde74z9zhPkInr+/xEhXGTotAU=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -21,7 +21,6 @@ import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
 import {
   CALLOUT_MARKER,
   DEFAULT_LIVE_BLOCK_KINDS,
-  LIVE_BLOCK_NAME,
   MEDIA_BLOCK,
   TOGGLE_CLOSE,
   TOGGLE_OPEN,
@@ -32,10 +31,12 @@ import {
   parseImageAlt,
   parseMentionLink,
   isMentionKind,
-  parseTaskListRows,
+  liveBlockNames,
+  parseLiveBlockRows,
   readLiveBlock,
   trackedLexing,
   type CalloutTone,
+  type LiveBlockKind,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import { resolveAnchor } from "@/lib/text-anchor";
@@ -277,7 +278,7 @@ export interface TaskQueryRenderProps {
   blockId: string;
   /** Its filter: the directive's other attributes (`v`, `space`, `assignee`, `status`, …), as written. */
   query: Record<string, string>;
-  /** The rows last stored: `- [ ] [@Title](mention://task/<id>) — <status>` lines (`parseTaskListRows`). */
+  /** The rows last stored: `- [ ] [@Title](mention://task/<id>) — <status>` lines, or the kind's own (`parseLiveBlockRows`). */
   snapshot: string;
   /** Whether the reader can change the list's filter: an editable editor. */
   editable: boolean;
@@ -331,15 +332,21 @@ function queryOf(json: string | undefined): Record<string, string> {
   }
 }
 
-/** Props accepted by `MarkdownTaskList`. */
-export interface MarkdownTaskListProps extends Omit<
+/** Props accepted by `MarkdownLiveBlock`. */
+export interface MarkdownLiveBlockProps extends Omit<
   React.ComponentPropsWithRef<"div">,
   "children"
 > {
-  /** The list's rows as stored: `- [x] [@Title](mention://task/<id>) — <status>` lines. */
+  /** The block's rows as stored: `- [x] [@Title](mention://task/<id>) — <status>` or `- [@Row](mention://row/<id>)` lines. */
   snapshot: string;
   /**
-   * A task chip's link, as `MarkdownView`'s prop of the same name; without it the nearest
+   * The block's kind: its heading (`label`), the mention kind of its rows (`rowKind`) and its
+   * line with no rows (`empty`).
+   * @default DEFAULT_LIVE_BLOCK_KINDS[0] — the live task list
+   */
+  kind?: LiveBlockKind;
+  /**
+   * A row chip's link, as `MarkdownView`'s prop of the same name; without it the nearest
    * `InlineChipProvider` links it.
    * @default undefined
    */
@@ -347,26 +354,32 @@ export interface MarkdownTaskListProps extends Omit<
 }
 
 /**
- * `MarkdownTaskList` — a live task list's stored snapshot as a quiet, read-only card: the muted
- * heading "Task list", then each row's done box, task chip and status label, or "No matching
- * tasks". Server-safe. `MarkdownView` renders `:::tasks` with it, and `TextEdit` shows it where
- * the host draws no live list (`renderTaskQuery`).
+ * `MarkdownLiveBlock` — a live block's stored snapshot as a quiet, read-only card: the kind's muted
+ * heading ("Task list"), then each row — its box when it has one, the record's chip and its status
+ * label — or the kind's empty line. Server-safe. `MarkdownView` renders every live block with it,
+ * and `TextEdit` shows it where the host draws no live block (`renderLiveBlock`).
  *
  * @example
- * <MarkdownTaskList snapshot={"- [ ] [@Order glass](mention://task/t1) — To do"} />
+ * <MarkdownLiveBlock snapshot={"- [ ] [@Order glass](mention://task/t1) — To do"} />
+ * <MarkdownLiveBlock
+ *   kind={{ name: "table", rowKind: "row", label: "Table view" }}
+ *   snapshot={"- [@Row](mention://row/r1)"}
+ * />
  */
-export function MarkdownTaskList({
+export function MarkdownLiveBlock({
   snapshot,
+  kind = DEFAULT_LIVE_BLOCK_KINDS[0]!,
   mentionHref,
   className,
   ...props
-}: MarkdownTaskListProps) {
-  const rows = parseTaskListRows(snapshot);
+}: MarkdownLiveBlockProps) {
+  const rows = parseLiveBlockRows(snapshot, kind.rowKind);
   return (
     <div
-      data-slot="markdown-task-list"
+      data-slot="markdown-live-block"
+      data-kind={kind.name}
       role="group"
-      aria-label="Task list"
+      aria-label={kind.label}
       className={cn(
         "my-2 rounded-lg border border-border px-3 py-2 text-sm",
         className,
@@ -374,7 +387,7 @@ export function MarkdownTaskList({
       {...props}
     >
       <div aria-hidden className="text-xs font-medium text-muted-foreground">
-        Task list
+        {kind.label}
       </div>
       {rows.length ? (
         <div role="list" className="mt-1.5 flex flex-col gap-1.5">
@@ -382,23 +395,27 @@ export function MarkdownTaskList({
             <div
               key={index}
               role="listitem"
-              data-slot="markdown-task-list-row"
-              data-checked={row.checked}
+              data-slot="markdown-live-block-row"
+              data-checked={row.checked ?? undefined}
               className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5"
             >
-              <Checkbox
-                checked={row.checked}
-                aria-label={row.checked ? "Done" : "Not done"}
-                disabled
-                className="pointer-events-none inline-flex disabled:opacity-100"
-              />
+              {row.checked === null ? null : (
+                <Checkbox
+                  checked={row.checked}
+                  aria-label={row.checked ? "Done" : "Not done"}
+                  disabled
+                  className="pointer-events-none inline-flex disabled:opacity-100"
+                />
+              )}
               {row.id ? (
                 <InlineChip
-                  kind="task"
+                  kind={kind.rowKind}
                   targetId={row.id}
                   label={row.label}
-                  href={mentionHref ? mentionHref("task", row.id) : undefined}
-                  // The row is a snapshot: its checkbox and status say its state, never the
+                  href={
+                    mentionHref ? mentionHref(kind.rowKind, row.id) : undefined
+                  }
+                  // The row is a snapshot: its box and status say its state, never the
                   // provider's live one.
                   done={false}
                   struck={false}
@@ -413,7 +430,9 @@ export function MarkdownTaskList({
           ))}
         </div>
       ) : (
-        <div className="mt-1 text-muted-foreground">No matching tasks</div>
+        <div className="mt-1 text-muted-foreground">
+          {kind.empty ?? "Nothing matches"}
+        </div>
       )}
     </div>
   );
@@ -633,10 +652,8 @@ function liveBlockStart(names: readonly string[]) {
  */
 const lexing = trackedLexing(Lexer);
 const readers = new Map<string, Marked>();
-function readerFor(liveBlockKinds: readonly string[]): Marked {
-  const names = liveBlockKinds.filter((name) =>
-    new RegExp(`^${LIVE_BLOCK_NAME}$`).test(name),
-  );
+function readerFor(liveBlockKinds: readonly LiveBlockKind[]): Marked {
+  const names = liveBlockNames(liveBlockKinds);
   const key = names.join(",");
   let reader = readers.get(key);
   if (!reader) {
@@ -1219,7 +1236,7 @@ function annotate(
 
 function fromMarkdown(
   source: string,
-  liveBlockKinds: readonly string[],
+  liveBlockKinds: readonly LiveBlockKind[],
 ): DocNode[] {
   const outer = reader;
   reader = readerFor(liveBlockKinds);
@@ -1552,6 +1569,8 @@ interface RenderContext {
   blockViews?: BlockViews;
   /** Draws a live block in place of its stored snapshot (`liveBlockRenderer`). */
   renderLiveBlock?: LiveBlockRender;
+  /** The kinds the view reads: a block's snapshot card takes its kind's heading and row kind. */
+  liveBlockKinds: readonly LiveBlockKind[];
   /**
    * Mark what the anchor text reads differently from the DOM (`data-anchor-text`): a mention or
    * file chip, a blocked image or media block — set while selections can be commented on.
@@ -2292,9 +2311,12 @@ function renderNode(
           {drawn}
         </div>
       ) : (
-        <MarkdownTaskList
+        <MarkdownLiveBlock
           key={key}
           snapshot={snapshot}
+          kind={ctx.liveBlockKinds.find(
+            (k) => k.name === (attrs.kind ?? "tasks"),
+          )}
           mentionHref={ctx.mentionHref}
           data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
           data-anchor-block={ctx.anchorAttrs ? "" : undefined}
@@ -2601,7 +2623,7 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * Draws a live task list (`:::tasks{…}` … `:::`) — a host component that fetches the list for
    * this reader — in place of its stored snapshot. Called with `editable: false`. Without it (and
-   * where it returns `null`/`undefined`) the snapshot shows as a quiet list (`MarkdownTaskList`):
+   * where it returns `null`/`undefined`) the snapshot shows as a quiet list (`MarkdownLiveBlock`):
    * a public view never gets live data. The function runs during render; pass it from a client
    * component, or build the view on the server.
    * @default undefined
@@ -2611,16 +2633,17 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * Draws a live block of any kind (`:::<kind>{…}` … `:::`, a name in `liveBlockKinds`) in place
    * of its stored snapshot, called with the block's kind and `editable: false`. Given, it is asked
    * for every kind, `tasks` included, and `renderTaskQuery` is not used. Returning
-   * `null`/`undefined` leaves the snapshot (`MarkdownTaskList`).
+   * `null`/`undefined` leaves the snapshot (`MarkdownLiveBlock`).
    * @default undefined
    */
   renderLiveBlock?: LiveBlockRender;
   /**
-   * The live block names this view reads (`:::<name>{…}` … `:::`); a block of any other name
-   * stays text and a list. Markdown only.
-   * @default DEFAULT_LIVE_BLOCK_KINDS — `["tasks"]`
+   * The live block kinds this view reads (`:::<name>{…}` … `:::`), each with the heading and row
+   * kind its stored snapshot shows with (`MarkdownLiveBlock`); a block of any other name stays
+   * text and a list. Markdown only.
+   * @default DEFAULT_LIVE_BLOCK_KINDS — the live task list (`tasks`) alone
    */
-  liveBlockKinds?: readonly string[];
+  liveBlockKinds?: readonly LiveBlockKind[];
   /**
    * A file chip's content type, by its href, when the host knows it (a comment's own files): the
    * chip's icon then follows the type, not only the name's extension.
@@ -2828,6 +2851,7 @@ export function MarkdownView({
         citation,
         blockViews,
         renderLiveBlock: liveBlockRenderer(renderLiveBlock, renderTaskQuery),
+        liveBlockKinds,
         anchorAttrs: onCreateAnnotation !== undefined,
         sections: sectionMarks?.length
           ? sectionsOf(tree, sectionMarks)

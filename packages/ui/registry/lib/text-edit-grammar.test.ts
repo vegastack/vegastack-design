@@ -17,8 +17,10 @@ import {
   parseImageAlt,
   parseDirectiveAttrs,
   parseMentionLink,
-  parseTaskListRows,
+  parseLiveBlockRows,
   readLiveBlock,
+  DEFAULT_LIVE_BLOCK_KINDS,
+  liveBlockNames,
 } from "./text-edit-grammar";
 
 test("mentionMarkdown writes what parseMentionLink reads, escapes and all", () => {
@@ -248,15 +250,16 @@ test("liveBlockMarkdown writes what readLiveBlock reads: id first, rows only; `:
   );
 });
 
-test("parseTaskListRows reads each row's box, task, label and status", () => {
+test("parseLiveBlockRows reads each row's box, record, label and status", () => {
   expect(
-    parseTaskListRows(
+    parseLiveBlockRows(
       [
         "- [ ] [@Order \\[glass\\]](mention://task/t1) — To do",
         "- [x] [@Hidden](mention://task/restricted:t2) — Done",
         "- [X] [@No status](mention://task/t3)",
         "- [ ] [@A page](mention://page/p1) — Draft",
       ].join("\n"),
+      "task",
     ),
   ).toEqual([
     { checked: false, id: "t1", label: "Order [glass]", status: "To do" },
@@ -269,10 +272,13 @@ test("parseTaskListRows reads each row's box, task, label and status", () => {
       status: "",
     },
   ]);
-  expect(parseTaskListRows("")).toEqual([]);
+  expect(parseLiveBlockRows("", "task")).toEqual([]);
   // Text after the mention that is not ` — <status>` is kept: the line reads as text.
   expect(
-    parseTaskListRows("- [ ] [@A](mention://task/t1) important details"),
+    parseLiveBlockRows(
+      "- [ ] [@A](mention://task/t1) important details",
+      "task",
+    ),
   ).toEqual([
     {
       checked: false,
@@ -281,4 +287,35 @@ test("parseTaskListRows reads each row's box, task, label and status", () => {
       status: "",
     },
   ]);
+});
+
+test("a live block's rows may have no box: they read, round-trip and parse with `checked: null`", () => {
+  const table =
+    ':::table{id="b1"}\n- [@Row](mention://row/r1)\n- [@Row](mention://row/r2)\n:::';
+  const read = readLiveBlock(table, { names: ["table"] })!;
+  expect(read.snapshot).toBe(
+    "- [@Row](mention://row/r1)\n- [@Row](mention://row/r2)",
+  );
+  expect(
+    liveBlockMarkdown({
+      kind: "table",
+      id: "b1",
+      query: read.query,
+      snapshot: read.snapshot,
+    }),
+  ).toBe(table);
+  expect(parseLiveBlockRows(read.snapshot, "row")).toEqual([
+    { checked: null, id: "r1", label: "Row", status: "" },
+    { checked: null, id: "r2", label: "Row", status: "" },
+  ]);
+  // Still a line that is not a list item stops the block (it stays text).
+  expect(
+    readLiveBlock(':::table{id="b1"}\nRow\n:::', { names: ["table"] }),
+  ).toBeNull();
+  expect(
+    liveBlockNames([
+      ...DEFAULT_LIVE_BLOCK_KINDS,
+      { name: "Bad", rowKind: "x", label: "X" },
+    ]),
+  ).toEqual(["tasks"]);
 });

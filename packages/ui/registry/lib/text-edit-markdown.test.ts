@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Editor } from "@tiptap/core";
 import { checkCase, corpusCases } from "../../test/vegastack-markdown-corpus";
+import { DEFAULT_LIVE_BLOCK_KINDS } from "./text-edit-grammar";
 import {
   VegaStackMarkdown,
   createMarkdownManager,
@@ -226,14 +227,22 @@ test("a paragraph's indexes never answer for another that looks alike", () => {
   ).toBe(true);
 });
 
+const TABLE_KINDS = [
+  ...DEFAULT_LIVE_BLOCK_KINDS,
+  {
+    name: "table",
+    rowKind: "row",
+    label: "Table view",
+    empty: "No rows match",
+  },
+];
+
 test("a host's live block names survive the server's read and write; others stay text", () => {
   const table = ':::table{id="b1" view="v1"}\n:::';
-  expect(normalizeMarkdown(table, { liveBlockKinds: ["tasks", "table"] })).toBe(
-    table,
-  );
+  expect(normalizeMarkdown(table, { liveBlockKinds: TABLE_KINDS })).toBe(table);
   expect(
-    markdownToDoc(table, { liveBlockKinds: ["tasks", "table"] }).firstChild
-      ?.attrs.kind,
+    markdownToDoc(table, { liveBlockKinds: TABLE_KINDS }).firstChild?.attrs
+      .kind,
   ).toBe("table");
   expect(normalizeMarkdown(table)).toBe(`\\${table.split("\n")[0]}\n:::`);
   const tasks =

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.73 sha256-ODSsWsK5pNDaxedgUoy/7qW3jXmhBw8VZi6TRKxnYB8=
+// @vegastack text-edit@0.25.73 sha256-4uiG401897FFRtgo3FwomvItp/LuxXU3JpzjNYu5T/I=
 
 "use client";
 
@@ -237,7 +237,7 @@ import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
   MarkdownEmbed,
-  MarkdownTaskList,
+  MarkdownLiveBlock,
   MEDIA_AUDIO_CLASS,
   MEDIA_VIDEO_CLASS,
   annotationActiveClassName,
@@ -260,6 +260,7 @@ import {
   headingIds,
   isRecordMentionKind,
   type CalloutTone,
+  type LiveBlockKind,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import {
@@ -3549,8 +3550,8 @@ interface EditorRuntime {
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
   fileLinkPrefix: React.RefObject<string>;
-  /** The live block names Markdown reads (`liveBlockKinds`), fixed when the editor is created. */
-  liveBlockKinds: readonly string[];
+  /** The live block kinds Markdown reads (`liveBlockKinds`), fixed when the editor is created. */
+  liveBlockKinds: readonly LiveBlockKind[];
   mention: {
     enabled: () => boolean;
     get: () => MentionMenuState | null;
@@ -4222,12 +4223,13 @@ const TASK_QUERY_KEY = /^[a-z][a-z0-9-]*$/;
  * A live block's node view (a task list, or any kind the host reads): an atom, selectable and
  * draggable as a block, nothing editable inside. The host draws it (`renderLiveBlock`, or
  * `renderTaskQuery` for a task list); without one — or where it draws nothing — the stored
- * snapshot shows as `MarkdownView`'s quiet list.
+ * snapshot shows as `MarkdownView`'s quiet card, under its kind's heading.
  */
 function TaskQueryView({
   node,
   selected,
   editor,
+  extension,
   updateAttributes,
 }: ReactNodeViewProps) {
   const snapshot = String(node.attrs.snapshot ?? "");
@@ -4267,7 +4269,15 @@ function TaskQueryView({
       data-selected={selected ? "true" : undefined}
       className="my-2 rounded-lg data-selected:outline-2 data-selected:outline-info"
     >
-      {drawn ?? <MarkdownTaskList snapshot={snapshot} className="my-0" />}
+      {drawn ?? (
+        <MarkdownLiveBlock
+          snapshot={snapshot}
+          kind={(
+            extension.options as { kinds?: readonly LiveBlockKind[] }
+          ).kinds?.find((k) => k.name === kind)}
+          className="my-0"
+        />
+      )}
     </NodeViewWrapper>
   );
 }

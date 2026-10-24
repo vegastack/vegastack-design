@@ -1,10 +1,10 @@
-// @vegastack document-layout@0.25.73 sha256-RL3vU7DmFJ4WZfybtXv9tYxmn2zu1Ftr8eeqM0s1P60=
+// @vegastack document-layout@0.25.73 sha256-LzMiwv/iTWS6PpTNgaFn1tW9G1iAR/zRYz8TYh/600Y=
 
 "use client";
 
 import * as React from "react";
 import { FileText } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -14,6 +14,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useOverflow } from "@/components/ui/use-overflow";
 
 /* ------------------------------------------------------------------------------------------------
  * What a document holds besides its prose: sections at its foot ("Pages inside", "Comments on the
@@ -565,6 +566,206 @@ export function DocumentLayoutBlockRowMeta({
         "ms-8 flex basis-full items-center gap-2 text-xs text-muted-foreground sm:ms-0 sm:basis-auto",
         className,
       )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `DocumentLayoutBlockTable`. */
+export interface DocumentLayoutBlockTableProps extends React.ComponentPropsWithRef<"div"> {
+  /** How many columns each row has, the name column first. */
+  columns: number;
+}
+
+/**
+ * `DocumentLayoutBlockTable` — a block's rows as a quiet read-only table (a live view of a table's
+ * records): a `role="table"` with a `DocumentLayoutBlockTableHead` and a
+ * `DocumentLayoutBlockTableBody`. The first of its `columns` is the rows' name column, twice as
+ * wide as the others and at least 10rem; the others are at least 7rem, and the table scrolls
+ * sideways when they don't fit. Not a `table` element, so a host editor's table styles never
+ * reach it. Nothing in it is editable.
+ *
+ * @example
+ * <DocumentLayoutBlockTable columns={2} aria-label="Sample requests">
+ *   <DocumentLayoutBlockTableHead>
+ *     <DocumentLayoutBlockTableRow>
+ *       <DocumentLayoutBlockTableColumn primary>Name</DocumentLayoutBlockTableColumn>
+ *       <DocumentLayoutBlockTableColumn>Status</DocumentLayoutBlockTableColumn>
+ *     </DocumentLayoutBlockTableRow>
+ *   </DocumentLayoutBlockTableHead>
+ *   <DocumentLayoutBlockTableBody>
+ *     <DocumentLayoutBlockTableRow>
+ *       <DocumentLayoutBlockTableCell primary>Lux survey</DocumentLayoutBlockTableCell>
+ *       <DocumentLayoutBlockTableCell>Open</DocumentLayoutBlockTableCell>
+ *     </DocumentLayoutBlockTableRow>
+ *   </DocumentLayoutBlockTableBody>
+ * </DocumentLayoutBlockTable>
+ */
+export function DocumentLayoutBlockTable({
+  columns,
+  className,
+  style,
+  ref,
+  children,
+  ...props
+}: DocumentLayoutBlockTableProps) {
+  const rest = Math.max(0, Math.floor(columns) - 1);
+  // A keyboard reaches what scrolls: a tab stop only while its columns don't fit.
+  const [node, setNode] = React.useState<HTMLDivElement | null>(null);
+  const scrollable = useOverflow(node, { axis: "inline" });
+  const setRefs = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
+  return (
+    <div
+      {...props}
+      ref={setRefs}
+      role="table"
+      data-slot="document-layout-block-table"
+      data-scrollable={scrollable ? "" : undefined}
+      tabIndex={scrollable ? 0 : undefined}
+      aria-colcount={rest + 1}
+      className={cn("grid w-full overflow-x-auto text-sm", className)}
+      style={{
+        gridTemplateColumns: [
+          "minmax(10rem, 2fr)",
+          ...Array.from({ length: rest }, () => "minmax(7rem, 1fr)"),
+        ].join(" "),
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * `DocumentLayoutBlockTableHead` — the table's header row group: 12px muted column names, ruled
+ * below.
+ *
+ * @example
+ * <DocumentLayoutBlockTableHead>
+ *   <DocumentLayoutBlockTableRow>
+ *     <DocumentLayoutBlockTableColumn primary>Name</DocumentLayoutBlockTableColumn>
+ *   </DocumentLayoutBlockTableRow>
+ * </DocumentLayoutBlockTableHead>
+ */
+export function DocumentLayoutBlockTableHead({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      role="rowgroup"
+      data-slot="document-layout-block-table-head"
+      className={cn(
+        "col-span-full grid grid-cols-subgrid border-b border-border text-xs font-medium text-muted-foreground",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * `DocumentLayoutBlockTableBody` — the table's rows, ruled between.
+ *
+ * @example
+ * <DocumentLayoutBlockTableBody>{rows}</DocumentLayoutBlockTableBody>
+ */
+export function DocumentLayoutBlockTableBody({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      role="rowgroup"
+      data-slot="document-layout-block-table-body"
+      className={cn(
+        "col-span-full grid grid-cols-subgrid divide-y divide-border",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * `DocumentLayoutBlockTableRow` — one row (`role="row"`): its cells in the table's columns.
+ *
+ * @example
+ * <DocumentLayoutBlockTableRow>
+ *   <DocumentLayoutBlockTableCell primary>Lux survey</DocumentLayoutBlockTableCell>
+ * </DocumentLayoutBlockTableRow>
+ */
+export function DocumentLayoutBlockTableRow({
+  className,
+  ...props
+}: React.ComponentPropsWithRef<"div">) {
+  return (
+    <div
+      role="row"
+      data-slot="document-layout-block-table-row"
+      className={cn("col-span-full grid min-h-9 grid-cols-subgrid", className)}
+      {...props}
+    />
+  );
+}
+
+/** Props shared by `DocumentLayoutBlockTableColumn` and `DocumentLayoutBlockTableCell`. */
+export interface DocumentLayoutBlockTableCellProps extends React.ComponentPropsWithRef<"div"> {
+  /**
+   * The rows' name column (the table's first): a cell in it names its row (`role="rowheader"`).
+   * @default false
+   */
+  primary?: boolean;
+}
+
+const CELL = "flex min-w-0 items-center overflow-hidden px-3 py-1.5";
+
+/**
+ * `DocumentLayoutBlockTableColumn` — a column's name in the header row (`role="columnheader"`),
+ * cut short to one line.
+ *
+ * @example
+ * <DocumentLayoutBlockTableColumn primary>Name</DocumentLayoutBlockTableColumn>
+ */
+export function DocumentLayoutBlockTableColumn({
+  primary = false,
+  className,
+  children,
+  ...props
+}: DocumentLayoutBlockTableCellProps) {
+  return (
+    <div
+      role="columnheader"
+      data-slot="document-layout-block-table-column"
+      data-primary={primary || undefined}
+      className={cn(CELL, className)}
+      {...props}
+    >
+      <span className="min-w-0 truncate">{children}</span>
+    </div>
+  );
+}
+
+/**
+ * `DocumentLayoutBlockTableCell` — one value (`role="cell"`, or `role="rowheader"` in the
+ * `primary` column): its content on one line, clipped at the column's edge (a chip or text that
+ * truncates itself).
+ *
+ * @example
+ * <DocumentLayoutBlockTableCell>Open</DocumentLayoutBlockTableCell>
+ */
+export function DocumentLayoutBlockTableCell({
+  primary = false,
+  className,
+  ...props
+}: DocumentLayoutBlockTableCellProps) {
+  return (
+    <div
+      role={primary ? "rowheader" : "cell"}
+      data-slot="document-layout-block-table-cell"
+      data-primary={primary || undefined}
+      className={cn(CELL, "gap-1.5", className)}
       {...props}
     />
   );

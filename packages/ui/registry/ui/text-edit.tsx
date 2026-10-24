@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.73 sha256-ODSsWsK5pNDaxedgUoy/7qW3jXmhBw8VZi6TRKxnYB8=
+// @vegastack text-edit@0.25.73 sha256-4uiG401897FFRtgo3FwomvItp/LuxXU3JpzjNYu5T/I=
 
 "use client";
 
@@ -20,7 +20,7 @@ import {
   type LiveBlockRender,
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
-import type { MentionKind } from "@/lib/text-edit-grammar";
+import type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
 import type { EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
@@ -28,7 +28,7 @@ import type { TextAnchor } from "@/lib/text-anchor";
 import type { Doc as YDoc } from "yjs";
 import type { Awareness } from "y-protocols/awareness";
 
-export type { MentionKind } from "@/lib/text-edit-grammar";
+export type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
 export type { TextAnchor } from "@/lib/text-anchor";
 
 /* ------------------------------------------------------------------------------------------------
@@ -1413,7 +1413,7 @@ export interface TextEditProps {
    * as written), `snapshot` the rows last stored, `editable` whether this reader may change the
    * filter. The block is an atom: selectable and draggable, nothing inside is edited by the editor.
    * Without it, or where it returns `null`/`undefined`, the snapshot shows as a quiet read-only list
-   * (`MarkdownTaskList`). Insert one with `{ type: "taskQuery", attrs: { query, snapshot } }`; a
+   * (`MarkdownLiveBlock`). Insert one with `{ type: "taskQuery", attrs: { query, snapshot } }`; a
    * collaborative editor gives it a `blockId`.
    * @default undefined
    */
@@ -1423,18 +1423,19 @@ export interface TextEditProps {
    * in Markdown (a name in `liveBlockKinds`) — with the host's own component, in the editor and in
    * the read view before it. Called with the block's kind and the same props as
    * `renderTaskQuery`. Given, it is asked for every kind, `tasks` included, and `renderTaskQuery`
-   * is not used. Returning `null`/`undefined` leaves the snapshot (`MarkdownTaskList`). Insert one
+   * is not used. Returning `null`/`undefined` leaves the snapshot (`MarkdownLiveBlock`). Insert one
    * with `{ type: "taskQuery", attrs: { kind, query, snapshot } }` (`kind: null` is a task list).
    * @default undefined
    */
   renderLiveBlock?: LiveBlockRender;
   /**
-   * The live block names Markdown reads (`:::<name>{…}` … `:::`), read when the editor is
-   * created; a block of any other name stays text and a list. A shared document's blocks come
-   * from its state, whatever their kind.
-   * @default ["tasks"]
+   * The live block kinds Markdown reads (`:::<name>{…}` … `:::`), read when the editor is
+   * created, each with the heading and row kind its stored snapshot shows with where the host
+   * draws nothing (`MarkdownLiveBlock`); a block of any other name stays text and a list. A shared
+   * document's blocks come from its state, whatever their kind.
+   * @default DEFAULT_LIVE_BLOCK_KINDS — the live task list (`tasks`) alone
    */
-  liveBlockKinds?: readonly string[];
+  liveBlockKinds?: readonly LiveBlockKind[];
   /**
    * Import an image pasted or dropped from another site: resolve with where your storage keeps a
    * copy (`src`). Each such image (one whose `src` is not this origin's or a `blob:`) is taken out

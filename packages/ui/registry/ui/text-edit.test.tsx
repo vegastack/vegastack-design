@@ -21,6 +21,20 @@ import {
 } from "./text-edit";
 import { anchorFromRange } from "../lib/text-anchor";
 import { markdownToDoc } from "../lib/text-edit-markdown";
+import {
+  DEFAULT_LIVE_BLOCK_KINDS,
+  type LiveBlockKind,
+} from "../lib/text-edit-grammar";
+
+const TABLE_KINDS: readonly LiveBlockKind[] = [
+  ...DEFAULT_LIVE_BLOCK_KINDS,
+  {
+    name: "table",
+    rowKind: "row",
+    label: "Table view",
+    empty: "No rows match",
+  },
+];
 import { EMBED_PROVIDERS } from "../lib/embed-providers";
 import * as Y from "yjs";
 import {
@@ -6266,7 +6280,7 @@ test("taskQuery: a host's live block kind reads with its kind, renderLiveBlock d
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     defaultValue: `Intro\n\n${TABLE}\n\n${TASK_LIST}`,
-    liveBlockKinds: ["tasks", "table"],
+    liveBlockKinds: TABLE_KINDS,
     renderLiveBlock: draw,
     onValueChange,
   });
@@ -6296,7 +6310,7 @@ test("taskQuery: a host's live block kind reads with its kind, renderLiveBlock d
 });
 
 test("taskQuery: a task list's shared state carries no kind; another kind's does", async () => {
-  const attrsOf = (markdown: string, kinds?: string[]) => {
+  const attrsOf = (markdown: string, kinds?: readonly LiveBlockKind[]) => {
     const doc = markdownToDoc(markdown, kinds ? { liveBlockKinds: kinds } : {});
     const y = new Y.Doc();
     const fragment = y.getXmlFragment("default");
@@ -6310,7 +6324,7 @@ test("taskQuery: a task list's shared state carries no kind; another kind's does
     return element.getAttributes();
   };
   expect(attrsOf(TASK_LIST)).not.toHaveProperty("kind");
-  expect(attrsOf(':::table{id="b1"}\n:::', ["tasks", "table"])).toMatchObject({
+  expect(attrsOf(':::table{id="b1"}\n:::', TABLE_KINDS)).toMatchObject({
     kind: "table",
   });
 });
@@ -6397,6 +6411,19 @@ test("node views follow the editor's editability: checkboxes and live task lists
   expect(seen.at(-1)).toBe(true);
 });
 
+test("taskQuery: a host kind the host doesn't draw shows its snapshot under its own heading", async () => {
+  const screen = await markdownEditor({
+    defaultValue: ':::table{id="b1"}\n- [@Lux survey](mention://row/r1)\n:::',
+    liveBlockKinds: TABLE_KINDS,
+  });
+  const card = screen.container.querySelector(
+    '[data-slot="text-edit-task-query"] [data-slot="markdown-live-block"]',
+  );
+  expect(card).toHaveAttribute("aria-label", "Table view");
+  expect(card?.textContent).toContain("Lux survey");
+  expect(card?.querySelector('[role="checkbox"]')).toBeNull();
+});
+
 test("taskQuery: a new renderTaskQuery redraws the list (no stale rows after a data or access change)", async () => {
   const screen = await markdownEditor({
     defaultValue: TASK_LIST,
@@ -6421,7 +6448,7 @@ test("taskQuery: a new renderTaskQuery redraws the list (no stale rows after a d
 test("taskQuery: without renderTaskQuery the snapshot shows as a quiet list; the read view draws it too", async () => {
   const screen = await markdownEditor({ defaultValue: TASK_LIST });
   const card = screen.container.querySelector(
-    '[data-slot="text-edit-task-query"] [data-slot="markdown-task-list"]',
+    '[data-slot="text-edit-task-query"] [data-slot="markdown-live-block"]',
   );
   expect(card?.textContent).toContain("Task list");
   expect(card?.textContent).toContain("Order glass");

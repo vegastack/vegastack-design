@@ -233,7 +233,8 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/skeleton",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -266,7 +267,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.73",
-        "integrity": "sha256-RL3vU7DmFJ4WZfybtXv9tYxmn2zu1Ftr8eeqM0s1P60="
+        "integrity": "sha256-LzMiwv/iTWS6PpTNgaFn1tW9G1iAR/zRYz8TYh/600Y="
       }
     },
     {
@@ -2107,7 +2108,7 @@
         "version": "0.25.73",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-qZegUiCJEodbOhPTfnfSkFy4xJxkxXDup8Jl0D+/P+E="
+        "integrity": "sha256-NMJXWy6hz5tDXK73ZovHjyp/WXAMhMe0ysjzsb0ED9M="
       }
     },
     {
@@ -2172,7 +2173,7 @@
         "version": "0.25.73",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-rpAM6FjiBAR+RhxRZ6wYtqwHw6k9odnWKLWCxu0+78Y="
+        "integrity": "sha256-FP5/icdKR01GtH8Sg6rHXQ7wsrojgvyhtWhSTZfeOfY="
       }
     },
     {
@@ -2205,7 +2206,7 @@
         "version": "0.25.73",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-Qo30sZRU2m1OHih8+Ro1SlcONvT4xlq3TeEUTS4dA+8="
+        "integrity": "sha256-2nt9nm8oN7JyEGsZzsXL3xw8gsjoPllD8EBK7zIVFIw="
       }
     },
     {
@@ -16407,7 +16408,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.73",
-        "integrity": "sha256-wQFgr98ib76FwKpUAMH10Hsa+BxSCvxS2jVo9JvwGuE="
+        "integrity": "sha256-fFFKgMg1PwKcz/qlabde74z9zhPkInr+/xEhXGTotAU="
       }
     },
     {
@@ -18520,7 +18521,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.73",
-        "integrity": "sha256-ODSsWsK5pNDaxedgUoy/7qW3jXmhBw8VZi6TRKxnYB8="
+        "integrity": "sha256-4uiG401897FFRtgo3FwomvItp/LuxXU3JpzjNYu5T/I="
       }
     },
     {

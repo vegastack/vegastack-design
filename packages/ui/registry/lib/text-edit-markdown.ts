@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.73 sha256-Qo30sZRU2m1OHih8+Ro1SlcONvT4xlq3TeEUTS4dA+8=
+// @vegastack text-edit-markdown@0.25.73 sha256-2nt9nm8oN7JyEGsZzsXL3xw8gsjoPllD8EBK7zIVFIw=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -14,6 +14,7 @@ import { anchorText } from "@/lib/text-anchor-doc";
 import {
   boundedTokenizers,
   trackedLexing,
+  type LiveBlockKind,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import {
@@ -561,9 +562,9 @@ let sharedManager: MarkdownManager | undefined;
  * names, made the first time it is asked for.
  */
 const kindManagers = new Map<string, MarkdownManager>();
-const manager = (liveBlockKinds?: readonly string[]) => {
+const manager = (liveBlockKinds?: readonly LiveBlockKind[]) => {
   if (!liveBlockKinds) return (sharedManager ??= createMarkdownManager());
-  const key = liveBlockKinds.join(",");
+  const key = JSON.stringify(liveBlockKinds);
   let found = kindManagers.get(key);
   if (!found) {
     found = createMarkdownManager(textEditExtensions({ liveBlockKinds }));
@@ -656,11 +657,11 @@ export interface MarkdownToDocOptions {
   /** Makes each new block id. Default: a random UUID (`blockId`). */
   blockId?: () => string;
   /**
-   * The live block names to read (`:::<name>{…}` … `:::`), as the editor's `liveBlockKinds`; any
+   * The live block kinds to read (`:::<name>{…}` … `:::`), as the editor's `liveBlockKinds`; any
    * other name stays text.
-   * @default ["tasks"]
+   * @default DEFAULT_LIVE_BLOCK_KINDS — the live task list (`tasks`) alone
    */
-  liveBlockKinds?: readonly string[];
+  liveBlockKinds?: readonly LiveBlockKind[];
 }
 
 /**

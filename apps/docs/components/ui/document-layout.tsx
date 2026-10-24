@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.73 sha256-RL3vU7DmFJ4WZfybtXv9tYxmn2zu1Ftr8eeqM0s1P60=
+// @vegastack document-layout@0.25.73 sha256-LzMiwv/iTWS6PpTNgaFn1tW9G1iAR/zRYz8TYh/600Y=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -55,6 +55,12 @@ export {
   DocumentLayoutBlockRowRef,
   DocumentLayoutBlockRows,
   DocumentLayoutBlockSkeleton,
+  DocumentLayoutBlockTable,
+  DocumentLayoutBlockTableBody,
+  DocumentLayoutBlockTableCell,
+  DocumentLayoutBlockTableColumn,
+  DocumentLayoutBlockTableHead,
+  DocumentLayoutBlockTableRow,
   DocumentLayoutBlockTitle,
   DocumentLayoutPageItem,
   DocumentLayoutPageLink,
@@ -64,6 +70,8 @@ export {
   DocumentLayoutSectionHeader,
   DocumentLayoutSectionSkeleton,
   DocumentLayoutSectionTitle,
+  type DocumentLayoutBlockTableCellProps,
+  type DocumentLayoutBlockTableProps,
   type DocumentLayoutPageLinkProps,
   type DocumentLayoutSectionButtonProps,
   type DocumentLayoutSectionProps,

@@ -15,6 +15,12 @@ import {
   DocumentLayoutBlockRowMeta,
   DocumentLayoutBlockRowRef,
   DocumentLayoutBlockRows,
+  DocumentLayoutBlockTable,
+  DocumentLayoutBlockTableBody,
+  DocumentLayoutBlockTableCell,
+  DocumentLayoutBlockTableColumn,
+  DocumentLayoutBlockTableHead,
+  DocumentLayoutBlockTableRow,
   DocumentLayoutBlockTitle,
   DocumentLayoutPageItem,
   DocumentLayoutPageLink,
@@ -188,6 +194,51 @@ export function documentLayoutSections(): ReactNode {
             <DocumentLayoutBlockFooter>
               <DocumentLayoutBlockAction>
                 Open in Tasks →
+              </DocumentLayoutBlockAction>
+            </DocumentLayoutBlockFooter>
+          </DocumentLayoutBlock>
+          <DocumentLayoutBlock>
+            <DocumentLayoutBlockHeader>
+              <DocumentLayoutBlockTitle>
+                Sample requests · SR
+              </DocumentLayoutBlockTitle>
+            </DocumentLayoutBlockHeader>
+            <DocumentLayoutBlockTable columns={3} aria-label="Sample requests">
+              <DocumentLayoutBlockTableHead>
+                <DocumentLayoutBlockTableRow>
+                  <DocumentLayoutBlockTableColumn primary>
+                    Name
+                  </DocumentLayoutBlockTableColumn>
+                  <DocumentLayoutBlockTableColumn>
+                    Status
+                  </DocumentLayoutBlockTableColumn>
+                  <DocumentLayoutBlockTableColumn>
+                    Qty
+                  </DocumentLayoutBlockTableColumn>
+                </DocumentLayoutBlockTableRow>
+              </DocumentLayoutBlockTableHead>
+              <DocumentLayoutBlockTableBody>
+                {[
+                  ["Lux survey for the atrium refit", "Requested", "12"],
+                  ["Sample of the linear pendant", "Sent", "3"],
+                ].map(([name, status, qty]) => (
+                  <DocumentLayoutBlockTableRow key={name}>
+                    <DocumentLayoutBlockTableCell primary>
+                      <span className="truncate">{name}</span>
+                    </DocumentLayoutBlockTableCell>
+                    <DocumentLayoutBlockTableCell>
+                      {status}
+                    </DocumentLayoutBlockTableCell>
+                    <DocumentLayoutBlockTableCell>
+                      {qty}
+                    </DocumentLayoutBlockTableCell>
+                  </DocumentLayoutBlockTableRow>
+                ))}
+              </DocumentLayoutBlockTableBody>
+            </DocumentLayoutBlockTable>
+            <DocumentLayoutBlockFooter>
+              <DocumentLayoutBlockAction>
+                Open in table →
               </DocumentLayoutBlockAction>
             </DocumentLayoutBlockFooter>
           </DocumentLayoutBlock>

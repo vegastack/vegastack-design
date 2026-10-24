@@ -14,6 +14,12 @@ import {
   DocumentLayoutBlockRowMain,
   DocumentLayoutBlockRowRef,
   DocumentLayoutBlockRows,
+  DocumentLayoutBlockTable,
+  DocumentLayoutBlockTableBody,
+  DocumentLayoutBlockTableCell,
+  DocumentLayoutBlockTableColumn,
+  DocumentLayoutBlockTableHead,
+  DocumentLayoutBlockTableRow,
   DocumentLayoutBlockTitle,
   DocumentLayoutPageItem,
   DocumentLayoutPageLink,
@@ -342,6 +348,67 @@ test("a foot section is named by its title; its pages are a list of links with i
   // A page without its own icon shows the page icon (hidden), never an empty slot.
   const plain = screen.getByRole("link", { name: "Renewals" }).element();
   expect(plain.querySelector("svg[aria-hidden]")).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a live block's table names its columns and rows, its name column first", async () => {
+  const long = "A very long request name that never fits its column at all";
+  const screen = await render(
+    <div>
+      <DocumentLayoutBlock>
+        <DocumentLayoutBlockHeader>
+          <DocumentLayoutBlockTitle>
+            Sample requests · SR
+          </DocumentLayoutBlockTitle>
+        </DocumentLayoutBlockHeader>
+        <DocumentLayoutBlockTable columns={3} aria-label="Sample requests">
+          <DocumentLayoutBlockTableHead>
+            <DocumentLayoutBlockTableRow>
+              <DocumentLayoutBlockTableColumn primary>
+                Name
+              </DocumentLayoutBlockTableColumn>
+              <DocumentLayoutBlockTableColumn>
+                Status
+              </DocumentLayoutBlockTableColumn>
+              <DocumentLayoutBlockTableColumn>
+                Qty
+              </DocumentLayoutBlockTableColumn>
+            </DocumentLayoutBlockTableRow>
+          </DocumentLayoutBlockTableHead>
+          <DocumentLayoutBlockTableBody>
+            <DocumentLayoutBlockTableRow>
+              <DocumentLayoutBlockTableCell primary>
+                <span className="truncate">{long}</span>
+              </DocumentLayoutBlockTableCell>
+              <DocumentLayoutBlockTableCell>Open</DocumentLayoutBlockTableCell>
+              <DocumentLayoutBlockTableCell>12</DocumentLayoutBlockTableCell>
+            </DocumentLayoutBlockTableRow>
+            <DocumentLayoutBlockTableRow>
+              <DocumentLayoutBlockTableCell primary>
+                Lux survey
+              </DocumentLayoutBlockTableCell>
+              <DocumentLayoutBlockTableCell>Sent</DocumentLayoutBlockTableCell>
+              <DocumentLayoutBlockTableCell>3</DocumentLayoutBlockTableCell>
+            </DocumentLayoutBlockTableRow>
+          </DocumentLayoutBlockTableBody>
+        </DocumentLayoutBlockTable>
+      </DocumentLayoutBlock>
+    </div>,
+  );
+  const table = screen.getByRole("table", { name: "Sample requests" });
+  await expect.element(table).toHaveAttribute("aria-colcount", "3");
+  await expect
+    .element(screen.getByRole("columnheader", { name: "Status" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("rowheader", { name: "Lux survey" }))
+    .toBeInTheDocument();
+  // The columns are the table's own: the name column first, then one per value.
+  const table_ = table.element() as HTMLElement;
+  expect(table_.style.gridTemplateColumns).toBe(
+    "minmax(10rem, 2fr) minmax(7rem, 1fr) minmax(7rem, 1fr)",
+  );
+  expect(screen.container.querySelectorAll('[role="row"]')).toHaveLength(3);
   await expectNoA11yViolations(screen.container);
 });
 

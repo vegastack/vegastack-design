@@ -829,10 +829,12 @@ the list's records by it. `query` holds every other attribute as written, unknow
 a whole block stay text and a list, and a paragraph that starts with `:::<name>{` is written
 `\:::<name>{`, so it never turns into one. MarkdownView § Live task lists has the full grammar.
 
-The same node holds any other live block the app reads: `liveBlockKinds={["tasks", "table"]}`
-reads `:::table{…}` … `:::` as a `taskQuery` node with `kind: "table"` (the node keeps its stored
-name whatever its kind, since every shared document's state holds it). A name not in the list
-stays text. `renderLiveBlock(kind, props)` draws every kind, `tasks` included, with the same props
+The same node holds any other live block the app reads: with a kind
+`{ name: "table", rowKind: "row", label: "Table view" }` added to `liveBlockKinds` (after
+`DEFAULT_LIVE_BLOCK_KINDS`), the editor reads `:::table{…}` … `:::` as a `taskQuery` node with
+`kind: "table"` (the node keeps its stored name whatever its kind, since
+every shared document's state holds it). A name not in the list stays text. Where the host draws
+nothing, the node shows its snapshot under its kind's `label` (`MarkdownLiveBlock`). `renderLiveBlock(kind, props)` draws every kind, `tasks` included, with the same props
 as `renderTaskQuery`; without it `renderTaskQuery` draws `tasks` alone.
 
 `renderTaskQuery({ blockId, query, snapshot, editable })` draws the list with your own component,

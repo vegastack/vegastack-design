@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.73 sha256-qZegUiCJEodbOhPTfnfSkFy4xJxkxXDup8Jl0D+/P+E=
+// @vegastack text-edit-grammar@0.25.73 sha256-NMJXWy6hz5tDXK73ZovHjyp/WXAMhMe0ysjzsb0ED9M=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -12,8 +12,8 @@
  * `> [!NOTE]` callouts, `<details><summary>…</summary>` toggles, `<video>`/`<audio>` blocks on a
  * line of their own, `![alt|320](src)` image widths, `lang wrap` fence info and `<br>` line breaks
  * (in a table cell or a heading), and `:::<name>{…}` … `:::` live blocks — `:::tasks` live task
- * lists and any other block name the host reads (a container directive whose rows are task item
- * lines). Any other raw HTML is literal text.
+ * lists and any other block name the host reads (a container directive whose rows are list item
+ * lines, with or without a task box). Any other raw HTML is literal text.
  */
 
 /** The VegaStack Markdown version this grammar and `@/lib/text-edit-markdown` read and write. */
@@ -379,8 +379,42 @@ function directiveValue(value: string): string {
  */
 export const LIVE_BLOCK_NAME = "[a-z][a-z0-9_]*";
 
+/**
+ * A live block kind as the host reads and shows it: its `name` (after `:::`), the mention kind of
+ * its snapshot rows (`rowKind`: `[@Label](mention://<rowKind>/<id>)`), the heading its stored
+ * snapshot shows under (`label`) and the line it shows with no rows (`empty`). The host passes
+ * its kinds (`liveBlockKinds`); the design system names none but the default.
+ */
+export interface LiveBlockKind {
+  /** The block's name, after `:::` (`LIVE_BLOCK_NAME`). */
+  name: string;
+  /** The mention kind of its rows; a row mentioning any other kind reads as text. */
+  rowKind: string;
+  /** The snapshot's heading, and its group's accessible name ("Task list"). */
+  label: string;
+  /**
+   * The snapshot's line when it holds no rows.
+   * @default "Nothing matches"
+   */
+  empty?: string;
+}
+
 /** The live blocks read when the host names none: the live task list alone. */
-export const DEFAULT_LIVE_BLOCK_KINDS: readonly string[] = ["tasks"];
+export const DEFAULT_LIVE_BLOCK_KINDS: readonly LiveBlockKind[] = [
+  {
+    name: "tasks",
+    rowKind: "task",
+    label: "Task list",
+    empty: "No matching tasks",
+  },
+];
+
+/** The well-formed names of `kinds`, as the readers take them. */
+export function liveBlockNames(kinds: readonly LiveBlockKind[]): string[] {
+  return kinds
+    .map((kind) => kind.name)
+    .filter((name) => LIVE_BLOCK_NAME_ID.test(name));
+}
 
 const LIVE_BLOCK_NAME_ID = new RegExp(`^${LIVE_BLOCK_NAME}$`);
 
@@ -392,8 +426,10 @@ const LIVE_BLOCK_OPEN = new RegExp(
 /** `:::` — the line that closes a container directive. */
 const DIRECTIVE_CLOSE = /^:::[ \t]*(?:\n|$)/;
 
-/** A live block's row: `- [ ] ` or `- [x] ` and its text. */
-const TASK_ROW = /^- \[[ xX]\] [^\n]*\S[^\n]*$/;
+/** A live block's row: a list item line (`- `, or a task item's `- [ ] `/`- [x] `) and its text. */
+const LIVE_BLOCK_ROW = /^- (?:\[[ xX]\] )?[^\n]*\S[^\n]*$/;
+
+const DEFAULT_LIVE_BLOCK_NAMES = liveBlockNames(DEFAULT_LIVE_BLOCK_KINDS);
 
 /** A live block read from Markdown (`readLiveBlock`). */
 export interface LiveBlockDirective {
@@ -412,8 +448,9 @@ export interface LiveBlockDirective {
 /** Options for `readLiveBlock`. */
 export interface ReadLiveBlockOptions {
   /**
-   * The block names the host reads (`liveBlockKinds`); a block of any other name stays text.
-   * @default DEFAULT_LIVE_BLOCK_KINDS
+   * The block names the host reads (`liveBlockNames(liveBlockKinds)`); a block of any other name
+   * stays text.
+   * @default ["tasks"]
    */
   names?: readonly string[];
 }
@@ -428,7 +465,7 @@ export interface ReadLiveBlockOptions {
  * :::
  * ```
  *
- * Each row is a task item line (`- [ ] …`, `- [x] …`). `null` when `source` does not start with one
+ * Each row is a list item line (`- …`), a task item's (`- [ ] …`, `- [x] …`) or not. `null` when `source` does not start with one
  * — another name, no closing line, a line that is not a row, attributes that do not parse — so
  * the lines stay text and a list, as a renderer without directives shows them. Reads only the
  * block's own lines.
@@ -439,7 +476,7 @@ export interface ReadLiveBlockOptions {
  */
 export function readLiveBlock(
   source: string,
-  { names = DEFAULT_LIVE_BLOCK_KINDS }: ReadLiveBlockOptions = {},
+  { names = DEFAULT_LIVE_BLOCK_NAMES }: ReadLiveBlockOptions = {},
 ): LiveBlockDirective | null {
   const open = LIVE_BLOCK_OPEN.exec(source);
   if (!open || !names.includes(open[1]!)) return null;
@@ -460,7 +497,7 @@ export function readLiveBlock(
         snapshot: rows.join("\n"),
       };
     }
-    if (!TASK_ROW.test(line) || newline === -1) return null;
+    if (!LIVE_BLOCK_ROW.test(line) || newline === -1) return null;
     rows.push(line);
     at = newline + 1;
   }
@@ -495,43 +532,47 @@ export function liveBlockMarkdown({
       pairs.push(`${key}="${directiveValue(String(value))}"`);
   const rows = (snapshot ?? "")
     .split("\n")
-    .filter((line) => TASK_ROW.test(line));
+    .filter((line) => LIVE_BLOCK_ROW.test(line));
   return [`:::${name}{${pairs.join(" ")}}`, ...rows, ":::"].join("\n");
 }
 
-/** One row of a live task list's snapshot (`parseTaskListRows`). */
-export interface TaskListRow {
-  /** The row's box: `[x]`. */
-  checked: boolean;
-  /** The task's id when the row is a task mention (`restricted:…` included), else `null`. */
+/** One row of a live block's snapshot (`parseLiveBlockRows`). */
+export interface LiveBlockRow {
+  /** The row's task box — `[x]` is `true`, `[ ]` `false` — or `null` for a row with none. */
+  checked: boolean | null;
+  /** The record's id when the row is a mention of the block's row kind (`restricted:…` included), else `null`. */
   id: string | null;
-  /** The mention's label, or the row's text when it is not a mention. */
+  /** The mention's label, or the row's text when it is not one. */
   label: string;
   /** The status label after ` — `; `""` when the row has none. */
   status: string;
 }
 
 /**
- * A snapshot's rows — `- [x] [@Fix scaffolding](mention://task/t2) — Done` — as data, for a
- * renderer. A row that is not a task mention keeps its text as `label`.
+ * A snapshot's rows — `- [x] [@Fix scaffolding](mention://task/t2) — Done`, or a row with no box
+ * (`- [@Row](mention://row/r1)`) — as data, for a renderer. A row that is not a mention of
+ * `rowKind` keeps its text as `label`.
  *
  * @example
- * parseTaskListRows("- [ ] [@Order glass](mention://task/t1) — To do");
+ * parseLiveBlockRows("- [ ] [@Order glass](mention://task/t1) — To do", "task");
  * // [{ checked: false, id: "t1", label: "Order glass", status: "To do" }]
  */
-export function parseTaskListRows(snapshot: string): TaskListRow[] {
-  const rows: TaskListRow[] = [];
+export function parseLiveBlockRows(
+  snapshot: string,
+  rowKind: string,
+): LiveBlockRow[] {
+  const rows: LiveBlockRow[] = [];
   for (const line of snapshot.split("\n")) {
-    const box = /^- \[([ xX])\] (.*)$/.exec(line);
-    if (!box || !box[2]!.trim()) continue;
-    const checked = box[1] !== " ";
-    const rest = box[2]!;
+    const item = /^- (?:\[([ xX])\] )?(.*)$/.exec(line);
+    if (!item || !item[2]!.trim()) continue;
+    const checked = item[1] === undefined ? null : item[1] !== " ";
+    const rest = item[2]!;
     const mention = parseMentionLink(rest);
     const after = mention ? rest.slice(mention.raw.length) : "";
     const status = /^ — (.*)$/.exec(after);
-    // A task mention alone, or with ` — <status>`; anything else after it is not a row's shape,
-    // so the whole line reads as text rather than losing its tail.
-    if (mention?.kind === "task" && (status || !after.trim()))
+    // A mention alone, or with ` — <status>`; anything else after it is not a row's shape, so the
+    // whole line reads as text rather than losing its tail.
+    if (mention?.kind === rowKind && (status || !after.trim()))
       rows.push({
         checked,
         id: mention.id,
