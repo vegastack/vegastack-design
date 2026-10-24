@@ -450,6 +450,12 @@ test("an empty date-time editor focuses its day picker; a link list names what +
   );
   const more = document.querySelector('[data-slot="field-cell-more"]')!;
   expect(more.textContent).toContain("2 more: Record D, Restricted");
+  // A chip that opens nothing is not a tab stop itself, so its wrapper is (outside a grid).
+  const first = screen
+    .getByText("Record A")
+    .element()
+    .closest("[data-slot=inline-chip]")!;
+  expect(first.parentElement!.getAttribute("tabindex")).toBe("0");
   await expectNoA11yViolations(screen.container);
   expect(document.body.innerHTML).not.toContain("Secret");
 });

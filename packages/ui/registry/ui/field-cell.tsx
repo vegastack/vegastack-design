@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-8TDc4dus+bODzstollJAUE+sLv0mi4COUGzSHRrYbfA=
+// @vegastack field-cell@0.25.71 sha256-r6WgbaMEp6sLMnyDV5NFDqm2pyOM2CcbdXsPTKGaTbM=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
-import { InlineChip } from "@/components/ui/inline-chip";
+import { InlineChip, useInlineChipResolver } from "@/components/ui/inline-chip";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import {
@@ -336,6 +336,7 @@ export function FieldCellDisplay({
   // Inside a grid the cell is the tab stop (`TruncationFocusProvider focusable={false}`); a
   // standalone display's checkbox and links are reachable themselves.
   const tabIndex = useTruncationFocusable() ? undefined : -1;
+  const chips = useInlineChipResolver();
   const root = (children: React.ReactNode, extra?: string) => (
     <span
       data-slot="field-cell-display"
@@ -504,10 +505,24 @@ export function FieldCellDisplay({
                   {chip}
                 </span>
               );
-            // A clipped name is revealed on hover and when the chip inside takes keyboard focus.
+            // A clipped name is revealed on hover and on keyboard focus: the chip's own when it
+            // opens something (a link, the host's handler, a person's card), else the wrapper's.
+            const chipFocusable = Boolean(
+              target.href ||
+              (target.kind === "user"
+                ? chips?.person?.(target.id)
+                : chips?.onOpen),
+            );
             return (
               <Tooltip key={target.id}>
-                <TooltipTrigger render={<span className="min-w-0 truncate" />}>
+                <TooltipTrigger
+                  render={
+                    <span
+                      tabIndex={chipFocusable ? undefined : (tabIndex ?? 0)}
+                      className="min-w-0 truncate"
+                    />
+                  }
+                >
                   {chip}
                 </TooltipTrigger>
                 <TooltipContent>{target.label}</TooltipContent>
