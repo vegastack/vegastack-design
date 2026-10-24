@@ -733,6 +733,12 @@
       "family": "navigation",
       "source": "Regent Tables plan 1.3 (DS R4), approved by the operator 2026-10-23",
       "rationale": "Upstream ships Tabs but no saved-views row (shared and personal groups, create menu, narrow Select). Composes upstream's tabs, select, dropdown-menu and button unchanged; carries no patch."
+    },
+    "field-cell": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Regent Tables plan 1.4 (DS R5), approved by the operator 2026-10-23",
+      "rationale": "Upstream ships controls but no per-field-type display and editor set. Composes the system's controls and displays unchanged; carries no patch."
     }
   }
 }

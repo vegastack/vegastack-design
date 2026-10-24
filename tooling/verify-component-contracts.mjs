@@ -576,7 +576,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 34,
+  "Forms/editing": 35,
   "Navigation/layout": 22,
   Overlays: 21,
   "Data display": 35,
@@ -644,6 +644,7 @@ const expectedComponentWaveMembers = {
     "date-picker",
     "dropzone",
     "editable-cell",
+    "field-cell",
     "field",
     "field-grid",
     "filter-bar",

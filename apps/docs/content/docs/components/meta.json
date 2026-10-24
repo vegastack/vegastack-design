@@ -26,6 +26,7 @@
     "field",
     "field-grid",
     "editable-cell",
+    "field-cell",
     "label",
     "slider",
     "checkbox",
