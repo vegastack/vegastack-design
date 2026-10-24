@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-L1AlKmSLIw+PT2GJ4uNULMlVM7Szv1NWhZgWlDcZOIs=
+// @vegastack field-cell@0.25.71 sha256-OSqNfUF9mG5KVgk3uTmT4e6/MmutXbHyfkFx/zn4baM=
 
 "use client";
 
@@ -247,15 +247,42 @@ function linkLabel(target: FieldLinkTarget): string {
         : "Deleted";
 }
 
-function Overflow({ count }: { count: number }) {
-  return count > 0 ? (
-    <span
-      data-slot="field-cell-more"
-      className="shrink-0 text-xs text-muted-foreground tabular-nums"
-    >
-      +{count}
-    </span>
-  ) : null;
+function Overflow({
+  count,
+  labels,
+  tabIndex,
+}: {
+  count: number;
+  /** The hidden entries' names, shown on hover and keyboard focus and read by screen readers. */
+  labels?: string[];
+  tabIndex?: number;
+}) {
+  if (count <= 0) return null;
+  const className = "shrink-0 text-xs text-muted-foreground tabular-nums";
+  if (!labels || labels.length === 0)
+    return (
+      <span data-slot="field-cell-more" className={className}>
+        +{count}
+      </span>
+    );
+  const names = labels.join(", ");
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <span
+            data-slot="field-cell-more"
+            tabIndex={tabIndex ?? 0}
+            aria-label={`${count} more: ${names}`}
+            className={className}
+          />
+        }
+      >
+        +{count}
+      </TooltipTrigger>
+      <TooltipContent>{names}</TooltipContent>
+    </Tooltip>
+  );
 }
 
 /** Props accepted by `FieldCellDisplay`. */
@@ -407,12 +434,9 @@ export function FieldCellDisplay({
       return root(
         <TagGroup max={2} className="min-w-0 flex-nowrap overflow-hidden">
           {chosen.map((option) => (
-            <Tag
-              key={option.id}
-              hue={option.hue ?? "neutral"}
-              title={option.label}
-            >
-              {option.label}
+            <Tag key={option.id} hue={option.hue ?? "neutral"}>
+              {/* A clipped name is revealed on hover and on keyboard focus. */}
+              <TruncatedText>{option.label}</TruncatedText>
             </Tag>
           ))}
         </TagGroup>,
@@ -479,7 +503,11 @@ export function FieldCellDisplay({
               </span>
             );
           })}
-          <Overflow count={targets.length - SHOWN} />
+          <Overflow
+            count={targets.length - SHOWN}
+            labels={targets.slice(SHOWN).map(linkLabel)}
+            tabIndex={tabIndex}
+          />
         </>,
       );
     }
@@ -667,19 +695,27 @@ function fromZoned(
   const [y, mo, d] = day.split("-").map(Number);
   const [h, mi] = (time || "00:00").split(":").map(Number);
   const wall = Date.UTC(y!, mo! - 1, d!, h ?? 0, mi ?? 0);
+  // Every offset the zone uses within a day either side (zones span UTC−12 to UTC+14), so a
+  // change near the moment is seen whichever side of it the wall time falls.
   const offsets = [
-    zoneOffset(wall - 12 * 3_600_000, timeZone),
-    zoneOffset(wall + 12 * 3_600_000, timeZone),
+    ...new Set(
+      Array.from({ length: 31 }, (_, i) =>
+        zoneOffset(wall + (i - 15) * 3_600_000, timeZone),
+      ),
+    ),
   ];
   const wanted = time || "00:00";
-  const fits = [...new Set(offsets)]
+  const fits = offsets
     .map((offset) => wall - offset)
     .filter((instant) => {
       const seen = zonedParts(new Date(instant).toISOString(), timeZone);
       return seen.day === day && seen.time === wanted;
     })
     .sort((a, b) => a - b);
-  if (fits.length === 0) return new Date(wall - offsets[0]!).toISOString();
+  // A skipped time: the offset before a spring change is the smaller one, so the time moves
+  // forward past the gap.
+  if (fits.length === 0)
+    return new Date(wall - Math.min(...offsets)).toISOString();
   const kept =
     previous != null
       ? fits.find(
@@ -1092,10 +1128,10 @@ export function FieldCellEditor({
     const scope = root.current;
     (
       scope?.querySelector<HTMLElement>(
-        'input:not([type="hidden"]), textarea, [contenteditable="true"]',
+        'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), [contenteditable="true"]',
       ) ??
       scope?.querySelector<HTMLElement>(
-        'button, [tabindex]:not([tabindex="-1"])',
+        'button:not(:disabled), [tabindex]:not([tabindex="-1"])',
       )
     )?.focus();
     // Once, on open.
@@ -1137,6 +1173,8 @@ export function FieldCellEditor({
             value={text}
             onValueChange={setDraft}
             onSubmit={(next) => commit(next || null)}
+            // Escape: TextEdit reverts (and marks the key used); the edit is cancelled.
+            onRevert={cancel}
             minHeight="6rem"
           />
         </PopoverContent>

@@ -393,6 +393,64 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
   );
   await screen.getByLabelText("Time").fill("01:45");
   expect(fold).toHaveBeenLastCalledWith("2026-11-01T06:45:00.000Z");
+  // Auckland (UTC+12/+13): the changes fall where a half-day sample misses them.
+  const gap = vi.fn();
+  await screen.rerender(
+    <TimeZoneProvider timeZone="Pacific/Auckland">
+      <FieldInput
+        type="datetime"
+        aria-label="A"
+        value="2026-09-26T13:00:00.000Z"
+        onChange={gap}
+      />
+    </TimeZoneProvider>,
+  );
+  await screen.getByLabelText("Time").fill("02:30");
+  expect(gap).toHaveBeenLastCalledWith("2026-09-26T14:30:00.000Z"); // 03:30 NZDT
+  const first = vi.fn();
+  await screen.rerender(
+    <TimeZoneProvider timeZone="Pacific/Auckland">
+      {/* 2026-04-05 02:30 happens twice; the value is the first (NZDT, 13:30Z). */}
+      <FieldInput
+        type="datetime"
+        aria-label="A"
+        value="2026-04-04T13:30:00.000Z"
+        onChange={first}
+      />
+    </TimeZoneProvider>,
+  );
+  await screen.getByLabelText("Time").fill("02:45");
+  expect(first).toHaveBeenLastCalledWith("2026-04-04T13:45:00.000Z");
+});
+
+test("an empty date-time editor focuses its day picker; a link list names what +N hides", async () => {
+  const screen = await render(
+    <FieldCellEditor
+      type="datetime"
+      label="Visit"
+      value={null}
+      onCommit={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  await expect.poll(() => document.activeElement?.tagName).toBe("BUTTON");
+  await screen.rerender(
+    <FieldCellDisplay
+      type="link"
+      value={["A", "B", "C", "D"]
+        .map((name) => ({
+          id: name,
+          label: `Record ${name}`,
+          kind: "customer",
+        }))
+        .concat([
+          { id: "x", label: "Secret", kind: "customer", state: "restricted" },
+        ] as never)}
+    />,
+  );
+  const more = document.querySelector('[data-slot="field-cell-more"]')!;
+  expect(more.getAttribute("aria-label")).toBe("2 more: Record D, Restricted");
+  expect(document.body.innerHTML).not.toContain("Secret");
 });
 
 test("a link editor never names an unreachable target; a numeric editor focuses its field", async () => {
