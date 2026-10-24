@@ -1,4 +1,4 @@
-// @vegastack upload-progress@0.25.71 sha256-CpJuP90HAEUHCRUBZl2VnkAxQaY775WJBs8P/Lqw2ZU=
+// @vegastack upload-progress@0.25.72 sha256-oipNwIXS0rS3UqX0EwrzCUNP6NBfYs96t9M+lOV+Ajg=
 
 /* ---
 `upload-progress` is the arithmetic behind an upload's "About 2 minutes left": a rate estimator
