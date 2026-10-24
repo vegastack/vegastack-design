@@ -1,4 +1,4 @@
-// @vegastack grid-clipboard@0.25.69 sha256-lYiqaPvJSS+AF44IszZcEYNzssAZ3uPh/Uqyh45QUnE=
+// @vegastack grid-clipboard@0.25.69 sha256-sxALpRpMVAu4L10bfFUuoG7Ty/SKyYT97FswBDFdls8=
 
 /* ---
 `grid-clipboard` is the spreadsheet clipboard as data: what a grid writes when it copies a range
@@ -276,6 +276,8 @@ export function parseHtmlTable(html: string): GridClipboardMatrix | null {
       width = Math.max(width, c);
     }
   }
+  // The rectangle it pads out to counts too: one wide row over many short ones is still big.
+  if (grid.length * width > MAX_HTML_CELLS) return null;
   return grid.map((row) =>
     Array.from({ length: width }, (_, index) => row[index] ?? { text: "" }),
   );
@@ -339,6 +341,8 @@ function withSheetsNumbers(
   } catch {
     return matrix;
   }
+  // A copy of numbers alone may leave its (empty) strings list out.
+  if (strings === undefined) strings = [];
   if (
     !Array.isArray(types) ||
     !Array.isArray(numbers) ||

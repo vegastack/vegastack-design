@@ -361,3 +361,15 @@ test("an HTML table past the row budget is refused whole", () => {
   expect(parseHtmlTable(html)).toBeNull();
   expect(parseClipboard({ text: "a", html })).toEqual([[{ text: "a" }]]);
 });
+
+test("a wide first row over many short ones is refused before padding; numbers-only typed values still apply", () => {
+  const html = `<table><tr><td colspan="1000">w</td></tr>${"<tr><td>x</td></tr>".repeat(300)}</table>`;
+  expect(parseHtmlTable(html)).toBeNull();
+  const sheets = JSON.stringify({
+    "3": { "1": [1], "3": [0.10866227820675683] },
+    "15": { "1": 1, "2": 1 },
+  });
+  expect(parseClipboard({ text: "0.1086622782", sheets })).toEqual([
+    [{ text: "0.1086622782", number: 0.10866227820675683 }],
+  ]);
+});
