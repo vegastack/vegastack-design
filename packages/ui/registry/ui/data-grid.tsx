@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.72 sha256-G+uCglPhMgklS9Iy4bzsczyVaFbhC5d0PTEgxZsGV8Q=
+// @vegastack data-grid@0.25.72 sha256-/YAdOVbcC+3mpqqD9HbwrGiJ4xmMLiT/PneYD5dMtLQ=
 
 "use client";
 
@@ -1018,7 +1018,8 @@ function GridCellImpl<T>({
     const render = editable.render;
     return { type: "custom", render: (props) => render({ ...props, row }) };
   }, [editable, row]);
-  const persisted = String(readValue(column, row) ?? "");
+  // Only an editable cell reads its value as a string; a read-only cell's renderer gets the row.
+  const persisted = editor ? String(readValue(column, row) ?? "") : "";
   const content = editor ? (
     <EditableCell
       value={persisted}
