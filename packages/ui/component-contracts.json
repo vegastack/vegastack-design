@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 754,
-    "components": 167,
+    "totalRegistryItems": 755,
+    "components": 168,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 34,
+    "Forms/editing": 35,
     "Navigation/layout": 22,
     "Overlays": 21,
     "Data display": 35,
@@ -72,6 +72,7 @@
       "date-picker",
       "dropzone",
       "editable-cell",
+      "field-cell",
       "field",
       "field-grid",
       "filter-bar",
@@ -12415,6 +12416,286 @@
             {
               "name": "data-wrap",
               "values": [""]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "field-cell",
+      "registryType": "registry:ui",
+      "title": "Field Cell",
+      "summary": "One display and one editor per field type — text, long text, number, currency, percent, date, date-time, choices, checkbox, person, link, file, URL, email, phone and the read-only computed types — for a grid cell (FieldCellEditor), a panel or a form (FieldInput), shown the same everywhere (FieldCellDisplay).",
+      "status": "stable",
+      "since": "0.25.72",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/field-cell.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FieldCellDisplay",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders its control or display; it forwards no ref."
+          }
+        },
+        {
+          "name": "FieldCellDisplayProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldCellEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders its control or display; it forwards no ref."
+          }
+        },
+        {
+          "name": "FieldCellEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldChoiceOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldConfig",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldFile",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders its control or display; it forwards no ref."
+          }
+        },
+        {
+          "name": "FieldInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldLinkTarget",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldPerson",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldType",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldValue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "isValidFieldText",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "READ_ONLY_FIELD_TYPES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The field type selects the display and editor; no local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Inherits its controls' sizes (sm triggers in cells)."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "display",
+            "editing",
+            "empty",
+            "filling",
+            "recalculating",
+            "read-only",
+            "invalid"
+          ],
+          "evidence": "FieldCellDisplay per type with filling/recalculating states; FieldCellEditor commit/cancel; FieldInput controlled per type; read-only types; URL/email/phone validation."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "aria-invalid"],
+          "evidence": "Every editor named by the field; Escape cancels, Enter commits text, pickers commit on choice; aria-invalid on invalid input; truncated text reveals on focus; overflow counts read in full by screen readers."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "text",
+            "number",
+            "date",
+            "tags",
+            "checkbox",
+            "person",
+            "link-states",
+            "file-tiles",
+            "link-out"
+          ],
+          "evidence": "Tag hues, InlineChip states, PersonAvatar, FileKindTile, tabular end-aligned numbers."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "One line, truncating within its cell; overflow becomes +N."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the filling skeleton is the sanctioned pulse."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/field-cell",
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/chip",
+        "@vegastack/date-picker",
+        "@vegastack/date-time",
+        "@vegastack/file-kind",
+        "@vegastack/inline-chip",
+        "@vegastack/input",
+        "@vegastack/number-field",
+        "@vegastack/people-picker",
+        "@vegastack/person-avatar",
+        "@vegastack/popover",
+        "@vegastack/relative-time",
+        "@vegastack/searchable-select",
+        "@vegastack/skeleton",
+        "@vegastack/tag-group",
+        "@vegastack/text-edit",
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text",
+        "@vegastack/use-async-search"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.19"
+      ],
+      "testFiles": ["packages/ui/registry/ui/field-cell.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "field-cell",
+      "dataAttributes": {
+        "FieldCellDisplay": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-cell-display", "field-cell-filling"]
+            },
+            {
+              "name": "data-type",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-input-read-only"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldCellEditor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-cell-editor"]
+            },
+            {
+              "name": "data-type",
+              "values": []
             }
           ],
           "cssVariables": []

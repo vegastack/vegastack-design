@@ -2538,6 +2538,53 @@
       }
     },
     {
+      "name": "field-cell",
+      "type": "registry:ui",
+      "title": "Field Cell",
+      "description": "One display and one editor per field type — text, long text, number, currency, percent, date, date-time, choices, checkbox, person, link, file, URL, email, phone and the read-only computed types — for a grid cell (FieldCellEditor), a panel or a form (FieldInput), shown the same everywhere (FieldCellDisplay).",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.19",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/chip",
+        "@vegastack/date-picker",
+        "@vegastack/date-time",
+        "@vegastack/file-kind",
+        "@vegastack/inline-chip",
+        "@vegastack/input",
+        "@vegastack/number-field",
+        "@vegastack/people-picker",
+        "@vegastack/person-avatar",
+        "@vegastack/popover",
+        "@vegastack/relative-time",
+        "@vegastack/searchable-select",
+        "@vegastack/skeleton",
+        "@vegastack/tag-group",
+        "@vegastack/text-edit",
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text",
+        "@vegastack/use-async-search"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/field-cell.tsx",
+          "type": "registry:ui",
+          "target": "@ui/field-cell.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
+        "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
+        "version": "0.25.69",
+        "integrity": "sha256-0xbgQKRhvBxFtTOZi/up4bIMKk7G3xNqihhD7rFQ8jA="
+      }
+    },
+    {
       "name": "emoji-picker",
       "type": "registry:ui",
       "title": "Emoji Picker",

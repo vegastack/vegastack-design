@@ -1,0 +1,152 @@
+---
+title: Field Cell
+description: One display and one editor per field type, for a grid cell, a panel or a form — so every surface shows and edits a typed value the same way.
+audience: public
+registry: field-cell
+status: stable
+since: 0.25.72
+a11y: named editors; Escape cancels, Enter commits text
+preview: fieldCell
+---
+
+## Install
+
+<InstallSteps name="field-cell" />
+
+## Usage
+
+```tsx
+import {
+  FieldCellDisplay,
+  FieldCellEditor,
+  FieldInput,
+} from "@/components/ui/field-cell";
+
+// Show a value
+<FieldCellDisplay type="currency" value={1240.5} config={{ currency: "EUR" }} />
+
+// Edit it in a grid cell (EditableCell's custom slot)
+editable: {
+  type: "custom",
+  render: ({ cancel }) => (
+    // The editor commits a TYPED value: save it, then close the slot.
+    <FieldCellEditor type="single_choice" label="Status" value={row.status}
+      config={{ options }}
+      onCommit={(v) => { save(row.id, "status", v); cancel(); }}
+      onCancel={cancel} />
+  ),
+}
+
+// Edit it in a panel or a form
+<FieldInput type="date" aria-label="Due" value={due} onChange={setDue} />;
+```
+
+`field-cell` is one display and one editor per field **type**, so a table's cells, a row panel and
+a record page's custom fields agree. `FieldCellDisplay` shows a value on one line; `FieldCellEditor`
+is what a grid cell opens and commits a **typed** value (not a string); `FieldInput` is the same
+editor as a plain form control.
+
+| Type                                   | Display                                                      | Editor                                                      |
+| -------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
+| `text`                                 | One line, truncated (full value on hover and keyboard focus) | Text field (`maxLength`, 10,000 by default)                 |
+| `long_text`                            | The first line                                               | The `TextEdit` editor (Markdown)                            |
+| `number`, `currency`, `percent`        | End-aligned tabular figures in the reader's locale           | `NumberField` — "1,5" is 1.5 where the comma is the decimal |
+| `date`                                 | A calendar day that never shifts with the zone               | `DatePicker`                                                |
+| `datetime`                             | Date and time in the reader's zone                           | `DatePicker` and a time field                               |
+| `single_choice`, `multi_choice`        | Coloured tags, "+N" past two                                 | `SearchableSelect`, Add option with `onCreateOption`        |
+| `checkbox`                             | A checkbox that toggles in place (`onToggle`)                | A checkbox                                                  |
+| `person`                               | Avatar and name; several as avatars                          | `PeoplePicker`                                              |
+| `link`                                 | `InlineChip`s in four states, "+N" past three                | An async record search (`searchRecords`)                    |
+| `file`                                 | Kind tiles, "+N" past three                                  | Uploads live where files are added                          |
+| `url`, `email`, `phone`                | A link out (http(s), mailto, tel)                            | A checked text field                                        |
+| `calculated`                           | The value, or "—" with the missing inputs on hover           | —                                                           |
+| `autonumber`, `created_*`, `updated_*` | Read-only                                                    | —                                                           |
+
+Field types are data types. Everything a host knows — the options, the people, how records are
+found, a link kind's icon and noun (the host's `InlineChip` kinds) — comes in through `config` and
+the host's providers. Locale and time zone come from the reader (`TimeZoneProvider`).
+
+## Scope
+
+| Behaviour                          | Where it lives                         |
+| ---------------------------------- | -------------------------------------- |
+| Saving, required fields, conflicts | Host                                   |
+| Formulas, rollups, lookups         | Host (formulas compute on the server)  |
+| File uploads                       | The host's upload area (`UploadPanel`) |
+
+## Anatomy
+
+<Anatomy name="field-cell" />
+
+## Examples
+
+### Editors as form controls
+
+<ComponentPreview
+  name="fieldCellInputs"
+  file="components/preview/field-cell.tsx"
+/>
+
+### A cell editor
+
+A picker commits on choosing; text, numbers and date-times commit on <kbd>Enter</kbd> or when focus
+leaves the editor (not into its own calendar); long text opens in a popover; <kbd>Escape</kbd>
+cancels. The editor takes focus as it opens.
+
+<ComponentPreview
+  name="fieldCellEditor"
+  file="components/preview/field-cell.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-cell.tsx"
+  name="FieldCellDisplayProps"
+/>
+
+### FieldInput
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-cell.tsx"
+  name="FieldInputProps"
+/>
+
+### FieldCellEditor
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-cell.tsx"
+  name="FieldCellEditorProps"
+/>
+
+### Config
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-cell.tsx"
+  name="FieldConfig"
+/>
+
+## Accessibility
+
+- Every editor is named by its field (`aria-label` / `label`) and marks a value it refuses
+  `aria-invalid` (an invalid URL, email or phone).
+- A truncated text, number, date, tag or link name is revealed on hover and on keyboard focus; a
+  link list's "+2" names what it hides on hover and on keyboard focus (an unreachable link only by
+  its state); every overflowed list (links, people, files) is read in full by screen readers; the
+  row panel shows every value whole.
+- A restricted link is muted and never a link; an unavailable or deleted one says so.
+
+| Key                                           | Action                                             |
+| --------------------------------------------- | -------------------------------------------------- |
+| <kbd>Enter</kbd>                              | Commit a text, number, URL, email or phone editor. |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> | Commit long text.                                  |
+| <kbd>Escape</kbd>                             | Cancel the edit.                                   |
+
+<StatesTested name="field-cell" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the field's options, people and record search in config, and let FieldCellDisplay show every surface the same way."
+  dont="Write a field editor in a module — a new type belongs here, once."
+/>

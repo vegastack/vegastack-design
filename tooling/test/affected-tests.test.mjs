@@ -47,6 +47,8 @@ describe("affected component closure", () => {
       "block-view",
       "code-block",
       "comments",
+      // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).
+      "field-cell",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
       "file-card",
       "file-viewer",
@@ -67,6 +69,7 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/block-view.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
+      "packages/ui/registry/ui/field-cell.test.tsx",
       "packages/ui/registry/ui/file-card.test.tsx",
       "packages/ui/registry/ui/file-viewer.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
@@ -86,6 +89,7 @@ describe("affected component closure", () => {
       // document-layout's preview reads its page through a MarkdownView at the document scale.
       "document-layout",
       "dropzone",
+      "field-cell",
       "file-card",
       "file-viewer",
       // inline-chip's preview renders mentions through a MarkdownView.
@@ -121,6 +125,8 @@ describe("affected component closure", () => {
       "comments",
       "copy-button",
       // FileViewer's Markdown previews reach CodeBlock through MarkdownView (2026-09-30).
+      // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).
+      "field-cell",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
       "file-card",
       "file-viewer",
@@ -164,6 +170,8 @@ describe("affected component closure", () => {
       "block-view",
       "code-block",
       "comments",
+      // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).
+      "field-cell",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
       "file-card",
       "file-viewer",
