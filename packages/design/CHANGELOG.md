@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.23
+
+### Patch Changes
+
+- [#743](https://github.com/vegastack/vegastack-design/pull/743) [`143cb17`](https://github.com/vegastack/vegastack-design/commit/143cb17f68381261927ac3af6365d9e89d9a26bd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **DataGrid**: an `editable` column with a `render` keeps it as the cell's display while not editing (a `FieldCellDisplay`'s tags, chips or avatars), instead of the value as plain text; and a `custom` editor's `render` now receives the `row` with `value`, `commit` and `cancel` (the new `DataGridEditor<T>` type). [docs](https://design.vegastack.com/docs/components/data-grid)
+
 ## 0.8.22
 
 ### Patch Changes

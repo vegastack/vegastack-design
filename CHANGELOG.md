@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.73] — October 24, 2026
+
+<!-- assembled from 1 changeset: 7111cdedeeea -->
+
+### 🔧 Changed components
+
+- **DataGrid**: an `editable` column with a `render` keeps it as the cell's display while not editing (a `FieldCellDisplay`'s tags, chips or avatars), instead of the value as plain text; and a `custom` editor's `render` now receives the `row` with `value`, `commit` and `cancel` (the new `DataGridEditor<T>` type). [docs](https://design.vegastack.com/docs/components/data-grid) ·
+  [`143cb17`](https://github.com/VegaStack/vegastack-design/commit/143cb17)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.23`** (was `0.8.22`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.72 → 0.25.73.
+
 ## [0.25.72] — October 24, 2026
 
 <!-- assembled from 1 changeset: 9349be3f203e -->
