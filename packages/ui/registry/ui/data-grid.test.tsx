@@ -338,6 +338,49 @@ test("Enter opens the managed cell editor (grid nav suspends); Escape restores g
   expect(onCellCommit).not.toHaveBeenCalled();
 });
 
+test("an editable column keeps its render as the display; a custom editor gets the row", async () => {
+  const seen = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        {
+          key: "stage",
+          header: "Stage",
+          minWidth: 10,
+          render: (row) => <span data-testid="stage-tag">{row.stage} tag</span>,
+          editable: {
+            type: "custom",
+            render: ({ row, cancel }) => {
+              seen(row.id);
+              return (
+                <button type="button" onClick={cancel}>
+                  Editing {row.name}
+                </button>
+              );
+            },
+          },
+        },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />,
+  );
+  expect(screen.getByTestId("stage-tag").first().element().textContent).toBe(
+    "Open tag",
+  );
+  const firstCell = document.querySelector(
+    '[data-slot="data-grid-cell"]',
+  ) as HTMLElement;
+  firstCell.focus();
+  await userEvent.keyboard("{ArrowRight}");
+  await userEvent.keyboard("{Enter}");
+  await expect.element(screen.getByText("Editing Acme")).toBeVisible();
+  expect(seen).toHaveBeenLastCalledWith("d1");
+});
+
 test("committing an edit calls onCellCommit(row, key, value)", async () => {
   const onCellCommit = vi.fn();
   await render(

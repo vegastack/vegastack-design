@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.72 sha256-wIrhV6QghqRsez3x0dlwGyeswwHDbJ3JUl5TbfjXh3Q=
+// @vegastack data-grid@0.25.72 sha256-0Vb//NsoafhGjanwHAeRtlsIJL8jXUhAToVsMj1Rswc=
 
 "use client";
 
@@ -64,6 +64,7 @@ import {
 import {
   EditableCell,
   type EditableCellEditor,
+  type EditableCellEditorProps,
 } from "@/components/ui/editable-cell";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
@@ -214,6 +215,22 @@ export interface DataGridCellContext {
   selected: boolean;
 }
 
+/**
+ * A column's editor: an `EditableCellEditor`, whose `custom` editor also receives the row it
+ * edits (to read the typed value the cell's string can't carry).
+ */
+export type DataGridEditor<T> =
+  | Exclude<EditableCellEditor, { type: "custom" }>
+  | {
+      type: "custom";
+      render: (
+        props: EditableCellEditorProps & {
+          /** The row being edited. */
+          row: T;
+        },
+      ) => React.ReactNode;
+    };
+
 /** A column definition. */
 export interface DataGridColumn<T> extends DataTableColumnLayout {
   /** Header label. A string header also names the column for assistive technology. */
@@ -221,7 +238,8 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
   /**
    * Cell content. Rendered as a component ELEMENT (hooks are safe here —
    * unlike `DataList.render`, which is invoked as a plain function).
-   * Ignored when the column is `editable` — the editor owns that cell.
+   * On an `editable` column it is the cell's display while not editing (a non-empty value; an
+   * empty one shows the editor's placeholder); without it the cell shows the value as text.
    * Cells are memoised on the row object and the column definition, so keep
    * `columns` stable (`useMemo`) and give a changed row a new object.
 
@@ -243,11 +261,12 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
   /**
    * Open this editor on Enter/F2 (or by typing, for `text` and `number`) while
    * the cell has grid focus. Uses `EditableCell` in `focusMode="managed"` —
-   * the grid owns reachability, the cell owns the editor and its async status.
+   * the grid owns reachability, the cell owns the editor and its async status. A `custom`
+   * editor's `render` also receives the `row`.
 
    * @default undefined
    */
-  editable?: EditableCellEditor;
+  editable?: DataGridEditor<T>;
   /**
    * Group rows into collapsible sections by this column's value (client
    * grouping). One grouping column at most; ignored when the grid has
@@ -991,11 +1010,24 @@ function GridCellImpl<T>({
     [api, rowId, key],
   );
   const context = React.useMemo(() => ({ rowId, selected }), [rowId, selected]);
-  const content = column.editable ? (
+  const editable = column.editable;
+  // A custom editor gets the row it edits; the other editors pass through unchanged.
+  const editor = React.useMemo<EditableCellEditor | undefined>(() => {
+    if (!editable || editable.type !== "custom") return editable;
+    const render = editable.render;
+    return { type: "custom", render: (props) => render({ ...props, row }) };
+  }, [editable, row]);
+  const content = editor ? (
     <EditableCell
       value={String(readValue(column, row) ?? "")}
       label={placed.label}
-      editor={column.editable}
+      editor={editor}
+      // The column's `render` stays the display (tags, chips, avatars), not the value's text.
+      renderValue={
+        column.render
+          ? () => <Cell column={column} row={row} context={context} />
+          : undefined
+      }
       focusMode="managed"
       editing={editing}
       editSeed={editSeed}
