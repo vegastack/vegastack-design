@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.73 sha256-RgytLyOgVvYK3BQ7M+ijEoYbxrXcUOmBeMRnGurWD0c=
+// @vegastack text-edit-grammar@0.25.73 sha256-dWZnk8foF8R/9X47KCWvBB5Y5h1SaAFhyIm7zd5c6/g=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -567,8 +567,9 @@ export function parseLiveBlockRows(
 ): LiveBlockRow[] {
   const rows: LiveBlockRow[] = [];
   for (const line of snapshot.split("\n")) {
-    const item = /^- (?:\[([ xX])\] )?(.*)$/.exec(line);
-    if (!item || !item[2]!.trim()) continue;
+    // Exactly the rows the reader and the writer keep (`readLiveBlock`, `liveBlockMarkdown`).
+    if (!LIVE_BLOCK_ROW.test(line)) continue;
+    const item = /^- (?:\[([ xX])\] (?=[^\n]*\S))?([^\n]*)$/.exec(line)!;
     const checked = item[1] === undefined ? null : item[1] !== " ";
     const rest = item[2]!;
     const mention = parseMentionLink(rest);

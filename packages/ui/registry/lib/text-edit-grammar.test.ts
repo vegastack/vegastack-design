@@ -308,6 +308,13 @@ test("a live block's rows may have no box: they read, round-trip and parse with 
     { checked: null, id: "r1", label: "Row", status: "" },
     { checked: null, id: "r2", label: "Row", status: "" },
   ]);
+  // The rows a snapshot card shows are the ones the reader keeps, whatever their characters.
+  expect(
+    parseLiveBlockRows("- Alpha\u2028Beta\n- [ ]\n- [x] \n- [x]foo", "row"),
+  ).toEqual([
+    { checked: null, id: null, label: "Alpha\u2028Beta", status: "" },
+    { checked: null, id: null, label: "[x]foo", status: "" },
+  ]);
   // A box with nothing after it is no row, boxed or not: the block stays text.
   for (const row of ["- [ ] ", "- [x] ", "- [ ]", "- [X]"])
     expect(readLiveBlock(`:::tasks{id="a"}\n${row}\n:::`)).toBeNull();
