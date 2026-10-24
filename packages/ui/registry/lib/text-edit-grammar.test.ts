@@ -308,6 +308,9 @@ test("a live block's rows may have no box: they read, round-trip and parse with 
     { checked: null, id: "r1", label: "Row", status: "" },
     { checked: null, id: "r2", label: "Row", status: "" },
   ]);
+  // A box with nothing after it is no row, boxed or not: the block stays text.
+  for (const row of ["- [ ] ", "- [x] ", "- [ ]", "- [X]"])
+    expect(readLiveBlock(`:::tasks{id="a"}\n${row}\n:::`)).toBeNull();
   // Still a line that is not a list item stops the block (it stays text).
   expect(
     readLiveBlock(':::table{id="b1"}\nRow\n:::', { names: ["table"] }),

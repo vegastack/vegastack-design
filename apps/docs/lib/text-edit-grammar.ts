@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.73 sha256-NMJXWy6hz5tDXK73ZovHjyp/WXAMhMe0ysjzsb0ED9M=
+// @vegastack text-edit-grammar@0.25.73 sha256-RgytLyOgVvYK3BQ7M+ijEoYbxrXcUOmBeMRnGurWD0c=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -426,8 +426,12 @@ const LIVE_BLOCK_OPEN = new RegExp(
 /** `:::` — the line that closes a container directive. */
 const DIRECTIVE_CLOSE = /^:::[ \t]*(?:\n|$)/;
 
-/** A live block's row: a list item line (`- `, or a task item's `- [ ] `/`- [x] `) and its text. */
-const LIVE_BLOCK_ROW = /^- (?:\[[ xX]\] )?[^\n]*\S[^\n]*$/;
+/**
+ * A live block's row: a task item's line (`- [ ] `/`- [x] ` and its text) or a list item's (`- `
+ * and its text, which can't start with a box: `- [ ] ` with nothing after it is no row).
+ */
+const LIVE_BLOCK_ROW =
+  /^- (?:\[[ xX]\] [^\n]*\S[^\n]*|(?!\[[ xX]\](?: |$))[^\n]*\S[^\n]*)$/;
 
 const DEFAULT_LIVE_BLOCK_NAMES = liveBlockNames(DEFAULT_LIVE_BLOCK_KINDS);
 
