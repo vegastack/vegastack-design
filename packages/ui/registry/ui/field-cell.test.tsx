@@ -363,3 +363,66 @@ test("long text opens in a popover from a cell; Escape cancels, closing saves", 
   expect(onCommit).not.toHaveBeenCalled();
   void screen;
 });
+
+test("date-time across the clock changes: a skipped hour moves forward, a repeated hour keeps its occurrence", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <TimeZoneProvider timeZone="America/New_York">
+      {/* 2026-03-08 is the spring change in New York: 02:00–02:59 does not exist. */}
+      <FieldInput
+        type="datetime"
+        aria-label="A"
+        value="2026-03-08T06:00:00.000Z"
+        onChange={onChange}
+      />
+    </TimeZoneProvider>,
+  );
+  await screen.getByLabelText("Time").fill("02:30");
+  expect(onChange).toHaveBeenLastCalledWith("2026-03-08T07:30:00.000Z"); // 03:30 EDT
+  const fold = vi.fn();
+  await screen.rerender(
+    <TimeZoneProvider timeZone="America/New_York">
+      {/* 2026-11-01 01:30 happens twice; the value is the second (EST, 06:30Z). */}
+      <FieldInput
+        type="datetime"
+        aria-label="A"
+        value="2026-11-01T06:30:00.000Z"
+        onChange={fold}
+      />
+    </TimeZoneProvider>,
+  );
+  await screen.getByLabelText("Time").fill("01:45");
+  expect(fold).toHaveBeenLastCalledWith("2026-11-01T06:45:00.000Z");
+});
+
+test("a link editor never names an unreachable target; a numeric editor focuses its field", async () => {
+  const screen = await render(
+    <FieldInput
+      type="link"
+      aria-label="Customer"
+      value={[
+        {
+          id: "c1",
+          label: "Confidential acquisition",
+          kind: "customer",
+          state: "restricted",
+        },
+      ]}
+      onChange={() => {}}
+    />,
+  );
+  expect(document.body.innerHTML).not.toContain("Confidential");
+  await screen.rerender(
+    <FieldCellEditor
+      key="n"
+      type="number"
+      label="Qty"
+      value={2}
+      onCommit={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  await expect
+    .poll(() => (document.activeElement as HTMLElement | null)?.tagName)
+    .toBe("INPUT");
+});

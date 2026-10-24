@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-T+UjVN/nOInA+a7t1uydMqgZvEYxFnQSPhGM7Xbn9aM=
+// @vegastack field-cell@0.25.71 sha256-L1AlKmSLIw+PT2GJ4uNULMlVM7Szv1NWhZgWlDcZOIs=
 
 "use client";
 
@@ -235,6 +235,18 @@ export function isValidFieldText(type: FieldType, value: string): boolean {
   return true;
 }
 
+/** What a link target may show: its name when the reader can reach it, else only its state. */
+function linkLabel(target: FieldLinkTarget): string {
+  const state = target.state ?? "ok";
+  return state === "ok"
+    ? target.label
+    : state === "restricted"
+      ? "Restricted"
+      : state === "unavailable"
+        ? "Unavailable"
+        : "Deleted";
+}
+
 function Overflow({ count }: { count: number }) {
   return count > 0 ? (
     <span
@@ -347,27 +359,27 @@ export function FieldCellDisplay({
         );
       }
       return root(
-        <span className="truncate tabular-nums">
+        <TruncatedText className="tabular-nums">
           {formatNumber(type, value, config)}
-        </span>,
+        </TruncatedText>,
         "justify-end",
       );
     }
     case "autonumber":
       return typeof value === "number"
         ? root(
-            <span className="truncate font-mono text-sm tabular-nums">
+            <TruncatedText className="font-mono text-sm tabular-nums">
               {config.prefix ?? ""}
               {value}
-            </span>,
+            </TruncatedText>,
           )
         : empty;
     case "date":
       return typeof value === "string" && value
         ? root(
-            <span className="truncate tabular-nums">
+            <TruncatedText className="tabular-nums">
               {formatCalendarDate(value)}
-            </span>,
+            </TruncatedText>,
           )
         : empty;
     case "datetime":
@@ -375,9 +387,9 @@ export function FieldCellDisplay({
     case "updated_at":
       return typeof value === "string" && value
         ? root(
-            <span className="truncate tabular-nums">
+            <TruncatedText className="tabular-nums">
               {formatDateTime(value, { timeZone })}
-            </span>,
+            </TruncatedText>,
           )
         : empty;
     case "single_choice":
@@ -450,13 +462,7 @@ export function FieldCellDisplay({
           {targets.slice(0, SHOWN).map((target) => {
             // A target the reader can't reach carries no name: not as text, a title or a label.
             const reachable = (target.state ?? "ok") === "ok";
-            const label = reachable
-              ? target.label
-              : target.state === "restricted"
-                ? "Restricted"
-                : target.state === "unavailable"
-                  ? "Unavailable"
-                  : "Deleted";
+            const label = linkLabel(target);
             return (
               <span
                 key={target.id}
@@ -602,13 +608,10 @@ function RecordLinkEditor({
       value={[...value]}
       onValueChange={(next) => onChange(next)}
       itemToKey={(target) => target.id}
-      itemToStringLabel={(target) => target.label}
+      // The same rule as the display: an unreachable target never shows its name here either.
+      itemToStringLabel={linkLabel}
       renderItem={(target) => (
-        <InlineChip
-          kind={target.kind}
-          label={target.label}
-          targetId={target.id}
-        />
+        <span className="min-w-0 truncate">{linkLabel(target)}</span>
       )}
       placeholder={config.placeholder ?? "Link a record…"}
       searchLabel="Search records"
@@ -639,20 +642,53 @@ function zonedParts(iso: string, timeZone: string | undefined) {
   };
 }
 
-/** The instant a wall-clock day and time in a zone names (the zone's offset at that moment). */
-function fromZoned(day: string, time: string, timeZone: string | undefined) {
+/** A zone's offset from UTC at an instant, in milliseconds. */
+function zoneOffset(instant: number, timeZone: string | undefined) {
+  const seen = zonedParts(new Date(instant).toISOString(), timeZone);
+  const [y, mo, d] = seen.day.split("-").map(Number);
+  const [h, mi] = seen.time.split(":").map(Number);
+  return (
+    Date.UTC(y!, mo! - 1, d!, h!, mi!) - Math.floor(instant / 60_000) * 60_000
+  );
+}
+
+/**
+ * The instant a wall-clock day and time in a zone names. The zone's offsets either side of the
+ * moment give the candidates: one fits on an ordinary day; on the autumn change two do (the hour
+ * repeats) and the one sharing `previous`'s offset is kept, else the earlier; on the spring
+ * change none does (the hour is skipped) and the time moves forward past the gap.
+ */
+function fromZoned(
+  day: string,
+  time: string,
+  timeZone: string | undefined,
+  previous?: string | null,
+) {
   const [y, mo, d] = day.split("-").map(Number);
   const [h, mi] = (time || "00:00").split(":").map(Number);
-  const asUtc = Date.UTC(y!, mo! - 1, d!, h ?? 0, mi ?? 0);
-  // Two passes settle the offset, including across a daylight-saving change.
-  let guess = asUtc;
-  for (let pass = 0; pass < 2; pass += 1) {
-    const seen = zonedParts(new Date(guess).toISOString(), timeZone);
-    const [sy, smo, sd] = seen.day.split("-").map(Number);
-    const [sh, smi] = seen.time.split(":").map(Number);
-    guess += asUtc - Date.UTC(sy!, smo! - 1, sd!, sh!, smi!);
-  }
-  return new Date(guess).toISOString();
+  const wall = Date.UTC(y!, mo! - 1, d!, h ?? 0, mi ?? 0);
+  const offsets = [
+    zoneOffset(wall - 12 * 3_600_000, timeZone),
+    zoneOffset(wall + 12 * 3_600_000, timeZone),
+  ];
+  const wanted = time || "00:00";
+  const fits = [...new Set(offsets)]
+    .map((offset) => wall - offset)
+    .filter((instant) => {
+      const seen = zonedParts(new Date(instant).toISOString(), timeZone);
+      return seen.day === day && seen.time === wanted;
+    })
+    .sort((a, b) => a - b);
+  if (fits.length === 0) return new Date(wall - offsets[0]!).toISOString();
+  const kept =
+    previous != null
+      ? fits.find(
+          (instant) =>
+            zoneOffset(instant, timeZone) ===
+            zoneOffset(Date.parse(previous), timeZone),
+        )
+      : undefined;
+  return new Date(kept ?? fits[0]!).toISOString();
 }
 
 /** A date and a time of day, in the reader's zone; the value is an ISO instant. */
@@ -676,7 +712,7 @@ function DateTimeEditor({
   const timeZone = useTimeZone();
   const current = value ? zonedParts(value, timeZone) : null;
   const commit = (day: string | null, time: string) =>
-    onChange(day ? fromZoned(day, time, timeZone) : null);
+    onChange(day ? fromZoned(day, time, timeZone, value) : null);
   return (
     <span
       role="group"
@@ -999,13 +1035,15 @@ const DRAFT_TYPES: ReadonlySet<FieldType> = new Set([
   "datetime",
 ]);
 
-/** Whether focus moved into one of the editor's own popups (a calendar, a list), not away. */
-function inOwnPopup(node: Element | null) {
-  return (
-    node?.closest(
-      '[data-slot="popover-content"], [data-slot="select-content"], [role="dialog"], [role="listbox"]',
-    ) != null
-  );
+/**
+ * Whether focus moved into one of the editor's OWN popups (its calendar, its list) — a popup a
+ * control inside the editor controls (`aria-controls`) — rather than away.
+ */
+function inOwnPopup(root: Element, node: Element | null) {
+  for (let at = node; at; at = at.parentElement)
+    if (at.id && root.querySelector(`[aria-controls="${CSS.escape(at.id)}"]`))
+      return true;
+  return false;
 }
 
 /**
@@ -1050,11 +1088,16 @@ export function FieldCellEditor({
       return;
     }
     // The opened editor takes focus: its first control (a field, a picker's trigger).
-    root.current
-      ?.querySelector<HTMLElement>(
-        'input:not([type="hidden"]), textarea, button, [contenteditable="true"], [tabindex]:not([tabindex="-1"])',
+    // The field itself first (a number's input, not its Decrease button), then a picker trigger.
+    const scope = root.current;
+    (
+      scope?.querySelector<HTMLElement>(
+        'input:not([type="hidden"]), textarea, [contenteditable="true"]',
+      ) ??
+      scope?.querySelector<HTMLElement>(
+        'button, [tabindex]:not([tabindex="-1"])',
       )
-      ?.focus();
+    )?.focus();
     // Once, on open.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1068,8 +1111,11 @@ export function FieldCellEditor({
         open
         onOpenChange={(open, details) => {
           if (open) return;
-          if (details?.reason === "escape-key") cancel();
-          else commit(text || null);
+          if (details?.reason === "escape-key") {
+            // An Escape the editor already used (closing its find bar or a menu) is not ours.
+            if ((details.event as Event | undefined)?.defaultPrevented) return;
+            cancel();
+          } else commit(text || null);
         }}
       >
         <span
@@ -1081,23 +1127,17 @@ export function FieldCellEditor({
           <PopoverAnchor />
           <span className="min-w-0 truncate">{text.split("\n")[0]}</span>
         </span>
-        <PopoverContent
-          align="start"
-          className="w-96"
-          onKeyDown={(event) => {
-            if (event.defaultPrevented || event.nativeEvent.isComposing) return;
-            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-              event.preventDefault();
-              commit(text || null);
-            }
-          }}
-        >
-          <FieldInput
-            type="long_text"
-            value={draft}
-            config={config}
+        <PopoverContent align="start" className="w-96">
+          {/* TextEdit owns ⌘/Ctrl+Enter (onSubmit) and its own Escape (find bar, menus). */}
+          <TextEdit
+            variant="boxed"
+            format="markdown"
             aria-label={label}
-            onChange={setDraft}
+            placeholder={config.placeholder}
+            value={text}
+            onValueChange={setDraft}
+            onSubmit={(next) => commit(next || null)}
+            minHeight="6rem"
           />
         </PopoverContent>
       </Popover>
@@ -1127,7 +1167,11 @@ export function FieldCellEditor({
         // A drafted editor commits when focus leaves it — not into its own popup.
         if (!drafted) return;
         const next = event.relatedTarget as Element | null;
-        if (event.currentTarget.contains(next) || inOwnPopup(next)) return;
+        if (
+          event.currentTarget.contains(next) ||
+          inOwnPopup(event.currentTarget, next)
+        )
+          return;
         if (valid) commit(draft);
         else cancel();
       }}
