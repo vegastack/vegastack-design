@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { InlineChipProvider } from "./inline-chip";
 import { TimeZoneProvider } from "./relative-time";
 import {
   FieldCellDisplay,
@@ -450,6 +451,7 @@ test("an empty date-time editor focuses its day picker; a link list names what +
   );
   const more = document.querySelector('[data-slot="field-cell-more"]')!;
   expect(more.textContent).toContain("2 more: Record D, Restricted");
+  expect(document.body.innerHTML).not.toContain("Secret");
   // A chip that opens nothing is not a tab stop itself, so its wrapper is (outside a grid).
   const first = screen
     .getByText("Record A")
@@ -486,7 +488,23 @@ test("an empty date-time editor focuses its day picker; a link list names what +
     .poll(() => unsafe.parentElement!.getAttribute("tabindex"))
     .toBe("0");
   await expectNoA11yViolations(screen.container);
-  expect(document.body.innerHTML).not.toContain("Secret");
+  // The host's provider changes what the chip renders; the wrapper follows both ways.
+  const plain = [{ id: "p", label: "Provided", kind: "customer" as const }];
+  await screen.rerender(
+    <InlineChipProvider value={{ href: () => "/c/p" }}>
+      <FieldCellDisplay type="link" value={plain} />
+    </InlineChipProvider>,
+  );
+  const wrapper = () =>
+    screen.getByText("Provided").element().closest("[data-slot=inline-chip]")!
+      .parentElement!;
+  await expect.poll(() => wrapper().hasAttribute("tabindex")).toBe(false);
+  await screen.rerender(
+    <InlineChipProvider value={{}}>
+      <FieldCellDisplay type="link" value={plain} />
+    </InlineChipProvider>,
+  );
+  await expect.poll(() => wrapper().getAttribute("tabindex")).toBe("0");
 });
 
 test("a link editor never names an unreachable target; a numeric editor focuses its field", async () => {

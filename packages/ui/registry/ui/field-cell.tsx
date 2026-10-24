@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-Hb0meeM6u7Q0eie5aM3oNPqPxNAd0TsEhoikuqyuUj8=
+// @vegastack field-cell@0.25.71 sha256-6hFKLDg7D9D4/c18BnE2JnuHvJr2wUyNSE6RVO14+30=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
-import { InlineChip } from "@/components/ui/inline-chip";
+import { InlineChip, useInlineChipResolver } from "@/components/ui/inline-chip";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import {
@@ -303,13 +303,15 @@ function LinkNameDisclosure({
 }) {
   const ref = React.useRef<HTMLSpanElement | null>(null);
   const [chipFocusable, setChipFocusable] = React.useState(false);
-  // After every render: the chip's resolved behaviour can change with the host's provider.
+  // The host's chip provider decides what the chip renders: reading it re-renders this wrapper
+  // with the chip, so the check below runs again whenever the provider changes.
+  const resolver = useInlineChipResolver();
   React.useLayoutEffect(() => {
     setChipFocusable(
       ref.current?.querySelector("a[href], [tabindex]:not([tabindex='-1'])") !=
         null,
     );
-  });
+  }, [resolver, children]);
   return (
     <Tooltip>
       <TooltipTrigger
