@@ -1770,6 +1770,39 @@
       }
     },
     {
+      "name": "view-tabs",
+      "type": "registry:ui",
+      "title": "View Tabs",
+      "description": "A table's saved views as a tab row: shared views, a divider, then the reader's own; a lock on locked views; a + menu for a grid or board view, shared or personal; the open view's actions; one Select below a narrow container.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.19",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/select",
+        "@vegastack/tabs"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/view-tabs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/view-tabs.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
+        "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
+        "version": "0.25.69",
+        "integrity": "sha256-YAZGrdx7/u99LwwzeAaP6BqGiEqCM3IwfUZuDKMIIhk="
+      }
+    },
+    {
       "name": "view-toggle",
       "type": "registry:ui",
       "title": "View Toggle",
@@ -2729,7 +2762,7 @@
       "name": "filter-bar-managed",
       "type": "registry:ui",
       "title": "Filter Builder",
-      "description": "The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "description": "The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary; plus SortBuilder, GroupByPicker and date, person, checkbox and link value editors.",
       "categories": [
         "data"
       ],
@@ -2740,11 +2773,16 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/date-picker",
+        "@vegastack/date-time",
         "@vegastack/filter-bar",
         "@vegastack/input",
         "@vegastack/number-field",
+        "@vegastack/people-picker",
         "@vegastack/searchable-select",
-        "@vegastack/select"
+        "@vegastack/select",
+        "@vegastack/sortable-list",
+        "@vegastack/use-async-search"
       ],
       "files": [
         {
@@ -2757,7 +2795,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.25.70",
-        "integrity": "sha256-u11+pcwc5eRa+93+nTnoLgOnSVqlZxMw11BIUWTo2qs="
+        "integrity": "sha256-K0wyla4toVCIdv6Z5DuOgNJ8PJxHwnD/7sSnZJajbw8="
       }
     },
     {

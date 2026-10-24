@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 753,
-    "components": 166,
+    "totalRegistryItems": 754,
+    "components": 167,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 34,
     "Navigation/layout": 22,
     "Overlays": 21,
-    "Data display": 34,
+    "Data display": 35,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 10,
@@ -174,6 +174,7 @@
       "thumbnail",
       "timeline",
       "version-list",
+      "view-tabs",
       "view-toggle",
       "icon-glyph",
       "level-meter",
@@ -9237,6 +9238,154 @@
       }
     },
     {
+      "name": "view-tabs",
+      "registryType": "registry:ui",
+      "title": "View Tabs",
+      "summary": "A table's saved views as a tab row: shared views, a divider, then the reader's own; a lock on locked views; a + menu for a grid or board view, shared or personal; the open view's actions; one Select below a narrow container.",
+      "status": "stable",
+      "since": "0.25.71",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/view-tabs.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ViewTabs",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/view-tabs.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/view-tabs.tsx."
+          }
+        },
+        {
+          "name": "ViewTabsLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/view-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ViewTabsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/view-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ViewTabsView",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/view-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale; Tabs variant=line throughout."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "ToggleGroup outline variant; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "with-personal",
+            "locked",
+            "create-menu",
+            "actions-menu",
+            "narrow"
+          ],
+          "evidence": "Shared then personal views, locked icon, onCreate menu, getViewActions menu, a Select below @3xl."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "roving-tabindex"],
+          "evidence": "Base UI tablist roving focus; locked read as text; named create and actions buttons; the narrow Select named like the tab row."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "active", "locked", "narrow"],
+          "evidence": "Line tabs with an underline on the active view; kind icon; lock."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["horizontal-scroll-containment"],
+        "rationale": "The tab row scrolls (Tabs line overflow) and becomes one Select below @3xl of its own container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/view-tabs",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/select",
+        "@vegastack/tabs"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.19",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "testFiles": ["packages/ui/registry/ui/view-tabs.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "view-tabs",
+      "dataAttributes": {
+        "ViewTabs": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-scope",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "view-tabs",
+                "view-tabs-actions",
+                "view-tabs-create",
+                "view-tabs-divider",
+                "view-tabs-list",
+                "view-tabs-mine",
+                "view-tabs-select",
+                "view-tabs-tab"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "view-toggle",
       "registryType": "registry:ui",
       "title": "View Toggle",
@@ -13557,6 +13706,42 @@
       "sourceFiles": ["packages/ui/registry/ui/filter-bar-managed.tsx"],
       "publicSymbols": [
         {
+          "name": "CheckboxValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor or builder rendered by FilterBuilder or the host; it forwards no ref."
+          }
+        },
+        {
+          "name": "DateValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor or builder rendered by FilterBuilder or the host; it forwards no ref."
+          }
+        },
+        {
+          "name": "describeFilter",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FILTER_ME",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
           "name": "FilterBuilder",
           "kind": "component",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
@@ -13585,7 +13770,25 @@
           }
         },
         {
+          "name": "FilterDateValue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FilterField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterLinkValue",
           "kind": "interface",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
           "ref": {
@@ -13612,12 +13815,66 @@
           }
         },
         {
+          "name": "FilterRecordOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterRelativeDate",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FilterValueEditorProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatRange",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "GroupByPicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor or builder rendered by FilterBuilder or the host; it forwards no ref."
+          }
+        },
+        {
+          "name": "GroupByPickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "LinkValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor or builder rendered by FilterBuilder or the host; it forwards no ref."
           }
         },
         {
@@ -13631,6 +13888,15 @@
         },
         {
           "name": "NumberValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor; it renders a composed control and takes no ref."
+          }
+        },
+        {
+          "name": "OptionsValueEditor",
           "kind": "component",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
           "ref": {
@@ -13657,12 +13923,39 @@
           }
         },
         {
-          "name": "OptionsValueEditor",
+          "name": "PersonValueEditor",
           "kind": "component",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A value editor; it renders a composed control and takes no ref."
+            "rationale": "A value editor or builder rendered by FilterBuilder or the host; it forwards no ref."
+          }
+        },
+        {
+          "name": "SortBuilder",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor or builder rendered by FilterBuilder or the host; it forwards no ref."
+          }
+        },
+        {
+          "name": "SortBuilderEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortBuilderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -13672,24 +13965,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A value editor; it renders a composed control and takes no ref."
-          }
-        },
-        {
-          "name": "describeFilter",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "formatRange",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         }
       ],
@@ -13749,11 +14024,16 @@
       "docsSlug": "/docs/components/filter-bar-managed",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/date-picker",
+        "@vegastack/date-time",
         "@vegastack/filter-bar",
         "@vegastack/input",
         "@vegastack/number-field",
+        "@vegastack/people-picker",
         "@vegastack/searchable-select",
-        "@vegastack/select"
+        "@vegastack/select",
+        "@vegastack/sortable-list",
+        "@vegastack/use-async-search"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -13813,6 +14093,49 @@
                 "filter-builder-group",
                 "filter-builder-sentence"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DateValueEditor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["filter-date-editor", "filter-date-range-editor"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SortBuilder": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sort-builder", "sort-builder-add"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GroupByPicker": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["group-by-picker", "group-by-picker-add"]
             }
           ],
           "cssVariables": []

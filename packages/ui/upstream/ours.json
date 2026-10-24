@@ -727,6 +727,12 @@
       "disposition": "keep",
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it (Regent Tables plan 1.2, DS R3)"
+    },
+    "view-tabs": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent Tables plan 1.3 (DS R4), approved by the operator 2026-10-23",
+      "rationale": "Upstream ships Tabs but no saved-views row (shared and personal groups, create menu, narrow Select). Composes upstream's tabs, select, dropdown-menu and button unchanged; carries no patch."
     }
   }
 }

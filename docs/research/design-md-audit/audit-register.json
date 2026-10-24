@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "710af429dc61a55bffbf56eed63e22f04a83d05f93dc72ea259d62ab582136a6",
+  "contractSha256": "8359efc0d076fa24d7c40301c45ca766582b4ba2dfc54005f5038272d2d45718",
   "expectedCounts": {
-    "totalRegistryItems": 753,
-    "components": 166,
+    "totalRegistryItems": 754,
+    "components": 167,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -496,6 +496,17 @@
         "packages/ui/registry/ui/thumbnail.tsx"
       ],
       "docsSlug": "/docs/components/thumbnail",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "view-tabs",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/view-tabs.tsx"
+      ],
+      "docsSlug": "/docs/components/view-tabs",
       "contractStatus": "reconciled"
     },
     {
