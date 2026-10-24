@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.73] — October 24, 2026
+
+### 🔧 Changed components
+
+- **DataGrid**: an `editable` column with a `render` keeps it as the cell's display while not editing (a `FieldCellDisplay`'s tags, chips or avatars), instead of the value as plain text; and a `custom` editor's `render` now receives the `row` with `value`, `commit` and `cancel` (the new `DataGridEditor<T>` type). [docs](/docs/components/data-grid) ·
+  [`143cb17`](https://github.com/VegaStack/vegastack-design/commit/143cb17)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.23`** (was `0.8.22`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.72 → 0.25.73.
+
 ## [0.25.72] — October 24, 2026
 
 ### 🧩 New components

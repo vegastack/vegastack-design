@@ -1,4 +1,4 @@
-// @vegastack tag-group@0.25.72 sha256-typnj8vNBIpHL6k+6EBhrGB8rSL1n265jgs6fbIsEdY=
+// @vegastack tag-group@0.25.73 sha256-ne47g8p5dD9rmDo/jcxHiNPo50cfFKBfFIe9NAXCVDk=
 
 "use client";
 
