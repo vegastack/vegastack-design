@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-6hFKLDg7D9D4/c18BnE2JnuHvJr2wUyNSE6RVO14+30=
+// @vegastack field-cell@0.25.71 sha256-XIMzmFYc/ueP6ct5xx/cAKol3WAeEdbXurNszbDO2Tc=
 
 "use client";
 
@@ -273,7 +273,8 @@ function Overflow({
           <span
             data-slot="field-cell-more"
             tabIndex={tabIndex ?? 0}
-            className={className}
+            // A tab stop: at least a 24px-wide hit area, however short the count.
+            className={cn(className, "inline-block min-w-6 text-center")}
           />
         }
       >
@@ -481,7 +482,8 @@ export function FieldCellDisplay({
           {chosen.map((option) => (
             <Tag key={option.id} hue={option.hue ?? "neutral"}>
               {/* A clipped name is revealed on hover and on keyboard focus. */}
-              <TruncatedText>{option.label}</TruncatedText>
+              {/* A clipped name becomes a tab stop: never under the 24px target floor. */}
+              <TruncatedText className="min-w-6">{option.label}</TruncatedText>
             </Tag>
           ))}
         </TagGroup>,
@@ -611,7 +613,7 @@ export function FieldCellDisplay({
             target={type === "url" ? "_blank" : undefined}
             rel={type === "url" ? "noopener noreferrer" : undefined}
             tabIndex={tabIndex}
-            className="min-w-0 truncate text-primary underline-offset-2 hover:underline"
+            className="min-h-6 min-w-0 truncate leading-6 text-primary underline-offset-2 hover:underline"
           >
             {value}
           </a>
