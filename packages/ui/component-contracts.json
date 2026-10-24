@@ -16745,7 +16745,7 @@
           }
         },
         {
-          "name": "MarkdownTaskList",
+          "name": "MarkdownLiveBlock",
           "kind": "component",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
           "ref": {
@@ -16755,7 +16755,7 @@
           }
         },
         {
-          "name": "MarkdownTaskListProps",
+          "name": "MarkdownLiveBlockProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
           "ref": {
@@ -17357,15 +17357,19 @@
           ],
           "cssVariables": []
         },
-        "MarkdownTaskList": {
+        "MarkdownLiveBlock": {
           "attributes": [
             {
               "name": "data-checked",
               "values": []
             },
             {
+              "name": "data-kind",
+              "values": []
+            },
+            {
               "name": "data-slot",
-              "values": ["markdown-task-list", "markdown-task-list-row"]
+              "values": ["markdown-live-block", "markdown-live-block-row"]
             }
           ],
           "cssVariables": []
@@ -26706,6 +26710,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "LiveBlockKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -31786,6 +31799,84 @@
           }
         },
         {
+          "name": "DocumentLayoutBlockTable",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableCell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableColumn",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableHead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-sections.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableCellProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutBlockTableProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-sections.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DocumentLayoutPageItem",
           "kind": "component",
           "source": "packages/ui/registry/ui/document-layout-sections.tsx",
@@ -31957,7 +32048,8 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/item",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -32216,6 +32308,72 @@
             {
               "name": "data-slot",
               "values": ["document-layout-block-row-meta"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTable": {
+          "attributes": [
+            {
+              "name": "data-scrollable",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-table"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTableHead": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-table-head"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTableBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-table-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTableRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-table-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTableColumn": {
+          "attributes": [
+            {
+              "name": "data-primary",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-table-column"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBlockTableCell": {
+          "attributes": [
+            {
+              "name": "data-primary",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["document-layout-block-table-cell"]
             }
           ],
           "cssVariables": []
@@ -45310,7 +45468,7 @@
           }
         },
         {
-          "name": "TaskListRow",
+          "name": "LiveBlockRow",
           "kind": "interface",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
           "ref": {
@@ -45319,7 +45477,25 @@
           }
         },
         {
-          "name": "parseTaskListRows",
+          "name": "parseLiveBlockRows",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LiveBlockKind",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "liveBlockNames",
           "kind": "function",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
           "ref": {

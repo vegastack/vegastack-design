@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.73 sha256-rpAM6FjiBAR+RhxRZ6wYtqwHw6k9odnWKLWCxu0+78Y=
+// @vegastack text-edit-schema@0.25.73 sha256-FP5/icdKR01GtH8Sg6rHXQ7wsrojgvyhtWhSTZfeOfY=
 
 import {
   Extension,
@@ -48,7 +48,9 @@ import {
   MEDIA_BLOCK,
   DEFAULT_LIVE_BLOCK_KINDS,
   LIVE_BLOCK_NAME,
+  liveBlockNames,
   readLiveBlock,
+  type LiveBlockKind,
   liveBlockMarkdown,
   codeFenceInfo,
   imageMarkdown,
@@ -116,12 +118,12 @@ export interface TextEditSchemaOptions {
    */
   diff?: boolean;
   /**
-   * The live block names Markdown reads (`:::<name>{…}` … `:::`), each stored as a `taskQuery`
+   * The live block kinds Markdown reads (`:::<name>{…}` … `:::`), each stored as a `taskQuery`
    * node with that `kind`. A block of any other name stays text and a list. Read once, when the
-   * extensions are built.
-   * @default DEFAULT_LIVE_BLOCK_KINDS — `["tasks"]`
+   * extensions are built; a node view finds a kind's `label` and `rowKind` in the node's options.
+   * @default DEFAULT_LIVE_BLOCK_KINDS — the live task list (`tasks`) alone
    */
-  liveBlockKinds?: readonly string[];
+  liveBlockKinds?: readonly LiveBlockKind[];
 }
 
 /**
@@ -1481,13 +1483,13 @@ function queryAttr(value: unknown): Record<string, string> {
  */
 function taskQueryNode(
   view: (() => NodeViewRenderer) | undefined,
-  liveBlockKinds: readonly string[],
+  liveBlockKinds: readonly LiveBlockKind[],
 ) {
-  const names = liveBlockKinds.filter((name) =>
-    new RegExp(`^${LIVE_BLOCK_NAME}$`).test(name),
-  );
-  return Node.create({
+  const names = liveBlockNames(liveBlockKinds);
+  return Node.create<{ kinds: readonly LiveBlockKind[] }>({
     name: "taskQuery",
+    // The host's kinds, for a node view's quiet snapshot (`MarkdownLiveBlock`).
+    addOptions: () => ({ kinds: liveBlockKinds }),
     group: "block",
     atom: true,
     draggable: true,

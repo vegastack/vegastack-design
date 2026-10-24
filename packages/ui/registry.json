@@ -206,7 +206,8 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/skeleton",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {

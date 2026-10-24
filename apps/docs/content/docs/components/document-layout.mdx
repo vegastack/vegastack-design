@@ -226,7 +226,12 @@ What a document holds besides its prose, again without a class of your own:
   `DocumentLayoutBlockRowRef`, then `DocumentLayoutBlockRowMeta`, which wraps under the main line
   below 640px), or a `DocumentLayoutBlockNote` ("No tasks match") or a
   `DocumentLayoutBlockSkeleton`, and a `DocumentLayoutBlockFooter`. `DocumentLayoutBlockAction` is
-  the link-styled action inside it (Try again, Open in Tasks →).
+  the link-styled action inside it (Try again, Open in Tasks →). A block of a table's records
+  shows them as a `DocumentLayoutBlockTable` (`columns`, the name column first): a
+  `DocumentLayoutBlockTableHead` row of `DocumentLayoutBlockTableColumn`s, then a
+  `DocumentLayoutBlockTableBody` of `DocumentLayoutBlockTableRow`s of
+  `DocumentLayoutBlockTableCell`s (`primary` on the name column's, a row header). It is read-only,
+  every row's columns line up, and it scrolls sideways when its columns don't fit.
 
 <ComponentPreview
   name="documentLayoutSections"

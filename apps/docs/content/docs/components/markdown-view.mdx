@@ -233,24 +233,28 @@ The attributes are `key="value"` pairs separated by spaces. Keys are `[a-z][a-z0
 are double-quoted, and `\"` and `\\` are the escapes. `id` is the block's id. The rest are the
 list's filter, and unknown keys are kept as written. Each row is a task item whose first inline is
 a task mention, then an em dash between spaces and the status label. `MarkdownView` renders the rows as a quiet,
-read-only card (`MarkdownTaskList`): the muted heading "Task list", then each row's done box, task
+read-only card (`MarkdownLiveBlock`): the muted heading "Task list", then each row's done box, task
 chip and status label. A list with no rows shows "No matching tasks". The card is the snapshot
 stored with the page, so a public view never gets live data.
 
 Lines that do not make a whole block read as Markdown always did. That includes a missing closing
-line, a row that is not a task line, or attributes that do not parse. A renderer without directive
+line, a row that is not a list item line, or attributes that do not parse. A renderer without directive
 support shows the same lines as text and a list. `TextEdit`'s HTML for a list
 (`div[data-type="task-query"]`) renders the same card.
 
 `renderTaskQuery({ blockId, query, snapshot, editable })` lets a host draw the live list in its
 place, with `editable: false` here. `TextEdit` passes it on to the read view it shows first.
 
-The directive's name is open: `liveBlockKinds` (default `["tasks"]`) lists the names the view
-reads, each `[a-z][a-z0-9_]*`, and a block of any other name stays text. `renderLiveBlock(kind,
-props)` draws every kind, `tasks` included; without it `renderTaskQuery` draws `tasks` alone, and
-any block it does not draw shows its stored snapshot. The grammar comes from
-`@/lib/text-edit-grammar`: `readLiveBlock(source, { names })`, `liveBlockMarkdown` and
-`parseTaskListRows`.
+The directive's name is open: `liveBlockKinds` lists the kinds the view reads, each a
+`LiveBlockKind` — `{ name, rowKind, label, empty? }`: the name after `:::` (`[a-z][a-z0-9_]*`), the
+mention kind of its rows, the snapshot card's heading and its line with no rows. The default is
+the live task list alone (`DEFAULT_LIVE_BLOCK_KINDS`), and a block of any other name stays text.
+A kind's rows may drop the box: `- [@Row](mention://row/<id>)` is a row too, drawn as its chip
+alone. `renderLiveBlock(kind, props)` draws every kind, `tasks` included; without it
+`renderTaskQuery` draws `tasks` alone, and any block it does not draw shows its stored snapshot
+under its kind's heading. The grammar comes from `@/lib/text-edit-grammar`:
+`readLiveBlock(source, { names })` (`liveBlockNames(kinds)`), `liveBlockMarkdown` and
+`parseLiveBlockRows(snapshot, rowKind)`.
 
 <ComponentPreview
   name="markdownViewTaskLists"
@@ -435,11 +439,11 @@ A view of your own is `{ label, render(source, { mode, theme }) }`, plus `defaul
   name="MentionChipProps"
 />
 
-`MarkdownTaskList` takes a `div`'s props plus:
+`MarkdownLiveBlock` takes a `div`'s props plus:
 
 <ApiTable
   path="../../packages/ui/registry/ui/markdown-view.tsx"
-  name="MarkdownTaskListProps"
+  name="MarkdownLiveBlockProps"
 />
 
 `renderTaskQuery` is called with:

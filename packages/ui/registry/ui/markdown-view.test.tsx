@@ -10,10 +10,21 @@ import { markdownToDoc } from "../lib/text-edit-markdown";
 import { textEditSchema } from "../lib/text-edit-schema";
 import { anchorText } from "../lib/text-anchor-doc";
 import {
+  DEFAULT_LIVE_BLOCK_KINDS,
   headingIds,
   mentionMarkdown,
   parseMentionLink,
 } from "../lib/text-edit-grammar";
+
+const TABLE_KINDS = [
+  ...DEFAULT_LIVE_BLOCK_KINDS,
+  {
+    name: "table",
+    rowKind: "row",
+    label: "Table view",
+    empty: "No rows match",
+  },
+];
 import { preloadTextEdit, TextEdit } from "./text-edit";
 import { EMBED_PROVIDERS } from "../lib/embed-providers";
 
@@ -1366,14 +1377,14 @@ test("a live task list renders its snapshot as a quiet list card: chips, status 
     </MarkdownView>,
   );
   const lists = screen.container.querySelectorAll(
-    '[data-slot="markdown-task-list"]',
+    '[data-slot="markdown-live-block"]',
   );
   expect(lists).toHaveLength(2);
   const [full, empty] = [...lists] as HTMLElement[];
   expect(full).toHaveAttribute("role", "group");
   expect(full).toHaveAttribute("aria-label", "Task list");
   expect(full!.textContent).toContain("Task list");
-  const rows = full!.querySelectorAll('[data-slot="markdown-task-list-row"]');
+  const rows = full!.querySelectorAll('[data-slot="markdown-live-block-row"]');
   expect(rows).toHaveLength(2);
   expect(rows[0]!.textContent).toContain("Order glass for block B");
   expect(rows[0]!.textContent).toContain("To do");
@@ -1403,7 +1414,7 @@ test("renderTaskQuery draws a live task list in place of its snapshot (read-only
     editable: false,
   });
   expect(
-    screen.container.querySelector('[data-slot="markdown-task-list"]'),
+    screen.container.querySelector('[data-slot="markdown-live-block"]'),
   ).toBeNull();
 });
 
@@ -1414,7 +1425,7 @@ test("live block names come from the host: `:::table` reads only when listed, an
   expect(plain.container.textContent).toContain(':::table{id="b1" view="v1"}');
   const draw = vi.fn((kind: string) => <p>Live {kind}</p>);
   const live = await render(
-    <MarkdownView liveBlockKinds={["tasks", "table"]} renderLiveBlock={draw}>
+    <MarkdownView liveBlockKinds={TABLE_KINDS} renderLiveBlock={draw}>
       {`${TABLE}\n\n${TASK_LIST}`}
     </MarkdownView>,
   );
@@ -1429,7 +1440,7 @@ test("live block names come from the host: `:::table` reads only when listed, an
   // renderTaskQuery draws only `tasks`; any other kind keeps its stored snapshot.
   const tasksOnly = await render(
     <MarkdownView
-      liveBlockKinds={["tasks", "table"]}
+      liveBlockKinds={TABLE_KINDS}
       renderTaskQuery={() => <p>Task rows</p>}
     >
       {`${TABLE}\n\n${TASK_LIST}`}
@@ -1437,8 +1448,36 @@ test("live block names come from the host: `:::table` reads only when listed, an
   );
   await expect.element(tasksOnly.getByText("Task rows")).toBeInTheDocument();
   expect(
-    tasksOnly.container.querySelectorAll('[data-slot="markdown-task-list"]'),
+    tasksOnly.container.querySelectorAll('[data-slot="markdown-live-block"]'),
   ).toHaveLength(1);
+});
+
+test("a host kind's snapshot shows under its own heading, rows of its row kind as chips, no box on a boxless row", async () => {
+  const TABLE =
+    ':::table{id="b1" table="t1"}\n- [@Lux survey](mention://row/r1)\n- [@A task](mention://task/t1)\n:::';
+  const screen = await render(
+    <MarkdownView liveBlockKinds={TABLE_KINDS}>{TABLE}</MarkdownView>,
+  );
+  const card = screen.container.querySelector(
+    '[data-slot="markdown-live-block"]',
+  )!;
+  expect(card).toHaveAttribute("aria-label", "Table view");
+  expect(card).toHaveAttribute("data-kind", "table");
+  const rows = card.querySelectorAll('[data-slot="markdown-live-block-row"]');
+  expect(rows).toHaveLength(2);
+  expect(rows[0]!.querySelector('[role="checkbox"]')).toBeNull();
+  expect(rows[0]!.querySelector('[data-slot="inline-chip"]')).not.toBeNull();
+  expect(rows[0]!.textContent).toContain("Lux survey");
+  // A row mentioning another kind is text, never that kind's chip.
+  expect(rows[1]!.querySelector('[data-slot="inline-chip"]')).toBeNull();
+  await expectNoA11yViolations(screen.container);
+  const empty = await render(
+    <MarkdownView liveBlockKinds={TABLE_KINDS}>
+      {':::table{id="b2"}\n:::'}
+    </MarkdownView>,
+  );
+  expect(empty.container.textContent).toContain("No rows match");
+  await expectNoA11yViolations(empty.container);
 });
 
 test("lines that do not make a live task list stay text and a list; TextEdit's HTML for one renders its snapshot", async () => {
@@ -1449,7 +1488,7 @@ test("lines that do not make a live task list stay text and a list; TextEdit's H
   );
   expect(screen.container.textContent).toContain(':::tasks{id="a"}');
   expect(
-    screen.container.querySelector('[data-slot="markdown-task-list"]'),
+    screen.container.querySelector('[data-slot="markdown-live-block"]'),
   ).toBeNull();
   // The HTML TextEdit writes (`editor.getHTML()`), not a hand-written attribute.
   const source = getHTMLFromFragment(
@@ -1459,7 +1498,9 @@ test("lines that do not make a live task list stay text and a list; TextEdit's H
   const html = await render(
     <MarkdownView format="html">{source}</MarkdownView>,
   );
-  const card = html.container.querySelector('[data-slot="markdown-task-list"]');
+  const card = html.container.querySelector(
+    '[data-slot="markdown-live-block"]',
+  );
   expect(card?.textContent).toContain("Fix scaffolding");
   expect(card?.textContent).toContain("Done");
   // Its block id reaches the host's live list.
