@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.71 sha256-bvkMtxaXyxnFpKupLn9DQpKanki7LjAfvI132espPnc=
+// @vegastack email-kit@0.25.72 sha256-HpiuZvXaKj3ZKrTSOh5P8L33NYF/u1o3ZxuD5bQbdYU=
 
 import { Section } from "react-email";
 
