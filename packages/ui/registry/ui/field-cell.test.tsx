@@ -449,7 +449,8 @@ test("an empty date-time editor focuses its day picker; a link list names what +
     />,
   );
   const more = document.querySelector('[data-slot="field-cell-more"]')!;
-  expect(more.getAttribute("aria-label")).toBe("2 more: Record D, Restricted");
+  expect(more.textContent).toContain("2 more: Record D, Restricted");
+  await expectNoA11yViolations(screen.container);
   expect(document.body.innerHTML).not.toContain("Secret");
 });
 

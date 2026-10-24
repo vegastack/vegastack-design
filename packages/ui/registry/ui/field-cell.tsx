@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-OSqNfUF9mG5KVgk3uTmT4e6/MmutXbHyfkFx/zn4baM=
+// @vegastack field-cell@0.25.71 sha256-8TDc4dus+bODzstollJAUE+sLv0mi4COUGzSHRrYbfA=
 
 "use client";
 
@@ -273,12 +273,14 @@ function Overflow({
           <span
             data-slot="field-cell-more"
             tabIndex={tabIndex ?? 0}
-            aria-label={`${count} more: ${names}`}
             className={className}
           />
         }
       >
-        +{count}
+        <span aria-hidden>+{count}</span>
+        <span className="sr-only">
+          {count} more: {names}
+        </span>
       </TooltipTrigger>
       <TooltipContent>{names}</TooltipContent>
     </Tooltip>
@@ -487,20 +489,29 @@ export function FieldCellDisplay({
             // A target the reader can't reach carries no name: not as text, a title or a label.
             const reachable = (target.state ?? "ok") === "ok";
             const label = linkLabel(target);
+            const chip = (
+              <InlineChip
+                kind={target.kind}
+                label={label}
+                targetId={reachable ? target.id : `restricted:${target.id}`}
+                href={reachable ? target.href : null}
+                struck={target.state === "deleted"}
+              />
+            );
+            if (!reachable)
+              return (
+                <span key={target.id} className="min-w-0 truncate">
+                  {chip}
+                </span>
+              );
+            // A clipped name is revealed on hover and when the chip inside takes keyboard focus.
             return (
-              <span
-                key={target.id}
-                title={reachable ? target.label : undefined}
-                className="min-w-0 truncate"
-              >
-                <InlineChip
-                  kind={target.kind}
-                  label={label}
-                  targetId={reachable ? target.id : `restricted:${target.id}`}
-                  href={reachable ? target.href : null}
-                  struck={target.state === "deleted"}
-                />
-              </span>
+              <Tooltip key={target.id}>
+                <TooltipTrigger render={<span className="min-w-0 truncate" />}>
+                  {chip}
+                </TooltipTrigger>
+                <TooltipContent>{target.label}</TooltipContent>
+              </Tooltip>
             );
           })}
           <Overflow
