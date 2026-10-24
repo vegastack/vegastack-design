@@ -1377,12 +1377,14 @@
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
+        "@vegastack/grid-clipboard",
         "@vegastack/load-more",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-grid-selection"
       ],
       "files": [
         {
@@ -1730,6 +1732,27 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.25.69"
+      }
+    },
+    {
+      "name": "grid-clipboard",
+      "type": "registry:lib",
+      "title": "Grid Clipboard",
+      "description": "The spreadsheet clipboard as data: parse TSV, clipboard HTML and Google Sheets' typed values into a cell matrix; write TSV and HTML for a copied range; fit a paste to a selected range.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/grid-clipboard.ts",
+          "type": "registry:lib",
+          "target": "@lib/grid-clipboard.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Copy and paste between a grid and spreadsheets (Excel, Google Sheets, Numbers, Airtable) — DataGrid's cells mode, or a host's own paste preview or import.",
+        "whenNotToUse": "CSV files (a CSV parser), or rich text paste into an editor.",
+        "version": "0.25.68"
       }
     },
     {
@@ -15355,6 +15378,27 @@
         "whenToUse": "Any hand-rolled collection of focusable items that should read as ONE Tab stop with arrow-key movement — swatch grids, emoji grids, card lists, custom pickers.",
         "whenNotToUse": "Base UI-owned collections (Select, Combobox, Menu, Tabs) — their primitives already own roving focus; and single controls that need no internal navigation.",
         "version": "0.25.69"
+      }
+    },
+    {
+      "name": "use-grid-selection",
+      "type": "registry:hook",
+      "title": "useGridSelection",
+      "description": "A spreadsheet range selection as state, kept by row id and column key: anchor and focus, select, extend, extendTo, row, column and all, and the range's bounds in the current order.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-grid-selection.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-grid-selection.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A grid or table with spreadsheet-style cell ranges that must survive reordering, refetching and windowing — DataGrid's cells mode uses it.",
+        "whenNotToUse": "Row selection with checkboxes (useRowSelection in data-table-parts), or a one-dimensional list (useListNav).",
+        "version": "0.25.68"
       }
     },
     {

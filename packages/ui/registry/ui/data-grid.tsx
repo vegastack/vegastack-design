@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.69 sha256-yFGJMA+oLYJWqaVj8Ayc2Q5UQS1g/CmF2GBXpXtDCOM=
+// @vegastack data-grid@0.25.69 sha256-Z5P1rr79zPH9DUercfKbVk/mPxIDkOYrkosiW74deXQ=
 
 "use client";
 
@@ -74,6 +74,20 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useDragReorder } from "@/components/ui/use-drag-reorder";
+import {
+  gridRangeBounds,
+  useGridSelection,
+  type GridRangeBounds,
+} from "@/components/ui/use-grid-selection";
+import {
+  expandPaste,
+  parseClipboard,
+  serializeHtmlTable,
+  serializeTsv,
+  SHEETS_COMPACT_TABLE_TYPE,
+  type GridClipboardCell,
+  type GridClipboardMatrix,
+} from "@/lib/grid-clipboard";
 import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import {
   TableBody,
@@ -278,6 +292,80 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * @default undefined
    */
   summaryOptions?: readonly GridSummaryOption[];
+  /**
+   * Cells mode: read a pasted cell into this column's value (`CellChange.value`). Without it a
+   * pasted cell's text is the value. A column with neither `parse` nor `editable` is read-only
+   * to paste, clear and fill.
+   * @default undefined
+   */
+  parse?: (cell: GridClipboardCell, row: T) => unknown;
+  /**
+   * Cells mode: the text a copy writes for this column's value.
+   * @default the value as a string
+   */
+  format?: (row: T) => string;
+}
+
+/** One cell write a cells-mode grid asks the host for (a paste, a clear, a cut). */
+export interface CellChange {
+  rowId: string;
+  key: string;
+  /** The new value: what the column's `parse` returned, the pasted text, or `null` to clear. */
+  value: unknown;
+  /** The value the grid showed before (the column's own value for the row). */
+  previous: unknown;
+  /** The latest change id the writer expects on the cell (sent by undo and redo). */
+  expectChange?: string;
+}
+
+/** The host's per-cell outcome for one `CellChange`, in the same order. */
+export type CellCommitResult =
+  | { status: "ok"; value: unknown; version: number; changeId: string }
+  | { status: "conflict"; current: unknown }
+  | { status: "invalid"; reason: string }
+  | { status: "stale_schema" };
+
+/** A block of cells by id: the rows (top to bottom) and the column keys (left to right). */
+export interface DataGridCellBlock {
+  rowIds: string[];
+  keys: string[];
+}
+
+/** A fill request: copy `source` into `target`, or continue its series (Alt-drag). */
+export interface DataGridFill {
+  source: DataGridCellBlock;
+  target: DataGridCellBlock;
+  /** Continue a number or date series instead of copying (Alt held). The host computes it. */
+  series: boolean;
+}
+
+/** The part of a paste that ran past the last loaded row. */
+export interface DataGridPasteOverflow {
+  /** The rows that did not fit, in the pasted columns. */
+  matrix: GridClipboardMatrix;
+  /** The column each pasted column lands in. */
+  keys: string[];
+  /** The last row the paste reached. */
+  afterRowId: string;
+}
+
+/** A change someone else (or an agent) just made to one cell. */
+export interface DataGridRemoteChange {
+  /** Who made it — an avatar chip, shown in the cell's corner while the cue fades. */
+  by: React.ReactNode;
+  /** When it arrived (`Date.now()`); the cue lasts 1.5s from here. */
+  at: number;
+  /**
+   * What a screen reader hears when it lands on the FOCUSED cell — "Asha changed Status to
+   * Quoted". Other cells are not announced.
+   * @default undefined
+   */
+  announcement?: string;
+}
+
+/** The key `remoteChanges` uses for one cell. */
+export function gridCellKey(rowId: string, key: string): string {
+  return `${rowId}\u0001${key}`;
 }
 
 /**
@@ -589,7 +677,52 @@ export interface DataGridProps<T> {
    * @default undefined
    */
   ref?: React.Ref<HTMLDivElement>;
+  /**
+   * `rows` selects whole rows (the checkbox column). `cells` adds spreadsheet ranges:
+   * Shift+arrows, Shift+click and drag extend, <kbd>Shift</kbd>+<kbd>Space</kbd> a row,
+   * <kbd>Ctrl</kbd>+<kbd>Space</kbd> a column, <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> all;
+   * copy, cut and paste (TSV and HTML), Delete clears, <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>D</kbd>
+   * fills down, and undo/redo keys are reported to the host.
+   * @default "rows"
+   */
+  selectionMode?: "rows" | "cells";
+  /**
+   * Cells mode: write a batch (a paste, a clear, a cut) and answer per cell, in order. `invalid`
+   * cells are counted as skipped in the announcement.
+   * @default undefined
+   */
+  onCellsCommit?: (changes: CellChange[]) => Promise<CellCommitResult[]>;
+  /**
+   * Cells mode: the fill handle (drag down or up) and <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>D</kbd>.
+   * The host computes the values.
+   * @default undefined
+   */
+  onFill?: (fill: DataGridFill) => void;
+  /**
+   * Cells mode: a paste ran past the last loaded row. The host decides ("Add 38 rows?").
+   * @default undefined
+   */
+  onPasteOverflow?: (overflow: DataGridPasteOverflow) => void;
+  /**
+   * Cells mode: <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Z</kbd>. The host owns the history.
+   * @default undefined
+   */
+  onUndo?: () => void;
+  /**
+   * Cells mode: <kbd>⇧⌘Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>.
+   * @default undefined
+   */
+  onRedo?: () => void;
+  /**
+   * Cells changed by someone else, keyed by `gridCellKey(rowId, key)`: a brief ring pulse
+   * (`motion-flash`, gone under reduced motion) and the author in the cell's corner for 1.5s;
+   * only the focused cell is announced. Keep the map stable between changes.
+   * @default undefined
+   */
+  remoteChanges?: ReadonlyMap<string, DataGridRemoteChange>;
 }
+
+const EMPTY_KEYS: readonly string[] = [];
 
 // Stable empty defaults. The uncontrolled initial value must be referentially
 // stable across renders: the sorted row model memoizes on `[sorting, rows]` by
@@ -678,6 +811,8 @@ interface PlacedColumn<T> {
   /** The primary (first visible) column — its cells are row headers. */
   primary: boolean;
   ariaColIndex: number;
+  /** Position among the data columns (cells-mode ranges are in this order). */
+  dataIndex: number;
   /** Every body cell's class string, computed once. */
   cellClass: string;
 }
@@ -715,6 +850,12 @@ interface GridApi {
   commit: (rowId: string, key: string, value: string) => void | Promise<void>;
   toggleRow: (rowId: string) => void;
   toggleGroup: (groupId: string, expanded: boolean) => void;
+  /** Cells mode: a press on a cell (Shift extends the range). */
+  pointerDown: (rowId: string, key: string, extend: boolean) => void;
+  /** Cells mode: a drag with the button held entered a cell. */
+  pointerOver: (rowId: string, key: string) => void;
+  /** Cells mode: a press on the fill handle. */
+  fillStart: (event: React.PointerEvent) => void;
 }
 
 const GridApiContext = React.createContext<GridApi | null>(null);
@@ -762,7 +903,8 @@ function Cell<T>({
  * — style recalculation was most of the tick.
  */
 const ROW_BASE_CLASS = "border-b hover:bg-muted/50";
-const CELL_BASE_CLASS = "p-2 align-middle whitespace-nowrap";
+const CELL_BASE_CLASS =
+  "relative p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-primary)_10%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-primary)_5%,var(--color-background))]";
 const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
 
@@ -795,6 +937,31 @@ interface GridCellProps<T> {
   fixed: boolean;
   /** The active sort — read only by the primary cell's merged stack. */
   sort: readonly DataGridSort[];
+  /** Cells mode: the grid's selection model is ranges of cells. */
+  cellsMode: boolean;
+  /** Cells mode: inside the selected range. */
+  inRange: boolean;
+  /** Cells mode: the range's bottom-right cell, which carries the fill handle. */
+  fillHandle: boolean;
+  /** Cells mode: inside a fill drag's target. */
+  fillTarget: boolean;
+  /** A change someone else just made here. */
+  remote: DataGridRemoteChange | undefined;
+}
+
+/** How long a remote change's author chip stays. */
+const REMOTE_CUE_MS = 1500;
+
+/** Whether a remote change is still fresh, re-rendering once when it stops being. */
+function useFresh(remote: DataGridRemoteChange | undefined): boolean {
+  const [, expire] = React.useReducer((n: number) => n + 1, 0);
+  const left = remote ? REMOTE_CUE_MS - (Date.now() - remote.at) : 0;
+  React.useEffect(() => {
+    if (left <= 0) return;
+    const timer = window.setTimeout(expire, left);
+    return () => window.clearTimeout(timer);
+  }, [remote, left > 0]); // eslint-disable-line react-hooks/exhaustive-deps
+  return left > 0;
 }
 
 function GridCellImpl<T>({
@@ -810,8 +977,14 @@ function GridCellImpl<T>({
   rowHeight,
   fixed,
   sort,
+  cellsMode,
+  inRange,
+  fillHandle,
+  fillTarget,
+  remote,
 }: GridCellProps<T>) {
   const api = useGridApi();
+  const fresh = useFresh(remote);
   const { column, key } = placed;
   const ref = React.useCallback(
     (node: HTMLElement | null) => api.register(rowId, key, node),
@@ -839,12 +1012,33 @@ function GridCellImpl<T>({
       ref={ref}
       role={placed.primary ? "rowheader" : "gridcell"}
       aria-colindex={placed.ariaColIndex}
-      aria-readonly={column.editable ? undefined : true}
+      // Cells mode writes a `parse` column too (paste, clear, fill).
+      aria-readonly={
+        column.editable || (cellsMode && column.parse) ? undefined : true
+      }
       data-slot="data-grid-cell"
       data-grid-row={rowId}
       data-grid-key={key}
       tabIndex={tabStop ? 0 : -1}
+      aria-selected={cellsMode ? inRange : undefined}
+      data-in-range={inRange ? "" : undefined}
+      data-fill-target={fillTarget ? "" : undefined}
       onFocus={() => api.focused(rowId, key)}
+      onPointerDown={
+        cellsMode
+          ? (event) => {
+              if (event.button === 0)
+                api.pointerDown(rowId, key, event.shiftKey);
+            }
+          : undefined
+      }
+      onPointerEnter={
+        cellsMode
+          ? (event) => {
+              if (event.buttons === 1) api.pointerOver(rowId, key);
+            }
+          : undefined
+      }
       className={placed.cellClass}
       style={stickyStyle(placed.offset)}
     >
@@ -883,6 +1077,37 @@ function GridCellImpl<T>({
           ))}
         </span>
       ) : null}
+      {remote && fresh ? (
+        <>
+          {/* The existing highlight-on-change pulse, inset so the cell's clip keeps it whole;
+              the base reduced-motion reset removes it. */}
+          <span
+            key={remote.at}
+            aria-hidden
+            className="pointer-events-none absolute inset-0.5 rounded-sm motion-flash"
+          />
+          <span
+            aria-hidden
+            data-slot="data-grid-remote"
+            className="pointer-events-none absolute end-0.5 top-0.5 flex"
+          >
+            {remote.by}
+          </span>
+        </>
+      ) : null}
+      {fillHandle ? (
+        // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area.
+        <span
+          aria-hidden
+          data-slot="data-grid-fill-handle"
+          className="absolute end-0 bottom-0 z-10 size-2 cursor-ns-resize touch-none rounded-[1px] bg-primary before:absolute before:-inset-2 before:content-['']"
+          onPointerDown={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            api.fillStart(event);
+          }}
+        />
+      ) : null}
     </td>
   );
 }
@@ -903,6 +1128,15 @@ interface GridRowProps<T> {
   selected: boolean;
   cellStatus: ((rowId: string, key: string) => AutoSaveStatus) | undefined;
   sort: readonly DataGridSort[];
+  cellsMode: boolean;
+  /** Cells mode: the selected range's data-column span in this row (`-1` when outside it). */
+  rangeLeft: number;
+  rangeRight: number;
+  /** Cells mode: this row is the range's last, so its right-most range cell has the fill handle. */
+  fillHandle: boolean;
+  /** Cells mode: this row is inside a fill drag's target. */
+  fillTarget: boolean;
+  remoteChanges: ReadonlyMap<string, DataGridRemoteChange> | undefined;
   measure?: (node: Element | null) => void;
   dataIndex?: number;
 }
@@ -927,6 +1161,12 @@ function GridRowImpl<T>({
   selected,
   cellStatus,
   sort,
+  cellsMode,
+  rangeLeft,
+  rangeRight,
+  fillHandle,
+  fillTarget,
+  remoteChanges,
   measure,
   dataIndex,
 }: GridRowProps<T>) {
@@ -950,6 +1190,19 @@ function GridRowImpl<T>({
       rowHeight={w.rowHeight}
       fixed={w.fixed}
       sort={placed.primary && !w.fixed ? sort : EMPTY_SORT}
+      cellsMode={cellsMode}
+      inRange={
+        !fillTarget &&
+        placed.dataIndex >= rangeLeft &&
+        placed.dataIndex <= rangeRight
+      }
+      fillHandle={fillHandle && placed.dataIndex === rangeRight}
+      fillTarget={
+        fillTarget &&
+        placed.dataIndex >= rangeLeft &&
+        placed.dataIndex <= rangeRight
+      }
+      remote={remoteChanges?.get(gridCellKey(rowId, placed.key))}
     />
   );
   return (
@@ -959,7 +1212,7 @@ function GridRowImpl<T>({
       data-slot="data-grid-row"
       data-selected={selected ? "" : undefined}
       aria-rowindex={ariaRowIndex}
-      aria-selected={w.selectable ? selected : undefined}
+      aria-selected={w.selectable && !cellsMode ? selected : undefined}
       className={cn(
         "group/row",
         ROW_BASE_CLASS,
@@ -1198,6 +1451,14 @@ interface GridBodyProps<T> {
   sort: readonly DataGridSort[];
   /** "Select row N": each row's 1-based number among the data rows. */
   rowNumbers: ReadonlyMap<string, number>;
+  cellsMode: boolean;
+  /** Cells mode: the selected range. */
+  range: GridRangeBounds | null;
+  /** Cells mode: the rows a fill drag targets (indexes among the data rows), or `null`. */
+  fill: { top: number; bottom: number } | null;
+  remoteChanges: ReadonlyMap<string, DataGridRemoteChange> | undefined;
+  /** Cells mode with `onFill`: the range shows its fill handle. */
+  fillEnabled: boolean;
   ariaRowIndexBase: number;
   onVirtualizer: (
     virtualizer: Virtualizer<HTMLDivElement, Element> | null,
@@ -1223,6 +1484,11 @@ function GridBody<T>({
   cellStatus,
   sort,
   rowNumbers,
+  cellsMode,
+  range,
+  fill,
+  remoteChanges,
+  fillEnabled,
   ariaRowIndexBase,
   onVirtualizer,
   onCommit,
@@ -1324,6 +1590,14 @@ function GridBody<T>({
             />
           );
         const isTabRow = tabRow === item.id;
+        const rowIndex = (rowNumbers.get(item.id) ?? 0) - 1;
+        const inRange =
+          range != null && rowIndex >= range.top && rowIndex <= range.bottom;
+        const inFill =
+          range != null &&
+          fill != null &&
+          rowIndex >= fill.top &&
+          rowIndex <= fill.bottom;
         return (
           <GridRowView
             key={item.id}
@@ -1338,6 +1612,17 @@ function GridBody<T>({
             selected={selected.has(item.id)}
             cellStatus={cellStatus}
             sort={sort}
+            cellsMode={cellsMode}
+            rangeLeft={inRange || inFill ? range!.left : -1}
+            rangeRight={inRange || inFill ? range!.right : -2}
+            fillHandle={
+              fillEnabled &&
+              inRange &&
+              rowIndex === range!.bottom &&
+              fill == null
+            }
+            fillTarget={inFill}
+            remoteChanges={remoteChanges}
             measure={measure}
             dataIndex={dataIndex}
           />
@@ -1451,6 +1736,13 @@ export function DataGrid<T>({
   "aria-label": ariaLabel = "Data grid",
   className,
   ref,
+  selectionMode = "rows",
+  onCellsCommit,
+  onFill,
+  onPasteOverflow,
+  onUndo,
+  onRedo,
+  remoteChanges,
 }: DataGridProps<T>) {
   // ---- controlled-optional state (the shared house idiom) ------------------
   const [activeSort, commitSort] = useControlledState<DataGridSort[]>(
@@ -1562,6 +1854,7 @@ export function DataGrid<T>({
         edge: false,
         primary,
         ariaColIndex,
+        dataIndex: index,
         cellClass: fixed
           ? cn(
               CELL_BASE_CLASS,
@@ -1842,6 +2135,34 @@ export function DataGrid<T>({
   const sortHintId = React.useId();
   const { announce, Announcer } = useAnnouncer();
 
+  // ---- cells mode: ranges, clipboard, fill --------------------------------
+  const cellsMode = selectionMode === "cells";
+  const dataKeys = React.useMemo(() => placed.map((p) => p.key), [placed]);
+  const dataKeyIndex = React.useMemo(
+    () => new Map(dataKeys.map((key, index) => [key, index])),
+    [dataKeys],
+  );
+  const selection = useGridSelection({
+    rowIds: cellsMode ? visibleIds : EMPTY_KEYS,
+    colKeys: cellsMode ? dataKeys : EMPTY_KEYS,
+  });
+  const range = selection.bounds;
+  // "4 by 3 cells selected" — announced for a range, not for every single-cell move.
+  const rangeSize = range ? `${range.rows}x${range.columns}` : "";
+  React.useEffect(() => {
+    if (!range || range.rows * range.columns < 2) return;
+    announce(`${range.rows} by ${range.columns} cells selected`);
+    // Announce the size, not every move at the same size.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangeSize]);
+  // A fill drag's window listeners, removed on release, cancel or unmount.
+  const fillCleanup = React.useRef<(() => void) | null>(null);
+  React.useEffect(() => () => fillCleanup.current?.(), []);
+  const [fillRows, setFillRows] = React.useState<{
+    top: number;
+    bottom: number;
+  } | null>(null);
+
   /** Column keys in navigation order (every visible column, windowed or not). */
   const navKeys = React.useMemo(
     () => [...(selectable ? [SELECT] : []), ...placed.map((p) => p.key)],
@@ -1977,12 +2298,307 @@ export function DataGrid<T>({
     }, 1000);
   };
 
+  // ---- cells mode operations ------------------------------------------------
+  /** A row's index among the loaded data rows, or -1 (constant time: `rowNumbers` is a map). */
+  const rowIndexOf = (rowId: string) => (rowNumbers.get(rowId) ?? 0) - 1;
+  /** Whether paste, clear, cut and fill may write a column. */
+  const writable = (column: DataGridColumn<T>) =>
+    column.editable != null || column.parse != null;
+  /** The cells an operation acts on: the range, or the active data cell alone. */
+  const operationBounds = (): GridRangeBounds | null => {
+    if (range) return range;
+    const r = rowIndexOf(resolved.rowId);
+    const c = dataKeyIndex.get(resolved.key) ?? -1;
+    return r === -1 || c === -1
+      ? null
+      : { top: r, bottom: r, left: c, right: c, rows: 1, columns: 1 };
+  };
+  const blockOf = (
+    bounds: GridRangeBounds,
+    top = bounds.top,
+    bottom = bounds.bottom,
+  ) => ({
+    rowIds: visibleIds.slice(top, bottom + 1),
+    keys: dataKeys.slice(bounds.left, bounds.right + 1),
+  });
+  /** A fill target: the columns a fill may write (read-only ones are left alone). */
+  const fillTargetOf = (
+    bounds: GridRangeBounds,
+    top: number,
+    bottom: number,
+  ) => {
+    const block = blockOf(bounds, top, bottom);
+    return {
+      rowIds: block.rowIds,
+      keys: block.keys.filter((key) =>
+        writable(placed[dataKeyIndex.get(key)!]!.column),
+      ),
+    };
+  };
+  /** Ask the host to write a batch, then say what happened ("Pasted 12 cells · 2 skipped"). */
+  const commitCells = async (
+    changes: CellChange[],
+    verb: string,
+    skippedBefore: number,
+  ) => {
+    if (!onCellsCommit || changes.length === 0) {
+      if (skippedBefore > 0)
+        announce(`${skippedBefore} cells can't be changed`);
+      return;
+    }
+    let results: CellCommitResult[];
+    try {
+      results = await onCellsCommit(changes);
+    } catch {
+      // The host's write failed outright: nothing was written, and the grid says so.
+      announce("Couldn't save — nothing changed");
+      return;
+    }
+    const failed = results.filter((result) => result.status !== "ok").length;
+    const ok = results.length - failed;
+    const skipped = skippedBefore + failed;
+    announce(
+      `${verb} ${ok} ${ok === 1 ? "cell" : "cells"}${skipped > 0 ? ` · ${skipped} skipped` : ""}`,
+    );
+  };
+  /** Clear every writable cell of the operation's cells (Delete, cut). */
+  const clearCells = (verb: string) => {
+    const bounds = operationBounds();
+    if (!bounds) return;
+    const { rowIds, keys } = blockOf(bounds);
+    const changes: CellChange[] = [];
+    let skipped = 0;
+    for (const rowId of rowIds) {
+      const row = rowsById.get(rowId);
+      if (row === undefined) continue;
+      for (const key of keys) {
+        const column = placed[dataKeyIndex.get(key)!]!.column;
+        if (!writable(column)) {
+          skipped += 1;
+          continue;
+        }
+        changes.push({
+          rowId,
+          key,
+          value: null,
+          previous: readValue(column, row),
+        });
+      }
+    }
+    void commitCells(changes, verb, skipped);
+  };
+  /** The text a copy writes for the operation's cells, as TSV and HTML. */
+  const copyCells = (data: DataTransfer): number => {
+    const bounds = operationBounds();
+    if (!bounds) return 0;
+    const { rowIds, keys } = blockOf(bounds);
+    const matrix = rowIds.map((rowId) => {
+      const row = rowsById.get(rowId)!;
+      return keys.map((key) => {
+        const column = placed[dataKeyIndex.get(key)!]!.column;
+        if (column.format) return column.format(row);
+        const value = readValue(column, row);
+        return value == null ? "" : String(value);
+      });
+    });
+    data.setData("text/plain", serializeTsv(matrix));
+    data.setData("text/html", serializeHtmlTable(matrix));
+    return rowIds.length * keys.length;
+  };
+  const pasteCells = (data: DataTransfer) => {
+    const parsed = parseClipboard({
+      text: data.getData("text/plain"),
+      html: data.getData("text/html"),
+      sheets: data.getData(SHEETS_COMPACT_TABLE_TYPE),
+    });
+    const bounds = operationBounds();
+    if (!bounds || parsed.length === 0) return;
+    // One value fills the range; a pattern that divides it tiles; anything else lands at the
+    // range's top-left at its own size.
+    const matrix = expandPaste(
+      { rows: bounds.rows, columns: bounds.columns },
+      parsed,
+    );
+    const changes: CellChange[] = [];
+    const overflow: GridClipboardMatrix = [];
+    let skipped = 0;
+    matrix.forEach((cells, r) => {
+      const rowId = visibleIds[bounds.top + r];
+      if (rowId === undefined) {
+        overflow.push(cells);
+        return;
+      }
+      const row = rowsById.get(rowId)!;
+      cells.forEach((cell, c) => {
+        const placedColumn = placed[bounds.left + c];
+        if (!placedColumn || !writable(placedColumn.column)) {
+          skipped += 1;
+          return;
+        }
+        const column = placedColumn.column;
+        changes.push({
+          rowId,
+          key: placedColumn.key,
+          value: column.parse ? column.parse(cell, row) : cell.text,
+          previous: readValue(column, row),
+        });
+      });
+    });
+    // The pasted block becomes the selection.
+    const lastRow = Math.min(
+      visibleIds.length - 1,
+      bounds.top + matrix.length - 1,
+    );
+    const lastCol = Math.min(
+      dataKeys.length - 1,
+      bounds.left + (matrix[0]?.length ?? 1) - 1,
+    );
+    selection.select({
+      rowId: visibleIds[bounds.top]!,
+      colKey: dataKeys[bounds.left]!,
+    });
+    selection.extendTo({
+      rowId: visibleIds[lastRow]!,
+      colKey: dataKeys[lastCol]!,
+    });
+    if (overflow.length > 0)
+      onPasteOverflow?.({
+        matrix: overflow,
+        keys: dataKeys.slice(
+          bounds.left,
+          bounds.left + (matrix[0]?.length ?? 0),
+        ),
+        afterRowId: visibleIds.at(-1)!,
+      });
+    void commitCells(changes, "Pasted", skipped);
+  };
+  /** ⌘/Ctrl+D: the range's top row down through it, or the row above into a one-row range. */
+  const fillDown = () => {
+    const bounds = operationBounds();
+    if (!bounds || !onFill) return;
+    const [source, target] =
+      bounds.rows > 1
+        ? [
+            blockOf(bounds, bounds.top, bounds.top),
+            fillTargetOf(bounds, bounds.top + 1, bounds.bottom),
+          ]
+        : bounds.top > 0
+          ? [
+              blockOf(bounds, bounds.top - 1, bounds.top - 1),
+              fillTargetOf(bounds, bounds.top, bounds.bottom),
+            ]
+          : [null, null];
+    if (source && target && target.keys.length > 0)
+      onFill({ source, target, series: false });
+  };
+  /** The fill handle: drag up or down from the range; release reports the fill. */
+  const fillStart = (event: React.PointerEvent) => {
+    const bounds = operationBounds();
+    if (!bounds || !onFill || !viewport) return;
+    fillCleanup.current?.();
+    const pointerId = event.pointerId;
+    let target: { top: number; bottom: number } | null = null;
+    const move = (pointer: PointerEvent) => {
+      if (pointer.pointerId !== pointerId) return;
+      const cell = document
+        .elementFromPoint(pointer.clientX, pointer.clientY)
+        ?.closest<HTMLElement>("[data-grid-row]");
+      const index = cell ? rowIndexOf(cell.dataset.gridRow ?? "") : -1;
+      if (index === -1) return;
+      target =
+        index > bounds.bottom
+          ? { top: bounds.bottom + 1, bottom: index }
+          : index < bounds.top
+            ? { top: index, bottom: bounds.top - 1 }
+            : null;
+      setFillRows(target);
+    };
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", cancel);
+      fillCleanup.current = null;
+      setFillRows(null);
+    };
+    const cancel = (pointer: PointerEvent) => {
+      if (pointer.pointerId === pointerId) stop();
+    };
+    const up = (pointer: PointerEvent) => {
+      if (pointer.pointerId !== pointerId) return;
+      stop();
+      if (!target) return;
+      const fillTarget = fillTargetOf(bounds, target.top, target.bottom);
+      if (fillTarget.keys.length === 0) return;
+      onFill({
+        source: blockOf(bounds),
+        target: fillTarget,
+        series: pointer.altKey,
+      });
+      selection.select({
+        rowId: visibleIds[Math.min(bounds.top, target.top)]!,
+        colKey: dataKeys[bounds.left]!,
+      });
+      selection.extendTo({
+        rowId: visibleIds[Math.max(bounds.bottom, target.bottom)]!,
+        colKey: dataKeys[bounds.right]!,
+      });
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", cancel);
+    fillCleanup.current = stop;
+  };
+  /** A clipboard event the grid owns: cells mode, not editing, from a cell (not a field). */
+  const ownsClipboard = (event: React.ClipboardEvent) => {
+    if (!cellsMode || editing) return false;
+    const target = event.target as HTMLElement;
+    if (target.closest("input, textarea, [contenteditable='true']"))
+      return false;
+    const cell = target.closest<HTMLElement>("[data-grid-row]");
+    return cell != null && rowNumbers.has(cell.dataset.gridRow ?? "");
+  };
+  const handleCopy = (event: React.ClipboardEvent) => {
+    if (!ownsClipboard(event)) return;
+    event.preventDefault();
+    const count = copyCells(event.clipboardData);
+    if (count > 1) announce(`Copied ${count} cells`);
+  };
+  const handleCut = (event: React.ClipboardEvent) => {
+    if (!ownsClipboard(event)) return;
+    event.preventDefault();
+    copyCells(event.clipboardData);
+    clearCells("Cut");
+  };
+  const handlePaste = (event: React.ClipboardEvent) => {
+    if (!ownsClipboard(event) || !onCellsCommit) return;
+    event.preventDefault();
+    pasteCells(event.clipboardData);
+  };
+  // The focused cell hears a remote change; no other does.
+  const announcedRemote = React.useRef(0);
+  React.useEffect(() => {
+    const change = remoteChanges?.get(
+      gridCellKey(resolved.rowId, resolved.key),
+    );
+    if (!change?.announcement || change.at <= announcedRemote.current) return;
+    if (!viewport?.contains(document.activeElement)) return;
+    announcedRemote.current = change.at;
+    announce(change.announcement);
+    // Only a new change map is news.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remoteChanges]);
+
   // The latest values the stable api reads, refreshed after every commit.
   const rowsById = React.useMemo(
     () => new Map(sortedRows.map((row) => [row.id, row.original])),
     [sortedRows],
   );
   const current = {
+    selection,
+    cellsMode,
+    rowNumbers,
+    dataKeyIndex,
+    fillStart,
     focusAt,
     restoreFocus: (lost: GridPosition) => restoreFocus(lost),
     rowsById,
@@ -2058,6 +2674,20 @@ export function DataGrid<T>({
         }
       },
       focused(rowId, key) {
+        // Cells mode: focus that lands on a data cell outside the range's focus (an editor's
+        // Enter or Tab, a programmatic move) collapses the range onto it, so every operation
+        // acts where the reader is.
+        const {
+          selection: model,
+          cellsMode: cells,
+          rowNumbers: numbers,
+          dataKeyIndex: keysAt,
+        } = latest.current;
+        if (cells && numbers.has(rowId) && keysAt.has(key)) {
+          const range = model.current();
+          if (range?.focus.rowId !== rowId || range.focus.colKey !== key)
+            model.select({ rowId, colKey: key });
+        }
         setActive((current) =>
           key === GROUP
             ? {
@@ -2126,6 +2756,19 @@ export function DataGrid<T>({
       },
       toggleRow(rowId) {
         latest.current.toggleRow(rowId);
+      },
+      pointerDown(rowId, key, extend) {
+        const { selection: model } = latest.current;
+        if (extend) model.extendTo({ rowId, colKey: key });
+        else model.select({ rowId, colKey: key });
+      },
+      pointerOver(rowId, key) {
+        // A fill drag also crosses cells with the button held; it is not a selection drag.
+        if (fillCleanup.current) return;
+        latest.current.selection.extendTo({ rowId, colKey: key });
+      },
+      fillStart(event) {
+        latest.current.fillStart(event);
       },
       toggleGroup(groupId, expanded) {
         latest.current.commitGroups({
@@ -2304,8 +2947,75 @@ export function DataGrid<T>({
         ? wanted
         : (rowKeys.at(-1) ?? wanted);
       event.preventDefault();
+      // Cells mode: a plain move collapses the range onto the new cell.
+      if (cellsMode) {
+        if (rowNumbers.has(nextRow) && dataKeyIndex.has(nextKey))
+          selection.select({ rowId: nextRow, colKey: nextKey });
+        else selection.clear();
+      }
       focusAt(nextRow, nextKey);
     };
+
+    // Cells mode, on a data cell: ranges, clipboard keys, clear, fill, undo.
+    const onDataCell =
+      cellsMode && rowNumbers.has(rowId) && dataKeyIndex.has(key);
+    if (onDataCell) {
+      const arrows: Record<string, "up" | "down" | "left" | "right"> = {
+        ArrowUp: "up",
+        ArrowDown: "down",
+        ArrowLeft: isRtl ? "right" : "left",
+        ArrowRight: isRtl ? "left" : "right",
+      };
+      const direction = arrows[event.key];
+      if (event.shiftKey && direction && !mod && !event.altKey) {
+        event.preventDefault();
+        if (!selection.focus) selection.select({ rowId, colKey: key });
+        const focus = selection.extend(direction);
+        if (focus) focusAt(focus.rowId, focus.colKey);
+        return;
+      }
+      if (event.key === " " && event.shiftKey) {
+        event.preventDefault();
+        selection.selectRow(rowId);
+        return;
+      }
+      if (event.key === " " && event.ctrlKey) {
+        event.preventDefault();
+        selection.selectColumn(key);
+        return;
+      }
+      if (mod && (event.key === "a" || event.key === "A")) {
+        event.preventDefault();
+        selection.selectAll();
+        return;
+      }
+      if (event.key === "Delete" || event.key === "Backspace") {
+        event.preventDefault();
+        clearCells("Cleared");
+        return;
+      }
+      if (mod && (event.key === "d" || event.key === "D")) {
+        event.preventDefault();
+        fillDown();
+        return;
+      }
+      if (mod && (event.key === "z" || event.key === "Z")) {
+        event.preventDefault();
+        if (event.shiftKey) onRedo?.();
+        else onUndo?.();
+        return;
+      }
+      if (event.ctrlKey && (event.key === "y" || event.key === "Y")) {
+        event.preventDefault();
+        onRedo?.();
+        return;
+      }
+      if (event.key === "Escape" && range && range.rows * range.columns > 1) {
+        event.preventDefault();
+        selection.select({ rowId, colKey: key });
+        return;
+      }
+    }
 
     // The header row: sort, menu and resize live here.
     if (rowId === HEADER && placedColumn) {
@@ -2779,6 +3489,9 @@ export function DataGrid<T>({
         data-grid-id={gridId}
         data-layout={fixed ? "fixed" : "auto"}
         onKeyDown={handleGridKeyDown}
+        onCopy={handleCopy}
+        onCut={handleCut}
+        onPaste={handlePaste}
         className={cn(
           "caption-bottom text-sm",
           fixed ? "table-fixed" : "w-full",
@@ -2842,6 +3555,11 @@ export function DataGrid<T>({
             cellStatus={cellStatus}
             sort={activeSort}
             rowNumbers={rowNumbers}
+            cellsMode={cellsMode}
+            range={cellsMode ? range : null}
+            fill={fillRows}
+            remoteChanges={remoteChanges}
+            fillEnabled={cellsMode && onFill != null}
             ariaRowIndexBase={ariaRowIndexBase}
             onVirtualizer={onVirtualizer}
             onCommit={onBodyCommit}
