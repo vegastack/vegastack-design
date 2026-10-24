@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.71 sha256-XIMzmFYc/ueP6ct5xx/cAKol3WAeEdbXurNszbDO2Tc=
+// @vegastack field-cell@0.25.71 sha256-0xbgQKRhvBxFtTOZi/up4bIMKk7G3xNqihhD7rFQ8jA=
 
 "use client";
 
@@ -274,7 +274,10 @@ function Overflow({
             data-slot="field-cell-more"
             tabIndex={tabIndex ?? 0}
             // A tab stop: at least a 24px-wide hit area, however short the count.
-            className={cn(className, "inline-block min-w-6 text-center")}
+            className={cn(
+              className,
+              "inline-block min-h-6 min-w-6 text-center leading-6",
+            )}
           />
         }
       >
