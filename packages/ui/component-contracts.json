@@ -7731,6 +7731,15 @@
           }
         },
         {
+          "name": "DataGridEditor",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataGridFill",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-grid.tsx",

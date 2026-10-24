@@ -25,10 +25,11 @@ import {
 // Show a value
 <FieldCellDisplay type="currency" value={1240.5} config={{ currency: "EUR" }} />
 
-// Edit it in a grid cell (EditableCell's custom slot)
+// Edit it in a grid cell: the column's render is the display, the custom editor gets the row
+render: (row) => <FieldCellDisplay type="single_choice" value={row.status} config={{ options }} />,
 editable: {
   type: "custom",
-  render: ({ cancel }) => (
+  render: ({ row, cancel }) => (
     // The editor commits a TYPED value: save it, then close the slot.
     <FieldCellEditor type="single_choice" label="Status" value={row.status}
       config={{ options }}
