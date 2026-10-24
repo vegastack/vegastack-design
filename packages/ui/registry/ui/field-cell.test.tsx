@@ -456,6 +456,35 @@ test("an empty date-time editor focuses its day picker; a link list names what +
     .element()
     .closest("[data-slot=inline-chip]")!;
   expect(first.parentElement!.getAttribute("tabindex")).toBe("0");
+  // A link chip is the tab stop itself; a filtered URL renders a plain chip, so its wrapper is.
+  await screen.rerender(
+    <FieldCellDisplay
+      type="link"
+      value={[
+        { id: "l", label: "Linked", kind: "customer", href: "/c/l" },
+        {
+          id: "j",
+          label: "Unsafe",
+          kind: "customer",
+          href: "javascript:void(0)",
+        },
+      ]}
+    />,
+  );
+  const linked = screen
+    .getByText("Linked")
+    .element()
+    .closest("[data-slot=inline-chip]")!;
+  await expect
+    .poll(() => linked.parentElement!.hasAttribute("tabindex"))
+    .toBe(false);
+  const unsafe = screen
+    .getByText("Unsafe")
+    .element()
+    .closest("[data-slot=inline-chip]")!;
+  await expect
+    .poll(() => unsafe.parentElement!.getAttribute("tabindex"))
+    .toBe("0");
   await expectNoA11yViolations(screen.container);
   expect(document.body.innerHTML).not.toContain("Secret");
 });
