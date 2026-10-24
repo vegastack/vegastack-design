@@ -2560,6 +2560,7 @@
         "@vegastack/number-field",
         "@vegastack/people-picker",
         "@vegastack/person-avatar",
+        "@vegastack/popover",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
@@ -2580,7 +2581,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.69",
-        "integrity": "sha256-NKrbojOg5vsEMFh3/6+NutblCk/iAlpsA8SF0JVQflo="
+        "integrity": "sha256-T+UjVN/nOInA+a7t1uydMqgZvEYxFnQSPhGM7Xbn9aM="
       }
     },
     {

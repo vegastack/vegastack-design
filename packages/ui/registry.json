@@ -2264,6 +2264,7 @@
         "@vegastack/number-field",
         "@vegastack/people-picker",
         "@vegastack/person-avatar",
+        "@vegastack/popover",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
