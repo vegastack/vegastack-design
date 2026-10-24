@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.72 sha256-0Vb//NsoafhGjanwHAeRtlsIJL8jXUhAToVsMj1Rswc=
+// @vegastack data-grid@0.25.72 sha256-G+uCglPhMgklS9Iy4bzsczyVaFbhC5d0PTEgxZsGV8Q=
 
 "use client";
 
@@ -238,8 +238,9 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
   /**
    * Cell content. Rendered as a component ELEMENT (hooks are safe here —
    * unlike `DataList.render`, which is invoked as a plain function).
-   * On an `editable` column it is the cell's display while not editing (a non-empty value; an
-   * empty one shows the editor's placeholder); without it the cell shows the value as text.
+   * On an `editable` column it is the cell's display while not editing a non-empty value (an
+   * empty one shows the editor's placeholder; a pending commit shows its value as text until the
+   * new row arrives); without it the cell shows the editor's own display.
    * Cells are memoised on the row object and the column definition, so keep
    * `columns` stable (`useMemo`) and give a changed row a new object.
 
@@ -1017,15 +1018,23 @@ function GridCellImpl<T>({
     const render = editable.render;
     return { type: "custom", render: (props) => render({ ...props, row }) };
   }, [editable, row]);
+  const persisted = String(readValue(column, row) ?? "");
   const content = editor ? (
     <EditableCell
-      value={String(readValue(column, row) ?? "")}
+      value={persisted}
       label={placed.label}
       editor={editor}
       // The column's `render` stays the display (tags, chips, avatars), not the value's text.
+      // While a commit is pending the row still holds the old value, so the pending value shows
+      // as text until the host's new row arrives.
       renderValue={
         column.render
-          ? () => <Cell column={column} row={row} context={context} />
+          ? (shown) =>
+              shown === persisted ? (
+                <Cell column={column} row={row} context={context} />
+              ) : (
+                <span className="min-w-0 truncate">{shown}</span>
+              )
           : undefined
       }
       focusMode="managed"

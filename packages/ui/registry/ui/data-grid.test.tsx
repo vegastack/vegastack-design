@@ -381,6 +381,43 @@ test("an editable column keeps its render as the display; a custom editor gets t
   expect(seen).toHaveBeenLastCalledWith("d1");
 });
 
+test("a pending commit on a rendered editable column shows the pending value", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        {
+          key: "stage",
+          header: "Stage",
+          minWidth: 10,
+          render: (row) => <span>{row.stage} tag</span>,
+          editable: { type: "text" },
+        },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => new Promise<void>(() => {})}
+    />,
+  );
+  const firstCell = document.querySelector(
+    '[data-slot="data-grid-cell"]',
+  ) as HTMLElement;
+  firstCell.focus();
+  await userEvent.keyboard("{ArrowRight}");
+  await userEvent.keyboard("{Enter}");
+  const input = document.querySelector(
+    '[data-slot="data-grid-cell"] input',
+  ) as HTMLInputElement;
+  await userEvent.fill(input, "Won");
+  await userEvent.keyboard("{Enter}");
+  const stage = () =>
+    document.querySelector('[data-grid-row="d1"][data-grid-key="stage"]')!
+      .textContent;
+  await expect.poll(stage).toContain("Won");
+  expect(stage()).not.toContain("Open tag");
+});
+
 test("committing an edit calls onCellCommit(row, key, value)", async () => {
   const onCellCommit = vi.fn();
   await render(

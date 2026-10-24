@@ -226,9 +226,11 @@ commits and moves down, <kbd>Tab</kbd>/<kbd>Shift</kbd>+<kbd>Tab</kbd> commit an
 move across; <kbd>Escape</kbd> restores grid navigation; a rejected commit
 reverts and announces. While an IME is composing, no key commits or moves.
 
-An editable column's `render` stays its display while the cell is not being
-edited (tags, chips, avatars), so a column shows the same thing editable or not;
-without one the cell shows the value as text. A `custom` editor's `render`
+An editable column's `render` is its display while the cell holds a non-empty
+value and is not being edited (tags, chips, avatars); an empty cell shows the
+editor's placeholder, and a pending commit shows its value as text until the
+host's updated row arrives. Without a `render` the editor's own display shows
+(a select's label, a formatted date or number). A `custom` editor's `render`
 receives the `row` with `value`, `commit` and `cancel`, so it can read the typed
 value the cell's string can't carry.
 
