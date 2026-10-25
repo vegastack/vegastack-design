@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.76 sha256-BR9A/Gs76PaM/DMxBpFGrdHIX+P7qJf0HmSAsbsswM0=
+// @vegastack data-grid@0.25.76 sha256-N9za19M/r3YwLrMhoYK4rF+QxY8ImO7XqCaCEG0S0Yc=
 
 "use client";
 
@@ -2968,18 +2968,23 @@ export function DataGrid<T>({
   const tabbing = React.useRef(false);
   React.useEffect(() => {
     let reset = 0;
+    const stop = () => {
+      tabbing.current = false;
+      window.clearTimeout(reset);
+    };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Tab") return;
+      if (event.key !== "Tab") return stop();
       tabbing.current = true;
       window.clearTimeout(reset);
-      // Focus moves as the key's default action, before the next task.
-      reset = window.setTimeout(() => {
-        tabbing.current = false;
-      }, 0);
+      // The key's focus move — a dialog's focus trap may hand it on a frame or two later — lands
+      // well inside this; any other key or a press ends it sooner.
+      reset = window.setTimeout(stop, 500);
     };
     document.addEventListener("keydown", onKeyDown, true);
+    document.addEventListener("pointerdown", stop, true);
     return () => {
       document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("pointerdown", stop, true);
       window.clearTimeout(reset);
     };
   }, []);

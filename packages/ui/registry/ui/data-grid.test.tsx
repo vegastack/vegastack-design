@@ -1649,7 +1649,23 @@ test("Tab back into a grid returns to its active header column after it scrolled
           maxHeight="300px"
           columnPicker={false}
         />
-        <button type="button">After</button>
+        <button
+          type="button"
+          // A focus trap that wraps Tab back to the grid a few frames later (a dialog's guard).
+          onKeyDown={(event) => {
+            if (event.key !== "Tab" || event.shiftKey) return;
+            event.preventDefault();
+            window.setTimeout(
+              () =>
+                document
+                  .querySelector<HTMLElement>('[role="grid"] [tabindex="0"]')
+                  ?.focus(),
+              50,
+            );
+          }}
+        >
+          After
+        </button>
       </>,
     );
     const grid = screen.getByRole("grid").element() as HTMLElement;
@@ -1675,10 +1691,16 @@ test("Tab back into a grid returns to its active header column after it scrolled
       .toBeNull();
     await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
     await expect.poll(at).toBe(header);
-    // A host focusing the stand-in tab stop itself keeps focus where it put it.
-    (
-      screen.getByRole("button", { name: "After" }).element() as HTMLElement
-    ).focus();
+    // Wrapped back by a trap a few frames after the key: still the active column.
+    await userEvent.keyboard("{Tab}");
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(at).toBe(header);
+    // A host focusing the stand-in tab stop itself (after a press elsewhere) keeps focus there.
+    await userEvent.click(screen.getByRole("button", { name: "After" }));
     viewport.scrollLeft = 4000;
     await expect
       .poll(() => grid.querySelector('[data-grid-key="c1"]'))
