@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.74 sha256-rr0RiyGRpDWUqQMPQo/VmzGO0NBhAhG+ngsalZvIBsI=
+// @vegastack field-cell@0.25.74 sha256-t+P8BEi15UUllscamvBek75YNdcxO+pFWFzcVaFroW8=
 
 "use client";
 
@@ -1217,7 +1217,8 @@ function inOwnPopup(root: Element, node: Element | null) {
  * save(v); cancel(); }} onCancel={cancel} /> }`. Text, numbers and date-times edit a draft and
  * commit on <kbd>Enter</kbd> or when focus leaves the editor; pickers (date, choice, person, link)
  * commit on choosing; long text opens the `TextEdit` editor in a popover
- * (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> or closing it saves); <kbd>Escape</kbd> cancels.
+ * (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> or closing it saves); <kbd>Escape</kbd> cancels
+ * the edit, an open picker or calendar with it.
  * The editor takes focus as it opens. A read-only type cancels at once.
  *
  * @example
@@ -1333,6 +1334,14 @@ export function FieldCellEditor({
           event.stopPropagation();
           return;
         }
+        // Escape cancels the edit, whatever inside has focus: an open picker or calendar goes
+        // with it, so one Escape always leaves the cell.
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          cancel();
+          return;
+        }
         pickMove.current =
           event.key === "Enter" ? (event.shiftKey ? "up" : "down") : undefined;
       }}
@@ -1340,13 +1349,9 @@ export function FieldCellEditor({
         pickMove.current = undefined;
       }}
       onKeyDown={(event) => {
-        // A key the control inside already handled (a picker's own Escape) is its own.
+        // A key the control inside already handled is its own.
         if (event.defaultPrevented) return;
-        if (event.key === "Escape") {
-          event.preventDefault();
-          event.stopPropagation();
-          cancel();
-        } else if (event.key === "Enter" && drafted) {
+        if (event.key === "Enter" && drafted) {
           event.preventDefault();
           event.stopPropagation();
           if (valid) commit(draft, event.shiftKey ? "up" : "down");

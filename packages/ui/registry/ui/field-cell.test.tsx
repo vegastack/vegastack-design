@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { DataGrid } from "./data-grid";
 import { InlineChipProvider } from "./inline-chip";
 import { TimeZoneProvider } from "./relative-time";
 import {
@@ -719,4 +720,54 @@ test("FieldCellEditor: a picker chosen with Enter moves down; IME never chooses;
   );
   await userEvent.keyboard("0{Tab}");
   expect(onCommit).toHaveBeenLastCalledWith(0.5, "right");
+});
+
+test("in a grid: a typed key opens a picker searching for it, and one Escape leaves the cell", async () => {
+  const rows = [{ id: "r1", status: "req" as string | null }];
+  await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={[
+        {
+          key: "status",
+          header: "Status",
+          minWidth: 10,
+          editable: {
+            type: "custom",
+            render: ({ row, value, seed, commit, cancel }) => (
+              <FieldCellEditor
+                type="single_choice"
+                label="Status"
+                value={row.status}
+                seed={seed}
+                config={{ options: OPTIONS }}
+                onCommit={(_, move) => commit(value, move)}
+                onCancel={cancel}
+              />
+            ),
+          },
+        },
+      ]}
+      data={rows}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const cell = document.querySelector<HTMLElement>(
+    '[data-grid-row="r1"][data-grid-key="status"]',
+  )!;
+  cell.focus();
+  await userEvent.keyboard("c");
+  const editor = () =>
+    document.querySelector('[data-slot="field-cell-editor"]');
+  const search = () =>
+    document.querySelector<HTMLInputElement>(
+      'input[aria-label="Search options"]',
+    );
+  await vi.waitFor(() => expect(search()?.value).toBe("c"));
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(editor()).toBeNull());
+  expect(search()).toBeNull();
+  await vi.waitFor(() =>
+    expect(document.activeElement?.closest("[data-grid-row]")).toBe(cell),
+  );
 });
