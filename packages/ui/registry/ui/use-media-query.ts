@@ -1,4 +1,4 @@
-// @vegastack use-media-query@0.25.78 sha256-j2wn8IN3zYJNHZIuhGrJar5nQuEHJ3uGVEufYn6x3A0=
+// @vegastack use-media-query@0.25.78 sha256-G7BYZdkJ5pZ9saFOODJssqO5CT+HkxNk+Hq4wjCOw6U=
 
 "use client";
 
@@ -51,10 +51,9 @@ export interface UseMediaQueryOptions {
  * used to call `matchMedia` and add its own listener on every mount; now it joins a set.
  */
 interface MediaQueryStore {
-  /** The `matchMedia` that made `list` — a replaced one (a test's mock) gets a fresh list. */
+  /** The `matchMedia` that made `list`; a replaced one (a test's mock) gets a fresh store. */
   source: typeof window.matchMedia;
   list: MediaQueryList;
-  matches: boolean;
   listeners: Set<() => void>;
   onChange: () => void;
 }
@@ -68,23 +67,17 @@ function hasMatchMedia(): boolean {
 
 function storeFor(query: string): MediaQueryStore {
   let store = stores.get(query);
-  if (
-    !store ||
-    (store.source !== window.matchMedia && store.listeners.size === 0)
-  ) {
+  if (!store || store.source !== window.matchMedia) {
     const list = window.matchMedia(query);
     const created: MediaQueryStore = {
       source: window.matchMedia,
       list,
-      matches: list.matches,
       listeners: new Set(),
-      onChange: () => {
-        created.matches = list.matches;
-        created.listeners.forEach((listener) => listener());
-      },
+      onChange: () => created.listeners.forEach((listener) => listener()),
     };
     store = created;
     stores.set(query, store);
+    list.addEventListener("change", store.onChange);
   }
   return store;
 }
@@ -92,23 +85,25 @@ function storeFor(query: string): MediaQueryStore {
 function subscribeTo(query: string, onStoreChange: () => void): () => void {
   if (!hasMatchMedia()) return () => {};
   const store = storeFor(query);
-  if (store.listeners.size === 0) {
-    // Nobody was listening, so the cached value may be stale: refresh it before attaching.
-    store.matches = store.list.matches;
-    store.list.addEventListener("change", store.onChange);
-  }
   store.listeners.add(onStoreChange);
   return () => {
     store.listeners.delete(onStoreChange);
-    if (store.listeners.size === 0)
-      store.list.removeEventListener("change", store.onChange);
+    // The last reader leaves: drop the list and its listener, so nothing outlives its readers.
+    if (store.listeners.size > 0) return;
+    store.list.removeEventListener("change", store.onChange);
+    if (stores.get(query) === store) stores.delete(query);
   };
 }
 
 function readQuery(query: string): boolean {
-  const store = storeFor(query);
-  // Live while nobody is subscribed (no change event keeps the cache fresh then).
-  return store.listeners.size > 0 ? store.matches : store.list.matches;
+  // The shared list when there is one (reading `matches` is current even before its change event
+  // lands); otherwise — the render before the first subscription — a read that leaves nothing behind.
+  const store = stores.get(query);
+  return (
+    store && store.source === window.matchMedia
+      ? store.list
+      : window.matchMedia(query)
+  ).matches;
 }
 
 /**

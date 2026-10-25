@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.25.78 sha256-v3VqtEf0u8sfNh1/pyHk8ihL072GhtufQb6p1b+45JQ=
+// @vegastack truncated-text@0.25.78 sha256-b4cSCy8+6881W5ok+CFP2ifVD32P+OE/bORAF6LtpeM=
 
 "use client";
 
@@ -138,6 +138,14 @@ function useTruncation(
   // Re-read on every contact, so content or a column width that changed since the last one is
   // seen the next time someone points at it.
   const [probed, setProbed] = React.useState(false);
+  // New content under a resting pointer is looked at again (an untouched cell is not).
+  React.useEffect(() => {
+    if (!onContact || !node || paused) return;
+    if (!(node.parentElement ?? node).matches(":hover")) return;
+    const next = measureOverflow(node, axis);
+    setProbed((previous) => (previous === next ? previous : next));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, node]);
   if (!onContact) return { truncated: observed, onPointerEnter: undefined };
   return {
     truncated: probed,

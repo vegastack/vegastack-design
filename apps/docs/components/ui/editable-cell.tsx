@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.78 sha256-o4sie7jbStFmoknPn3FaCVEKwbM8+/HPYobiL2oZ10w=
+// @vegastack editable-cell@0.25.78 sha256-M6WfylVVMhPuKJGLmDyy3IrMYwz/AaN2jRXpzcgetSc=
 
 "use client";
 
@@ -576,6 +576,13 @@ function InlineTextBody({
         if (textNode) setContacted(measureOverflow(textNode));
       }
     : undefined;
+  // A new value under a resting pointer or focus is looked at again (an untouched cell is not).
+  React.useEffect(() => {
+    if (!measureOnContact || !textNode) return;
+    const host = textNode.parentElement ?? textNode;
+    if (!host.matches(":hover") && !host.matches(":focus")) return;
+    setContacted(measureOverflow(textNode));
+  }, [measureOnContact, textNode, value]);
   const overflowing = measureOnContact ? contacted : observed;
   const truncated = !wrapping && !isEditing && overflowing && hasDisplayValue;
   const interactive = !readOnly && !isEditing;

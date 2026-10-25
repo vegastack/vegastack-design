@@ -1,4 +1,4 @@
-// @vegastack use-overflow@0.25.78 sha256-HUXw4NiZebRi/d/PEJTZvgZl9sPU+aqNaUvPfIhqIGY=
+// @vegastack use-overflow@0.25.78 sha256-1/nmXe0EPh9Hejj3HkjFXFFtNG1tJk4LdHJpZqURanM=
 
 "use client";
 
@@ -89,8 +89,11 @@ function watch(element: Element, measure: () => void): void {
       watchers.get(entry.target)?.forEach((run) => due.add(run));
     due.forEach((run) => run());
   });
-  // Observing (again) queues a first notification for the element once it is laid out, which
-  // is how a mount — or a `deps` change that moves no box — gets its measurement.
+  // A fresh observation queues a first notification once the element is laid out, which is how
+  // a mount — or a `deps` change that moves no box — gets its measurement. Observing a target
+  // that is already observed does not restart its observation, so drop it first: every watcher
+  // of the element re-measures, which is cheap after layout.
+  sharedObserver.unobserve(element);
   sharedObserver.observe(element);
 }
 

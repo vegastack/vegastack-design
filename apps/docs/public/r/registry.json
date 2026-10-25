@@ -2537,7 +2537,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.78",
-        "integrity": "sha256-o4sie7jbStFmoknPn3FaCVEKwbM8+/HPYobiL2oZ10w="
+        "integrity": "sha256-M6WfylVVMhPuKJGLmDyy3IrMYwz/AaN2jRXpzcgetSc="
       }
     },
     {
@@ -18763,7 +18763,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.25.78",
-        "integrity": "sha256-v3VqtEf0u8sfNh1/pyHk8ihL072GhtufQb6p1b+45JQ="
+        "integrity": "sha256-b4cSCy8+6881W5ok+CFP2ifVD32P+OE/bORAF6LtpeM="
       }
     },
     {
@@ -18995,7 +18995,7 @@
         "whenToUse": "JavaScript genuinely has to branch on a media query — mounting a different component tree, skipping a requestAnimationFrame loop, enabling pointer drag.",
         "whenNotToUse": "A purely visual responsive change: a Tailwind breakpoint or a container query does it in CSS with no hydration cost.",
         "version": "0.25.78",
-        "integrity": "sha256-j2wn8IN3zYJNHZIuhGrJar5nQuEHJ3uGVEufYn6x3A0="
+        "integrity": "sha256-G7BYZdkJ5pZ9saFOODJssqO5CT+HkxNk+Hq4wjCOw6U="
       }
     },
     {
@@ -19072,7 +19072,7 @@
         "whenToUse": "Deciding something only when content is ACTUALLY clipped — offering a reveal affordance for truncated text, or making a scroll viewport focusable only while it can scroll.",
         "whenNotToUse": "Layout CSS can express on its own (line-clamp, overflow) with no JavaScript branch hanging off the measurement.",
         "version": "0.25.78",
-        "integrity": "sha256-HUXw4NiZebRi/d/PEJTZvgZl9sPU+aqNaUvPfIhqIGY="
+        "integrity": "sha256-1/nmXe0EPh9Hejj3HkjFXFFtNG1tJk4LdHJpZqURanM="
       }
     },
     {

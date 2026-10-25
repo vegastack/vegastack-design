@@ -28226,7 +28226,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/truncated-text",
-      "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
+      "registryDependencies": [
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/use-overflow"
+      ],
       "npmDependencies": [
         "@vegastack/design@^0.8.27",
         "@vegastack/design-tokens@^0.8.17"
@@ -40122,7 +40126,16 @@
           }
         },
         {
-          "name": "UseAnnouncerResult",
+          "name": "AnnouncerScope",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/use-announcer.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider renders no DOM node of its own, so there is no ref target to forward."
+          }
+        },
+        {
+          "name": "AnnouncerScopeProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-announcer.ts",
           "ref": {
@@ -40137,6 +40150,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseAnnouncerResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-announcer.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -40324,6 +40346,15 @@
       "sourceFiles": ["packages/ui/registry/ui/use-inline-edit.ts"],
       "publicSymbols": [
         {
+          "name": "InlineEditStartPoint",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "useInlineEdit",
           "kind": "hook",
           "source": "packages/ui/registry/ui/use-inline-edit.ts",
@@ -40333,7 +40364,16 @@
           }
         },
         {
-          "name": "InlineEditStartPoint",
+          "name": "useInlineEditMode",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseInlineEditModeOptions",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-inline-edit.ts",
           "ref": {
@@ -41348,6 +41388,15 @@
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-overflow.ts"],
       "publicSymbols": [
+        {
+          "name": "measureOverflow",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-overflow.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
         {
           "name": "OverflowAxis",
           "kind": "type",
