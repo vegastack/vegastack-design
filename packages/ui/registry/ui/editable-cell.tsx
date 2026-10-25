@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.78 sha256-k64oFSntDkAVMneceuce+hTZHfGpJPhKrfhc0yQSM2c=
+// @vegastack editable-cell@0.25.78 sha256-o4sie7jbStFmoknPn3FaCVEKwbM8+/HPYobiL2oZ10w=
 
 "use client";
 
@@ -8,8 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { useAnnouncer } from "@/components/ui/use-announcer";
-import { useInlineEdit } from "@/components/ui/use-inline-edit";
-import { useOverflow } from "@/components/ui/use-overflow";
+import {
+  useInlineEdit,
+  useInlineEditMode,
+  type UseInlineEditResult,
+} from "@/components/ui/use-inline-edit";
+import { measureOverflow, useOverflow } from "@/components/ui/use-overflow";
 import { DatePicker } from "@/components/ui/date-picker";
 import { parseCalendarDay, toCalendarDay } from "@/lib/date-time";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
@@ -404,6 +408,12 @@ function formatNumber(value: string): string {
 interface InlineTextEditorProps {
   /** The value to display, and the seed for the draft when an edit opens. */
   value: string;
+  /**
+   * Measure clipping when the pointer or focus arrives instead of observing it live — for a
+   * grid host, which mounts a copy per cell on every scroll tick and has no use for the answer
+   * until someone reaches for the value.
+   */
+  measureOnContact?: boolean;
   /** Called with the new (trimmed) value on commit, only when it actually changed. */
   onCommit: (value: string) => void;
   /** Placeholder for the field, and the muted display text when `value` is empty. */
@@ -478,13 +488,53 @@ const fieldClasses =
  * ⌘/Ctrl+Enter (multiline) saves, Escape cancels — all of it `useInlineEdit`, the hook this cell
  * also runs for its own mode state, so there is exactly one edit machine in the file.
  */
-function InlineTextEditor({
+function InlineTextEditor(props: InlineTextEditorProps) {
+  // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
+  // an edit may not be entered, and one in flight reverts. They differ only in chrome.
+  const edit = useInlineEdit({
+    value: props.value,
+    onCommit: props.onCommit,
+    editing: props.editing,
+    onEditingChange: props.onEditingChange,
+    disabled: props.disabled || props.readOnly,
+    multiline: props.multiline,
+    seed: props.seed,
+  });
+  return <InlineTextBody {...props} edit={edit} />;
+}
+
+/**
+ * The text leaf of a `custom` editor while it displays: the custom editor replaces it to edit,
+ * so it never edits text itself and needs none of the text machine — only activation, which
+ * raises the cell's edit state. A grid mounts one per editable cell on every scroll tick.
+ */
+function InlineTextDisplay(props: InlineTextEditorProps) {
+  const { disabled, readOnly, onEditingChange } = props;
+  const edit = React.useMemo<UseInlineEditResult>(
+    () => ({
+      isEditing: false,
+      draft: props.value,
+      setDraft: () => {},
+      start: () => {
+        if (!disabled && !readOnly) onEditingChange(true);
+      },
+      commit: () => {},
+      cancel: () => {},
+      setEditing: onEditingChange,
+      editRef: () => {},
+      displayRef: () => {},
+      onKeyDown: () => {},
+    }),
+    [props.value, disabled, readOnly, onEditingChange],
+  );
+  return <InlineTextBody {...props} edit={edit} />;
+}
+
+function InlineTextBody({
+  edit,
   value,
-  onCommit,
   placeholder,
   label,
-  editing,
-  onEditingChange,
   disabled = false,
   readOnly = false,
   tabIndex = 0,
@@ -494,7 +544,6 @@ function InlineTextEditor({
   fill = false,
   flush = false,
   onNavigate,
-  seed,
   tooltip,
   bare = false,
   inputMode,
@@ -503,19 +552,9 @@ function InlineTextEditor({
   onInvalid,
   maxLength,
   onClipped,
-}: InlineTextEditorProps) {
+  measureOnContact = false,
+}: InlineTextEditorProps & { edit: UseInlineEditResult }) {
   const box = bare ? bareBoxClasses : boxClasses;
-  // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
-  // an edit may not be entered, and one in flight reverts. They differ only in chrome.
-  const edit = useInlineEdit({
-    value,
-    onCommit,
-    editing,
-    onEditingChange,
-    disabled: disabled || readOnly,
-    multiline,
-    seed,
-  });
   const isEditing = edit.isEditing;
   const wrapping = wrap || multiline;
   const textId = React.useId();
@@ -526,7 +565,18 @@ function InlineTextEditor({
   // A long single-line value truncates to its container; when it is actually clipped the full
   // value is offered as the display's `title` — and opening the editor shows all of it.
   const [textNode, setTextNode] = React.useState<HTMLSpanElement | null>(null);
-  const overflowing = useOverflow(textNode, { deps: [value, wrapping] });
+  const observed = useOverflow(textNode, {
+    deps: [value, wrapping],
+    paused: measureOnContact,
+  });
+  // On contact the title is set by the time the browser would show it: it reads `title` on hover.
+  const [contacted, setContacted] = React.useState(false);
+  const probe = measureOnContact
+    ? () => {
+        if (textNode) setContacted(measureOverflow(textNode));
+      }
+    : undefined;
+  const overflowing = measureOnContact ? contacted : observed;
   const truncated = !wrapping && !isEditing && overflowing && hasDisplayValue;
   const interactive = !readOnly && !isEditing;
 
@@ -649,6 +699,8 @@ function InlineTextEditor({
       }
       title={truncated ? value : interactive ? tooltip : undefined}
       data-truncated={truncated ? "" : undefined}
+      onPointerEnter={probe}
+      onFocus={probe}
       onClick={
         interactive
           ? (event) => {
@@ -831,12 +883,11 @@ export function EditableCell({
   ref,
 }: EditableCellProps) {
   const save = onSave ?? onCommit;
-  // Edit mode comes from the shared inline-edit machine (audit B9-06) — the same hook the text
-  // leaf runs on, so `text`, `select` and `custom` editors all resolve controlled-vs-internal
-  // `editing` one way. Only the MODE half is used here: this cell's editors commit through
-  // `handleCommit` below, which owns the optimistic layer the hook knows nothing about.
-  const { isEditing, setEditing: setEditingState } = useInlineEdit({
-    value,
+  // Edit mode comes from the shared inline-edit machine (audit B9-06) — its MODE half, which the
+  // text leaf's `useInlineEdit` runs on too, so `text`, `select` and `custom` editors all resolve
+  // controlled-vs-internal `editing` one way. This cell's editors commit through `handleCommit`
+  // below, which owns the optimistic layer the machine knows nothing about.
+  const { isEditing, setEditing: setEditingState } = useInlineEditMode({
     editing,
     onEditingChange,
     disabled: disabled || readOnly,
@@ -1046,8 +1097,9 @@ export function EditableCell({
         : editor.type === "date"
           ? formatIsoDate(displayValue, editor.formatOptions, editor.locale)
           : displayValue;
+    const TextLeaf = isCustom ? InlineTextDisplay : InlineTextEditor;
     editorSurface = (
-      <InlineTextEditor
+      <TextLeaf
         value={displayText}
         label={label}
         placeholder={
@@ -1124,6 +1176,7 @@ export function EditableCell({
         seed={editSeed}
         tooltip={tooltip}
         bare={variant === "heading"}
+        measureOnContact={managed}
       />
     );
   }

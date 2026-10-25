@@ -288,6 +288,8 @@ leaves the cell with `commit(value, move)`: an unchanged commit saves nothing.
 - <kbd>Escape</kbd> cancels, restores the prior value and returns focus to the
   display.
 - In `focusMode="managed"` the cell has no tab stop of its own — the host grid owns reachability.
+  Inside `DataGrid` its announcements are spoken through the grid's one live region rather than a
+  region per cell.
 
 | Key                                                 | Action                                                     |
 | --------------------------------------------------- | ---------------------------------------------------------- |

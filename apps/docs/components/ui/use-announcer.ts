@@ -1,4 +1,4 @@
-// @vegastack use-announcer@0.25.78 sha256-dHwIHHBMxawxzMo1kVXGg/gWK/FsJajaBqHS0Q7DV+k=
+// @vegastack use-announcer@0.25.78 sha256-lYW4X+WCMxMptZLbZhvFkKzn/jujCjhdWsP4YU9ptuY=
 
 "use client";
 
@@ -113,6 +113,56 @@ function createAnnouncerComponent(
   return Announcer;
 }
 
+/**
+ * The host region every `useAnnouncer` beneath an `AnnouncerScope` speaks through, or `null`
+ * outside one.
+ */
+const AnnouncerScopeContext = React.createContext<
+  ((text: string) => void) | null
+>(null);
+
+/** Props accepted by `AnnouncerScope`. */
+export interface AnnouncerScopeProps {
+  /** The host's own `announce`, from its `useAnnouncer`. */
+  announce: (text: string) => void;
+  /**
+   * The region whose announcements the host speaks — typically a grid's cells.
+   * @default undefined
+   */
+  children?: React.ReactNode;
+}
+
+/**
+ * `AnnouncerScope` — route every `useAnnouncer` beneath it to the host's one live region.
+ *
+ * A component that mounts by the hundred (an editable grid cell) would otherwise keep a live region
+ * per copy: hundreds of `role="status"` nodes in the accessibility tree and two more elements in
+ * every cell a scroll tick mounts. Under a scope, `announce` speaks through the host's region,
+ * which is mounted for the host's whole life, and `Announcer` renders nothing. `DataGrid` wraps
+ * its rows in one.
+ *
+ * @example
+ * const { announce, Announcer } = useAnnouncer();
+ * return (
+ *   <>
+ *     <AnnouncerScope announce={announce}>{rows}</AnnouncerScope>
+ *     <Announcer />
+ *   </>
+ * );
+ */
+export function AnnouncerScope({ announce, children }: AnnouncerScopeProps) {
+  return React.createElement(
+    AnnouncerScopeContext,
+    { value: announce },
+    children,
+  );
+}
+
+/** Under a scope the region is the host's, so a scoped `Announcer` renders nothing. */
+function ScopedAnnouncer(): null {
+  return null;
+}
+
 /** What {@link useAnnouncer} returns. */
 export interface UseAnnouncerResult {
   /**
@@ -133,7 +183,8 @@ export interface UseAnnouncerResult {
  * screen-reader user would otherwise miss (a row moved, a chip was rejected, a save failed).
  *
  * Announce the **destination**, never every intermediate frame: "Moved Design to position 3 of 7",
- * not one message per pointer move.
+ * not one message per pointer move. Beneath an `AnnouncerScope`, `announce` speaks through the
+ * host's region and `Announcer` renders nothing.
  *
  * @example
  * function ChipField() {
@@ -147,19 +198,21 @@ export interface UseAnnouncerResult {
  * }
  */
 export function useAnnouncer(): UseAnnouncerResult {
+  const scoped = React.useContext(AnnouncerScopeContext);
   const storeRef = React.useRef<AnnouncementStore | null>(null);
   storeRef.current ??= createAnnouncementStore();
   const store = storeRef.current;
 
   const announce = React.useCallback(
     (text: string) => {
-      store.announce(text);
+      if (scoped) scoped(text);
+      else store.announce(text);
     },
-    [store],
+    [scoped, store],
   );
   const Announcer = React.useMemo(
-    () => createAnnouncerComponent(store),
-    [store],
+    () => (scoped ? ScopedAnnouncer : createAnnouncerComponent(store)),
+    [scoped, store],
   );
 
   return React.useMemo(() => ({ announce, Announcer }), [announce, Announcer]);
