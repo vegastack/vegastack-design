@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.78 sha256-M6WfylVVMhPuKJGLmDyy3IrMYwz/AaN2jRXpzcgetSc=
+// @vegastack editable-cell@0.25.78 sha256-lc6KX2LxgaJwCnseYjkhNPAX62Qi5VghNXqp75dJJac=
 
 "use client";
 
@@ -907,7 +907,10 @@ export function EditableCell({
   // The optimistically shown value while a save is in flight. Cleared on resolve (the host has
   // updated `value`) and on reject (the display rolls back to `value`).
   const [pendingValue, setPendingValue] = React.useState<string | null>(null);
-  const { announce: setAnnouncement, Announcer } = useAnnouncer();
+  // Inside a grid the status is spoken through the grid's one region (`AnnouncerScope`).
+  const { announce: setAnnouncement, Announcer } = useAnnouncer({
+    scoped: true,
+  });
   // Guards a stale promise settling after a newer save started.
   const commitSeq = React.useRef(0);
 

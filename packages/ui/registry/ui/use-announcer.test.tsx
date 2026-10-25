@@ -3,7 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { useAnnouncer } from "./use-announcer";
+import { AnnouncerScope, useAnnouncer } from "./use-announcer";
 
 function Harness({ text = "Saved" }: { text?: string }) {
   const { announce, Announcer } = useAnnouncer();
@@ -139,4 +139,45 @@ test("two hooks in one tree keep independent regions", async () => {
   expect(
     region(screen.getByTestId("b").element() as HTMLElement).textContent,
   ).toBe("");
+});
+
+test("under an AnnouncerScope only an opted-in announcer speaks through the host's region", async () => {
+  // A grid cell opts in; a dialog opened from that cell does not, because the modal makes the
+  // grid's region inert and its own announcements would go unheard.
+  let speakCell: (text: string) => void = () => {};
+  let speakDialog: (text: string) => void = () => {};
+  function Cell() {
+    const { announce, Announcer } = useAnnouncer({ scoped: true });
+    speakCell = announce;
+    return <Announcer data-testid="cell-region" />;
+  }
+  function DialogControl() {
+    const { announce, Announcer } = useAnnouncer();
+    speakDialog = announce;
+    return <Announcer data-testid="dialog-region" />;
+  }
+  function Host() {
+    const { announce, Announcer } = useAnnouncer();
+    return (
+      <>
+        <AnnouncerScope announce={announce}>
+          <Cell />
+          <DialogControl />
+        </AnnouncerScope>
+        <Announcer data-testid="host-region" />
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  expect(
+    screen.container.querySelector('[data-testid="cell-region"]'),
+  ).toBeNull();
+  speakCell("Saved");
+  speakDialog("Duplicate entry ignored");
+  await expect
+    .element(screen.getByTestId("host-region"))
+    .toHaveTextContent("Saved");
+  await expect
+    .element(screen.getByTestId("dialog-region"))
+    .toHaveTextContent("Duplicate entry ignored");
 });

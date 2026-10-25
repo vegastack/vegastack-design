@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.78",
-        "integrity": "sha256-dkqABUdzdqT/ifUPx1CEZapfpHBrc85U1eVsprR50nI="
+        "integrity": "sha256-8rO7nKsJYKFroSSSj+WJNVvqn7PtHtqXYSwKPsyEQwk="
       }
     },
     {
@@ -2537,7 +2537,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.78",
-        "integrity": "sha256-M6WfylVVMhPuKJGLmDyy3IrMYwz/AaN2jRXpzcgetSc="
+        "integrity": "sha256-lc6KX2LxgaJwCnseYjkhNPAX62Qi5VghNXqp75dJJac="
       }
     },
     {
@@ -18814,7 +18814,7 @@
         "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
         "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
         "version": "0.25.78",
-        "integrity": "sha256-lYW4X+WCMxMptZLbZhvFkKzn/jujCjhdWsP4YU9ptuY="
+        "integrity": "sha256-c/amWNiQs9Q4RTf4tIdnnw/qNO5X88RV/S3mVCcLqP8="
       }
     },
     {

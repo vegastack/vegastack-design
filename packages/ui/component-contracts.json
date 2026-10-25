@@ -40153,6 +40153,15 @@
           }
         },
         {
+          "name": "UseAnnouncerOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-announcer.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "UseAnnouncerResult",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-announcer.ts",

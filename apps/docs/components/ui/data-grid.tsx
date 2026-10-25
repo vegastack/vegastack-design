@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.78 sha256-dkqABUdzdqT/ifUPx1CEZapfpHBrc85U1eVsprR50nI=
+// @vegastack data-grid@0.25.78 sha256-8rO7nKsJYKFroSSSj+WJNVvqn7PtHtqXYSwKPsyEQwk=
 
 "use client";
 
@@ -3590,7 +3590,7 @@ export function DataGrid<T>({
   const gridTable = (
     // DS-68: the grid owns roving focus, so truncated text and RelativeTime in its cells are
     // not extra tab stops. It owns the live region too: a cell's save status is spoken through
-    // the grid's one `Announcer`, not a region per mounted cell.
+    // the grid's one `Announcer`, not a region per mounted cell (`EditableCell` opts in).
     <TruncationFocusProvider focusable={false}>
       <AnnouncerScope announce={announce}>
         <table
