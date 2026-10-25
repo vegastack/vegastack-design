@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.75 sha256-MBmRivtnim5AXzdHmFdhNZSjSUoa7RbSjnCDuVUrW1w=
+// @vegastack text-edit-grammar@0.25.75 sha256-ee88hXXG+xPEZOTMSZo6UGM/4k6hxbEQNnffHXcHonw=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -67,7 +67,7 @@ export const RESTRICTED_MENTION_PREFIX = "restricted:";
 
 /**
  * `[@<label>](mention://<kind>/<id>)`, unanchored — the source of `MENTION_LINK`. Groups: 1 the
- * label, 2 the kind, 3 the id. The label escapes `\`, `[` and `]` with a backslash; the kind
+ * label, 2 the kind, 3 the id. The label escapes `\`, `[`, `]` and `` ` `` with a backslash; the kind
  * matches `MENTION_KIND_PATTERN`; the id has no whitespace or parentheses. Build a scanning
  * expression from it (`new RegExp(MENTION_LINK_SOURCE, "g")`) rather than sharing a global one.
  */
@@ -82,9 +82,13 @@ export const MENTION_LINK = new RegExp(`^${MENTION_LINK_SOURCE}`);
  */
 export const MENTION_LINK_SQL = String.raw`\[@((?:[^\\\[\]\n]|\\[^\n])*)\]\(mention://(${MENTION_KIND_PATTERN})/([^\s()]+)\)`;
 
-/** A label as a mention link (or any bracketed text) carries it: `\`, `[` and `]` escaped. */
+/**
+ * A label as a mention link carries it: `\`, `[`, `]` and `` ` `` escaped. A bare backtick in one
+ * label could pair with one in another (or in the text) into a code span, which Markdown reads
+ * before links — the links it crosses would read as code, not mentions.
+ */
 export function escapeMentionLabel(label: string): string {
-  return label.replace(/[\\[\]]/g, "\\$&");
+  return label.replace(/[\\[\]`]/g, "\\$&");
 }
 
 /**
@@ -279,10 +283,12 @@ export function imageMarkdown({
   // `&` that reads as an entity is written `&amp;`, and a `|` the alt merely ends with (`hello|123`,
   // no width) `&#x7C;` — an entity, not a backslash, so a table's own `\|` unescaping (an image in
   // a cell) never turns it into a width.
-  let text = escapeMentionLabel(alt ?? "").replace(
-    /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
-    "&amp;",
-  );
+  let text = (alt ?? "")
+    .replace(/[\\[\]]/g, "\\$&")
+    .replace(
+      /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
+      "&amp;",
+    );
   if (/\|\d{1,5}(?:x\d{1,5})?$/.test(text))
     text = text.replace(/\|(\d{1,5}(?:x\d{1,5})?)$/, "&#x7C;$1");
   // A size the parser reads back (1–5 digits each): out of range, the width (or height) is left out.

@@ -460,6 +460,21 @@ test("a mention label keeps escaped brackets, and mentionMarkdown writes what pa
   ).toBe("Plan [draft] \\ v2");
 });
 
+test("labels with backticks stay mentions: they never pair into a code span", async () => {
+  const one = mentionMarkdown("page", "p1", "Q`3");
+  const two = mentionMarkdown("page", "p2", "Plan`B");
+  expect(one).toBe("[@Q\\`3](mention://page/p1)");
+  expect(parseMentionLink(one)?.label).toBe("Q`3");
+  const screen = await render(
+    <MarkdownView>{`${one} and ${two}`}</MarkdownView>,
+  );
+  const chips = [
+    ...screen.container.querySelectorAll('[data-slot="inline-chip"]'),
+  ];
+  expect(chips.map((chip) => chip.textContent)).toEqual(["Q`3", "Plan`B"]);
+  expect(screen.container.querySelector("code")).toBeNull();
+});
+
 test("a link under fileLinkPrefix renders as a file chip; javascript: links are still emptied", async () => {
   const screen = await render(
     <MarkdownView>

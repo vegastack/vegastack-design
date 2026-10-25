@@ -80,6 +80,7 @@ test("MENTION_LINK_SOURCE scans a whole text", () => {
   ].map((match) => match[3]);
   expect(found).toEqual(["u1", "p1"]);
   expect(escapeMentionLabel("a[b]\\")).toBe("a\\[b\\]\\\\");
+  expect(escapeMentionLabel("a`b")).toBe("a\\`b");
 });
 
 test("a record mention is anything but a person or an agent", () => {
