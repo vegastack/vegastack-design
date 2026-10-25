@@ -1,4 +1,4 @@
-// @vegastack responsive-dialog@0.25.75 sha256-ROWdjh12RRzLV1hOpw+rAzMso8nYVQqtr6rCMwXTh3c=
+// @vegastack responsive-dialog@0.25.76 sha256-QggVElFlGhwJBik4wks9rZzA7uaFE/QD/FyU1FtcIu4=
 
 "use client";
 

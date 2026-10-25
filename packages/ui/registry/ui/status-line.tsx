@@ -1,4 +1,4 @@
-// @vegastack status-line@0.25.75 sha256-3bVfTq/OQXma5fQdI0nacqZC5B9+T7Gm7Tw/k10qo44=
+// @vegastack status-line@0.25.76 sha256-EZScKeT5ukzoM6lfaZDt9H75k2uGNotCBZlzJe0Matc=
 
 import * as React from "react";
 import { CircleAlert, Info } from "lucide-react";

@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.76] — October 25, 2026
+
+<!-- assembled from 1 changeset: 781889986a2c -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.26`** (was `0.8.25`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.75 → 0.25.76.
+
+### 🐛 Fixed
+
+- **text-edit-grammar**: `escapeMentionLabel` (and so `mentionMarkdown` and every mention `TextEdit` writes) now escapes a backtick in a mention's label too. A bare backtick in one label could pair with one in another label, or in the text, into a code span, which Markdown reads before links, so the mentions it crossed rendered as code. `parseMentionLink` reads the escaped label back unchanged. Image alt text keeps its own escaping. [docs](https://design.vegastack.com/docs/components/markdown-view) ·
+  [`9c91680`](https://github.com/VegaStack/vegastack-design/commit/9c91680)
+
 ## [0.25.75] — October 25, 2026
 
 <!-- assembled from 1 changeset: f7951170d450 -->

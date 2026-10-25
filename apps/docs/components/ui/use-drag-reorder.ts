@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.25.75 sha256-2rSXvuMoXl2VpFVgTvo1ICwB94NcSJxakMX31f+W0qA=
+// @vegastack use-drag-reorder@0.25.76 sha256-GIDlgIQJ/a6BgwjUgbYUlz/sAt20jbyxkyIh/nCdUfs=
 
 "use client";
 

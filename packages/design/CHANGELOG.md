@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.26
+
+### Patch Changes
+
+- [#749](https://github.com/vegastack/vegastack-design/pull/749) [`9c91680`](https://github.com/vegastack/vegastack-design/commit/9c916809d42855fb011716da10ec1a2193e40c16) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **text-edit-grammar**: `escapeMentionLabel` (and so `mentionMarkdown` and every mention `TextEdit` writes) now escapes a backtick in a mention's label too. A bare backtick in one label could pair with one in another label, or in the text, into a code span, which Markdown reads before links, so the mentions it crossed rendered as code. `parseMentionLink` reads the escaped label back unchanged. Image alt text keeps its own escaping. [docs](https://design.vegastack.com/docs/components/markdown-view)
+
 ## 0.8.25
 
 ### Patch Changes

@@ -1,4 +1,4 @@
-// @vegastack chart-pie-donut-text@0.25.75 sha256-nbnCNsvtR+w3YAS8kj9a7L8DDLpLWENwczITTcAEmBM=
+// @vegastack chart-pie-donut-text@0.25.76 sha256-O/uiiA7TJnbZjRksK3/bmMwgde0M1wwwJhIZQUll5QQ=
 
 "use client";
 
