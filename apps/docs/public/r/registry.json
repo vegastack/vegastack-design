@@ -2585,7 +2585,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.77",
-        "integrity": "sha256-CnF+41KhDfP6OeF7TDY8Bj2gHnOcLPnOcNEC4aejJj8="
+        "integrity": "sha256-aCizmiA/RZttfpDvFfT1Inr0a4OTp6iI5SzpL8mTM18="
       }
     },
     {

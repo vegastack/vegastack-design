@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.77 sha256-CnF+41KhDfP6OeF7TDY8Bj2gHnOcLPnOcNEC4aejJj8=
+// @vegastack field-cell@0.25.77 sha256-aCizmiA/RZttfpDvFfT1Inr0a4OTp6iI5SzpL8mTM18=
 
 "use client";
 
@@ -293,6 +293,13 @@ function Overflow({
 }
 
 /**
+ * A link chip in a cell: one line, cut with an ellipsis, never broken inside a word. A chip wraps
+ * like running text in prose (its first word may break in a narrow column), and a host's prose
+ * (`overflow-wrap: break-word`) would split its letters, so every part of it stays unbroken here.
+ */
+const LINK_CHIP_FIT = "min-w-0 truncate wrap-normal [&_*]:whitespace-nowrap";
+
+/**
  * A link chip's full name on hover and on keyboard focus. The chip itself is the tab stop when
  * it rendered as one (a link, a button, a person's card — whatever its resolved behaviour);
  * otherwise the wrapper is, under the ambient focus policy.
@@ -324,7 +331,7 @@ function LinkNameDisclosure({
           <span
             ref={ref}
             tabIndex={chipFocusable ? undefined : (tabIndex ?? 0)}
-            className="min-w-0 truncate"
+            className={LINK_CHIP_FIT}
           />
         }
       >
@@ -549,7 +556,7 @@ export function FieldCellDisplay({
             );
             if (!reachable)
               return (
-                <span key={target.id} className="min-w-0 truncate">
+                <span key={target.id} className={LINK_CHIP_FIT}>
                   {chip}
                 </span>
               );
