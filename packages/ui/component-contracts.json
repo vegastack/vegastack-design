@@ -317,7 +317,7 @@
       },
       {
         "file": "packages/ui/test/inline-chip-geometry.browser.test.tsx",
-        "owners": ["inline-chip", "markdown-view", "text-edit"],
+        "owners": ["field-cell", "inline-chip", "markdown-view", "text-edit"],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {

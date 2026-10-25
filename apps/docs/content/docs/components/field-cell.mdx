@@ -140,6 +140,8 @@ a note. While an IME is composing, no key commits or moves.
 
 - Every editor is named by its field (`aria-label` / `label`) and marks a value it refuses
   `aria-invalid` (an invalid URL, email or phone).
+- Each link chip stays on one line and is never broken inside a name, even inside a host's prose;
+  a cell that grows (`className="flex-wrap"`, a page's table block) wraps whole chips.
 - A truncated text, number, date, tag or link name is revealed on hover and on keyboard focus; a
   link list's "+2" names what it hides on hover and on keyboard focus (an unreachable link only by
   its state); every overflowed list (links, people, files) is read in full by screen readers; the

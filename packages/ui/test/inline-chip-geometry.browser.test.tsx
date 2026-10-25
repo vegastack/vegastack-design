@@ -8,6 +8,7 @@ import {
   InlineChipProvider,
   type InlineChipPerson,
 } from "../registry/ui/inline-chip";
+import { FieldCellDisplay } from "../registry/ui/field-cell";
 import { MarkdownView } from "../registry/ui/markdown-view";
 import { TextEdit, preloadTextEdit } from "../registry/ui/text-edit";
 
@@ -204,4 +205,43 @@ test("inline-chip-lead: a wrapping chip never breaks between its icon and the la
   // On one line: their centres sit well within a line's height of each other.
   expect(Math.abs(centre(word) - centre(icon))).toBeLessThan(6);
   expect(chip.getClientRects().length).toBeGreaterThan(1);
+});
+
+test("a cell's link chips never break inside a name, even in a narrow cell inside prose", async () => {
+  // An editor's prose breaks long words (`overflow-wrap: break-word`) and a chip's first word may
+  // wrap in running text; in a cell each chip stays one line (an inline chip broken across lines
+  // has one box per line), and a cell that grows wraps whole chips.
+  const screen = await render(
+    <div
+      style={{
+        width: 120,
+        overflowWrap: "break-word",
+        whiteSpace: "break-spaces",
+      }}
+    >
+      <FieldCellDisplay
+        type="link"
+        className="flex-wrap"
+        value={[
+          { id: "a", label: "Meridian Hotels", kind: "customer", href: "/c/a" },
+          {
+            id: "b",
+            label: "Skyline Developers",
+            kind: "customer",
+            href: "/c/b",
+          },
+        ]}
+      />
+    </div>,
+  );
+  const tops = new Set<number>();
+  for (const name of ["Meridian", "Skyline"]) {
+    const chip = screen
+      .getByText(name, { exact: false })
+      .element()
+      .closest("[data-slot=inline-chip]")!;
+    expect(chip.getClientRects().length).toBe(1);
+    tops.add(Math.round(chip.getBoundingClientRect().top));
+  }
+  expect(tops.size).toBe(2);
 });
