@@ -1,4 +1,4 @@
-// @vegastack use-media-query@0.25.78 sha256-G7BYZdkJ5pZ9saFOODJssqO5CT+HkxNk+Hq4wjCOw6U=
+// @vegastack use-media-query@0.25.78 sha256-MF3EyTZNqevNZ9JerO/Awd+TAp8jwp1sTEgTEmct+8w=
 
 "use client";
 
@@ -46,9 +46,9 @@ export interface UseMediaQueryOptions {
 }
 
 /*
- * One `MediaQueryList` and one native `change` listener per query string, however many components
- * read it. A component that mounts by the hundred (a truncating grid cell reads `(hover: none)`)
- * used to call `matchMedia` and add its own listener on every mount; now it joins a set.
+ * One native `change` listener per query string, however many components read it. A component
+ * that mounts by the hundred (a truncating grid cell reads `(hover: none)`) used to add its own
+ * listener on every mount; now it joins a set.
  */
 interface MediaQueryStore {
   /** The `matchMedia` that made `list`; a replaced one (a test's mock) gets a fresh store. */
@@ -96,14 +96,9 @@ function subscribeTo(query: string, onStoreChange: () => void): () => void {
 }
 
 function readQuery(query: string): boolean {
-  // The shared list when there is one (reading `matches` is current even before its change event
-  // lands); otherwise — the render before the first subscription — a read that leaves nothing behind.
-  const store = stores.get(query);
-  return (
-    store && store.source === window.matchMedia
-      ? store.list
-      : window.matchMedia(query)
-  ).matches;
+  // Always the live answer: a cached one can lag the viewport (or a replaced `matchMedia`) until
+  // a change event lands. Only the subscription is shared.
+  return window.matchMedia(query).matches;
 }
 
 /**

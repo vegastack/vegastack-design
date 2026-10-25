@@ -18995,7 +18995,7 @@
         "whenToUse": "JavaScript genuinely has to branch on a media query — mounting a different component tree, skipping a requestAnimationFrame loop, enabling pointer drag.",
         "whenNotToUse": "A purely visual responsive change: a Tailwind breakpoint or a container query does it in CSS with no hydration cost.",
         "version": "0.25.78",
-        "integrity": "sha256-G7BYZdkJ5pZ9saFOODJssqO5CT+HkxNk+Hq4wjCOw6U="
+        "integrity": "sha256-MF3EyTZNqevNZ9JerO/Awd+TAp8jwp1sTEgTEmct+8w="
       }
     },
     {
