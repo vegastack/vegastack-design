@@ -1,4 +1,4 @@
-// @vegastack info-hint@0.25.78 sha256-1A/7uSoxvttfx/Hn6U7drxC7c5EZghag2v12/lcMcV4=
+// @vegastack info-hint@0.25.79 sha256-WEorgm7VYv66+tRh8TPhkUP+GDD0V/ydojWPyWuvjDk=
 
 import type * as React from "react";
 import { InfoIcon } from "lucide-react";

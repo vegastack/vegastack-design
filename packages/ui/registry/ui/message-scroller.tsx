@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.25.78 sha256-nycYzrgZmMwithu4+GZ8qz5pl/aBBf6R3re+RcKQ7Fs=
+// @vegastack message-scroller@0.25.79 sha256-nF2hYzyyGxC6ovJHqYCh+KvZFsxQ43Xvfgc9t2c0Ohw=
 
 "use client";
 
