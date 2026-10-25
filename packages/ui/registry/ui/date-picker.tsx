@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.25.78 sha256-XRqAISXm1KARXb7ih/i20vmkSljcDl4OZq5gj8HNt8s=
+// @vegastack date-picker@0.25.79 sha256-lJgUt9mXOj7rKojzssJ16ClMgwy+jPhQvkY/EYDeVDw=
 
 "use client";
 

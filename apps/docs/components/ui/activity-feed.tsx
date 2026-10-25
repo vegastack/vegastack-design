@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.25.78 sha256-vx5JmTJTboKphaFaN6YkR3x45QjbwFs95KA8uEVTb0Y=
+// @vegastack activity-feed@0.25.79 sha256-6YnwBfPuaOiwvphZsr0reXXVZJZ5T810r722B/qmTTQ=
 
 "use client";
 
