@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.75] — October 25, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.25`** (was `0.8.24`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.74 → 0.25.75.
+
+### 🐛 Fixed
+
+- **EditableCell**, **DataGrid**, **FieldCellEditor**: a `custom` editor now receives the `seed` (the key that opened it by type-to-edit, which was lost) and `commit(next, move?)`, where `move` (`down`, `up`, `right`, `left` — the new `EditableCellMove` type) steps the grid on through `onNavigate`. `FieldCellEditor` follows the spreadsheet keys — Enter commits and moves down, Shift+Enter up, Tab right, Shift+Tab left (after a date-time's own controls), Escape cancels, and IME composition never commits — through `onCommit(value, move)`, and starts from `seed`: it replaces a text, URL, email, phone or number value and opens a choice, person or link picker searching for it (the new `defaultSearch` on `SearchableSelect`, `PeoplePicker` and `FieldInput`). **ViewTabs**: a cut view name shows in full in a tooltip on its tab and the narrow select's trigger, and the select's list wraps it. [docs](/docs/components/field-cell) ·
+  [`41328dd`](https://github.com/VegaStack/vegastack-design/commit/41328dd)
+
 ## [0.25.74] — October 24, 2026
 
 ### 📦 npm

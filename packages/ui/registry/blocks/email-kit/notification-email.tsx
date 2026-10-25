@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.74 sha256-6zuSU7z05U6fIUeWEJjF/UOCatJ4Ci58CkfFda51fjM=
+// @vegastack email-kit@0.25.75 sha256-aE5REMBtdpWd0v+2owSc9N8fBkJk4WQ60GzfKWfF8rk=
 
 import type { EmailFooter, EmailBrand } from "./email-layout";
 import { EmailLayout } from "./email-layout";
