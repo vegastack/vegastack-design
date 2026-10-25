@@ -1699,6 +1699,24 @@ test("Tab back into a grid returns to its active header column after it scrolled
       .toBeNull();
     await userEvent.keyboard("{Tab}");
     await expect.poll(at).toBe(header);
+    // A host focusing another cell just after a Tab (a panel closing after its save) keeps it.
+    await userEvent.click(screen.getByRole("button", { name: "After" }));
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    const other = [
+      ...grid.querySelectorAll<HTMLElement>(
+        'tbody [data-slot="data-grid-cell"]',
+      ),
+    ].find((node) => node.tabIndex === -1)!;
+    const otherAt = `${other.dataset.gridRow}:${other.dataset.gridKey}`;
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+    );
+    other.focus();
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+    expect(at()).toBe(otherAt);
     // A host focusing the stand-in tab stop itself (after a press elsewhere) keeps focus there.
     await userEvent.click(screen.getByRole("button", { name: "After" }));
     viewport.scrollLeft = 4000;

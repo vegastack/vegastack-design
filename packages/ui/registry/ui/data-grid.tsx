@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.76 sha256-N9za19M/r3YwLrMhoYK4rF+QxY8ImO7XqCaCEG0S0Yc=
+// @vegastack data-grid@0.25.76 sha256-xaXTrVQpTue8eJpUvm0ePF4hTo5SLuvP6FnhqizK6Ys=
 
 "use client";
 
@@ -2992,9 +2992,10 @@ export function DataGrid<T>({
     if (!tabbing.current || editing) return;
     const from = event.relatedTarget as Node | null;
     if (from && event.currentTarget.contains(from)) return;
-    const cell = (event.target as HTMLElement).closest<HTMLElement>(
-      "[data-grid-row]",
-    );
+    // Tab lands only on the one tab stop; a host focusing any other cell meanwhile meant it.
+    const target = event.target as HTMLElement;
+    if (target.tabIndex !== 0) return;
+    const cell = target.closest<HTMLElement>("[data-grid-row]");
     if (!cell || !navRowIndex.has(resolved.rowId)) return;
     const rowId = cell.dataset.gridRow!;
     if (
