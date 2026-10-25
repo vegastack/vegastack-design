@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.25.74 sha256-lznX6kMi150CHMvN/eziNOoDK2YK7BaiJyUR3uzX+hY=
+// @vegastack people-picker@0.25.74 sha256-+rd93oA9R/KJsSuTzSyMrsSsD1ZCHIEyF2GbpF+TU0Q=
 
 "use client";
 
@@ -139,6 +139,12 @@ export interface PeoplePickerListProps {
   actions?: readonly PeoplePickerAction[];
   /** The search field's placeholder and accessible name. @default "Search people" */
   searchPlaceholder?: string;
+  /**
+   * The search text the list starts from instead of `""` — the character that opened a cell
+   * editor (type-to-edit). `PeoplePicker` also opens with it, once, on mount.
+   * @default undefined
+   */
+  defaultSearch?: string;
   /** Shown when nothing matches. @default "No people found" */
   emptyText?: string;
   /** A label over the rows ("Your agents"). @default undefined */
@@ -166,14 +172,15 @@ function usePeopleList(
     exclude = [],
     viewerId,
     includeInactive = false,
+    defaultSearch = "",
   }: PeoplePickerListProps,
   pinned: readonly PeoplePickerOption[] = [],
 ) {
   const remote = useAsyncSearch<PeoplePickerOption>(
     search ?? (() => Promise.resolve({ items: [] })),
-    { enabled: search !== undefined },
+    { enabled: search !== undefined, initialQuery: defaultSearch },
   );
-  const [localQuery, setLocalQuery] = React.useState("");
+  const [localQuery, setLocalQuery] = React.useState(defaultSearch);
   // The first request starts in an effect: until it has run, the list is loading, not empty.
   const [started, setStarted] = React.useState(false);
   if (remote.loading && !started) setStarted(true);
@@ -657,12 +664,16 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
   contentClassName,
   ref,
   actions = [],
+  defaultSearch,
   ...list
 }: PeoplePickerProps<Multiple>) {
-  const [openState, setOpenState] = React.useState(false);
+  const [openState, setOpenState] = React.useState(Boolean(defaultSearch));
   const open = openProp ?? openState;
+  // The opening search applies to the first open only; a reopen starts empty.
+  const [seed, setSeed] = React.useState(defaultSearch);
   const setOpen = (next: boolean) => {
     setOpenState(next);
+    if (!next) setSeed(undefined);
     onOpenChange?.(next);
   };
   const chosen: PeoplePickerOption[] = Array.isArray(value)
@@ -763,6 +774,7 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
       >
         <PeoplePickerContent
           {...list}
+          defaultSearch={seed}
           pinned={multiple ? pinned : []}
           selected={chosen.map((o) => o.id)}
           actions={actions.map((action) => ({

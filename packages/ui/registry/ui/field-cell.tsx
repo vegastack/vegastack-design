@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.74 sha256-8eaSxMW6dwg/kVEATszpCaTyaiz/QhOhgCPe/6mM6Lg=
+// @vegastack field-cell@0.25.74 sha256-nQRuBmIBiFO7pOvN1KvOKiO3SqMaQBlaWixrIDV4GmU=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
+import type { EditableCellMove } from "@/components/ui/editable-cell";
 import { InlineChip, useInlineChipResolver } from "@/components/ui/inline-chip";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
@@ -655,6 +656,12 @@ export interface FieldInputProps {
   disabled?: boolean;
   /** Focus the control when it mounts (an opened cell editor). @default false */
   autoFocus?: boolean;
+  /**
+   * A picker (choice, person, link) opens on mount searching for this text — the character that
+   * opened a cell editor. Other types ignore it.
+   * @default undefined
+   */
+  defaultSearch?: string;
   /** Extra classes for the control. @default undefined */
   className?: string;
 }
@@ -664,11 +671,13 @@ function RecordLinkEditor({
   value,
   config,
   onChange,
+  defaultSearch,
   ...a11y
 }: {
   value: readonly FieldLinkTarget[];
   config: FieldConfig;
   onChange: (value: FieldLinkTarget[]) => void;
+  defaultSearch?: string;
   "aria-label": string;
   id?: string;
   "aria-invalid"?: boolean;
@@ -687,6 +696,7 @@ function RecordLinkEditor({
     <SearchableSelect<FieldLinkTarget, true>
       multiple
       remote
+      defaultSearch={defaultSearch}
       items={search.items}
       onSearchChange={search.onSearchChange}
       loading={search.loading}
@@ -863,6 +873,7 @@ export function FieldInput({
   "aria-describedby": describedBy,
   disabled = false,
   autoFocus = false,
+  defaultSearch,
   className,
 }: FieldInputProps) {
   const a11y = {
@@ -995,6 +1006,7 @@ export function FieldInput({
         onCreateOption: config.onCreateOption,
         placeholder: config.placeholder ?? "Choose…",
         searchLabel: "Search options",
+        defaultSearch,
         size: "sm" as const,
         ...a11y,
       };
@@ -1036,6 +1048,7 @@ export function FieldInput({
       const common = {
         options: config.people?.map(toOption),
         search: config.searchPeople,
+        defaultSearch,
         size: "sm" as const,
         ...a11y,
       };
@@ -1087,6 +1100,7 @@ export function FieldInput({
         <RecordLinkEditor
           {...a11y}
           config={config}
+          defaultSearch={defaultSearch}
           value={(Array.isArray(value) ? value : []) as FieldLinkTarget[]}
           onChange={onChange}
         />
@@ -1110,12 +1124,24 @@ export interface FieldCellEditorProps {
    * @default {}
    */
   config?: FieldConfig;
-  /** Commit a typed value and close. */
-  onCommit: (value: FieldValue) => void;
+  /**
+   * Commit a typed value and close. `move` is where the key that committed sends the grid's focus
+   * (<kbd>Enter</kbd> `down`, <kbd>Shift</kbd>+<kbd>Enter</kbd> `up`, <kbd>Tab</kbd> `right`,
+   * <kbd>Shift</kbd>+<kbd>Tab</kbd> `left`); a pick, a blur or the long-text editor's save has
+   * none. Hand it on to the slot's `commit(value, move)`.
+   */
+  onCommit: (value: FieldValue, move?: EditableCellMove) => void;
   /** Close without committing. */
   onCancel: () => void;
   /** The field's name, for the editor's accessible name. */
   label: string;
+  /**
+   * The character that opened the editor (the slot's `seed`): a text, URL, email, phone or number
+   * field starts from it in place of the value, and a picker (choice, person, link) opens
+   * searching for it. Date, date-time and long text open as they are.
+   * @default undefined
+   */
+  seed?: string;
 }
 
 /** Text-like types edit a draft and commit on Enter or when focus leaves the editor. */
@@ -1129,6 +1155,46 @@ const DRAFT_TYPES: ReadonlySet<FieldType> = new Set([
   "percent",
   "datetime",
 ]);
+
+/** The types whose field a typed seed is entered into: one text field, no picker. */
+const SEEDED_TYPES: ReadonlySet<FieldType> = new Set([
+  "text",
+  "url",
+  "email",
+  "phone",
+  "number",
+  "currency",
+  "percent",
+]);
+
+/** The pickers that open searching for a typed seed. */
+const SEARCHED_TYPES: ReadonlySet<FieldType> = new Set([
+  "single_choice",
+  "multi_choice",
+  "person",
+  "link",
+]);
+
+/**
+ * Replace a field's text the way typing would: through the native setter and an `input` event, so
+ * the control's own parser reads it — a number field's `-` or `.`, a percent's scale.
+ */
+function typeInto(field: HTMLInputElement, text: string) {
+  Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )?.set?.call(field, text);
+  field.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+/** The editor's own tab stops, in order. */
+function tabStops(root: Element): HTMLElement[] {
+  return [
+    ...root.querySelectorAll<HTMLElement>(
+      'input:not([type="hidden"]), textarea, button, select, [contenteditable="true"], [tabindex]',
+    ),
+  ].filter((node) => node.tabIndex >= 0 && !node.matches(":disabled"));
+}
 
 /**
  * Whether focus moved into one of the editor's OWN popups (its calendar, its list) — a popup a
@@ -1163,14 +1229,15 @@ export function FieldCellEditor({
   onCommit,
   onCancel,
   label,
+  seed,
 }: FieldCellEditorProps) {
   const [draft, setDraft] = React.useState<FieldValue>(value);
   const done = React.useRef(false);
   const root = React.useRef<HTMLSpanElement | null>(null);
-  const commit = (next: FieldValue) => {
+  const commit = (next: FieldValue, move?: EditableCellMove) => {
     if (done.current) return;
     done.current = true;
-    onCommit(next);
+    onCommit(next, move);
   };
   const cancel = () => {
     if (done.current) return;
@@ -1185,14 +1252,19 @@ export function FieldCellEditor({
     // The opened editor takes focus: its first control (a field, a picker's trigger).
     // The field itself first (a number's input, not its Decrease button), then a picker trigger.
     const scope = root.current;
+    const field = scope?.querySelector<HTMLElement>(
+      'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), [contenteditable="true"]',
+    );
     (
-      scope?.querySelector<HTMLElement>(
-        'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), [contenteditable="true"]',
-      ) ??
+      field ??
       scope?.querySelector<HTMLElement>(
         'button:not(:disabled), [tabindex]:not([tabindex="-1"])',
       )
     )?.focus();
+    // Type-to-edit: the key that opened the editor replaces the value, caret after it. (A picker
+    // took it as its search instead.)
+    if (seed && SEEDED_TYPES.has(type) && field instanceof HTMLInputElement)
+      typeInto(field, seed);
     // Once, on open.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1248,8 +1320,14 @@ export function FieldCellEditor({
       data-type={type}
       className="flex min-w-0 flex-1 items-center"
       onKeyDown={(event) => {
-        // A key the control inside already handled (a picker's own Escape) is its own.
-        if (event.defaultPrevented || event.nativeEvent.isComposing) return;
+        // A key the control inside already handled (a picker's own Escape) is its own, and IME
+        // composition never commits or moves.
+        if (
+          event.defaultPrevented ||
+          event.nativeEvent.isComposing ||
+          event.keyCode === 229
+        )
+          return;
         if (event.key === "Escape") {
           event.preventDefault();
           event.stopPropagation();
@@ -1257,7 +1335,17 @@ export function FieldCellEditor({
         } else if (event.key === "Enter" && drafted) {
           event.preventDefault();
           event.stopPropagation();
-          if (valid) commit(draft);
+          if (valid) commit(draft, event.shiftKey ? "up" : "down");
+        } else if (event.key === "Tab") {
+          // Tab steps through the editor's own controls (a date-time's date and time); off its
+          // edge it commits and moves across.
+          const stops = tabStops(event.currentTarget);
+          const at = stops.indexOf(event.target as HTMLElement);
+          const next = at + (event.shiftKey ? -1 : 1);
+          if (at >= 0 && next >= 0 && next < stops.length) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (valid) commit(draft, event.shiftKey ? "left" : "right");
         }
       }}
       onBlur={(event) => {
@@ -1279,6 +1367,7 @@ export function FieldCellEditor({
         config={config}
         aria-label={label}
         invalid={!valid}
+        defaultSearch={seed && SEARCHED_TYPES.has(type) ? seed : undefined}
         className="w-full"
         onChange={(next) => {
           setDraft(next);

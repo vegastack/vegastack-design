@@ -2463,3 +2463,70 @@ test("cells mode: a parse column is writable to assistive technology; a fill dra
   window.dispatchEvent(new PointerEvent("pointercancel", { pointerId: 9 }));
   expect(inRange()).toEqual(["d1:amount"]);
 });
+
+test("a custom editor gets the typed seed, and commit with a move steps the grid on", async () => {
+  const onCellCommit = vi.fn();
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        {
+          key: "stage",
+          header: "Stage",
+          minWidth: 10,
+          editable: {
+            type: "custom",
+            render: ({ value, seed, commit }) => (
+              <input
+                aria-label="Stage"
+                autoFocus
+                defaultValue={seed ?? value}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter")
+                    commit(event.currentTarget.value, "down");
+                  if (event.key === "Tab") {
+                    event.preventDefault();
+                    commit(
+                      event.currentTarget.value,
+                      event.shiftKey ? "left" : "right",
+                    );
+                  }
+                }}
+              />
+            ),
+          },
+        },
+        { key: "amount", header: "Amount", minWidth: 10 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={onCellCommit}
+    />,
+  );
+  const focused = () => {
+    const cell = (
+      document.activeElement as HTMLElement | null
+    )?.closest<HTMLElement>("[data-grid-row]");
+    return `${cell?.dataset.gridRow}:${cell?.dataset.gridKey}`;
+  };
+  (
+    document.querySelector('[data-slot="data-grid-cell"]') as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowRight}");
+  // Type-to-edit: the key that opened the editor is its seed, not lost.
+  await userEvent.keyboard("W");
+  const input = document.querySelector(
+    'input[aria-label="Stage"]',
+  ) as HTMLInputElement;
+  expect(input.value).toBe("W");
+  await userEvent.keyboard("on{Enter}");
+  expect(onCellCommit).toHaveBeenLastCalledWith(DEALS[0], "stage", "Won");
+  await expect.poll(focused).toBe("d2:stage");
+
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Tab}");
+  await expect.poll(focused).toBe("d2:amount");
+  // An unchanged commit only closes and moves.
+  expect(onCellCommit).toHaveBeenCalledTimes(1);
+});

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.74 sha256-JLBi6Lq7XTNL6EUve+PUbxh8d47uoGYfOkM1+3AKpPA=
+// @vegastack data-grid@0.25.74 sha256-wcDpei8e4UvIk7U3Sij9rnkdKlHqsLnLb36b89lB+w0=
 
 "use client";
 
@@ -3193,7 +3193,8 @@ export function DataGrid<T>({
       setEditingState({
         rowId,
         key,
-        seed: type === "text" || type === "number" ? event.key : undefined,
+        // Every editor that takes text starts from the key; the date and select popovers don't.
+        seed: type === "date" || type === "select" ? undefined : event.key,
       });
       announce(`Editing ${placedColumn.label}`);
     }

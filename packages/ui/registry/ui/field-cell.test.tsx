@@ -211,7 +211,7 @@ test("FieldCellEditor: text commits on Enter, Escape cancels, a choice commits o
   const field = screen.getByRole("textbox", { name: "Name" });
   await expect.element(field).toHaveFocus();
   await userEvent.keyboard(" Ltd{Enter}");
-  expect(onCommit).toHaveBeenCalledWith("Acme Ltd");
+  expect(onCommit).toHaveBeenCalledWith("Acme Ltd", "down");
   await screen.rerender(<span />);
   await screen.rerender(
     <FieldCellEditor
@@ -239,7 +239,7 @@ test("FieldCellEditor: text commits on Enter, Escape cancels, a choice commits o
   );
   await screen.getByRole("combobox", { name: "Status" }).click();
   await screen.getByRole("option", { name: "Sent" }).click();
-  expect(choose).toHaveBeenCalledWith("sent");
+  expect(choose).toHaveBeenCalledWith("sent", undefined);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -545,4 +545,126 @@ test("a link editor never names an unreachable target; a numeric editor focuses 
   await expect
     .poll(() => (document.activeElement as HTMLElement | null)?.tagName)
     .toBe("INPUT");
+});
+
+test("FieldCellEditor: the spreadsheet keys commit and move; Escape cancels; IME never commits", async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  const editor = (key: string) => (
+    <FieldCellEditor
+      key={key}
+      type="text"
+      label="Name"
+      value="Acme"
+      onCommit={onCommit}
+      onCancel={onCancel}
+    />
+  );
+  const screen = await render(editor("enter"));
+  await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
+  expect(onCommit).toHaveBeenLastCalledWith("Acme", "up");
+  await screen.rerender(editor("tab"));
+  await userEvent.keyboard("!{Tab}");
+  expect(onCommit).toHaveBeenLastCalledWith("Acme!", "right");
+  await screen.rerender(editor("shift-tab"));
+  await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  expect(onCommit).toHaveBeenLastCalledWith("Acme", "left");
+  expect(onCommit).toHaveBeenCalledTimes(3);
+
+  // A composing Enter (an IME candidate being chosen) neither commits nor moves.
+  await screen.rerender(editor("ime"));
+  const field = screen.getByRole("textbox", { name: "Name" }).element();
+  field.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Enter",
+      bubbles: true,
+      cancelable: true,
+      isComposing: true,
+    }),
+  );
+  field.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "Tab", bubbles: true, keyCode: 229 }),
+  );
+  expect(onCommit).toHaveBeenCalledTimes(3);
+  await userEvent.keyboard("{Escape}");
+  expect(onCancel).toHaveBeenCalledTimes(1);
+  expect(onCommit).toHaveBeenCalledTimes(3);
+});
+
+test("FieldCellEditor: a typed seed replaces a text or number value and opens a picker searching for it", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="text"
+      label="Name"
+      value="Acme"
+      seed="Z"
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("ed{Enter}");
+  expect(onCommit).toHaveBeenLastCalledWith("Zed", "down");
+
+  // A number's own parser reads the seed, so a leading minus is kept.
+  await screen.rerender(
+    <FieldCellEditor
+      key="number"
+      type="number"
+      label="Qty"
+      value={12}
+      seed="-"
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("5{Enter}");
+  expect(onCommit).toHaveBeenLastCalledWith(-5, "down");
+
+  await screen.rerender(
+    <FieldCellEditor
+      key="choice"
+      type="single_choice"
+      label="Status"
+      value={null}
+      seed="r"
+      config={{ options: OPTIONS }}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  const search = screen.getByRole("combobox", { name: "Search options" });
+  await expect.element(search).toHaveValue("r");
+  await expect
+    .element(screen.getByRole("option", { name: "Requested" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("option", { name: "Sent" }))
+    .not.toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldCellEditor: Tab steps through a date-time's own controls before it commits and moves", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <TimeZoneProvider timeZone="UTC">
+      <FieldCellEditor
+        type="datetime"
+        label="Due"
+        value="2026-10-24T09:30:00.000Z"
+        onCommit={onCommit}
+        onCancel={() => {}}
+      />
+    </TimeZoneProvider>,
+  );
+  const stops = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="field-cell-editor"] button, [data-slot="field-cell-editor"] input',
+    ),
+  ].filter((node) => node.tabIndex >= 0);
+  stops[0]!.focus();
+  await userEvent.keyboard("{Tab}");
+  expect(onCommit).not.toHaveBeenCalled();
+  await userEvent.keyboard("{Tab}");
+  expect(onCommit).toHaveBeenCalledWith("2026-10-24T09:30:00.000Z", "right");
 });

@@ -37,7 +37,9 @@ import { ViewTabs } from "@/components/ui/view-tabs";
 carries a lock), then a divider and the reader's own under **Mine**. Each tab shows the view's kind
 — a grid or a board — and its name. `onCreate` adds a **+** menu: a grid or a board view, shared or
 personal (`canCreateShared={false}` hides the shared choices). `getViewActions` puts the open view's
-items (rename, duplicate, delete) in a ⋯ menu after the tabs.
+items (rename, duplicate, delete) in a ⋯ menu after the tabs. A long name ends in an ellipsis; when
+it is cut, the full name shows in a tooltip on hover and keyboard focus, and the tab still reads the
+whole name to a screen reader. The narrow select's list wraps a long name instead.
 
 It is built on [`Tabs`](/docs/components/tabs) `variant="line"`, which scrolls and keeps the active
 tab in view. Below `@3xl` of its own container the row becomes one `Select` with the same two

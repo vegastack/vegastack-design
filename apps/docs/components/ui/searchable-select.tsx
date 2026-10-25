@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.74 sha256-V10fv8ForCm4HkM1ocpZvNDDscs0U25imAivI432uNE=
+// @vegastack searchable-select@0.25.74 sha256-LNqOpYTpEO0Pdvvihxxe6QT+QDZMEBhHXsOnh5PDL/M=
 
 "use client";
 
@@ -135,6 +135,12 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   onSearchChange?: (query: string) => void;
+  /**
+   * Open on mount with this search text — the character that opened a cell editor
+   * (type-to-edit). It filters like typed text and reaches `onSearchChange` once, on mount.
+   * @default undefined
+   */
+  defaultSearch?: string;
   /**
    * A search is in flight: "Searching…" is announced, and the rows already shown stay.
    * @default false
@@ -482,6 +488,7 @@ export function SearchableSelect<
   contentClassName,
   open,
   onOpenChange,
+  defaultSearch,
   "aria-label": ariaLabel,
   "aria-invalid": ariaInvalid,
   "aria-describedby": ariaDescribedBy,
@@ -554,7 +561,12 @@ export function SearchableSelect<
     }));
   }, [allItems, groupBy, groupOrder]);
   // The add row (`onCreateOption`): the search text, trimmed, while no option's label is it.
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = React.useState(defaultSearch ?? "");
+  // A remote host searches for the opening text as if it had been typed. Once, on mount.
+  React.useEffect(() => {
+    if (defaultSearch) onSearchChange?.(defaultSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const created = query.trim();
   const createRow = React.useMemo<CreateRow | null>(
     () =>
@@ -748,6 +760,8 @@ export function SearchableSelect<
           isCreateRow(item) ? item[CREATE_ROW] : itemToStringLabel(item)
         }
         open={open}
+        defaultOpen={defaultSearch ? true : undefined}
+        defaultInputValue={defaultSearch}
         onOpenChange={onOpenChange}
         autoHighlight
         disabled={disabled}
