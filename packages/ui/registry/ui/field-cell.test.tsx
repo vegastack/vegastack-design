@@ -238,7 +238,7 @@ test("FieldCellEditor: text commits on Enter, Escape cancels, a choice commits o
       onCancel={() => {}}
     />,
   );
-  await screen.getByRole("combobox", { name: "Status" }).click();
+  // The list opens with the editor.
   await screen.getByRole("option", { name: "Sent" }).click();
   expect(choose).toHaveBeenCalledWith("sent", undefined);
   await expectNoA11yViolations(screen.container);
@@ -343,6 +343,55 @@ test("date-time edits in the reader's zone, not the browser's", async () => {
   expect(time.value).toBe("09:30");
   await screen.getByLabelText("Time").fill("10:00");
   expect(onChange).toHaveBeenLastCalledWith("2026-10-24T14:00:00.000Z");
+});
+
+test("FieldCellEditor: a picker opens its list or calendar with the editor; long text takes the caret", async () => {
+  const choose = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="single_choice"
+      label="Status"
+      value={null}
+      config={{ options: OPTIONS }}
+      onCommit={choose}
+      onCancel={() => {}}
+    />,
+  );
+  await expect.element(screen.getByRole("listbox")).toBeVisible();
+  // Focus is on a control the reader can use — never a picker's hidden form input.
+  expect(document.activeElement?.getAttribute("aria-hidden")).not.toBe("true");
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  await expect.poll(() => choose.mock.calls.length).toBe(1);
+
+  await screen.rerender(
+    <FieldCellEditor
+      key="date"
+      type="date"
+      label="Due"
+      value={null}
+      onCommit={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+
+  await screen.rerender(
+    <FieldCellEditor
+      key="notes"
+      type="long_text"
+      label="Notes"
+      value="First"
+      onCommit={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  await expect
+    .poll(() =>
+      document.activeElement?.closest('[data-slot="popover-content"]'),
+    )
+    .not.toBeNull();
 });
 
 test("long text opens in a popover from a cell; Escape cancels, closing saves", async () => {
@@ -770,4 +819,81 @@ test("in a grid: a typed key opens a picker searching for it, and one Escape lea
   await vi.waitFor(() =>
     expect(document.activeElement?.closest("[data-grid-row]")).toBe(cell),
   );
+});
+
+test("in a grid: Enter and F2 open every picker with its list, and long text with the caret in it", async () => {
+  const rows = [{ id: "r1", status: "req" as string | null, notes: "First" }];
+  const editor = (type: FieldType, key: "status" | "notes") => ({
+    key,
+    header: key,
+    minWidth: 10,
+    editable: {
+      type: "custom" as const,
+      render: ({
+        row,
+        value,
+        seed,
+        commit,
+        cancel,
+      }: {
+        row: (typeof rows)[number];
+        value: string;
+        seed?: string;
+        commit: (
+          value: string,
+          move?: "down" | "up" | "left" | "right",
+        ) => void;
+        cancel: () => void;
+      }) => (
+        <FieldCellEditor
+          type={type}
+          label={key}
+          value={row[key]}
+          seed={seed}
+          config={{ options: OPTIONS }}
+          onCommit={(_, move) => commit(value, move)}
+          onCancel={cancel}
+        />
+      ),
+    },
+  });
+  await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={[
+        editor("single_choice", "status"),
+        editor("long_text", "notes"),
+      ]}
+      selectionMode="cells"
+      data={rows}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const cell = (key: string) =>
+    document.querySelector<HTMLElement>(
+      `[data-grid-row="r1"][data-grid-key="${key}"]`,
+    )!;
+  const editing = () =>
+    document.querySelector('[data-slot="field-cell-editor"]');
+  for (const key of ["{Enter}", "{F2}"]) {
+    cell("status").focus();
+    await userEvent.keyboard(key);
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="listbox"]')).not.toBeNull(),
+    );
+    await userEvent.keyboard("{Escape}");
+    await vi.waitFor(() => expect(editing()).toBeNull());
+
+    cell("notes").focus();
+    await userEvent.keyboard(key);
+    await vi.waitFor(() =>
+      expect(
+        document.activeElement?.closest(
+          '[data-slot="popover-content"] [data-slot="text-edit"]',
+        ),
+      ).not.toBeNull(),
+    );
+    await userEvent.keyboard("{Escape}");
+    await vi.waitFor(() => expect(editing()).toBeNull());
+  }
 });

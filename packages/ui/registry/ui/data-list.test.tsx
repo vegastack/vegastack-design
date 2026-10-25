@@ -2776,6 +2776,40 @@ test("with onReorderRow, desktop files still drop anywhere on a folder row (reor
   expect(onSurface).not.toHaveBeenCalled();
 });
 
+test("a press on a clickable grid card's text opens its row; its checkbox only selects", async () => {
+  const onRowClick = vi.fn();
+  const onSelectionChange = vi.fn();
+  const screen = await render(
+    <DataList<Row>
+      aria-label="People"
+      view="grid"
+      columns={[{ key: "name", header: "Name" }]}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      onRowClick={onRowClick}
+      selectable
+      selectedIds={new Set()}
+      onSelectionChange={onSelectionChange}
+    />,
+  );
+  const title = await vi.waitUntil(() =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-list-grid-item"] [data-slot="media-card-title"]',
+    ),
+  );
+  await userEvent.click(title);
+  expect(onRowClick).toHaveBeenCalledTimes(1);
+  expect(onRowClick).toHaveBeenLastCalledWith(data[0], 0);
+  screen.container
+    .querySelector<HTMLElement>(
+      '[data-slot="data-list-card-select"] [role="checkbox"]',
+    )!
+    .click();
+  expect(onSelectionChange).toHaveBeenCalledTimes(1);
+  expect(onRowClick).toHaveBeenCalledTimes(1);
+});
+
 test("a clickable grid card holding an interactive column is a labelled group, not a button", async () => {
   const onRowClick = vi.fn();
   const screen = await render(

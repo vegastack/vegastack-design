@@ -1286,6 +1286,58 @@ test("virtualized keyboard edges mount and focus targets, retaining one tab stop
   }
 });
 
+test("Tab back into a grid returns to the cell that was active, after its row scrolled out of the window", async () => {
+  const many: Deal[] = Array.from({ length: 200 }, (_, index) => ({
+    id: `v${index}`,
+    name: `Row ${index}`,
+    stage: "Open",
+    amount: index,
+  }));
+  const style = document.createElement("style");
+  style.textContent =
+    '[data-slot="grid-viewport"] { max-height: 240px; overflow: auto; display: block; }';
+  document.head.append(style);
+  try {
+    const screen = await render(
+      <>
+        <DataGrid
+          aria-label="Return"
+          columns={columns()}
+          data={many}
+          getRowId={(row) => row.id}
+          virtualize
+          maxHeight="240px"
+        />
+        <button type="button">After</button>
+      </>,
+    );
+    const cell = () =>
+      document.activeElement?.closest<HTMLElement>("[data-grid-row]");
+    screen.container
+      .querySelector<HTMLElement>('[data-slot="data-grid-cell"][tabindex="0"]')!
+      .focus();
+    await userEvent.keyboard("{ArrowDown}{ArrowDown}{ArrowRight}");
+    await expect.poll(() => cell()?.dataset.gridRow).toBe("v2");
+    const key = cell()!.dataset.gridKey;
+    await userEvent.keyboard("{Tab}");
+    await expect
+      .element(screen.getByRole("button", { name: "After" }))
+      .toHaveFocus();
+    const viewport = screen.container.querySelector<HTMLElement>(
+      '[data-slot="grid-viewport"]',
+    )!;
+    viewport.scrollTop = viewport.scrollHeight / 2;
+    await expect
+      .poll(() => screen.container.querySelector('[data-grid-row="v2"]'))
+      .toBeNull();
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+    await expect.poll(() => cell()?.dataset.gridRow).toBe("v2");
+    expect(cell()?.dataset.gridKey).toBe(key);
+  } finally {
+    style.remove();
+  }
+});
+
 // ── R2: the grid core at spreadsheet scale ─────────────────────────────────────────────────────
 
 interface Wide {
@@ -1579,6 +1631,106 @@ test("focus is kept by row id and column key: a refetch that moves the row keeps
   expect(stop.dataset.gridRow).toBe("d3");
   expect(stop.dataset.gridKey).toBe("stage");
   expect(stop.closest("tr")?.getAttribute("aria-rowindex")).toBe("2");
+});
+
+test("Tab back into a grid returns to its active header column after it scrolled out; a host's focus stays put", async () => {
+  const cleanup = sizeViewport(300, 600);
+  try {
+    const screen = await render(
+      <>
+        <DataGrid
+          aria-label="Wide return"
+          columns={wideColumns(60)}
+          data={wideRows(200, 60)}
+          getRowId={(row) => row.id}
+          virtualize
+          virtualizeColumns
+          rowHeight="short"
+          maxHeight="300px"
+          columnPicker={false}
+        />
+        <button
+          type="button"
+          // A focus trap that wraps Tab back to the grid a few frames later (a dialog's guard).
+          onKeyDown={(event) => {
+            if (event.key !== "Tab" || event.shiftKey) return;
+            event.preventDefault();
+            window.setTimeout(
+              () =>
+                document
+                  .querySelector<HTMLElement>('[role="grid"] [tabindex="0"]')
+                  ?.focus(),
+              50,
+            );
+          }}
+        >
+          After
+        </button>
+      </>,
+    );
+    const grid = screen.getByRole("grid").element() as HTMLElement;
+    const viewport = grid.parentElement!;
+    const at = () => {
+      const cell =
+        document.activeElement?.closest<HTMLElement>("[data-grid-row]");
+      return cell ? `${cell.dataset.gridRow}:${cell.dataset.gridKey}` : null;
+    };
+    // A header column, then Tab out, scroll it away sideways and Shift+Tab back.
+    (
+      grid.querySelector(
+        '[data-slot="data-grid-cell"][tabindex="0"]',
+      ) as HTMLElement
+    ).focus();
+    await userEvent.keyboard("{ArrowUp}{ArrowRight}");
+    await expect.poll(at).toMatch(/:c1$/);
+    const header = at();
+    await userEvent.keyboard("{Tab}");
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+    await expect.poll(at).toBe(header);
+    // Wrapped back by a trap a few frames after the key: still the active column.
+    await userEvent.keyboard("{Tab}");
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(at).toBe(header);
+    // A host focusing another cell just after a Tab (a panel closing after its save) keeps it.
+    await userEvent.click(screen.getByRole("button", { name: "After" }));
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    const other = [
+      ...grid.querySelectorAll<HTMLElement>(
+        'tbody [data-slot="data-grid-cell"]',
+      ),
+    ].find((node) => node.tabIndex === -1)!;
+    const otherAt = `${other.dataset.gridRow}:${other.dataset.gridKey}`;
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+    );
+    other.focus();
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+    expect(at()).toBe(otherAt);
+    // A host focusing the stand-in tab stop itself (after a press elsewhere) keeps focus there.
+    await userEvent.click(screen.getByRole("button", { name: "After" }));
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    const standIn = grid.querySelector<HTMLElement>('[tabindex="0"]')!;
+    const chosen = `${standIn.closest<HTMLElement>("[data-grid-row]")!.dataset.gridRow}:${standIn.closest<HTMLElement>("[data-grid-row]")!.dataset.gridKey}`;
+    standIn.focus();
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+    expect(at()).toBe(chosen);
+  } finally {
+    cleanup();
+  }
 });
 
 test("column virtualisation: 150 columns render a window, aria-colcount is the true total, End reaches the last", async () => {

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.76 sha256-bjKDGQqSl02mLBPT9USTJV7vnIr7LdoJNFaeM9o18eI=
+// @vegastack data-grid@0.25.76 sha256-xaXTrVQpTue8eJpUvm0ePF4hTo5SLuvP6FnhqizK6Ys=
 
 "use client";
 
@@ -2961,6 +2961,52 @@ export function DataGrid<T>({
     return Math.max(1, Math.floor((height - HEADER_PX) / row) - 1);
   };
 
+  // Tab back into the grid returns to the cell that was active, even when its row or column has
+  // been windowed out since (the stand-in tab stop only keeps the grid reachable): focus that a
+  // Tab key brings in from outside onto any other cell moves on to the active one, scrolled into
+  // view. A pointer, or a host focusing a cell itself, is left where it put focus.
+  const tabbing = React.useRef(false);
+  React.useEffect(() => {
+    let reset = 0;
+    const stop = () => {
+      tabbing.current = false;
+      window.clearTimeout(reset);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return stop();
+      tabbing.current = true;
+      window.clearTimeout(reset);
+      // The key's focus move — a dialog's focus trap may hand it on a frame or two later — lands
+      // well inside this; any other key or a press ends it sooner.
+      reset = window.setTimeout(stop, 500);
+    };
+    document.addEventListener("keydown", onKeyDown, true);
+    document.addEventListener("pointerdown", stop, true);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("pointerdown", stop, true);
+      window.clearTimeout(reset);
+    };
+  }, []);
+  const handleGridFocus = (event: React.FocusEvent<HTMLTableElement>) => {
+    if (!tabbing.current || editing) return;
+    const from = event.relatedTarget as Node | null;
+    if (from && event.currentTarget.contains(from)) return;
+    // Tab lands only on the one tab stop; a host focusing any other cell meanwhile meant it.
+    const target = event.target as HTMLElement;
+    if (target.tabIndex !== 0) return;
+    const cell = target.closest<HTMLElement>("[data-grid-row]");
+    if (!cell || !navRowIndex.has(resolved.rowId)) return;
+    const rowId = cell.dataset.gridRow!;
+    if (
+      rowId === resolved.rowId &&
+      (isLineRow(rowId) || cell.dataset.gridKey === resolved.key)
+    )
+      return;
+    event.stopPropagation();
+    focusAt(resolved.rowId, resolved.key);
+  };
+
   const handleGridKeyDown = (event: React.KeyboardEvent<HTMLTableElement>) => {
     // IME composition never moves, commits or opens anything.
     if (event.nativeEvent.isComposing || event.keyCode === 229) return;
@@ -3532,6 +3578,7 @@ export function DataGrid<T>({
         data-grid-id={gridId}
         data-layout={fixed ? "fixed" : "auto"}
         onKeyDown={handleGridKeyDown}
+        onFocusCapture={handleGridFocus}
         onCopy={handleCopy}
         onCut={handleCut}
         onPaste={handlePaste}
@@ -3670,7 +3717,9 @@ export function DataGrid<T>({
       <div
         ref={ref}
         data-slot="data-grid"
-        className={cn("flex w-full min-w-0 flex-col gap-3", className)}
+        // Its own stacking context: the sticky header, summary row and frozen columns layer
+        // inside the grid and never over the page's floating parts (an ActionBar at z-10).
+        className={cn("isolate flex w-full min-w-0 flex-col gap-3", className)}
         // Viewport height flows through a custom property (contract-clean).
         style={
           maxHeight

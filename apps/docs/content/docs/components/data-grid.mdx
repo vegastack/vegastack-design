@@ -319,7 +319,11 @@ font.
   the header row, the group rows, the body and the summary row; the sort
   buttons, menu chevrons, resize handles and checkboxes inside are not stops
   of their own. Arrows move the active cell (RTL-aware); a windowed-out target
-  scrolls in and takes focus as it mounts.
+  scrolls in and takes focus as it mounts. <kbd>Tab</kbd> back into the grid
+  returns to the cell that was active, scrolled back in when its row or column
+  was windowed out meanwhile.
+- The grid is its own stacking context: its sticky header, summary row and
+  frozen columns never paint over the page's floating parts (an `ActionBar`).
 - <kbd>Enter</kbd>/<kbd>F2</kbd> opens the cell editor and **suspends grid
   navigation**; <kbd>Escape</kbd> closes it and restores focus to the cell;
   edit-mode entry announces politely.

@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.76 sha256-JJjYCn41EH0ZKgVnRH/RcQ9JGtngK9/YfFi57uB4a+E=
+// @vegastack data-list@0.25.76 sha256-FawY3H8uC3oV1zDtg6Id8tQg4bejkWrgWp7BV2yb0HU=
 
 "use client";
 
@@ -1132,8 +1132,11 @@ function isFromInteractiveDescendant(
 ): boolean {
   const target = event.target as HTMLElement | null;
   if (!target) return false;
-  if (target === event.currentTarget) return false;
-  return target.closest(INTERACTIVE_SELECTOR) != null;
+  // The row itself — a card that is a `role="button"` — and anything around it are not a
+  // control in the row, so a press on its text still activates it. (A portalled menu's item is
+  // outside the row's DOM yet inside it in React, so it is never ruled out by position.)
+  const control = target.closest(INTERACTIVE_SELECTOR);
+  return control != null && !control.contains(event.currentTarget);
 }
 
 /**
