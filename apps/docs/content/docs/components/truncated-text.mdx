@@ -154,6 +154,10 @@ default to `false` by wrapping its content in `TruncationFocusProvider`. `DataLi
 is not a tab stop — Tab goes from one row's link straight to the next. Any single cell can opt
 back in with `focusable`.
 
+Under such a host, on a device that can hover, a value is measured only when the pointer reaches
+it: nothing at rest depends on whether it is clipped, so a grid that mounts hundreds of cells per
+scroll tick pays no layout read and no Tooltip per cell. The full text still opens on hover.
+
 Nothing is hidden either way — CSS truncation is invisible to a screen reader, which reads
 the full string regardless; the tooltip only ever served **sighted keyboard** users. Geist
 and Linear do not make truncated cells focusable either. On a device that cannot hover the

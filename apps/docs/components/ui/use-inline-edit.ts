@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.25.78 sha256-/52ZEnikMFTu5PRQi9+d68b+Cg80T4jDPLEPk/BAphA=
+// @vegastack use-inline-edit@0.25.78 sha256-miTVY25dSWmE43HndPDx1wv2Sg+8CYBNZuBt+BLbp8E=
 
 "use client";
 
@@ -137,6 +137,59 @@ export interface UseInlineEditResult {
   onKeyDown: (event: React.KeyboardEvent) => void;
 }
 
+/** Options for {@link useInlineEditMode}. */
+export interface UseInlineEditModeOptions {
+  /**
+   * Controlled edit mode; omit for the built-in uncontrolled behaviour.
+   * @default undefined
+   */
+  editing?: boolean;
+  /**
+   * Reports every mode change, controlled or not.
+   * @default undefined
+   */
+  onEditingChange?: (editing: boolean) => void;
+  /**
+   * Turning this on mid-edit leaves edit mode, as Escape would.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+/**
+ * `useInlineEditMode` — the MODE half of `useInlineEdit` on its own: the controlled/uncontrolled
+ * `editing` pair, and leaving edit mode when `disabled` turns on. `useInlineEdit` runs on it, so
+ * there is still one machine; a component whose editors own their drafts (`EditableCell`, which
+ * a grid mounts per cell) takes only this half instead of a whole text machine it never uses.
+ *
+ * @example
+ * const { isEditing, setEditing } = useInlineEditMode({ editing, onEditingChange });
+ * return <Select open={isEditing} onOpenChange={setEditing}>…</Select>;
+ */
+export function useInlineEditMode({
+  editing,
+  onEditingChange,
+  disabled = false,
+}: UseInlineEditModeOptions): {
+  isEditing: boolean;
+  setEditing: (editing: boolean) => void;
+} {
+  const [internalEditing, setInternalEditing] = React.useState(false);
+  const isEditingControlled = editing !== undefined;
+  const isEditing = isEditingControlled ? editing : internalEditing;
+  const setEditing = React.useCallback(
+    (next: boolean) => {
+      if (!isEditingControlled) setInternalEditing(next);
+      onEditingChange?.(next);
+    },
+    [isEditingControlled, onEditingChange],
+  );
+  React.useEffect(() => {
+    if (disabled && isEditing) setEditing(false);
+  }, [disabled, isEditing, setEditing]);
+  return { isEditing, setEditing };
+}
+
 /**
  * `useInlineEdit` — the click-to-edit machine behind `EditableCell` and any editor like it:
  * draft, commit, cancel, focus restoration and the double-commit guard, with no opinion about
@@ -171,9 +224,10 @@ export function useInlineEdit({
   multiline = false,
   seed,
 }: UseInlineEditOptions): UseInlineEditResult {
-  const [internalEditing, setInternalEditing] = React.useState(false);
-  const isEditingControlled = editing !== undefined;
-  const isEditing = isEditingControlled ? editing : internalEditing;
+  const { isEditing, setEditing } = useInlineEditMode({
+    editing,
+    onEditingChange,
+  });
   const [draft, setDraft] = React.useState(value);
 
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(
@@ -187,14 +241,6 @@ export function useInlineEdit({
   const restoreFocusRef = React.useRef(false);
   // The caret offset `start()` measured from the opening click; null = the end of the value.
   const caretRef = React.useRef<number | null>(null);
-
-  const setEditing = React.useCallback(
-    (next: boolean) => {
-      if (!isEditingControlled) setInternalEditing(next);
-      onEditingChange?.(next);
-    },
-    [isEditingControlled, onEditingChange],
-  );
 
   // Keep the draft current when the host updates `value` from outside an edit.
   React.useEffect(() => {

@@ -1,4 +1,4 @@
-// @vegastack use-media-query@0.25.78 sha256-Y2luEEFXCzD8VHlAtUwcu+rafxPOgmi83w/gl+q1l+0=
+// @vegastack use-media-query@0.25.78 sha256-MF3EyTZNqevNZ9JerO/Awd+TAp8jwp1sTEgTEmct+8w=
 
 "use client";
 
@@ -45,6 +45,62 @@ export interface UseMediaQueryOptions {
   serverFallback?: boolean;
 }
 
+/*
+ * One native `change` listener per query string, however many components read it. A component
+ * that mounts by the hundred (a truncating grid cell reads `(hover: none)`) used to add its own
+ * listener on every mount; now it joins a set.
+ */
+interface MediaQueryStore {
+  /** The `matchMedia` that made `list`; a replaced one (a test's mock) gets a fresh store. */
+  source: typeof window.matchMedia;
+  list: MediaQueryList;
+  listeners: Set<() => void>;
+  onChange: () => void;
+}
+const stores = new Map<string, MediaQueryStore>();
+
+function hasMatchMedia(): boolean {
+  return (
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+  );
+}
+
+function storeFor(query: string): MediaQueryStore {
+  let store = stores.get(query);
+  if (!store || store.source !== window.matchMedia) {
+    const list = window.matchMedia(query);
+    const created: MediaQueryStore = {
+      source: window.matchMedia,
+      list,
+      listeners: new Set(),
+      onChange: () => created.listeners.forEach((listener) => listener()),
+    };
+    store = created;
+    stores.set(query, store);
+    list.addEventListener("change", store.onChange);
+  }
+  return store;
+}
+
+function subscribeTo(query: string, onStoreChange: () => void): () => void {
+  if (!hasMatchMedia()) return () => {};
+  const store = storeFor(query);
+  store.listeners.add(onStoreChange);
+  return () => {
+    store.listeners.delete(onStoreChange);
+    // The last reader leaves: drop the list and its listener, so nothing outlives its readers.
+    if (store.listeners.size > 0) return;
+    store.list.removeEventListener("change", store.onChange);
+    if (stores.get(query) === store) stores.delete(query);
+  };
+}
+
+function readQuery(query: string): boolean {
+  // Always the live answer: a cached one can lag the viewport (or a replaced `matchMedia`) until
+  // a change event lands. Only the subscription is shared.
+  return window.matchMedia(query).matches;
+}
+
 /**
  * `useMediaQuery` — subscribe to a CSS media query and re-render when it flips.
  *
@@ -73,29 +129,14 @@ export function useMediaQuery(
   { serverFallback = false }: UseMediaQueryOptions = {},
 ): boolean {
   const subscribe = React.useCallback(
-    (onStoreChange: () => void) => {
-      if (
-        typeof window === "undefined" ||
-        typeof window.matchMedia !== "function"
-      ) {
-        return () => {};
-      }
-      const mediaQueryList = window.matchMedia(query);
-      mediaQueryList.addEventListener("change", onStoreChange);
-      return () => mediaQueryList.removeEventListener("change", onStoreChange);
-    },
+    (onStoreChange: () => void) => subscribeTo(query, onStoreChange),
     [query],
   );
 
-  const getSnapshot = React.useCallback(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof window.matchMedia !== "function"
-    ) {
-      return serverFallback;
-    }
-    return window.matchMedia(query).matches;
-  }, [query, serverFallback]);
+  const getSnapshot = React.useCallback(
+    () => (hasMatchMedia() ? readQuery(query) : serverFallback),
+    [query, serverFallback],
+  );
 
   const getServerSnapshot = React.useCallback(
     () => serverFallback,

@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.78",
-        "integrity": "sha256-Trhqiojlm+qTgdbtHx28o9sT0OlmwbrbJPgPSCv3RNA="
+        "integrity": "sha256-8rO7nKsJYKFroSSSj+WJNVvqn7PtHtqXYSwKPsyEQwk="
       }
     },
     {
@@ -2537,7 +2537,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.78",
-        "integrity": "sha256-k64oFSntDkAVMneceuce+hTZHfGpJPhKrfhc0yQSM2c="
+        "integrity": "sha256-lc6KX2LxgaJwCnseYjkhNPAX62Qi5VghNXqp75dJJac="
       }
     },
     {
@@ -18749,6 +18749,7 @@
       ],
       "registryDependencies": [
         "@vegastack/tooltip",
+        "@vegastack/use-media-query",
         "@vegastack/use-overflow"
       ],
       "files": [
@@ -18762,7 +18763,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.25.78",
-        "integrity": "sha256-09zlAbS/nSRgWATNfbgzytNly9YFGPggigeiL4eDP8M="
+        "integrity": "sha256-b4cSCy8+6881W5ok+CFP2ifVD32P+OE/bORAF6LtpeM="
       }
     },
     {
@@ -18813,7 +18814,7 @@
         "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
         "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
         "version": "0.25.78",
-        "integrity": "sha256-dHwIHHBMxawxzMo1kVXGg/gWK/FsJajaBqHS0Q7DV+k="
+        "integrity": "sha256-c/amWNiQs9Q4RTf4tIdnnw/qNO5X88RV/S3mVCcLqP8="
       }
     },
     {
@@ -18922,7 +18923,7 @@
         "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
         "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.25.78",
-        "integrity": "sha256-/52ZEnikMFTu5PRQi9+d68b+Cg80T4jDPLEPk/BAphA="
+        "integrity": "sha256-miTVY25dSWmE43HndPDx1wv2Sg+8CYBNZuBt+BLbp8E="
       }
     },
     {
@@ -18994,7 +18995,7 @@
         "whenToUse": "JavaScript genuinely has to branch on a media query — mounting a different component tree, skipping a requestAnimationFrame loop, enabling pointer drag.",
         "whenNotToUse": "A purely visual responsive change: a Tailwind breakpoint or a container query does it in CSS with no hydration cost.",
         "version": "0.25.78",
-        "integrity": "sha256-Y2luEEFXCzD8VHlAtUwcu+rafxPOgmi83w/gl+q1l+0="
+        "integrity": "sha256-MF3EyTZNqevNZ9JerO/Awd+TAp8jwp1sTEgTEmct+8w="
       }
     },
     {
@@ -19071,7 +19072,7 @@
         "whenToUse": "Deciding something only when content is ACTUALLY clipped — offering a reveal affordance for truncated text, or making a scroll viewport focusable only while it can scroll.",
         "whenNotToUse": "Layout CSS can express on its own (line-clamp, overflow) with no JavaScript branch hanging off the measurement.",
         "version": "0.25.78",
-        "integrity": "sha256-zZX2pediGp/fyawqE23lMMFuScqx5t9mvh+9ZjxXYAc="
+        "integrity": "sha256-1/nmXe0EPh9Hejj3HkjFXFFtNG1tJk4LdHJpZqURanM="
       }
     },
     {

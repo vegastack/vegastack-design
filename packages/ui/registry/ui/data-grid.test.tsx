@@ -1,12 +1,14 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { ContextMenuItem } from "./context-menu";
 import { DataGrid, gridCellKey, type DataGridColumn } from "./data-grid";
 import { DropdownMenuItem } from "./dropdown-menu";
+import { TooltipProvider } from "./tooltip";
+import { TruncatedText } from "./truncated-text";
 
 interface Deal {
   id: string;
@@ -521,6 +523,101 @@ test("virtualize windows the rows inside the fixed-height viewport", async () =>
     document.querySelectorAll('[data-slot="data-grid-virtual-pad"]').length,
   ).toBeGreaterThan(0);
   document.head.removeChild(style);
+});
+
+test("a mounted cell reads no layout and keeps no live region; clipped text still shows on hover", async () => {
+  // The 150-column scroll budget rests on this: every cell the virtualiser mounts used to measure
+  // its own overflow (a forced synchronous layout each, per scroll tick) and keep its own
+  // `role="status"` region. Cells now measure only when the pointer arrives, and speak through
+  // the grid's one region.
+  const many: Deal[] = Array.from({ length: 200 }, (_, i) => ({
+    id: `o${i}`,
+    name: `A name long enough to be clipped ${i}`,
+    stage: `A stage long enough to be clipped ${i}`,
+    amount: i,
+  }));
+  const style = document.createElement("style");
+  style.textContent = `
+    [data-slot="grid-viewport"] { max-height: 240px; overflow: auto; display: block; }
+    [data-slot="data-grid-cell"] { max-width: 60px; overflow: hidden; white-space: nowrap; }
+    [data-slot="truncated-text"], [data-slot="editable-cell-text"] { display: block; overflow: hidden; white-space: nowrap; }
+  `;
+  document.head.appendChild(style);
+  const reads = { count: 0 };
+  const restore: (() => void)[] = [];
+  for (const name of ["scrollWidth", "scrollHeight"] as const) {
+    const original = Object.getOwnPropertyDescriptor(Element.prototype, name)!;
+    Object.defineProperty(Element.prototype, name, {
+      configurable: true,
+      get(this: Element) {
+        // A read inside a pointer or focus handler is the contact measurement, by design (a pointer
+        // left over a scrolling grid meets new cells); only reads outside one are mount cost.
+        const contact =
+          window.event instanceof PointerEvent ||
+          window.event instanceof FocusEvent;
+        if (!contact && this.closest('[data-slot="data-grid-cell"]'))
+          reads.count += 1;
+        return original.get!.call(this);
+      },
+    });
+    restore.push(() =>
+      Object.defineProperty(Element.prototype, name, original),
+    );
+  }
+  onTestFinished(() => {
+    restore.forEach((undo) => undo());
+    style.remove();
+  });
+  const frames = () =>
+    new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve)),
+    );
+  await render(
+    <TooltipProvider>
+      <DataGrid
+        aria-label="Clipped"
+        columns={[
+          {
+            key: "name",
+            header: "Name",
+            render: (d) => <TruncatedText>{d.name}</TruncatedText>,
+          },
+          { key: "stage", header: "Stage", editable: { type: "text" } },
+        ]}
+        data={many}
+        getRowId={(d) => d.id}
+        virtualize
+        maxHeight="240px"
+      />
+    </TooltipProvider>,
+  );
+  const viewport = document.querySelector<HTMLElement>(
+    '[data-slot="grid-viewport"]',
+  )!;
+  for (let i = 0; i < 5; i += 1) {
+    viewport.scrollTop += 400;
+    await frames();
+  }
+  await frames();
+  expect(reads.count).toBe(0);
+  expect(
+    document.querySelectorAll('[data-slot="data-grid-cell"] [role="status"]')
+      .length,
+  ).toBe(0);
+  // Contact still reveals the full value.
+  viewport.scrollTop = 0;
+  await frames();
+  const clipped = document.querySelector<HTMLElement>(
+    '[data-slot="data-grid-cell"] [data-slot="truncated-text"]',
+  )!;
+  const full = clipped.textContent!;
+  await userEvent.hover(clipped);
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+    )
+    .toBe(full);
 });
 
 test("loading renders skeletons; empty renders the Empty state", async () => {

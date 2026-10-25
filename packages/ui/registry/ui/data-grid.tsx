@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.78 sha256-Trhqiojlm+qTgdbtHx28o9sT0OlmwbrbJPgPSCv3RNA=
+// @vegastack data-grid@0.25.78 sha256-8rO7nKsJYKFroSSSj+WJNVvqn7PtHtqXYSwKPsyEQwk=
 
 "use client";
 
@@ -73,7 +73,7 @@ import {
   type LoadMoreState,
 } from "@/components/ui/load-more";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAnnouncer } from "@/components/ui/use-announcer";
+import { AnnouncerScope, useAnnouncer } from "@/components/ui/use-announcer";
 import { useDragReorder } from "@/components/ui/use-drag-reorder";
 import {
   gridRangeBounds,
@@ -1191,6 +1191,51 @@ const SpacerCell = React.memo(function SpacerCell() {
   return <td aria-hidden="true" data-slot="data-grid-spacer" className="p-0" />;
 });
 
+/**
+ * A row's selection checkbox, memoised on its own props: a column-window move re-renders every
+ * row, and the checkbox (whose label lookup runs on every render) has nothing to change then.
+ */
+const GridSelectCell = React.memo(function GridSelectCell({
+  rowId,
+  rowNumber,
+  tabStop,
+  selected,
+  offset,
+  rowHeight,
+}: {
+  rowId: string;
+  rowNumber: number;
+  tabStop: boolean;
+  selected: boolean;
+  offset: number | undefined;
+  rowHeight: DataGridRowHeight | undefined;
+}) {
+  const api = useGridApi();
+  const selectRef = React.useCallback(
+    (node: HTMLElement | null) => api.register(rowId, SELECT, node),
+    [api, rowId],
+  );
+  return (
+    <SelectionCell
+      role="gridcell"
+      aria-colindex={1}
+      data-grid-row={rowId}
+      data-grid-key={SELECT}
+      controlTabIndex={tabStop ? 0 : -1}
+      controlRef={selectRef}
+      onFocus={() => api.focused(rowId, SELECT)}
+      className={cn(
+        offset != null && FROZEN_CELL_CLASS,
+        rowHeight && CELL_PAD_CLASS[rowHeight],
+      )}
+      style={stickyStyle(offset)}
+      checked={selected}
+      onToggle={() => api.toggleRow(rowId)}
+      label={`Select row ${rowNumber}`}
+    />
+  );
+});
+
 function GridRowImpl<T>({
   row,
   rowId,
@@ -1212,11 +1257,6 @@ function GridRowImpl<T>({
   measure,
   dataIndex,
 }: GridRowProps<T>) {
-  const api = useGridApi();
-  const selectRef = React.useCallback(
-    (node: HTMLElement | null) => api.register(rowId, SELECT, node),
-    [api, rowId],
-  );
   const cell = (placed: PlacedColumn<T>) => (
     <GridCell
       key={placed.key}
@@ -1265,22 +1305,13 @@ function GridRowImpl<T>({
       )}
     >
       {w.selectable ? (
-        <SelectionCell
-          role="gridcell"
-          aria-colindex={1}
-          data-grid-row={rowId}
-          data-grid-key={SELECT}
-          controlTabIndex={tabKey === SELECT ? 0 : -1}
-          controlRef={selectRef}
-          onFocus={() => api.focused(rowId, SELECT)}
-          className={cn(
-            w.selectOffset != null && FROZEN_CELL_CLASS,
-            w.rowHeight && CELL_PAD_CLASS[w.rowHeight],
-          )}
-          style={stickyStyle(w.selectOffset)}
-          checked={selected}
-          onToggle={() => api.toggleRow(rowId)}
-          label={`Select row ${rowNumber}`}
+        <GridSelectCell
+          rowId={rowId}
+          rowNumber={rowNumber}
+          tabStop={tabKey === SELECT}
+          selected={selected}
+          offset={w.selectOffset}
+          rowHeight={w.rowHeight}
         />
       ) : null}
       {w.frozen.map(cell)}
@@ -3558,120 +3589,125 @@ export function DataGrid<T>({
 
   const gridTable = (
     // DS-68: the grid owns roving focus, so truncated text and RelativeTime in its cells are
-    // not extra tab stops.
+    // not extra tab stops. It owns the live region too: a cell's save status is spoken through
+    // the grid's one `Announcer`, not a region per mounted cell (`EditableCell` opts in).
     <TruncationFocusProvider focusable={false}>
-      <table
-        data-slot="table"
-        role="grid"
-        aria-label={ariaLabel}
-        aria-describedby={
-          [
-            hiddenColumns.length > 0 ? hiddenHintId : null,
-            sortSummary != null ? sortHintId : null,
-          ]
-            .filter(Boolean)
-            .join(" ") || undefined
-        }
-        aria-rowcount={ariaRowTotal}
-        aria-colcount={ariaColTotal}
-        aria-busy={loading || undefined}
-        data-grid-id={gridId}
-        data-layout={fixed ? "fixed" : "auto"}
-        onKeyDown={handleGridKeyDown}
-        onFocusCapture={handleGridFocus}
-        onCopy={handleCopy}
-        onCut={handleCut}
-        onPaste={handlePaste}
-        className={cn(
-          "caption-bottom text-sm",
-          fixed ? "table-fixed" : "w-full",
-        )}
-        style={fixed ? { width: tableWidth } : undefined}
-      >
-        {fixed ? (
-          <colgroup>
-            {selectable ? (
-              <col style={{ width: SELECTION_COLUMN_WIDTH }} />
-            ) : null}
-            {w.frozen.map((p) => (
-              <col key={p.key} style={{ width: p.width }} />
-            ))}
-            <col style={{ width: w.padStart }} />
-            {w.center.map((p) => (
-              <col key={p.key} style={{ width: p.width }} />
-            ))}
-            <col style={{ width: w.padEnd }} />
-            {headerTrailing ? <col style={{ width: TRAILING_WIDTH }} /> : null}
-          </colgroup>
-        ) : null}
-        <thead
-          data-slot="table-header"
+      <AnnouncerScope announce={announce}>
+        <table
+          data-slot="table"
+          role="grid"
+          aria-label={ariaLabel}
+          aria-describedby={
+            [
+              hiddenColumns.length > 0 ? hiddenHintId : null,
+              sortSummary != null ? sortHintId : null,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
+          aria-rowcount={ariaRowTotal}
+          aria-colcount={ariaColTotal}
+          aria-busy={loading || undefined}
+          data-grid-id={gridId}
+          data-layout={fixed ? "fixed" : "auto"}
+          onKeyDown={handleGridKeyDown}
+          onFocusCapture={handleGridFocus}
+          onCopy={handleCopy}
+          onCut={handleCut}
+          onPaste={handlePaste}
           className={cn(
-            (maxHeight != null || fixed) && "sticky top-0 z-20 bg-background",
+            "caption-bottom text-sm",
+            fixed ? "table-fixed" : "w-full",
           )}
+          style={fixed ? { width: tableWidth } : undefined}
         >
-          {headerRow}
-        </thead>
+          {fixed ? (
+            <colgroup>
+              {selectable ? (
+                <col style={{ width: SELECTION_COLUMN_WIDTH }} />
+              ) : null}
+              {w.frozen.map((p) => (
+                <col key={p.key} style={{ width: p.width }} />
+              ))}
+              <col style={{ width: w.padStart }} />
+              {w.center.map((p) => (
+                <col key={p.key} style={{ width: p.width }} />
+              ))}
+              <col style={{ width: w.padEnd }} />
+              {headerTrailing ? (
+                <col style={{ width: TRAILING_WIDTH }} />
+              ) : null}
+            </colgroup>
+          ) : null}
+          <thead
+            data-slot="table-header"
+            className={cn(
+              (maxHeight != null || fixed) && "sticky top-0 z-20 bg-background",
+            )}
+          >
+            {headerRow}
+          </thead>
 
-        {loading ? (
-          <TableBody>
-            {fixed ? (
-              <FixedSkeletonRows w={w} rows={5} />
-            ) : (
-              <SkeletonRows
-                columns={visibleColumns}
-                selectable={selectable}
-                slot="data-grid-skeleton-row"
-              />
-            )}
-          </TableBody>
-        ) : !hasItems && !hasRows ? (
-          <TableBody>
-            <EmptyRow colSpan={w.span} slot="data-grid-empty-row">
-              {emptyState}
-            </EmptyRow>
-          </TableBody>
-        ) : (
-          <GridBody
-            viewport={viewport}
-            items={items}
-            w={w}
-            virtualize={rowVirtual}
-            headerPx={HEADER_PX}
-            footerPx={summaryRow ? HEADER_PX : 0}
-            tabStop={bodyTabStop}
-            editing={editing}
-            selected={selected}
-            cellStatus={cellStatus}
-            sort={activeSort}
-            rowNumbers={rowNumbers}
-            cellsMode={cellsMode}
-            range={cellsMode ? range : null}
-            fill={fillRows}
-            remoteChanges={remoteChanges}
-            fillEnabled={cellsMode && onFill != null}
-            ariaRowIndexBase={ariaRowIndexBase}
-            onVirtualizer={onVirtualizer}
-            onCommit={onBodyCommit}
-          />
-        )}
-        {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
-        {!loading && hasRows && loadMore?.hasMore && loadMore.loading ? (
-          <TableBody data-slot="data-grid-more">
-            {fixed ? (
-              <FixedSkeletonRows w={w} rows={3} />
-            ) : (
-              <SkeletonRows
-                columns={visibleColumns}
-                rows={3}
-                selectable={selectable}
-                slot="data-grid-skeleton-row"
-              />
-            )}
-          </TableBody>
-        ) : null}
-        {summary}
-      </table>
+          {loading ? (
+            <TableBody>
+              {fixed ? (
+                <FixedSkeletonRows w={w} rows={5} />
+              ) : (
+                <SkeletonRows
+                  columns={visibleColumns}
+                  selectable={selectable}
+                  slot="data-grid-skeleton-row"
+                />
+              )}
+            </TableBody>
+          ) : !hasItems && !hasRows ? (
+            <TableBody>
+              <EmptyRow colSpan={w.span} slot="data-grid-empty-row">
+                {emptyState}
+              </EmptyRow>
+            </TableBody>
+          ) : (
+            <GridBody
+              viewport={viewport}
+              items={items}
+              w={w}
+              virtualize={rowVirtual}
+              headerPx={HEADER_PX}
+              footerPx={summaryRow ? HEADER_PX : 0}
+              tabStop={bodyTabStop}
+              editing={editing}
+              selected={selected}
+              cellStatus={cellStatus}
+              sort={activeSort}
+              rowNumbers={rowNumbers}
+              cellsMode={cellsMode}
+              range={cellsMode ? range : null}
+              fill={fillRows}
+              remoteChanges={remoteChanges}
+              fillEnabled={cellsMode && onFill != null}
+              ariaRowIndexBase={ariaRowIndexBase}
+              onVirtualizer={onVirtualizer}
+              onCommit={onBodyCommit}
+            />
+          )}
+          {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
+          {!loading && hasRows && loadMore?.hasMore && loadMore.loading ? (
+            <TableBody data-slot="data-grid-more">
+              {fixed ? (
+                <FixedSkeletonRows w={w} rows={3} />
+              ) : (
+                <SkeletonRows
+                  columns={visibleColumns}
+                  rows={3}
+                  selectable={selectable}
+                  slot="data-grid-skeleton-row"
+                />
+              )}
+            </TableBody>
+          ) : null}
+          {summary}
+        </table>
+      </AnnouncerScope>
     </TruncationFocusProvider>
   );
 

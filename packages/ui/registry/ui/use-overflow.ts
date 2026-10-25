@@ -1,4 +1,4 @@
-// @vegastack use-overflow@0.25.78 sha256-zZX2pediGp/fyawqE23lMMFuScqx5t9mvh+9ZjxXYAc=
+// @vegastack use-overflow@0.25.78 sha256-1/nmXe0EPh9Hejj3HkjFXFFtNG1tJk4LdHJpZqURanM=
 
 "use client";
 
@@ -40,6 +40,73 @@ export interface UseOverflowOptions {
 }
 
 /**
+ * `measureOverflow` — read, once, whether `node` is overflowing along `axis`.
+ *
+ * The comparison `useOverflow` makes, for a caller that only needs the answer at the moment
+ * someone reaches for the content — a pointer entering a grid cell, a focus — and so should not
+ * pay for a live observation on every mounted copy. It reads layout, so call it from an event
+ * handler, never during render.
+ *
+ * @example
+ * onPointerEnter={(event) => setClipped(measureOverflow(event.currentTarget))}
+ */
+export function measureOverflow(
+  node: HTMLElement,
+  axis: OverflowAxis = "inline",
+): boolean {
+  // The +1 slack absorbs sub-pixel layout rounding: a fractional scroll size one hair over the
+  // client size is not overflow, and without the slack the observer can oscillate between the
+  // two values forever.
+  const inline = node.scrollWidth > node.clientWidth + 1;
+  const block = node.scrollHeight > node.clientHeight + 1;
+  return axis === "block"
+    ? block
+    : axis === "either"
+      ? inline || block
+      : inline;
+}
+
+/*
+ * ONE ResizeObserver for every `useOverflow` on the page. Its callback runs after layout, so the
+ * scroll/client sizes it reads are already computed: mounting a hundred truncating cells costs a
+ * hundred cheap reads in one batch, not a forced synchronous layout per cell (the hook used to
+ * measure in its mount effect, right after React had written the DOM). An element maps to the
+ * measurements that watch it — its own, and its parent's when it is a watched child.
+ */
+let sharedObserver: ResizeObserver | null = null;
+const watchers = new Map<Element, Set<() => void>>();
+
+function watch(element: Element, measure: () => void): void {
+  let set = watchers.get(element);
+  if (!set) {
+    set = new Set();
+    watchers.set(element, set);
+  }
+  set.add(measure);
+  sharedObserver ??= new ResizeObserver((entries) => {
+    const due = new Set<() => void>();
+    for (const entry of entries)
+      watchers.get(entry.target)?.forEach((run) => due.add(run));
+    due.forEach((run) => run());
+  });
+  // A fresh observation queues a first notification once the element is laid out, which is how
+  // a mount — or a `deps` change that moves no box — gets its measurement. Observing a target
+  // that is already observed does not restart its observation, so drop it first: every watcher
+  // of the element re-measures, which is cheap after layout.
+  sharedObserver.unobserve(element);
+  sharedObserver.observe(element);
+}
+
+function unwatch(element: Element, measure: () => void): void {
+  const set = watchers.get(element);
+  if (!set) return;
+  set.delete(measure);
+  if (set.size > 0) return;
+  watchers.delete(element);
+  sharedObserver?.unobserve(element);
+}
+
+/**
  * `useOverflow` — report whether `node` is currently overflowing along `axis`.
  *
  * The system's ONE overflow measurement. It backs three different jobs that all
@@ -50,13 +117,18 @@ export interface UseOverflowOptions {
  * fits is a dead stop for every keyboard user), and whether a clamped block is
  * taller than its clamp.
  *
- * Measurement is live: a `ResizeObserver` watches the element AND its element
- * children, so it tracks both the viewport resizing and its CONTENT growing —
- * a table that gets wider inside a fixed-width container never resizes the
- * container, so observing the container alone would miss it.
+ * Measurement is live: one shared `ResizeObserver` watches the element AND its
+ * element children, so it tracks both the viewport resizing and its CONTENT
+ * growing — a table that gets wider inside a fixed-width container never resizes
+ * the container, so observing the container alone would miss it. The sizes are
+ * read in the observer's callback, after layout, so a mount never forces a
+ * synchronous layout; the value lands one frame after the element is laid out.
+ * A surface that mounts many copies and needs the answer only on contact (a grid
+ * cell's full-text tooltip) should call `measureOverflow` from the event instead.
  *
- * SSR-safe: the first render always returns `false` and the real value lands in
- * a client-only effect, so a server render never claims content is clipped.
+ * SSR-safe: the first render always returns `false` and the real value lands
+ * after the element is laid out, so a server render never claims content is
+ * clipped.
  *
  * @example
  * const [node, setNode] = React.useState<HTMLDivElement | null>(null);
@@ -70,22 +142,17 @@ export function useOverflow(
   const [overflowing, setOverflowing] = React.useState(false);
 
   React.useEffect(() => {
-    if (!node || paused) return;
+    if (!node || paused || typeof ResizeObserver === "undefined") return;
     const measure = () => {
-      // The +1 slack absorbs sub-pixel layout rounding: a fractional scroll size
-      // one hair over the client size is not overflow, and without the slack the
-      // observer can oscillate between the two values forever.
-      const inline = node.scrollWidth > node.clientWidth + 1;
-      const block = node.scrollHeight > node.clientHeight + 1;
-      const next =
-        axis === "block" ? block : axis === "either" ? inline || block : inline;
+      if (!node.isConnected) return;
+      const next = measureOverflow(node, axis);
       setOverflowing((previous) => (previous === next ? previous : next));
     };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    for (const child of node.children) observer.observe(child);
-    return () => observer.disconnect();
+    const watched = [node, ...node.children];
+    for (const element of watched) watch(element, measure);
+    return () => {
+      for (const element of watched) unwatch(element, measure);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [node, axis, paused, ...deps]);
 

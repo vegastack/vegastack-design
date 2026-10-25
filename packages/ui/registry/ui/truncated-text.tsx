@@ -1,10 +1,15 @@
-// @vegastack truncated-text@0.25.78 sha256-09zlAbS/nSRgWATNfbgzytNly9YFGPggigeiL4eDP8M=
+// @vegastack truncated-text@0.25.78 sha256-b4cSCy8+6881W5ok+CFP2ifVD32P+OE/bORAF6LtpeM=
 
 "use client";
 
 import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
-import { useOverflow } from "@/components/ui/use-overflow";
+import { useMediaQuery } from "@/components/ui/use-media-query";
+import {
+  measureOverflow,
+  useOverflow,
+  type OverflowAxis,
+} from "@/components/ui/use-overflow";
 import {
   Tooltip,
   TooltipContent,
@@ -87,43 +92,70 @@ export function useTruncationFocusable(focusable?: boolean): boolean {
 }
 
 /**
- * SSR-safe read of the `(hover: none)` media query — true on devices whose primary
- * input cannot hover (touch phones/tablets), false on mouse/trackpad devices and
- * during server rendering (the conservative default: assume hover-capable, so the
- * pre-hydration render keeps the original Tooltip-only behavior).
+ * Whether the primary input cannot hover (touch phones/tablets), live — through the system's one
+ * shared `matchMedia` subscription, so a grid of truncating cells adds no listener per cell.
+ * SSR-safe: the server and hydration renders report `false` (hover-capable), which keeps the
+ * pre-hydration render on the original Tooltip-only behaviour.
  */
-function getPrefersNoHover(): boolean {
-  if (
-    typeof window === "undefined" ||
-    typeof window.matchMedia !== "function"
-  ) {
-    return false;
-  }
-  return window.matchMedia("(hover: none)").matches;
+function usePrefersNoHover(): boolean {
+  return useMediaQuery("(hover: none)");
 }
 
 /**
- * Tracks whether the primary input can hover, live — re-reads on change (e.g. a
- * mouse is plugged into a tablet mid-session). SSR-safe: the initial render always
- * returns `false` (hover-capable) and the real value lands in a client-only effect.
+ * Overflow, measured the cheapest way that still serves the element's job.
+ *
+ * When nothing at rest depends on the answer — the text is not a tab stop (a grid or list host
+ * owns focus, decision D9) and the device can hover — it is measured only when the pointer
+ * arrives, which is the only moment a sighted pointer user can ask for the full text. A grid that
+ * mounts hundreds of cells per scroll tick then pays nothing per cell: no observation, no
+ * layout read, no Tooltip. Otherwise (a tab stop must exist only when clipped, or a touch
+ * disclosure must be in place before the tap) it is observed live with `useOverflow`.
  */
-function usePrefersNoHover(): boolean {
-  const [noHover, setNoHover] = React.useState(getPrefersNoHover);
-
+function useTruncation(
+  node: HTMLElement | null,
+  {
+    axis,
+    paused,
+    content,
+    onContact,
+  }: {
+    axis: OverflowAxis;
+    paused: boolean;
+    content: unknown;
+    /** Measure on contact instead of observing. */
+    onContact: boolean;
+  },
+): {
+  truncated: boolean;
+  onPointerEnter:
+    ((event: React.PointerEvent<HTMLElement>) => void) | undefined;
+} {
+  const observed = useOverflow(node, {
+    axis,
+    paused: paused || onContact,
+    deps: [content],
+  });
+  // Re-read on every contact, so content or a column width that changed since the last one is
+  // seen the next time someone points at it.
+  const [probed, setProbed] = React.useState(false);
+  // New content under a resting pointer is looked at again (an untouched cell is not).
   React.useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof window.matchMedia !== "function"
-    )
-      return;
-    const mediaQueryList = window.matchMedia("(hover: none)");
-    setNoHover(mediaQueryList.matches);
-    const onChange = (event: MediaQueryListEvent) => setNoHover(event.matches);
-    mediaQueryList.addEventListener("change", onChange);
-    return () => mediaQueryList.removeEventListener("change", onChange);
-  }, []);
-
-  return noHover;
+    if (!onContact || !node || paused) return;
+    if (!(node.parentElement ?? node).matches(":hover")) return;
+    const next = measureOverflow(node, axis);
+    setProbed((previous) => (previous === next ? previous : next));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, node]);
+  if (!onContact) return { truncated: observed, onPointerEnter: undefined };
+  return {
+    truncated: probed,
+    onPointerEnter: (event) => {
+      // A touch "enter" is a tap; on a no-hover device the eager path is in charge anyway.
+      if (event.pointerType === "touch" || paused || !node) return;
+      const next = measureOverflow(node, axis);
+      if (next !== probed) setProbed(next);
+    },
+  };
 }
 
 /**
@@ -282,11 +314,15 @@ export function TruncatedText({
   // mount/remount, on content change, and on every resize. Measurement is PAUSED while
   // `expanded` — expanding removes the clamp, which would otherwise flip this to `false`
   // and immediately re-collapse the disclosure it just opened.
-  const isTruncated = useOverflow(node, {
+  // A host-owned, hover-capable cell measures on contact instead (see `useTruncation`); a
+  // consumer-given `tabIndex` makes it a tab stop, which needs the live answer.
+  const truncation = useTruncation(node, {
     axis: lines > 1 ? "block" : "inline",
     paused: expanded,
-    deps: [children],
+    content: children,
+    onContact: !isFocusable && !noHover && props.tabIndex === undefined,
   });
+  const isTruncated = truncation.truncated;
   const touchToggleActive = isTruncated && noHover;
   const touchToggleProps = getTouchToggleProps(
     touchToggleActive,
@@ -327,6 +363,10 @@ export function TruncatedText({
       onClick={composeHandlers(touchToggleProps.onClick, props.onClick)}
       onKeyDown={composeHandlers(touchToggleProps.onKeyDown, props.onKeyDown)}
       onBlur={composeHandlers(touchToggleProps.onBlur, props.onBlur)}
+      onPointerEnter={composeHandlers(
+        truncation.onPointerEnter,
+        props.onPointerEnter,
+      )}
     >
       {children}
     </Component>
@@ -407,8 +447,15 @@ export function IconText({
   const noHover = usePrefersNoHover();
   const isFocusable = useTruncationFocusable(focusable);
   // Paused while expanded — see `useOverflow`'s doc for why (removing the clamp would
-  // otherwise flip `isTruncated` false and immediately re-collapse the disclosure).
-  const isTruncated = useOverflow(node, { paused: expanded, deps: [text] });
+  // otherwise flip `isTruncated` false and immediately re-collapse the disclosure). Measured on
+  // contact when nothing at rest depends on it — see `useTruncation`.
+  const truncation = useTruncation(node, {
+    axis: "inline",
+    paused: expanded,
+    content: text,
+    onContact: !isFocusable && !noHover && props.tabIndex === undefined,
+  });
+  const isTruncated = truncation.truncated;
   const touchToggleActive = isTruncated && noHover;
   const touchToggleProps = getTouchToggleProps(
     touchToggleActive,
@@ -444,6 +491,10 @@ export function IconText({
       onClick={composeHandlers(touchToggleProps.onClick, props.onClick)}
       onKeyDown={composeHandlers(touchToggleProps.onKeyDown, props.onKeyDown)}
       onBlur={composeHandlers(touchToggleProps.onBlur, props.onBlur)}
+      onPointerEnter={composeHandlers(
+        truncation.onPointerEnter,
+        props.onPointerEnter,
+      )}
     >
       <span className="shrink-0 text-muted-foreground" aria-hidden="true">
         {icon}

@@ -1,4 +1,4 @@
-// @vegastack use-announcer@0.25.78 sha256-dHwIHHBMxawxzMo1kVXGg/gWK/FsJajaBqHS0Q7DV+k=
+// @vegastack use-announcer@0.25.78 sha256-c/amWNiQs9Q4RTf4tIdnnw/qNO5X88RV/S3mVCcLqP8=
 
 "use client";
 
@@ -113,6 +113,69 @@ function createAnnouncerComponent(
   return Announcer;
 }
 
+/**
+ * The host region every `useAnnouncer` beneath an `AnnouncerScope` speaks through, or `null`
+ * outside one.
+ */
+const AnnouncerScopeContext = React.createContext<
+  ((text: string) => void) | null
+>(null);
+
+/** Props accepted by `AnnouncerScope`. */
+export interface AnnouncerScopeProps {
+  /** The host's own `announce`, from its `useAnnouncer`. */
+  announce: (text: string) => void;
+  /**
+   * The region whose announcements the host speaks — typically a grid's cells.
+   * @default undefined
+   */
+  children?: React.ReactNode;
+}
+
+/**
+ * `AnnouncerScope` — let the components beneath it that opt in (`useAnnouncer({ scoped: true })`)
+ * speak through the host's one live region.
+ *
+ * A component that mounts by the hundred (an editable grid cell) would otherwise keep a live region
+ * per copy: hundreds of `role="status"` nodes in the accessibility tree and two more elements in
+ * every cell a scroll tick mounts. A scoped `announce` speaks through the host's region, which is
+ * mounted for the host's whole life, and its `Announcer` renders nothing. Opting in is per call,
+ * not per subtree: a dialog opened from a cell is portalled but still under the scope, and its
+ * controls must keep their own regions, because the modal makes the host's region inert.
+ * `DataGrid` wraps its rows in one; `EditableCell` opts in.
+ *
+ * @example
+ * const { announce, Announcer } = useAnnouncer();
+ * return (
+ *   <>
+ *     <AnnouncerScope announce={announce}>{rows}</AnnouncerScope>
+ *     <Announcer />
+ *   </>
+ * );
+ */
+export function AnnouncerScope({ announce, children }: AnnouncerScopeProps) {
+  return React.createElement(
+    AnnouncerScopeContext,
+    { value: announce },
+    children,
+  );
+}
+
+/** Under a scope the region is the host's, so a scoped `Announcer` renders nothing. */
+function ScopedAnnouncer(): null {
+  return null;
+}
+
+/** Options accepted by `useAnnouncer`. */
+export interface UseAnnouncerOptions {
+  /**
+   * Speak through the nearest `AnnouncerScope`'s region instead of a region of its own, when
+   * there is one. For a component a host mounts many copies of (a grid cell).
+   * @default false
+   */
+  scoped?: boolean;
+}
+
 /** What {@link useAnnouncer} returns. */
 export interface UseAnnouncerResult {
   /**
@@ -133,7 +196,8 @@ export interface UseAnnouncerResult {
  * screen-reader user would otherwise miss (a row moved, a chip was rejected, a save failed).
  *
  * Announce the **destination**, never every intermediate frame: "Moved Design to position 3 of 7",
- * not one message per pointer move.
+ * not one message per pointer move. With `scoped`, beneath an `AnnouncerScope`, `announce` speaks
+ * through the host's region and `Announcer` renders nothing.
  *
  * @example
  * function ChipField() {
@@ -146,20 +210,25 @@ export interface UseAnnouncerResult {
  *   );
  * }
  */
-export function useAnnouncer(): UseAnnouncerResult {
+export function useAnnouncer({
+  scoped: joinScope = false,
+}: UseAnnouncerOptions = {}): UseAnnouncerResult {
+  const host = React.useContext(AnnouncerScopeContext);
+  const scoped = joinScope ? host : null;
   const storeRef = React.useRef<AnnouncementStore | null>(null);
   storeRef.current ??= createAnnouncementStore();
   const store = storeRef.current;
 
   const announce = React.useCallback(
     (text: string) => {
-      store.announce(text);
+      if (scoped) scoped(text);
+      else store.announce(text);
     },
-    [store],
+    [scoped, store],
   );
   const Announcer = React.useMemo(
-    () => createAnnouncerComponent(store),
-    [store],
+    () => (scoped ? ScopedAnnouncer : createAnnouncerComponent(store)),
+    [scoped, store],
   );
 
   return React.useMemo(() => ({ announce, Announcer }), [announce, Announcer]);
