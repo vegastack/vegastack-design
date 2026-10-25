@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.74 sha256-grxLkDfaNggmQaq3her9o+kf+K24kkdgq8dP0R28yL8=
+// @vegastack view-tabs@0.25.74 sha256-AribuAm0grMdDFr+KLcCf4zGtcvYAlKEUwaRnDAf2Q4=
 
 "use client";
 
@@ -26,6 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useOverflow } from "@/components/ui/use-overflow";
 
 /* ---
 `ViewTabs` is the row of saved views over a table: the shared views first, a divider, then the
@@ -41,6 +47,12 @@ Deliberately NOT done here:
 - No persistence, no "View changed · Save for everyone" logic: the host owns views (G7).
 - No rename or delete UI of its own: `getViewActions` hands the host's menu items to the active
   view's ⋯ menu.
+
+A long name (a view name runs to 100 characters) ends in an ellipsis on its tab and in the narrow
+select's trigger; when it is actually cut, the full name shows in a tooltip on hover and keyboard
+focus — `TruncatedText`'s measurement and tooltip, laid on the tab itself so the tab stays the one
+tab stop. CSS truncation never shortens the accessible name: the tab and the trigger read the whole
+name. The narrow select's list wraps a long name instead of cutting it.
 --- */
 
 /** One saved view. */
@@ -145,15 +157,27 @@ const KIND_ICON: Record<
 function ViewLabel({
   view,
   lockedLabel,
+  wrap = false,
+  nameRef,
 }: {
   view: ViewTabsView;
   lockedLabel: string;
+  /** Wrap a long name instead of cutting it (the select's list). */
+  wrap?: boolean;
+  /** The name's box, measured for truncation. */
+  nameRef?: React.Ref<HTMLSpanElement>;
 }) {
   const Icon = KIND_ICON[view.kind];
   return (
     <>
       <Icon aria-hidden className="text-muted-foreground" />
-      <span className="max-w-48 truncate">{view.name}</span>
+      <span
+        ref={nameRef}
+        data-slot="view-tabs-name"
+        className={wrap ? "min-w-0 wrap-anywhere" : "max-w-48 truncate"}
+      >
+        {view.name}
+      </span>
       {view.scope === "locked" ? (
         <>
           <Lock
@@ -165,6 +189,86 @@ function ViewLabel({
         </>
       ) : null}
     </>
+  );
+}
+
+/**
+ * A control whose text may be cut: the full text in a tooltip, only while it actually is. The
+ * tooltip stays mounted (disabled while the text fits) so the trigger never remounts and keeps
+ * focus.
+ */
+function useCutName(name: string) {
+  const [node, setNode] = React.useState<HTMLSpanElement | null>(null);
+  const cut = useOverflow(node, { deps: [name] });
+  return { cut, nameRef: setNode };
+}
+
+function ViewTab({
+  view,
+  lockedLabel,
+}: {
+  view: ViewTabsView;
+  lockedLabel: string;
+}) {
+  const { cut, nameRef } = useCutName(view.name);
+  return (
+    <Tooltip disabled={!cut}>
+      <TooltipTrigger
+        render={
+          <TabsTrigger
+            value={view.id}
+            data-slot="view-tabs-tab"
+            data-scope={view.scope}
+            data-kind={view.kind}
+            className="flex-none"
+          />
+        }
+        data-truncated={cut ? "" : undefined}
+      >
+        <ViewLabel view={view} lockedLabel={lockedLabel} nameRef={nameRef} />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs break-words">
+        {view.name}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** The narrow select's trigger, with the open view's full name in a tooltip when it is cut. */
+function ViewSelectTrigger({
+  active,
+  "aria-label": ariaLabel,
+}: {
+  active: ViewTabsView | null;
+  "aria-label": string;
+}) {
+  const { cut, nameRef } = useCutName(active?.name ?? "");
+  return (
+    <Tooltip disabled={!cut}>
+      <TooltipTrigger
+        render={
+          <SelectTrigger
+            size="sm"
+            variant="ghost"
+            aria-label={ariaLabel}
+            data-slot="view-tabs-select"
+            className="max-w-full"
+          />
+        }
+        data-truncated={cut ? "" : undefined}
+      >
+        <SelectValue>
+          {() => (
+            <span ref={nameRef} className="min-w-0 truncate">
+              {active?.name}
+            </span>
+          )}
+        </SelectValue>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs break-words">
+        {active?.name}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -205,16 +309,7 @@ export function ViewTabs({
   const actions = active && getViewActions ? getViewActions(active) : null;
 
   const tab = (view: ViewTabsView) => (
-    <TabsTrigger
-      key={view.id}
-      value={view.id}
-      data-slot="view-tabs-tab"
-      data-scope={view.scope}
-      data-kind={view.kind}
-      className="flex-none"
-    >
-      <ViewLabel view={view} lockedLabel={labels.locked} />
-    </TabsTrigger>
+    <ViewTab key={view.id} view={view} lockedLabel={labels.locked} />
   );
 
   const createMenu = onCreate ? (
@@ -325,22 +420,14 @@ export function ViewTabs({
           }}
           items={Object.fromEntries(views.map((view) => [view.id, view.name]))}
         >
-          <SelectTrigger
-            size="sm"
-            variant="ghost"
-            aria-label={ariaLabel}
-            data-slot="view-tabs-select"
-            className="max-w-full"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent align="start" alignItemWithTrigger={false}>
+          <ViewSelectTrigger active={active} aria-label={ariaLabel} />
+          <SelectContent align="start" alignItemWithTrigger={false} wrap>
             {shared.length > 0 ? (
               <SelectGroup>
                 <SelectLabel>{labels.shared}</SelectLabel>
                 {shared.map((view) => (
                   <SelectItem key={view.id} value={view.id}>
-                    <ViewLabel view={view} lockedLabel={labels.locked} />
+                    <ViewLabel view={view} lockedLabel={labels.locked} wrap />
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -353,7 +440,7 @@ export function ViewTabs({
                 <SelectLabel>{labels.mine}</SelectLabel>
                 {personal.map((view) => (
                   <SelectItem key={view.id} value={view.id}>
-                    <ViewLabel view={view} lockedLabel={labels.locked} />
+                    <ViewLabel view={view} lockedLabel={labels.locked} wrap />
                   </SelectItem>
                 ))}
               </SelectGroup>

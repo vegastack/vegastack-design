@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.74",
-        "integrity": "sha256-JLBi6Lq7XTNL6EUve+PUbxh8d47uoGYfOkM1+3AKpPA="
+        "integrity": "sha256-wcDpei8e4UvIk7U3Sij9rnkdKlHqsLnLb36b89lB+w0="
       }
     },
     {
@@ -1787,7 +1787,9 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/select",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/tooltip",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -1800,7 +1802,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
         "version": "0.25.74",
-        "integrity": "sha256-grxLkDfaNggmQaq3her9o+kf+K24kkdgq8dP0R28yL8="
+        "integrity": "sha256-AribuAm0grMdDFr+KLcCf4zGtcvYAlKEUwaRnDAf2Q4="
       }
     },
     {
@@ -2535,7 +2537,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.74",
-        "integrity": "sha256-J1OXoFESMD1Q0MS/XsRa03gwQP+VgEG8KtueZZuLLcs="
+        "integrity": "sha256-hoBP+J8m8WWwROM3VzsvniqRIs7Ee7Lo3xe4X2tox7s="
       }
     },
     {
@@ -2555,6 +2557,7 @@
         "@vegastack/chip",
         "@vegastack/date-picker",
         "@vegastack/date-time",
+        "@vegastack/editable-cell",
         "@vegastack/file-kind",
         "@vegastack/inline-chip",
         "@vegastack/input",
@@ -2582,7 +2585,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.74",
-        "integrity": "sha256-8eaSxMW6dwg/kVEATszpCaTyaiz/QhOhgCPe/6mM6Lg="
+        "integrity": "sha256-t+P8BEi15UUllscamvBek75YNdcxO+pFWFzcVaFroW8="
       }
     },
     {
@@ -17245,7 +17248,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.25.74",
-        "integrity": "sha256-lznX6kMi150CHMvN/eziNOoDK2YK7BaiJyUR3uzX+hY="
+        "integrity": "sha256-FftbCr47u7mAkwj/vCWZy3Rn/5MSA7QiMmZKUd7fPTg="
       }
     },
     {
@@ -17721,7 +17724,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.74",
-        "integrity": "sha256-V10fv8ForCm4HkM1ocpZvNDDscs0U25imAivI432uNE="
+        "integrity": "sha256-LNqOpYTpEO0Pdvvihxxe6QT+QDZMEBhHXsOnh5PDL/M="
       }
     },
     {

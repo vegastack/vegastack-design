@@ -231,8 +231,10 @@ value and is not being edited (tags, chips, avatars); an empty cell shows the
 editor's placeholder, and a pending commit shows its value as text until the
 host's updated row arrives. Without a `render` the editor's own display shows
 (a select's label, a formatted date or number). A `custom` editor's `render`
-receives the `row` with `value`, `commit` and `cancel`, so it can read the typed
-value the cell's string can't carry.
+receives the `row` with `value`, `seed`, `commit` and `cancel`, so it can read the typed
+value the cell's string can't carry: `seed` is the key that opened it (type-to-edit),
+and `commit(next, move)` with `"down"`, `"up"`, `"right"` or `"left"` steps the grid on
+the way <kbd>Enter</kbd> and <kbd>Tab</kbd> do.
 
 <ComponentPreview
   name="dataGridEditable"

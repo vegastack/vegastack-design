@@ -6,7 +6,11 @@ import { expect, onTestFinished, test, vi } from "vitest";
 // test here is structural and must not see real CSS.
 import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { EditableCell, InlineEditTrigger } from "./editable-cell";
+import {
+  EditableCell,
+  InlineEditTrigger,
+  type EditableCellEditorProps,
+} from "./editable-cell";
 
 function deferred() {
   let resolve!: () => void;
@@ -781,4 +785,41 @@ test("editSeed starts a host-opened text edit from the typed key; onNavigate say
   await screen.rerender(<Harness editing />);
   await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
   expect(onNavigate).toHaveBeenLastCalledWith("previous", "enter");
+});
+
+test("a custom editor receives the seed and hands a commit's move to onNavigate", async () => {
+  const onNavigate = vi.fn();
+  const onSave = vi.fn();
+  let props: EditableCellEditorProps | undefined;
+  const screen = await render(
+    <EditableCell
+      value="Open"
+      label="Stage"
+      editing
+      editSeed="W"
+      focusMode="managed"
+      onSave={onSave}
+      onNavigate={onNavigate}
+      editor={{
+        type: "custom",
+        render: (editorProps) => {
+          props = editorProps;
+          return <span>editor</span>;
+        },
+      }}
+    />,
+  );
+  await expect.element(screen.getByText("editor")).toBeInTheDocument();
+  expect(props?.seed).toBe("W");
+  const moves = [
+    ["down", "next", "enter"],
+    ["up", "previous", "enter"],
+    ["right", "next", "tab"],
+    ["left", "previous", "tab"],
+  ] as const;
+  for (const [move, direction, via] of moves) {
+    props!.commit("Open", move);
+    expect(onNavigate).toHaveBeenLastCalledWith(direction, via);
+  }
+  expect(onSave).not.toHaveBeenCalled();
 });

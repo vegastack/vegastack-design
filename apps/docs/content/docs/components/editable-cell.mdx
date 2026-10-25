@@ -266,7 +266,13 @@ cell's own tab stop, and the host opens the editor from its keyboard model throu
 
 ### Editor contract
 
-The `custom` editor receives `EditableCellEditorProps`:
+The `custom` editor receives `EditableCellEditorProps`: the `value`, the `seed` (the printable
+key that opened it, through `editSeed`), `commit(next, move?)` and `cancel`. A `move` — `down`,
+`up`, `right` or `left` — is handed to `onNavigate` after the commit, so an editor follows the
+spreadsheet keys (<kbd>Enter</kbd> down, <kbd>Shift</kbd>+<kbd>Enter</kbd> up, <kbd>Tab</kbd> right,
+
+<kbd>Shift</kbd>+<kbd>Tab</kbd> left). An editor that saves a typed value itself
+leaves the cell with `commit(value, move)`: an unchanged commit saves nothing.
 
 <ApiTable
   path="../../packages/ui/registry/ui/editable-cell.tsx"
@@ -289,6 +295,7 @@ The `custom` editor receives `EditableCellEditorProps`:
 | <kbd>Enter</kbd>                                    | Save a single-line value (and move on, with `onNavigate`). |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>       | Save a multiline value.                                    |
 | <kbd>Tab</kbd>                                      | With `onNavigate`: save and move to the next cell.         |
+| <kbd>Shift</kbd>+<kbd>Tab</kbd>                     | With `onNavigate`: save and move to the previous cell.     |
 | <kbd>Escape</kbd>                                   | Cancel and restore the prior value.                        |
 
 <StatesTested name="editable-cell" />

@@ -9349,7 +9349,9 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/select",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/tooltip",
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -9370,14 +9372,6 @@
         "ViewTabs": {
           "attributes": [
             {
-              "name": "data-kind",
-              "values": []
-            },
-            {
-              "name": "data-scope",
-              "values": []
-            },
-            {
               "name": "data-slot",
               "values": [
                 "view-tabs",
@@ -9385,9 +9379,7 @@
                 "view-tabs-create",
                 "view-tabs-divider",
                 "view-tabs-list",
-                "view-tabs-mine",
-                "view-tabs-select",
-                "view-tabs-tab"
+                "view-tabs-mine"
               ]
             }
           ],
@@ -12269,6 +12261,15 @@
           }
         },
         {
+          "name": "EditableCellMove",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "EditableCellProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/editable-cell.tsx",
@@ -12643,6 +12644,7 @@
         "@vegastack/chip",
         "@vegastack/date-picker",
         "@vegastack/date-time",
+        "@vegastack/editable-cell",
         "@vegastack/file-kind",
         "@vegastack/inline-chip",
         "@vegastack/input",

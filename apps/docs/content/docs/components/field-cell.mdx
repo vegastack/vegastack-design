@@ -29,11 +29,11 @@ import {
 render: (row) => <FieldCellDisplay type="single_choice" value={row.status} config={{ options }} />,
 editable: {
   type: "custom",
-  render: ({ row, cancel }) => (
-    // The editor commits a TYPED value: save it, then close the slot.
+  render: ({ row, value, seed, commit, cancel }) => (
+    // The editor commits a TYPED value: save it, then leave the slot (and move, with the key).
     <FieldCellEditor type="single_choice" label="Status" value={row.status}
-      config={{ options }}
-      onCommit={(v) => { save(row.id, "status", v); cancel(); }}
+      config={{ options }} seed={seed}
+      onCommit={(v, move) => { save(row.id, "status", v); commit(value, move); }}
       onCancel={cancel} />
   ),
 }
@@ -90,9 +90,17 @@ the host's providers. Locale and time zone come from the reader (`TimeZoneProvid
 
 ### A cell editor
 
-A picker commits on choosing; text, numbers and date-times commit on <kbd>Enter</kbd> or when focus
+A picker commits on choosing (chosen with <kbd>Enter</kbd>, it also moves down); text, numbers and date-times commit on <kbd>Enter</kbd> or when focus
 leaves the editor (not into its own calendar); long text opens in a popover; <kbd>Escape</kbd>
-cancels. The editor takes focus as it opens.
+cancels. The editor takes focus as it opens. In a grid it follows the spreadsheet keys:
+
+<kbd>Enter</kbd> commits and moves down (<kbd>Shift</kbd>+<kbd>Enter</kbd> up),
+<kbd>Tab</kbd> right and <kbd>Shift</kbd>+<kbd>Tab</kbd> left — through
+`onCommit`'s `move` — and <kbd>Tab</kbd> first steps through a date-time's own
+date and time. The key that opened it (`seed`) replaces a text, URL, email,
+phone or number value, and a choice, person or link picker opens searching for
+it; date, date-time and long text open as they are, so one key never overwrites
+a note. While an IME is composing, no key commits or moves.
 
 <ComponentPreview
   name="fieldCellEditor"
@@ -137,11 +145,13 @@ cancels. The editor takes focus as it opens.
   row panel shows every value whole.
 - A restricted link is muted and never a link; an unavailable or deleted one says so.
 
-| Key                                           | Action                                             |
-| --------------------------------------------- | -------------------------------------------------- |
-| <kbd>Enter</kbd>                              | Commit a text, number, URL, email or phone editor. |
-| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> | Commit long text.                                  |
-| <kbd>Escape</kbd>                             | Cancel the edit.                                   |
+| Key                                              | Action                                                         |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| <kbd>Enter</kbd>                                 | Commit a text, number, URL, email or phone editor; move down.  |
+| <kbd>Shift</kbd>+<kbd>Enter</kbd>                | Commit and move up.                                            |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Commit and move right / left (past the editor's own controls). |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>    | Commit long text.                                              |
+| <kbd>Escape</kbd>                                | Cancel the edit.                                               |
 
 <StatesTested name="field-cell" />
 

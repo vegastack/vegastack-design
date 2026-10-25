@@ -1,7 +1,9 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
+// The compiled lane stylesheet, mounted only for the truncation test: the rest run without CSS.
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DropdownMenuItem } from "./dropdown-menu";
 import { ViewTabs, type ViewTabsView } from "./view-tabs";
@@ -95,4 +97,68 @@ test("the narrow row is one select with the same groups", async () => {
   await expectNoA11yViolations(document.body);
   await screen.getByRole("option", { name: "My follow-ups" }).click();
   expect(onValueChange).toHaveBeenCalledWith("mine");
+});
+
+test("a cut view name shows in full in a tooltip, and the tab and the select read the whole name", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const long =
+    "Every open request from the regional operations team awaiting a supplier quote this quarter";
+  const views: ViewTabsView[] = [
+    { id: "long", name: long, kind: "grid", scope: "locked" },
+    { id: "all", name: "All requests", kind: "grid", scope: "shared" },
+  ];
+  const screen = await render(
+    <div style={{ width: 900 }}>
+      <ViewTabs views={views} value="long" onValueChange={() => {}} />
+    </div>,
+  );
+  // The accessible name is the whole name (CSS truncation never shortens it), then "locked".
+  const tab = screen.getByRole("tab").first();
+  await expect
+    .element(tab)
+    .toHaveAccessibleName(new RegExp(`^${long}\\s*, locked$`));
+  await expect.element(tab).toHaveAttribute("data-truncated", "");
+  // A name that fits gets no tooltip.
+  await expect
+    .element(screen.getByRole("tab", { name: "All requests" }))
+    .not.toHaveAttribute("data-truncated");
+  // Base UI's tooltip popup has no role (visual-only, upstream); find it by slot.
+  const tooltip = () =>
+    document.querySelector('[data-slot="tooltip-content"]')?.textContent;
+  await userEvent.hover(tab);
+  await expect.poll(tooltip).toBe(long);
+  await expectNoA11yViolations(document.body);
+  await userEvent.unhover(tab);
+
+  // Narrow: the trigger cuts the name too, and the list wraps it in full.
+  await screen.rerender(
+    <div style={{ width: 320 }}>
+      <ViewTabs views={views} value="long" onValueChange={() => {}} />
+    </div>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Views" });
+  await expect.element(trigger).toHaveAttribute("data-truncated", "");
+  expect(
+    trigger.element().querySelector("[data-slot=select-value]")?.textContent,
+  ).toBe(long);
+  await userEvent.hover(trigger);
+  await expect.poll(tooltip).toBe(long);
+  await trigger.click();
+  await expect
+    .element(screen.getByRole("option").first())
+    .toHaveAccessibleName(new RegExp(`^${long}\\s*, locked$`));
+  // The list wraps the whole name inside the popup instead of running past it.
+  const option = screen.getByRole("option").first().element();
+  const popup = option.closest<HTMLElement>('[data-slot="select-content"]')!;
+  expect(option.scrollWidth).toBeLessThanOrEqual(popup.clientWidth);
+  const name = option.querySelector<HTMLElement>(
+    '[data-slot="view-tabs-name"]',
+  )!;
+  expect(name.offsetHeight).toBeGreaterThan(
+    parseFloat(getComputedStyle(name).lineHeight) * 1.5,
+  );
+  await expectNoA11yViolations(document.body);
 });

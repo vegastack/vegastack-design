@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.74 sha256-J1OXoFESMD1Q0MS/XsRa03gwQP+VgEG8KtueZZuLLcs=
+// @vegastack editable-cell@0.25.74 sha256-hoBP+J8m8WWwROM3VzsvniqRIs7Ee7Lo3xe4X2tox7s=
 
 "use client";
 
@@ -123,15 +123,44 @@ export function InlineEditTrigger({
   );
 }
 
+/**
+ * Where a commit moves the host's focus afterwards — the spreadsheet keyboard model: <kbd>Enter</kbd>
+ * moves `down`, <kbd>Shift</kbd>+<kbd>Enter</kbd> `up`, <kbd>Tab</kbd> `right` and
+ * <kbd>Shift</kbd>+<kbd>Tab</kbd> `left`.
+ */
+export type EditableCellMove = "down" | "up" | "right" | "left";
+
 /** What a `custom` editor receives while the cell is in edit mode. */
 export interface EditableCellEditorProps {
   /** The value being edited (the optimistic value while a commit is in flight). */
   value: string;
-  /** Commit `next` and leave edit mode. No-ops the async layer when unchanged. */
-  commit: (next: string) => void;
+  /**
+   * The printable character that opened the editor (type-to-edit, the cell's `editSeed`), or
+   * `undefined` for a click, <kbd>Enter</kbd> or <kbd>F2</kbd> open. A text-like editor starts its
+   * draft from it, replacing the value; a picker starts its search from it.
+   * @default undefined
+   */
+  seed?: string;
+  /**
+   * Commit `next` and leave edit mode, then — with `move` — hand the move to the host's
+   * `onNavigate`, so a grid steps to the next cell. No-ops the async layer when unchanged, so an
+   * editor that saves a typed value itself leaves (and moves) with `commit(value, move)`.
+   */
+  commit: (next: string, move?: EditableCellMove) => void;
   /** Leave edit mode without committing. */
   cancel: () => void;
 }
+
+/** A move in `onNavigate`'s terms: across is Tab, down and up are Enter. */
+const NAVIGATION: Record<
+  EditableCellMove,
+  [direction: "next" | "previous", via: "tab" | "enter"]
+> = {
+  down: ["next", "enter"],
+  up: ["previous", "enter"],
+  right: ["next", "tab"],
+  left: ["previous", "tab"],
+};
 
 /**
  * Which editor the cell opens. `text` edits in place via the internal text leaf;
@@ -142,7 +171,8 @@ export interface EditableCellEditorProps {
  * value is an ISO calendar date (`"2026-10-08"`), shown with `Intl.DateTimeFormat`, and clearing it
  * commits `""`. `select` renders a `Select` whose popover is the editor; `custom` is the open
  * registry — any app editor (date, actor, currency, multi-select) plugs in by
- * rendering its own control against the same commit/cancel contract.
+ * rendering its own control against the same commit/cancel contract, starting from the `seed`
+ * that opened it and committing with a `move` so a grid steps on (`EditableCellEditorProps`).
  */
 export type EditableCellEditor =
   | {
@@ -241,14 +271,16 @@ export interface EditableCellProps {
    * Table navigation. When set, <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> and (single-line)
    * <kbd>Enter</kbd> / <kbd>Shift</kbd>+<kbd>Enter</kbd> save and then call it, so the host can
    * move to the next or previous cell. `via` says which key did it, so a grid moves down on
-   * <kbd>Enter</kbd> and across on <kbd>Tab</kbd>.
+   * <kbd>Enter</kbd> and across on <kbd>Tab</kbd>. A `custom` editor reaches it through
+   * `commit(next, move)`.
    * @default undefined
    */
   onNavigate?: (direction: "next" | "previous", via: "tab" | "enter") => void;
   /**
    * The draft the text and number editors start from when a host opens them through `editing`,
    * instead of `value` — type-to-edit, where the printable key that opened the editor replaces the
-   * value. Ignored by the `date`, `select` and `custom` editors and by a click or Enter open.
+   * value. A `custom` editor receives it as `seed`. Ignored by the `date` and `select` editors and
+   * by a click or Enter open.
    * @default undefined
    */
   editSeed?: string;
@@ -994,7 +1026,11 @@ export function EditableCell({
   } else if (editor.type === "custom" && isEditing) {
     editorSurface = editor.render({
       value: displayValue,
-      commit: handleCommit,
+      seed: editSeed,
+      commit: (next, move) => {
+        handleCommit(next);
+        if (move) onNavigate?.(...NAVIGATION[move]);
+      },
       cancel: cancelEdit,
     });
   } else {
