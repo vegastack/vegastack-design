@@ -668,3 +668,55 @@ test("FieldCellEditor: Tab steps through a date-time's own controls before it co
   await userEvent.keyboard("{Tab}");
   expect(onCommit).toHaveBeenCalledWith("2026-10-24T09:30:00.000Z", "right");
 });
+
+test("FieldCellEditor: a picker chosen with Enter moves down; IME never chooses; a number's Tab moves right", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="single_choice"
+      label="Status"
+      value={null}
+      seed="se"
+      config={{ options: OPTIONS }}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  const search = screen.getByRole("combobox", { name: "Search options" });
+  await expect.element(search).toHaveValue("se");
+  await expect
+    .element(screen.getByRole("option", { name: "Sent" }))
+    .toBeVisible();
+  // Typing goes on in the search field.
+  await expect.element(search).toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("option", { name: "Sent" }))
+    .toHaveAttribute("data-highlighted");
+  // A composing Enter over the highlighted option chooses nothing.
+  search.element().dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Enter",
+      bubbles: true,
+      cancelable: true,
+      isComposing: true,
+    }),
+  );
+  expect(onCommit).not.toHaveBeenCalled();
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenCalledWith("sent", "down");
+
+  await screen.rerender(
+    <FieldCellEditor
+      key="percent"
+      type="percent"
+      label="Share"
+      value={null}
+      seed="5"
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("0{Tab}");
+  expect(onCommit).toHaveBeenLastCalledWith(0.5, "right");
+});

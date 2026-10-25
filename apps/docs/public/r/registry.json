@@ -2585,7 +2585,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.74",
-        "integrity": "sha256-nQRuBmIBiFO7pOvN1KvOKiO3SqMaQBlaWixrIDV4GmU="
+        "integrity": "sha256-rr0RiyGRpDWUqQMPQo/VmzGO0NBhAhG+ngsalZvIBsI="
       }
     },
     {
@@ -17248,7 +17248,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.25.74",
-        "integrity": "sha256-+rd93oA9R/KJsSuTzSyMrsSsD1ZCHIEyF2GbpF+TU0Q="
+        "integrity": "sha256-FftbCr47u7mAkwj/vCWZy3Rn/5MSA7QiMmZKUd7fPTg="
       }
     },
     {

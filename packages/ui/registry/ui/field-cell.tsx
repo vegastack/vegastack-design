@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.74 sha256-nQRuBmIBiFO7pOvN1KvOKiO3SqMaQBlaWixrIDV4GmU=
+// @vegastack field-cell@0.25.74 sha256-rr0RiyGRpDWUqQMPQo/VmzGO0NBhAhG+ngsalZvIBsI=
 
 "use client";
 
@@ -1187,6 +1187,9 @@ function typeInto(field: HTMLInputElement, text: string) {
   field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+/** The editors made of several controls, which <kbd>Tab</kbd> steps through before it moves. */
+const COMPOUND_TYPES: ReadonlySet<FieldType> = new Set(["datetime"]);
+
 /** The editor's own tab stops, in order. */
 function tabStops(root: Element): HTMLElement[] {
   return [
@@ -1251,6 +1254,8 @@ export function FieldCellEditor({
     }
     // The opened editor takes focus: its first control (a field, a picker's trigger).
     // The field itself first (a number's input, not its Decrease button), then a picker trigger.
+    // A seeded picker opened searching: its popup's search field holds focus, not the trigger.
+    if (seed && SEARCHED_TYPES.has(type)) return;
     const scope = root.current;
     const field = scope?.querySelector<HTMLElement>(
       'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), [contenteditable="true"]',
@@ -1269,6 +1274,8 @@ export function FieldCellEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const drafted = DRAFT_TYPES.has(type);
+  // The move a picker's choice carries: Enter (down, Shift+Enter up) chose it, a click didn't.
+  const pickMove = React.useRef<EditableCellMove | undefined>(undefined);
   const valid = typeof draft !== "string" || isValidFieldText(type, draft);
 
   if (type === "long_text") {
@@ -1319,15 +1326,22 @@ export function FieldCellEditor({
       data-slot="field-cell-editor"
       data-type={type}
       className="flex min-w-0 flex-1 items-center"
-      onKeyDown={(event) => {
-        // A key the control inside already handled (a picker's own Escape) is its own, and IME
-        // composition never commits or moves.
-        if (
-          event.defaultPrevented ||
-          event.nativeEvent.isComposing ||
-          event.keyCode === 229
-        )
+      onKeyDownCapture={(event) => {
+        // IME composition never commits, chooses or moves: the key stops here, before any control
+        // inside (a picker's highlighted option) sees it.
+        if (event.nativeEvent.isComposing || event.keyCode === 229) {
+          event.stopPropagation();
           return;
+        }
+        pickMove.current =
+          event.key === "Enter" ? (event.shiftKey ? "up" : "down") : undefined;
+      }}
+      onPointerDownCapture={() => {
+        pickMove.current = undefined;
+      }}
+      onKeyDown={(event) => {
+        // A key the control inside already handled (a picker's own Escape) is its own.
+        if (event.defaultPrevented) return;
         if (event.key === "Escape") {
           event.preventDefault();
           event.stopPropagation();
@@ -1337,12 +1351,14 @@ export function FieldCellEditor({
           event.stopPropagation();
           if (valid) commit(draft, event.shiftKey ? "up" : "down");
         } else if (event.key === "Tab") {
-          // Tab steps through the editor's own controls (a date-time's date and time); off its
-          // edge it commits and moves across.
-          const stops = tabStops(event.currentTarget);
-          const at = stops.indexOf(event.target as HTMLElement);
-          const next = at + (event.shiftKey ? -1 : 1);
-          if (at >= 0 && next >= 0 && next < stops.length) return;
+          // Tab commits and moves across; in a compound editor (a date-time's date and time) it
+          // first steps through its own controls. A number's steppers are not stops.
+          if (COMPOUND_TYPES.has(type)) {
+            const stops = tabStops(event.currentTarget);
+            const at = stops.indexOf(event.target as HTMLElement);
+            const next = at + (event.shiftKey ? -1 : 1);
+            if (at >= 0 && next >= 0 && next < stops.length) return;
+          }
           event.preventDefault();
           event.stopPropagation();
           if (valid) commit(draft, event.shiftKey ? "left" : "right");
@@ -1371,8 +1387,8 @@ export function FieldCellEditor({
         className="w-full"
         onChange={(next) => {
           setDraft(next);
-          // A picker's choice is the commit.
-          if (!drafted) commit(next);
+          // A picker's choice is the commit, and moves on when Enter made it.
+          if (!drafted) commit(next, pickMove.current);
         }}
       />
     </span>

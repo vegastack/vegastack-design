@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.25.74 sha256-+rd93oA9R/KJsSuTzSyMrsSsD1ZCHIEyF2GbpF+TU0Q=
+// @vegastack people-picker@0.25.74 sha256-FftbCr47u7mAkwj/vCWZy3Rn/5MSA7QiMmZKUd7fPTg=
 
 "use client";
 
@@ -673,7 +673,6 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
   const [seed, setSeed] = React.useState(defaultSearch);
   const setOpen = (next: boolean) => {
     setOpenState(next);
-    if (!next) setSeed(undefined);
     onOpenChange?.(next);
   };
   const chosen: PeoplePickerOption[] = Array.isArray(value)
@@ -690,6 +689,7 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
   if (open !== wasOpen) {
     setWasOpen(open);
     if (open) setPinned(chosen);
+    else setSeed(undefined);
   }
   const text = placeholder ?? (multiple ? "Add people…" : "Select a person");
   const face = chosen.length > 0 ? namesOf(chosen) : text;

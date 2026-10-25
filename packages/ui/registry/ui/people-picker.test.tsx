@@ -370,3 +370,40 @@ test("a failed search shows Try again, which retries without picking a row", asy
     .toBeVisible();
   expect(onChange).not.toHaveBeenCalled();
 });
+
+test("defaultSearch opens the picker searching for it once; a reopen, controlled or not, starts empty", async () => {
+  function Controlled() {
+    const [open, setOpen] = React.useState(true);
+    return (
+      <>
+        <Button onClick={() => setOpen((o) => !o)}>Toggle</Button>
+        <PeoplePicker
+          aria-label="Owner"
+          value={null}
+          onValueChange={() => {}}
+          options={DIRECTORY}
+          defaultSearch="as"
+          open={open}
+          onOpenChange={setOpen}
+        />
+      </>
+    );
+  }
+  const screen = await render(<Controlled />);
+  const field = () =>
+    document.querySelector<HTMLInputElement>(
+      '[data-slot="people-picker-popover"] input',
+    );
+  await vi.waitFor(() => expect(field()?.value).toBe("as"));
+  await expect
+    .element(screen.getByRole("option", { name: /Asha Rao/ }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("option", { name: /Dev Menon/ }))
+    .not.toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(field()).toBeNull());
+  await screen.getByRole("button", { name: "Toggle" }).click();
+  await vi.waitFor(() => expect(field()?.value).toBe(""));
+});
