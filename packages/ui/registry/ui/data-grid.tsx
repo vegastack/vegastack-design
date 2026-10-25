@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.76 sha256-RBFuZ19vHb3JNs1dPChnUysr/RO6v5rB3bvnzbESY0A=
+// @vegastack data-grid@0.25.76 sha256-BR9A/Gs76PaM/DMxBpFGrdHIX+P7qJf0HmSAsbsswM0=
 
 "use client";
 
@@ -2962,26 +2962,35 @@ export function DataGrid<T>({
   };
 
   // Tab back into the grid returns to the cell that was active, even when its row or column has
-  // been windowed out since (the stand-in tab stop only keeps the grid reachable): focus arriving
-  // from outside by keyboard on any other cell moves on to the active one, scrolled into view.
-  // A pointer entry is the reader's own choice of cell and is left alone.
-  const pointerEntry = React.useRef(false);
-  const handleGridPointerDown = () => {
-    pointerEntry.current = true;
-    window.setTimeout(() => {
-      pointerEntry.current = false;
-    }, 0);
-  };
+  // been windowed out since (the stand-in tab stop only keeps the grid reachable): focus that a
+  // Tab key brings in from outside onto any other cell moves on to the active one, scrolled into
+  // view. A pointer, or a host focusing a cell itself, is left where it put focus.
+  const tabbing = React.useRef(false);
+  React.useEffect(() => {
+    let reset = 0;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      tabbing.current = true;
+      window.clearTimeout(reset);
+      // Focus moves as the key's default action, before the next task.
+      reset = window.setTimeout(() => {
+        tabbing.current = false;
+      }, 0);
+    };
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      window.clearTimeout(reset);
+    };
+  }, []);
   const handleGridFocus = (event: React.FocusEvent<HTMLTableElement>) => {
-    if (pointerEntry.current || editing) return;
+    if (!tabbing.current || editing) return;
     const from = event.relatedTarget as Node | null;
     if (from && event.currentTarget.contains(from)) return;
-    // Only a Tab arrival lands on the grid's one tab stop; a host focusing a cell itself (a panel
-    // handing focus back to its row) is left where it put it.
-    const target = event.target as HTMLElement;
-    if (target.tabIndex !== 0) return;
-    const cell = target.closest<HTMLElement>("[data-grid-row]");
-    if (!cell || !itemIndex.has(resolved.rowId)) return;
+    const cell = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-grid-row]",
+    );
+    if (!cell || !navRowIndex.has(resolved.rowId)) return;
     const rowId = cell.dataset.gridRow!;
     if (
       rowId === resolved.rowId &&
@@ -3563,7 +3572,6 @@ export function DataGrid<T>({
         data-grid-id={gridId}
         data-layout={fixed ? "fixed" : "auto"}
         onKeyDown={handleGridKeyDown}
-        onPointerDownCapture={handleGridPointerDown}
         onFocusCapture={handleGridFocus}
         onCopy={handleCopy}
         onCut={handleCut}

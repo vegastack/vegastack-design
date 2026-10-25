@@ -1633,6 +1633,66 @@ test("focus is kept by row id and column key: a refetch that moves the row keeps
   expect(stop.closest("tr")?.getAttribute("aria-rowindex")).toBe("2");
 });
 
+test("Tab back into a grid returns to its active header column after it scrolled out; a host's focus stays put", async () => {
+  const cleanup = sizeViewport(300, 600);
+  try {
+    const screen = await render(
+      <>
+        <DataGrid
+          aria-label="Wide return"
+          columns={wideColumns(60)}
+          data={wideRows(200, 60)}
+          getRowId={(row) => row.id}
+          virtualize
+          virtualizeColumns
+          rowHeight="short"
+          maxHeight="300px"
+          columnPicker={false}
+        />
+        <button type="button">After</button>
+      </>,
+    );
+    const grid = screen.getByRole("grid").element() as HTMLElement;
+    const viewport = grid.parentElement!;
+    const at = () => {
+      const cell =
+        document.activeElement?.closest<HTMLElement>("[data-grid-row]");
+      return cell ? `${cell.dataset.gridRow}:${cell.dataset.gridKey}` : null;
+    };
+    // A header column, then Tab out, scroll it away sideways and Shift+Tab back.
+    (
+      grid.querySelector(
+        '[data-slot="data-grid-cell"][tabindex="0"]',
+      ) as HTMLElement
+    ).focus();
+    await userEvent.keyboard("{ArrowUp}{ArrowRight}");
+    await expect.poll(at).toMatch(/:c1$/);
+    const header = at();
+    await userEvent.keyboard("{Tab}");
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+    await expect.poll(at).toBe(header);
+    // A host focusing the stand-in tab stop itself keeps focus where it put it.
+    (
+      screen.getByRole("button", { name: "After" }).element() as HTMLElement
+    ).focus();
+    viewport.scrollLeft = 4000;
+    await expect
+      .poll(() => grid.querySelector('[data-grid-key="c1"]'))
+      .toBeNull();
+    const standIn = grid.querySelector<HTMLElement>('[tabindex="0"]')!;
+    const chosen = `${standIn.closest<HTMLElement>("[data-grid-row]")!.dataset.gridRow}:${standIn.closest<HTMLElement>("[data-grid-row]")!.dataset.gridKey}`;
+    standIn.focus();
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+    expect(at()).toBe(chosen);
+  } finally {
+    cleanup();
+  }
+});
+
 test("column virtualisation: 150 columns render a window, aria-colcount is the true total, End reaches the last", async () => {
   const cleanup = sizeViewport(300, 600);
   try {
