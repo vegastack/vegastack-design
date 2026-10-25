@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.77 sha256-mxZ9Kss5pfSwbiJLvdkdKu2nq0Nc0hEMOMy1YBqMyk0=
+// @vegastack mermaid-block@0.25.78 sha256-kpAaQofvrVvGwuMTKayZKt6YjfTya4ZjpIKzq25tVxE=
 
 "use client";
 

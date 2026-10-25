@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.78] — October 26, 2026
+
+<!-- assembled from 1 changeset: 56125d71ff11 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.27`** (was `0.8.26`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.77 → 0.25.78.
+
+### 🐛 Fixed
+
+- **field-cell**: a link cell's chips no longer break inside a name. A chip's first word may wrap in running text, and inside a host's prose (`overflow-wrap: break-word`, an editor's embedded table) a narrow column split its letters ("Merid / ian"). Each chip in `FieldCellDisplay` now stays on one line, cut with an ellipsis and its full name on hover; a host that lets the cell grow (`className="flex-wrap"`) wraps whole chips onto new lines. [docs](https://design.vegastack.com/docs/components/field-cell) ·
+  [`4e13ad8`](https://github.com/VegaStack/vegastack-design/commit/4e13ad8)
+
 ## [0.25.77] — October 25, 2026
 
 <!-- assembled from 1 changeset: 62f911b77968 -->
