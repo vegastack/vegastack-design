@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.76 sha256-bjKDGQqSl02mLBPT9USTJV7vnIr7LdoJNFaeM9o18eI=
+// @vegastack data-grid@0.25.76 sha256-RBFuZ19vHb3JNs1dPChnUysr/RO6v5rB3bvnzbESY0A=
 
 "use client";
 
@@ -2961,6 +2961,37 @@ export function DataGrid<T>({
     return Math.max(1, Math.floor((height - HEADER_PX) / row) - 1);
   };
 
+  // Tab back into the grid returns to the cell that was active, even when its row or column has
+  // been windowed out since (the stand-in tab stop only keeps the grid reachable): focus arriving
+  // from outside by keyboard on any other cell moves on to the active one, scrolled into view.
+  // A pointer entry is the reader's own choice of cell and is left alone.
+  const pointerEntry = React.useRef(false);
+  const handleGridPointerDown = () => {
+    pointerEntry.current = true;
+    window.setTimeout(() => {
+      pointerEntry.current = false;
+    }, 0);
+  };
+  const handleGridFocus = (event: React.FocusEvent<HTMLTableElement>) => {
+    if (pointerEntry.current || editing) return;
+    const from = event.relatedTarget as Node | null;
+    if (from && event.currentTarget.contains(from)) return;
+    // Only a Tab arrival lands on the grid's one tab stop; a host focusing a cell itself (a panel
+    // handing focus back to its row) is left where it put it.
+    const target = event.target as HTMLElement;
+    if (target.tabIndex !== 0) return;
+    const cell = target.closest<HTMLElement>("[data-grid-row]");
+    if (!cell || !itemIndex.has(resolved.rowId)) return;
+    const rowId = cell.dataset.gridRow!;
+    if (
+      rowId === resolved.rowId &&
+      (isLineRow(rowId) || cell.dataset.gridKey === resolved.key)
+    )
+      return;
+    event.stopPropagation();
+    focusAt(resolved.rowId, resolved.key);
+  };
+
   const handleGridKeyDown = (event: React.KeyboardEvent<HTMLTableElement>) => {
     // IME composition never moves, commits or opens anything.
     if (event.nativeEvent.isComposing || event.keyCode === 229) return;
@@ -3532,6 +3563,8 @@ export function DataGrid<T>({
         data-grid-id={gridId}
         data-layout={fixed ? "fixed" : "auto"}
         onKeyDown={handleGridKeyDown}
+        onPointerDownCapture={handleGridPointerDown}
+        onFocusCapture={handleGridFocus}
         onCopy={handleCopy}
         onCut={handleCut}
         onPaste={handlePaste}
@@ -3670,7 +3703,9 @@ export function DataGrid<T>({
       <div
         ref={ref}
         data-slot="data-grid"
-        className={cn("flex w-full min-w-0 flex-col gap-3", className)}
+        // Its own stacking context: the sticky header, summary row and frozen columns layer
+        // inside the grid and never over the page's floating parts (an ActionBar at z-10).
+        className={cn("isolate flex w-full min-w-0 flex-col gap-3", className)}
         // Viewport height flows through a custom property (contract-clean).
         style={
           maxHeight

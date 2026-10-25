@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.76 sha256-WD3sxChvH7FsFkrdtIVy8tXr9oenZ/4mil93Ys1S130=
+// @vegastack field-cell@0.25.76 sha256-CCUAeo4bnwds2aaJLZ3WlLyuOZW1kSc+Hs45rGK0/Eo=
 
 "use client";
 
@@ -25,7 +25,7 @@ import { useTimeZone } from "@/components/ui/relative-time";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tag, TagGroup } from "@/components/ui/tag-group";
-import { TextEdit } from "@/components/ui/text-edit";
+import { TextEdit, type TextEditHandle } from "@/components/ui/text-edit";
 import {
   Tooltip,
   TooltipContent,
@@ -1167,6 +1167,15 @@ const SEEDED_TYPES: ReadonlySet<FieldType> = new Set([
   "percent",
 ]);
 
+/** The pickers whose list or calendar opens with the editor. */
+const PICKER_TYPES: ReadonlySet<FieldType> = new Set([
+  "single_choice",
+  "multi_choice",
+  "person",
+  "link",
+  "date",
+]);
+
 /** The pickers that open searching for a typed seed. */
 const SEARCHED_TYPES: ReadonlySet<FieldType> = new Set([
   "single_choice",
@@ -1238,6 +1247,7 @@ export function FieldCellEditor({
   const [draft, setDraft] = React.useState<FieldValue>(value);
   const done = React.useRef(false);
   const root = React.useRef<HTMLSpanElement | null>(null);
+  const longText = React.useRef<TextEditHandle | null>(null);
   const commit = (next: FieldValue, move?: EditableCellMove) => {
     if (done.current) return;
     done.current = true;
@@ -1257,16 +1267,35 @@ export function FieldCellEditor({
     // The field itself first (a number's input, not its Decrease button), then a picker trigger.
     // A seeded picker opened searching: its popup's search field holds focus, not the trigger.
     if (seed && SEARCHED_TYPES.has(type)) return;
+    // Long text edits in a popover outside the cell: its editor takes the caret, however the
+    // editor was opened (Enter, F2, a click).
+    if (type === "long_text") {
+      // The popover mounts its content a frame or two after the editor: focus it once it is there.
+      let frame = 0;
+      let tries = 0;
+      const focusText = () => {
+        if (longText.current) longText.current.focus();
+        else if (++tries < 30) frame = requestAnimationFrame(focusText);
+      };
+      focusText();
+      return () => cancelAnimationFrame(frame);
+    }
     const scope = root.current;
+    // A control's own hidden form input (a picker's, `aria-hidden`, out of the tab order) is
+    // never the one to focus: keys typed there go nowhere.
     const field = scope?.querySelector<HTMLElement>(
-      'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), [contenteditable="true"]',
+      'input:not([type="hidden"]):not(:disabled):not([aria-hidden="true"]):not([tabindex="-1"]), textarea:not(:disabled), [contenteditable="true"]',
     );
-    (
+    const target =
       field ??
       scope?.querySelector<HTMLElement>(
         'button:not(:disabled), [tabindex]:not([tabindex="-1"])',
-      )
-    )?.focus();
+      );
+    target?.focus();
+    // A picker opened from the keyboard (Enter, F2) opens its list or calendar at once, as a
+    // spreadsheet's does, so the next keys choose.
+    if (!seed && PICKER_TYPES.has(type) && target instanceof HTMLButtonElement)
+      target.click();
     // Type-to-edit: the key that opened the editor replaces the value, caret after it. (A picker
     // took it as its search instead.)
     if (seed && SEEDED_TYPES.has(type) && field instanceof HTMLInputElement)
@@ -1305,6 +1334,7 @@ export function FieldCellEditor({
         <PopoverContent align="start" className="w-96">
           {/* TextEdit owns ⌘/Ctrl+Enter (onSubmit) and its own Escape (find bar, menus). */}
           <TextEdit
+            handleRef={longText}
             variant="boxed"
             format="markdown"
             aria-label={label}

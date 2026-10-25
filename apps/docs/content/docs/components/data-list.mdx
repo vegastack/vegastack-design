@@ -269,6 +269,8 @@ Client sorting, live — click a header to cycle it:
 
 Pass `onRowClick` to make rows activatable — for navigating to a detail page, opening a drawer, and
 so on. `DataList` stays presentational: it only _signals_ the activation; the host decides what it does.
+A press anywhere on a grid card that is not one of its own controls (its checkbox, a menu, an
+`interactive` column) activates it.
 
 ```tsx
 <DataList

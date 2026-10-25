@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.76",
-        "integrity": "sha256-bjKDGQqSl02mLBPT9USTJV7vnIr7LdoJNFaeM9o18eI="
+        "integrity": "sha256-RBFuZ19vHb3JNs1dPChnUysr/RO6v5rB3bvnzbESY0A="
       }
     },
     {
@@ -1615,7 +1615,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.76",
-        "integrity": "sha256-JJjYCn41EH0ZKgVnRH/RcQ9JGtngK9/YfFi57uB4a+E="
+        "integrity": "sha256-FawY3H8uC3oV1zDtg6Id8tQg4bejkWrgWp7BV2yb0HU="
       }
     },
     {
@@ -2585,7 +2585,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.76",
-        "integrity": "sha256-WD3sxChvH7FsFkrdtIVy8tXr9oenZ/4mil93Ys1S130="
+        "integrity": "sha256-CCUAeo4bnwds2aaJLZ3WlLyuOZW1kSc+Hs45rGK0/Eo="
       }
     },
     {
