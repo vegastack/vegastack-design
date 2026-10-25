@@ -150,5 +150,15 @@ test("a cut view name shows in full in a tooltip, and the tab and the select rea
   await expect
     .element(screen.getByRole("option").first())
     .toHaveAccessibleName(new RegExp(`^${long}\\s*, locked$`));
+  // The list wraps the whole name inside the popup instead of running past it.
+  const option = screen.getByRole("option").first().element();
+  const popup = option.closest<HTMLElement>('[data-slot="select-content"]')!;
+  expect(option.scrollWidth).toBeLessThanOrEqual(popup.clientWidth);
+  const name = option.querySelector<HTMLElement>(
+    '[data-slot="view-tabs-name"]',
+  )!;
+  expect(name.offsetHeight).toBeGreaterThan(
+    parseFloat(getComputedStyle(name).lineHeight) * 1.5,
+  );
   await expectNoA11yViolations(document.body);
 });

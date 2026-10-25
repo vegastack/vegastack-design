@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.74 sha256-vNuw3dxYSuUY5+h8V5W/Q1kFxklyOG6EqykD831cws8=
+// @vegastack view-tabs@0.25.74 sha256-AribuAm0grMdDFr+KLcCf4zGtcvYAlKEUwaRnDAf2Q4=
 
 "use client";
 
@@ -421,7 +421,7 @@ export function ViewTabs({
           items={Object.fromEntries(views.map((view) => [view.id, view.name]))}
         >
           <ViewSelectTrigger active={active} aria-label={ariaLabel} />
-          <SelectContent align="start" alignItemWithTrigger={false}>
+          <SelectContent align="start" alignItemWithTrigger={false} wrap>
             {shared.length > 0 ? (
               <SelectGroup>
                 <SelectLabel>{labels.shared}</SelectLabel>
