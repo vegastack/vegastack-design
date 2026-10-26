@@ -1,17 +1,28 @@
-// @vegastack app-shell@0.25.86 sha256-lU3i8ArA/jy1aezcxTjwuw4tWBCEVUsZAna0NKYirJg=
+// @vegastack app-shell@0.25.86 sha256-VnciSphkIqwvuTfi4ELq9kpCcyFi/tFwXjBcQuaJ32Y=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
+import { EllipsisVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { PageWidth } from "@/lib/page-layout";
+import { useMediaQuery } from "@/components/ui/use-media-query";
+import { RAIL_COLLAPSED_QUERY, type PageWidth } from "@/lib/page-layout";
 
 /**
  * The id `AppShell`'s skip link points at and `AppShellContent` claims — generated once per
@@ -36,6 +47,11 @@ import type { PageWidth } from "@/lib/page-layout";
  */
 const AppShellContentIdContext = React.createContext<string>("main-content");
 
+/** `AppShellSidebar` reports its `collapsible` here, so the rail fold acts on an icon rail only. */
+const AppShellRailContext = React.createContext<
+  (collapsible: "offcanvas" | "icon" | "none") => void
+>(() => {});
+
 /**
  * The page gutter scale — one CSS variable, `--page-gutter`, that the header, the page and the
  * record rail's sticky offset all read, so their edges line up whenever the page fills its area:
@@ -44,7 +60,7 @@ const AppShellContentIdContext = React.createContext<string>("main-content");
  * inside it, and again on each part that pads with it so a part rendered on its own keeps it.
  */
 export const pageGutterClasses =
-  "[--page-gutter:--spacing(4)] sm:[--page-gutter:--spacing(6)] lg:[--page-gutter:--spacing(8)]";
+  "[--page-gutter:--spacing(4)] sm:[--page-gutter:--spacing(6)] lg:[--page-gutter:--spacing(8)] min-[120rem]:[--page-gutter:--spacing(12)]";
 
 /** Props accepted by `AppShell`. */
 export interface AppShellProps extends React.ComponentProps<"div"> {
@@ -85,6 +101,16 @@ export interface AppShellProps extends React.ComponentProps<"div"> {
    * @default undefined
    */
   contentId?: string;
+  /**
+   * Fold an open icon rail (`AppShellSidebar collapsible="icon"`) when the window narrows into the
+   * tablet span (768–1023px, `RAIL_COLLAPSED_QUERY`), and end the fold when it widens out of it.
+   * The fold is display only — it writes no cookie and calls no `onOpenChange` — so the person's
+   * own choice comes back on the way out, after a reload, and with the first toggle. Only a live
+   * change of width folds, never the first paint (`SidebarStateScript`'s `collapsedWhen` decides
+   * the start). An off-canvas sidebar is never folded. `false` turns it off.
+   * @default true
+   */
+  collapseRail?: boolean;
 }
 
 /**
@@ -143,19 +169,33 @@ export function AppShell({
   keyboardShortcut,
   skipLinkLabel = "Skip to content",
   contentId,
+  collapseRail = true,
   className,
   children,
   ...props
 }: AppShellProps) {
   const generatedId = React.useId();
   const resolvedContentId = contentId ?? generatedId;
+  // The fold is a display state, never the person's choice: while folded the provider is held
+  // shut (controlled, so it writes no cookie), and the first toggle ends the fold — the rail
+  // returns to whatever the person had chosen.
+  const [folded, setFolded] = React.useState(false);
+  const [rail, setRail] = React.useState<"offcanvas" | "icon" | "none">(
+    "offcanvas",
+  );
+  const unfold = React.useCallback(() => setFolded(false), []);
+  // A fold only lasts while it may happen at all: turning `collapseRail` off or the rail into an
+  // off-canvas one ends it.
+  const canFold = collapseRail && rail === "icon";
+  if (folded && !canFold) setFolded(false);
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
-      open={open}
-      onOpenChange={onOpenChange}
+      open={folded ? false : open}
+      onOpenChange={folded ? unfold : onOpenChange}
       keyboardShortcut={keyboardShortcut}
       data-slot="app-shell"
+      data-rail-folded={folded ? "" : undefined}
       className={cn(pageGutterClasses, className)}
       {...props}
     >
@@ -166,11 +206,47 @@ export function AppShell({
       >
         {skipLinkLabel}
       </a>
-      <AppShellContentIdContext.Provider value={resolvedContentId}>
-        {children}
-      </AppShellContentIdContext.Provider>
+      {canFold ? (
+        <AppShellRailFold folded={folded} setFolded={setFolded} />
+      ) : null}
+      <AppShellRailContext.Provider value={setRail}>
+        <AppShellContentIdContext.Provider value={resolvedContentId}>
+          {children}
+        </AppShellContentIdContext.Provider>
+      </AppShellRailContext.Provider>
     </SidebarProvider>
   );
+}
+
+/**
+ * Folds an open icon rail when the window narrows into `RAIL_COLLAPSED_QUERY` and ends the fold
+ * when it widens out of it. Only a change of width does this: each run compares the window's
+ * live answer with the last one it saw (the first run only records it), so hydration's server
+ * answer and an effect replay are never mistaken for a resize.
+ */
+function AppShellRailFold({
+  folded,
+  setFolded,
+}: {
+  folded: boolean;
+  setFolded: (folded: boolean) => void;
+}) {
+  const { open } = useSidebar();
+  const narrow = useMediaQuery(RAIL_COLLAPSED_QUERY);
+  const previous = React.useRef<boolean | null>(null);
+  const state = React.useRef({ open, folded });
+  state.current = { open, folded };
+  React.useEffect(() => {
+    const live = window.matchMedia(RAIL_COLLAPSED_QUERY).matches;
+    if (previous.current === null || live === previous.current) {
+      previous.current = live;
+      return;
+    }
+    previous.current = live;
+    if (live && state.current.open) setFolded(true);
+    else if (!live && state.current.folded) setFolded(false);
+  }, [narrow, setFolded]);
+  return null;
 }
 
 /** Props accepted by `AppShellSidebar`. */
@@ -201,11 +277,14 @@ export interface AppShellSidebarProps extends React.ComponentProps<
  */
 export function AppShellSidebar({
   "aria-label": ariaLabel = "Main navigation",
+  collapsible = "offcanvas",
   children,
   ...props
 }: AppShellSidebarProps) {
+  const reportRail = React.useContext(AppShellRailContext);
+  React.useEffect(() => reportRail(collapsible), [reportRail, collapsible]);
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible={collapsible} {...props}>
       <nav
         data-slot="app-shell-sidebar"
         aria-label={ariaLabel}
@@ -350,6 +429,224 @@ export function AppShellHeaderShow({
   );
 }
 
+/** One action in `AppShellHeaderActions`. */
+export interface AppShellHeaderAction {
+  /** Stable key. */
+  id: string;
+  /** The visible label while the bar has room, and the accessible name everywhere. */
+  label: string;
+  /** The icon — shown alone when the bar is narrow, and beside the label in the ⋮ menu. */
+  icon?: React.ReactNode;
+  /** Runs on click or menu selection. */
+  onSelect?: (event: React.MouseEvent<HTMLElement>) => void;
+  /**
+   * The element to render as — a router link (`<Link href="/x" />`) — for the button and for its
+   * ⋮ menu item alike.
+   */
+  render?: React.ReactElement;
+  /** Button variant while it is in the bar. @default "ghost" */
+  variant?: "default" | "outline" | "ghost" | "secondary";
+  /** Shown but unavailable. */
+  disabled?: boolean;
+  /**
+   * When the bar narrows below this width it moves into the ⋮ menu: `laptop` (55rem — the bar
+   * beside an open sidebar on a laptop), `tablet` (40rem). `never` keeps it in the bar (the
+   * page's one primary action), icon-only below 40rem.
+   * @default "tablet"
+   */
+  overflow?: "laptop" | "tablet" | "never";
+  /** A destructive menu entry (Move to Trash) — the menu's `destructive` variant. */
+  destructive?: boolean;
+}
+
+/** Props accepted by `AppShellHeaderActions`. */
+export interface AppShellHeaderActionsProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /**
+   * The bar's actions, start to end; each moves into ⋮ when the bar is narrower than its `overflow`.
+   * @default []
+   */
+  actions?: AppShellHeaderAction[];
+  /**
+   * Entries that live only in the ⋮ menu, after the ones that overflowed.
+   * @default []
+   */
+  menu?: AppShellHeaderAction[];
+  /** The ⋮ trigger's accessible name. @default "More actions" */
+  menuLabel?: string;
+  /**
+   * Content kept in the bar before the actions (a presence stack, a save status).
+   * @default undefined
+   */
+  leading?: React.ReactNode;
+}
+
+const OVERFLOW_AT = { laptop: 55 * 16, tablet: 40 * 16 } as const;
+const MENU_TRIGGER = "\u22ee";
+
+/**
+ * `AppShellHeaderActions` — a page's actions in the top bar that give way as the bar narrows: each
+ * action moves into one ⋮ menu below its `overflow` width (the BAR's own width, so an open sidebar
+ * counts), labels drop to icons below 40rem, and `menu` entries always live in the ⋮. Nothing is
+ * ever hidden without a way to reach it, and the page writes no container queries of its own.
+ * Measured once per resize with the system's shared observer pattern; the first paint assumes a
+ * wide bar on the server and settles before the browser paints on the client.
+ *
+ * @example
+ * <AppShellHeaderActions
+ *   leading={<AvatarStack people={here} max={3} />}
+ *   actions={[
+ *     { id: "share", label: "Share", icon: <Share2 />, onSelect: openShare, overflow: "never", variant: "outline" },
+ *     { id: "watch", label: "Watch", icon: <Bell />, onSelect: toggleWatch, overflow: "laptop" },
+ *   ]}
+ *   menu={[{ id: "copy", label: "Copy link", icon: <Link2 />, onSelect: copy }]}
+ *   menuLabel="Task actions"
+ * />
+ */
+export function AppShellHeaderActions({
+  actions = [],
+  menu = [],
+  menuLabel = "More actions",
+  leading,
+  className,
+  ref,
+  onFocus,
+  onBlur,
+  ...props
+}: AppShellHeaderActionsProps) {
+  const [width, setWidth] = React.useState<number>(Number.POSITIVE_INFINITY);
+  const local = React.useRef<HTMLDivElement | null>(null);
+  const setRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(local, ref),
+    [ref],
+  );
+  React.useLayoutEffect(() => {
+    const bar =
+      local.current?.closest<HTMLElement>("[data-slot=app-shell-header]") ??
+      local.current?.parentElement;
+    if (!bar) return;
+    const read = () => setWidth(bar.getBoundingClientRect().width);
+    read();
+    const observer = new ResizeObserver(read);
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, []);
+  const fits = (action: AppShellHeaderAction) => {
+    const at = action.overflow ?? "tablet";
+    return at === "never" || width >= OVERFLOW_AT[at];
+  };
+  const inBar = actions.filter(fits);
+  const overflowed = actions.filter((action) => !fits(action));
+  const compact = width < OVERFLOW_AT.tablet;
+  const inMenu = [...overflowed, ...menu];
+
+  // Focus never falls to the page when the bar re-lays out: an action that moves into ⋮ hands
+  // focus to the ⋮ trigger, and a ⋮ that goes away hands it to the last action in the bar.
+  const trigger = React.useRef<HTMLButtonElement | null>(null);
+  const focused = React.useRef<string | null>(null);
+  const hasMenu = inMenu.length > 0;
+  const barIds = inBar.map((action) => action.id).join("\n");
+  const previous = React.useRef({ barIds, hasMenu });
+  React.useLayoutEffect(() => {
+    const before = previous.current;
+    previous.current = { barIds, hasMenu };
+    const group = local.current;
+    const was = focused.current;
+    const lost =
+      document.activeElement === null ||
+      document.activeElement === document.body;
+    if (!group || !lost || was === null) return;
+    const wasInBar = before.barIds.split("\n").includes(was);
+    if (was === MENU_TRIGGER && before.hasMenu && !hasMenu) {
+      const bar = group.querySelectorAll<HTMLElement>("[data-action]");
+      bar[bar.length - 1]?.focus();
+    } else if (wasInBar && !barIds.split("\n").includes(was) && hasMenu) {
+      trigger.current?.focus();
+    }
+  }, [barIds, hasMenu]);
+  return (
+    <div
+      ref={setRef}
+      data-slot="app-shell-header-actions-group"
+      data-compact={compact ? "" : undefined}
+      onFocus={(event) => {
+        onFocus?.(event);
+        const target = event.target as HTMLElement;
+        focused.current =
+          target.getAttribute("data-action") ??
+          (target === trigger.current ? MENU_TRIGGER : null);
+      }}
+      onBlur={(event) => {
+        onBlur?.(event);
+        // Moving within the group keeps tracking; leaving it for elsewhere forgets.
+        if (
+          event.relatedTarget instanceof Node &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          focused.current = null;
+      }}
+      className={cn("flex shrink-0 items-center gap-2", className)}
+      {...props}
+    >
+      {leading}
+      {inBar.map((action) => (
+        <Button
+          key={action.id}
+          data-action={action.id}
+          variant={action.variant ?? "ghost"}
+          size={compact && action.icon ? "icon" : "default"}
+          aria-label={compact && action.icon ? action.label : undefined}
+          disabled={action.disabled}
+          render={action.render}
+          nativeButton={action.render ? false : undefined}
+          onClick={action.onSelect}
+        >
+          {action.icon}
+          {compact && action.icon ? null : action.label}
+        </Button>
+      ))}
+      {inMenu.length > 0 ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                ref={trigger}
+                variant="ghost"
+                size="icon"
+                aria-label={menuLabel}
+                data-slot="app-shell-header-actions-menu"
+              />
+            }
+          >
+            <EllipsisVertical />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {inMenu.map((action, index) => (
+              <React.Fragment key={action.id}>
+                {index === overflowed.length && overflowed.length > 0 ? (
+                  <DropdownMenuSeparator />
+                ) : null}
+                <DropdownMenuItem
+                  data-action={action.id}
+                  disabled={action.disabled}
+                  variant={action.destructive ? "destructive" : "default"}
+                  render={action.render}
+                  onClick={action.onSelect}
+                >
+                  {action.icon}
+                  {action.label}
+                </DropdownMenuItem>
+              </React.Fragment>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
+    </div>
+  );
+}
+
 /** Props accepted by `AppShellContent`. */
 // Typed off `div`, not `main`: `landmark` decides which of the two is actually rendered, and a
 // `div` ref narrows to either element while a `main` (HTMLElement) ref does not.
@@ -453,7 +750,7 @@ export function AppShellContent({
 
 /**
  * The page container: centred, padded by the page gutter (`--page-gutter`: 16px, 24px from
- * 640px, 32px from 1024px — the header's own padding) on every side, with `gap-6` between the
+ * 640px, 32px from 1024px, 48px from 1920px — the header's own padding) on every side, with `gap-6` between the
  * page's direct children (the PageHeader, then each section). `size` picks the measure:
  * `prose` (45rem — 720px — of content) for forms and settings, `default` (`max-w-7xl`, 1280px)
  * for lists, dashboards and record pages, `full` (no max) for boards and canvases that use the
@@ -528,24 +825,34 @@ export function AppShellPage({
 export interface AppShellSectionProps extends React.ComponentProps<"section"> {
   /**
    * The section's measure inside the page. `prose` caps it at 720px (45rem) — a settings tab
-   * under a 1280px page header — placed by `align`. `full` takes the page's whole width.
+   * under a 1280px page header. `default` caps it at the content width of a `default` page
+   * (1280px less the gutters), so a list inside a `full` frame — a folder in a frame that also
+   * hosts documents and grids — lines up with every other list. `full` takes the page's whole
+   * width.
    * @default 'full'
    */
-  measure?: "prose" | "full";
+  measure?: "prose" | "default" | "full";
   /**
    * Where a narrower measure sits in the page: `start` under the header's start edge, or
-   * `center` in the middle of the page, like a settings page (`AppShellPage size="prose"`).
-   * Ignored at `full`.
-   * @default 'start'
+   * `center` in the middle of the page. Ignored at `full`.
+   * @default 'center' for `default`, 'start' for `prose`
    */
   align?: "start" | "center";
 }
 
 /**
- * `AppShellSection` — one region of an `AppShellPage` with its own measure. A page whose header
- * and tabs run at the default width can hold a settings column at `measure="prose"` — aligned to
- * the page's start, or centred like a settings page with `align="center"` — with no `max-w-*`
- * class of its own.
+ * `AppShellSection` — one region of an `AppShellPage` with its own measure. Width follows the
+ * content, not the route: a `full` page can hold a list at `measure="default"`, a document in
+ * `DocumentLayout` and a grid at full width, and a `default` page can hold a settings column at
+ * `measure="prose"` — with no `max-w-*` class of its own.
+ *
+ * @example
+ * <AppShellPage size="full">
+ *   <AppShellSection measure="default">
+ *     <PageHeader title="Contracts" />
+ *     <DataList … />
+ *   </AppShellSection>
+ * </AppShellPage>
  *
  * @example
  * <AppShellPage>
@@ -557,19 +864,21 @@ export interface AppShellSectionProps extends React.ComponentProps<"section"> {
  */
 export function AppShellSection({
   measure = "full",
-  align = "start",
+  align,
   className,
   ...props
 }: AppShellSectionProps) {
+  const placed = align ?? (measure === "default" ? "center" : "start");
   return (
     <section
       data-slot="app-shell-section"
       data-measure={measure}
-      data-align={align}
+      data-align={placed}
       className={cn(
         "flex w-full min-w-0 flex-col gap-6",
         measure === "prose" && "max-w-[45rem]",
-        measure === "prose" && align === "center" && "mx-auto",
+        measure === "default" && "max-w-[calc(80rem-2*var(--page-gutter))]",
+        measure !== "full" && placed === "center" && "mx-auto",
         className,
       )}
       {...props}

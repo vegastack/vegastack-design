@@ -69,23 +69,29 @@ sidebar or a split view lands in the right tier:
 | Tier | Width     | Gutters | Text                     | Contents                 | Comments                    |
 | ---- | --------- | ------- | ------------------------ | ------------------------ | --------------------------- |
 | S    | < 40rem   | 0       | the full width           | the host's menu or sheet | the host's sheet or popover |
-| M    | 40–60rem  | 3rem    | max(36rem, 75%)          | the rail, in the gutter  | a popover at the highlight  |
-| L    | 60–90rem  | 3rem    | clamp(40rem, 75%, 52rem) | the rail, in the gutter  | the margin (20rem)          |
+| M    | 40–64rem  | 3rem    | max(36rem, 75%)          | the rail, in the gutter  | a popover at the highlight  |
+| L    | 64–90rem  | 3rem    | clamp(40rem, 75%, 52rem) | the rail, in the gutter  | the margin (20rem)          |
 | XL   | 90–120rem | 4rem    | 60rem                    | the rail, in the gutter  | the margin (24rem)          |
 | 2XL  | ≥ 120rem  | 4rem    | 64rem                    | the rail, in the gutter  | the margin (24rem)          |
 
 At the document type scale (14px Geist) that is about 94 characters a line at M's 36rem, 128 at
 L's 52rem, 150 at XL and 161 at 2XL; the 24px line height carries the longer lines.
 
-The rail, the text and the margin are one block, centred. A comment margin shifts the block to
-the start rather than narrowing the text; the text gives way only when the width cannot hold the
-text, the margin and the gutters at once.
+The tier bounds are the system's layout tiers — `tablet` 40rem, `laptop` 64rem, `wide` 90rem
+(`LAYOUT_TIERS` in `page-layout`) — plus a document-only 120rem step.
+
+The rail, the text and the margin are one block, centred, and the text **stays in the middle when
+the comment margin shows**: the start side widens to mirror the margin, so wherever the width can
+hold the margin on both sides the text sits exactly where it sat without comments. With less room
+the start side gives way first, and the margin shifts the block towards the start only by what is
+missing; the text narrows only when the width cannot hold the text, the margin and the gutters at
+once.
 
 It is one subtree at every width: a column with no room is `display: none`, never unmounted, so
 an editor inside never remounts when the window resizes. `margin` shows the comment column from
 L up; set it only while the column holds something (open threads beside the text, or a comment
-being written), decided with the text so the first paint is right. A page without threads is
-centred, and its first comment shifts the block to the start.
+being written), decided with the text so the first paint is right. A page's first comment keeps
+its text in place while there is room for the margin on both sides.
 From M up the grid keeps its start gutter whether or not a page has headings, and
 `DocumentLayoutContents` sits in it, stacked above the text and the margin: a
 `TableOfContents variant="rail" side="start"` there is a slim column of dashes that opens into the
@@ -107,7 +113,8 @@ foot, margin. Server-safe: the tiers are CSS.
 ### Wide
 
 `measure="wide"` gives the text the whole width less the gutters (and the margin, where it
-shows) — each reader's choice, never the document's.
+shows), up to 75rem (1200px), past which a line is too long to read — each reader's choice,
+never the document's.
 
 <ComponentPreview
   name="documentLayoutWide"

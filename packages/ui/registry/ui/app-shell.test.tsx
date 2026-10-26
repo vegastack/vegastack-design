@@ -3,11 +3,13 @@ import { render } from "vitest-browser-react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Home, Inbox } from "lucide-react";
+import { Bell, Home, Inbox, Share2 } from "lucide-react";
+import { RAIL_COLLAPSED_QUERY } from "@/lib/page-layout";
 import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellHeaderActions,
   AppShellHeaderShow,
   AppShellHeaderSlot,
   AppShellPage,
@@ -517,9 +519,9 @@ test("DS-19: AppShellPage defaults to the 1280px measure with the page gutter", 
   }
 });
 
-test("the gutter scale is 16px, 24px from sm and 32px from lg — one variable for header and page", async () => {
+test("the gutter scale is 16px, 24px from sm, 32px from lg and 48px from 1920px — one variable for header and page", async () => {
   expect(pageGutterClasses).toBe(
-    "[--page-gutter:--spacing(4)] sm:[--page-gutter:--spacing(6)] lg:[--page-gutter:--spacing(8)]",
+    "[--page-gutter:--spacing(4)] sm:[--page-gutter:--spacing(6)] lg:[--page-gutter:--spacing(8)] min-[120rem]:[--page-gutter:--spacing(12)]",
   );
   const screen = await render(
     <AppShell>
@@ -676,4 +678,292 @@ test("AppShellHeaderSlot reserves its place; AppShellHeaderShow marks when it sh
   expect(screen.getByTestId("wide").element().getAttribute("data-when")).toBe(
     "wide",
   );
+});
+
+test("AppShellSection measure=default caps a section at a default page's content width, centred", async () => {
+  const screen = await render(
+    <AppShellPage size="full">
+      <AppShellSection measure="default" data-testid="list" />
+      <AppShellSection measure="default" align="start" data-testid="start" />
+    </AppShellPage>,
+  );
+  const list = screen.getByTestId("list").element() as HTMLElement;
+  expect(list.dataset.measure).toBe("default");
+  expect(list.dataset.align).toBe("center");
+  expect(list.className).toContain("max-w-[calc(80rem-2*var(--page-gutter))]");
+  expect(list.className).toContain("mx-auto");
+  const start = screen.getByTestId("start").element() as HTMLElement;
+  expect(start.className).not.toContain("mx-auto");
+});
+
+function HeaderWithActions({ width }: { width: number }) {
+  return (
+    <AppShell>
+      <div style={{ width }}>
+        <AppShellHeader
+          actions={
+            <AppShellHeaderActions
+              menuLabel="Task actions"
+              actions={[
+                {
+                  id: "share",
+                  label: "Share",
+                  icon: <Share2 />,
+                  overflow: "never",
+                  variant: "outline",
+                },
+                {
+                  id: "watch",
+                  label: "Watch",
+                  icon: <Bell />,
+                  overflow: "laptop",
+                },
+              ]}
+              menu={[{ id: "copy", label: "Copy link" }]}
+            />
+          }
+        >
+          Title
+        </AppShellHeader>
+      </div>
+    </AppShell>
+  );
+}
+
+test("AppShellHeaderActions keeps actions in the bar while it is wide", async () => {
+  const screen = await render(<HeaderWithActions width={1200} />);
+  await expect
+    .element(screen.getByRole("button", { name: "Watch" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Share" }))
+    .toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Task actions" }));
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Copy link" }))
+    .toBeVisible();
+  expect(
+    document.querySelector('[role="menuitem"][data-action="watch"]'),
+  ).toBeNull();
+});
+
+test("AppShellHeaderActions moves an action into ⋮ below its width and drops labels below 40rem", async () => {
+  const screen = await render(<HeaderWithActions width={500} />);
+  await expect
+    .element(screen.getByRole("button", { name: "Share" }))
+    .toBeVisible();
+  const share = screen.getByRole("button", { name: "Share" }).element();
+  expect(share.textContent).toBe("");
+  expect(
+    screen.container.querySelector('button[data-action="watch"]'),
+  ).toBeNull();
+  await userEvent.click(screen.getByRole("button", { name: "Task actions" }));
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Watch" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Copy link" }))
+    .toBeVisible();
+  await expectNoA11yViolations(document.body);
+});
+
+function RailDemo({
+  collapsible,
+  collapseRail,
+}: {
+  collapsible: "icon" | "offcanvas";
+  collapseRail?: boolean;
+}) {
+  return (
+    <AppShell collapseRail={collapseRail}>
+      <AppShellSidebar collapsible={collapsible}>
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Home">
+                <Home />
+                <span>Home</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+      </AppShellSidebar>
+      <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <AppShellHeader>Title</AppShellHeader>
+        <AppShellContent>Content</AppShellContent>
+      </div>
+    </AppShell>
+  );
+}
+
+function mockRailWindow(initiallyNarrow: boolean) {
+  vi.restoreAllMocks();
+  const media = { narrow: initiallyNarrow };
+  const listeners = new Set<() => void>();
+  vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query === RAIL_COLLAPSED_QUERY ? media.narrow : false,
+        media: query,
+        onchange: null,
+        addEventListener: (_: string, fn: () => void) => {
+          listeners.add(fn);
+        },
+        removeEventListener: (_: string, fn: () => void) => {
+          listeners.delete(fn);
+        },
+        addListener: (fn: () => void) => {
+          listeners.add(fn);
+        },
+        removeListener: (fn: () => void) => {
+          listeners.delete(fn);
+        },
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList,
+  );
+  return {
+    resize(narrow: boolean) {
+      media.narrow = narrow;
+      listeners.forEach((fn) => fn());
+    },
+  };
+}
+
+const railState = (container: HTMLElement) =>
+  container
+    .querySelector('[data-slot="sidebar"][data-state]')!
+    .getAttribute("data-state");
+
+test("AppShell folds an open icon rail when the window narrows into the tablet span, writes no cookie, and unfolds after", async () => {
+  document.cookie = "sidebar_state=; path=/; max-age=0";
+  const window_ = mockRailWindow(false);
+  const screen = await render(<RailDemo collapsible="icon" />);
+  await expect.poll(() => railState(screen.container)).toBe("expanded");
+  window_.resize(true);
+  await expect.poll(() => railState(screen.container)).toBe("collapsed");
+  // Display only: the person's choice (the cookie) is untouched, so a reload keeps it.
+  expect(document.cookie).not.toContain("sidebar_state=");
+  window_.resize(false);
+  await expect.poll(() => railState(screen.container)).toBe("expanded");
+});
+
+test("AppShell: the first toggle ends a fold and the rail opens", async () => {
+  const window_ = mockRailWindow(false);
+  const screen = await render(<RailDemo collapsible="icon" />);
+  window_.resize(true);
+  await expect.poll(() => railState(screen.container)).toBe("collapsed");
+  await userEvent.click(screen.getByRole("button", { name: "Toggle sidebar" }));
+  await expect.poll(() => railState(screen.container)).toBe("expanded");
+});
+
+test("AppShell never folds an off-canvas sidebar, nor on the first paint, nor with collapseRail off", async () => {
+  const window_ = mockRailWindow(false);
+  const screen = await render(<RailDemo collapsible="offcanvas" />);
+  window_.resize(true);
+  await new Promise((r) => setTimeout(r, 50));
+  expect(railState(screen.container)).toBe("expanded");
+  await screen.unmount();
+
+  mockRailWindow(true);
+  const first = await render(<RailDemo collapsible="icon" />);
+  await new Promise((r) => setTimeout(r, 50));
+  expect(railState(first.container)).toBe("expanded");
+});
+
+test("AppShellHeaderActions hands focus to ⋮ when the focused action moves into it", async () => {
+  function Resizable() {
+    const [width, setWidth] = React.useState(1200);
+    return (
+      <>
+        <button type="button" onClick={() => setWidth(500)}>
+          Narrow
+        </button>
+        <AppShell>
+          <div style={{ width }}>
+            <AppShellHeader
+              actions={
+                <AppShellHeaderActions
+                  menuLabel="Task actions"
+                  actions={[
+                    {
+                      id: "watch",
+                      label: "Watch",
+                      icon: <Bell />,
+                      overflow: "laptop",
+                    },
+                  ]}
+                />
+              }
+            >
+              Title
+            </AppShellHeader>
+          </div>
+        </AppShell>
+      </>
+    );
+  }
+  const screen = await render(<Resizable />);
+  const watch = screen.getByRole("button", { name: "Watch" });
+  (watch.element() as HTMLElement).focus();
+  // Narrow the bar programmatically, keeping focus where it is.
+  (
+    screen.getByRole("button", { name: "Narrow" }).element() as HTMLElement
+  ).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await expect
+    .poll(() => document.activeElement?.getAttribute("aria-label"))
+    .toBe("Task actions");
+});
+
+test("AppShell ends a fold when collapseRail is turned off", async () => {
+  const window_ = mockRailWindow(false);
+  const screen = await render(<RailDemo collapsible="icon" />);
+  window_.resize(true);
+  await expect.poll(() => railState(screen.container)).toBe("collapsed");
+  await screen.rerender(<RailDemo collapsible="icon" collapseRail={false} />);
+  await expect.poll(() => railState(screen.container)).toBe("expanded");
+});
+
+test("AppShellHeaderActions hands focus from a vanishing ⋮ back to the last action, links included", async () => {
+  function Resizable() {
+    const [width, setWidth] = React.useState(500);
+    return (
+      <>
+        <button type="button" onClick={() => setWidth(1200)}>
+          Widen
+        </button>
+        <AppShell>
+          <div style={{ width }}>
+            <AppShellHeader
+              actions={
+                <AppShellHeaderActions
+                  menuLabel="Task actions"
+                  onFocus={() => {}}
+                  actions={[
+                    {
+                      id: "open",
+                      label: "Open",
+                      icon: <Share2 />,
+                      overflow: "laptop",
+                      render: <a href="#open" />,
+                    },
+                  ]}
+                />
+              }
+            >
+              Title
+            </AppShellHeader>
+          </div>
+        </AppShell>
+      </>
+    );
+  }
+  const screen = await render(<Resizable />);
+  const trigger = screen.getByRole("button", { name: "Task actions" });
+  (trigger.element() as HTMLElement).focus();
+  (
+    screen.getByRole("button", { name: "Widen" }).element() as HTMLElement
+  ).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await expect
+    .poll(() => document.activeElement?.getAttribute("data-action"))
+    .toBe("open");
 });

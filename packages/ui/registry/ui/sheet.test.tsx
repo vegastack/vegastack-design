@@ -469,6 +469,42 @@ test("OVL-16: below sm a side sheet is full width, and 3/4 from sm up", async ()
   }
 });
 
+test("OVL-22: below the tablet tier a side sheet drops its side border and pads the safe areas", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const tokens = bySlot("sheet-content")!.className.split(/\s+/);
+  expect(tokens).toContain("data-[side=left]:max-sm:border-e-0");
+  expect(tokens).toContain("data-[side=right]:max-sm:border-s-0");
+  for (const side of ["left", "right"]) {
+    expect(tokens).toContain(
+      `data-[side=${side}]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)]`,
+    );
+  }
+});
+
+test("API-29 + OVL-22: a sheet beside the rail docks from the tablet tier and fills a phone", async () => {
+  const screen = await render(
+    <Sheet defaultOpen>
+      <SheetContent side="left" beside="sidebar">
+        <SheetHeader>
+          <SheetTitle>Beside</SheetTitle>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>,
+  );
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  expect(panel.style.getPropertyValue("--sheet-beside")).toBe(
+    "var(--sidebar-width, 16rem)",
+  );
+  expect(panel.className.split(/\s+/)).toContain(
+    "data-beside:sm:start-(--sheet-beside)",
+  );
+  // No inline inset: below the tablet tier nothing holds the panel off the start edge.
+  expect(panel.style.insetInlineStart).toBe("");
+});
+
 test("API-21: SheetBody scrolls between a fixed header and footer", async () => {
   const screen = await render(<LongSubject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
@@ -554,21 +590,28 @@ test("VOI-1: the corner close button's default name is sentence-case Close", asy
     .toBeInTheDocument();
 });
 
-test("focus is trapped in a long sheet and returns to the trigger on Escape", async () => {
-  const screen = await render(<LongSubject />);
-  const trigger = screen.getByRole("button", { name: "Open sheet" });
-  await trigger.click();
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  const panel = bySlot("sheet-content")!;
-  await expect.poll(() => panel.contains(document.activeElement)).toBe(true);
-  for (let step = 0; step < 16; step += 1) {
-    await userEvent.keyboard("{Tab}");
-    expect(panel.contains(document.activeElement)).toBe(true);
-  }
-  await userEvent.keyboard("{Escape}");
-  await waitForClosed();
-  await expect.poll(() => document.activeElement).toBe(trigger.element());
-});
+// Four test files share one Chromium page in CI (`maxWorkers: 4`); a neighbour moving focus between
+// two Tabs here moves this frame's focus with it. A retry separates that from a real trap failure,
+// which fails every attempt.
+test(
+  "focus is trapped in a long sheet and returns to the trigger on Escape",
+  { retry: 2 },
+  async () => {
+    const screen = await render(<LongSubject />);
+    const trigger = screen.getByRole("button", { name: "Open sheet" });
+    await trigger.click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    const panel = bySlot("sheet-content")!;
+    await expect.poll(() => panel.contains(document.activeElement)).toBe(true);
+    for (let step = 0; step < 16; step += 1) {
+      await userEvent.keyboard("{Tab}");
+      expect(panel.contains(document.activeElement)).toBe(true);
+    }
+    await userEvent.keyboard("{Escape}");
+    await waitForClosed();
+    await expect.poll(() => document.activeElement).toBe(trigger.element());
+  },
+);
 
 test("no a11y violations — open with an action, a body and a footer", async () => {
   const screen = await render(<LongSubject contentProps={{ size: "lg" }} />);

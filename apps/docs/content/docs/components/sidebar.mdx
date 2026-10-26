@@ -587,6 +587,15 @@ reserve. When the panel collapses to icons, the `tooltip` carries the count too.
 
 <ComponentPreview name="sidebarCounts" file="components/preview/sidebar.tsx" />
 
+On a collapsed icon rail the count stays in sight at the icon's top-end corner: the count itself in
+a small pill up to two characters, a dot beyond. It is decorative — the name already carries the
+count.
+
+<ComponentPreview
+  name="sidebarCountsCollapsed"
+  file="components/preview/sidebar.tsx"
+/>
+
 ### Count with a hover action
 
 A row can carry both a count and a quick action in the same spot. Add a
@@ -747,7 +756,10 @@ A default that depends on the window — say, collapsed on a tablet until someon
 in the same script: `collapsedWhen` (a media query) starts a panel nobody has opened or closed yet
 collapsed in a window it matches, and writes that start to the cookie. It is decided before the
 first paint, never by collapsing the panel after hydration, which would slide it shut and move the
-whole page. A person's own choice (the cookie) always wins.
+whole page. A person's own choice (the cookie) always wins. With `collapsible="icon"` it defaults
+to the tablet span — `RAIL_COLLAPSED_QUERY` from `page-layout`, 768–1023px — where the rail rests
+as icons; pass `collapsedWhen={null}` to turn it off. `AppShell` folds an open rail when the window
+narrows into that span and reopens it on the way out.
 
 For a controlled provider, `useSidebarCookieOpen` returns `[open, setOpen]`: it starts from the
 same mark, reads the cookie after hydration when there is no mark, and its setter writes the cookie
@@ -764,10 +776,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <SidebarStateScript
-          collapsible="icon"
-          collapsedWhen="(min-width: 768px) and (max-width: 1024px)"
-        />
+        {/* Starts as icons on a tablet (RAIL_COLLAPSED_QUERY) unless someone chose. */}
+        <SidebarStateScript collapsible="icon" />
       </head>
       <body>{children}</body>
     </html>
@@ -887,6 +897,8 @@ Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
   carries the same count, and the visual `SidebarMenuBadge` is `aria-hidden`. The button renders the
   badge as its upstream sibling, the label keeps its `truncate` while the suffix is the last child,
   and the row reserves `pe-8` for a badge (`pe-12` for one of three or more characters).
+  In the collapsed icon rail the count stays in sight at the icon's top-end corner — a small pill
+  up to two characters, a dot beyond (MK, 2026-10-27).
 - **A11Y-18** — `SidebarMenuButton` sets `aria-current="page"` when `isActive` and `render` is a
   link. A button never gets it, and a caller's own `aria-current` wins.
 - **BRD-1** — the floating variant's panel draws a real `border border-sidebar-border` instead of
@@ -916,7 +928,9 @@ Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
   cookie, marks `<html>` with `data-sidebar-state` and sets the collapsed `data-state` and
   `data-collapsible` on the desktop panel as the parser inserts it) and `useSidebarCookieOpen`. The
   uncontrolled provider starts from that mark and keeps it in step; the cookie write gains
-  `SameSite=Lax` and happens only when the provider is uncontrolled.
+  `SameSite=Lax` and happens only when the provider is uncontrolled. With `collapsible="icon"`,
+  `collapsedWhen` defaults to `RAIL_COLLAPSED_QUERY` (768–1023px); `null` opts out (MK,
+  2026-10-26).
 - **LAY-16** — `SidebarMenuSkeleton`'s `Math.random()` width becomes a fixed cycle (70%, 55%, 85%,
   60%, 75%) picked by a new `index` prop, so the server and the client render the same markup.
 - **OVL-16** — the mobile panel's `SheetContent` restates `data-[side=left]:w-(--sidebar-width)` and

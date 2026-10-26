@@ -280,29 +280,30 @@ test("the contents rail sits in the gutter before the text and never moves it", 
   }
 });
 
-test("a comment margin keeps the text's width and shifts the block to the start", async () => {
+test("a comment margin keeps the text's width and centre while the width holds it on both sides", async () => {
   await page.viewport(2400, 900);
-  for (const width of [1600, 2200]) {
-    const plain = await measure(width, { margin: false });
-    const withMargin = await measure(width);
-    expect(withMargin.body.width, `${width}`).toBe(plain.body.width);
-    // The block — text and margin — is centred, so the text moves by half the margin.
-    expect(plain.body.left - withMargin.body.left, `${width}`).toBe(
-      withMargin.margin.width / 2,
-    );
-    expect(withMargin.margin.left).toBe(withMargin.body.right);
-    expect(withMargin.margin.width).toBe(384);
-    const middle = withMargin.layout.left + withMargin.layout.width / 2;
-    const block = (withMargin.body.left + withMargin.margin.right) / 2;
-    expect(Math.abs(block - middle)).toBeLessThanOrEqual(1);
-  }
+  // 2XL at 2200: room for the margin on both sides, so the text does not move at all.
+  const plain = await measure(2200, { margin: false });
+  const roomy = await measure(2200);
+  expect(roomy.body.width).toBe(plain.body.width);
+  expect(roomy.body.left).toBe(plain.body.left);
+  expect(roomy.margin.left).toBe(roomy.body.right);
+  expect(roomy.margin.width).toBe(384);
+  // XL at 1600: 960 + 384 + 64 leaves 192 before the text — less than the end side's 448, so the
+  // start track takes all of it and the text moves to the start by what is missing, no more.
+  const plainXl = await measure(1600, { margin: false });
+  const xl = await measure(1600);
+  expect(xl.body.width).toBe(plainXl.body.width);
+  expect(xl.body.left - xl.layout.left).toBe(192);
+  expect(xl.layout.right - xl.margin.right).toBe(64);
+  expect(plainXl.body.left - xl.body.left).toBe(128);
 });
 
 test("the text gives way only when the width can't hold text, margin and gutters", async () => {
   await page.viewport(2400, 900);
-  // L from 60rem: at 960 the margin shows and the text takes what is left, 960 − 2 × 48 − 320.
-  expect((await measure(960)).body.width).toBe(544);
-  expect((await measure(960, { margin: false })).body.width).toBe(720);
+  // L from 64rem: at 1040 the margin shows and the text takes what is left, 1040 − 2 × 48 − 320.
+  expect((await measure(1040)).body.width).toBe(624);
+  expect((await measure(1040, { margin: false })).body.width).toBe(780);
   // L at 1120: 75% is 840 (52rem caps it at 832), but 1120 − 2 × 48 − 320 leaves 704.
   const tight = await measure(1120);
   expect(tight.body.width).toBe(704);
@@ -313,11 +314,17 @@ test("the text gives way only when the width can't hold text, margin and gutters
   expect((await measure(1120, { margin: false })).body.width).toBe(832);
 });
 
-test("Wide is the whole width less the gutters and the margin", async () => {
+test("Wide is the whole width less the gutters and the margin, up to 1200px", async () => {
   await page.viewport(2400, 900);
   expect(
+    (await measure(1200, { measure: "wide", margin: false })).body.width,
+  ).toBe(1200 - 2 * 48);
+  expect(
     (await measure(1600, { measure: "wide", margin: false })).body.width,
-  ).toBe(1600 - 2 * 64);
+  ).toBe(1200);
+  expect(
+    (await measure(2200, { measure: "wide", margin: false })).body.width,
+  ).toBe(1200);
   expect((await measure(1600, { measure: "wide" })).body.width).toBe(
     1600 - 2 * 64 - 384,
   );

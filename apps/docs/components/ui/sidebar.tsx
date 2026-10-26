@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.25.86 sha256-Y6LW9k0S+2EMyeavzWPtpzNGE0cTNVLGadU2sNX8M7Q=
+// @vegastack sidebar@0.25.86 sha256-zOhh/GGg34BTilK0R7QtkUQJwqYF0b920fwU38j99QA=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 import { useIsMobile } from "@/components/ui/use-mobile";
+import { RAIL_COLLAPSED_QUERY } from "@/lib/page-layout";
 import { isEditableTarget } from "@/components/ui/use-platform";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,8 +71,9 @@ function scriptLiteral(value: string) {
  * that mark, so hydration agrees with the screen. `collapsedWhen` (a media query) starts a panel
  * nobody has opened or closed yet — no cookie — collapsed in a window it matches, and keeps that
  * start in the cookie: a default that depends on the width is decided before the first paint,
- * never by collapsing the panel after hydration. Under a nonce-based Content Security Policy,
- * pass the request's `nonce`.
+ * never by collapsing the panel after hydration. With `collapsible="icon"` it defaults to the
+ * tablet span (`RAIL_COLLAPSED_QUERY`, 768–1023px), where the rail rests as icons; `null` turns
+ * it off. Under a nonce-based Content Security Policy, pass the request's `nonce`.
  */
 function SidebarStateScript({
   cookieName = SIDEBAR_COOKIE_NAME,
@@ -83,12 +85,18 @@ function SidebarStateScript({
   collapsible?: "offcanvas" | "icon" | "none";
   /**
    * A media query: with no cookie yet, a window it matches starts collapsed (and the cookie
-   * records it). @default undefined
+   * records it); `null` never. @default RAIL_COLLAPSED_QUERY with `collapsible="icon"`, else none
    */
-  collapsedWhen?: string;
+  collapsedWhen?: string | null;
   nonce?: string;
 }) {
-  const source = `(function(n,m,q){try{var c=document.cookie.split(/;\\s*/);if(c.indexOf(n+"=false")<0){var chosen=c.some(function(p){return p.indexOf(n+"=")===0});if(chosen||!q||!window.matchMedia(q).matches)return;document.cookie=n+"=false; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax"}var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)},${collapsedWhen ? scriptLiteral(collapsedWhen) : "null"})`;
+  const query =
+    collapsedWhen === undefined
+      ? collapsible === "icon"
+        ? RAIL_COLLAPSED_QUERY
+        : null
+      : collapsedWhen;
+  const source = `(function(n,m,q){try{var c=document.cookie.split(/;\\s*/);if(c.indexOf(n+"=false")<0){var chosen=c.some(function(p){return p.indexOf(n+"=")===0});if(chosen||!q||!window.matchMedia(q).matches)return;document.cookie=n+"=false; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax"}var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)},${query ? scriptLiteral(query) : "null"})`;
   return (
     <script
       data-slot="sidebar-state-script"
@@ -672,18 +680,40 @@ function SidebarMenuButton({
     },
   });
 
+  const short =
+    (typeof badge === "string" || typeof badge === "number") &&
+    String(badge).length <= 2;
   const badgeElement =
     badge !== undefined && badge !== null ? (
-      <SidebarMenuBadge
-        data-badge-size={
-          (typeof badge === "string" || typeof badge === "number") &&
-          String(badge).length >= 3
-            ? "lg"
-            : "default"
-        }
-      >
-        {badge}
-      </SidebarMenuBadge>
+      <>
+        <SidebarMenuBadge
+          data-badge-size={
+            (typeof badge === "string" || typeof badge === "number") &&
+            String(badge).length >= 3
+              ? "lg"
+              : "default"
+          }
+        >
+          {badge}
+        </SidebarMenuBadge>
+        {/* The collapsed icon rail keeps the count in sight at the icon's top-end corner: the
+            count itself in a small pill up to two characters, a dot beyond. The name already
+            carries the count (A11Y-17), so this is decorative. */}
+        <span
+          data-slot="sidebar-menu-badge-rail"
+          data-badge-size={short ? "pill" : "dot"}
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute hidden items-center justify-center rounded-full bg-sidebar-primary text-xs font-medium text-sidebar-primary-foreground tabular-nums select-none group-data-[collapsible=icon]:flex",
+            // Anchored to the 32px icon button at the item's start, inside the rail's clip.
+            short
+              ? "top-0 start-4 h-4 min-w-4 px-1 leading-4"
+              : "top-1 start-6 size-2",
+          )}
+        >
+          {short ? badge : null}
+        </span>
+      </>
     ) : null;
 
   if (!tooltip) {

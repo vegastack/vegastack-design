@@ -1,4 +1,4 @@
-// @vegastack page-layout@0.25.86 sha256-JV7fNhnGicetOtzHP8hmdP6qmo816WdFhKOy0mh4pfs=
+// @vegastack page-layout@0.25.86 sha256-wo+3bgCt+gAjxdlvKSyi4cpNSls7d4KSU8NuIPdi4EE=
 
 /**
  * The page-layout contract — how wide each route's page is, declared once. `AppShellPage` takes a
@@ -31,6 +31,78 @@ export interface PageWidths<Route extends string = string> {
   widthOfPath(pathname: string): PageWidth;
   /** The listed route pattern a pathname resolves to, the most specific one when several match. */
   routeOf(pathname: string): Route | undefined;
+}
+
+/**
+ * The layout tiers — one width vocabulary for every surface, in rem, each tier's lower bound:
+ * `phone` below 40rem, `tablet` 40–64rem, `laptop` 64–90rem, `wide` from 90rem. The same set is
+ * `--container-*` / `--breakpoint-*` (`tablet`, `laptop`, `wide`) in
+ * `@vegastack/design-tokens/utilities.css`, so `@max-tablet/app-shell-content:` and `max-tablet:`
+ * name it in classes. A surface reads it by its OWN width (a container query) unless it is pinned
+ * to the viewport (an overlay): `DocumentLayout`'s tiers, a grid turning into cards, a sheet or a
+ * peek going full-screen below `tablet`.
+ */
+export const LAYOUT_TIERS = Object.freeze({
+  phone: 0,
+  tablet: 40,
+  laptop: 64,
+  wide: 90,
+} as const);
+
+/** A layout tier name. */
+export type LayoutTier = keyof typeof LAYOUT_TIERS;
+
+/**
+ * The tier a width (in CSS pixels, 16px to the rem) falls in.
+ *
+ * @example
+ * layoutTierOf(390) // "phone"
+ * layoutTierOf(1024) // "laptop"
+ */
+export function layoutTierOf(widthPx: number, remPx = 16): LayoutTier {
+  const rem = widthPx / remPx;
+  if (rem >= LAYOUT_TIERS.wide) return "wide";
+  if (rem >= LAYOUT_TIERS.laptop) return "laptop";
+  if (rem >= LAYOUT_TIERS.tablet) return "tablet";
+  return "phone";
+}
+
+/**
+ * A viewport media query for a span of tiers — `from` inclusive, `to` exclusive.
+ *
+ * @example
+ * layoutTierQuery("tablet", "laptop") // "(min-width: 40rem) and (max-width: 63.99rem)"
+ * layoutTierQuery(undefined, "tablet") // "(max-width: 39.99rem)" — a phone
+ */
+export function layoutTierQuery(from?: LayoutTier, to?: LayoutTier): string {
+  const parts: string[] = [];
+  if (from && LAYOUT_TIERS[from] > 0)
+    parts.push(`(min-width: ${LAYOUT_TIERS[from]}rem)`);
+  if (to) parts.push(`(max-width: ${LAYOUT_TIERS[to] - 0.01}rem)`);
+  return parts.join(" and ") || "all";
+}
+
+/**
+ * Where the app sidebar rests as an icon rail rather than open: from the sidebar's own off-canvas
+ * breakpoint (48rem, upstream's 768px) up to the `laptop` tier. Pass it to `SidebarStateScript
+ * collapsedWhen` so a rail nobody has opened or closed starts collapsed there; `AppShell` collapses
+ * an open rail when the window narrows into it and reopens it when the window widens again.
+ */
+export const RAIL_COLLAPSED_QUERY = `(min-width: 48rem) and (max-width: ${LAYOUT_TIERS.laptop - 0.01}rem)`;
+
+/**
+ * The page gutter by viewport width, in px: 16 below 640px, 24 from 640px, 32 from 1024px, 48
+ * from 1920px. `AppShell` sets it as `--page-gutter`; this is the same scale for scripts.
+ *
+ * @example
+ * pageGutterOf(390) // 16
+ * pageGutterOf(2560) // 48
+ */
+export function pageGutterOf(viewportPx: number): number {
+  if (viewportPx >= 1920) return 48;
+  if (viewportPx >= 1024) return 32;
+  if (viewportPx >= 640) return 24;
+  return 16;
 }
 
 type Segment =

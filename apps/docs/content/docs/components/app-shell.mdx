@@ -127,7 +127,7 @@ on their own corner.
 
 Put each page's content in `AppShellPage` inside `AppShellContent`. It is the one place a page's
 width and gutters come from: a column padded by the page gutter (`--page-gutter` — 16px, 24px
-from 640px, 32px from 1024px, the header's own padding) with a `gap-6` rhythm between the
+from 640px, 32px from 1024px, 48px from 1920px, the header's own padding) with a `gap-6` rhythm between the
 `PageHeader` and each section. `size` picks the width — `prose` (720px of content, centred) for
 forms and settings, `default` (1280px, centred) for lists, dashboards and record pages, and `full`
 (edge to edge, fills the height) for boards and canvases; `narrow` is `prose`'s deprecated old
@@ -159,6 +159,25 @@ keeps it under the header's start edge.
 
 `align="center"` centres it in the page, so a settings tab reads like a settings page
 (`AppShellPage size="prose"`). `align` is ignored at `full`.
+
+**Width follows the content, not the route.** `measure="default"` caps a section at a default
+page's content width and centres it (its `align` defaults to `center`), so a `full` frame that
+hosts several kinds of content — a folder list, a document, a grid on one route — keeps its list
+at exactly the width every other list has, while the grid beside it fills.
+
+<ComponentPreview
+  name="appShellSectionDefault"
+  file="components/preview/app-shell.tsx"
+/>
+
+```tsx
+<AppShellPage size="full">
+  <AppShellSection measure="default">
+    <PageHeader title="Contracts" />
+    <DataList … />
+  </AppShellSection>
+</AppShellPage>
+```
 
 ```tsx
 <AppShellPage>
@@ -210,6 +229,50 @@ and `when="wide"` only from 40rem.
         <AutoSaveIndicator variant="icon" status={status} />
       </AppShellHeaderSlot>
     </>
+  }
+>
+  …
+</AppShellHeader>
+```
+
+**Actions that give way.** `AppShellHeaderActions` takes the page's actions as data and moves
+each one into a single ⋮ menu when the bar is narrower than its `overflow` width — `laptop`
+(55rem), `tablet` (40rem), or `never` for the page's one primary action — and drops the labels
+to icons below 40rem. `menu` entries always live in the ⋮. Nothing hides without a way to reach
+it, and the page writes no container query of its own. `render` takes a router link for an
+action that navigates.
+
+<ComponentPreview
+  name="appShellHeaderActions"
+  file="components/preview/app-shell.tsx"
+/>
+
+```tsx
+<AppShellHeader
+  actions={
+    <AppShellHeaderActions
+      leading={<AvatarStack people={here} max={3} />}
+      actions={[
+        {
+          id: "share",
+          label: "Share",
+          icon: <Share2 />,
+          onSelect: share,
+          overflow: "never",
+        },
+        {
+          id: "watch",
+          label: "Watch",
+          icon: <Bell />,
+          onSelect: watch,
+          overflow: "laptop",
+        },
+      ]}
+      menu={[
+        { id: "copy", label: "Copy link", icon: <Link2 />, onSelect: copy },
+      ]}
+      menuLabel="Task actions"
+    />
   }
 >
   …
@@ -327,6 +390,20 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
 <ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellHeaderProps"
+/>
+
+### AppShellHeaderActions
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellHeaderActionsProps"
+/>
+
+Each entry of `actions` and `menu` is an `AppShellHeaderAction`:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellHeaderAction"
 />
 
 ### AppShellContent

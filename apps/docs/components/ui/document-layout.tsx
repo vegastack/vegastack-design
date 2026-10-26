@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.86 sha256-+5dNq8n0yzp8VPbQu+rMRvkeYWIYocRhk0oFDCqmqt4=
+// @vegastack document-layout@0.25.86 sha256-eZoPTQvOD/o+JbZ0fpbQnvEh36eCjCjztOsopUcVWgI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -87,16 +87,23 @@ export {
  *
  *   tier  width        gutters  text column                    rail  margin
  *   s     < 40rem      0        the full width                 —     — (the host's sheet)
- *   m     40–60rem     3rem     max(36rem, 75%)                ✓     — (a popover)
- *   l     60–90rem     3rem     clamp(40rem, 75%, 52rem)       ✓     20rem
+ *   m     40–64rem     3rem     max(36rem, 75%)                ✓     — (a popover)
+ *   l     64–90rem     3rem     clamp(40rem, 75%, 52rem)       ✓     20rem
  *   xl    90–120rem    4rem     60rem                          ✓     24rem
  *   2xl   ≥ 120rem     4rem     64rem                          ✓     24rem
  *
+ * The tier bounds are the system's layout tiers (`tablet` 40rem, `laptop` 64rem, `wide` 90rem —
+ * `LAYOUT_TIERS` in `page-layout`), plus a document-only 120rem step.
+ *
  * The text column is fluid — about three quarters of the layout — between each tier's bounds;
- * Wide (`measure="wide"`) is the whole width less the gutters (and the margin). The rail, text
- * and margin are one block, centred: a comment margin shifts the block to the start rather than
- * narrowing the text, and the text gives way only when the width cannot hold text, margin and
- * gutters at once (the text track is `minmax(0, …)`).
+ * Wide (`measure="wide"`) is the whole width less the gutters (and the margin), up to 75rem
+ * (1200px) — past that a line is too long to read. The rail, text
+ * and margin are one block, centred, and the text stays in the middle when the comment margin
+ * shows: the start track mirrors the end side (`--document-layout-start`, between the gutter
+ * and the margin plus the gutter), so with room for both the text sits exactly where it sat without
+ * comments. With less room the start track gives way first — down to the gutter, where the margin
+ * shifts the block to the start — and the text gives way only when the width cannot hold text,
+ * margin and gutters at once (the text track is `minmax(0, …)`).
  *
  * The contents rail sits in the start gutter, beside the text, from the M tier — whether or not a
  * document has headings, so a contents list that arrives (or goes) never moves the text. It
@@ -109,7 +116,7 @@ export {
  * ----------------------------------------------------------------------------------------------*/
 
 /**
- * A layout tier, by the layout's own width: `s` (< 40rem), `m` (40–60rem), `l` (60–90rem), `xl`
+ * A layout tier, by the layout's own width: `s` (< 40rem), `m` (40–64rem), `l` (64–90rem), `xl`
  * (90–120rem) or `2xl` (≥ 120rem). The rail shows from `m`, the comment margin from `l`.
  */
 export type DocumentLayoutTier = "s" | "m" | "l" | "xl" | "2xl";
@@ -119,15 +126,16 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   /**
    * Show the comment margin (from the L tier): set it only while the margin holds something —
    * open threads beside the text or a comment being written — and decide it with the text (on
-   * the server, from the thread count), so the first paint is right. Without it the text is
-   * centred; the first comment shifts the block to the start.
+   * the server, from the thread count), so the first paint is right. The text stays centred
+   * either way while the width holds the margin on both sides; below that the margin shifts the
+   * block towards the start.
    * @default false
    */
   margin?: boolean;
   /**
    * The text column: `document` (fluid, about three quarters of the layout within each tier's
-   * bounds) or `wide` (the whole width less the gutters and the margin; each reader's own
-   * choice, never the document's).
+   * bounds) or `wide` (the whole width less the gutters and the margin, up to 75rem — 1200px;
+   * each reader's own choice, never the document's).
    * @default "document"
    */
   measure?: "document" | "wide";
@@ -139,18 +147,22 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   focusable?: boolean;
 }
 
-// The grid: four tracks — the start gutter (the rail's), the text, the margin (its 2rem gap
-// inside it, so a zero track costs no gap) and the end gutter — centred as one block. Every width
-// is a custom property the tiers set, so the hook, the skeleton and the page share one geometry.
+// The grid: four tracks — the start track (the rail's: the gutter, widened to mirror the margin
+// while there is room), the text, the margin (its 2rem gap inside it, so a zero track costs no
+// gap) and the end gutter — centred as one block. Every width is a custom property the tiers set,
+// so the hook, the skeleton and the page share one geometry.
 const GRID = cn(
-  "relative grid min-w-0 grid-cols-[[rail-start]_var(--document-layout-gutter)_[rail-end_text-start]_minmax(0,var(--document-layout-text))_[text-end_margin-start]_var(--document-layout-margin)_[margin-end]_var(--document-layout-gutter)] grid-rows-[auto_auto_1fr] content-start justify-center gap-y-6",
+  "relative grid min-w-0 grid-cols-[[rail-start]_var(--document-layout-start)_[rail-end_text-start]_minmax(0,var(--document-layout-text))_[text-end_margin-start]_var(--document-layout-margin)_[margin-end]_var(--document-layout-gutter)] grid-rows-[auto_auto_1fr] content-start justify-center gap-y-6",
   "text-sm pointer-coarse:text-base max-sm:text-base",
-  "[--document-layout-tier:s] @min-[40rem]/document-layout:[--document-layout-tier:m] @min-[60rem]/document-layout:[--document-layout-tier:l] @min-[90rem]/document-layout:[--document-layout-tier:xl] @min-[120rem]/document-layout:[--document-layout-tier:2xl]",
+  "[--document-layout-tier:s] @min-[40rem]/document-layout:[--document-layout-tier:m] @min-[64rem]/document-layout:[--document-layout-tier:l] @min-[90rem]/document-layout:[--document-layout-tier:xl] @min-[120rem]/document-layout:[--document-layout-tier:2xl]",
   "[--document-layout-gutter:0rem] @min-[40rem]/document-layout:[--document-layout-gutter:3rem] @min-[90rem]/document-layout:[--document-layout-gutter:4rem]",
   // The text: fluid within each tier's bounds (`cqw` is the layout's own width). Wide asks for the
   // whole width, which the `minmax(0, …)` track caps at what the gutters and margin leave.
-  "[--document-layout-text:100cqw] @min-[40rem]/document-layout:[--document-layout-text:max(36rem,75cqw)] @min-[60rem]/document-layout:[--document-layout-text:clamp(40rem,75cqw,52rem)] @min-[90rem]/document-layout:[--document-layout-text:60rem] @min-[120rem]/document-layout:[--document-layout-text:64rem] data-[measure=wide]:[--document-layout-text:100cqw]",
-  "[--document-layout-margin:0rem] data-margin:@min-[60rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
+  "[--document-layout-text:100cqw] @min-[40rem]/document-layout:[--document-layout-text:max(36rem,75cqw)] @min-[64rem]/document-layout:[--document-layout-text:clamp(40rem,75cqw,52rem)] @min-[90rem]/document-layout:[--document-layout-text:60rem] @min-[120rem]/document-layout:[--document-layout-text:64rem] data-[measure=wide]:[--document-layout-text:min(100cqw,75rem)]",
+  "[--document-layout-margin:0rem] data-margin:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
+  // The start track mirrors the end side (margin + gutter) while the width holds both, so the text
+  // stays centred with comments; with less room it narrows towards the gutter (asymmetric).
+  "[--document-layout-start:clamp(var(--document-layout-gutter),calc(100cqw-var(--document-layout-text)-var(--document-layout-margin)-var(--document-layout-gutter)),calc(var(--document-layout-gutter)+var(--document-layout-margin)))]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",
@@ -514,7 +526,7 @@ export function DocumentLayoutMargin({
       data-slot="document-layout-margin"
       aria-label={ariaLabel}
       className={cn(
-        "relative col-[margin] row-[1/span_3] hidden min-w-0 ps-8 @min-[60rem]/document-layout:in-data-margin:block print:hidden",
+        "relative col-[margin] row-[1/span_3] hidden min-w-0 ps-8 @min-[64rem]/document-layout:in-data-margin:block print:hidden",
         className,
       )}
       {...props}
