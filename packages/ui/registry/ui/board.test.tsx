@@ -779,10 +779,14 @@ test("a card's ⋯ menu mounts on demand and opens on the first press", async ()
   expect(onOpen).toHaveBeenCalled();
 });
 
-test("an untouched card menu opens from ↓", async () => {
+test("an untouched card menu opens from ↓ on its first item, and Enter picks it", async () => {
+  const onOpen = vi.fn();
   const screen = await render(
     <Controlled
-      getItemActions={() => [{ label: "Open", onSelect: () => {} }]}
+      getItemActions={() => [
+        { label: "Open", onSelect: onOpen },
+        { label: "Archive", onSelect: () => {} },
+      ]}
     />,
   );
   const trigger = screen
@@ -791,6 +795,8 @@ test("an untouched card menu opens from ↓", async () => {
   trigger.focus();
   await userEvent.keyboard("{ArrowDown}");
   await expect
-    .element(screen.getByRole("menuitem", { name: "Open" }))
-    .toBeInTheDocument();
+    .poll(() => document.activeElement?.textContent)
+    .toContain("Open");
+  await userEvent.keyboard("{Enter}");
+  expect(onOpen).toHaveBeenCalledOnce();
 });

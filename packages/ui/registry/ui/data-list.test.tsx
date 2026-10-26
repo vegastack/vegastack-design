@@ -3225,7 +3225,9 @@ test("on a board, getRowOrder walks only the lanes shown; a grid card takes the 
   expect(card.className).toContain("data-peek-active:bg-accent");
 });
 
-test("an untouched row menu opens from ↓ like a real menu button", async () => {
+test("an untouched row menu opens from the keyboard on its first (↓, Enter) or last (↑) item", async () => {
+  const onEdit = vi.fn();
+  const onDelete = vi.fn();
   const screen = await render(
     <DataList
       columns={columns}
@@ -3233,17 +3235,51 @@ test("an untouched row menu opens from ↓ like a real menu button", async () =>
       getRowId={(r) => r.id}
       getRowLabel={(r) => r.name}
       rowActions={() => [
-        { label: "Edit", onSelect: () => {} },
-        { label: "Delete", onSelect: () => {} },
+        { label: "Edit", onSelect: onEdit },
+        { label: "Delete", onSelect: onDelete },
       ]}
     />,
   );
-  const trigger = screen
-    .getByRole("button", { name: "Actions for Bea" })
-    .element() as HTMLElement;
-  trigger.focus();
+  const trigger = (name: string) =>
+    screen.getByRole("button", { name }).element() as HTMLElement;
+  // An earlier test's closing menu can hand focus back a frame late; settle before taking it.
+  const settle = () =>
+    new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve)),
+    );
+  await settle();
+  trigger("Actions for Bea").focus();
   await userEvent.keyboard("{ArrowDown}");
   await expect
-    .element(screen.getByRole("menuitem", { name: "Edit" }))
-    .toBeInTheDocument();
+    .poll(() => document.activeElement?.textContent)
+    .toContain("Edit");
+  await userEvent.keyboard("{Enter}");
+  expect(onEdit).toHaveBeenCalledOnce();
+  await settle();
+  trigger("Actions for Cole").focus();
+  await userEvent.keyboard("{ArrowUp}");
+  await expect
+    .poll(() => document.activeElement?.textContent)
+    .toContain("Delete");
+  await userEvent.keyboard("{Enter}");
+  expect(onDelete).toHaveBeenCalledOnce();
+});
+
+test("a board's getRowOrder skips a collapsed lane's cards", async () => {
+  const actions = React.createRef<import("./data-list").DataListActions>();
+  await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      view="board"
+      sections={[
+        { id: "makers", label: "Makers" },
+        { id: "others", label: "Others", defaultCollapsed: true },
+      ]}
+      getRowSection={(r) => (r.role === "Manager" ? "others" : "makers")}
+      actionsRef={actions}
+    />,
+  );
+  await expect.poll(() => actions.current?.getRowOrder()).toEqual(["a", "b"]);
 });

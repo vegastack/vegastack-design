@@ -845,7 +845,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.84",
-        "integrity": "sha256-RQm+zMgHXBxocwvnrZs+WoAZo29WH12UnFQJdPC/N9o="
+        "integrity": "sha256-LAH76rp+BNsgIDA51ixr2DyWD+nJnm0P9y+bilrhzdc="
       }
     },
     {
@@ -1618,7 +1618,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.84",
-        "integrity": "sha256-t1ryXnz3bn61VwRb0FMbnhniu6RyC5nn+eBAmaytLWs="
+        "integrity": "sha256-kMXEoUb3EJNNZ4ckEZUAWEyXrl6llUtEIrKMVcEGdiQ="
       }
     },
     {
@@ -1874,7 +1874,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.84",
-        "integrity": "sha256-zuLX7wSxDnLgQYYKI5yNaqdF3QLhmJlh/kX+GbSMEyA="
+        "integrity": "sha256-Hnn4c+lGn/paZi7secoWAbI31ZT5jXf9o5agMgzkH5I="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack board@0.25.84 sha256-RQm+zMgHXBxocwvnrZs+WoAZo29WH12UnFQJdPC/N9o=
+// @vegastack board@0.25.84 sha256-LAH76rp+BNsgIDA51ixr2DyWD+nJnm0P9y+bilrhzdc=
 
 "use client";
 
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   defaultActionsLabel,
+  openFromKey,
   pickShortcut,
   RowActionMenuItems,
   type RowAction,
@@ -1410,15 +1411,24 @@ export function Board<T>({
             aria-haspopup="menu"
             aria-expanded={false}
             tabIndex={rovingTarget === id ? 0 : -1}
+            data-slot="board-card-menu"
             onPointerEnter={() => armMenu(id)}
             onClick={() => setOpenMenuCard(id)}
-            // A menu button opens on ↓/↑ too, as the real trigger does.
-            onKeyDown={(event) => {
-              if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-              event.preventDefault();
-              event.stopPropagation();
-              setOpenMenuCard(id);
-            }}
+            // Enter, Space and ↓/↑ hand the key to the real trigger once it is mounted, so the
+            // menu opens on its first or last item as it always has.
+            onKeyDown={(event) =>
+              openFromKey(event, () => armMenu(id), {
+                get current() {
+                  return (
+                    cardNodes.current
+                      .get(id)
+                      ?.querySelector<HTMLElement>(
+                        '[data-slot="board-card-menu"]',
+                      ) ?? null
+                  );
+                },
+              })
+            }
             className={CARD_MENU_CLASS}
           >
             <EllipsisVertical />
@@ -1434,6 +1444,7 @@ export function Board<T>({
                   variant="ghost"
                   size="icon-xs"
                   aria-label={menuLabel}
+                  data-slot="board-card-menu"
                   // One card-layer tab stop per board: M (or Tab from the active card) reaches
                   // the menu.
                   tabIndex={rovingTarget === id ? 0 : -1}

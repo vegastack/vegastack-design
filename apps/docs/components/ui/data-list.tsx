@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.84 sha256-t1ryXnz3bn61VwRb0FMbnhniu6RyC5nn+eBAmaytLWs=
+// @vegastack data-list@0.25.84 sha256-kMXEoUb3EJNNZ4ckEZUAWEyXrl6llUtEIrKMVcEGdiQ=
 
 "use client";
 
@@ -2118,16 +2118,30 @@ export function DataList<T>({
   // ---- selection: ranges, keyboard, the bar -----------------------------------------------
   // The rows as they read, top to bottom — a shift-click range runs over these. A collapsed
   // section's rows are not on screen in the list, so a range steps over them.
+  // The board's collapsed lanes, kept here (controlled or not) so the order a peek walks skips
+  // the cards a collapsed lane folds away. Seeded from each section's `defaultCollapsed`.
+  const [lanesCollapsed, commitLanesCollapsed] = useControlledState<
+    readonly string[]
+  >(
+    collapsedSections,
+    // Read on the first render only, as `Board`'s own seed was.
+    (sections ?? [])
+      .filter((section) => section.defaultCollapsed)
+      .map((section) => section.id),
+    onCollapsedSectionsChange as ((ids: readonly string[]) => void) | undefined,
+  );
   const displayOrder = React.useMemo(() => {
-    if (!sectionGroups) return rowIds;
     // A board shows only the listed sections, as lanes (a hidden lane's rows are not on it), and
-    // a collapsed lane's cards are folded away.
-    if (activeView === "board")
+    // a collapsed lane's cards are folded away — the single "All" lane's too.
+    if (activeView === "board") {
+      if (!sectionGroups) return lanesCollapsed.includes("__all") ? [] : rowIds;
       return sectionGroups.flatMap((group) =>
-        group.label == null || collapsedSections?.includes(group.id)
+        group.label == null || lanesCollapsed.includes(group.id)
           ? []
           : group.indexes.map((index) => rowIds[index]!),
       );
+    }
+    if (!sectionGroups) return rowIds;
     return sectionGroups.flatMap((group) =>
       activeView === "list" &&
       group.label != null &&
@@ -2135,7 +2149,7 @@ export function DataList<T>({
         ? []
         : group.indexes.map((index) => rowIds[index]!),
     );
-  }, [sectionGroups, rowIds, activeView, groups, collapsedSections]);
+  }, [sectionGroups, rowIds, activeView, groups, lanesCollapsed]);
 
   // ---- the open row (`activeRowId`) and the order a peek walks (`actionsRef`) ----------------
   const latestOrder = React.useRef(displayOrder);
@@ -2913,8 +2927,8 @@ export function DataList<T>({
                   ?.actions ?? []
             : undefined
         }
-        collapsedColumns={collapsedSections}
-        onCollapsedChange={onCollapsedSectionsChange}
+        collapsedColumns={lanesCollapsed}
+        onCollapsedChange={(ids) => commitLanesCollapsed(ids)}
         height={boardHeight}
         onMove={(move) => {
           const index = rowIds.indexOf(move.id);

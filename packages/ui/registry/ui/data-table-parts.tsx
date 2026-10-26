@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.84 sha256-zuLX7wSxDnLgQYYKI5yNaqdF3QLhmJlh/kX+GbSMEyA=
+// @vegastack data-table-parts@0.25.84 sha256-Hnn4c+lGn/paZi7secoWAbI31ZT5jXf9o5agMgzkH5I=
 
 "use client";
 
@@ -1546,6 +1546,38 @@ export function RowActionsMenu({
 }
 
 /**
+ * An on-demand menu's keyboard opening: Enter, Space and ↓ open on the first item, ↑ on the last,
+ * exactly as the real trigger does — so the key is handed to the real trigger once it is mounted,
+ * and the menu's own list navigation takes it from there.
+ */
+export function openFromKey(
+  event: React.KeyboardEvent,
+  arm: () => void,
+  triggerRef: React.RefObject<HTMLElement | null>,
+) {
+  const key =
+    event.key === "ArrowUp"
+      ? "ArrowUp"
+      : event.key === "ArrowDown" || event.key === "Enter" || event.key === " "
+        ? "ArrowDown"
+        : null;
+  if (!key) return;
+  event.preventDefault();
+  event.stopPropagation();
+  arm();
+  triggerRef.current?.focus();
+  // Outside this key's own dispatch, once the real trigger's handlers are wired.
+  requestAnimationFrame(() => {
+    const real = triggerRef.current;
+    if (!real?.isConnected) return;
+    real.focus();
+    real.dispatchEvent(
+      new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }),
+    );
+  });
+}
+
+/**
  * The ⋯ menu's machinery mounts on demand (PF-09): until the trigger is pointed at or pressed, a
  * row holds one plain `Button` — no Base UI menu root, floating tree or popup state. A folder of a
  * hundred rows mounted a hundred menus, and their setup was most of the open's script time. The
@@ -1561,12 +1593,14 @@ function LazyRowMenu({
 }) {
   const [armed, setArmed] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   // Synchronously, so the real trigger is in place before the press that follows.
   const arm = () => {
     if (!armed) flushSync(() => setArmed(true));
   };
   const trigger = (
     <Button
+      ref={triggerRef}
       variant="ghost"
       size="icon"
       data-slot="row-actions-menu-trigger"
@@ -1580,17 +1614,13 @@ function LazyRowMenu({
       "aria-haspopup": "menu",
       "aria-expanded": false,
       onPointerEnter: arm,
+      // No pointer before the press (a scripted click, a switch device): open it outright.
       onClick: () => {
         setArmed(true);
         setMenuOpen(true);
       },
-      // A menu button opens on ↓/↑ too, as the real trigger does.
-      onKeyDown: (event: React.KeyboardEvent) => {
-        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-        event.preventDefault();
-        setArmed(true);
-        setMenuOpen(true);
-      },
+      onKeyDown: (event: React.KeyboardEvent) =>
+        openFromKey(event, arm, triggerRef),
     } as React.ComponentProps<typeof Button>);
   return (
     <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
