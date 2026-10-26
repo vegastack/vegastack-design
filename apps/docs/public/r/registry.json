@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.81",
-        "integrity": "sha256-crwcOBRmYzCOKRZDsdS3+BOC86WusaIse8lRhBOBbC4="
+        "integrity": "sha256-evG0JBUxmwL7K1gmZnWh2WEsoKJor2c/2bAN+ByPB2s="
       }
     },
     {
@@ -2537,7 +2537,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.81",
-        "integrity": "sha256-VFTGw3X+6kPEdGBOPcX6pLEMEJvz6sqj4cqTx04uj6w="
+        "integrity": "sha256-wsxu3Y5gUlFMaM7rgHokizSDJj8+Idp4j3rs4a0MOzA="
       }
     },
     {
@@ -18763,7 +18763,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.25.81",
-        "integrity": "sha256-6/5fw3tvoHc3kuSUBftdUPiT3Cxvi5airUW4c8hnwnE="
+        "integrity": "sha256-bELfOwqi1oPcxjpb5mGBxDu5yZ7HIxQOTjV2DzWN13s="
       }
     },
     {

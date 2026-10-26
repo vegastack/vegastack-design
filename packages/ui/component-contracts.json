@@ -7996,9 +7996,6 @@
               "values": [
                 "data-grid",
                 "data-grid-footer",
-                "data-grid-head",
-                "data-grid-head-label",
-                "data-grid-head-menu",
                 "data-grid-head-trailing",
                 "data-grid-hidden-hint",
                 "data-grid-more",
@@ -8008,14 +8005,6 @@
                 "table",
                 "table-header"
               ]
-            },
-            {
-              "name": "data-sortable",
-              "values": [""]
-            },
-            {
-              "name": "data-sorted",
-              "values": []
             }
           ],
           "cssVariables": []

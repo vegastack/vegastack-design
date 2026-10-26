@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.81 sha256-VFTGw3X+6kPEdGBOPcX6pLEMEJvz6sqj4cqTx04uj6w=
+// @vegastack editable-cell@0.25.81 sha256-wsxu3Y5gUlFMaM7rgHokizSDJj8+Idp4j3rs4a0MOzA=
 
 "use client";
 
@@ -564,8 +564,19 @@ function InlineTextBody({
   const displayFallback = placeholder ?? "Edit value";
   // A long single-line value truncates to its container; when it is actually clipped the full
   // value is offered as the display's `title` — and opening the editor shows all of it.
-  const [textNode, setTextNode] = React.useState<HTMLSpanElement | null>(null);
-  const observed = useOverflow(textNode, {
+  // The text element: a ref for the handlers, and STATE only while it is observed — on contact
+  // nothing re-renders for it, so a grid's newly mounted cell renders once, not twice.
+  const textRef = React.useRef<HTMLSpanElement | null>(null);
+  const [observedNode, setObservedNode] =
+    React.useState<HTMLSpanElement | null>(null);
+  const setTextNode = React.useCallback(
+    (node: HTMLSpanElement | null) => {
+      textRef.current = node;
+      if (!measureOnContact) setObservedNode(node);
+    },
+    [measureOnContact],
+  );
+  const observed = useOverflow(measureOnContact ? null : observedNode, {
     deps: [value, wrapping],
     paused: measureOnContact,
   });
@@ -573,16 +584,17 @@ function InlineTextBody({
   const [contacted, setContacted] = React.useState(false);
   const probe = measureOnContact
     ? () => {
-        if (textNode) setContacted(measureOverflow(textNode));
+        if (textRef.current) setContacted(measureOverflow(textRef.current));
       }
     : undefined;
   // A new value under a resting pointer or focus is looked at again (an untouched cell is not).
   React.useEffect(() => {
+    const textNode = textRef.current;
     if (!measureOnContact || !textNode) return;
     const host = textNode.parentElement ?? textNode;
     if (!host.matches(":hover") && !host.matches(":focus")) return;
     setContacted(measureOverflow(textNode));
-  }, [measureOnContact, textNode, value]);
+  }, [measureOnContact, value]);
   const overflowing = measureOnContact ? contacted : observed;
   const truncated = !wrapping && !isEditing && overflowing && hasDisplayValue;
   const interactive = !readOnly && !isEditing;
@@ -712,6 +724,7 @@ function InlineTextBody({
         interactive
           ? (event) => {
               // `cell`: only the text starts an edit; a click beside it bubbles on to the row.
+              const textNode = textRef.current;
               if (fill && textNode && !textNode.contains(event.target as Node))
                 return;
               // A click on a widget inside the value (a link chip) is the widget's: it opens
@@ -752,8 +765,11 @@ function InlineTextBody({
       className={cn(
         // The text sizes the box in both modes; while editing, the field is laid over the whole
         // box (`absolute inset-0`), so it grows with its content and nothing shifts. No font of
-        // its own: size, weight, line height and tracking come from the surroundings.
-        "relative max-w-full min-w-0 items-center",
+        // its own: size, weight, line height and tracking come from the surroundings. Positioned
+        // only then: at rest a grid holds hundreds of these, and each positioned box is a paint
+        // layer of its own.
+        "max-w-full min-w-0 items-center",
+        isEditing && "relative",
         box,
         fill ? "flex w-full" : "inline-flex align-top",
         // `flush`: the box starts one padding-width before its slot, so the text starts on it.
