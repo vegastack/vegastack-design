@@ -960,7 +960,46 @@ export async function main(argv) {
   return errors.length ? 2 : opts.failOnUpdate && updates.length ? 1 : 0;
 }
 
-export { terminalText };
+/**
+ * The registry index, for another read-only command (`owned-files`): the same config precedence,
+ * `${ENV}` expansion, credential headers, trusted-origin and no-redirect rules as `check-updates`
+ * itself. Throws an Error whose message is already terminal-safe and redacted.
+ */
+export async function fetchRegistryIndex({
+  cwd,
+  registry = null,
+  componentsJson = null,
+}) {
+  missingEnv.clear();
+  ENV = loadEnv(cwd);
+  const { urlTemplate, headers } = resolveRegistry(
+    { registry },
+    componentsJson,
+  );
+  const url = indexUrl(urlTemplate);
+  let res;
+  try {
+    res = await fetchRegistry(url, headers);
+  } catch (err) {
+    throw new Error(
+      `could not reach the registry at ${terminalText(url)}: ${terminalText(err.message)}`,
+    );
+  }
+  if (!res.ok) {
+    const hint = missingEnv.size
+      ? ` (these auth env vars are unset: ${[...missingEnv].join(", ")})`
+      : "";
+    throw new Error(
+      `registry index fetch failed: HTTP ${res.status} ${terminalText(res.statusText)} (${terminalText(url)})${hint}`,
+    );
+  }
+  const index = await res.json();
+  if (!Array.isArray(index?.items))
+    throw new Error("registry index has no items array");
+  return { url: terminalText(url), items: index.items };
+}
+
+export { terminalText, PROVENANCE_RE, ITEM_NAME_RE };
 
 // standalone execution (so `node check-updates.mjs` works; the dispatcher imports main() instead)
 if (

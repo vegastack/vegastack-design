@@ -1,0 +1,5 @@
+---
+"@vegastack/design": patch
+---
+
+🛠 **`vegastack-design doctor`** now warns where a project works around a DS part instead of using it, each as `file:line`: a Tailwind `!` modifier in the `className` of a part imported from the `ui` alias; a `w-*`, `min-w-*` or `max-w-*` class on `PopoverContent`, `DropdownMenuContent`, `ContextMenuContent`, `MenubarContent`, `SelectContent`, `ComboboxContent` or `HoverCardContent`; a hand-written `header` element inside `SheetContent`, `DrawerContent`, `DialogContent` or `AlertDialogContent` in the same file; and an `AppShellPage` in an App Router page or layout whose `size` differs from the route map (`definePageWidths` rows plus any `widths: { … }` object feeding it). They are warnings by default; `--strict` makes them failures. New **`vegastack-design owned-files`** lists the registry-owned files installed in a project (index targets resolved through `components.json` aliases, plus header-carrying files) as plain lines or `--json`, so lint ignores, knip and drift checks can read one generated list. [docs](https://design.vegastack.com/docs/guides/troubleshooting)

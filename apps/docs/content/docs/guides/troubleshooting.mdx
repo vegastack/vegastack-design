@@ -25,6 +25,18 @@ to nothing, so it fails the run with the `file:line` and the replacement.
 A custom property your project declares itself (`--z-header: 30`) is yours and
 is not reported.
 
+It also warns where your code works around a part instead of using it: a
+Tailwind `!` modifier in the `className` of a part imported from the `ui`
+directory (`gap-0!`, `!p-1`); a `w-*`, `min-w-*` or `max-w-*` class on a
+popover, menu, select or combobox popup (`PopoverContent` takes `size` —
+`default`, `md`, `lg`, `fit` — and menus size to their longest item); a
+hand-written `<header>` inside `SheetContent`, `DrawerContent`, `DialogContent`
+or `AlertDialogContent` in the same file (use the overlay's own header part);
+and an `AppShellPage` in an App Router `page`/`layout` file whose `size` differs
+from the route map (see [Page layout](/docs/foundations/page-layout)). These are
+warnings, so a release that adds one never turns your build red; once you have
+fixed them, run `vegastack-design doctor --strict` in CI to make them failures.
+
 **Coming from 0.4.x?** Most of what breaks there is not a bug — it is the shadcn
 reset. Work [Migrating to the shadcn reset](/docs/guides/migrating-shadcn-reset)
 first; its section 13 lists the silent failures (a deleted token compiles to

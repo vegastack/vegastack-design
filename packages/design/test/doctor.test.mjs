@@ -13,8 +13,16 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PKG = join(HERE, "..");
-const { main, scanPageLayout, scanRetiredVocabulary, uiAliasDirs } =
-  await import(join(PKG, "bin/doctor.mjs"));
+const {
+  main,
+  scanComposition,
+  scanPageLayout,
+  scanRetiredVocabulary,
+  uiAliasDirs,
+} = await import(join(PKG, "bin/doctor.mjs"));
+const { ownedFiles, main: ownedFilesMain } = await import(
+  join(PKG, "bin/owned-files.mjs")
+);
 
 let failures = 0;
 const tmpRoots = [];
@@ -349,7 +357,6 @@ test("`doctor` fails with file:line when retired vocabulary is present, passes w
   );
 });
 
-for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 test("page layout: an AppShellPage that sets its own width or gutter is reported; narrow is a warning", () => {
   const root = project({
     "src/app/a/page.tsx": [
@@ -379,6 +386,365 @@ test("page layout: an AppShellPage that sets its own width or gutter is reported
     ["src/app/a/page.tsx:5"],
   );
 });
+
+// ---- composition: DS parts used as designed --------------------------------------------------
+
+const UI = { "src/components/ui/button.tsx": "" };
+const compositionOf = (root) =>
+  scanComposition(root, { skipDirs: [join(root, "src/components/ui")] });
+const lines = (findings) =>
+  findings.map((f) => `${f.file}:${f.line} ${f.match}`);
+
+console.log("doctor — composition");
+
+test("`!` on a ui part is reported with the part and the token", () => {
+  const root = project({
+    ...UI,
+    "src/home.tsx": [
+      `import { ItemGroup } from "@/components/ui/item";`,
+      `import { SidebarMenuButton as MenuButton } from "@/components/ui/sidebar";`,
+      `import * as Ui from "../src/components/ui/popover";`,
+      `<ItemGroup className="-mx-3 w-auto gap-0!">x</ItemGroup>`,
+      `<MenuButton size="lg" className={cn("x", open && "group-data-[collapsible=icon]:p-1!")} />`,
+      `<Ui.PopoverContent`,
+      `  className="!p-0 md:!px-2"`,
+      `/>`,
+    ].join("\n"),
+  });
+  assert.deepEqual(lines(compositionOf(root).important), [
+    "src/home.tsx:4 ItemGroup gap-0!",
+    "src/home.tsx:5 SidebarMenuButton group-data-[collapsible=icon]:p-1!",
+    "src/home.tsx:7 PopoverContent !p-0",
+    "src/home.tsx:7 PopoverContent md:!px-2",
+  ]);
+});
+
+test("`!` on the project's own components and plain elements, and JS `!`, are not reported", () => {
+  const root = project({
+    ...UI,
+    "src/own.tsx": [
+      `import { Card } from "@/components/app/card";`,
+      `import { Button } from "@/components/ui/button";`,
+      `<Card className="gap-0!" />`,
+      `<div className="p-1!" />`,
+      `<Button className={cn("gap-2", !open && "hidden")} disabled={!ok}>Done!</Button>`,
+      `// <Button className="p-1!" /> in a comment`,
+    ].join("\n"),
+  });
+  assert.deepEqual(compositionOf(root).important, []);
+});
+
+test("a width class on a popover, menu or select popup is reported; other parts are not", () => {
+  const root = project({
+    ...UI,
+    "src/menus.tsx": [
+      `import { PopoverContent } from "@/components/ui/popover";`,
+      `import { DropdownMenuContent } from "@/components/ui/dropdown-menu";`,
+      `import { SelectContent } from "@/components/ui/select";`,
+      `import { DialogContent } from "@/components/ui/dialog";`,
+      `<PopoverContent className="w-80 p-0" align="end">x</PopoverContent>`,
+      `<DropdownMenuContent className="md:min-w-48 max-w-[calc(100vw-2rem)]" />`,
+      `<SelectContent className="h-60" />`,
+      `<DialogContent className="max-w-lg" />`,
+      `<PopoverContent size="md">ok</PopoverContent>`,
+    ].join("\n"),
+  });
+  assert.deepEqual(lines(compositionOf(root).widths), [
+    "src/menus.tsx:5 PopoverContent w-80",
+    "src/menus.tsx:6 DropdownMenuContent md:min-w-48",
+    "src/menus.tsx:6 DropdownMenuContent max-w-[calc(100vw-2rem)]",
+  ]);
+});
+
+test("a hand-written <header> inside Sheet/Drawer/Dialog content is reported; outside it is not", () => {
+  const root = project({
+    ...UI,
+    "src/peek.tsx": [
+      `import { Drawer, DrawerContent, DrawerHeader } from "@/components/ui/drawer";`,
+      `import { SheetContent } from "@/components/ui/sheet";`,
+      `export function Peek() {`,
+      `  return (`,
+      `    <Drawer>`,
+      `      <DrawerContent style={{ width }} className="max-w-[calc(100vw-1rem)]">`,
+      `        <div onKeyDown={(e) => { if (e.key === ">") e.stopPropagation(); }} />`,
+      `        <header className="flex">bad</header>`,
+      `        <DrawerHeader>ok</DrawerHeader>`,
+      `      </DrawerContent>`,
+      `      <header>after the content closes: ok</header>`,
+      `      <SheetContent><section><header>bad</header></section></SheetContent>`,
+      `    </Drawer>`,
+      `  );`,
+      `}`,
+    ].join("\n"),
+    "src/page.tsx": `export default () => <main><header>a page header</header></main>;`,
+  });
+  assert.deepEqual(lines(compositionOf(root).headers), [
+    "src/peek.tsx:8 <header> in DrawerContent",
+    "src/peek.tsx:12 <header> in SheetContent",
+  ]);
+});
+
+const WIDTH_MAP = {
+  "src/lib/page-layout.ts": [
+    `/** @example definePageWidths({ "/": "full" }) */`,
+    `export function definePageWidths(routes) { return routes; }`,
+  ].join("\n"),
+  "src/shell/page-widths.ts": [
+    `import { MODULES } from "@/modules/registry";`,
+    `import { definePageWidths } from "@/lib/page-layout";`,
+    `export const pageWidths = definePageWidths({`,
+    `  "/": "default",`,
+    `  "/settings/profile": "prose",`,
+    `  // "/settings/old": "full",`,
+    `  ...Object.fromEntries(MODULES.flatMap((m) => Object.entries(m.shell.widths))),`,
+    `});`,
+  ].join("\n"),
+  "src/modules/registry.ts": [
+    `export const MODULES = [`,
+    `  { id: "tasks", label: "Tasks", shell: { widths: {`,
+    `    "/tasks": "default",`,
+    `    "/tasks/board": "full",`,
+    `    "/tasks/[taskId]": "default",`,
+    `    "/tasks/new": "prose",`,
+    `    "/docs/[[...slug]]": "full",`,
+    `    "/docs/[id]": "prose",`,
+    `  } }, nav: { "/tasks": "ignored" } },`,
+    `];`,
+  ].join("\n"),
+};
+
+test("AppShellPage size is compared with the route map, most specific row first", () => {
+  const root = project({
+    ...UI,
+    ...WIDTH_MAP,
+    "src/app/(app)/page.tsx": `<AppShellPage>home</AppShellPage>`,
+    "src/app/(app)/settings/profile/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
+    "src/app/(app)/tasks/board/page.tsx": `<AppShellPage size="default">bad</AppShellPage>`,
+    "src/app/(app)/tasks/new/page.tsx": `\n<AppShellPage>bad</AppShellPage>`,
+    "src/app/(app)/tasks/[taskId]/layout.tsx": `<AppShellPage size={"default"}>ok</AppShellPage>`,
+    "src/app/(app)/tasks/page.tsx": `<AppShellPage size={board ? "full" : "default"}>skip</AppShellPage>`,
+    "src/app/(app)/@modal/(.)tasks/new/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
+    "src/app/(app)/reports/page.tsx": `<AppShellPage size="full">unlisted</AppShellPage>`,
+    // `/docs/intro` is served by both `[id]` and `[[...slug]]`; the more specific `[id]` wins.
+    "src/app/(app)/docs/intro/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
+    "src/modules/tasks/tasks-page.tsx": `<AppShellPage size="full">not a route file</AppShellPage>`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.rows, 8, JSON.stringify(routeMap));
+  assert.deepEqual(routeMap.files, [
+    "src/modules/registry.ts",
+    "src/shell/page-widths.ts",
+  ]);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/(app)/reports/page.tsx:1 size="full" on /reports',
+    'src/app/(app)/tasks/board/page.tsx:1 size="default" on /tasks/board',
+    'src/app/(app)/tasks/new/page.tsx:2 size="default" on /tasks/new',
+  ]);
+  assert.match(
+    routeMap.mismatches[1].hint,
+    /the map says "full" \(\/tasks\/board, src\/modules\/registry\.ts:4\)/,
+  );
+  assert.equal(routeMap.compared, 8);
+  assert.equal(routeMap.dynamic, 1);
+  assert.equal(routeMap.outside, 1);
+});
+
+test("`doctor` warns on composition findings, fails under --strict, and skips the route rule with no map", () => {
+  const base = {
+    "package.json": JSON.stringify({
+      dependencies: { "@vegastack/design": "^0.8.0" },
+    }),
+    "postcss.config.mjs": `export default { plugins: { "@tailwindcss/postcss": {} } };`,
+    "components.json": JSON.stringify({
+      aliases: { ui: "@/components/ui" },
+      registries: {
+        "@vegastack": "https://design.vegastack.com/r/{name}.json",
+      },
+    }),
+    "src/app/globals.css": `@import "@vegastack/design/preset.css";`,
+    "src/components/ui/item.tsx": `<ItemGroup className="gap-0!" />`,
+  };
+  const clean = run([
+    "--dir",
+    project({
+      ...base,
+      "src/app/page.tsx": `import { ItemGroup } from "@/components/ui/item";\n<AppShellPage><ItemGroup /></AppShellPage>`,
+    }),
+    "--strict",
+  ]);
+  assert.equal(clean.code, 0, clean.output);
+  assert.match(clean.output, /✓ important on DS parts/);
+  assert.match(
+    clean.output,
+    /– page width vs route map — skipped \(no route map\)/,
+  );
+
+  const dirty = project({
+    ...base,
+    ...WIDTH_MAP,
+    "src/app/(app)/tasks/board/page.tsx": [
+      `import { ItemGroup } from "@/components/ui/item";`,
+      `import { PopoverContent } from "@/components/ui/popover";`,
+      `import { SheetContent } from "@/components/ui/sheet";`,
+      `<AppShellPage>`,
+      `  <ItemGroup className="gap-0!" />`,
+      `  <PopoverContent className="w-80" />`,
+      `  <SheetContent><header /></SheetContent>`,
+      `</AppShellPage>`,
+    ].join("\n"),
+  });
+  const warned = run(["--dir", dirty]);
+  assert.equal(warned.code, 0, warned.output);
+  for (const name of [
+    "important on DS parts",
+    "popup width",
+    "overlay header",
+    "page width vs route map",
+  ])
+    assert.match(warned.output, new RegExp(`! ${name} — 1 `));
+  assert.match(
+    warned.output,
+    /src\/app\/\(app\)\/tasks\/board\/page\.tsx:5 {2}ItemGroup gap-0!/,
+  );
+  assert.match(warned.output, /setup looks correct \(4 warning\(s\)\)/);
+
+  const strict = run(["--dir", dirty, "--strict"]);
+  assert.equal(strict.code, 1, strict.output);
+  assert.match(strict.output, /✗ popup width — 1 /);
+  assert.match(strict.output, /4 problem\(s\)/);
+});
+
+// ---- owned-files ------------------------------------------------------------------------------
+
+console.log("owned-files");
+
+const HEADER = "// @vegastack date-time@0.25.80 sha256-abc=";
+const INDEX = [
+  {
+    name: "button",
+    type: "registry:ui",
+    files: [{ target: "@ui/button.tsx" }],
+  },
+  {
+    name: "date-time",
+    type: "registry:lib",
+    files: [{ target: "@lib/date-time.ts" }],
+  },
+  {
+    name: "use-mobile",
+    type: "registry:hook",
+    files: [{ target: "@ui/use-mobile.ts" }],
+  },
+  {
+    name: "email-kit",
+    type: "registry:block",
+    files: [
+      { target: "components/email/render.ts" },
+      { target: "components/email/missing.ts" },
+    ],
+  },
+  { name: "card", type: "registry:ui", files: [{ target: "@ui/card.tsx" }] },
+  {
+    name: "evil",
+    type: "registry:ui",
+    files: [{ target: "@ui/../../../outside.ts" }],
+  },
+];
+const OWNED = {
+  "components.json": JSON.stringify({
+    aliases: {
+      ui: "@/components/ui",
+      lib: "@/lib",
+      hooks: "@/hooks",
+      components: "@/components",
+    },
+  }),
+  "src/components/ui/button.tsx": "export {}",
+  "src/components/ui/use-mobile.ts": "export {}",
+  "src/components/ui/my-own.tsx": "export {}",
+  "src/components/app/legacy.tsx":
+    "// @vegastack legacy-thing@0.1.0 sha256-x=\nexport {}",
+  "src/lib/date-time.ts": `${HEADER}\nexport {}`,
+  "src/lib/utils.ts": "export {}",
+  "src/components/email/render.ts": "export {}",
+};
+
+test("owned-files lists installed index targets and header-carrying files, nothing else", () => {
+  const root = project(OWNED);
+  const cj = JSON.parse(OWNED["components.json"]);
+  const owned = ownedFiles(root, cj, INDEX);
+  assert.deepEqual(owned.files, [
+    "src/components/app/legacy.tsx",
+    "src/components/email/render.ts",
+    "src/components/ui/button.tsx",
+    "src/components/ui/use-mobile.ts",
+    "src/lib/date-time.ts",
+  ]);
+  assert.deepEqual(
+    owned.items.map((i) => `${i.name} ${i.type} ${i.version}`),
+    [
+      "button registry:ui null",
+      "date-time registry:lib 0.25.80",
+      "email-kit registry:block null",
+      "legacy-thing null 0.1.0",
+      "use-mobile registry:hook null",
+    ],
+  );
+  // Offline: the provenance header is the only evidence.
+  assert.deepEqual(ownedFiles(root, cj, null).files, [
+    "src/components/app/legacy.tsx",
+    "src/lib/date-time.ts",
+  ]);
+});
+
+{
+  const root = project({
+    ...OWNED,
+    "registry.json": JSON.stringify({ items: INDEX }),
+  });
+  const json = await (async () => {
+    const out = [];
+    const log = console.log;
+    console.log = (...a) => out.push(a.join(" "));
+    try {
+      return {
+        code: await ownedFilesMain([
+          "--dir",
+          root,
+          "--index",
+          join(root, "registry.json"),
+          "--json",
+        ]),
+        output: out.join("\n"),
+      };
+    } finally {
+      console.log = log;
+    }
+  })();
+  test("owned-files --json prints { files, items } and exits 0; a bad flag exits 2", () => {
+    assert.equal(json.code, 0, json.output);
+    const parsed = JSON.parse(json.output);
+    assert.equal(parsed.files.length, 5);
+    assert.ok(Array.isArray(parsed.items));
+  });
+  const err = console.error;
+  console.error = () => {};
+  try {
+    const bad = await ownedFilesMain([
+      "--dir",
+      root,
+      "--offline",
+      "--index",
+      "x",
+    ]);
+    test("owned-files rejects --offline with --index", () =>
+      assert.equal(bad, 2));
+  } finally {
+    console.error = err;
+  }
+}
+
+for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {
   console.error(`\n✗ doctor: ${failures} test(s) failed`);

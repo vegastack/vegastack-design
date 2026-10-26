@@ -98,6 +98,13 @@ state's width (`size={board ? "full" : "default"}`); the map holds its resting w
 - `vegastack-design doctor` fails on an `AppShellPage` carrying a `max-w-*`, `w-*`, `mx-*` or
   padding class (`p-*`, `px-*`, `py-*`, `pt-*`, `ps-*`, `pe-*`) — the page choosing its own width or gutter
   — and warns on `size="narrow"`. `pb-*` stays legal: room for a docked save bar is not a gutter.
+- It also compares each `AppShellPage` in an App Router `page` or `layout` file with the route
+  map: the `"/route": "prose" | "default" | "full"` rows of a `definePageWidths(…)` call, plus any
+  `widths: { … }` object that feeds the map (a module registry listing its own routes). Route
+  groups and parallel slots are stripped, the most specific row wins, and a route the map does not
+  list is `default`. A literal `size` (or none, which is `default`) that disagrees is a warning, a
+  failure under `--strict`. A `size={…}` expression is skipped and counted, an `AppShellPage`
+  outside a route file is out of scope, and with no route map the check says so and passes.
 - Don't wrap a page's content in a `max-w-*` or padded `div` either; if a section needs to be
   narrower than its page, the page has the wrong width.
 
