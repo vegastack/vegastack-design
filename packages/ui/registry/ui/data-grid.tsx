@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.82 sha256-aouaa0nbql0bvjDMKHKvbjzCjkcmgTUyKtv960/j1Mg=
+// @vegastack data-grid@0.25.82 sha256-3v5XIybz4xq9lB8aCjJ/Yydsjf8ovfAKi85iko+pQMo=
 
 "use client";
 
@@ -890,8 +890,8 @@ interface GridApi {
   /** Cells mode: a press on the fill handle. */
   fillStart: (event: React.PointerEvent) => void;
   /**
-   * A cell is about to replace its content while focus is on a widget inside it (a resting cell
-   * waking for a host status): focus returns to the widget at the same place once it commits.
+   * A cell's commit removed the widget that held focus (a resting cell waking for a host status):
+   * focus returns to the widget at the same place at the end of that commit.
    */
   keepWidgetFocus: (rowId: string, key: string, index: number) => void;
 }
@@ -1087,18 +1087,28 @@ function GridCellImpl<T>({
   const full =
     awake.current || editing || (status != null && status !== "idle");
   const waking = full && !awake.current;
-  if (waking && !editing) {
-    // A status wakes a cell whose content may hold focus (a link chip reached with Alt+Enter):
-    // the grid puts it back on the same widget after the swap.
-    const cell = cellNode.current;
-    const focused = document.activeElement;
-    if (cell && focused instanceof HTMLElement && focused !== cell) {
-      const index = cell.contains(focused)
-        ? cellWidgets(cell).indexOf(focused)
-        : -1;
-      if (index >= 0) api.keepWidgetFocus(rowId, key, index);
-    }
-  }
+  // A resting cell that is replaced while focus is on a widget inside it (a link chip reached
+  // with Alt+Enter, when a host status wakes the cell): its ref cleanup runs in the commit, while
+  // the widget is still attached, and the grid puts focus back on the same widget after it.
+  const restRef = React.useCallback(
+    (node: HTMLSpanElement | null) => {
+      if (!node) return;
+      return () => {
+        const cell = cellNode.current;
+        const focused = document.activeElement;
+        if (
+          !cell ||
+          !(focused instanceof HTMLElement) ||
+          focused === cell ||
+          !node.contains(focused)
+        )
+          return;
+        const index = cellWidgets(cell).indexOf(focused);
+        if (index >= 0) api.keepWidgetFocus(rowId, key, index);
+      };
+    },
+    [api, rowId, key],
+  );
   const wake = React.useCallback((node: HTMLSpanElement | null) => {
     if (node) awake.current = true;
   }, []);
@@ -1110,6 +1120,7 @@ function GridCellImpl<T>({
       label={placed.label}
       renderValue={renderValue}
       onStartEditing={() => api.setEditing(rowId, key, true)}
+      ref={restRef}
     />
   ) : (
     <EditableCell
@@ -3151,9 +3162,11 @@ export function DataGrid<T>({
     (itemsChanged: boolean) => {
       if (itemsChanged) scheduleRestore();
       else lostFocus.current = null;
+      // Only when the swap dropped focus to the page: focus that moved on stays where it went.
       const kept = widgetFocus.current;
       widgetFocus.current = null;
-      if (kept) {
+      const focused = document.activeElement;
+      if (kept && (focused == null || focused === document.body)) {
         const cell = nodes.current.get(nodeKey(kept.rowId, kept.key));
         if (cell) (cellWidgets(cell)[kept.index] ?? cell).focus();
       }

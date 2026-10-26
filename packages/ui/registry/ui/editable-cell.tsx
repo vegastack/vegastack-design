@@ -1,9 +1,9 @@
-// @vegastack editable-cell@0.25.82 sha256-TdBT5PVm7nlIbAuuptw7ca0ZJCvdsdas0Fkyf5Ht6Rc=
+// @vegastack editable-cell@0.25.82 sha256-4n1NCX4ibjn4VAAPHaiaPJclmOAzEf+kuOWoFuDaNLs=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
@@ -1273,6 +1273,8 @@ export interface EditableCellRestProps {
   onStartEditing: () => void;
   /** Extra classes for the root. @default undefined */
   className?: string;
+  /** The display element (a callback ref may return a cleanup). @default undefined */
+  ref?: React.Ref<HTMLSpanElement>;
 }
 
 // The resting display of a managed, inline `custom` EditableCell, class for class (the full cell
@@ -1322,6 +1324,7 @@ export function EditableCellRest({
   renderValue,
   onStartEditing,
   className,
+  ref: forwardedRef,
 }: EditableCellRestProps) {
   const id = React.useId();
   const hasDisplayValue = value.length > 0;
@@ -1338,11 +1341,15 @@ export function EditableCellRest({
     },
     [value],
   );
+  const displayRef = React.useMemo(
+    () => (forwardedRef ? mergeRefs(ref, forwardedRef) : ref),
+    [ref, forwardedRef],
+  );
   const probe = (event: React.SyntheticEvent<HTMLSpanElement>) =>
     probeRest(event.currentTarget, value);
   return (
     <span
-      ref={ref}
+      ref={displayRef}
       data-slot="editable-cell-display"
       data-variant="inline"
       data-rest=""
