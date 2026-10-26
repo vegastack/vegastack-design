@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-C/pIg7unHF+LXBFmdiT12c2AKNa+KQd/+Socm3n0KlY=
+// @vegastack field-cell@0.25.79 sha256-89ZSu3KkqFZWaGvHZXipBrlRMTYgt1ZgU9JbaPGgO+g=
 
 "use client";
 
@@ -1390,25 +1390,31 @@ export function FieldCellEditor({
     if (type === "long_text") {
       // The popover mounts its content a frame or two after the editor: focus it once it is there.
       let frame = 0;
-      // Keys typed before the editor is there join the draft it opens with, so none is lost.
+      // What was typed so far, one entry per key (an escaped `#` is one), so Backspace takes
+      // back exactly one.
+      const typed = seed ? [markdownLiteral(seed)] : [];
+      // Type-to-edit: keys typed before the editor is in edit the draft it opens with, in order
+      // (letters, Enter, Backspace), so an early commit has them all and none is lost. An editor
+      // opened with Enter or F2 leaves them to its read view, which replays them.
       const keep = (event: KeyboardEvent) => {
         if (
-          event.key.length !== 1 ||
           event.ctrlKey ||
           event.metaKey ||
           event.altKey ||
-          event.isComposing
+          event.isComposing ||
+          event.keyCode === 229
         )
           return;
+        if (event.key === "Enter" && !event.shiftKey) typed.push("\n\n");
+        else if (event.key === "Backspace") typed.pop();
+        else if (event.key.length === 1) typed.push(markdownLiteral(event.key));
+        else return;
         event.preventDefault();
-        setDraft(
-          (text) =>
-            (typeof text === "string" ? text : "") + markdownLiteral(event.key),
-        );
+        setDraft(typed.join(""));
       };
       const stopKeeping = () =>
         document.removeEventListener("keydown", keep, true);
-      document.addEventListener("keydown", keep, true);
+      if (seed) document.addEventListener("keydown", keep, true);
       // Keys are kept until the editor itself is in (not only its read view), so a commit before
       // it loads — a click outside — still has them all.
       const started = performance.now();
