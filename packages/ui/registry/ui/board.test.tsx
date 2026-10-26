@@ -800,3 +800,25 @@ test("an untouched card menu opens from ↓ on its first item, and Enter picks i
   await userEvent.keyboard("{Enter}");
   expect(onOpen).toHaveBeenCalledOnce();
 });
+
+test("M on a card opens its untouched menu on the first item, and Enter picks it", async () => {
+  const onOpen = vi.fn();
+  await render(
+    <Controlled
+      getItemActions={() => [
+        { label: "Open", onSelect: onOpen },
+        { label: "Archive", onSelect: () => {} },
+      ]}
+    />,
+  );
+  await new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve)),
+  );
+  surface("d1").focus();
+  await userEvent.keyboard("m");
+  await expect
+    .poll(() => document.activeElement?.textContent)
+    .toContain("Open");
+  await userEvent.keyboard("{Enter}");
+  expect(onOpen).toHaveBeenCalledOnce();
+});

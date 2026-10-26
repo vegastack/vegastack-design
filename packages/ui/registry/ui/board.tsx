@@ -1,4 +1,4 @@
-// @vegastack board@0.25.84 sha256-LAH76rp+BNsgIDA51ixr2DyWD+nJnm0P9y+bilrhzdc=
+// @vegastack board@0.25.84 sha256-skRYtpBcjdWS3dY8YQH/PEElPDXkb+AOvXh2JcPl8jk=
 
 "use client";
 
@@ -963,6 +963,18 @@ export function Board<T>({
   const [armedMenus, setArmedMenus] = React.useState<ReadonlySet<string>>(
     () => new Set(),
   );
+  /** A card's ⋯ trigger, whichever form it has now (read when the key is handed over). */
+  const cardMenuTrigger = (
+    id: string,
+  ): React.RefObject<HTMLElement | null> => ({
+    get current() {
+      return (
+        cardNodes.current
+          .get(id)
+          ?.querySelector<HTMLElement>('[data-slot="board-card-menu"]') ?? null
+      );
+    },
+  });
   const armMenu = (id: string) => {
     if (armedMenus.has(id)) return;
     flushSync(() => setArmedMenus((current) => new Set(current).add(id)));
@@ -1203,8 +1215,9 @@ export function Board<T>({
         break;
       case "m":
       case "M":
-        event.preventDefault();
-        setOpenMenuCard(id);
+        // Through the menu's own trigger, so it opens on its first item as a key press would.
+        if (getItemActions?.(item)?.length)
+          openFromKey(event, () => armMenu(id), cardMenuTrigger(id), true);
         break;
       default:
         break;
@@ -1417,17 +1430,7 @@ export function Board<T>({
             // Enter, Space and ↓/↑ hand the key to the real trigger once it is mounted, so the
             // menu opens on its first or last item as it always has.
             onKeyDown={(event) =>
-              openFromKey(event, () => armMenu(id), {
-                get current() {
-                  return (
-                    cardNodes.current
-                      .get(id)
-                      ?.querySelector<HTMLElement>(
-                        '[data-slot="board-card-menu"]',
-                      ) ?? null
-                  );
-                },
-              })
+              openFromKey(event, () => armMenu(id), cardMenuTrigger(id))
             }
             className={CARD_MENU_CLASS}
           >

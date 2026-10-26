@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.84 sha256-NyZsB9eXj3aSr3f0u4r1PA7lgkhSJ69Dl7ZkjXvXdGI=
+// @vegastack data-table-parts@0.25.84 sha256-zxCXOtVweCUDOZegWMENmGbgUdbTHNAW1fzsE6yLZiM=
 
 "use client";
 
@@ -1555,11 +1555,16 @@ export function openFromKey(
   event: React.KeyboardEvent,
   arm: () => void,
   triggerRef: React.RefObject<HTMLElement | null>,
+  /** Open on the first item whatever the key (a shortcut such as Board's M). */
+  force = false,
 ) {
   const key =
-    event.key === "ArrowUp"
+    event.key === "ArrowUp" && !force
       ? "ArrowUp"
-      : event.key === "ArrowDown" || event.key === "Enter" || event.key === " "
+      : force ||
+          event.key === "ArrowDown" ||
+          event.key === "Enter" ||
+          event.key === " "
         ? "ArrowDown"
         : null;
   if (!key) return;

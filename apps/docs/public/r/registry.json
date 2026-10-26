@@ -845,7 +845,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.84",
-        "integrity": "sha256-LAH76rp+BNsgIDA51ixr2DyWD+nJnm0P9y+bilrhzdc="
+        "integrity": "sha256-skRYtpBcjdWS3dY8YQH/PEElPDXkb+AOvXh2JcPl8jk="
       }
     },
     {
@@ -1874,7 +1874,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.84",
-        "integrity": "sha256-NyZsB9eXj3aSr3f0u4r1PA7lgkhSJ69Dl7ZkjXvXdGI="
+        "integrity": "sha256-zxCXOtVweCUDOZegWMENmGbgUdbTHNAW1fzsE6yLZiM="
       }
     },
     {
