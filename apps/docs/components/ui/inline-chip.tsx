@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.79 sha256-UOVtcFCddc8ZQRQNeECiaUmobDkiosvwX/yQteM++9U=
+// @vegastack inline-chip@0.25.79 sha256-ek4sMjiBYBNPARWxaYw36SlgcWmQ17oGhL1jO2B/f1k=
 
 "use client";
 
@@ -410,8 +410,16 @@ export function InlineChip({
       const inCard = (event.target as Element | null)?.closest?.(
         "[data-inline-chip-card]",
       );
-      if (event.key === "Escape") event.stopPropagation();
-      else if (inCard) return;
+      if (event.key === "Escape") {
+        // An IME's Escape dismisses its candidates, not the card.
+        if (event.isComposing || event.keyCode === 229) return;
+        // On a chip inside a grid cell, the grid's Escape returns to the cell in one press
+        // (and the card closes with it); anywhere else Escape closes only the card.
+        const inGridCell = (event.target as Element | null)?.closest?.(
+          '[data-slot="data-grid-cell"]:not([data-editing])',
+        );
+        if (!inGridCell) event.stopPropagation();
+      } else if (inCard) return;
       setCardOpen(false);
     };
     document.addEventListener("keydown", close, true);
