@@ -1272,6 +1272,41 @@ export function sidebarCounts(): ReactNode {
   );
 }
 
+/** The same counts on a collapsed icon rail: a pill up to two characters, a dot beyond. */
+export function sidebarCountsCollapsed(): ReactNode {
+  return (
+    <Wrapper
+      className="block h-72 overflow-hidden p-0"
+      style={{ contain: "paint" }}
+    >
+      <SidebarProvider defaultOpen={false} className="h-full min-h-0">
+        <Sidebar collapsible="icon" className="h-full">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                {COUNTED.map((item, index) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton
+                      render={<a href={`#${item.key}`} />}
+                      isActive={index === 0}
+                      tooltip={item.title}
+                      badge={item.count}
+                      badgeLabel={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
 export function sidebarCountAction(): ReactNode {
   return (
     <Wrapper className="block h-56 overflow-hidden p-0">

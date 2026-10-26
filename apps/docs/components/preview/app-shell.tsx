@@ -1,13 +1,24 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Inbox, Settings, BarChart3, Bot } from "lucide-react";
+import {
+  Home,
+  Inbox,
+  Settings,
+  BarChart3,
+  Bot,
+  Bell,
+  Link2,
+  Share2,
+  Trash2,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/app-shell` (dogfoods the registry) → auto-scanned.
 import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellHeaderActions,
   AppShellPage,
   AppShellSection,
   AppShellSidebar,
@@ -365,6 +376,88 @@ export function appShellSectionCentered(): ReactNode {
           </AppShellSection>
         </AppShellPage>
       </AppShellContent>
+    </Wrapper>
+  );
+}
+
+/**
+ * A `full` page holding a list at `measure="default"`: the list keeps a default page's content
+ * width, centred, whatever else the frame hosts.
+ */
+export function appShellSectionDefault(): ReactNode {
+  return (
+    <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
+      <AppShellContent landmark="region" aria-label="Page content">
+        <AppShellPage size="full">
+          <AppShellSection measure="default">
+            <PageHeader
+              title="Contracts"
+              description="A folder in a full-width frame."
+            />
+            <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+              <p className="text-sm text-muted-foreground">
+                The list caps at a default page's content width and sits in the
+                middle.
+              </p>
+            </section>
+          </AppShellSection>
+        </AppShellPage>
+      </AppShellContent>
+    </Wrapper>
+  );
+}
+
+const HEADER_ACTIONS = [
+  {
+    id: "share",
+    label: "Share",
+    icon: <Share2 />,
+    overflow: "never" as const,
+    variant: "outline" as const,
+  },
+  { id: "watch", label: "Watch", icon: <Bell />, overflow: "laptop" as const },
+];
+const HEADER_MENU = [
+  { id: "copy", label: "Copy link", icon: <Link2 /> },
+  { id: "trash", label: "Move to Trash", icon: <Trash2 />, destructive: true },
+];
+
+/**
+ * `AppShellHeaderActions` at two bar widths: wide, both actions sit in the bar; narrow, Watch has
+ * moved into ⋮ and Share is icon-only.
+ */
+export function appShellHeaderActions(): ReactNode {
+  return (
+    <Wrapper className="flex flex-col gap-4 bg-muted p-4">
+      {[960, 480].map((width) => (
+        <AppShell
+          key={width}
+          keyboardShortcut={false}
+          collapseRail={false}
+          className="min-h-0"
+        >
+          {/* The header's column, as in a real shell: the bar fills it and measures itself. */}
+          <div
+            className="flex min-w-0 flex-col"
+            style={{ width, maxWidth: "100%" }}
+          >
+            <AppShellHeader
+              className="rounded-lg border"
+              actions={
+                <AppShellHeaderActions
+                  actions={HEADER_ACTIONS}
+                  menu={HEADER_MENU}
+                  menuLabel="Task actions"
+                />
+              }
+            >
+              <span className="truncate text-sm font-medium">
+                Quarterly plan
+              </span>
+            </AppShellHeader>
+          </div>
+        </AppShell>
+      ))}
     </Wrapper>
   );
 }

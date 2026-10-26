@@ -169,12 +169,16 @@
       "dependencies": [
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.8.34",
-        "@vegastack/design-tokens@^0.8.17"
+        "@vegastack/design-tokens@^0.8.17",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/sidebar",
         "@vegastack/skeleton",
-        "@vegastack/page-layout"
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -14661,6 +14665,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/input",
+        "@vegastack/page-layout",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",

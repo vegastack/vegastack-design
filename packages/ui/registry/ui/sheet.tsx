@@ -1,4 +1,4 @@
-// @vegastack sheet@0.25.86 sha256-ZJf83ZMcIMJQ6yTZTishA8cAn1D5vW6E0vj8qwx/Lc4=
+// @vegastack sheet@0.25.86 sha256-FHax2zkho3XVBt4mshaW7DFgqOpM3KM+7TY3oDbqkqU=
 
 "use client";
 
@@ -111,13 +111,13 @@ function SheetContent({
         data-beside={beside}
         style={
           beside
-            ? {
-                insetInlineStart:
+            ? ({
+                "--sheet-beside":
                   beside === "sidebar"
                     ? "var(--sidebar-width, 16rem)"
                     : "var(--sidebar-width-icon, 3rem)",
                 ...(typeof style === "object" ? style : null),
-              }
+              } as React.CSSProperties)
             : style
         }
         initialFocus={() => initialFocusTarget(nodeRef.current)}
@@ -125,7 +125,7 @@ function SheetContent({
         data-side={side}
         data-size={size}
         className={cn(
-          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm wrap-break-word text-popover-foreground shadow-lg outline-none transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:max-h-[85dvh] data-[side=bottom]:pb-[env(safe-area-inset-bottom)] data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:sm:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-ending-style:-translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:sm:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:-translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-starting-style:-translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:max-h-[85dvh] data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[side=left]:data-[size=sm]:sm:max-w-xs data-[side=right]:data-[size=sm]:sm:max-w-xs data-[side=left]:data-[size=lg]:sm:max-w-2xl data-[side=right]:data-[size=lg]:sm:max-w-2xl data-[side=left]:data-[size=xl]:sm:max-w-5xl data-[side=right]:data-[size=xl]:sm:max-w-5xl",
+          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm wrap-break-word text-popover-foreground shadow-lg outline-none transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:max-h-[85dvh] data-[side=bottom]:pb-[env(safe-area-inset-bottom)] data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:sm:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-ending-style:-translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:sm:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:-translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-starting-style:-translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:max-h-[85dvh] data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[side=left]:data-[size=sm]:sm:max-w-xs data-[side=right]:data-[size=sm]:sm:max-w-xs data-[side=left]:data-[size=lg]:sm:max-w-2xl data-[side=right]:data-[size=lg]:sm:max-w-2xl data-[side=left]:data-[size=xl]:sm:max-w-5xl data-[side=right]:data-[size=xl]:sm:max-w-5xl data-[side=left]:max-sm:border-e-0 data-[side=right]:max-sm:border-s-0 data-[side=left]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)] data-[side=right]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)] data-beside:sm:start-(--sheet-beside)",
           // LAY-17: the corner × sits over the header's end; a header with no `SheetAction` (which
           // clears it already) keeps clear of it, so a long title wraps before the ×.
           showCloseButton &&
@@ -141,7 +141,7 @@ function SheetContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-3 end-3 active:not-aria-[haspopup]:translate-y-0"
+                className="absolute top-3 end-3 active:not-aria-[haspopup]:translate-y-0 in-data-[side=left]:max-sm:top-[calc(--spacing(3)+env(safe-area-inset-top))] in-data-[side=right]:max-sm:top-[calc(--spacing(3)+env(safe-area-inset-top))]"
                 size="icon-sm"
               />
             }

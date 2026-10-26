@@ -240,7 +240,8 @@
     "LAY-17": ["alert-dialog", "dialog", "drawer", "empty", "popover", "sheet"],
     "TYP-19": ["dialog"],
     "API-35": ["select"],
-    "API-36": ["attachment", "badge", "popover", "sheet", "skeleton"]
+    "API-36": ["attachment", "badge", "popover", "sheet", "skeleton"],
+    "OVL-22": ["sheet"]
   },
   "advisory": {
     "A11Y-2": [

@@ -193,12 +193,16 @@
       "dependencies": [
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.8.34",
-        "@vegastack/design-tokens@^0.8.17"
+        "@vegastack/design-tokens@^0.8.17",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/sidebar",
         "@vegastack/skeleton",
-        "@vegastack/page-layout"
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -211,7 +215,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.25.86",
-        "integrity": "sha256-lU3i8ArA/jy1aezcxTjwuw4tWBCEVUsZAna0NKYirJg="
+        "integrity": "sha256-VnciSphkIqwvuTfi4ELq9kpCcyFi/tFwXjBcQuaJ32Y="
       }
     },
     {
@@ -267,7 +271,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.86",
-        "integrity": "sha256-+5dNq8n0yzp8VPbQu+rMRvkeYWIYocRhk0oFDCqmqt4="
+        "integrity": "sha256-eZoPTQvOD/o+JbZ0fpbQnvEh36eCjCjztOsopUcVWgI="
       }
     },
     {
@@ -2341,7 +2345,7 @@
         "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's AppShellPage, its loading skeleton and a route test.",
         "whenNotToUse": "A page outside AppShell (sign-in, a marketing page) — it owns its own layout.",
         "version": "0.25.86",
-        "integrity": "sha256-JV7fNhnGicetOtzHP8hmdP6qmo816WdFhKOy0mh4pfs="
+        "integrity": "sha256-wo+3bgCt+gAjxdlvKSyi4cpNSls7d4KSU8NuIPdi4EE="
       }
     },
     {
@@ -17969,7 +17973,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.25.86",
-        "integrity": "sha256-ZJf83ZMcIMJQ6yTZTishA8cAn1D5vW6E0vj8qwx/Lc4="
+        "integrity": "sha256-FHax2zkho3XVBt4mshaW7DFgqOpM3KM+7TY3oDbqkqU="
       }
     },
     {
@@ -18023,6 +18027,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/input",
+        "@vegastack/page-layout",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
@@ -18041,7 +18046,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.25.86",
-        "integrity": "sha256-Y6LW9k0S+2EMyeavzWPtpzNGE0cTNVLGadU2sNX8M7Q="
+        "integrity": "sha256-zOhh/GGg34BTilK0R7QtkUQJwqYF0b920fwU38j99QA="
       }
     },
     {

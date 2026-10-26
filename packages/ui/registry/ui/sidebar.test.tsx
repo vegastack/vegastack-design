@@ -2095,6 +2095,22 @@ test("LAY-13: with the cookie false, the panel is collapsed before hydration (JS
   }
 });
 
+test("LAY-13: an icon rail defaults collapsedWhen to the tablet span; null and offcanvas turn it off", async () => {
+  const { renderToString } = await import("react-dom/server");
+  const { RAIL_COLLAPSED_QUERY } = await import("@/lib/page-layout");
+  expect(renderToString(<SidebarStateScript collapsible="icon" />)).toContain(
+    RAIL_COLLAPSED_QUERY,
+  );
+  expect(
+    renderToString(
+      <SidebarStateScript collapsible="icon" collapsedWhen={null} />,
+    ),
+  ).not.toContain(RAIL_COLLAPSED_QUERY);
+  expect(renderToString(<SidebarStateScript />)).not.toContain(
+    RAIL_COLLAPSED_QUERY,
+  );
+});
+
 test("LAY-13: collapsedWhen starts a panel nobody chose collapsed before hydration, and keeps that start", async () => {
   const clear = () => {
     document.cookie = "sidebar_state=; path=/; max-age=0";
@@ -2369,7 +2385,11 @@ test("API-33: SidebarGroupAction showOnHover stays hidden until its group is hov
   );
   const action = slot(screen.container, "sidebar-group-action") as HTMLElement;
   expect(action.hasAttribute("data-show-on-hover")).toBe(true);
-  expect(Number(getComputedStyle(action).opacity)).toBe(0);
+  // The pointer may rest where an earlier test left it — over this group. Move it off first.
+  await userEvent.unhover(
+    slot(screen.container, "sidebar-group") as HTMLElement,
+  );
+  await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(0);
   await userEvent.hover(slot(screen.container, "sidebar-group") as HTMLElement);
   await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(1);
   await userEvent.unhover(
@@ -2378,4 +2398,44 @@ test("API-33: SidebarGroupAction showOnHover stays hidden until its group is hov
   await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(0);
   action.focus();
   await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(1);
+});
+
+test("A11Y-17 (UXS-01): the collapsed icon rail keeps the count as a pill, or a dot past two characters", async () => {
+  const screen = await render(
+    <SidebarProvider defaultOpen={false}>
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton badge={7} badgeLabel="7 unread">
+                <Inbox />
+                <span>Inbox</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton badge="120" badgeLabel="120 due">
+                <Inbox />
+                <span>Tasks</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>,
+  );
+  const markers = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="sidebar-menu-badge-rail"]',
+    ),
+  ];
+  expect(markers.map((m) => m.dataset.badgeSize)).toEqual(["pill", "dot"]);
+  expect(markers[0]!.textContent).toBe("7");
+  expect(markers[1]!.textContent).toBe("");
+  expect(markers.every((m) => m.getAttribute("aria-hidden") === "true")).toBe(
+    true,
+  );
+  for (const m of markers)
+    expect(m.className.split(/\s+/)).toContain(
+      "group-data-[collapsible=icon]:flex",
+    );
 });

@@ -1495,8 +1495,74 @@
           }
         },
         {
+          "name": "AppShellHeaderAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellHeaderActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellHeaderActionsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "AppShellHeaderProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellHeaderShow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellHeaderShowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellHeaderSlot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellHeaderSlotProps",
+          "kind": "type",
           "source": "packages/ui/registry/ui/app-shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1533,6 +1599,24 @@
         },
         {
           "name": "AppShellProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by AppShellSection in packages/ui/registry/ui/app-shell.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "AppShellSectionProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/app-shell.tsx",
           "ref": {
@@ -1585,62 +1669,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "AppShellSection",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by AppShellSection in packages/ui/registry/ui/app-shell.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "AppShellSectionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderShow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellHeaderShowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderSlot",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellHeaderSlotProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -1704,14 +1732,18 @@
       "engines": [],
       "docsSlug": "/docs/components/app-shell",
       "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/sidebar",
         "@vegastack/skeleton",
-        "@vegastack/page-layout"
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
-        "class-variance-authority@^0.7.1",
+        "@vegastack/design-tokens@^0.8.17",
         "@vegastack/design@^0.8.34",
-        "@vegastack/design-tokens@^0.8.17"
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/app-shell.test.tsx"],
       "coverage": {
@@ -1726,6 +1758,10 @@
       "dataAttributes": {
         "AppShell": {
           "attributes": [
+            {
+              "name": "data-rail-folded",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["app-shell", "app-shell-skip-link"]
@@ -1773,6 +1809,26 @@
             {
               "name": "data-when",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellHeaderActions": {
+          "attributes": [
+            {
+              "name": "data-action",
+              "values": []
+            },
+            {
+              "name": "data-compact",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "app-shell-header-actions-group",
+                "app-shell-header-actions-menu"
+              ]
             }
           ],
           "cssVariables": []
@@ -29955,6 +30011,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/input",
+        "@vegastack/page-layout",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
@@ -30192,7 +30249,11 @@
           "attributes": [
             {
               "name": "data-badge-size",
-              "values": ["default", "lg"]
+              "values": ["default", "dot", "lg", "pill"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-badge-rail"]
             }
           ],
           "cssVariables": []
@@ -47629,6 +47690,78 @@
       "sourceFiles": ["packages/ui/registry/lib/page-layout.ts"],
       "publicSymbols": [
         {
+          "name": "definePageWidths",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LAYOUT_TIERS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LayoutTier",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "layoutTierOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "layoutTierQuery",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "matchRoute",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "PAGE_WIDTHS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "pageGutterOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
           "name": "PageWidth",
           "kind": "type",
           "source": "packages/ui/registry/lib/page-layout.ts",
@@ -47647,30 +47780,12 @@
           }
         },
         {
-          "name": "PAGE_WIDTHS",
-          "kind": "component-constant",
+          "name": "RAIL_COLLAPSED_QUERY",
+          "kind": "constant",
           "source": "packages/ui/registry/lib/page-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "matchRoute",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "definePageWidths",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
           }
         }
       ],

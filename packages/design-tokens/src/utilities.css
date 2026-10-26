@@ -94,6 +94,30 @@
   }
 }
 
+/* ---------------------------------------------------------------------------------------------
+ * LAYOUT TIERS — the one width vocabulary for surfaces (product-cohesion, 26-10-2026).
+ *
+ *   phone   < 40rem      one column, overlays full-screen, grids as cards
+ *   tablet  40–64rem
+ *   laptop  64–90rem
+ *   wide    ≥ 90rem
+ *
+ * As container sizes (`@max-tablet/app-shell-content:`, `@laptop/document-layout:`) for a surface
+ * that follows its own box, and as breakpoints (`max-tablet:`, `laptop:`) for one pinned to the
+ * viewport (an overlay). `page-layout`'s `LAYOUT_TIERS` is the same set for scripts; a test holds
+ * the two equal. Registry components spell the values literally (`@min-[40rem]/…`), so a copied
+ * component never depends on this file's version; the same test holds those literals to the set.
+ * ------------------------------------------------------------------------------------------- */
+
+@theme {
+  --container-tablet: 40rem;
+  --container-laptop: 64rem;
+  --container-wide: 90rem;
+  --breakpoint-tablet: 40rem;
+  --breakpoint-laptop: 64rem;
+  --breakpoint-wide: 90rem;
+}
+
 /* Upstream's one scrollbar utility, which `sidebar` and `command` reach for. */
 @utility no-scrollbar {
   -ms-overflow-style: none;
