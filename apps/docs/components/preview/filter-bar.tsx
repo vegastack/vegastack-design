@@ -19,6 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 // Copied INTO apps/docs via `shadcn add @vegastack/filter-bar` (dogfoods the registry) → auto-scanned.
 import {
@@ -27,7 +28,17 @@ import {
   FilterChip,
   type FilterBarFilter,
 } from "@/components/ui/filter-bar";
+import {
+  FilterBuilder,
+  GroupByPicker,
+  SortBuilder,
+  type FilterField,
+  type FilterNode,
+  type SortBuilderEntry,
+} from "@/components/ui/filter-bar-managed";
+import { Checkbox } from "@/components/ui/checkbox";
 import { NumberField } from "@/components/ui/number-field";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
 
@@ -560,6 +571,203 @@ export function filterBarBreakpoints(): ReactNode {
           {bar}
         </div>
       ))}
+    </Wrapper>
+  );
+}
+
+/* ── A grid list: Filters (a builder), Sort and the View menu ───────────────────────────────── */
+
+type GridGroup = Extract<FilterNode<string>, { type: "group" }>;
+
+const GRID_FIELDS: FilterField<string>[] = [
+  {
+    key: "status",
+    label: "Status",
+    type: "text",
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-not", label: "is not" },
+    ],
+  },
+  {
+    key: "owner",
+    label: "Owner",
+    type: "text",
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-empty", label: "is empty", requiresValue: false },
+    ],
+  },
+];
+const GRID_SORTABLE = [
+  { key: "name", label: "Name" },
+  { key: "status", label: "Status" },
+  { key: "due", label: "Due" },
+];
+const GRID_COLUMNS = ["Name", "Status", "Owner", "Due", "Amount"];
+const EMPTY_TREE: GridGroup = { type: "group", op: "and", children: [] };
+
+/**
+ * A grid list's toolbar: search, then Filters (a `FilterBuilder` in a popover), Sort (a
+ * `SortBuilder`) and the View menu (Group, Fields, Row height, the view's own actions), with the
+ * page's primary action in `actions`. Any change from the saved view shows "View changed · Save ·
+ * Reset" in the chip row (`trailing`).
+ */
+export function filterBarGridToolbar(): ReactNode {
+  const [query, setQuery] = useState("");
+  const [tree, setTree] = useState<GridGroup>(EMPTY_TREE);
+  const [sort, setSort] = useState<SortBuilderEntry[]>([]);
+  const [groups, setGroups] = useState<string[]>([]);
+  const [hidden, setHidden] = useState<string[]>([]);
+  const [height, setHeight] = useState("short");
+  const conditions = tree.children.length;
+  const changed =
+    conditions > 0 ||
+    sort.length > 0 ||
+    groups.length > 0 ||
+    hidden.length > 0 ||
+    height !== "short";
+  const reset = () => {
+    setTree(EMPTY_TREE);
+    setSort([]);
+    setGroups([]);
+    setHidden([]);
+    setHeight("short");
+  };
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <FilterBar
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search records",
+        }}
+        filterBuilder={
+          <FilterBuilder<string>
+            vocabulary={GRID_FIELDS}
+            value={tree}
+            onValueChange={setTree}
+          />
+        }
+        activeCount={conditions}
+        sort={
+          <SortBuilder
+            vocabulary={GRID_SORTABLE}
+            value={sort}
+            onChange={setSort}
+          />
+        }
+        sortCount={sort.length}
+        group={
+          <GroupByPicker
+            vocabulary={GRID_SORTABLE}
+            value={groups}
+            onChange={setGroups}
+          />
+        }
+        fields={
+          <div className="flex flex-col gap-1">
+            {GRID_COLUMNS.map((name) => (
+              <label key={name} className="flex items-center gap-2 px-0.5 py-1">
+                <Checkbox
+                  checked={!hidden.includes(name)}
+                  onCheckedChange={(checked) =>
+                    setHidden((current) =>
+                      checked
+                        ? current.filter((entry) => entry !== name)
+                        : [...current, name],
+                    )
+                  }
+                />
+                {name}
+              </label>
+            ))}
+          </div>
+        }
+        density={
+          <ToggleGroup
+            variant="outline"
+            size="sm"
+            value={[height]}
+            onValueChange={(next) => {
+              if (next[0]) setHeight(next[0]);
+            }}
+          >
+            <ToggleGroupItem value="short">Short</ToggleGroupItem>
+            <ToggleGroupItem value="medium">Medium</ToggleGroupItem>
+            <ToggleGroupItem value="tall">Tall</ToggleGroupItem>
+          </ToggleGroup>
+        }
+        viewActions={
+          <>
+            <Button variant="ghost" size="sm" className="justify-start">
+              Rename view
+            </Button>
+            <Button variant="ghost" size="sm" className="justify-start">
+              Lock view
+            </Button>
+            <Button variant="ghost" size="sm" className="justify-start">
+              Delete view
+            </Button>
+          </>
+        }
+        trailing={changed ? <ViewChanged onReset={reset} /> : undefined}
+        actions={<Button size="sm">New record</Button>}
+      />
+    </Wrapper>
+  );
+}
+
+/** "View changed · Save ▾ · Reset" — a saved view's unsaved changes, in the chip row. */
+function ViewChanged({ onReset }: { onReset: () => void }) {
+  return (
+    <>
+      <span className="text-sm text-muted-foreground">View changed</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" size="sm">
+              Save
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>Save for everyone</DropdownMenuItem>
+          <DropdownMenuItem>Save as a new view</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button variant="ghost" size="sm" onClick={onReset}>
+        Reset
+      </Button>
+    </>
+  );
+}
+
+/**
+ * A saved view someone changed: the applied filter's chip and "View changed · Save ▾ · Reset" share
+ * the one chip row under the toolbar — never a row of their own.
+ */
+export function filterBarViewChanged(): ReactNode {
+  const [filters, setFilters] = useState<FilterBarFilter[]>([
+    {
+      id: "status",
+      label: "Status",
+      value: "Open",
+      onRemove: () => setFilters([]),
+    },
+  ]);
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <FilterBar
+        search={{
+          value: "",
+          onValueChange: () => {},
+          placeholder: "Search records",
+        }}
+        filterBuilder={<p className="text-sm">Filter conditions</p>}
+        filters={filters}
+        trailing={<ViewChanged onReset={() => setFilters([])} />}
+      />
     </Wrapper>
   );
 }

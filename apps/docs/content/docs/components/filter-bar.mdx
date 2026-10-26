@@ -147,6 +147,38 @@ tablet row; on the phone, the search on its own row and `[⚲ n] … [view]` ben
   file="components/preview/filter-bar.tsx"
 />
 
+### Grid toolbar
+
+A grid list (a spreadsheet-like table with saved views) adds three controls after the Filters
+toggle, in one row with the page's primary action at the end:
+
+- `filterBuilder` — the Filters toggle opens a [`FilterBuilder`](/docs/components/filter-bar-managed)
+  in a popover instead of showing the facet row. Applied `filters` chips sit in the chip row
+  whenever there are any.
+- `sort` — a Sort button (with `sortCount`) opens a `SortBuilder`.
+- `group`, `fields`, `density` and `viewActions` — one **View** menu with labelled sections in this
+  order: Group, Fields, Row height, then the view's own actions (rename, lock, delete). Only the
+  sections you pass show.
+
+Below `@3xl` the three go icon-only and keep their words as accessible names. Change the sort, a
+group, a field or the row height to see "View changed · Save · Reset" appear.
+
+<ComponentPreview
+  name="filterBarGridToolbar"
+  file="components/preview/filter-bar.tsx"
+/>
+
+### View changed
+
+A saved view's unsaved changes ("View changed · Save ▾ · Reset") go in `trailing`. They share the
+chip row with the applied filters and never take a row of their own; while `trailing` is set, the
+row shows even when the Filters toggle has hidden the facets.
+
+<ComponentPreview
+  name="filterBarViewChanged"
+  file="components/preview/filter-bar.tsx"
+/>
+
 ### Filter compositions
 
 ### With search
@@ -262,7 +294,8 @@ owns the state). Stateful behaviour stays with the host, and each has a composit
 
 - **Applied-filter state** — you hold the filter model and map it to `facets` and `filters`.
 - **Clear** — pass `onClear`; the bar shows "Clear" while anything is applied.
-- **Saved views, AI-suggested filters** — app concerns; put a control in `trailing` or `actions`.
+- **Saved views, AI-suggested filters** — app concerns; put "View changed · Save · Reset" in
+  `trailing` and the view's own actions in `viewActions`.
 
 The fully-stateful nested builder is [`FilterBuilder`](/docs/components/filter-bar-managed).
 
@@ -363,6 +396,9 @@ and `groupBy`) and adds its own:
 - "More" is a labelled `Button` that opens a keyboard-navigable `DropdownMenu`.
 - The Filters toggle is a button with `aria-expanded` and `aria-controls` pointing at the filter
   row; its name carries the count ("Filters (2)") when the word is hidden on a phone.
+- With `filterBuilder`, the Filters toggle opens a named dialog popover ("Filters") instead, and
+  focus returns to the toggle when it closes. Sort and View are buttons that open named dialog
+  popovers ("Sort", "View"); each View section is a `role="group"` named by its heading.
 - The search field always has an accessible name — `search["aria-label"]`, then the placeholder,
   then "Search".
 

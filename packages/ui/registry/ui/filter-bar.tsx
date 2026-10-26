@@ -1,9 +1,16 @@
-// @vegastack filter-bar@0.25.84 sha256-iVwV3kdsIyN+EpgiW7I77+YXIb2/ewivXn4uhvmCTjs=
+// @vegastack filter-bar@0.25.84 sha256-cCI4P/d80cm9HuTmIyxBMDg+CUh0Tw4Mz0OJhL6rlBA=
 
 "use client";
 
 import * as React from "react";
-import { ChevronDown, CirclePlus, ListFilter, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  CirclePlus,
+  ListFilter,
+  Settings2,
+  X,
+} from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -297,10 +304,80 @@ export interface FilterBarProps extends Omit<
    */
   onFiltersOpenChange?: (open: boolean) => void;
   /**
-   * Content at the end of the filter row, before "Clear" — e.g. a "Save view" button.
+   * Content at the end of the filter row, before "Clear" — a saved view's "View changed · Save ▾
+   * · Reset". It shares the chip row with the applied filters (it never gets a row of its own),
+   * and while it is set the row shows even when the Filters toggle has hidden the facets.
    * @default undefined
    */
   trailing?: React.ReactNode;
+  /**
+   * A grid list's filter editor — a `FilterBuilder`. When set, the Filters toggle opens it in a
+   * popover anchored to the toggle instead of showing and hiding the facet row; the applied
+   * `filters` chips, `facets` and `trailing` then sit in the chip row whenever there are any.
+   * `filtersOpen`/`defaultFiltersOpen`/`onFiltersOpenChange` control the popover (it is never
+   * remembered, and never opens by itself).
+   * @default undefined
+   */
+  filterBuilder?: React.ReactNode;
+  /**
+   * A grid list's sort editor — a `SortBuilder` — opened from a "Sort" button after the Filters
+   * toggle. Omit for no Sort button.
+   * @default undefined
+   */
+  sort?: React.ReactNode;
+  /**
+   * The Sort button's label (its accessible name on a narrow bar, where it is icon-only).
+   * @default "Sort"
+   */
+  sortLabel?: string;
+  /**
+   * How many sort keys are applied, shown as the Sort button's count ("Sort (2)").
+   * @default undefined
+   */
+  sortCount?: number;
+  /**
+   * The View menu's Group section — a `GroupByPicker`. The View menu is one button after Sort
+   * that opens the list's display settings in labelled sections: Group, Fields, Row height, then
+   * `viewActions`. Only the sections that are set show; with none set there is no View button.
+   * @default undefined
+   */
+  group?: React.ReactNode;
+  /**
+   * The View menu's Fields section — which fields show, and their order.
+   * @default undefined
+   */
+  fields?: React.ReactNode;
+  /**
+   * The View menu's Row height section — a density control (`ToggleGroup`, `DensityToggle`).
+   * @default undefined
+   */
+  density?: React.ReactNode;
+  /**
+   * The View menu's last section, after a separator and without a heading: actions on the view
+   * itself — rename, lock, delete.
+   * @default undefined
+   */
+  viewActions?: React.ReactNode;
+  /**
+   * The View menu button's label (its accessible name on a narrow bar, where it is icon-only).
+   * @default "View"
+   */
+  viewMenuLabel?: string;
+  /**
+   * The Group section's heading.
+   * @default "Group"
+   */
+  groupLabel?: string;
+  /**
+   * The Fields section's heading.
+   * @default "Fields"
+   */
+  fieldsLabel?: string;
+  /**
+   * The Row height section's heading.
+   * @default "Row height"
+   */
+  densityLabel?: string;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -473,6 +550,79 @@ const BAR_SIZE =
   "[&_[data-slot=toggle-group-item][data-size=sm]]:h-8 [&_[data-slot=toggle-group-item][data-size=sm]]:min-w-8 [&_[data-slot=toggle-group-item][data-size=sm]]:text-sm [&_[data-slot=select-trigger][data-size=sm]]:h-8 [&_[data-slot=tabs-list][data-size=sm]]:h-8";
 
 /**
+ * One of the bar's own controls — Filters, Sort, View: a ghost h-8 button whose word hides on a
+ * narrow bar (icon-only; the word stays its accessible name, with the count) while a count stays
+ * as a badge. Spreads the rest (a popover trigger's props) onto the Button.
+ */
+function BarButton({
+  icon,
+  label,
+  count = 0,
+  countSlot,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Button>, "children"> & {
+  icon: React.ReactNode;
+  label: string;
+  count?: number;
+  /** Which count this is (its badge's `data-slot`). */
+  countSlot?: "filters" | "sort";
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-label={count > 0 ? `${label} (${count})` : label}
+      className={cn(
+        "h-8 shrink-0 font-normal text-muted-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+        className,
+      )}
+      {...props}
+    >
+      {icon}
+      <span className="hidden @3xl/filter-bar:inline">{label}</span>
+      {count > 0 ? (
+        <span
+          aria-hidden
+          data-slot={
+            countSlot === "sort"
+              ? "filter-bar-sort-count"
+              : "filter-bar-filters-count"
+          }
+          className="min-w-4 rounded-sm bg-foreground/10 px-1 text-center text-xs text-foreground tabular-nums"
+        >
+          {count}
+        </span>
+      ) : null}
+    </Button>
+  );
+}
+
+/** One labelled section of the View menu (Group, Fields, Row height). */
+function ViewMenuSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  const id = React.useId();
+  return (
+    <div
+      role="group"
+      aria-labelledby={id}
+      data-slot="filter-bar-view-section"
+      className="flex flex-col gap-1.5 not-first:border-t not-first:pt-2.5"
+    >
+      <div id={id} className="px-0.5 text-xs font-medium text-muted-foreground">
+        {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/**
  * `FilterBar` — the toolbar above a list or table, in two rows.
  *
  * Row 1: `[Search ~320px] … [⚲ Filters (n)] [scope] [actions] [view]` — the view
@@ -487,7 +637,28 @@ const BAR_SIZE =
  * `@lg` the search takes the full width, and the next row holds `[⚲ n]` at the start and the
  * view at the end.
  *
+ * A grid list (a spreadsheet-like table with saved views) adds its own controls after the
+ * Filters toggle: `filterBuilder` makes the toggle open a `FilterBuilder` in a popover, `sort`
+ * opens a `SortBuilder` from a Sort button, and `group`, `fields`, `density` and `viewActions`
+ * share one View menu. A saved view's "View changed · Save ▾ · Reset" goes in `trailing`, in the
+ * chip row. Row 1 then reads `[Search] … [Filters (n)] [Sort] [View] [actions]`.
+ *
  * Purely presentational: the host owns every value.
+ *
+ * @example
+ * <FilterBar
+ *   search={{ value: query, onValueChange: setQuery, placeholder: "Search records" }}
+ *   filterBuilder={<FilterBuilder vocabulary={fields} value={filter} onValueChange={setFilter} />}
+ *   filters={chips}
+ *   sort={<SortBuilder vocabulary={sortable} value={sorts} onChange={setSorts} />}
+ *   sortCount={sorts.length}
+ *   group={<GroupByPicker vocabulary={sortable} value={groupBy} onChange={setGroupBy} />}
+ *   fields={fieldList}
+ *   density={rowHeightToggle}
+ *   viewActions={viewMenuItems}
+ *   trailing={viewChanged ? saveOrReset : undefined}
+ *   actions={<Button size="sm">New record</Button>}
+ * />
  *
  * @example
  * <FilterBar
@@ -529,8 +700,21 @@ export function FilterBar({
   filtersOpenStorageKey,
   onFiltersOpenChange,
   trailing,
+  filterBuilder,
+  sort,
+  sortLabel = "Sort",
+  sortCount,
+  group,
+  fields,
+  density,
+  viewActions,
+  viewMenuLabel = "View",
+  groupLabel = "Group",
+  fieldsLabel = "Fields",
+  densityLabel = "Row height",
   ...props
 }: FilterBarProps) {
+  const builderMode = filterBuilder != null;
   const hasDeclarativeMenu =
     addFilterMenu == null && addFilters != null && addFilters.length > 0;
   // An option with an `editor` opens it on the chip the host adds for it: the id is held until
@@ -582,13 +766,14 @@ export function FilterBar({
   // The Filters toggle shows or hides the filter row. Hidden by default; with `autoOpenFilters`
   // it also opens on its own the moment anything is applied (a URL restore, a "Clear" undone).
   const [filtersOpenState, setFiltersOpenState] = React.useState(
-    defaultFiltersOpen ?? (autoOpenFilters && activeCount > 0),
+    defaultFiltersOpen ?? (!builderMode && autoOpenFilters && activeCount > 0),
   );
   const filtersOpen = filtersOpenProp ?? filtersOpenState;
   const setFiltersOpen = (next: boolean) => {
     if (filtersOpenProp === undefined) {
       setFiltersOpenState(next);
-      if (filtersOpenStorageKey != null) {
+      // A builder's popover is never remembered: it opens from the toggle only.
+      if (filtersOpenStorageKey != null && !builderMode) {
         try {
           window.sessionStorage.setItem(
             filtersOpenStorageKey,
@@ -603,24 +788,36 @@ export function FilterBar({
   };
   // Restore the remembered state after mount, so the server render and hydration agree.
   React.useEffect(() => {
-    if (filtersOpenProp !== undefined || filtersOpenStorageKey == null) return;
+    if (
+      filtersOpenProp !== undefined ||
+      filtersOpenStorageKey == null ||
+      builderMode
+    )
+      return;
     try {
       const stored = window.sessionStorage.getItem(filtersOpenStorageKey);
       if (stored === "1" || stored === "0") setFiltersOpenState(stored === "1");
     } catch {
       // See above.
     }
-  }, [filtersOpenProp, filtersOpenStorageKey]);
+  }, [filtersOpenProp, filtersOpenStorageKey, builderMode]);
   const hadActive = React.useRef(activeCount > 0);
   React.useEffect(() => {
     const active = activeCount > 0;
-    if (autoOpenFilters && active && !hadActive.current && !filtersOpen) {
+    if (
+      autoOpenFilters &&
+      !builderMode &&
+      active &&
+      !hadActive.current &&
+      !filtersOpen
+    ) {
       if (filtersOpenProp === undefined) setFiltersOpenState(true);
       onFiltersOpenChange?.(true);
     }
     hadActive.current = active;
   }, [
     autoOpenFilters,
+    builderMode,
     activeCount,
     filtersOpen,
     filtersOpenProp,
@@ -639,7 +836,9 @@ export function FilterBar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         data-slot="filter-bar-search"
         className={cn(
-          "h-8 w-full min-w-0 @lg/filter-bar:w-80 @lg/filter-bar:flex-none",
+          // From `@lg` it is ~320px, and gives way (to 160px) before the controls beside it
+          // would overflow the row.
+          "h-8 w-full min-w-0 @lg/filter-bar:w-80 @lg/filter-bar:min-w-40 @lg/filter-bar:flex-initial",
           searchInputProps?.className,
         )}
       />
@@ -704,45 +903,124 @@ export function FilterBar({
     ) : null);
 
   const hasFilters = facets != null || filters.length > 0 || moreMenu != null;
-  // The row stays mounted while hidden, so each facet keeps reporting whether it is set.
+  // The row stays mounted while hidden, so each facet keeps reporting whether it is set. With a
+  // builder the toggle opens the builder instead, and the row shows whatever is applied.
   const showFilterRow = hasFilters || trailing != null;
-  const filterRowVisible = (hasFilters && filtersOpen) || trailing != null;
+  const filterRowVisible =
+    (hasFilters && (filtersOpen || builderMode)) || trailing != null;
 
-  const filtersToggle = hasFilters ? (
-    <Button
-      variant="ghost"
-      size="sm"
+  const filtersToggle = builderMode ? (
+    <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+      <PopoverTrigger
+        render={
+          <BarButton
+            data-slot="filter-bar-filters-toggle"
+            icon={<ListFilter aria-hidden />}
+            label={filtersLabel}
+            count={activeCount}
+            countSlot="filters"
+          />
+        }
+      />
+      <PopoverContent
+        align="start"
+        size="lg"
+        data-slot="filter-bar-filter-builder"
+        aria-label={filtersLabel}
+        // A builder grows with its conditions; it never runs off a narrow window.
+        className="w-auto min-w-[min(20rem,calc(100vw-2rem))] max-w-[min(40rem,calc(100vw-2rem))]"
+      >
+        {filterBuilder}
+      </PopoverContent>
+    </Popover>
+  ) : hasFilters ? (
+    <BarButton
       data-slot="filter-bar-filters-toggle"
       aria-expanded={filtersOpen}
       aria-controls={filterRowId}
-      aria-label={
-        activeCount > 0 ? `${filtersLabel} (${activeCount})` : filtersLabel
-      }
       data-state={filtersOpen ? "open" : "closed"}
-      className="h-8 shrink-0 font-normal text-muted-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
+      icon={<ListFilter aria-hidden />}
+      label={filtersLabel}
+      count={activeCount}
+      countSlot="filters"
       onClick={() => setFiltersOpen(!filtersOpen)}
-    >
-      <ListFilter aria-hidden />
-      {/* The word hides on a narrow bar (icon-only); the count stays as a badge. */}
-      <span className="hidden @3xl/filter-bar:inline">{filtersLabel}</span>
-      {activeCount > 0 ? (
-        <span
-          aria-hidden
-          data-slot="filter-bar-filters-count"
-          className="min-w-4 rounded-sm bg-foreground/10 px-1 text-center text-xs text-foreground tabular-nums"
-        >
-          {activeCount}
-        </span>
-      ) : null}
-    </Button>
+    />
   ) : null;
+
+  const sortControl =
+    sort != null ? (
+      <Popover>
+        <PopoverTrigger
+          render={
+            <BarButton
+              data-slot="filter-bar-sort"
+              icon={<ArrowUpDown aria-hidden />}
+              label={sortLabel}
+              count={sortCount}
+              countSlot="sort"
+            />
+          }
+        />
+        <PopoverContent
+          align="end"
+          size="lg"
+          data-slot="filter-bar-sort-content"
+          aria-label={sortLabel}
+        >
+          {sort}
+        </PopoverContent>
+      </Popover>
+    ) : null;
+
+  const viewSections: { label: string; content: React.ReactNode }[] = [
+    { label: groupLabel, content: group },
+    { label: fieldsLabel, content: fields },
+    { label: densityLabel, content: density },
+  ].filter((section) => section.content != null);
+  const viewMenu =
+    viewSections.length > 0 || viewActions != null ? (
+      <Popover>
+        <PopoverTrigger
+          render={
+            <BarButton
+              data-slot="filter-bar-view-menu"
+              icon={<Settings2 aria-hidden />}
+              label={viewMenuLabel}
+            />
+          }
+        />
+        <PopoverContent
+          align="end"
+          size="md"
+          data-slot="filter-bar-view-content"
+          className="max-w-[calc(100vw-2rem)]"
+          aria-label={viewMenuLabel}
+        >
+          {viewSections.map((section) => (
+            <ViewMenuSection key={section.label} label={section.label}>
+              {section.content}
+            </ViewMenuSection>
+          ))}
+          {viewActions != null ? (
+            <div
+              data-slot="filter-bar-view-actions"
+              className="flex flex-col gap-0.5 not-first:border-t not-first:pt-2"
+            >
+              {viewActions}
+            </div>
+          ) : null}
+        </PopoverContent>
+      </Popover>
+    ) : null;
 
   const hasPrimaryRow =
     search != null ||
     scope != null ||
     view != null ||
     actions != null ||
-    filtersToggle != null;
+    filtersToggle != null ||
+    sortControl != null ||
+    viewMenu != null;
 
   return (
     <FilterBarContext.Provider value={context}>
@@ -773,6 +1051,8 @@ export function FilterBar({
               className="flex min-w-0 flex-1 items-center gap-2 @lg/filter-bar:flex-none @lg/filter-bar:ms-auto"
             >
               {filtersToggle}
+              {sortControl}
+              {viewMenu}
               {scope != null ? (
                 <div
                   data-slot="filter-bar-scope"
@@ -817,7 +1097,9 @@ export function FilterBar({
             )}
           >
             {hasFilters ? (
-              <div className={filtersOpen ? "contents" : "hidden"}>
+              <div
+                className={filtersOpen || builderMode ? "contents" : "hidden"}
+              >
                 {facets}
                 {chips}
                 {moreMenu}
