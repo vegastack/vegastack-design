@@ -284,6 +284,30 @@ test("the IconText hit area appears exactly when the row becomes a control", asy
  * (no mouse/trackpad) for the duration of the callback. Mirrors the house pattern in
  * `message-scroller.test.tsx` (mock + spy, restored in `finally`).
  */
+/**
+ * A hovering pointer, asserted rather than assumed: the Linux runner's headless Chromium reports
+ * `(hover: none)` (measured 2026-10-26), while desktop hosts report a hovering mouse.
+ */
+async function withHoverDevice(run: () => Promise<void>) {
+  const matchMediaSpy = vi
+    .spyOn(window, "matchMedia")
+    .mockImplementation((query: string) => ({
+      matches: query === "(hover: hover)" || query === "(pointer: fine)",
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }));
+  try {
+    await run();
+  } finally {
+    matchMediaSpy.mockRestore();
+  }
+}
+
 async function withNoHoverDevice(run: () => Promise<void>) {
   const matchMediaSpy = vi
     .spyOn(window, "matchMedia")
@@ -384,33 +408,21 @@ test("on a no-hover device, blur re-clamps an expanded disclosure", async () => 
 });
 
 test("on a hover-capable device, overflowing text keeps the Tooltip-only behavior (no touch disclosure attributes)", async () => {
-  // Default environment (no matchMedia mock) resolves `(hover: none)` to false in the real
-  // browser this suite runs in (Playwright desktop Chromium), so no mock is needed here.
-  const long =
-    "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(
-    <Subject data-testid="subject" style={CLIP}>
-      {long}
-    </Subject>,
-  );
-  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
-  // two elements and Playwright's strict mode throws.
-  const el = screen.getByTestId("subject");
-  await expect.element(el).toHaveAttribute("tabindex", "0");
-  // TEMP-DIAG (removed before merge)
-  console.log(
-    "TEMP-DIAG",
-    JSON.stringify({
-      none: window.matchMedia("(hover: none)").matches,
-      hover: window.matchMedia("(hover: hover)").matches,
-      own: Object.prototype.hasOwnProperty.call(window, "matchMedia"),
-      spy: "mock" in (window.matchMedia as object),
-      html: el.element().outerHTML.slice(0, 300),
-      count: document.querySelectorAll('[data-testid="subject"]').length,
-    }),
-  );
-  await expect.element(el).not.toHaveAttribute("role");
-  await expect.element(el).not.toHaveAttribute("aria-expanded");
+  await withHoverDevice(async () => {
+    const long =
+      "A very long piece of text that will certainly overflow its tiny container";
+    const screen = await render(
+      <Subject data-testid="subject" style={CLIP}>
+        {long}
+      </Subject>,
+    );
+    // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+    // two elements and Playwright's strict mode throws.
+    const el = screen.getByTestId("subject");
+    await expect.element(el).toHaveAttribute("tabindex", "0");
+    await expect.element(el).not.toHaveAttribute("role");
+    await expect.element(el).not.toHaveAttribute("aria-expanded");
+  });
 });
 
 test("on a no-hover device, overflowing IconText row becomes a tap-to-toggle disclosure", async () => {
@@ -481,27 +493,30 @@ test("host-owned (measured on contact): pointing at a clipped value opens its fu
       </TooltipProvider>
     );
   }
-  const first = "A first value long enough to clip in its tiny box";
-  const screen = await render(<Host text={first} />);
-  const subject = () => screen.getByTestId("subject");
-  // At rest it is measured by nothing: no Tooltip, not a tab stop.
-  expect(subject().element().getAttribute("tabindex")).not.toBe("0");
-  await userEvent.hover(subject());
-  await expect
-    .poll(
-      () =>
-        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
-    )
-    .toBe(first);
-  await userEvent.unhover(subject());
-  // The element became a Tooltip trigger (a remount); a new value is still measured on contact.
-  const second = "A second value, also long enough to clip in the box";
-  await screen.rerender(<Host text={second} />);
-  await userEvent.hover(subject());
-  await expect
-    .poll(
-      () =>
-        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
-    )
-    .toBe(second);
+  // Contact measuring is the hover-capable path.
+  await withHoverDevice(async () => {
+    const first = "A first value long enough to clip in its tiny box";
+    const screen = await render(<Host text={first} />);
+    const subject = () => screen.getByTestId("subject");
+    // At rest it is measured by nothing: no Tooltip, not a tab stop.
+    expect(subject().element().getAttribute("tabindex")).not.toBe("0");
+    await userEvent.hover(subject());
+    await expect
+      .poll(
+        () =>
+          document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+      )
+      .toBe(first);
+    await userEvent.unhover(subject());
+    // The element became a Tooltip trigger (a remount); a new value is still measured on contact.
+    const second = "A second value, also long enough to clip in the box";
+    await screen.rerender(<Host text={second} />);
+    await userEvent.hover(subject());
+    await expect
+      .poll(
+        () =>
+          document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+      )
+      .toBe(second);
+  });
 });
