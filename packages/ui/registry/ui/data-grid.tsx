@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.81 sha256-crwcOBRmYzCOKRZDsdS3+BOC86WusaIse8lRhBOBbC4=
+// @vegastack data-grid@0.25.81 sha256-evG0JBUxmwL7K1gmZnWh2WEsoKJor2c/2bAN+ByPB2s=
 
 "use client";
 
@@ -74,7 +74,10 @@ import {
 } from "@/components/ui/load-more";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnnouncerScope, useAnnouncer } from "@/components/ui/use-announcer";
-import { useDragReorder } from "@/components/ui/use-drag-reorder";
+import {
+  useDragReorder,
+  type UseDragReorderReturn,
+} from "@/components/ui/use-drag-reorder";
 import {
   gridRangeBounds,
   useGridSelection,
@@ -137,8 +140,12 @@ The structure the G2 benchmark (Regent Tables, 23-10-2026) measured as passing a
   the body alone; the viewport reaches it as STATE (a callback ref), because a child's layout
   effect runs before a parent's ref attaches.
 - The frozen edge's shadow keys off a `data-scrolled-x` attribute the scroll listener sets only
-  when it changes — never React state.
+  when it changes — never React state — once a frame, from the offset the column virtualiser
+  already read: no scroll handler of the grid's own reads layout.
 - Fixed row heights (`rowHeight`) mean exact sizes and no `measureElement`.
+- G1.11 (26-10-2026) re-measure: no body cell is positioned unless it holds an absolute child (a
+  positioned cell is a paint layer, and ~600 of them made paint and layerize most of a tick), and
+  the windows overscan three rows and one column.
 
 Deliberately NOT done here:
 - No filter UI (FilterBuilder + the host), no saved views/URL state (host, G7), no CSV export.
@@ -923,8 +930,11 @@ function Cell<T>({
  * — style recalculation was most of the tick.
  */
 const ROW_BASE_CLASS = "border-b hover:bg-muted/50";
+// No `position` here: a positioned cell is a paint layer of its own, and at 150 columns the ~600
+// layered cells made paint and layerize most of a scroll tick. A cell is `relative` only while it
+// can hold an absolute child (a remote change's cue, the fill handle); a frozen one is `sticky`.
 const CELL_BASE_CLASS =
-  "relative p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-primary)_10%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-primary)_5%,var(--color-background))]";
+  "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-primary)_10%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-primary)_5%,var(--color-background))]";
 const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
 
@@ -972,16 +982,38 @@ interface GridCellProps<T> {
 /** How long a remote change's author chip stays. */
 const REMOTE_CUE_MS = 1500;
 
-/** Whether a remote change is still fresh, re-rendering once when it stops being. */
-function useFresh(remote: DataGridRemoteChange | undefined): boolean {
+/**
+ * A remote change's cue — the pulse and the author chip — while it is fresh, re-rendering once
+ * when it stops being. Its own component, so a cell without a remote change (nearly all of them,
+ * mounted by the dozen on every scroll tick) runs no timer effect.
+ */
+function RemoteCue({ remote }: { remote: DataGridRemoteChange }) {
   const [, expire] = React.useReducer((n: number) => n + 1, 0);
-  const left = remote ? REMOTE_CUE_MS - (Date.now() - remote.at) : 0;
+  const left = REMOTE_CUE_MS - (Date.now() - remote.at);
   React.useEffect(() => {
     if (left <= 0) return;
     const timer = window.setTimeout(expire, left);
     return () => window.clearTimeout(timer);
   }, [remote, left > 0]); // eslint-disable-line react-hooks/exhaustive-deps
-  return left > 0;
+  if (left <= 0) return null;
+  return (
+    <>
+      {/* The existing highlight-on-change pulse, inset so the cell's clip keeps it whole;
+          the base reduced-motion reset removes it. */}
+      <span
+        key={remote.at}
+        aria-hidden
+        className="pointer-events-none absolute inset-0.5 rounded-sm motion-flash"
+      />
+      <span
+        aria-hidden
+        data-slot="data-grid-remote"
+        className="pointer-events-none absolute end-0.5 top-0.5 flex"
+      >
+        {remote.by}
+      </span>
+    </>
+  );
 }
 
 function GridCellImpl<T>({
@@ -1004,7 +1036,6 @@ function GridCellImpl<T>({
   remote,
 }: GridCellProps<T>) {
   const api = useGridApi();
-  const fresh = useFresh(remote);
   const { column, key } = placed;
   const ref = React.useCallback(
     (node: HTMLElement | null) => api.register(rowId, key, node),
@@ -1082,7 +1113,11 @@ function GridCellImpl<T>({
             }
           : undefined
       }
-      className={placed.cellClass}
+      className={
+        (fillHandle || remote) && placed.offset == null
+          ? `${placed.cellClass} relative`
+          : placed.cellClass
+      }
       style={stickyStyle(placed.offset)}
     >
       {fixed && rowHeight === "tall" ? (
@@ -1120,24 +1155,7 @@ function GridCellImpl<T>({
           ))}
         </span>
       ) : null}
-      {remote && fresh ? (
-        <>
-          {/* The existing highlight-on-change pulse, inset so the cell's clip keeps it whole;
-              the base reduced-motion reset removes it. */}
-          <span
-            key={remote.at}
-            aria-hidden
-            className="pointer-events-none absolute inset-0.5 rounded-sm motion-flash"
-          />
-          <span
-            aria-hidden
-            data-slot="data-grid-remote"
-            className="pointer-events-none absolute end-0.5 top-0.5 flex"
-          >
-            {remote.by}
-          </span>
-        </>
-      ) : null}
+      {remote ? <RemoteCue remote={remote} /> : null}
       {fillHandle ? (
         // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area.
         <span
@@ -1325,6 +1343,273 @@ function GridRowImpl<T>({
 }
 
 const GridRowView = React.memo(GridRowImpl) as typeof GridRowImpl;
+
+/** A column's resize bounds: its own minimum, and the grid's ceiling. */
+function columnResizeBounds<T>(column: DataGridColumn<T>) {
+  return {
+    min: column.minWidth ?? FIXED_MIN_WIDTH,
+    max: Math.max(column.minWidth ?? FIXED_MIN_WIDTH, FIXED_MAX_WIDTH),
+  };
+}
+
+/**
+ * What a header or summary cell does, as one stable object: it reads the grid's latest state
+ * through a ref, so the memoised cells below re-render only when their own props move — a
+ * column-window move (every horizontal scroll tick) then renders the entering column alone.
+ */
+interface GridEdgeActions<T> {
+  sort: (key: string, additive: boolean) => void;
+  setMenuOpen: (key: string, open: boolean) => void;
+  resize: (key: string, width: number, commit: boolean) => void;
+  autoFit: (placed: PlacedColumn<T>) => void;
+  /** A closed summary picker hands focus back to its cell. */
+  summaryClosed: (key: string) => void;
+}
+
+type DropEdge = ReturnType<
+  UseDragReorderReturn["getItemProps"]
+>["data-drop-edge"];
+
+interface GridHeadCellProps<T> {
+  placed: PlacedColumn<T>;
+  fixed: boolean;
+  direction: DataGridSort["direction"] | null;
+  /** The sort key's position when the grid sorts by more than one. */
+  order: number | undefined;
+  tabStop: boolean;
+  menuOpen: boolean;
+  resizable: boolean;
+  actions: GridEdgeActions<T>;
+  /** Drag-to-reorder: the stable item and handle refs and the drag state, when reorderable. */
+  itemRef: ((node: HTMLElement | null) => void) | undefined;
+  handleRef: ((node: HTMLElement | null) => void) | undefined;
+  dragging: boolean;
+  dropEdge: DropEdge;
+  dragPending: boolean;
+}
+
+function GridHeadCellImpl<T>({
+  placed: p,
+  fixed,
+  direction,
+  order,
+  tabStop,
+  menuOpen,
+  resizable,
+  actions,
+  itemRef,
+  handleRef,
+  dragging,
+  dropEdge,
+  dragPending,
+}: GridHeadCellProps<T>) {
+  const api = useGridApi();
+  const { column, key } = p;
+  const sortable = column.sortable === true;
+  const register = React.useCallback(
+    (node: HTMLElement | null) => api.register(HEADER, key, node),
+    [api, key],
+  );
+  const ref = React.useMemo(
+    () => (itemRef ? mergeRefs(itemRef, register) : register),
+    [itemRef, register],
+  );
+  const label = sortable ? (
+    <SortHeaderButton
+      direction={direction}
+      order={order}
+      onSort={(event) => actions.sort(key, event.shiftKey)}
+      align={column.align}
+      label={typeof column.header === "string" ? column.header : undefined}
+      tabIndex={-1}
+      className={cn(fixed && "min-w-0 max-w-full")}
+    >
+      {fixed ? (
+        <span data-slot="data-grid-head-label" className="truncate">
+          {column.header}
+        </span>
+      ) : (
+        column.header
+      )}
+    </SortHeaderButton>
+  ) : fixed ? (
+    <span
+      data-slot="data-grid-head-label"
+      className="min-w-0 truncate"
+      title={typeof column.header === "string" ? column.header : undefined}
+    >
+      {column.header}
+    </span>
+  ) : (
+    column.header
+  );
+  return (
+    <th
+      data-drag-item={itemRef ? key : undefined}
+      data-dragging={dragging ? "" : undefined}
+      data-drop-edge={dropEdge}
+      data-drag-pending={dragPending ? "" : undefined}
+      ref={ref}
+      role="columnheader"
+      aria-colindex={p.ariaColIndex}
+      aria-sort={
+        sortable
+          ? direction === "asc"
+            ? "ascending"
+            : direction === "desc"
+              ? "descending"
+              : "none"
+          : undefined
+      }
+      data-slot="data-grid-head"
+      data-sortable={sortable ? "" : undefined}
+      data-sorted={direction ?? undefined}
+      data-grid-row={HEADER}
+      data-grid-key={key}
+      tabIndex={tabStop ? 0 : -1}
+      onFocus={() => api.focused(HEADER, key)}
+      className={cn(
+        HEAD_BASE_CLASS,
+        fixed
+          ? cn(
+              alignClass(column.align),
+              "relative",
+              sortable && "group/sort-head px-0.5",
+              p.offset != null && "sticky z-30 bg-background",
+              p.edge && FROZEN_EDGE_CLASS,
+            )
+          : cn(
+              headerCellClass(column, { fill: p.primary }),
+              sortable && "group/sort-head px-0.5",
+            ),
+        "focus-visible:-outline-offset-2",
+      )}
+      style={stickyStyle(p.offset)}
+    >
+      {fixed || column.headerMenu ? (
+        <div
+          ref={handleRef}
+          className={cn(
+            "flex min-w-0 items-center gap-0.5",
+            column.align === "end" && "justify-end",
+            column.align === "center" && "justify-center",
+          )}
+        >
+          {label}
+          {column.headerMenu ? (
+            <DropdownMenu
+              open={menuOpen}
+              onOpenChange={(open) => actions.setMenuOpen(key, open)}
+            >
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    tabIndex={-1}
+                    aria-label={`${p.label} options`}
+                    data-slot="data-grid-head-menu"
+                    className="shrink-0 text-muted-foreground"
+                  >
+                    <ChevronDown />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="start">
+                {column.headerMenu}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
+        </div>
+      ) : (
+        label
+      )}
+      {resizable ? (
+        <ColumnResizeHandle
+          label={p.label}
+          width={p.width}
+          {...columnResizeBounds(column)}
+          tabIndex={-1}
+          onResize={(width) => actions.resize(key, width, false)}
+          onResizeEnd={(width) => actions.resize(key, width, true)}
+          onAutoFit={() => actions.autoFit(p)}
+        />
+      ) : null}
+    </th>
+  );
+}
+
+const GridHeadCell = React.memo(GridHeadCellImpl) as typeof GridHeadCellImpl;
+
+interface GridFooterCellProps<T> {
+  placed: PlacedColumn<T>;
+  tabStop: boolean;
+  summaryRow: DataGridSummaryRow | undefined;
+  loading: boolean;
+  actions: GridEdgeActions<T>;
+}
+
+function GridFooterCellImpl<T>({
+  placed: p,
+  tabStop,
+  summaryRow,
+  loading,
+  actions,
+}: GridFooterCellProps<T>) {
+  const api = useGridApi();
+  const register = React.useCallback(
+    (node: HTMLElement | null) => api.register(FOOTER, p.key, node),
+    [api, p.key],
+  );
+  const common = {
+    "aria-colindex": p.ariaColIndex,
+    "data-grid-row": FOOTER,
+    "data-grid-key": p.key,
+    onFocus: () => api.focused(FOOTER, p.key),
+    style: stickyStyle(p.offset),
+    // Every footer cell paints its own background: rows scrolling under the sticky summary
+    // row showed through the row group's.
+    className: cn(
+      "bg-background",
+      alignClass(p.column.align),
+      p.offset != null && "sticky z-30",
+      "focus-visible:-outline-offset-2",
+    ),
+  };
+  if (summaryRow && p.column.summaryOptions)
+    return (
+      <GridSummaryCell
+        {...common}
+        ref={register}
+        tabIndex={tabStop ? 0 : -1}
+        leading={p.primary ? summaryRow.label : undefined}
+        onOpenChange={(open) => {
+          if (!open) actions.summaryClosed(p.key);
+        }}
+        columnLabel={p.label}
+        options={p.column.summaryOptions}
+        value={summaryRow.value[p.key] ?? null}
+        onValueChange={(next) => summaryRow.onValueChange(p.key, next)}
+        result={summaryRow.results?.[p.key]}
+        loading={loading}
+        triggerTabIndex={-1}
+      />
+    );
+  return (
+    <TableCell
+      {...common}
+      ref={register}
+      tabIndex={tabStop ? 0 : -1}
+      className={cn(common.className, "py-1 text-xs text-muted-foreground")}
+    >
+      {p.primary ? summaryRow?.label : null}
+    </TableCell>
+  );
+}
+
+const GridFooterCell = React.memo(
+  GridFooterCellImpl,
+) as typeof GridFooterCellImpl;
 
 interface GroupRowProps {
   itemId: string;
@@ -1578,7 +1863,9 @@ function GridBody<T>({
     // A row scrolled into view lands clear of the sticky header and summary row.
     scrollPaddingStart: headerPx,
     scrollPaddingEnd: footerPx,
-    overscan: 6,
+    // Three rows (about 100px) each side: every overscanned row is cells a scroll tick mounts,
+    // styles and lays out, and the window is re-rendered in the scroll event itself.
+    overscan: 3,
   });
   const committedItems = React.useRef(items);
   React.useLayoutEffect(() => {
@@ -2047,7 +2334,8 @@ export function DataGrid<T>({
     paddingStart: frozenWidth,
     // A column scrolled into view lands clear of the frozen columns.
     scrollPaddingStart: frozenWidth,
-    overscan: 2,
+    // One column each side: a column is a cell in every rendered row.
+    overscan: 1,
   });
   const widthSignature = centerPlaced.map((p) => p.width).join(",");
   React.useEffect(() => {
@@ -2928,10 +3216,6 @@ export function DataGrid<T>({
     }));
     if (commit) onColumnResize?.(key, width);
   };
-  const resizeBounds = (column: DataGridColumn<T>) => ({
-    min: column.minWidth ?? FIXED_MIN_WIDTH,
-    max: Math.max(column.minWidth ?? FIXED_MIN_WIDTH, FIXED_MAX_WIDTH),
-  });
   /** Double-click: the widest rendered value (or the header label), within the bounds. */
   const autoFit = (p: PlacedColumn<T>) => {
     if (!viewport) return;
@@ -2965,7 +3249,7 @@ export function DataGrid<T>({
     released.forEach((child, index) => {
       child.style.cssText = saved[index]!;
     });
-    const { min, max } = resizeBounds(p.column);
+    const { min, max } = columnResizeBounds(p.column);
     // The cell's inline padding (`px-2`); the sort glyph and the menu chevron when the header has them.
     const chrome =
       16 + (p.column.sortable ? 24 : 0) + (p.column.headerMenu ? 24 : 0);
@@ -3247,7 +3531,7 @@ export function DataGrid<T>({
           event.key,
           event.shiftKey,
           placedColumn.width,
-          { ...resizeBounds(placedColumn.column), rtl: isRtl },
+          { ...columnResizeBounds(placedColumn.column), rtl: isRtl },
         );
         event.preventDefault();
         if (next != null && next !== placedColumn.width) {
@@ -3396,156 +3680,101 @@ export function DataGrid<T>({
   };
 
   // The frozen edge's shadow: an attribute set only when it changes (G2: re-setting it on every
-  // scroll event invalidated style for the whole grid and was the hottest frame).
+  // scroll event invalidated style for the whole grid and was the hottest frame). The scroll
+  // handler never reads layout: a virtualiser's own handler has just committed the newly mounted
+  // cells, so reading `scrollLeft` there forced their style and layout synchronously (G1.11:
+  // ~6 ms of every horizontal tick). Once a frame, it takes the offset the column virtualiser
+  // already read — it observes the viewport whether or not columns window.
   React.useEffect(() => {
     if (!viewport || frozenPlaced.length === 0) return;
     let scrolled = viewport.scrollLeft !== 0;
     viewport.toggleAttribute("data-scrolled-x", scrolled);
-    const onScroll = () => {
-      const next = viewport.scrollLeft !== 0;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const next =
+        (columnVirtualizer.scrollOffset ?? viewport.scrollLeft) !== 0;
       if (next !== scrolled) {
         scrolled = next;
         viewport.toggleAttribute("data-scrolled-x", next);
       }
     };
+    const onScroll = () => {
+      if (frame === 0) frame = requestAnimationFrame(update);
+    };
     viewport.addEventListener("scroll", onScroll, { passive: true });
-    return () => viewport.removeEventListener("scroll", onScroll);
-  }, [viewport, frozenPlaced.length]);
+    return () => {
+      viewport.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [viewport, frozenPlaced.length, columnVirtualizer]);
 
   // ---- render --------------------------------------------------------------
+  /** A closed function picker hands focus back to its cell, which roves. */
+  const refocusFooter = (key: string) => {
+    requestAnimationFrame(() => {
+      const cell = nodes.current.get(nodeKey(FOOTER, key));
+      const focused = document.activeElement;
+      // Not when focus has moved on (Tab out of the open picker): only back from the popup.
+      if (
+        !cell ||
+        (focused instanceof HTMLElement &&
+          focused !== document.body &&
+          !cell.contains(focused) &&
+          !focused.closest('[data-slot="select-content"]'))
+      )
+        return;
+      cell.focus();
+    });
+  };
+  // The header and summary cells' actions: stable, reading the latest state (see `GridEdgeActions`).
+  const edgeCurrent = {
+    sort: handleSort,
+    resize: resizeTo,
+    autoFit,
+    summaryClosed: refocusFooter,
+  };
+  const edgeLatest = React.useRef(edgeCurrent);
+  React.useLayoutEffect(() => {
+    edgeLatest.current = edgeCurrent;
+  });
+  const edgeActions = React.useMemo<GridEdgeActions<T>>(
+    () => ({
+      sort: (key, additive) => edgeLatest.current.sort(key, additive),
+      setMenuOpen: (key, open) => setHeaderMenuKey(open ? key : null),
+      resize: (key, width, commit) =>
+        edgeLatest.current.resize(key, width, commit),
+      autoFit: (p) => edgeLatest.current.autoFit(p),
+      summaryClosed: (key) => edgeLatest.current.summaryClosed(key),
+    }),
+    [],
+  );
   const headerCell = (p: PlacedColumn<T>) => {
-    const { column, key } = p;
-    const entryIndex = activeSort.findIndex((entry) => entry.key === key);
+    const entryIndex = activeSort.findIndex((entry) => entry.key === p.key);
     const entry = entryIndex === -1 ? null : activeSort[entryIndex]!;
-    const sortable = column.sortable === true;
-    const isTab = resolved.rowId === HEADER && tabKey === key;
     const reorderable = onColumnReorder != null && p.offset == null;
-    const itemProps = reorderable ? reorder.getItemProps("columns", key) : null;
-    const handleRef = reorderable
-      ? reorder.getHandleProps("columns", key).ref
-      : undefined;
-    const register = (node: HTMLElement | null) =>
-      api.register(HEADER, key, node);
-    const label = sortable ? (
-      <SortHeaderButton
+    const item = reorderable ? reorder.getItemProps("columns", p.key) : null;
+    return (
+      <GridHeadCell
+        key={p.key}
+        placed={p}
+        fixed={fixed}
         direction={entry?.direction ?? null}
         order={entry && activeSort.length > 1 ? entryIndex + 1 : undefined}
-        onSort={(event) => handleSort(key, event.shiftKey)}
-        align={column.align}
-        label={typeof column.header === "string" ? column.header : undefined}
-        tabIndex={-1}
-        className={cn(fixed && "min-w-0 max-w-full")}
-      >
-        {fixed ? (
-          <span data-slot="data-grid-head-label" className="truncate">
-            {column.header}
-          </span>
-        ) : (
-          column.header
-        )}
-      </SortHeaderButton>
-    ) : fixed ? (
-      <span
-        data-slot="data-grid-head-label"
-        className="min-w-0 truncate"
-        title={typeof column.header === "string" ? column.header : undefined}
-      >
-        {column.header}
-      </span>
-    ) : (
-      column.header
-    );
-    return (
-      <th
-        key={key}
-        {...(itemProps ?? {})}
-        ref={itemProps ? mergeRefs(itemProps.ref, register) : register}
-        role="columnheader"
-        aria-colindex={p.ariaColIndex}
-        aria-sort={
-          sortable
-            ? entry?.direction === "asc"
-              ? "ascending"
-              : entry?.direction === "desc"
-                ? "descending"
-                : "none"
-            : undefined
+        tabStop={resolved.rowId === HEADER && tabKey === p.key}
+        menuOpen={headerMenuKey === p.key}
+        resizable={
+          fixed && onColumnResize != null && p.column.resizable !== false
         }
-        data-slot="data-grid-head"
-        data-sortable={sortable ? "" : undefined}
-        data-sorted={entry?.direction}
-        data-grid-row={HEADER}
-        data-grid-key={key}
-        tabIndex={isTab ? 0 : -1}
-        onFocus={() => api.focused(HEADER, key)}
-        className={cn(
-          HEAD_BASE_CLASS,
-          fixed
-            ? cn(
-                alignClass(column.align),
-                "relative",
-                sortable && "group/sort-head px-0.5",
-                p.offset != null && "sticky z-30 bg-background",
-                p.edge && FROZEN_EDGE_CLASS,
-              )
-            : cn(
-                headerCellClass(column, { fill: p.primary }),
-                sortable && "group/sort-head px-0.5",
-              ),
-          "focus-visible:-outline-offset-2",
-        )}
-        style={stickyStyle(p.offset)}
-      >
-        {fixed || column.headerMenu ? (
-          <div
-            ref={handleRef}
-            className={cn(
-              "flex min-w-0 items-center gap-0.5",
-              column.align === "end" && "justify-end",
-              column.align === "center" && "justify-center",
-            )}
-          >
-            {label}
-            {column.headerMenu ? (
-              <DropdownMenu
-                open={headerMenuKey === key}
-                onOpenChange={(open) => setHeaderMenuKey(open ? key : null)}
-              >
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      tabIndex={-1}
-                      aria-label={`${p.label} options`}
-                      data-slot="data-grid-head-menu"
-                      className="shrink-0 text-muted-foreground"
-                    >
-                      <ChevronDown />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent align="start">
-                  {column.headerMenu}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
-          </div>
-        ) : (
-          label
-        )}
-        {fixed && onColumnResize && column.resizable !== false ? (
-          <ColumnResizeHandle
-            label={p.label}
-            width={p.width}
-            {...resizeBounds(column)}
-            tabIndex={-1}
-            onResize={(width) => resizeTo(key, width, false)}
-            onResizeEnd={(width) => resizeTo(key, width, true)}
-            onAutoFit={() => autoFit(p)}
-          />
-        ) : null}
-      </th>
+        actions={edgeActions}
+        itemRef={item?.ref}
+        handleRef={
+          reorderable ? reorder.getHandleProps("columns", p.key).ref : undefined
+        }
+        dragging={item?.["data-dragging"] != null}
+        dropEdge={item?.["data-drop-edge"]}
+        dragPending={item?.["data-drag-pending"] != null}
+      />
     );
   };
 
@@ -3594,73 +3823,16 @@ export function DataGrid<T>({
   );
 
   const summaryLoading = new Set(summaryRow?.loading ?? []);
-  /** A closed function picker hands focus back to its cell, which roves. */
-  const refocusFooter = (key: string) => (open: boolean) => {
-    if (open) return;
-    requestAnimationFrame(() => {
-      const cell = nodes.current.get(nodeKey(FOOTER, key));
-      const focused = document.activeElement;
-      // Not when focus has moved on (Tab out of the open picker): only back from the popup.
-      if (
-        !cell ||
-        (focused instanceof HTMLElement &&
-          focused !== document.body &&
-          !cell.contains(focused) &&
-          !focused.closest('[data-slot="select-content"]'))
-      )
-        return;
-      cell.focus();
-    });
-  };
-  const footerCell = (p: PlacedColumn<T>) => {
-    const isTab = resolved.rowId === FOOTER && tabKey === p.key;
-    const register = (node: HTMLElement | null) =>
-      api.register(FOOTER, p.key, node);
-    const common = {
-      "aria-colindex": p.ariaColIndex,
-      "data-grid-row": FOOTER,
-      "data-grid-key": p.key,
-      onFocus: () => api.focused(FOOTER, p.key),
-      style: stickyStyle(p.offset),
-      // Every footer cell paints its own background: rows scrolling under the sticky summary
-      // row showed through the row group's.
-      className: cn(
-        "bg-background",
-        alignClass(p.column.align),
-        p.offset != null && "sticky z-30",
-        "focus-visible:-outline-offset-2",
-      ),
-    };
-    if (summaryRow && p.column.summaryOptions)
-      return (
-        <GridSummaryCell
-          key={p.key}
-          {...common}
-          ref={register}
-          tabIndex={isTab ? 0 : -1}
-          leading={p.primary ? summaryRow.label : undefined}
-          onOpenChange={refocusFooter(p.key)}
-          columnLabel={p.label}
-          options={p.column.summaryOptions}
-          value={summaryRow.value[p.key] ?? null}
-          onValueChange={(next) => summaryRow.onValueChange(p.key, next)}
-          result={summaryRow.results?.[p.key]}
-          loading={summaryLoading.has(p.key)}
-          triggerTabIndex={-1}
-        />
-      );
-    return (
-      <TableCell
-        key={p.key}
-        {...common}
-        ref={register}
-        tabIndex={isTab ? 0 : -1}
-        className={cn(common.className, "py-1 text-xs text-muted-foreground")}
-      >
-        {p.primary ? summaryRow?.label : null}
-      </TableCell>
-    );
-  };
+  const footerCell = (p: PlacedColumn<T>) => (
+    <GridFooterCell
+      key={p.key}
+      placed={p}
+      tabStop={resolved.rowId === FOOTER && tabKey === p.key}
+      summaryRow={summaryRow}
+      loading={summaryLoading.has(p.key)}
+      actions={edgeActions}
+    />
+  );
 
   const summary = summaryRow ? (
     <tfoot

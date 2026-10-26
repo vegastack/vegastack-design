@@ -246,6 +246,8 @@ test("a leading icon renders inside the row, and destructive is recorded (With I
     </Frame>,
   );
   await userEvent.click(screen.getByText("File"));
+  // The menu opens a frame later on a loaded runner; read it once it is there.
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const [first, second] = slots("item") as [HTMLElement, HTMLElement];
   expect(first.querySelector('[data-testid="row-icon"]')).not.toBeNull();
   expect(first.getAttribute("data-variant")).toBe("default");
@@ -257,6 +259,8 @@ test("a leading icon renders inside the row, and destructive is recorded (With I
 test("a shortcut renders at the inline end of its row (Usage)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  // The menu opens a frame later on a loaded runner; read it once it is there.
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const shortcut = slot("shortcut")!;
   expect(shortcut.textContent).toBe("⌘T");
   expect(shortcut.className).toContain("ms-auto");
@@ -426,6 +430,8 @@ test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
 test("BRD-1: the content and the sub-content draw a real border, not a ring outline", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByText("File"));
+  // The menu opens a frame later on a loaded runner; read it once it is there.
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   expectBorderNotRing(slot("content")!);
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");

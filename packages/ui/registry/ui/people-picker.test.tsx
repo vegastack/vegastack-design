@@ -401,6 +401,7 @@ test("defaultSearch opens the picker searching for it once; a reopen, controlled
   await expect
     .element(screen.getByRole("option", { name: /Dev Menon/ }))
     .not.toBeInTheDocument();
+  await settle();
   await expectNoA11yViolations(document.body);
   await userEvent.keyboard("{Escape}");
   await vi.waitFor(() => expect(field()).toBeNull());
