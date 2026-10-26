@@ -368,6 +368,20 @@ the swap never moves the text. On a page with room the text keeps its column, an
   plain text, the text after the title stays after the chip ("Order glass — by Friday");
   otherwise the whole line stays after the chip, mentions included. Nested lines stay. Linking is
   one undo step.
+- **One box per task** (`onTaskOpen`): a linked line draws as a
+  [`TaskInline`](/docs/components/task-inline) — the line's own box, round, is the task's done
+  state; the task chip becomes the title, which opens the task on a click (or
+  <kbd>Alt</kbd>+<kbd>Enter</kbd> with the caret on the line):
+  `onTaskOpen(taskId)`, the host's peek. The assignee's avatar and a due chip
+  follow the title (`mentionStatus`'s `assignee`, `due` and `overdue`, else the
+  `InlineChipProvider`'s `state`), and ↗ to the task's page (`mentionHref`)
+  shows on hover. The read view and `MarkdownView` take the same prop. Without
+  it the line is a checkbox and a task chip, as before.
+- **→ Task**: with `onMakeTask`, the pointer resting on an unlinked checklist line shows **→ Task**
+  at the end of its text — Make task, one click from the line. `onMakeTask(items, { anchor })`
+  hands over the first line's element: point a
+  [`MakeTaskPopover`](/docs/components/task-inline#make-a-task-from-a-line) at it instead of
+  opening a modal.
 - **The task changed elsewhere**: `handleRef.setTaskItemChecked(taskId, checked)` ticks or
   unticks every line linked to it. It is not an undo step and returns how many lines changed.
 - **Closed targets** (`mentionStatus(kind, id)`): return `{ struck: true, status: "Canceled" }` to
@@ -397,7 +411,8 @@ the swap never moves the text. On a page with room the text keeps its column, an
   mentionStatus={(kind, id) =>
     kind === "task" && closed(id) ? { struck: true, status: label(id) } : null
   }
-  onMakeTask={(items) => openMakeTaskDialog(items)} // then handle.current.linkTaskItems(links)
+  onMakeTask={(items, { anchor }) => openMakeTaskPopover(items, anchor)} // then handle.current.linkTaskItems(links)
+  onTaskOpen={(taskId) => openTaskPeek(taskId)}
   onTaskItemToggle={(taskId, checked) => setTaskDone(taskId, checked)}
   sectionMarks={[
     { key: heading.blockId, tone: "warning", label: "May be out of date" },
@@ -521,6 +536,25 @@ person never links, and an id starting with `restricted:` is a muted chip for a
 target the reader may not open — the app keeps the real id after the colon so an
 edit never loses the mention.
 
+### Bookmarks
+
+`bookmarks` turns on a link shown as a card: the page's title, a line about it when the host has
+one, and its icon with the site's address — **Bookmark** in the slash menu (the new card asks for
+the address: Enter makes it, Escape removes it) and in the paste popover. The preview is the
+`InlineChipProvider`'s `linkPreview` — the app's server reads the page, so the reader's browser
+never contacts the site — with the optional `siteName`, `description` and `image` fields; nothing
+loads from the site itself and nothing plays (live embeds stay `embeds`, for allow-listed video
+hosts). While editing, a click selects the card and <kbd>Cmd/Ctrl</kbd>-click opens the page.
+A bookmark is stored as `[url](url "bookmark")` on its own line — a link to any other Markdown
+reader — and `MarkdownView` draws it as the same card (`MarkdownBookmark`, which also takes
+`preview` or `fetchPreview` directly). Without `bookmarks`, a bookmark already in the document
+still shows as a card.
+
+<ComponentPreview
+  name="textEditBookmarks"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Roomy menus and phone sheets
 
 `menuSize="lg"` gives the slash and mention menus room: 320px wide and up to `min(60vh, 440px)`
@@ -561,8 +595,11 @@ text) lands as its URL's text, then becomes what it names, as in Notion and Goog
   title when that answers within 1.5 seconds (the URL waits as text until then, and the link and
   its title land as one step); the link card shows the page's icon and title.
 
-Where there is a second choice, a small popover under the paste offers it — **Mention · Link** or
-**Embed · Link**, the one in effect pressed — until the next keystroke, a click or Escape; Tab
+With `bookmarks`, a link pasted where a block can stand (alone on its line, in the document, a
+quote, a callout or a toggle) also offers **Bookmark** — a card (see Bookmarks).
+
+Where there is a second choice, a small popover under the paste offers it — **Mention · Link**,
+**Embed · Link**, **Link · Bookmark** or **Embed · Link · Bookmark**, the one in effect pressed — until the next keystroke, a click or Escape; Tab
 moves into it. Each step is an undo step of its own, so undo right after a paste leaves the URL
 as text, in a shared document too. Leaving the text before an answer comes leaves a link, and a late answer changes nothing.
 

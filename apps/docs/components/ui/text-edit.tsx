@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-l209ntwdFIy9rgflTmsxVqsvotprzGXRITuC8cyYh74=
+// @vegastack text-edit@0.25.88 sha256-sy4AOI10UTIrNHZgMRhi6jhWkbWNs6bSQCKScqRr5LQ=
 
 "use client";
 
@@ -25,6 +25,7 @@ import type { EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
+import type { TaskInlinePerson } from "@/components/ui/task-inline";
 import type { Doc as YDoc } from "yjs";
 import type { Awareness } from "y-protocols/awareness";
 
@@ -55,12 +56,14 @@ export type TextEditSlashCommand =
   | "video"
   | "audio"
   | "file"
+  | "bookmark"
   | "divider"
   | "link";
 
 /**
  * Every slash command, in menu order — the default `slashCommands`. `file` shows only when
- * `onFileUpload` is set, `diagram` only when `blockViews.mermaid` is.
+ * `onFileUpload` is set, `diagram` only when `blockViews.mermaid` is, `bookmark` only with
+ * `bookmarks`.
  */
 export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "text",
@@ -81,6 +84,7 @@ export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "video",
   "audio",
   "file",
+  "bookmark",
   "divider",
   "link",
 ];
@@ -294,6 +298,20 @@ export interface TextEditMentionStatus {
   struck?: boolean;
   /** A small tag after the label ("Canceled", "Duplicate"). @default undefined */
   status?: string;
+  /**
+   * A task's assignee: with `onTaskOpen`, a linked checklist line shows their avatar after the
+   * title.
+   * @default undefined
+   */
+  assignee?: TaskInlinePerson | null;
+  /**
+   * A task's due date, as the host words it ("Fri 31 Oct"): with `onTaskOpen`, a linked line shows
+   * it as a small date chip.
+   * @default undefined
+   */
+  due?: string | null;
+  /** The due date has passed: the chip takes the destructive ink. @default false */
+  overdue?: boolean;
 }
 
 /** An unlinked checklist line `onMakeTask` offers: its key and its text. */
@@ -305,6 +323,12 @@ export interface TextEditTaskItem {
   key: string;
   /** The line's text, trimmed: the new task's suggested title. */
   text: string;
+}
+
+/** Where `onMakeTask` was asked from: the first line's element, to point a popover at. */
+export interface TextEditMakeTaskContext {
+  /** The first line's element (its `li`), or null when it is not on the page. */
+  anchor: HTMLElement | null;
 }
 
 /** A checklist line to link to a task (`linkTaskItems`). */
@@ -1391,10 +1415,25 @@ export interface TextEditProps {
   onTaskItemToggle?: (taskId: string, checked: boolean) => void;
   /**
    * Adds **Make task** to the block menu of an unlinked checklist line (**Make N tasks** when
-   * several are selected); called with the lines. Create the tasks, then `linkTaskItems`.
+   * several are selected), and a **→ Task** button at the end of an unlinked checklist line the
+   * pointer rests on; called with the lines and the first line's element (`anchor` — point a
+   * `MakeTaskPopover` at it). Create the tasks, then `linkTaskItems`.
    * @default undefined
    */
-  onMakeTask?: (items: TextEditTaskItem[]) => void;
+  onMakeTask?: (
+    items: TextEditTaskItem[],
+    context: TextEditMakeTaskContext,
+  ) => void;
+  /**
+   * A linked checklist line (`linkedTaskId`) draws as a `TaskInline`: one round box (the task's
+   * done state), the title — which calls this on a click, or <kbd>Alt</kbd>+<kbd>Enter</kbd> with
+   * the caret on the line: open the task's peek — then the assignee's avatar and the due date
+   * (`mentionStatus`'s `assignee`, `due` and `overdue`, else the `InlineChipProvider`'s `state`)
+   * and ↗ to the task's page (`mentionHref`) on hover. Without it the line is a checkbox and a task
+   * chip, as before.
+   * @default undefined
+   */
+  onTaskOpen?: (taskId: string) => void;
   /**
    * Marked sections: each draws a small marker in the gutter beside its heading (named `label`)
    * and a `tone` bar along the section — decorations only, with no layout shift. A key matching
@@ -1457,6 +1496,17 @@ export interface TextEditProps {
    * @default undefined
    */
   embeds?: EmbedProviders;
+  /**
+   * Bookmarks: a link shown as a card with its page's title, icon and site — **Bookmark** in the
+   * slash menu (paste or type the address into the new card), and **Link · Bookmark** in the
+   * popover under a lone link pasted where a block can stand (**Embed · Link · Bookmark** for a
+   * video with `embeds`). The preview comes from the `InlineChipProvider`'s `linkPreview` (the
+   * app's server reads the page; the reader's browser never contacts the site). Stored as
+   * `[url](url "bookmark")` on its own line — a link to any other reader. Without it a bookmark
+   * already in the document still shows as a card.
+   * @default false
+   */
+  bookmarks?: boolean;
   /**
    * Draws a live task list — a `taskQuery` block, `:::tasks{…}` in Markdown — with the host's own
    * component (it fetches this reader's rows), in the editor and in the read view before it.
@@ -2152,7 +2202,13 @@ export function TextEdit(props: TextEditProps) {
     },
     // A link click places the caret, as in the editor, instead of navigating.
     onClick: (event: React.MouseEvent) => {
-      if (editable && (event.target as Element).closest?.("a"))
+      // A task line's ↗ is the task page's own link (`onTaskOpen`): it navigates.
+      if (
+        editable &&
+        (event.target as Element).closest?.(
+          "a:not([data-slot=task-inline-open])",
+        )
+      )
         event.preventDefault();
     },
   };
@@ -2241,6 +2297,7 @@ export function TextEdit(props: TextEditProps) {
               mentionHref={props.mentionHref}
               mentionImage={props.mentionImage}
               mentionStatus={props.mentionStatus}
+              onTaskOpen={props.onTaskOpen}
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-vx0VkJ1i4sTPBwb5U6bqUfkHIShciPEzBw82RLV4ykw=
+// @vegastack markdown-view@0.25.88 sha256-BunVtJz9QwqEf4Wu5nT0xXTkisuVVQ4kuZuwpTIn1NY=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import {
   ChevronDown,
   ChevronUp,
+  Globe,
   Hash,
   MessageSquarePlus,
   Play,
@@ -19,6 +20,13 @@ import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import {
+  useInlineChipResolver,
+  type InlineChipLinkPreview,
+} from "@/components/ui/inline-chip";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TaskInline } from "@/components/ui/task-inline";
+import type { MarkdownMentionStatus } from "@/components/ui/markdown-view";
 import {
   anchorFromRange,
   resolveAnchor,
@@ -1306,6 +1314,228 @@ export function MarkdownSectionMarker({
     >
       {dot}
     </Button>
+  );
+}
+
+/** Props accepted by `MarkdownTaskInline`. */
+export interface MarkdownTaskInlineProps {
+  /** The task's id. */
+  id: string;
+  /** The task's title, as the mention carries it. */
+  label: string;
+  /** Its state from the view's `mentionStatus`; null asks the `InlineChipProvider`'s `state`. */
+  state: MarkdownMentionStatus | null;
+  /** The task's page (`mentionHref`, else the provider's `href`). @default undefined */
+  href?: string | null;
+  /** The title was clicked: open the task. */
+  onOpen: () => void;
+}
+
+/**
+ * `MarkdownTaskInline` — a linked checklist line's task in a read view (`onTaskOpen`): the
+ * `TaskInline` title, avatar, due chip and ↗, its state from `mentionStatus` or the
+ * `InlineChipProvider`. The line's own box is the task's.
+ *
+ * @example
+ * <MarkdownTaskInline id="t1" label="Order glass" state={null} onOpen={() => peek("t1")} />
+ */
+export function MarkdownTaskInline({
+  id,
+  label,
+  state,
+  href,
+  onOpen,
+}: MarkdownTaskInlineProps) {
+  const resolver = useInlineChipResolver();
+  const shown =
+    state ??
+    (resolver?.state?.("task", id) as MarkdownMentionStatus | null) ??
+    null;
+  return (
+    <TaskInline
+      checkbox={false}
+      title={label || "…"}
+      done={shown?.done === true}
+      struck={shown?.struck === true}
+      status={shown?.status}
+      assignee={shown?.assignee}
+      due={shown?.due}
+      overdue={shown?.overdue}
+      onOpen={onOpen}
+      href={href ?? resolver?.href?.("task", id) ?? undefined}
+    />
+  );
+}
+
+/* --- bookmarks ----------------------------------------------------------------------------------*/
+
+/** A bookmark's preview: the page's title and icon, and (when the host has them) its site and blurb. */
+export type MarkdownBookmarkPreview = InlineChipLinkPreview;
+
+/** Each preview source's answers by URL, kept for the page's life (oldest out past 200). */
+const BOOKMARK_PREVIEWS = new WeakMap<
+  object,
+  Map<string, Promise<MarkdownBookmarkPreview | null>>
+>();
+
+function bookmarkPreviewOf(
+  source: NonNullable<MarkdownBookmarkProps["fetchPreview"]>,
+  url: string,
+): Promise<MarkdownBookmarkPreview | null> {
+  let answers = BOOKMARK_PREVIEWS.get(source);
+  if (!answers) BOOKMARK_PREVIEWS.set(source, (answers = new Map()));
+  let answer = answers.get(url);
+  if (!answer) {
+    answer = source(url, { signal: new AbortController().signal }).catch(
+      () => null,
+    );
+    answers.set(url, answer);
+    if (answers.size > 200) answers.delete(answers.keys().next().value!);
+  }
+  return answer;
+}
+
+/** A URL's host without `www.`, and its path — the card's address line. */
+function bookmarkAddress(url: string): { host: string; path: string } {
+  try {
+    const parsed = new URL(url);
+    const path = `${parsed.pathname}${parsed.search}`.replace(/\/$/, "");
+    return { host: parsed.host.replace(/^www\./, ""), path };
+  } catch {
+    return { host: url, path: "" };
+  }
+}
+
+/** Props accepted by `MarkdownBookmark`. */
+export interface MarkdownBookmarkProps extends Omit<
+  React.ComponentPropsWithRef<"a">,
+  "children" | "href"
+> {
+  /** The page's address (http or https). */
+  url: string;
+  /**
+   * The preview, when the host already has it: shown as given, nothing is asked.
+   * @default undefined
+   */
+  preview?: MarkdownBookmarkPreview | null;
+  /**
+   * Asks the host for the page's preview (its server reads the page, so the reader's browser never
+   * contacts the site), once per URL. Without it, the `InlineChipProvider`'s `linkPreview`.
+   * @default the provider's `linkPreview`
+   */
+  fetchPreview?: (
+    url: string,
+    options: { signal: AbortSignal },
+  ) => Promise<MarkdownBookmarkPreview | null>;
+}
+
+/**
+ * `MarkdownBookmark` — a link shown as a card (a bookmark, `[url](url "bookmark")` on its own
+ * line): the page's title, its blurb when the host has one, and its icon with the site's address —
+ * from the host's preview, never from the site. While the preview loads the title is a placeholder
+ * line; without one the card shows the address. It opens the page in a new tab.
+ *
+ * @example
+ * <MarkdownBookmark url="https://example.com/guide" fetchPreview={(url, { signal }) => preview(url, signal)} />
+ */
+export function MarkdownBookmark({
+  url,
+  preview: given,
+  fetchPreview,
+  className,
+  ...props
+}: MarkdownBookmarkProps) {
+  const resolver = useInlineChipResolver();
+  const source = fetchPreview ?? resolver?.linkPreview;
+  const safe = /^https?:\/\//i.test(url);
+  const [fetched, setFetched] = React.useState<{
+    url: string;
+    preview: MarkdownBookmarkPreview | null;
+  } | null>(null);
+  React.useEffect(() => {
+    if (given !== undefined || !source || !safe) return;
+    let live = true;
+    void bookmarkPreviewOf(source, url).then((preview) => {
+      if (live) setFetched({ url, preview });
+    });
+    return () => {
+      live = false;
+    };
+  }, [given, source, safe, url]);
+  const preview =
+    given !== undefined ? given : fetched?.url === url ? fetched.preview : null;
+  const loading =
+    given === undefined && !!source && safe && fetched?.url !== url;
+  const { host, path } = bookmarkAddress(url);
+  const title = preview?.title?.trim() || null;
+  return (
+    <a
+      data-slot="markdown-bookmark"
+      data-loading={loading ? "" : undefined}
+      // Its anchor text is one leaf, as an embed's is.
+      data-anchor-block=""
+      data-anchor-text={LEAF_TEXT}
+      href={safe ? url : undefined}
+      target="_blank"
+      rel="noreferrer noopener"
+      aria-busy={loading || undefined}
+      className={cn(
+        "my-2 flex w-full max-w-full min-w-0 items-center gap-3 rounded-lg border border-border bg-card p-3 text-card-foreground transition-colors hover:bg-accent/50",
+        className,
+      )}
+      {...props}
+    >
+      <span
+        data-slot="markdown-bookmark-text"
+        className="flex min-w-0 flex-1 flex-col gap-1"
+      >
+        {loading ? (
+          <Skeleton className="h-4 w-2/3 rounded-sm" />
+        ) : (
+          <span
+            data-slot="markdown-bookmark-title"
+            className="truncate text-sm font-medium"
+          >
+            {title ?? host}
+          </span>
+        )}
+        {preview?.description ? (
+          <span
+            data-slot="markdown-bookmark-description"
+            className="line-clamp-2 text-xs text-muted-foreground"
+          >
+            {preview.description}
+          </span>
+        ) : null}
+        <span
+          data-slot="markdown-bookmark-address"
+          className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground"
+        >
+          {preview?.icon ? (
+            <img
+              src={preview.icon}
+              alt=""
+              className="size-4 shrink-0 rounded-sm"
+            />
+          ) : (
+            <Globe aria-hidden className="size-3.5 shrink-0" />
+          )}
+          <span className="truncate">
+            {preview?.siteName ? `${preview.siteName} · ` : ""}
+            {host}
+            {path}
+          </span>
+        </span>
+      </span>
+      {preview?.image ? (
+        <img
+          data-slot="markdown-bookmark-image"
+          src={preview.image}
+          alt=""
+          className="aspect-[4/3] w-24 shrink-0 rounded-md object-cover max-sm:hidden"
+        />
+      ) : null}
+    </a>
   );
 }
 

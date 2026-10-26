@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-l209ntwdFIy9rgflTmsxVqsvotprzGXRITuC8cyYh74=
+// @vegastack text-edit@0.25.88 sha256-sy4AOI10UTIrNHZgMRhi6jhWkbWNs6bSQCKScqRr5LQ=
 
 "use client";
 
@@ -97,6 +97,7 @@ import {
   BetweenVerticalEnd,
   BetweenVerticalStart,
   Bold,
+  Bookmark as BookmarkIcon,
   Bot,
   ChevronDown,
   CircleCheck,
@@ -237,6 +238,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
+  MarkdownBookmark,
   MarkdownEmbed,
   MarkdownLiveBlock,
   MEDIA_AUDIO_CLASS,
@@ -289,6 +291,7 @@ import type {
   MentionKindConfig,
   MentionOption,
   MentionSection,
+  TextEditMentionStatus,
   TextEditAnchor,
   TextEditCollaboration,
   TextEditCollaborationUser,
@@ -302,6 +305,7 @@ import type {
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import { TaskInline } from "@/components/ui/task-inline";
 import {
   linkedTaskId,
   TEXT_EDIT_UPLOAD_ABORT,
@@ -375,6 +379,7 @@ const SLASH_GROUP: Record<TextEditSlashCommand, string> = {
   video: "Media",
   audio: "Media",
   file: "Media",
+  bookmark: "Media",
   link: "Insert",
 };
 const HOST_SLASH_GROUP = "Insert";
@@ -403,6 +408,7 @@ const LG_SLASH_GROUP: Record<
   video: "Media",
   audio: "Media",
   file: "Media",
+  bookmark: "Media",
   link: "Media",
   codeBlock: "Advanced",
   diagram: "Advanced",
@@ -623,6 +629,17 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
       open("file");
     },
   },
+  bookmark: {
+    id: "bookmark",
+    blurb: "A link as a card with its title",
+    label: "Bookmark",
+    keywords: "link card preview url web page site",
+    icon: BookmarkIcon,
+    run: (ed, range) => {
+      ed.chain().focus().deleteRange(range).run();
+      insertBookmark(ed, "");
+    },
+  },
   link: {
     id: "link",
     blurb: "Link to a page or site",
@@ -636,6 +653,32 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
     },
   },
 };
+
+/**
+ * Put a bookmark card where the caret's block is — in place of an empty paragraph, else after the
+ * block — with an empty address its card asks for, selected.
+ */
+function insertBookmark(ed: Editor, url: string) {
+  const type = ed.state.schema.nodes.bookmark;
+  if (!type) return;
+  const { $from } = ed.state.selection;
+  const empty =
+    $from.parent.type.name === "paragraph" && $from.parent.content.size === 0;
+  const node = type.create({ url });
+  const tr = ed.state.tr;
+  let at: number;
+  if (empty && $from.depth >= 1) {
+    at = $from.before();
+    tr.replaceWith(at, $from.after(), node);
+  } else {
+    at = $from.depth >= 1 ? $from.after(1) : $from.pos;
+    tr.insert(at, node);
+  }
+  if (tr.doc.resolve(at + node.nodeSize).nodeAfter === null)
+    tr.insert(at + node.nodeSize, ed.state.schema.nodes.paragraph!.create());
+  tr.setSelection(NodeSelection.create(tr.doc, at));
+  ed.view.dispatch(tr.scrollIntoView());
+}
 
 /** Put an empty toggle where the caret's block is (replacing it when empty), caret in its summary. */
 function insertToggle(ed: Editor) {
@@ -676,6 +719,7 @@ const BLOCK_COMMANDS: ReadonlySet<TextEditSlashCommand> = new Set([
   "codeBlock",
   "diagram",
   "table",
+  "bookmark",
   "divider",
 ]);
 
@@ -929,24 +973,41 @@ function useEditorEditable(editor: Editor): boolean {
 
 /**
  * Task item node view: the system `Checkbox` beside a content box — the same DOM `MarkdownView`
- * renders for a GFM task item, so `prose.taskList` lays both out identically.
+ * renders for a GFM task item, so `prose.taskList` lays both out identically. A linked line
+ * (`linkedTaskId`) drawn as a `TaskInline` (`onTaskOpen`) takes the round task box: its one box.
  */
-function TaskItemView({ node, updateAttributes, editor }: ReactNodeViewProps) {
-  const checked = Boolean(node.attrs.checked);
-  const editable = useEditorEditable(editor);
-  return (
-    <NodeViewWrapper className="contents">
-      <Checkbox
-        contentEditable={false}
-        checked={checked}
-        disabled={!editable}
-        onCheckedChange={(next) => updateAttributes({ checked: next === true })}
-        aria-label={checked ? "Mark task not done" : "Mark task done"}
-        className="data-disabled:cursor-default data-disabled:opacity-100"
-      />
-      <NodeViewContent data-slot="task-item-content" />
-    </NodeViewWrapper>
-  );
+function taskItemView(runtime: EditorRuntime) {
+  return function TaskItemView({
+    node,
+    updateAttributes,
+    editor,
+  }: ReactNodeViewProps) {
+    const checked = Boolean(node.attrs.checked);
+    const editable = useEditorEditable(editor);
+    React.useSyncExternalStore(
+      runtime.labels.subscribe,
+      runtime.labels.get,
+      runtime.labels.get,
+    );
+    const task =
+      runtime.taskOpen.current !== undefined && linkedTaskId(node) !== null;
+    return (
+      <NodeViewWrapper className="contents">
+        <Checkbox
+          contentEditable={false}
+          checked={checked}
+          disabled={!editable}
+          shape={task ? "circle" : undefined}
+          onCheckedChange={(next) =>
+            updateAttributes({ checked: next === true })
+          }
+          aria-label={checked ? "Mark task not done" : "Mark task done"}
+          className="data-disabled:cursor-default data-disabled:opacity-100"
+        />
+        <NodeViewContent data-slot="task-item-content" />
+      </NodeViewWrapper>
+    );
+  };
 }
 
 /**
@@ -3733,6 +3794,8 @@ interface EditorRuntime {
   mentionLabel: React.RefObject<TextEditProps["mentionLabel"]>;
   /** A closed target's struck chip and status tag (`mentionStatus`); read with the labels. */
   mentionStatus: React.RefObject<TextEditProps["mentionStatus"]>;
+  /** `onTaskOpen`: a linked checklist line draws as a `TaskInline`. */
+  taskOpen: React.RefObject<TextEditProps["onTaskOpen"]>;
   labels: Versioned;
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
@@ -3754,7 +3817,7 @@ interface EditorRuntime {
  * `InlineChipProvider`); a click places the caret, ⌘/Ctrl-click opens its target in a new tab.
  */
 function mentionView(runtime: EditorRuntime) {
-  return function MentionView({ node }: ReactNodeViewProps) {
+  return function MentionView({ node, editor, getPos }: ReactNodeViewProps) {
     const {
       kind,
       id,
@@ -3782,6 +3845,34 @@ function mentionView(runtime: EditorRuntime) {
         : stored || own) || "…";
     const hrefFor = runtime.mentionHref.current;
     const closed = runtime.mentionStatus.current?.(kind, id);
+    const resolver = useInlineChipResolver();
+    const open = runtime.taskOpen.current;
+    if (open && kind === "task" && leadsTaskLine(editor, getPos)) {
+      // A linked checklist line: the line's box is the task's; the chip is its title and meta.
+      const state = closed ?? resolver?.state?.(kind, id) ?? null;
+      const href = hrefFor ? hrefFor(kind, id) : resolver?.href?.(kind, id);
+      return (
+        <NodeViewWrapper
+          as="span"
+          className="inline"
+          contentEditable={false}
+          spellCheck={false}
+        >
+          <TaskInline
+            checkbox={false}
+            title={label}
+            done={state?.done === true}
+            struck={state?.struck === true}
+            status={state?.status}
+            assignee={(state as TextEditMentionStatus | null)?.assignee}
+            due={(state as TextEditMentionStatus | null)?.due}
+            overdue={(state as TextEditMentionStatus | null)?.overdue}
+            onOpen={() => open(id)}
+            href={href ?? undefined}
+          />
+        </NodeViewWrapper>
+      );
+    }
     return (
       // An atom: never editable text, never spellchecked.
       <NodeViewWrapper
@@ -3810,6 +3901,40 @@ function mentionView(runtime: EditorRuntime) {
   };
 }
 
+/**
+ * Whether the mention at `getPos()` leads a checklist line — the first inline of a task item's
+ * first paragraph: a linked line's task (`linkedTaskId`).
+ */
+function leadsTaskLine(
+  editor: Editor,
+  getPos: ReactNodeViewProps["getPos"],
+): boolean {
+  const pos = typeof getPos === "function" ? getPos() : undefined;
+  if (typeof pos !== "number" || editor.isDestroyed) return false;
+  try {
+    const $pos = editor.state.doc.resolve(pos);
+    return (
+      $pos.parent.type.name === "paragraph" &&
+      $pos.index() === 0 &&
+      $pos.depth >= 2 &&
+      $pos.node(-1).type.name === "taskItem" &&
+      $pos.index(-1) === 0
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** The task a caret on a linked checklist line names, or null (`onTaskOpen`'s Alt+Enter). */
+function caretTask(state: EditorState): string | null {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name === "taskItem") return linkedTaskId(node);
+  }
+  return null;
+}
+
 /** The `@` mention's editing behaviour: a chip deletes whole, and `@` opens the mention menu. */
 function mentionBehaviour(runtime: EditorRuntime) {
   return Extension.create({
@@ -3831,6 +3956,21 @@ function mentionBehaviour(runtime: EditorRuntime) {
       return {
         Backspace: removeBeside(true),
         Delete: removeBeside(false),
+        // A linked line drawn as a TaskInline: Alt+Enter on it opens the task (a comment
+        // highlight under the caret answers first).
+        "Alt-Enter": () => {
+          const open = runtime.taskOpen.current;
+          const { state } = this.editor;
+          if (
+            !open ||
+            annotationAt(ANNOTATION_KEY.getState(state), state.selection.from)
+          )
+            return false;
+          const task = caretTask(state);
+          if (!task) return false;
+          open(task);
+          return true;
+        },
       };
     },
     addProseMirrorPlugins() {
@@ -4360,6 +4500,106 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
   );
 }
 
+/**
+ * A bookmark's node view: `MarkdownBookmark`'s card, selectable and draggable as a block (a click
+ * selects it; ⌘/Ctrl-click opens the page). An empty one — just inserted from the slash menu — is a
+ * field for the address: Enter makes the card, Escape (or an empty Enter) removes it.
+ */
+function BookmarkView({
+  node,
+  selected,
+  editor,
+  updateAttributes,
+  deleteNode,
+}: ReactNodeViewProps) {
+  const url = String(node.attrs.url ?? "");
+  const editable = useEditorEditable(editor);
+  const [draft, setDraft] = React.useState("");
+  const [invalid, setInvalid] = React.useState(false);
+  const fieldRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    if (!url && editable) fieldRef.current?.focus();
+  }, [url, editable]);
+  if (!url) {
+    if (!editable) return <NodeViewWrapper className="hidden" />;
+    const submit = () => {
+      if (!draft.trim()) {
+        deleteNode();
+        editor.commands.focus();
+        return;
+      }
+      const href = parseLink(draft);
+      if (!href || !/^https?:\/\//i.test(href)) {
+        setInvalid(true);
+        return;
+      }
+      updateAttributes({ url: href });
+      editor.commands.focus();
+    };
+    return (
+      <NodeViewWrapper
+        data-slot="text-edit-bookmark"
+        contentEditable={false}
+        className="my-2"
+      >
+        <div
+          data-slot="text-edit-bookmark-form"
+          className="flex items-center gap-2 rounded-lg border border-dashed border-border p-2"
+        >
+          <BookmarkIcon
+            aria-hidden
+            className="ms-1 size-4 shrink-0 text-muted-foreground"
+          />
+          <Input
+            ref={fieldRef}
+            aria-label="Bookmark address"
+            aria-invalid={invalid || undefined}
+            placeholder="Paste a link to bookmark…"
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.currentTarget.value);
+              setInvalid(false);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                submit();
+              } else if (event.key === "Escape") {
+                event.preventDefault();
+                deleteNode();
+                editor.commands.focus();
+              }
+            }}
+            className="h-8 border-0 bg-transparent px-1 shadow-none dark:bg-transparent"
+          />
+          <Button type="button" size="sm" onClick={submit}>
+            Bookmark
+          </Button>
+        </div>
+      </NodeViewWrapper>
+    );
+  }
+  return (
+    <NodeViewWrapper
+      data-slot="text-edit-bookmark"
+      data-drag-handle=""
+      contentEditable={false}
+      data-selected={selected ? "true" : undefined}
+      className="my-2 rounded-lg data-selected:[&_[data-slot=markdown-bookmark]]:outline-2 data-selected:[&_[data-slot=markdown-bookmark]]:outline-info"
+    >
+      <MarkdownBookmark
+        url={url}
+        className="my-0"
+        onClick={(event) => {
+          // While editing a click selects the card; ⌘/Ctrl-click opens the page.
+          if (editable && !(event.metaKey || event.ctrlKey))
+            event.preventDefault();
+        }}
+      />
+    </NodeViewWrapper>
+  );
+}
+
 /* --- live blocks -----------------------------------------------------------------------------*/
 
 /**
@@ -4482,7 +4722,7 @@ function TaskQueryView({
  * default applies), a link, a mention of the app's record (`TextEditMentions.fromUrl`) or a video
  * embed.
  */
-type PastedForm = "text" | "link" | "mention" | "embed";
+type PastedForm = "text" | "link" | "mention" | "embed" | "bookmark";
 
 /** A form the paste popover offers. */
 type PastedChoice = Exclude<PastedForm, "text">;
@@ -4700,14 +4940,18 @@ function pastedRange(
   if (to > doc.content.size) return null;
   // Turned into a code block meanwhile (it holds neither links nor mentions): it stays as typed.
   if (doc.resolve(from).parent.type.spec.code) return null;
-  if (pasted.form === "mention" || pasted.form === "embed") {
+  if (
+    pasted.form === "mention" ||
+    pasted.form === "embed" ||
+    pasted.form === "bookmark"
+  ) {
     const node = doc.nodeAt(from);
     const same =
       pasted.form === "mention"
         ? node?.type.name === "mention" &&
           node.attrs.kind === pasted.mention?.kind &&
           node.attrs.id === pasted.mention?.id
-        : node?.type.name === "embed" && node.attrs.url === pasted.url;
+        : node?.type.name === pasted.form && node.attrs.url === pasted.url;
     return same && from + node!.nodeSize === to ? range : null;
   }
   const want = pasted.form === "link" ? pasted.text : pasted.url;
@@ -5411,7 +5655,7 @@ function buildExtensions(
     // here, as `renderHTML` would — a removed code block, mention or video looks removed.
     nodeViews: {
       taskItem: () =>
-        ReactNodeViewRenderer(TaskItemView, {
+        ReactNodeViewRenderer(taskItemView(editorRuntime), {
           as: "li",
           attrs: ({ node }) => ({
             "data-type": "taskItem",
@@ -5429,6 +5673,13 @@ function buildExtensions(
         ReactNodeViewRenderer(mentionView(editorRuntime), {
           as: "span",
           attrs: changeAttrsOf,
+          // A linked line's title and ↗ are the task's own controls: ProseMirror never sees their
+          // presses (no caret placed, no node selected).
+          stopEvent: ({ event }) =>
+            event.target instanceof Element &&
+            event.target.closest(
+              "[data-slot=task-inline-title],[data-slot=task-inline-open]",
+            ) !== null,
         }),
       callout: () =>
         ReactNodeViewRenderer(CalloutView, { attrs: changeAttrsOf }),
@@ -5439,6 +5690,15 @@ function buildExtensions(
       video: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       audio: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       embed: () => ReactNodeViewRenderer(EmbedView, { attrs: changeAttrsOf }),
+      bookmark: () =>
+        ReactNodeViewRenderer(BookmarkView, {
+          attrs: changeAttrsOf,
+          // The empty card's address field is its own: ProseMirror never sees its keys or clicks.
+          stopEvent: ({ event }) =>
+            event.target instanceof Element &&
+            event.target.closest("[data-slot=text-edit-bookmark-form]") !==
+              null,
+        }),
       taskQuery: () =>
         ReactNodeViewRenderer(TaskQueryView, { attrs: changeAttrsOf }),
     },
@@ -6218,6 +6478,7 @@ const PASTED_CHOICE_LABEL: Record<PastedChoice, string> = {
   mention: "Mention",
   embed: "Embed",
   link: "Link",
+  bookmark: "Bookmark",
 };
 
 /**
@@ -6260,7 +6521,9 @@ function PasteMenu({
       if (!range) return;
       const start = editor.view.coordsAtPos(range.from);
       const block =
-        pasted.form === "embed" ? editor.view.nodeDOM(range.from) : null;
+        pasted.form === "embed" || pasted.form === "bookmark"
+          ? editor.view.nodeDOM(range.from)
+          : null;
       const bottom =
         block instanceof HTMLElement
           ? block.getBoundingClientRect().bottom
@@ -8543,6 +8806,110 @@ function HeadingLink({
   );
 }
 
+/**
+ * **→ Task** at the end of the unlinked checklist line the pointer rests on (`onMakeTask`): Make
+ * task, one click from the line itself rather than behind the block handle. Fine pointers only —
+ * on touch the line's block menu has Make task.
+ */
+function MakeTaskHint({
+  editor,
+  makeTask,
+}: {
+  editor: Editor;
+  makeTask: () => TextEditProps["onMakeTask"];
+}) {
+  const hover = useHover<number>((a, b) => a === b);
+  const [, redraw] = React.useReducer((n: number) => n + 1, 0);
+  React.useEffect(() => {
+    const dom = editor.view.dom;
+    const linePos = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null;
+      const item = target.closest("li[data-type=taskItem]");
+      if (!item || !dom.contains(item)) return null;
+      let pos: number;
+      try {
+        pos = editor.view.posAtDOM(item, 0) - 1;
+      } catch {
+        return null;
+      }
+      return editor.state.doc.nodeAt(pos)?.type.name === "taskItem"
+        ? pos
+        : null;
+    };
+    const onMove = (event: MouseEvent) => {
+      const pos = linePos(event.target);
+      if (pos !== null) hover.show(pos);
+      else hover.hideSoon();
+    };
+    const onChange = ({ transaction }: { transaction: Transaction }) => {
+      if (!transaction.docChanged) return;
+      hover.show(null);
+      redraw();
+    };
+    const onScroll = () => hover.show(null);
+    dom.addEventListener("mousemove", onMove);
+    dom.addEventListener("mouseleave", hover.hideSoon);
+    editor.on("transaction", onChange);
+    window.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () => {
+      dom.removeEventListener("mousemove", onMove);
+      dom.removeEventListener("mouseleave", hover.hideSoon);
+      editor.off("transaction", onChange);
+      window.removeEventListener("scroll", onScroll, { capture: true });
+    };
+  }, [editor, hover.show, hover.hideSoon]);
+
+  const pos = hover.value;
+  if (pos === null || editor.isDestroyed || !editor.isEditable) return null;
+  const node = editor.state.doc.nodeAt(pos);
+  if (
+    node?.type.name !== "taskItem" ||
+    linkedTaskId(node) !== null ||
+    !taskItemText(node)
+  )
+    return null;
+  const line = node.firstChild;
+  if (!line) return null;
+  // The end of the line's own text (its first paragraph), not of a nested list under it.
+  const end = editor.view.coordsAtPos(pos + 1 + line.nodeSize - 1);
+  return (
+    <FloatingLayer>
+      <Button
+        type="button"
+        variant="ghost"
+        size="xs"
+        data-slot="text-edit-make-task"
+        aria-label={`Make a task of “${taskItemText(node)}”`}
+        onMouseEnter={hover.keep}
+        onMouseLeave={hover.hideSoon}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => {
+          const make = makeTask();
+          const now = editor.state.doc.nodeAt(pos);
+          if (!make || now?.type.name !== "taskItem" || linkedTaskId(now))
+            return;
+          const text = taskItemText(now);
+          if (!text) return;
+          hover.show(null);
+          make(...makeTaskCall(editor, [{ pos, text }]));
+        }}
+        style={{
+          position: "fixed",
+          left: end.right + 8,
+          top: (end.top + end.bottom) / 2 - 12,
+        }}
+        className="z-50 h-6 gap-1 px-1.5 text-muted-foreground"
+      >
+        <ArrowRight aria-hidden />
+        Task
+      </Button>
+    </FloatingLayer>
+  );
+}
+
 /* --- linked task items (J9) ---------------------------------------------------------------------*/
 
 /**
@@ -8597,6 +8964,20 @@ function makeTaskItems(state: EditorState, block: LiveBlock): OfferedLine[] {
   }
   const text = taskItemText(node);
   return text ? [{ pos, text }] : [];
+}
+
+/**
+ * `onMakeTask`'s arguments for `lines`: the lines offered (each given its key), and the first
+ * line's element to point a popover at.
+ */
+function makeTaskCall(
+  editor: Editor,
+  lines: OfferedLine[],
+): [TextEditTaskItem[], { anchor: HTMLElement | null }] {
+  const items = offerTaskItems(editor, lines);
+  // After the offer: giving a line its key only sets an attribute, so it keeps its place.
+  const dom = editor.view.nodeDOM(lines[0]!.pos);
+  return [items, { anchor: dom instanceof HTMLElement ? dom : null }];
 }
 
 /** The position in `line` after `offset` characters of its text (atoms count as none). */
@@ -9219,7 +9600,7 @@ interface BlockMenuRuntime {
   /** `headingLinkHref`: a heading's Copy link. */
   headingLink: (pos: number) => string | null;
   /** `onMakeTask`: Make task on an unlinked checklist line. */
-  makeTask: () => ((items: TextEditTaskItem[]) => void) | undefined;
+  makeTask: () => TextEditProps["onMakeTask"];
 }
 
 /** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
@@ -9394,7 +9775,7 @@ function blockActions(
         icon: CircleCheck,
         run: live((now) => {
           const lines = makeTaskItems(editor.state, now);
-          if (lines.length > 0) makeTask(offerTaskItems(editor, lines));
+          if (lines.length > 0) makeTask(...makeTaskCall(editor, lines));
         }),
       },
       null,
@@ -10230,6 +10611,7 @@ export function TextEditEditor({
   mentionStatus: mentionStatusProp,
   onTaskItemToggle,
   onMakeTask,
+  onTaskOpen,
   sectionMarks,
   onSectionMark,
   onImageUpload,
@@ -10279,6 +10661,7 @@ export function TextEditEditor({
   emoji = false,
   menuSize = "default",
   menuPresentation = "popover",
+  bookmarks = false,
 }: TextEditEditorProps) {
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
@@ -10370,16 +10753,20 @@ export function TextEditEditor({
       slashCommands.filter(
         (command) =>
           (command !== "file" || onFileUpload) &&
-          (command !== "diagram" || blockViews?.mermaid),
+          (command !== "diagram" || blockViews?.mermaid) &&
+          (command !== "bookmark" || bookmarks),
       ),
-    [slashCommands, onFileUpload, blockViews],
+    [slashCommands, onFileUpload, blockViews, bookmarks],
   );
   const slashRef = React.useRef<readonly TextEditSlashCommand[]>(allowedSlash);
   slashRef.current = allowedSlash;
+  const bookmarksRef = React.useRef(bookmarks);
+  bookmarksRef.current = bookmarks;
   const slashActionsRef =
     React.useRef<readonly TextEditSlashAction[]>(slashActions);
   slashActionsRef.current = slashActions;
   const menuLg = menuSize === "lg";
+  const coarsePointer = useCoarsePointer();
   const menuLgRef = React.useRef(menuLg);
   menuLgRef.current = menuLg;
   // `menuPresentation="auto"` on a phone: the menus are sheets with their own search field.
@@ -10413,11 +10800,14 @@ export function TextEditEditor({
   mentionLabelRef.current = mentionLabel;
   const mentionStatusRef = React.useRef(mentionStatusProp);
   mentionStatusRef.current = mentionStatusProp;
+  const taskOpenRef = React.useRef(onTaskOpen);
+  taskOpenRef.current = onTaskOpen;
+  const taskInline = onTaskOpen !== undefined;
   // Chips read `mentionLabel` and `mentionStatus` at render: a new one re-renders them.
   const [labels] = React.useState(() => new Versioned());
   React.useEffect(
     () => labels.bump(),
-    [labels, mentionLabel, mentionStatusProp],
+    [labels, mentionLabel, mentionStatusProp, taskInline],
   );
   // Linked checklist lines and section marks: read through refs by the extensions and the menu.
   const taskToggleRef = React.useRef(onTaskItemToggle);
@@ -10514,16 +10904,31 @@ export function TextEditEditor({
       const text = form === "link" ? (opts.title ?? pasted.url) : pasted.url;
       let from = range.from;
       let size: number;
-      if (form === "embed") {
-        const match = matchEmbed(pasted.url);
-        const host = embedHost(state.doc, range.from);
-        if (!match || !host || !schema.nodes.embed) return;
-        const embed = schema.nodes.embed.create({
-          provider: match.provider,
-          url: pasted.url,
-        });
+      if (form === "embed" || form === "bookmark") {
+        const match = form === "embed" ? matchEmbed(pasted.url) : null;
+        // From one block to the other: the block stands where the other did.
+        const swap = pasted.form === "embed" || pasted.form === "bookmark";
+        const host = swap
+          ? (() => {
+              const $at = state.doc.resolve(range.from);
+              return {
+                paragraph: schema.nodes.paragraph!.create(),
+                from: range.from,
+                to: range.to,
+                container: $at.parent,
+              };
+            })()
+          : embedHost(state.doc, range.from);
+        const type = schema.nodes[form];
+        if ((form === "embed" && !match) || !host || !type) return;
+        const embed = type.create(
+          form === "embed"
+            ? { provider: match!.provider, url: pasted.url }
+            : { url: pasted.url },
+        );
         // Alone in its paragraph, the link becomes the embed; beside text, the embed follows it.
-        if (host.paragraph.content.size === range.to - range.from) {
+        if (swap) tr.replaceWith(range.from, range.to, embed);
+        else if (host.paragraph.content.size === range.to - range.from) {
           tr.replaceWith(host.from, host.to, embed);
           from = host.from;
         } else {
@@ -10550,7 +10955,7 @@ export function TextEditEditor({
                 text,
                 schema.marks.link!.create({ href: pasted.url }).addToSet(marks),
               );
-        if (pasted.form === "embed") {
+        if (pasted.form === "embed" || pasted.form === "bookmark") {
           tr.replaceWith(
             range.from,
             range.to,
@@ -10623,11 +11028,18 @@ export function TextEditEditor({
         match && embedsOn(ed, match.provider) && state.schema.nodes.embed
           ? embedHost(state.doc, from)
           : null;
+      // A bookmark where a block can stand in for the paste (`bookmarks`).
+      const bookmarkHost =
+        !answer && bookmarksRef.current && state.schema.nodes.bookmark
+          ? embedHost(state.doc, from)
+          : null;
       const offers: PastedChoice[] = answer
         ? ["mention", "link"]
-        : host
-          ? ["embed", "link"]
-          : ["link"];
+        : [
+            ...(host ? (["embed"] as const) : []),
+            "link" as const,
+            ...(bookmarkHost ? (["bookmark"] as const) : []),
+          ];
       const id = ++pasteIdRef.current;
       const end = from + url.length;
       const tr = state.tr
@@ -10900,6 +11312,7 @@ export function TextEditEditor({
         mentionImage: mentionImageRef,
         mentionLabel: mentionLabelRef,
         mentionStatus: mentionStatusRef,
+        taskOpen: taskOpenRef,
         labels,
         collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
@@ -12881,6 +13294,9 @@ export function TextEditEditor({
           }}
           onSelect={(index) => emojiMenu.command(emojiMenu.items[index]!)}
         />
+      ) : null}
+      {onMakeTask && editable && editor && !diffing && !coarsePointer ? (
+        <MakeTaskHint editor={editor} makeTask={() => makeTaskRef.current} />
       ) : null}
       {headingLinkHref && editor && !diffing ? (
         <HeadingLink

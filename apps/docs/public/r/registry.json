@@ -2146,7 +2146,7 @@
         "version": "0.25.88",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-JHzW1+kSBvrMtz4bsUIBflabyUDUWKpuwP0T1D/1veI="
+        "integrity": "sha256-k9+E/0cRUudyHuef3r9IzTB3NPwdWNpPjO9WJCDskYU="
       }
     },
     {
@@ -2211,7 +2211,7 @@
         "version": "0.25.88",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-aaiZavINjYJPAMaZMl2JR09XEl5mQMD3Y9VsEPEtZgA="
+        "integrity": "sha256-kZTMKNSz85oLld9X1VViwqj4IZ40mGW5lwdR5mUCM0E="
       }
     },
     {
@@ -2244,7 +2244,7 @@
         "version": "0.25.88",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-WzrmYPLo8EQCuHeN+2x5No0DzUwc8JMrSecv6kJY1hU="
+        "integrity": "sha256-VFQ4+eRcdGSpmnnK8yfhlbn2TGMUiRpASJZMVV7pvDA="
       }
     },
     {
@@ -16433,7 +16433,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.88",
-        "integrity": "sha256-+M8dTcs5/xTk1IKQk8KuFtGHWDAi/o0K8wWbX0b6xec="
+        "integrity": "sha256-keWn7fykHKQCfTI9KnNWtZXBQF9WHjUJasOiDglLc2Q="
       }
     },
     {
@@ -16462,7 +16462,9 @@
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
         "@vegastack/embed-providers",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/task-inline",
+        "@vegastack/skeleton"
       ],
       "files": [
         {
@@ -16485,7 +16487,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.88",
-        "integrity": "sha256-vx0VkJ1i4sTPBwb5U6bqUfkHIShciPEzBw82RLV4ykw="
+        "integrity": "sha256-BunVtJz9QwqEf4Wu5nT0xXTkisuVVQ4kuZuwpTIn1NY="
       }
     },
     {
@@ -16829,6 +16831,41 @@
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.25.88",
         "integrity": "sha256-FyDvTVqUNxGizKyaDy7E9nB+hZLbAR69AVWp5xwd4d0="
+      }
+    },
+    {
+      "name": "task-inline",
+      "type": "registry:ui",
+      "title": "Task Inline",
+      "description": "A task in running text — one round box (its done state), the title that opens its peek, the assignee's avatar, a due chip and ↗ to its page on hover — plus MakeTaskPopover, which makes that task from a checklist line in place, with the host's assignee, due and space pickers in slots.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/input",
+        "@vegastack/person-avatar",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/task-inline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/task-inline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
+        "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
+        "version": "0.25.87",
+        "integrity": "sha256-aqJFXPFVaiYmD2OrE7Y3ijAKc0CsSnK0Wp8lHHo9lTk="
       }
     },
     {
@@ -18647,7 +18684,8 @@
         "@vegastack/use-announcer",
         "@vegastack/emoji-data",
         "@vegastack/block-view",
-        "@vegastack/person-avatar"
+        "@vegastack/person-avatar",
+        "@vegastack/task-inline"
       ],
       "files": [
         {
@@ -18665,7 +18703,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.88",
-        "integrity": "sha256-l209ntwdFIy9rgflTmsxVqsvotprzGXRITuC8cyYh74="
+        "integrity": "sha256-sy4AOI10UTIrNHZgMRhi6jhWkbWNs6bSQCKScqRr5LQ="
       }
     },
     {

@@ -7673,3 +7673,257 @@ test("mentions sections: a section left out is dropped before the five-a-group c
     ).toEqual(["Asha Rao"]),
   );
 });
+
+// ---- W1-DS3 · TaskInline lines, Make task in place, bookmarks (UXP-22, UXP-09, UXP-04) --------
+
+test("onTaskOpen: a linked line is one round box and a TaskInline — title opens the task, avatar, due, ↗", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const onTaskOpen = vi.fn();
+  const onTaskItemToggle = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)\n- [ ] Plain line",
+    onTaskOpen,
+    onTaskItemToggle,
+    mentionHref: (kind, id) => `/${kind}s/${id}`,
+    mentionStatus: (kind) =>
+      kind === "task"
+        ? {
+            assignee: { name: "Asha Rao", hue: "blue" },
+            due: "Fri 31 Oct",
+          }
+        : null,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const items = box.querySelectorAll("li[data-type=taskItem]");
+  // One box on the linked line, the round one; the plain line keeps its square box.
+  expect(items[0]!.querySelectorAll('[role="checkbox"]')).toHaveLength(1);
+  expect(
+    items[0]!
+      .querySelector('[data-slot="checkbox"]')
+      ?.getAttribute("data-shape"),
+  ).toBe("circle");
+  expect(
+    items[1]!
+      .querySelector('[data-slot="checkbox"]')
+      ?.getAttribute("data-shape"),
+  ).toBe("square");
+  const inline = items[0]!.querySelector('[data-slot="task-inline"]')!;
+  expect(inline).not.toBeNull();
+  expect(items[0]!.querySelector('[data-slot="inline-chip"]')).toBeNull();
+  expect(
+    inline.querySelector('[data-slot="task-inline-due"]')?.textContent,
+  ).toBe("Due Fri 31 Oct");
+  expect(
+    inline
+      .querySelector('[data-slot="task-inline-open"]')
+      ?.getAttribute("href"),
+  ).toBe("/tasks/t1");
+  await userEvent.click(
+    inline.querySelector<HTMLElement>('[data-slot="task-inline-title"]')!,
+  );
+  expect(onTaskOpen).toHaveBeenCalledWith("t1");
+  // Alt+Enter with the caret on the line opens it too.
+  onTaskOpen.mockClear();
+  await userEvent.click(items[1]!.querySelector("p")!);
+  await userEvent.keyboard("{ArrowUp}{End}{Alt>}{Enter}{/Alt}");
+  await vi.waitFor(() => expect(onTaskOpen).toHaveBeenCalledWith("t1"));
+  // The line's own box is the task's.
+  await userEvent.click(
+    box.querySelector('li[data-type=taskItem] [role="checkbox"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(onTaskItemToggle).toHaveBeenCalledWith("t1", true),
+  );
+  await expectNoA11yViolations(box);
+});
+
+test("without onTaskOpen a linked line stays a checkbox and a task chip", async () => {
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  expect(box.querySelector('[data-slot="task-inline"]')).toBeNull();
+  expect(box.querySelector('[data-slot="inline-chip"]')).not.toBeNull();
+});
+
+test("MarkdownView-backed read view draws the same TaskInline line with onTaskOpen", async () => {
+  const onTaskOpen = vi.fn();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      readOnly
+      aria-label="Notes"
+      defaultValue={"- [x] [@Order glass](mention://task/t1)"}
+      onTaskOpen={onTaskOpen}
+    />,
+  );
+  const inline = await vi.waitFor(() => {
+    const found = screen.container.querySelector('[data-slot="task-inline"]');
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  expect(screen.container.querySelectorAll('[role="checkbox"]')).toHaveLength(
+    1,
+  );
+  await userEvent.click(
+    inline.querySelector<HTMLElement>('[data-slot="task-inline-title"]')!,
+  );
+  expect(onTaskOpen).toHaveBeenCalledWith("t1");
+});
+
+test("→ Task on a hovered unlinked line calls onMakeTask with the line and its element", async () => {
+  const onMakeTask = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass\n- [ ] [@Linked](mention://task/t9)",
+    onMakeTask,
+    onTaskOpen: () => {},
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const lines = box.querySelectorAll<HTMLElement>("li[data-type=taskItem]");
+  await userEvent.hover(lines[0]!.querySelector("p")!);
+  const hint = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-make-task"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  expect(hint.getAttribute("aria-label")).toBe("Make a task of “Order glass”");
+  await userEvent.click(hint);
+  await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledOnce());
+  const [items, context] = onMakeTask.mock.lastCall! as [
+    { key: string; text: string }[],
+    { anchor: HTMLElement | null },
+  ];
+  expect(items.map((item) => item.text)).toEqual(["Order glass"]);
+  expect(context.anchor).toBe(lines[0]);
+  // A linked line offers nothing.
+  await userEvent.hover(lines[1]!);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-make-task"]'),
+    ).toBeNull(),
+  );
+});
+
+test("the block menu's Make task hands over the line's element too", async () => {
+  const onMakeTask = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass",
+    onMakeTask,
+  });
+  await makeTaskOn(screen, onMakeTask, 0);
+  const context = onMakeTask.mock.lastCall![1] as { anchor: HTMLElement };
+  expect(context.anchor.matches("li[data-type=taskItem]")).toBe(true);
+});
+
+test("bookmarks round-trip as a link titled bookmark, and draw as a card with the host's preview", async () => {
+  const linkPreview = vi.fn(async () => ({
+    title: "Example guide",
+    siteName: "Example",
+    description: "How to do the thing.",
+  }));
+  const onValueChange = vi.fn();
+  const markdown =
+    'Read this:\n\n[https://example.com/guide](https://example.com/guide "bookmark")\n\nThen go.';
+  const screen = await render(
+    <InlineChipProvider value={{ linkPreview }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        defaultValue={markdown}
+        onValueChange={onValueChange}
+      />
+    </InlineChipProvider>,
+  );
+  const card = await vi.waitFor(() => {
+    const found = screen.container.querySelector<HTMLAnchorElement>(
+      '[data-slot="markdown-bookmark"]',
+    );
+    expect(found).not.toBeNull();
+    expect(found!.textContent).toContain("Example guide");
+    return found!;
+  });
+  expect(card.textContent).toContain("How to do the thing.");
+  expect(card.textContent).toContain("example.com/guide");
+  expect(card.getAttribute("href")).toBe("https://example.com/guide");
+  expect(linkPreview).toHaveBeenCalledWith(
+    "https://example.com/guide",
+    expect.anything(),
+  );
+  const doc = markdownToDoc(markdown).toJSON();
+  expect(doc.content?.[1]).toEqual({
+    type: "bookmark",
+    attrs: expect.objectContaining({ url: "https://example.com/guide" }),
+  });
+  await expectNoA11yViolations(screen.container);
+});
+
+test("bookmarks: the slash menu's Bookmark asks for the address and makes the card", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ bookmarks: true, onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/bookm");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent).toContain("Bookmark"),
+  );
+  await userEvent.keyboard("{Enter}");
+  const field = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLInputElement>(
+      'input[aria-label="Bookmark address"]',
+    );
+    expect(found).not.toBeNull();
+    expect(document.activeElement).toBe(found);
+    return found!;
+  });
+  await userEvent.keyboard("example.com/a{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      '[https://example.com/a](https://example.com/a "bookmark")',
+    ),
+  );
+  expect(field.isConnected).toBe(false);
+});
+
+test("bookmarks: without the prop the slash menu has no Bookmark", async () => {
+  const screen = await markdownEditor();
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/bookm");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent ?? "").not.toContain("Bookmark"),
+  );
+});
+
+test("bookmarks: a lone link pasted on its own line offers Link · Bookmark, and Bookmark makes the card", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ bookmarks: true, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box);
+  pasteData(box.querySelector("p") ?? box, {
+    "text/plain": "https://example.com/b",
+  });
+  await vi.waitFor(() =>
+    expect(
+      [...(pastePopover()?.querySelectorAll("button") ?? [])].map(
+        (each) => each.textContent,
+      ),
+    ).toEqual(["Link", "Bookmark"]),
+  );
+  await userEvent.click(pasteChoice("Bookmark")!);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      '[https://example.com/b](https://example.com/b "bookmark")',
+    ),
+  );
+  expect(box.querySelector('[data-slot="markdown-bookmark"]')).not.toBeNull();
+  // Undo puts the URL back as text, as for every paste choice.
+  await userEvent.keyboard(
+    `${MAC ? "{Meta>}" : "{Control>}"}z${MAC ? "{/Meta}" : "{/Control}"}`,
+  );
+  await vi.waitFor(() =>
+    expect(box.querySelector('[data-slot="markdown-bookmark"]')).toBeNull(),
+  );
+});

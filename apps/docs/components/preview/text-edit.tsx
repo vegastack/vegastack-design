@@ -1314,6 +1314,47 @@ export function textEditRoomyMenus(): ReactNode {
   );
 }
 
+/**
+ * Bookmarks — `/bookmark` asks for an address and makes a card; paste a lone link on its own line
+ * and choose **Bookmark**. The preview comes from the provider's `linkPreview` (a stand-in here).
+ */
+export function textEditBookmarks(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    'Our install guide:\n\n[https://design.vegastack.com/docs](https://design.vegastack.com/docs "bookmark")\n\nType /bookmark for another, or paste a link on an empty line.',
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <InlineChipProvider
+        value={{
+          linkPreview: async (url) => {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            const host = new URL(url).host;
+            return {
+              title:
+                host === "design.vegastack.com"
+                  ? "VegaStack Design — Docs"
+                  : host,
+              siteName: host === "design.vegastack.com" ? "VegaStack" : null,
+              description:
+                host === "design.vegastack.com"
+                  ? "Components, tokens and guides for building VegaStack products."
+                  : null,
+            };
+          },
+        }}
+      >
+        <TextEdit
+          format="markdown"
+          value={markdown}
+          onValueChange={setMarkdown}
+          bookmarks
+          aria-label="Notes with bookmarks"
+        />
+      </InlineChipProvider>
+    </Wrapper>
+  );
+}
+
 const TASKS_HTML = [
   '<h2 data-blockid="next">Next steps</h2>',
   '<ul data-type="taskList">',
@@ -1361,10 +1402,17 @@ export function textEditTasks(): ReactNode {
         handleRef={handle}
         aria-label="Notes with linked tasks"
         mentionStatus={(kind, id) =>
-          kind === "task" && id === "T-139"
-            ? { struck: true, status: "Canceled" }
-            : null
+          kind !== "task"
+            ? null
+            : id === "T-139"
+              ? { struck: true, status: "Canceled" }
+              : {
+                  assignee: { name: "Asha Rao", hue: "blue" },
+                  due: "Fri 31 Oct",
+                }
         }
+        mentionHref={(kind, id) => `#${kind}-${id}`}
+        onTaskOpen={(id) => toast.add({ title: `${id} opened in its peek` })}
         onMakeTask={(items) => {
           const links = items.map((item) => ({
             key: item.key,

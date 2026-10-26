@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-vx0VkJ1i4sTPBwb5U6bqUfkHIShciPEzBw82RLV4ykw=
+// @vegastack markdown-view@0.25.88 sha256-BunVtJz9QwqEf4Wu5nT0xXTkisuVVQ4kuZuwpTIn1NY=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -18,7 +18,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CodeBlock } from "@/components/ui/code-block";
 import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
+import type { TaskInlinePerson } from "@/components/ui/task-inline";
 import {
+  BOOKMARK_TITLE,
   CALLOUT_MARKER,
   DEFAULT_LIVE_BLOCK_KINDS,
   MEDIA_BLOCK,
@@ -48,7 +50,9 @@ import {
   type MarkdownCitation,
 } from "@/components/ui/markdown-citation";
 import {
+  MarkdownBookmark,
   MarkdownEmbed,
+  MarkdownTaskInline,
   MarkdownBlockView,
   MarkdownHeadingLink,
   MarkdownSectionMarker,
@@ -61,6 +65,7 @@ import {
 
 export type { MarkdownCitation } from "@/components/ui/markdown-citation";
 export {
+  MarkdownBookmark,
   MarkdownEmbed,
   copyWithToast,
   headingLinkClassName,
@@ -74,6 +79,8 @@ export type {
   BlockViews,
 } from "@/components/ui/block-view";
 export type {
+  MarkdownBookmarkPreview,
+  MarkdownBookmarkProps,
   MarkdownEmbedProps,
   MarkdownAnnotationLayout,
   MarkdownOutlineItem,
@@ -257,6 +264,8 @@ export const markdownExtrasClassName = cn(
   "[&_[data-slot=inline-chip]]:no-underline [&_[data-slot=inline-chip][data-interactive]:hover]:underline",
   // TextEdit's file links are link marks, not chips: the same ground, ink, padding and radius.
   "[&_[data-slot=file-chip]]:box-decoration-clone [&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:py-px [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground",
+  // A bookmark card and a task line's ↗ are `<a>`s with their own ink and no underline.
+  "[&_[data-slot=markdown-bookmark]]:text-card-foreground [&_[data-slot=markdown-bookmark]]:no-underline [&_[data-slot=task-inline-open]]:text-muted-foreground [&_[data-slot=task-inline-open]]:no-underline",
   // An image block (`markdown-figure`): the editor's image box, 8 from its neighbours.
   "[&_[data-slot=markdown-figure]]:my-2",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
@@ -585,6 +594,18 @@ function embedOf(paragraph: Tokens.Generic): El | null {
 }
 
 /**
+ * A paragraph that is only a link titled `bookmark` (`BOOKMARK_TITLE`) to an http(s) address: a
+ * bookmark card — the rule `TextEdit`'s Markdown parse applies.
+ */
+function bookmarkOf(paragraph: Tokens.Generic): El | null {
+  const parts = (paragraph.tokens ?? []) as Tokens.Generic[];
+  const link = parts.length === 1 ? parts[0]! : null;
+  if (link?.type !== "link" || link.title !== BOOKMARK_TITLE) return null;
+  const href = decode(String(link.href ?? ""));
+  return /^https?:\/\//i.test(href) ? el("bookmark", { url: href }) : null;
+}
+
+/**
  * A live block (`:::<name>{…}` … `:::`, `readLiveBlock`) of a name the view reads, as one block
  * token. Lines that do not make one stay text and a list.
  */
@@ -726,7 +747,7 @@ function blocks(
           out.push(el(media[1]!, { src: decode(media[2]!) }));
           break;
         }
-        const embed = embeds ? embedOf(t) : null;
+        const embed = embeds ? (embedOf(t) ?? bookmarkOf(t)) : null;
         if (embed) {
           out.push(embed);
           break;
@@ -1432,6 +1453,13 @@ function withSchemaNodes(nodes: DocNode[]): DocNode[] {
       const url = link?.attrs.href ?? "";
       if (matchEmbed(url)) return el("embed", { url });
     }
+    if (node.tag === "div" && node.attrs["data-type"] === "bookmark") {
+      const link = node.children.find(
+        (child): child is El => typeof child !== "string" && child.tag === "a",
+      );
+      const url = node.attrs["data-url"] ?? link?.attrs.href ?? "";
+      if (/^https?:\/\//i.test(url)) return el("bookmark", { url });
+    }
     const children = withSchemaNodes(node.children);
     if (node.tag === "div" && slot === "toggle-summary")
       return el("summary", {}, children);
@@ -1488,6 +1516,26 @@ function headingText(node: DocNode): string {
   if (typeof node === "string") return node;
   if (node.tag === "mention") return `@${node.attrs.label ?? ""}`;
   return node.children.map(headingText).join("");
+}
+
+/**
+ * The task mention a checklist line's body leads with — its first paragraph's first inline — or
+ * null: a linked line's task (`TextEdit`'s `linkedTaskId`).
+ */
+function leadingTaskMention(body: DocNode[]): El | null {
+  const first = body.find(
+    (child) => typeof child !== "string" || child.trim() !== "",
+  );
+  if (!first || typeof first === "string") return null;
+  // A loose item's text is a paragraph; a tight one's sits in the item itself.
+  const inline = first.tag === "p" ? first.children[0] : first;
+  return inline &&
+    typeof inline !== "string" &&
+    inline.tag === "mention" &&
+    inline.attrs.kind === "task" &&
+    inline.attrs.id
+    ? inline
+    : null;
 }
 
 function childElements(node: El): El[] {
@@ -1561,6 +1609,10 @@ interface RenderContext {
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   mentionImage?: (id: string) => string | null | undefined;
   mentionStatus?: MarkdownViewProps["mentionStatus"];
+  /** `onTaskOpen`: a linked checklist line draws as a `TaskInline`. */
+  onTaskOpen?: (taskId: string) => void;
+  /** The task mention leading the task item being drawn (`onTaskOpen`): it draws as the line's title. */
+  leadingTask?: El;
   fileLinkPrefix: string;
   embeds?: EmbedProviders;
   fileContentType?: (href: string) => string | null | undefined;
@@ -1987,6 +2039,20 @@ function renderNode(
     case "mention": {
       const kind = attrs.kind as MentionKind;
       const closed = ctx.mentionStatus?.(kind, attrs.id ?? "");
+      if (ctx.leadingTask === node && ctx.onTaskOpen) {
+        const open = ctx.onTaskOpen;
+        const id = attrs.id ?? "";
+        return (
+          <MarkdownTaskInline
+            key={key}
+            id={id}
+            label={attrs.label ?? ""}
+            state={closed ?? null}
+            href={ctx.mentionHref ? ctx.mentionHref(kind, id) : undefined}
+            onOpen={() => open(id)}
+          />
+        );
+      }
       return (
         <InlineChip
           key={key}
@@ -2206,6 +2272,7 @@ function renderNode(
         : node.children.filter(
             (child) => typeof child === "string" || child.tag !== "label",
           );
+      const leading = ctx.onTaskOpen ? leadingTaskMention(body) : null;
       return (
         <li
           key={key}
@@ -2217,11 +2284,14 @@ function renderNode(
               interactive-disabled 50% dim would misread as a broken control. */}
           <Checkbox
             checked={checked}
+            shape={leading ? "circle" : undefined}
             aria-label={checked ? "Done" : "Not done"}
             disabled
             className="pointer-events-none inline-flex me-1.5 align-middle disabled:opacity-100"
           />
-          <div data-slot="task-item-content">{render(body, ctx)}</div>
+          <div data-slot="task-item-content">
+            {render(body, leading ? { ...ctx, leadingTask: leading } : ctx)}
+          </div>
         </li>
       );
     }
@@ -2292,6 +2362,8 @@ function renderNode(
       return (
         <MarkdownEmbed key={key} url={attrs.url ?? ""} providers={ctx.embeds} />
       );
+    case "bookmark":
+      return <MarkdownBookmark key={key} url={attrs.url ?? ""} />;
     case "tasks": {
       const snapshot = attrs.snapshot ?? "";
       const drawn = ctx.renderLiveBlock?.(attrs.kind ?? "tasks", {
@@ -2401,6 +2473,26 @@ export interface MarkdownToggleState {
 }
 
 /** Props accepted by `MarkdownView`. */
+/**
+ * A mention target's state (`MarkdownViewProps.mentionStatus`): a task's done check, a closed
+ * target struck through with a status tag, and — on a linked checklist line drawn as a
+ * `TaskInline` (`onTaskOpen`) — its assignee and due date.
+ */
+export interface MarkdownMentionStatus {
+  /** A finished task: its chip leads with a check. @default false */
+  done?: boolean;
+  /** Strike the label through (a canceled or duplicate task). @default false */
+  struck?: boolean;
+  /** A small tag after the label ("Canceled"). @default undefined */
+  status?: string;
+  /** A task's assignee, on a linked line. @default undefined */
+  assignee?: TaskInlinePerson | null;
+  /** A task's due date, as the host words it, on a linked line. @default undefined */
+  due?: string | null;
+  /** The due date has passed. @default false */
+  overdue?: boolean;
+}
+
 export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * The markdown string to render. Provided as `children` (preferred) or via the
@@ -2606,7 +2698,16 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   mentionStatus?: (
     kind: MentionKind,
     id: string,
-  ) => { done?: boolean; struck?: boolean; status?: string } | null | undefined;
+  ) => MarkdownMentionStatus | null | undefined;
+  /**
+   * A linked checklist line — a task item whose first inline is a task mention — draws as a
+   * `TaskInline`: one round box, the title (a click calls this: open the task's peek), the
+   * assignee's avatar and the due date (`mentionStatus`'s `assignee`, `due`, `overdue`, else the
+   * `InlineChipProvider`'s `state`) and ↗ to its page (`mentionHref`) on hover — as `TextEdit` does
+   * with the same prop. Without it the line is a checkbox and a task chip.
+   * @default undefined
+   */
+  onTaskOpen?: (taskId: string) => void;
   /**
    * A link whose href starts with this renders as a file chip — an icon for the file's type and
    * its name. `""` turns file chips off.
@@ -2733,6 +2834,7 @@ export function MarkdownView({
   mentionHref,
   mentionImage,
   mentionStatus,
+  onTaskOpen,
   fileLinkPrefix = "/api/files/",
   embeds,
   fileContentType,
@@ -2845,6 +2947,7 @@ export function MarkdownView({
         mentionHref,
         mentionImage,
         mentionStatus,
+        onTaskOpen,
         fileLinkPrefix,
         embeds,
         fileContentType,

@@ -250,3 +250,19 @@ test("a host's live block names survive the server's read and write; others stay
   expect(normalizeMarkdown(tasks)).toBe(tasks);
   expect(markdownToDoc(tasks).firstChild?.attrs.kind).toBeNull();
 });
+
+test("a bookmark line round-trips, and only an http(s) link titled bookmark is one", () => {
+  const md =
+    'Before\n\n[https://example.com/a](https://example.com/a "bookmark")\n\nAfter';
+  const doc = markdownToDoc(md);
+  expect(doc.child(1).type.name).toBe("bookmark");
+  expect(doc.child(1).attrs.url).toBe("https://example.com/a");
+  expect(docToMarkdown(doc)).toBe(md);
+  // Another title, a non-web address, or text beside it: a link.
+  for (const other of [
+    '[https://example.com/a](https://example.com/a "Example")',
+    '[x](mailto:a@b.c "bookmark")',
+    'See [https://example.com/a](https://example.com/a "bookmark") here',
+  ])
+    expect(markdownToDoc(other).child(0).type.name).toBe("paragraph");
+});

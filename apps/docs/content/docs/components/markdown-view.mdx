@@ -217,6 +217,24 @@ the Content-Security-Policy `frame-src` list.
   file="components/preview/markdown-view.tsx"
 />
 
+### Bookmarks and task lines
+
+A link titled `bookmark` alone on its line — `[https://example.com](https://example.com
+"bookmark")`, what `TextEdit`'s **Bookmark** writes — renders as a card (`MarkdownBookmark`): the
+page's title, its blurb and its icon with the site's address, from the `InlineChipProvider`'s
+`linkPreview` (or a `fetchPreview` / `preview` given to `MarkdownBookmark` itself). It loads
+nothing from the site and opens the page in a new tab. Any other reader shows the link.
+
+`onTaskOpen` draws a linked checklist line (`- [ ] [@Order glass](mention://task/t1)`) as a
+[`TaskInline`](/docs/components/task-inline): one round box, the title that calls
+`onTaskOpen(taskId)` on a click, the assignee's avatar and the due date from `mentionStatus`
+(`assignee`, `due`, `overdue`) or the provider's `state`, and ↗ to its page on hover.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-view-client.tsx"
+  name="MarkdownBookmarkProps"
+/>
+
 ### Live task lists
 
 A live task list is a container directive: `:::tasks{…}` at the start of a line, its rows, and
