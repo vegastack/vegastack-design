@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "56e59a4c345721e496cb1c06bbb47a6d2a83ef00ce44566237696ef7e1d6bd86",
+  "contractSha256": "f721d8c93a2a4fa2ab0ba6387e342f8bc088822a40fa204b5ae93c6a1b2a558e",
   "inventory": {
     "expected": 755,
     "actual": 755,

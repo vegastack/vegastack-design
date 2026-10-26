@@ -1,4 +1,4 @@
-// @vegastack use-grid-selection@0.25.80 sha256-18fdXaYDjux9skV5ui45KXD1assBKv/76uOaRMRsY6E=
+// @vegastack use-grid-selection@0.25.81 sha256-mrDp7hvl53ojM6STEVheIYDnmsrkssetW9Dhe3EwdD8=
 
 "use client";
 
