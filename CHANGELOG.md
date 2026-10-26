@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.80] — October 26, 2026
+
+<!-- assembled from 1 changeset: 00cac47e7e5a -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.29`** (was `0.8.28`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.79 → 0.25.80.
+
+### 🐛 Fixed
+
+- **data-grid**, **editable-cell**, **field-cell**, **inline-chip**, **filter-bar-managed**, **text-edit**: the grid's final acceptance fixes. `GroupByPicker` and `SortBuilder` no longer crash when every field is already used (a compiled memo read `free[0].key` while rendering); Add stays disabled. Typing on a long-text cell opens its editor holding every typed key in place of the value (a `#` or `-` is the character, not Markdown), and typing on a date cell opens a field that takes a typed date ("12/3", "Mar 12", "today") seeded with the key. Links and chips inside grid cells leave the tab order, so <kbd>Tab</kbd> leaves the grid from any cell: <kbd>Alt</kbd>+<kbd>Enter</kbd> (or <kbd>Enter</kbd> on a read-only cell) moves into its first chip, arrows step, <kbd>Escape</kbd> returns; a key or click on a chip inside an editable value is the chip's (it follows the link), never an edit. `TextEditHandle.focus` takes an optional `"start"` or `"end"`, and focuses the read view while the editor loads so early keys are kept. [docs](https://design.vegastack.com/docs/components/data-grid) ·
+  [`8de8175`](https://github.com/VegaStack/vegastack-design/commit/8de8175)
+
 ## [0.25.79] — October 26, 2026
 
 <!-- assembled from 1 changeset: 8b82a43e12c3 -->

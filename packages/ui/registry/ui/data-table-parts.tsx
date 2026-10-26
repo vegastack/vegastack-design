@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.79 sha256-8zpxIDt1rW0aTRc4I/ch4VAdAm87898Mlfz7Fs50nnI=
+// @vegastack data-table-parts@0.25.80 sha256-C8Z/p4EfQMr/Visf9oBnw7lQB3BkA8DcVrvS7+h3v9c=
 
 "use client";
 
