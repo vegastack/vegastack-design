@@ -1202,13 +1202,13 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
   };
   walk(root);
   files.sort();
-  const ownPages = new Set(
-    files
-      .map((f) => relative(root, f).split(sep).join("/"))
-      .filter((f) => /(?:^|\/)page\.[jt]sx?$/.test(f))
-      .map(appRouteOf)
-      .filter(Boolean),
-  );
+  // Every App Router page: its folder (a layout wraps the pages under its own folder) and route.
+  const pageFiles = files
+    .map((f) => relative(root, f).split(sep).join("/"))
+    .filter((f) => /(?:^|\/)page\.[jt]sx?$/.test(f))
+    .map((f) => ({ dir: f.slice(0, f.lastIndexOf("/")), route: appRouteOf(f) }))
+    .filter((p) => p.route != null);
+  const ownPages = new Set(pageFiles.map((p) => p.route));
 
   const important = [];
   const widths = [];
@@ -1316,7 +1316,24 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     if (map.size === 0) continue;
     compared += 1;
     const size = page.size === "narrow" ? "prose" : page.size;
-    const answers = widthsForRoute(map, page.route, ownPages);
+    // A page answers for its own route; a layout for every page in its folder and below (a route
+    // group's layout wraps only its group), or its own route when it wraps none.
+    const layoutDir = /(?:^|\/)layout\.[jt]sx?$/.test(page.file)
+      ? page.file.slice(0, page.file.lastIndexOf("/"))
+      : null;
+    const wrapped =
+      layoutDir == null
+        ? [page.route]
+        : pageFiles
+            .filter(
+              (p) => p.dir === layoutDir || p.dir.startsWith(`${layoutDir}/`),
+            )
+            .map((p) => p.route);
+    const seen = new Map();
+    for (const route of wrapped.length ? wrapped : [page.route])
+      for (const answer of widthsForRoute(map, route, ownPages))
+        seen.set(`${answer.width} ${answer.row}`, answer);
+    const answers = [...seen.values()];
     if (answers.some((a) => a.width !== size))
       mismatches.push({
         file: page.file,
@@ -1329,6 +1346,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
               : `the map has no row for it, so it is "default"`,
           )
           .join("; and for other paths it serves, "),
+        ...(layoutDir == null ? {} : { layout: true }),
       });
   }
 

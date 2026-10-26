@@ -936,6 +936,26 @@ test("spread props make a size dynamic; a dynamic page is held to the static row
   });
 }
 
+test("a layout answers for the pages it wraps, not its folder's own URL (review round 4)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/settings/profile": "prose", "/settings/password": "prose", "/settings/members": "default", "/settings/members/invite": "prose" });`,
+    "src/app/settings/(forms)/layout.tsx": `<AppShellPage size="prose">{children}</AppShellPage>`,
+    "src/app/settings/(forms)/profile/page.tsx": `export default () => null;`,
+    "src/app/settings/(forms)/password/page.tsx": `export default () => null;`,
+    // this group's layout wraps a prose page and a default one: no one size fits
+    "src/app/settings/(lists)/layout.tsx": `<AppShellPage>{children}</AppShellPage>`,
+    "src/app/settings/(lists)/members/page.tsx": `export default () => null;`,
+    "src/app/settings/(lists)/members/invite/page.tsx": `export default () => null;`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.compared, 2);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/settings/(lists)/layout.tsx:1 size="default" on /settings',
+  ]);
+  assert.match(routeMap.mismatches[0].hint, /\/settings\/members\/invite/);
+});
+
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {

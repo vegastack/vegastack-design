@@ -101,8 +101,8 @@ state's width (`size={board ? "full" : "default"}`); the map holds its resting w
 - It also compares each `AppShellPage` in an App Router `page` or `layout` file with the route
   map: the `"/route": "prose" | "default" | "full"` rows of a `definePageWidths(…)` call, plus any
   `widths: { … }` object that feeds the map (a module registry listing its own routes). Route
-  groups and parallel slots are stripped, the most specific row wins, and a route the map does not
-  list is `default`. A literal `size` (or none, which is `default`) that disagrees is a warning, a
+  groups and parallel slots are stripped, the most specific row wins, a route the map does not
+  list is `default`, and a layout answers for every page in its folder. A literal `size` (or none, which is `default`) that disagrees is a warning, a
   failure under `--strict`. A `size={…}` expression is skipped and counted, an `AppShellPage`
   outside a route file is out of scope, and with no route map the check says so and passes.
 - Don't wrap a page's content in a `max-w-*` or padded `div` either; if a section needs to be
