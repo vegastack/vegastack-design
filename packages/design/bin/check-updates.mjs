@@ -996,11 +996,10 @@ export async function fetchRegistryIndex({
   let index;
   try {
     index = await res.json();
-  } catch (err) {
-    // A parser error quotes the body it choked on, which may echo anything — redact it too.
-    throw new Error(
-      `registry index is not JSON (${terminalText(url)}): ${terminalText(err.message)}`,
-    );
+  } catch {
+    // Never the parser's message: it quotes a truncated prefix of the body, which redaction of
+    // whole secret values cannot catch.
+    throw new Error(`registry index is not JSON (${terminalText(url)})`);
   }
   if (!Array.isArray(index?.items))
     throw new Error("registry index has no items array");

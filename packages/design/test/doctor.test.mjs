@@ -800,7 +800,7 @@ test("the route map takes only map rows, outside tests, and reports a conflictin
     "src/shell/page-widths.test.ts": `definePageWidths({ "/": "full" });`,
     "src/modules/a.ts": `export const a = { widths: { "/docs/[id]": "prose" } };`,
     "src/app/page.tsx": `<AppShellPage size="prose" />`,
-    // a catch-all page is not served by `[id]`: its base path `/docs` has no row, so `default`
+    // an optional catch-all serves `/docs` (no row: `default`) AND `/docs/x` (`[id]`): no one size fits
     "src/app/docs/[[...slug]]/page.tsx": `<AppShellPage />`,
     // intercepting routes render the route they intercept
     "src/app/feed/@modal/(..)photo/[id]/page.tsx": `<AppShellPage size="prose" />`,
@@ -810,6 +810,7 @@ test("the route map takes only map rows, outside tests, and reports a conflictin
   const { routeMap } = compositionOf(root);
   assert.equal(routeMap.rows, 2);
   assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/docs/[[...slug]]/page.tsx:1 size="default" on /docs/[[...slug]]',
     'src/app/feed/@modal/(..)photo/[id]/page.tsx:1 size="prose" on /photo/[id]',
     'src/shell/page-widths.ts:1 route-map row "/docs/[id]": "full"',
   ]);
@@ -838,10 +839,11 @@ test("owned-files never lists a file reached through a symlink out of the projec
   const env0 = process.env.CF_ACCESS_CLIENT_SECRET;
   const out = [];
   const err0 = console.error;
-  process.env.CF_ACCESS_CLIENT_SECRET = "DEMO_SECRET_12345";
+  process.env.CF_ACCESS_CLIENT_SECRET = "DEMO_SECRET_12345".repeat(8);
   globalThis.fetch = async () => ({
     ok: true,
-    json: async () => JSON.parse("DEMO_SECRET_12345"),
+    // Node quotes only a truncated prefix of the body: whole-value redaction cannot catch that.
+    json: async () => JSON.parse("DEMO_SECRET_12345".repeat(8)),
   });
   console.error = (...a) => out.push(a.join(" "));
   let code;
@@ -856,9 +858,45 @@ test("owned-files never lists a file reached through a symlink out of the projec
   test("owned-files redacts a credential from a malformed index response (review round 1)", () => {
     assert.equal(code, 2);
     assert.match(out.join("\n"), /registry index is not JSON/);
-    assert.doesNotMatch(out.join("\n"), /DEMO_SECRET_12345/);
+    assert.doesNotMatch(out.join("\n"), /DEMO_SEC/);
   });
 }
+
+test("nested templates, object type arguments and string-borne map syntax (review round 2)", () => {
+  const root = project({
+    ...UI,
+    "src/more.tsx": [
+      `import { Button } from "@/components/ui/button";`,
+      `import { DataGrid } from "@/components/ui/data-grid";`,
+      "<Button className={`p-2 ${ok ? `p-0!` : `p-1`}`} />",
+      '<Button className={`p-2 ${ok ? "}" : "p-3!"}`} />',
+      `<DataGrid<{ id: string; name: string }> className="p-4!" />`,
+    ].join("\n"),
+    "src/shell/page-widths.ts": [
+      `const extra = (label) => ({});`,
+      `const example = 'definePageWidths({"/": "full"})';`,
+      `export const pageWidths = definePageWidths({`,
+      `  ...extra("}"),`,
+      `  "/settings": "prose",`,
+      `});`,
+    ].join("\n"),
+    "src/app/settings/page.tsx": `<AppShellPage size="prose" />`,
+    "src/app/page.tsx": `<AppShellPage />`,
+    // a catch-all serves `/docs/a` AND `/docs/a/b`: one sample is not enough
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage size="full" />`,
+    "src/modules/docs.ts": `export const m = { widths: { "/docs/[id]": "full" } };`,
+  });
+  const found = compositionOf(root);
+  assert.deepEqual(lines(found.important), [
+    "src/more.tsx:3 Button p-0!",
+    "src/more.tsx:4 Button p-3!",
+    "src/more.tsx:5 DataGrid p-4!",
+  ]);
+  assert.equal(found.routeMap.rows, 2);
+  assert.deepEqual(lines(found.routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="full" on /docs/[...slug]',
+  ]);
+});
 
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 

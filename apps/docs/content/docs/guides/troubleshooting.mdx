@@ -36,6 +36,8 @@ and an `AppShellPage` in an App Router `page`/`layout` file whose `size` differs
 from the route map (see [Page layout](/docs/foundations/page-layout)). These are
 warnings, so a release that adds one never turns your build red; once you have
 fixed them, run `vegastack-design doctor --strict` in CI to make them failures.
+The scan is lexical and errs toward silence: a part re-exported through your own
+module, or a `<header>` rendered by a child component, is not seen.
 
 **Coming from 0.4.x?** Most of what breaks there is not a bug — it is the shadcn
 reset. Work [Migrating to the shadcn reset](/docs/guides/migrating-shadcn-reset)

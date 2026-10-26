@@ -435,6 +435,31 @@ function canStartExpression(src, i) {
 }
 const canStartComment = (src, i) => i === 0 || /[\s;,{}()[\]]/.test(src[i - 1]);
 
+/**
+ * The index of the quote closing the string that opens at `i` (or of the line end / file end where
+ * an unterminated one gives up). A template's `${…}` is skipped whole — braces counted, strings and
+ * nested templates inside it skipped — so a backtick in an interpolation does not end the template.
+ */
+function stringEnd(src, i) {
+  const q = src[i];
+  let j = i + 1;
+  while (j < src.length && src[j] !== q) {
+    if (src[j] === "\\") j += 1;
+    else if (src[j] === "\n" && q !== "`") break;
+    else if (q === "`" && src[j] === "$" && src[j + 1] === "{") {
+      let depth = 0;
+      for (j += 1; j < src.length; j += 1) {
+        const ch = src[j];
+        if (ch === '"' || ch === "'" || ch === "`") j = stringEnd(src, j);
+        else if (ch === "{") depth += 1;
+        else if (ch === "}" && (depth -= 1) === 0) break;
+      }
+    }
+    j += 1;
+  }
+  return j;
+}
+
 export function maskNonUsage(
   src,
   { script = true, lineComments = script, blankStrings = false } = {},
@@ -470,12 +495,7 @@ export function maskNonUsage(
       (c === '"' || c === "'" || c === "`") &&
       (!script || canStartExpression(src, i))
     ) {
-      let j = i + 1;
-      while (j < src.length && src[j] !== c) {
-        if (src[j] === "\\") j += 1;
-        else if (src[j] === "\n" && c !== "`") break;
-        j += 1;
-      }
+      const j = stringEnd(src, i);
       if (script && (blankStrings || isProse(src.slice(i + 1, j))))
         blank(i + 1, j);
       i = j + 1;
@@ -666,6 +686,13 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
 // anything, and an apostrophe in JSX text ("Don't") from swallowing the rest of a tag.
 // They report as WARNINGS by default and as failures under `--strict`, so a consumer can adopt a
 // new release, fix what it reports, and then turn the gate on.
+//
+// Known limits, all toward silence: a part re-exported through the project's own module is not a
+// ui import; a `<header>` counts only when it sits inside the overlay content in the SAME file (a
+// child component's header is not seen); a JSX attribute string ending in a backslash
+// (`title="C:\"`) or spanning lines can desynchronise that tag's scan; route-map rows count only as
+// string literals; and an `AppShellPage` outside an App Router page or layout file, or with a
+// `size={…}` expression, is counted rather than compared.
 
 /** Popover and menu popups whose width the part owns: `PopoverContent size`, or the longest item. */
 export const WIDTH_OWNING_CONTENT = [
@@ -703,14 +730,19 @@ function skipBraces(scan, j) {
 /** From a `<` at `j` (TSX type arguments: `<DataGrid<Row> …>`), the index just past its `>`. */
 function skipTypeArguments(scan, j) {
   let depth = 0;
+  let braces = 0; // an object type: `<DataGrid<{ id: string; name: string }>`
   const limit = Math.min(scan.length, j + 2000);
   for (let k = j; k < limit; k += 1) {
     const c = scan[k];
-    if (c === "<") depth += 1;
+    if (c === "{") braces += 1;
+    else if (c === "}") {
+      if ((braces -= 1) < 0) return -1;
+    } else if (braces > 0) continue;
+    else if (c === "<") depth += 1;
     else if (c === ">" && scan[k - 1] !== "=") {
       depth -= 1;
       if (depth === 0) return k + 1;
-    } else if (c === ";" || c === "{" || c === "}") return -1;
+    } else if (c === ";") return -1;
   }
   return -1;
 }
@@ -828,7 +860,10 @@ function literalValue(attr, scan, read) {
   return m[2] === "`" && text.includes("${") ? null : { text, at };
 }
 
-/** The literal text a template spells out: its static parts and the strings inside each `${…}`. */
+/**
+ * The literal text a template spells out: its static parts, and inside each `${…}` every string
+ * literal and (recursively) every nested template — the classes a conditional interpolation adds.
+ */
 function templateFragments(text, at) {
   const out = [];
   let start = 0;
@@ -843,12 +878,16 @@ function templateFragments(text, at) {
       let depth = 0;
       let e = k + 1;
       for (; e < text.length; e += 1) {
-        if (text[e] === "{") depth += 1;
-        else if (text[e] === "}" && (depth -= 1) === 0) break;
+        const c = text[e];
+        if (c === '"' || c === "'" || c === "`") {
+          const close = Math.min(stringEnd(text, e), text.length);
+          const inner = text.slice(e + 1, close);
+          if (c === "`") out.push(...templateFragments(inner, at + e + 1));
+          else out.push({ text: inner, at: at + e + 1 });
+          e = close;
+        } else if (c === "{") depth += 1;
+        else if (c === "}" && (depth -= 1) === 0) break;
       }
-      const inner = text.slice(k + 2, e);
-      for (const m of inner.matchAll(/"([^"\n]*)"|'([^'\n]*)'/g))
-        out.push({ text: m[1] ?? m[2], at: at + k + 2 + m.index + 1 });
       k = e + 1;
       start = k;
       continue;
@@ -996,23 +1035,39 @@ function bySpecificity(a, b) {
 const ANY_SEGMENT = "\u0000";
 
 /**
- * The width the route map gives a page's route pattern: its own row; else — matching the pattern
- * as the concrete path it serves, with `[id]` and `[...rest]` as one value no static row names and
- * `[[...rest]]` as nothing — the most specific row that serves it, exactly as `widthOfPath` picks;
- * else `default`, what `definePageWidths` answers for a route it does not list.
+ * The widths the route map gives the paths a page's route pattern serves: its own row; else —
+ * matching concrete paths, with `[id]` as one value no static row names, `[...rest]` as one to three
+ * of them and `[[...rest]]` as zero to three — the most specific row serving each, exactly as
+ * `widthOfPath` picks, or `default` where none does. One width when every sample agrees.
  */
-export function widthForRoute(map, route) {
+export function widthsForRoute(map, route) {
   const key = `/${routeSegments(route).join("/")}`;
-  if (map.has(key)) return { width: map.get(key).width, row: key };
-  const path = parseRoute(key)
-    .filter((s) => s.kind !== "optional-catch-all")
-    .map((s) => (s.kind === "static" ? s.value : ANY_SEGMENT));
-  const row = [...map.keys()]
-    .sort(bySpecificity)
-    .find((pattern) => matchRoute(pattern, `/${path.join("/")}`));
-  return row
-    ? { width: map.get(row).width, row }
-    : { width: "default", row: null };
+  if (map.has(key)) return [{ width: map.get(key).width, row: key }];
+  let paths = [[]];
+  for (const seg of parseRoute(key)) {
+    const counts =
+      seg.kind === "catch-all"
+        ? [1, 2, 3]
+        : seg.kind === "optional-catch-all"
+          ? [0, 1, 2, 3]
+          : [1];
+    paths = paths.flatMap((p) =>
+      counts.map((n) =>
+        seg.kind === "static"
+          ? [...p, seg.value]
+          : [...p, ...Array(n).fill(ANY_SEGMENT)],
+      ),
+    );
+  }
+  const patterns = [...map.keys()].sort(bySpecificity);
+  const seen = new Map();
+  for (const path of paths) {
+    const row = patterns.find((p) => matchRoute(p, `/${path.join("/")}`));
+    const width = row ? map.get(row).width : "default";
+    if (!seen.has(`${width} ${row}`))
+      seen.set(`${width} ${row}`, { width, row: row ?? null });
+  }
+  return [...seen.values()];
 }
 
 const ROUTE_ROW = /(["'])(\/[^"'\s]*)\1\s*:\s*(["'])(prose|default|full)\3/g;
@@ -1022,13 +1077,15 @@ const ROUTE_ROW = /(["'])(\/[^"'\s]*)\1\s*:\s*(["'])(prose|default|full)\3/g;
  * object literal passed to `definePageWidths(…)`, and of every `widths: { … }` object literal (a
  * module registry that contributes its own routes to the map).
  */
-export function routeMapRows(src) {
+export function routeMapRows(src, scan = src) {
+  // Calls and object bounds come from the structure copy, so a `"}"` or a quoted example call
+  // neither ends a map early nor starts one; the rows are read from the source.
   const spans = [];
-  for (const m of src.matchAll(
+  for (const m of scan.matchAll(
     /\bdefinePageWidths\s*(?:<[^>()]*>)?\s*\(\s*\{|\bwidths\s*:\s*\{/g,
   )) {
     const open = m.index + m[0].length - 1;
-    spans.push([open, skipBraces(src, open)]);
+    spans.push([open, skipBraces(scan, open)]);
   }
   const rows = [];
   for (const [from, to] of spans)
@@ -1140,9 +1197,10 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     // Comments (and prose strings) blanked: a commented-out row or an example in a doc block is
     // not part of the map, and an import in a comment imports nothing.
     const src = maskNonUsage(read, { script: true });
+    const scan = maskNonUsage(read, { script: true, blankStrings: true });
     const lineAt = lineIndex(read);
     if (!TEST_FILE.test(file))
-      for (const row of routeMapRows(src)) {
+      for (const row of routeMapRows(src, scan)) {
         const at = { width: row.width, file, line: lineAt(row.index) };
         const known = map.get(row.route);
         if (!known) map.set(row.route, at);
@@ -1156,7 +1214,6 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
       }
     if (!/\.[jt]sx$/.test(full) || !read.includes("<")) continue;
 
-    const scan = maskNonUsage(read, { script: true, blankStrings: true });
     const imports = uiImports(src, full, { uiAliases, uiDirs });
     const overlays = [];
     const route = appRouteOf(file);
@@ -1224,15 +1281,19 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     if (map.size === 0) continue;
     compared += 1;
     const size = page.size === "narrow" ? "prose" : page.size;
-    const { width, row } = widthForRoute(map, page.route);
-    if (size !== width)
+    const answers = widthsForRoute(map, page.route);
+    if (answers.some((a) => a.width !== size))
       mismatches.push({
         file: page.file,
         line: page.line,
         match: `size="${page.size}" on ${page.route}`,
-        hint: row
-          ? `the map says "${width}" (${row}, ${map.get(row).file}:${map.get(row).line})`
-          : `the map has no row for it, so it is "default"`,
+        hint: answers
+          .map(({ width, row }) =>
+            row
+              ? `the map says "${width}" (${row}, ${map.get(row).file}:${map.get(row).line})`
+              : `the map has no row for it, so it is "default"`,
+          )
+          .join("; and for other paths it serves, "),
       });
   }
 
