@@ -1053,33 +1053,36 @@ function bySpecificity(a, b) {
 /** A value no static row names: what a page's `[id]` stands for when it is matched as a path. */
 const ANY_SEGMENT = "\u0000";
 
-/** Concrete sample paths a pattern serves: `[id]` one value no static row names, `[...rest]` one to three, `[[...rest]]` zero to three. */
-function samplePaths(route) {
+/**
+ * Concrete sample paths a pattern serves, as segment arrays: `[id]` is one value no static row
+ * names, `[...rest]` one to `depth` of them, `[[...rest]]` zero to `depth`.
+ */
+function samplePaths(route, depth) {
   let paths = [[]];
   for (const seg of parseRoute(route)) {
-    const counts =
-      seg.kind === "catch-all"
-        ? [1, 2, 3]
-        : seg.kind === "optional-catch-all"
-          ? [0, 1, 2, 3]
-          : [1];
-    paths = paths.flatMap((p) =>
-      counts.map((n) =>
-        seg.kind === "static"
-          ? [...p, seg.value]
-          : [...p, ...Array(n).fill(ANY_SEGMENT)],
-      ),
-    );
+    const from = seg.kind === "optional-catch-all" ? 0 : 1;
+    const to = seg.kind.endsWith("catch-all") ? depth : 1;
+    const next = [];
+    for (const p of paths)
+      for (let n = from; n <= to; n += 1)
+        next.push(
+          seg.kind === "static"
+            ? [...p, seg.value]
+            : [...p, ...Array(n).fill(ANY_SEGMENT)],
+        );
+    paths = next;
   }
-  return paths.map((p) => `/${p.join("/")}`);
+  return paths;
 }
 
 /**
  * The widths the route map gives the paths a page's route pattern renders. A static route with its
- * own row: that row. Otherwise every sample path of the pattern and of each map row (see
- * `samplePaths`) that this page — not a more specific page — renders, by Next's own precedence,
- * resolved to the most specific row serving it exactly as `widthOfPath` picks, or `default` where
- * none does. `pages` are every App Router page's route. One width when every sample agrees.
+ * own row: that row. Otherwise sample paths — the page pattern's, every map row's, and each pair of
+ * those merged position by position (`/en/[slug]` with `/[lang]/settings` gives `/en/settings`),
+ * with catch-alls one segment longer than the longest pattern — kept when this page, not a more
+ * specific page, renders them by Next's precedence, and resolved to the most specific row serving
+ * each exactly as `widthOfPath` picks, or `default` where none does. `pages` are every App Router
+ * page's route. One width when every sample agrees.
  */
 export function widthsForRoute(map, route, pages = []) {
   const key = `/${routeSegments(route).join("/")}`;
@@ -1087,8 +1090,25 @@ export function widthsForRoute(map, route, pages = []) {
     return [{ width: map.get(key).width, row: key }];
   const pagePatterns = [...new Set([key, ...pages])].sort(bySpecificity);
   const rows = [...map.keys()].sort(bySpecificity);
+  const depth =
+    Math.min(
+      8,
+      Math.max(...[key, ...pages, ...rows].map((r) => parseRoute(r).length)),
+    ) + 1;
+  const own = samplePaths(key, depth);
+  const candidates = new Set(own.map((p) => `/${p.join("/")}`));
+  for (const row of rows)
+    for (const r of samplePaths(row, depth)) {
+      candidates.add(`/${r.join("/")}`);
+      for (const p of own) {
+        if (p.length !== r.length) continue;
+        const merged = p.map((seg, i) => (seg === ANY_SEGMENT ? r[i] : seg));
+        if (merged.every((seg, i) => r[i] === ANY_SEGMENT || seg === r[i]))
+          candidates.add(`/${merged.join("/")}`);
+      }
+    }
   const seen = new Map();
-  for (const path of new Set([key, ...rows].flatMap(samplePaths))) {
+  for (const path of candidates) {
     if (!matchRoute(key, path)) continue;
     if (pagePatterns.find((p) => matchRoute(p, path)) !== key) continue;
     const row = rows.find((r) => matchRoute(r, path));

@@ -1040,6 +1040,28 @@ test("catch-all rows are sampled at length, and a more specific page takes the p
   });
 }
 
+test("intersecting patterns and deep catch-alls are compared (review round 8)", () => {
+  const crossed = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/[lang]/settings": "prose" });`,
+    "src/app/en/[slug]/page.tsx": `<AppShellPage />`,
+  });
+  assert.deepEqual(lines(compositionOf(crossed).routeMap.mismatches), [
+    'src/app/en/[slug]/page.tsx:1 size="default" on /en/[slug]',
+  ]);
+  const deep = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "prose" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[a]/page.tsx": `<AppShellPage size={s} />`,
+    "src/app/docs/[a]/[b]/page.tsx": `<AppShellPage size={s} />`,
+    "src/app/docs/[a]/[b]/[c]/page.tsx": `<AppShellPage size={s} />`,
+  });
+  assert.deepEqual(lines(compositionOf(deep).routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
+  ]);
+});
+
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {
