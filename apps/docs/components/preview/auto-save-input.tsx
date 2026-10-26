@@ -8,6 +8,7 @@ import {
   AutoSaveIndicator,
   AutoSaveInput,
   useAutoSave,
+  useInvalidRevert,
   type AutoSaveFormStatus,
 } from "@/components/ui/auto-save-input";
 import {
@@ -15,7 +16,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -307,6 +308,69 @@ export function autoSaveForm(): ReactNode {
           {log[0] ?? "No saves yet"}
         </span>
       </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * An invalid value is never "saved": clear the name and the field says "Not saved" instead of the
+ * tick; leave it and, a second later, the last saved name comes back with the reason.
+ */
+export function autoSaveInvalid(): ReactNode {
+  const [saved, setSaved] = useState("Orbit");
+  const [draft, setDraft] = useState("Orbit");
+  const [notice, setNotice] = useState<string | null>(null);
+  const error = draft.trim() === "" ? "Enter a name." : null;
+  const autosave = useAutoSave({
+    value: { name: error ? saved : draft },
+    onSave: async (changes) => {
+      await wait(500);
+      if (changes.name !== undefined) setSaved(changes.name);
+    },
+    delay: 800,
+  });
+  const revert = useInvalidRevert({
+    invalid: error !== null,
+    onRevert: () => {
+      setDraft(saved);
+      setNotice("Name can't be empty — put back the saved name.");
+    },
+  });
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <Field
+        data-invalid={error ? true : undefined}
+        className="mx-auto w-full max-w-sm"
+      >
+        <FieldLabel htmlFor="auto-save-invalid">Team name</FieldLabel>
+        <InputGroup>
+          <InputGroupInput
+            id="auto-save-invalid"
+            value={draft}
+            aria-invalid={error ? true : undefined}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              setNotice(null);
+            }}
+            onFocus={revert.onFocus}
+            onBlur={() => {
+              revert.onBlur();
+              void autosave.flush();
+            }}
+          />
+          <InputGroupAddon align="inline-end">
+            <AutoSaveIndicator
+              variant="icon"
+              status={autosave.status}
+              invalid={error !== null}
+            />
+          </InputGroupAddon>
+        </InputGroup>
+        <FieldError>{error}</FieldError>
+        {notice ? (
+          <p className="text-xs text-muted-foreground">{notice}</p>
+        ) : null}
+      </Field>
     </Wrapper>
   );
 }

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "c9394819624d9c66281a001fb3ba48337131dbb7df334988b46e30c1b56d328f",
+  "contractSha256": "7f11254e83fc663837dc5278e896af3a6cfbadf04f857d599d2ec6b09e5933e1",
   "expectedCounts": {
-    "totalRegistryItems": 756,
-    "components": 169,
+    "totalRegistryItems": 758,
+    "components": 171,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -1174,6 +1174,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "settings-layout",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/settings-layout.tsx"
+      ],
+      "docsSlug": "/docs/components/settings-layout",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "sheet",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -1761,6 +1772,17 @@
         "packages/ui/registry/ui/responsive-dialog.tsx"
       ],
       "docsSlug": "/docs/components/responsive-dialog",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "member-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/member-list.tsx"
+      ],
+      "docsSlug": "/docs/components/member-list",
       "contractStatus": "reconciled"
     },
     {

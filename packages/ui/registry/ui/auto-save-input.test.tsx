@@ -2,7 +2,11 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { AutoSaveIndicator, AutoSaveInput } from "./auto-save-input";
+import {
+  AutoSaveIndicator,
+  AutoSaveInput,
+  useInvalidRevert,
+} from "./auto-save-input";
 
 test("renders the initial value and no status icon while idle", async () => {
   const screen = await render(
@@ -515,4 +519,335 @@ test("AutoSaveIndicator compact=narrow keeps its words in the text slot it hides
     status.element().querySelector("[data-slot=auto-save-indicator-text]")
       ?.textContent,
   ).toBe("Offline — keep this tab open");
+});
+
+test("AutoSaveIndicator invalid: no tick, a visible 'Not saved' in the warning ink, in both variants", async () => {
+  for (const variant of ["icon", "text"] as const) {
+    const screen = await render(
+      <AutoSaveIndicator variant={variant} status="saved" invalid />,
+    );
+    const status = screen.getByRole("status");
+    await expect.element(status).toHaveAttribute("data-invalid", "");
+    await expect.element(status).toHaveTextContent("Not saved");
+    await expect.element(status).toHaveClass("text-warning-text");
+    // The saved tick never shows beside an error.
+    expect(status.element().querySelector(".lucide-check")).toBeNull();
+    await expectNoA11yViolations(screen.container);
+    await screen.unmount();
+  }
+  const relabelled = await render(
+    <AutoSaveIndicator
+      variant="icon"
+      status="idle"
+      invalid
+      labels={{ invalid: "Not saved yet" }}
+    />,
+  );
+  await expect
+    .element(relabelled.getByRole("status"))
+    .toHaveTextContent("Not saved yet");
+});
+
+function RevertField({
+  saved,
+  onRevert,
+}: {
+  saved: string;
+  onRevert: () => void;
+}) {
+  const [draft, setDraft] = React.useState(saved);
+  const revert = useInvalidRevert({
+    invalid: draft.trim() === "",
+    onRevert: () => {
+      setDraft(saved);
+      onRevert();
+    },
+  });
+  return (
+    <>
+      <input
+        aria-label="Name"
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={revert.onBlur}
+        onFocus={revert.onFocus}
+      />
+      <button type="button">Elsewhere</button>
+    </>
+  );
+}
+
+test("useInvalidRevert: leaving an invalid field puts the saved value back after 1s, once", async () => {
+  vi.useFakeTimers();
+  try {
+    const onRevert = vi.fn();
+    const screen = await render(
+      <RevertField saved="Ada" onRevert={onRevert} />,
+    );
+    const input = screen.getByLabelText("Name");
+    await input.fill("");
+    (input.element() as HTMLInputElement).blur();
+    await vi.advanceTimersByTimeAsync(900);
+    expect(onRevert).not.toHaveBeenCalled();
+    await expect.element(input).toHaveValue("");
+    await vi.advanceTimersByTimeAsync(100);
+    expect(onRevert).toHaveBeenCalledOnce();
+    await expect.element(input).toHaveValue("Ada");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("useInvalidRevert: coming back to the field, or fixing the value, cancels the revert", async () => {
+  vi.useFakeTimers();
+  try {
+    const onRevert = vi.fn();
+    const screen = await render(
+      <RevertField saved="Ada" onRevert={onRevert} />,
+    );
+    const input = screen.getByLabelText("Name");
+    const element = input.element() as HTMLInputElement;
+    await input.fill("");
+    element.blur();
+    await vi.advanceTimersByTimeAsync(500);
+    element.focus();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onRevert).not.toHaveBeenCalled();
+
+    element.blur();
+    await vi.advanceTimersByTimeAsync(500);
+    await input.fill("Grace");
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onRevert).not.toHaveBeenCalled();
+    await expect.element(input).toHaveValue("Grace");
+
+    // A valid value left alone is never reverted.
+    element.blur();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(onRevert).not.toHaveBeenCalled();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("AutoSaveInput: a rejected value reads 'Not saved' (not a failed save) and onInvalidRevert restores the saved value", async () => {
+  vi.useFakeTimers();
+  try {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const onInvalidRevert = vi.fn();
+    const screen = await render(
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue="Ada"
+        onSave={onSave}
+        validate={(v) => v.trim().length > 0}
+        onInvalidRevert={onInvalidRevert}
+      />,
+    );
+    const input = screen.getByRole("textbox");
+    await input.fill("");
+    await vi.advanceTimersByTimeAsync(10);
+    const status = screen.container.querySelector(
+      '[data-slot="auto-save-input-status"]',
+    );
+    expect(status?.textContent).toContain("Not saved");
+    expect(status?.textContent).not.toContain("Save failed");
+
+    (input.element() as HTMLInputElement).blur();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onInvalidRevert).toHaveBeenCalledWith("Ada");
+    await expect.element(input).toHaveValue("Ada");
+    await expect.element(input).toHaveAttribute("data-state", "idle");
+    expect(onSave).not.toHaveBeenCalled();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("AutoSaveInput: a save that lands after a newer invalid edit is what the revert restores", async () => {
+  vi.useFakeTimers();
+  try {
+    let resolveSave: () => void = () => {};
+    const onSave = vi.fn(
+      () => new Promise<void>((resolve) => (resolveSave = resolve)),
+    );
+    const onInvalidRevert = vi.fn();
+    const screen = await render(
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue="Ada"
+        debounceMs={100}
+        onSave={onSave}
+        validate={(v) => v.trim().length > 0}
+        onInvalidRevert={onInvalidRevert}
+      />,
+    );
+    const input = screen.getByRole("textbox");
+    await input.fill("Grace");
+    await vi.advanceTimersByTimeAsync(100);
+    expect(onSave).toHaveBeenCalledWith("Grace");
+    // Cleared while "Grace" is still in flight; then "Grace" lands.
+    await input.fill("");
+    resolveSave();
+    await vi.advanceTimersByTimeAsync(10);
+    (input.element() as HTMLInputElement).blur();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onInvalidRevert).toHaveBeenCalledWith("Grace");
+    await expect.element(input).toHaveValue("Grace");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("AutoSaveInput: a revert due while a save is in flight waits for it and restores what persisted", async () => {
+  vi.useFakeTimers();
+  try {
+    let resolveSave: () => void = () => {};
+    const onSave = vi.fn(
+      () => new Promise<void>((resolve) => (resolveSave = resolve)),
+    );
+    const onInvalidRevert = vi.fn();
+    const screen = await render(
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue="Ada"
+        debounceMs={100}
+        onSave={onSave}
+        validate={(v) => v.trim().length > 0}
+        onInvalidRevert={onInvalidRevert}
+      />,
+    );
+    const input = screen.getByRole("textbox");
+    await input.fill("Grace");
+    await vi.advanceTimersByTimeAsync(100);
+    await input.fill("");
+    await vi.advanceTimersByTimeAsync(10);
+    (input.element() as HTMLInputElement).blur();
+    await vi.advanceTimersByTimeAsync(1000);
+    // The revert is due, but "Grace" has not landed yet: nothing is put back.
+    expect(onInvalidRevert).not.toHaveBeenCalled();
+    resolveSave();
+    // The save's settle chain is several promise hops; let them all run.
+    for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(10);
+    expect(onInvalidRevert).toHaveBeenCalledWith("Grace");
+    await expect.element(input).toHaveValue("Grace");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("AutoSaveInput: a revert waiting on a save is dropped when the field is used again", async () => {
+  vi.useFakeTimers();
+  try {
+    let resolveSave: () => void = () => {};
+    const onSave = vi.fn(
+      () => new Promise<void>((resolve) => (resolveSave = resolve)),
+    );
+    const onInvalidRevert = vi.fn();
+    const screen = await render(
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue="Ada"
+        debounceMs={100}
+        onSave={onSave}
+        validate={(v) => v.trim().length > 0}
+        onInvalidRevert={onInvalidRevert}
+      />,
+    );
+    const input = screen.getByRole("textbox");
+    const element = input.element() as HTMLInputElement;
+    await input.fill("Grace");
+    await vi.advanceTimersByTimeAsync(100);
+    await input.fill("");
+    await vi.advanceTimersByTimeAsync(10);
+    element.blur();
+    await vi.advanceTimersByTimeAsync(1000);
+    // The revert is queued behind "Grace"; the person comes back and types.
+    element.focus();
+    await input.fill("Katherine");
+    resolveSave();
+    for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(10);
+    expect(onInvalidRevert).not.toHaveBeenCalled();
+    await expect.element(input).toHaveValue("Katherine");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("AutoSaveInput: saves landing out of order leave the newest as the baseline a revert restores", async () => {
+  vi.useFakeTimers();
+  try {
+    const resolvers: Record<string, () => void> = {};
+    const onSave = vi.fn(
+      (value: string) =>
+        new Promise<void>((resolve) => (resolvers[value] = resolve)),
+    );
+    const onInvalidRevert = vi.fn();
+    const screen = await render(
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue="Ada"
+        debounceMs={100}
+        onSave={onSave}
+        validate={(v) => v.trim().length > 0}
+        onInvalidRevert={onInvalidRevert}
+      />,
+    );
+    const input = screen.getByRole("textbox");
+    await input.fill("Grace");
+    await vi.advanceTimersByTimeAsync(100);
+    await input.fill("Lin");
+    await vi.advanceTimersByTimeAsync(100);
+    expect(onSave.mock.calls.map(([v]) => v)).toEqual(["Grace", "Lin"]);
+    await input.fill("");
+    await vi.advanceTimersByTimeAsync(10);
+    (input.element() as HTMLInputElement).blur();
+    await vi.advanceTimersByTimeAsync(1000);
+    resolvers.Lin!();
+    for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(10);
+    // "Grace" is still out: no revert yet.
+    expect(onInvalidRevert).not.toHaveBeenCalled();
+    resolvers.Grace!();
+    for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(10);
+    expect(onInvalidRevert).toHaveBeenCalledWith("Lin");
+    await expect.element(input).toHaveValue("Lin");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("AutoSaveInput: switching the revert off drops a revert already queued behind a save", async () => {
+  vi.useFakeTimers();
+  try {
+    let resolveSave: () => void = () => {};
+    const onSave = vi.fn(
+      () => new Promise<void>((resolve) => (resolveSave = resolve)),
+    );
+    const onInvalidRevert = vi.fn();
+    const field = (revert?: (saved: string) => void) => (
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue="Ada"
+        debounceMs={100}
+        onSave={onSave}
+        validate={(v) => v.trim().length > 0}
+        onInvalidRevert={revert}
+      />
+    );
+    const screen = await render(field(onInvalidRevert));
+    const input = screen.getByRole("textbox");
+    await input.fill("Grace");
+    await vi.advanceTimersByTimeAsync(100);
+    await input.fill("");
+    await vi.advanceTimersByTimeAsync(10);
+    (input.element() as HTMLInputElement).blur();
+    await vi.advanceTimersByTimeAsync(1000);
+    await screen.rerender(field(undefined));
+    resolveSave();
+    for (let i = 0; i < 5; i++) await vi.advanceTimersByTimeAsync(10);
+    expect(onInvalidRevert).not.toHaveBeenCalled();
+    await expect.element(input).toHaveValue("");
+  } finally {
+    vi.useRealTimers();
+  }
 });

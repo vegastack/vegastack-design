@@ -1,6 +1,6 @@
 ---
 title: Settings Row
-description: A settings layout — titled sections, a flattened Card grouping label-plus-control rows, for building account, workspace, and preference screens.
+description: Settings sections, cards of label-plus-control rows on one control measure, and a settings × channels switch matrix.
 audience: public
 registry: settings-row
 status: stable
@@ -109,6 +109,37 @@ the generated label.
   file="components/preview/settings-row.tsx"
 />
 
+### Control sizes
+
+`controlSize` gives every row's control one measure once the row sits side by side — `sm` 160px,
+`md` 256px, `lg` 320px — so stacked rows share one left edge and one right edge for their
+controls. The first child of the control slot fills it (a trailing status icon or button beside it
+keeps its own size). Left unset, a row holding a field control (input, input group, textarea,
+select, combobox, date or people picker) takes `md`, found in CSS from the control's `data-slot`,
+and anything else — a switch, a button, a read-only value — keeps its own width; `auto` opts a
+field out. Below the row's side-by-side width the control spans the row. Never put a width class
+on the control itself: pick a size.
+
+<ComponentPreview
+  name="settingsRowControlSize"
+  file="components/preview/settings-row.tsx"
+/>
+
+### Settings matrix
+
+`SettingsMatrix` is settings × channels on one bordered surface: the column names ("Push",
+"Email") once, in a header that sticks to the top of the scrolling page, a switch under each, and
+the row labels on the left — not "Push" and "Email" repeated beside every switch. It sits where a
+`SettingsCard` would. Each row passes its `values` (one per column) and an `onChange(column,
+checked)`; `disabled` takes a whole row or one flag per column. Narrower than 28rem of its own
+width, the header goes and each row stacks its switches under its label, each with its column name
+beside it — part of the tap target.
+
+<ComponentPreview
+  name="settingsMatrix"
+  file="components/preview/settings-row.tsx"
+/>
+
 ### Control variety
 
 The control slot accepts any node — `Input`, `Switch`, a read-only value, a `Badge`, or a `Button`.
@@ -127,6 +158,20 @@ danger-zone intro.
 <ApiTable
   path="../../packages/ui/registry/ui/settings-row.tsx"
   name="SettingsRowProps"
+/>
+
+### SettingsMatrix
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-row.tsx"
+  name="SettingsMatrixProps"
+/>
+
+Each row of `rows`:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-row.tsx"
+  name="SettingsMatrixRow"
 />
 
 ### SettingsCard
@@ -153,6 +198,9 @@ danger-zone intro.
 - Pass `controlId` when the row contains a form control with a matching `id`; the row label becomes a
   real `<label htmlFor={controlId}>`. For composite controls that do not expose an input id, keep an
   explicit `aria-label` or `aria-labelledby` on the control itself.
+- Every `SettingsMatrix` switch is named by its row and its column ("Mentions Email") through
+  `aria-labelledby`; the column header is visual only, and on a narrow matrix the column name is
+  visible beside the switch.
 - Rows are separated by `border-border` rather than by elevation, so the divided list stays legible
   in high-contrast and forced-colors modes; the card's own hairline is `Card`'s `border border-border` (BRD-1).
 

@@ -1,0 +1,172 @@
+---
+title: Settings Layout
+description: The two-pane Settings frame — a sticky section nav and one 960px column where forms cap at 720px and lists fill; on a phone the nav comes first.
+audience: public
+registry: settings-layout
+status: stable
+since: 0.25.87
+a11y: nav landmark; aria-current page; one pane when narrow
+preview: settingsLayout
+---
+
+## Install
+
+<InstallSteps name="settings-layout" />
+
+## Usage
+
+```tsx
+"use client"; // app/settings/settings-frame.tsx — it reads the path
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  SettingsLayout,
+  SettingsLayoutContent,
+  SettingsNav,
+} from "@/components/ui/settings-layout";
+
+const SECTIONS = [
+  {
+    label: "Account",
+    items: [
+      { href: "/settings/profile", label: "Profile" },
+      { href: "/settings/notifications", label: "Notifications" },
+    ],
+  },
+  {
+    label: "Workspace",
+    items: [{ href: "/settings/members", label: "Members", badge: 3 }],
+  },
+];
+
+// app/settings/layout.tsx renders this around every settings page.
+export function SettingsFrame({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  return (
+    <SettingsLayout
+      view={pathname === "/settings" ? "nav" : "content"}
+      backHref="/settings"
+      linkRender={<Link href="" />}
+      nav={
+        <SettingsNav
+          sections={SECTIONS}
+          activeHref={pathname}
+          linkRender={<Link href="" />}
+        />
+      }
+    >
+      {children}
+    </SettingsLayout>
+  );
+}
+
+// Each page:
+<SettingsLayoutContent kind="form">…</SettingsLayoutContent>;
+```
+
+Settings is a place people browse sideways, so it has one frame: the section nav in a 220px
+column that sticks below the page's top edge, and every page in ONE column of up to 960px beside
+it. A page says what it is with `SettingsLayoutContent kind`: `form` caps it at 720px, `list`
+fills the column — and both start at the same x, so moving between Profile and Members never moves
+the left edge. Put it inside an `AppShellPage` at its default width (1280px), which holds both
+panes; the layout owns its own geometry inside whatever width it gets.
+
+## Scope
+
+- Owns: the two panes, their widths and gap, the sticky nav, the form and list measures, the
+  current-page mark, the narrow one-pane mode and its back link.
+- Does not own: routing — links render through `linkRender`, and the host passes the current
+  path (`activeHref`) and which pane a narrow layout shows (`view`).
+- Compose with: `PageHeader` and `SettingsSection`/`SettingsRow` inside a form page; `DataList` or
+  `MemberList` inside a list page.
+
+## Anatomy
+
+<Anatomy name="settings-layout" />
+
+## Examples
+
+### Two panes
+
+The nav marks the current page with `aria-current="page"` and the accent fill — a nested path
+(`/settings/members/42`) marks its section — and an item's `badge` shows a count. Choose Members to
+see a list page fill the column, then a form page cap at 720px on the same left edge.
+
+<ComponentPreview
+  name="settingsLayout"
+  file="components/preview/settings-layout.tsx"
+/>
+
+### On a phone
+
+The layout follows its own width (`@container/settings-layout`), not the viewport. Below 42rem it
+shows one pane at a time, as iOS does: `view="nav"` makes the nav the screen — its rows grow to
+44px touch rows with a chevron — and `view="content"` shows the page with a "‹ Settings" link to
+`backHref`. The Settings index route passes `nav`; every page passes `content`. At 42rem and wider
+both panes always show, whatever `view` says, so `/settings` can show the first page beside the
+nav on a desktop.
+
+<ComponentPreview
+  name="settingsLayoutNarrow"
+  file="components/preview/settings-layout.tsx"
+/>
+
+## API Reference
+
+### SettingsLayout
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-layout.tsx"
+  name="SettingsLayoutProps"
+/>
+
+### SettingsLayoutContent
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-layout.tsx"
+  name="SettingsLayoutContentProps"
+/>
+
+### SettingsNav
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-layout.tsx"
+  name="SettingsNavProps"
+/>
+
+Each section and item:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-layout.tsx"
+  name="SettingsNavSection"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/settings-layout.tsx"
+  name="SettingsNavItem"
+/>
+
+## Accessibility
+
+- `SettingsNav` is a `nav` landmark named "Settings" (`aria-label`); each group is a list named
+  by its label, and the current page's link carries `aria-current="page"`.
+- A count badge is part of its link's name ("Members 3"); pass a word rather than a bare number
+  when the count needs context.
+- Below 42rem the hidden pane is `display: none`, out of the tab order and the accessibility
+  tree; the back link is a real link to the nav screen.
+- Section labels are not headings, so the page's own `h1` stays the first heading in the outline.
+
+| Key              | Action                                     |
+| ---------------- | ------------------------------------------ |
+| <kbd>Tab</kbd>   | Moves through the nav links, then the page |
+| <kbd>Enter</kbd> | Opens the focused settings page            |
+
+<StatesTested name="settings-layout" />
+
+## Do / Don't
+
+<DoDont
+  do="Give every settings page the same frame and say only its kind — form or list — so the left edge never moves between siblings."
+  dont="Cap a settings page with its own max-w class, centre it, or hand-roll a second nav; that is the width jump this layout exists to remove."
+/>

@@ -1,0 +1,144 @@
+---
+title: Member List
+description: The people in a team, a space or a share list — an add row (picker · role · Add) and 36px rows with a role chip and ⋯ Remove that scroll after eight.
+audience: public
+registry: member-list
+status: stable
+since: 0.25.87
+a11y: named list; role and ⋯ menus named per row
+preview: memberList
+---
+
+## Install
+
+<InstallSteps name="member-list" />
+
+## Usage
+
+```tsx
+import { MemberList, MemberListAdd } from "@/components/ui/member-list";
+import { PeoplePicker } from "@/components/ui/people-picker";
+
+<MemberList
+  add={
+    <MemberListAdd
+      picker={
+        <PeoplePicker
+          multiple
+          value={chosen}
+          onValueChange={setChosen}
+          search={searchPeople}
+        />
+      }
+      roles={ROLES}
+      role={role}
+      onRoleChange={setRole}
+      onAdd={addChosen}
+      disabled={chosen.length === 0}
+    />
+  }
+  members={members}
+  roles={ROLES}
+  onRoleChange={changeRole}
+  onRemove={removeMember}
+/>;
+```
+
+One list for every "people in X": a team's members, a space's members, who an item is shared with,
+an invite list. `MemberListAdd` on top is the picker, an optional role for the new members (a
+bordered [`PermissionMenu`](/docs/components/permission-menu) that lines up with the picker) and
+**Add**. Each row is 36px: the `PersonAvatar`, the name over a muted sub line ("2 people" for a
+team, "Creator"), the role as a chip menu, and a ⋯ menu with **Remove**. After `maxRows` (eight) the list scrolls inside itself. Data-agnostic: rows, roles and
+every string come in through props and every change goes out through a callback.
+[`ShareDialog`](/docs/components/share-dialog) is built on it.
+
+## Scope
+
+- Owns: the add row's layout, the rows, the role chip and ⋯ menus, locked rows, the loading and
+  empty states, the scroll cap.
+- Does not own: searching people (the picker is the host's), what a role means, or saving.
+- Compose with: [`PeoplePicker`](/docs/components/people-picker) in the add row; a
+  `DropdownMenuItem` per extra row action through `menuItems`.
+
+## Anatomy
+
+<Anatomy name="member-list" />
+
+## Examples
+
+### Add, change, remove
+
+A built-in row (the owner, the creator) is `locked`: its role shows with a lock and
+`lockedReason` in a tooltip, and it has no ⋯ — but the ⋯ column keeps its width on every row, so
+the role chips line up. `you` adds "(you)" after the viewer's name. Narrower than 28rem, the add
+row puts the role and Add under the picker.
+
+<ComponentPreview name="memberList" file="components/preview/member-list.tsx" />
+
+### Read-only
+
+`canManage={false}` shows every role as text and drops the menus. Without `roles`, a row's `role`
+is plain text — a team's "Lead" and "Member", say.
+
+<ComponentPreview
+  name="memberListReadOnly"
+  file="components/preview/member-list.tsx"
+/>
+
+### Long lists and more actions
+
+Past `maxRows` the rows scroll inside the list (a whole number of 36px rows tall). `menuItems`
+adds the host's own items to a row's ⋯ menu, above Remove — "Resend invite" for an invited person;
+`removable: false` keeps a row's menu without Remove.
+
+<ComponentPreview
+  name="memberListScrolling"
+  file="components/preview/member-list.tsx"
+/>
+
+## API Reference
+
+### MemberList
+
+<ApiTable
+  path="../../packages/ui/registry/ui/member-list.tsx"
+  name="MemberListProps"
+/>
+
+Each row of `members`:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/member-list.tsx"
+  name="MemberListMember"
+/>
+
+### MemberListAdd
+
+<ApiTable
+  path="../../packages/ui/registry/ui/member-list.tsx"
+  name="MemberListAddProps"
+/>
+
+## Accessibility
+
+- The rows are a list named by `labels.list` ("Members"); a loading list is `aria-busy`.
+- Every role menu is named for its row with the visible role in it ("Priya Shah's role: Can
+  view"), and every ⋯ button for its row ("More for Priya Shah").
+- A locked role is still a tab stop, with its reason read out and shown in a tooltip.
+- The sub line is its own line of text, read after the name.
+
+| Key                                       | Action                                           |
+| ----------------------------------------- | ------------------------------------------------ |
+| <kbd>Tab</kbd>                            | Moves through the add row, then each row's menus |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>       | Opens a role or ⋯ menu                           |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowDown</kbd> | Moves through an open menu                       |
+| <kbd>Escape</kbd>                         | Closes the open menu                             |
+
+<StatesTested name="member-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Use one MemberList wherever people belong to something — teams, spaces, shares, invites — so adding, changing a role and removing work the same everywhere."
+  dont="Draw members as bordered cards with a text Remove button, or put the picker and Add on separate rows."
+/>

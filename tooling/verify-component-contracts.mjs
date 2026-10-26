@@ -579,9 +579,9 @@ assert(
 const expectedWaves = {
   "Core controls": 24,
   "Forms/editing": 35,
-  "Navigation/layout": 22,
+  "Navigation/layout": 23,
   Overlays: 21,
-  "Data display": 36,
+  "Data display": 37,
   "Content/marketing": 15,
   "AI/chat": 10,
   // Not a browse group: components other components install, with no page of their own. See
@@ -690,6 +690,7 @@ const expectedComponentWaveMembers = {
     "record-layout",
     "resizable",
     "scroll-area",
+    "settings-layout",
     "sidebar",
     "stepper",
     "table-of-contents",
@@ -737,6 +738,7 @@ const expectedComponentWaveMembers = {
     "inbox",
     "load-more",
     "media-card",
+    "member-list",
     "meta-line",
     "entry-list",
     "file-card",

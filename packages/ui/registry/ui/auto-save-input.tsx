@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.25.86 sha256-/b2qLftq84I4dHJJK6cX5oKRhvDmbNQk4gt8/DzjQ98=
+// @vegastack auto-save-input@0.25.86 sha256-JT5VWkvZdyrDPrl1Fxb/9GDvhdxOmDQ8VsNiuiF+r5M=
 
 "use client";
 
@@ -76,6 +76,18 @@ export interface AutoSaveInputProps extends Omit<
    * @default undefined
    */
   onStatusChange?: (status: AutoSaveStatus) => void;
+  /**
+   * Leaving the field while `validate` rejects its value puts the last saved value back after
+   * `revertDelay`, then calls this with it — show the host's message here ("Name can't be
+   * empty"). Omit to leave the invalid value in place.
+   * @default undefined
+   */
+  onInvalidRevert?: (savedValue: string) => void;
+  /**
+   * Milliseconds after the field is left before an invalid value is reverted.
+   * @default 1000
+   */
+  revertDelay?: number;
 }
 
 /** Trailing status-slot classes — fixed-width so the field doesn't shift as the icon swaps. */
@@ -113,8 +125,12 @@ export function AutoSaveInput({
   debounceMs = TIMINGS.autoSaveDebounceMs,
   validate,
   onStatusChange,
+  onInvalidRevert,
+  revertDelay = 1000,
   className,
   disabled,
+  onBlur,
+  onFocus,
   ref,
   ...props
 }: AutoSaveInputProps) {
@@ -148,6 +164,67 @@ export function AutoSaveInput({
     onStatusChangeRef.current?.(next);
   }, []);
 
+  // A value `validate` rejects is NOT a failed save — nothing was sent — so it reads "Not saved",
+  // and leaving the field can put the last saved value back.
+  const invalid =
+    status === "error" && validate !== undefined && !validate(value);
+  // The save in flight, if any: a revert waits for it, so it restores what actually persisted.
+  const inFlight = React.useRef(new Set<Promise<unknown>>());
+  // Saves land in any order; only a save newer than the last one landed moves the baseline.
+  const saveSequence = React.useRef(0);
+  const landedSequence = React.useRef(0);
+  // A queued revert is dropped the moment the field is entered or edited again.
+  const revertToken = React.useRef(0);
+  React.useEffect(
+    () => () => {
+      revertToken.current += 1;
+    },
+    [],
+  );
+  // Bumped when an external value becomes the baseline: a save of the previous record that
+  // lands afterwards must not overwrite the new record's baseline.
+  const baselineGeneration = React.useRef(0);
+  // The latest eligibility and callbacks, read when a queued revert finally runs.
+  const revertable = invalid && onInvalidRevert !== undefined;
+  const latestRevert = React.useRef({
+    revertable,
+    onInvalidRevert,
+    onValueChange,
+  });
+  React.useEffect(() => {
+    latestRevert.current = { revertable, onInvalidRevert, onValueChange };
+    // A value that stopped being invalid (or a revert that was switched off) drops a queued one.
+    if (!revertable) revertToken.current += 1;
+  });
+  const revert = useInvalidRevert({
+    invalid: revertable,
+    delay: revertDelay,
+    onRevert: () => {
+      const generation = baselineGeneration.current;
+      const token = revertToken.current;
+      const settled = async () => {
+        // Every save still out — they may land in any order — before reading the baseline.
+        while (inFlight.current.size > 0) {
+          await Promise.allSettled([...inFlight.current]);
+        }
+      };
+      void settled().then(() => {
+        const current = latestRevert.current;
+        if (
+          generation !== baselineGeneration.current ||
+          token !== revertToken.current ||
+          !current.revertable
+        )
+          return;
+        const saved = savedValue.current;
+        pendingControlledEdit.current = saved;
+        if (!isControlled) setUncontrolledValue(saved);
+        current.onValueChange?.(saved);
+        current.onInvalidRevert?.(saved);
+      });
+    },
+  });
+
   React.useEffect(() => {
     if (!isControlled || controlledValue === previousControlledValue.current)
       return;
@@ -161,6 +238,7 @@ export function AutoSaveInput({
       pendingControlledEdit.current = null;
     } else {
       savedValue.current = nextControlledValue;
+      baselineGeneration.current += 1;
       if (statusRef.current !== "idle") updateStatus("idle");
     }
 
@@ -186,17 +264,32 @@ export function AutoSaveInput({
     const timer = setTimeout(() => {
       updateStatus("saving");
       const pending = value;
-      Promise.resolve()
+      const generation = baselineGeneration.current;
+      const sequence = ++saveSequence.current;
+      const save = Promise.resolve()
         .then(() => onSaveRef.current(pending))
         .then(() => {
+          // A save that lands IS the saved value, even when a newer edit has taken over the
+          // status: an invalid edit made meanwhile must revert to it, not to an older one —
+          // unless the record itself changed under it.
+          if (
+            generation === baselineGeneration.current &&
+            sequence > landedSequence.current
+          ) {
+            landedSequence.current = sequence;
+            savedValue.current = pending;
+          }
           if (!active) return;
-          savedValue.current = pending;
           updateStatus("saved");
         })
         .catch(() => {
           if (!active) return;
           updateStatus("error");
+        })
+        .finally(() => {
+          inFlight.current.delete(save);
         });
+      inFlight.current.add(save);
     }, debounceMs);
 
     return () => {
@@ -214,12 +307,22 @@ export function AutoSaveInput({
         value={value}
         onChange={(e) => {
           const next = e.target.value;
+          revertToken.current += 1;
           pendingControlledEdit.current = next;
           if (!isControlled) setUncontrolledValue(next);
           onValueChange?.(next);
         }}
         disabled={disabled}
         aria-invalid={status === "error" || undefined}
+        onBlur={(event) => {
+          revert.onBlur();
+          onBlur?.(event);
+        }}
+        onFocus={(event) => {
+          revertToken.current += 1;
+          revert.onFocus();
+          onFocus?.(event);
+        }}
         {...props}
       />
       <InputGroupAddon align="inline-end">
@@ -272,7 +375,9 @@ export function AutoSaveInput({
                 ? "Saving"
                 : status === "saved"
                   ? "Saved"
-                  : "Save failed"}
+                  : invalid
+                    ? "Not saved"
+                    : "Save failed"}
             </span>
           )}
         </span>
@@ -496,6 +601,79 @@ export function useAutoSave<T extends Record<string, unknown>>({
   return { status, error, dirty, flush, reset };
 }
 
+/* -------------------------------------------------------- useInvalidRevert */
+
+/** Options accepted by `useInvalidRevert`. */
+export interface UseInvalidRevertOptions {
+  /** The field's value is invalid now — the value that would be saved is not. */
+  invalid: boolean;
+  /**
+   * Puts the last saved value back in the field — and shows the host's message ("Name can't be
+   * empty"). Called once, `delay` after the field is left while still invalid.
+   */
+  onRevert: () => void;
+  /**
+   * Milliseconds after the field is left before the value is reverted.
+   * @default 1000
+   */
+  delay?: number;
+}
+
+/** What `useInvalidRevert` returns — spread or call from the field's own handlers. */
+export interface UseInvalidRevertResult {
+  /** Call when the field is left: starts the revert timer while the value is invalid. */
+  onBlur: () => void;
+  /** Call when the field is entered again: cancels a pending revert. */
+  onFocus: () => void;
+}
+
+/**
+ * `useInvalidRevert` — an autosaving field never strands an invalid value: leave the field while
+ * its value is invalid (an empty required name) and, a second later, the last saved value comes
+ * back and `onRevert` shows why. Coming back to the field, or fixing the value, cancels it. Pair
+ * it with `AutoSaveIndicator invalid`, which says "Not saved" meanwhile.
+ *
+ * @example
+ * const revert = useInvalidRevert({
+ *   invalid: nameError(draft) !== null,
+ *   onRevert: () => { setDraft(savedName); toast.add({ title: "Name can't be empty" }); },
+ * });
+ * <InputGroupInput value={draft} onBlur={() => { revert.onBlur(); void save.flush(); }} onFocus={revert.onFocus} />
+ */
+export function useInvalidRevert({
+  invalid,
+  onRevert,
+  delay = 1000,
+}: UseInvalidRevertOptions): UseInvalidRevertResult {
+  const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latest = React.useRef({ invalid, onRevert });
+  React.useEffect(() => {
+    latest.current = { invalid, onRevert };
+  });
+
+  const cancel = React.useCallback(() => {
+    if (timer.current !== null) clearTimeout(timer.current);
+    timer.current = null;
+  }, []);
+
+  // A value fixed meanwhile (or a field that goes away) has nothing left to revert.
+  React.useEffect(() => {
+    if (!invalid) cancel();
+  }, [invalid, cancel]);
+  React.useEffect(() => cancel, [cancel]);
+
+  const onBlur = React.useCallback(() => {
+    cancel();
+    if (!latest.current.invalid) return;
+    timer.current = setTimeout(() => {
+      timer.current = null;
+      if (latest.current.invalid) latest.current.onRevert();
+    }, delay);
+  }, [cancel, delay]);
+
+  return { onBlur, onFocus: cancel };
+}
+
 /* ---------------------------------------------------------- AutoSaveIndicator */
 
 /**
@@ -506,6 +684,11 @@ export type AutoSaveIndicatorStatus =
   AutoSaveFormStatus | "connecting" | "offline";
 
 type ShownStatus = Exclude<AutoSaveIndicatorStatus, "idle">;
+
+/** The wording `AutoSaveIndicator` can show: one per status, plus `invalid`. */
+export type AutoSaveIndicatorLabels = Partial<
+  Record<ShownStatus | "invalid", string>
+>;
 
 const INDICATOR_TEXT: Record<ShownStatus, string> = {
   saving: "Saving…",
@@ -539,10 +722,17 @@ export interface AutoSaveIndicatorProps extends Omit<
   /**
    * Replaces the default wording per status — the visible line for `text`, the screen-reader
    * label for `icon` (a document kept on the device says so: `offline: "Offline — saved on this
-   * device"`).
-   * @default { saving: 'Saving…', saved: 'Saved', error: "Couldn't save", conflict: 'Not saved', connecting: 'Connecting…', offline: 'Offline — changes will sync' } (icon: 'Saving', 'Saved', "Couldn't save", 'Not saved', 'Connecting', 'Offline — changes will sync')
+   * device"`) — and `invalid`, which both variants show.
+   * @default { saving: 'Saving…', saved: 'Saved', error: "Couldn't save", conflict: 'Not saved', connecting: 'Connecting…', offline: 'Offline — changes will sync', invalid: 'Not saved' } (icon: 'Saving', 'Saved', "Couldn't save", 'Not saved', 'Connecting', 'Offline — changes will sync', 'Not saved')
    */
-  labels?: Partial<Record<ShownStatus, string>>;
+  labels?: AutoSaveIndicatorLabels;
+  /**
+   * The field's value is invalid, so it is not being saved: the tick and spinner give way to a
+   * visible "Not saved" in the warning ink — in both variants, the icon variant included — so a
+   * field never shows "saved" beside its own error. Whatever `status` says.
+   * @default false
+   */
+  invalid?: boolean;
   /**
    * `text` — icon and wording, for an action row. `icon` — the icon alone in a fixed 16px box,
    * for a field's trailing slot (`InputGroupAddon align="inline-end"`, or beside a select): a
@@ -573,15 +763,20 @@ export interface AutoSaveIndicatorProps extends Omit<
  * when the host clears it, and the 16px box is always reserved so nothing shifts. Reduced
  * motion collapses every transition (MOT-5).
  *
+ * `invalid` is the field's own validation, not a save state: while it is set the indicator says
+ * "Not saved" in the warning ink (both variants) and never shows the tick, so an invalid value
+ * never reads as saved. Pair it with `useInvalidRevert` to put the saved value back.
+ *
  * @example
  * <AutoSaveIndicator status={autosave.status} />
  * <InputGroupAddon align="inline-end">
- *   <AutoSaveIndicator variant="icon" status={autosave.status} />
+ *   <AutoSaveIndicator variant="icon" status={autosave.status} invalid={nameError !== null} />
  * </InputGroupAddon>
  */
 export function AutoSaveIndicator({
   status,
   labels,
+  invalid = false,
   variant = "text",
   compact,
   className,
@@ -593,6 +788,36 @@ export function AutoSaveIndicator({
     status === "idle" ? null : status,
   );
   if (status !== "idle" && status !== last) setLast(status);
+
+  if (invalid) {
+    // Not a save state at all: nothing went out, so no tick, no spinner — the words, in the
+    // warning ink, for both variants (a field's trailing slot widens to hold them).
+    return (
+      <span
+        ref={ref}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-slot="auto-save-indicator"
+        data-variant={variant}
+        data-state={status}
+        data-invalid=""
+        className={cn(
+          "inline-flex min-w-0 shrink-0 items-center gap-1.5 whitespace-nowrap text-warning-text",
+          variant === "icon" ? "text-xs" : "text-sm",
+          className,
+        )}
+        {...props}
+      >
+        {variant === "text" ? (
+          <TriangleAlert aria-hidden className="size-4 shrink-0" />
+        ) : null}
+        <span data-slot="auto-save-indicator-text">
+          {labels?.invalid ?? "Not saved"}
+        </span>
+      </span>
+    );
+  }
 
   if (variant === "icon") {
     const shown = status === "idle" ? last : status;

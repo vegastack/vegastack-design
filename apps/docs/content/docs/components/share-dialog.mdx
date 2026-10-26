@@ -38,10 +38,12 @@ import { ShareDialog } from "@/components/ui/share-dialog";
 `ShareDialog` is data-agnostic: every row, level and link comes in through props and every change
 goes out through a callback, so one dialog serves tasks, meetings and pages. It is a
 [`ResponsiveDialog`](/docs/components/responsive-dialog) — a `md` (512px) Dialog from 768px up and a
-bottom sheet below it — titled "Share", with two line tabs. **Share** holds the invite row
-([`PeoplePicker`](/docs/components/people-picker) with one
-[`PermissionMenu`](/docs/components/permission-menu) level for the batch), People with access and
-Space access, with **Copy link** for the item's own link in the footer. **Publish** holds a
+bottom sheet below it — titled "Share", with two line tabs. **Share** opens with the "Who can see
+this" summary (when the host passes `audience`), then the invite row and People with access — a
+[`MemberList`](/docs/components/member-list): [`PeoplePicker`](/docs/components/people-picker)
+with one [`PermissionMenu`](/docs/components/permission-menu) level for the batch, then a 36px row
+per person or team with its level chip and **Remove access** in the row's ⋯ menu — then Space
+access, with **Copy link** for the item's own link in the footer. **Publish** holds a
 "Publish to the web" switch, off by default — the only control that calls `onCreatePublicLink`;
 copying never publishes. Both panels share one grid cell, so switching tabs never resizes the
 dialog. Every string is in `labels`.
@@ -51,12 +53,12 @@ try it on.
 
 ## Scope
 
-| Need                                                 | Use                                                                                   |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Share one record, page or meeting                    | `ShareDialog`                                                                         |
-| A page of a space's or team's members                | `DataList` with [`PeoplePicker`](/docs/components/people-picker) and `PermissionMenu` |
-| Show who can open an item, without changing it       | [`AccessChip`](/docs/components/access-chip)                                          |
-| Pick the access level for one person outside a share | [`PermissionMenu`](/docs/components/permission-menu)                                  |
+| Need                                                 | Use                                                  |
+| ---------------------------------------------------- | ---------------------------------------------------- |
+| Share one record, page or meeting                    | `ShareDialog`                                        |
+| A space's or team's members, with roles and Remove   | [`MemberList`](/docs/components/member-list)         |
+| Show who can open an item, without changing it       | [`AccessChip`](/docs/components/access-chip)         |
+| Pick the access level for one person outside a share | [`PermissionMenu`](/docs/components/permission-menu) |
 
 ## Examples
 
@@ -99,7 +101,7 @@ label (`publish`). The switch keeps its accessible name from the label alone.
 what the link exposes — "Anyone with the link can view this page and 12 pages inside, without
 signing in." — and wraps rather than truncates. `onPublishRequest` is asked before the switch turns
 publishing on: confirm what it will expose in an `AlertDialog` ("Publish 13 pages?") and resolve
-`false` to leave it off. `audience` adds a "Who can see this" section at the end of the Share tab,
+`false` to leave it off. `audience` adds the "Who can see this" summary at the top of the Share tab,
 closed at first; its heading takes `audienceCount` once known, and `onAudienceOpenChange` tells the
 host when to load its rows. `publicLinkOptions` adds the host's own settings for a published link
 as rows of the Publish tab's settings grid under Expires — each a label then its control, two
@@ -124,8 +126,9 @@ switching tabs never resizes the dialog.
 
 - The dialog is named by its "Share" title; the tabs are a `tablist` and only the active panel is
   in the tab order.
-- Every level menu is named for its row ("Anand Iyer's access: Can view"); a built-in row is locked,
-  still a tab stop, with its reason in a tooltip.
+- Every level menu is named for its row ("Anand Iyer's access: Can view"), and so is every ⋯ menu
+  ("More for Anand Iyer"); a built-in row is locked, still a tab stop, with its reason in a tooltip,
+  and has no ⋯ menu.
 - Turning publishing off, by the switch or Stop publishing, asks for confirmation in an
   `AlertDialog` first; turning it on asks `onPublishRequest` when the host passes one.
 - "Who can see this" is a disclosure button (`aria-expanded`) whose name carries the head count.

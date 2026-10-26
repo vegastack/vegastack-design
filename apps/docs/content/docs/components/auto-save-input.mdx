@@ -121,6 +121,21 @@ reduced motion swaps instantly.
   file="components/preview/auto-save-input.tsx"
 />
 
+### An invalid value
+
+A value the field rejects (an empty required name) is not a save state: nothing was sent. Pass
+`invalid` and the indicator — either variant — drops the tick and says **Not saved** in the
+warning ink, so a field never shows "saved" beside its own error. `useInvalidRevert` finishes the
+job: leave the field while it is invalid and, a second later, `onRevert` puts the last saved value
+back and shows why ("Name can't be empty"); coming back to the field, or fixing the value, cancels
+it. `AutoSaveInput` does both itself — a value `validate` rejects reads "Not saved", and
+`onInvalidRevert` turns on the revert.
+
+<ComponentPreview
+  name="autoSaveInvalid"
+  file="components/preview/auto-save-input.tsx"
+/>
+
 ### In a top bar
 
 `compact="narrow"` keeps a `text` indicator to one line and, below `sm` or in a narrow
@@ -169,6 +184,13 @@ unmount and when the tab closes.
   name="UseAutoSaveOptions"
 />
 
+### useInvalidRevert
+
+<ApiTable
+  path="../../packages/ui/registry/ui/auto-save-input.tsx"
+  name="UseInvalidRevertOptions"
+/>
+
 `AutoSaveStatus` is the union of states the trailing indicator can reflect; pass
 `onStatusChange` to react to transitions (e.g. disable a submit button while
 saving).
@@ -190,8 +212,10 @@ saving).
 - Status is conveyed by a **distinct icon per state** (spinner / check / cross)
   paired with a semantic color token, so it never depends on color alone.
 - A single `role="status" aria-live="polite" aria-atomic="true"` slot announces
-  `"Saving"`, `"Saved"`, or `"Save failed"` as hidden text while the visible icon
-  remains decorative.
+  `"Saving"`, `"Saved"`, `"Save failed"`, or `"Not saved"` (a value `validate`
+  rejects) as hidden text while the visible icon remains decorative.
+- `AutoSaveIndicator invalid` shows "Not saved" as visible text, in the same live
+  region, never a check beside an error.
 - The `error` status sets `aria-invalid` on the field, matching `Input`'s invalid
   styling and announcing the failure to screen readers.
 - The spinner respects `prefers-reduced-motion` (`motion-reduce:animate-none`).

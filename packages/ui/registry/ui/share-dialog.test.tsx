@@ -362,7 +362,9 @@ for (const [label, width, slot] of [
 }
 
 test("share-dialog a scrolled people list does not carry its scroll into Publish", async () => {
-  await page.viewport(1280, 520);
+  // The people list scrolls inside itself after eight rows; a short window still overflows the
+  // dialog body around it.
+  await page.viewport(1280, 400);
   const people = Array.from({ length: 40 }, (_, i) => ({
     id: `p${i}`,
     person: { name: `Person ${i + 1}` },
@@ -526,14 +528,15 @@ const shareLevels = [
   { value: "view", label: "Can view" },
 ];
 
-test("share-dialog: Who can see this is closed at first and asks for its rows when opened", async () => {
+test("share-dialog: Who can see this is the summary at the top, closed at first, and asks for its rows when opened", async () => {
   await page.viewport(1280, 900);
   const onAudienceOpenChange = vi.fn();
   const screen = await render(
     <ShareDialog
       defaultOpen
       levels={shareLevels}
-      people={[]}
+      people={[{ id: "u1", person: { name: "Asha Rao" }, level: "view" }]}
+      search={async () => ({ items: [] })}
       audienceCount={31}
       onAudienceOpenChange={onAudienceOpenChange}
       audience={<p>Everyone in Product · 28</p>}
@@ -544,6 +547,11 @@ test("share-dialog: Who can see this is closed at first and asks for its rows wh
     name: "Who can see this · 31 people",
   });
   await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+  // UXP-25: the summary comes first — above the invite row and the people list.
+  const body = document.querySelector('[data-slot="share-dialog-body"]')!;
+  expect(body.firstElementChild?.getAttribute("data-slot")).toBe(
+    "share-audience",
+  );
   await trigger.click();
   expect(onAudienceOpenChange).toHaveBeenLastCalledWith(true);
   await expect
@@ -648,6 +656,8 @@ test("share-dialog at 320 and 375px, published or not: nothing runs past the she
         ].filter(
           (el) =>
             el.children.length === 0 &&
+            // Screen-reader-only text is a 1px box by design, never a cut hint.
+            !el.classList.contains("sr-only") &&
             el.textContent?.trim() &&
             el.scrollWidth > el.clientWidth + 1,
         );

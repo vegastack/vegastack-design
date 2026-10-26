@@ -59,9 +59,8 @@ test("share-01 opens an md Dialog with Share and Publish tabs, people and space 
     .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
-  await dialog
-    .getByRole("button", { name: "Anand Iyer's access: Can view" })
-    .click();
+  // Remove access lives in the row's ⋯ menu (MemberList), beside the level chip.
+  await dialog.getByRole("button", { name: "More for Anand Iyer" }).click();
   await screen.getByRole("menuitem", { name: "Remove access" }).click();
   await expect.element(dialog.getByText("Anand Iyer")).not.toBeInTheDocument();
 });

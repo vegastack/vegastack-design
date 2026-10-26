@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.86 sha256-oiaO8pxXzFW1vvFmWQkNtgmX51ul5TZQD7BoRxSKLWI=
+// @vegastack share-dialog@0.25.86 sha256-alzOcdwtSqMiUXKQ8NP0DEWM3w2gYAD9L4BLnc5N7UE=
 
 "use client";
 
@@ -35,14 +35,10 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item";
+  MemberList,
+  MemberListAdd,
+  type MemberListMember,
+} from "@/components/ui/member-list";
 import {
   PeoplePicker,
   type PeoplePickerOption,
@@ -52,7 +48,7 @@ import {
   PermissionMenu,
   type PermissionMenuOption,
 } from "@/components/ui/permission-menu";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import type { Person } from "@/components/ui/person-avatar";
 import { DateTime } from "@/components/ui/relative-time";
 import {
   ResponsiveDialog,
@@ -70,7 +66,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Space, SpaceHint } from "@/components/ui/space-picker";
 import { IconGlyph } from "@/components/ui/icon-glyph";
 import { Switch } from "@/components/ui/switch";
@@ -87,10 +82,11 @@ import {
  * in through props and every change goes out through a callback. A `ResponsiveDialog` (`md`, 512px)
  * on wide screens and a bottom sheet on phones, with two tabs:
  *
- *   Share — an invite row (PeoplePicker + the level for the batch + Invite; while people are chosen,
- *   Notify and an optional message), People with access (each level a chip menu; built-in rows
- *   locked with the reason in a tooltip), Space access, and a footer "Copy link" for the item's
- *   own (signed-in) link.
+ *   Share — "Who can see this" first (the summary, closed until asked), an invite row
+ *   (`MemberListAdd`: PeoplePicker + the level for the batch + Invite; while people are chosen,
+ *   Notify and an optional message), People with access (a `MemberList`: each level a chip menu,
+ *   Remove access in the row's ⋯ menu, built-in rows locked with the reason in a tooltip), Space
+ *   access, and a footer "Copy link" for the item's own (signed-in) link.
  *
  *   Publish — a "Publish to the web" switch, off by default. Turning it on is the ONLY way the item
  *   is published: no Copy button ever publishes. While on: the public URL, "Copy public link",
@@ -244,6 +240,10 @@ export interface ShareDialogLabels {
   lockedReason: (reason: string) => string;
   /** The "Who can see this" section's heading, with the head count once it is known. */
   audienceHeading: (count?: number) => string;
+  /** A row's ⋯ menu item that removes its access. @default "Remove access" */
+  removeAccess?: string;
+  /** A row's ⋯ button. @default (name) => `More for ${name}` */
+  moreFor?: (name: string) => string;
 }
 
 const defaultLabels: ShareDialogLabels = {
@@ -305,6 +305,8 @@ const defaultLabels: ShareDialogLabels = {
     count === undefined
       ? "Who can see this"
       : `Who can see this · ${count.toLocaleString()} ${count === 1 ? "person" : "people"}`,
+  removeAccess: "Remove access",
+  moreFor: (name) => `More for ${name}`,
 };
 
 /** Props for `ShareDialog`. */
@@ -394,7 +396,7 @@ export interface ShareDialogProps {
    */
   publishExposure?: React.ReactNode;
   /**
-   * "Who can see this": a collapsible section at the end of the Share tab, closed at first —
+   * "Who can see this": the summary at the top of the Share tab, a collapsible closed at first —
    * load its rows in `onAudienceOpenChange`. Its heading is `labels.audienceHeading(audienceCount)`.
    * @default undefined
    */
@@ -613,11 +615,9 @@ export function ShareDialog({
 
   const inviteRow =
     canManage && search ? (
-      <div
+      <MemberListAdd
         data-slot="share-invite-row"
-        className="flex flex-col gap-2 @md/share:flex-row @md/share:items-start"
-      >
-        <div className="min-w-0 flex-1">
+        picker={
           <PeoplePicker
             multiple
             value={invitees}
@@ -629,26 +629,16 @@ export function ShareDialog({
             aria-label={labels.invitePlaceholder.replace(/…$/, "")}
             disabled={inviting}
           />
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <PermissionMenu
-            variant="outline"
-            value={inviteLevel}
-            options={levels}
-            onValueChange={setInviteLevel}
-            disabled={inviting}
-            aria-label={labels.inviteLevel(levelLabel(inviteLevel))}
-            className="flex-1 @md/share:flex-none"
-          />
-          <Button
-            onClick={sendInvite}
-            loading={inviting}
-            disabled={invitees.length === 0}
-          >
-            {labels.invite}
-          </Button>
-        </div>
-      </div>
+        }
+        roles={levels}
+        role={inviteLevel}
+        onRoleChange={setInviteLevel}
+        roleLabel={(label) => labels.inviteLevel(label)}
+        onAdd={sendInvite}
+        adding={inviting}
+        disabled={invitees.length === 0}
+        addLabel={labels.invite}
+      />
     ) : null;
 
   const inviteSection = (
@@ -672,79 +662,41 @@ export function ShareDialog({
     </div>
   );
 
+  const members: MemberListMember[] = people.map((entry) => ({
+    id: entry.id,
+    person: entry.person,
+    description: entry.reason,
+    role: entry.level,
+    locked: entry.readOnly,
+    lockedReason:
+      entry.lockedReason ??
+      (typeof entry.reason === "string"
+        ? labels.lockedReason(entry.reason)
+        : undefined),
+    you: entry.you,
+  }));
+
   const peopleSection = (
     <section data-slot="share-people" className="flex flex-col gap-1">
       <SectionHeading hint={hints.people}>
         {labels.peopleHeading}
       </SectionHeading>
-      {loading ? (
-        <ul aria-busy className="flex flex-col">
-          {[0, 1, 2].map((i) => (
-            <li key={i} className="flex items-center gap-2 py-1.5">
-              <Skeleton className="size-8 rounded-full" />
-              <div className="flex flex-1 flex-col gap-1.5">
-                <Skeleton className={i === 1 ? "h-3 w-24" : "h-3 w-32"} />
-                <Skeleton className="h-2.5 w-16" />
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <ItemGroup className="gap-0">
-          {people.map((entry) => {
-            const label = levelLabel(entry.level);
-            const locked = canManage && entry.readOnly;
-            return (
-              <Item
-                key={entry.id}
-                size="xs"
-                data-slot="share-person"
-                className="px-0"
-              >
-                <ItemMedia>
-                  <PersonAvatar person={entry.person} size="default" />
-                </ItemMedia>
-                <ItemContent className="min-w-0 gap-0">
-                  <ItemTitle className="w-full font-normal">
-                    <span className="truncate">
-                      {entry.person.name}
-                      {entry.you ? (
-                        <span className="text-muted-foreground">
-                          {" "}
-                          {labels.you}
-                        </span>
-                      ) : null}
-                    </span>
-                  </ItemTitle>
-                  {entry.reason != null ? (
-                    <ItemDescription className="truncate text-xs">
-                      {entry.reason}
-                    </ItemDescription>
-                  ) : null}
-                </ItemContent>
-                <ItemActions>
-                  <PermissionMenu
-                    variant="chip"
-                    value={entry.level}
-                    options={levels}
-                    readOnly={!canManage}
-                    locked={locked}
-                    lockedReason={
-                      entry.lockedReason ??
-                      (typeof entry.reason === "string"
-                        ? labels.lockedReason(entry.reason)
-                        : undefined)
-                    }
-                    onValueChange={(level) => onLevelChange?.(entry.id, level)}
-                    onRemove={onRemove ? () => onRemove(entry.id) : undefined}
-                    aria-label={labels.levelFor(entry.person.name, label)}
-                  />
-                </ItemActions>
-              </Item>
-            );
-          })}
-        </ItemGroup>
-      )}
+      <MemberList
+        members={members}
+        roles={levels}
+        canManage={canManage}
+        loading={loading}
+        empty={null}
+        onRoleChange={onLevelChange}
+        onRemove={onRemove}
+        labels={{
+          list: labels.peopleHeading,
+          you: labels.you,
+          roleFor: labels.levelFor,
+          more: labels.moreFor ?? defaultLabels.moreFor,
+          remove: labels.removeAccess ?? defaultLabels.removeAccess,
+        }}
+      />
     </section>
   );
 
@@ -926,6 +878,7 @@ export function ShareDialog({
 
   const shareBody = (
     <div data-slot="share-dialog-body" className="flex flex-col gap-4 pb-1">
+      {audienceSection}
       {inviteRow}
       {inviteMode ? (
         inviteSection
@@ -933,7 +886,6 @@ export function ShareDialog({
         <>
           {peopleSection}
           {generalSection}
-          {audienceSection}
           {publishedNotice}
           {footerNote ? (
             <p className="text-xs text-muted-foreground">{footerNote}</p>
@@ -1203,7 +1155,7 @@ export function ShareDialog({
         <Tabs
           value={tab}
           onValueChange={(next) => setTab(next as "share" | "publish")}
-          className="@container/share flex min-h-0 flex-1 flex-col gap-4"
+          className="flex min-h-0 flex-1 flex-col gap-4"
         >
           {publicLinkAvailable ? (
             // Upstream's line list pads its triggers 3px + 1px border + 6px in from the list edge.
