@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.83 sha256-CIBaJIwsZ8eiLOpQvI2IC9PhAV91LSYuGOlFp3FKULY=
+// @vegastack text-edit@0.25.83 sha256-8FShSp1Nv3JTCzAtqONOvDe5XBjSvY2jsFiSB4LtK4w=
 
 "use client";
 
@@ -2833,12 +2833,38 @@ interface MentionMenuState {
 const flatOptions = (results: MentionOption[] | null) => results ?? [];
 
 /**
+ * How well a label matches the query, lower first: the whole label (0), its start (1), a word's
+ * start (2), anywhere (3), not in the label (4: a match on the description). Case and accents
+ * aside; an empty query matches every label alike.
+ */
+function mentionMatchRank(label: string, query: string): number {
+  const fold = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  const q = fold(query);
+  if (!q) return 0;
+  const name = fold(label);
+  if (name === q) return 0;
+  if (name.startsWith(q)) return 1;
+  for (let at = name.indexOf(q); at > 0; at = name.indexOf(q, at + 1))
+    if (!/[\p{L}\p{N}]/u.test(name[at - 1]!)) return 2;
+  return name.includes(q) ? 3 : 4;
+}
+
+/**
  * The menu's rows, only of the enabled kinds: first every option's own group (`group`, "Recent")
- * in the order the groups arrive, then each kind's group in `order` — at most five per group.
+ * in the order the groups arrive, then the kinds' groups — at most five per group, in the order
+ * they arrive. With a query, a kind's group sits by its best match (`mentionMatchRank`: a whole
+ * name before a name's start, a word's start, anywhere), ties in `order`; with none, in `order`.
  */
 function groupResults(
   options: readonly MentionOption[],
   kinds: readonly MentionKindConfig[],
+  query = "",
 ): MentionOption[] {
   const enabled = new Set(kinds.map((kind) => kind.id));
   const offered = options.filter((option) => enabled.has(option.kind));
@@ -2847,15 +2873,23 @@ function groupResults(
       offered.flatMap((option) => (option.group ? [option.group] : [])),
     ),
   ];
+  const groups = orderedKinds(kinds).map((kind) =>
+    offered
+      .filter((option) => !option.group && option.kind === kind.id)
+      .slice(0, 5),
+  );
+  const best = (group: MentionOption[]) =>
+    Math.min(...group.map((option) => mentionMatchRank(option.label, query)));
   return [
     ...own.flatMap((group) =>
       offered.filter((option) => option.group === group).slice(0, 5),
     ),
-    ...orderedKinds(kinds).flatMap((kind) =>
-      offered
-        .filter((option) => !option.group && option.kind === kind.id)
-        .slice(0, 5),
-    ),
+    // A stable sort: groups that match as well keep their `order`.
+    ...groups
+      .filter((group) => group.length > 0)
+      .map((group) => ({ group, rank: best(group) }))
+      .sort((a, b) => a.rank - b.rank)
+      .flatMap(({ group }) => group),
   ];
 }
 
@@ -10557,7 +10591,7 @@ export function TextEditEditor({
         if (!loading && options.length === 0 && /\s$/.test(query)) return true;
         setMention({
           ...state,
-          results: groupResults(options, source.kinds),
+          results: groupResults(options, source.kinds, query),
           loading,
           error: false,
           index: 0,

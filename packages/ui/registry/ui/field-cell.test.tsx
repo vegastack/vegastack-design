@@ -821,7 +821,7 @@ test("in a grid: a typed key opens a picker searching for it, and one Escape lea
   );
 });
 
-test("in a grid: Enter and F2 open every picker with its list, and long text with the caret in it", async () => {
+test("in a grid: Enter and F2 open every picker with its list, and long text with the caret at the end of its value", async () => {
   const rows = [{ id: "r1", status: "req" as string | null, notes: "First" }];
   const editor = (type: FieldType, key: "status" | "notes") => ({
     key,
@@ -892,6 +892,15 @@ test("in a grid: Enter and F2 open every picker with its list, and long text wit
           '[data-slot="popover-content"] [data-slot="text-edit"]',
         ),
       ).not.toBeNull(),
+    );
+    // The caret sits at the end of the value, nothing selected: typing goes on from it.
+    await userEvent.keyboard(" more");
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector<HTMLElement>(
+          '[data-slot="popover-content"] [contenteditable="true"]',
+        )?.textContent,
+      ).toBe("First more"),
     );
     await userEvent.keyboard("{Escape}");
     await vi.waitFor(() => expect(editing()).toBeNull());

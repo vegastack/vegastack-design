@@ -3246,6 +3246,51 @@ test("mentions: groups follow the kinds' order under their plural; an option's o
   await expectNoA11yViolations(mentionMenu()!);
 });
 
+test("mentions: with a query, groups sit by their best match on the name, ties in the kinds' order", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    // A task found by its description, then one whose name has a word starting "arc".
+    { kind: "task", id: "t1", label: "Fix the lamp", description: "Arc lamp" },
+    { kind: "task", id: "t2", label: "Order arc lamps" },
+    { kind: "page", id: "p1", label: "Search notes" },
+    { kind: "customer", id: "c1", label: "Arcadia Architects" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: [
+        { id: "user", noun: "Person", plural: "People", order: 0 },
+        { id: "task", noun: "Task", plural: "Tasks", order: 1 },
+        { id: "page", noun: "Page", plural: "Pages", order: 2 },
+        { id: "customer", noun: "Customer", plural: "Customers", order: 3 },
+      ],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@Arc");
+  await vi.waitFor(() =>
+    expect(search).toHaveBeenLastCalledWith("Arc", {
+      signal: expect.any(AbortSignal),
+    }),
+  );
+  const headings = () =>
+    [...(mentionMenu()?.querySelectorAll('[role="group"]') ?? [])].map(
+      (group) => group.firstElementChild?.textContent,
+    );
+  // Customers (a name's start) before Tasks (a word's start), before Pages (inside a word).
+  await vi.waitFor(() =>
+    expect(headings()).toEqual(["Customers", "Tasks", "Pages"]),
+  );
+  // A group keeps its options in the order they arrive.
+  const tasks = mentionMenu()!.querySelectorAll('[role="group"]')[1]!;
+  expect(tasks.textContent!.indexOf("Fix the lamp")).toBeLessThan(
+    tasks.textContent!.indexOf("Order arc lamps"),
+  );
+  // The first option is the best match.
+  expect(
+    mentionMenu()!.querySelector('[role="option"]')?.textContent,
+  ).toContain("Arcadia Architects");
+});
+
 test("mentions: a remembered empty answer for a phrase past a space closes the menu again, pasted or typed", async () => {
   const search = vi.fn(async (_query: string): Promise<MentionOption[]> => []);
   const onValueChange = vi.fn();
