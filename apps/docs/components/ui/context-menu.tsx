@@ -1,4 +1,4 @@
-// @vegastack context-menu@0.25.85 sha256-miVTWPNY1HEx4ZxrmX2KSGak1Vkb4mCUQ8u51v9b+SA=
+// @vegastack context-menu@0.25.86 sha256-aRx7tX6fbObWdzR1K1cP5DhmSf+8buLeFzRJXHjSm14=
 
 "use client";
 

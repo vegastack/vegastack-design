@@ -1,4 +1,4 @@
-// @vegastack animated-number@0.25.85 sha256-iYUupoPMJ2xc+EwhS/CN+WImweInJV6bngF4nqEcp+Q=
+// @vegastack animated-number@0.25.86 sha256-W4JaE3bj0VPvJy3ERuLkwE543uk564u5tMafLPmoPs0=
 
 "use client";
 

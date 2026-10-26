@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.86
+
+### Patch Changes
+
+- [#775](https://github.com/vegastack/vegastack-design/pull/775) [`913f987`](https://github.com/vegastack/vegastack-design/commit/913f98746b7bebd9d774b9bec8c458cb860e22b9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **QrCode** (new): a QR code for a `value`, drawn as one SVG path (`shape-rendering="crispEdges"`) — dark modules on a light, rounded tile in both themes so it always scans, with the standard 4-module quiet zone inside the drawing (`quietZone` to change it). `errorCorrection` takes `L`, `M` (default), `Q` or `H`; size it with a `size-*` class (default `size-40`). The root is `role="img"` named by the required `label`. Server-safe: the matrix is encoded during render by `uqr` (zero dependencies, MIT), a new sanctioned encoder dependency imported only by `qr-code.tsx`. An empty or unencodable value draws the empty tile (`data-state="invalid"`) instead of throwing.
+  [docs](https://design.vegastack.com/docs/components/qr-code)
+
 ## 0.25.85
 
 ### Patch Changes
