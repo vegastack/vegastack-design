@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.88 sha256-k9+E/0cRUudyHuef3r9IzTB3NPwdWNpPjO9WJCDskYU=
+// @vegastack text-edit-grammar@0.25.88 sha256-PlteR3tX6/H302wa0he4ch3Vyv7Ds3/x/RwLuKGW2nQ=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -271,7 +271,9 @@ export const BOOKMARK_TITLE = "bookmark";
  * bookmarkMarkdown("https://example.com/a"); // '[https://example.com/a](https://example.com/a "bookmark")'
  */
 export function bookmarkMarkdown(url: string): string {
-  const text = url.replace(/[\\[\]]/g, (ch) => `\\${ch}`);
+  // The address as its own text, every character Markdown reads inline escaped — so the text
+  // parses back to exactly the address (`bookmarkOfParagraph` holds them equal).
+  const text = url.replace(/[\\`*_~[\]<>!|&]/g, (ch) => `\\${ch}`);
   return `[${text}](${markdownDestination(url)} "${BOOKMARK_TITLE}")`;
 }
 

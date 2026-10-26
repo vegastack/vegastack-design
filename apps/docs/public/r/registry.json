@@ -2146,7 +2146,7 @@
         "version": "0.25.88",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-k9+E/0cRUudyHuef3r9IzTB3NPwdWNpPjO9WJCDskYU="
+        "integrity": "sha256-PlteR3tX6/H302wa0he4ch3Vyv7Ds3/x/RwLuKGW2nQ="
       }
     },
     {
@@ -2211,7 +2211,7 @@
         "version": "0.25.88",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-kZTMKNSz85oLld9X1VViwqj4IZ40mGW5lwdR5mUCM0E="
+        "integrity": "sha256-Bhb4INvzAkORk+Kq4DLe5WlpTTQUE2FERmYJNu5LT8Y="
       }
     },
     {
@@ -16487,7 +16487,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.88",
-        "integrity": "sha256-BunVtJz9QwqEf4Wu5nT0xXTkisuVVQ4kuZuwpTIn1NY="
+        "integrity": "sha256-7u2ox5JzHx0eHZJogCM17YI7D/l+aMwdL7ut568Y2Og="
       }
     },
     {
@@ -16865,7 +16865,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.25.87",
-        "integrity": "sha256-aqJFXPFVaiYmD2OrE7Y3ijAKc0CsSnK0Wp8lHHo9lTk="
+        "integrity": "sha256-uuBorzXt1ai2n9mBThz4uAkeN3J0Bsg6EpfiFHRVyGk="
       }
     },
     {
@@ -18703,7 +18703,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.88",
-        "integrity": "sha256-sy4AOI10UTIrNHZgMRhi6jhWkbWNs6bSQCKScqRr5LQ="
+        "integrity": "sha256-K3krVkyKHv6LcRcFTgF+Qtt9Gtz9hn/JrfMbIEflN14="
       }
     },
     {

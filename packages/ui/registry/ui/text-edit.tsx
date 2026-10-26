@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-sy4AOI10UTIrNHZgMRhi6jhWkbWNs6bSQCKScqRr5LQ=
+// @vegastack text-edit@0.25.88 sha256-K3krVkyKHv6LcRcFTgF+Qtt9Gtz9hn/JrfMbIEflN14=
 
 "use client";
 
@@ -2392,5 +2392,13 @@ export function TextEdit(props: TextEditProps) {
 const ALL_ORIGINS = ["*"] as const;
 
 /** A citation marker in the read view: its press and focus belong to it, not to editing. */
+/**
+ * A control of its own in the read view — a citation, a task line's title or ↗, a bookmark card:
+ * pressing or focusing it never starts an edit.
+ */
 const isCitation = (target: EventTarget) =>
-  Boolean((target as Element).closest?.("[data-slot=markdown-citation]"));
+  Boolean(
+    (target as Element).closest?.(
+      "[data-slot=markdown-citation],[data-slot=task-inline-title],[data-slot=task-inline-open],[data-slot=markdown-bookmark]",
+    ),
+  );

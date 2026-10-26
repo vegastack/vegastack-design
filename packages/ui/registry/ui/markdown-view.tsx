@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-BunVtJz9QwqEf4Wu5nT0xXTkisuVVQ4kuZuwpTIn1NY=
+// @vegastack markdown-view@0.25.88 sha256-7u2ox5JzHx0eHZJogCM17YI7D/l+aMwdL7ut568Y2Og=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -21,6 +21,7 @@ import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
 import type { TaskInlinePerson } from "@/components/ui/task-inline";
 import {
   BOOKMARK_TITLE,
+  RESTRICTED_MENTION_PREFIX,
   CALLOUT_MARKER,
   DEFAULT_LIVE_BLOCK_KINDS,
   MEDIA_BLOCK,
@@ -602,6 +603,9 @@ function bookmarkOf(paragraph: Tokens.Generic): El | null {
   const link = parts.length === 1 ? parts[0]! : null;
   if (link?.type !== "link" || link.title !== BOOKMARK_TITLE) return null;
   const href = decode(String(link.href ?? ""));
+  // Its text is its own address (`bookmarkMarkdown`): a link with words of its own stays a link.
+  const text = inline(link.tokens);
+  if (text.length !== 1 || text[0] !== href) return null;
   return /^https?:\/\//i.test(href) ? el("bookmark", { url: href }) : null;
 }
 
@@ -2039,7 +2043,11 @@ function renderNode(
     case "mention": {
       const kind = attrs.kind as MentionKind;
       const closed = ctx.mentionStatus?.(kind, attrs.id ?? "");
-      if (ctx.leadingTask === node && ctx.onTaskOpen) {
+      if (
+        ctx.leadingTask === node &&
+        ctx.onTaskOpen &&
+        !(attrs.id ?? "").startsWith(RESTRICTED_MENTION_PREFIX)
+      ) {
         const open = ctx.onTaskOpen;
         const id = attrs.id ?? "";
         return (
@@ -2047,6 +2055,7 @@ function renderNode(
             key={key}
             id={id}
             label={attrs.label ?? ""}
+            done={attrs["data-line-checked"] === "true"}
             state={closed ?? null}
             href={ctx.mentionHref ? ctx.mentionHref(kind, id) : undefined}
             onOpen={() => open(id)}
@@ -2273,6 +2282,7 @@ function renderNode(
             (child) => typeof child === "string" || child.tag !== "label",
           );
       const leading = ctx.onTaskOpen ? leadingTaskMention(body) : null;
+      if (leading) leading.attrs["data-line-checked"] = String(checked);
       return (
         <li
           key={key}
@@ -2472,7 +2482,6 @@ export interface MarkdownToggleState {
   ids?: readonly string[];
 }
 
-/** Props accepted by `MarkdownView`. */
 /**
  * A mention target's state (`MarkdownViewProps.mentionStatus`): a task's done check, a closed
  * target struck through with a status tag, and — on a linked checklist line drawn as a
@@ -2493,6 +2502,7 @@ export interface MarkdownMentionStatus {
   overdue?: boolean;
 }
 
+/** Props accepted by `MarkdownView`. */
 export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * The markdown string to render. Provided as `children` (preferred) or via the

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-BunVtJz9QwqEf4Wu5nT0xXTkisuVVQ4kuZuwpTIn1NY=
+// @vegastack markdown-view@0.25.88 sha256-7u2ox5JzHx0eHZJogCM17YI7D/l+aMwdL7ut568Y2Og=
 
 "use client";
 
@@ -1325,6 +1325,8 @@ export interface MarkdownTaskInlineProps {
   label: string;
   /** Its state from the view's `mentionStatus`; null asks the `InlineChipProvider`'s `state`. */
   state: MarkdownMentionStatus | null;
+  /** The line's box — the task's one done state, which the title follows. */
+  done: boolean;
   /** The task's page (`mentionHref`, else the provider's `href`). @default undefined */
   href?: string | null;
   /** The title was clicked: open the task. */
@@ -1337,12 +1339,13 @@ export interface MarkdownTaskInlineProps {
  * `InlineChipProvider`. The line's own box is the task's.
  *
  * @example
- * <MarkdownTaskInline id="t1" label="Order glass" state={null} onOpen={() => peek("t1")} />
+ * <MarkdownTaskInline id="t1" label="Order glass" done={false} state={null} onOpen={() => peek("t1")} />
  */
 export function MarkdownTaskInline({
   id,
   label,
   state,
+  done,
   href,
   onOpen,
 }: MarkdownTaskInlineProps) {
@@ -1355,7 +1358,7 @@ export function MarkdownTaskInline({
     <TaskInline
       checkbox={false}
       title={label || "…"}
-      done={shown?.done === true}
+      done={done}
       struck={shown?.struck === true}
       status={shown?.status}
       assignee={shown?.assignee}

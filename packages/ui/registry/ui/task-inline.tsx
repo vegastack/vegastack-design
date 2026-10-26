@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.25.88 sha256-aqJFXPFVaiYmD2OrE7Y3ijAKc0CsSnK0Wp8lHHo9lTk=
+// @vegastack task-inline@0.25.88 sha256-uuBorzXt1ai2n9mBThz4uAkeN3J0Bsg6EpfiFHRVyGk=
 
 "use client";
 
@@ -426,19 +426,22 @@ export function MakeTaskPopover({
 }: MakeTaskPopoverProps) {
   const point = useAnchorPoint(anchor, open);
   const [rows, setRows] = React.useState<Row[]>([]);
-  const [shown, setShown] = React.useState<readonly MakeTaskLine[] | null>(
-    null,
-  );
-  // New lines, new rows: each line's text trimmed, every line kept.
-  if (open && lines !== shown) {
-    setShown(lines);
-    setRows(
-      lines.map((line) => ({
-        key: line.key,
-        title: line.text.trim(),
-        keep: true,
-      })),
-    );
+  // One session per opening and set of lines (by value): a host re-rendering with equal lines —
+  // its picker changed — keeps the titles being edited.
+  const session = open
+    ? lines.map((line) => `${line.key}\u0000${line.text}`).join("\u0001")
+    : null;
+  const [shown, setShown] = React.useState<string | null>(null);
+  if (session !== shown) {
+    setShown(session);
+    if (session !== null)
+      setRows(
+        lines.map((line) => ({
+          key: line.key,
+          title: line.text.trim(),
+          keep: true,
+        })),
+      );
   }
   const [pending, setPending] = React.useState(false);
   const several = lines.length > 1;
@@ -496,7 +499,11 @@ export function MakeTaskPopover({
         {several ? (
           <ul data-slot="make-task-popover-lines" className="grid gap-1.5">
             {rows.map((row, index) => (
-              <li key={row.key} className="flex items-center gap-2">
+              <li
+                key={row.key}
+                data-slot="make-task-popover-line"
+                className="flex items-center gap-2"
+              >
                 <Checkbox
                   aria-label={`Make a task of line ${index + 1}`}
                   checked={row.keep}

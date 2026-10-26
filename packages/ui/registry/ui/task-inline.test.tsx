@@ -203,3 +203,46 @@ test("MakeTaskPopover with several lines: a keep box per line, Create counts the
     ).toBeNull(),
   );
 });
+
+test("MakeTaskPopover keeps the titles being edited when the host re-renders with equal lines", async () => {
+  function Harness() {
+    const [, setTick] = React.useState(0);
+    return (
+      <>
+        <MakeTaskPopover
+          open
+          onOpenChange={() => {}}
+          anchor={null}
+          // A new array each render, as a host's picker change makes.
+          lines={[{ key: "b1", text: "Order glass" }]}
+          onCreate={() => {}}
+          assignee={
+            <button type="button" onClick={() => setTick((n) => n + 1)}>
+              Pick
+            </button>
+          }
+        />
+      </>
+    );
+  }
+  await render(<Harness />);
+  const title = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLInputElement>(
+      '[data-slot="make-task-popover-title"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  title.focus();
+  await userEvent.keyboard(" now");
+  await userEvent.click(
+    [...document.querySelectorAll("button")].find(
+      (each) => each.textContent === "Pick",
+    )!,
+  );
+  expect(
+    document.querySelector<HTMLInputElement>(
+      '[data-slot="make-task-popover-title"]',
+    )!.value,
+  ).toBe("Order glass now");
+});

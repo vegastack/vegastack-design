@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-sy4AOI10UTIrNHZgMRhi6jhWkbWNs6bSQCKScqRr5LQ=
+// @vegastack text-edit@0.25.88 sha256-K3krVkyKHv6LcRcFTgF+Qtt9Gtz9hn/JrfMbIEflN14=
 
 "use client";
 
@@ -262,6 +262,7 @@ import {
   DEFAULT_LIVE_BLOCK_KINDS,
   headingIds,
   isRecordMentionKind,
+  RESTRICTED_MENTION_PREFIX,
   type CalloutTone,
   type LiveBlockKind,
   type MentionKind,
@@ -662,16 +663,25 @@ function insertBookmark(ed: Editor, url: string) {
   const type = ed.state.schema.nodes.bookmark;
   if (!type) return;
   const { $from } = ed.state.selection;
-  const empty =
-    $from.parent.type.name === "paragraph" && $from.parent.content.size === 0;
   const node = type.create({ url });
   const tr = ed.state.tr;
+  // A bookmark stands where Markdown can hold one (`EMBED_CONTAINERS`: the document, a quote, a
+  // callout, a toggle) — in place of an empty paragraph there, else after the block holding the
+  // caret (a list, a table) in the nearest such container.
+  let depth = $from.depth;
+  while (depth > 0 && !EMBED_CONTAINERS.has($from.node(depth - 1).type.name))
+    depth--;
+  const block = depth > 0 ? $from.node(depth) : null;
   let at: number;
-  if (empty && $from.depth >= 1) {
-    at = $from.before();
-    tr.replaceWith(at, $from.after(), node);
+  if (
+    depth > 0 &&
+    block?.type.name === "paragraph" &&
+    block.content.size === 0
+  ) {
+    at = $from.before(depth);
+    tr.replaceWith(at, $from.after(depth), node);
   } else {
-    at = $from.depth >= 1 ? $from.after(1) : $from.pos;
+    at = depth > 0 ? $from.after(depth) : $from.pos;
     tr.insert(at, node);
   }
   if (tr.doc.resolve(at + node.nodeSize).nodeAfter === null)
@@ -3847,7 +3857,11 @@ function mentionView(runtime: EditorRuntime) {
     const closed = runtime.mentionStatus.current?.(kind, id);
     const resolver = useInlineChipResolver();
     const open = runtime.taskOpen.current;
-    if (open && kind === "task" && leadsTaskLine(editor, getPos)) {
+    const line =
+      open && kind === "task" && !id.startsWith(RESTRICTED_MENTION_PREFIX)
+        ? taskLineOf(editor, getPos)
+        : null;
+    if (open && line) {
       // A linked checklist line: the line's box is the task's; the chip is its title and meta.
       const state = closed ?? resolver?.state?.(kind, id) ?? null;
       const href = hrefFor ? hrefFor(kind, id) : resolver?.href?.(kind, id);
@@ -3861,7 +3875,8 @@ function mentionView(runtime: EditorRuntime) {
           <TaskInline
             checkbox={false}
             title={label}
-            done={state?.done === true}
+            // The line's box is the task's one done state: the title follows it.
+            done={line.checked}
             struck={state?.struck === true}
             status={state?.status}
             assignee={(state as TextEditMentionStatus | null)?.assignee}
@@ -3902,26 +3917,26 @@ function mentionView(runtime: EditorRuntime) {
 }
 
 /**
- * Whether the mention at `getPos()` leads a checklist line — the first inline of a task item's
- * first paragraph: a linked line's task (`linkedTaskId`).
+ * The checklist line the mention at `getPos()` leads — the first inline of a task item's first
+ * paragraph: a linked line's task (`linkedTaskId`) — with its box's state; null otherwise.
  */
-function leadsTaskLine(
+function taskLineOf(
   editor: Editor,
   getPos: ReactNodeViewProps["getPos"],
-): boolean {
+): { checked: boolean } | null {
   const pos = typeof getPos === "function" ? getPos() : undefined;
-  if (typeof pos !== "number" || editor.isDestroyed) return false;
+  if (typeof pos !== "number" || editor.isDestroyed) return null;
   try {
     const $pos = editor.state.doc.resolve(pos);
-    return (
-      $pos.parent.type.name === "paragraph" &&
+    const item = $pos.depth >= 2 ? $pos.node(-1) : null;
+    return $pos.parent.type.name === "paragraph" &&
       $pos.index() === 0 &&
-      $pos.depth >= 2 &&
-      $pos.node(-1).type.name === "taskItem" &&
+      item?.type.name === "taskItem" &&
       $pos.index(-1) === 0
-    );
+      ? { checked: Boolean(item.attrs.checked) }
+      : null;
   } catch {
-    return false;
+    return null;
   }
 }
 

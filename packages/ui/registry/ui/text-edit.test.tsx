@@ -7728,7 +7728,11 @@ test("onTaskOpen: a linked line is one round box and a TaskInline — title open
   // Alt+Enter with the caret on the line opens it too.
   onTaskOpen.mockClear();
   await userEvent.click(items[1]!.querySelector("p")!);
-  await userEvent.keyboard("{ArrowUp}{End}{Alt>}{Enter}{/Alt}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(box));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard("{ArrowUp}{End}");
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
   await vi.waitFor(() => expect(onTaskOpen).toHaveBeenCalledWith("t1"));
   // The line's own box is the task's.
   await userEvent.click(
@@ -7926,4 +7930,51 @@ test("bookmarks: a lone link pasted on its own line offers Link · Bookmark, and
   await vi.waitFor(() =>
     expect(box.querySelector('[data-slot="markdown-bookmark"]')).toBeNull(),
   );
+});
+
+test("onTaskOpen: the line's box is the one done state, and a restricted task stays a chip", async () => {
+  const screen = await markdownEditor({
+    defaultValue:
+      "- [ ] [@Order glass](mention://task/t1)\n- [ ] [@…](mention://task/restricted:t2)",
+    onTaskOpen: () => {},
+    mentionStatus: () => ({ done: true }),
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const items = box.querySelectorAll("li[data-type=taskItem]");
+  // The task reads done elsewhere, but the line's box is unticked: the title follows the box.
+  expect(
+    items[0]!
+      .querySelector('[data-slot="task-inline"]')
+      ?.hasAttribute("data-done"),
+  ).toBe(false);
+  expect(items[1]!.querySelector('[data-slot="task-inline"]')).toBeNull();
+  expect(items[1]!.querySelector('[data-slot="inline-chip"]')).not.toBeNull();
+});
+
+test("bookmarks: Bookmark from the slash menu in a list lands after the list, where Markdown holds it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    bookmarks: true,
+    defaultValue: "- one",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("li p")!);
+  await userEvent.keyboard(`${END}{Enter}/bookm`);
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent).toContain("Bookmark"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("aria-label")).toBe(
+      "Bookmark address",
+    ),
+  );
+  await userEvent.keyboard("example.com/z{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      '\n\n[https://example.com/z](https://example.com/z "bookmark")',
+    ),
+  );
+  expect(lastValue(onValueChange)!.startsWith("- one")).toBe(true);
 });

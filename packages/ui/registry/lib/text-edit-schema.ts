@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.88 sha256-kZTMKNSz85oLld9X1VViwqj4IZ40mGW5lwdR5mUCM0E=
+// @vegastack text-edit-schema@0.25.88 sha256-Bhb4INvzAkORk+Kq4DLe5WlpTTQUE2FERmYJNu5LT8Y=
 
 import {
   Extension,
@@ -1465,7 +1465,8 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
 
 /**
  * The bookmark a lone link is, when it is one: a paragraph holding only a link titled `bookmark`
- * (`BOOKMARK_TITLE`) to an http(s) address. Any other lone link stays a link.
+ * (`BOOKMARK_TITLE`) to an http(s) address, whose text is that address. Any other lone link —
+ * one with words of its own included — stays a link.
  */
 export function bookmarkOfParagraph(
   paragraph: JSONContent,
@@ -1476,6 +1477,8 @@ export function bookmarkOfParagraph(
   const link = only.marks[0]!;
   const href = String(link.attrs?.href ?? "");
   if (link.type !== "link" || link.attrs?.title !== BOOKMARK_TITLE) return null;
+  // Its text is its own address: a titled link with words of its own stays a link.
+  if (only.text !== href) return null;
   return /^https?:\/\//i.test(href)
     ? { type: "bookmark", attrs: { url: href } }
     : null;
