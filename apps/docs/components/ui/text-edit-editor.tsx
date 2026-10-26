@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-OOd2ATZQptZ34COo15DMciqgDH7SomHR6nJJULdKMFo=
+// @vegastack text-edit@0.25.88 sha256-8oQNHzKLykEinBfcA1yuggwke6J5rcTT2xK3ML5OldI=
 
 "use client";
 
@@ -768,11 +768,24 @@ function filterSlash(
   // One menu everywhere: the canonical order, whatever order the host's subset lists; the host's
   // own items after the built-in ones.
   const wanted = new Set(allowed);
+  // The host's items with the same `group` sit together, groups in the order they first appear.
+  const groups = [
+    ...new Set(actions.map((action) => action.group ?? HOST_SLASH_GROUP)),
+  ];
+  const hosted = actions
+    .map((action, index) => ({ action, index }))
+    .sort(
+      (a, b) =>
+        groups.indexOf(a.action.group ?? HOST_SLASH_GROUP) -
+          groups.indexOf(b.action.group ?? HOST_SLASH_GROUP) ||
+        a.index - b.index,
+    )
+    .map(({ action }) => hostSlashSpec(action));
   const found = [
     ...(Object.keys(SLASH) as TextEditSlashCommand[])
       .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
       .map((id) => SLASH[id]),
-    ...actions.map(hostSlashSpec),
+    ...hosted,
   ].filter((spec) => {
     if (!q) return true;
     const label = spec.label.toLowerCase();
@@ -3728,6 +3741,8 @@ interface EditorRuntime {
     get: () => MentionMenuState | null;
     set: (next: MentionMenuState | null) => void;
     query: (query: string) => void;
+    /** The menu is a sheet (`menuPresentation="auto"` on a phone): its search field owns the query. */
+    sheet: () => boolean;
   };
 }
 
@@ -3843,8 +3858,12 @@ function mentionBehaviour(runtime: EditorRuntime) {
               props: SuggestionProps<MentionOption, MentionOption>,
             ) => {
               const previous = runtime.mention.get();
+              // In a sheet the search field's text is the query: an update of the suggestion (a
+              // collaborator's edit moving its range) keeps it.
+              const sheet = previous !== null && runtime.mention.sheet();
+              const query = sheet ? previous.query : props.query;
               runtime.mention.set({
-                query: props.query,
+                query,
                 results: previous?.results ?? null,
                 loading: previous ? previous.loading : true,
                 error: previous?.error ?? false,
@@ -3852,8 +3871,8 @@ function mentionBehaviour(runtime: EditorRuntime) {
                 rect: props.clientRect?.() ?? null,
                 command: props.command,
               });
-              if (props.query !== previous?.query || !previous)
-                runtime.mention.query(props.query);
+              if (!previous || (!sheet && props.query !== previous.query))
+                runtime.mention.query(query);
             };
             return {
               onStart: show,
@@ -10362,6 +10381,8 @@ export function TextEditEditor({
   menuLgRef.current = menuLg;
   // `menuPresentation="auto"` on a phone: the menus are sheets with their own search field.
   const menuSheet = useSuggestionMenuSheet(menuPresentation);
+  const menuSheetRef = React.useRef(menuSheet);
+  menuSheetRef.current = menuSheet;
   const [sheetQuery, setSheetQuery] = React.useState("");
   const toggleStateRef = React.useRef(toggleState);
   toggleStateRef.current = toggleState;
@@ -10891,6 +10912,7 @@ export function TextEditEditor({
             setMention(next);
           },
           query: runSearch,
+          sheet: () => menuSheetRef.current,
         },
       },
       {

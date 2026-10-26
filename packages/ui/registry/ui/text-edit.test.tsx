@@ -7608,3 +7608,38 @@ test('menuPresentation="auto" on a phone: / opens a sheet whose search filters, 
     ).toBeNull(),
   );
 });
+
+test("slashActions with the same group sit together under one heading", async () => {
+  const item = (id: string, group: string) => ({
+    id,
+    label: id,
+    group,
+    icon: <span aria-hidden>·</span>,
+    onSelect: () => {},
+  });
+  const screen = await markdownEditor({
+    slashCommands: ["text"],
+    slashActions: [
+      item("Page", "Regent"),
+      item("Clip", "Other"),
+      item("Task list", "Regent"),
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const groups = [
+    ...slashMenu()!.querySelectorAll('[data-slot="suggestion-menu-group"]'),
+  ].map((group) => [
+    group.querySelector('[data-slot="suggestion-menu-group-label"]')
+      ?.textContent,
+    [...group.querySelectorAll('[data-slot="suggestion-menu-label"]')].map(
+      (each) => each.textContent,
+    ),
+  ]);
+  expect(groups).toEqual([
+    ["Text", ["Text"]],
+    ["Regent", ["Page", "Task list"]],
+    ["Other", ["Clip"]],
+  ]);
+});
