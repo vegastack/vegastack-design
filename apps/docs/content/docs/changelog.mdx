@@ -10,6 +10,20 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.85] — October 27, 2026
+
+### 🔧 Changed components
+
+- **FilterBar**: grid slots for a spreadsheet-like list with saved views. `filterBuilder` makes the Filters toggle open a `FilterBuilder` in a popover (the applied `filters` chips stay in the chip row whenever there are any); `sort` (with `sortLabel`, default "Sort", and `sortCount`) adds a Sort button that opens a `SortBuilder`; `group`, `fields`, `density` and `viewActions` share one View menu (`viewMenuLabel`, default "View") with labelled sections in the order Group, Fields, Row height, then the view's own actions (`groupLabel`, `fieldsLabel`, `densityLabel`). The three controls sit after the Filters toggle and go icon-only below `@3xl`, keeping their words as accessible names. A saved view's "View changed · Save · Reset" goes in `trailing`, in the chip row. [docs](/docs/components/filter-bar) ·
+  [`c0169da`](https://github.com/VegaStack/vegastack-design/commit/c0169da)
+- **DataGrid, DataList, Board and the shared table parts**: one way to open a record from a list, and a grid that fills its box. **DataGrid**'s fixed layout is never narrower than its viewport: a filler track takes what the columns leave, so the header band, row borders, washes, summary row and footer reach the end, and the "+" column stays beside the last real column. `onRowOpen(rowId, { event, index })` adds a 24×24 **Open** button at the start of each row's primary cell (shown on hover and keyboard focus, always on touch), with Space on a cell and Enter on the row header opening it (F2 still edits). `activeRowId` marks and scrolls to the open row (`data-peek-active`), and `actionsRef` exposes `focusCell(rowId, key)` and `getRowOrder()`. The active cell is a 2px inset `info` outline for pointer and keyboard alike, and the rest of a range takes a blue tint that never reads as hover. Empty cells are blank: the placeholder shows only while editing. A header with a `headerMenu` is one button that opens the menu (sort lives there), columns take an `icon`, and a `numeric` column aligns its values and header to the end. The empty or error state is held to the viewport, `loadingRows` sizes the skeleton, `selectionActions` docks the same selection bar as `DataList`, and `phoneLayout="cards"` shows cards on a container under 40rem (`cardFields`, default 3). In cells mode, dragging a range never selects text. **DataList** adds `onRowOpen` for the whole row: a link row stays a real link for ⌘ and middle clicks, while a plain click opens the row in place. It also adds `activeRowId`, `actionsRef.getRowOrder()`, and `hiddenSections`/`onShowSection`/`onHideSection` with a section's `hideable` for its board. Rows follow one density scale (comfortable 40px, compact 32px, the grid's `medium` and `short`). **Board** adds `activeItemId` and a built-in "Hidden columns" list (`hiddenColumns`, `onShowColumn`, `onHideColumn`, a column's `hideable`). `onCardOpen` opens every card in place, so a link card's plain click (or Enter) opens it while modified and middle clicks still follow the link. `onCardActivate` keeps its link-free meaning and now receives the event. Row and card ⋯ menus mount on demand. **Shared parts**: a squeezed list clamps a `truncate` element to one line instead of wrapping it over its neighbours. New exports: `SelectionActionBar`, `SelectionBarSpacer`, `RowOpenDetails`, `PEEK_ACTIVE_ROW_CLASS`, `LIST_ROW_HEIGHT_PX` and `LIST_ROW_HEIGHT_CLASS`. `EmptyRow` takes `viewportWidth`, and `EditableCell`/`EditableCellRest` take `emptyText`. [docs](/docs/components/data-grid) ·
+  [`fb85832`](https://github.com/VegaStack/vegastack-design/commit/fb85832)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.34`** (was `0.8.33`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.84 → 0.25.85.
+
 ## [0.25.84] — October 26, 2026
 
 ### 📦 npm
