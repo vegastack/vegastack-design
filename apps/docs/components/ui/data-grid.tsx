@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.79 sha256-topXXMBGDdKOdP/FhvhfENJtdk5beLYCdEd03Y225Fo=
+// @vegastack data-grid@0.25.79 sha256-l34FuI5nr1SiaUhnAF3RpdVjlbDCydlqgojuDlyud2s=
 
 "use client";
 
@@ -3104,6 +3104,8 @@ export function DataGrid<T>({
     event: React.KeyboardEvent<HTMLTableElement>,
   ) => {
     if (event.key !== "Escape" || editing) return;
+    // An IME's Escape dismisses its candidates; it never leaves the widget.
+    if (event.nativeEvent.isComposing || event.keyCode === 229) return;
     const inner = event.target as HTMLElement;
     const cell = inner.closest<HTMLElement>('[data-slot="data-grid-cell"]');
     if (!cell || cell === inner || !event.currentTarget.contains(cell)) return;
