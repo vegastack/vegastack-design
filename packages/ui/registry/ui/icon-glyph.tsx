@@ -1,4 +1,4 @@
-// @vegastack icon-glyph@0.25.83 sha256-CtrmXKgY0h8Z2HkCp4WTLy5nBAim4mHtK4tfnoGyJQU=
+// @vegastack icon-glyph@0.25.84 sha256-esdmYCw9YQNr1R2jTXAkte52gV4MU2eO/BUJ/OhwAdM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

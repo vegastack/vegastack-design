@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.25.83 sha256-aLBDV5SdK8d+dw1A+8znb9XWfknKoJxCZAGSxGJ0hO4=
+// @vegastack breadcrumb-cascade@0.25.84 sha256-S1OpbjvDUJjjOSivtc1ChAUZ19HI2ttzAUlIK6rd+LU=
 
 "use client";
 
