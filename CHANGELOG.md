@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.83] — October 26, 2026
+
+<!-- assembled from 1 changeset: 18a0fb4d608a -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.32`** (was `0.8.31`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.82 → 0.25.83.
+
+### 🐛 Fixed
+
+- **DataGrid**: a horizontal scroll tick at 150 columns now stays under 8 ms of main-thread time. A cell whose column has a `custom` editor rests as `EditableCellRest` — the same button, name, description, box and activation as `EditableCell`'s display, in one element with no state or effects — and becomes the full `EditableCell` once it edits or the host reports a save status (and stays one while mounted, so a save in flight keeps its optimistic value). A header's menu mounts its machinery once the header is pointed at, focused or opened. The row window overscans two rows. The observer that keeps cell content out of the tab order looks only at what each change added instead of searching the whole table. [docs](https://design.vegastack.com/docs/components/editable-cell) ·
+  [`9862b44`](https://github.com/VegaStack/vegastack-design/commit/9862b44)
+
 ## [0.25.82] — October 26, 2026
 
 <!-- assembled from 1 changeset: 684e88cfb5ef -->
