@@ -251,7 +251,7 @@ const subtasks: Subtask[] = [
 ];
 
 /**
- * A phone-width list whose title carries a fixed-height meta line with a truncating parent link
+ * A phone-width list whose title carries a fixed-height meta line with a truncating parent name
  * (RS-04): squeezed, the line stays ONE line and ends in an ellipsis — it never wraps over the
  * title.
  */
@@ -266,9 +266,7 @@ export function dataListMetaLine(): ReactNode {
           <span className="flex h-5 min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
             <span className="shrink-0 tabular-nums">{task.ref}</span>
             <span aria-hidden>·</span>
-            <a href={`#${task.id}`} className="truncate hover:underline">
-              ↳ {task.parent}
-            </a>
+            <span className="truncate">↳ {task.parent}</span>
           </span>
         </span>
       ),
