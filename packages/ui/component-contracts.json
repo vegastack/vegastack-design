@@ -13932,14 +13932,19 @@
                 "filter-bar-add",
                 "filter-bar-clear",
                 "filter-bar-controls",
+                "filter-bar-filter-builder",
                 "filter-bar-filters",
-                "filter-bar-filters-count",
                 "filter-bar-filters-toggle",
                 "filter-bar-primary",
                 "filter-bar-scope",
                 "filter-bar-search",
+                "filter-bar-sort",
+                "filter-bar-sort-content",
                 "filter-bar-trailing",
-                "filter-bar-view"
+                "filter-bar-view",
+                "filter-bar-view-actions",
+                "filter-bar-view-content",
+                "filter-bar-view-menu"
               ]
             },
             {

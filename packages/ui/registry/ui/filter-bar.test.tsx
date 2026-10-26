@@ -1077,3 +1077,134 @@ test("FilterBarPeopleFacet: the people picker under a facet chip", async () => {
   await page.getByRole("button", { name: "Clear Assignee" }).click();
   await vi.waitFor(() => expect(chip().textContent).toBe("Assignee"));
 });
+
+// ---- grid slots: filterBuilder, sort, the View menu --------------------------------------------
+
+test("filterBuilder: the Filters toggle opens the builder in a popover, and chips stay in the row", async () => {
+  const onOpen = vi.fn();
+  const screen = await render(
+    <FilterBar
+      filterBuilder={<p>Builder body</p>}
+      onFiltersOpenChange={onOpen}
+      filters={[
+        { id: "status", label: "Status", value: "Open", onRemove: () => {} },
+      ]}
+    />,
+  );
+  // Applied chips show without opening anything: the toggle no longer hides the row.
+  await expect.element(screen.getByText("Open")).toBeVisible();
+  const toggle = screen.getByRole("button", { name: "Filters (1)" });
+  await expect.element(toggle).toHaveAttribute("aria-haspopup", "dialog");
+  await toggle.click();
+  await expect
+    .element(page.getByRole("dialog", { name: "Filters" }))
+    .toHaveTextContent("Builder body");
+  expect(onOpen).toHaveBeenLastCalledWith(true);
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(onOpen).toHaveBeenLastCalledWith(false));
+});
+
+test("filterBuilder: no chips and no trailing means no chip row at all", async () => {
+  const screen = await render(<FilterBar filterBuilder={<p>Builder</p>} />);
+  expect(
+    screen.container.querySelector('[data-slot="filter-bar-filters"]'),
+  ).toBeNull();
+});
+
+test("sort: a Sort button with its count opens the sort editor", async () => {
+  const screen = await render(
+    <FilterBar sort={<p>Sort body</p>} sortCount={2} />,
+  );
+  const button = screen.getByRole("button", { name: "Sort (2)" });
+  await expect
+    .element(
+      screen.container.querySelector<HTMLElement>(
+        '[data-slot="filter-bar-sort-count"]',
+      )!,
+    )
+    .toHaveTextContent("2");
+  await button.click();
+  await expect
+    .element(page.getByRole("dialog", { name: "Sort" }))
+    .toHaveTextContent("Sort body");
+  await expectNoA11yViolations(document.body);
+});
+
+test("View menu: labelled sections in order, only those set, actions last", async () => {
+  const screen = await render(
+    <FilterBar
+      density={<p>Density body</p>}
+      group={<p>Group body</p>}
+      viewActions={<button type="button">Rename view</button>}
+    />,
+  );
+  await screen.getByRole("button", { name: "View" }).click();
+  const dialog = page.getByRole("dialog", { name: "View" });
+  await expect.element(dialog).toBeVisible();
+  const groups = [
+    ...document.querySelectorAll('[data-slot="filter-bar-view-section"]'),
+  ]
+    .map((node) => node.getAttribute("aria-labelledby"))
+    .map((id) => document.getElementById(id!)?.textContent);
+  expect(groups).toEqual(["Group", "Row height"]);
+  expect(document.body.textContent).not.toContain("Fields");
+  const content = document.querySelector(
+    '[data-slot="filter-bar-view-content"]',
+  )!;
+  expect(content.lastElementChild?.getAttribute("data-slot")).toBe(
+    "filter-bar-view-actions",
+  );
+  const groupSection = document.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-view-section"]',
+  )!;
+  expect(groupSection.textContent).toBe("GroupGroup body");
+  await expectNoA11yViolations(document.body);
+});
+
+test("View menu: no sections and no actions means no View button", async () => {
+  const screen = await render(<FilterBar sort={<p>Sort</p>} />);
+  expect(
+    screen.container.querySelector('[data-slot="filter-bar-view-menu"]'),
+  ).toBeNull();
+});
+
+test("grid controls go icon-only on a narrow bar and keep their names", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <FilterBar
+        search={{ value: "", onValueChange: () => {}, placeholder: "Search" }}
+        filterBuilder={<p>Builder</p>}
+        sort={<p>Sort</p>}
+        fields={<p>Fields</p>}
+      />
+    </div>,
+  );
+  for (const name of ["Filters", "Sort", "View"]) {
+    const button = screen.getByRole("button", { name });
+    await expect.element(button).toBeVisible();
+    await expect.element(button.getByText(name)).not.toBeVisible();
+  }
+});
+
+test("trailing shares the chip row with the applied filters", async () => {
+  const screen = await render(
+    <FilterBar
+      filterBuilder={<p>Builder</p>}
+      filters={[
+        { id: "status", label: "Status", value: "Open", onRemove: () => {} },
+      ]}
+      trailing={<span>View changed</span>}
+    />,
+  );
+  const rows = screen.container.querySelectorAll(
+    '[data-slot="filter-bar-filters"]',
+  );
+  expect(rows).toHaveLength(1);
+  expect(rows[0]!.textContent).toContain("Open");
+  expect(rows[0]!.textContent).toContain("View changed");
+});
