@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-89ZSu3KkqFZWaGvHZXipBrlRMTYgt1ZgU9JbaPGgO+g=
+// @vegastack field-cell@0.25.79 sha256-vUefvO6sxGBK0Y9cujfL2CHH1JmjAD25mqRZtb8StVI=
 
 "use client";
 
@@ -1205,6 +1205,19 @@ function typeInto(field: HTMLInputElement, text: string) {
   field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+/** Keys that move the caret or delete forward: nothing to do before long text's editor is in. */
+const CARET_KEYS: ReadonlySet<string> = new Set([
+  "Delete",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+  "PageUp",
+  "PageDown",
+]);
+
 /**
  * A typed key as literal Markdown: a long text's seed `#`, `-` or `*` is the character typed, not
  * the start of a heading or a list.
@@ -1405,10 +1418,12 @@ export function FieldCellEditor({
           event.keyCode === 229
         )
           return;
-        if (event.key === "Enter" && !event.shiftKey) typed.push("\n\n");
+        // Enter is a new paragraph, Shift+Enter a line break; caret moves mean nothing yet (the
+        // caret is after the last key) and are dropped, so none replays out of order later.
+        if (event.key === "Enter") typed.push(event.shiftKey ? "\\\n" : "\n\n");
         else if (event.key === "Backspace") typed.pop();
         else if (event.key.length === 1) typed.push(markdownLiteral(event.key));
-        else return;
+        else if (!CARET_KEYS.has(event.key)) return;
         event.preventDefault();
         setDraft(typed.join(""));
       };
