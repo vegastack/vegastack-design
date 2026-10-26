@@ -1030,7 +1030,7 @@ test("catch-all rows are sampled at length, and a more specific page takes the p
       "--dir",
       root,
       "--registry",
-      "https://user:PASSWORD_VALUE@design.vegastack.com:bad/r/{name}.json",
+      "https://operator:Demo/PASSWORD_VALUE@design.vegastack.com:bad/r/{name}.json",
     ]);
   } finally {
     console.error = err0;

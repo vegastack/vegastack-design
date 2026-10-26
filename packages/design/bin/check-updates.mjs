@@ -272,9 +272,9 @@ function assertRegistryRequest(url, headers) {
     parsed = new URL(url);
   } catch {
     // redact: an unparseable URL is still printed, and it may carry an interpolated secret.
-    // …and without any `user:password@` it may carry: an unparseable URL is not redacted by URL.
+    // Never echoed: an unparseable URL may carry a password no parser can find to redact.
     throw new Error(
-      `registry URL is invalid: ${redact(String(url).replace(/\/\/[^/?#]*@/, "//"))}`,
+      "registry URL is invalid (not shown: it may carry credentials)",
     );
   }
   if (parsed.username || parsed.password) {
