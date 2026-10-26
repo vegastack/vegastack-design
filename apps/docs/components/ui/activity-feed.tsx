@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.25.86 sha256-ZtI9M3X90XOp8xr2yY4ZJj/1sRaUqGPCYno5boGsTok=
+// @vegastack activity-feed@0.25.86 sha256-Mr0qHgP7SLYU9rxUVKJWeUnpDhz6vPg9n1i23VLNI3g=
 
 "use client";
 
@@ -64,7 +64,9 @@ import { Skeleton } from "@/components/ui/skeleton";
  * - `ActivityFeedItem`: one row of the list (an event, a group, a thread, a divider); J/K land on it.
  * - `ActivityEvent`: an event row — a 20px icon (or the actor's avatar), the actor (with a person
  *   hover card), the description with `ActivityValue`s, and the relative time.
- * - `ActivityEventGroup`: consecutive events folded to the first few, "N more changes" to unfold.
+ * - `ActivityEventGroup`: one actor's run of events as one line — a chain of one field's values
+ *   ("moved it Todo → In progress → In review") or "made 3 changes", expandable.
+ * - `groupActivityRuns`: splits a chronological list into those runs (one actor, a time window).
  * - `ActivityKindIcon`: the icon for a common event kind.
  * - `ActivityUnreadDivider`: the "New" line before the first unread item; reports when seen.
  * - `ActivityJumpToLatest`: a floating "Jump to latest" button while the feed's end is off screen.
@@ -77,6 +79,9 @@ export type ActivityFilter = "all" | "comments" | "activity";
 
 /** The order the feed shows its items in. */
 export type ActivityOrder = "oldest" | "newest";
+
+/** "1 comment", "3 comments". */
+const commentCount = (n: number) => `${n} ${n === 1 ? "comment" : "comments"}`;
 
 const FILTER_LABELS: Record<ActivityFilter, string> = {
   all: "All",
@@ -95,8 +100,13 @@ export interface ActivityFeedProps extends Omit<
 > {
   /** The heading (an `h2`). @default "Activity" */
   title?: string;
-  /** A count after the heading (the comments, say); hidden at zero. @default undefined */
+  /** The number of comments, after the heading through `countLabel`; hidden at zero. @default undefined */
   count?: number;
+  /**
+   * The count's words, so the number says what it counts ("Activity · 2 comments").
+   * @default (n) => "1 comment" | "n comments"
+   */
+  countLabel?: (count: number) => string;
   /** The filter shown; the filter menu shows when `onFilterChange` is set. @default "all" */
   filter?: ActivityFilter;
   /** Called from the filter menu. @default undefined */
@@ -123,7 +133,7 @@ export interface ActivityFeedProps extends Omit<
 }
 
 /**
- * `ActivityFeed` — a record's history section: "Activity" with an optional count, the All /
+ * `ActivityFeed` — a record's history section: "Activity" with an optional "n comments", the All /
  * Comments / Activity filter and the Oldest / Newest first toggle, then its children (an
  * `ActivityFeedList`, the composer, `ActivityJumpToLatest`).
  *
@@ -136,6 +146,7 @@ export interface ActivityFeedProps extends Omit<
 export function ActivityFeed({
   title = "Activity",
   count,
+  countLabel = commentCount,
   filter = "all",
   onFilterChange,
   order = "oldest",
@@ -179,7 +190,7 @@ export function ActivityFeed({
     top: number;
     key: typeof paginationKey;
     order: ActivityOrder;
-    id?: string;
+    ids: string[];
   } | null>(null);
   const attach = React.useMemo(
     () => mergeRefs<HTMLElement>(sectionRef, ref),
@@ -241,7 +252,7 @@ export function ActivityFeed({
               top: node.getBoundingClientRect().top,
               key: paginationKey,
               order,
-              id: node.dataset.activityId,
+              ids: anchorIds(node),
             };
         };
         capture();
@@ -290,14 +301,18 @@ export function ActivityFeed({
     if (!saved || saved.key === paginationKey) return;
     anchor.current = null;
     if (saved.order !== order) return;
+    // A run's summary carries every event it stands for, so a page that joins the run (and changes
+    // its first event) still finds the line the reader was on.
     const node = saved.node.isConnected
       ? saved.node
-      : saved.id
+      : saved.ids.length
         ? Array.from(
             sectionRef.current?.querySelectorAll<HTMLElement>(
               '[data-slot="activity-change"][data-activity-id]',
             ) ?? [],
-          ).find((change) => change.dataset.activityId === saved.id)
+          ).find((change) =>
+            anchorIds(change).some((id) => saved.ids.includes(id)),
+          )
         : null;
     if (!node) return;
     const delta = node.getBoundingClientRect().top - saved.top;
@@ -398,19 +413,25 @@ export function ActivityFeed({
     >
       <div
         data-slot="activity-feed-header"
-        className="flex min-h-8 items-center justify-between gap-2"
+        // At a narrow width the filter and order controls wrap under the heading, kept at the end.
+        className="flex min-h-8 flex-wrap items-center justify-between gap-x-2 gap-y-1"
       >
         <h2
           id={headingId}
           className="flex items-center gap-2 text-base font-medium"
         >
           {title}
-          {/* A space keeps the name "Activity 3", not "Activity3". */}{" "}
+          {/* A space keeps the name "Activity 3 comments", not "Activity3 comments". */}{" "}
           {count ? (
-            <span className="text-muted-foreground tabular-nums">{count}</span>
+            <span
+              data-slot="activity-feed-count"
+              className="font-normal whitespace-nowrap text-muted-foreground tabular-nums"
+            >
+              {countLabel(count)}
+            </span>
           ) : null}
         </h2>
-        <div className="-me-2 flex items-center gap-1">
+        <div className="-me-2 ms-auto flex items-center gap-1">
           {onFilterChange ? (
             <Select
               value={filter}
@@ -627,10 +648,30 @@ export function ActivityKindIcon({
   );
 }
 
+/**
+ * The field an event changed, from one value to another — what lets a run of changes to one field
+ * read as one chain ("moved it Todo → In progress → In review").
+ */
+export interface ActivityChange {
+  /** The field's stable key ("status"); a run whose events all change it reads as a chain. */
+  field: string;
+  /** The chain's words before the values ("moved it"). @default "changed <field>" */
+  verb?: React.ReactNode;
+  /** The value before. @default undefined */
+  from?: React.ReactNode;
+  /** The value after. */
+  to: React.ReactNode;
+}
+
 /** Props for `ActivityEvent`. */
 export interface ActivityEventProps {
   /** Stable event identity for preserving position across cursor-page joins. @default undefined */
   id?: string;
+  /**
+   * The field this event changed, for `ActivityEventGroup`'s run summary; the event alone still
+   * reads its `children`. @default undefined
+   */
+  change?: ActivityChange;
   /** Who did it; `null` for the system. A `badge` on the person ("Inactive") follows the name. */
   actor: Person | null;
   /**
@@ -742,11 +783,34 @@ export function ActivityValue({
 
 /** Props for `ActivityEventGroup`. */
 export interface ActivityEventGroupProps {
-  /** Pre-grouped event props, in chronological order: one actor and time, all changes visible. @default undefined */
+  /**
+   * One run of events, in chronological order — one actor, close together (`groupActivityRuns`
+   * finds them). It reads as one line with the latest time: a run that changes one `change.field`
+   * is a chain ("moved it Todo → In progress → In review"); other runs list every change joined by
+   * "; ", or — from `summarizeAt` changes — read "made 3 changes" and expand to list them.
+   * @default undefined
+   */
   events?: readonly ActivityEventProps[];
+  /**
+   * The words for a run of different changes, after the actor ("updated the brief"), instead of
+   * `changesLabel`; it still expands to list them. Return `null` for the default.
+   * @default undefined
+   */
+  summarizeRun?: (events: readonly ActivityEventProps[]) => React.ReactNode;
+  /**
+   * Fold a run of different changes this long or longer (at least 2) into one expandable line
+   * ("made 3 changes"); unset, every change stays listed. 3 is the house setting.
+   * @default undefined
+   */
+  summarizeAt?: number;
+  /**
+   * The folded line's words.
+   * @default (n) => "made n changes"
+   */
+  changesLabel?: (count: number) => string;
   /** Event rows, when not using `events`. @default undefined */
   children?: React.ReactNode;
-  /** Events shown while folded. @default 1 */
+  /** Events shown while folded (the `children` form). @default 1 */
   visible?: number;
   /** Start unfolded. @default false */
   defaultOpen?: boolean;
@@ -754,56 +818,188 @@ export interface ActivityEventGroupProps {
   className?: string;
 }
 
+const madeChanges = (n: number) => `made ${n} changes`;
+
+const epoch = (date: ActivityEventProps["date"]) =>
+  date instanceof Date ? date.getTime() : new Date(date).getTime();
+
+/** "Todo → In progress → In review": the first `from`, then every `to`. */
+function chainOf(events: readonly ActivityEventProps[]) {
+  const first = events[0]!.change!;
+  const values = [
+    ...(first.from != null ? [first.from] : []),
+    ...events.map((event) => event.change!.to),
+  ];
+  return (
+    <span data-slot="activity-run-chain">
+      {first.verb ?? `changed ${first.field}`}{" "}
+      {values.map((value, i) => (
+        <React.Fragment key={i}>
+          {i > 0 ? (
+            <>
+              {" "}
+              <span aria-hidden>→</span>
+              <span className="sr-only">to</span>{" "}
+            </>
+          ) : null}
+          <ActivityValue>{value}</ActivityValue>
+        </React.Fragment>
+      ))}
+    </span>
+  );
+}
+
 /**
- * `ActivityEventGroup` — pre-grouped `events` read as one visible sentence with one actor and
- * time. The children form supports legacy disclosure with `visible` and `defaultOpen`.
+ * `ActivityEventGroup` — one actor's run of events as one line with the latest time. With
+ * `events`: a run of one field's changes is a chain ("moved it Todo → In progress → In review"),
+ * other runs list their changes ("renamed it; set the due date"), and with `summarizeAt` a run that
+ * long or longer reads "made 3 changes" (or `summarizeRun`'s words), a disclosure that lists them
+ * under the line. The `children` form folds rows to the first `visible`, with "N more changes" to
+ * unfold.
  *
  * @example
- * <ActivityEventGroup>{events.map((e) => <ActivityEvent key={e.id} … />)}</ActivityEventGroup>
+ * {groupActivityRuns(events, { actorKey: (e) => e.actorId, date: (e) => e.at }).map((run) => (
+ *   <ActivityFeedItem key={run[0].id}><ActivityEventGroup events={run.map(toEventProps)} summarizeAt={3} /></ActivityFeedItem>
+ * ))}
  */
 export function ActivityEventGroup({
   events: combined,
+  summarizeRun,
+  summarizeAt,
+  changesLabel = madeChanges,
   children,
   visible = 1,
   defaultOpen = false,
   className,
 }: ActivityEventGroupProps) {
   const [open, setOpen] = React.useState(defaultOpen);
+  const listId = React.useId();
   if (combined) {
     const first = combined[0];
     if (!first) return null;
-    const epoch = (date: ActivityEventProps["date"]) =>
-      date instanceof Date ? date.getTime() : new Date(date).getTime();
     const latest = combined.reduce((last, event) =>
       epoch(event.date) > epoch(last.date) ? event : last,
     );
+    const last = combined[combined.length - 1]!;
+    const ids = combined.flatMap((event) => (event.id ? [event.id] : []));
+    const runIds = ids.length ? JSON.stringify(ids) : undefined;
+    const field = first.change?.field;
+    const chain =
+      combined.length > 1 &&
+      field !== undefined &&
+      combined.every((event) => event.change?.field === field);
+    const folds =
+      !chain &&
+      summarizeAt !== undefined &&
+      combined.length >= Math.max(2, summarizeAt);
+    const shared = {
+      actor: first.actor,
+      agent: first.agent,
+      date: latest.date,
+      now: latest.now ?? first.now,
+    };
+    if (folds) {
+      const summary = summarizeRun?.(combined) ?? changesLabel(combined.length);
+      return (
+        <div
+          data-slot="activity-event-group"
+          data-layout="run"
+          data-open={open ? "" : undefined}
+          className={cn("min-w-0", className)}
+        >
+          <ActivityEvent {...shared} icon={<ActivityKindIcon kind="edited" />}>
+            <span
+              data-slot="activity-change"
+              data-activity-id={open ? undefined : first.id}
+              data-activity-ids={open ? undefined : runIds}
+            >
+              <Button
+                variant="ghost"
+                size="xs"
+                aria-expanded={open}
+                aria-controls={listId}
+                data-slot="activity-run-toggle"
+                onClick={() => setOpen((o) => !o)}
+                className="-my-1 -ms-1 h-auto min-h-6 gap-0.5 px-1 py-0.5 text-xs font-normal whitespace-normal text-muted-foreground hover:text-foreground"
+              >
+                {summary}
+                <ChevronDown
+                  aria-hidden
+                  className={cn(
+                    "size-3.5 transition-transform",
+                    open && "rotate-180",
+                  )}
+                />
+              </Button>
+            </span>
+          </ActivityEvent>
+          <ul
+            id={listId}
+            hidden={!open}
+            data-slot="activity-run-changes"
+            // Under the text: 16px card padding + the 20px icon column + 8px.
+            className="ms-11 flex min-w-0 flex-col pb-1"
+          >
+            {combined.map((event, index) => (
+              <li
+                key={event.id ?? index}
+                data-slot="activity-change"
+                data-activity-id={open ? event.id : undefined}
+                className="flex min-w-0 items-start gap-1.5 text-xs/6 text-muted-foreground"
+              >
+                <span
+                  aria-hidden
+                  className="flex h-6 w-3.5 shrink-0 items-center justify-center"
+                >
+                  {event.icon && event.icon !== "avatar" ? (
+                    event.icon
+                  ) : (
+                    <span className="size-1 rounded-full bg-muted-foreground/50" />
+                  )}
+                </span>
+                <span className="min-w-0 break-words">{event.children}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
     return (
       <div
         data-slot="activity-event-group"
-        data-layout="combined"
+        data-layout={chain ? "chain" : "combined"}
         className={cn("min-w-0", className)}
       >
         <ActivityEvent
-          actor={first.actor}
-          agent={first.agent}
+          {...shared}
           icon={
-            combined.length > 1 ? (
+            chain ? (
+              last.icon
+            ) : combined.length > 1 ? (
               <ActivityKindIcon kind="edited" />
             ) : (
               first.icon
             )
           }
-          date={latest.date}
-          now={latest.now ?? first.now}
         >
-          {combined.map((event, index) => (
-            <React.Fragment key={event.id ?? index}>
-              {index > 0 ? "; " : null}
-              <span data-slot="activity-change" data-activity-id={event.id}>
-                {event.children}
-              </span>
-            </React.Fragment>
-          ))}
+          {chain ? (
+            <span
+              data-slot="activity-change"
+              data-activity-id={first.id}
+              data-activity-ids={runIds}
+            >
+              {chainOf(combined)}
+            </span>
+          ) : (
+            combined.map((event, index) => (
+              <React.Fragment key={event.id ?? index}>
+                {index > 0 ? "; " : null}
+                <span data-slot="activity-change" data-activity-id={event.id}>
+                  {event.children}
+                </span>
+              </React.Fragment>
+            ))
+          )}
         </ActivityEvent>
       </div>
     );
@@ -840,6 +1036,71 @@ export function ActivityEventGroup({
       ) : null}
     </div>
   );
+}
+
+/** Options for `groupActivityRuns`. */
+export interface ActivityRunOptions<T> {
+  /** Who did it — a run is one actor's (`null` is the system). */
+  actorKey: (item: T) => string | null | undefined;
+  /** When it happened. */
+  date: (item: T) => Date | string | number;
+  /** An item that never joins a run and ends the one before it (a comment). @default undefined */
+  isBreak?: (item: T) => boolean;
+  /** A boundary the host knows of between two items (a new day, the unread line). @default undefined */
+  breakBefore?: (item: T, previous: T) => boolean;
+  /** How long one run may span, from its first event, in milliseconds. @default 600000 (10 minutes) */
+  runWindowMs?: number;
+}
+
+/**
+ * `groupActivityRuns` — splits a chronological list (oldest first) into runs: consecutive events
+ * by one actor within `runWindowMs` of the run's first, with no break (a comment, or the host's
+ * `breakBefore`) between them. Every other item is a run of one. Render each run with
+ * `ActivityEventGroup`; reverse the runs for newest first, so the order never changes membership.
+ *
+ * @example
+ * const runs = groupActivityRuns(items, {
+ *   actorKey: (item) => item.actorId,
+ *   date: (item) => item.createdAt,
+ *   isBreak: (item) => item.type === "comment",
+ * });
+ */
+export function groupActivityRuns<T>(
+  items: readonly T[],
+  {
+    actorKey,
+    date,
+    isBreak,
+    breakBefore,
+    runWindowMs = 10 * 60_000,
+  }: ActivityRunOptions<T>,
+): T[][] {
+  const runs: T[][] = [];
+  let open: { run: T[]; actor: string | null; start: number } | null = null;
+  for (const item of items) {
+    if (isBreak?.(item)) {
+      runs.push([item]);
+      open = null;
+      continue;
+    }
+    const actor = actorKey(item) ?? null;
+    const at = epoch(date(item));
+    const previous = open?.run[open.run.length - 1];
+    if (
+      open &&
+      previous !== undefined &&
+      open.actor === actor &&
+      Math.abs(at - open.start) <= runWindowMs &&
+      !breakBefore?.(item, previous)
+    ) {
+      open.run.push(item);
+      continue;
+    }
+    const run = [item];
+    runs.push(run);
+    open = { run, actor, start: at };
+  }
+  return runs;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -920,6 +1181,20 @@ const scrollBehavior = (): ScrollBehavior =>
   window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
     ? "auto"
     : "smooth";
+
+/** The event ids a change node stands for: a run summary's `data-activity-ids` (JSON), else its own id. */
+function anchorIds(node: HTMLElement): string[] {
+  const { activityIds, activityId } = node.dataset;
+  if (activityIds) {
+    try {
+      const ids: unknown = JSON.parse(activityIds);
+      if (Array.isArray(ids)) return ids.map(String);
+    } catch {
+      // Not ours: fall back to the node's own id.
+    }
+  }
+  return activityId ? [activityId] : [];
+}
 
 /** The nearest scrolling ancestor of `node`, or the window. */
 function scrollParent(node: HTMLElement): HTMLElement | Window {

@@ -467,6 +467,50 @@ export function commentsTaskThreads(): ReactNode {
 }
 
 /**
+ * Compact threads for a busy record history: no reply box under each thread — hover or focus the
+ * first comment for Reply, which opens the box with the caret in it; it folds away again once the
+ * reply posts or is left empty.
+ */
+export function commentsCompactThreads(): ReactNode {
+  const [threads, setThreads] = React.useState(TASK_THREADS);
+  return (
+    <Demo>
+      <div className="flex flex-col gap-3">
+        {threads.map((t) => (
+          <CommentThread
+            key={t.id}
+            density="compact"
+            thread={t}
+            viewer={ME}
+            now={NOW}
+            onReply={(body) =>
+              setThreads((list) =>
+                list.map((current) =>
+                  current.id === t.id
+                    ? {
+                        ...current,
+                        replies: [
+                          ...current.replies,
+                          {
+                            id: `${current.id}-${current.replies.length + 10}`,
+                            author: ME,
+                            body,
+                            createdAt: NOW,
+                          },
+                        ],
+                      }
+                    : current,
+                ),
+              )
+            }
+          />
+        ))}
+      </div>
+    </Demo>
+  );
+}
+
+/**
  * Restored drafts: a composer and a reply box that open on the text the viewer left
  * (`defaultValue`), and a reply box held busy by the host while an upload runs (`posting`).
  */

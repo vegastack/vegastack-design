@@ -14,6 +14,7 @@ import {
   ActivityKindIcon,
   ActivityUnreadDivider,
   ActivityValue,
+  groupActivityRuns,
   useActivityFeedKeyboard,
   type ActivityFilter,
   type ActivityKind,
@@ -587,6 +588,63 @@ export function activityFeedGroups(): ReactNode {
             ))}
           </ActivityEventGroup>
         </ActivityFeedItem>
+      </ActivityFeedList>
+    </Demo>
+  );
+}
+
+/** One status change of a run, as the host describes it, with the field it moved. */
+function statusStep(
+  from: string,
+  to: string,
+  minutesAgo: number,
+): React.ComponentProps<typeof ActivityEvent> & {
+  change: NonNullable<React.ComponentProps<typeof ActivityEvent>["change"]>;
+} {
+  return {
+    id: `status-${to}`,
+    actor: AGENT,
+    icon: (
+      <StatusIcon
+        status={to === "In review" ? "review" : "progress"}
+        size="xs"
+        label=""
+      />
+    ),
+    date: NOW - minutesAgo * MIN,
+    now: NOW,
+    change: { field: "status", verb: "moved it", from, to },
+    children: (
+      <>
+        changed status from <ActivityValue>{from}</ActivityValue> to{" "}
+        <ActivityValue>{to}</ActivityValue>
+      </>
+    ),
+  };
+}
+
+/**
+ * Runs: one actor's changes close together, found by `groupActivityRuns`. One field's changes read
+ * as a chain; with `summarizeAt` a longer run of different changes folds into "made 3 changes".
+ */
+export function activityFeedRuns(): ReactNode {
+  const raw = [
+    statusStep("Todo", "In progress", 9),
+    statusStep("In progress", "In review", 7),
+    ...groupEvents().map((event, i) => ({ ...event, id: `edit-${i}` })),
+  ];
+  const runs = groupActivityRuns(raw, {
+    actorKey: (event) => event.actor?.name,
+    date: (event) => event.date,
+  });
+  return (
+    <Demo>
+      <ActivityFeedList className="gap-4">
+        {runs.map((run) => (
+          <ActivityFeedItem key={run[0]!.id}>
+            <ActivityEventGroup events={run} summarizeAt={3} />
+          </ActivityFeedItem>
+        ))}
       </ActivityFeedList>
     </Demo>
   );

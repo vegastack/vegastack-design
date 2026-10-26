@@ -345,7 +345,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.86",
-        "integrity": "sha256-hZdXKk+l848R0cK5zeO5A0vQw4jaTbS9EMTLYVbuqxA="
+        "integrity": "sha256-uJ01ybTyyQoVESpBy6UKtNIZyu3mRogGeRqU87HuVnQ="
       }
     },
     {
@@ -381,7 +381,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.25.86",
-        "integrity": "sha256-ZtI9M3X90XOp8xr2yY4ZJj/1sRaUqGPCYno5boGsTok="
+        "integrity": "sha256-Mr0qHgP7SLYU9rxUVKJWeUnpDhz6vPg9n1i23VLNI3g="
       }
     },
     {
@@ -16940,7 +16940,7 @@
       "name": "inbox",
       "type": "registry:ui",
       "title": "Inbox",
-      "description": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
+      "description": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs with an Unread toggle, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "categories": [
         "notifications"
       ],
@@ -16955,6 +16955,8 @@
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
+        "@vegastack/tabs",
+        "@vegastack/toggle",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -16968,7 +16970,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.25.86",
-        "integrity": "sha256-5ilZ9Xsr5TUgznByC1q5CNXn30509v6aD9ospB+HxZ4="
+        "integrity": "sha256-38A3lplAlo31g13BLj7HC5bTTfk+bpiKk5MDZgHHNHY="
       }
     },
     {
@@ -22032,7 +22034,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.25.86",
-        "integrity": "sha256-dx6oifK6EomReC1O1YgFkCgGKcr5XozxgvJmMJvE7Qg="
+        "integrity": "sha256-2uYz8P97jwB5lxUtvvkiZVPGFkOEgTnvlKY9ghYPP5I="
       }
     },
     {

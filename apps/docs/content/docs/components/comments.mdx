@@ -164,7 +164,8 @@ The add-reaction button sits in the hover actions and stays visible on touch scr
 />
 
 `hint` adds a quiet line under the box — what the draft will do ("@Asha can't see this page
-yet"); a failed send is `error`, not a hint.
+yet"); a failed send is `error`, not a hint. A trailing lone "@" — a mention started and then
+left — is dropped as a comment, reply or edit posts, so "Thanks @" sends "Thanks".
 
 ### Posting and error
 
@@ -240,6 +241,19 @@ row.
 
 <ComponentPreview
   name="commentsThreadStates"
+  file="components/preview/comments.tsx"
+/>
+
+#### Compact threads
+
+`density="compact"` drops the reply row from every thread at rest, which halves a busy record's
+history. Reply is a hover action on the first comment (shown on hover or keyboard focus, and always
+on a touch screen); it opens the reply row with the caret in it, and the row folds away again once
+the reply posts or is left empty (Escape returns focus to Reply). A restored draft
+(`composer.defaultValue`) starts the row open.
+
+<ComponentPreview
+  name="commentsCompactThreads"
   file="components/preview/comments.tsx"
 />
 
@@ -319,7 +333,8 @@ threads (`LoadMore`'s `skeleton`). `CommentListSkeleton` is the whole list's fir
 - Errors are announced with `role="alert"`.
 - Reaction pills are toggle buttons (`aria-pressed`) named with the emoji and count.
 - A thread is an `article` named for its first comment's author; its ✓ is a button named
-  "Resolve", and the reply box is a textbox named "Reply".
+  "Resolve", and the reply box is a textbox named "Reply". In a compact thread, Reply is a button
+  that stays in the tab order while hidden and shows on focus.
 
 | Key                               | Action                            |
 | --------------------------------- | --------------------------------- |

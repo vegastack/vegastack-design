@@ -1,11 +1,11 @@
 ---
 title: Inbox
-description: The notification Inbox — a header with actions, All | Unread chips, day groups of full-bleed rows, action chips, and empty, loading and error states.
+description: The notification Inbox — For you · Updates · Archived tabs, an Unread toggle, rows grouped per record, inline Allow / Decline and J / K triage.
 audience: public
 registry: inbox
 status: stable
 since: 0.23.4
-a11y: named lists, row links, hover controls on focus
+a11y: named lists, row links, J / K with aria-current
 preview: inbox
 ---
 
@@ -29,26 +29,35 @@ import {
   onClose={close}
   actions={<InboxMarkAllRead onClick={markAllRead} />}
   filters={
-    <InboxFilters value={view} onValueChange={setView} unreadCount={3} />
+    <InboxFilters
+      value={tab}
+      onValueChange={setTab}
+      unreadOnly={unreadOnly}
+      onUnreadOnlyChange={setUnreadOnly}
+      unreadCount={3}
+    />
   }
+  activeId={peekId}
+  onActiveChange={setPeekId}
+  onOpen={setPeekId}
   onLoadMore={loadOlder}
   hasMore={hasMore}
   loadingMore={loadingOlder}
 >
   <InboxGroup label="Today">
     <InboxItem
+      value="task-39"
       unread
-      avatar={{ name: "Asha Kumar" }}
-      title={
-        <>
-          <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
-          <InboxEmphasis>Send Skyline delivery schedule</InboxEmphasis>
-        </>
-      }
-      meta="Skyline Tower B · Project"
-      time={createdAt}
-      href="/tasks/41"
+      icon={<SquareCheck />}
+      title={<InboxEmphasis>#39 Agent link RCA test</InboxEmphasis>}
+      actors={[sanjay, arjun]}
+      count={9}
+      events={latestEvents}
+      meta="Sanjay commented"
+      time={updatedAt}
+      href="/tasks/39"
       onToggleRead={toggleRead}
+      menu={rowMenu}
     />
   </InboxGroup>
 </Inbox>;
@@ -56,12 +65,13 @@ import {
 
 ### When to use
 
-- **Use it** for the notifications panel: a feed of person events (someone assigned, mentioned or
-  asked you) and system events (a meeting processed, an export finished, a job failed) that the user
-  reads, acts on and marks read.
+- **Use it** for the notifications panel: one row per record with its latest events (someone
+  assigned, mentioned or asked you; an agent needs you; a meeting processed, an export finished),
+  plus requests you answer inline, which the user reads, acts on, triages and marks read.
 - `Inbox` fills its container. Dock it in a `Sheet`, a `Popover` or a panel beside the sidebar; on a
-  phone give that container the whole screen.
-- **Don't use it** for transient confirmations (Toast), a record's history (Timeline), or a bare
+  phone give that container the whole screen. With `onOpen`, rows open in the host's peek beside it
+  and the Inbox stays open.
+- **Don't use it** for transient confirmations (Toast), a record's history (Activity Feed), or a bare
   unread count in the chrome (NotificationBell).
 
 ## Anatomy
@@ -70,30 +80,43 @@ import {
 
 - `Inbox` — the frame: title, header actions (`InboxMarkAllRead`, `InboxMenuAction`, any
   `InboxHeaderAction`), the ✕ when `onClose` is set, the `filters` row, a scrolling body and a `footer`
-  — or, with `onLoadMore`, the infinite-scroll end.
-- `InboxFilters` — the All | Unread chips, with the count on Unread, then any app-defined `extra`
-  chips (Requests, Mentions), each with its own count.
+  — or, with `onLoadMore`, the infinite-scroll end. `activeId` / `onActiveChange` / `onOpen` drive
+  triage.
+- `InboxFilters` — tabs (For you · Updates · Archived unless you pass `tabs`, each with an optional
+  count) and, at the end, an Unread toggle that filters whichever tab is open.
 - `InboxGroup` — a label that sticks within the scroll area, with no divider above or below it
   (16px above, except on the first group; 6px below), over a list it names. `InboxList` is the ungrouped list.
 - `InboxItem` — one row. Title 14px regular — foreground when unread, muted once read — with the actor and
-  record (`InboxEmphasis`) in medium; a dot in the start gutter and the tint mark unread. An optional `badge` glyph on the avatar's corner names the kind of event. Meta 12px muted (the ramp has no 13px step), time 12px muted;
-  16px sides and 12px vertical padding; a 1px divider between rows only, and a tint, reaching both
-  edges. The ⋯ menu sizes to its content (224–320px).
+  record (`InboxEmphasis`) in medium; a dot in the start gutter and the tint mark unread, a 2px start
+  bar the active row. An optional `badge` glyph on the avatar's corner names the kind of event. Under
+  the title, `meta` (12px muted — a grouped row's latest event), then a line with the stacked `actors`
+  and the `count` ("9 updates", a disclosure for the `events` behind it), then the inline `actions`,
+  or the `answeredLabel` once a request is answered. 16px sides and 12px vertical padding; a 1px divider between rows only, and a
+  tint, reaching both edges. The ⋯ menu sizes to its content (224–320px).
 - `InboxEmpty`, `InboxSkeleton`, `InboxError` — the empty, first-load and failed-load states.
 
 ## Examples
 
-### Person, system, actionable and grouped events
+### Grouped rows, requests and triage
 
-A person event leads with the actor's 28px avatar; a system event leads with its icon in a muted
-28px tile (`destructive` for a failure). Emphasise the actor and the record with `InboxEmphasis` so
-identical events name their record. `actions` adds up to three chips (the first can be `primary`),
-each with `loading` and `done` states. `count` marks a row standing for grouped repeats ("Raj
-assigned you 3 tasks"). `badge` puts a small glyph on the avatar's corner for the kind of event (assigned, a mention, a comment), so a person's rows still say what happened at a glance. Unread rows carry a dot in the start gutter, a soft tint and a foreground title; read titles are muted. A fixed right column
-keeps the time on top; hover a row, or tab into it, to show Mark read / Mark unread and the ⋯ menu
-below it.
+One row per record: give it the record's `icon`, its latest event as `meta`, everyone involved as
+`actors` (three avatars, then "+n") and how many events it stands for as `count`. Pass the `events`
+themselves and the count becomes a disclosure that lists them under the row. A request carries
+`status`: `pending` shows its inline Allow / Decline (`actions`), `answered` replaces them with the
+`answeredLabel` line ("Granted by Sanjay · 5d"). The ⋯ `menu` holds the host's items — Archive,
+Mark unread, Unwatch, Mute this type. Give each row a `value`, then J / K (or ↓ / ↑) walk the rows:
+the active row gets a start bar, focus follows and `onActiveChange` reports it; Enter or a click calls
+`onOpen` without navigating, so the host's peek opens beside the Inbox.
 
 <ComponentPreview name="inbox" file="components/preview/inbox.tsx" />
+
+### Grouped events
+
+`count` defaults to the number of `events`; `countLabel` words it ("9 updates" by default). Without
+`events` the count is plain text, for a row that only says how many repeats it folds ("Raj assigned
+you 3 tasks").
+
+<ComponentPreview name="inboxGrouped" file="components/preview/inbox.tsx" />
 
 ### Infinite scroll
 
@@ -109,25 +132,29 @@ ends the list on "You’re all caught up".
   file="components/preview/inbox.tsx"
 />
 
-### Extra filters
+### Tabs and the Unread toggle
 
-`extra` adds app-defined chips after All and Unread — each `{ value, label, count? }` — so an inbox
-can offer All · Unread 3 · Requests 2 without a second control. `onValueChange` receives the chip's
-`value`; filtering the rows stays with the app.
+`tabs` replaces For you · Updates · Archived with your own — each `{ value, label, count? }` — and
+`onValueChange` receives the tab's `value`. Unread is a separate toggle (`unreadOnly`,
+`onUnreadOnlyChange`, `unreadCount`), so it filters any tab; it shows only when
+`onUnreadOnlyChange` is set. Filtering the rows stays with the app.
 
 ```tsx
 <InboxFilters
-  value={view}
-  onValueChange={setView}
+  value={tab}
+  onValueChange={setTab}
+  tabs={[
+    { value: "for-you", label: "For you", count: 4 },
+    { value: "mentions", label: "Mentions", count: 2 },
+    { value: "updates", label: "Updates" },
+  ]}
+  unreadOnly={unreadOnly}
+  onUnreadOnlyChange={setUnreadOnly}
   unreadCount={3}
-  extra={[{ value: "requests", label: "Requests", count: 2 }]}
 />
 ```
 
-<ComponentPreview
-  name="inboxFiltersExtra"
-  file="components/preview/inbox.tsx"
-/>
+<ComponentPreview name="inboxFilters" file="components/preview/inbox.tsx" />
 
 ### Empty
 
@@ -185,23 +212,38 @@ can offer All · Unread 3 · Requests 2 without a second control. `onValueChange
 
 ## Accessibility
 
+| Key          | Action                                                                            |
+| ------------ | --------------------------------------------------------------------------------- |
+| J / ↓        | The next row: focus moves to it, it becomes active and `onActiveChange` fires     |
+| K / ↑        | The previous row (K with none active starts from the last)                        |
+| Enter        | Opens the focused row (`onOpen`, or its link when there is no `onOpen`)           |
+| Tab          | Each row's link, its count disclosure, its chips and its hover controls, in order |
+| ← / → (tabs) | Move between the filter tabs                                                      |
+
 - Each group is a list named by its label; the whole row is one link (`href`, or your router link
-  through `linkRender`), and the chips and hover controls sit above it.
+  through `linkRender`), and the chips, the count disclosure and the hover controls sit above it.
+- A row without `href` but with `onOpen` gets its title as a button (Enter or Space opens it). The
+  active row's link or button (or the row itself, when it has neither) carries `aria-current="true"`.
+  J / K also work inside a `Sheet` holding the Inbox. J / K are
+  ignored while typing in a field or inside a menu; ↓ / ↑ walk only from inside the list.
+- The count is a button with `aria-expanded` and `aria-controls` naming the events list; the stacked
+  avatars are decorative, and an sr-only line reads everyone's names.
 - The hover controls are always in the tab order and show on `focus-within`; on touch screens they
   are always visible.
 - An unread row carries a dot, a soft tint and an sr-only "Unread:" before its title; the dot and the `badge` are decorative (`aria-hidden`), so the title must say what happened.
-- The header icon buttons are named by their tooltips.
+- The header icon buttons are named by their tooltips; the tabs are a named tab list and Unread a
+  pressed-state toggle.
 
 <StatesTested name="inbox" />
 
 ## Do / Don't
 
 <DoDont
-  do="Name the actor and the record in the title with InboxEmphasis, so identical events tell themselves apart."
-  dont="Show a row of identical generic titles such as “Task assigned to you”."
+  do="Group one record's events into one row — its latest event as meta, the actors stacked, the count expanding to the events."
+  dont="Show one row per event, so one busy record fills the panel with near-identical rows."
 />
 
 <DoDont
-  do="Fold repeats of one event on one record into a single row with count."
-  dont="Put more than three action chips on a row, or make every chip primary."
+  do="Open rows in a peek beside the Inbox with onOpen, so J / K triage keeps going."
+  dont="Put more than three action chips on a row, or leave an answered request's Allow / Decline in place — set status to answered."
 />

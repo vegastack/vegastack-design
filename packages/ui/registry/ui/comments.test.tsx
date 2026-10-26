@@ -1245,3 +1245,188 @@ test("CommentThreadSkeleton is one placeholder card, hidden from assistive techn
   )!;
   expect(card.getAttribute("aria-hidden")).toBe("true");
 });
+
+// ---- Compact threads and the dangling "@" ---------------------------------------------------------
+
+test("a compact thread has no reply row at rest: Reply opens it with the caret, Escape folds it back", async () => {
+  const onReply = vi.fn().mockResolvedValue(undefined);
+  const screen = await render(
+    <CommentThread
+      density="compact"
+      thread={{
+        id: "t1",
+        root: rootComment,
+        replies: [reply("c2", "Yes, per the spec.")],
+      }}
+      onReply={onReply}
+      now={0}
+    />,
+  );
+  const row = () =>
+    screen.container.querySelector('[data-slot="comment-thread-reply"]');
+  expect(row()).toBeNull();
+  // Reply is a hover action on the first comment only.
+  expect(
+    screen.container.querySelectorAll('[data-slot="comment-reply"]'),
+  ).toHaveLength(1);
+  await expectNoA11yViolations(screen.container);
+
+  const replyButton = screen.getByRole("button", { name: "Reply" });
+  await replyButton.click();
+  await vi.waitFor(() =>
+    expect(
+      screen
+        .getByRole("textbox", { name: "Reply" })
+        .element()
+        .contains(document.activeElement),
+    ).toBe(true),
+  );
+  await expectNoA11yViolations(screen.container);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(row()).toBeNull());
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(replyButton.element()),
+  );
+
+  await replyButton.click();
+  await vi.waitFor(() =>
+    expect(
+      screen
+        .getByRole("textbox", { name: "Reply" })
+        .element()
+        .contains(document.activeElement),
+    ).toBe(true),
+  );
+  await userEvent.keyboard("Agreed");
+  // A reply with text survives Escape.
+  await userEvent.keyboard("{Escape}");
+  expect(row()).not.toBeNull();
+  await screen.getByRole("textbox", { name: "Reply" }).click();
+  await userEvent.keyboard(submitKeys());
+  await vi.waitFor(() => expect(onReply).toHaveBeenCalledWith("Agreed"));
+  await vi.waitFor(() => expect(row()).toBeNull());
+});
+
+test("a compact thread with a restored draft starts open; the default density keeps its row and no Reply action", async () => {
+  const screen = await render(
+    <>
+      <CommentThread
+        density="compact"
+        thread={{ id: "t1", root: rootComment, replies: [] }}
+        onReply={() => {}}
+        composer={{ defaultValue: "Half a reply" }}
+      />
+      <CommentThread
+        thread={{ id: "t2", root: { ...rootComment, id: "c9" }, replies: [] }}
+        onReply={() => {}}
+      />
+    </>,
+  );
+  const [compact, standard] = Array.from(
+    screen.container.querySelectorAll('[data-slot="comment-thread"]'),
+  );
+  expect(compact).toHaveAttribute("data-density", "compact");
+  expect(
+    compact!.querySelector('[data-slot="comment-thread-reply"]'),
+  ).not.toBeNull();
+  expect(
+    standard!.querySelector('[data-slot="comment-thread-reply"]'),
+  ).not.toBeNull();
+  expect(standard!.querySelector('[data-slot="comment-reply"]')).toBeNull();
+});
+
+test('a trailing lone "@" is dropped as the comment, reply or edit posts', async () => {
+  const onSubmit = vi.fn().mockResolvedValue(undefined);
+  const onReply = vi.fn().mockResolvedValue(undefined);
+  const onEdit = vi.fn().mockResolvedValue(undefined);
+  const screen = await render(
+    <>
+      <CommentComposer defaultValue="Thanks @" onSubmit={onSubmit} />
+      <CommentThread
+        thread={{ id: "t1", root: rootComment, replies: [] }}
+        onReply={onReply}
+        composer={{ defaultValue: "Agreed @" }}
+      />
+      <ul>
+        <CommentItem
+          editing
+          onEditingChange={() => {}}
+          onEdit={onEdit}
+          editDefaultValue="Hello again @"
+          comment={{
+            id: "e1",
+            author: asha,
+            body: "Hello",
+            createdAt: 0,
+            canEdit: true,
+          }}
+        />
+      </ul>
+    </>,
+  );
+  await screen.getByRole("button", { name: "Send comment" }).click();
+  await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("Thanks"));
+  await screen.getByRole("button", { name: "Send reply" }).click();
+  await vi.waitFor(() => expect(onReply).toHaveBeenCalledWith("Agreed"));
+  await screen.getByRole("button", { name: "Save" }).click();
+  await vi.waitFor(() =>
+    expect(onEdit).toHaveBeenCalledWith("e1", "Hello again"),
+  );
+});
+
+test('a box holding only "@" has nothing to send', async () => {
+  const onSubmit = vi.fn();
+  const screen = await render(
+    <CommentComposer defaultValue="@" onSubmit={onSubmit} />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Send comment" }))
+    .toBeDisabled();
+  await screen.unmount();
+  // An email address or a mid-sentence "@" is not a dangling mention.
+  const kept = await render(
+    <CommentComposer defaultValue="Mail me at a@b.co" onSubmit={onSubmit} />,
+  );
+  await kept.getByRole("button", { name: "Send comment" }).click();
+  await vi.waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith("Mail me at a@b.co"),
+  );
+});
+
+test("a compact thread whose first comment was deleted still offers Reply", async () => {
+  const screen = await render(
+    <CommentThread
+      density="compact"
+      thread={{
+        id: "t1",
+        root: { ...rootComment, deleted: true },
+        replies: [reply("c2", "Still here.")],
+      }}
+      onReply={() => {}}
+      now={0}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Reply" }))
+    .toBeInTheDocument();
+});
+
+test("a compact thread folds its empty reply row on a press outside", async () => {
+  const screen = await render(
+    <div>
+      <p>Outside</p>
+      <CommentThread
+        density="compact"
+        thread={{ id: "t1", root: rootComment, replies: [] }}
+        onReply={() => {}}
+        now={0}
+      />
+    </div>,
+  );
+  await screen.getByRole("button", { name: "Reply" }).click();
+  const row = () =>
+    screen.container.querySelector('[data-slot="comment-thread-reply"]');
+  await vi.waitFor(() => expect(row()).not.toBeNull());
+  await userEvent.click(screen.getByText("Outside"));
+  await vi.waitFor(() => expect(row()).toBeNull());
+});

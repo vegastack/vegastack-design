@@ -19430,7 +19430,7 @@
       "name": "inbox",
       "registryType": "registry:ui",
       "title": "Inbox",
-      "summary": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
+      "summary": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs with an Unread toggle, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage with an active row driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "status": "stable",
       "since": "0.23.4",
       "family": "media",
@@ -19501,8 +19501,8 @@
           }
         },
         {
-          "name": "InboxFilter",
-          "kind": "type",
+          "name": "InboxTab",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
@@ -19510,12 +19510,12 @@
           }
         },
         {
-          "name": "InboxFilterOption",
-          "kind": "interface",
+          "name": "INBOX_TABS",
+          "kind": "constant",
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "The default tab list, not a component."
           }
         },
         {
@@ -19583,6 +19583,24 @@
         },
         {
           "name": "InboxItemAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxActor",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxItemEvent",
           "kind": "interface",
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
@@ -19676,12 +19694,23 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "unread", "loading", "empty", "error"],
-          "evidence": "InboxItem unread branch; InboxSkeleton, InboxEmpty and InboxError states."
+          "values": [
+            "default",
+            "unread",
+            "grouped",
+            "events-expanded",
+            "request-pending",
+            "request-answered",
+            "active",
+            "loading",
+            "empty",
+            "error"
+          ],
+          "evidence": "InboxItem unread, grouped (actors, count, events disclosure) and status branches; Inbox activeId; InboxSkeleton, InboxEmpty and InboxError states."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["labeled"],
+          "values": ["labeled", "keyboard-navigation", "disclosure", "current"],
           "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
         },
         "visual": {
@@ -19717,6 +19746,8 @@
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
+        "@vegastack/tabs",
+        "@vegastack/toggle",
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
@@ -19744,6 +19775,19 @@
           ],
           "cssVariables": []
         },
+        "InboxFilters": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "inbox-filters",
+                "inbox-filters-tab",
+                "inbox-filters-unread"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
         "InboxList": {
           "attributes": [
             {
@@ -19765,15 +19809,37 @@
         "InboxItem": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": []
+            },
+            {
               "name": "data-icon",
               "values": ["inline-start"]
             },
             {
               "name": "data-slot",
-              "values": ["inbox-item", "inbox-item-badge", "inbox-item-unread"]
+              "values": [
+                "inbox-item",
+                "inbox-item-actors",
+                "inbox-item-answered",
+                "inbox-item-badge",
+                "inbox-item-byline",
+                "inbox-item-count",
+                "inbox-item-events",
+                "inbox-item-link",
+                "inbox-item-unread"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
             },
             {
               "name": "data-unread",
+              "values": []
+            },
+            {
+              "name": "data-value",
               "values": []
             }
           ],
@@ -32996,7 +33062,8 @@
             "collapsed",
             "attachments",
             "draft",
-            "agent"
+            "agent",
+            "compact"
           ],
           "evidence": "packages/ui/registry/ui/comments.tsx + packages/ui/registry/ui/comments.test.tsx"
         },
@@ -33089,7 +33156,8 @@
                 "comment-header",
                 "comment-item",
                 "comment-question",
-                "comment-replies"
+                "comment-replies",
+                "comment-reply"
               ]
             },
             {
@@ -33139,6 +33207,10 @@
             {
               "name": "data-collapsed",
               "values": [""]
+            },
+            {
+              "name": "data-density",
+              "values": []
             },
             {
               "name": "data-orphaned",
@@ -33213,7 +33285,7 @@
       "name": "activity-feed",
       "registryType": "registry:ui",
       "title": "Activity Feed",
-      "summary": "A record's history, Linear style: comment threads and activity events (\"Priya changed status from Open to Done · 2h\") in one list, with an All / Comments / Activity filter, an order toggle, collapsible event groups, a New divider, a floating Jump to latest, J/K/X keyboard navigation and a skeleton.",
+      "summary": "A record's history, Linear style: comment threads and activity events (\"Priya changed status from Open to Done · 2h\") in one list, with an All / Comments / Activity filter, an order toggle, one actor's runs of changes as one line (a chain of one field's values, or \"made 3 changes\" expanding), collapsible event groups, a New divider, a floating Jump to latest, J/K/X keyboard navigation and a skeleton.",
       "status": "stable",
       "since": "0.23.123",
       "family": "display",
@@ -33278,6 +33350,15 @@
           }
         },
         {
+          "name": "ActivityChange",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "ActivityEventProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/activity-feed.tsx",
@@ -33307,6 +33388,24 @@
         },
         {
           "name": "ActivityEventGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "groupActivityRuns",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "ActivityRunOptions",
           "kind": "interface",
           "source": "packages/ui/registry/ui/activity-feed.tsx",
           "ref": {
@@ -33423,7 +33522,10 @@
             "keyboard-focused",
             "loading",
             "explicit-jump-target",
-            "captured-jump-completion"
+            "captured-jump-completion",
+            "run-chain",
+            "run-folded",
+            "run-expanded"
           ],
           "evidence": "packages/ui/registry/ui/activity-feed.tsx + packages/ui/registry/ui/activity-feed.test.tsx"
         },
@@ -33493,6 +33595,7 @@
               "name": "data-slot",
               "values": [
                 "activity-feed",
+                "activity-feed-count",
                 "activity-feed-filter",
                 "activity-feed-header",
                 "activity-feed-more",
@@ -33567,8 +33670,12 @@
               "values": []
             },
             {
+              "name": "data-activity-ids",
+              "values": []
+            },
+            {
               "name": "data-layout",
-              "values": ["combined"]
+              "values": ["chain", "combined", "run"]
             },
             {
               "name": "data-open",
@@ -33579,7 +33686,9 @@
               "values": [
                 "activity-change",
                 "activity-event-group",
-                "activity-event-group-toggle"
+                "activity-event-group-toggle",
+                "activity-run-changes",
+                "activity-run-toggle"
               ]
             }
           ],

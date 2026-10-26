@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.25.86 sha256-dx6oifK6EomReC1O1YgFkCgGKcr5XozxgvJmMJvE7Qg=
+// @vegastack notifications-01@0.25.86 sha256-2uYz8P97jwB5lxUtvvkiZVPGFkOEgTnvlKY9ghYPP5I=
 
 /**
  * Sample data for `notifications-01`. Replace it with your notifications API; the shape is what
@@ -24,10 +24,16 @@ export interface InboxNotification {
   /** When it happened, as an ISO date. */
   at: string;
   unread: boolean;
-  /** How many repeats of this type and record the row folds together. */
+  /** How many updates to this record the row folds together. */
   count?: number;
+  /** Everyone behind a grouped row, as stacked avatars. */
+  actors?: string[];
+  /** The updates behind a grouped row, newest first, listed when it expands. */
+  events?: { id: string; actor: string; text: string; at: string }[];
   /** A decision the row asks for (Approve / Reject). */
   decision?: boolean;
+  /** Archived: shown under the Archived tab only. */
+  archived?: boolean;
 }
 
 const HOUR = 60 * 60 * 1000;
@@ -68,6 +74,27 @@ export const NOTIFICATIONS: InboxNotification[] = [
     at: new Date(NOW - 5 * HOUR).toISOString(),
     unread: true,
     count: 3,
+    actors: ["Mei Chen", "Ana Ruiz"],
+    events: [
+      {
+        id: "n3c",
+        actor: "Mei Chen",
+        text: "moved it to In review",
+        at: new Date(NOW - 5 * HOUR).toISOString(),
+      },
+      {
+        id: "n3b",
+        actor: "Ana Ruiz",
+        text: "commented: “Numbers look right”",
+        at: new Date(NOW - 5.5 * HOUR).toISOString(),
+      },
+      {
+        id: "n3a",
+        actor: "Mei Chen",
+        text: "changed the due date to Friday",
+        at: new Date(NOW - 6 * HOUR).toISOString(),
+      },
+    ],
   },
   {
     id: "n4",
