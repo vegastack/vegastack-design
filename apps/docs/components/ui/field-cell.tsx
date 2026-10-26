@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-vUefvO6sxGBK0Y9cujfL2CHH1JmjAD25mqRZtb8StVI=
+// @vegastack field-cell@0.25.79 sha256-Lqdd1AMuo916oXlmPMY2n1WH4Tjyl8fdb8rS3AcsfoU=
 
 "use client";
 
@@ -1205,19 +1205,6 @@ function typeInto(field: HTMLInputElement, text: string) {
   field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-/** Keys that move the caret or delete forward: nothing to do before long text's editor is in. */
-const CARET_KEYS: ReadonlySet<string> = new Set([
-  "Delete",
-  "ArrowLeft",
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowDown",
-  "Home",
-  "End",
-  "PageUp",
-  "PageDown",
-]);
-
 /**
  * A typed key as literal Markdown: a long text's seed `#`, `-` or `*` is the character typed, not
  * the start of a heading or a list.
@@ -1403,49 +1390,35 @@ export function FieldCellEditor({
     if (type === "long_text") {
       // The popover mounts its content a frame or two after the editor: focus it once it is there.
       let frame = 0;
-      // What was typed so far, one entry per key (an escaped `#` is one), so Backspace takes
-      // back exactly one.
-      const typed = seed ? [markdownLiteral(seed)] : [];
-      // Type-to-edit: keys typed before the editor is in edit the draft it opens with, in order
-      // (letters, Enter, Backspace), so an early commit has them all and none is lost. An editor
-      // opened with Enter or F2 leaves them to its read view, which replays them.
+      // Type-to-edit: printable keys typed before the editor's popover is there join the draft
+      // it opens with. From then on its read view holds focus and replays every input (typing,
+      // Enter, a paste) into the editor in order once it loads.
       const keep = (event: KeyboardEvent) => {
         if (
+          event.key.length !== 1 ||
           event.ctrlKey ||
           event.metaKey ||
           event.altKey ||
-          event.isComposing ||
-          event.keyCode === 229
+          event.isComposing
         )
           return;
-        // Enter is a new paragraph, Shift+Enter a line break; caret moves mean nothing yet (the
-        // caret is after the last key) and are dropped, so none replays out of order later.
-        if (event.key === "Enter") typed.push(event.shiftKey ? "\\\n" : "\n\n");
-        else if (event.key === "Backspace") typed.pop();
-        else if (event.key.length === 1) typed.push(markdownLiteral(event.key));
-        else if (!CARET_KEYS.has(event.key)) return;
         event.preventDefault();
-        setDraft(typed.join(""));
+        setDraft(
+          (text) =>
+            (typeof text === "string" ? text : "") + markdownLiteral(event.key),
+        );
       };
       const stopKeeping = () =>
         document.removeEventListener("keydown", keep, true);
       if (seed) document.addEventListener("keydown", keep, true);
-      // Keys are kept until the editor itself is in (not only its read view), so a commit before
-      // it loads — a click outside — still has them all.
-      const started = performance.now();
-      let asked = false;
+      let tries = 0;
       const focusText = () => {
-        const handle = longText.current;
-        // A seeded editor holds only the typed keys: the caret goes after them, so the next
-        // keys follow. Asking loads the editor; its read view holds focus meanwhile.
-        if (handle && !asked) {
-          asked = true;
-          handle.focus(seed ? "end" : undefined);
-        }
-        // The editor takes the caret where it was asked once it is in.
-        if (handle && handle.getStats() !== null) stopKeeping();
-        else if (performance.now() - started < 10_000)
-          frame = requestAnimationFrame(focusText);
+        if (longText.current) {
+          stopKeeping();
+          // A seeded editor holds only the typed keys: the caret goes after them, so the next
+          // keys follow.
+          longText.current.focus(seed ? "end" : undefined);
+        } else if (++tries < 30) frame = requestAnimationFrame(focusText);
         else stopKeeping();
       };
       focusText();
