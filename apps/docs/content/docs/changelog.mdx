@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.81] — October 26, 2026
+
+### 🔧 Changed components
+
+- **field-cell**, **version-list**: a long-text field takes `@` mentions. `FieldConfig` gains `mentions`, `mentionHref` and `mentionImage`, passed to the long-text `TextEdit` in both `FieldInput` (a row panel) and `FieldCellEditor`'s popover (a grid cell), where choosing in the mention menu keeps the popover open. `VersionList` gains `heading` (default "Version history"), so a host can call the list "History". [docs](/docs/components/field-cell) ·
+  [`e472b76`](https://github.com/VegaStack/vegastack-design/commit/e472b76)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.30`** (was `0.8.29`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.80 → 0.25.81.
+
 ## [0.25.80] — October 26, 2026
 
 ### 📦 npm

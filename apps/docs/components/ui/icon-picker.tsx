@@ -1,4 +1,4 @@
-// @vegastack icon-picker@0.25.80 sha256-nIDswAO7qfb/sCDOdxlVomcntqUpQ1mtX5/k+15/h6Q=
+// @vegastack icon-picker@0.25.81 sha256-TvIxVeIJM9B/VrrKA8O1pqwjsj9PhIAhteoOKo8WVcU=
 
 "use client";
 import * as React from "react";

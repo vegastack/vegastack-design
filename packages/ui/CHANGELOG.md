@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.81
+
+### Patch Changes
+
+- [#760](https://github.com/vegastack/vegastack-design/pull/760) [`e472b76`](https://github.com/vegastack/vegastack-design/commit/e472b76aa6a5886bd8fd12e03c606761c3d2717c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **field-cell**, **version-list**: a long-text field takes `@` mentions. `FieldConfig` gains `mentions`, `mentionHref` and `mentionImage`, passed to the long-text `TextEdit` in both `FieldInput` (a row panel) and `FieldCellEditor`'s popover (a grid cell), where choosing in the mention menu keeps the popover open. `VersionList` gains `heading` (default "Version history"), so a host can call the list "History". [docs](https://design.vegastack.com/docs/components/field-cell)
+
+- Updated dependencies [[`e472b76`](https://github.com/vegastack/vegastack-design/commit/e472b76aa6a5886bd8fd12e03c606761c3d2717c)]:
+  - @vegastack/design@0.8.30
+
 ## 0.25.80
 
 ### Patch Changes

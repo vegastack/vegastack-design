@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.81] — October 26, 2026
+
+<!-- assembled from 1 changeset: 033c272780be -->
+
+### 🔧 Changed components
+
+- **field-cell**, **version-list**: a long-text field takes `@` mentions. `FieldConfig` gains `mentions`, `mentionHref` and `mentionImage`, passed to the long-text `TextEdit` in both `FieldInput` (a row panel) and `FieldCellEditor`'s popover (a grid cell), where choosing in the mention menu keeps the popover open. `VersionList` gains `heading` (default "Version history"), so a host can call the list "History". [docs](https://design.vegastack.com/docs/components/field-cell) ·
+  [`e472b76`](https://github.com/VegaStack/vegastack-design/commit/e472b76)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.30`** (was `0.8.29`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.80 → 0.25.81.
+
 ## [0.25.80] — October 26, 2026
 
 <!-- assembled from 1 changeset: 00cac47e7e5a -->
