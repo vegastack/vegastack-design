@@ -100,6 +100,8 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     if (dependency.startsWith("diff@")) packages.add("diff");
     // `mermaid`, the diagram renderer behind `mermaid-block` (MK 2026-10-14).
     if (dependency.startsWith("mermaid@")) packages.add("mermaid");
+    // `uqr`, the QR encoder behind `qr-code` (MK blanket approval 27-10-2026, D19, Regent W2-MTG).
+    if (dependency.startsWith("uqr@")) packages.add("uqr");
     // The D1-D4 sanctioned engines (MK, 2026-07-27). `-hitbox` folds into the
     // pragmatic engine identity.
     if (dependency.startsWith("@tanstack/react-table"))
@@ -579,7 +581,7 @@ const expectedWaves = {
   "Forms/editing": 35,
   "Navigation/layout": 22,
   Overlays: 21,
-  "Data display": 35,
+  "Data display": 36,
   "Content/marketing": 15,
   "AI/chat": 10,
   // Not a browse group: components other components install, with no page of their own. See
@@ -752,6 +754,7 @@ const expectedComponentWaveMembers = {
     "view-toggle",
     "level-meter",
     "mermaid-block",
+    "qr-code",
   ],
   "Content/marketing": [
     "alert",

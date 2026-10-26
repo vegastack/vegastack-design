@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 755,
-    "components": 168,
+    "totalRegistryItems": 756,
+    "components": 169,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 35,
     "Navigation/layout": 22,
     "Overlays": 21,
-    "Data display": 35,
+    "Data display": 36,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 10,
@@ -179,7 +179,8 @@
       "view-toggle",
       "icon-glyph",
       "level-meter",
-      "mermaid-block"
+      "mermaid-block",
+      "qr-code"
     ],
     "Content/marketing": [
       "alert",
@@ -33905,6 +33906,129 @@
             {
               "name": "data-state",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "qr-code",
+      "registryType": "registry:ui",
+      "title": "QR Code",
+      "summary": "A QR code for a value, drawn as one crisp SVG path — dark modules on a light rounded tile in both themes, with the standard quiet zone — encoded during render (server or client) by uqr; an empty or unencodable value draws the empty tile.",
+      "status": "stable",
+      "since": "0.25.86",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/qr-code.tsx"],
+      "publicSymbols": [
+        {
+          "name": "QrCode",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/qr-code.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "svg",
+            "rationale": "Spread onto the root svg."
+          }
+        },
+        {
+          "name": "QrCodeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/qr-code.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "QrCodeErrorCorrection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/qr-code.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look: dark modules on a light tile in both themes, so it scans."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "size-40 by default; the consumer sizes it with a size-* class."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["ready", "invalid"],
+          "evidence": "packages/ui/registry/ui/qr-code.tsx + packages/ui/registry/ui/qr-code.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/qr-code.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "invalid"],
+          "evidence": "packages/ui/registry/ui/qr-code.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "A fixed square sized by its class; the drawing scales with the box."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [
+        {
+          "package": "uqr",
+          "role": "QR encoder (pure; renders nothing)"
+        }
+      ],
+      "docsSlug": "/docs/components/qr-code",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "uqr@0.1.3",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "testFiles": ["packages/ui/registry/ui/qr-code.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "qr-code",
+      "dataAttributes": {
+        "QrCode": {
+          "attributes": [
+            {
+              "name": "data-error-correction",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["qr-code", "qr-code-modules"]
+            },
+            {
+              "name": "data-state",
+              "values": ["invalid", "ready"]
             }
           ],
           "cssVariables": []

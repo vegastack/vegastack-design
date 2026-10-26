@@ -363,7 +363,9 @@ function importantModifierTokens(lit) {
 // longer be reached is an exemption that should not exist.
 // `status-icon` draws Linear's workflow glyphs (partial-fill pies, dashed ring) on a 16-unit grid,
 // which no lucide glyph expresses — operator-approved 09-10-2026 when Regent moved to that set.
-const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|status-icon)\.tsx$/;
+// `qr-code` draws a QR matrix as one SVG path — a scannable graphic, not an icon (MK blanket
+// approval 27-10-2026, D19, Regent product-cohesion W2-MTG).
+const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|status-icon|qr-code)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).
