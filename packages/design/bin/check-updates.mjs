@@ -993,7 +993,15 @@ export async function fetchRegistryIndex({
       `registry index fetch failed: HTTP ${res.status} ${terminalText(res.statusText)} (${terminalText(url)})${hint}`,
     );
   }
-  const index = await res.json();
+  let index;
+  try {
+    index = await res.json();
+  } catch (err) {
+    // A parser error quotes the body it choked on, which may echo anything — redact it too.
+    throw new Error(
+      `registry index is not JSON (${terminalText(url)}): ${terminalText(err.message)}`,
+    );
+  }
   if (!Array.isArray(index?.items))
     throw new Error("registry index has no items array");
   return { url: terminalText(url), items: index.items };

@@ -15,7 +15,13 @@
 //
 // Read-only: it never writes, installs or edits.
 
-import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+} from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import {
   fetchRegistryIndex,
@@ -101,6 +107,15 @@ function aliasDir(root, alias) {
 
 const inside = (dir, path) => path === dir || path.startsWith(dir + sep);
 
+/** Whether `path` is under `root` once every symlink on the way is resolved. */
+function reallyInside(root, path) {
+  try {
+    return inside(realpathSync(root), realpathSync(path));
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Where a registry file's `target` lands in this project: `@ui/…`, `@lib/…`, `@hooks/…` and
  * `@components/…` through components.json aliases; a block's bare target (`components/email/x.ts`)
@@ -127,10 +142,12 @@ export function resolveTarget(root, aliases, target) {
     candidates = [resolve(root, "src", rel), resolve(root, rel)];
   }
   for (const path of candidates) {
-    if (!inside(root, path)) continue;
+    // Lexically AND physically inside the project: a `..` in a target, or a symlinked alias dir
+    // or ancestor pointing elsewhere, never lists (or reads) a file outside it. A symlinked file
+    // itself is not a registry copy either.
+    if (!inside(root, path) || !reallyInside(root, path)) continue;
     try {
-      const s = lstatSync(path);
-      if (s.isFile()) return path;
+      if (lstatSync(path).isFile()) return path;
     } catch {
       // not installed here
     }
@@ -175,7 +192,14 @@ export function ownedFiles(root, componentsJson, index) {
   // Headers first: they name the item and the version that was installed.
   const roots = ["ui", "lib", "hooks", "components"]
     .map((kind) => aliasDir(root, aliases[kind]))
-    .filter((d) => d && existsSync(d) && inside(root, d));
+    .filter(
+      (d) =>
+        d &&
+        existsSync(d) &&
+        inside(root, d) &&
+        reallyInside(root, d) &&
+        !lstatSync(d).isSymbolicLink(),
+    );
   const searched = roots.filter(
     (d, i) => !roots.some((o, j) => j !== i && d !== o && inside(o, d)),
   );
@@ -272,7 +296,7 @@ export async function main(argv = []) {
       index = fetched.items;
       source = fetched.url;
     } catch (err) {
-      console.error(`✗ ${err.message}`);
+      console.error(`✗ ${terminalText(err.message)}`);
       console.error(
         "  pass --offline to list header-carrying files only, or --index <registry.json>",
       );

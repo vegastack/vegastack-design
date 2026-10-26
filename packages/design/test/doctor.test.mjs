@@ -6,7 +6,13 @@
 // file:line, and the look-alikes that are still legal — `--tag-*-subtle`, a project's OWN custom
 // property, the ui alias directory `check-updates` owns, build output — are not.
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -742,6 +748,116 @@ test("owned-files lists installed index targets and header-carrying files, nothi
   } finally {
     console.error = err;
   }
+}
+
+test("strings, JSX text, generics and nested attributes never confuse the tag scan (review round 1)", () => {
+  const root = project({
+    ...UI,
+    "src/edge.tsx": [
+      `import { SheetContent } from "@/components/ui/sheet";`,
+      `import { PopoverContent } from "@/components/ui/popover";`,
+      `import { DataGrid } from "@/components/ui/data-grid";`,
+      `import { Button } from "@/components/ui/button";`,
+      `import { AppShellPage } from "@/components/ui/app-shell";`,
+      // a closing tag in a string does not close the content
+      `<SheetContent><div data-x="</SheetContent>" /><header /></SheetContent>`,
+      // an opening tag in a string opens nothing
+      `const text = '<SheetContent>'; const view = <header />;`,
+      // an apostrophe in nested JSX text does not swallow the tag
+      `<PopoverContent render={<span>Don't</span>} className="w-80" />`,
+      // a TSX generic component is still a tag
+      `<DataGrid<Row> className="p-0!" />`,
+      // a nested element's attributes are not the outer tag's
+      `<PopoverContent render={<div className="w-96" />} className="p-2" />`,
+      // literal classes inside a template's interpolations are read; a JS \`!flag\` is not a class
+      '<Button className={`gap-2 ${ok ? "p-0!" : "p-1"} ${!open && "hidden"}`} />',
+      `<Button`,
+      `  className={`,
+      `    "p-3!"`,
+      `  }`,
+      `/>`,
+    ].join("\n"),
+  });
+  const found = compositionOf(root);
+  assert.deepEqual(lines(found.headers), [
+    "src/edge.tsx:6 <header> in SheetContent",
+  ]);
+  assert.deepEqual(lines(found.widths), ["src/edge.tsx:8 PopoverContent w-80"]);
+  assert.deepEqual(lines(found.important), [
+    "src/edge.tsx:9 DataGrid p-0!",
+    "src/edge.tsx:11 Button p-0!",
+    "src/edge.tsx:14 Button p-3!",
+  ]);
+});
+
+test("the route map takes only map rows, outside tests, and reports a conflicting row (review round 1)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": [
+      `export const pageWidths = definePageWidths({ "/": "prose", "/docs/[id]": "full" });`,
+      `const unrelated = { "/": "full" };`,
+    ].join("\n"),
+    "src/shell/page-widths.test.ts": `definePageWidths({ "/": "full" });`,
+    "src/modules/a.ts": `export const a = { widths: { "/docs/[id]": "prose" } };`,
+    "src/app/page.tsx": `<AppShellPage size="prose" />`,
+    // a catch-all page is not served by `[id]`: its base path `/docs` has no row, so `default`
+    "src/app/docs/[[...slug]]/page.tsx": `<AppShellPage />`,
+    // intercepting routes render the route they intercept
+    "src/app/feed/@modal/(..)photo/[id]/page.tsx": `<AppShellPage size="prose" />`,
+    // (the first row wins a conflict: files are read in path order, so a.ts's "prose")
+    "src/app/feed/@modal/(...)docs/[id]/layout.tsx": `<AppShellPage size="prose" />`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.rows, 2);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/feed/@modal/(..)photo/[id]/page.tsx:1 size="prose" on /photo/[id]',
+    'src/shell/page-widths.ts:1 route-map row "/docs/[id]": "full"',
+  ]);
+  assert.equal(routeMap.compared, 4);
+});
+
+test("owned-files never lists a file reached through a symlink out of the project (review round 1)", () => {
+  const outside = project({ "button.tsx": "export {}", "x.ts": `${HEADER}\n` });
+  const root = project({
+    "components.json": JSON.stringify({
+      aliases: { ui: "@/components/ui", lib: "@/lib" },
+    }),
+    "src/lib/real.ts": "export {}",
+  });
+  mkdirSync(join(root, "src/components"), { recursive: true });
+  symlinkSync(outside, join(root, "src/components/ui"));
+  symlinkSync(join(outside, "x.ts"), join(root, "src/lib/date-time.ts"));
+  const cj = { aliases: { ui: "@/components/ui", lib: "@/lib" } };
+  assert.deepEqual(ownedFiles(root, cj, INDEX).files, []);
+});
+
+{
+  // A registry body that is not JSON must not echo a credential through the parser's error.
+  const root = project({ "components.json": JSON.stringify({ aliases: {} }) });
+  const fetch0 = globalThis.fetch;
+  const env0 = process.env.CF_ACCESS_CLIENT_SECRET;
+  const out = [];
+  const err0 = console.error;
+  process.env.CF_ACCESS_CLIENT_SECRET = "DEMO_SECRET_12345";
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => JSON.parse("DEMO_SECRET_12345"),
+  });
+  console.error = (...a) => out.push(a.join(" "));
+  let code;
+  try {
+    code = await ownedFilesMain(["--dir", root]);
+  } finally {
+    globalThis.fetch = fetch0;
+    console.error = err0;
+    if (env0 === undefined) delete process.env.CF_ACCESS_CLIENT_SECRET;
+    else process.env.CF_ACCESS_CLIENT_SECRET = env0;
+  }
+  test("owned-files redacts a credential from a malformed index response (review round 1)", () => {
+    assert.equal(code, 2);
+    assert.match(out.join("\n"), /registry index is not JSON/);
+    assert.doesNotMatch(out.join("\n"), /DEMO_SECRET_12345/);
+  });
 }
 
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });

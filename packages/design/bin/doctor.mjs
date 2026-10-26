@@ -397,6 +397,9 @@ function importsIntoUi(specDir, { file, uiAliases, uiDirs }) {
  * opens only where an expression can begin (after `=`, `(`, `,`, `[`, `{`, `:`, `?`, an operator,
  * `=>`, or a keyword such as `return`), and a comment only after whitespace or code punctuation,
  * never after `:` (`https://`) or a word (`src/*.ts`).
+ *
+ * `blankStrings` blanks EVERY string's content (quotes kept): the structure copy the composition
+ * scan finds tags in, where no string may open or close one.
  */
 const EXPRESSION_KEYWORDS = new Set([
   "return",
@@ -434,7 +437,7 @@ const canStartComment = (src, i) => i === 0 || /[\s;,{}()[\]]/.test(src[i - 1]);
 
 export function maskNonUsage(
   src,
-  { script = true, lineComments = script } = {},
+  { script = true, lineComments = script, blankStrings = false } = {},
 ) {
   const out = src.split("");
   const blank = (from, to) => {
@@ -473,7 +476,8 @@ export function maskNonUsage(
         else if (src[j] === "\n" && c !== "`") break;
         j += 1;
       }
-      if (script && isProse(src.slice(i + 1, j))) blank(i + 1, j);
+      if (script && (blankStrings || isProse(src.slice(i + 1, j))))
+        blank(i + 1, j);
       i = j + 1;
     } else {
       i += 1;
@@ -655,9 +659,11 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
 }
 
 // ---- composition: DS parts used as designed --------------------------------------------------
-// Four lexical checks over the project's own JSX. No parser: a tag is `<Name …>` scanned to its
-// closing `>` with strings and `{…}` expressions skipped, which is exact for ordinary JSX and errs
-// toward silence on the odd shape it cannot read (a `>` inside a regex literal in an attribute).
+// Four lexical checks over the project's own JSX. No parser: each file is read twice over the same
+// offsets — a STRUCTURE copy with comments and every string's content blanked (quotes kept), where
+// tags, attributes and braces are found, and the source itself, where values are read. Blanking the
+// strings is what keeps a `"</SheetContent>"` or a `'<header>'` in a string from opening or closing
+// anything, and an apostrophe in JSX text ("Don't") from swallowing the rest of a tag.
 // They report as WARNINGS by default and as failures under `--strict`, so a consumer can adopt a
 // new release, fix what it reports, and then turn the gate on.
 
@@ -680,63 +686,49 @@ export const OVERLAY_HEADERS = {
   AlertDialogContent: "AlertDialogHeader",
 };
 
-/** Skip a string literal starting at `j`; returns the index just past it. */
-function skipString(src, j, multiline) {
-  const q = src[j];
-  let k = j + 1;
-  while (k < src.length) {
-    const c = src[k];
-    if (c === "\\") {
-      k += 2;
-      continue;
-    }
-    if (c === q) return k + 1;
-    // A quote in JSX text inside an expression ("Don't") is not a string: give up at the line end.
-    if (c === "\n" && q !== "`" && !multiline) return k;
-    if (q === "`" && c === "$" && src[k + 1] === "{") {
-      k = skipBraces(src, k + 1);
-      continue;
-    }
-    k += 1;
-  }
-  return src.length;
-}
-
-/** From a `{` at `j`, the index just past its matching `}` (strings skipped). */
-function skipBraces(src, j) {
+/** From a `{` at `j` in the structure copy, the index just past its matching `}`. */
+function skipBraces(scan, j) {
   let depth = 0;
-  let k = j;
-  while (k < src.length) {
-    const c = src[k];
-    if (c === '"' || c === "'" || c === "`") {
-      k = skipString(src, k, false);
-      continue;
-    }
+  for (let k = j; k < scan.length; k += 1) {
+    const c = scan[k];
     if (c === "{") depth += 1;
     else if (c === "}") {
       depth -= 1;
       if (depth === 0) return k + 1;
     }
-    k += 1;
   }
-  return src.length;
+  return scan.length;
+}
+
+/** From a `<` at `j` (TSX type arguments: `<DataGrid<Row> …>`), the index just past its `>`. */
+function skipTypeArguments(scan, j) {
+  let depth = 0;
+  const limit = Math.min(scan.length, j + 2000);
+  for (let k = j; k < limit; k += 1) {
+    const c = scan[k];
+    if (c === "<") depth += 1;
+    else if (c === ">" && scan[k - 1] !== "=") {
+      depth -= 1;
+      if (depth === 0) return k + 1;
+    } else if (c === ";" || c === "{" || c === "}") return -1;
+  }
+  return -1;
 }
 
 /** The `>` closing an opening tag whose attributes start at `j`, or -1 when it is not a tag. */
-function tagEnd(src, j) {
-  const limit = Math.min(src.length, j + 20000);
+function tagEnd(scan, j) {
+  const limit = Math.min(scan.length, j + 20000);
   let k = j;
   while (k < limit) {
-    const c = src[k];
+    const c = scan[k];
     if (c === '"' || c === "'") {
-      // A JSX attribute string: no escapes, may span lines.
-      const close = src.indexOf(c, k + 1);
+      const close = scan.indexOf(c, k + 1);
       if (close === -1) return -1;
       k = close + 1;
       continue;
     }
     if (c === "{") {
-      k = skipBraces(src, k);
+      k = skipBraces(scan, k);
       continue;
     }
     if (c === ">") return k;
@@ -746,76 +738,143 @@ function tagEnd(src, j) {
   return -1;
 }
 
-const OPEN_TAG = /<([A-Za-z][\w.]*)(?=[\s/>])/y;
+const OPEN_TAG = /<([A-Za-z][\w.]*)(?=[\s/><])/y;
 const CLOSE_TAG = /<\/\s*([A-Za-z][\w.]*)?\s*>/y;
 
-/** Every JSX opening and closing tag in `src`, in source order. */
-export function jsxTags(src) {
+/** Every JSX opening and closing tag in a structure copy, in source order. */
+export function jsxTags(scan) {
   const tags = [];
-  for (let i = src.indexOf("<"); i !== -1; i = src.indexOf("<", i + 1)) {
+  for (let i = scan.indexOf("<"); i !== -1; i = scan.indexOf("<", i + 1)) {
     CLOSE_TAG.lastIndex = i;
-    const close = CLOSE_TAG.exec(src);
+    const close = CLOSE_TAG.exec(scan);
     if (close) {
       tags.push({ kind: "close", name: close[1] ?? "", index: i });
       continue;
     }
     OPEN_TAG.lastIndex = i;
-    const open = OPEN_TAG.exec(src);
+    const open = OPEN_TAG.exec(scan);
     if (!open) continue;
-    const start = i + open[0].length;
-    const end = tagEnd(src, start);
+    let start = i + open[0].length;
+    if (scan[start] === "<") {
+      start = skipTypeArguments(scan, start);
+      if (start === -1) continue;
+    }
+    const end = tagEnd(scan, start);
     if (end === -1) continue;
     tags.push({
       kind: "open",
       name: open[1],
-      attrs: src.slice(start, end),
       attrsAt: start,
-      selfClosing: src[end - 1] === "/",
+      attrsEnd: end,
+      selfClosing: scan[end - 1] === "/",
       index: i,
     });
   }
   return tags;
 }
 
-/** An attribute's value: `{ text, at, literal }` — `literal` when it is a plain string. */
-export function attrValue(tag, name) {
-  const re = new RegExp(`(?:^|\\s)${name}\\s*=\\s*`, "g");
-  const { attrs } = tag;
-  let m;
-  while ((m = re.exec(attrs))) {
-    const k = m.index + m[0].length;
-    const c = attrs[k];
-    if (c === '"' || c === "'") {
-      const close = attrs.indexOf(c, k + 1);
-      if (close === -1) return null;
-      return {
-        text: attrs.slice(k + 1, close),
-        at: tag.attrsAt + k + 1,
-        literal: true,
-      };
-    }
+/**
+ * An opening tag's own attributes — never one on a JSX element nested in an attribute's value
+ * (`render={<div className="…" />}`): `name → { from, to, kind }`, `kind` "string" or "expr".
+ */
+export function tagAttributes(tag, scan) {
+  const out = new Map();
+  const NAME = /[^\s=/>{"']+/y;
+  let k = tag.attrsAt;
+  while (k < tag.attrsEnd) {
+    const c = scan[k];
     if (c === "{") {
-      const close = skipBraces(attrs, k);
-      const inner = attrs.slice(k + 1, close - 1);
-      const lit = /^\s*(["'`])([^"'`$]*)\1\s*$/.exec(inner);
-      return lit
-        ? { text: lit[2], at: tag.attrsAt + k, literal: true }
-        : { text: inner, at: tag.attrsAt + k + 1, literal: false };
+      k = skipBraces(scan, k); // a spread
+      continue;
     }
+    NAME.lastIndex = k;
+    const name = NAME.exec(scan);
+    if (!name) {
+      k += 1;
+      continue;
+    }
+    let v = k + name[0].length;
+    while (v < tag.attrsEnd && /\s/.test(scan[v])) v += 1;
+    if (scan[v] !== "=") {
+      out.set(name[0], { kind: "flag" });
+      k = v;
+      continue;
+    }
+    v += 1;
+    while (v < tag.attrsEnd && /\s/.test(scan[v])) v += 1;
+    const q = scan[v];
+    if (q === '"' || q === "'") {
+      const close = scan.indexOf(q, v + 1);
+      out.set(name[0], { kind: "string", from: v + 1, to: close });
+      k = close + 1;
+    } else if (q === "{") {
+      const close = skipBraces(scan, v);
+      out.set(name[0], { kind: "expr", from: v + 1, to: close - 1 });
+      k = close;
+    } else k = v + 1;
   }
-  return null;
+  return out;
+}
+
+/** An attribute's string value when it is a literal (`size="full"`, `size={"full"}`), else null. */
+function literalValue(attr, scan, read) {
+  if (!attr || attr.kind === "flag") return null;
+  if (attr.kind === "string")
+    return { text: read.slice(attr.from, attr.to), at: attr.from };
+  const m = /^(\s*)(["'`])([^"'`]*)\2\s*$/.exec(scan.slice(attr.from, attr.to));
+  if (!m) return null;
+  const at = attr.from + m[1].length + 1;
+  const text = read.slice(at, at + m[3].length);
+  return m[2] === "`" && text.includes("${") ? null : { text, at };
+}
+
+/** The literal text a template spells out: its static parts and the strings inside each `${…}`. */
+function templateFragments(text, at) {
+  const out = [];
+  let start = 0;
+  let k = 0;
+  while (k < text.length) {
+    if (text[k] === "\\") {
+      k += 2;
+      continue;
+    }
+    if (text[k] === "$" && text[k + 1] === "{") {
+      out.push({ text: text.slice(start, k), at: at + start });
+      let depth = 0;
+      let e = k + 1;
+      for (; e < text.length; e += 1) {
+        if (text[e] === "{") depth += 1;
+        else if (text[e] === "}" && (depth -= 1) === 0) break;
+      }
+      const inner = text.slice(k + 2, e);
+      for (const m of inner.matchAll(/"([^"\n]*)"|'([^'\n]*)'/g))
+        out.push({ text: m[1] ?? m[2], at: at + k + 2 + m.index + 1 });
+      k = e + 1;
+      start = k;
+      continue;
+    }
+    k += 1;
+  }
+  out.push({ text: text.slice(start), at: at + start });
+  return out;
 }
 
 /** The class tokens a `className` value spells out in string literals, each with its offset. */
-function classTokens(value) {
-  const spans = value.literal
-    ? [{ text: value.text, at: value.at }]
-    : [...value.text.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g)].map(
-        (m) => ({
-          text: (m[1] ?? m[2] ?? m[3]).replace(/\$\{[^}]*\}/g, " "),
-          at: value.at + m.index + 1,
-        }),
-      );
+function classTokens(attr, scan, read) {
+  const spans = [];
+  if (attr.kind === "string")
+    spans.push({ text: read.slice(attr.from, attr.to), at: attr.from });
+  else if (attr.kind === "expr")
+    for (let k = attr.from; k < attr.to; k += 1) {
+      const q = scan[k];
+      if (q !== '"' && q !== "'" && q !== "`") continue;
+      const close = scan.indexOf(q, k + 1);
+      if (close === -1 || close > attr.to) break;
+      const text = read.slice(k + 1, close);
+      if (q === "`") spans.push(...templateFragments(text, k + 1));
+      else spans.push({ text, at: k + 1 });
+      k = close;
+    }
   const tokens = [];
   for (const span of spans)
     for (const t of span.text.matchAll(/\S+/g))
@@ -933,16 +992,24 @@ function bySpecificity(a, b) {
   return rb.length - ra.length;
 }
 
+/** A value no static row names: what a page's `[id]` stands for when it is matched as a path. */
+const ANY_SEGMENT = "\u0000";
+
 /**
- * The width the route map gives a route pattern: its own row, else the most specific row that
- * serves it, else `default` (what `definePageWidths` answers for a route it does not list).
+ * The width the route map gives a page's route pattern: its own row; else — matching the pattern
+ * as the concrete path it serves, with `[id]` and `[...rest]` as one value no static row names and
+ * `[[...rest]]` as nothing — the most specific row that serves it, exactly as `widthOfPath` picks;
+ * else `default`, what `definePageWidths` answers for a route it does not list.
  */
 export function widthForRoute(map, route) {
   const key = `/${routeSegments(route).join("/")}`;
   if (map.has(key)) return { width: map.get(key).width, row: key };
+  const path = parseRoute(key)
+    .filter((s) => s.kind !== "optional-catch-all")
+    .map((s) => (s.kind === "static" ? s.value : ANY_SEGMENT));
   const row = [...map.keys()]
     .sort(bySpecificity)
-    .find((pattern) => matchRoute(pattern, key));
+    .find((pattern) => matchRoute(pattern, `/${path.join("/")}`));
   return row
     ? { width: map.get(row).width, row }
     : { width: "default", row: null };
@@ -951,19 +1018,18 @@ export function widthForRoute(map, route) {
 const ROUTE_ROW = /(["'])(\/[^"'\s]*)\1\s*:\s*(["'])(prose|default|full)\3/g;
 
 /**
- * Route-map rows a source declares: every `"/route": "prose" | "default" | "full"` in a file that
- * calls `definePageWidths(`, and every such row inside a `widths: { … }` object literal anywhere
- * (a module registry that contributes its own routes to the map).
+ * Route-map rows a source declares: the `"/route": "prose" | "default" | "full"` rows of the
+ * object literal passed to `definePageWidths(…)`, and of every `widths: { … }` object literal (a
+ * module registry that contributes its own routes to the map).
  */
 export function routeMapRows(src) {
   const spans = [];
-  if (/\bdefinePageWidths\s*(?:<[^>]*>)?\s*\(/.test(src))
-    spans.push([0, src.length]);
-  else
-    for (const m of src.matchAll(/\bwidths\s*:\s*\{/g)) {
-      const open = m.index + m[0].length - 1;
-      spans.push([open, skipBraces(src, open)]);
-    }
+  for (const m of src.matchAll(
+    /\bdefinePageWidths\s*(?:<[^>()]*>)?\s*\(\s*\{|\bwidths\s*:\s*\{/g,
+  )) {
+    const open = m.index + m[0].length - 1;
+    spans.push([open, skipBraces(src, open)]);
+  }
   const rows = [];
   for (const [from, to] of spans)
     for (const m of src.slice(from, to).matchAll(ROUTE_ROW))
@@ -971,21 +1037,51 @@ export function routeMapRows(src) {
   return rows;
 }
 
-/** A Next.js App Router page or layout's route (`src/app/(app)/tasks/[id]/page.tsx` → `/tasks/[id]`). */
+/**
+ * A Next.js App Router page or layout's route: `src/app/(app)/tasks/[id]/page.tsx` → `/tasks/[id]`.
+ * Route groups and `@slot`s are not segments; an intercepting segment (`(.)x`, `(..)x`,
+ * `(..)(..)x`, `(...)x`) renders the route it intercepts — the same level, one or two levels up,
+ * or the root.
+ */
 export function appRouteOf(relPath) {
   const parts = relPath.split("/");
   const file = parts.pop();
   if (!/^(?:page|layout)\.[jt]sx?$/.test(file)) return null;
   const app = parts.indexOf("app");
   if (app === -1) return null;
-  // An intercepting route (`(.)photo`, `(..)(..)photo`) renders the route it intercepts.
-  const route = parts
-    .slice(app + 1)
-    .map((s) => s.replace(/^(?:\(\.{1,3}\))+(?=.)/, ""));
-  return `/${routeSegments(route.join("/")).join("/")}`;
+  const route = [];
+  for (const part of parts.slice(app + 1)) {
+    const intercept = /^((?:\(\.{1,3}\))+)(.+)$/.exec(part);
+    if (intercept) {
+      for (const marker of intercept[1].match(/\(\.{1,3}\)/g)) {
+        if (marker === "(...)") route.length = 0;
+        else if (marker === "(..)") route.pop();
+      }
+      route.push(...routeSegments(intercept[2]));
+    } else route.push(...routeSegments(part));
+  }
+  return `/${route.join("/")}`;
 }
 
 const COMPOSITION_EXTENSIONS = /\.[cm]?[jt]sx?$/;
+const TEST_FILE = /(?:^|\/)__tests__\/|\.(?:test|spec)\.[cm]?[jt]sx?$/;
+
+/** 1-based line of an offset, by binary search over the newline offsets. */
+function lineIndex(text) {
+  const breaks = [];
+  for (let k = text.indexOf("\n"); k !== -1; k = text.indexOf("\n", k + 1))
+    breaks.push(k);
+  return (index) => {
+    let lo = 0;
+    let hi = breaks.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (breaks[mid] < index) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo + 1;
+  };
+}
 
 /**
  * The four composition rules over the project's own source (the ui alias dirs, node_modules and
@@ -1023,12 +1119,14 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     }
   };
   walk(root);
+  files.sort();
 
   const important = [];
   const widths = [];
   const headers = [];
   const pages = [];
   const map = new Map();
+  const conflicts = [];
   for (const full of files) {
     try {
       if (statSync(full).size > SCAN_MAX_BYTES) continue;
@@ -1038,18 +1136,31 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     const raw = readIfExists(full);
     if (raw == null) continue;
     const file = relative(root, full).split(sep).join("/");
-    // Comments blanked (newlines kept), so a commented-out tag or an example in a doc block is not
-    // read. Strings stay: the class strings ARE the subject.
-    const src = maskNonUsage(raw, { script: true }).replace(/\r/g, "");
-    const lineAt = (index) => src.slice(0, index).split("\n").length;
-    for (const row of routeMapRows(src))
-      map.set(row.route, { width: row.width, file, line: lineAt(row.index) });
-    if (!/\.[jt]sx$/.test(full) || !src.includes("<")) continue;
+    const read = raw.replace(/\r/g, "");
+    // Comments (and prose strings) blanked: a commented-out row or an example in a doc block is
+    // not part of the map, and an import in a comment imports nothing.
+    const src = maskNonUsage(read, { script: true });
+    const lineAt = lineIndex(read);
+    if (!TEST_FILE.test(file))
+      for (const row of routeMapRows(src)) {
+        const at = { width: row.width, file, line: lineAt(row.index) };
+        const known = map.get(row.route);
+        if (!known) map.set(row.route, at);
+        else if (known.width !== row.width)
+          conflicts.push({
+            file,
+            line: at.line,
+            match: `route-map row "${row.route}": "${row.width}"`,
+            hint: `${known.file}:${known.line} already says "${known.width}"`,
+          });
+      }
+    if (!/\.[jt]sx$/.test(full) || !read.includes("<")) continue;
 
+    const scan = maskNonUsage(read, { script: true, blankStrings: true });
     const imports = uiImports(src, full, { uiAliases, uiDirs });
     const overlays = [];
     const route = appRouteOf(file);
-    for (const tag of jsxTags(src)) {
+    for (const tag of jsxTags(scan)) {
       const part = partOf(tag.name, imports);
       if (tag.kind === "close") {
         if (part && part in OVERLAY_HEADERS) {
@@ -1067,20 +1178,26 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
           hint: OVERLAY_HEADERS[inside],
         });
       }
-      if (part === "AppShellPage" || tag.name === "AppShellPage") {
-        const size = attrValue(tag, "size");
+      const isPage = part === "AppShellPage" || tag.name === "AppShellPage";
+      if (!part && !isPage) continue;
+      const attrs = tagAttributes(tag, scan);
+      if (isPage) {
+        const size = attrs.get("size");
         pages.push({
           file,
           line: lineAt(tag.index),
           route,
-          size: size == null ? "default" : size.literal ? size.text : null,
+          size:
+            size == null
+              ? "default"
+              : (literalValue(size, scan, read)?.text ?? null),
         });
       }
       if (!part) continue;
       if (part in OVERLAY_HEADERS && !tag.selfClosing) overlays.push(part);
-      const cls = attrValue(tag, "className");
-      if (!cls) continue;
-      for (const { token, at } of classTokens(cls)) {
+      const cls = attrs.get("className");
+      if (!cls || cls.kind === "flag") continue;
+      for (const { token, at } of classTokens(cls, scan, read)) {
         const utility = utilityOf(token);
         if (isImportant(utility))
           important.push({ file, line: lineAt(at), match: `${part} ${token}` });
@@ -1091,7 +1208,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
   }
 
   // AppShellPage size vs the route map: route files only, literal (or absent) sizes only.
-  const mismatches = [];
+  const mismatches = [...conflicts];
   let compared = 0;
   let dynamic = 0;
   let outside = 0;
