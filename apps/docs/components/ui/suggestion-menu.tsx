@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.88 sha256-f1QKjdm6uYqlvZSbmKfWYCYkph91RWsTEItynjdcZ60=
+// @vegastack suggestion-menu@0.25.88 sha256-fcZCqhieokiNLom0lpELH9VFhfjr5spZ90+f7UZgkFU=
 
 "use client";
 
@@ -586,12 +586,14 @@ export function SuggestionMenu({
       className={
         sheet
           ? cn(
-              "min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-2 no-scrollbar data-loading:overflow-hidden",
+              // Positioned, so a row's `offsetTop` is the list's own (the active row scrolls in).
+              "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-2 no-scrollbar data-loading:overflow-hidden",
               className,
             )
           : cn(
               SURFACE,
-              lg ? "w-80" : "w-64",
+              // Never wider than the window less its 8px edge gaps.
+              lg ? "w-80 max-w-[calc(100vw-1rem)]" : "w-64",
               "data-loading:overflow-hidden",
               className,
             )
@@ -639,57 +641,59 @@ export function SuggestionMenu({
 
   if (sheet)
     return (
-      <>
-        <Sheet
-          open
-          onOpenChange={(next) => {
-            if (!next) onClose?.();
-          }}
+      <Sheet
+        open
+        onOpenChange={(next) => {
+          if (!next) onClose?.();
+        }}
+      >
+        <SheetContent
+          side="bottom"
+          data-slot="suggestion-menu-sheet"
+          className="max-h-[70dvh] gap-0"
         >
-          <SheetContent
-            side="bottom"
-            data-slot="suggestion-menu-sheet"
-            className="max-h-[70dvh] gap-0"
-          >
-            <SheetHeader className="pb-2">
-              <SheetTitle>{ariaLabel}</SheetTitle>
-            </SheetHeader>
-            <PanelSearch className="mx-4 mb-1 h-11 rounded-md px-1">
-              <PanelSearchField
-                data-slot="suggestion-menu-search"
-                aria-label={ariaLabel}
-                placeholder={searchPlaceholder}
-                role="combobox"
-                aria-expanded
-                aria-controls={id}
-                aria-activedescendant={
-                  showRows ? suggestionMenuOptionId(id, activeIndex) : undefined
-                }
-                autoComplete="off"
-                value={query}
-                onValueChange={(next) => onQueryChange?.(next)}
-                onKeyDown={(event) => {
-                  // ↑ ↓ Enter here, as the editor's keys drive the popover; Escape closes.
-                  if (
-                    suggestionMenuKeyDown(event.nativeEvent, {
-                      count: showRows ? options.length : 0,
-                      activeIndex,
-                      onActiveIndexChange,
-                      onSelect: (index) => {
-                        if (!options[index]?.disabled) onSelect(index);
-                      },
-                      onClose: () => onClose?.(),
-                    })
-                  )
-                    event.preventDefault();
-                }}
-              />
-            </PanelSearch>
-            {list}
-          </SheetContent>
-        </Sheet>
-        <Announcer />
-      </>
+          <SheetHeader className="pb-2">
+            <SheetTitle>{ariaLabel}</SheetTitle>
+          </SheetHeader>
+          <PanelSearch className="mx-4 mb-1 h-11 rounded-md px-1">
+            <PanelSearchField
+              data-slot="suggestion-menu-search"
+              aria-label={ariaLabel}
+              placeholder={searchPlaceholder}
+              role="combobox"
+              aria-expanded
+              aria-controls={id}
+              aria-activedescendant={
+                showRows ? suggestionMenuOptionId(id, activeIndex) : undefined
+              }
+              autoComplete="off"
+              value={query}
+              onValueChange={(next) => onQueryChange?.(next)}
+              onKeyDown={(event) => {
+                // An IME composing (Enter confirms its text) owns the keys.
+                if (event.nativeEvent.isComposing || event.keyCode === 229)
+                  return;
+                // ↑ ↓ Enter here, as the editor's keys drive the popover; Escape closes.
+                if (
+                  suggestionMenuKeyDown(event.nativeEvent, {
+                    count: showRows ? options.length : 0,
+                    activeIndex,
+                    onActiveIndexChange,
+                    onSelect: (index) => {
+                      if (!options[index]?.disabled) onSelect(index);
+                    },
+                    onClose: () => onClose?.(),
+                  })
+                )
+                  event.preventDefault();
+              }}
+            />
+          </PanelSearch>
+          {list}
+          {/* Inside the modal sheet: outside it, the page is inert and nothing is read out. */}
+          <Announcer />
+        </SheetContent>
+      </Sheet>
     );
 
   return createPortal(

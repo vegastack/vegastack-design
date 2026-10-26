@@ -464,3 +464,51 @@ test('presentation="auto" on a fine pointer and a wide window stays a popover', 
     restore.mockRestore();
   }
 });
+
+test("the sheet announces inside itself (the page behind it is inert), and an IME's Enter picks nothing", async () => {
+  const restore = stubMediaQueries((query) =>
+    query.includes("pointer: coarse"),
+  );
+  const onSelect = vi.fn();
+  try {
+    await render(<Menu presentation="auto" options={[]} onSelect={onSelect} />);
+    const sheet = await vi.waitFor(() => {
+      const found = document.querySelector<HTMLElement>(
+        '[data-slot="suggestion-menu-sheet"]',
+      );
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    await vi.waitFor(() =>
+      expect(sheet.querySelector('[role="status"]')?.textContent).toBe(
+        "No results",
+      ),
+    );
+  } finally {
+    restore.mockRestore();
+  }
+  const restoreAgain = stubMediaQueries((query) =>
+    query.includes("pointer: coarse"),
+  );
+  try {
+    document.body.innerHTML = "";
+    await render(<Menu presentation="auto" onSelect={onSelect} />);
+    const search = await vi.waitFor(() => {
+      const found = document.querySelector<HTMLInputElement>(
+        '[data-slot="suggestion-menu-search"]',
+      );
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    search.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        isComposing: true,
+      }),
+    );
+    expect(onSelect).not.toHaveBeenCalled();
+  } finally {
+    restoreAgain.mockRestore();
+  }
+});

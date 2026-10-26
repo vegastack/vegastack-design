@@ -2752,7 +2752,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.25.88",
-        "integrity": "sha256-f1QKjdm6uYqlvZSbmKfWYCYkph91RWsTEItynjdcZ60="
+        "integrity": "sha256-fcZCqhieokiNLom0lpELH9VFhfjr5spZ90+f7UZgkFU="
       }
     },
     {
@@ -18665,7 +18665,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.88",
-        "integrity": "sha256-RJ+6Hm52OGtFFC65+zVzeO1ca6jadkWSFHVdlgSmbRA="
+        "integrity": "sha256-OOd2ATZQptZ34COo15DMciqgDH7SomHR6nJJULdKMFo="
       }
     },
     {

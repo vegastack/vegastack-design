@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-RJ+6Hm52OGtFFC65+zVzeO1ca6jadkWSFHVdlgSmbRA=
+// @vegastack text-edit@0.25.88 sha256-OOd2ATZQptZ34COo15DMciqgDH7SomHR6nJJULdKMFo=
 
 "use client";
 
@@ -10736,7 +10736,7 @@ export function TextEditEditor({
     searchRef.current = {};
   }, []);
   const runSearch = React.useCallback(
-    (query: string) => {
+    (query: string, typedInSheet = false) => {
       stopSearch();
       const source = callbacks.current.mentions;
       const current = mentionStateRef.current;
@@ -10756,7 +10756,14 @@ export function TextEditEditor({
       const show = (options: MentionOption[], loading: boolean) => {
         const state = mentionStateRef.current;
         if (!state) return false;
-        if (!loading && options.length === 0 && /\s$/.test(query)) return true;
+        // (A sheet's search field is a search, never a sentence: it stays open.)
+        if (
+          !typedInSheet &&
+          !loading &&
+          options.length === 0 &&
+          /\s$/.test(query)
+        )
+          return true;
         setMention({
           ...state,
           results: groupResults(options, source.kinds, query, source.sections),
@@ -12800,7 +12807,7 @@ export function TextEditEditor({
           onQueryChange={(query) => {
             setSheetQuery(query);
             setMention({ ...mentionMenu, query, index: 0 });
-            runSearch(query);
+            runSearch(query, true);
           }}
           onClose={() => {
             const ed = editorRef.current;
