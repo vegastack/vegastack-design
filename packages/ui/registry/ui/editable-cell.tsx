@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.79 sha256-+BfaUQRg0/KZzMGDqmIFaf9BNTPHxg5cnEAjKNvitaI=
+// @vegastack editable-cell@0.25.79 sha256-a4FgRgvAY1cB3ugJ2KUP+0CdiVN/fWKF5Yg2pKmbhoE=
 
 "use client";
 
@@ -714,6 +714,17 @@ function InlineTextBody({
               // `cell`: only the text starts an edit; a click beside it bubbles on to the row.
               if (fill && textNode && !textNode.contains(event.target as Node))
                 return;
+              // A click on a widget inside the value (a link chip) is the widget's: it opens
+              // the link, it doesn't start an edit.
+              const widget = (event.target as Element).closest(
+                'a[href], button, [role="button"], [role="link"]',
+              );
+              if (
+                widget &&
+                widget !== event.currentTarget &&
+                event.currentTarget.contains(widget)
+              )
+                return;
               event.stopPropagation();
               // The click's point puts the caret where it landed in the text.
               edit.start(event);
@@ -723,6 +734,9 @@ function InlineTextBody({
       onKeyDown={
         interactive
           ? (event) => {
+              // A key on a widget inside the value (a link chip reached from a grid cell) is
+              // the widget's own: Enter follows the link, it doesn't start an edit.
+              if (event.target !== event.currentTarget) return;
               if (
                 event.key === "Enter" ||
                 event.key === "F2" ||

@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.25.79 sha256-b59RqKi2eLMR8smDT8Bd1/NzvIJK0p3bmzVvVlOCWu4=
+// @vegastack filter-bar-managed@0.25.79 sha256-1HmY+1w5MllxxNMA0YJT8c2XyA9dx/lpof9v0ftOvFs=
 
 "use client";
 
@@ -1217,7 +1217,10 @@ export function FilterBuilder<V = unknown>({
             size="sm"
             disabled={disabled || atConditionCap || vocabulary.length === 0}
             onClick={() => {
-              const first = vocabulary[0]!;
+              // Read inside the handler and guard: a compiled memo must never
+              // dereference an empty vocabulary while rendering.
+              const first = vocabulary[0];
+              if (!first) return;
               onValueChange(
                 updateGroup(value, path, (g) => ({
                   ...g,
@@ -1955,7 +1958,12 @@ export function SortBuilder({
         className="w-fit"
         data-slot="sort-builder-add"
         disabled={disabled || value.length >= max || free.length === 0}
-        onClick={() => onChange([...value, { key: free[0]!.key, dir: "asc" }])}
+        onClick={() => {
+          // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
+          // property read into render, which crashes once every field is used.
+          const next = free[0];
+          if (next) onChange([...value, { key: next.key, dir: "asc" }]);
+        }}
       >
         <Plus /> Add sort
       </Button>
@@ -2095,7 +2103,12 @@ export function GroupByPicker({
         className="w-fit"
         data-slot="group-by-picker-add"
         disabled={disabled || value.length >= max || free.length === 0}
-        onClick={() => onChange([...value, free[0]!.key])}
+        onClick={() => {
+          // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
+          // property read into render, which crashes once every field is grouped.
+          const next = free[0];
+          if (next) onChange([...value, next.key]);
+        }}
       >
         <Plus /> Add group
       </Button>
