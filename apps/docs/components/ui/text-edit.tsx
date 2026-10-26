@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-K3krVkyKHv6LcRcFTgF+Qtt9Gtz9hn/JrfMbIEflN14=
+// @vegastack text-edit@0.25.88 sha256-gjWumphyJgxRzIa6pLLQY5enpM6jvA3cfFEy6/y85mE=
 
 "use client";
 
@@ -2202,11 +2202,11 @@ export function TextEdit(props: TextEditProps) {
     },
     // A link click places the caret, as in the editor, instead of navigating.
     onClick: (event: React.MouseEvent) => {
-      // A task line's ↗ is the task page's own link (`onTaskOpen`): it navigates.
+      // A task line's ↗ and a bookmark card are links of their own: they navigate.
       if (
         editable &&
         (event.target as Element).closest?.(
-          "a:not([data-slot=task-inline-open])",
+          "a:not([data-slot=task-inline-open]):not([data-slot=markdown-bookmark])",
         )
       )
         event.preventDefault();

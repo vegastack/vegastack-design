@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-K3krVkyKHv6LcRcFTgF+Qtt9Gtz9hn/JrfMbIEflN14=
+// @vegastack text-edit@0.25.88 sha256-gjWumphyJgxRzIa6pLLQY5enpM6jvA3cfFEy6/y85mE=
 
 "use client";
 
@@ -3857,10 +3857,30 @@ function mentionView(runtime: EditorRuntime) {
     const closed = runtime.mentionStatus.current?.(kind, id);
     const resolver = useInlineChipResolver();
     const open = runtime.taskOpen.current;
+    const asTask =
+      !!open && kind === "task" && !id.startsWith(RESTRICTED_MENTION_PREFIX);
+    // The line's box as it is now: a tick changes the task item, never this chip's node, so the
+    // chip follows the document rather than its own redraws.
+    const lineState = React.useSyncExternalStore(
+      React.useCallback(
+        (onChange: () => void) => {
+          if (!asTask) return () => {};
+          editor.on("transaction", onChange);
+          return () => {
+            editor.off("transaction", onChange);
+          };
+        },
+        [asTask, editor],
+      ),
+      () => {
+        if (!asTask) return "none";
+        const line = taskLineOf(editor, getPos);
+        return line ? (line.checked ? "checked" : "open") : "none";
+      },
+      () => "none",
+    );
     const line =
-      open && kind === "task" && !id.startsWith(RESTRICTED_MENTION_PREFIX)
-        ? taskLineOf(editor, getPos)
-        : null;
+      lineState === "none" ? null : { checked: lineState === "checked" };
     if (open && line) {
       // A linked checklist line: the line's box is the task's; the chip is its title and meta.
       const state = closed ?? resolver?.state?.(kind, id) ?? null;

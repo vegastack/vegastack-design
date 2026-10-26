@@ -7978,3 +7978,19 @@ test("bookmarks: Bookmark from the slash menu in a list lands after the list, wh
   );
   expect(lastValue(onValueChange)!.startsWith("- one")).toBe(true);
 });
+
+test("onTaskOpen: ticking the line's box restyles the title at once", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)",
+    onTaskOpen: () => {},
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const inline = () => box.querySelector('[data-slot="task-inline"]')!;
+  expect(inline().hasAttribute("data-done")).toBe(false);
+  await userEvent.click(box.querySelector('li [role="checkbox"]')!);
+  await vi.waitFor(() => expect(inline().hasAttribute("data-done")).toBe(true));
+});

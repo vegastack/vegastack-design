@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-7u2ox5JzHx0eHZJogCM17YI7D/l+aMwdL7ut568Y2Og=
+// @vegastack markdown-view@0.25.88 sha256-2/sln8AMsMLUyoI4NDJM4AqdDvc4QbPSRAhe4aU18e8=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -605,7 +605,9 @@ function bookmarkOf(paragraph: Tokens.Generic): El | null {
   const href = decode(String(link.href ?? ""));
   // Its text is its own address (`bookmarkMarkdown`): a link with words of its own stays a link.
   const text = inline(link.tokens);
-  if (text.length !== 1 || text[0] !== href) return null;
+  // Escaped characters lex as text runs of their own: the plain text, joined, is the address.
+  if (!text.every((part) => typeof part === "string") || text.join("") !== href)
+    return null;
   return /^https?:\/\//i.test(href) ? el("bookmark", { url: href }) : null;
 }
 
