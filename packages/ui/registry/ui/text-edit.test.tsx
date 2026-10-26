@@ -3291,6 +3291,37 @@ test("mentions: with a query, groups sit by their best match on the name, ties i
   ).toContain("Arcadia Architects");
 });
 
+test("mentions: while the next query's answer is on its way, the rows kept are grouped for it", async () => {
+  const search = vi.fn((query: string): Promise<MentionOption[]> =>
+    query === "A"
+      ? Promise.resolve([
+          { kind: "task", id: "t1", label: "Approve Arc invoice" },
+          { kind: "customer", id: "c1", label: "Arcadia Architects" },
+        ])
+      : new Promise(() => {}),
+  );
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: [
+        { id: "task", noun: "Task", plural: "Tasks", order: 1 },
+        { id: "customer", noun: "Customer", plural: "Customers", order: 2 },
+      ],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  const headings = () =>
+    [...(mentionMenu()?.querySelectorAll('[role="group"]') ?? [])].map(
+      (group) => group.firstElementChild?.textContent,
+    );
+  await userEvent.keyboard("@A");
+  // Both names start with "A": the kinds' order.
+  await vi.waitFor(() => expect(headings()).toEqual(["Tasks", "Customers"]));
+  await userEvent.keyboard("rc");
+  // A name's start ("Arcadia…") before a word's start ("…Arc invoice"), before "arc" answers.
+  await vi.waitFor(() => expect(headings()).toEqual(["Customers", "Tasks"]));
+});
+
 test("mentions: a remembered empty answer for a phrase past a space closes the menu again, pasted or typed", async () => {
   const search = vi.fn(async (_query: string): Promise<MentionOption[]> => []);
   const onValueChange = vi.fn();

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.83 sha256-8FShSp1Nv3JTCzAtqONOvDe5XBjSvY2jsFiSB4LtK4w=
+// @vegastack text-edit@0.25.83 sha256-ygQnqiWLdLg/hS5SOVcjy28u93mddehZCzS28+Js/W0=
 
 "use client";
 
@@ -2850,8 +2850,8 @@ function mentionMatchRank(label: string, query: string): number {
   const name = fold(label);
   if (name === q) return 0;
   if (name.startsWith(q)) return 1;
-  for (let at = name.indexOf(q); at > 0; at = name.indexOf(q, at + 1))
-    if (!/[\p{L}\p{N}]/u.test(name[at - 1]!)) return 2;
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (new RegExp(`(?<![\\p{L}\\p{N}])${escaped}`, "u").test(name)) return 2;
   return name.includes(q) ? 3 : 4;
 }
 
@@ -10608,10 +10608,16 @@ export function TextEditEditor({
       } else
         setMention({
           ...current,
-          results:
-            current.results?.filter((option) =>
-              matchesMentionQuery(option, query),
-            ) ?? null,
+          // The rows that still match, grouped again for the query as it now reads.
+          results: current.results
+            ? groupResults(
+                current.results.filter((option) =>
+                  matchesMentionQuery(option, query),
+                ),
+                source.kinds,
+                query,
+              )
+            : null,
           loading: true,
           error: false,
           index: 0,
