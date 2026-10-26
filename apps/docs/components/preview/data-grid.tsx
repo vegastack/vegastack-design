@@ -1,13 +1,18 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
+import { ArrowDown, ArrowUp, CircleDot, Hash, Plus, Type } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-grid` (dogfoods the registry) → auto-scanned.
 import {
   DataGrid,
+  type DataGridActions,
   type DataGridColumn,
   type DataGridSort,
 } from "@/components/ui/data-grid";
+import { ActionBarButton } from "@/components/ui/action-bar";
+import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
 interface Deal {
@@ -594,6 +599,153 @@ export function dataGridCells(): ReactNode {
           setFuture((rest) => rest.slice(1));
           setRows(next);
         }}
+      />
+    </Wrapper>
+  );
+}
+
+/* ── A record table: rows open beside the grid, the grid fills its box, cards on a phone ── */
+
+export function dataGridRecords(): ReactNode {
+  const [rows, setRows] = useState(SAMPLES);
+  const [sort, setSort] = useState<DataGridSort[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [open, setOpen] = useState<string | null>(null);
+  const actions = useRef<DataGridActions>(null);
+  const sortMenu = (key: string) => (
+    <>
+      <DropdownMenuItem onClick={() => setSort([{ key, direction: "asc" }])}>
+        <ArrowUp /> Sort ascending
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setSort([{ key, direction: "desc" }])}>
+        <ArrowDown /> Sort descending
+      </DropdownMenuItem>
+    </>
+  );
+  const columns: DataGridColumn<Sample>[] = [
+    {
+      key: "name",
+      header: "Name",
+      icon: <Type />,
+      width: 220,
+      frozen: true,
+      editable: { type: "text" },
+      headerMenu: sortMenu("name"),
+    },
+    {
+      key: "status",
+      header: "Status",
+      icon: <CircleDot />,
+      width: 140,
+      editable: {
+        type: "select",
+        options: ["Requested", "Sent", "Received", "Closed"].map((value) => ({
+          value,
+          label: value,
+        })),
+      },
+      headerMenu: sortMenu("status"),
+    },
+    {
+      key: "qty",
+      header: "Qty",
+      icon: <Hash />,
+      width: 100,
+      // A numeric column lines its figures and its header up at the end.
+      numeric: true,
+      editable: { type: "number" },
+      headerMenu: sortMenu("qty"),
+    },
+  ];
+  const sorted = sort[0]
+    ? [...rows].sort((a, b) => {
+        const key = sort[0]!.key as keyof Sample;
+        const order = String(a[key]).localeCompare(String(b[key]), "en", {
+          numeric: true,
+        });
+        return sort[0]!.direction === "asc" ? order : -order;
+      })
+    : rows;
+  const openRow = open ? rows.find((row) => row.id === open) : undefined;
+  return (
+    <Wrapper className="block space-y-3">
+      <DataGrid<Sample>
+        aria-label="Sample requests"
+        columns={columns}
+        data={sorted}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        sortMode="manual"
+        sort={sort}
+        onSortChange={setSort}
+        columnPicker={false}
+        rowHeight="short"
+        selectionMode="cells"
+        selectable
+        selectedIds={selected}
+        onSelectionChange={setSelected}
+        selectionActions={(ids, clear) => (
+          <ActionBarButton
+            onClick={() => {
+              setRows((current) => current.filter((row) => !ids.has(row.id)));
+              clear();
+            }}
+          >
+            Delete
+          </ActionBarButton>
+        )}
+        onRowOpen={(id) => setOpen(id)}
+        activeRowId={open}
+        actionsRef={actions}
+        phoneLayout="cards"
+        onCellCommit={(row, key, value) =>
+          setRows((current) =>
+            current.map((r) =>
+              r.id === row.id
+                ? { ...r, [key]: key === "qty" ? Number(value) : value }
+                : r,
+            ),
+          )
+        }
+        headerTrailing={(focus) => (
+          <Button
+            {...focus}
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Add field"
+          >
+            <Plus />
+          </Button>
+        )}
+      />
+      <p className="text-sm text-muted-foreground" aria-live="polite">
+        {openRow
+          ? `Open: ${openRow.name} (${(actions.current?.getRowOrder().indexOf(openRow.id) ?? 0) + 1} of ${sorted.length})`
+          : "Hover a row and press its Open button, or press Space on a cell."}
+      </p>
+    </Wrapper>
+  );
+}
+
+/* ── An empty grid wider than its box: the empty state stays where the reader is ── */
+
+export function dataGridEmpty(): ReactNode {
+  const columns: DataGridColumn<Sample>[] = Array.from(
+    { length: 9 },
+    (_, index) => ({
+      key: index === 0 ? "name" : `f${index}`,
+      header: index === 0 ? "Name" : `Field ${index}`,
+      width: index === 0 ? 220 : 160,
+    }),
+  );
+  return (
+    <Wrapper className="block">
+      <DataGrid<Sample>
+        aria-label="Empty sample requests"
+        columns={columns}
+        data={[]}
+        getRowId={(row) => row.id}
+        columnPicker={false}
       />
     </Wrapper>
   );

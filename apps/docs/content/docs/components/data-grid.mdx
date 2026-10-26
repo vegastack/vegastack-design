@@ -114,6 +114,16 @@ should: summary values, server sort orders and group pages come in as props.
 The grid renders its own `<table>` inside ONE scroll viewport (`data-slot="grid-viewport"`), so the
 sticky header, the sticky summary row and the frozen columns all resolve against the same box.
 
+The fixed layout **fills its box**: the table is never narrower than the viewport, and a last,
+unsized filler track takes whatever the columns leave. The header band, the row borders and
+washes, the summary row and the footer reach the viewport's end while every column keeps its own
+width, and the `headerTrailing` "+" column stays right after the last real column.
+
+On a phone-width container (under 40rem) `phoneLayout="cards"` shows each row as a card: the
+primary value as its title (it opens the row, with `onRowOpen`) and the next `cardFields` columns
+(3 by default) as labelled values. The grid decides by its own width, so a tablet keeps the grid
+and a narrow pane gets cards.
+
 ### The toolbar
 
 The toolbar row holds the host's `toolbar` slot on the leading edge and the grid's own controls on
@@ -125,6 +135,42 @@ already has one. With no `toolbar`, no picker and nothing hidden, the toolbar ro
 all.
 
 ## Examples
+
+### Opening rows
+
+A grid row opens its record — a peek beside the grid — without fighting cell selection or
+editing. `onRowOpen(rowId, { event, index })` adds an **Open** button (24×24) at the start of each
+row's primary cell: it shows on row hover and on keyboard focus anywhere in the row (always on
+touch) and holds its place at rest, so nothing shifts. From the keyboard, <kbd>Space</kbd> on any
+of the row's cells or <kbd>Enter</kbd> on its primary cell (the row header) opens it;
+
+<kbd>F2</kbd> or typing still edits. `activeRowId` marks the open row
+(`data-peek-active`, the accent wash) and scrolls it into view as the peek
+walks; `actionsRef` exposes `getRowOrder()` for that walk and `focusCell(rowId,
+key)` to put the active cell on a new row.
+
+The active cell is outlined (2px, inset) while the grid holds focus, whether a click or a key put
+it there; a range's other cells take the tint. A header with a `headerMenu` is one button that opens
+the menu (sort lives in it), a column's `icon` sits before its label, and a `numeric` column lines
+its figures and its header up at the end. `selectionActions` docks the same selection bar as
+`DataList`'s while rows are checked. Narrow the preview below 40rem to see the cards.
+
+<ComponentPreview
+  name="dataGridRecords"
+  file="components/preview/data-grid.tsx"
+/>
+
+### Empty state
+
+An empty grid wider than its box holds its empty (or error) state to the viewport — centred where
+the reader is, never clipped by the columns scrolled out of view. `loading` draws `loadingRows`
+skeleton rows (5 by default): pass the rows the page will hold so the loaded grid lands without a
+shift.
+
+<ComponentPreview
+  name="dataGridEmpty"
+  file="components/preview/data-grid.tsx"
+/>
 
 ### Grouping
 
@@ -227,9 +273,9 @@ move across; <kbd>Escape</kbd> restores grid navigation; a rejected commit
 reverts and announces. While an IME is composing, no key commits or moves.
 
 An editable column's `render` is its display while the cell holds a non-empty
-value and is not being edited (tags, chips, avatars); an empty cell shows the
-editor's placeholder, and a pending commit shows its value as text until the
-host's updated row arrives. Without a `render` the editor's own display shows
+value and is not being edited (tags, chips, avatars); an empty cell is blank —
+the editor's placeholder shows only once it edits — and a pending commit shows
+its value as text until the host's updated row arrives. Without a `render` the editor's own display shows
 (a select's label, a formatted date or number). A `custom` editor's `render`
 receives the `row` with `value`, `seed`, `commit` and `cancel`, so it can read the typed
 value the cell's string can't carry: `seed` is the key that opened it (type-to-edit),
@@ -297,9 +343,9 @@ grid is described by that line and by the hidden-columns count.
 ### Column
 
 `mono` is for codes and IDs — a reference, a key — and styles body cells only; the header stays in
-the sans face. A number (a count, a date, an amount) uses
-`align: "end"` and renders its value in a `tabular-nums` span, so its digits line up in the regular
-font.
+the sans face. A number (a count, a date, an amount) is `numeric`: its cells and its header align
+to the end unless the column sets its own `align`, and its digits line up in `tabular-nums` in the
+regular font. `icon` puts the field's type glyph before the header label.
 
 <ApiTable
   path="../../packages/ui/registry/ui/data-grid.tsx"
@@ -356,11 +402,12 @@ font.
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+arrow                                                                                            | The data edge in that direction.                                                    |
 | <kbd>PageUp</kbd> / <kbd>PageDown</kbd>                                                                                       | One screen of rows.                                                                 |
 | <kbd>Enter</kbd> / <kbd>F2</kbd>                                                                                              | Edit the focused cell, keeping the value (suspends grid nav).                       |
+| <kbd>Space</kbd> on a cell · <kbd>Enter</kbd> on the primary cell (with `onRowOpen`)                                          | Open the row's record; <kbd>F2</kbd> still edits the primary cell.                  |
 | A character                                                                                                                   | Edit, replacing the value (every editor that takes text).                           |
 | <kbd>Alt</kbd>+<kbd>Enter</kbd> (or <kbd>Enter</kbd> on a read-only cell) with links or chips                                 | Move into its first one; <kbd>←</kbd>/<kbd>→</kbd> step, <kbd>Escape</kbd> returns. |
 | <kbd>Enter</kbd> / <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> while editing                                             | Commit and move down / right / left.                                                |
 | <kbd>Escape</kbd>                                                                                                             | Close the editor, restore grid focus.                                               |
-| <kbd>Enter</kbd> on a header                                                                                                  | Open its menu (`headerMenu`), else sort (shift adds a key).                         |
+| <kbd>Enter</kbd> on a header                                                                                                  | Open its menu (`headerMenu`, which holds the sort), else sort (shift adds a key).   |
 | <kbd>Shift</kbd>+<kbd>F10</kbd> / the menu key                                                                                | The focused cell's menu (`cellMenu`) or the header's menu.                          |
 | <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> on a header                                                                          | Resize by 8px (<kbd>Shift</kbd>: 32px).                                             |
 | <kbd>Space</kbd> on a checkbox or group row                                                                                   | Toggle it.                                                                          |

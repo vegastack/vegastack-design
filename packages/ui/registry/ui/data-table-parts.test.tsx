@@ -236,6 +236,8 @@ test("columnCellClass carries alignment, the fill/fit posture and the mono face"
     "text-start whitespace-normal wrap-anywhere in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
       `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:whitespace-normal ` +
       `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere ` +
+      // A released `truncate` keeps its one line: clamped, never wrapped over its neighbours (RS-04).
+      `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:not-[:is([data-slot=tag],[data-slot=chip],[class~='group/badge'])_*]:[&[class~='truncate']]:line-clamp-1 ` +
       // Fixed-size content that states no posture of its own is put back on one line: the cell's
       // wrap posture INHERITS into it (a Kbd broke `⌘K` in two inside its 20px box).
       "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
@@ -255,6 +257,9 @@ test("columnCellClass carries alignment, the fill/fit posture and the mono face"
   // with the squeeze's keep list less the merged line (only a fill cell holds one).
   expect(fit).toContain(
     `in-data-strained:**:not-[${STRAIN_KEEP},${STRAIN_KEEP}_*]:wrap-anywhere`,
+  );
+  expect(fit).toContain(
+    `in-data-strained:**:not-[${STRAIN_KEEP},${STRAIN_KEEP}_*]:not-[:is([data-slot=tag],[data-slot=chip],[class~='group/badge'])_*]:[&[class~='truncate']]:line-clamp-1`,
   );
   // A fit column that opts out wraps between words only, and shares the leftover width.
   const prose = columnCellClass({ key: "note", nowrap: false });

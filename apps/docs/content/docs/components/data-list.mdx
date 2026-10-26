@@ -286,6 +286,20 @@ A press anywhere on a grid card that is not one of its own controls (its checkbo
   file="components/preview/data-list.tsx"
 />
 
+**Opening a record in place.** `onRowOpen(rowId, { event, index })` is the row-open contract a
+peek beside the list builds on, and wins over `onRowClick`. The whole row opens it — a plain click
+anywhere on it, or Enter on its first cell, in the list, the grid and the board. With `getRowHref`
+the row stays a real link: ⌘/Ctrl/Shift and middle clicks still open the full page where the
+browser would, and only a plain click (or Enter) is taken over. `activeRowId` marks the open row
+(`data-peek-active`, the accent wash, scrolled into view as it changes), and
+`actionsRef.current.getRowOrder()` returns the row ids in the order they read on screen — sections
+in order, a collapsed section's rows left out — so the peek's ↑/↓ walk the rows as shown.
+
+<ComponentPreview
+  name="dataListRowOpen"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Activation accessibility
 
 Activatable rows are built to **preserve native table semantics**. The `<tr>` is **not** given
@@ -418,7 +432,8 @@ actions column itself — always the **last** column, with a 32px ghost ⋯ trig
 (`rowActionsLabel` renames it). `rowActionsColumn({ getRowLabel, actions })` is the same column for a
 host that assembles `columns` itself. Either way the column is one ⋯ menu per row, named
 for the row (_Actions for Ada Lovelace_). It is end-aligned, stays visible on narrow widths, and is
-`interactive`, so opening the menu never activates the row. Each `RowAction` runs `onSelect`, or
+`interactive`, so opening the menu never activates the row. Each menu mounts on demand — a row holds
+one plain button until its ⋯ is pointed at or pressed — so a long list pays for no menus up front. Each `RowAction` runs `onSelect`, or
 renders as a real link through `render={<a href="…" />}`; `destructive` paints it in the destructive
 ink; `disabled` keeps it in the menu — still reachable by the arrow keys — and `disabledReason` is
 a tooltip on the item and its accessible description (never wrapped text in the menu). The menu is
@@ -669,6 +684,10 @@ Offer it with `views={["list", "board"]}`.
   `addable: false` hides its add button. `addPlacement="header"` puts the add button in each lane's
   header beside ⋯ instead. A section's `icon` leads its lane title, its `actions` fill the lane's ⋯
   menu, and `boardTrailing` renders after the last lane inside the board's scroller.
+- **Hidden lanes.** `hiddenSections` lists the lanes the host hides (Cancelled, Duplicate) under
+  "Hidden columns" after the last lane; choosing one calls `onShowSection`. A section marked
+  `hideable` offers "Hide column" in its ⋯ menu, which calls `onHideSection`. `activeRowId` marks
+  the open card.
 - **Per-lane data.** A section's own `loading`, `loadMore` (loaded as the lane's foot scrolls into
   view, with skeleton cards while it loads) and `emptyState` give each lane its own first load,
   paging and empty state. An empty lane reads "Nothing here", and "Drop here" while dragging.
@@ -776,8 +795,15 @@ header wraps between its words, never inside one. The checks run before paint an
 only when the width, the columns or the data change.
 
 The squeeze reaches inside a custom `render` too: the text in the fill cell wraps, whatever it says for
-itself, so a `truncate` span or a `whitespace-nowrap` row breaks across lines instead of ellipsing
-(an auto-layout table cannot truncate, so the ellipsis was never available there). Parts that are
+itself, so a `whitespace-nowrap` row breaks across lines (an auto-layout table cannot truncate a
+one-line box, so its ellipsis was never available there). A `truncate` element keeps its promise of
+one line instead: it is clamped to a single line (`line-clamp-1`) that ends in an ellipsis, so a
+meta line of a fixed height never spills over the title beside it.
+
+<ComponentPreview
+  name="dataListMetaLine"
+  file="components/preview/data-list.tsx"
+/> Parts that are
 text grow taller to hold a wrapped label: a `Badge` (and `badgeVariants()` on your own element, and
 `ToolCallChip`), a `Chip` or `Tag`, a link-variant `Button` (or `buttonVariants({ variant: "link" })`)
 and `EditableCell`'s value.

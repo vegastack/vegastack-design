@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ActionBarButton } from "./action-bar";
 import { useFileDrop } from "./use-file-drop";
@@ -1517,7 +1517,8 @@ test("a selected row takes the half-muted wash, not the badge-coloured accent", 
     '[data-slot="data-list-row"][data-selected]',
   )!;
   expect(row.className).toContain("bg-muted/50");
-  expect(row.className).not.toContain("bg-accent");
+  // Only the open row (`data-peek-active`) takes the accent; a selected one never does.
+  expect(row.className.split(/\s+/)).not.toContain("bg-accent");
 });
 
 test("the hidden-columns hint is singular for one column and keeps a host aria-describedby", async () => {
@@ -3048,4 +3049,237 @@ test("board view without sections keeps every row in its one lane, even with get
       screen.container.querySelectorAll('[data-slot="board-card"]').length,
     ).toBe(tasks.length),
   );
+});
+
+/* ── W1-DS1: whole-row open, the open row, the order a peek walks ───────────────────────────── */
+
+test("onRowOpen: a plain click anywhere on a link row opens it in place; a modified click stays the link's", async () => {
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `#person-${r.id}`}
+      onRowOpen={onRowOpen}
+    />,
+  );
+  // Read after React has handled the click (the document hears it last), then keep the page put.
+  const followed: boolean[] = [];
+  const record = (e: MouseEvent) => {
+    if (!(e.target instanceof HTMLAnchorElement)) return;
+    followed.push(!e.defaultPrevented);
+    e.preventDefault();
+  };
+  document.addEventListener("click", record);
+  onTestFinished(() => document.removeEventListener("click", record));
+  // A plain click on another cell of the row: the row opens, the link does not navigate.
+  screen
+    .getByRole("cell", { name: "Designer" })
+    .element()
+    .dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    );
+  expect(onRowOpen).toHaveBeenCalledWith(
+    "b",
+    expect.objectContaining({ index: 1 }),
+  );
+  expect(followed).toEqual([false]);
+  // ⌘-click: the link's own (a new tab), never the peek.
+  screen
+    .getByRole("cell", { name: "Manager" })
+    .element()
+    .dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        metaKey: true,
+      }),
+    );
+  expect(onRowOpen).toHaveBeenCalledTimes(1);
+  expect(followed).toEqual([false, true]);
+});
+
+test("onRowOpen without an href: the whole row and its first-cell button open it", async () => {
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      onRowOpen={onRowOpen}
+    />,
+  );
+  screen
+    .getByRole("cell", { name: "Engineer" })
+    .element()
+    .dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    );
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "a",
+    expect.objectContaining({ index: 0 }),
+  );
+  await screen.getByRole("button", { name: "Cole" }).click();
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "c",
+    expect.objectContaining({ index: 2 }),
+  );
+});
+
+test("activeRowId marks the open row; actionsRef.getRowOrder walks the rows as they read", async () => {
+  const actions = React.createRef<import("./data-list").DataListActions>();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      sections={[
+        { id: "makers", label: "Makers" },
+        { id: "others", label: "Others" },
+      ]}
+      getRowSection={(r) => (r.role === "Manager" ? "others" : "makers")}
+      groupState={{ others: "collapsed" }}
+      activeRowId="b"
+      actionsRef={actions}
+    />,
+  );
+  const active = screen.container.querySelectorAll("[data-peek-active]");
+  expect(active).toHaveLength(1);
+  expect(active[0]!.getAttribute("data-row-id")).toBe("b");
+  // The collapsed section's row is not on screen, so a peek does not walk to it.
+  expect(actions.current!.getRowOrder()).toEqual(["a", "b"]);
+});
+
+test("a row's ⋯ menu mounts on demand and opens on the first press", async () => {
+  const onEdit = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      rowActions={() => [
+        { label: "Edit", onSelect: onEdit },
+        { label: "Delete", destructive: true, onSelect: () => {} },
+      ]}
+    />,
+  );
+  // Nothing of the menu's machinery exists until a trigger is reached.
+  expect(
+    document.querySelector('[data-slot="dropdown-menu-trigger"]'),
+  ).toBeNull();
+  const trigger = screen.getByRole("button", { name: "Actions for Ada" });
+  await expect.element(trigger).toHaveAttribute("aria-haspopup", "menu");
+  (trigger.element() as HTMLElement).click();
+  await screen.getByRole("menuitem", { name: "Edit" }).click();
+  expect(onEdit).toHaveBeenCalledOnce();
+});
+
+test("the list density scale: comfortable rows hold 40px, compact 32px — the grid's two steps", async () => {
+  const screen = await render(
+    <DataList columns={columns} data={data} getRowId={(r) => r.id} />,
+  );
+  expect(screen.getByRole("table").element().className).toContain(
+    "[&_[data-slot=data-list-row]]:h-10",
+  );
+  await screen.rerender(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      density="compact"
+    />,
+  );
+  expect(screen.getByRole("table").element().className).toContain(
+    "[&_[data-slot=data-list-row]]:h-8",
+  );
+});
+
+test("on a board, getRowOrder walks only the lanes shown; a grid card takes the open-row wash", async () => {
+  const actions = React.createRef<import("./data-list").DataListActions>();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      view="board"
+      // The Manager lane is hidden: its row stays in `data` but is not on the board.
+      sections={[{ id: "makers", label: "Makers" }]}
+      getRowSection={(r) => (r.role === "Manager" ? "others" : "makers")}
+      actionsRef={actions}
+    />,
+  );
+  await expect.poll(() => actions.current?.getRowOrder()).toEqual(["a", "b"]);
+  await screen.rerender(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      view="grid"
+      activeRowId="b"
+    />,
+  );
+  const card =
+    screen.container.querySelector<HTMLElement>("[data-peek-active]")!;
+  expect(card.className).toContain("data-peek-active:bg-accent");
+});
+
+test("an untouched row menu opens from the keyboard on its first (↓, Enter) or last (↑) item", async () => {
+  const onEdit = vi.fn();
+  const onDelete = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      rowActions={() => [
+        { label: "Edit", onSelect: onEdit },
+        { label: "Delete", onSelect: onDelete },
+      ]}
+    />,
+  );
+  const trigger = (name: string) =>
+    screen.getByRole("button", { name }).element() as HTMLElement;
+  // An earlier test's closing menu can hand focus back a frame late; settle before taking it.
+  const settle = () =>
+    new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve)),
+    );
+  await settle();
+  trigger("Actions for Bea").focus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .poll(() => document.activeElement?.textContent)
+    .toContain("Edit");
+  await userEvent.keyboard("{Enter}");
+  expect(onEdit).toHaveBeenCalledOnce();
+  await settle();
+  trigger("Actions for Cole").focus();
+  await userEvent.keyboard("{ArrowUp}");
+  await expect
+    .poll(() => document.activeElement?.textContent)
+    .toContain("Delete");
+  await userEvent.keyboard("{Enter}");
+  expect(onDelete).toHaveBeenCalledOnce();
+});
+
+test("a board's getRowOrder skips a collapsed lane's cards", async () => {
+  const actions = React.createRef<import("./data-list").DataListActions>();
+  await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      view="board"
+      sections={[
+        { id: "makers", label: "Makers" },
+        { id: "others", label: "Others", defaultCollapsed: true },
+      ]}
+      getRowSection={(r) => (r.role === "Manager" ? "others" : "makers")}
+      actionsRef={actions}
+    />,
+  );
+  await expect.poll(() => actions.current?.getRowOrder()).toEqual(["a", "b"]);
 });

@@ -1,10 +1,12 @@
-// @vegastack board@0.25.84 sha256-9dJTDMigEqntaofjEIGXdRSQ8KDL9vV2JjYqW+WuNNM=
+// @vegastack board@0.25.84 sha256-skRYtpBcjdWS3dY8YQH/PEElPDXkb+AOvXh2JcPl8jk=
 
 "use client";
 
 import * as React from "react";
+import { flushSync } from "react-dom";
 import {
   EllipsisVertical,
+  EyeOff,
   Inbox,
   PanelLeftClose,
   PanelLeftOpen,
@@ -26,6 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   defaultActionsLabel,
+  openFromKey,
   pickShortcut,
   RowActionMenuItems,
   type RowAction,
@@ -194,6 +197,30 @@ export interface BoardColumn<T> {
    * @default true
    */
   addable?: boolean;
+  /**
+   * Offer "Hide column" in the lane's ⋯ menu (when the board has `onHideColumn`): a lane that is
+   * rarely worked in (Cancelled, Duplicate) leaves the board for its Hidden columns list.
+   * @default false
+   */
+  hideable?: boolean;
+}
+
+/** A lane the host has hidden — listed under "Hidden columns" after the last lane. */
+export interface BoardHiddenColumn {
+  /** The lane's id — what `onShowColumn` receives. */
+  id: string;
+  /** The lane's name. */
+  label: string;
+  /**
+   * An icon before the name — the lane's status glyph.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
+  /**
+   * How many cards the lane holds, shown muted after the name.
+   * @default undefined
+   */
+  count?: number;
 }
 
 /** Props accepted by `Board`. */
@@ -256,7 +283,48 @@ export interface BoardProps<T> {
    * buttons; a card with one is a link and never calls this.
    * @default undefined
    */
-  onCardActivate?: (item: T) => void;
+  onCardActivate?: (item: T, event: React.SyntheticEvent) => void;
+  /**
+   * Open a card's record in place — a peek beside the board — from EVERY card. A card without an
+   * href is a button that calls it; a card with one stays a real link, and a plain click (or
+   * Enter) calls this instead of following it, while ⌘/Ctrl/Shift and middle clicks still open the
+   * link where the browser would. Wins over `onCardActivate`.
+   * @default undefined
+   */
+  onCardOpen?: (item: T, event: React.SyntheticEvent) => void;
+  /**
+   * The card whose record is open beside the board (a peek): it carries `data-peek-active`, takes
+   * the accent wash, and scrolls into view (`block: "nearest"`) when it changes.
+   * @default undefined
+   */
+  activeItemId?: string | null;
+  /**
+   * Lanes the host has hidden, listed under a "Hidden columns" heading after the last lane (and
+   * before `trailing`); choosing one calls `onShowColumn`.
+   * @default undefined
+   */
+  hiddenColumns?: readonly BoardHiddenColumn[];
+  /**
+   * Show a hidden lane again — the host puts it back in `columns`.
+   * @default undefined
+   */
+  onShowColumn?: (id: string) => void;
+  /**
+   * Hide a lane — from "Hide column" in the ⋯ menu of a lane marked `hideable`. The host takes it
+   * out of `columns` and lists it in `hiddenColumns`.
+   * @default undefined
+   */
+  onHideColumn?: (id: string) => void;
+  /**
+   * The hidden-lanes list's heading.
+   * @default "Hidden columns"
+   */
+  hiddenColumnsLabel?: string;
+  /**
+   * The lane menu's hide item.
+   * @default "Hide column"
+   */
+  hideColumnLabel?: string;
   /**
    * Show "+ Add" after each lane's last card (or as an empty lane's action) and call this with the lane's id — the host opens its create
    * form with the lane's status filled in.
@@ -457,6 +525,10 @@ function BoardCardSurface({
   });
 }
 
+/** A card's ⋯ trigger: shown on hover, on the card's focus, while open, and always on touch. */
+const CARD_MENU_CLASS =
+  "absolute end-3 top-2.5 z-10 opacity-0 transition-opacity group-hover/board-card:opacity-100 group-has-[[data-slot=board-card-surface]:focus-visible]/board-card:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
+
 /** The card chrome, shared by a resting card and the lifted one. */
 const cardClasses =
   "group/board-card relative flex min-w-0 flex-col rounded-lg border border-border bg-card p-3 shadow-xs text-start text-sm text-card-foreground transition-colors select-none [-webkit-touch-callout:none]";
@@ -492,7 +564,14 @@ export function Board<T>({
   countLabel = cardCount,
   getItemHref,
   itemLinkRender,
-  onCardActivate,
+  onCardActivate: onCardActivateProp,
+  onCardOpen,
+  activeItemId,
+  hiddenColumns,
+  onShowColumn,
+  onHideColumn,
+  hiddenColumnsLabel = "Hidden columns",
+  hideColumnLabel = "Hide column",
   onAdd,
   addLabel = "Add card",
   addPlacement = "footer",
@@ -514,6 +593,8 @@ export function Board<T>({
   className,
   ref,
 }: BoardProps<T>) {
+  // A card's activation: the in-place open when the host asked for one, else the plain activation.
+  const onCardActivate = onCardOpen ?? onCardActivateProp;
   const isMobile = useIsMobile();
   const reducedMotion = usePrefersReducedMotion();
   const { announce, Announcer } = useAnnouncer();
@@ -877,10 +958,38 @@ export function Board<T>({
   // ---- roving focus across the ragged card grid -----------------------------------------------
   const [activeCard, setActiveCard] = React.useState<string | null>(null);
   const [openMenuCard, setOpenMenuCard] = React.useState<string | null>(null);
+  const hiddenHeadingId = React.useId();
+  // Cards whose ⋯ menu has mounted (pointed at once): kept, so it never swaps under the pointer.
+  const [armedMenus, setArmedMenus] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  /** A card's ⋯ trigger, whichever form it has now (read when the key is handed over). */
+  const cardMenuTrigger = (
+    id: string,
+  ): React.RefObject<HTMLElement | null> => ({
+    get current() {
+      return (
+        cardNodes.current
+          .get(id)
+          ?.querySelector<HTMLElement>('[data-slot="board-card-menu"]') ?? null
+      );
+    },
+  });
+  const armMenu = (id: string) => {
+    if (armedMenus.has(id)) return;
+    flushSync(() => setArmedMenus((current) => new Set(current).add(id)));
+  };
   // Card activators (focus targets) and card nodes (the FLIP and hit-test boxes), by card id. One
   // stable ref callback per card: an inline arrow would detach and re-attach on every render.
   const cardRefs = React.useRef(new Map<string, HTMLElement>());
   const cardNodes = React.useRef(new Map<string, HTMLElement>());
+  // The open record's card comes into view (the peek walks the board with ↑/↓).
+  React.useEffect(() => {
+    if (activeItemId == null) return;
+    cardNodes.current
+      .get(activeItemId)
+      ?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [activeItemId]);
   const refCallbacks = React.useRef(
     new Map<string, (node: HTMLElement | null) => void>(),
   );
@@ -1066,9 +1175,10 @@ export function Board<T>({
     const columnIndex = visibleColumns.findIndex((c) => c.id === column.id);
     switch (event.key) {
       case "Enter":
+        // A link card's Enter is the link's own click (which `onCardOpen` takes over).
         if (href) return;
         event.preventDefault();
-        onCardActivate?.(item);
+        onCardActivate?.(item, event);
         break;
       case " ":
         event.preventDefault();
@@ -1105,8 +1215,9 @@ export function Board<T>({
         break;
       case "m":
       case "M":
-        event.preventDefault();
-        setOpenMenuCard(id);
+        // Through the menu's own trigger, so it opens on its first item as a key press would.
+        if (getItemActions?.(item)?.length)
+          openFromKey(event, () => armMenu(id), cardMenuTrigger(id), true);
         break;
       default:
         break;
@@ -1224,12 +1335,13 @@ export function Board<T>({
         data-lifted={isLifted ? "" : undefined}
         data-drag-pending={pendingIds.has(id) ? "" : undefined}
         data-move-locked={movable ? undefined : ""}
+        data-peek-active={activeItemId === id ? "" : undefined}
         // The card's first band leaves room for the ⋯ menu (`BoardCard` reads it).
         data-board-card-menu={hasMenu ? "" : undefined}
         {...(canDrag ? pointerDrag.getSourceProps(id) : {})}
         className={cn(
           cardClasses,
-          "hover:bg-accent/50 has-[[data-slot=board-card-surface]:focus-visible]:bg-accent",
+          "hover:bg-accent/50 has-[[data-slot=board-card-surface]:focus-visible]:bg-accent data-peek-active:bg-accent",
           canDrag && "cursor-grab touch-manipulation",
           "data-drag-pending:animate-pulse",
           "data-lifted:z-10 data-lifted:bg-card data-lifted:shadow-lg motion-safe:data-lifted:rotate-1",
@@ -1265,7 +1377,27 @@ export function Board<T>({
           onKeyDown={(event: React.KeyboardEvent<HTMLElement>) =>
             handleCardKeyDown(event, column, index, id, href, item)
           }
-          onClick={href ? undefined : () => onCardActivate?.(item)}
+          onClick={
+            href
+              ? onCardOpen
+                ? (event: React.MouseEvent<HTMLElement>) => {
+                    // A plain click opens the record here; a modified or middle click is the
+                    // link's own (a new tab, a new window).
+                    if (
+                      event.button !== 0 ||
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey
+                    )
+                      return;
+                    event.preventDefault();
+                    onCardOpen(item, event);
+                  }
+                : undefined
+              : (event: React.MouseEvent<HTMLElement>) =>
+                  onCardActivate?.(item, event)
+          }
           className="absolute inset-0 rounded-[inherit] outline-none"
         />
         {/* Content sits above the activator but lets the pointer through to it; its own
@@ -1282,7 +1414,29 @@ export function Board<T>({
             {renderCard(item, column)}
           </TruncationFocusProvider>
         </div>
-        {!hasMenu ? null : (
+        {!hasMenu ? null : openMenuCard !== id && !armedMenus.has(id) ? (
+          // The menu's machinery mounts on demand (PF-09): a plain button until the card's ⋯ is
+          // pointed at (armed synchronously, so the real trigger takes the press) or pressed.
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={menuLabel}
+            aria-haspopup="menu"
+            aria-expanded={false}
+            tabIndex={rovingTarget === id ? 0 : -1}
+            data-slot="board-card-menu"
+            onPointerEnter={() => armMenu(id)}
+            onClick={() => setOpenMenuCard(id)}
+            // Enter, Space and ↓/↑ hand the key to the real trigger once it is mounted, so the
+            // menu opens on its first or last item as it always has.
+            onKeyDown={(event) =>
+              openFromKey(event, () => armMenu(id), cardMenuTrigger(id))
+            }
+            className={CARD_MENU_CLASS}
+          >
+            <EllipsisVertical />
+          </Button>
+        ) : (
           <DropdownMenu
             open={openMenuCard === id}
             onOpenChange={(open) => setOpenMenuCard(open ? id : null)}
@@ -1293,10 +1447,11 @@ export function Board<T>({
                   variant="ghost"
                   size="icon-xs"
                   aria-label={menuLabel}
+                  data-slot="board-card-menu"
                   // One card-layer tab stop per board: M (or Tab from the active card) reaches
                   // the menu.
                   tabIndex={rovingTarget === id ? 0 : -1}
-                  className="absolute end-3 top-2.5 z-10 opacity-0 transition-opacity group-hover/board-card:opacity-100 group-has-[[data-slot=board-card-surface]:focus-visible]/board-card:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                  className={CARD_MENU_CLASS}
                 >
                   <EllipsisVertical />
                 </Button>
@@ -1368,7 +1523,18 @@ export function Board<T>({
     }
     const laneIds = display[column.id] ?? [];
     const gapIndex = dropOver && drag?.over ? drag.over.index : -1;
-    const columnActions = getColumnActions?.(column) ?? [];
+    const columnActions: RowAction[] = [
+      ...(getColumnActions?.(column) ?? []),
+      ...(onHideColumn && column.hideable
+        ? [
+            {
+              label: hideColumnLabel,
+              icon: <EyeOff aria-hidden />,
+              onSelect: () => onHideColumn(column.id),
+            },
+          ]
+        : []),
+    ];
     const hasLaneMenu = columnActions.length > 0;
     const addText =
       typeof addLabel === "function" ? addLabel(column) : addLabel;
@@ -1680,6 +1846,42 @@ export function Board<T>({
           )}
         >
           {columns.map(renderLane)}
+          {hiddenColumns && hiddenColumns.length > 0 ? (
+            <section
+              aria-labelledby={hiddenHeadingId}
+              data-slot="board-hidden-columns"
+              className={cn(
+                "flex w-56 shrink-0 flex-col gap-1 pt-2 max-md:snap-start",
+                !fill && "self-start",
+              )}
+            >
+              <h2
+                id={hiddenHeadingId}
+                className="px-2 text-xs font-medium text-muted-foreground"
+              >
+                {hiddenColumnsLabel}
+              </h2>
+              {hiddenColumns.map((hidden) => (
+                <Button
+                  key={hidden.id}
+                  variant="ghost"
+                  size="sm"
+                  data-slot="board-hidden-column"
+                  className="justify-start font-normal"
+                  disabled={!onShowColumn}
+                  onClick={() => onShowColumn?.(hidden.id)}
+                >
+                  {hidden.icon}
+                  <span className="min-w-0 truncate">{hidden.label}</span>
+                  {hidden.count != null ? (
+                    <span className="ms-auto text-muted-foreground tabular-nums">
+                      {hidden.count}
+                    </span>
+                  ) : null}
+                </Button>
+              ))}
+            </section>
+          ) : null}
           {trailing != null ? (
             <div
               data-slot="board-trailing"

@@ -1505,7 +1505,10 @@ test("fixed layout: colgroup widths, frozen columns sticky at their offsets, pri
     const cols = Array.from(table.querySelectorAll("col")).map(
       (col) => col.style.width,
     );
-    expect(cols).toEqual(["40px", "240px", "100px", "0px", "120px", "0px"]);
+    // The last, unsized `<col>` is the filler track: the table is never narrower than its
+    // viewport, and the filler takes what the columns leave (DS-1).
+    expect(cols).toEqual(["40px", "240px", "100px", "0px", "120px", "0px", ""]);
+    expect(table.style.minWidth).toBe("100%");
     const first = table.querySelector<HTMLElement>(
       '[data-grid-row="r0"][data-grid-key="c0"]',
     )!;
@@ -2202,9 +2205,13 @@ test("headerTrailing renders after the last column; reorder makes scrolling head
     />,
   );
   const headRow = screen.container.querySelector("thead tr")!;
+  // The "+" column stays right after the last real column; only the filler track follows it.
   expect(headRow.lastElementChild?.getAttribute("data-slot")).toBe(
-    "data-grid-head-trailing",
+    "data-grid-filler",
   );
+  expect(
+    headRow.lastElementChild?.previousElementSibling?.getAttribute("data-slot"),
+  ).toBe("data-grid-head-trailing");
   const add = screen
     .getByRole("button", { name: "Add field" })
     .element() as HTMLElement;
@@ -2347,10 +2354,14 @@ const cellAt = (rowId: string, key: string) =>
   document.querySelector<HTMLElement>(
     `[data-grid-row="${rowId}"][data-grid-key="${key}"]`,
   )!;
+// The range is what assistive technology hears (`aria-selected`): the tint (`data-in-range`) is
+// on every range cell but the active one, which is outlined instead (UX-05).
 const inRange = () =>
-  [...document.querySelectorAll<HTMLElement>("[data-in-range]")].map(
-    (cell) => `${cell.dataset.gridRow}:${cell.dataset.gridKey}`,
-  );
+  [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-slot="data-grid-cell"][aria-selected="true"]',
+    ),
+  ].map((cell) => `${cell.dataset.gridRow}:${cell.dataset.gridKey}`);
 
 function clipboardEvent(
   type: "copy" | "cut" | "paste",
@@ -2839,4 +2850,407 @@ test("a resting custom-editor cell announces the host's first status, and a widg
   expect(cell().querySelector("[data-rest]")).toBeNull();
   await expect.poll(() => statusText(screen.container)).toContain("Saving");
   expect(document.activeElement?.getAttribute("data-testid")).toBe("link-d2");
+});
+
+/* ── W1-DS1: open rows, the active row, imperative actions, fill, cards ─────────────────────── */
+
+const fixedColumns = (): DataGridColumn<Deal>[] => [
+  { key: "name", header: "Name", width: 200, editable: { type: "text" } },
+  { key: "stage", header: "Stage", width: 120 },
+  { key: "amount", header: "Amount", width: 100, numeric: true },
+];
+
+test("onRowOpen: an Open button leads the primary cell; Space on a cell and Enter on the row header open the row", async () => {
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      getRowLabel={(d) => d.name}
+      onRowOpen={onRowOpen}
+      columnPicker={false}
+    />,
+  );
+  const open = screen.getByRole("button", { name: "Open Globex" });
+  await expect.element(open).toBeInTheDocument();
+  // One tab stop for the grid: the button is reached from the row, never tabbed to.
+  expect(open.element().getAttribute("tabindex")).toBe("-1");
+  // It sits in the primary cell (the row header), before the value.
+  const rowHeader = open.element().closest('[role="rowheader"]')!;
+  expect(rowHeader.getAttribute("data-grid-key")).toBe("name");
+  (open.element() as HTMLElement).click();
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "d2",
+    expect.objectContaining({ index: 1 }),
+  );
+  // Space on any of the row's cells.
+  const stage = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d3"][data-grid-key="stage"]',
+  )!;
+  stage.focus();
+  await userEvent.keyboard(" ");
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "d3",
+    expect.objectContaining({ index: 2 }),
+  );
+  // Enter on the row header opens; F2 still edits it.
+  const name = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="name"]',
+  )!;
+  name.focus();
+  await userEvent.keyboard("{Enter}");
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "d1",
+    expect.objectContaining({ index: 0 }),
+  );
+  expect(name.hasAttribute("data-editing")).toBe(false);
+  name.focus();
+  await userEvent.keyboard("{F2}");
+  await expect.poll(() => name.hasAttribute("data-editing")).toBe(true);
+  expect(onRowOpen).toHaveBeenCalledTimes(3);
+  await userEvent.keyboard("{Escape}");
+  await expectNoA11yViolations(document.body);
+});
+
+test("without onRowOpen there is no Open button and Enter on the primary cell edits", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      columnPicker={false}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-row-open"]'),
+  ).toBeNull();
+  const name = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="name"]',
+  )!;
+  name.focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => name.hasAttribute("data-editing")).toBe(true);
+});
+
+test("activeRowId marks the open row; actionsRef walks the display order and focuses a cell", async () => {
+  const actions = React.createRef<import("./data-grid").DataGridActions>();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sort={[{ key: "amount", direction: "asc" }]}
+      activeRowId="d3"
+      actionsRef={actions}
+    />,
+  );
+  const active = screen.container.querySelectorAll("[data-peek-active]");
+  expect(active).toHaveLength(1);
+  expect(active[0]!.getAttribute("data-row-id")).toBe("d3");
+  // Sorted by amount: Globex 100, Initech 200, Acme 300.
+  expect(actions.current!.getRowOrder()).toEqual(["d2", "d3", "d1"]);
+  actions.current!.focusCell("d1", "stage");
+  await expect
+    .poll(() => {
+      const cell = document.activeElement as HTMLElement | null;
+      return `${cell?.dataset.gridRow}:${cell?.dataset.gridKey}`;
+    })
+    .toBe("d1:stage");
+  expect(
+    (document.activeElement as HTMLElement).hasAttribute("data-current-cell"),
+  ).toBe(true);
+});
+
+test("cells mode: the active cell is outlined, not tinted; the rest of the range is tinted", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      selectionMode="cells"
+      columnPicker={false}
+    />,
+  );
+  const first = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="stage"]',
+  )!;
+  first.focus();
+  await userEvent.keyboard("{Shift>}{ArrowDown}{/Shift}");
+  const anchor = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="stage"]',
+  )!;
+  const focus = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d2"][data-grid-key="stage"]',
+  )!;
+  expect(focus.hasAttribute("data-current-cell")).toBe(true);
+  expect(focus.hasAttribute("data-in-range")).toBe(false);
+  expect(focus.getAttribute("aria-selected")).toBe("true");
+  expect(anchor.hasAttribute("data-in-range")).toBe(true);
+  expect(focus.className).toContain(
+    "group-focus-within/grid:data-current-cell:inset-ring-2",
+  );
+});
+
+test("fixed layout fills its box: a filler track ends the header, every row, the skeleton and the summary", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      columnPicker={false}
+      summaryRow={{ value: {}, onValueChange: () => {} }}
+    />,
+  );
+  const table = screen.getByRole("grid").element() as HTMLTableElement;
+  expect(table.style.minWidth).toBe("100%");
+  for (const row of table.querySelectorAll(
+    "tr:not([data-slot='data-grid-virtual-pad'])",
+  ))
+    expect(row.lastElementChild?.getAttribute("aria-hidden")).toBe("true");
+  expect(
+    table
+      .querySelector("thead tr")!
+      .lastElementChild!.getAttribute("data-slot"),
+  ).toBe("data-grid-filler");
+  expect(
+    table
+      .querySelector('[data-slot="data-grid-row"]')!
+      .lastElementChild!.getAttribute("data-slot"),
+  ).toBe("data-grid-filler");
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      columnPicker={false}
+      loading
+      loadingRows={8}
+    />,
+  );
+  const skeletons = screen.container.querySelectorAll(
+    '[data-slot="data-grid-skeleton-row"]',
+  );
+  expect(skeletons).toHaveLength(8);
+  expect(skeletons[0]!.lastElementChild!.getAttribute("data-slot")).toBe(
+    "data-grid-filler",
+  );
+});
+
+test("an empty fixed grid holds its empty state to the viewport", async () => {
+  const restore = sizeViewport(300, 400);
+  onTestFinished(restore);
+  const screen = await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={Array.from({ length: 8 }, (_, index) => ({
+        key: `c${index}`,
+        header: `Field ${index}`,
+        width: 160,
+      }))}
+      data={[] as Wide[]}
+      getRowId={(row) => row.id}
+      columnPicker={false}
+    />,
+  );
+  const held = await expect
+    .poll(() =>
+      screen.container.querySelector<HTMLElement>(
+        '[data-slot="data-table-empty-viewport"]',
+      ),
+    )
+    .not.toBeNull();
+  void held;
+  const box = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-table-empty-viewport"]',
+  )!;
+  expect(box.className).toContain("sticky");
+  expect(parseFloat(box.style.width)).toBeLessThanOrEqual(400);
+});
+
+test("empty editable cells are blank; numeric columns end-align their values and header", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", width: 200, editable: { type: "text" } },
+        { key: "amount", header: "Amount", width: 100, numeric: true },
+      ]}
+      data={[{ id: "x", name: "", stage: "", amount: 4 }]}
+      getRowId={(d) => d.id}
+      columnPicker={false}
+    />,
+  );
+  const name = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="x"][data-grid-key="name"]',
+  )!;
+  expect(name.textContent).not.toContain("Edit value");
+  const amount = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="x"][data-grid-key="amount"]',
+  )!;
+  expect(amount.className).toContain("text-end");
+  const head = screen.container.querySelector<HTMLElement>(
+    'th[data-grid-key="amount"]',
+  )!;
+  expect(head.className).toContain("text-end");
+});
+
+test("a header with a menu is one button: icon, label and the menu; the sort lives in the menu", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({
+        icon: <span data-testid="type-icon">#</span>,
+        headerMenu: <DropdownMenuItem>Sort ascending</DropdownMenuItem>,
+      })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sort={[{ key: "amount", direction: "desc" }]}
+    />,
+  );
+  const head = screen.container.querySelector<HTMLElement>(
+    'th[data-grid-key="amount"]',
+  )!;
+  const buttons = head.querySelectorAll("button");
+  expect(buttons).toHaveLength(1);
+  const button = buttons[0]!;
+  expect(button.getAttribute("data-slot")).toBe("data-grid-head-menu");
+  expect(button.textContent).toContain("Amount");
+  expect(button.querySelector('[data-testid="type-icon"]')).not.toBeNull();
+  expect(
+    button.querySelector('[data-slot="data-grid-head-sort"]'),
+  ).not.toBeNull();
+  expect(head.getAttribute("aria-sort")).toBe("descending");
+  button.click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Sort ascending" }))
+    .toBeInTheDocument();
+});
+
+test("selectionActions docks the selection bar; Clear empties the selection", async () => {
+  const restore = injectGridMirror();
+  onTestFinished(restore);
+  function Selecting() {
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    return (
+      <DataGrid
+        aria-label="Deals"
+        columns={columns()}
+        data={DEALS}
+        getRowId={(d) => d.id}
+        getRowLabel={(d) => d.name}
+        selectable
+        selectedIds={selected}
+        onSelectionChange={setSelected}
+        selectionActions={() => <Button>Archive</Button>}
+      />
+    );
+  }
+  const screen = await render(<Selecting />);
+  (
+    screen
+      .getByRole("checkbox", { name: "Select Globex" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByText("1 selected").first())
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Archive" }))
+    .toBeInTheDocument();
+  (
+    screen
+      .getByRole("button", { name: "Clear selection" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .poll(() =>
+      screen
+        .getByRole("checkbox", { name: "Select Globex" })
+        .element()
+        .getAttribute("aria-checked"),
+    )
+    .toBe("false");
+});
+
+test("phoneLayout=cards: a phone-width grid shows cards that open their row; a wider one stays a grid", async () => {
+  const onRowOpen = vi.fn();
+  function Sized({ width }: { width: number }) {
+    return (
+      <div style={{ width }}>
+        <DataGrid
+          aria-label="Deals"
+          columns={fixedColumns()}
+          data={DEALS}
+          getRowId={(d) => d.id}
+          getRowLabel={(d) => d.name}
+          onRowOpen={onRowOpen}
+          phoneLayout="cards"
+          cardFields={1}
+          columnPicker={false}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Sized width={360} />);
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="data-grid-cards"]'))
+    .not.toBeNull();
+  expect(screen.container.querySelector('[role="grid"]')).toBeNull();
+  const cards = screen.container.querySelectorAll(
+    '[data-slot="data-grid-card"]',
+  );
+  expect(cards).toHaveLength(3);
+  // The primary value titles the card; the next column is a labelled value.
+  expect(cards[0]!.querySelector("dt")!.textContent).toBe("Stage");
+  expect(cards[0]!.querySelectorAll("dt")).toHaveLength(1);
+  (
+    screen
+      .getByRole("button", { name: "Open Initech" })
+      .element() as HTMLElement
+  ).click();
+  expect(onRowOpen).toHaveBeenCalledWith(
+    "d3",
+    expect.objectContaining({ index: 2 }),
+  );
+  await expectNoA11yViolations(document.body);
+  await screen.rerender(<Sized width={900} />);
+  await expect
+    .poll(() => screen.container.querySelector('[role="grid"]'))
+    .not.toBeNull();
+});
+
+test("phone cards show their fields whatever the table would have fitted (auto layout)", async () => {
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          { key: "name", header: "Name", minWidth: 160 },
+          { key: "stage", header: "Stage", minWidth: 160 },
+          { key: "amount", header: "Amount", minWidth: 160 },
+          { key: "id", header: "Ref", minWidth: 160 },
+        ]}
+        data={DEALS}
+        getRowId={(d) => d.id}
+        phoneLayout="cards"
+        columnPicker={false}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="data-grid-cards"]'))
+    .not.toBeNull();
+  const labels = Array.from(
+    screen.container
+      .querySelector('[data-slot="data-grid-card"]')!
+      .querySelectorAll("dt"),
+  ).map((dt) => dt.textContent);
+  expect(labels).toEqual(["Stage", "Amount", "Ref"]);
 });

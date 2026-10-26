@@ -1,8 +1,9 @@
-// @vegastack data-table-parts@0.25.84 sha256-vAzscc3vLN20OhknfHs12wBLkG9jEprCFBPN3twDKIA=
+// @vegastack data-table-parts@0.25.84 sha256-zxCXOtVweCUDOZegWMENmGbgUdbTHNAW1fzsE6yLZiM=
 
 "use client";
 
 import * as React from "react";
+import { flushSync } from "react-dom";
 import {
   ArrowDown,
   ArrowUp,
@@ -12,8 +13,15 @@ import {
   ChevronsUpDown,
   Ellipsis,
   Inbox,
+  X,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
+import {
+  ActionBar,
+  ActionBarButton,
+  ActionBarSeparator,
+  type ActionBarProps,
+} from "@/components/ui/action-bar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -180,7 +188,14 @@ export interface DataTableColumnRole {
  * `whitespace` does not reach inside a custom render: a `truncate` span, a
  * `whitespace-nowrap` row or a Badge each pin their own min-content, and
  * `truncate` cannot shrink inside an auto-layout cell anyway, so its ellipsis
- * was never available there — squeezed, it wraps instead.
+ * was never available there.
+ *
+ * A released `truncate` element still keeps its promise of ONE line (RS-04): it is clamped to a
+ * single line (`line-clamp-1`) rather than wrapped — except inside a Tag, a Chip or a Badge, whose
+ * label wraps and whose box grows with it (below), as it always has. Its text may break anywhere, so it adds next
+ * to nothing to the cell's min-content, and the clamp ends the visible line with the ellipsis the
+ * author asked for. Wrapping it instead spilled the text out of a fixed-height line (a meta line's
+ * `h-5`) and over the title under it on phone rows.
  *
  * What the release SKIPS (the `KEEP` list, below) is a control and fixed-size
  * content, and everything inside one. Each has a fixed height or a fixed box,
@@ -230,13 +245,14 @@ export interface DataTableColumnRole {
  *   a wrapped label stays inside it. (A `Chip` needs nothing: its height is a
  *   `min-h`.)
  *
- * The one list appears four times, identically, because Tailwind can only see
+ * The one list appears six times (three per rung), identically, because Tailwind can only see
  * a literal class.
  */
 const SQUEEZE_CLASS =
   "in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
   "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line])_*]:whitespace-normal " +
   "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line])_*]:wrap-anywhere " +
+  "in-data-squeezed:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd],[data-slot=data-list-merged][data-layout=line])_*]:not-[:is([data-slot=tag],[data-slot=chip],[class~='group/badge'])_*]:[&[class~='truncate']]:line-clamp-1 " +
   "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
   "in-data-squeezed:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
   "in-data-squeezed:**:[&[class~='group/badge']]:h-auto " +
@@ -257,6 +273,7 @@ const STRAIN_CLASS =
   "in-data-strained:whitespace-normal in-data-strained:wrap-anywhere " +
   "in-data-strained:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:whitespace-normal " +
   "in-data-strained:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:wrap-anywhere " +
+  "in-data-strained:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:not-[:is([data-slot=tag],[data-slot=chip],[class~='group/badge'])_*]:[&[class~='truncate']]:line-clamp-1 " +
   "in-data-strained:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
   "in-data-strained:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
   "in-data-strained:**:[&[class~='group/badge']]:h-auto " +
@@ -361,6 +378,38 @@ export function mergedValueClass(column: DataTableColumnLayout): string {
  */
 export const SELECTED_ROW_CLASS =
   "bg-muted/50 hover:bg-muted/50 active:bg-muted/50";
+
+/**
+ * The ONE list density scale (RS-15), shared by `DataList` and `DataGrid` so a list and a grid
+ * side by side have the same rhythm: `compact` rows are 32px and `comfortable` rows 40px — the
+ * header row's own height. A row is never shorter than its step; content that needs more (a
+ * second line, a thumbnail) grows it. `DataGrid`'s fixed `rowHeight`s are the same steps
+ * (`short` = compact, `medium` = comfortable) plus `tall`.
+ */
+export const LIST_ROW_HEIGHT_PX = { compact: 32, comfortable: 40 } as const;
+
+/** The classes that hold each step of the list density scale (`h-8` = 32px, `h-10` = 40px). */
+export const LIST_ROW_HEIGHT_CLASS = {
+  compact: "h-8",
+  comfortable: "h-10",
+} as const;
+
+/**
+ * The row whose record is open beside the list or grid (a peek, `activeRowId`): it carries
+ * `data-peek-active` and the `accent` wash, held through hover so the open row never flickers
+ * under the pointer. A selected row's own wash (`SELECTED_ROW_CLASS`) is applied after it, so
+ * the checkbox's state still reads.
+ */
+export const PEEK_ACTIVE_ROW_CLASS =
+  "data-peek-active:bg-accent data-peek-active:hover:bg-accent";
+
+/** What a row-open callback (`onRowOpen`) receives beside the row id. */
+export interface RowOpenDetails {
+  /** The event that opened the row — `null` when it came from the keyboard cursor or the host. */
+  event: React.SyntheticEvent | null;
+  /** The row's index in `data` (`DataList`) or among the loaded rows in display order (`DataGrid`). */
+  index: number;
+}
 
 /** The `minWidth` a column that declares none is budgeted at. */
 export const DEFAULT_COLUMN_MIN_WIDTH = 120;
@@ -1107,6 +1156,13 @@ export interface EmptyRowProps {
    * @default "data-table-empty-row"
    */
   slot?: string;
+  /**
+   * The scroll viewport's width, for a table that can be wider than it (`DataGrid`'s fixed
+   * layout): the state is held to the viewport — sticky at its start, as wide as it — so it is
+   * centred where the reader looks and never clipped by columns scrolled out of view.
+   * @default undefined
+   */
+  viewportWidth?: number;
 }
 
 /**
@@ -1120,17 +1176,30 @@ export function EmptyRow({
   colSpan,
   children,
   slot = "data-table-empty-row",
+  viewportWidth,
 }: EmptyRowProps) {
+  const content = children ?? (
+    <Empty icon={<Inbox aria-hidden />}>
+      <EmptyHeader>
+        <EmptyTitle>Nothing here</EmptyTitle>
+      </EmptyHeader>
+    </Empty>
+  );
   return (
     <TableRow data-slot={slot} className="hover:bg-transparent">
       {/* `p-2`: a custom empty node never touches the header row above it. */}
       <TableCell colSpan={colSpan} className="min-w-0 p-2">
-        {children ?? (
-          <Empty icon={<Inbox aria-hidden />}>
-            <EmptyHeader>
-              <EmptyTitle>Nothing here</EmptyTitle>
-            </EmptyHeader>
-          </Empty>
+        {viewportWidth != null ? (
+          <div
+            data-slot="data-table-empty-viewport"
+            // The cell's own `p-2` is inside the viewport too: the box is the viewport less it.
+            className="sticky start-2 max-w-full"
+            style={{ width: Math.max(0, viewportWidth - 16) }}
+          >
+            {content}
+          </div>
+        ) : (
+          content
         )}
       </TableCell>
     </TableRow>
@@ -1474,20 +1543,94 @@ export function RowActionsMenu({
       </>
     );
   }
+  return <LazyRowMenu label={actionsLabel(label)} actions={actions} />;
+}
+
+/**
+ * An on-demand menu's keyboard opening: Enter, Space and ↓ open on the first item, ↑ on the last,
+ * exactly as the real trigger does — so the key is handed to the real trigger once it is mounted,
+ * and the menu's own list navigation takes it from there.
+ */
+export function openFromKey(
+  event: React.KeyboardEvent,
+  arm: () => void,
+  triggerRef: React.RefObject<HTMLElement | null>,
+  /** Open on the first item whatever the key (a shortcut such as Board's M). */
+  force = false,
+) {
+  const key =
+    event.key === "ArrowUp" && !force
+      ? "ArrowUp"
+      : force ||
+          event.key === "ArrowDown" ||
+          event.key === "Enter" ||
+          event.key === " "
+        ? "ArrowDown"
+        : null;
+  if (!key) return;
+  event.preventDefault();
+  event.stopPropagation();
+  arm();
+  triggerRef.current?.focus();
+  // Outside this key's own dispatch, once the real trigger's handlers are wired.
+  requestAnimationFrame(() => {
+    const real = triggerRef.current;
+    if (!real?.isConnected) return;
+    real.focus();
+    real.dispatchEvent(
+      new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }),
+    );
+  });
+}
+
+/**
+ * The ⋯ menu's machinery mounts on demand (PF-09): until the trigger is pointed at or pressed, a
+ * row holds one plain `Button` — no Base UI menu root, floating tree or popup state. A folder of a
+ * hundred rows mounted a hundred menus, and their setup was most of the open's script time. The
+ * pointer arms it synchronously, so the real trigger is in place before the press that follows;
+ * a press with no pointer before it (the keyboard, a switch device) arms it and opens it at once.
+ */
+function LazyRowMenu({
+  label,
+  actions,
+}: {
+  label: string;
+  actions: RowAction[];
+}) {
+  const [armed, setArmed] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+  // Synchronously, so the real trigger is in place before the press that follows.
+  const arm = () => {
+    if (!armed) flushSync(() => setArmed(true));
+  };
+  const trigger = (
+    <Button
+      ref={triggerRef}
+      variant="ghost"
+      size="icon"
+      data-slot="row-actions-menu-trigger"
+      aria-label={label}
+    >
+      <Ellipsis />
+    </Button>
+  );
+  if (!armed)
+    return React.cloneElement(trigger, {
+      "aria-haspopup": "menu",
+      "aria-expanded": false,
+      onPointerEnter: arm,
+      // No pointer before the press (a scripted click, a switch device): open it outright.
+      onClick: () => {
+        setArmed(true);
+        setMenuOpen(true);
+      },
+      onKeyDown: (event: React.KeyboardEvent) =>
+        openFromKey(event, arm, triggerRef),
+    } as React.ComponentProps<typeof Button>);
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon"
-            data-slot="row-actions-menu-trigger"
-            aria-label={actionsLabel(label)}
-          >
-            <Ellipsis />
-          </Button>
-        }
-      />
+    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+      <DropdownMenuTrigger render={trigger} />
       <DropdownMenuContent
         align="end"
         data-slot="row-actions-menu-content"
@@ -2161,5 +2304,129 @@ export function GridSummaryCell({
         </span>
       )}
     </TableCell>
+  );
+}
+
+/** Props accepted by `SelectionActionBar`. */
+export interface SelectionActionBarProps {
+  /** The selected row ids. The bar is open while there is at least one. */
+  selected: ReadonlySet<string>;
+  /** Empties the selection — the bar's Clear button, and the `clear` handed to `actions`. */
+  onClear: () => void;
+  /** The actions for the selection (compose `ActionBarButton`). */
+  actions: (
+    selected: ReadonlySet<string>,
+    clear: () => void,
+  ) => React.ReactNode;
+  /** The list or grid root the bar centres over. */
+  containerRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The bar's status text.
+   * @default (count) => `${count} selected`
+   */
+  label?: (count: number) => string;
+  /**
+   * Secondary actions — buttons on a wide screen, a ⋯ menu on a phone.
+   * @default undefined
+   */
+  secondaryActions?: ActionBarProps["secondaryActions"];
+  /**
+   * The ⋯ menu trigger's name.
+   * @default "More actions"
+   */
+  moreLabel?: string;
+  /**
+   * The Clear button's accessible name.
+   * @default "Clear selection"
+   */
+  clearLabel?: string;
+  /**
+   * The bar's accessible name.
+   * @default "Selection actions"
+   */
+  barLabel?: string;
+  /**
+   * `data-slot` for the bar, so each renderer keeps its own selector surface.
+   * @default "data-table-selection-bar"
+   */
+  slot?: string;
+}
+
+/**
+ * `SelectionActionBar` — the bulk-action bar `DataList` and `DataGrid` dock at the bottom of the
+ * screen, centred over their root, while rows are selected: the count, the host's actions, and
+ * Clear last (after the secondary actions, never between them and the primary). One part, so the
+ * two renderers' selection bars cannot drift.
+ *
+ * @example
+ * <SelectionActionBar
+ *   selected={selected}
+ *   onClear={clear}
+ *   containerRef={rootRef}
+ *   actions={(ids, clear) => <ActionBarButton onClick={() => archive(ids).then(clear)}>Archive</ActionBarButton>}
+ * />
+ */
+export function SelectionActionBar({
+  selected,
+  onClear,
+  actions,
+  containerRef,
+  label = (count) => `${count} selected`,
+  secondaryActions,
+  moreLabel,
+  clearLabel = "Clear selection",
+  barLabel = "Selection actions",
+  slot = "data-table-selection-bar",
+}: SelectionActionBarProps) {
+  return (
+    <ActionBar
+      data-slot={slot}
+      open={selected.size > 0}
+      status={label(selected.size)}
+      containerRef={containerRef}
+      aria-label={barLabel}
+      secondaryActions={secondaryActions}
+      end={
+        <>
+          <ActionBarSeparator />
+          <ActionBarButton
+            render={<Button variant="ghost" size="icon-sm" />}
+            aria-label={clearLabel}
+            onClick={onClear}
+          >
+            <X />
+          </ActionBarButton>
+        </>
+      }
+      {...(moreLabel !== undefined ? { moreLabel } : {})}
+    >
+      {actions(selected, onClear)}
+    </ActionBar>
+  );
+}
+
+/**
+ * `SelectionBarSpacer` — room at the end of a list for the docked selection bar and whatever
+ * docks under it (`--dock-inset-bottom`), so the last row and the loading tail stay reachable
+ * above them. Render it only while the bar is open.
+ *
+ * @example
+ * {selected.size > 0 ? <SelectionBarSpacer /> : null}
+ */
+export function SelectionBarSpacer({
+  slot = "data-table-selection-spacer",
+}: {
+  /**
+   * `data-slot` for the spacer.
+   * @default "data-table-selection-spacer"
+   */
+  slot?: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      data-slot={slot}
+      className="h-[calc(var(--spacing)*12+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] shrink-0"
+    />
   );
 }
