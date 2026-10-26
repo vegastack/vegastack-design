@@ -1,10 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/settings-row` (dogfoods the registry) → auto-scanned.
 import {
   SettingsCard,
+  SettingsMatrix,
   SettingsRow,
   SettingsSection,
 } from "@/components/ui/settings-row";
@@ -37,7 +38,7 @@ export function settingsRow(): ReactNode {
           description="How the interface looks on this device."
         >
           <Select items={THEMES} defaultValue="system">
-            <SelectTrigger size="sm" className="w-32" aria-label="Theme">
+            <SelectTrigger size="sm" aria-label="Theme">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -95,11 +96,7 @@ export function settingsRowControlId(): ReactNode {
           description="Shown across the product."
           controlId="settings-workspace-name"
         >
-          <Input
-            id="settings-workspace-name"
-            defaultValue="Acme Inc."
-            className="w-48"
-          />
+          <Input id="settings-workspace-name" defaultValue="Acme Inc." />
         </SettingsRow>
         {/* `labelProps` merges attributes onto the generated <label> element — here a
             non-visual `id` hook (for aria-labelledby / test targeting), so the label
@@ -114,7 +111,6 @@ export function settingsRowControlId(): ReactNode {
             id="settings-support-email"
             type="email"
             defaultValue="help@acme.com"
-            className="w-48"
           />
         </SettingsRow>
       </SettingsCard>
@@ -128,11 +124,7 @@ export function settingsRowControlTypes(): ReactNode {
       <SettingsCard className="mx-auto w-full max-w-md">
         {/* Input control */}
         <SettingsRow label="Display name" controlId="settings-display-name">
-          <Input
-            id="settings-display-name"
-            defaultValue="Ada"
-            className="w-44"
-          />
+          <Input id="settings-display-name" defaultValue="Ada" />
         </SettingsRow>
         {/* Switch control */}
         <SettingsRow
@@ -166,6 +158,106 @@ export function settingsRowControlTypes(): ReactNode {
           description="Deleting the workspace is permanent and cannot be undone."
         />
       </SettingsCard>
+    </Wrapper>
+  );
+}
+
+const ZONES = { utc: "UTC", ist: "India (IST)", pst: "Pacific (PT)" };
+
+export function settingsRowControlSize(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <SettingsCard className="mx-auto w-full max-w-xl">
+        {/* No controlSize: a field control takes md (256px). */}
+        <SettingsRow label="Name" controlId="settings-size-name">
+          <Input id="settings-size-name" defaultValue="Acme Inc." />
+        </SettingsRow>
+        <SettingsRow label="Time zone">
+          <Select items={ZONES} defaultValue="ist">
+            <SelectTrigger aria-label="Time zone">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(ZONES).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SettingsRow>
+        <SettingsRow
+          label="Short code"
+          description="Prefixes every task key."
+          controlSize="sm"
+          controlId="settings-size-code"
+        >
+          <Input id="settings-size-code" defaultValue="ACME" />
+        </SettingsRow>
+        <SettingsRow
+          label="Support email"
+          controlSize="lg"
+          controlId="settings-size-email"
+        >
+          <Input
+            id="settings-size-email"
+            type="email"
+            defaultValue="help@acme.com"
+          />
+        </SettingsRow>
+        {/* A switch keeps its own width and ends on the same right edge. */}
+        <SettingsRow label="Daily digest">
+          <Switch defaultChecked aria-label="Daily digest" />
+        </SettingsRow>
+      </SettingsCard>
+    </Wrapper>
+  );
+}
+
+const CATEGORIES = [
+  { key: "assigned", label: "Assigned to me" },
+  {
+    key: "mentions",
+    label: "Mentions",
+    description: "When someone @mentions you.",
+  },
+  { key: "comments", label: "Comments and replies" },
+  { key: "due", label: "Due soon", description: "A day before a due date." },
+] as const;
+
+export function settingsMatrix(): ReactNode {
+  const [values, setValues] = useState<Record<string, boolean[]>>({
+    assigned: [true, true],
+    mentions: [true, true],
+    comments: [true, false],
+    due: [false, true],
+  });
+  return (
+    <Wrapper className="block">
+      <SettingsSection
+        titleAs="h2"
+        title="What you hear about"
+        description="In-app: always. Push goes to the mobile app."
+        className="mx-auto w-full max-w-xl"
+      >
+        <SettingsMatrix
+          label="Category"
+          columns={["Push", "Email"]}
+          rows={CATEGORIES.map((category) => ({
+            id: category.key,
+            label: category.label,
+            description:
+              "description" in category ? category.description : undefined,
+            values: values[category.key] ?? [],
+            onChange: (column, checked) =>
+              setValues((current) => {
+                const next = [...(current[category.key] ?? [])];
+                next[column] = checked;
+                return { ...current, [category.key]: next };
+              }),
+          }))}
+        />
+      </SettingsSection>
     </Wrapper>
   );
 }

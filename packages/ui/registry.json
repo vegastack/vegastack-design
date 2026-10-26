@@ -14541,13 +14541,13 @@
       "name": "settings-row",
       "type": "registry:ui",
       "title": "Settings Row",
-      "description": "A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.",
+      "description": "A borders-only settings layout — titled sections, bordered cards, label-plus-control rows whose controls share one width and right edge (controlSize), and a settings × channels switch matrix with its column names once.",
       "categories": ["layout"],
       "dependencies": [
         "@vegastack/design@^0.8.34",
         "@vegastack/design-tokens@^0.8.17"
       ],
-      "registryDependencies": ["@vegastack/card"],
+      "registryDependencies": ["@vegastack/card", "@vegastack/switch"],
       "files": [
         {
           "path": "packages/ui/registry/ui/settings-row.tsx",
@@ -14556,8 +14556,33 @@
         }
       ],
       "meta": {
-        "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows.",
+        "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows, and a rows × channels matrix (Push / Email) of switches.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
+        "version": "0.25.86"
+      }
+    },
+    {
+      "name": "settings-layout",
+      "type": "registry:ui",
+      "title": "Settings Layout",
+      "description": "The two-pane Settings frame — a 220px sticky section nav with current-page marking and counts, and one 960px content column where forms cap at 720px left-aligned and lists fill; on a phone the nav is the first screen and pages push in with a back link.",
+      "categories": ["layout", "navigation"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/settings-layout.tsx",
+          "type": "registry:ui",
+          "target": "@ui/settings-layout.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An app's Settings area — many settings pages browsed sideways, each starting at the same x with one width rule.",
+        "whenNotToUse": "One settings form on its own page (AppShellPage size=\"prose\"), or a record's tabs (Tabs).",
         "version": "0.25.86"
       }
     },
@@ -15825,6 +15850,38 @@
       }
     },
     {
+      "name": "member-list",
+      "type": "registry:ui",
+      "title": "Member List",
+      "description": "The people in a team, a space or a share list — an add row (picker · optional role · Add) and 36px rows (avatar · name over a muted sub line · role chip menu or text · ⋯ with Remove) that scroll after eight.",
+      "categories": ["sharing", "access", "data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/permission-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/scroll-area",
+        "@vegastack/skeleton"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/member-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/member-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Who is in a team or space, who an item is shared with, an invite list — add, change role, remove.",
+        "whenNotToUse": "A directory of many people with columns, search and filters (DataList), or one person's chip (RecordChip).",
+        "version": "0.25.86"
+      }
+    },
+    {
       "name": "share-dialog",
       "type": "registry:ui",
       "title": "Share Dialog",
@@ -15842,14 +15899,13 @@
         "@vegastack/copy-button",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
-        "@vegastack/item",
+        "@vegastack/member-list",
         "@vegastack/people-picker",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/responsive-dialog",
         "@vegastack/select",
-        "@vegastack/skeleton",
         "@vegastack/space-picker",
         "@vegastack/switch",
         "@vegastack/tabs",
@@ -15865,7 +15921,7 @@
       ],
       "meta": {
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
-        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
+        "whenNotToUse": "Manage a space's or team's members — MemberList.",
         "version": "0.25.86"
       }
     },
@@ -15899,7 +15955,7 @@
       ],
       "meta": {
         "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
-        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
+        "whenNotToUse": "Manage a space's or team's members — MemberList.",
         "version": "0.25.86"
       }
     },

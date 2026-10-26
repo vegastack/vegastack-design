@@ -1,8 +1,25 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { afterEach, expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { SettingsCard, SettingsRow, SettingsSection } from "./settings-row";
+// Real Tailwind + tokens for the geometry tests below (control widths, the matrix's columns and
+// its container query); the structural tests above read class strings and are unaffected.
+import "../../test/stacking.css";
+import { Input } from "./input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./input-group";
+import { Switch } from "./switch";
+import {
+  SettingsCard,
+  SettingsMatrix,
+  SettingsRow,
+  SettingsSection,
+  type SettingsMatrixRow,
+} from "./settings-row";
+
+afterEach(async () => {
+  await page.viewport(414, 896);
+});
 
 test("renders the row label and its control slot", async () => {
   const screen = await render(
@@ -63,10 +80,8 @@ test("row is its own named @container and its inner layout row responds to conta
   expect(layout?.className).toContain("@sm/settings-row:flex-row");
 });
 
-// Note: this suite compiles no CSS (see vitest.config.ts / the note in
-// truncated-text.test.tsx), so the `@container`/`@sm:` utilities above are inert class
-// strings here — real container-query engagement (the row measuring its OWN ancestor width
-// vs. the viewport) is proven visually by the VRT layer, not this fast structural suite.
+// The structural tests read class strings; the `controlSize` and matrix tests at the end of the
+// file measure real geometry against the compiled CSS imported above.
 
 test("section renders its title and description", async () => {
   const screen = await render(
@@ -224,4 +239,214 @@ test("SettingsCard IS upstream's Card, flattened for a divided list", async () =
   expect(card.className).toContain(
     "[&>[data-slot=settings-row]:last-child]:border-b-0",
   );
+});
+
+const controlBox = (row: Element) =>
+  row
+    .querySelector<HTMLElement>('[data-slot="settings-row-control"]')!
+    .getBoundingClientRect();
+
+test("controlSize: sm, md and lg are 160, 256 and 320px, and every control ends on one right edge", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <SettingsCard style={{ width: 720 }}>
+      <SettingsRow label="Short code" controlSize="sm">
+        <Input aria-label="Short code" className="w-48" />
+      </SettingsRow>
+      <SettingsRow label="Name">
+        <Input aria-label="Name" />
+      </SettingsRow>
+      <SettingsRow label="Languages" controlSize="lg">
+        <Input aria-label="Languages" />
+      </SettingsRow>
+      <SettingsRow label="Digest">
+        <Switch aria-label="Digest" />
+      </SettingsRow>
+      <SettingsRow label="Country">
+        <div data-slot="country-select">
+          <button type="button">India</button>
+        </div>
+      </SettingsRow>
+    </SettingsCard>,
+  );
+  const rows = [
+    ...screen.container.querySelectorAll('[data-slot="settings-row"]'),
+  ];
+  const [sm, md, lg, auto, country] = rows.map(controlBox);
+  // The searchable selects (country, region) count as field controls too.
+  expect(Math.round(country!.width)).toBe(256);
+  expect(Math.round(sm!.width)).toBe(160);
+  // No controlSize: a field control takes md.
+  expect(Math.round(md!.width)).toBe(256);
+  expect(Math.round(lg!.width)).toBe(320);
+  // A switch keeps its own width…
+  expect(Math.round(auto!.width)).toBe(32);
+  // …and every control ends on the same right edge.
+  for (const box of [md, lg, auto]) {
+    expect(Math.round(box!.right)).toBe(Math.round(sm!.right));
+  }
+  // The control fills its slot whatever width class it carries (the slot sets the measure).
+  const input = screen.getByRole("textbox", { name: "Short code" }).element();
+  expect(Math.round(input.getBoundingClientRect().width)).toBe(160);
+  expect(
+    rows[0]!.querySelector('[data-slot="settings-row-control"]'),
+  ).toHaveAttribute("data-control-size", "sm");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("controlSize: a trailing status keeps its size beside the control; auto opts a field out", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <SettingsCard style={{ width: 720 }}>
+      <SettingsRow label="Zone">
+        <InputGroup>
+          <InputGroupInput aria-label="Zone" />
+          <InputGroupAddon align="inline-end">
+            <span data-testid="tick" className="size-4" />
+          </InputGroupAddon>
+        </InputGroup>
+      </SettingsRow>
+      <SettingsRow label="Slug" controlSize="md">
+        <Input aria-label="Slug" />
+        <span data-testid="status" className="size-4 shrink-0" />
+      </SettingsRow>
+      <SettingsRow label="Code" controlSize="auto">
+        <Input aria-label="Code" className="w-24" />
+      </SettingsRow>
+    </SettingsCard>,
+  );
+  const rows = [
+    ...screen.container.querySelectorAll('[data-slot="settings-row"]'),
+  ];
+  expect(Math.round(controlBox(rows[0]!).width)).toBe(256);
+  const slug = screen.getByRole("textbox", { name: "Slug" }).element();
+  const status = screen.getByTestId("status").element();
+  expect(Math.round(status.getBoundingClientRect().width)).toBe(16);
+  // 256 = the input, the 8px gap and the 16px status.
+  expect(Math.round(slug.getBoundingClientRect().width)).toBe(232);
+  expect(Math.round(controlBox(rows[2]!).width)).toBe(96);
+});
+
+test("controlSize: a stacked (narrow) row's control spans the row", async () => {
+  await page.viewport(390, 844);
+  const screen = await render(
+    <SettingsCard style={{ width: 320 }}>
+      <SettingsRow label="Name" controlSize="sm">
+        <Input aria-label="Name" />
+      </SettingsRow>
+    </SettingsCard>,
+  );
+  const row = screen.container.querySelector('[data-slot="settings-row"]')!;
+  // The card is 320 wide: a 1px border and 16px of row padding each side.
+  expect(Math.round(controlBox(row).width)).toBe(286);
+});
+
+const ROWS = (
+  onChange?: SettingsMatrixRow["onChange"],
+): SettingsMatrixRow[] => [
+  { label: "Assigned to me", values: [true, true], onChange },
+  {
+    label: "Mentions",
+    description: "When someone @mentions you.",
+    values: [true, false],
+    onChange,
+  },
+  {
+    label: "Weekly summary",
+    values: [false, true],
+    onChange,
+    disabled: [true, false],
+  },
+];
+
+test("SettingsMatrix: the column names once, each switch under its column and named by row and column", async () => {
+  await page.viewport(1280, 900);
+  const onChange = vi.fn();
+  const screen = await render(
+    <SettingsMatrix
+      style={{ width: 720 }}
+      label="What you hear about"
+      columns={["Push", "Email"]}
+      rows={ROWS(onChange)}
+    />,
+  );
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="settings-matrix-header"]',
+  )!;
+  expect(getComputedStyle(header).display).toBe("grid");
+  expect(getComputedStyle(header).position).toBe("sticky");
+  const [, push, email] = [...header.children].map((cell) =>
+    cell.getBoundingClientRect(),
+  );
+  const center = (r: DOMRect) => Math.round(r.left + r.width / 2);
+  const mentionsEmail = screen.getByRole("switch", { name: "Mentions Email" });
+  await expect.element(mentionsEmail).not.toBeChecked();
+  expect(center(mentionsEmail.element().getBoundingClientRect())).toBe(
+    center(email!),
+  );
+  const assignedPush = screen.getByRole("switch", {
+    name: "Assigned to me Push",
+  });
+  expect(center(assignedPush.element().getBoundingClientRect())).toBe(
+    center(push!),
+  );
+  // The column name beside each switch is for screen readers only here.
+  const cellLabel = mentionsEmail
+    .element()
+    .closest("label")!
+    .querySelector('[data-slot="settings-matrix-cell-label"]')!;
+  expect(getComputedStyle(cellLabel).position).toBe("absolute");
+
+  await mentionsEmail.click();
+  expect(onChange).toHaveBeenCalledWith(1, true);
+  await expect
+    .element(screen.getByRole("switch", { name: "Weekly summary Push" }))
+    .toBeDisabled();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("SettingsMatrix narrow: no header, each switch with its column name beside it", async () => {
+  await page.viewport(390, 844);
+  const onChange = vi.fn();
+  const screen = await render(
+    <SettingsMatrix
+      style={{ width: 358 }}
+      columns={["Push", "Email"]}
+      rows={ROWS(onChange)}
+    />,
+  );
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="settings-matrix-header"]',
+  )!;
+  expect(getComputedStyle(header).display).toBe("none");
+  const toggle = screen.getByRole("switch", { name: "Mentions Push" });
+  await expect.element(toggle).not.toHaveAttribute("aria-readonly", "true");
+  const cellLabel = toggle
+    .element()
+    .closest("label")!
+    .querySelector<HTMLElement>('[data-slot="settings-matrix-cell-label"]')!;
+  expect(getComputedStyle(cellLabel).position).not.toBe("absolute");
+  expect(cellLabel.getBoundingClientRect().width).toBeGreaterThan(0);
+  // The switches sit under the label, not beside it.
+  const label = screen.getByText("Mentions").element().getBoundingClientRect();
+  expect(toggle.element().getBoundingClientRect().top).toBeGreaterThan(
+    label.bottom,
+  );
+  // On a phone the column name is part of the tap target.
+  await expect.element(toggle).toBeChecked();
+  await userEvent.click(cellLabel);
+  expect(onChange).toHaveBeenCalledWith(0, false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("SettingsMatrix: a row without onChange is read-only, not a switch that never moves", async () => {
+  const screen = await render(
+    <SettingsMatrix
+      columns={["Push"]}
+      rows={[{ label: "Security alerts", values: [true] }]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("switch", { name: "Security alerts Push" }))
+    .toHaveAttribute("aria-readonly", "true");
 });

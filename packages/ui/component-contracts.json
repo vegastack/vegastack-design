@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 756,
-    "components": 169,
+    "totalRegistryItems": 758,
+    "components": 171,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -23,9 +23,9 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 35,
-    "Navigation/layout": 22,
+    "Navigation/layout": 23,
     "Overlays": 21,
-    "Data display": 36,
+    "Data display": 37,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 10,
@@ -119,7 +119,8 @@
       "folder-tree",
       "breadcrumb-cascade",
       "table-of-contents",
-      "document-layout"
+      "document-layout",
+      "settings-layout"
     ],
     "Overlays": [
       "access-chip",
@@ -180,7 +181,8 @@
       "icon-glyph",
       "level-meter",
       "mermaid-block",
-      "qr-code"
+      "qr-code",
+      "member-list"
     ],
     "Content/marketing": [
       "alert",
@@ -2684,6 +2686,42 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "useInvalidRevert",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseInvalidRevertOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseInvalidRevertResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AutoSaveIndicatorLabels",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -2781,6 +2819,10 @@
             {
               "name": "data-compact",
               "values": []
+            },
+            {
+              "name": "data-invalid",
+              "values": [""]
             },
             {
               "name": "data-slot",
@@ -5097,7 +5139,7 @@
           "source": "packages/ui/registry/ui/carousel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A hook renders nothing and accepts no ref."
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],
@@ -16228,7 +16270,7 @@
           "source": "packages/ui/registry/ui/item.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A hook renders nothing and accepts no ref."
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],
@@ -22063,7 +22105,7 @@
           "source": "packages/ui/registry/ui/relative-time.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A hook renders nothing and accepts no ref."
+            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -22072,7 +22114,7 @@
           "source": "packages/ui/registry/ui/relative-time.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A hook renders nothing and accepts no ref."
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],
@@ -23289,7 +23331,7 @@
       "name": "settings-row",
       "registryType": "registry:ui",
       "title": "Settings Row",
-      "summary": "A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.",
+      "summary": "A borders-only settings layout — titled sections, bordered cards, label-plus-control rows whose controls share one width and right edge (controlSize), and a settings × channels switch matrix with its column names once.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -23361,6 +23403,34 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "SettingsMatrix",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/settings-row.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SettingsMatrixProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SettingsMatrixRow",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -23369,9 +23439,14 @@
         "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "controlSize",
+            "values": ["sm", "md", "lg", "auto"]
+          }
+        ],
+        "rationale": "The control slot's width once the row is side by side: 160, 256 or 320px, or the control's own."
       },
       "states": {
         "behavior": {
@@ -23409,7 +23484,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/settings-row",
-      "registryDependencies": ["@vegastack/card"],
+      "registryDependencies": ["@vegastack/card", "@vegastack/switch"],
       "npmDependencies": [
         "@vegastack/design@^0.8.34",
         "@vegastack/design-tokens@^0.8.17"
@@ -23452,6 +23527,10 @@
         "SettingsRow": {
           "attributes": [
             {
+              "name": "data-control-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "settings-row",
@@ -23459,6 +23538,240 @@
                 "settings-row-description",
                 "settings-row-label"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SettingsMatrix": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "settings-matrix",
+                "settings-matrix-cell",
+                "settings-matrix-cell-label",
+                "settings-matrix-cells",
+                "settings-matrix-header",
+                "settings-matrix-label",
+                "settings-matrix-row"
+              ]
+            }
+          ],
+          "cssVariables": ["--settings-matrix-columns"]
+        }
+      }
+    },
+    {
+      "name": "settings-layout",
+      "registryType": "registry:ui",
+      "title": "Settings Layout",
+      "summary": "The two-pane Settings frame — a 220px sticky section nav with current-page marking and counts, and one 960px content column where forms cap at 720px left-aligned and lists fill; on a phone the nav is the first screen and pages push in with a back link.",
+      "status": "stable",
+      "since": "0.25.87",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/settings-layout.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SettingsLayout",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SettingsLayoutProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SettingsLayoutContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SettingsLayoutContentProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SettingsNav",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SettingsNavProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SettingsNavItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SettingsNavSection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/settings-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "view",
+            "values": ["nav", "content"]
+          },
+          {
+            "name": "kind",
+            "values": ["form", "list"]
+          }
+        ],
+        "rationale": "Which pane a narrow layout shows, and a page's measure in the content column."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fixed geometry: a 220px nav, a 960px column, a 720px form measure."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "current-page",
+            "badge",
+            "nav-view",
+            "content-view",
+            "back-link"
+          ],
+          "evidence": "packages/ui/registry/ui/settings-layout.tsx + packages/ui/registry/ui/settings-layout.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "landmark",
+            "labeled",
+            "current-page",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/settings-layout.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "current", "narrow", "wide"],
+          "evidence": "packages/ui/registry/ui/settings-layout.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink",
+          "sticky-positioning"
+        ],
+        "rationale": "Container-queried: two panes from 42rem of its own width, one pane at a time below; the nav sticks and its names truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/settings-layout",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/settings-layout.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "settings-layout",
+      "dataAttributes": {
+        "SettingsNav": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "settings-nav",
+                "settings-nav-badge",
+                "settings-nav-section",
+                "settings-nav-section-label"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SettingsLayout": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "settings-layout",
+                "settings-layout-main",
+                "settings-layout-nav"
+              ]
+            },
+            {
+              "name": "data-view",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "SettingsLayoutContent": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["settings-layout-content"]
             }
           ],
           "cssVariables": []
@@ -36073,6 +36386,199 @@
       }
     },
     {
+      "name": "member-list",
+      "registryType": "registry:ui",
+      "title": "Member List",
+      "summary": "The people in a team, a space or a share list — an add row (picker · optional role · Add) and 36px rows (avatar · name over a muted sub line · role chip menu or text · ⋯ with Remove) that scroll after eight.",
+      "status": "stable",
+      "since": "0.25.87",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/member-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MemberList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/member-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MemberListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/member-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MemberListMember",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/member-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MemberListLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/member-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MemberListAdd",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/member-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MemberListAddProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/member-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "canManage",
+            "values": ["true", "false"]
+          }
+        ],
+        "rationale": "Role menus and ⋯ menus for a manager; text roles and no menus otherwise."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "36px rows; the scroll cap is maxRows rows."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "loading",
+            "empty",
+            "locked",
+            "read-only",
+            "scrolling",
+            "adding"
+          ],
+          "evidence": "packages/ui/registry/ui/member-list.tsx + packages/ui/registry/ui/member-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/member-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "open",
+            "locked",
+            "read-only"
+          ],
+          "evidence": "packages/ui/registry/ui/member-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "overflow-and-scroll",
+          "responsive-or-container-layout"
+        ],
+        "rationale": "Names truncate; the list scrolls after maxRows; the add row stacks below 28rem of its own width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the menus' transitions are DropdownMenu's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/member-list",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/permission-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/scroll-area",
+        "@vegastack/skeleton"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/member-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "member-list",
+      "dataAttributes": {
+        "MemberList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "member-list",
+                "member-list-description",
+                "member-list-empty",
+                "member-list-more",
+                "member-list-more-spacer",
+                "member-list-name",
+                "member-list-role",
+                "member-list-row",
+                "member-list-rows",
+                "member-list-scroll"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MemberListAdd": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "member-list-add",
+                "member-list-add-button",
+                "member-list-add-picker"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "share-dialog",
       "registryType": "registry:ui",
       "title": "Share Dialog",
@@ -36220,14 +36726,13 @@
         "@vegastack/copy-button",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
-        "@vegastack/item",
+        "@vegastack/member-list",
         "@vegastack/people-picker",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/responsive-dialog",
         "@vegastack/select",
-        "@vegastack/skeleton",
         "@vegastack/space-picker",
         "@vegastack/switch",
         "@vegastack/tabs",
@@ -36271,7 +36776,6 @@
                 "share-invite-row",
                 "share-panels",
                 "share-people",
-                "share-person",
                 "share-public-link",
                 "share-public-link-expires-at",
                 "share-public-link-options",
