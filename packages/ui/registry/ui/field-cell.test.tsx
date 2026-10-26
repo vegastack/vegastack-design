@@ -1071,13 +1071,65 @@ test("in a grid: Tab leaves from a cell holding link chips, and the chips are re
   expect(document.activeElement?.textContent).toContain("Lumen Build");
   await userEvent.keyboard("{Escape}");
   expect(document.activeElement).toBe(cell);
-  // Alt+Enter reaches them from any cell, an editable one included.
-  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
-  await vi.waitFor(() =>
-    expect(document.activeElement?.textContent).toContain(
-      "Greenfield Campus Authority",
-    ),
-  );
-  await userEvent.keyboard("{Escape}");
-  expect(document.activeElement).toBe(cell);
+});
+
+test("in a grid: Alt+Enter reaches an editable cell's link chips, and Enter on one follows it", async () => {
+  const targets = [
+    { id: "c1", kind: "customer", label: "Greenfield", href: "/c/1" },
+    { id: "c2", kind: "customer", label: "Lumen", href: "/c/2" },
+  ];
+  const followed: string[] = [];
+  const follow = (event: MouseEvent) => {
+    const link = (event.target as Element).closest("a[href]");
+    if (!link) return;
+    event.preventDefault();
+    followed.push(link.getAttribute("href")!);
+  };
+  document.addEventListener("click", follow, true);
+  try {
+    await render(
+      <DataGrid
+        aria-label="Requests"
+        columns={[
+          { key: "name", header: "Name", minWidth: 10 },
+          {
+            key: "links",
+            header: "Customer",
+            minWidth: 10,
+            render: (row) => <FieldCellDisplay type="link" value={row.links} />,
+            editable: {
+              type: "custom",
+              render: ({ cancel }) => (
+                <input aria-label="Customer editor" onBlur={cancel} />
+              ),
+            },
+          },
+        ]}
+        data={[{ id: "r1", name: "One", links: targets }]}
+        getRowId={(row) => row.id}
+      />,
+    );
+    const cell = document.querySelector<HTMLElement>(
+      '[data-grid-row="r1"][data-grid-key="links"]',
+    )!;
+    await vi.waitFor(() =>
+      expect(cell.querySelector<HTMLElement>("a[href]")?.tabIndex).toBe(-1),
+    );
+    cell.focus();
+    await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+    await vi.waitFor(() =>
+      expect(document.activeElement?.textContent).toContain("Greenfield"),
+    );
+    await userEvent.keyboard("{ArrowRight}");
+    expect(document.activeElement?.textContent).toContain("Lumen");
+    await userEvent.keyboard("{Enter}");
+    await vi.waitFor(() => expect(followed).toEqual(["/c/2"]));
+    expect(
+      document.querySelector('input[aria-label="Customer editor"]'),
+    ).toBeNull();
+    await userEvent.keyboard("{Escape}");
+    expect(document.activeElement).toBe(cell);
+  } finally {
+    document.removeEventListener("click", follow, true);
+  }
 });

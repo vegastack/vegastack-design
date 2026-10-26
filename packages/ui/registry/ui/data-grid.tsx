@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.79 sha256-L74s+K3YUoqOycZhcbWHPZCqWMLSBs82qU6wPDb/ev8=
+// @vegastack data-grid@0.25.79 sha256-topXXMBGDdKOdP/FhvhfENJtdk5beLYCdEd03Y225Fo=
 
 "use client";
 
@@ -1731,17 +1731,24 @@ function isTypingKey(event: React.KeyboardEvent): boolean {
 const CELL_CONTENT_STOPS =
   '[data-slot="data-grid-cell"]:not([data-editing]) :is(a[href], button, input, select, textarea, summary, [contenteditable="true"], [tabindex]):not([tabindex="-1"])';
 
-/** The widgets inside a body cell, in order, that the cell's keyboard model steps through. */
+/**
+ * The widgets inside a body cell, in order, that the cell's keyboard model steps through: the
+ * innermost ones (a chip, not the editable value around it), never the cell's own edit surface.
+ */
 function cellWidgets(cell: HTMLElement): HTMLElement[] {
-  return [
+  const candidates = [
     ...cell.querySelectorAll<HTMLElement>(
       'a[href], button, input:not([type="hidden"]), select, textarea, summary, [contenteditable="true"], [tabindex]',
     ),
   ].filter(
     (node) =>
-      !node.matches(":disabled") &&
-      node.getAttribute("aria-hidden") !== "true" &&
+      !node.matches(':disabled, [data-slot="editable-cell-display"]') &&
+      !node.closest('[aria-hidden="true"]') &&
       node.getClientRects().length > 0,
+  );
+  return candidates.filter(
+    (node) =>
+      !candidates.some((other) => other !== node && node.contains(other)),
   );
 }
 
