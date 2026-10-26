@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.31
+
+### Patch Changes
+
+- [#759](https://github.com/vegastack/vegastack-design/pull/759) [`5c5d4e0`](https://github.com/vegastack/vegastack-design/commit/5c5d4e061d28f1431ea03077e7b5712577cd6536) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **DataGrid**: a scroll tick at 150 columns costs about a quarter to a third less main-thread time. A body cell is no longer `position: relative` unless it holds the remote-change cue or the fill handle (each positioned cell was a paint layer of its own, so paint and layerize were most of a tick), and `EditableCell`'s display is positioned only while it edits. The row window overscans three rows and the column window one column. The frozen edge's `data-scrolled-x` is set once a frame from the offset the column virtualiser already read, so no grid scroll handler forces a layout. Header and summary cells are memoised behind stable actions, so a column-window move renders the entering column alone, and a remote change's cue (and its timer) mounts only on the cell it marks. A managed `EditableCell`'s text leaf that measures on contact keeps its element in a ref, so a newly mounted cell renders once instead of twice. [docs](https://design.vegastack.com/docs/components/data-grid)
+
 ## 0.8.30
 
 ### Patch Changes
