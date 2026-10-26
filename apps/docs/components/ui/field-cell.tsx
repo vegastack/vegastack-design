@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.83 sha256-Wjf7zlTthmCQE52pwb9tGm0H577VOKNGMt4bdbJXC4c=
+// @vegastack field-cell@0.25.83 sha256-u7YsYoc+M93Oq+9i+aA+5GiFr/6OpKR98cmHiF1lMxo=
 
 "use client";
 
@@ -1432,9 +1432,10 @@ export function FieldCellEditor({
       const focusText = () => {
         if (longText.current) {
           stopKeeping();
-          // A seeded editor holds only the typed keys: the caret goes after them, so the next
-          // keys follow.
-          longText.current.focus(seed ? "end" : undefined);
+          // The caret goes at the end, nothing selected: after a seeded editor's typed keys, so
+          // the next keys follow; after an opened value's text (Enter, F2, a click), to go on
+          // writing it.
+          longText.current.focus("end");
         } else if (++tries < 30) frame = requestAnimationFrame(focusText);
         else stopKeeping();
       };

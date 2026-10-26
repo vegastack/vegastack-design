@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.83 sha256-CIBaJIwsZ8eiLOpQvI2IC9PhAV91LSYuGOlFp3FKULY=
+// @vegastack text-edit@0.25.83 sha256-ygQnqiWLdLg/hS5SOVcjy28u93mddehZCzS28+Js/W0=
 
 "use client";
 
@@ -110,7 +110,11 @@ export interface MentionKindConfig {
    * @default the built-in kind's icon, else a link glyph
    */
   icon?: React.ReactNode;
-  /** Where its group sits in the menu: lower first; kinds with the same order keep array order. */
+  /**
+   * Where its group sits in the menu: lower first; kinds with the same order keep array order.
+   * With a query, groups sit by their best match on the name first (the whole name, its start, a
+   * word's start, anywhere), then by `order`.
+   */
   order: number;
 }
 
@@ -145,7 +149,9 @@ export interface MentionOption {
 export interface TextEditMentions {
   /**
    * The kinds the menu offers, each a group under its `plural` heading, in `order` (People ·
-   * Pages · Files · …). A result of a kind not listed here is not shown.
+   * Pages · Files · …); with a query, the group holding the best match on the name comes first.
+   * Each group keeps its results in the order they arrive. A result of a kind not listed here is
+   * not shown.
    */
   kinds: readonly MentionKindConfig[];
   /**
