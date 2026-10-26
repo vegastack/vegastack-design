@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-d1s/5e/ajQdlPCFxdhZl3jtDAjkA5WdHLkuPpZ2PdSc=
+// @vegastack field-cell@0.25.79 sha256-C/pIg7unHF+LXBFmdiT12c2AKNa+KQd/+Socm3n0KlY=
 
 "use client";
 
@@ -1390,7 +1390,6 @@ export function FieldCellEditor({
     if (type === "long_text") {
       // The popover mounts its content a frame or two after the editor: focus it once it is there.
       let frame = 0;
-      let tries = 0;
       // Keys typed before the editor is there join the draft it opens with, so none is lost.
       const keep = (event: KeyboardEvent) => {
         if (
@@ -1410,13 +1409,22 @@ export function FieldCellEditor({
       const stopKeeping = () =>
         document.removeEventListener("keydown", keep, true);
       document.addEventListener("keydown", keep, true);
+      // Keys are kept until the editor itself is in (not only its read view), so a commit before
+      // it loads — a click outside — still has them all.
+      const started = performance.now();
+      let asked = false;
       const focusText = () => {
-        if (longText.current) {
-          stopKeeping();
-          // A seeded editor holds only the typed keys: the caret goes after them, so the next
-          // keys follow.
-          longText.current.focus(seed ? "end" : undefined);
-        } else if (++tries < 30) frame = requestAnimationFrame(focusText);
+        const handle = longText.current;
+        // A seeded editor holds only the typed keys: the caret goes after them, so the next
+        // keys follow. Asking loads the editor; its read view holds focus meanwhile.
+        if (handle && !asked) {
+          asked = true;
+          handle.focus(seed ? "end" : undefined);
+        }
+        // The editor takes the caret where it was asked once it is in.
+        if (handle && handle.getStats() !== null) stopKeeping();
+        else if (performance.now() - started < 10_000)
+          frame = requestAnimationFrame(focusText);
         else stopKeeping();
       };
       focusText();
