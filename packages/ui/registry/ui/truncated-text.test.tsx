@@ -456,3 +456,40 @@ test("DS-68: under TruncationFocusProvider focusable={false} a clipped value is 
   const text = screen.container.querySelector('[data-slot="truncated-text"]')!;
   expect(text.getAttribute("tabindex")).not.toBe("0");
 });
+
+test("host-owned (measured on contact): pointing at a clipped value opens its full text, again after the value changes", async () => {
+  function Host({ text }: { text: string }) {
+    return (
+      <TooltipProvider delay={0}>
+        <TruncationFocusProvider focusable={false}>
+          <TruncatedText data-testid="subject" style={CLIP}>
+            {text}
+          </TruncatedText>
+        </TruncationFocusProvider>
+      </TooltipProvider>
+    );
+  }
+  const first = "A first value long enough to clip in its tiny box";
+  const screen = await render(<Host text={first} />);
+  const subject = () => screen.getByTestId("subject");
+  // At rest it is measured by nothing: no Tooltip, not a tab stop.
+  expect(subject().element().getAttribute("tabindex")).not.toBe("0");
+  await userEvent.hover(subject());
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+    )
+    .toBe(first);
+  await userEvent.unhover(subject());
+  // The element became a Tooltip trigger (a remount); a new value is still measured on contact.
+  const second = "A second value, also long enough to clip in the box";
+  await screen.rerender(<Host text={second} />);
+  await userEvent.hover(subject());
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+    )
+    .toBe(second);
+});
