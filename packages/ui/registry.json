@@ -2425,7 +2425,10 @@
       ],
       "registryDependencies": [
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
+        "@vegastack/panel-search",
+        "@vegastack/sheet"
       ],
       "files": [
         {
@@ -15215,7 +15218,8 @@
         "@vegastack/separator",
         "@vegastack/use-announcer",
         "@vegastack/emoji-data",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/person-avatar"
       ],
       "files": [
         {

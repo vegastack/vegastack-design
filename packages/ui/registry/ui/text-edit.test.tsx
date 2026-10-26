@@ -7451,3 +7451,160 @@ test("image: inserted by link into an empty list item, the caret moves past it �
   await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("after"));
   expect(lastValue(onValueChange)).toContain("/files/pic.png");
 });
+
+// ---- W1-DS3 · roomy menus: menuSize="lg", mention sections, phone sheets (UXP-03, 11, 21) -----
+
+test('menuSize="lg": the slash menu is 320px, each block says what it is, grouped Basic · host · Media · Advanced', async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    menuSize: "lg",
+    slashActions: [
+      {
+        id: "page",
+        label: "Page",
+        icon: <span aria-hidden>P</span>,
+        description: "A page inside this one",
+        group: "Regent",
+        onSelect: () => {},
+      },
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const menu = slashMenu()!;
+  expect(menu.getBoundingClientRect().width).toBe(320);
+  const headings = [
+    ...menu.querySelectorAll('[data-slot="suggestion-menu-group-label"]'),
+  ].map((each) => each.textContent);
+  expect(headings).toEqual(["Basic", "Regent", "Media", "Advanced"]);
+  const heading1 = [
+    ...menu.querySelectorAll<HTMLElement>(
+      '[data-slot="suggestion-menu-option"]',
+    ),
+  ].find((row) => row.textContent?.includes("Heading 1"))!;
+  expect(
+    heading1.querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent,
+  ).toBe("Big section heading");
+  // The arrows walk the rows as they show: the host's item right after the basic blocks.
+  const labels = [
+    ...menu.querySelectorAll('[data-slot="suggestion-menu-label"]'),
+  ].map((each) => each.textContent);
+  expect(labels.indexOf("Page")).toBe(labels.indexOf("Divider") + 1);
+  await userEvent.keyboard("head");
+  await vi.waitFor(() =>
+    expect(
+      slashMenu()!.querySelectorAll(
+        '[data-slot="suggestion-menu-group-label"]',
+      ),
+    ).toHaveLength(0),
+  );
+  await expectNoA11yViolations(slashMenu()!);
+});
+
+test("mentions sections: People · Agents · Records by type; an email shows on the active row unless two people share the name", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    { kind: "page", id: "p1", label: "Asha's notes" },
+    { kind: "user", id: "u1", label: "Asha Rao", description: "asha@x.co" },
+    { kind: "agent", id: "a1", label: "Scribe" },
+    { kind: "task", id: "t1", label: "Order glass" },
+    { kind: "user", id: "u2", label: "Ben Ito", description: "ben@x.co" },
+    { kind: "user", id: "u3", label: "Ben Ito", description: "ben2@x.co" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: mentionKinds("user", "agent", "page", "task"),
+      sections: ["people", "agents", "records"],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.getAttribute("role")).toBe("listbox"),
+  );
+  const groups = [...mentionMenu()!.querySelectorAll('[role="group"]')];
+  expect(groups.map((group) => group.firstElementChild?.textContent)).toEqual([
+    "People",
+    "Your agents",
+    "Pages",
+    "Tasks",
+  ]);
+  const row = (label: string) =>
+    [
+      ...mentionMenu()!.querySelectorAll<HTMLElement>(
+        '[data-slot="suggestion-menu-option"]',
+      ),
+    ].filter((each) => each.textContent?.includes(label));
+  const email = (each: HTMLElement) =>
+    each.querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent ?? null;
+  // Asha is the active row: her email shows. The two Bens keep theirs to tell them apart.
+  expect(email(row("Asha Rao")[0]!)).toBe("asha@x.co");
+  expect(row("Ben Ito").map(email)).toEqual(["ben@x.co", "ben2@x.co"]);
+  // The agent draws the agent avatar.
+  expect(
+    row("Scribe")[0]!.querySelector('[data-slot="avatar"][data-kind="agent"]'),
+  ).not.toBeNull();
+  await userEvent.keyboard("{ArrowDown}");
+  await vi.waitFor(() => expect(email(row("Asha Rao")[0]!)).toBeNull());
+  await expectNoA11yViolations(mentionMenu()!);
+});
+
+test('menuPresentation="auto" on a phone: / opens a sheet whose search filters, and Enter turns the line into the pick', async () => {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("max-width: 639px"),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    menuPresentation: "auto",
+    menuSize: "lg",
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  const search = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLInputElement>(
+      '[data-slot="suggestion-menu-sheet"] [data-slot="suggestion-menu-search"]',
+    );
+    expect(found).not.toBeNull();
+    expect(document.activeElement).toBe(found);
+    return found!;
+  });
+  await userEvent.keyboard("heading 2");
+  expect(search.value).toBe("heading 2");
+  await vi.waitFor(() =>
+    expect(
+      [
+        ...document.querySelectorAll(
+          '[data-slot="suggestion-menu-sheet"] [data-slot="suggestion-menu-label"]',
+        ),
+      ].map((each) => each.textContent),
+    ).toEqual(["Heading 2"]),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror h2")).not.toBeNull(),
+  );
+  expect(lastValue(onValueChange) ?? "").not.toContain("/");
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="suggestion-menu-sheet"]'),
+    ).toBeNull(),
+  );
+});

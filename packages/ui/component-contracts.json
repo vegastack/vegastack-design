@@ -27339,6 +27339,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MentionSection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -29313,6 +29322,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "useSuggestionMenuSheet",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

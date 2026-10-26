@@ -521,6 +521,32 @@ person never links, and an id starting with `restricted:` is a muted chip for a
 target the reader may not open — the app keeps the real id after the colon so an
 edit never loses the mention.
 
+### Roomy menus and phone sheets
+
+`menuSize="lg"` gives the slash and mention menus room: 320px wide and up to `min(60vh, 440px)`
+tall, each block with a line saying what it is ("Big section heading"), and the full slash menu
+grouped **Basic · the host's items · Media · Advanced**, so the host's own blocks
+(`slashActions`, under their `group` — "Insert" unless named) are one screen away instead of at the
+bottom. Filtered, the menu drops its headings as before.
+
+`mentions.sections` fixes the `@` menu's order whatever the query matches best: `["people",
+"agents", "records"]` lists People, then Agents (the `agent` kind, drawn with the agent avatar),
+then each record kind under its `plural`, the nearest match first. A person's description (an
+email) shows only on the highlighted row, unless two people in the menu share the name; an
+option's `descriptionShown: "always"` keeps a note in view ("Can't see this page").
+
+`menuPresentation="auto"` turns both menus into a bottom `Sheet` on a coarse pointer or a window
+under 640px: a search field takes the keyboard (<kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd>
+
+<kbd>Esc</kbd>) over 44px rows, and a pick lands at the caret the `/` or `@` was
+typed at. On a fine pointer it is the caret menu. Both props default to today's
+240/288px caret menus.
+
+<ComponentPreview
+  name="textEditRoomyMenus"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Pasting links
 
 A lone http(s) link pasted at the caret (not over a selection, not in code, not pasted as plain

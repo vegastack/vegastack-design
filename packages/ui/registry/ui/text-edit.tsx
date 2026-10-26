@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-0JwqrdPQSdf35nOqJVAREmUAQAMli+A3L3pLUUw5W5g=
+// @vegastack text-edit@0.25.88 sha256-RJ+6Hm52OGtFFC65+zVzeO1ca6jadkWSFHVdlgSmbRA=
 
 "use client";
 
@@ -143,7 +143,21 @@ export interface MentionOption {
    * @default undefined — the kind's own group
    */
   group?: string;
+  /**
+   * When `description` shows: always, or only on the highlighted row. With `sections`, a
+   * person's description (an email) shows only on the highlighted row unless another person in
+   * the menu has the same name; pass `"always"` for a note that must stay in view ("Can't see
+   * this page").
+   * @default "active" for a person in a menu with `sections`, else "always"
+   */
+  descriptionShown?: "always" | "active";
 }
+
+/**
+ * A section of the `@` menu (`TextEditMentions.sections`): `people` (the `user` kind), `agents`
+ * (the `agent` kind) or `records` (every other kind, a group per kind under its `plural`).
+ */
+export type MentionSection = "people" | "agents" | "records";
 
 /** The `@` menu's source: which kinds it offers, and the search behind it. */
 export interface TextEditMentions {
@@ -179,6 +193,15 @@ export interface TextEditMentions {
     url: string,
     options: { signal: AbortSignal },
   ) => Promise<MentionOption | null> | null;
+  /**
+   * Fixed sections, in this order: People, then Agents, then Records — each record kind its own
+   * group, nearest match first — whatever the query matches best (an option's own `group`,
+   * "Recent", still comes first). A section left out is not shown. People and agents show their
+   * avatar (an agent's is the bot variant) when the option brings no `icon`, and a person's email
+   * shows only on the highlighted row unless two people share the name.
+   * @default undefined — groups by kind, ordered by `order` and the query's best match
+   */
+  sections?: readonly MentionSection[];
 }
 
 /** What an image upload resolves to: the image's final URL (and optional alt text and size). */
@@ -250,6 +273,12 @@ export interface TextEditSlashAction {
   disabled?: boolean;
   /** Why it is disabled, shown in place of `description`. @default undefined */
   disabledReason?: string;
+  /**
+   * The heading it is listed under in the full menu ("Regent"); host items with the same group sit
+   * together, after the basic blocks on a `menuSize="lg"` menu and at the end otherwise.
+   * @default "Insert"
+   */
+  group?: string;
   /** Chosen: the typed `/query` is already gone. */
   onSelect: (ctx: TextEditSlashActionContext) => void;
 }
@@ -1160,6 +1189,20 @@ export interface TextEditProps {
    * @default []
    */
   slashActions?: readonly TextEditSlashAction[];
+  /**
+   * The slash and mention menus' size (`SuggestionMenu`'s): `lg` is 320px wide and up to
+   * `min(60vh, 440px)` tall, each block with a line saying what it is, the slash menu grouped Basic ·
+   * the host's items · Media · Advanced.
+   * @default "default"
+   */
+  menuSize?: "default" | "lg";
+  /**
+   * Where the slash and mention menus show (`SuggestionMenu`'s `presentation`): `auto` opens a
+   * bottom sheet with a search field on a coarse pointer or a window under 640px, and floats at
+   * the caret otherwise.
+   * @default "popover"
+   */
+  menuPresentation?: "popover" | "auto";
   /**
    * Whether the placeholder yields to the "Type / for commands" hint while focused and empty.
    * Off keeps the placeholder (a comment box's "Add a comment…") in every state.

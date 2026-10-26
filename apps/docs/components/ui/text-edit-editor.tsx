@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-0JwqrdPQSdf35nOqJVAREmUAQAMli+A3L3pLUUw5W5g=
+// @vegastack text-edit@0.25.88 sha256-RJ+6Hm52OGtFFC65+zVzeO1ca6jadkWSFHVdlgSmbRA=
 
 "use client";
 
@@ -230,6 +230,7 @@ import {
   SuggestionMenu,
   suggestionMenuKeyDown,
   suggestionMenuOptionId,
+  useSuggestionMenuSheet,
   type SuggestionMenuOption,
 } from "@/components/ui/suggestion-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -287,6 +288,7 @@ import {
 import type {
   MentionKindConfig,
   MentionOption,
+  MentionSection,
   TextEditAnchor,
   TextEditCollaboration,
   TextEditCollaborationUser,
@@ -299,6 +301,7 @@ import type {
   TextEditHeadingAnchor,
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
+import { PersonAvatar } from "@/components/ui/person-avatar";
 import {
   linkedTaskId,
   TEXT_EDIT_UPLOAD_ABORT,
@@ -339,6 +342,10 @@ interface SlashSpec {
   glyph?: React.ReactNode;
   /** Muted text after the label (a host item's description, or why it is disabled). */
   description?: string;
+  /** What the block is, in a few words: a built-in's line on a `menuSize="lg"` menu. */
+  blurb?: string;
+  /** A host item's heading (`TextEditSlashAction.group`). */
+  hostGroup?: string;
   /** Shown but not choosable. */
   disabled?: boolean;
   run: (ed: Editor, range: Range, open: (panel: Panel) => void) => void;
@@ -372,6 +379,50 @@ const SLASH_GROUP: Record<TextEditSlashCommand, string> = {
 };
 const HOST_SLASH_GROUP = "Insert";
 
+/**
+ * The `menuSize="lg"` menu's headings (UXP-03): the basic blocks, then the host's own items, then
+ * media, then the advanced blocks. A host item takes its own `group` ("Insert" by default).
+ */
+const LG_SLASH_GROUP: Record<
+  TextEditSlashCommand,
+  "Basic" | "Media" | "Advanced"
+> = {
+  text: "Basic",
+  h1: "Basic",
+  h2: "Basic",
+  h3: "Basic",
+  h4: "Basic",
+  bulletList: "Basic",
+  orderedList: "Basic",
+  taskList: "Basic",
+  blockquote: "Basic",
+  callout: "Basic",
+  toggle: "Basic",
+  divider: "Basic",
+  image: "Media",
+  video: "Media",
+  audio: "Media",
+  file: "Media",
+  link: "Media",
+  codeBlock: "Advanced",
+  diagram: "Advanced",
+  table: "Advanced",
+};
+
+/** A slash item's heading in the full menu, by size. */
+function slashGroup(spec: SlashSpec, lg: boolean): string {
+  if (spec.id.startsWith("host:")) return spec.hostGroup ?? HOST_SLASH_GROUP;
+  const id = spec.id as TextEditSlashCommand;
+  return lg ? LG_SLASH_GROUP[id] : SLASH_GROUP[id];
+}
+
+/** Where a slash item sits on the full `lg` menu: Basic · the host's · Media · Advanced. */
+function lgSlashRank(spec: SlashSpec): number {
+  if (spec.id.startsWith("host:")) return 1;
+  const group = LG_SLASH_GROUP[spec.id as TextEditSlashCommand];
+  return group === "Basic" ? 0 : group === "Media" ? 2 : 3;
+}
+
 const heading =
   (level: 1 | 2 | 3 | 4) =>
   (ed: Editor, range: Range): void =>
@@ -380,6 +431,7 @@ const heading =
 const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   text: {
     id: "text",
+    blurb: "Plain text",
     label: "Text",
     keywords: "paragraph plain p",
     icon: Pilcrow,
@@ -388,6 +440,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h1: {
     id: "h1",
+    blurb: "Big section heading",
     label: "Heading 1",
     keywords: "title h1 #",
     hint: "#",
@@ -396,6 +449,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h2: {
     id: "h2",
+    blurb: "Medium section heading",
     label: "Heading 2",
     keywords: "subtitle h2 ##",
     hint: "##",
@@ -404,6 +458,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h3: {
     id: "h3",
+    blurb: "Small section heading",
     label: "Heading 3",
     keywords: "h3 ###",
     hint: "###",
@@ -412,6 +467,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h4: {
     id: "h4",
+    blurb: "Smallest heading",
     label: "Heading 4",
     keywords: "h4 ####",
     hint: "####",
@@ -420,6 +476,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   bulletList: {
     id: "bulletList",
+    blurb: "A simple bulleted list",
     label: "Bullet list",
     keywords: "unordered ul bullets -",
     hint: "-",
@@ -429,6 +486,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   orderedList: {
     id: "orderedList",
+    blurb: "A list with numbers",
     label: "Numbered list",
     keywords: "ordered ol numbers 1.",
     hint: "1.",
@@ -438,6 +496,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   taskList: {
     id: "taskList",
+    blurb: "Track to-dos with checkboxes",
     label: "Checklist",
     keywords: "todo task checkbox [ ]",
     hint: "[ ]",
@@ -447,6 +506,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   blockquote: {
     id: "blockquote",
+    blurb: "Capture a quote",
     label: "Quote",
     keywords: "blockquote citation >",
     hint: ">",
@@ -456,6 +516,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   callout: {
     id: "callout",
+    blurb: "Make a note stand out",
     label: "Callout",
     keywords: "note tip warning alert info admonition",
     icon: Info,
@@ -464,6 +525,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   toggle: {
     id: "toggle",
+    blurb: "Hide content inside a fold",
     label: "Toggle",
     keywords: "details summary collapse disclosure fold",
     icon: ChevronDown,
@@ -474,6 +536,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   divider: {
     id: "divider",
+    blurb: "Separate sections",
     label: "Divider",
     keywords: "hr rule separator line ---",
     hint: "---",
@@ -483,6 +546,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   codeBlock: {
     id: "codeBlock",
+    blurb: "Code with syntax highlighting",
     label: "Code block",
     keywords: "pre snippet fence ```",
     hint: "```",
@@ -492,6 +556,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   diagram: {
     id: "diagram",
+    blurb: "A flowchart or sequence, from text",
     label: "Diagram",
     keywords: "mermaid flowchart sequence gantt chart",
     icon: Workflow,
@@ -502,6 +567,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   table: {
     id: "table",
+    blurb: "Rows and columns",
     label: "Table",
     keywords: "grid rows columns gfm",
     icon: TableIcon,
@@ -515,6 +581,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   image: {
     id: "image",
+    blurb: "Upload or link an image",
     label: "Image",
     keywords: "picture photo img url",
     icon: ImageIcon,
@@ -525,6 +592,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   video: {
     id: "video",
+    blurb: "Upload or link a video",
     label: "Video",
     keywords: "movie clip mp4 webm recording youtube loom embed",
     icon: Film,
@@ -535,6 +603,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   audio: {
     id: "audio",
+    blurb: "Upload or link a sound clip",
     label: "Audio",
     keywords: "sound music voice recording mp3",
     icon: AudioLines,
@@ -545,6 +614,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   file: {
     id: "file",
+    blurb: "Attach any file",
     label: "File",
     keywords: "upload attachment document pdf",
     icon: FileIcon,
@@ -555,6 +625,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   link: {
     id: "link",
+    blurb: "Link to a page or site",
     label: "Link",
     keywords: "url href anchor",
     hint: "⌘K",
@@ -650,6 +721,7 @@ function hostSlashSpec(action: TextEditSlashAction): SlashSpec {
     keywords: (action.keywords ?? []).join(" "),
     icon: Plus,
     glyph: action.icon,
+    hostGroup: action.group,
     description: action.disabled
       ? (action.disabledReason ?? action.description)
       : action.description,
@@ -685,6 +757,7 @@ function filterSlash(
   query: string,
   inCell = false,
   actions: readonly TextEditSlashAction[] = [],
+  lg = false,
 ): SlashSpec[] {
   const q = query.trim().toLowerCase();
   // Words, and a run of letters and a run of digits apart: `head2` is "head" and "2".
@@ -695,7 +768,7 @@ function filterSlash(
   // One menu everywhere: the canonical order, whatever order the host's subset lists; the host's
   // own items after the built-in ones.
   const wanted = new Set(allowed);
-  return [
+  const found = [
     ...(Object.keys(SLASH) as TextEditSlashCommand[])
       .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
       .map((id) => SLASH[id]),
@@ -717,6 +790,16 @@ function filterSlash(
       )
     );
   });
+  // The full `lg` menu in its group order (a stable sort): the arrow keys walk it as it shows.
+  return lg && !q
+    ? found
+        .map((spec, index) => ({ spec, index }))
+        .sort(
+          (a, b) =>
+            lgSlashRank(a.spec) - lgSlashRank(b.spec) || a.index - b.index,
+        )
+        .map(({ spec }) => spec)
+    : found;
 }
 
 /**
@@ -1587,6 +1670,8 @@ interface SlashRuntime {
   allowed: React.RefObject<readonly TextEditSlashCommand[]>;
   /** The host's own items (`slashActions`). */
   actions: React.RefObject<readonly TextEditSlashAction[]>;
+  /** A `menuSize="lg"` menu: the full list in its own group order. */
+  lg: React.RefObject<boolean>;
   get: () => SlashState | null;
   set: (next: SlashState | null) => void;
   open: (panel: Panel) => void;
@@ -1617,6 +1702,7 @@ function slashExtension(runtime: SlashRuntime) {
               query,
               inTableCell(ed.state),
               runtime.actions.current,
+              runtime.lg.current,
             ),
           command: ({ editor: ed, range, props }) =>
             props.run(ed, range, runtime.open),
@@ -2865,6 +2951,7 @@ function groupResults(
   options: readonly MentionOption[],
   kinds: readonly MentionKindConfig[],
   query = "",
+  sections?: readonly MentionSection[],
 ): MentionOption[] {
   const enabled = new Set(kinds.map((kind) => kind.id));
   const offered = options.filter((option) => enabled.has(option.kind));
@@ -2880,17 +2967,36 @@ function groupResults(
   );
   const best = (group: MentionOption[]) =>
     Math.min(...group.map((option) => mentionMatchRank(option.label, query)));
-  return [
-    ...own.flatMap((group) =>
-      offered.filter((option) => option.group === group).slice(0, 5),
-    ),
-    // A stable sort: groups that match as well keep their `order`.
-    ...groups
+  // A stable sort: groups that match as well keep their `order`.
+  const byMatch = (list: MentionOption[][]) =>
+    list
       .filter((group) => group.length > 0)
       .map((group) => ({ group, rank: best(group) }))
       .sort((a, b) => a.rank - b.rank)
-      .flatMap(({ group }) => group),
+      .flatMap(({ group }) => group);
+  const ownRows = own.flatMap((group) =>
+    offered.filter((option) => option.group === group).slice(0, 5),
+  );
+  if (!sections) return [...ownRows, ...byMatch(groups)];
+  // Fixed sections: people, agents, then the records — only the records sort by match.
+  const kindOf = (group: MentionOption[]) => group[0]?.kind;
+  return [
+    ...ownRows.filter((option) =>
+      sections.includes(mentionSection(option.kind)),
+    ),
+    ...sections.flatMap((section) => {
+      const inSection = groups.filter(
+        (group) =>
+          group.length > 0 && mentionSection(kindOf(group)!) === section,
+      );
+      return section === "records" ? byMatch(inSection) : inSection.flat();
+    }),
   ];
+}
+
+/** The `@` menu section a kind belongs to (`TextEditMentions.sections`). */
+function mentionSection(kind: MentionKind): MentionSection {
+  return kind === "user" ? "people" : kind === "agent" ? "agents" : "records";
 }
 
 /** How long a keystroke waits for the next before the mention search asks. */
@@ -2953,22 +3059,53 @@ function mentionStatus(state: MentionMenuState): string | undefined {
 function mentionOptions(
   state: MentionMenuState,
   kinds: readonly MentionKindConfig[],
+  sections?: readonly MentionSection[],
 ): SuggestionMenuOption[] {
   const byId = new Map(kinds.map((kind) => [kind.id, kind]));
-  return flatOptions(state.results).map((option) => {
+  const results = flatOptions(state.results);
+  // People who share a name keep their email in view, to tell them apart.
+  const names = new Map<string, number>();
+  for (const option of results)
+    if (option.kind === "user")
+      names.set(option.label, (names.get(option.label) ?? 0) + 1);
+  return results.map((option) => {
     const config = byId.get(option.kind);
+    const person =
+      sections !== undefined &&
+      (option.kind === "user" || option.kind === "agent");
     return {
       key: `${option.group ? `${option.group}:` : ""}${option.kind}:${option.id}`,
       label: option.label,
       description: option.description,
+      descriptionShown:
+        option.descriptionShown ??
+        (sections &&
+        option.kind === "user" &&
+        (names.get(option.label) ?? 0) < 2
+          ? "active"
+          : "always"),
       group: option.group ?? config?.plural ?? option.kind,
       icon: (
         <span
           aria-hidden
           data-slot="text-edit-mention-icon"
-          className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm"
+          className={cn(
+            "flex size-5 shrink-0 items-center justify-center overflow-hidden",
+            person && !option.icon ? "rounded-full" : "rounded-sm",
+          )}
         >
-          {option.icon ?? mentionKindIcon(config, option.kind)}
+          {option.icon ??
+            (person ? (
+              <PersonAvatar
+                person={{
+                  name: option.label,
+                  kind: option.kind === "agent" ? "agent" : "person",
+                }}
+                className="size-5"
+              />
+            ) : (
+              mentionKindIcon(config, option.kind)
+            ))}
         </span>
       ),
     };
@@ -5689,7 +5826,7 @@ const MENU_SURFACE =
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=suggestion-menu-sheet],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
@@ -10118,6 +10255,8 @@ export function TextEditEditor({
   onStatsChange,
   findReplace = false,
   emoji = false,
+  menuSize = "default",
+  menuPresentation = "popover",
 }: TextEditEditorProps) {
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
@@ -10218,6 +10357,12 @@ export function TextEditEditor({
   const slashActionsRef =
     React.useRef<readonly TextEditSlashAction[]>(slashActions);
   slashActionsRef.current = slashActions;
+  const menuLg = menuSize === "lg";
+  const menuLgRef = React.useRef(menuLg);
+  menuLgRef.current = menuLg;
+  // `menuPresentation="auto"` on a phone: the menus are sheets with their own search field.
+  const menuSheet = useSuggestionMenuSheet(menuPresentation);
+  const [sheetQuery, setSheetQuery] = React.useState("");
   const toggleStateRef = React.useRef(toggleState);
   toggleStateRef.current = toggleState;
   const headingLinkRef = React.useRef(headingLinkHref);
@@ -10284,6 +10429,29 @@ export function TextEditEditor({
   }, []);
 
   const editorRef = React.useRef<Editor | null>(null);
+  // The slash menu's rows: the plugin's for the typed `/query`, or — in a sheet, whose search
+  // field takes the typing — filtered by that field.
+  const slashFiltered = menuSheet ? sheetQuery.trim() !== "" : !!slash?.query;
+  const slashRows = React.useMemo(
+    () =>
+      !slash
+        ? []
+        : menuSheet
+          ? filterSlash(
+              allowedSlash,
+              sheetQuery,
+              editorRef.current ? inTableCell(editorRef.current.state) : false,
+              slashActions,
+              menuLg,
+            )
+          : slash.items,
+    [slash, menuSheet, sheetQuery, allowedSlash, slashActions, menuLg],
+  );
+  // A sheet's search starts empty each time a menu opens.
+  const menuOpen = slash !== null || mentionMenu !== null;
+  React.useEffect(() => {
+    if (!menuOpen) setSheetQuery("");
+  }, [menuOpen]);
   const chipResolver = useInlineChipResolver();
   const chipResolverRef = React.useRef(chipResolver);
   chipResolverRef.current = chipResolver;
@@ -10591,7 +10759,7 @@ export function TextEditEditor({
         if (!loading && options.length === 0 && /\s$/.test(query)) return true;
         setMention({
           ...state,
-          results: groupResults(options, source.kinds, query),
+          results: groupResults(options, source.kinds, query, source.sections),
           loading,
           error: false,
           index: 0,
@@ -10616,6 +10784,7 @@ export function TextEditEditor({
                 ),
                 source.kinds,
                 query,
+                source.sections,
               )
             : null,
           loading: true,
@@ -10687,6 +10856,7 @@ export function TextEditEditor({
       {
         allowed: slashRef,
         actions: slashActionsRef,
+        lg: menuLgRef,
         get: () => slashStateRef.current,
         set: (next) => {
           slashStateRef.current = next;
@@ -12553,35 +12723,56 @@ export function TextEditEditor({
           id={slashListId}
           aria-label="Insert block"
           data-menu="text-edit-slash"
-          className="w-60"
+          className={menuLg ? undefined : "w-60"}
+          size={menuSize}
+          presentation={menuPresentation}
+          query={sheetQuery}
+          onQueryChange={(query) => {
+            setSheetQuery(query);
+            const next = { ...slash, index: 0 };
+            slashStateRef.current = next;
+            setSlashState(next);
+          }}
+          onClose={() => {
+            const ed = editorRef.current;
+            if (ed && !ed.isDestroyed) exitSuggestion(ed.view, SLASH_KEY);
+          }}
+          searchPlaceholder="Search blocks"
           anchor={slash.rect}
           floatingSafeArea={floatingSafeArea}
-          options={slash.items.map((spec) => {
+          options={slashRows.map((spec) => {
             const Icon = spec.icon;
             return {
               key: spec.id,
               label: spec.label,
               // Headings only on the full menu: a filtered list is short enough to scan.
-              group: slash.query
-                ? undefined
-                : spec.id.startsWith("host:")
-                  ? HOST_SLASH_GROUP
-                  : SLASH_GROUP[spec.id as TextEditSlashCommand],
-              icon: spec.glyph ?? <Icon />,
+              group: slashFiltered ? undefined : slashGroup(spec, menuLg),
+              icon: menuLg ? (
+                <span
+                  aria-hidden
+                  data-slot="text-edit-slash-icon"
+                  className="flex size-7 items-center justify-center rounded-md border border-border bg-background"
+                >
+                  {spec.glyph ?? <Icon />}
+                </span>
+              ) : (
+                (spec.glyph ?? <Icon />)
+              ),
               shortcut: spec.hint,
-              description: spec.description,
+              description:
+                spec.description ?? (menuLg ? spec.blurb : undefined),
               disabled: spec.disabled,
             };
           })}
-          activeIndex={slash.index}
+          activeIndex={Math.min(slash.index, Math.max(slashRows.length - 1, 0))}
           onActiveIndexChange={(index) => {
             const next = { ...slash, index };
             slashStateRef.current = next;
             setSlashState(next);
           }}
           onSelect={(index) => {
-            const spec = slash.items[index]!;
-            if (!spec.disabled) slash.command(spec);
+            const spec = slashRows[index];
+            if (spec && !spec.disabled) slash.command(spec);
           }}
         />
       ) : null}
@@ -12602,10 +12793,27 @@ export function TextEditEditor({
           id={mentionListId}
           aria-label="Mention"
           data-menu="text-edit-mention"
-          className="w-72"
+          className={menuLg ? undefined : "w-72"}
+          size={menuSize}
+          presentation={menuPresentation}
+          query={sheetQuery}
+          onQueryChange={(query) => {
+            setSheetQuery(query);
+            setMention({ ...mentionMenu, query, index: 0 });
+            runSearch(query);
+          }}
+          onClose={() => {
+            const ed = editorRef.current;
+            if (ed && !ed.isDestroyed) exitSuggestion(ed.view, MENTION_KEY);
+          }}
+          searchPlaceholder="Search people and pages"
           anchor={mentionMenu.rect}
           floatingSafeArea={floatingSafeArea}
-          options={mentionOptions(mentionMenu, mentions?.kinds ?? [])}
+          options={mentionOptions(
+            mentionMenu,
+            mentions?.kinds ?? [],
+            mentions?.sections,
+          )}
           status={mentionStatus(mentionMenu)}
           emptyMessage="No matches"
           loading={mentionMenu.loading}
