@@ -397,6 +397,18 @@ test("on a hover-capable device, overflowing text keeps the Tooltip-only behavio
   // two elements and Playwright's strict mode throws.
   const el = screen.getByTestId("subject");
   await expect.element(el).toHaveAttribute("tabindex", "0");
+  // TEMP-DIAG (removed before merge)
+  console.log(
+    "TEMP-DIAG",
+    JSON.stringify({
+      none: window.matchMedia("(hover: none)").matches,
+      hover: window.matchMedia("(hover: hover)").matches,
+      own: Object.prototype.hasOwnProperty.call(window, "matchMedia"),
+      spy: "mock" in (window.matchMedia as object),
+      html: el.element().outerHTML.slice(0, 300),
+      count: document.querySelectorAll('[data-testid="subject"]').length,
+    }),
+  );
   await expect.element(el).not.toHaveAttribute("role");
   await expect.element(el).not.toHaveAttribute("aria-expanded");
 });
