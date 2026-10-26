@@ -445,7 +445,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.25.80",
-        "integrity": "sha256-g5mAkzPqmLSUnGteYX/Z2BFJeL56dSHft6WCPN1JA+Y="
+        "integrity": "sha256-g7Ndg0XUR3/eQAucflFYY+36duoakYtKjpxlOWgVH9k="
       }
     },
     {
@@ -2585,7 +2585,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.80",
-        "integrity": "sha256-XLUuFaddsPumP+CXgbUBD3wCo0bx75pPRpLVZglHP1I="
+        "integrity": "sha256-sG2WNko68KsFlTOL+mtG6u+RkITsx3TkQ4FIKxYR6s8="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.80 sha256-XLUuFaddsPumP+CXgbUBD3wCo0bx75pPRpLVZglHP1I=
+// @vegastack field-cell@0.25.80 sha256-sG2WNko68KsFlTOL+mtG6u+RkITsx3TkQ4FIKxYR6s8=
 
 "use client";
 
@@ -25,7 +25,12 @@ import { useTimeZone } from "@/components/ui/relative-time";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tag, TagGroup } from "@/components/ui/tag-group";
-import { TextEdit, type TextEditHandle } from "@/components/ui/text-edit";
+import {
+  TextEdit,
+  type MentionKind,
+  type TextEditHandle,
+  type TextEditMentions,
+} from "@/components/ui/text-edit";
 import {
   Tooltip,
   TooltipContent,
@@ -167,6 +172,15 @@ export interface FieldConfig {
   missingInputs?: readonly string[];
   /** Shown while an editor or input is empty. @default undefined */
   placeholder?: string;
+  /**
+   * A long-text field's `@` mentions: the menu's kinds and search, as `TextEdit` takes them.
+   * @default undefined — no mention menu
+   */
+  mentions?: TextEditMentions;
+  /** Where a mention in a long-text field links (`TextEdit`'s `mentionHref`). @default undefined */
+  mentionHref?: (kind: MentionKind, id: string) => string | null;
+  /** A person mention's photo in a long-text field (`TextEdit`'s `mentionImage`). @default undefined */
+  mentionImage?: (id: string) => string | null | undefined;
 }
 
 /** The value of each type. */
@@ -951,6 +965,9 @@ export function FieldInput({
           placeholder={config.placeholder}
           value={typeof value === "string" ? value : ""}
           onValueChange={(next) => onChange(next || null)}
+          mentions={config.mentions}
+          mentionHref={config.mentionHref}
+          mentionImage={config.mentionImage}
           minHeight="6rem"
         />
       );
@@ -1472,6 +1489,19 @@ export function FieldCellEditor({
         open
         onOpenChange={(open, details) => {
           if (open) return;
+          // The editor's own floating parts (the @ mention menu, its toolbars) live in a layer
+          // portalled outside the popover: a press or focus there is inside the edit.
+          const at = (details?.event as Event | undefined)?.target;
+          if (
+            at instanceof Element &&
+            at.closest('[data-slot="text-edit-layer"]')
+          )
+            return;
+          if (
+            details?.reason === "focus-out" &&
+            document.activeElement?.closest('[data-slot="text-edit-layer"]')
+          )
+            return;
           if (details?.reason === "escape-key") {
             // An Escape the editor already used (closing its find bar or a menu) is not ours.
             if ((details.event as Event | undefined)?.defaultPrevented) return;
@@ -1501,6 +1531,9 @@ export function FieldCellEditor({
             onSubmit={(next) => commit(next || null)}
             // Escape: TextEdit reverts (and marks the key used); the edit is cancelled.
             onRevert={cancel}
+            mentions={config.mentions}
+            mentionHref={config.mentionHref}
+            mentionImage={config.mentionImage}
             minHeight="6rem"
           />
         </PopoverContent>
