@@ -18,6 +18,7 @@ import {
 import {
   DataList,
   rowActionsColumn,
+  type DataListActions,
   type DataListColumn,
   type DataListSection,
   type DataListView,
@@ -224,6 +225,70 @@ export function dataListFitting(): ReactNode {
   );
 }
 
+interface Subtask {
+  id: string;
+  ref: string;
+  title: string;
+  parent: string;
+  due: string;
+}
+
+const subtasks: Subtask[] = [
+  {
+    id: "t1",
+    ref: "#68",
+    title: "Confirm the venue walkthrough",
+    parent: "Prepare the Meridian Udaipur offsite and its supplier contracts",
+    due: "Fri",
+  },
+  {
+    id: "t2",
+    ref: "#71",
+    title: "Send the rooming list",
+    parent: "Prepare the Meridian Udaipur offsite and its supplier contracts",
+    due: "Mon",
+  },
+];
+
+/**
+ * A phone-width list whose title carries a fixed-height meta line with a truncating parent link
+ * (RS-04): squeezed, the line stays ONE line and ends in an ellipsis — it never wraps over the
+ * title.
+ */
+export function dataListMetaLine(): ReactNode {
+  const metaColumns: DataListColumn<Subtask>[] = [
+    {
+      key: "title",
+      header: "Task",
+      render: (task) => (
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span>{task.title}</span>
+          <span className="flex h-5 min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="shrink-0 tabular-nums">{task.ref}</span>
+            <span aria-hidden>·</span>
+            <a href={`#${task.id}`} className="truncate hover:underline">
+              ↳ {task.parent}
+            </a>
+          </span>
+        </span>
+      ),
+    },
+    { key: "due", header: "Due", mobile: "visible" },
+  ];
+  return (
+    <Wrapper className="justify-stretch">
+      <div className="w-full max-w-80">
+        <DataList
+          aria-label="Subtasks at 320px"
+          columns={metaColumns}
+          data={subtasks}
+          getRowId={(t) => t.id}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
 interface Invoice {
   id: string;
   ref: string;
@@ -371,6 +436,34 @@ export function dataListClickable(): ReactNode {
             {lastActivated
               ? `Activated: ${lastActivated}`
               : "Click a row, or Tab to its first cell and press Enter."}
+          </p>
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/** Rows open in place — a peek — with the row still a real link for ⌘-click. */
+export function dataListRowOpen(): ReactNode {
+  const [open, setOpen] = React.useState<string | null>(null);
+  const actions = React.useRef<DataListActions>(null);
+  const person = people.find((p) => p.id === open);
+  return (
+    <Wrapper className="block">
+      <DataList
+        columns={columns}
+        data={people}
+        getRowId={(p) => p.id}
+        getRowLabel={(p) => p.name}
+        getRowHref={(p) => `#person-${p.id}`}
+        onRowOpen={(id) => setOpen(id)}
+        activeRowId={open}
+        actionsRef={actions}
+        footer={
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {person
+              ? `Open: ${person.name} (${(actions.current?.getRowOrder().indexOf(person.id) ?? 0) + 1} of ${people.length})`
+              : "Click a row to open it here; ⌘-click opens its link in a new tab."}
           </p>
         }
       />

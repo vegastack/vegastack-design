@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.84 sha256-OmzvKqQMtxFf0j0zRaUHmg457ctAziGmmVA7od9GeU0=
+// @vegastack data-list@0.25.84 sha256-zrpwVrti53sAcAZY9Na9u1DoDsegXeqMBmWXLpHXjIE=
 
 "use client";
 
@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
-import { Inbox, SearchX, X } from "lucide-react";
+import { Inbox, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -29,9 +29,12 @@ import {
   mergedValueClass,
   offscreenSortSummary,
   revealColumns,
+  PEEK_ACTIVE_ROW_CLASS,
   SELECTED_ROW_CLASS,
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
+  SelectionActionBar,
+  SelectionBarSpacer,
   SelectionCell,
   SkeletonRows,
   RowActionsMenu,
@@ -47,12 +50,17 @@ import {
   type RowAction,
   type RowActionItem,
   type RowActionSeparator,
+  type RowOpenDetails,
 } from "@/components/ui/data-table-parts";
 import {
   TruncatedText,
   TruncationFocusProvider,
 } from "@/components/ui/truncated-text";
-import { Board, type BoardColumn } from "@/components/ui/board";
+import {
+  Board,
+  type BoardColumn,
+  type BoardHiddenColumn,
+} from "@/components/ui/board";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { MediaCard, RECORD_TITLE_CLASS } from "@/components/ui/media-card";
 import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
@@ -71,14 +79,11 @@ import {
   type DragReorderMove,
 } from "@/components/ui/use-drag-reorder";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  ActionBar,
-  type ActionBarProps,
-  ActionBarButton,
-  ActionBarSeparator,
-} from "@/components/ui/action-bar";
+import type { ActionBarProps } from "@/components/ui/action-bar";
 
 export type {
+  BoardHiddenColumn,
+  RowOpenDetails,
   DataTableColumnMobile,
   RowAction,
   RowActionItem,
@@ -468,6 +473,31 @@ export interface DataListProps<T> extends Omit<
    */
   onRowClick?: (row: T, index: number) => void;
   /**
+   * Open a row's record in place — a peek beside the list. The whole row opens it: a plain
+   * click anywhere on it (or Enter on its first cell), in the list, the grid and the board. With
+   * `getRowHref` the row stays a real link, so ⌘/Ctrl/Shift and middle clicks still open the full
+   * page where the browser would; only a plain click (or Enter) is taken over. Receives the row's
+   * id (`getRowId`) and its index in `data`, with the event that opened it (`null` from the
+   * keyboard cursor). Wins over `onRowClick`. Pair with `activeRowId` and `actionsRef`'s
+   * `getRowOrder()` to walk the rows from the peek.
+   * @default undefined
+   */
+  onRowOpen?: (rowId: string, details: RowOpenDetails) => void;
+  /**
+   * The row whose record is open beside the list (a peek): it carries `data-peek-active`, takes
+   * the accent wash (list rows, grid cards and board cards alike) and scrolls into view
+   * (`block: "nearest"`) when it changes.
+   * @default undefined
+   */
+  activeRowId?: string | null;
+  /**
+   * The list's imperative actions — `getRowOrder()`, the row ids in the order they read on
+   * screen (sections in order, a collapsed section's rows left out in the list view), so a peek's
+   * ↑/↓ walk the rows as shown.
+   * @default undefined
+   */
+  actionsRef?: React.Ref<DataListActions>;
+  /**
    * Make rows real links. The first cell's content becomes the link (`<a>`, or
    * `rowLinkRender`), so Enter, a middle click and every modifier click are the browser's own;
    * a click anywhere else on the row follows the same link, modifiers kept. Interactive cells
@@ -735,6 +765,22 @@ export interface DataListProps<T> extends Omit<
    */
   boardTrailing?: React.ReactNode;
   /**
+   * Board view: lanes the host has hidden, listed under "Hidden columns" after the last lane;
+   * choosing one calls `onShowSection`.
+   * @default undefined
+   */
+  hiddenSections?: readonly BoardHiddenColumn[];
+  /**
+   * Board view: show a hidden lane again — the host puts its section back in `sections`.
+   * @default undefined
+   */
+  onShowSection?: (id: string) => void;
+  /**
+   * Board view: hide a lane, from "Hide column" in the ⋯ menu of a section marked `hideable`.
+   * @default undefined
+   */
+  onHideSection?: (id: string) => void;
+  /**
    * Board view: the collapsed lanes' section ids, controlled. Without it each section's
    * `defaultCollapsed` seeds the board's own state.
    * @default undefined
@@ -751,6 +797,12 @@ export interface DataListProps<T> extends Omit<
    * @default "fill"
    */
   boardHeight?: "fill" | "auto" | (string & {});
+}
+
+/** What `actionsRef` exposes. */
+export interface DataListActions {
+  /** The row ids in the order they read on screen — what a peek's ↑/↓ walk. */
+  getRowOrder: () => string[];
 }
 
 /** A drop of dragged rows onto a target — what `onDropInto` and `canDropInto` receive. */
@@ -1011,6 +1063,11 @@ export interface DataListSection {
    * @default true
    */
   addable?: boolean;
+  /**
+   * Board view: offer "Hide column" in the lane's ⋯ menu (with `onHideSection`).
+   * @default false
+   */
+  hideable?: boolean;
 }
 
 const EMPTY_GROUP_STATE: GroupState = {};
@@ -1282,11 +1339,11 @@ export function DataList<T>({
   selectedIds,
   onSelectionChange,
   selectionActions,
-  selectionLabel = (count) => `${count} selected`,
+  selectionLabel,
   selectionSecondaryActions,
   selectionMoreLabel,
-  clearSelectionLabel = "Clear selection",
-  selectionBarLabel = "Selection actions",
+  clearSelectionLabel,
+  selectionBarLabel,
   onDropInto,
   canDropInto,
   onReorderRow,
@@ -1303,7 +1360,10 @@ export function DataList<T>({
   loadingRows = 5,
   empty,
   emptyState,
-  onRowClick,
+  onRowClick: onRowClickProp,
+  onRowOpen,
+  activeRowId,
+  actionsRef,
   getRowHref,
   rowLinkRender,
   rowProps,
@@ -1343,6 +1403,9 @@ export function DataList<T>({
   addLabel,
   addPlacement,
   boardTrailing,
+  hiddenSections,
+  onShowSection,
+  onHideSection,
   collapsedSections,
   onCollapsedSectionsChange,
   boardHeight,
@@ -1596,6 +1659,51 @@ export function DataList<T>({
     [data, getRowId],
   );
 
+  // A row's activation: `onRowOpen` (the peek) when set, else `onRowClick`.
+  const onRowClick = React.useMemo(
+    () =>
+      onRowOpen || onRowClickProp
+        ? (
+            row: T,
+            index: number,
+            event: React.SyntheticEvent | null = null,
+          ) => {
+            if (onRowOpen) onRowOpen(rowIds[index]!, { event, index });
+            else onRowClickProp!(row, index);
+          }
+        : undefined,
+    [onRowOpen, onRowClickProp, rowIds],
+  );
+  /**
+   * A row link that opens the peek: a plain click (or Enter) is taken over by `onRowOpen`; a
+   * ⌘/Ctrl/Shift or middle click stays the link's own. The template's own `onClick` runs first.
+   */
+  const openingLink = (
+    template: React.ReactElement | undefined,
+    row: T,
+    index: number,
+  ): React.ReactElement | undefined => {
+    if (!onRowOpen) return template;
+    const base = template ?? <a />;
+    const own = (base.props as { onClick?: React.MouseEventHandler }).onClick;
+    return React.cloneElement(base, {
+      onClick: (event: React.MouseEvent<HTMLElement>) => {
+        own?.(event);
+        if (
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
+        event.preventDefault();
+        onRowOpen(rowIds[index]!, { event, index });
+      },
+    } as object);
+  };
+
   const {
     selected,
     allSelected,
@@ -1655,7 +1763,7 @@ export function DataList<T>({
         );
         return;
       }
-      onRowClick?.(row, index);
+      onRowClick?.(row, index, event);
     },
     [onRowClick],
   );
@@ -1746,6 +1854,7 @@ export function DataList<T>({
         data-slot="data-list-row"
         data-selected={isSelected ? "" : undefined}
         data-clickable={clickable ? "" : undefined}
+        data-peek-active={activeRowId === id ? "" : undefined}
         onClick={clickable ? (e) => handleRowClick(e, row, index) : undefined}
         onAuxClick={
           href !== undefined
@@ -1772,6 +1881,8 @@ export function DataList<T>({
           // Reorder: the seam is a 2px line in the drop-indicator blue across the row's top or
           // bottom edge, painted by every cell (a table row can't hold a positioned `::before`).
           drag && reorderable && DROP_EDGE_ROW_CLASS,
+          // The row whose record is open beside the list (`activeRowId`): the accent wash.
+          PEEK_ACTIVE_ROW_CLASS,
           rowClassName,
           // A checked row keeps a persistent half-`muted` wash through hover and press
           // (SP-06), light enough that a `secondary` Badge in it stays visible — see
@@ -1850,14 +1961,17 @@ export function DataList<T>({
               )}
             >
               {colIdx === 0 && linkFirstCell ? (
-                <RowLink href={href!} render={cardLinkRender}>
+                <RowLink
+                  href={href!}
+                  render={openingLink(cardLinkRender, row, index)}
+                >
                   {content}
                 </RowLink>
               ) : isActionCell ? (
                 <button
                   type="button"
                   data-slot="data-list-row-action"
-                  onClick={() => onRowClick?.(row, index)}
+                  onClick={(event) => onRowClick?.(row, index, event)}
                   className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
                 >
                   {content}
@@ -2014,6 +2128,23 @@ export function DataList<T>({
         : group.indexes.map((index) => rowIds[index]!),
     );
   }, [sectionGroups, rowIds, activeView, groups]);
+
+  // ---- the open row (`activeRowId`) and the order a peek walks (`actionsRef`) ----------------
+  const latestOrder = React.useRef(displayOrder);
+  React.useLayoutEffect(() => {
+    latestOrder.current = displayOrder;
+  });
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ getRowOrder: () => [...latestOrder.current] }),
+    [],
+  );
+  React.useEffect(() => {
+    if (activeRowId == null) return;
+    rootRef.current
+      ?.querySelector<HTMLElement>("[data-peek-active]")
+      ?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [activeRowId]);
 
   // ---- the keyboard cursor (`keyboardNavigation`, `cursorId`) -------------------------------
   // Kept in a ref and painted as `data-cursor` straight onto the row, so following the mouse
@@ -2322,9 +2453,12 @@ export function DataList<T>({
         ref={tableRef}
         data-slot="data-list"
         className={cn(
-          // Compact density: 4px cell padding on the block axis and a 32px header row.
-          density === "compact" &&
-            "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8",
+          // The list density scale (`LIST_ROW_HEIGHT_CLASS`, shared with DataGrid): rows are at
+          // least 40px (comfortable, the header's height) or 32px (compact: 4px cell padding on
+          // the block axis and a 32px header row). Content that needs more grows the row.
+          density === "compact"
+            ? "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=data-list-row]]:h-8 [&_[data-slot=data-list-skeleton-row]]:h-8"
+            : "[&_[data-slot=data-list-row]]:h-10 [&_[data-slot=data-list-skeleton-row]]:h-10",
           className,
         )}
         aria-busy={loading ? true : ariaBusy}
@@ -2520,7 +2654,7 @@ export function DataList<T>({
         tabIndex={!href && onRowClick ? 0 : undefined}
         onClick={(event) => {
           if (!href && !isFromInteractiveDescendant(event))
-            onRowClick?.(row, index);
+            onRowClick?.(row, index, event);
         }}
         onKeyDown={(event) => {
           if (
@@ -2530,11 +2664,14 @@ export function DataList<T>({
             (event.key === "Enter" || event.key === " ")
           ) {
             event.preventDefault();
-            onRowClick(row, index);
+            onRowClick(row, index, event);
           }
         }}
+        data-peek-active={!onBoard && activeRowId === id ? "" : undefined}
         href={href}
-        linkRender={onBoard ? rowLinkRender : cardLinkRender}
+        linkRender={
+          onBoard ? rowLinkRender : openingLink(cardLinkRender, row, index)
+        }
         image={thumb ? thumb.src : undefined}
         imagePlaceholder={thumb?.placeholder}
         imageSrcSet={thumb?.srcSet}
@@ -2721,6 +2858,7 @@ export function DataList<T>({
     droppable: section.droppable,
     lockedReason: section.lockedReason,
     addable: section.addable,
+    hideable: section.hideable,
   }));
   const renderBoard = () =>
     !loading && data.length === 0 && noResults ? (
@@ -2738,9 +2876,13 @@ export function DataList<T>({
         countLabel={sectionCountLabel}
         onCardActivate={
           onRowClick
-            ? (row) => onRowClick(row, rowIndex.get(row) ?? 0)
+            ? (row, event) => onRowClick(row, rowIndex.get(row) ?? 0, event)
             : undefined
         }
+        activeItemId={activeRowId}
+        hiddenColumns={hiddenSections}
+        onShowColumn={onShowSection}
+        onHideColumn={onHideSection}
         readOnly={!onMove}
         canMoveItem={canMoveItem}
         onAdd={onAddToSection}
@@ -2797,32 +2939,18 @@ export function DataList<T>({
   const selectionCount = selected.size;
   const selectionBar =
     selectable && selectionActions ? (
-      <ActionBar
-        data-slot="data-list-selection-bar"
-        open={selectionCount > 0}
-        status={selectionLabel(selectionCount)}
+      <SelectionActionBar
+        slot="data-list-selection-bar"
+        selected={selected}
+        onClear={clearSelection}
+        actions={selectionActions}
         containerRef={rootRef}
-        aria-label={selectionBarLabel}
+        label={selectionLabel}
         secondaryActions={selectionSecondaryActions}
-        // Clear closes the set: after the secondary actions, never between them and the primary.
-        end={
-          <>
-            <ActionBarSeparator />
-            <ActionBarButton
-              render={<Button variant="ghost" size="icon-sm" />}
-              aria-label={clearSelectionLabel}
-              onClick={clearSelection}
-            >
-              <X />
-            </ActionBarButton>
-          </>
-        }
-        {...(selectionMoreLabel !== undefined
-          ? { moreLabel: selectionMoreLabel }
-          : {})}
-      >
-        {selectionActions(selected, clearSelection)}
-      </ActionBar>
+        moreLabel={selectionMoreLabel}
+        clearLabel={clearSelectionLabel}
+        barLabel={selectionBarLabel}
+      />
     ) : null;
 
   return (
@@ -2854,13 +2982,7 @@ export function DataList<T>({
       ) : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
       {selectionBar && selectionCount > 0 ? (
-        // Room for the selection bar and whatever docks under it (`--dock-inset-bottom`), so the
-        // last row and the loading tail stay reachable above them.
-        <div
-          aria-hidden
-          data-slot="data-list-selection-spacer"
-          className="h-[calc(var(--spacing)*12+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] shrink-0"
-        />
+        <SelectionBarSpacer slot="data-list-selection-spacer" />
       ) : null}
       {selectionBar}
     </div>

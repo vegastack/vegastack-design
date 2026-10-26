@@ -3287,7 +3287,7 @@
           }
         },
         {
-          "name": "BoardProps",
+          "name": "BoardEmpty",
           "kind": "interface",
           "source": "packages/ui/registry/ui/board.tsx",
           "ref": {
@@ -3296,7 +3296,16 @@
           }
         },
         {
-          "name": "BoardEmpty",
+          "name": "BoardHiddenColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/board.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BoardProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/board.tsx",
           "ref": {
@@ -3470,6 +3479,10 @@
               "values": [""]
             },
             {
+              "name": "data-peek-active",
+              "values": [""]
+            },
+            {
               "name": "data-read-only",
               "values": [""]
             },
@@ -3502,6 +3515,8 @@
                 "board-drag-overlay",
                 "board-fade-end",
                 "board-fade-start",
+                "board-hidden-column",
+                "board-hidden-columns",
                 "board-lane-tabs",
                 "board-scroller",
                 "board-trailing"
@@ -7704,6 +7719,15 @@
           }
         },
         {
+          "name": "DataGridActions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataGridCellBlock",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-grid.tsx",
@@ -7939,13 +7963,16 @@
       ],
       "docsSlug": "/docs/components/data-grid",
       "registryDependencies": [
+        "@vegastack/action-bar",
         "@vegastack/auto-save-input",
         "@vegastack/button",
+        "@vegastack/checkbox",
         "@vegastack/context-menu",
         "@vegastack/cursor-pager",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
+        "@vegastack/empty",
         "@vegastack/grid-clipboard",
         "@vegastack/load-more",
         "@vegastack/skeleton",
@@ -7992,9 +8019,15 @@
               "values": ["auto", "fixed"]
             },
             {
+              "name": "data-layout-mode",
+              "values": ["cards", "grid"]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "data-grid",
+                "data-grid-filler",
+                "data-grid-filler-col",
                 "data-grid-footer",
                 "data-grid-head-trailing",
                 "data-grid-hidden-hint",
@@ -8023,12 +8056,30 @@
       "sourceFiles": ["packages/ui/registry/ui/data-list.tsx"],
       "publicSymbols": [
         {
+          "name": "BoardHiddenColumn",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataList",
           "kind": "component",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "No stable public ref target is forwarded by DataList in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "DataListActions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8047,6 +8098,42 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListDensity",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListDropMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListEmpty",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListEmptyState",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by NoResultsEmpty in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
           }
         },
         {
@@ -8077,6 +8164,15 @@
           }
         },
         {
+          "name": "DataListReorderMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataListRowProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-list.tsx",
@@ -8088,6 +8184,24 @@
         {
           "name": "DataListSection",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListThumbnail",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListView",
+          "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -8122,6 +8236,15 @@
           }
         },
         {
+          "name": "RowActionItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "rowActionsColumn",
           "kind": "function",
           "source": "packages/ui/registry/ui/data-list.tsx",
@@ -8140,6 +8263,24 @@
           }
         },
         {
+          "name": "RowActionSeparator",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowOpenDetails",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "SortDirection",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
@@ -8151,87 +8292,6 @@
         {
           "name": "SortState",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListView",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RowActionItem",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RowActionSeparator",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListDropMove",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListReorderMove",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListEmpty",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListEmptyState",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by NoResultsEmpty in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "DataListThumbnail",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListDensity",
-          "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -8405,6 +8465,10 @@
               "values": []
             },
             {
+              "name": "data-peek-active",
+              "values": [""]
+            },
+            {
               "name": "data-row-id",
               "values": []
             },
@@ -8440,8 +8504,6 @@
                 "data-list-row",
                 "data-list-row-action",
                 "data-list-section",
-                "data-list-selection-bar",
-                "data-list-selection-spacer",
                 "data-list-sort-hint",
                 "data-list-status",
                 "data-list-thumbnail-cell",
@@ -9750,6 +9812,24 @@
           }
         },
         {
+          "name": "LIST_ROW_HEIGHT_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "LIST_ROW_HEIGHT_PX",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
           "name": "mergedValueClass",
           "kind": "function",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -9765,6 +9845,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "PEEK_ACTIVE_ROW_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -9833,6 +9922,15 @@
         {
           "name": "RowActionsMenuProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowOpenDetails",
+          "kind": "type",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
@@ -9910,6 +10008,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SelectionActionBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Composes ActionBar and forwards no ref; the bar docks itself and is reached by its own name."
+          }
+        },
+        {
+          "name": "SelectionActionBarProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SelectionBarSpacer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An aria-hidden spacer with no consumer-facing ref target."
           }
         },
         {
@@ -10105,6 +10230,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/action-bar",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
@@ -10183,7 +10309,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": []
+              "values": ["data-table-empty-viewport"]
             }
           ],
           "cssVariables": []
@@ -10201,11 +10327,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "row-actions-menu-action",
-                "row-actions-menu-content",
-                "row-actions-menu-trigger"
-              ]
+              "values": ["row-actions-menu-action"]
             }
           ],
           "cssVariables": []
@@ -10258,6 +10380,24 @@
                 "grid-summary-loading",
                 "grid-summary-placeholder"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectionActionBar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectionBarSpacer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": []
             }
           ],
           "cssVariables": []

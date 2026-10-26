@@ -905,3 +905,27 @@ test("EditableCellRest is the resting cell: same button, name, description, text
     await screen.unmount();
   }
 });
+
+test('emptyText: an empty value shows it at rest ("" shows nothing), and the placeholder only while editing', async () => {
+  const screen = await render(
+    <div>
+      <EditableCell value="" label="Note" emptyText="" />
+      <EditableCellRest
+        value=""
+        label="Stage"
+        emptyText=""
+        onStartEditing={() => {}}
+      />
+      <EditableCell value="" label="Owner" />
+    </div>,
+  );
+  const texts = Array.from(
+    screen.container.querySelectorAll('[data-slot="editable-cell-text"]'),
+  ).map((node) => node.textContent);
+  expect(texts).toEqual(["", "", "Edit value"]);
+  // No compiled CSS here: an empty display has no box to point at, so it is pressed through the DOM.
+  (
+    screen.getByRole("button", { name: "Edit Note" }).element() as HTMLElement
+  ).click();
+  await expect.element(screen.getByRole("textbox")).toBeInTheDocument();
+});

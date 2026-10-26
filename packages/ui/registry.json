@@ -1385,7 +1385,10 @@
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
-        "@vegastack/use-grid-selection"
+        "@vegastack/use-grid-selection",
+        "@vegastack/checkbox",
+        "@vegastack/empty",
+        "@vegastack/action-bar"
       ],
       "files": [
         {
@@ -1648,7 +1651,8 @@
         "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/action-bar"
       ],
       "files": [
         {

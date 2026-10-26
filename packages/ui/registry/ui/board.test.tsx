@@ -230,7 +230,10 @@ test("Enter activates a button card", async () => {
   await render(<Controlled onCardActivate={onCardActivate} />);
   surface("d1").focus();
   await userEvent.keyboard("{Enter}");
-  expect(onCardActivate).toHaveBeenCalledWith({ id: "d1", name: "Acme" });
+  expect(onCardActivate).toHaveBeenCalledWith(
+    { id: "d1", name: "Acme" },
+    expect.anything(),
+  );
 });
 
 test("getItemActions come first in the card menu, submenus included", async () => {
@@ -544,7 +547,10 @@ test("canMoveItem locks one card: no pointer drag, no Space pick-up, still opens
   // It still opens and keeps its menu.
   surface("d1").focus();
   await userEvent.keyboard("{Enter}");
-  expect(onCardActivate).toHaveBeenCalledWith({ id: "d1", name: "Acme" });
+  expect(onCardActivate).toHaveBeenCalledWith(
+    { id: "d1", name: "Acme" },
+    expect.anything(),
+  );
   await userEvent.keyboard("m");
   await expect
     .element(page.getByRole("menuitem", { name: "Open" }))
@@ -662,4 +668,89 @@ test("a card in a droppable:false lane can be lifted, reordered and moved out by
   await userEvent.keyboard(" {ArrowLeft} ");
   expect(onMove).toHaveBeenLastCalledWith("p1", "won", 1);
   await expect.poll(() => laneCards("won")).toEqual(["d3", "p1"]);
+});
+
+test("a link card with onCardActivate opens in place on a plain click; a modified click is the link's", async () => {
+  const onCardActivate = vi.fn();
+  await render(
+    <Controlled
+      getItemHref={(deal) => `#deal-${deal.id}`}
+      onCardActivate={onCardActivate}
+    />,
+  );
+  const link = surface("d1");
+  expect(link.tagName).toBe("A");
+  const plain = new MouseEvent("click", { bubbles: true, cancelable: true });
+  link.dispatchEvent(plain);
+  expect(plain.defaultPrevented).toBe(true);
+  expect(onCardActivate).toHaveBeenCalledWith(
+    { id: "d1", name: "Acme" },
+    expect.anything(),
+  );
+  onCardActivate.mockClear();
+  const modified = new MouseEvent("click", {
+    bubbles: true,
+    cancelable: true,
+    metaKey: true,
+  });
+  // Keep the test page where it is: the browser's own handling of the link is not under test.
+  link.addEventListener("click", (event) => event.preventDefault(), {
+    once: true,
+  });
+  link.dispatchEvent(modified);
+  expect(onCardActivate).not.toHaveBeenCalled();
+});
+
+test("activeItemId marks the open card", async () => {
+  await render(<Controlled activeItemId="d2" />);
+  const card = document.querySelector('[data-board-card-id="d2"]')!;
+  expect(card.hasAttribute("data-peek-active")).toBe(true);
+  expect(
+    document
+      .querySelector('[data-board-card-id="d1"]')!
+      .hasAttribute("data-peek-active"),
+  ).toBe(false);
+});
+
+test("hidden lanes list after the last lane, and a hideable lane offers Hide column", async () => {
+  const onShowColumn = vi.fn();
+  const onHideColumn = vi.fn();
+  const columns = makeColumns().map((column) =>
+    column.id === "won" ? { ...column, hideable: true } : column,
+  );
+  const screen = await render(
+    <Controlled
+      initial={columns}
+      hiddenColumns={[{ id: "lost", label: "Lost", count: 4 }]}
+      onShowColumn={onShowColumn}
+      onHideColumn={onHideColumn}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("heading", { name: "Hidden columns" }))
+    .toBeInTheDocument();
+  await press(screen.getByRole("button", { name: /Lost/ }));
+  expect(onShowColumn).toHaveBeenCalledWith("lost");
+  await press(screen.getByRole("button", { name: "Won lane actions" }));
+  await press(screen.getByRole("menuitem", { name: "Hide column" }));
+  expect(onHideColumn).toHaveBeenCalledWith("won");
+  // A lane not marked hideable has no lane menu at all.
+  expect(
+    document.querySelector(
+      '[data-column="lead"] [data-slot="board-column-menu"]',
+    ),
+  ).toBeNull();
+  await expectNoA11yViolations(document.body);
+});
+
+test("a card's ⋯ menu mounts on demand and opens on the first press", async () => {
+  const onOpen = vi.fn();
+  const screen = await render(
+    <Controlled getItemActions={() => [{ label: "Open", onSelect: onOpen }]} />,
+  );
+  const trigger = screen.getByRole("button", { name: "Actions for Acme" });
+  await expect.element(trigger).toHaveAttribute("aria-haspopup", "menu");
+  await press(trigger);
+  await press(screen.getByRole("menuitem", { name: "Open" }));
+  expect(onOpen).toHaveBeenCalled();
 });

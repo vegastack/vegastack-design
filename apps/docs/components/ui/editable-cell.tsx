@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.84 sha256-oyyycBOmehYg2KPx87XOrUb7EFn4YTk0XerlV+JEWlU=
+// @vegastack editable-cell@0.25.84 sha256-Diz/DKa5r9IDsvYIr8umVrzr7Z++q/uafv/oKNWvViM=
 
 "use client";
 
@@ -375,6 +375,12 @@ export interface EditableCellProps {
    * @default false
    */
   flush?: boolean;
+  /**
+   * What an EMPTY value shows at rest (text, number and `custom` editors). `""` shows nothing — a
+   * grid's empty cells stay blank and the editor's placeholder appears only once the cell edits.
+   * @default the editor's `placeholder`, else "Edit value"
+   */
+  emptyText?: string;
   /** Extra classes merged onto the cell root.
    * @default undefined
    */
@@ -425,6 +431,8 @@ interface InlineTextEditorProps {
   onCommit: (value: string) => void;
   /** Placeholder for the field, and the muted display text when `value` is empty. */
   placeholder?: string;
+  /** The display text when `value` is empty, over `placeholder` (`""`: nothing). */
+  emptyText?: string;
   /** Accessible name of the value: the field's label, and "Edit {label}" on the display. */
   label?: string;
   /** Controlled edit mode — the cell owns it, so this is always supplied. */
@@ -541,6 +549,7 @@ function InlineTextBody({
   edit,
   value,
   placeholder,
+  emptyText,
   label,
   disabled = false,
   readOnly = false,
@@ -568,7 +577,7 @@ function InlineTextBody({
 
   const hasDisplayValue = value.length > 0;
   const name = label ?? placeholder ?? "value";
-  const displayFallback = placeholder ?? "Edit value";
+  const displayFallback = emptyText ?? placeholder ?? "Edit value";
   // A long single-line value truncates to its container; when it is actually clipped the full
   // value is offered as the display's `title` — and opening the editor shows all of it.
   // The text element: a ref for the handlers, and STATE only while it is observed — on contact
@@ -924,6 +933,7 @@ export function EditableCell({
   tooltip,
   wrap = false,
   flush = false,
+  emptyText,
   className,
   ref,
 }: EditableCellProps) {
@@ -1150,6 +1160,7 @@ export function EditableCell({
       <TextLeaf
         value={displayText}
         label={label}
+        emptyText={emptyText}
         placeholder={
           editor.type === "text" || editor.type === "number"
             ? editor.placeholder
@@ -1271,6 +1282,11 @@ export interface EditableCellRestProps {
   renderValue?: (value: string) => React.ReactNode;
   /** The reader asked to edit: a click on the value, or Enter, F2 or Space on the display. */
   onStartEditing: () => void;
+  /**
+   * What an empty value shows (`""`: nothing), as `EditableCell`'s `emptyText`.
+   * @default "Edit value"
+   */
+  emptyText?: string;
   /** Extra classes for the root. @default undefined */
   className?: string;
   /** The display element (a callback ref may return a cleanup). @default undefined */
@@ -1323,6 +1339,7 @@ export function EditableCellRest({
   label,
   renderValue,
   onStartEditing,
+  emptyText = "Edit value",
   className,
   ref: forwardedRef,
 }: EditableCellRestProps) {
@@ -1394,7 +1411,7 @@ export function EditableCellRest({
           ? renderValue
             ? renderValue(value)
             : value
-          : "Edit value"}
+          : emptyText}
       </span>
     </span>
   );

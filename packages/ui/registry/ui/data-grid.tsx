@@ -1,10 +1,17 @@
-// @vegastack data-grid@0.25.84 sha256-jKMEJQ6+kgoVHi+gEW9rtSJXGsHqOPYsCNvbfgRojSc=
+// @vegastack data-grid@0.25.84 sha256-6XrY/69rCEkDSFwHYcqtBqwuoqEMTviOM+fm44a7V/U=
 
 "use client";
 
 import * as React from "react";
 import { flushSync } from "react-dom";
-import { ChevronDown, Columns3 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  Columns3,
+  Inbox,
+  Maximize2,
+} from "lucide-react";
 import {
   createColumnHelper,
   createSortedRowModel,
@@ -21,6 +28,8 @@ import {
 import { useVirtualizer, type Virtualizer } from "@tanstack/react-virtual";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import {
   alignClass,
   ColumnResizeHandle,
@@ -30,10 +39,15 @@ import {
   EmptyRow,
   GridSummaryCell,
   headerCellClass,
+  LIST_ROW_HEIGHT_CLASS,
+  LIST_ROW_HEIGHT_PX,
   mergedValueClass,
   offscreenSortSummary,
+  PEEK_ACTIVE_ROW_CLASS,
   revealColumns,
   SELECTED_ROW_CLASS,
+  SelectionActionBar,
+  SelectionBarSpacer,
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
   SelectionCell,
@@ -46,7 +60,9 @@ import {
   type DataTableColumnLayout,
   type GridSummaryOption,
   type GroupState,
+  type RowOpenDetails,
 } from "@/components/ui/data-table-parts";
+import type { ActionBarProps } from "@/components/ui/action-bar";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -248,6 +264,12 @@ export type DataGridEditor<T> =
 export interface DataGridColumn<T> extends DataTableColumnLayout {
   /** Header label. A string header also names the column for assistive technology. */
   header: React.ReactNode;
+  /**
+   * An icon before the header label — the field's type glyph (a lucide icon). Decorative: the
+   * label names the column.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
   /**
    * Cell content. Rendered as a component ELEMENT (hooks are safe here —
    * unlike `DataList.render`, which is invoked as a plain function).
@@ -753,7 +775,105 @@ export interface DataGridProps<T> {
    * @default undefined
    */
   remoteChanges?: ReadonlyMap<string, DataGridRemoteChange>;
+  /**
+   * Open a row's record — a peek beside the grid. A cell click still only selects it and a
+   * double-click (or Enter, F2, typing) on a value edits it; the row opens from an **Open**
+   * button (24×24) at the start of its primary cell, shown on row hover and keyboard focus (always
+   * on touch), from <kbd>Space</kbd> on any of its cells, or <kbd>Enter</kbd> on its primary cell
+   * (the row header; <kbd>F2</kbd> still edits that one). Receives the row's id and its index
+   * among the loaded rows in display order.
+   * @default undefined
+   */
+  onRowOpen?: (rowId: string, details: RowOpenDetails) => void;
+  /**
+   * The row whose record is open beside the grid (a peek): it carries `data-peek-active`, takes
+   * the accent wash and scrolls into view when it changes.
+   * @default undefined
+   */
+  activeRowId?: string | null;
+  /**
+   * A row's name — the Open button's ("Open Alpha") and the selection checkbox's ("Select Alpha")
+   * accessible name.
+   * @default "row N"
+   */
+  getRowLabel?: (row: T) => string;
+  /**
+   * The grid's imperative actions: `focusCell(rowId, key)` moves the active cell (a new row's
+   * primary cell, as soon as the row is in `data`), and `getRowOrder()` returns the loaded row ids
+   * in display order, as a peek's ↑/↓ walk them.
+   * @default undefined
+   */
+  actionsRef?: React.Ref<DataGridActions>;
+  /**
+   * The actions for the selected rows (`selectable`): an `ActionBar` docks at the bottom of the
+   * screen, centred over the grid, while anything is selected — the count, these actions
+   * (compose `ActionBarButton`), and Clear. `clear` empties the selection. The same bar as
+   * `DataList`'s.
+   * @default undefined
+   */
+  selectionActions?: (
+    selectedIds: ReadonlySet<string>,
+    clear: () => void,
+  ) => React.ReactNode;
+  /**
+   * The selection bar's status text.
+   * @default (count) => `${count} selected`
+   */
+  selectionLabel?: (count: number) => string;
+  /**
+   * Secondary selection actions — buttons on a wide screen, a ⋯ menu on a phone.
+   * @default undefined
+   */
+  selectionSecondaryActions?: ActionBarProps["secondaryActions"];
+  /**
+   * The selection bar's ⋯ trigger name.
+   * @default "More actions"
+   */
+  selectionMoreLabel?: string;
+  /**
+   * The selection bar's Clear button, as a screen reader hears it.
+   * @default "Clear selection"
+   */
+  clearSelectionLabel?: string;
+  /**
+   * The selection bar's accessible name.
+   * @default "Selection actions"
+   */
+  selectionBarLabel?: string;
+  /**
+   * How many skeleton rows `loading` shows — pass the rows the page will hold (its count, capped
+   * at a screenful) so the loaded grid lands without a shift.
+   * @default 5
+   */
+  loadingRows?: number;
+  /**
+   * What the grid does on a phone-width container (under 40rem): `scroll` keeps the grid and
+   * scrolls it sideways; `cards` shows each row as a card — its primary value as the title (it
+   * opens the row, with `onRowOpen`) and the next `cardFields` columns as labelled values. The
+   * grid decides by its own width, so a narrow pane gets cards too and a tablet keeps the grid.
+   * @default "scroll"
+   */
+  phoneLayout?: "scroll" | "cards";
+  /**
+   * `phoneLayout="cards"`: how many columns after the primary each card shows.
+   * @default 3
+   */
+  cardFields?: number;
 }
+
+/** What `actionsRef` exposes. */
+export interface DataGridActions {
+  /**
+   * Make the cell at `rowId` × `key` the active cell and focus it — scrolled into view, and
+   * waited for briefly when its row has just been added and is still mounting.
+   */
+  focusCell: (rowId: string, key: string) => void;
+  /** The loaded row ids in display order (sorted, grouped, collapsed groups left out). */
+  getRowOrder: () => string[];
+}
+
+/** The container width under which `phoneLayout="cards"` shows cards (40rem, the phone tier). */
+const PHONE_TIER_PX = 640;
 
 const EMPTY_KEYS: readonly string[] = [];
 
@@ -768,13 +888,15 @@ const EMPTY_ROWS: EngineRow[] = [];
 
 /** Exact row heights, in pixels, and the classes that hold them (`h-8` = 32px). */
 const ROW_PX: Record<DataGridRowHeight, number> = {
-  short: 32,
-  medium: 40,
+  short: LIST_ROW_HEIGHT_PX.compact,
+  medium: LIST_ROW_HEIGHT_PX.comfortable,
   tall: 80,
 };
+// `short` and `medium` are the list density scale's two steps (`LIST_ROW_HEIGHT_*`), so a grid
+// and a list beside it share one rhythm.
 const ROW_CLASS: Record<DataGridRowHeight, string> = {
-  short: "h-8",
-  medium: "h-10",
+  short: LIST_ROW_HEIGHT_CLASS.compact,
+  medium: LIST_ROW_HEIGHT_CLASS.comfortable,
   tall: "h-20",
 };
 // The cell's padding plus one line of text add up to the row height, so a fixed row matches the
@@ -867,6 +989,8 @@ interface ColumnWindow<T> {
   /** AUTO layout: the columns merged into the primary cell. */
   merged: readonly DataGridColumn<T>[];
   rowHeight?: DataGridRowHeight;
+  /** Rows open (`onRowOpen`): the primary cell leads with the Open button. */
+  openable: boolean;
 }
 
 /** The stable handle rows and cells reach the grid through. */
@@ -894,6 +1018,8 @@ interface GridApi {
    * focus returns to the widget at the same place at the end of that commit.
    */
   keepWidgetFocus: (rowId: string, key: string, index: number) => void;
+  /** Open a row's record (`onRowOpen`). */
+  openRow: (rowId: string, event: React.SyntheticEvent | null) => void;
 }
 
 const GridApiContext = React.createContext<GridApi | null>(null);
@@ -909,6 +1035,11 @@ function readValue<T>(column: DataGridColumn<T>, row: T): unknown {
   return column.accessor
     ? column.accessor(row)
     : (row as Record<string, unknown>)[column.key];
+}
+
+/** A column's resolved alignment (numeric columns are normalised to `end` on the way in). */
+function columnAlign<T>(column: DataGridColumn<T>): "start" | "center" | "end" {
+  return column.align ?? "start";
 }
 
 /** The column's name as a string, for labels and announcements. */
@@ -944,14 +1075,21 @@ const ROW_BASE_CLASS = "border-b hover:bg-muted/50";
 // No `position` here: a positioned cell is a paint layer of its own, and at 150 columns the ~600
 // layered cells made paint and layerize most of a scroll tick. A cell is `relative` only while it
 // can hold an absolute child (a remote change's cue, the fill handle); a frozen one is `sticky`.
+// The ACTIVE cell (UX-05) is the spreadsheet's selection outline, not a focus ring: a 2px inset
+// `info` line (the selection blue the drop seams use) on the cell the grid's one tab stop rests
+// on, while the grid holds focus — however it got there, pointer or keyboard (`:focus-visible`
+// alone missed every click). Inset, so the viewport's clip never cuts it, and painted as a box
+// shadow, so it needs no positioned cell. A range's other cells take the same blue as a tint, a
+// hue the neutral hover and selected-row washes never have. (`data-current-cell`, not
+// `data-active-cell`: the tokens' `data-active` custom variant would swallow the latter.)
 const CELL_BASE_CLASS =
-  "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-primary)_10%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-primary)_5%,var(--color-background))]";
+  "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-info)_12%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-info)_6%,var(--color-background))] group-focus-within/grid:data-current-cell:inset-ring-2 group-focus-within/grid:data-current-cell:inset-ring-info";
 const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
 
 /** Sticky frozen cells are opaque, so scrolled cells never show through; the row's state tints mix in. */
 const FROZEN_CELL_CLASS =
-  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-selected/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))]";
+  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-selected/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-peek-active/row:bg-accent";
 /** The frozen edge's shadow, shown while the viewport is scrolled sideways (`data-scrolled-x`). */
 // A box shadow, not a pseudo-element: body cells clip their overflow (one line, truncated), and a
 // cell's own shadow is painted outside its box, where the clip does not reach.
@@ -988,6 +1126,8 @@ interface GridCellProps<T> {
   fillTarget: boolean;
   /** A change someone else just made here. */
   remote: DataGridRemoteChange | undefined;
+  /** The primary cell of an openable row: the Open button's accessible name. */
+  openLabel: string | undefined;
 }
 
 /** How long a remote change's author chip stays. */
@@ -1027,6 +1167,40 @@ function RemoteCue({ remote }: { remote: DataGridRemoteChange }) {
   );
 }
 
+/**
+ * The row's Open affordance (IN-04): a 24×24 button at the start of the primary cell, so opening
+ * a record never fights selecting or editing a cell. It holds its place at rest (no layout shift)
+ * and shows on row hover, on keyboard focus anywhere in the row, on the open row, and always on a
+ * coarse pointer. Not a tab stop of its own: the grid roves one stop, and <kbd>Space</kbd> or
+ * <kbd>Enter</kbd> on the row header opens the row from the keyboard.
+ */
+const RowOpenButton = React.memo(function RowOpenButton({
+  label,
+  onOpen,
+}: {
+  label: string;
+  onOpen: (event: React.MouseEvent) => void;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="icon-xs"
+      tabIndex={-1}
+      aria-label={label}
+      data-slot="data-grid-row-open"
+      // Pressing it neither selects a range nor starts an edit.
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen(event);
+      }}
+      className="me-1 align-middle text-muted-foreground opacity-0 transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 group-data-peek-active/row:opacity-100 pointer-coarse:opacity-100"
+    >
+      <Maximize2 />
+    </Button>
+  );
+});
+
 function GridCellImpl<T>({
   placed,
   row,
@@ -1045,6 +1219,7 @@ function GridCellImpl<T>({
   fillHandle,
   fillTarget,
   remote,
+  openLabel,
 }: GridCellProps<T>) {
   const api = useGridApi();
   const { column, key } = placed;
@@ -1118,6 +1293,8 @@ function GridCellImpl<T>({
     <EditableCellRest
       value={persisted}
       label={placed.label}
+      // An empty cell is blank; the editor's placeholder shows only once it edits (UX-11).
+      emptyText=""
       renderValue={renderValue}
       onStartEditing={() => api.setEditing(rowId, key, true)}
       ref={restRef}
@@ -1128,6 +1305,7 @@ function GridCellImpl<T>({
       label={placed.label}
       editor={editor}
       renderValue={renderValue}
+      emptyText=""
       focusMode="managed"
       editing={editing}
       editSeed={editSeed}
@@ -1153,9 +1331,12 @@ function GridCellImpl<T>({
       data-grid-row={rowId}
       data-grid-key={key}
       data-editing={editing ? "" : undefined}
+      // The active cell: outlined while the grid holds focus, however it got there (UX-05).
+      data-current-cell={tabStop ? "" : undefined}
       tabIndex={tabStop ? 0 : -1}
       aria-selected={cellsMode ? inRange : undefined}
-      data-in-range={inRange ? "" : undefined}
+      // The active cell inside a range is outlined, not tinted: the tint is the REST of the range.
+      data-in-range={inRange && !tabStop ? "" : undefined}
       data-fill-target={fillTarget ? "" : undefined}
       onFocus={() => api.focused(rowId, key)}
       onPointerDown={
@@ -1180,6 +1361,12 @@ function GridCellImpl<T>({
       }
       style={stickyStyle(placed.offset)}
     >
+      {openLabel != null ? (
+        <RowOpenButton
+          label={openLabel}
+          onOpen={(event) => api.openRow(rowId, event)}
+        />
+      ) : null}
       {fixed && rowHeight === "tall" ? (
         <div data-slot="data-grid-cell-content" className={TALL_CONTENT_CLASS}>
           {content}
@@ -1221,7 +1408,7 @@ function GridCellImpl<T>({
         <span
           aria-hidden
           data-slot="data-grid-fill-handle"
-          className="absolute end-0 bottom-0 z-10 size-2 cursor-ns-resize touch-none rounded-[1px] bg-primary before:absolute before:-inset-2 before:content-['']"
+          className="absolute end-0 bottom-0 z-10 size-2 cursor-ns-resize touch-none rounded-[1px] bg-info before:absolute before:-inset-2 before:content-['']"
           onPointerDown={(event) => {
             event.stopPropagation();
             event.preventDefault();
@@ -1238,7 +1425,10 @@ const GridCell = React.memo(GridCellImpl) as typeof GridCellImpl;
 interface GridRowProps<T> {
   row: T;
   rowId: string;
-  rowNumber: number;
+  /** The row's name ("row 3", or `getRowLabel`'s) — its checkbox and Open button say it. */
+  rowLabel: string;
+  /** This row's record is open beside the grid (`activeRowId`). */
+  peekActive: boolean;
   ariaRowIndex: number;
   w: ColumnWindow<T>;
   /** The tab-stop column key when this row holds the grid's tab stop. */
@@ -1271,19 +1461,29 @@ const SpacerCell = React.memo(function SpacerCell() {
 });
 
 /**
+ * The FIXED layout's last track (DS-1): the table is at least as wide as its viewport, and this
+ * unsized column takes whatever the real columns leave, so the header band, the row borders and
+ * washes, the summary row and the footer reach the viewport's end while every real column keeps
+ * its width. It sits after the "+" column, which stays right beside the last real column.
+ */
+const FillerCell = React.memo(function FillerCell() {
+  return <td aria-hidden="true" data-slot="data-grid-filler" className="p-0" />;
+});
+
+/**
  * A row's selection checkbox, memoised on its own props: a column-window move re-renders every
  * row, and the checkbox (whose label lookup runs on every render) has nothing to change then.
  */
 const GridSelectCell = React.memo(function GridSelectCell({
   rowId,
-  rowNumber,
+  rowLabel,
   tabStop,
   selected,
   offset,
   rowHeight,
 }: {
   rowId: string;
-  rowNumber: number;
+  rowLabel: string;
   tabStop: boolean;
   selected: boolean;
   offset: number | undefined;
@@ -1310,7 +1510,7 @@ const GridSelectCell = React.memo(function GridSelectCell({
       style={stickyStyle(offset)}
       checked={selected}
       onToggle={() => api.toggleRow(rowId)}
-      label={`Select row ${rowNumber}`}
+      label={`Select ${rowLabel}`}
     />
   );
 });
@@ -1318,7 +1518,8 @@ const GridSelectCell = React.memo(function GridSelectCell({
 function GridRowImpl<T>({
   row,
   rowId,
-  rowNumber,
+  rowLabel,
+  peekActive,
   ariaRowIndex,
   w,
   tabKey,
@@ -1364,6 +1565,7 @@ function GridRowImpl<T>({
         placed.dataIndex <= rangeRight
       }
       remote={remoteChanges?.get(gridCellKey(rowId, placed.key))}
+      openLabel={placed.primary && w.openable ? `Open ${rowLabel}` : undefined}
     />
   );
   return (
@@ -1371,13 +1573,17 @@ function GridRowImpl<T>({
       ref={measure}
       data-index={dataIndex}
       data-slot="data-grid-row"
+      data-row-id={rowId}
       data-selected={selected ? "" : undefined}
+      data-peek-active={peekActive ? "" : undefined}
       aria-rowindex={ariaRowIndex}
       aria-selected={w.selectable && !cellsMode ? selected : undefined}
       className={cn(
         "group/row",
         ROW_BASE_CLASS,
         w.rowHeight && ROW_CLASS[w.rowHeight],
+        // The open row (`activeRowId`) takes the accent wash.
+        PEEK_ACTIVE_ROW_CLASS,
         // A selected row keeps one wash through hover and press (SP-06), light enough that a
         // `secondary` Badge in it stays visible — see `SELECTED_ROW_CLASS`.
         selected && SELECTED_ROW_CLASS,
@@ -1386,7 +1592,7 @@ function GridRowImpl<T>({
       {w.selectable ? (
         <GridSelectCell
           rowId={rowId}
-          rowNumber={rowNumber}
+          rowLabel={rowLabel}
           tabStop={tabKey === SELECT}
           selected={selected}
           offset={w.selectOffset}
@@ -1398,6 +1604,7 @@ function GridRowImpl<T>({
       {w.center.map(cell)}
       {w.fixed ? <SpacerCell /> : null}
       {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
+      {w.fixed ? <FillerCell /> : null}
     </tr>
   );
 }
@@ -1446,6 +1653,8 @@ interface GridHeadCellProps<T> {
   dragging: boolean;
   dropEdge: DropEdge;
   dragPending: boolean;
+  /** The primary column of an openable grid: the label sits over the values, past the Open slot. */
+  openSlot: boolean;
 }
 
 function GridHeadCellImpl<T>({
@@ -1462,10 +1671,12 @@ function GridHeadCellImpl<T>({
   dragging,
   dropEdge,
   dragPending,
+  openSlot,
 }: GridHeadCellProps<T>) {
   const api = useGridApi();
   const { column, key } = p;
   const sortable = column.sortable === true;
+  const align = columnAlign(column);
   const [menuArmed, setMenuArmed] = React.useState(false);
   const menuLive = menuArmed || menuOpen || tabStop;
   // Synchronously, so the real trigger is in place before the press that follows.
@@ -1481,34 +1692,124 @@ function GridHeadCellImpl<T>({
     () => (itemRef ? mergeRefs(itemRef, register) : register),
     [itemRef, register],
   );
-  const label = sortable ? (
+  const icon =
+    column.icon != null ? (
+      <span
+        aria-hidden
+        data-slot="data-grid-head-icon"
+        className="inline-flex shrink-0 text-muted-foreground [&_svg]:size-3.5"
+      >
+        {column.icon}
+      </span>
+    ) : null;
+  const text = (
+    <span
+      data-slot="data-grid-head-label"
+      className={cn(fixed && "min-w-0 truncate")}
+      title={
+        fixed && typeof column.header === "string" ? column.header : undefined
+      }
+    >
+      {column.header}
+    </span>
+  );
+  // A header with a menu is ONE button (UX-12): the whole label opens the menu, which holds the
+  // sort. The active sort still shows as a glyph; a chevron fades in on hover and focus.
+  const sortGlyph = direction ? (
+    <span
+      aria-hidden
+      data-slot="data-grid-head-sort"
+      className="inline-flex shrink-0 items-center gap-0.5 text-foreground"
+    >
+      {direction === "asc" ? (
+        <ArrowUp className="size-3.5" />
+      ) : (
+        <ArrowDown className="size-3.5" />
+      )}
+      {order != null ? <span className="text-xs">{order}</span> : null}
+    </span>
+  ) : null;
+  const chevron = (
+    <ChevronDown
+      aria-hidden
+      className="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover/head-menu:opacity-100 group-aria-expanded/head-menu:opacity-100 pointer-coarse:opacity-100"
+    />
+  );
+  // A header with a menu is ONE button (UX-12): the whole label opens the menu, which holds the
+  // sort. The active sort still shows as a glyph; a chevron fades in on hover and while open. In
+  // an end-aligned column the glyphs lead, so the label's end is the values' end.
+  const menuButton = column.headerMenu ? (
+    <Button
+      variant="ghost"
+      size="sm"
+      tabIndex={-1}
+      data-slot="data-grid-head-menu"
+      className={cn(
+        "group/head-menu h-7 max-w-full min-w-0 gap-1 px-1.25 text-sm font-medium select-none",
+        fixed && "w-full",
+        align === "end"
+          ? "justify-end"
+          : align === "center"
+            ? "justify-center"
+            : "justify-start",
+      )}
+    >
+      {align === "end" ? (
+        <>
+          {chevron}
+          {sortGlyph}
+          {icon}
+          {text}
+        </>
+      ) : (
+        <>
+          {icon}
+          {text}
+          {sortGlyph}
+          {chevron}
+        </>
+      )}
+    </Button>
+  ) : null;
+  const label = menuButton ? (
+    menuLive ? (
+      <DropdownMenu
+        open={menuOpen}
+        onOpenChange={(open) => actions.setMenuOpen(key, open)}
+      >
+        <DropdownMenuTrigger render={menuButton} />
+        <DropdownMenuContent align={align === "end" ? "end" : "start"}>
+          {column.headerMenu}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ) : (
+      // The menu's machinery waits until the header is pointed at, focused or opened: a
+      // horizontal scroll tick mounts a header per entering column. No pointer before the press
+      // (a scripted click, a switch device): it opens as the menu key does.
+      React.cloneElement(menuButton, {
+        "aria-haspopup": "menu",
+        "aria-expanded": false,
+        onClick: () => actions.setMenuOpen(key, true),
+      } as React.ComponentProps<typeof Button>)
+    )
+  ) : sortable ? (
     <SortHeaderButton
       direction={direction}
       order={order}
       onSort={(event) => actions.sort(key, event.shiftKey)}
-      align={column.align}
+      align={align}
       label={typeof column.header === "string" ? column.header : undefined}
       tabIndex={-1}
       className={cn(fixed && "min-w-0 max-w-full")}
     >
-      {fixed ? (
-        <span data-slot="data-grid-head-label" className="truncate">
-          {column.header}
-        </span>
-      ) : (
-        column.header
-      )}
+      {icon}
+      {text}
     </SortHeaderButton>
-  ) : fixed ? (
-    <span
-      data-slot="data-grid-head-label"
-      className="min-w-0 truncate"
-      title={typeof column.header === "string" ? column.header : undefined}
-    >
-      {column.header}
-    </span>
   ) : (
-    column.header
+    <>
+      {icon}
+      {text}
+    </>
   );
   return (
     <th
@@ -1540,76 +1841,38 @@ function GridHeadCellImpl<T>({
         HEAD_BASE_CLASS,
         fixed
           ? cn(
-              alignClass(column.align),
+              alignClass(align),
               "relative",
-              sortable && "group/sort-head px-0.5",
+              (sortable || column.headerMenu) && "group/sort-head px-0.5",
               p.offset != null && "sticky z-30 bg-background",
               p.edge && FROZEN_EDGE_CLASS,
             )
           : cn(
-              headerCellClass(column, { fill: p.primary }),
-              sortable && "group/sort-head px-0.5",
+              headerCellClass({ ...column, align }, { fill: p.primary }),
+              (sortable || column.headerMenu) && "group/sort-head px-0.5",
             ),
         "focus-visible:-outline-offset-2",
       )}
       style={stickyStyle(p.offset)}
     >
-      {fixed || column.headerMenu ? (
-        <div
-          ref={handleRef}
-          className={cn(
-            "flex min-w-0 items-center gap-0.5",
-            column.align === "end" && "justify-end",
-            column.align === "center" && "justify-center",
-          )}
-        >
-          {label}
-          {column.headerMenu && !menuLive ? (
-            // The menu's machinery waits until the header is pointed at, focused or opened: a
-            // horizontal scroll tick mounts a header per entering column.
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              tabIndex={-1}
-              aria-label={`${p.label} options`}
-              aria-haspopup="menu"
-              aria-expanded={false}
-              data-slot="data-grid-head-menu"
-              className="shrink-0 text-muted-foreground"
-              // No pointer arrived first (a scripted click, a switch device): open it as the
-              // menu key does; the real trigger mounts with the menu.
-              onClick={() => actions.setMenuOpen(key, true)}
-            >
-              <ChevronDown />
-            </Button>
-          ) : column.headerMenu ? (
-            <DropdownMenu
-              open={menuOpen}
-              onOpenChange={(open) => actions.setMenuOpen(key, open)}
-            >
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    tabIndex={-1}
-                    aria-label={`${p.label} options`}
-                    data-slot="data-grid-head-menu"
-                    className="shrink-0 text-muted-foreground"
-                  >
-                    <ChevronDown />
-                  </Button>
-                }
-              />
-              <DropdownMenuContent align="start">
-                {column.headerMenu}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
-        </div>
-      ) : (
-        label
-      )}
+      <div
+        ref={handleRef}
+        className={cn(
+          "flex min-w-0 items-center gap-1",
+          align === "end" && "justify-end",
+          align === "center" && "justify-center",
+        )}
+      >
+        {openSlot ? (
+          // The width of the rows' Open button and its gap, so the header lines up with the values.
+          <span
+            aria-hidden
+            data-slot="data-grid-head-open-slot"
+            className="w-6 shrink-0"
+          />
+        ) : null}
+        {label}
+      </div>
       {resizable ? (
         <ColumnResizeHandle
           label={p.label}
@@ -1875,6 +2138,7 @@ function FixedSkeletonRows<T>({
           {w.center.map(bar)}
           <SpacerCell />
           {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
+          <FillerCell />
         </tr>
       ))}
     </>
@@ -1910,6 +2174,10 @@ interface GridBodyProps<T> {
   ) => void;
   /** Called after every body commit with whether `items` changed in it. */
   onCommit: (itemsChanged: boolean) => void;
+  /** The open row (`activeRowId`). */
+  activeRowId: string | null | undefined;
+  /** A row's name, when the host gives one (`getRowLabel`). */
+  getRowLabel: ((row: T) => string) | undefined;
 }
 
 /**
@@ -1937,6 +2205,8 @@ function GridBody<T>({
   ariaRowIndexBase,
   onVirtualizer,
   onCommit,
+  activeRowId,
+  getRowLabel,
 }: GridBodyProps<T>) {
   const rowPx = w.rowHeight ? ROW_PX[w.rowHeight] : undefined;
   const rowVirtualizer = useVirtualizer({
@@ -2050,7 +2320,11 @@ function GridBody<T>({
             key={item.id}
             row={item.row.original}
             rowId={item.id}
-            rowNumber={rowNumbers.get(item.id) ?? index + 1}
+            rowLabel={
+              getRowLabel?.(item.row.original) ??
+              `row ${rowNumbers.get(item.id) ?? index + 1}`
+            }
+            peekActive={activeRowId === item.id}
             ariaRowIndex={ariaRowIndex}
             w={w}
             tabKey={isTabRow && tabStop ? tabStop.key : null}
@@ -2081,6 +2355,174 @@ function GridBody<T>({
         </tr>
       ) : null}
     </tbody>
+  );
+}
+
+/**
+ * `phoneLayout="cards"` on a phone-width container (RS-03): each row a card — its primary value
+ * as the title and the next columns as labelled values — in the grid's own row order, groups and
+ * paging. A card is one surface: an Open button stretched beneath its content opens the row (the
+ * content's own links and the checkbox stay clickable above it). Cells don't edit here; the record
+ * the card opens does.
+ */
+function GridCards<T>({
+  items,
+  columns,
+  fields,
+  selectable,
+  selected,
+  onToggleRow,
+  onToggleGroup,
+  onOpen,
+  activeRowId,
+  getRowLabel,
+  rowNumbers,
+  loading,
+  loadingRows,
+  emptyState,
+  ariaLabel,
+}: {
+  items: readonly GridItem<T>[];
+  columns: readonly DataGridColumn<T>[];
+  fields: number;
+  selectable: boolean;
+  selected: ReadonlySet<string>;
+  onToggleRow: (rowId: string) => void;
+  onToggleGroup: (groupId: string, expanded: boolean) => void;
+  onOpen: ((rowId: string, event: React.SyntheticEvent) => void) | undefined;
+  activeRowId: string | null | undefined;
+  getRowLabel: ((row: T) => string) | undefined;
+  rowNumbers: ReadonlyMap<string, number>;
+  loading: boolean;
+  loadingRows: number;
+  emptyState: React.ReactNode;
+  ariaLabel: string;
+}) {
+  const primary = columns[0];
+  const shown = columns.slice(1, 1 + Math.max(0, fields));
+  if (loading)
+    return (
+      <div
+        data-slot="data-grid-cards"
+        aria-busy="true"
+        className="flex flex-col gap-2"
+      >
+        {Array.from({ length: Math.min(loadingRows, 6) }, (_, index) => (
+          <div
+            key={index}
+            aria-hidden="true"
+            data-slot="data-grid-card-skeleton"
+            className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3"
+          >
+            <Skeleton className="h-4 w-2/3" />
+            {shown.map((column) => (
+              <Skeleton key={column.key} className="h-3 w-1/2" />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  if (items.length === 0)
+    return (
+      <div data-slot="data-grid-cards">
+        {emptyState ?? (
+          <Empty icon={<Inbox aria-hidden />}>
+            <EmptyHeader>
+              <EmptyTitle>Nothing here</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+        )}
+      </div>
+    );
+  return (
+    <ul
+      data-slot="data-grid-cards"
+      aria-label={ariaLabel}
+      className="flex flex-col gap-2"
+    >
+      {items.map((item) => {
+        if (item.kind === "group")
+          return (
+            <li
+              key={item.id}
+              data-slot="data-grid-card-group"
+              className="px-2 pt-2"
+            >
+              <SectionToggle
+                label={item.label}
+                count={item.count}
+                expanded={item.expanded}
+                onExpandedChange={(next) => onToggleGroup(item.groupId, next)}
+              />
+            </li>
+          );
+        if (item.kind === "more")
+          return (
+            <li key={item.id} data-slot="data-grid-card-more">
+              <LoadMore {...item.loadMore} />
+            </li>
+          );
+        const row = item.row.original;
+        const id = item.id;
+        const label = getRowLabel?.(row) ?? `row ${rowNumbers.get(id) ?? 0}`;
+        const context = { rowId: id, selected: selected.has(id) };
+        return (
+          <li
+            key={id}
+            data-slot="data-grid-card"
+            data-row-id={id}
+            data-selected={selected.has(id) ? "" : undefined}
+            data-peek-active={activeRowId === id ? "" : undefined}
+            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-selected:bg-muted/50 data-peek-active:bg-accent"
+          >
+            {onOpen ? (
+              <Button
+                variant="ghost"
+                data-slot="data-grid-card-open"
+                aria-label={`Open ${label}`}
+                onClick={(event) => onOpen(id, event)}
+                className="absolute inset-0 h-auto rounded-[inherit] p-0"
+              />
+            ) : null}
+            <div className="pointer-events-none relative flex min-w-0 items-start gap-2 [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_[role=checkbox]]:pointer-events-auto">
+              {selectable ? (
+                <Checkbox
+                  checked={selected.has(id)}
+                  onCheckedChange={() => onToggleRow(id)}
+                  aria-label={`Select ${label}`}
+                  className="mt-0.5"
+                />
+              ) : null}
+              <div
+                data-slot="data-grid-card-title"
+                className="min-w-0 flex-1 font-medium wrap-anywhere"
+              >
+                {primary ? (
+                  <Cell column={primary} row={row} context={context} />
+                ) : null}
+              </div>
+            </div>
+            {shown.length > 0 ? (
+              <dl
+                data-slot="data-grid-card-fields"
+                className="pointer-events-none relative grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-3 gap-y-1 text-xs [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+              >
+                {shown.map((column) => (
+                  <React.Fragment key={column.key}>
+                    <dt className="truncate text-muted-foreground">
+                      {columnLabel(column)}
+                    </dt>
+                    <dd className="min-w-0 truncate">
+                      <Cell column={column} row={row} context={context} />
+                    </dd>
+                  </React.Fragment>
+                ))}
+              </dl>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -2206,7 +2648,7 @@ function useCellContentOutOfTabOrder(table: HTMLTableElement | null) {
  * />
  */
 export function DataGrid<T>({
-  columns,
+  columns: declaredColumns,
   data,
   getRowId,
   sortMode = "client",
@@ -2253,7 +2695,31 @@ export function DataGrid<T>({
   onUndo,
   onRedo,
   remoteChanges,
+  onRowOpen,
+  activeRowId,
+  getRowLabel,
+  actionsRef,
+  selectionActions,
+  selectionLabel,
+  selectionSecondaryActions,
+  selectionMoreLabel,
+  clearSelectionLabel,
+  selectionBarLabel,
+  loadingRows = 5,
+  phoneLayout = "scroll",
+  cardFields = 3,
 }: DataGridProps<T>) {
+  // A numeric column without an alignment of its own lines its figures — and its header — up at
+  // the end (UX-12). Normalised once, so every part reads one `align`.
+  const columns = React.useMemo(
+    () =>
+      declaredColumns.map((column) =>
+        column.numeric && column.align === undefined
+          ? { ...column, align: "end" as const }
+          : column,
+      ),
+    [declaredColumns],
+  );
   // ---- controlled-optional state (the shared house idiom) ------------------
   const [activeSort, commitSort] = useControlledState<DataGridSort[]>(
     sort,
@@ -2268,6 +2734,16 @@ export function DataGrid<T>({
     EMPTY_GROUPS,
     onGroupStateChange,
   );
+
+  // ---- the root: the selection bar centres over it, and its width picks the phone layout ----
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const [measureRoot, rootWidth] = useContainerWidth();
+  const setRoot = React.useMemo(
+    () => mergeRefs(ref, rootRef, measureRoot),
+    [ref, measureRoot],
+  );
+  const cardMode =
+    phoneLayout === "cards" && rootWidth != null && rootWidth < PHONE_TIER_PX;
 
   // ---- the viewport (state, so the body's virtualiser sees it on mount) ----
   const [viewport, setViewportState] = React.useState<HTMLDivElement | null>(
@@ -2452,6 +2928,7 @@ export function DataGrid<T>({
       )
     : 0;
 
+  const openable = onRowOpen != null;
   const w = React.useMemo<ColumnWindow<T>>(() => {
     const center = centerPlaced.slice(windowStart, windowEnd);
     return {
@@ -2467,12 +2944,15 @@ export function DataGrid<T>({
         (selectable ? 1 : 0) +
         frozenPlaced.length +
         center.length +
-        (fixed ? 2 : 0) +
+        // The two spacers and the filler.
+        (fixed ? 3 : 0) +
         (headerTrailing != null ? 1 : 0),
       merged: mergedColumns,
       rowHeight,
+      openable,
     };
   }, [
+    openable,
     fixed,
     selectable,
     selectOffset,
@@ -2621,8 +3101,18 @@ export function DataGrid<T>({
     () => new Map(visibleIds.map((id, index) => [id, index + 1])),
     [visibleIds],
   );
-  const { selected, allSelected, indeterminate, toggleAll, toggleRow } =
-    useRowSelection({ rowIds: visibleIds, selectedIds, onSelectionChange });
+  const {
+    selected,
+    allSelected,
+    indeterminate,
+    toggleAll,
+    toggleRow,
+    setSelected,
+  } = useRowSelection({ rowIds: visibleIds, selectedIds, onSelectionChange });
+  const clearSelection = React.useCallback(
+    () => setSelected(new Set()),
+    [setSelected],
+  );
 
   // ---- ARIA geometry -------------------------------------------------------
   // aria-rowindex counts EVERY row (header, group rows, data rows, load-more rows and the
@@ -3120,6 +3610,16 @@ export function DataGrid<T>({
     toggleRow,
     groups,
     commitGroups,
+    visibleIds,
+    openRow: (rowId: string, event: React.SyntheticEvent | null) => {
+      const index = (rowNumbers.get(rowId) ?? 0) - 1;
+      if (index >= 0) onRowOpen?.(rowId, { event, index });
+    },
+    focusCell: (rowId: string, key: string) => {
+      if (cellsMode && rowNumbers.has(rowId) && dataKeyIndex.has(key))
+        selection.select({ rowId, colKey: key });
+      focusAt(rowId, key);
+    },
   };
   const latest = React.useRef(current);
   React.useLayoutEffect(() => {
@@ -3297,6 +3797,9 @@ export function DataGrid<T>({
       keepWidgetFocus(rowId, key, index) {
         widgetFocus.current = { rowId, key, index };
       },
+      openRow(rowId, event) {
+        latest.current.openRow(rowId, event);
+      },
       toggleGroup(groupId, expanded) {
         latest.current.commitGroups({
           ...latest.current.groups,
@@ -3306,6 +3809,30 @@ export function DataGrid<T>({
     }),
     [],
   );
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      focusCell: (rowId, key) => latest.current.focusCell(rowId, key),
+      getRowOrder: () => [...latest.current.visibleIds],
+    }),
+    [],
+  );
+  // The open record's row comes into view as a peek walks the rows (scrolled to its index when
+  // the rows are windowed, so a row that is not mounted is reached too).
+  React.useEffect(() => {
+    if (activeRowId == null) return;
+    const index = itemIndex.get(activeRowId);
+    if (index != null && rowVirtualizerRef.current) {
+      rowVirtualizerRef.current.scrollToIndex(index, { align: "auto" });
+      return;
+    }
+    viewport
+      ?.querySelector<HTMLElement>(`[data-row-id="${CSS.escape(activeRowId)}"]`)
+      ?.scrollIntoView?.({ block: "nearest" });
+    // Only a new open row moves the scroll; a refetch of the same one does not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRowId]);
 
   const registerTrailing = React.useCallback(
     (node: HTMLElement | null) => api.register(HEADER, TRAILING, node),
@@ -3361,9 +3888,12 @@ export function DataGrid<T>({
       child.style.cssText = saved[index]!;
     });
     const { min, max } = columnResizeBounds(p.column);
-    // The cell's inline padding (`px-2`); the sort glyph and the menu chevron when the header has them.
+    // The cell's inline padding (`px-2`); the sort glyph or the menu chevron when the header has
+    // one, and the type icon when it has that.
     const chrome =
-      16 + (p.column.sortable ? 24 : 0) + (p.column.headerMenu ? 24 : 0);
+      16 +
+      (p.column.sortable || p.column.headerMenu ? 24 : 0) +
+      (p.column.icon != null ? 18 : 0);
     const next = Math.min(max, Math.max(min, Math.ceil(widest + chrome)));
     resizeTo(p.key, next, true);
   };
@@ -3751,6 +4281,19 @@ export function DataGrid<T>({
       }
       return;
     }
+    // Opening the row (IN-04): Space on any of its cells, Enter on its primary cell (the row
+    // header — F2 still edits that one).
+    if (
+      onRowOpen &&
+      !mod &&
+      !event.altKey &&
+      !event.shiftKey &&
+      (event.key === " " || (event.key === "Enter" && placedColumn.primary))
+    ) {
+      event.preventDefault();
+      current.openRow(rowId, event);
+      return;
+    }
     // A cell's links and chips are reached from the cell: Alt+Enter (and, on a read-only cell,
     // Enter or F2) moves into its first widget, which shows its name as it takes focus.
     if (event.key === "Enter" && event.altKey && !mod) {
@@ -3885,6 +4428,7 @@ export function DataGrid<T>({
         dragging={item?.["data-dragging"] != null}
         dropEdge={item?.["data-drop-edge"]}
         dragPending={item?.["data-drag-pending"] != null}
+        openSlot={p.primary && openable}
       />
     );
   };
@@ -3929,6 +4473,9 @@ export function DataGrid<T>({
             "data-grid-key": TRAILING,
           })}
         </th>
+      ) : null}
+      {fixed ? (
+        <th aria-hidden="true" data-slot="data-grid-filler" className="p-0" />
       ) : null}
     </tr>
   );
@@ -3975,6 +4522,7 @@ export function DataGrid<T>({
         {headerTrailing ? (
           <td aria-hidden="true" className="bg-background p-0" />
         ) : null}
+        {fixed ? <td aria-hidden="true" className="bg-background p-0" /> : null}
       </TableRow>
     </tfoot>
   ) : null;
@@ -4019,10 +4567,15 @@ export function DataGrid<T>({
           onCut={handleCut}
           onPaste={handlePaste}
           className={cn(
-            "caption-bottom text-sm",
+            "group/grid caption-bottom text-sm",
+            // A drag or Shift+click extends the cell range, never a text selection; the cell
+            // being edited keeps its own.
+            cellsMode && "select-none [&_[data-editing]]:select-text",
             fixed ? "table-fixed" : "w-full",
           )}
-          style={fixed ? { width: tableWidth } : undefined}
+          // FIXED: the columns' own widths, and never narrower than the viewport — the filler
+          // track takes the rest (DS-1).
+          style={fixed ? { width: tableWidth, minWidth: "100%" } : undefined}
         >
           {fixed ? (
             <colgroup>
@@ -4040,6 +4593,7 @@ export function DataGrid<T>({
               {headerTrailing ? (
                 <col style={{ width: TRAILING_WIDTH }} />
               ) : null}
+              <col data-slot="data-grid-filler-col" />
             </colgroup>
           ) : null}
           <thead
@@ -4054,10 +4608,11 @@ export function DataGrid<T>({
           {loading ? (
             <TableBody>
               {fixed ? (
-                <FixedSkeletonRows w={w} rows={5} />
+                <FixedSkeletonRows w={w} rows={loadingRows} />
               ) : (
                 <SkeletonRows
                   columns={visibleColumns}
+                  rows={loadingRows}
                   selectable={selectable}
                   slot="data-grid-skeleton-row"
                 />
@@ -4065,7 +4620,13 @@ export function DataGrid<T>({
             </TableBody>
           ) : !hasItems && !hasRows ? (
             <TableBody>
-              <EmptyRow colSpan={w.span} slot="data-grid-empty-row">
+              <EmptyRow
+                colSpan={w.span}
+                slot="data-grid-empty-row"
+                // Held to the viewport, so a wide grid's empty or error state is centred where
+                // the reader is and never clipped by the columns scrolled off (UX-10).
+                viewportWidth={containerWidth ?? undefined}
+              >
                 {emptyState}
               </EmptyRow>
             </TableBody>
@@ -4091,6 +4652,8 @@ export function DataGrid<T>({
               ariaRowIndexBase={ariaRowIndexBase}
               onVirtualizer={onVirtualizer}
               onCommit={onBodyCommit}
+              activeRowId={activeRowId}
+              getRowLabel={getRowLabel}
             />
           )}
           {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
@@ -4154,8 +4717,9 @@ export function DataGrid<T>({
   return (
     <GridApiContext.Provider value={api}>
       <div
-        ref={ref}
+        ref={setRoot}
         data-slot="data-grid"
+        data-layout-mode={cardMode ? "cards" : "grid"}
         // Its own stacking context: the sticky header, summary row and frozen columns layer
         // inside the grid and never over the page's floating parts (an ActionBar at z-10).
         className={cn("isolate flex w-full min-w-0 flex-col gap-3", className)}
@@ -4227,7 +4791,28 @@ export function DataGrid<T>({
           </div>
         )}
 
-        {cellMenu ? (
+        {cardMode ? (
+          <>
+            <GridCards
+              items={items}
+              columns={visibleColumns}
+              fields={cardFields}
+              selectable={selectable}
+              selected={selected}
+              onToggleRow={toggleRow}
+              onToggleGroup={api.toggleGroup}
+              onOpen={onRowOpen ? api.openRow : undefined}
+              activeRowId={activeRowId}
+              getRowLabel={getRowLabel}
+              rowNumbers={rowNumbers}
+              loading={loading}
+              loadingRows={loadingRows}
+              emptyState={emptyState}
+              ariaLabel={ariaLabel}
+            />
+            {loadMore ? <LoadMore {...loadMore} /> : null}
+          </>
+        ) : cellMenu ? (
           <ContextMenu
             onOpenChange={(open) => {
               if (open) return;
@@ -4266,6 +4851,23 @@ export function DataGrid<T>({
         {pagedMode ? <CursorPager {...pagedMode} /> : null}
         {footer != null ? (
           <div data-slot="data-grid-footer">{footer}</div>
+        ) : null}
+        {selectable && selectionActions && selected.size > 0 ? (
+          <SelectionBarSpacer slot="data-grid-selection-spacer" />
+        ) : null}
+        {selectable && selectionActions ? (
+          <SelectionActionBar
+            slot="data-grid-selection-bar"
+            selected={selected}
+            onClear={clearSelection}
+            actions={selectionActions}
+            containerRef={rootRef}
+            label={selectionLabel}
+            secondaryActions={selectionSecondaryActions}
+            moreLabel={selectionMoreLabel}
+            clearLabel={clearSelectionLabel}
+            barLabel={selectionBarLabel}
+          />
         ) : null}
         <Announcer />
         <reorder.Announcer />

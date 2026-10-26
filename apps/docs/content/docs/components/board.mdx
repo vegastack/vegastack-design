@@ -84,7 +84,13 @@ follows the pointer, without the tilt or the slides.
 `addPlacement="header"` moves each lane's add button into its header, an icon button beside the
 ⋯ menu whose accessible name and tooltip are `addLabel`. A column's `icon` leads its title (the
 status glyph of a status lane), and `trailing` renders after the last lane inside the sideways
-scroller — a list of hidden lanes, an "Add lane" button. Cards sit on a slightly raised surface.
+scroller — an "Add lane" button. Cards sit on a slightly raised surface.
+
+**Hidden lanes.** `hiddenColumns` lists the lanes the host has hidden under a "Hidden columns"
+heading after the last lane, each with its icon and count; choosing one calls `onShowColumn`. A
+column marked `hideable` offers "Hide column" in its ⋯ menu, which calls `onHideColumn` — the host
+takes the lane out of `columns` and lists it in `hiddenColumns`. Each lane still pages on its own
+(`loadMore`), so a task board with per-lane keysets and hidden lanes is a `Board`.
 
 <ComponentPreview name="boardHeaderAdd" file="components/preview/board.tsx" />
 
@@ -173,7 +179,11 @@ replaces it outright. With `onAdd`, the default empty state carries "+ Add" as i
 
 `getItemHref` makes each card a real link, rendered as `<a>` or as your router's link through
 `itemLinkRender`. A click follows it and a modifier click opens a new tab; a drag never follows
-it. Enter follows the link; Space still picks the card up.
+it. Enter follows the link; Space still picks the card up. With `onCardActivate` as well, a plain
+click (or Enter) opens the card's record in place — a peek — instead, while ⌘/Ctrl/Shift and middle
+clicks still open the link. `activeItemId` marks the open card (`data-peek-active`, the accent wash)
+and scrolls it into view as it changes. A card's ⋯ menu mounts the first time it is pointed at or
+pressed.
 
 <ComponentPreview name="boardLinks" file="components/preview/board.tsx" />
 

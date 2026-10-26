@@ -845,7 +845,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.84",
-        "integrity": "sha256-9dJTDMigEqntaofjEIGXdRSQ8KDL9vV2JjYqW+WuNNM="
+        "integrity": "sha256-DmY3DjOwjQxCEZKZxUIZQkqsPthfywD8r8Z2Cl3UeoA="
       }
     },
     {
@@ -1557,7 +1557,10 @@
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
-        "@vegastack/use-grid-selection"
+        "@vegastack/use-grid-selection",
+        "@vegastack/checkbox",
+        "@vegastack/empty",
+        "@vegastack/action-bar"
       ],
       "files": [
         {
@@ -1570,7 +1573,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.84",
-        "integrity": "sha256-jKMEJQ6+kgoVHi+gEW9rtSJXGsHqOPYsCNvbfgRojSc="
+        "integrity": "sha256-6XrY/69rCEkDSFwHYcqtBqwuoqEMTviOM+fm44a7V/U="
       }
     },
     {
@@ -1615,7 +1618,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.84",
-        "integrity": "sha256-OmzvKqQMtxFf0j0zRaUHmg457ctAziGmmVA7od9GeU0="
+        "integrity": "sha256-zrpwVrti53sAcAZY9Na9u1DoDsegXeqMBmWXLpHXjIE="
       }
     },
     {
@@ -1857,7 +1860,8 @@
         "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/action-bar"
       ],
       "files": [
         {
@@ -1870,7 +1874,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.84",
-        "integrity": "sha256-vAzscc3vLN20OhknfHs12wBLkG9jEprCFBPN3twDKIA="
+        "integrity": "sha256-jIDA/IGdaC3jzMhqMV5OH24Dj1wgKFRLb4CW5gmtIFU="
       }
     },
     {
@@ -2537,7 +2541,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.84",
-        "integrity": "sha256-oyyycBOmehYg2KPx87XOrUb7EFn4YTk0XerlV+JEWlU="
+        "integrity": "sha256-Diz/DKa5r9IDsvYIr8umVrzr7Z++q/uafv/oKNWvViM="
       }
     },
     {
