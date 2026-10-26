@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.25.84 sha256-XI44BpFHw+MD9PJkVatDSIGBgTO4899dd7oM0xPJMhU=
+// @vegastack filter-bar@0.25.84 sha256-cCI4P/d80cm9HuTmIyxBMDg+CUh0Tw4Mz0OJhL6rlBA=
 
 "use client";
 
@@ -648,11 +648,11 @@ function ViewMenuSection({
  * @example
  * <FilterBar
  *   search={{ value: query, onValueChange: setQuery, placeholder: "Search records" }}
- *   filterBuilder={<FilterBuilder fields={fields} value={filter} onValueChange={setFilter} />}
+ *   filterBuilder={<FilterBuilder vocabulary={fields} value={filter} onValueChange={setFilter} />}
  *   filters={chips}
- *   sort={<SortBuilder fields={sortable} value={sorts} onValueChange={setSorts} />}
+ *   sort={<SortBuilder vocabulary={sortable} value={sorts} onChange={setSorts} />}
  *   sortCount={sorts.length}
- *   group={<GroupByPicker fields={groupable} value={groupBy} onValueChange={setGroupBy} />}
+ *   group={<GroupByPicker vocabulary={sortable} value={groupBy} onChange={setGroupBy} />}
  *   fields={fieldList}
  *   density={rowHeightToggle}
  *   viewActions={viewMenuItems}
@@ -836,7 +836,9 @@ export function FilterBar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         data-slot="filter-bar-search"
         className={cn(
-          "h-8 w-full min-w-0 @lg/filter-bar:w-80 @lg/filter-bar:flex-none",
+          // From `@lg` it is ~320px, and gives way (to 160px) before the controls beside it
+          // would overflow the row.
+          "h-8 w-full min-w-0 @lg/filter-bar:w-80 @lg/filter-bar:min-w-40 @lg/filter-bar:flex-initial",
           searchInputProps?.className,
         )}
       />
@@ -926,7 +928,7 @@ export function FilterBar({
         data-slot="filter-bar-filter-builder"
         aria-label={filtersLabel}
         // A builder grows with its conditions; it never runs off a narrow window.
-        className="w-auto min-w-80 max-w-[min(40rem,calc(100vw-2rem))]"
+        className="w-auto min-w-[min(20rem,calc(100vw-2rem))] max-w-[min(40rem,calc(100vw-2rem))]"
       >
         {filterBuilder}
       </PopoverContent>
@@ -991,6 +993,7 @@ export function FilterBar({
           align="end"
           size="md"
           data-slot="filter-bar-view-content"
+          className="max-w-[calc(100vw-2rem)]"
           aria-label={viewMenuLabel}
         >
           {viewSections.map((section) => (

@@ -1208,3 +1208,80 @@ test("trailing shares the chip row with the applied filters", async () => {
   expect(rows[0]!.textContent).toContain("Open");
   expect(rows[0]!.textContent).toContain("View changed");
 });
+
+test("filterBuilder: controlled open state, focus back on the toggle, never opened by itself", async () => {
+  function Harness() {
+    const [open, setOpen] = React.useState(false);
+    const [filters, setFilters] = React.useState<FilterBarFilter[]>([]);
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() =>
+            setFilters([
+              { id: "s", label: "Status", value: "Open", onRemove: () => {} },
+            ])
+          }
+        >
+          Apply
+        </button>
+        <span data-testid="open">{String(open)}</span>
+        <FilterBar
+          autoOpenFilters
+          filtersOpenStorageKey="grid-builder-test"
+          filtersOpen={open}
+          onFiltersOpenChange={setOpen}
+          filterBuilder={<button type="button">Add condition</button>}
+          filters={filters}
+        />
+      </>
+    );
+  }
+  window.sessionStorage.removeItem("grid-builder-test");
+  const screen = await render(<Harness />);
+  // A filter becoming set never pops the builder open.
+  await screen.getByRole("button", { name: "Apply" }).click();
+  await expect.element(screen.getByText("Open", { exact: true })).toBeVisible();
+  await expect.element(screen.getByTestId("open")).toHaveTextContent("false");
+  const toggle = screen.getByRole("button", { name: "Filters (1)" });
+  await toggle.click();
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect.element(screen.getByTestId("open")).toHaveTextContent("true");
+  await userEvent.keyboard("{Escape}");
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  await vi.waitFor(() => expect(document.activeElement).toBe(toggle.element()));
+  // The builder's open state is not remembered.
+  expect(window.sessionStorage.getItem("grid-builder-test")).toBeNull();
+});
+
+test("grid controls fit a 512px bar beside a primary action; popups stay inside a 320px window", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <div style={{ width: 512 }}>
+      <FilterBar
+        search={{ value: "", onValueChange: () => {}, placeholder: "Search" }}
+        filterBuilder={<p>Builder</p>}
+        sort={<p>Sort</p>}
+        fields={<p>Fields</p>}
+        actions={<button type="button">New record</button>}
+      />
+    </div>,
+  );
+  const row = screen.container.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-primary"]',
+  )!;
+  expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1);
+  await page.viewport(320, 700);
+  for (const name of ["Filters", "View"]) {
+    await screen.getByRole("button", { name }).click();
+    const popup = page.getByRole("dialog", { name });
+    await expect.element(popup).toBeVisible();
+    const box = popup.element().getBoundingClientRect();
+    expect(box.left).toBeGreaterThanOrEqual(0);
+    expect(box.right).toBeLessThanOrEqual(320);
+    await userEvent.keyboard("{Escape}");
+  }
+});
