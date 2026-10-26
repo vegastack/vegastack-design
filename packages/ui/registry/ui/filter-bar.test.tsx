@@ -1285,3 +1285,23 @@ test("grid controls fit a 512px bar beside a primary action; popups stay inside 
     await userEvent.keyboard("{Escape}");
   }
 });
+
+test("filterBuilder, uncontrolled: a remembered row state neither opens the builder nor changes", async () => {
+  window.sessionStorage.setItem("grid-builder-uncontrolled", "1");
+  onTestFinished(() =>
+    window.sessionStorage.removeItem("grid-builder-uncontrolled"),
+  );
+  const screen = await render(
+    <FilterBar
+      filtersOpenStorageKey="grid-builder-uncontrolled"
+      filterBuilder={<p>Builder</p>}
+    />,
+  );
+  const toggle = screen.getByRole("button", { name: "Filters" });
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  await toggle.click();
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+  await userEvent.keyboard("{Escape}");
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  expect(window.sessionStorage.getItem("grid-builder-uncontrolled")).toBe("1");
+});
