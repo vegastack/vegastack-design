@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-UH2P1m28YiM1p+zhxLz7IlnPUY0z5HeQfjq9jrzPjE4=
+// @vegastack field-cell@0.25.79 sha256-Zb+QTfzdoPT2QwhbzRApxgBuA0gzVxlc4RQskNZdmXk=
 
 "use client";
 
@@ -1204,6 +1204,14 @@ function typeInto(field: HTMLInputElement, text: string) {
   field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+/**
+ * A typed key as literal Markdown: a long text's seed `#`, `-` or `*` is the character typed, not
+ * the start of a heading or a list.
+ */
+function markdownLiteral(key: string): string {
+  return /^[\\`*_{}[\]()#+\-.!|>~<&=]$/.test(key) ? `\\${key}` : key;
+}
+
 /** Whether the reader's locale writes a numeric date month first ("3/12" is 12 March). */
 function monthFirst(): boolean {
   const parts = new Intl.DateTimeFormat(undefined, {
@@ -1344,7 +1352,11 @@ export function FieldCellEditor({
   const typedDate = type === "date" && Boolean(seed);
   // Type-to-edit replaces the value: long text and a typed date start from the key itself.
   const [draft, setDraft] = React.useState<FieldValue>(() =>
-    seed && (type === "long_text" || typedDate) ? seed : value,
+    seed && type === "long_text"
+      ? markdownLiteral(seed)
+      : seed && typedDate
+        ? seed
+        : value,
   );
   const done = React.useRef(false);
   const root = React.useRef<HTMLSpanElement | null>(null);
@@ -1385,7 +1397,10 @@ export function FieldCellEditor({
         )
           return;
         event.preventDefault();
-        setDraft((text) => (typeof text === "string" ? text : "") + event.key);
+        setDraft(
+          (text) =>
+            (typeof text === "string" ? text : "") + markdownLiteral(event.key),
+        );
       };
       const stopKeeping = () =>
         document.removeEventListener("keydown", keep, true);

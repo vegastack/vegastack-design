@@ -967,6 +967,18 @@ test("in a grid: typing on a cell of any type opens its editor holding every typ
   await vi.waitFor(() => expect(commits.at(-1)).toEqual(["notes", "xyz"]));
   await vi.waitFor(() => expect(editing()).toBeNull());
 
+  // A key Markdown reads as structure is the character typed: "#" is not a heading.
+  cell("notes").focus();
+  await userEvent.keyboard("#");
+  await vi.waitFor(() => expect(text()).toBe("#"));
+  expect(
+    document.querySelector(
+      '[data-slot="popover-content"] [contenteditable="true"] h1',
+    ),
+  ).toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(editing()).toBeNull());
+
   // A date opens a field that takes the typed date, starting from the key.
   cell("due").focus();
   await userEvent.keyboard("1");
@@ -1057,6 +1069,15 @@ test("in a grid: Tab leaves from a cell holding link chips, and the chips are re
   );
   await userEvent.keyboard("{ArrowRight}");
   expect(document.activeElement?.textContent).toContain("Lumen Build");
+  await userEvent.keyboard("{Escape}");
+  expect(document.activeElement).toBe(cell);
+  // Alt+Enter reaches them from any cell, an editable one included.
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+  await vi.waitFor(() =>
+    expect(document.activeElement?.textContent).toContain(
+      "Greenfield Campus Authority",
+    ),
+  );
   await userEvent.keyboard("{Escape}");
   expect(document.activeElement).toBe(cell);
 });

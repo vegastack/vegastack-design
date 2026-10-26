@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.79",
-        "integrity": "sha256-s4z8g0+D2Nb2BVGzQ8H2BRh+IJATpn0KrsIauihGCwg="
+        "integrity": "sha256-L74s+K3YUoqOycZhcbWHPZCqWMLSBs82qU6wPDb/ev8="
       }
     },
     {
@@ -2585,7 +2585,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.79",
-        "integrity": "sha256-UH2P1m28YiM1p+zhxLz7IlnPUY0z5HeQfjq9jrzPjE4="
+        "integrity": "sha256-Zb+QTfzdoPT2QwhbzRApxgBuA0gzVxlc4RQskNZdmXk="
       }
     },
     {

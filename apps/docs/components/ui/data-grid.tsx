@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.79 sha256-s4z8g0+D2Nb2BVGzQ8H2BRh+IJATpn0KrsIauihGCwg=
+// @vegastack data-grid@0.25.79 sha256-L74s+K3YUoqOycZhcbWHPZCqWMLSBs82qU6wPDb/ev8=
 
 "use client";
 
@@ -3123,7 +3123,13 @@ export function DataGrid<T>({
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
         event.preventDefault();
         const widgets = cellWidgets(origin);
-        const at = widgets.findIndex((node) => node.contains(inner));
+        // The focused widget itself; else the innermost one holding it (never an ancestor that
+        // would hand focus back to its own child).
+        let at = widgets.indexOf(inner);
+        if (at < 0)
+          widgets.forEach((node, index) => {
+            if (node.contains(inner)) at = index;
+          });
         const back =
           (event.key === "ArrowLeft") !==
           (getComputedStyle(event.currentTarget).direction === "rtl");
@@ -3341,9 +3347,17 @@ export function DataGrid<T>({
       }
       return;
     }
+    // A cell's links and chips are reached from the cell: Alt+Enter (and, on a read-only cell,
+    // Enter or F2) moves into its first widget, which shows its name as it takes focus.
+    if (event.key === "Enter" && event.altKey && !mod) {
+      const first = cellWidgets(origin)[0];
+      if (first) {
+        event.preventDefault();
+        first.focus();
+      }
+      return;
+    }
     if (!column.editable) {
-      // A read-only cell's links and chips are reached from the cell: Enter (or F2) moves into
-      // its first widget, which shows its name as it takes focus.
       if (event.key === "Enter" || event.key === "F2") {
         const first = cellWidgets(origin)[0];
         if (first) {
