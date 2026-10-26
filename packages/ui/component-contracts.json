@@ -12268,6 +12268,24 @@
           }
         },
         {
+          "name": "EditableCellRest",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by EditableCellRest; its one element belongs to the grid that mounts it."
+          }
+        },
+        {
+          "name": "EditableCellRestProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "InlineEditTrigger",
           "kind": "component",
           "source": "packages/ui/registry/ui/editable-cell.tsx",
@@ -12415,6 +12433,23 @@
             {
               "name": "data-wrap",
               "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EditableCellRest": {
+          "attributes": [
+            {
+              "name": "data-rest",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["editable-cell-display"]
+            },
+            {
+              "name": "data-variant",
+              "values": ["inline"]
             }
           ],
           "cssVariables": []

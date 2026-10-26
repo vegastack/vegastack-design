@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.82 sha256-2U1dVMhvSh87iUaVLLkJsQ6+Riq8/B9x7m0XDkrURUc=
+// @vegastack editable-cell@0.25.82 sha256-zYgzKErIHWQDAUB3Dd8Ssev8LX5qSauGocteNFaw3Cc=
 
 "use client";
 
@@ -1249,6 +1249,129 @@ export function EditableCell({
         />
       ) : null}
       <Announcer />
+    </span>
+  );
+}
+
+/** Props for {@link EditableCellRest}. */
+export interface EditableCellRestProps {
+  /** The persisted value, as text. */
+  value: string;
+  /** The field's name, for the display's accessible name ("Edit Stage"). @default "value" */
+  label?: string;
+  /** Renders a non-empty value (tags, chips, avatars) instead of its text. @default undefined */
+  renderValue?: (value: string) => React.ReactNode;
+  /** The reader asked to edit: a click on the value, or Enter, F2 or Space on the display. */
+  onStartEditing: () => void;
+  /** Extra classes for the root. @default undefined */
+  className?: string;
+}
+
+// The resting box of a managed, inline `custom` EditableCell: the display's box and the text's
+// truncation on ONE element (the full cell nests a display and a text span in a root span).
+const REST_CLASS = cn(
+  "inline-block max-w-full min-w-0 truncate align-top",
+  boxClasses,
+  "cursor-text",
+);
+const REST_EMPTY_CLASS = cn(REST_CLASS, "text-muted-foreground");
+
+/** Whether the value is clipped, published the way the full cell publishes it: as the title. */
+function probeRest(display: HTMLElement, value: string) {
+  const truncated = value.length > 0 && measureOverflow(display);
+  if (truncated) {
+    display.setAttribute("title", value);
+    display.setAttribute("data-truncated", "");
+  } else {
+    display.removeAttribute("title");
+    display.removeAttribute("data-truncated");
+  }
+}
+
+/**
+ * `EditableCellRest` — a grid-managed `EditableCell` with a `custom` editor, at rest: the same
+ * button, name, description and activation in one element, and nothing else. No state machine,
+ * no effect, no live region: a grid mounts dozens of cells per scroll tick, and only the cell
+ * being edited (or still saving) needs `EditableCell` itself. A clipped value gets its title when
+ * the pointer or focus reaches it, as the full cell's does.
+ *
+ * @example
+ * editing ? (
+ *   <EditableCell focusMode="managed" editing editor={editor} value={value} label="Stage" />
+ * ) : (
+ *   <EditableCellRest value={value} label="Stage" onStartEditing={() => setEditing(true)} />
+ * )
+ */
+export function EditableCellRest({
+  value,
+  label,
+  renderValue,
+  onStartEditing,
+  className,
+}: EditableCellRestProps) {
+  const id = React.useId();
+  const hasDisplayValue = value.length > 0;
+  // A new value under a resting pointer or focus, or one that was clipped, is looked at again.
+  const ref = React.useCallback(
+    (node: HTMLSpanElement | null) => {
+      if (!node) return;
+      if (
+        node.hasAttribute("title") ||
+        node.matches(":hover") ||
+        node.matches(":focus")
+      )
+        probeRest(node, value);
+    },
+    [value],
+  );
+  const probe = (event: React.SyntheticEvent<HTMLSpanElement>) =>
+    probeRest(event.currentTarget, value);
+  const base = hasDisplayValue ? REST_CLASS : REST_EMPTY_CLASS;
+  return (
+    <span
+      ref={ref}
+      id={id}
+      data-slot="editable-cell-display"
+      data-variant="inline"
+      data-rest=""
+      role="button"
+      tabIndex={-1}
+      aria-label={`Edit ${label ?? "value"}`}
+      // Described by its value, as the full cell's display is by its text.
+      aria-describedby={hasDisplayValue ? id : undefined}
+      onPointerEnter={probe}
+      onFocus={probe}
+      onClick={(event) => {
+        // A click on a widget inside the value (a link chip) is the widget's: it opens the
+        // link, it doesn't start an edit.
+        const widget = (event.target as Element).closest(
+          'a[href], button, [role="button"], [role="link"]',
+        );
+        if (
+          widget &&
+          widget !== event.currentTarget &&
+          event.currentTarget.contains(widget)
+        )
+          return;
+        event.stopPropagation();
+        onStartEditing();
+      }}
+      onKeyDown={(event) => {
+        // A key on a widget inside the value is the widget's own.
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "Enter" || event.key === "F2" || event.key === " ") {
+          event.preventDefault();
+          event.stopPropagation();
+          onStartEditing();
+        }
+      }}
+      className={className ? cn(base, className) : base}
+    >
+      {hasDisplayValue
+        ? renderValue
+          ? renderValue(value)
+          : value
+        : "Edit value"}
     </span>
   );
 }

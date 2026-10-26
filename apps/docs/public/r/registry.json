@@ -1570,7 +1570,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.82",
-        "integrity": "sha256-S2Mf/B+zgcZBKZ4LXCkqELoJRfecHDak7S3QHlFvgtE="
+        "integrity": "sha256-DDRLBaf9E94N9pWVqyoEJlU/S5kTBFONINcm0loeZJI="
       }
     },
     {
@@ -2537,7 +2537,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.82",
-        "integrity": "sha256-2U1dVMhvSh87iUaVLLkJsQ6+Riq8/B9x7m0XDkrURUc="
+        "integrity": "sha256-zYgzKErIHWQDAUB3Dd8Ssev8LX5qSauGocteNFaw3Cc="
       }
     },
     {

@@ -264,6 +264,19 @@ cell's own tab stop, and the host opens the editor from its keyboard model throu
   name="InlineEditTriggerProps"
 />
 
+### EditableCellRest
+
+What `DataGrid` renders for a resting cell whose column has a `custom` editor: the display's
+button, accessible name and description, and the same box, in one element with no state or
+effects. A click on the value (not on a link chip inside it) or <kbd>Enter</kbd>, <kbd>F2</kbd>
+or <kbd>Space</kbd> on it calls `onStartEditing`; the grid then mounts `EditableCell` for that
+cell. A clipped value gets its full text as the title when the pointer or focus reaches it.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/editable-cell.tsx"
+  name="EditableCellRestProps"
+/>
+
 ### Editor contract
 
 The `custom` editor receives `EditableCellEditorProps`: the `value`, the `seed` (the printable
