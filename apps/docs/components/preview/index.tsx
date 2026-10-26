@@ -111,6 +111,7 @@ export * from "./field-cell";
 export * from "./data-list";
 export * from "./media-card";
 export * from "./thumbnail";
+export * from "./qr-code";
 export * from "./person-hover-card";
 export * from "./permission-menu";
 export * from "./responsive-dialog";

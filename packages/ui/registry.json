@@ -488,6 +488,31 @@
       }
     },
     {
+      "name": "qr-code",
+      "type": "registry:ui",
+      "title": "QR Code",
+      "description": "A QR code for a value, drawn as one crisp SVG path — dark modules on a light rounded tile in both themes, with the standard quiet zone — encoded on the server or the client by uqr.",
+      "categories": ["display"],
+      "dependencies": [
+        "uqr@0.1.3",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/qr-code.tsx",
+          "type": "registry:ui",
+          "target": "@ui/qr-code.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Handing a link to a phone: a scan-to-open code beside the link itself (record on your phone, open in the app, join a call).",
+        "whenNotToUse": "The only way to reach something — always show or copy the link too (CopyButton); a barcode or an image someone uploaded (Image).",
+        "version": "0.25.85"
+      }
+    },
+    {
       "name": "reactions",
       "type": "registry:ui",
       "title": "Reactions",

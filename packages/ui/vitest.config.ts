@@ -188,6 +188,8 @@ export default defineConfig({
       "diff",
       // MermaidBlock's renderer, imported dynamically: same reason.
       "mermaid",
+      // QrCode's encoder: pre-bundled so the first QR fixture never reloads a live test page.
+      "uqr",
       "@atlaskit/pragmatic-drag-and-drop/utils/combine",
       "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter",
       "@atlaskit/pragmatic-drag-and-drop/external/adapter",

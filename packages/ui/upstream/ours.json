@@ -739,6 +739,12 @@
       "family": "form",
       "source": "Regent Tables plan 1.4 (DS R5), approved by the operator 2026-10-23",
       "rationale": "Upstream ships controls but no per-field-type display and editor set. Composes the system's controls and displays unchanged; carries no patch."
+    },
+    "qr-code": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Regent product-cohesion W2-MTG (Record on your phone) — uqr@0.1.3 encoder exception: MK blanket approval 27-10-2026 (D19), Regent product-cohesion W2-MTG",
+      "rationale": "Upstream ships no QR code. Ours: uqr (a pure encoder that renders nothing) computes the matrix; the SVG path, the theme-invariant tile and the quiet zone are ours; no patch."
     }
   }
 }

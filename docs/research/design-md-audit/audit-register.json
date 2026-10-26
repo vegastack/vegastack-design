@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e1db2d0d1aba2c1e4cf57f27c225c168a407e2d7f5e0cbcccd24d2545398839a",
+  "contractSha256": "ebceba39841e003a8d47a0270fe32710412e50597851d6fb1fd567191ed7d6fe",
   "expectedCounts": {
-    "totalRegistryItems": 755,
-    "components": 168,
+    "totalRegistryItems": 756,
+    "components": 169,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -1651,6 +1651,17 @@
         "packages/ui/registry/ui/mermaid-block.tsx"
       ],
       "docsSlug": "/docs/components/mermaid-block",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "qr-code",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/qr-code.tsx"
+      ],
+      "docsSlug": "/docs/components/qr-code",
       "contractStatus": "reconciled"
     },
     {

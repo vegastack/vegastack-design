@@ -1,0 +1,86 @@
+---
+title: QR Code
+description: A QR code for a link, drawn as one crisp SVG — dark modules on a light rounded tile in both themes, with the standard quiet zone.
+audience: public
+registry: qr-code
+status: stable
+since: 0.25.86
+a11y: an image named by what scanning it does
+preview: qrCode
+---
+
+## Install
+
+<InstallSteps name="qr-code" />
+
+## Usage
+
+```tsx
+import { QrCode } from "@/components/ui/qr-code";
+
+<QrCode value={recordUrl} label="Open this meeting on your phone" />;
+```
+
+`QrCode` hands a link to a phone. It encodes `value` during render — on the server or the client,
+with no effect and no canvas — and draws the matrix as a single SVG path, so it stays sharp at any
+size. The tile is light and the modules dark in both themes, because many scanners cannot read a
+code drawn light-on-dark; the standard 4-module quiet zone is part of the drawing, so it needs no
+padding around it.
+
+<ComponentPreview name="qrCode" file="components/preview/qr-code.tsx" />
+
+## Examples
+
+### Sizes
+
+The default is `size-40` (160px). Pass any `size-*` class; the code scales with its box. Keep a
+code you expect to be scanned from a laptop screen at 160px or more.
+
+<ComponentPreview name="qrCodeSizes" file="components/preview/qr-code.tsx" />
+
+### Error correction
+
+`errorCorrection` trades density for robustness: `L` survives 7% damage, `M` (the default) 15%,
+`Q` 25% and `H` 30%. A higher level draws more, smaller modules for the same value — use `M` for a
+link on a screen, and `Q` or `H` only when the code may be printed and worn.
+
+<ComponentPreview
+  name="qrCodeErrorCorrection"
+  file="components/preview/qr-code.tsx"
+/>
+
+### Empty
+
+An empty `value`, or one too long for any QR version at the chosen level, never throws: it draws
+the empty tile (`data-state="invalid"`) at the same size and keeps its name. Show why next to it.
+
+<ComponentPreview name="qrCodeEmpty" file="components/preview/qr-code.tsx" />
+
+## API Reference
+
+<ApiTable path="../../packages/ui/registry/ui/qr-code.tsx" name="QrCodeProps" />
+
+`QrCode` also takes the SVG element's own props (`className`, `ref`, `id`, `style`, …); the root is
+the `<svg>`.
+
+## Accessibility
+
+- The root is `role="img"`, named by `label`. Say what scanning does — "Open this meeting on your
+  phone" — not "QR code": the encoded value is not read out.
+- A QR code is never the only way in. Show the link beside it, or a `CopyButton` for it, so someone
+  without a camera — or using a screen reader — can follow it.
+- Nothing in it is focusable or interactive.
+
+<StatesTested name="qr-code" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the code beside the link it encodes, and label it with what scanning does."
+  dont="Recolour the code to match the theme, or make it the only way to open the link."
+/>
+
+<DoDont
+  do="Keep the quiet zone and give the code at least 160px when it is scanned from a laptop screen."
+  dont="Crop the light margin, lay the code over an image, or shrink it to an icon's size."
+/>
