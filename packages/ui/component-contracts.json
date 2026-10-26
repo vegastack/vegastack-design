@@ -38418,6 +38418,7 @@
       "docsSlug": "/docs/components/record-peek",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/direction",
         "@vegastack/drawer",
         "@vegastack/kbd",
         "@vegastack/tooltip",
