@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.84] — October 26, 2026
+
+<!-- assembled from 1 changeset: 55d53a52e96e -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.33`** (was `0.8.32`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.83 → 0.25.84.
+
+### 🐛 Fixed
+
+- **FieldCellEditor**: Enter, F2 or a click on a long-text cell that holds a value opens the editor with the caret at the end of the text, nothing selected, so writing goes on from it; typing on the cell still replaces the value with the typed key. **TextEdit**: with a query, the `@` menu's kind groups sit by their best match on the name — the whole name, then its start, then a word's start, then anywhere — and only then in `order`, so "@Arc" lists the customer named "Arcadia Architects" ahead of tasks that only mention it; each group keeps its results in the order the search returns them. [docs](https://design.vegastack.com/docs/components/field-cell) ·
+  [`3805287`](https://github.com/VegaStack/vegastack-design/commit/3805287)
+
 ## [0.25.83] — October 26, 2026
 
 <!-- assembled from 1 changeset: 18a0fb4d608a -->

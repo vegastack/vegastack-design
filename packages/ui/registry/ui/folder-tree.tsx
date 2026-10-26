@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.25.83 sha256-FbNKGaQJaw9GaGy8Ir8Hee8gDiO6BWZBYVGFGi9Q0rA=
+// @vegastack folder-tree@0.25.84 sha256-HJLjgiOxsHEId/9xHFBKMNHJz5GkYYe7Y3+k4J+kNbQ=
 
 "use client";
 
