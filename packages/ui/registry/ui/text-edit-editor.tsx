@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-8oQNHzKLykEinBfcA1yuggwke6J5rcTT2xK3ML5OldI=
+// @vegastack text-edit@0.25.88 sha256-l209ntwdFIy9rgflTmsxVqsvotprzGXRITuC8cyYh74=
 
 "use client";
 
@@ -2967,7 +2967,12 @@ function groupResults(
   sections?: readonly MentionSection[],
 ): MentionOption[] {
   const enabled = new Set(kinds.map((kind) => kind.id));
-  const offered = options.filter((option) => enabled.has(option.kind));
+  // With sections, a kind whose section is left out is not offered at all (before any cap).
+  const offered = options.filter(
+    (option) =>
+      enabled.has(option.kind) &&
+      (!sections || sections.includes(mentionSection(option.kind))),
+  );
   const own = [
     ...new Set(
       offered.flatMap((option) => (option.group ? [option.group] : [])),
@@ -2994,9 +2999,7 @@ function groupResults(
   // Fixed sections: people, agents, then the records — only the records sort by match.
   const kindOf = (group: MentionOption[]) => group[0]?.kind;
   return [
-    ...ownRows.filter((option) =>
-      sections.includes(mentionSection(option.kind)),
-    ),
+    ...ownRows,
     ...sections.flatMap((section) => {
       const inSection = groups.filter(
         (group) =>

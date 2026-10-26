@@ -7643,3 +7643,33 @@ test("slashActions with the same group sit together under one heading", async ()
     ["Other", ["Clip"]],
   ]);
 });
+
+test("mentions sections: a section left out is dropped before the five-a-group cap", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    ...[1, 2, 3, 4, 5].map((n) => ({
+      kind: "page",
+      id: `p${n}`,
+      label: `Page ${n}`,
+      group: "Recent",
+    })),
+    { kind: "user", id: "u1", label: "Asha Rao", group: "Recent" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: mentionKinds("user", "page"),
+      sections: ["people"],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(
+      [
+        ...(mentionMenu()?.querySelectorAll(
+          '[data-slot="suggestion-menu-label"]',
+        ) ?? []),
+      ].map((each) => each.textContent),
+    ).toEqual(["Asha Rao"]),
+  );
+});
