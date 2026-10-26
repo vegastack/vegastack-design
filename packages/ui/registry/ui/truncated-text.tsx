@@ -1,10 +1,9 @@
-// @vegastack truncated-text@0.25.83 sha256-KIaARixk1xaDbKZ4WjI1KKXFTqQ5EEsaTIyvn29pqAw=
+// @vegastack truncated-text@0.25.83 sha256-0tJt0tI3jhQsMVoyNeX9fbelPhg9WcVXboyuPkB5+qc=
 
 "use client";
 
 import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
-import { useMediaQuery } from "@/components/ui/use-media-query";
 import {
   measureOverflow,
   useOverflow,
@@ -98,7 +97,46 @@ export function useTruncationFocusable(focusable?: boolean): boolean {
  * pre-hydration render on the original Tooltip-only behaviour.
  */
 function usePrefersNoHover(): boolean {
-  return useMediaQuery("(hover: none)");
+  return React.useSyncExternalStore(
+    subscribeNoHover,
+    readNoHover,
+    serverNoHover,
+  );
+}
+
+/*
+ * `(hover: none)` for every truncating element at once: one list, one `change` listener and one
+ * set of readers, however many cells mount — and a read is the list's live `matches`, not a fresh
+ * `matchMedia` call (React reads at render and again at commit). A replaced `matchMedia` (a test's
+ * mock, restored after) gets a fresh list on the next read.
+ */
+let noHoverList: MediaQueryList | null = null;
+let noHoverSource: typeof window.matchMedia | null = null;
+const noHoverReaders = new Set<() => void>();
+const notifyNoHover = () => noHoverReaders.forEach((reader) => reader());
+function currentNoHoverList(): MediaQueryList | null {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return null;
+  if (!noHoverList || noHoverSource !== window.matchMedia) {
+    noHoverList?.removeEventListener?.("change", notifyNoHover);
+    noHoverSource = window.matchMedia;
+    noHoverList = window.matchMedia("(hover: none)");
+    noHoverList.addEventListener?.("change", notifyNoHover);
+  }
+  return noHoverList;
+}
+function subscribeNoHover(reader: () => void): () => void {
+  currentNoHoverList();
+  noHoverReaders.add(reader);
+  return () => {
+    noHoverReaders.delete(reader);
+  };
+}
+function readNoHover(): boolean {
+  return currentNoHoverList()?.matches ?? false;
+}
+function serverNoHover(): boolean {
+  return false;
 }
 
 /**
@@ -113,6 +151,7 @@ function usePrefersNoHover(): boolean {
  */
 function useTruncation(
   node: HTMLElement | null,
+  contactNode: React.RefObject<HTMLElement | null>,
   {
     axis,
     paused,
@@ -140,19 +179,21 @@ function useTruncation(
   const [probed, setProbed] = React.useState(false);
   // New content under a resting pointer is looked at again (an untouched cell is not).
   React.useEffect(() => {
-    if (!onContact || !node || paused) return;
-    if (!(node.parentElement ?? node).matches(":hover")) return;
-    const next = measureOverflow(node, axis);
+    const target = contactNode.current;
+    if (!onContact || !target || paused) return;
+    if (!(target.parentElement ?? target).matches(":hover")) return;
+    const next = measureOverflow(target, axis);
     setProbed((previous) => (previous === next ? previous : next));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, node]);
+  }, [content, onContact]);
   if (!onContact) return { truncated: observed, onPointerEnter: undefined };
   return {
     truncated: probed,
     onPointerEnter: (event) => {
+      const target = contactNode.current;
       // A touch "enter" is a tap; on a no-hover device the eager path is in charge anyway.
-      if (event.pointerType === "touch" || paused || !node) return;
-      const next = measureOverflow(node, axis);
+      if (event.pointerType === "touch" || paused || !target) return;
+      const next = measureOverflow(target, axis);
       if (next !== probed) setProbed(next);
     },
   };
@@ -303,11 +344,22 @@ export function TruncatedText({
   const [expanded, setExpanded] = React.useState(false);
   const noHover = usePrefersNoHover();
   const isFocusable = useTruncationFocusable(focusable);
+  const onContact = !isFocusable && !noHover && props.tabIndex === undefined;
+  // Measured on contact, the element is only needed when the pointer arrives: a ref, so a
+  // grid's newly mounted cell doesn't render itself a second time to store it.
+  const contactNode = React.useRef<HTMLElement | null>(null);
+  const setContactNode = React.useCallback((element: HTMLElement | null) => {
+    contactNode.current = element;
+  }, []);
+  const measureRef = onContact ? setContactNode : setNode;
 
   // Compose the internal measurement callback ref with the consumer's `ref` so BOTH
   // observe the same rendered element: `setNode` drives the overflow ResizeObserver while
-  // the forwarded ref reaches the consumer. Re-created only when the consumer ref changes.
-  const setMergedRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
+  // the forwarded ref reaches the consumer. Re-created only when either changes.
+  const setMergedRef = React.useMemo(
+    () => mergeRefs(measureRef, ref),
+    [measureRef, ref],
+  );
 
   // Detect whether the text is *actually* clipped (shared measurement — see `useOverflow`):
   // single-line compares scroll/client width, multi-line compares height. Re-measured on
@@ -316,11 +368,11 @@ export function TruncatedText({
   // and immediately re-collapse the disclosure it just opened.
   // A host-owned, hover-capable cell measures on contact instead (see `useTruncation`); a
   // consumer-given `tabIndex` makes it a tab stop, which needs the live answer.
-  const truncation = useTruncation(node, {
+  const truncation = useTruncation(node, contactNode, {
     axis: lines > 1 ? "block" : "inline",
     paused: expanded,
     content: children,
-    onContact: !isFocusable && !noHover && props.tabIndex === undefined,
+    onContact,
   });
   const isTruncated = truncation.truncated;
   const touchToggleActive = isTruncated && noHover;
@@ -446,14 +498,20 @@ export function IconText({
   const [expanded, setExpanded] = React.useState(false);
   const noHover = usePrefersNoHover();
   const isFocusable = useTruncationFocusable(focusable);
+  const onContact = !isFocusable && !noHover && props.tabIndex === undefined;
+  // As in TruncatedText: on contact the label is a ref, so mounting renders once.
+  const contactNode = React.useRef<HTMLElement | null>(null);
+  const setContactNode = React.useCallback((element: HTMLElement | null) => {
+    contactNode.current = element;
+  }, []);
   // Paused while expanded — see `useOverflow`'s doc for why (removing the clamp would
   // otherwise flip `isTruncated` false and immediately re-collapse the disclosure). Measured on
   // contact when nothing at rest depends on it — see `useTruncation`.
-  const truncation = useTruncation(node, {
+  const truncation = useTruncation(node, contactNode, {
     axis: "inline",
     paused: expanded,
     content: text,
-    onContact: !isFocusable && !noHover && props.tabIndex === undefined,
+    onContact,
   });
   const isTruncated = truncation.truncated;
   const touchToggleActive = isTruncated && noHover;
@@ -500,7 +558,7 @@ export function IconText({
         {icon}
       </span>
       <span
-        ref={setNode as React.Ref<never>}
+        ref={(onContact ? setContactNode : setNode) as React.Ref<never>}
         data-slot="icon-text-label"
         className={cn(
           "min-w-0",
