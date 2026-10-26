@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.25.81 sha256-bELfOwqi1oPcxjpb5mGBxDu5yZ7HIxQOTjV2DzWN13s=
+// @vegastack truncated-text@0.25.81 sha256-6/5fw3tvoHc3kuSUBftdUPiT3Cxvi5airUW4c8hnwnE=
 
 "use client";
 
@@ -111,40 +111,26 @@ function usePrefersNoHover(): boolean {
  * layout read, no Tooltip. Otherwise (a tab stop must exist only when clipped, or a touch
  * disclosure must be in place before the tap) it is observed live with `useOverflow`.
  */
-function useTruncation({
-  axis,
-  paused,
-  content,
-  onContact,
-}: {
-  axis: OverflowAxis;
-  paused: boolean;
-  content: unknown;
-  /** Measure on contact instead of observing. */
-  onContact: boolean;
-}): {
+function useTruncation(
+  node: HTMLElement | null,
+  {
+    axis,
+    paused,
+    content,
+    onContact,
+  }: {
+    axis: OverflowAxis;
+    paused: boolean;
+    content: unknown;
+    /** Measure on contact instead of observing. */
+    onContact: boolean;
+  },
+): {
   truncated: boolean;
   onPointerEnter:
     ((event: React.PointerEvent<HTMLElement>) => void) | undefined;
-  /** The callback ref for the measured element. */
-  ref: (node: HTMLElement | null) => void;
 } {
-  // The element: a ref for contact, and STATE only while it is observed (the observer must
-  // re-attach when the element remounts — when overflow flips it into <TooltipTrigger render=>,
-  // React mounts a fresh node). On contact nothing re-renders for it, so a grid's newly mounted
-  // cell renders once, not twice.
-  const nodeRef = React.useRef<HTMLElement | null>(null);
-  const [observedNode, setObservedNode] = React.useState<HTMLElement | null>(
-    null,
-  );
-  const ref = React.useCallback(
-    (node: HTMLElement | null) => {
-      nodeRef.current = node;
-      if (!onContact) setObservedNode(node);
-    },
-    [onContact],
-  );
-  const observed = useOverflow(onContact ? null : observedNode, {
+  const observed = useOverflow(node, {
     axis,
     paused: paused || onContact,
     deps: [content],
@@ -154,25 +140,21 @@ function useTruncation({
   const [probed, setProbed] = React.useState(false);
   // New content under a resting pointer is looked at again (an untouched cell is not).
   React.useEffect(() => {
-    const node = nodeRef.current;
     if (!onContact || !node || paused) return;
     if (!(node.parentElement ?? node).matches(":hover")) return;
     const next = measureOverflow(node, axis);
     setProbed((previous) => (previous === next ? previous : next));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
-  if (!onContact)
-    return { truncated: observed, onPointerEnter: undefined, ref };
+  }, [content, node]);
+  if (!onContact) return { truncated: observed, onPointerEnter: undefined };
   return {
     truncated: probed,
     onPointerEnter: (event) => {
-      const node = nodeRef.current;
       // A touch "enter" is a tap; on a no-hover device the eager path is in charge anyway.
       if (event.pointerType === "touch" || paused || !node) return;
       const next = measureOverflow(node, axis);
       if (next !== probed) setProbed(next);
     },
-    ref,
   };
 }
 
@@ -314,9 +296,18 @@ export function TruncatedText({
   ref,
   ...props
 }: TruncatedTextProps) {
+  // Track the measured node as STATE (not a ref) so the effect re-runs when the element
+  // remounts — e.g. when overflow flips it from a bare element into <TooltipTrigger render=>,
+  // React mounts a fresh node; a deps-gated ref effect would keep observing the detached one.
+  const [node, setNode] = React.useState<HTMLElement | null>(null);
   const [expanded, setExpanded] = React.useState(false);
   const noHover = usePrefersNoHover();
   const isFocusable = useTruncationFocusable(focusable);
+
+  // Compose the internal measurement callback ref with the consumer's `ref` so BOTH
+  // observe the same rendered element: `setNode` drives the overflow ResizeObserver while
+  // the forwarded ref reaches the consumer. Re-created only when the consumer ref changes.
+  const setMergedRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
 
   // Detect whether the text is *actually* clipped (shared measurement — see `useOverflow`):
   // single-line compares scroll/client width, multi-line compares height. Re-measured on
@@ -325,18 +316,12 @@ export function TruncatedText({
   // and immediately re-collapse the disclosure it just opened.
   // A host-owned, hover-capable cell measures on contact instead (see `useTruncation`); a
   // consumer-given `tabIndex` makes it a tab stop, which needs the live answer.
-  const truncation = useTruncation({
+  const truncation = useTruncation(node, {
     axis: lines > 1 ? "block" : "inline",
     paused: expanded,
     content: children,
     onContact: !isFocusable && !noHover && props.tabIndex === undefined,
   });
-  // Compose the measurement callback ref with the consumer's `ref` so BOTH reach the same
-  // rendered element. Re-created only when either changes.
-  const setMergedRef = React.useMemo(
-    () => mergeRefs(truncation.ref, ref),
-    [truncation.ref, ref],
-  );
   const isTruncated = truncation.truncated;
   const touchToggleActive = isTruncated && noHover;
   const touchToggleProps = getTouchToggleProps(
@@ -457,13 +442,14 @@ export function IconText({
   ref,
   ...props
 }: IconTextProps) {
+  const [node, setNode] = React.useState<HTMLElement | null>(null);
   const [expanded, setExpanded] = React.useState(false);
   const noHover = usePrefersNoHover();
   const isFocusable = useTruncationFocusable(focusable);
   // Paused while expanded — see `useOverflow`'s doc for why (removing the clamp would
   // otherwise flip `isTruncated` false and immediately re-collapse the disclosure). Measured on
   // contact when nothing at rest depends on it — see `useTruncation`.
-  const truncation = useTruncation({
+  const truncation = useTruncation(node, {
     axis: "inline",
     paused: expanded,
     content: text,
@@ -514,7 +500,7 @@ export function IconText({
         {icon}
       </span>
       <span
-        ref={truncation.ref as React.Ref<never>}
+        ref={setNode as React.Ref<never>}
         data-slot="icon-text-label"
         className={cn(
           "min-w-0",
