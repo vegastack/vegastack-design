@@ -141,6 +141,7 @@ test("renders a menu-button trigger, closed (Usage)", async () => {
 test("opening portals a role=menu popup carrying every part (Usage, Composition)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
 
   const popup = slot("content");
   expect(popup).not.toBeNull();
@@ -173,6 +174,7 @@ test("Escape closes the popup and returns focus to the trigger (Usage)", async (
 test("a disabled item stays in the menu and reports itself disabled (Basic)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const disabled = slots("item").find((item) => item.textContent === "API");
   expect(disabled).toBeDefined();
   expect(disabled!.hasAttribute("data-disabled")).toBe(true);
@@ -182,6 +184,7 @@ test("a disabled item stays in the menu and reports itself disabled (Basic)", as
 test("ArrowRight on the sub trigger opens the submenu (Submenu)", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const subTrigger = slot("sub-trigger");
   expect(subTrigger).not.toBeNull();
   expect(subTrigger!.getAttribute("aria-haspopup")).toBe("menu");
@@ -196,6 +199,7 @@ test("ArrowRight on the sub trigger opens the submenu (Submenu)", async () => {
 test("a shortcut renders at the inline end of its row (Shortcuts)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const shortcut = slot("shortcut");
   expect(shortcut).not.toBeNull();
   expect(shortcut!.textContent).toBe("⇧⌘P");
@@ -216,6 +220,7 @@ test("a leading icon renders inside the row (Icons)", async () => {
     </DropdownMenu>,
   );
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const item = slot("item");
   expect(item!.querySelector('[data-testid="row-icon"]')).not.toBeNull();
   // The row sizes its own icons, which is why a lucide component never takes a `size` prop here.
@@ -225,6 +230,7 @@ test("a leading icon renders inside the row (Icons)", async () => {
 test("a checkbox item toggles aria-checked (Checkboxes)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const checkbox = screen.getByRole("menuitemcheckbox", { name: "Status Bar" });
   await expect.element(checkbox).toHaveAttribute("aria-checked", "false");
   await userEvent.click(checkbox);
@@ -244,6 +250,7 @@ test("a checkbox item keeps its own indicator column beside a leading icon (Chec
     </DropdownMenu>,
   );
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const row = slot("checkbox-item")!;
   expect(row.querySelector('[data-testid="leading-icon"]')).not.toBeNull();
   const indicator = slot("checkbox-item-indicator");
@@ -255,6 +262,7 @@ test("a checkbox item keeps its own indicator column beside a leading icon (Chec
 test("a radio group selects exactly one value (Radio Group)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const top = screen.getByRole("menuitemradio", { name: "Top" });
   const bottom = screen.getByRole("menuitemradio", { name: "Bottom" });
   await expect.element(bottom).toHaveAttribute("aria-checked", "true");
@@ -291,6 +299,7 @@ test("a radio item renders its leading icon and its indicator (Radio Icons)", as
     </DropdownMenu>,
   );
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const row = slot("radio-item")!;
   expect(row.querySelector('[data-testid="card-icon"]')).not.toBeNull();
   expect(row.contains(slot("radio-item-indicator"))).toBe(true);
@@ -300,6 +309,7 @@ test("a radio item renders its leading icon and its indicator (Radio Icons)", as
 test("variant=destructive is recorded on the row (Destructive)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const rows = slots("item");
   const destructive = rows.find((row) => row.textContent === "Delete")!;
   expect(destructive.getAttribute("data-variant")).toBe("destructive");
@@ -355,6 +365,7 @@ test("submenus nest to a second level (Complex)", async () => {
     </DropdownMenu>,
   );
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("More Projects")).toBeInTheDocument();
@@ -386,6 +397,7 @@ test("RTL: the popup mirrors when the document direction is rtl (RTL)", async ()
 test("INT-1: no menu row forces the default cursor", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   const rows = [
@@ -400,6 +412,7 @@ test("INT-1: no menu row forces the default cursor", async () => {
 test("FRM-4: a disabled row keeps its pointer events", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const disabled = slots("item").find((item) => item.textContent === "API")!;
   expect(disabled.hasAttribute("data-disabled")).toBe(true);
   // `[&_svg]:pointer-events-none` is upstream's icon rule and stays; what FRM-4 removed is the
@@ -416,6 +429,7 @@ test("OVL-13: the content's positioner re-applies the theme scope inside the por
     </InternalThemeScopeProvider>,
   );
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const positioner = slot("content")!.parentElement!;
   expect(positioner.className).toContain("vs-scope-under-test");
   expect(positioner.className).toContain("isolate");
@@ -444,6 +458,7 @@ test("OVL-13: the exported DropdownMenuPortal scopes a display:contents wrapper"
 test("OVL-13: with no scope in the tree the positioner keeps only its own classes", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const positioner = slot("content")!.parentElement!;
   expect(positioner.className).toContain("isolate");
   expect(positioner.className).not.toContain("vs-scope-under-test");
@@ -478,6 +493,7 @@ test("OVL-14: a container sends the popup into that element instead of <body>", 
     '[data-testid="host"]',
   ) as HTMLElement;
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   expect(
     host.querySelector('[data-slot="dropdown-menu-content"]'),
   ).not.toBeNull();
@@ -494,6 +510,7 @@ test("OVL-14: a container sends the popup into that element instead of <body>", 
 test("OVL-14: with no container the popup keeps upstream's <body> default", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const content = slot("content")!;
   expect(screen.container.contains(content)).toBe(false);
   expect(document.body.contains(content)).toBe(true);
@@ -502,6 +519,7 @@ test("OVL-14: with no container the popup keeps upstream's <body> default", asyn
 test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   for (const classes of [
@@ -516,6 +534,7 @@ test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
 test("BRD-1: the content and the sub-content draw a real border, not a ring outline", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   expectBorderNotRing(slot("content")!);
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
@@ -526,6 +545,7 @@ test("BRD-1: the content and the sub-content draw a real border, not a ring outl
 test("A11Y-13: a focused destructive row reads through the -text ink on its tint", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const destructive = slots("item").find(
     (row) => row.textContent === "Delete",
   )!;
@@ -540,12 +560,14 @@ test("no a11y violations — closed", async () => {
 test("no a11y violations — open", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expectNoA11yViolations(document.body);
 });
 
 test("no a11y violations — submenu open", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("Email")).toBeInTheDocument();
@@ -648,6 +670,7 @@ test("no a11y violations — open, with description rows", async () => {
 test("the menu is as wide as its longest item, never narrower than its trigger (OVL-19)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const popup = slot("content")!;
   expect(popup.className).toContain("w-max");
   expect(popup.className).toContain(

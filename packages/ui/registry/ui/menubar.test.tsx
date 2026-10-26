@@ -155,6 +155,7 @@ test("renders a role=menubar bar of triggers, all menus closed (Usage)", async (
 test("clicking a trigger opens its role=menu popup with every part (Usage, Composition)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
 
   const popup = slot("content");
   expect(popup).not.toBeNull();
@@ -175,6 +176,7 @@ test("clicking a trigger opens its role=menu popup with every part (Usage, Compo
 test("with one menu open, ArrowRight moves along the bar and opens the next (Usage)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expect.element(screen.getByText("Document")).toBeInTheDocument();
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("Undo")).toBeInTheDocument();
@@ -185,6 +187,7 @@ test("with one menu open, ArrowRight moves along the bar and opens the next (Usa
 test("a checkbox item toggles aria-checked (Checkbox)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const checkbox = screen.getByRole("menuitemcheckbox", { name: "Full URLs" });
   await expect.element(checkbox).toHaveAttribute("aria-checked", "false");
   await userEvent.click(checkbox);
@@ -194,6 +197,7 @@ test("a checkbox item toggles aria-checked (Checkbox)", async () => {
 test("a radio group selects exactly one value (Radio)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expect
     .element(screen.getByRole("menuitemradio", { name: "Benoit" }))
     .toHaveAttribute("aria-checked", "true");
@@ -214,6 +218,7 @@ test("a radio group selects exactly one value (Radio)", async () => {
 test("ArrowRight on the sub trigger opens the submenu (Submenu)", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const subTrigger = slot("sub-trigger");
   expect(subTrigger).not.toBeNull();
   expect(subTrigger!.getAttribute("aria-haspopup")).toBe("menu");
@@ -270,6 +275,7 @@ test("a shortcut renders at the inline end of its row (Usage)", async () => {
 test("a disabled row stays in the menu and reports itself disabled (Usage)", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const disabled = slots("item").find(
     (item) => item.textContent === "New Incognito Window",
   );
@@ -287,6 +293,7 @@ test("RTL: the bar and the popup mirror when the direction is rtl (RTL)", async 
   const bar = screen.container.querySelector('[data-slot="menubar"]')!;
   expect(getComputedStyle(bar as HTMLElement).direction).toBe("rtl");
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   // The popup portals to <body>, so it does not inherit `dir` — it is set on the popup, which is
   // exactly what upstream's own RTL example does.
   expect(getComputedStyle(slot("content")!).direction).toBe("rtl");
@@ -298,6 +305,7 @@ test("RTL: the bar and the popup mirror when the direction is rtl (RTL)", async 
 test("INT-1: no menu row forces the default cursor — including menubar's own two", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const rows = [
     ...document.querySelectorAll<HTMLElement>('[data-slot^="menubar-"][role]'),
   ];
@@ -311,6 +319,7 @@ test("INT-1: no menu row forces the default cursor — including menubar's own t
 test("FRM-4: a disabled row keeps its pointer events — including menubar's own two", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const disabledItem = slots("item").find(
     (item) => item.textContent === "New Incognito Window",
   )!;
@@ -337,6 +346,7 @@ test("OVL-13: menubar's popup carries the theme scope although its patch has NO 
     </InternalThemeScopeProvider>,
   );
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const popup = slot("content")!;
   expect(screen.container.contains(popup)).toBe(false);
   const positioner = popup.parentElement!;
@@ -351,6 +361,7 @@ test("OVL-13: a menubar submenu's popup carries the theme scope too", async () =
     </InternalThemeScopeProvider>,
   );
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("Messages")).toBeInTheDocument();
@@ -389,6 +400,7 @@ test("OVL-13: the exported MenubarPortal scopes a display:contents wrapper", asy
 test("OVL-13: with no scope in the tree the positioner keeps only its own classes", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   const positioner = slot("content")!.parentElement!;
   expect(positioner.className).toContain("isolate");
   expect(positioner.className).not.toContain("vs-scope-under-test");
@@ -404,6 +416,7 @@ test("FOC-1: the trigger does not suppress the outline base.css owns", async () 
   // measures the rendered result; this holds the class contract that lets it.
   expect(trigger.getAttribute("role")).toBe("menuitem");
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   // The two item parts KEEP `outline-hidden`: they replace the outline with `focus:bg-accent`,
   // which is the sanctioned substitute affordance. This holds that exemption to the parts it was
   // written for rather than letting it spread back to the trigger.
@@ -416,6 +429,7 @@ test("FOC-1: the trigger does not suppress the outline base.css owns", async () 
 test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   for (const classes of [
@@ -453,6 +467,7 @@ test("A11Y-13: a focused destructive row reads through the -text ink on its tint
     </Frame>,
   );
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   expectDestructiveTextInk(slots("item")[0]!);
 });
 
@@ -464,12 +479,14 @@ test("no a11y violations — closed", async () => {
 test("no a11y violations — open", async () => {
   const screen = await render(<Everything />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expectNoA11yViolations(document.body);
 });
 
 test("no a11y violations — submenu open", async () => {
   const screen = await render(<WithSubmenu />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await userEvent.keyboard("{ArrowDown}");
   await userEvent.keyboard("{ArrowRight}");
   await expect.element(screen.getByText("Messages")).toBeInTheDocument();
@@ -540,6 +557,7 @@ test("D3: arrow keys reach disabled item, checkbox and radio rows, and Enter doe
     />,
   );
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expect.element(screen.getByText("Edit")).toBeInTheDocument();
 
   // One key per settled focus: a second key sent while the first is still moving focus into the
@@ -614,6 +632,7 @@ function DescriptionRows() {
 test("API-19: item, checkbox and radio rows each take their ItemDescription as the accessible description", async () => {
   const screen = await render(<DescriptionRows />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expect
     .element(screen.getByRole("menuitem", { name: /Download CSV/ }))
     .toHaveAccessibleDescription("Every row, for a spreadsheet");
@@ -631,6 +650,7 @@ test("API-19: item, checkbox and radio rows each take their ItemDescription as t
 test("no a11y violations — open, with description rows", async () => {
   const screen = await render(<DescriptionRows />);
   await userEvent.click(screen.getByText("File"));
+  await vi.waitFor(() => expect(slot("content")).not.toBeNull());
   await expect
     .element(screen.getByRole("menuitem", { name: /Download CSV/ }))
     .toBeInTheDocument();
