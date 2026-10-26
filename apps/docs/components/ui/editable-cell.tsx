@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.82 sha256-zYgzKErIHWQDAUB3Dd8Ssev8LX5qSauGocteNFaw3Cc=
+// @vegastack editable-cell@0.25.82 sha256-TdBT5PVm7nlIbAuuptw7ca0ZJCvdsdas0Fkyf5Ht6Rc=
 
 "use client";
 
@@ -308,6 +308,13 @@ export interface EditableCellProps {
    * @default undefined
    */
   status?: AutoSaveStatus;
+  /**
+   * The status before this cell mounted, for a host that mounts it in the middle of a change (a
+   * grid's resting cell becoming the full one when its status moves): a move from it to
+   * `status` is announced as a live change would be.
+   * @default the first `status`
+   */
+  previousStatus?: AutoSaveStatus;
   /**
    * Focus policy. `standalone` (a card, a property list) gives the cell its own
    * tab stop. `managed` removes it — the host's roving focus model owns
@@ -899,6 +906,7 @@ export function EditableCell({
   onCommit,
   editor = { type: "text" },
   status: statusProp,
+  previousStatus,
   focusMode = "standalone",
   editing,
   onEditingChange,
@@ -959,7 +967,7 @@ export function EditableCell({
   }, [status]);
 
   // A CONTROLLED status must announce like the internal machine does. Live transitions only.
-  const previousStatusProp = React.useRef(statusProp);
+  const previousStatusProp = React.useRef(previousStatus ?? statusProp);
   React.useEffect(() => {
     if (statusProp !== undefined && previousStatusProp.current !== statusProp) {
       if (statusProp === "saving") setAnnouncement("Saving…");
@@ -1267,18 +1275,24 @@ export interface EditableCellRestProps {
   className?: string;
 }
 
-// The resting box of a managed, inline `custom` EditableCell: the display's box and the text's
-// truncation on ONE element (the full cell nests a display and a text span in a root span).
+// The resting display of a managed, inline `custom` EditableCell, class for class (the full cell
+// also wraps it in a root span, for its status spinner and live region).
 const REST_CLASS = cn(
-  "inline-block max-w-full min-w-0 truncate align-top",
+  "max-w-full min-w-0 items-center",
   boxClasses,
+  "inline-flex align-top",
   "cursor-text",
 );
-const REST_EMPTY_CLASS = cn(REST_CLASS, "text-muted-foreground");
+const REST_TEXT_CLASS = cn(
+  "min-w-0",
+  "truncate in-data-squeezed:wrap-anywhere in-data-squeezed:whitespace-normal",
+);
+const REST_TEXT_EMPTY_CLASS = cn(REST_TEXT_CLASS, "text-muted-foreground");
 
 /** Whether the value is clipped, published the way the full cell publishes it: as the title. */
 function probeRest(display: HTMLElement, value: string) {
-  const truncated = value.length > 0 && measureOverflow(display);
+  const text = display.firstElementChild as HTMLElement | null;
+  const truncated = value.length > 0 && text != null && measureOverflow(text);
   if (truncated) {
     display.setAttribute("title", value);
     display.setAttribute("data-truncated", "");
@@ -1290,7 +1304,7 @@ function probeRest(display: HTMLElement, value: string) {
 
 /**
  * `EditableCellRest` — a grid-managed `EditableCell` with a `custom` editor, at rest: the same
- * button, name, description and activation in one element, and nothing else. No state machine,
+ * display button and value, name, description and activation, and nothing else. No state machine,
  * no effect, no live region: a grid mounts dozens of cells per scroll tick, and only the cell
  * being edited (or still saving) needs `EditableCell` itself. A clipped value gets its title when
  * the pointer or focus reaches it, as the full cell's does.
@@ -1326,18 +1340,15 @@ export function EditableCellRest({
   );
   const probe = (event: React.SyntheticEvent<HTMLSpanElement>) =>
     probeRest(event.currentTarget, value);
-  const base = hasDisplayValue ? REST_CLASS : REST_EMPTY_CLASS;
   return (
     <span
       ref={ref}
-      id={id}
       data-slot="editable-cell-display"
       data-variant="inline"
       data-rest=""
       role="button"
       tabIndex={-1}
       aria-label={`Edit ${label ?? "value"}`}
-      // Described by its value, as the full cell's display is by its text.
       aria-describedby={hasDisplayValue ? id : undefined}
       onPointerEnter={probe}
       onFocus={probe}
@@ -1365,13 +1376,19 @@ export function EditableCellRest({
           onStartEditing();
         }
       }}
-      className={className ? cn(base, className) : base}
+      className={className ? cn(REST_CLASS, className) : REST_CLASS}
     >
-      {hasDisplayValue
-        ? renderValue
-          ? renderValue(value)
-          : value
-        : "Edit value"}
+      <span
+        id={id}
+        data-slot="editable-cell-text"
+        className={hasDisplayValue ? REST_TEXT_CLASS : REST_TEXT_EMPTY_CLASS}
+      >
+        {hasDisplayValue
+          ? renderValue
+            ? renderValue(value)
+            : value
+          : "Edit value"}
+      </span>
     </span>
   );
 }

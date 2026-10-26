@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.82 sha256-DDRLBaf9E94N9pWVqyoEJlU/S5kTBFONINcm0loeZJI=
+// @vegastack data-grid@0.25.82 sha256-aouaa0nbql0bvjDMKHKvbjzCjkcmgTUyKtv960/j1Mg=
 
 "use client";
 
@@ -889,6 +889,11 @@ interface GridApi {
   pointerOver: (rowId: string, key: string) => void;
   /** Cells mode: a press on the fill handle. */
   fillStart: (event: React.PointerEvent) => void;
+  /**
+   * A cell is about to replace its content while focus is on a widget inside it (a resting cell
+   * waking for a host status): focus returns to the widget at the same place once it commits.
+   */
+  keepWidgetFocus: (rowId: string, key: string, index: number) => void;
 }
 
 const GridApiContext = React.createContext<GridApi | null>(null);
@@ -1043,8 +1048,12 @@ function GridCellImpl<T>({
 }: GridCellProps<T>) {
   const api = useGridApi();
   const { column, key } = placed;
+  const cellNode = React.useRef<HTMLElement | null>(null);
   const ref = React.useCallback(
-    (node: HTMLElement | null) => api.register(rowId, key, node),
+    (node: HTMLElement | null) => {
+      cellNode.current = node;
+      api.register(rowId, key, node);
+    },
     [api, rowId, key],
   );
   const context = React.useMemo(() => ({ rowId, selected }), [rowId, selected]);
@@ -1072,9 +1081,27 @@ function GridCellImpl<T>({
   // grid mounts dozens per scroll tick. It becomes the full `EditableCell` when it edits or the
   // host reports a save status, and stays one while mounted, so a save in flight keeps its
   // optimistic value and its announcements.
-  const [awake, setAwake] = React.useState(false);
-  const full = awake || editing || (status != null && status !== "idle");
-  if (full && !awake) setAwake(true);
+  // Latched by the full cell's own mount (a ref, so the render that mounts it still knows it is
+  // waking: a state update here would re-render the cell before it commits).
+  const awake = React.useRef(false);
+  const full =
+    awake.current || editing || (status != null && status !== "idle");
+  const waking = full && !awake.current;
+  if (waking && !editing) {
+    // A status wakes a cell whose content may hold focus (a link chip reached with Alt+Enter):
+    // the grid puts it back on the same widget after the swap.
+    const cell = cellNode.current;
+    const focused = document.activeElement;
+    if (cell && focused instanceof HTMLElement && focused !== cell) {
+      const index = cell.contains(focused)
+        ? cellWidgets(cell).indexOf(focused)
+        : -1;
+      if (index >= 0) api.keepWidgetFocus(rowId, key, index);
+    }
+  }
+  const wake = React.useCallback((node: HTMLSpanElement | null) => {
+    if (node) awake.current = true;
+  }, []);
   const content = !editor ? (
     <Cell column={column} row={row} context={context} />
   ) : editor.type === "custom" && !full ? (
@@ -1096,6 +1123,9 @@ function GridCellImpl<T>({
       onEditingChange={(open) => api.setEditing(rowId, key, open)}
       onNavigate={(direction, via) => api.navigate(rowId, key, direction, via)}
       status={status}
+      // The cell that just woke was resting, so its status was idle: a move from it is news.
+      previousStatus={waking ? "idle" : undefined}
+      ref={wake}
       onCommit={(next) => api.commit(rowId, key, next)}
     />
   );
@@ -1535,7 +1565,9 @@ function GridHeadCellImpl<T>({
               aria-expanded={false}
               data-slot="data-grid-head-menu"
               className="shrink-0 text-muted-foreground"
-              onFocus={() => setMenuArmed(true)}
+              // No pointer arrived first (a scripted click, a switch device): open it as the
+              // menu key does; the real trigger mounts with the menu.
+              onClick={() => actions.setMenuOpen(key, true)}
             >
               <ChevronDown />
             </Button>
@@ -3110,10 +3142,21 @@ export function DataGrid<T>({
     // After the parent's own commit, so the latest positions are in place.
     requestAnimationFrame(() => latest.current.restoreFocus(lost));
   }, []);
+  const widgetFocus = React.useRef<{
+    rowId: string;
+    key: string;
+    index: number;
+  } | null>(null);
   const onBodyCommit = React.useCallback(
     (itemsChanged: boolean) => {
       if (itemsChanged) scheduleRestore();
       else lostFocus.current = null;
+      const kept = widgetFocus.current;
+      widgetFocus.current = null;
+      if (kept) {
+        const cell = nodes.current.get(nodeKey(kept.rowId, kept.key));
+        if (cell) (cellWidgets(cell)[kept.index] ?? cell).focus();
+      }
     },
     [scheduleRestore],
   );
@@ -3237,6 +3280,9 @@ export function DataGrid<T>({
       },
       fillStart(event) {
         latest.current.fillStart(event);
+      },
+      keepWidgetFocus(rowId, key, index) {
+        widgetFocus.current = { rowId, key, index };
       },
       toggleGroup(groupId, expanded) {
         latest.current.commitGroups({

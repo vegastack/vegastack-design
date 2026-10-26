@@ -12445,7 +12445,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["editable-cell-display"]
+              "values": ["editable-cell-display", "editable-cell-text"]
             },
             {
               "name": "data-variant",
