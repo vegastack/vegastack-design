@@ -1,4 +1,4 @@
-// @vegastack terminal@0.25.84 sha256-0lwVhR9uYAP83lov0iUnKRE0QAhdNTlaYT51iwEbz00=
+// @vegastack terminal@0.25.85 sha256-GOAuJ9d8+sfuAoB9oJuOoFIJ3f2AUt7YXx09gzs1qCU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
