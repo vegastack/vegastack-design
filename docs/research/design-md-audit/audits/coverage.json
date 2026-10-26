@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "11c49f73f421f41d1be41b2c4fc8f133ad7a6e68d9b8e10a75849380e990ed88",
+  "contractSha256": "60c9ec2dd7b1eae048a8f6d95f5abfd96d5d49ba73f0e8885e3b080f9865273d",
   "inventory": {
-    "expected": 758,
-    "actual": 758,
-    "unique": 758
+    "expected": 761,
+    "actual": 761,
+    "unique": 761
   },
   "classes": {
-    "components": 171,
+    "components": 173,
     "animatedIcons": 467,
-    "hooks": 16,
+    "hooks": 17,
     "blocks": 15,
     "chartBlocks": 68,
     "libs": 21
@@ -117,8 +117,8 @@
       ]
     },
     "Overlays": {
-      "expected": 21,
-      "actual": 21,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "access-chip",
         "action-bar",
@@ -135,6 +135,7 @@
         "permission-menu",
         "popover",
         "provider",
+        "record-peek",
         "responsive-dialog",
         "share-dialog",
         "sheet",
@@ -144,8 +145,8 @@
       ]
     },
     "Data display": {
-      "expected": 37,
-      "actual": 37,
+      "expected": 38,
+      "actual": 38,
       "members": [
         "activity-feed",
         "board-card",
@@ -175,6 +176,7 @@
         "qr-code",
         "reactions",
         "record-aside",
+        "record-header",
         "record-list",
         "stat",
         "table",
@@ -236,8 +238,8 @@
       ]
     },
     "Hooks": {
-      "expected": 15,
-      "actual": 16,
+      "expected": 16,
+      "actual": 17,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -253,6 +255,7 @@
         "use-optimistic-action",
         "use-overflow",
         "use-platform",
+        "use-record-peek-row",
         "use-tabs-swipe",
         "use-view-transition"
       ]
@@ -820,7 +823,7 @@
       ]
     }
   },
-  "componentRoutes": 165,
+  "componentRoutes": 167,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

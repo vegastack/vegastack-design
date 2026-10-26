@@ -1,0 +1,120 @@
+---
+title: Record Peek
+description: A record opened beside its list — non-modal and resizable, walking the list with ↑/↓ and J/K, ⌘↵ for the full page, full-screen on a phone.
+audience: public
+registry: record-peek
+status: preview
+since: 0.25.88
+a11y: named panel, keyboard walk, focus returns to the row
+preview: recordPeek
+---
+
+## Install
+
+<InstallSteps name="record-peek" />
+
+## Usage
+
+```tsx
+import { RecordPeek, RecordPeekBody } from "@/components/ui/record-peek";
+import { RecordHeader } from "@/components/ui/record-header";
+
+<RecordPeek
+  open={peekId != null}
+  onOpenChange={(open) => !open && closePeek()}
+  label="Task"
+  position={{ index, total: order.length }}
+  onPrevious={index > 0 ? () => openPeek(order[index - 1]) : undefined}
+  onNext={
+    index < order.length - 1 ? () => openPeek(order[index + 1]) : undefined
+  }
+  fullLink={<Link href={`/tasks/${peekId}`} />}
+  actions={<TaskActionsMenu id={peekId} />}
+  storageKey="peek-width"
+  returnFocus={() => document.querySelector(`[data-row-id="${peekId}"]`)}
+>
+  <RecordPeekBody>
+    <RecordHeader level={2} keyBadge={task.ref} title={task.title} />
+    <TaskSections task={task} />
+  </RecordPeekBody>
+</RecordPeek>;
+```
+
+## Scope
+
+The one way a record opens from a list: tasks, table rows, meetings, customers — any record the
+app registers. The peek knows no record kinds; the app passes the noun (`label`), where the record
+sits in its list (`position`), how to walk it (`onPrevious`, `onNext`), its full page (`fullLink`,
+`fullHref` or `onOpenFull`), its actions and its body. Documents and files keep opening as a full
+page or the file viewer.
+
+## Anatomy
+
+<Anatomy name="record-peek" />
+
+## Examples
+
+### A list and its peek
+
+Click a row to open it. While the peek is open, ↑/↓ and J/K walk the list (never while typing, while
+a menu, popover or another dialog is open, and ↑/↓ never from a control that uses them — a grid, a
+tab list, a select), "n of N" follows, the buttons are disabled at the ends, ⌘↵ /
+Ctrl+↵ opens the full page and Esc closes the peek and puts focus back on the row it came from.
+The list stays usable: a click on another row switches the record. The open row carries
+`data-peek-active` — `DataList`, `DataGrid` and `Board` set it from `activeRowId`; any other list
+uses `useRecordPeekRow`, which also scrolls the row into view as the peek walks.
+
+<ComponentPreview name="recordPeek" file="components/preview/record-peek.tsx" />
+
+### Width and phones
+
+The separator on the start edge resizes the panel from 480px up to 90% of the window (`minWidth`,
+`maxShare`), by pointer or with ← → (32px), Home and End; `storageKey` remembers the width in this
+browser. Below the `tablet` tier (40rem) the peek is the whole screen, edge to edge, padded by the
+safe areas, and the separator goes.
+
+```tsx
+<RecordPeek storageKey="regent:peek-width" minWidth={480} maxShare={0.9} … />
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-peek.tsx"
+  name="RecordPeekProps"
+/>
+
+### RecordPeekBody
+
+`RecordPeekBody` takes a `div`'s props: the scrolling body below the header, padded like a record
+page's main column.
+
+### useRecordPeekRow
+
+<ApiTable
+  path="../../packages/ui/registry/ui/use-record-peek-row.ts"
+  name="RecordPeekRowProps"
+/>
+
+## Accessibility
+
+| Key                    | Does                                                      |
+| ---------------------- | --------------------------------------------------------- |
+| ↓ / J                  | Next record (while open; not in a field, menu or popover) |
+| ↑ / K                  | Previous record                                           |
+| ⌘↵ / Ctrl+↵            | Open the full page                                        |
+| Esc                    | Close; focus returns to the row (`returnFocus`)           |
+| ← / → on the separator | Wider / narrower by 32px; Home and End go to the bounds   |
+
+- The panel is a non-modal dialog named by `label`; the page behind it stays in the tab order.
+- The buttons carry `aria-keyshortcuts`, and the open-full tooltip shows the platform's chord.
+- The separator is a focusable `role="separator"` with its value, minimum and maximum.
+
+<StatesTested name="record-peek" />
+
+## Do / Don't
+
+<DoDont
+  do="Open every record from a list in RecordPeek, with the list's own order for ↑/↓ and the row marked with data-peek-active."
+  dont="Build a second side panel or a modal sheet for one record kind, or scrape the list order from the DOM."
+/>

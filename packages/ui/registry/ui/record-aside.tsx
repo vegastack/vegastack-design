@@ -1,11 +1,17 @@
-// @vegastack record-aside@0.25.87 sha256-nsNbU/NMjZx8gmAzRwP9OZaPmzX3S0geIm5EFuofF20=
+// @vegastack record-aside@0.25.87 sha256-wJxgl55T/jPBmXQFjOx/3FVLGpyBslTOXTGZ1o4uHkw=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Item, ItemContent, ItemGroup } from "@/components/ui/item";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { PersonBadge } from "@/components/ui/searchable-select";
@@ -67,14 +73,49 @@ export interface RecordAsideSectionProps extends Omit<
   count?: number;
   /** The header's trailing control: a `RecordAsideAction`, or a small `Button`. @default undefined */
   action?: React.ReactNode;
+  /**
+   * The title folds the section open and shut (a chevron after the count). A collapsible section
+   * whose `count` is 0 shows its header alone — nothing to open — and keeps its `action`.
+   * @default false
+   */
+  collapsible?: boolean;
+  /** Open state of a collapsible section (controlled). @default undefined */
+  open?: boolean;
+  /** Open state of an uncontrolled collapsible section at first render. @default true */
+  defaultOpen?: boolean;
+  /** Called when a collapsible section opens or closes. @default undefined */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * A line under the header that shows open or shut — a drop target, a load error.
+   * @default undefined
+   */
+  notice?: React.ReactNode;
+  /**
+   * The title's heading level: `h2` in a page's rail, `h3` inside a peek under its `h2` title.
+   * @default "h2"
+   */
+  headingLevel?: "h2" | "h3";
 }
 
 /**
- * `RecordAsideSection` — a titled block inside a `RecordAsideCard`.
+ * `RecordAsideSection` — a titled block inside a `RecordAsideCard` or a peek body: its title with a
+ * muted `count` and an `action` at the end. `collapsible` turns the title into a disclosure that
+ * folds the section; a collapsible section with nothing in it (`count` 0) is the header alone.
  *
  * @example
  * <RecordAsideSection title="Action items" count={3} action={<Button size="xs">Create 3 tasks</Button>}>
  *   <ActionList>…</ActionList>
+ * </RecordAsideSection>
+ *
+ * @example
+ * <RecordAsideSection
+ *   collapsible
+ *   headingLevel="h3"
+ *   title="Attachments"
+ *   count={files.length}
+ *   action={<RecordAsideAction label="Add attachment" icon={<Plus />} onClick={add} />}
+ * >
+ *   <FileList files={files} />
  * </RecordAsideSection>
  */
 export function RecordAsideSection({
@@ -82,32 +123,99 @@ export function RecordAsideSection({
   title,
   count,
   action,
+  collapsible = false,
+  open,
+  defaultOpen = true,
+  onOpenChange,
+  notice,
+  headingLevel = "h2",
   children,
   ...props
 }: RecordAsideSectionProps) {
   const id = React.useId();
+  const Heading = headingLevel;
+  const counted =
+    count !== undefined ? (
+      <>
+        {/* A real space, so the accessible name reads "Tasks 3", not "Tasks3". */}{" "}
+        <span className="ms-1 text-muted-foreground tabular-nums">{count}</span>
+      </>
+    ) : null;
+  const header = (titleNode: React.ReactNode) => (
+    <div
+      data-slot="record-aside-section-header"
+      className="flex min-h-6 min-w-0 items-center justify-between gap-2"
+    >
+      {titleNode}
+      {action}
+    </div>
+  );
+
+  if (collapsible && count !== 0) {
+    return (
+      <Collapsible
+        open={open}
+        defaultOpen={open === undefined ? defaultOpen : undefined}
+        onOpenChange={onOpenChange}
+        render={
+          <section
+            data-slot="record-aside-section"
+            data-collapsible=""
+            aria-labelledby={id}
+            className={cn("flex min-w-0 flex-col gap-2", className)}
+            {...props}
+          />
+        }
+      >
+        {header(
+          <Heading className="min-w-0 text-sm font-medium">
+            <CollapsibleTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className="group/fold -mx-2 h-6 min-w-0 gap-0 px-2 text-sm font-medium"
+                />
+              }
+            >
+              <span id={id} className="truncate">
+                {title}
+              </span>
+              {counted}
+              <ChevronRight
+                aria-hidden
+                className="ms-1 text-muted-foreground transition-transform group-data-panel-open/fold:rotate-90 rtl:rotate-180 rtl:group-data-panel-open/fold:rotate-90"
+              />
+            </CollapsibleTrigger>
+          </Heading>,
+        )}
+        {notice}
+        <CollapsibleContent
+          data-slot="record-aside-section-content"
+          className="flex min-w-0 flex-col gap-2"
+        >
+          {children}
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  }
+
   return (
     <section
       data-slot="record-aside-section"
+      data-collapsible={collapsible ? "" : undefined}
       aria-labelledby={id}
       className={cn("flex min-w-0 flex-col gap-2", className)}
       {...props}
     >
-      <div
-        data-slot="record-aside-section-header"
-        className="flex min-h-6 min-w-0 items-center justify-between gap-2"
-      >
-        <h2 id={id} className="min-w-0 text-sm font-medium">
+      {header(
+        <Heading id={id} className="min-w-0 text-sm font-medium">
           {title}
-          {count !== undefined ? (
-            <span className="ms-1.5 text-muted-foreground tabular-nums">
-              {count}
-            </span>
-          ) : null}
-        </h2>
-        {action}
-      </div>
-      {children}
+          {counted}
+        </Heading>,
+      )}
+      {notice}
+      {collapsible ? null : children}
     </section>
   );
 }

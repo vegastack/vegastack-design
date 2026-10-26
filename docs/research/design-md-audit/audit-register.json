@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "11c49f73f421f41d1be41b2c4fc8f133ad7a6e68d9b8e10a75849380e990ed88",
+  "contractSha256": "60c9ec2dd7b1eae048a8f6d95f5abfd96d5d49ba73f0e8885e3b080f9865273d",
   "expectedCounts": {
-    "totalRegistryItems": 758,
-    "components": 171,
+    "totalRegistryItems": 761,
+    "components": 173,
     "animatedIcons": 467,
-    "hooks": 16,
+    "hooks": 17,
     "blocks": 15,
     "libs": 21,
     "chartBlocks": 68
@@ -1904,6 +1904,28 @@
         "packages/ui/registry/ui/agent-edit-banner.tsx"
       ],
       "docsSlug": "/docs/components/agent-edit-banner",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-peek",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-peek.tsx"
+      ],
+      "docsSlug": "/docs/components/record-peek",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-header",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-header.tsx"
+      ],
+      "docsSlug": "/docs/components/record-header",
       "contractStatus": "reconciled"
     },
     {
@@ -7215,6 +7237,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-optimistic-action.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-record-peek-row",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-record-peek-row.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

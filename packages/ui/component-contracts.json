@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 758,
-    "components": 171,
+    "totalRegistryItems": 761,
+    "components": 173,
     "animatedIcons": 467,
-    "hooks": 16,
+    "hooks": 17,
     "blocks": 15,
     "libs": 21,
     "chartBlocks": 68
@@ -24,12 +24,12 @@
     "Core controls": 24,
     "Forms/editing": 35,
     "Navigation/layout": 23,
-    "Overlays": 21,
-    "Data display": 37,
+    "Overlays": 22,
+    "Data display": 38,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 10,
-    "Hooks": 15,
+    "Hooks": 16,
     "Block": 1,
     "Animated icons": 467
   },
@@ -143,7 +143,8 @@
       "toast",
       "tooltip",
       "icon-picker",
-      "info-hint"
+      "info-hint",
+      "record-peek"
     ],
     "Data display": [
       "activity-feed",
@@ -182,7 +183,8 @@
       "level-meter",
       "mermaid-block",
       "qr-code",
-      "member-list"
+      "member-list",
+      "record-header"
     ],
     "Content/marketing": [
       "alert",
@@ -236,7 +238,8 @@
       "use-platform",
       "use-tabs-swipe",
       "use-view-transition",
-      "use-optimistic-action"
+      "use-optimistic-action",
+      "use-record-peek-row"
     ],
     "Block": ["board-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
@@ -35294,6 +35297,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/collapsible",
         "@vegastack/item",
         "@vegastack/person-avatar",
         "@vegastack/searchable-select",
@@ -35328,8 +35332,16 @@
         "RecordAsideSection": {
           "attributes": [
             {
+              "name": "data-collapsible",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
-              "values": ["record-aside-section", "record-aside-section-header"]
+              "values": [
+                "record-aside-section",
+                "record-aside-section-content",
+                "record-aside-section-header"
+              ]
             }
           ],
           "cssVariables": []
@@ -38297,6 +38309,308 @@
             {
               "name": "data-status",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-peek",
+      "registryType": "registry:ui",
+      "title": "Record Peek",
+      "summary": "A record opened beside its list — a non-modal, resizable side panel whose header walks the list (↑/↓, J/K, n of N), opens the full page (⌘↵) and closes with focus back on the row; full-screen below the tablet tier.",
+      "status": "preview",
+      "since": "0.25.88",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/record-peek.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordPeek",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-peek.tsx."
+          }
+        },
+        {
+          "name": "RecordPeekBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-peek.tsx."
+          }
+        },
+        {
+          "name": "RecordPeekBodyProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPeekPosition",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPeekProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["closed", "open", "first", "last", "resizing", "phone"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": [],
+        "rationale": "Full-screen below the tablet tier (40rem); resizable between minWidth and maxShare of the window above it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-peek",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/drawer",
+        "@vegastack/kbd",
+        "@vegastack/tooltip",
+        "@vegastack/use-platform"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-peek.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-peek",
+      "dataAttributes": {
+        "RecordPeek": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "record-peek",
+                "record-peek-actions",
+                "record-peek-close",
+                "record-peek-header",
+                "record-peek-next",
+                "record-peek-position",
+                "record-peek-previous",
+                "record-peek-resize"
+              ]
+            }
+          ],
+          "cssVariables": ["--record-peek-max", "--record-peek-width"]
+        },
+        "RecordPeekBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-peek-body"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-header",
+      "registryType": "registry:ui",
+      "title": "Record Header",
+      "summary": "The head of any record on its page or in a peek — where it lives, its key, icon and title renamed in place, status, meta line, chips, presence and actions.",
+      "status": "preview",
+      "since": "0.25.88",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/record-header.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-header.tsx."
+          }
+        },
+        {
+          "name": "RecordHeaderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordHeaderSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-header.tsx."
+          }
+        },
+        {
+          "name": "RecordHeaderSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "renamable", "loading"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-header",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/editable-cell",
+        "@vegastack/skeleton",
+        "@vegastack/truncated-text"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.35"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-header.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-header",
+      "dataAttributes": {
+        "RecordHeader": {
+          "attributes": [
+            {
+              "name": "data-level",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "record-header",
+                "record-header-actions",
+                "record-header-chips",
+                "record-header-eyebrow",
+                "record-header-icon",
+                "record-header-key",
+                "record-header-location",
+                "record-header-meta",
+                "record-header-status",
+                "record-header-title",
+                "record-header-title-row"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordHeaderSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-header-skeleton"]
             }
           ],
           "cssVariables": []
@@ -42767,6 +43081,88 @@
         "preview": "exempt",
         "vrt": "exempt",
         "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-record-peek-row",
+      "registryType": "registry:hook",
+      "title": "useRecordPeekRow",
+      "summary": "The open-row contract between a list and RecordPeek — data-peek-active on the open row, scrolled into view as the peek walks.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-record-peek-row.ts"],
+      "publicSymbols": [
+        {
+          "name": "RecordPeekRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-record-peek-row.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useRecordPeekRow",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-record-peek-row.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "disabled"],
+          "evidence": "Observed in hook implementation and inline contract: disabled and shouldHandle both suppress key handling; the active index re-clamps on collection shrink."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["roving-tabindex"],
+          "evidence": "The hook's entire purpose: one tabIndex=0 item per collection, arrow-key focus movement with preventDefault, RTL-aware horizontal arrows."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-record-peek-row.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
       }
     }
   ],

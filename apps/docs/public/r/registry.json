@@ -2403,6 +2403,40 @@
       }
     },
     {
+      "name": "record-peek",
+      "type": "registry:ui",
+      "title": "Record Peek",
+      "description": "A record opened beside its list — a non-modal, resizable side panel whose header walks the list (↑/↓, J/K, n of N), opens the full page (⌘↵) and closes with focus back on the row; full-screen below the tablet tier.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/drawer",
+        "@vegastack/kbd",
+        "@vegastack/tooltip",
+        "@vegastack/use-platform"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-peek.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-peek.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Opening any record from a list — a task, a table row, a meeting, a customer — beside the list, with keyboard walking and a way to the full page.",
+        "whenNotToUse": "A document or file that opens as its own page or viewer, or a form that needs the page to wait (Dialog, Sheet).",
+        "version": "0.25.87",
+        "integrity": "sha256-qiFuQjqKc50+mVLCkMMZvCmHfZ9YZJTq5xG4Ss8WyRs="
+      }
+    },
+    {
       "name": "dropdown-menu",
       "type": "registry:ui",
       "title": "Dropdown Menu",
@@ -17527,6 +17561,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/collapsible",
         "@vegastack/item",
         "@vegastack/person-avatar",
         "@vegastack/searchable-select",
@@ -17544,7 +17579,39 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.25.87",
-        "integrity": "sha256-nsNbU/NMjZx8gmAzRwP9OZaPmzX3S0geIm5EFuofF20="
+        "integrity": "sha256-wJxgl55T/jPBmXQFjOx/3FVLGpyBslTOXTGZ1o4uHkw="
+      }
+    },
+    {
+      "name": "record-header",
+      "type": "registry:ui",
+      "title": "Record Header",
+      "description": "The head of any record on its page or in a peek — where it lives, its key, icon and title renamed in place, status, meta line, chips, presence and actions.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/editable-cell",
+        "@vegastack/skeleton",
+        "@vegastack/truncated-text"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-header.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-header.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
+        "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
+        "version": "0.25.87",
+        "integrity": "sha256-gg+yi3HKbPCclfiPj6BKgN7Yq1EI/Eani6Iqc6OtkOw="
       }
     },
     {
@@ -19017,6 +19084,30 @@
         "whenNotToUse": "Base UI-owned collections (Select, Combobox, Menu, Tabs) — their primitives already own roving focus; and single controls that need no internal navigation.",
         "version": "0.25.87",
         "integrity": "sha256-e6hYCFRzqG1NiR3rguZCYhvs7H9mERqOsrhhtGOullg="
+      }
+    },
+    {
+      "name": "use-record-peek-row",
+      "type": "registry:hook",
+      "title": "useRecordPeekRow",
+      "description": "The open-row contract between a list and RecordPeek — data-peek-active on the open row, scrolled into view as the peek walks.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-record-peek-row.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-record-peek-row.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A hand-rolled list whose rows open in RecordPeek.",
+        "whenNotToUse": "DataList, DataGrid and Board, which take activeRowId and mark the row themselves.",
+        "version": "0.25.87",
+        "integrity": "sha256-poGjNsbooqmOIyCPYo49B5mFOUDglaKtUUzEuoifIQ8="
       }
     },
     {

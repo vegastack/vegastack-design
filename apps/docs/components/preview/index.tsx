@@ -190,3 +190,5 @@ export * from "./charts-tooltip";
 
 export * from "./icon-picker";
 export * from "./icon-glyph";
+export * from "./record-peek";
+export * from "./record-header";

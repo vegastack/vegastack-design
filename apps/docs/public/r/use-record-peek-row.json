@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-record-peek-row",
+  "title": "useRecordPeekRow",
+  "description": "The open-row contract between a list and RecordPeek — data-peek-active on the open row, scrolled into view as the peek walks.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/use-record-peek-row.ts",
+      "content": "// @vegastack use-record-peek-row@0.25.87 sha256-poGjNsbooqmOIyCPYo49B5mFOUDglaKtUUzEuoifIQ8=\n\n\"use client\";\n\nimport * as React from \"react\";\n\n/** What `useRecordPeekRow` returns: spread it on the row element. */\nexport interface RecordPeekRowProps<T extends HTMLElement> {\n  /** Attach to the row, so it can scroll into view when it becomes the open one. */\n  ref: React.RefCallback<T>;\n  /** `\"\"` on the open row, absent otherwise — the attribute every list styles the same way. */\n  \"data-peek-active\": \"\" | undefined;\n}\n\n/**\n * `useRecordPeekRow` — the open-row contract between a list and `RecordPeek`, for a list the\n * system's own lists don't cover (`DataList`, `DataGrid` and `Board` take `activeRowId` and do this\n * themselves). The row whose `id` equals `activeId` gets `data-peek-active=\"\"` — style it the way\n * the system's lists do, `data-peek-active:bg-accent` — and scrolls into view (`block: \"nearest\"`)\n * whenever it becomes the open one, so walking the peek with ↑/↓ keeps the row in sight.\n *\n * @example\n * function Row({ task, peekId }: { task: Task; peekId: string | null }) {\n *   const peek = useRecordPeekRow<HTMLDivElement>(task.id, peekId);\n *   return <Item {...peek} className=\"data-peek-active:bg-accent\">{task.title}</Item>;\n * }\n */\nexport function useRecordPeekRow<T extends HTMLElement = HTMLElement>(\n  id: string,\n  activeId: string | null | undefined,\n): RecordPeekRowProps<T> {\n  const active = activeId != null && activeId === id;\n  const node = React.useRef<T | null>(null);\n  const ref = React.useCallback((element: T | null) => {\n    node.current = element;\n  }, []);\n  React.useEffect(() => {\n    if (!active) return;\n    node.current?.scrollIntoView?.({ block: \"nearest\", inline: \"nearest\" });\n  }, [active]);\n  return { ref, \"data-peek-active\": active ? \"\" : undefined };\n}\n",
+      "type": "registry:hook",
+      "target": "@ui/use-record-peek-row.ts"
+    }
+  ],
+  "meta": {
+    "whenToUse": "A hand-rolled list whose rows open in RecordPeek.",
+    "whenNotToUse": "DataList, DataGrid and Board, which take activeRowId and mark the row themselves.",
+    "version": "0.25.87",
+    "integrity": "sha256-poGjNsbooqmOIyCPYo49B5mFOUDglaKtUUzEuoifIQ8="
+  },
+  "categories": [
+    "hook"
+  ],
+  "type": "registry:hook"
+}

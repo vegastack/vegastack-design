@@ -89,6 +89,19 @@ A section with nothing in it keeps its header and says so in one muted line — 
   file="components/preview/record-aside.tsx"
 />
 
+### Folding sections
+
+`collapsible` turns the title (with its count) into a disclosure that folds the section — the way
+a peek's Related and Attachments sections fold. A collapsible section whose `count` is 0 is its
+header alone, with its `action` still there, and `notice` shows a line under the header (a drop
+target, a load error) whether the section is open or not. Inside a peek, whose title is an `h2`,
+pass `headingLevel="h3"`.
+
+<ComponentPreview
+  name="recordAsideCollapsible"
+  file="components/preview/record-aside.tsx"
+/>
+
 ## API Reference
 
 ### RecordAsideSection
