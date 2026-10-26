@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-Zb+QTfzdoPT2QwhbzRApxgBuA0gzVxlc4RQskNZdmXk=
+// @vegastack field-cell@0.25.79 sha256-d1s/5e/ajQdlPCFxdhZl3jtDAjkA5WdHLkuPpZ2PdSc=
 
 "use client";
 
@@ -45,6 +45,7 @@ import {
   formatDateTime,
   parseCalendarDay,
   toCalendarDay,
+  zonedToday,
 } from "@/lib/date-time";
 import { FileKindTile } from "@/lib/file-kind";
 
@@ -1251,8 +1252,11 @@ function monthOf(name: string): number | undefined {
  */
 function parseTypedDay(
   input: string,
-  now: Date = new Date(),
+  timeZone?: string,
+  at: Date = new Date(),
 ): string | undefined {
+  // "Today" (and a year left out) is the reader's day in their time zone, not the runtime's.
+  const now = zonedToday(at, timeZone);
   const text = input
     .trim()
     .toLowerCase()
@@ -1350,6 +1354,7 @@ export function FieldCellEditor({
   // A date opened by typing edits the typed text (a field, not the calendar), committed as the
   // day it names.
   const typedDate = type === "date" && Boolean(seed);
+  const timeZone = useTimeZone();
   // Type-to-edit replaces the value: long text and a typed date start from the key itself.
   const [draft, setDraft] = React.useState<FieldValue>(() =>
     seed && type === "long_text"
@@ -1451,7 +1456,7 @@ export function FieldCellEditor({
   // The move a picker's choice carries: Enter (down, Shift+Enter up) chose it, a click didn't.
   const pickMove = React.useRef<EditableCellMove | undefined>(undefined);
   const typedText = typedDate && typeof draft === "string" ? draft.trim() : "";
-  const typedDay = typedText ? parseTypedDay(typedText) : undefined;
+  const typedDay = typedText ? parseTypedDay(typedText, timeZone) : undefined;
   const valid = typedDate
     ? typedText === "" || typedDay !== undefined
     : typeof draft !== "string" || isValidFieldText(type, draft);

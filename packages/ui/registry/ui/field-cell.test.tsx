@@ -1002,7 +1002,7 @@ test("in a grid: typing on a cell of any type opens its editor holding every typ
   await vi.waitFor(() => expect(editing()).toBeNull());
   expect(commits).toHaveLength(3);
 
-  // Words and month names: "today" and "Mar 12".
+  // Month names, with or without a year.
   cell("due").focus();
   await userEvent.keyboard("mar 12, 2027{Enter}");
   await vi.waitFor(() => expect(commits.at(-1)).toEqual(["due", "2027-03-12"]));
@@ -1131,5 +1131,28 @@ test("in a grid: Alt+Enter reaches an editable cell's link chips, and Enter on o
     expect(document.activeElement).toBe(cell);
   } finally {
     document.removeEventListener("click", follow, true);
+  }
+});
+
+test('FieldCellEditor: a typed "today" is the day in the reader\'s time zone', async () => {
+  vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-26T01:00:00Z") });
+  try {
+    const onCommit = vi.fn();
+    await render(
+      <TimeZoneProvider timeZone="America/Los_Angeles">
+        <FieldCellEditor
+          type="date"
+          label="Due"
+          value={null}
+          seed="t"
+          onCommit={onCommit}
+          onCancel={() => {}}
+        />
+      </TimeZoneProvider>,
+    );
+    await userEvent.keyboard("oday{Enter}");
+    expect(onCommit).toHaveBeenLastCalledWith("2026-10-25", "down");
+  } finally {
+    vi.useRealTimers();
   }
 });
