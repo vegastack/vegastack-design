@@ -3225,3 +3225,32 @@ test("phoneLayout=cards: a phone-width grid shows cards that open their row; a w
     .poll(() => screen.container.querySelector('[role="grid"]'))
     .not.toBeNull();
 });
+
+test("phone cards show their fields whatever the table would have fitted (auto layout)", async () => {
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          { key: "name", header: "Name", minWidth: 160 },
+          { key: "stage", header: "Stage", minWidth: 160 },
+          { key: "amount", header: "Amount", minWidth: 160 },
+          { key: "id", header: "Ref", minWidth: 160 },
+        ]}
+        data={DEALS}
+        getRowId={(d) => d.id}
+        phoneLayout="cards"
+        columnPicker={false}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="data-grid-cards"]'))
+    .not.toBeNull();
+  const labels = Array.from(
+    screen.container
+      .querySelector('[data-slot="data-grid-card"]')!
+      .querySelectorAll("dt"),
+  ).map((dt) => dt.textContent);
+  expect(labels).toEqual(["Stage", "Amount", "Ref"]);
+});

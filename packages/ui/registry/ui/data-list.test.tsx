@@ -3195,3 +3195,55 @@ test("the list density scale: comfortable rows hold 40px, compact 32px — the g
     "[&_[data-slot=data-list-row]]:h-8",
   );
 });
+
+test("on a board, getRowOrder walks only the lanes shown; a grid card takes the open-row wash", async () => {
+  const actions = React.createRef<import("./data-list").DataListActions>();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      view="board"
+      // The Manager lane is hidden: its row stays in `data` but is not on the board.
+      sections={[{ id: "makers", label: "Makers" }]}
+      getRowSection={(r) => (r.role === "Manager" ? "others" : "makers")}
+      actionsRef={actions}
+    />,
+  );
+  await expect.poll(() => actions.current?.getRowOrder()).toEqual(["a", "b"]);
+  await screen.rerender(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      view="grid"
+      activeRowId="b"
+    />,
+  );
+  const card =
+    screen.container.querySelector<HTMLElement>("[data-peek-active]")!;
+  expect(card.className).toContain("data-peek-active:bg-accent");
+});
+
+test("an untouched row menu opens from ↓ like a real menu button", async () => {
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      rowActions={() => [
+        { label: "Edit", onSelect: () => {} },
+        { label: "Delete", onSelect: () => {} },
+      ]}
+    />,
+  );
+  const trigger = screen
+    .getByRole("button", { name: "Actions for Bea" })
+    .element() as HTMLElement;
+  trigger.focus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Edit" }))
+    .toBeInTheDocument();
+});

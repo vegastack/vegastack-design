@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.84 sha256-zrpwVrti53sAcAZY9Na9u1DoDsegXeqMBmWXLpHXjIE=
+// @vegastack data-list@0.25.84 sha256-t1ryXnz3bn61VwRb0FMbnhniu6RyC5nn+eBAmaytLWs=
 
 "use client";
 
@@ -2120,6 +2120,14 @@ export function DataList<T>({
   // section's rows are not on screen in the list, so a range steps over them.
   const displayOrder = React.useMemo(() => {
     if (!sectionGroups) return rowIds;
+    // A board shows only the listed sections, as lanes (a hidden lane's rows are not on it), and
+    // a collapsed lane's cards are folded away.
+    if (activeView === "board")
+      return sectionGroups.flatMap((group) =>
+        group.label == null || collapsedSections?.includes(group.id)
+          ? []
+          : group.indexes.map((index) => rowIds[index]!),
+      );
     return sectionGroups.flatMap((group) =>
       activeView === "list" &&
       group.label != null &&
@@ -2127,7 +2135,7 @@ export function DataList<T>({
         ? []
         : group.indexes.map((index) => rowIds[index]!),
     );
-  }, [sectionGroups, rowIds, activeView, groups]);
+  }, [sectionGroups, rowIds, activeView, groups, collapsedSections]);
 
   // ---- the open row (`activeRowId`) and the order a peek walks (`actionsRef`) ----------------
   const latestOrder = React.useRef(displayOrder);
@@ -2632,9 +2640,11 @@ export function DataList<T>({
         surface={!onBoard}
         // A selectable default-size card keeps a gutter for its checkbox, so the checkbox never
         // covers the title or thumbnail; a `lg` card's checkbox sits on its image instead.
-        className={
-          !onBoard && selectable && gridSize !== "lg" ? "ps-9" : undefined
-        }
+        className={cn(
+          !onBoard && selectable && gridSize !== "lg" && "ps-9",
+          // The card whose record is open beside the grid (`activeRowId`).
+          !onBoard && PEEK_ACTIVE_ROW_CLASS,
+        )}
         // A card that wraps its own controls (the row-actions menu, or an `interactive` column's
         // button or link) cannot be a `button` — that nests interactive content (axe
         // `nested-interactive`). It stays a keyboard-reachable, labelled group that Enter/Space
@@ -2874,6 +2884,13 @@ export function DataList<T>({
         getItemActions={rowActions}
         actionsLabel={rowActionsLabel}
         countLabel={sectionCountLabel}
+        // `onRowOpen` opens every card in place, a link card's plain click included; the legacy
+        // `onRowClick` still activates only the cards without an href (their links navigate).
+        onCardOpen={
+          onRowOpen
+            ? (row, event) => onRowClick?.(row, rowIndex.get(row) ?? 0, event)
+            : undefined
+        }
         onCardActivate={
           onRowClick
             ? (row, event) => onRowClick(row, rowIndex.get(row) ?? 0, event)

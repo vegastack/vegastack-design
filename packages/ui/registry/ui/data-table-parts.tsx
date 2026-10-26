@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.84 sha256-jIDA/IGdaC3jzMhqMV5OH24Dj1wgKFRLb4CW5gmtIFU=
+// @vegastack data-table-parts@0.25.84 sha256-zuLX7wSxDnLgQYYKI5yNaqdF3QLhmJlh/kX+GbSMEyA=
 
 "use client";
 
@@ -1581,6 +1581,13 @@ function LazyRowMenu({
       "aria-expanded": false,
       onPointerEnter: arm,
       onClick: () => {
+        setArmed(true);
+        setMenuOpen(true);
+      },
+      // A menu button opens on ↓/↑ too, as the real trigger does.
+      onKeyDown: (event: React.KeyboardEvent) => {
+        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+        event.preventDefault();
         setArmed(true);
         setMenuOpen(true);
       },

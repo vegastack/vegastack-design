@@ -670,12 +670,12 @@ test("a card in a droppable:false lane can be lifted, reordered and moved out by
   await expect.poll(() => laneCards("won")).toEqual(["d3", "p1"]);
 });
 
-test("a link card with onCardActivate opens in place on a plain click; a modified click is the link's", async () => {
-  const onCardActivate = vi.fn();
-  await render(
+test("onCardOpen opens a link card in place on a plain click; a modified click and onCardActivate leave the link alone", async () => {
+  const onCardOpen = vi.fn();
+  const screen = await render(
     <Controlled
       getItemHref={(deal) => `#deal-${deal.id}`}
-      onCardActivate={onCardActivate}
+      onCardOpen={onCardOpen}
     />,
   );
   const link = surface("d1");
@@ -683,22 +683,46 @@ test("a link card with onCardActivate opens in place on a plain click; a modifie
   const plain = new MouseEvent("click", { bubbles: true, cancelable: true });
   link.dispatchEvent(plain);
   expect(plain.defaultPrevented).toBe(true);
-  expect(onCardActivate).toHaveBeenCalledWith(
+  expect(onCardOpen).toHaveBeenCalledWith(
     { id: "d1", name: "Acme" },
     expect.anything(),
   );
-  onCardActivate.mockClear();
-  const modified = new MouseEvent("click", {
-    bubbles: true,
-    cancelable: true,
-    metaKey: true,
-  });
+  onCardOpen.mockClear();
   // Keep the test page where it is: the browser's own handling of the link is not under test.
-  link.addEventListener("click", (event) => event.preventDefault(), {
-    once: true,
-  });
-  link.dispatchEvent(modified);
-  expect(onCardActivate).not.toHaveBeenCalled();
+  const keep = (event: Event) => event.preventDefault();
+  document.addEventListener("click", keep);
+  try {
+    const modified = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      metaKey: true,
+    });
+    link.dispatchEvent(modified);
+    expect(onCardOpen).not.toHaveBeenCalled();
+    // `onCardActivate` alone never takes a link card's click: the link navigates as before.
+    const onCardActivate = vi.fn();
+    await screen.rerender(
+      <Controlled
+        getItemHref={(deal) => `#deal-${deal.id}`}
+        onCardActivate={onCardActivate}
+      />,
+    );
+    const again = new MouseEvent("click", { bubbles: true, cancelable: true });
+    let prevented: boolean | null = null;
+    const read = (event: Event) => {
+      prevented = event.defaultPrevented;
+    };
+    // Read before the page is kept in place (listeners run in the order they were added).
+    document.removeEventListener("click", keep);
+    document.addEventListener("click", read);
+    document.addEventListener("click", keep);
+    surface("d1").dispatchEvent(again);
+    document.removeEventListener("click", read);
+    expect(onCardActivate).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+  } finally {
+    document.removeEventListener("click", keep);
+  }
 });
 
 test("activeItemId marks the open card", async () => {
@@ -753,4 +777,20 @@ test("a card's ⋯ menu mounts on demand and opens on the first press", async ()
   await press(trigger);
   await press(screen.getByRole("menuitem", { name: "Open" }));
   expect(onOpen).toHaveBeenCalled();
+});
+
+test("an untouched card menu opens from ↓", async () => {
+  const screen = await render(
+    <Controlled
+      getItemActions={() => [{ label: "Open", onSelect: () => {} }]}
+    />,
+  );
+  const trigger = screen
+    .getByRole("button", { name: "Actions for Acme" })
+    .element() as HTMLElement;
+  trigger.focus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Open" }))
+    .toBeInTheDocument();
 });

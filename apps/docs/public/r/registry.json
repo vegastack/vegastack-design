@@ -845,7 +845,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.84",
-        "integrity": "sha256-DmY3DjOwjQxCEZKZxUIZQkqsPthfywD8r8Z2Cl3UeoA="
+        "integrity": "sha256-RQm+zMgHXBxocwvnrZs+WoAZo29WH12UnFQJdPC/N9o="
       }
     },
     {
@@ -1573,7 +1573,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.84",
-        "integrity": "sha256-6XrY/69rCEkDSFwHYcqtBqwuoqEMTviOM+fm44a7V/U="
+        "integrity": "sha256-KgugYAVv9I2Ie0+pWRmi6cjNb8s5DbvoxsWkl5kRO8Y="
       }
     },
     {
@@ -1618,7 +1618,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.84",
-        "integrity": "sha256-zrpwVrti53sAcAZY9Na9u1DoDsegXeqMBmWXLpHXjIE="
+        "integrity": "sha256-t1ryXnz3bn61VwRb0FMbnhniu6RyC5nn+eBAmaytLWs="
       }
     },
     {
@@ -1874,7 +1874,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.84",
-        "integrity": "sha256-jIDA/IGdaC3jzMhqMV5OH24Dj1wgKFRLb4CW5gmtIFU="
+        "integrity": "sha256-zuLX7wSxDnLgQYYKI5yNaqdF3QLhmJlh/kX+GbSMEyA="
       }
     },
     {

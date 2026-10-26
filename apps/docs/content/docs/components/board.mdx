@@ -179,9 +179,10 @@ replaces it outright. With `onAdd`, the default empty state carries "+ Add" as i
 
 `getItemHref` makes each card a real link, rendered as `<a>` or as your router's link through
 `itemLinkRender`. A click follows it and a modifier click opens a new tab; a drag never follows
-it. Enter follows the link; Space still picks the card up. With `onCardActivate` as well, a plain
-click (or Enter) opens the card's record in place — a peek — instead, while ⌘/Ctrl/Shift and middle
-clicks still open the link. `activeItemId` marks the open card (`data-peek-active`, the accent wash)
+it. Enter follows the link; Space still picks the card up. `onCardActivate` stays for cards
+without an href. `onCardOpen` opens every card's record in place — a peek: a link card's plain click
+(or Enter) calls it instead of following the link, while ⌘/Ctrl/Shift and middle clicks still open
+the link. `activeItemId` marks the open card (`data-peek-active`, the accent wash)
 and scrolls it into view as it changes. A card's ⋯ menu mounts the first time it is pointed at or
 pressed.
 

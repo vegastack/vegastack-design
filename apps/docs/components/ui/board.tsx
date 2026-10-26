@@ -1,4 +1,4 @@
-// @vegastack board@0.25.84 sha256-DmY3DjOwjQxCEZKZxUIZQkqsPthfywD8r8Z2Cl3UeoA=
+// @vegastack board@0.25.84 sha256-RQm+zMgHXBxocwvnrZs+WoAZo29WH12UnFQJdPC/N9o=
 
 "use client";
 
@@ -278,12 +278,19 @@ export interface BoardProps<T> {
    */
   itemLinkRender?: React.ReactElement;
   /**
-   * Activate a card (open its record — a peek). Cards without an href are real buttons. A card
-   * with one stays a real link: a plain click (or Enter) calls this instead of following it,
-   * while ⌘/Ctrl/Shift and middle clicks open the link where the browser would.
+   * Activate a card (open its record). Cards without an href are real
+   * buttons; a card with one is a link and never calls this.
    * @default undefined
    */
   onCardActivate?: (item: T, event: React.SyntheticEvent) => void;
+  /**
+   * Open a card's record in place — a peek beside the board — from EVERY card. A card without an
+   * href is a button that calls it; a card with one stays a real link, and a plain click (or
+   * Enter) calls this instead of following it, while ⌘/Ctrl/Shift and middle clicks still open the
+   * link where the browser would. Wins over `onCardActivate`.
+   * @default undefined
+   */
+  onCardOpen?: (item: T, event: React.SyntheticEvent) => void;
   /**
    * The card whose record is open beside the board (a peek): it carries `data-peek-active`, takes
    * the accent wash, and scrolls into view (`block: "nearest"`) when it changes.
@@ -556,7 +563,8 @@ export function Board<T>({
   countLabel = cardCount,
   getItemHref,
   itemLinkRender,
-  onCardActivate,
+  onCardActivate: onCardActivateProp,
+  onCardOpen,
   activeItemId,
   hiddenColumns,
   onShowColumn,
@@ -584,6 +592,8 @@ export function Board<T>({
   className,
   ref,
 }: BoardProps<T>) {
+  // A card's activation: the in-place open when the host asked for one, else the plain activation.
+  const onCardActivate = onCardOpen ?? onCardActivateProp;
   const isMobile = useIsMobile();
   const reducedMotion = usePrefersReducedMotion();
   const { announce, Announcer } = useAnnouncer();
@@ -1152,7 +1162,7 @@ export function Board<T>({
     const columnIndex = visibleColumns.findIndex((c) => c.id === column.id);
     switch (event.key) {
       case "Enter":
-        // A link card's Enter is the link's own click (`activateLink` takes it over).
+        // A link card's Enter is the link's own click (which `onCardOpen` takes over).
         if (href) return;
         event.preventDefault();
         onCardActivate?.(item, event);
@@ -1355,7 +1365,7 @@ export function Board<T>({
           }
           onClick={
             href
-              ? onCardActivate
+              ? onCardOpen
                 ? (event: React.MouseEvent<HTMLElement>) => {
                     // A plain click opens the record here; a modified or middle click is the
                     // link's own (a new tab, a new window).
@@ -1368,7 +1378,7 @@ export function Board<T>({
                     )
                       return;
                     event.preventDefault();
-                    onCardActivate(item, event);
+                    onCardOpen(item, event);
                   }
                 : undefined
               : (event: React.MouseEvent<HTMLElement>) =>
@@ -1402,6 +1412,13 @@ export function Board<T>({
             tabIndex={rovingTarget === id ? 0 : -1}
             onPointerEnter={() => armMenu(id)}
             onClick={() => setOpenMenuCard(id)}
+            // A menu button opens on ↓/↑ too, as the real trigger does.
+            onKeyDown={(event) => {
+              if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+              event.preventDefault();
+              event.stopPropagation();
+              setOpenMenuCard(id);
+            }}
             className={CARD_MENU_CLASS}
           >
             <EllipsisVertical />

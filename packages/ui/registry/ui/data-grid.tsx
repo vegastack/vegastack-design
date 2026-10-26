@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.84 sha256-6XrY/69rCEkDSFwHYcqtBqwuoqEMTviOM+fm44a7V/U=
+// @vegastack data-grid@0.25.84 sha256-KgugYAVv9I2Ie0+pWRmi6cjNb8s5DbvoxsWkl5kRO8Y=
 
 "use client";
 
@@ -2799,6 +2799,12 @@ export function DataGrid<T>({
     );
   }, [ordered, visibility, containerWidth, selectable, fixed]);
 
+  /** The cards' columns: every column the host shows, in order, before revelation. */
+  const cardColumns = React.useMemo(
+    () => ordered.filter((column) => visibility[column.key] !== false),
+    [ordered, visibility],
+  );
+
   // Live widths while a resize is in flight, and a committed one until the host answers: the next
   // `columns` it passes is the authority (its persisted width, a normalised one, or the old one
   // after a refusal), so a committed override is dropped then. A drag in flight is kept.
@@ -3823,11 +3829,12 @@ export function DataGrid<T>({
   React.useEffect(() => {
     if (activeRowId == null) return;
     const index = itemIndex.get(activeRowId);
-    if (index != null && rowVirtualizerRef.current) {
+    if (!cardMode && index != null && rowVirtualizerRef.current) {
       rowVirtualizerRef.current.scrollToIndex(index, { align: "auto" });
       return;
     }
-    viewport
+    // Cards have no viewport of their own: the card is found under the root.
+    (cardMode ? rootRef.current : viewport)
       ?.querySelector<HTMLElement>(`[data-row-id="${CSS.escape(activeRowId)}"]`)
       ?.scrollIntoView?.({ block: "nearest" });
     // Only a new open row moves the scroll; a refetch of the same one does not.
@@ -4795,7 +4802,9 @@ export function DataGrid<T>({
           <>
             <GridCards
               items={items}
-              columns={visibleColumns}
+              // Every shown column, before the table's revelation merged or dropped any: a card
+              // has room for its fields whatever the grid would have fitted.
+              columns={cardColumns}
               fields={cardFields}
               selectable={selectable}
               selected={selected}
