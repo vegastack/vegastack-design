@@ -1,5 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
+import { AnnouncerScope } from "@/components/ui/use-announcer";
+const render0 = render;
 import { userEvent } from "vitest/browser";
 import { expect, onTestFinished, test, vi } from "vitest";
 // The compiled lane stylesheet as a STRING, mounted only for the truncation test below: every other
@@ -8,6 +10,7 @@ import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   EditableCell,
+  EditableCellRest,
   InlineEditTrigger,
   type EditableCellEditorProps,
 } from "./editable-cell";
@@ -822,4 +825,83 @@ test("a custom editor receives the seed and hands a commit's move to onNavigate"
     expect(onNavigate).toHaveBeenLastCalledWith(direction, via);
   }
   expect(onSave).not.toHaveBeenCalled();
+});
+
+test("EditableCellRest is the resting cell: same button, name, description, text and box, and it starts the edit on click and Enter", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const read = (root: Element) => {
+    const display = root.querySelector<HTMLElement>(
+      '[data-slot="editable-cell-display"]',
+    )!;
+    const described = display.getAttribute("aria-describedby");
+    const box = display.getBoundingClientRect();
+    return {
+      role: display.getAttribute("role"),
+      tabIndex: display.tabIndex,
+      name: display.getAttribute("aria-label"),
+      description: described
+        ? document.getElementById(described)?.textContent
+        : null,
+      text: display.textContent,
+      muted: !!root.querySelector(".text-muted-foreground"),
+      width: Math.round(box.width),
+      height: Math.round(box.height),
+    };
+  };
+  for (const [value, show] of [
+    ["Qualified", undefined],
+    ["", undefined],
+    ["Won", (v: string) => <b>{v}!</b>],
+    [
+      "A stage name long enough to be clipped by its column",
+      (v: string) => (
+        <span className="flex min-w-0 items-center gap-1">
+          <span className="truncate">{v}</span>
+        </span>
+      ),
+    ],
+    ["A stage name long enough to be clipped by its column", undefined],
+  ] as const) {
+    const start = vi.fn();
+    // Inside a grid, a cell speaks through the grid's region (AnnouncerScope) and renders none.
+    const screen = await render0(
+      <div className="text-sm">
+        <div data-testid="full" style={{ width: 120 }}>
+          <AnnouncerScope announce={() => {}}>
+            <EditableCell
+              value={value}
+              label="Stage"
+              focusMode="managed"
+              editing={false}
+              onEditingChange={() => {}}
+              renderValue={show}
+              editor={{ type: "custom", render: () => null }}
+            />
+          </AnnouncerScope>
+        </div>
+        <div data-testid="rest" style={{ width: 120 }}>
+          <EditableCellRest
+            value={value}
+            label="Stage"
+            renderValue={show}
+            onStartEditing={start}
+          />
+        </div>
+      </div>,
+    );
+    const full = screen.getByTestId("full").element();
+    const rest = screen.getByTestId("rest").element();
+    expect(read(rest)).toEqual(read(full));
+    const display = rest.querySelector<HTMLElement>(
+      '[data-slot="editable-cell-display"]',
+    )!;
+    display.click();
+    display.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(start).toHaveBeenCalledTimes(2);
+    await screen.unmount();
+  }
 });

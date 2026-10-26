@@ -1,8 +1,9 @@
-// @vegastack data-grid@0.25.82 sha256-S2Mf/B+zgcZBKZ4LXCkqELoJRfecHDak7S3QHlFvgtE=
+// @vegastack data-grid@0.25.82 sha256-3v5XIybz4xq9lB8aCjJ/Yydsjf8ovfAKi85iko+pQMo=
 
 "use client";
 
 import * as React from "react";
+import { flushSync } from "react-dom";
 import { ChevronDown, Columns3 } from "lucide-react";
 import {
   createColumnHelper,
@@ -63,6 +64,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   EditableCell,
+  EditableCellRest,
   type EditableCellEditor,
   type EditableCellEditorProps,
 } from "@/components/ui/editable-cell";
@@ -145,7 +147,11 @@ The structure the G2 benchmark (Regent Tables, 23-10-2026) measured as passing a
 - Fixed row heights (`rowHeight`) mean exact sizes and no `measureElement`.
 - G1.11 (26-10-2026) re-measure: no body cell is positioned unless it holds an absolute child (a
   positioned cell is a paint layer, and ~600 of them made paint and layerize most of a tick), and
-  the windows overscan three rows and one column.
+  the windows overscan two rows and one column.
+- A `custom`-editor cell rests as `EditableCellRest` (one element, no effects) and becomes the full
+  `EditableCell` once it edits or the host reports a save status; a header's menu mounts once the
+  header is pointed at, focused or opened; the content-tab-order observer looks only at what
+  each change added.
 
 Deliberately NOT done here:
 - No filter UI (FilterBuilder + the host), no saved views/URL state (host, G7), no CSV export.
@@ -883,6 +889,11 @@ interface GridApi {
   pointerOver: (rowId: string, key: string) => void;
   /** Cells mode: a press on the fill handle. */
   fillStart: (event: React.PointerEvent) => void;
+  /**
+   * A cell's commit removed the widget that held focus (a resting cell waking for a host status):
+   * focus returns to the widget at the same place at the end of that commit.
+   */
+  keepWidgetFocus: (rowId: string, key: string, index: number) => void;
 }
 
 const GridApiContext = React.createContext<GridApi | null>(null);
@@ -1037,8 +1048,12 @@ function GridCellImpl<T>({
 }: GridCellProps<T>) {
   const api = useGridApi();
   const { column, key } = placed;
+  const cellNode = React.useRef<HTMLElement | null>(null);
   const ref = React.useCallback(
-    (node: HTMLElement | null) => api.register(rowId, key, node),
+    (node: HTMLElement | null) => {
+      cellNode.current = node;
+      api.register(rowId, key, node);
+    },
     [api, rowId, key],
   );
   const context = React.useMemo(() => ({ rowId, selected }), [rowId, selected]);
@@ -1051,34 +1066,79 @@ function GridCellImpl<T>({
   }, [editable, row]);
   // Only an editable cell reads its value as a string; a read-only cell's renderer gets the row.
   const persisted = editor ? String(readValue(column, row) ?? "") : "";
-  const content = editor ? (
+  // The column's `render` stays the display (tags, chips, avatars), not the value's text.
+  // While a commit is pending the row still holds the old value, so the pending value shows
+  // as text until the host's new row arrives.
+  const renderValue = column.render
+    ? (shown: string) =>
+        shown === persisted ? (
+          <Cell column={column} row={row} context={context} />
+        ) : (
+          <span className="min-w-0 truncate">{shown}</span>
+        )
+    : undefined;
+  // A `custom` editor's cell rests as `EditableCellRest` (no state machine, no effects): the
+  // grid mounts dozens per scroll tick. It becomes the full `EditableCell` when it edits or the
+  // host reports a save status, and stays one while mounted, so a save in flight keeps its
+  // optimistic value and its announcements.
+  // Latched by the full cell's own mount (a ref, so the render that mounts it still knows it is
+  // waking: a state update here would re-render the cell before it commits).
+  const awake = React.useRef(false);
+  const full =
+    awake.current || editing || (status != null && status !== "idle");
+  const waking = full && !awake.current;
+  // A resting cell that is replaced while focus is on a widget inside it (a link chip reached
+  // with Alt+Enter, when a host status wakes the cell): its ref cleanup runs in the commit, while
+  // the widget is still attached, and the grid puts focus back on the same widget after it.
+  const restRef = React.useCallback(
+    (node: HTMLSpanElement | null) => {
+      if (!node) return;
+      return () => {
+        const cell = cellNode.current;
+        const focused = document.activeElement;
+        if (
+          !cell ||
+          !(focused instanceof HTMLElement) ||
+          focused === cell ||
+          !node.contains(focused)
+        )
+          return;
+        const index = cellWidgets(cell).indexOf(focused);
+        if (index >= 0) api.keepWidgetFocus(rowId, key, index);
+      };
+    },
+    [api, rowId, key],
+  );
+  const wake = React.useCallback((node: HTMLSpanElement | null) => {
+    if (node) awake.current = true;
+  }, []);
+  const content = !editor ? (
+    <Cell column={column} row={row} context={context} />
+  ) : editor.type === "custom" && !full ? (
+    <EditableCellRest
+      value={persisted}
+      label={placed.label}
+      renderValue={renderValue}
+      onStartEditing={() => api.setEditing(rowId, key, true)}
+      ref={restRef}
+    />
+  ) : (
     <EditableCell
       value={persisted}
       label={placed.label}
       editor={editor}
-      // The column's `render` stays the display (tags, chips, avatars), not the value's text.
-      // While a commit is pending the row still holds the old value, so the pending value shows
-      // as text until the host's new row arrives.
-      renderValue={
-        column.render
-          ? (shown) =>
-              shown === persisted ? (
-                <Cell column={column} row={row} context={context} />
-              ) : (
-                <span className="min-w-0 truncate">{shown}</span>
-              )
-          : undefined
-      }
+      renderValue={renderValue}
       focusMode="managed"
       editing={editing}
       editSeed={editSeed}
       onEditingChange={(open) => api.setEditing(rowId, key, open)}
       onNavigate={(direction, via) => api.navigate(rowId, key, direction, via)}
       status={status}
+      // The cell that just woke was resting, so its status was idle: a move from it is news.
+      previousStatus={waking ? "idle" : undefined}
+      ref={wake}
       onCommit={(next) => api.commit(rowId, key, next)}
     />
-  ) : (
-    <Cell column={column} row={row} context={context} />
   );
   return (
     <td
@@ -1406,6 +1466,13 @@ function GridHeadCellImpl<T>({
   const api = useGridApi();
   const { column, key } = p;
   const sortable = column.sortable === true;
+  const [menuArmed, setMenuArmed] = React.useState(false);
+  const menuLive = menuArmed || menuOpen || tabStop;
+  // Synchronously, so the real trigger is in place before the press that follows.
+  const armMenu =
+    column.headerMenu && !menuLive
+      ? () => flushSync(() => setMenuArmed(true))
+      : undefined;
   const register = React.useCallback(
     (node: HTMLElement | null) => api.register(HEADER, key, node),
     [api, key],
@@ -1468,6 +1535,7 @@ function GridHeadCellImpl<T>({
       data-grid-key={key}
       tabIndex={tabStop ? 0 : -1}
       onFocus={() => api.focused(HEADER, key)}
+      onPointerEnter={armMenu}
       className={cn(
         HEAD_BASE_CLASS,
         fixed
@@ -1496,7 +1564,25 @@ function GridHeadCellImpl<T>({
           )}
         >
           {label}
-          {column.headerMenu ? (
+          {column.headerMenu && !menuLive ? (
+            // The menu's machinery waits until the header is pointed at, focused or opened: a
+            // horizontal scroll tick mounts a header per entering column.
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              tabIndex={-1}
+              aria-label={`${p.label} options`}
+              aria-haspopup="menu"
+              aria-expanded={false}
+              data-slot="data-grid-head-menu"
+              className="shrink-0 text-muted-foreground"
+              // No pointer arrived first (a scripted click, a switch device): open it as the
+              // menu key does; the real trigger mounts with the menu.
+              onClick={() => actions.setMenuOpen(key, true)}
+            >
+              <ChevronDown />
+            </Button>
+          ) : column.headerMenu ? (
             <DropdownMenu
               open={menuOpen}
               onOpenChange={(open) => actions.setMenuOpen(key, open)}
@@ -1863,9 +1949,9 @@ function GridBody<T>({
     // A row scrolled into view lands clear of the sticky header and summary row.
     scrollPaddingStart: headerPx,
     scrollPaddingEnd: footerPx,
-    // Three rows (about 100px) each side: every overscanned row is cells a scroll tick mounts,
-    // styles and lays out, and the window is re-rendered in the scroll event itself.
-    overscan: 3,
+    // Two rows (about 66px) each side: every overscanned row is cells a scroll tick mounts, styles
+    // and lays out, and the window is re-rendered in the scroll event itself.
+    overscan: 2,
   });
   const committedItems = React.useRef(items);
   React.useLayoutEffect(() => {
@@ -2043,16 +2129,25 @@ function cellWidgets(cell: HTMLElement): HTMLElement[] {
 function useCellContentOutOfTabOrder(table: HTMLTableElement | null) {
   React.useEffect(() => {
     if (!table) return;
-    const apply = () => {
-      for (const node of table.querySelectorAll<HTMLElement>(
-        CELL_CONTENT_STOPS,
-      ))
+    const apply = (root: Element) => {
+      if (root.matches(CELL_CONTENT_STOPS)) (root as HTMLElement).tabIndex = -1;
+      for (const node of root.querySelectorAll<HTMLElement>(CELL_CONTENT_STOPS))
         node.tabIndex = -1;
     };
-    apply();
-    // Rows page and virtualise in and out, and chips resolve after they mount: re-apply on every
-    // change. Setting `tabindex` re-triggers once and then finds nothing left to do.
-    const observer = new MutationObserver(apply);
+    apply(table);
+    // Rows page and virtualise in and out, and chips resolve after they mount: re-apply to what
+    // each change added or touched (a scroll tick adds a column or a few rows; the whole table is
+    // not searched again). Setting `tabindex` re-triggers once and then finds nothing to do.
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.type === "attributes") {
+          if (record.target instanceof Element) apply(record.target);
+          continue;
+        }
+        for (const node of record.addedNodes)
+          if (node instanceof Element) apply(node);
+      }
+    });
     observer.observe(table, {
       subtree: true,
       childList: true,
@@ -3058,10 +3153,23 @@ export function DataGrid<T>({
     // After the parent's own commit, so the latest positions are in place.
     requestAnimationFrame(() => latest.current.restoreFocus(lost));
   }, []);
+  const widgetFocus = React.useRef<{
+    rowId: string;
+    key: string;
+    index: number;
+  } | null>(null);
   const onBodyCommit = React.useCallback(
     (itemsChanged: boolean) => {
       if (itemsChanged) scheduleRestore();
       else lostFocus.current = null;
+      // Only when the swap dropped focus to the page: focus that moved on stays where it went.
+      const kept = widgetFocus.current;
+      widgetFocus.current = null;
+      const focused = document.activeElement;
+      if (kept && (focused == null || focused === document.body)) {
+        const cell = nodes.current.get(nodeKey(kept.rowId, kept.key));
+        if (cell) (cellWidgets(cell)[kept.index] ?? cell).focus();
+      }
     },
     [scheduleRestore],
   );
@@ -3185,6 +3293,9 @@ export function DataGrid<T>({
       },
       fillStart(event) {
         latest.current.fillStart(event);
+      },
+      keepWidgetFocus(rowId, key, index) {
+        widgetFocus.current = { rowId, key, index };
       },
       toggleGroup(groupId, expanded) {
         latest.current.commitGroups({

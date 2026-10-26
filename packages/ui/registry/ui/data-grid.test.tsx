@@ -2779,3 +2779,64 @@ test("a custom editor gets the typed seed, and commit with a move steps the grid
   // An unchanged commit only closes and moves.
   expect(onCellCommit).toHaveBeenCalledTimes(1);
 });
+
+test("an unhovered header's menu chevron still opens the menu on a plain click", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({
+        headerMenu: <DropdownMenuItem>Hide field</DropdownMenuItem>,
+      })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  // No pointer reached it: the click comes from a script or a switch device.
+  const chevrons = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="data-grid-head-menu"]',
+  );
+  chevrons[chevrons.length - 1]!.click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Hide field" }))
+    .toBeInTheDocument();
+});
+
+test("a resting custom-editor cell announces the host's first status, and a widget focused inside it keeps focus", async () => {
+  const cols: DataGridColumn<Deal>[] = [
+    {
+      key: "name",
+      header: "Name",
+      render: (d) => (
+        <a href={`#${d.id}`} data-testid={`link-${d.id}`}>
+          {d.name}
+        </a>
+      ),
+      editable: { type: "custom", render: () => null },
+    },
+    { key: "stage", header: "Stage" },
+  ];
+  function Grid({ saving }: { saving: boolean }) {
+    return (
+      <DataGrid
+        aria-label="Deals"
+        columns={cols}
+        data={DEALS}
+        getRowId={(d) => d.id}
+        cellStatus={(rowId, key) =>
+          saving && rowId === "d2" && key === "name" ? "saving" : "idle"
+        }
+      />
+    );
+  }
+  const screen = await render(<Grid saving={false} />);
+  const cell = () => cellAt("d2", "name");
+  expect(cell().querySelector("[data-rest]")).not.toBeNull();
+  cell().focus();
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+  expect(document.activeElement?.getAttribute("data-testid")).toBe("link-d2");
+  await screen.rerender(<Grid saving />);
+  // The full cell took over, said so through the grid's region, and the link kept focus.
+  expect(cell().querySelector("[data-rest]")).toBeNull();
+  await expect.poll(() => statusText(screen.container)).toContain("Saving");
+  expect(document.activeElement?.getAttribute("data-testid")).toBe("link-d2");
+});
