@@ -1049,17 +1049,19 @@ function bySpecificity(a, b) {
 const ANY_SEGMENT = "\u0000";
 
 /**
- * The widths the route map gives the paths a page's route pattern serves: its own row; else —
- * matching concrete paths, with `[id]` as one value no static row names, `[...rest]` as one to three
+ * The widths the route map gives the paths a page's route pattern serves: a static route's own
+ * row; else — matching concrete paths (a dynamic route's own row among the candidates), with `[id]` as one value no static row names, `[...rest]` as one to three
  * of them and `[[...rest]]` as zero to three, and every static row it serves with no page of its
  * own — the most specific row serving each, exactly as
  * `widthOfPath` picks, or `default` where none does. One width when every sample agrees.
  */
 export function widthsForRoute(map, route, ownPages = new Set()) {
   const key = `/${routeSegments(route).join("/")}`;
-  if (map.has(key)) return [{ width: map.get(key).width, row: key }];
+  const segments = parseRoute(key);
+  if (map.has(key) && segments.every((s) => s.kind === "static"))
+    return [{ width: map.get(key).width, row: key }];
   let paths = [[]];
-  for (const seg of parseRoute(key)) {
+  for (const seg of segments) {
     const counts =
       seg.kind === "catch-all"
         ? [1, 2, 3]

@@ -956,6 +956,19 @@ test("a layout answers for the pages it wraps, not its folder's own URL (review 
   assert.match(routeMap.mismatches[0].hint, /\/settings\/members\/invite/);
 });
 
+test("a dynamic route's own row does not hide a more specific static row it serves (review round 5)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[id]": "default", "/docs/new": "prose" });`,
+    "src/app/docs/[id]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/layout.tsx": `<AppShellPage>{children}</AppShellPage>`,
+  });
+  assert.deepEqual(lines(compositionOf(root).routeMap.mismatches), [
+    'src/app/docs/[id]/page.tsx:1 size="default" on /docs/[id]',
+    'src/app/docs/layout.tsx:1 size="default" on /docs',
+  ]);
+});
+
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {
