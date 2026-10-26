@@ -28250,11 +28250,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/truncated-text",
-      "registryDependencies": [
-        "@vegastack/tooltip",
-        "@vegastack/use-media-query",
-        "@vegastack/use-overflow"
-      ],
+      "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
       "npmDependencies": [
         "@vegastack/design@^0.8.32",
         "@vegastack/design-tokens@^0.8.17"

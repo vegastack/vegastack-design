@@ -15299,11 +15299,7 @@
         "@vegastack/design@^0.8.32",
         "@vegastack/design-tokens@^0.8.17"
       ],
-      "registryDependencies": [
-        "@vegastack/tooltip",
-        "@vegastack/use-media-query",
-        "@vegastack/use-overflow"
-      ],
+      "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
       "files": [
         {
           "path": "packages/ui/registry/ui/truncated-text.tsx",

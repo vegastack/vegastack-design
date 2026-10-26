@@ -18749,7 +18749,6 @@
       ],
       "registryDependencies": [
         "@vegastack/tooltip",
-        "@vegastack/use-media-query",
         "@vegastack/use-overflow"
       ],
       "files": [
@@ -18763,7 +18762,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.25.83",
-        "integrity": "sha256-0tJt0tI3jhQsMVoyNeX9fbelPhg9WcVXboyuPkB5+qc="
+        "integrity": "sha256-fP41ekIRKsYE6bT6ZgR3JfIBtJ1KQBO9FheYg4fXc8c="
       }
     },
     {
