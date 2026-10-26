@@ -43124,13 +43124,13 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled"],
-          "evidence": "Observed in hook implementation and inline contract: disabled and shouldHandle both suppress key handling; the active index re-clamps on collection shrink."
+          "values": ["active", "inactive"],
+          "evidence": "Marks the open row with data-peek-active and scrolls it into view (block: nearest) when it becomes the open one."
         },
         "accessibility": {
-          "status": "observed",
-          "values": ["roving-tabindex"],
-          "evidence": "The hook's entire purpose: one tabIndex=0 item per collection, arrow-key focus movement with preventDefault, RTL-aware horizontal arrows."
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Sets a data attribute only; the list owns its row semantics."
         },
         "visual": {
           "status": "not-applicable",

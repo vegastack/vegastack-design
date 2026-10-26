@@ -53,6 +53,24 @@ function Harness({
         <RecordPeekBody>
           <p data-testid="body">Record {id}</p>
           <textarea aria-label="Comment" />
+          <button
+            type="button"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="none"
+            aria-label="Status"
+          >
+            Open
+          </button>
+          <button
+            type="button"
+            onKeyDown={(event) => {
+              if (event.key === "j" || event.key === "Enter")
+                event.preventDefault();
+            }}
+          >
+            Own keys
+          </button>
           <div role="tablist" aria-label="Sections">
             <button type="button" role="tab" aria-selected="true">
               Fields
@@ -207,4 +225,60 @@ test("a field, a popup or a control with its own arrows keeps its keys", async (
   await expect
     .element(screen.getByTestId("body"))
     .toHaveTextContent("Record b");
+});
+
+test("a combobox and a control that claims its keys keep J/K and ⌘↵", async () => {
+  const onOpenFull = vi.fn();
+  const screen = await render(<Harness start="a" onOpenFull={onOpenFull} />);
+  (
+    screen.getByRole("combobox", { name: "Status" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("j");
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await expect
+    .element(screen.getByTestId("body"))
+    .toHaveTextContent("Record a");
+  expect(onOpenFull).not.toHaveBeenCalled();
+  (
+    screen.getByRole("button", { name: "Own keys" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("j");
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await expect
+    .element(screen.getByTestId("body"))
+    .toHaveTextContent("Record a");
+  expect(onOpenFull).not.toHaveBeenCalled();
+});
+
+test("a consumer ref reaches the panel and the keys still work inside it", async () => {
+  const ref = React.createRef<HTMLDivElement>();
+  function WithRef() {
+    const [id, setId] = React.useState("a");
+    return (
+      <RecordPeek
+        ref={ref}
+        open
+        onOpenChange={() => {}}
+        label="Task"
+        position={{ index: ROWS.indexOf(id), total: ROWS.length }}
+        onNext={() => setId(ROWS[ROWS.indexOf(id) + 1] ?? id)}
+      >
+        <RecordPeekBody>
+          <button type="button">Inside {id}</button>
+        </RecordPeekBody>
+      </RecordPeek>
+    );
+  }
+  const screen = await render(<WithRef />);
+  await expect
+    .element(screen.getByRole("dialog", { name: "Task" }))
+    .toBeVisible();
+  expect(ref.current?.getAttribute("data-slot")).toBe("record-peek");
+  (
+    screen.getByRole("button", { name: "Inside a" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("j");
+  await expect
+    .element(screen.getByRole("button", { name: "Inside b" }))
+    .toBeVisible();
 });

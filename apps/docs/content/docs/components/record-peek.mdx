@@ -31,7 +31,8 @@ import { RecordHeader } from "@/components/ui/record-header";
   fullLink={<Link href={`/tasks/${peekId}`} />}
   actions={<TaskActionsMenu id={peekId} />}
   storageKey="peek-width"
-  returnFocus={() => document.querySelector(`[data-row-id="${peekId}"]`)}
+  // The row it was opened from — kept when the peek opens, since `peekId` is gone by close time.
+  returnFocus={() => originRow.current}
 >
   <RecordPeekBody>
     <RecordHeader level={2} keyBadge={task.ref} title={task.title} />

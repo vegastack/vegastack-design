@@ -2433,7 +2433,7 @@
         "whenToUse": "Opening any record from a list — a task, a table row, a meeting, a customer — beside the list, with keyboard walking and a way to the full page.",
         "whenNotToUse": "A document or file that opens as its own page or viewer, or a form that needs the page to wait (Dialog, Sheet).",
         "version": "0.25.87",
-        "integrity": "sha256-qiFuQjqKc50+mVLCkMMZvCmHfZ9YZJTq5xG4Ss8WyRs="
+        "integrity": "sha256-yYeEJUlTidK9V/3+iYR4pGL1iJJCE+AiJzYrfMRPE8Y="
       }
     },
     {

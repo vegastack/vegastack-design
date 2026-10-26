@@ -1,10 +1,11 @@
-// @vegastack record-peek@0.25.87 sha256-qiFuQjqKc50+mVLCkMMZvCmHfZ9YZJTq5xG4Ss8WyRs=
+// @vegastack record-peek@0.25.87 sha256-yYeEJUlTidK9V/3+iYR4pGL1iJJCE+AiJzYrfMRPE8Y=
 
 "use client";
 
 import * as React from "react";
 import { ArrowDown, ArrowUp, Maximize2, X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
+import { useDirection } from "@/components/ui/direction";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Kbd } from "@/components/ui/kbd";
@@ -142,7 +143,8 @@ export interface RecordPeekProps extends Omit<
   keyboard?: boolean;
   /**
    * Where focus goes when the peek closes: the row it was opened from. A function is read at
-   * close time, so a list that re-rendered still finds the row.
+   * close time — keep the row (or its id) from when the peek opened, since the open record's id
+   * is usually cleared by then.
    * @default undefined
    */
   returnFocus?: HTMLElement | null | (() => HTMLElement | null);
@@ -178,9 +180,13 @@ function storeWidth(key: string | undefined, width: number) {
 const KEY_OWNERS =
   "[role='menu'], [role='listbox'], [data-slot='popover-content'], [role='alertdialog']";
 
+/** Elements that take every key themselves: a combobox, an open listbox or menu. */
+const KEY_TAKERS =
+  "[role='combobox'], [role='menu'], [role='listbox'], [role='alertdialog'], [data-slot='popover-content']";
+
 /** Controls whose own keyboard model uses ↑/↓. */
 const ARROW_OWNERS =
-  "[role='grid'], [role='treegrid'], [role='tree'], [role='tablist'], [role='radiogroup'], [role='slider'], [role='spinbutton'], [role='combobox'], [aria-haspopup='listbox'], [aria-haspopup='menu'], [aria-haspopup='true']";
+  "[role='grid'], [role='treegrid'], [role='tree'], [role='tablist'], [role='radiogroup'], [role='slider'], [role='spinbutton'], [aria-haspopup='listbox'], [aria-haspopup='menu'], [aria-haspopup='true']";
 
 /**
  * `RecordPeek` — a record opened beside its list. Non-modal (the list stays usable, a click on
@@ -205,7 +211,7 @@ const ARROW_OWNERS =
  *   fullLink={<Link href={`/tasks/${peek}`} />}
  *   actions={<TaskMenu id={peek} />}
  *   storageKey="peek-width"
- *   returnFocus={() => document.querySelector(`[data-row-id="${peek}"]`)}
+ *   returnFocus={() => originRow.current} // set when the row opened the peek
  * >
  *   <RecordPeekBody>
  *     <RecordHeader title={task.title} keyBadge={task.ref} />
@@ -238,16 +244,33 @@ export function RecordPeek({
   returnFocus,
   className,
   style,
+  ref,
   ...props
 }: RecordPeekProps) {
   const { os } = usePlatform();
+  const direction = useDirection();
+  const rtl = direction === "rtl";
   const [innerWidth, setInnerWidth] = React.useState(defaultWidth);
   React.useEffect(() => {
     const stored = readStoredWidth(storageKey);
     if (stored !== undefined)
       setInnerWidth(clampWidth(stored, minWidth, maxShare));
   }, [storageKey, minWidth, maxShare]);
-  const width = widthProp ?? innerWidth;
+  // The width the panel can have in this window: the window may have narrowed since the width
+  // was chosen, so the drag origin and `aria-valuenow` read what is drawn, not what was asked.
+  const [viewport, setViewport] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const read = () => setViewport(window.innerWidth);
+    read();
+    window.addEventListener("resize", read);
+    return () => window.removeEventListener("resize", read);
+  }, [open]);
+  const asked = widthProp ?? innerWidth;
+  const width =
+    viewport === null
+      ? asked
+      : Math.round(Math.max(minWidth, Math.min(asked, viewport * maxShare)));
   const setWidth = React.useCallback(
     (next: number, persist: boolean) => {
       const clamped = clampWidth(next, minWidth, maxShare);
@@ -288,18 +311,24 @@ export function RecordPeek({
   };
 
   const panelRef = React.useRef<HTMLDivElement | null>(null);
+  const setPanelRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(panelRef, ref as React.Ref<HTMLDivElement>),
+    [ref],
+  );
 
   React.useEffect(() => {
     if (!open || !keyboard) return;
     const onKey = (event: KeyboardEvent) => {
+      // Bubbling, so a control inside the page or the peek handles its own keys first and claims
+      // them with `preventDefault` — a list's own J/K cursor, a composer's ⌘↵ send.
       if (event.defaultPrevented || event.isComposing) return;
       const now = latest.current;
-      const target = event.target instanceof Element ? event.target : null;
-      // A field, an open popup or another dialog owns its keys: a composer's ⌘↵ sends, a menu's
-      // arrows move its highlight, a confirm dialog opened from the peek keeps the keyboard.
+      const first = event.composedPath?.()[0] ?? event.target;
+      const target = first instanceof Element ? first : null;
+      // A field, a combobox, an open popup or another dialog owns its keys.
       if (isEditableTarget(event)) return;
-      if (target?.closest(KEY_OWNERS) || document.querySelector(KEY_OWNERS))
-        return;
+      if (target?.closest(KEY_TAKERS)) return;
+      if (document.querySelector(KEY_OWNERS)) return;
       const dialog = target?.closest("[role='dialog']");
       if (dialog && !dialog.contains(panelRef.current)) return;
       if (document.querySelector("[role='dialog'][aria-modal='true']")) return;
@@ -319,8 +348,8 @@ export function RecordPeek({
         return;
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
       const arrow = key === "ArrowDown" || key === "ArrowUp";
-      // A control that moves with the arrows keeps them (a grid cell, a tab list, a select
-      // trigger, a slider); J and K still walk from there.
+      // A control that moves with the arrows keeps them (a grid, a tab list, a slider); J and K
+      // still walk from there.
       if (arrow && target?.closest(ARROW_OWNERS)) return;
       const by =
         key === "ArrowDown" || key === "j"
@@ -329,14 +358,12 @@ export function RecordPeek({
             ? -1
             : 0;
       if (by === 0) return;
-      // Claim the key ahead of a plain list's own cursor (capture), even at an end.
       event.preventDefault();
-      event.stopImmediatePropagation();
       if (by > 0 && now.canNext) now.onNext?.();
       if (by < 0 && now.canPrevious) now.onPrevious?.();
     };
-    document.addEventListener("keydown", onKey, true);
-    return () => document.removeEventListener("keydown", onKey, true);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [open, keyboard]);
 
   const startResize = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -347,7 +374,6 @@ export function RecordPeek({
     const startX = event.clientX;
     const startWidth = width;
     // The panel sits at the end edge: dragging towards the start widens it.
-    const rtl = getComputedStyle(handle).direction === "rtl";
     let next = startWidth;
     const onMove = (move: PointerEvent) => {
       const delta = rtl ? move.clientX - startX : startX - move.clientX;
@@ -366,7 +392,6 @@ export function RecordPeek({
   };
 
   const onSeparatorKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
     const wider = rtl ? "ArrowRight" : "ArrowLeft";
     const narrower = rtl ? "ArrowLeft" : "ArrowRight";
     if (event.key === wider) setWidth(width + STEP, true);
@@ -380,9 +405,7 @@ export function RecordPeek({
 
   const fullShortcut = formatShortcut(["mod", "enter"], os);
   const maxWidth =
-    typeof window === "undefined"
-      ? undefined
-      : Math.round(window.innerWidth * maxShare);
+    viewport === null ? undefined : Math.round(viewport * maxShare);
   const finalFocus = React.useCallback(() => {
     const row = typeof returnFocus === "function" ? returnFocus() : returnFocus;
     return row ?? true;
@@ -402,12 +425,14 @@ export function RecordPeek({
       onOpenChange={(next) => {
         if (!next) onOpenChange(false);
       }}
-      swipeDirection="right"
+      // The panel sits at the end edge: the right in a left-to-right page, the left in RTL (the
+      // drawer's swipe directions are physical; its edge classes are logical, so RTL is restated).
+      swipeDirection={rtl ? "left" : "right"}
       modal={false}
       disablePointerDismissal
     >
       <DrawerContent
-        ref={panelRef}
+        ref={setPanelRef}
         data-slot="record-peek"
         initialFocus={false}
         finalFocus={returnFocus === undefined ? undefined : finalFocus}
@@ -419,6 +444,8 @@ export function RecordPeek({
           } as React.CSSProperties
         }
         className={cn(
+          rtl &&
+            "data-[swipe-direction=left]:start-auto data-[swipe-direction=left]:end-0",
           // The drawer's own side widths are keyed on the swipe axis; restate on the same keys.
           "data-[swipe-axis=x]:[--drawer-content-width:min(var(--record-peek-width),var(--record-peek-max),calc(100vw-1rem))] data-[swipe-axis=x]:sm:[--drawer-content-width:min(var(--record-peek-width),var(--record-peek-max),calc(100vw-1rem))]",
           // Phone (below the tablet tier, 40rem): the whole screen, edge to edge.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Calendar, Ellipsis, Flag, UserRound } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { RecordPeek, RecordPeekBody } from "@/components/ui/record-peek";
@@ -67,6 +67,7 @@ function TaskRow({
  */
 export function recordPeek(): ReactNode {
   const [peekId, setPeekId] = useState<string | null>(null);
+  const originRow = useRef<HTMLElement | null>(null);
   const index = TASKS.findIndex((task) => task.id === peekId);
   const task = index >= 0 ? TASKS[index]! : null;
   return (
@@ -77,7 +78,10 @@ export function recordPeek(): ReactNode {
             key={t.id}
             task={t}
             peekId={peekId}
-            onOpen={(id) => setPeekId(id)}
+            onOpen={(id, row) => {
+              originRow.current = row;
+              setPeekId(id);
+            }}
           />
         ))}
       </ItemGroup>
@@ -100,11 +104,7 @@ export function recordPeek(): ReactNode {
             <Ellipsis />
           </Button>
         }
-        returnFocus={() =>
-          peekId
-            ? document.querySelector<HTMLElement>(`[data-row-id="${peekId}"]`)
-            : null
-        }
+        returnFocus={() => originRow.current}
       >
         {task ? (
           <RecordPeekBody>
