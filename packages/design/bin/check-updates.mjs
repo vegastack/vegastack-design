@@ -272,7 +272,10 @@ function assertRegistryRequest(url, headers) {
     parsed = new URL(url);
   } catch {
     // redact: an unparseable URL is still printed, and it may carry an interpolated secret.
-    throw new Error(`registry URL is invalid: ${redact(url)}`);
+    // Never echoed: an unparseable URL may carry a password no parser can find to redact.
+    throw new Error(
+      "registry URL is invalid (not shown: it may carry credentials)",
+    );
   }
   if (parsed.username || parsed.password) {
     throw new Error("registry URL must not contain embedded credentials");
@@ -960,7 +963,64 @@ export async function main(argv) {
   return errors.length ? 2 : opts.failOnUpdate && updates.length ? 1 : 0;
 }
 
-export { terminalText };
+/**
+ * The registry index, for another read-only command (`owned-files`): the same config precedence,
+ * `${ENV}` expansion, credential headers, trusted-origin and no-redirect rules as `check-updates`
+ * itself. Throws an Error whose message is already terminal-safe and redacted.
+ */
+export async function fetchRegistryIndex({
+  cwd,
+  registry = null,
+  componentsJson = null,
+}) {
+  missingEnv.clear();
+  ENV = loadEnv(cwd);
+  const { urlTemplate, headers } = resolveRegistry(
+    { registry },
+    componentsJson,
+  );
+  const url = indexUrl(urlTemplate);
+  // Printed without userinfo: a `user:password@` URL is refused, and must not be echoed either.
+  const shown = (() => {
+    try {
+      const u = new URL(url);
+      u.username = "";
+      u.password = "";
+      return terminalText(u.href);
+    } catch {
+      return "the configured registry URL";
+    }
+  })();
+  let res;
+  try {
+    res = await fetchRegistry(url, headers);
+  } catch (err) {
+    throw new Error(
+      `could not reach the registry at ${shown}: ${terminalText(err.message)}`,
+    );
+  }
+  if (!res.ok) {
+    const hint = missingEnv.size
+      ? ` (these auth env vars are unset: ${[...missingEnv].join(", ")})`
+      : "";
+    throw new Error(
+      `registry index fetch failed: HTTP ${res.status} ${terminalText(res.statusText)} (${shown})${hint}`,
+    );
+  }
+  let index;
+  try {
+    index = await res.json();
+  } catch {
+    // Never the parser's message: it quotes a truncated prefix of the body, which redaction of
+    // whole secret values cannot catch.
+    throw new Error(`registry index is not JSON (${shown})`);
+  }
+  if (!Array.isArray(index?.items))
+    throw new Error("registry index has no items array");
+  return { url: shown, items: index.items };
+}
+
+export { terminalText, PROVENANCE_RE, ITEM_NAME_RE };
 
 // standalone execution (so `node check-updates.mjs` works; the dispatcher imports main() instead)
 if (

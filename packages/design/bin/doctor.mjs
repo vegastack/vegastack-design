@@ -22,6 +22,11 @@
 // (`prose` · `default` · `full`) and pads with the shared page gutter, so a `max-w-*`, `mx-*`,
 // `w-*` or padding class on one is a page choosing its own width or gutter, and fails.
 //
+// And it warns where code works around a DS part instead of using it — a Tailwind `!` on a ui part,
+// a width class on a popover or menu popup, a hand-written `<header>` inside overlay content, an
+// `AppShellPage size` that disagrees with the route map. Those four warn by default and fail under
+// `--strict`, so a consumer can take the release, fix what they report, and then turn the gate on.
+//
 // Read-only: it never writes, installs, or edits. Exit 0 = all good, 1 = a real problem,
 // so it composes into CI as `vegastack-design doctor`.
 
@@ -52,11 +57,19 @@ Usage: vegastack-design doctor [options]
 
 Checks a consuming project's VegaStack setup and reports what is wrong and how to fix it.
 Also scans the project's own source (not node_modules, build output, or the components.json
-\`ui\` alias directory) for vocabulary the shadcn reset retired, and for an AppShellPage that sets
-its own width or gutter, and reports each as file:line.
+\`ui\` alias directory) and reports each finding as file:line:
+
+  retired vocabulary      a utility, token or component the shadcn reset retired      (fails)
+  page layout             an AppShellPage class that sets the page's width or gutter  (fails)
+  important on DS parts   a Tailwind \`!\` modifier in the className of a ui part       (warns)
+  popup width             w-*/min-w-*/max-w-* on a popover, menu or select popup       (warns)
+  overlay header          a hand-written <header> inside Sheet/Drawer/Dialog content   (warns)
+  page width vs route map an AppShellPage size in an App Router page or layout that
+                          disagrees with the definePageWidths route map               (warns)
 
 Options:
   --dir <path>   Project root to inspect (default: the current directory)
+  --strict       Fail (exit 1) on the four composition checks instead of warning
   -h, --help     Show this help
 
 Exit codes: 0 = no problems · 1 = at least one failure · 2 = bad usage
@@ -384,6 +397,9 @@ function importsIntoUi(specDir, { file, uiAliases, uiDirs }) {
  * opens only where an expression can begin (after `=`, `(`, `,`, `[`, `{`, `:`, `?`, an operator,
  * `=>`, or a keyword such as `return`), and a comment only after whitespace or code punctuation,
  * never after `:` (`https://`) or a word (`src/*.ts`).
+ *
+ * `blankStrings` blanks EVERY string's content (quotes kept): the structure copy the composition
+ * scan finds tags in, where no string may open or close one.
  */
 const EXPRESSION_KEYWORDS = new Set([
   "return",
@@ -419,9 +435,34 @@ function canStartExpression(src, i) {
 }
 const canStartComment = (src, i) => i === 0 || /[\s;,{}()[\]]/.test(src[i - 1]);
 
+/**
+ * The index of the quote closing the string that opens at `i` (or of the line end / file end where
+ * an unterminated one gives up). A template's `${…}` is skipped whole — braces counted, strings and
+ * nested templates inside it skipped — so a backtick in an interpolation does not end the template.
+ */
+function stringEnd(src, i) {
+  const q = src[i];
+  let j = i + 1;
+  while (j < src.length && src[j] !== q) {
+    if (src[j] === "\\") j += 1;
+    else if (src[j] === "\n" && q !== "`") break;
+    else if (q === "`" && src[j] === "$" && src[j + 1] === "{") {
+      let depth = 0;
+      for (j += 1; j < src.length; j += 1) {
+        const ch = src[j];
+        if (ch === '"' || ch === "'" || ch === "`") j = stringEnd(src, j);
+        else if (ch === "{") depth += 1;
+        else if (ch === "}" && (depth -= 1) === 0) break;
+      }
+    }
+    j += 1;
+  }
+  return j;
+}
+
 export function maskNonUsage(
   src,
-  { script = true, lineComments = script } = {},
+  { script = true, lineComments = script, blankStrings = false } = {},
 ) {
   const out = src.split("");
   const blank = (from, to) => {
@@ -454,13 +495,9 @@ export function maskNonUsage(
       (c === '"' || c === "'" || c === "`") &&
       (!script || canStartExpression(src, i))
     ) {
-      let j = i + 1;
-      while (j < src.length && src[j] !== c) {
-        if (src[j] === "\\") j += 1;
-        else if (src[j] === "\n" && c !== "`") break;
-        j += 1;
-      }
-      if (script && isProse(src.slice(i + 1, j))) blank(i + 1, j);
+      const j = stringEnd(src, i);
+      if (script && (blankStrings || isProse(src.slice(i + 1, j))))
+        blank(i + 1, j);
       i = j + 1;
     } else {
       i += 1;
@@ -641,6 +678,719 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
   return { findings, deprecated };
 }
 
+// ---- composition: DS parts used as designed --------------------------------------------------
+// Four lexical checks over the project's own JSX. No parser: each file is read twice over the same
+// offsets — a STRUCTURE copy with comments and every string's content blanked (quotes kept), where
+// tags, attributes and braces are found, and the source itself, where values are read. Blanking the
+// strings is what keeps a `"</SheetContent>"` or a `'<header>'` in a string from opening or closing
+// anything, and an apostrophe in JSX text ("Don't") from swallowing the rest of a tag.
+// They report as WARNINGS by default and as failures under `--strict`, so a consumer can adopt a
+// new release, fix what it reports, and then turn the gate on.
+//
+// Known limits, all toward silence: a part re-exported through the project's own module is not a
+// ui import; a `<header>` counts only when it sits inside the overlay content in the SAME file (a
+// child component's header is not seen); a JSX attribute string ending in a backslash
+// (`title="C:\"`) or spanning lines can desynchronise that tag's scan; route-map rows count only as
+// string literals; a regex literal holding a brace inside a JSX attribute expression can end that
+// expression early; and an `AppShellPage` outside an App Router page or layout file, or with a
+// `size={…}` expression, is counted rather than compared.
+
+/** Popover and menu popups whose width the part owns: `PopoverContent size`, or the longest item. */
+export const WIDTH_OWNING_CONTENT = [
+  "PopoverContent",
+  "DropdownMenuContent",
+  "ContextMenuContent",
+  "MenubarContent",
+  "SelectContent",
+  "ComboboxContent",
+  "HoverCardContent",
+];
+
+/** Overlay panels whose header the part owns, with the part that renders it. */
+export const OVERLAY_HEADERS = {
+  SheetContent: "SheetHeader",
+  DrawerContent: "DrawerHeader",
+  DialogContent: "DialogHeader",
+  AlertDialogContent: "AlertDialogHeader",
+};
+
+/** From a `{` at `j` in the structure copy, the index just past its matching `}`. */
+function skipBraces(scan, j) {
+  let depth = 0;
+  for (let k = j; k < scan.length; k += 1) {
+    const c = scan[k];
+    if (c === "{") depth += 1;
+    else if (c === "}") {
+      depth -= 1;
+      if (depth === 0) return k + 1;
+    }
+  }
+  return scan.length;
+}
+
+/** From a `<` at `j` (TSX type arguments: `<DataGrid<Row> …>`), the index just past its `>`. */
+function skipTypeArguments(scan, j) {
+  let depth = 0;
+  let braces = 0; // an object type: `<DataGrid<{ id: string; name: string }>`
+  const limit = Math.min(scan.length, j + 2000);
+  for (let k = j; k < limit; k += 1) {
+    const c = scan[k];
+    if (c === "{") braces += 1;
+    else if (c === "}") {
+      if ((braces -= 1) < 0) return -1;
+    } else if (braces > 0) continue;
+    else if (c === "<") depth += 1;
+    else if (c === ">" && scan[k - 1] !== "=") {
+      depth -= 1;
+      if (depth === 0) return k + 1;
+    } else if (c === ";") return -1;
+  }
+  return -1;
+}
+
+/** The `>` closing an opening tag whose attributes start at `j`, or -1 when it is not a tag. */
+function tagEnd(scan, j) {
+  const limit = Math.min(scan.length, j + 20000);
+  let k = j;
+  while (k < limit) {
+    const c = scan[k];
+    if (c === '"' || c === "'") {
+      const close = scan.indexOf(c, k + 1);
+      if (close === -1) return -1;
+      k = close + 1;
+      continue;
+    }
+    if (c === "{") {
+      k = skipBraces(scan, k);
+      continue;
+    }
+    if (c === ">") return k;
+    if (c === "<" || c === ";" || c === "}" || c === ")") return -1;
+    k += 1;
+  }
+  return -1;
+}
+
+const OPEN_TAG = /<([A-Za-z][\w.]*)(?=[\s/><])/y;
+const CLOSE_TAG = /<\/\s*([A-Za-z][\w.]*)?\s*>/y;
+
+/** Every JSX opening and closing tag in a structure copy, in source order. */
+export function jsxTags(scan) {
+  const tags = [];
+  for (let i = scan.indexOf("<"); i !== -1; i = scan.indexOf("<", i + 1)) {
+    CLOSE_TAG.lastIndex = i;
+    const close = CLOSE_TAG.exec(scan);
+    if (close) {
+      tags.push({ kind: "close", name: close[1] ?? "", index: i });
+      continue;
+    }
+    OPEN_TAG.lastIndex = i;
+    const open = OPEN_TAG.exec(scan);
+    if (!open) continue;
+    let start = i + open[0].length;
+    if (scan[start] === "<") {
+      start = skipTypeArguments(scan, start);
+      if (start === -1) continue;
+    }
+    const end = tagEnd(scan, start);
+    if (end === -1) continue;
+    tags.push({
+      kind: "open",
+      name: open[1],
+      attrsAt: start,
+      attrsEnd: end,
+      selfClosing: scan[end - 1] === "/",
+      index: i,
+    });
+  }
+  return tags;
+}
+
+/**
+ * An opening tag's own attributes — never one on a JSX element nested in an attribute's value
+ * (`render={<div className="…" />}`): `name → { from, to, kind }`, `kind` "string" or "expr".
+ */
+export function tagAttributes(tag, scan) {
+  const out = new Map();
+  const spreads = []; // the order of each `{...props}`, which may set any attribute after it
+  out.set("...", spreads);
+  const NAME = /[^\s=/>{"']+/y;
+  let k = tag.attrsAt;
+  while (k < tag.attrsEnd) {
+    const c = scan[k];
+    if (c === "{") {
+      spreads.push(out.size);
+      k = skipBraces(scan, k);
+      continue;
+    }
+    NAME.lastIndex = k;
+    const name = NAME.exec(scan);
+    if (!name) {
+      k += 1;
+      continue;
+    }
+    let v = k + name[0].length;
+    while (v < tag.attrsEnd && /\s/.test(scan[v])) v += 1;
+    if (scan[v] !== "=") {
+      out.set(name[0], { kind: "flag", order: out.size });
+      k = v;
+      continue;
+    }
+    v += 1;
+    while (v < tag.attrsEnd && /\s/.test(scan[v])) v += 1;
+    const q = scan[v];
+    if (q === '"' || q === "'") {
+      const close = scan.indexOf(q, v + 1);
+      out.set(name[0], {
+        kind: "string",
+        from: v + 1,
+        to: close,
+        order: out.size,
+      });
+      k = close + 1;
+    } else if (q === "{") {
+      const close = skipBraces(scan, v);
+      out.set(name[0], {
+        kind: "expr",
+        from: v + 1,
+        to: close - 1,
+        order: out.size,
+      });
+      k = close;
+    } else k = v + 1;
+  }
+  return out;
+}
+
+/** An attribute's string value when it is a literal (`size="full"`, `size={"full"}`), else null. */
+function literalValue(attr, scan, read) {
+  if (!attr || attr.kind === "flag") return null;
+  if (attr.kind === "string")
+    return { text: read.slice(attr.from, attr.to), at: attr.from };
+  const m = /^(\s*)(["'`])([^"'`]*)\2\s*$/.exec(scan.slice(attr.from, attr.to));
+  if (!m) return null;
+  const at = attr.from + m[1].length + 1;
+  const text = read.slice(at, at + m[3].length);
+  return m[2] === "`" && text.includes("${") ? null : { text, at };
+}
+
+/**
+ * The literal text a template spells out: its static parts, and inside each `${…}` every string
+ * literal and (recursively) every nested template — the classes a conditional interpolation adds.
+ */
+function templateFragments(text, at) {
+  const out = [];
+  let start = 0;
+  let k = 0;
+  while (k < text.length) {
+    if (text[k] === "\\") {
+      k += 2;
+      continue;
+    }
+    if (text[k] === "$" && text[k + 1] === "{") {
+      out.push({ text: text.slice(start, k), at: at + start });
+      let depth = 0;
+      let e = k + 1;
+      for (; e < text.length; e += 1) {
+        const c = text[e];
+        if (c === '"' || c === "'" || c === "`") {
+          const close = Math.min(stringEnd(text, e), text.length);
+          const inner = text.slice(e + 1, close);
+          if (c === "`") out.push(...templateFragments(inner, at + e + 1));
+          else out.push({ text: inner, at: at + e + 1 });
+          e = close;
+        } else if (c === "{") depth += 1;
+        else if (c === "}" && (depth -= 1) === 0) break;
+      }
+      k = e + 1;
+      start = k;
+      continue;
+    }
+    k += 1;
+  }
+  out.push({ text: text.slice(start), at: at + start });
+  return out;
+}
+
+/** The class tokens a `className` value spells out in string literals, each with its offset. */
+function classTokens(attr, scan, read) {
+  const spans = [];
+  if (attr.kind === "string")
+    spans.push({ text: read.slice(attr.from, attr.to), at: attr.from });
+  else if (attr.kind === "expr")
+    for (let k = attr.from; k < attr.to; k += 1) {
+      const q = scan[k];
+      if (q !== '"' && q !== "'" && q !== "`") continue;
+      const close = scan.indexOf(q, k + 1);
+      if (close === -1 || close > attr.to) break;
+      const text = read.slice(k + 1, close);
+      if (q === "`") spans.push(...templateFragments(text, k + 1));
+      else spans.push({ text, at: k + 1 });
+      k = close;
+    }
+  const tokens = [];
+  for (const span of spans)
+    for (const t of span.text.matchAll(/\S+/g))
+      tokens.push({ token: t[0], at: span.at + t.index });
+  return tokens;
+}
+
+/** The utility a class token applies, with its variants (`md:`, `data-[x]:`) removed. */
+function utilityOf(token) {
+  let depth = 0;
+  let last = 0;
+  for (let k = 0; k < token.length; k += 1) {
+    const c = token[k];
+    if (c === "[" || c === "(") depth += 1;
+    else if (c === "]" || c === ")") depth -= 1;
+    else if (c === ":" && depth === 0) last = k + 1;
+  }
+  return token.slice(last);
+}
+
+const isImportant = (utility) =>
+  utility.length > 1 &&
+  /^!?-?[a-z[(@*]/.test(utility) &&
+  (utility.startsWith("!") || utility.endsWith("!"));
+const isWidthClass = (utility) =>
+  /^-?(?:w|min-w|max-w)-\S/.test(utility.replace(/^!|!$/g, ""));
+
+/**
+ * The project's names for parts imported from the ui alias directory: `local → part`, with a
+ * namespace import (`import * as Ui from "@/components/ui/popover"`) recorded as `Ui → "*"`.
+ */
+export function uiImports(src, file, { uiAliases, uiDirs }) {
+  const intoUi = (spec) => {
+    if (uiAliases.some((a) => spec === a || spec.startsWith(`${a}/`)))
+      return true;
+    if (!/^\.\.?(?:\/|$)/.test(spec)) return false;
+    const target = resolve(dirname(file), spec);
+    return uiDirs.some((d) => target === d || target.startsWith(d + sep));
+  };
+  const names = new Map();
+  for (const m of src.matchAll(
+    /\bimport\s+(?:type\s+)?([\w$*{}\s,]+?)\s*from\s*["']([^"']+)["']/g,
+  )) {
+    if (!intoUi(m[2])) continue;
+    const clause = m[1];
+    const ns = /\*\s*as\s+([\w$]+)/.exec(clause);
+    if (ns) names.set(ns[1], "*");
+    const named = /\{([^}]*)\}/.exec(clause);
+    for (const part of named ? named[1].split(",") : []) {
+      const p = /^\s*(?:type\s+)?([\w$]+)(?:\s+as\s+([\w$]+))?\s*$/.exec(part);
+      if (p) names.set(p[2] ?? p[1], p[1]);
+    }
+    const def = /^\s*([\w$]+)\s*(?:,|$)/.exec(clause);
+    if (def && def[1] !== "type") names.set(def[1], def[1]);
+  }
+  return names;
+}
+
+/** The ui part a tag renders, or null when the tag is not one. */
+function partOf(name, imports) {
+  const dot = name.indexOf(".");
+  if (dot !== -1)
+    return imports.get(name.slice(0, dot)) === "*" ? name.slice(dot + 1) : null;
+  const part = imports.get(name);
+  return part && part !== "*" ? part : null;
+}
+
+// ---- the page-width route map ----------------------------------------------------------------
+// Copied from the `page-layout` registry lib (packages/ui/registry/lib/page-layout.ts) — the
+// doctor runs before anything is installed and cannot import TypeScript. Keep them in step.
+
+const ROUTE_RANK = {
+  static: 0,
+  dynamic: 1,
+  "catch-all": 2,
+  "optional-catch-all": 3,
+};
+
+export function routeSegments(path) {
+  return path
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .filter((s) => s !== "" && !/^\(.*\)$/.test(s) && !s.startsWith("@"));
+}
+
+const PARSED = new Map();
+function parseRoute(route) {
+  let parsed = PARSED.get(route);
+  if (parsed) return parsed;
+  parsed = routeSegments(route).map((s) => {
+    if (/^\[\[\.\.\.[^\]]+\]\]$/.test(s)) return { kind: "optional-catch-all" };
+    if (/^\[\.\.\.[^\]]+\]$/.test(s)) return { kind: "catch-all" };
+    if (/^\[[^\]]+\]$/.test(s)) return { kind: "dynamic" };
+    return { kind: "static", value: s };
+  });
+  if (PARSED.size < 10000) PARSED.set(route, parsed);
+  return parsed;
+}
+
+export function matchRoute(route, pathname) {
+  const pattern = parseRoute(route);
+  const path = routeSegments(pathname);
+  for (let i = 0; i < pattern.length; i += 1) {
+    const seg = pattern[i];
+    if (seg.kind === "optional-catch-all") return true;
+    if (seg.kind === "catch-all") return path.length > i;
+    if (i >= path.length) return false;
+    if (seg.kind === "static" && seg.value !== path[i]) return false;
+  }
+  return path.length === pattern.length;
+}
+
+function bySpecificity(a, b) {
+  const [ra, rb] = [parseRoute(a), parseRoute(b)];
+  for (let i = 0; i < Math.min(ra.length, rb.length); i += 1) {
+    const d = ROUTE_RANK[ra[i].kind] - ROUTE_RANK[rb[i].kind];
+    if (d !== 0) return d;
+  }
+  return rb.length - ra.length;
+}
+
+/** A value no static row names: what a page's `[id]` stands for when it is matched as a path. */
+const ANY_SEGMENT = "\u0000";
+
+/**
+ * Concrete sample paths a pattern serves, as segment arrays: `[id]` is one value no static row
+ * names, `[...rest]` one to `depth` of them, `[[...rest]]` zero to `depth`.
+ */
+function samplePaths(route, depth) {
+  let paths = [[]];
+  for (const seg of parseRoute(route)) {
+    const from = seg.kind === "optional-catch-all" ? 0 : 1;
+    const to = seg.kind.endsWith("catch-all") ? depth : 1;
+    const next = [];
+    for (const p of paths)
+      for (let n = from; n <= to; n += 1)
+        next.push(
+          seg.kind === "static"
+            ? [...p, seg.value]
+            : [...p, ...Array(n).fill(ANY_SEGMENT)],
+        );
+    paths = next;
+  }
+  return paths;
+}
+
+/**
+ * The widths the route map gives the paths a page's route pattern renders. A static route with its
+ * own row: that row. Otherwise sample paths — the page pattern's, every map row's, and each pair of
+ * those merged position by position (`/en/[slug]` with `/[lang]/settings` gives `/en/settings`),
+ * with catch-alls one segment longer than the longest pattern — kept when this page, not a more
+ * specific page, renders them by Next's precedence, and resolved to the most specific row serving
+ * each exactly as `widthOfPath` picks, or `default` where none does. `pages` are every App Router
+ * page's route. One width when every sample agrees.
+ */
+export function widthsForRoute(map, route, pages = []) {
+  const key = `/${routeSegments(route).join("/")}`;
+  if (map.has(key) && parseRoute(key).every((s) => s.kind === "static"))
+    return [{ width: map.get(key).width, row: key }];
+  const pagePatterns = [...new Set([key, ...pages])].sort(bySpecificity);
+  const rows = [...map.keys()].sort(bySpecificity);
+  const depth =
+    Math.min(
+      8,
+      Math.max(...[key, ...pages, ...rows].map((r) => parseRoute(r).length)),
+    ) + 1;
+  const own = samplePaths(key, depth);
+  const candidates = new Set(own.map((p) => `/${p.join("/")}`));
+  for (const row of rows)
+    for (const r of samplePaths(row, depth)) {
+      candidates.add(`/${r.join("/")}`);
+      for (const p of own) {
+        if (p.length !== r.length) continue;
+        const merged = p.map((seg, i) => (seg === ANY_SEGMENT ? r[i] : seg));
+        if (merged.every((seg, i) => r[i] === ANY_SEGMENT || seg === r[i]))
+          candidates.add(`/${merged.join("/")}`);
+      }
+    }
+  const seen = new Map();
+  for (const path of candidates) {
+    if (!matchRoute(key, path)) continue;
+    if (pagePatterns.find((p) => matchRoute(p, path)) !== key) continue;
+    const row = rows.find((r) => matchRoute(r, path));
+    const width = row ? map.get(row).width : "default";
+    seen.set(`${width} ${row}`, { width, row: row ?? null });
+  }
+  return [...seen.values()];
+}
+
+const ROUTE_ROW = /(["'])(\/[^"'\s]*)\1\s*:\s*(["'])(prose|default|full)\3/g;
+
+/**
+ * Route-map rows a source declares: the `"/route": "prose" | "default" | "full"` rows of the
+ * object literal passed to `definePageWidths(…)`, and of every `widths: { … }` object literal (a
+ * module registry that contributes its own routes to the map).
+ */
+export function routeMapRows(src, scan = src) {
+  // Calls and object bounds come from the structure copy, so a `"}"` or a quoted example call
+  // neither ends a map early nor starts one; the rows are read from the source.
+  const spans = [];
+  for (const m of scan.matchAll(
+    /\bdefinePageWidths\s*(?:<[^>()]*>)?\s*\(\s*\{|\bwidths\s*:\s*\{/g,
+  )) {
+    const open = m.index + m[0].length - 1;
+    spans.push([open, skipBraces(scan, open)]);
+  }
+  const rows = [];
+  for (const [from, to] of spans)
+    for (const m of src.slice(from, to).matchAll(ROUTE_ROW))
+      rows.push({ route: m[2], width: m[4], index: from + m.index });
+  return rows;
+}
+
+/**
+ * A Next.js App Router page or layout's route: `src/app/(app)/tasks/[id]/page.tsx` → `/tasks/[id]`.
+ * Route groups and `@slot`s are not segments; an intercepting segment (`(.)x`, `(..)x`,
+ * `(..)(..)x`, `(...)x`) renders the route it intercepts — the same level, one or two levels up,
+ * or the root.
+ */
+export function appRouteOf(relPath) {
+  const parts = relPath.split("/");
+  const file = parts.pop();
+  if (!/^(?:page|layout)\.[jt]sx?$/.test(file)) return null;
+  const app = parts.indexOf("app");
+  if (app === -1) return null;
+  const route = [];
+  for (const part of parts.slice(app + 1)) {
+    const intercept = /^((?:\(\.{1,3}\))+)(.+)$/.exec(part);
+    if (intercept) {
+      for (const marker of intercept[1].match(/\(\.{1,3}\)/g)) {
+        if (marker === "(...)") route.length = 0;
+        else if (marker === "(..)") route.pop();
+      }
+      route.push(...routeSegments(intercept[2]));
+    } else route.push(...routeSegments(part));
+  }
+  return `/${route.join("/")}`;
+}
+
+const COMPOSITION_EXTENSIONS = /\.[cm]?[jt]sx?$/;
+const TEST_FILE = /(?:^|\/)__tests__\/|\.(?:test|spec)\.[cm]?[jt]sx?$/;
+
+/** 1-based line of an offset, by binary search over the newline offsets. */
+function lineIndex(text) {
+  const breaks = [];
+  for (let k = text.indexOf("\n"); k !== -1; k = text.indexOf("\n", k + 1))
+    breaks.push(k);
+  return (index) => {
+    let lo = 0;
+    let hi = breaks.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (breaks[mid] < index) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo + 1;
+  };
+}
+
+/**
+ * The four composition rules over the project's own source (the ui alias dirs, node_modules and
+ * build output skipped): `!` on a DS part, a width class on a popover or menu popup, a hand-written
+ * `<header>` inside an overlay panel, and an `AppShellPage size` that disagrees with the route map.
+ */
+export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
+  const skip = new Set(skipDirs.map((d) => resolve(d)));
+  const uiDirs = [...skip];
+  const uiAliases = [
+    ...new Set(
+      [uiAlias, "@/components/ui"]
+        .filter((a) => typeof a === "string" && a.length > 0)
+        .map((a) => a.replace(/\/+$/, "")),
+    ),
+  ];
+  const files = [];
+  const walk = (dir) => {
+    if (files.length >= SCAN_MAX_FILES) return;
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.name.startsWith(".") || SCAN_SKIP_DIRS.has(e.name)) continue;
+      const full = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (!skip.has(resolve(full))) walk(full);
+      } else if (e.isFile() && COMPOSITION_EXTENSIONS.test(e.name)) {
+        files.push(full);
+        if (files.length >= SCAN_MAX_FILES) return;
+      }
+    }
+  };
+  walk(root);
+  files.sort();
+  // Every App Router page: its folder (a layout wraps the pages under its own folder) and route.
+  const pageFiles = files
+    .map((f) => relative(root, f).split(sep).join("/"))
+    .filter((f) => /(?:^|\/)page\.[jt]sx?$/.test(f))
+    .map((f) => ({ dir: f.slice(0, f.lastIndexOf("/")), route: appRouteOf(f) }))
+    .filter((p) => p.route != null);
+  const pageRoutes = [...new Set(pageFiles.map((p) => p.route))];
+
+  const important = [];
+  const widths = [];
+  const headers = [];
+  const pages = [];
+  const map = new Map();
+  const conflicts = [];
+  for (const full of files) {
+    try {
+      if (statSync(full).size > SCAN_MAX_BYTES) continue;
+    } catch {
+      continue;
+    }
+    const raw = readIfExists(full);
+    if (raw == null) continue;
+    const file = relative(root, full).split(sep).join("/");
+    const read = raw.replace(/\r/g, "");
+    // Comments (and prose strings) blanked: a commented-out row or an example in a doc block is
+    // not part of the map, and an import in a comment imports nothing.
+    const src = maskNonUsage(read, { script: true });
+    const scan = maskNonUsage(read, { script: true, blankStrings: true });
+    const lineAt = lineIndex(read);
+    if (!TEST_FILE.test(file))
+      for (const row of routeMapRows(src, scan)) {
+        const at = { width: row.width, file, line: lineAt(row.index) };
+        const known = map.get(row.route);
+        if (!known) map.set(row.route, at);
+        else if (known.width !== row.width)
+          conflicts.push({
+            file,
+            line: at.line,
+            match: `route-map row "${row.route}": "${row.width}"`,
+            hint: `${known.file}:${known.line} already says "${known.width}"`,
+          });
+      }
+    if (!/\.[jt]sx$/.test(full) || !read.includes("<")) continue;
+
+    const imports = uiImports(src, full, { uiAliases, uiDirs });
+    const overlays = [];
+    const route = appRouteOf(file);
+    for (const tag of jsxTags(scan)) {
+      const part = partOf(tag.name, imports);
+      if (tag.kind === "close") {
+        if (part && part in OVERLAY_HEADERS) {
+          const at = overlays.lastIndexOf(part);
+          if (at !== -1) overlays.splice(at, 1);
+        }
+        continue;
+      }
+      if (tag.name === "header" && overlays.length > 0) {
+        const inside = overlays[overlays.length - 1];
+        headers.push({
+          file,
+          line: lineAt(tag.index),
+          match: `<header> in ${inside}`,
+          hint: OVERLAY_HEADERS[inside],
+        });
+      }
+      const isPage = part === "AppShellPage" || tag.name === "AppShellPage";
+      if (!part && !isPage) continue;
+      const attrs = tagAttributes(tag, scan);
+      if (isPage) {
+        // A spread after `size` (or anywhere, with no `size`) may set it: that size is dynamic.
+        const size = attrs.get("size");
+        const spreads = attrs.get("...");
+        pages.push({
+          file,
+          line: lineAt(tag.index),
+          route,
+          size: spreads.some((at) => at > (size?.order ?? -1))
+            ? null
+            : size == null
+              ? "default"
+              : (literalValue(size, scan, read)?.text ?? null),
+        });
+      }
+      if (!part) continue;
+      if (part in OVERLAY_HEADERS && !tag.selfClosing) overlays.push(part);
+      const cls = attrs.get("className");
+      if (!cls || cls.kind === "flag") continue;
+      for (const { token, at } of classTokens(cls, scan, read)) {
+        const utility = utilityOf(token);
+        if (isImportant(utility))
+          important.push({ file, line: lineAt(at), match: `${part} ${token}` });
+        if (WIDTH_OWNING_CONTENT.includes(part) && isWidthClass(utility))
+          widths.push({ file, line: lineAt(at), match: `${part} ${token}` });
+      }
+    }
+  }
+
+  // AppShellPage size vs the route map: route files only, literal (or absent) sizes only.
+  const mismatches = [...conflicts];
+  let compared = 0;
+  let dynamic = 0;
+  let outside = 0;
+  for (const page of pages) {
+    if (page.route == null) {
+      outside += 1;
+      continue;
+    }
+    if (page.size == null) {
+      dynamic += 1;
+      continue;
+    }
+    if (map.size === 0) continue;
+    compared += 1;
+    const size = page.size === "narrow" ? "prose" : page.size;
+    // A page answers for its own route; a layout for every page in its folder and below (a route
+    // group's layout wraps only its group), or its own route when it wraps none.
+    const layoutDir = /(?:^|\/)layout\.[jt]sx?$/.test(page.file)
+      ? page.file.slice(0, page.file.lastIndexOf("/"))
+      : null;
+    const wrapped =
+      layoutDir == null
+        ? [page.route]
+        : pageFiles
+            .filter(
+              (p) => p.dir === layoutDir || p.dir.startsWith(`${layoutDir}/`),
+            )
+            .map((p) => p.route);
+    const seen = new Map();
+    for (const route of wrapped.length ? wrapped : [page.route])
+      for (const answer of widthsForRoute(map, route, pageRoutes))
+        seen.set(`${answer.width} ${answer.row}`, answer);
+    const answers = [...seen.values()];
+    if (answers.some((a) => a.width !== size))
+      mismatches.push({
+        file: page.file,
+        line: page.line,
+        match: `size="${page.size}" on ${page.route}`,
+        hint: answers
+          .map(({ width, row }) =>
+            row
+              ? `the map says "${width}" (${row}, ${map.get(row).file}:${map.get(row).line})`
+              : `the map has no row for it, so it is "default"`,
+          )
+          .join("; and for other paths it serves, "),
+        ...(layoutDir == null ? {} : { layout: true }),
+      });
+  }
+
+  const byPlace = (a, b) =>
+    a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line;
+  return {
+    files: files.length,
+    important: important.sort(byPlace),
+    widths: widths.sort(byPlace),
+    headers: headers.sort(byPlace),
+    routeMap: {
+      rows: map.size,
+      files: [...new Set([...map.values()].map((r) => r.file))].sort(),
+      compared,
+      dynamic,
+      outside,
+      mismatches: mismatches.sort(byPlace),
+    },
+  };
+}
+
 export function main(argv = []) {
   if (argv.includes("-h") || argv.includes("--help")) {
     console.log(USAGE);
@@ -653,6 +1403,7 @@ export function main(argv = []) {
     return 2;
   }
   const root = dirFlag === -1 ? process.cwd() : argv[dirFlag + 1];
+  const strict = argv.includes("--strict");
 
   if (!existsSync(root)) {
     console.error(`doctor: no such directory: ${root}`);
@@ -882,8 +1633,74 @@ export function main(argv = []) {
     });
   }
 
+  // ---- 9–12. DS parts used as designed ------------------------------------------------------
+  // Warnings unless --strict: a consumer adopts the release, fixes what these report, then gates.
+  const composition = scanComposition(root, {
+    skipDirs,
+    uiAlias: componentsJson?.aliases?.ui ?? null,
+  });
+  const level = strict ? "fail" : "warn";
+  const compositionCheck = (name, findings, detail, fix, okDetail) => {
+    if (findings.length === 0) return ok(name, okDetail);
+    results.push({
+      level,
+      name,
+      detail: `${findings.length} ${detail}`,
+      fix,
+      findings: findings.map(
+        (f) =>
+          `${f.file}:${f.line}  ${f.match}${f.hint ? `  →  ${f.hint}` : ""}`,
+      ),
+    });
+  };
+  compositionCheck(
+    "important on DS parts",
+    composition.important,
+    "Tailwind `!` modifier(s) forcing a ui part's own classes",
+    "use the part's variant or prop for it (ask for one in the design system if none fits) — `!` beats the part's own classes on every state and breaks on the next pull",
+    "no ui part is forced with `!`",
+  );
+  compositionCheck(
+    "popup width",
+    composition.widths,
+    "width class(es) on a popover, menu or select popup",
+    "delete them — PopoverContent takes size (default · md · lg · fit); menus, selects and comboboxes size to their longest item",
+    "no popover or menu popup sets its own width",
+  );
+  compositionCheck(
+    "overlay header",
+    composition.headers,
+    "hand-written <header>(s) inside Sheet, Drawer or Dialog content",
+    "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or RecordPeek for a record panel",
+    "no overlay content hand-writes a <header> (same-file nesting only)",
+  );
+  const rm = composition.routeMap;
+  const coverage = `${rm.compared} App Router page/layout size(s) compared${
+    rm.dynamic ? `, ${rm.dynamic} dynamic size={…} skipped` : ""
+  }${
+    rm.outside
+      ? `, ${rm.outside} AppShellPage(s) outside page/layout files not checked (this rule reads route files only)`
+      : ""
+  }`;
+  if (rm.rows === 0) {
+    results.push({
+      level: "skip",
+      name: "page width vs route map",
+      detail:
+        'skipped (no route map) — no definePageWidths( call or widths: { "/route": … } rows found',
+    });
+  } else {
+    compositionCheck(
+      "page width vs route map",
+      rm.mismatches,
+      `AppShellPage size(s) disagree with the route map (${rm.rows} row(s) in ${rm.files.join(", ")}; ${coverage})`,
+      "set size to the map's width, or change the map's row — a page and its skeleton read the same map (https://design.vegastack.com/docs/foundations/page-layout)",
+      `${rm.rows} route-map row(s) in ${rm.files.join(", ")}; ${coverage}`,
+    );
+  }
+
   // ---- report -------------------------------------------------------------------------------
-  const glyph = { ok: "✓", warn: "!", fail: "✗" };
+  const glyph = { ok: "✓", warn: "!", fail: "✗", skip: "–" };
   console.log("");
   for (const r of results) {
     console.log(

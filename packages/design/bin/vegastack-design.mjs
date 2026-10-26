@@ -6,7 +6,8 @@
 //   verify          Verify a registry item's integrity before/after `shadcn add` (Sigstore + hash).
 //   skills          Install the bundled VegaStack agent skills into the consuming project.
 //   doctor          Check a consuming project's setup (PostCSS plugin, preset import, registry,
-//                   retired design-system vocabulary in its own source).
+//                   retired design-system vocabulary and DS composition in its own source).
+//   owned-files     List the registry-owned files installed in the project (read-only).
 //
 // The bin is named `vegastack-design` (NOT `vegastack`) so it never collides with a platform CLI.
 // `check-updates` is imported in-process; `verify` is spawned (it's the standalone, hash-parity-tested
@@ -26,6 +27,7 @@ Commands:
   verify            Verify a registry item's integrity (pre/post \`shadcn add\`)
   skills            Install the VegaStack agent skills (Claude Code + Codex)
   doctor            Check this project's setup and report what is wrong
+  owned-files       List the registry-owned files installed in this project
 
 Run \`vegastack-design <command> --help\` for command options.
   -v, --version     Print version
@@ -68,6 +70,12 @@ if (cmd === "doctor") {
   // imported in-process (our own code, read-only, no network, no credentials)
   const { main } = await import(new URL("./doctor.mjs", HERE).href);
   process.exit(main(rest));
+}
+
+if (cmd === "owned-files") {
+  // imported in-process (our own code, read-only; reads the registry index like check-updates)
+  const { main } = await import(new URL("./owned-files.mjs", HERE).href);
+  process.exit(await main(rest));
 }
 
 if (cmd === "verify") {

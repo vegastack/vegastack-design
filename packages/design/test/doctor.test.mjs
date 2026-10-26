@@ -6,15 +6,29 @@
 // file:line, and the look-alikes that are still legal — `--tag-*-subtle`, a project's OWN custom
 // property, the ui alias directory `check-updates` owns, build output — are not.
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PKG = join(HERE, "..");
-const { main, scanPageLayout, scanRetiredVocabulary, uiAliasDirs } =
-  await import(join(PKG, "bin/doctor.mjs"));
+const {
+  main,
+  scanComposition,
+  scanPageLayout,
+  scanRetiredVocabulary,
+  uiAliasDirs,
+} = await import(join(PKG, "bin/doctor.mjs"));
+const { ownedFiles, main: ownedFilesMain } = await import(
+  join(PKG, "bin/owned-files.mjs")
+);
 
 let failures = 0;
 const tmpRoots = [];
@@ -349,7 +363,6 @@ test("`doctor` fails with file:line when retired vocabulary is present, passes w
   );
 });
 
-for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 test("page layout: an AppShellPage that sets its own width or gutter is reported; narrow is a warning", () => {
   const root = project({
     "src/app/a/page.tsx": [
@@ -379,6 +392,677 @@ test("page layout: an AppShellPage that sets its own width or gutter is reported
     ["src/app/a/page.tsx:5"],
   );
 });
+
+// ---- composition: DS parts used as designed --------------------------------------------------
+
+const UI = { "src/components/ui/button.tsx": "" };
+const compositionOf = (root) =>
+  scanComposition(root, { skipDirs: [join(root, "src/components/ui")] });
+const lines = (findings) =>
+  findings.map((f) => `${f.file}:${f.line} ${f.match}`);
+
+console.log("doctor — composition");
+
+test("`!` on a ui part is reported with the part and the token", () => {
+  const root = project({
+    ...UI,
+    "src/home.tsx": [
+      `import { ItemGroup } from "@/components/ui/item";`,
+      `import { SidebarMenuButton as MenuButton } from "@/components/ui/sidebar";`,
+      `import * as Ui from "../src/components/ui/popover";`,
+      `<ItemGroup className="-mx-3 w-auto gap-0!">x</ItemGroup>`,
+      `<MenuButton size="lg" className={cn("x", open && "group-data-[collapsible=icon]:p-1!")} />`,
+      `<Ui.PopoverContent`,
+      `  className="!p-0 md:!px-2"`,
+      `/>`,
+    ].join("\n"),
+  });
+  assert.deepEqual(lines(compositionOf(root).important), [
+    "src/home.tsx:4 ItemGroup gap-0!",
+    "src/home.tsx:5 SidebarMenuButton group-data-[collapsible=icon]:p-1!",
+    "src/home.tsx:7 PopoverContent !p-0",
+    "src/home.tsx:7 PopoverContent md:!px-2",
+  ]);
+});
+
+test("`!` on the project's own components and plain elements, and JS `!`, are not reported", () => {
+  const root = project({
+    ...UI,
+    "src/own.tsx": [
+      `import { Card } from "@/components/app/card";`,
+      `import { Button } from "@/components/ui/button";`,
+      `<Card className="gap-0!" />`,
+      `<div className="p-1!" />`,
+      `<Button className={cn("gap-2", !open && "hidden")} disabled={!ok}>Done!</Button>`,
+      `// <Button className="p-1!" /> in a comment`,
+    ].join("\n"),
+  });
+  assert.deepEqual(compositionOf(root).important, []);
+});
+
+test("a width class on a popover, menu or select popup is reported; other parts are not", () => {
+  const root = project({
+    ...UI,
+    "src/menus.tsx": [
+      `import { PopoverContent } from "@/components/ui/popover";`,
+      `import { DropdownMenuContent } from "@/components/ui/dropdown-menu";`,
+      `import { SelectContent } from "@/components/ui/select";`,
+      `import { DialogContent } from "@/components/ui/dialog";`,
+      `<PopoverContent className="w-80 p-0" align="end">x</PopoverContent>`,
+      `<DropdownMenuContent className="md:min-w-48 max-w-[calc(100vw-2rem)]" />`,
+      `<SelectContent className="h-60" />`,
+      `<DialogContent className="max-w-lg" />`,
+      `<PopoverContent size="md">ok</PopoverContent>`,
+    ].join("\n"),
+  });
+  assert.deepEqual(lines(compositionOf(root).widths), [
+    "src/menus.tsx:5 PopoverContent w-80",
+    "src/menus.tsx:6 DropdownMenuContent md:min-w-48",
+    "src/menus.tsx:6 DropdownMenuContent max-w-[calc(100vw-2rem)]",
+  ]);
+});
+
+test("a hand-written <header> inside Sheet/Drawer/Dialog content is reported; outside it is not", () => {
+  const root = project({
+    ...UI,
+    "src/peek.tsx": [
+      `import { Drawer, DrawerContent, DrawerHeader } from "@/components/ui/drawer";`,
+      `import { SheetContent } from "@/components/ui/sheet";`,
+      `export function Peek() {`,
+      `  return (`,
+      `    <Drawer>`,
+      `      <DrawerContent style={{ width }} className="max-w-[calc(100vw-1rem)]">`,
+      `        <div onKeyDown={(e) => { if (e.key === ">") e.stopPropagation(); }} />`,
+      `        <header className="flex">bad</header>`,
+      `        <DrawerHeader>ok</DrawerHeader>`,
+      `      </DrawerContent>`,
+      `      <header>after the content closes: ok</header>`,
+      `      <SheetContent><section><header>bad</header></section></SheetContent>`,
+      `    </Drawer>`,
+      `  );`,
+      `}`,
+    ].join("\n"),
+    "src/page.tsx": `export default () => <main><header>a page header</header></main>;`,
+  });
+  assert.deepEqual(lines(compositionOf(root).headers), [
+    "src/peek.tsx:8 <header> in DrawerContent",
+    "src/peek.tsx:12 <header> in SheetContent",
+  ]);
+});
+
+const WIDTH_MAP = {
+  "src/lib/page-layout.ts": [
+    `/** @example definePageWidths({ "/": "full" }) */`,
+    `export function definePageWidths(routes) { return routes; }`,
+  ].join("\n"),
+  "src/shell/page-widths.ts": [
+    `import { MODULES } from "@/modules/registry";`,
+    `import { definePageWidths } from "@/lib/page-layout";`,
+    `export const pageWidths = definePageWidths({`,
+    `  "/": "default",`,
+    `  "/settings/profile": "prose",`,
+    `  // "/settings/old": "full",`,
+    `  ...Object.fromEntries(MODULES.flatMap((m) => Object.entries(m.shell.widths))),`,
+    `});`,
+  ].join("\n"),
+  "src/modules/registry.ts": [
+    `export const MODULES = [`,
+    `  { id: "tasks", label: "Tasks", shell: { widths: {`,
+    `    "/tasks": "default",`,
+    `    "/tasks/board": "full",`,
+    `    "/tasks/[taskId]": "default",`,
+    `    "/tasks/new": "prose",`,
+    `    "/docs/[[...slug]]": "full",`,
+    `    "/docs/[id]": "prose",`,
+    `  } }, nav: { "/tasks": "ignored" } },`,
+    `];`,
+  ].join("\n"),
+};
+
+test("AppShellPage size is compared with the route map, most specific row first", () => {
+  const root = project({
+    ...UI,
+    ...WIDTH_MAP,
+    "src/app/(app)/page.tsx": `<AppShellPage>home</AppShellPage>`,
+    "src/app/(app)/settings/profile/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
+    "src/app/(app)/tasks/board/page.tsx": `<AppShellPage size="default">bad</AppShellPage>`,
+    "src/app/(app)/tasks/new/page.tsx": `\n<AppShellPage>bad</AppShellPage>`,
+    "src/app/(app)/tasks/[taskId]/layout.tsx": `<AppShellPage size={"default"}>ok</AppShellPage>`,
+    "src/app/(app)/tasks/page.tsx": `<AppShellPage size={board ? "full" : "default"}>skip</AppShellPage>`,
+    "src/app/(app)/@modal/(.)tasks/new/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
+    "src/app/(app)/reports/page.tsx": `<AppShellPage size="full">unlisted</AppShellPage>`,
+    // `/docs/intro` is served by both `[id]` and `[[...slug]]`; the more specific `[id]` wins.
+    "src/app/(app)/docs/intro/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
+    "src/modules/tasks/tasks-page.tsx": `<AppShellPage size="full">not a route file</AppShellPage>`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.rows, 8, JSON.stringify(routeMap));
+  assert.deepEqual(routeMap.files, [
+    "src/modules/registry.ts",
+    "src/shell/page-widths.ts",
+  ]);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/(app)/reports/page.tsx:1 size="full" on /reports',
+    'src/app/(app)/tasks/board/page.tsx:1 size="default" on /tasks/board',
+    'src/app/(app)/tasks/new/page.tsx:2 size="default" on /tasks/new',
+  ]);
+  assert.match(
+    routeMap.mismatches[1].hint,
+    /the map says "full" \(\/tasks\/board, src\/modules\/registry\.ts:4\)/,
+  );
+  assert.equal(routeMap.compared, 8);
+  assert.equal(routeMap.dynamic, 1);
+  assert.equal(routeMap.outside, 1);
+});
+
+test("`doctor` warns on composition findings, fails under --strict, and skips the route rule with no map", () => {
+  const base = {
+    "package.json": JSON.stringify({
+      dependencies: { "@vegastack/design": "^0.8.0" },
+    }),
+    "postcss.config.mjs": `export default { plugins: { "@tailwindcss/postcss": {} } };`,
+    "components.json": JSON.stringify({
+      aliases: { ui: "@/components/ui" },
+      registries: {
+        "@vegastack": "https://design.vegastack.com/r/{name}.json",
+      },
+    }),
+    "src/app/globals.css": `@import "@vegastack/design/preset.css";`,
+    "src/components/ui/item.tsx": `<ItemGroup className="gap-0!" />`,
+  };
+  const clean = run([
+    "--dir",
+    project({
+      ...base,
+      "src/app/page.tsx": `import { ItemGroup } from "@/components/ui/item";\n<AppShellPage><ItemGroup /></AppShellPage>`,
+    }),
+    "--strict",
+  ]);
+  assert.equal(clean.code, 0, clean.output);
+  assert.match(clean.output, /✓ important on DS parts/);
+  assert.match(
+    clean.output,
+    /– page width vs route map — skipped \(no route map\)/,
+  );
+
+  const dirty = project({
+    ...base,
+    ...WIDTH_MAP,
+    "src/app/(app)/tasks/board/page.tsx": [
+      `import { ItemGroup } from "@/components/ui/item";`,
+      `import { PopoverContent } from "@/components/ui/popover";`,
+      `import { SheetContent } from "@/components/ui/sheet";`,
+      `<AppShellPage>`,
+      `  <ItemGroup className="gap-0!" />`,
+      `  <PopoverContent className="w-80" />`,
+      `  <SheetContent><header /></SheetContent>`,
+      `</AppShellPage>`,
+    ].join("\n"),
+  });
+  const warned = run(["--dir", dirty]);
+  assert.equal(warned.code, 0, warned.output);
+  for (const name of [
+    "important on DS parts",
+    "popup width",
+    "overlay header",
+    "page width vs route map",
+  ])
+    assert.match(warned.output, new RegExp(`! ${name} — 1 `));
+  assert.match(
+    warned.output,
+    /src\/app\/\(app\)\/tasks\/board\/page\.tsx:5 {2}ItemGroup gap-0!/,
+  );
+  assert.match(warned.output, /setup looks correct \(4 warning\(s\)\)/);
+
+  const strict = run(["--dir", dirty, "--strict"]);
+  assert.equal(strict.code, 1, strict.output);
+  assert.match(strict.output, /✗ popup width — 1 /);
+  assert.match(strict.output, /4 problem\(s\)/);
+});
+
+// ---- owned-files ------------------------------------------------------------------------------
+
+console.log("owned-files");
+
+const HEADER = "// @vegastack date-time@0.25.80 sha256-abc=";
+const INDEX = [
+  {
+    name: "button",
+    type: "registry:ui",
+    files: [{ target: "@ui/button.tsx" }],
+  },
+  {
+    name: "date-time",
+    type: "registry:lib",
+    files: [{ target: "@lib/date-time.ts" }],
+  },
+  {
+    name: "use-mobile",
+    type: "registry:hook",
+    files: [{ target: "@ui/use-mobile.ts" }],
+  },
+  {
+    name: "email-kit",
+    type: "registry:block",
+    files: [
+      { target: "components/email/render.ts" },
+      { target: "components/email/missing.ts" },
+    ],
+  },
+  { name: "card", type: "registry:ui", files: [{ target: "@ui/card.tsx" }] },
+  {
+    name: "evil",
+    type: "registry:ui",
+    files: [{ target: "@ui/../../../outside.ts" }],
+  },
+];
+const OWNED = {
+  "components.json": JSON.stringify({
+    aliases: {
+      ui: "@/components/ui",
+      lib: "@/lib",
+      hooks: "@/hooks",
+      components: "@/components",
+    },
+  }),
+  "src/components/ui/button.tsx": "export {}",
+  "src/components/ui/use-mobile.ts": "export {}",
+  "src/components/ui/my-own.tsx": "export {}",
+  "src/components/app/legacy.tsx":
+    "// @vegastack legacy-thing@0.1.0 sha256-x=\nexport {}",
+  "src/lib/date-time.ts": `${HEADER}\nexport {}`,
+  "src/lib/utils.ts": "export {}",
+  "src/components/email/render.ts": "export {}",
+};
+
+test("owned-files lists installed index targets and header-carrying files, nothing else", () => {
+  const root = project(OWNED);
+  const cj = JSON.parse(OWNED["components.json"]);
+  const owned = ownedFiles(root, cj, INDEX);
+  assert.deepEqual(owned.files, [
+    "src/components/app/legacy.tsx",
+    "src/components/email/render.ts",
+    "src/components/ui/button.tsx",
+    "src/components/ui/use-mobile.ts",
+    "src/lib/date-time.ts",
+  ]);
+  assert.deepEqual(
+    owned.items.map((i) => `${i.name} ${i.type} ${i.version}`),
+    [
+      "button registry:ui null",
+      "date-time registry:lib 0.25.80",
+      "email-kit registry:block null",
+      "legacy-thing null 0.1.0",
+      "use-mobile registry:hook null",
+    ],
+  );
+  // Offline: the provenance header is the only evidence.
+  assert.deepEqual(ownedFiles(root, cj, null).files, [
+    "src/components/app/legacy.tsx",
+    "src/lib/date-time.ts",
+  ]);
+});
+
+{
+  const root = project({
+    ...OWNED,
+    "registry.json": JSON.stringify({ items: INDEX }),
+  });
+  const json = await (async () => {
+    const out = [];
+    const log = console.log;
+    console.log = (...a) => out.push(a.join(" "));
+    try {
+      return {
+        code: await ownedFilesMain([
+          "--dir",
+          root,
+          "--index",
+          join(root, "registry.json"),
+          "--json",
+        ]),
+        output: out.join("\n"),
+      };
+    } finally {
+      console.log = log;
+    }
+  })();
+  test("owned-files --json prints { files, items } and exits 0; a bad flag exits 2", () => {
+    assert.equal(json.code, 0, json.output);
+    const parsed = JSON.parse(json.output);
+    assert.equal(parsed.files.length, 5);
+    assert.ok(Array.isArray(parsed.items));
+  });
+  const err = console.error;
+  console.error = () => {};
+  try {
+    const bad = await ownedFilesMain([
+      "--dir",
+      root,
+      "--offline",
+      "--index",
+      "x",
+    ]);
+    test("owned-files rejects --offline with --index", () =>
+      assert.equal(bad, 2));
+  } finally {
+    console.error = err;
+  }
+}
+
+test("strings, JSX text, generics and nested attributes never confuse the tag scan (review round 1)", () => {
+  const root = project({
+    ...UI,
+    "src/edge.tsx": [
+      `import { SheetContent } from "@/components/ui/sheet";`,
+      `import { PopoverContent } from "@/components/ui/popover";`,
+      `import { DataGrid } from "@/components/ui/data-grid";`,
+      `import { Button } from "@/components/ui/button";`,
+      `import { AppShellPage } from "@/components/ui/app-shell";`,
+      // a closing tag in a string does not close the content
+      `<SheetContent><div data-x="</SheetContent>" /><header /></SheetContent>`,
+      // an opening tag in a string opens nothing
+      `const text = '<SheetContent>'; const view = <header />;`,
+      // an apostrophe in nested JSX text does not swallow the tag
+      `<PopoverContent render={<span>Don't</span>} className="w-80" />`,
+      // a TSX generic component is still a tag
+      `<DataGrid<Row> className="p-0!" />`,
+      // a nested element's attributes are not the outer tag's
+      `<PopoverContent render={<div className="w-96" />} className="p-2" />`,
+      // literal classes inside a template's interpolations are read; a JS \`!flag\` is not a class
+      '<Button className={`gap-2 ${ok ? "p-0!" : "p-1"} ${!open && "hidden"}`} />',
+      `<Button`,
+      `  className={`,
+      `    "p-3!"`,
+      `  }`,
+      `/>`,
+    ].join("\n"),
+  });
+  const found = compositionOf(root);
+  assert.deepEqual(lines(found.headers), [
+    "src/edge.tsx:6 <header> in SheetContent",
+  ]);
+  assert.deepEqual(lines(found.widths), ["src/edge.tsx:8 PopoverContent w-80"]);
+  assert.deepEqual(lines(found.important), [
+    "src/edge.tsx:9 DataGrid p-0!",
+    "src/edge.tsx:11 Button p-0!",
+    "src/edge.tsx:14 Button p-3!",
+  ]);
+});
+
+test("the route map takes only map rows, outside tests, and reports a conflicting row (review round 1)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": [
+      `export const pageWidths = definePageWidths({ "/": "prose", "/docs/[id]": "full" });`,
+      `const unrelated = { "/": "full" };`,
+    ].join("\n"),
+    "src/shell/page-widths.test.ts": `definePageWidths({ "/": "full" });`,
+    "src/modules/a.ts": `export const a = { widths: { "/docs/[id]": "prose" } };`,
+    "src/app/page.tsx": `<AppShellPage size="prose" />`,
+    // an optional catch-all serves `/docs` (no row: `default`) AND `/docs/x` (`[id]`): no one size fits
+    "src/app/docs/[[...slug]]/page.tsx": `<AppShellPage />`,
+    // intercepting routes render the route they intercept
+    "src/app/feed/@modal/(..)photo/[id]/page.tsx": `<AppShellPage size="prose" />`,
+    // (the first row wins a conflict: files are read in path order, so a.ts's "prose")
+    "src/app/feed/@modal/(...)docs/[id]/layout.tsx": `<AppShellPage size="prose" />`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.rows, 2);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/docs/[[...slug]]/page.tsx:1 size="default" on /docs/[[...slug]]',
+    'src/app/feed/@modal/(..)photo/[id]/page.tsx:1 size="prose" on /photo/[id]',
+    'src/shell/page-widths.ts:1 route-map row "/docs/[id]": "full"',
+  ]);
+  assert.equal(routeMap.compared, 4);
+});
+
+test("owned-files never lists a file reached through a symlink out of the project (review round 1)", () => {
+  const outside = project({ "button.tsx": "export {}", "x.ts": `${HEADER}\n` });
+  const root = project({
+    "components.json": JSON.stringify({
+      aliases: { ui: "@/components/ui", lib: "@/lib" },
+    }),
+    "src/lib/real.ts": "export {}",
+  });
+  mkdirSync(join(root, "src/components"), { recursive: true });
+  symlinkSync(outside, join(root, "src/components/ui"));
+  symlinkSync(join(outside, "x.ts"), join(root, "src/lib/date-time.ts"));
+  const cj = { aliases: { ui: "@/components/ui", lib: "@/lib" } };
+  assert.deepEqual(ownedFiles(root, cj, INDEX).files, []);
+});
+
+{
+  // A registry body that is not JSON must not echo a credential through the parser's error.
+  const root = project({ "components.json": JSON.stringify({ aliases: {} }) });
+  const fetch0 = globalThis.fetch;
+  const env0 = process.env.CF_ACCESS_CLIENT_SECRET;
+  const out = [];
+  const err0 = console.error;
+  process.env.CF_ACCESS_CLIENT_SECRET = "DEMO_SECRET_12345".repeat(8);
+  globalThis.fetch = async () => ({
+    ok: true,
+    // Node quotes only a truncated prefix of the body: whole-value redaction cannot catch that.
+    json: async () => JSON.parse("DEMO_SECRET_12345".repeat(8)),
+  });
+  console.error = (...a) => out.push(a.join(" "));
+  let code;
+  try {
+    code = await ownedFilesMain(["--dir", root]);
+  } finally {
+    globalThis.fetch = fetch0;
+    console.error = err0;
+    if (env0 === undefined) delete process.env.CF_ACCESS_CLIENT_SECRET;
+    else process.env.CF_ACCESS_CLIENT_SECRET = env0;
+  }
+  test("owned-files redacts a credential from a malformed index response (review round 1)", () => {
+    assert.equal(code, 2);
+    assert.match(out.join("\n"), /registry index is not JSON/);
+    assert.doesNotMatch(out.join("\n"), /DEMO_SEC/);
+  });
+}
+
+test("nested templates, object type arguments and string-borne map syntax (review round 2)", () => {
+  const root = project({
+    ...UI,
+    "src/more.tsx": [
+      `import { Button } from "@/components/ui/button";`,
+      `import { DataGrid } from "@/components/ui/data-grid";`,
+      "<Button className={`p-2 ${ok ? `p-0!` : `p-1`}`} />",
+      '<Button className={`p-2 ${ok ? "}" : "p-3!"}`} />',
+      `<DataGrid<{ id: string; name: string }> className="p-4!" />`,
+    ].join("\n"),
+    "src/shell/page-widths.ts": [
+      `const extra = (label) => ({});`,
+      `const example = 'definePageWidths({"/": "full"})';`,
+      `export const pageWidths = definePageWidths({`,
+      `  ...extra("}"),`,
+      `  "/settings": "prose",`,
+      `});`,
+    ].join("\n"),
+    "src/app/settings/page.tsx": `<AppShellPage size="prose" />`,
+    "src/app/page.tsx": `<AppShellPage />`,
+    // a catch-all serves `/docs/a` AND `/docs/a/b`: one sample is not enough
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage size="full" />`,
+    "src/modules/docs.ts": `export const m = { widths: { "/docs/[id]": "full" } };`,
+  });
+  const found = compositionOf(root);
+  assert.deepEqual(lines(found.important), [
+    "src/more.tsx:3 Button p-0!",
+    "src/more.tsx:4 Button p-3!",
+    "src/more.tsx:5 DataGrid p-4!",
+  ]);
+  assert.equal(found.routeMap.rows, 2);
+  assert.deepEqual(lines(found.routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="full" on /docs/[...slug]',
+  ]);
+});
+
+test("spread props make a size dynamic; a dynamic page is held to the static rows it serves (review round 3)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs": "full", "/docs/new": "prose", "/docs/edit": "prose" });`,
+    "src/app/docs/page.tsx": `const p = { size: "full" }; <AppShellPage {...p} />; <AppShellPage size="prose" {...p} />;`,
+    // `[id]` also renders `/docs/new` (no page of its own) — prose — but not `/docs/edit`
+    "src/app/docs/[id]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/edit/page.tsx": `<AppShellPage size="prose" />`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.dynamic, 2);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/docs/[id]/page.tsx:1 size="default" on /docs/[id]',
+  ]);
+  assert.doesNotMatch(routeMap.mismatches[0].hint, /docs\/edit/);
+});
+
+{
+  const root = project({
+    // a missing quote around a value: the parser would quote the file's text back
+    "components.json": `{"registries":{"@vegastack":{"url":TEST_CRED_VALUE}}}`,
+  });
+  const out = [];
+  const err0 = console.error;
+  console.error = (...a) => out.push(a.join(" "));
+  let code;
+  try {
+    code = await ownedFilesMain(["--dir", root, "--offline"]);
+  } finally {
+    console.error = err0;
+  }
+  test("owned-files never quotes a malformed components.json (review round 3)", () => {
+    assert.equal(code, 2);
+    assert.match(out.join("\n"), /is not valid JSON/);
+    assert.doesNotMatch(out.join("\n"), /TEST_CRED/);
+  });
+}
+
+test("a layout answers for the pages it wraps, not its folder's own URL (review round 4)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/settings/profile": "prose", "/settings/password": "prose", "/settings/members": "default", "/settings/members/invite": "prose" });`,
+    "src/app/settings/(forms)/layout.tsx": `<AppShellPage size="prose">{children}</AppShellPage>`,
+    "src/app/settings/(forms)/profile/page.tsx": `export default () => null;`,
+    "src/app/settings/(forms)/password/page.tsx": `export default () => null;`,
+    // this group's layout wraps a prose page and a default one: no one size fits
+    "src/app/settings/(lists)/layout.tsx": `<AppShellPage>{children}</AppShellPage>`,
+    "src/app/settings/(lists)/members/page.tsx": `export default () => null;`,
+    "src/app/settings/(lists)/members/invite/page.tsx": `export default () => null;`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.compared, 2);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/settings/(lists)/layout.tsx:1 size="default" on /settings',
+  ]);
+  assert.match(routeMap.mismatches[0].hint, /\/settings\/members\/invite/);
+});
+
+test("a dynamic route's own row does not hide a more specific static row it serves (review round 5)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[id]": "default", "/docs/new": "prose" });`,
+    "src/app/docs/[id]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/layout.tsx": `<AppShellPage>{children}</AppShellPage>`,
+  });
+  assert.deepEqual(lines(compositionOf(root).routeMap.mismatches), [
+    'src/app/docs/[id]/page.tsx:1 size="default" on /docs/[id]',
+    'src/app/docs/layout.tsx:1 size="default" on /docs',
+  ]);
+});
+
+test("a catch-all page is held to the dynamic rows it serves too (review round 6)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[id]": "prose" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+  });
+  assert.deepEqual(lines(compositionOf(root).routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
+  ]);
+});
+
+{
+  const root = project({ "components.json": JSON.stringify({ aliases: {} }) });
+  const out = [];
+  const err0 = console.error;
+  console.error = (...a) => out.push(a.join(" "));
+  let code;
+  try {
+    code = await ownedFilesMain([
+      "--dir",
+      root,
+      "--registry",
+      "https://user:PASSWORD_VALUE@design.vegastack.com/r/{name}.json",
+    ]);
+  } finally {
+    console.error = err0;
+  }
+  test("owned-files never echoes a registry URL's userinfo (review round 6)", () => {
+    assert.equal(code, 2);
+    assert.doesNotMatch(out.join("\n"), /PASSWORD_VALUE/);
+  });
+}
+
+test("catch-all rows are sampled at length, and a more specific page takes the paths it renders (review round 7)", () => {
+  const longer = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[...rest]": "prose", "/docs/new/[id]": "default" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+  });
+  assert.deepEqual(lines(compositionOf(longer).routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
+  ]);
+  const shadowed = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[id]": "prose" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[category]/[id]/page.tsx": `<AppShellPage size={size} />`,
+  });
+  assert.deepEqual(compositionOf(shadowed).routeMap.mismatches, []);
+});
+
+{
+  const root = project({ "components.json": JSON.stringify({ aliases: {} }) });
+  const out = [];
+  const err0 = console.error;
+  console.error = (...a) => out.push(a.join(" "));
+  try {
+    await ownedFilesMain([
+      "--dir",
+      root,
+      "--registry",
+      "https://operator:Demo/PASSWORD_VALUE@design.vegastack.com:bad/r/{name}.json",
+    ]);
+  } finally {
+    console.error = err0;
+  }
+  test("owned-files never echoes the userinfo of an unparseable registry URL (review round 7)", () => {
+    assert.doesNotMatch(out.join("\n"), /PASSWORD_VALUE/);
+  });
+}
+
+test("intersecting patterns and deep catch-alls are compared (review round 8)", () => {
+  const crossed = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/[lang]/settings": "prose" });`,
+    "src/app/en/[slug]/page.tsx": `<AppShellPage />`,
+  });
+  assert.deepEqual(lines(compositionOf(crossed).routeMap.mismatches), [
+    'src/app/en/[slug]/page.tsx:1 size="default" on /en/[slug]',
+  ]);
+  const deep = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "prose" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[a]/page.tsx": `<AppShellPage size={s} />`,
+    "src/app/docs/[a]/[b]/page.tsx": `<AppShellPage size={s} />`,
+    "src/app/docs/[a]/[b]/[c]/page.tsx": `<AppShellPage size={s} />`,
+  });
+  assert.deepEqual(lines(compositionOf(deep).routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
+  ]);
+});
+
+for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {
   console.error(`\n✗ doctor: ${failures} test(s) failed`);

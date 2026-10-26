@@ -281,6 +281,16 @@ loud, but the fix belongs in the script:
 
 Details in [Production checklist](/docs/guides/production-checklist).
 
+**Keep registry copies out of your own gates with one list.** Lint ignores, an
+unused-code scan and a design audit each need to skip the files the registry
+installed. `vegastack-design owned-files` prints them — every installed target the
+registry index names, resolved through your `components.json` aliases, plus any
+file carrying the `// @vegastack <name>@<version>` header — one path per line, or
+`{ files, items }` with `--json`. It reads the index the way `check-updates` does
+(same credentials); `--index <registry.json>` reads a local copy and `--offline`
+lists header-carrying files only. Generate the list rather than typing it, so the
+three never disagree.
+
 ## Complete file inventory after this guide
 
 | File                  | Origin                                                                                                     | Yours to edit?                                       |
