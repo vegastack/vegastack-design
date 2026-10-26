@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.86] — October 27, 2026
+
+<!-- assembled from 1 changeset: 4eb78196aa6f -->
+
+### 🧩 New components
+
+- **QrCode** (new): a QR code for a `value`, drawn as one SVG path (`shape-rendering="crispEdges"`) — dark modules on a light, rounded tile in both themes so it always scans, with the standard 4-module quiet zone inside the drawing (`quietZone` to change it). `errorCorrection` takes `L`, `M` (default), `Q` or `H`; size it with a `size-*` class (default `size-40`). The root is `role="img"` named by the required `label`. Server-safe: the matrix is encoded during render by `uqr` (zero dependencies, MIT), a new sanctioned encoder dependency imported only by `qr-code.tsx`. An empty or unencodable value draws the empty tile (`data-state="invalid"`) instead of throwing.
+  [docs](https://design.vegastack.com/docs/components/qr-code) ·
+  [`913f987`](https://github.com/VegaStack/vegastack-design/commit/913f987)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.85 → 0.25.86.
+
 ## [0.25.85] — October 27, 2026
 
 <!-- assembled from 2 changesets: 7fa509284947 -->
