@@ -977,12 +977,23 @@ export async function fetchRegistryIndex({
     componentsJson,
   );
   const url = indexUrl(urlTemplate);
+  // Printed without userinfo: a `user:password@` URL is refused, and must not be echoed either.
+  const shown = (() => {
+    try {
+      const u = new URL(url);
+      u.username = "";
+      u.password = "";
+      return terminalText(u.href);
+    } catch {
+      return "the configured registry URL";
+    }
+  })();
   let res;
   try {
     res = await fetchRegistry(url, headers);
   } catch (err) {
     throw new Error(
-      `could not reach the registry at ${terminalText(url)}: ${terminalText(err.message)}`,
+      `could not reach the registry at ${shown}: ${terminalText(err.message)}`,
     );
   }
   if (!res.ok) {
@@ -990,7 +1001,7 @@ export async function fetchRegistryIndex({
       ? ` (these auth env vars are unset: ${[...missingEnv].join(", ")})`
       : "";
     throw new Error(
-      `registry index fetch failed: HTTP ${res.status} ${terminalText(res.statusText)} (${terminalText(url)})${hint}`,
+      `registry index fetch failed: HTTP ${res.status} ${terminalText(res.statusText)} (${shown})${hint}`,
     );
   }
   let index;
@@ -999,11 +1010,11 @@ export async function fetchRegistryIndex({
   } catch {
     // Never the parser's message: it quotes a truncated prefix of the body, which redaction of
     // whole secret values cannot catch.
-    throw new Error(`registry index is not JSON (${terminalText(url)})`);
+    throw new Error(`registry index is not JSON (${shown})`);
   }
   if (!Array.isArray(index?.items))
     throw new Error("registry index has no items array");
-  return { url: terminalText(url), items: index.items };
+  return { url: shown, items: index.items };
 }
 
 export { terminalText, PROVENANCE_RE, ITEM_NAME_RE };

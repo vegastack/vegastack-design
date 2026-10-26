@@ -969,6 +969,39 @@ test("a dynamic route's own row does not hide a more specific static row it serv
   ]);
 });
 
+test("a catch-all page is held to the dynamic rows it serves too (review round 6)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[id]": "prose" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+  });
+  assert.deepEqual(lines(compositionOf(root).routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
+  ]);
+});
+
+{
+  const root = project({ "components.json": JSON.stringify({ aliases: {} }) });
+  const out = [];
+  const err0 = console.error;
+  console.error = (...a) => out.push(a.join(" "));
+  let code;
+  try {
+    code = await ownedFilesMain([
+      "--dir",
+      root,
+      "--registry",
+      "https://user:PASSWORD_VALUE@design.vegastack.com/r/{name}.json",
+    ]);
+  } finally {
+    console.error = err0;
+  }
+  test("owned-files never echoes a registry URL's userinfo (review round 6)", () => {
+    assert.equal(code, 2);
+    assert.doesNotMatch(out.join("\n"), /PASSWORD_VALUE/);
+  });
+}
+
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {

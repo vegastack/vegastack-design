@@ -1051,8 +1051,8 @@ const ANY_SEGMENT = "\u0000";
 /**
  * The widths the route map gives the paths a page's route pattern serves: a static route's own
  * row; else — matching concrete paths (a dynamic route's own row among the candidates), with `[id]` as one value no static row names, `[...rest]` as one to three
- * of them and `[[...rest]]` as zero to three, and every static row it serves with no page of its
- * own — the most specific row serving each, exactly as
+ * of them and `[[...rest]]` as zero to three, plus a path of every row it serves with no page of
+ * its own — the most specific row serving each, exactly as
  * `widthOfPath` picks, or `default` where none does. One width when every sample agrees.
  */
 export function widthsForRoute(map, route, ownPages = new Set()) {
@@ -1076,16 +1076,16 @@ export function widthsForRoute(map, route, ownPages = new Set()) {
       ),
     );
   }
-  // …plus every static row this pattern serves that no page file of its own serves: `/docs/[id]`
-  // renders `/docs/new` when there is no `docs/new/page`, and the map's row for it applies.
-  for (const row of map.keys())
-    if (
-      row !== key &&
-      !ownPages.has(row) &&
-      parseRoute(row).every((s) => s.kind === "static") &&
-      matchRoute(key, row)
-    )
-      paths.push(routeSegments(row));
+  // …plus a path from every row this pattern also serves that no page file of its own serves:
+  // `/docs/[...slug]` renders `/docs/new` and `/docs/new/123` when there is no `docs/new/page` or
+  // `docs/new/[id]/page`, and the map's rows for them apply.
+  for (const row of map.keys()) {
+    if (row === key || ownPages.has(row)) continue;
+    const sample = parseRoute(row)
+      .filter((s) => s.kind !== "optional-catch-all")
+      .map((s) => (s.kind === "static" ? s.value : ANY_SEGMENT));
+    if (matchRoute(key, `/${sample.join("/")}`)) paths.push(sample);
+  }
   const patterns = [...map.keys()].sort(bySpecificity);
   const seen = new Map();
   for (const path of paths) {
