@@ -691,7 +691,8 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
 // ui import; a `<header>` counts only when it sits inside the overlay content in the SAME file (a
 // child component's header is not seen); a JSX attribute string ending in a backslash
 // (`title="C:\"`) or spanning lines can desynchronise that tag's scan; route-map rows count only as
-// string literals; and an `AppShellPage` outside an App Router page or layout file, or with a
+// string literals; a regex literal holding a brace inside a JSX attribute expression can end that
+// expression early; and an `AppShellPage` outside an App Router page or layout file, or with a
 // `size={…}` expression, is counted rather than compared.
 
 /** Popover and menu popups whose width the part owns: `PopoverContent size`, or the longest item. */
@@ -811,12 +812,15 @@ export function jsxTags(scan) {
  */
 export function tagAttributes(tag, scan) {
   const out = new Map();
+  const spreads = []; // the order of each `{...props}`, which may set any attribute after it
+  out.set("...", spreads);
   const NAME = /[^\s=/>{"']+/y;
   let k = tag.attrsAt;
   while (k < tag.attrsEnd) {
     const c = scan[k];
     if (c === "{") {
-      k = skipBraces(scan, k); // a spread
+      spreads.push(out.size);
+      k = skipBraces(scan, k);
       continue;
     }
     NAME.lastIndex = k;
@@ -828,7 +832,7 @@ export function tagAttributes(tag, scan) {
     let v = k + name[0].length;
     while (v < tag.attrsEnd && /\s/.test(scan[v])) v += 1;
     if (scan[v] !== "=") {
-      out.set(name[0], { kind: "flag" });
+      out.set(name[0], { kind: "flag", order: out.size });
       k = v;
       continue;
     }
@@ -837,11 +841,21 @@ export function tagAttributes(tag, scan) {
     const q = scan[v];
     if (q === '"' || q === "'") {
       const close = scan.indexOf(q, v + 1);
-      out.set(name[0], { kind: "string", from: v + 1, to: close });
+      out.set(name[0], {
+        kind: "string",
+        from: v + 1,
+        to: close,
+        order: out.size,
+      });
       k = close + 1;
     } else if (q === "{") {
       const close = skipBraces(scan, v);
-      out.set(name[0], { kind: "expr", from: v + 1, to: close - 1 });
+      out.set(name[0], {
+        kind: "expr",
+        from: v + 1,
+        to: close - 1,
+        order: out.size,
+      });
       k = close;
     } else k = v + 1;
   }
@@ -1037,10 +1051,11 @@ const ANY_SEGMENT = "\u0000";
 /**
  * The widths the route map gives the paths a page's route pattern serves: its own row; else —
  * matching concrete paths, with `[id]` as one value no static row names, `[...rest]` as one to three
- * of them and `[[...rest]]` as zero to three — the most specific row serving each, exactly as
+ * of them and `[[...rest]]` as zero to three, and every static row it serves with no page of its
+ * own — the most specific row serving each, exactly as
  * `widthOfPath` picks, or `default` where none does. One width when every sample agrees.
  */
-export function widthsForRoute(map, route) {
+export function widthsForRoute(map, route, ownPages = new Set()) {
   const key = `/${routeSegments(route).join("/")}`;
   if (map.has(key)) return [{ width: map.get(key).width, row: key }];
   let paths = [[]];
@@ -1059,6 +1074,16 @@ export function widthsForRoute(map, route) {
       ),
     );
   }
+  // …plus every static row this pattern serves that no page file of its own serves: `/docs/[id]`
+  // renders `/docs/new` when there is no `docs/new/page`, and the map's row for it applies.
+  for (const row of map.keys())
+    if (
+      row !== key &&
+      !ownPages.has(row) &&
+      parseRoute(row).every((s) => s.kind === "static") &&
+      matchRoute(key, row)
+    )
+      paths.push(routeSegments(row));
   const patterns = [...map.keys()].sort(bySpecificity);
   const seen = new Map();
   for (const path of paths) {
@@ -1177,6 +1202,13 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
   };
   walk(root);
   files.sort();
+  const ownPages = new Set(
+    files
+      .map((f) => relative(root, f).split(sep).join("/"))
+      .filter((f) => /(?:^|\/)page\.[jt]sx?$/.test(f))
+      .map(appRouteOf)
+      .filter(Boolean),
+  );
 
   const important = [];
   const widths = [];
@@ -1239,13 +1271,16 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
       if (!part && !isPage) continue;
       const attrs = tagAttributes(tag, scan);
       if (isPage) {
+        // A spread after `size` (or anywhere, with no `size`) may set it: that size is dynamic.
         const size = attrs.get("size");
+        const spreads = attrs.get("...");
         pages.push({
           file,
           line: lineAt(tag.index),
           route,
-          size:
-            size == null
+          size: spreads.some((at) => at > (size?.order ?? -1))
+            ? null
+            : size == null
               ? "default"
               : (literalValue(size, scan, read)?.text ?? null),
         });
@@ -1281,7 +1316,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     if (map.size === 0) continue;
     compared += 1;
     const size = page.size === "narrow" ? "prose" : page.size;
-    const answers = widthsForRoute(map, page.route);
+    const answers = widthsForRoute(map, page.route, ownPages);
     if (answers.some((a) => a.width !== size))
       mismatches.push({
         file: page.file,

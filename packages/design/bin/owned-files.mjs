@@ -263,12 +263,29 @@ export async function main(argv = []) {
   }
   const root = resolve(opts.dir);
   const cjPath = join(root, "components.json");
+  // JSON errors are reported without the parser's message: it quotes a prefix of the file, and
+  // components.json (or a saved index) may hold a credential where a quote went missing.
+  const readJsonFile = (path, what) => {
+    let text;
+    try {
+      text = readFileSync(path, "utf8");
+    } catch (err) {
+      throw new Error(
+        `could not read ${what}: ${terminalText(err.code ?? "error")}`,
+      );
+    }
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(`${what} is not valid JSON`);
+    }
+  };
   let componentsJson;
   try {
-    componentsJson = JSON.parse(readFileSync(cjPath, "utf8"));
+    componentsJson = readJsonFile(cjPath, terminalText(cjPath));
   } catch (err) {
     console.error(
-      `✗ could not read ${terminalText(cjPath)}: ${terminalText(err.message)} — owned-files resolves install targets through its aliases`,
+      `✗ ${err.message} — owned-files resolves install targets through its aliases`,
     );
     return 2;
   }
@@ -277,13 +294,12 @@ export async function main(argv = []) {
   let source = "headers";
   if (opts.index) {
     try {
-      index = JSON.parse(readFileSync(resolve(opts.index), "utf8")).items;
-      if (!Array.isArray(index)) throw new Error("no items array");
+      const what = `the index ${terminalText(opts.index)}`;
+      index = readJsonFile(resolve(opts.index), what)?.items;
+      if (!Array.isArray(index)) throw new Error(`${what} has no items array`);
       source = terminalText(opts.index);
     } catch (err) {
-      console.error(
-        `✗ could not read the index ${terminalText(opts.index)}: ${terminalText(err.message)}`,
-      );
+      console.error(`✗ ${err.message}`);
       return 2;
     }
   } else if (!opts.offline) {

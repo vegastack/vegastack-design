@@ -898,6 +898,44 @@ test("nested templates, object type arguments and string-borne map syntax (revie
   ]);
 });
 
+test("spread props make a size dynamic; a dynamic page is held to the static rows it serves (review round 3)", () => {
+  const root = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs": "full", "/docs/new": "prose", "/docs/edit": "prose" });`,
+    "src/app/docs/page.tsx": `const p = { size: "full" }; <AppShellPage {...p} />; <AppShellPage size="prose" {...p} />;`,
+    // `[id]` also renders `/docs/new` (no page of its own) — prose — but not `/docs/edit`
+    "src/app/docs/[id]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/edit/page.tsx": `<AppShellPage size="prose" />`,
+  });
+  const { routeMap } = compositionOf(root);
+  assert.equal(routeMap.dynamic, 2);
+  assert.deepEqual(lines(routeMap.mismatches), [
+    'src/app/docs/[id]/page.tsx:1 size="default" on /docs/[id]',
+  ]);
+  assert.doesNotMatch(routeMap.mismatches[0].hint, /docs\/edit/);
+});
+
+{
+  const root = project({
+    // a missing quote around a value: the parser would quote the file's text back
+    "components.json": `{"registries":{"@vegastack":{"url":TEST_CRED_VALUE}}}`,
+  });
+  const out = [];
+  const err0 = console.error;
+  console.error = (...a) => out.push(a.join(" "));
+  let code;
+  try {
+    code = await ownedFilesMain(["--dir", root, "--offline"]);
+  } finally {
+    console.error = err0;
+  }
+  test("owned-files never quotes a malformed components.json (review round 3)", () => {
+    assert.equal(code, 2);
+    assert.match(out.join("\n"), /is not valid JSON/);
+    assert.doesNotMatch(out.join("\n"), /TEST_CRED/);
+  });
+}
+
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {
