@@ -1,4 +1,4 @@
-// @vegastack record-peek@0.25.87 sha256-KnDBBL6nSS/qd5N9xRG8HXHslzdePXn4JSpV2X4GsMw=
+// @vegastack record-peek@0.25.87 sha256-DwkbxiKvd1VKehE3u8ZWI/vbUii01oK41bYKqxcw/tg=
 
 "use client";
 
@@ -152,9 +152,9 @@ export interface RecordPeekProps extends Omit<
 
 function clampWidth(width: number, min: number, maxShare: number): number {
   if (typeof window === "undefined") return Math.max(min, width);
-  return Math.round(
-    Math.max(min, Math.min(width, window.innerWidth * maxShare)),
-  );
+  // The window's cap wins over the minimum when the window is too narrow for both.
+  const cap = window.innerWidth * maxShare;
+  return Math.round(Math.max(Math.min(min, cap), Math.min(width, cap)));
 }
 
 function readStoredWidth(key: string | undefined): number | undefined {
@@ -267,10 +267,10 @@ export function RecordPeek({
     return () => window.removeEventListener("resize", read);
   }, [open]);
   const asked = widthProp ?? innerWidth;
+  const cap = viewport === null ? null : viewport * maxShare;
+  const floor = cap === null ? minWidth : Math.round(Math.min(minWidth, cap));
   const width =
-    viewport === null
-      ? asked
-      : Math.round(Math.max(minWidth, Math.min(asked, viewport * maxShare)));
+    cap === null ? asked : Math.round(Math.max(floor, Math.min(asked, cap)));
   const setWidth = React.useCallback(
     (next: number, persist: boolean) => {
       const clamped = clampWidth(next, minWidth, maxShare);
@@ -396,7 +396,7 @@ export function RecordPeek({
     const narrower = rtl ? "ArrowLeft" : "ArrowRight";
     if (event.key === wider) setWidth(width + STEP, true);
     else if (event.key === narrower) setWidth(width - STEP, true);
-    else if (event.key === "Home") setWidth(minWidth, true);
+    else if (event.key === "Home") setWidth(floor, true);
     else if (event.key === "End") setWidth(Number.POSITIVE_INFINITY, true);
     else return;
     event.preventDefault();
@@ -459,7 +459,7 @@ export function RecordPeek({
           aria-orientation="vertical"
           aria-label={`Resize the ${label.toLowerCase()} panel`}
           aria-valuenow={width}
-          aria-valuemin={minWidth}
+          aria-valuemin={floor}
           aria-valuemax={maxWidth}
           tabIndex={0}
           data-slot="record-peek-resize"
