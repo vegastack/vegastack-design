@@ -1,4 +1,4 @@
-// @vegastack upload-dialog@0.25.86 sha256-/ZG3HJcSjK7aSnOCa/Nby2QhQ2WstVIMa8DeydgSr1k=
+// @vegastack upload-dialog@0.25.87 sha256-Z0GWlivgox4Glq3qWYCcr5qM7RUzif+gFSZao9r1NGU=
 
 "use client";
 

@@ -1,4 +1,4 @@
-// @vegastack chart-line-label@0.25.86 sha256-s7PEZ7kiG0YcM81w6fe/GvSswanoGjbu0C+6N9lr4UE=
+// @vegastack chart-line-label@0.25.87 sha256-o2GjQMqaZu9oqoC124tvkV9si3ff6xEnxE6TCq7aaYk=
 
 "use client";
 

@@ -1,6 +1,0 @@
----
-"@vegastack/ui": patch
-"@vegastack/design": patch
----
-
-🔧 **Comments**, **Activity Feed**: quieter record history. `CommentThread` takes `density="compact"`: no reply row at rest — Reply is a hover action on the first comment (on focus too, always on a touch screen; `CommentItem`'s new `replyAction`) that opens the row with the caret in it, and the row folds away once its reply posts or is left empty. A trailing lone "@" (a mention started and left) is dropped as a comment, reply or edit posts, in every density. `ActivityFeed`'s heading count now says what it counts — `countLabel`, "2 comments" by default. `ActivityEvent` props take `change` (`ActivityChange` — `{ field, verb?, from?, to }`), so an `ActivityEventGroup` run that changes one field reads as one chain ("moved it Todo → In progress → In review"); `summarizeAt` folds a longer run of different changes into "made 3 changes" (`changesLabel`, or the host's `summarizeRun`), a disclosure listing them. `groupActivityRuns(items, { actorKey, date, isBreak?, breakBefore?, runWindowMs? })` splits a chronological list into those runs — one actor, within 10 minutes of the run's first event by default, broken by comments and the host's own boundaries. [docs](https://design.vegastack.com/docs/components/activity-feed)
