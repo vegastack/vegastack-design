@@ -1002,6 +1002,44 @@ test("a catch-all page is held to the dynamic rows it serves too (review round 6
   });
 }
 
+test("catch-all rows are sampled at length, and a more specific page takes the paths it renders (review round 7)", () => {
+  const longer = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[...rest]": "prose", "/docs/new/[id]": "default" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+  });
+  assert.deepEqual(lines(compositionOf(longer).routeMap.mismatches), [
+    'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
+  ]);
+  const shadowed = project({
+    ...UI,
+    "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[id]": "prose" });`,
+    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[category]/[id]/page.tsx": `<AppShellPage size={size} />`,
+  });
+  assert.deepEqual(compositionOf(shadowed).routeMap.mismatches, []);
+});
+
+{
+  const root = project({ "components.json": JSON.stringify({ aliases: {} }) });
+  const out = [];
+  const err0 = console.error;
+  console.error = (...a) => out.push(a.join(" "));
+  try {
+    await ownedFilesMain([
+      "--dir",
+      root,
+      "--registry",
+      "https://user:PASSWORD_VALUE@design.vegastack.com:bad/r/{name}.json",
+    ]);
+  } finally {
+    console.error = err0;
+  }
+  test("owned-files never echoes the userinfo of an unparseable registry URL (review round 7)", () => {
+    assert.doesNotMatch(out.join("\n"), /PASSWORD_VALUE/);
+  });
+}
+
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
 
 if (failures > 0) {

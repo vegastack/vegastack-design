@@ -1014,13 +1014,18 @@ export function routeSegments(path) {
     .filter((s) => s !== "" && !/^\(.*\)$/.test(s) && !s.startsWith("@"));
 }
 
+const PARSED = new Map();
 function parseRoute(route) {
-  return routeSegments(route).map((s) => {
+  let parsed = PARSED.get(route);
+  if (parsed) return parsed;
+  parsed = routeSegments(route).map((s) => {
     if (/^\[\[\.\.\.[^\]]+\]\]$/.test(s)) return { kind: "optional-catch-all" };
     if (/^\[\.\.\.[^\]]+\]$/.test(s)) return { kind: "catch-all" };
     if (/^\[[^\]]+\]$/.test(s)) return { kind: "dynamic" };
     return { kind: "static", value: s };
   });
+  if (PARSED.size < 10000) PARSED.set(route, parsed);
+  return parsed;
 }
 
 export function matchRoute(route, pathname) {
@@ -1048,20 +1053,10 @@ function bySpecificity(a, b) {
 /** A value no static row names: what a page's `[id]` stands for when it is matched as a path. */
 const ANY_SEGMENT = "\u0000";
 
-/**
- * The widths the route map gives the paths a page's route pattern serves: a static route's own
- * row; else — matching concrete paths (a dynamic route's own row among the candidates), with `[id]` as one value no static row names, `[...rest]` as one to three
- * of them and `[[...rest]]` as zero to three, plus a path of every row it serves with no page of
- * its own — the most specific row serving each, exactly as
- * `widthOfPath` picks, or `default` where none does. One width when every sample agrees.
- */
-export function widthsForRoute(map, route, ownPages = new Set()) {
-  const key = `/${routeSegments(route).join("/")}`;
-  const segments = parseRoute(key);
-  if (map.has(key) && segments.every((s) => s.kind === "static"))
-    return [{ width: map.get(key).width, row: key }];
+/** Concrete sample paths a pattern serves: `[id]` one value no static row names, `[...rest]` one to three, `[[...rest]]` zero to three. */
+function samplePaths(route) {
   let paths = [[]];
-  for (const seg of segments) {
+  for (const seg of parseRoute(route)) {
     const counts =
       seg.kind === "catch-all"
         ? [1, 2, 3]
@@ -1076,23 +1071,29 @@ export function widthsForRoute(map, route, ownPages = new Set()) {
       ),
     );
   }
-  // …plus a path from every row this pattern also serves that no page file of its own serves:
-  // `/docs/[...slug]` renders `/docs/new` and `/docs/new/123` when there is no `docs/new/page` or
-  // `docs/new/[id]/page`, and the map's rows for them apply.
-  for (const row of map.keys()) {
-    if (row === key || ownPages.has(row)) continue;
-    const sample = parseRoute(row)
-      .filter((s) => s.kind !== "optional-catch-all")
-      .map((s) => (s.kind === "static" ? s.value : ANY_SEGMENT));
-    if (matchRoute(key, `/${sample.join("/")}`)) paths.push(sample);
-  }
-  const patterns = [...map.keys()].sort(bySpecificity);
+  return paths.map((p) => `/${p.join("/")}`);
+}
+
+/**
+ * The widths the route map gives the paths a page's route pattern renders. A static route with its
+ * own row: that row. Otherwise every sample path of the pattern and of each map row (see
+ * `samplePaths`) that this page — not a more specific page — renders, by Next's own precedence,
+ * resolved to the most specific row serving it exactly as `widthOfPath` picks, or `default` where
+ * none does. `pages` are every App Router page's route. One width when every sample agrees.
+ */
+export function widthsForRoute(map, route, pages = []) {
+  const key = `/${routeSegments(route).join("/")}`;
+  if (map.has(key) && parseRoute(key).every((s) => s.kind === "static"))
+    return [{ width: map.get(key).width, row: key }];
+  const pagePatterns = [...new Set([key, ...pages])].sort(bySpecificity);
+  const rows = [...map.keys()].sort(bySpecificity);
   const seen = new Map();
-  for (const path of paths) {
-    const row = patterns.find((p) => matchRoute(p, `/${path.join("/")}`));
+  for (const path of new Set([key, ...rows].flatMap(samplePaths))) {
+    if (!matchRoute(key, path)) continue;
+    if (pagePatterns.find((p) => matchRoute(p, path)) !== key) continue;
+    const row = rows.find((r) => matchRoute(r, path));
     const width = row ? map.get(row).width : "default";
-    if (!seen.has(`${width} ${row}`))
-      seen.set(`${width} ${row}`, { width, row: row ?? null });
+    seen.set(`${width} ${row}`, { width, row: row ?? null });
   }
   return [...seen.values()];
 }
@@ -1210,7 +1211,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     .filter((f) => /(?:^|\/)page\.[jt]sx?$/.test(f))
     .map((f) => ({ dir: f.slice(0, f.lastIndexOf("/")), route: appRouteOf(f) }))
     .filter((p) => p.route != null);
-  const ownPages = new Set(pageFiles.map((p) => p.route));
+  const pageRoutes = [...new Set(pageFiles.map((p) => p.route))];
 
   const important = [];
   const widths = [];
@@ -1333,7 +1334,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
             .map((p) => p.route);
     const seen = new Map();
     for (const route of wrapped.length ? wrapped : [page.route])
-      for (const answer of widthsForRoute(map, route, ownPages))
+      for (const answer of widthsForRoute(map, route, pageRoutes))
         seen.set(`${answer.width} ${answer.row}`, answer);
     const answers = [...seen.values()];
     if (answers.some((a) => a.width !== size))

@@ -272,7 +272,10 @@ function assertRegistryRequest(url, headers) {
     parsed = new URL(url);
   } catch {
     // redact: an unparseable URL is still printed, and it may carry an interpolated secret.
-    throw new Error(`registry URL is invalid: ${redact(url)}`);
+    // …and without any `user:password@` it may carry: an unparseable URL is not redacted by URL.
+    throw new Error(
+      `registry URL is invalid: ${redact(String(url).replace(/\/\/[^/?#]*@/, "//"))}`,
+    );
   }
   if (parsed.username || parsed.password) {
     throw new Error("registry URL must not contain embedded credentials");
