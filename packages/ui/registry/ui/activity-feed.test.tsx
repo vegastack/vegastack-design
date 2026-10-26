@@ -14,6 +14,7 @@ import {
   ActivityKindIcon,
   ActivityUnreadDivider,
   ActivityValue,
+  groupActivityRuns,
   useActivityFeedKeyboard,
 } from "./activity-feed";
 import { CommentThread } from "./comments";
@@ -45,7 +46,7 @@ test("the header shows the count, the filter and the order toggle, and reports c
     </ActivityFeed>,
   );
   await expect
-    .element(screen.getByRole("heading", { name: /^Activity\s*3$/ }))
+    .element(screen.getByRole("heading", { name: /^Activity\s*3 comments$/ }))
     .toBeVisible();
   await screen.getByRole("button", { name: "Oldest first" }).click();
   expect(onOrderChange).toHaveBeenCalledWith("newest");
@@ -187,6 +188,167 @@ test("combined changes stay visible with one actor and latest time, aligned when
   ).toBeLessThan(1);
   expect(event.scrollWidth).toBeLessThanOrEqual(event.clientWidth);
   await expectNoA11yViolations(screen.container);
+});
+
+test("countLabel names what the heading's count counts", async () => {
+  const screen = await render(
+    <>
+      <ActivityFeed count={1}>
+        <ActivityFeedList />
+      </ActivityFeed>
+      <ActivityFeed
+        title="History"
+        count={5}
+        countLabel={(n) => `${n} entries`}
+      >
+        <ActivityFeedList />
+      </ActivityFeed>
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("heading", { name: "Activity 1 comment" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("heading", { name: "History 5 entries" }))
+    .toBeInTheDocument();
+});
+
+const statusChange = (
+  id: string,
+  from: string,
+  to: string,
+  minutes: number,
+) => ({
+  id,
+  actor: priya,
+  date: NOW + minutes * 60_000,
+  now: NOW + 10 * 60_000,
+  change: { field: "status", verb: "moved it", from, to },
+  children: (
+    <>
+      changed status from <ActivityValue>{from}</ActivityValue> to{" "}
+      <ActivityValue>{to}</ActivityValue>
+    </>
+  ),
+});
+
+test("a run of one field's changes reads as one chain", async () => {
+  const screen = await render(
+    <ActivityEventGroup
+      events={[
+        statusChange("1", "Todo", "In progress", 0),
+        statusChange("2", "In progress", "In review", 2),
+      ]}
+    />,
+  );
+  const group = screen.container.querySelector(
+    '[data-slot="activity-event-group"]',
+  )!;
+  expect(group).toHaveAttribute("data-layout", "chain");
+  expect(
+    group.querySelector('[data-slot="activity-run-chain"]')?.textContent,
+  ).toBe("moved it Todo →to In progress →to In review");
+  expect(group.querySelectorAll("time")).toHaveLength(1);
+  expect(group.querySelector("time")?.getAttribute("datetime")).toBe(
+    new Date(NOW + 2 * 60_000).toISOString(),
+  );
+  // The chain stands for every event in it, so pagination can re-find it by any of them.
+  expect(
+    group
+      .querySelector('[data-slot="activity-change"]')
+      ?.getAttribute("data-activity-ids"),
+  ).toBe('["1","2"]');
+  await expectNoA11yViolations(screen.container);
+});
+
+test("summarizeAt folds a run of different changes into an expandable line", async () => {
+  const changes = ["renamed it", "set the due date", "added a label"].map(
+    (text, i) => ({
+      id: `c${i}`,
+      actor: priya,
+      date: NOW + i * 60_000,
+      now: NOW,
+      children: text,
+    }),
+  );
+  const screen = await render(
+    <>
+      <ActivityEventGroup events={changes} summarizeAt={3} />
+      <ActivityEventGroup
+        events={changes}
+        summarizeAt={3}
+        summarizeRun={() => "tidied the task"}
+      />
+      <ActivityEventGroup events={changes} />
+    </>,
+  );
+  const [folded, custom, listed] = Array.from(
+    screen.container.querySelectorAll('[data-slot="activity-event-group"]'),
+  ) as HTMLElement[];
+  expect(folded).toHaveAttribute("data-layout", "run");
+  const toggle = screen.getByRole("button", { name: "made 3 changes" });
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  const list = folded!.querySelector<HTMLElement>(
+    '[data-slot="activity-run-changes"]',
+  )!;
+  expect(toggle.element().getAttribute("aria-controls")).toBe(list.id);
+  expect(list.hidden).toBe(true);
+  expect(list.querySelector("[data-activity-id]")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+  await toggle.click();
+  expect(list.hidden).toBe(false);
+  expect(
+    Array.from(list.querySelectorAll("li"), (li) => li.textContent),
+  ).toEqual(["renamed it", "set the due date", "added a label"]);
+  expect(list.querySelectorAll("[data-activity-id]")).toHaveLength(3);
+  await expectNoA11yViolations(screen.container);
+  await expect
+    .element(screen.getByRole("button", { name: "tidied the task" }))
+    .toBeInTheDocument();
+  expect(custom).toHaveAttribute("data-layout", "run");
+  expect(listed).toHaveAttribute("data-layout", "combined");
+  expect(listed!.textContent).toContain(
+    "renamed it; set the due date; added a label",
+  );
+});
+
+test("groupActivityRuns: one actor within the window, broken by comments and host boundaries", () => {
+  type Item = { id: string; who: string | null; at: number; comment?: boolean };
+  const min = 60_000;
+  const items: Item[] = [
+    { id: "a", who: "priya", at: 0 },
+    { id: "b", who: "priya", at: 3 * min },
+    { id: "c", who: "priya", at: 9 * min },
+    { id: "d", who: "priya", at: 11 * min }, // past 10 minutes from "a"
+    { id: "e", who: "raj", at: 12 * min },
+    { id: "f", who: "raj", at: 13 * min, comment: true },
+    { id: "g", who: "raj", at: 14 * min },
+    { id: "h", who: null, at: 15 * min },
+    { id: "i", who: null, at: 16 * min },
+    { id: "j", who: null, at: 17 * min },
+  ];
+  const runs = groupActivityRuns(items, {
+    actorKey: (item) => item.who,
+    date: (item) => item.at,
+    isBreak: (item) => !!item.comment,
+    breakBefore: (item) => item.id === "j",
+  });
+  expect(runs.map((run) => run.map((item) => item.id).join(""))).toEqual([
+    "abc",
+    "d",
+    "e",
+    "f",
+    "g",
+    "hi",
+    "j",
+  ]);
+  expect(
+    groupActivityRuns(items.slice(0, 4), {
+      actorKey: (item) => item.who,
+      date: (item) => item.at,
+      runWindowMs: 20 * min,
+    }),
+  ).toHaveLength(1);
 });
 
 test("the unread divider reports once when it is on screen", async () => {

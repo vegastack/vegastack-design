@@ -1,4 +1,4 @@
-// @vegastack inbox@0.25.86 sha256-5ilZ9Xsr5TUgznByC1q5CNXn30509v6aD9ospB+HxZ4=
+// @vegastack inbox@0.25.86 sha256-38A3lplAlo31g13BLj7HC5bTTfk+bpiKk5MDZgHHNHY=
 
 "use client";
 
@@ -7,6 +7,7 @@ import {
   BellOff,
   Check,
   CheckCheck,
+  ChevronDown,
   Mail,
   MailOpen,
   MoreHorizontal,
@@ -23,6 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +33,36 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------ frame */
+
+/** What a row needs from its {@link Inbox}: the active row, and how to activate or open one. */
+interface InboxContextValue {
+  activeId: string | null;
+  activate: (value: string) => void;
+  open?: (value: string) => void;
+}
+
+const InboxContext = React.createContext<InboxContextValue | null>(null);
+
+/**
+ * A key press that belongs to a text field, an open menu or a dialog opened over the Inbox (its
+ * events bubble here through the portal) — never a list shortcut. A dialog that HOLDS the Inbox (a
+ * `Sheet`) does not count.
+ */
+function typingTarget(target: EventTarget | null, inbox: HTMLElement) {
+  const el = target as HTMLElement | null;
+  if (!el) return false;
+  const dialog = el.closest("[role=dialog],[role=alertdialog]");
+  return (
+    el.isContentEditable ||
+    el.tagName === "INPUT" ||
+    el.tagName === "TEXTAREA" ||
+    el.tagName === "SELECT" ||
+    !!el.closest(
+      "[contenteditable=true],[role=menu],[role=listbox],[role=combobox]",
+    ) ||
+    (!!dialog && !dialog.contains(inbox))
+  );
+}
 
 /** Props for {@link Inbox}. */
 export interface InboxProps extends Omit<
@@ -93,6 +126,25 @@ export interface InboxProps extends Omit<
    * @default "You’re all caught up"
    */
   endLabel?: React.ReactNode;
+  /**
+   * The active row's `value` (an {@link InboxItem} `value`) — the one the host's peek shows. It is
+   * marked (`data-active`, a start bar and `aria-current`) and scrolled into view. Controlled when
+   * set; otherwise the Inbox keeps its own.
+   * @default undefined
+   */
+  activeId?: string | null;
+  /**
+   * Called with the row J / K (or ↓ / ↑) moves to, and with a row as it opens. Drive the peek here.
+   * @default undefined
+   */
+  onActiveChange?: (value: string) => void;
+  /**
+   * Open a row: Enter, or a plain click on its link (a modified click still opens `href` in a new
+   * tab). When set, opening never navigates — show the record in a peek beside the Inbox and keep
+   * the Inbox open. Omit it and a row's link navigates.
+   * @default undefined
+   */
+  onOpen?: (value: string) => void;
 }
 
 /**
@@ -103,9 +155,14 @@ export interface InboxProps extends Omit<
  * "You’re all caught up" ends the list. It fills its container, so put it in
  * a `Sheet`, a `Popover` or a docked panel; on a phone give that container the whole screen.
  *
+ * Triage: give each row a `value`, then J / K (or ↓ / ↑) walk the rows — focus follows, the active
+ * row is marked and scrolled into view, and `onActiveChange` reports it so the host's peek can
+ * follow. Enter (or a click) calls `onOpen`, which never navigates or closes the Inbox.
+ *
  * @example
  * <Inbox actions={<InboxHeaderAction label="Mark all read" icon={<CheckCheck />} onClick={markAll} />}
- *   filters={<InboxFilters value={view} onValueChange={setView} unreadCount={3} />}>
+ *   filters={<InboxFilters value={tab} onValueChange={setTab} unreadOnly={unread} onUnreadOnlyChange={setUnread} />}
+ *   activeId={peekId} onActiveChange={setPeekId} onOpen={setPeekId}>
  *   <InboxGroup label="Today">{rows}</InboxGroup>
  * </Inbox>
  */
@@ -121,12 +178,69 @@ export function Inbox({
   loadingMore = false,
   loadMoreError = false,
   endLabel = "You’re all caught up",
+  activeId: activeIdProp,
+  onActiveChange,
+  onOpen,
+  onKeyDown,
   className,
   children,
   ...props
 }: InboxProps) {
   const titleId = React.useId();
   const bodyRef = React.useRef<HTMLDivElement>(null);
+  const [ownActiveId, setOwnActiveId] = React.useState<string | null>(null);
+  const activeId = activeIdProp !== undefined ? activeIdProp : ownActiveId;
+  const reportActive = React.useRef(onActiveChange);
+  reportActive.current = onActiveChange;
+  const activate = React.useCallback((value: string) => {
+    setOwnActiveId(value);
+    reportActive.current?.(value);
+  }, []);
+  const context = React.useMemo<InboxContextValue>(
+    () => ({ activeId, activate, open: onOpen }),
+    [activeId, activate, onOpen],
+  );
+
+  // The active row stays in view, clear of the sticky day label (its `scroll-mt`).
+  React.useEffect(() => {
+    if (activeId == null) return;
+    rowFor(bodyRef.current, activeId)?.scrollIntoView({ block: "nearest" });
+  }, [activeId]);
+
+  const walk = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      typingTarget(event.target, event.currentTarget)
+    )
+      return;
+    const key = event.key;
+    const letter = key === "j" || key === "J" || key === "k" || key === "K";
+    // Arrows walk only from the list itself; the tabs and the header keep theirs.
+    const arrow =
+      (key === "ArrowDown" || key === "ArrowUp") &&
+      !!bodyRef.current?.contains(event.target as Node);
+    if (!letter && !arrow) return;
+    const rows = Array.from(
+      bodyRef.current?.querySelectorAll<HTMLElement>(
+        '[data-slot="inbox-item"][data-value]',
+      ) ?? [],
+    );
+    if (!rows.length) return;
+    event.preventDefault();
+    const at = rows.findIndex((row) => row.dataset.value === activeId);
+    const down = key === "ArrowDown" || key === "j" || key === "J";
+    const next = down
+      ? Math.min(at + 1, rows.length - 1)
+      : at === -1
+        ? rows.length - 1
+        : Math.max(at - 1, 0);
+    const row = rows[next]!;
+    activate(row.dataset.value!);
+    focusRow(row);
+  };
   const sentinelRef = React.useRef<HTMLDivElement>(null);
   const loadRef = React.useRef(onLoadMore);
   loadRef.current = onLoadMore;
@@ -180,10 +294,15 @@ export function Inbox({
     <section
       data-slot="inbox"
       aria-labelledby={titleId}
+      aria-keyshortcuts="J K"
       className={cn(
         "flex h-full min-h-0 w-full flex-col bg-background text-foreground",
         className,
       )}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        walk(event);
+      }}
       {...props}
     >
       <header className="flex shrink-0 flex-col gap-2 px-4 pt-3 pb-2">
@@ -208,11 +327,31 @@ export function Inbox({
         data-slot="inbox-body"
         className="min-h-0 flex-1 overflow-y-auto"
       >
-        {children}
+        <InboxContext.Provider value={context}>
+          {children}
+        </InboxContext.Provider>
         {end}
       </div>
     </section>
   );
+}
+
+/** The row whose `value` is `value`, inside `root`. */
+function rowFor(root: HTMLElement | null, value: string) {
+  return (
+    Array.from(
+      root?.querySelectorAll<HTMLElement>(
+        '[data-slot="inbox-item"][data-value]',
+      ) ?? [],
+    ).find((row) => row.dataset.value === value) ?? null
+  );
+}
+
+/** Focus a row's link, or the row itself when it has none. */
+function focusRow(row: HTMLElement) {
+  const target =
+    row.querySelector<HTMLElement>('[data-slot="inbox-item-link"]') ?? row;
+  target.focus({ preventScroll: true });
 }
 
 /** Props for {@link InboxHeaderAction}. */
@@ -306,23 +445,27 @@ export function InboxMarkAllRead(
 
 /* ---------------------------------------------------------------- filters */
 
-/** Which rows the Inbox shows: the built-in `all` and `unread`, or an app-defined `extra` value. */
-export type InboxFilter = "all" | "unread" | (string & {});
-
-/** One app-defined chip after All and Unread, such as Requests. */
-export interface InboxFilterOption {
-  /** The value `onValueChange` receives; must not be `all` or `unread`. */
+/** One tab of {@link InboxFilters}. */
+export interface InboxTab {
+  /** The value `onValueChange` receives. */
   value: string;
-  /** The chip's label. */
+  /** The tab's label. */
   label: string;
-  /** A count shown on the chip; 0 or unset hides it. @default undefined */
+  /** A count after the label; 0 or unset hides it. @default undefined */
   count?: number;
 }
+
+/** The tabs {@link InboxFilters} shows unless given its own: For you · Updates · Archived. */
+export const INBOX_TABS: readonly InboxTab[] = [
+  { value: "for-you", label: "For you" },
+  { value: "updates", label: "Updates" },
+  { value: "archived", label: "Archived" },
+];
 
 function FilterCount({ count }: { count?: number }) {
   if (!count || count <= 0) return null;
   return (
-    <span className="tabular-nums opacity-80">
+    <span className="text-muted-foreground tabular-nums">
       {count > 99 ? "99+" : count}
     </span>
   );
@@ -330,73 +473,107 @@ function FilterCount({ count }: { count?: number }) {
 
 /** Props for {@link InboxFilters}. */
 export interface InboxFiltersProps {
-  /** The selected filter. */
-  value: InboxFilter;
-  /** Called with the filter a chip selects. */
-  onValueChange: (value: InboxFilter) => void;
+  /** The selected tab's `value`. */
+  value: string;
+  /** Called with the tab picked. */
+  onValueChange: (value: string) => void;
   /**
-   * The unread count shown on the Unread chip; 0 hides it.
+   * The tabs, each with an optional count.
+   * @default INBOX_TABS — For you · Updates · Archived
+   */
+  tabs?: readonly InboxTab[];
+  /**
+   * Show unread rows only — the Unread toggle's pressed state, independent of the tab.
+   * @default false
+   */
+  unreadOnly?: boolean;
+  /**
+   * Called from the Unread toggle; the toggle shows only when this is set.
+   * @default undefined
+   */
+  onUnreadOnlyChange?: (unreadOnly: boolean) => void;
+  /**
+   * The unread count on the toggle; 0 hides it.
    * @default 0
    */
   unreadCount?: number;
   /**
-   * App-defined chips after All and Unread, each with an optional count — e.g.
-   * `[{ value: "requests", label: "Requests", count: 2 }]`.
-   * @default []
+   * The toggle's label.
+   * @default "Unread"
    */
-  extra?: readonly InboxFilterOption[];
+  unreadLabel?: string;
+  /**
+   * The tab list's accessible name.
+   * @default "Show"
+   */
+  label?: string;
   /** @default undefined */
   className?: string;
 }
 
 /**
- * The All | Unread chips under the title, with the count on Unread, then any `extra` chips the
- * app defines (each with its own count).
+ * The row under the Inbox title: tabs (For you · Updates · Archived by default, each with an
+ * optional count) and, at the end, an Unread toggle that filters whichever tab is open.
  *
  * @example
  * <InboxFilters
- *   value={view}
- *   onValueChange={setView}
+ *   value={tab}
+ *   onValueChange={setTab}
+ *   unreadOnly={unreadOnly}
+ *   onUnreadOnlyChange={setUnreadOnly}
  *   unreadCount={3}
- *   extra={[{ value: "requests", label: "Requests", count: 2 }]}
  * />
  */
 export function InboxFilters({
   value,
   onValueChange,
+  tabs = INBOX_TABS,
+  unreadOnly = false,
+  onUnreadOnlyChange,
   unreadCount = 0,
-  extra = [],
+  unreadLabel = "Unread",
+  label = "Show",
   className,
 }: InboxFiltersProps) {
-  const chips: InboxFilterOption[] = [
-    { value: "all", label: "All" },
-    { value: "unread", label: "Unread", count: unreadCount },
-    ...extra,
-  ];
   return (
     <div
-      role="group"
-      aria-label="Show"
-      className={cn("flex items-center gap-1.5", className)}
+      data-slot="inbox-filters"
+      className={cn("flex min-w-0 items-center gap-2", className)}
     >
-      {chips.map((chip) => {
-        const selected = chip.value === value;
-        return (
-          <Button
-            key={chip.value}
-            size="sm"
-            variant={selected ? "default" : "outline"}
-            aria-pressed={selected}
-            onClick={() => onValueChange(chip.value)}
-            className="rounded-full px-2.5"
-          >
-            {chip.label}
-            {/* A space so the name reads "Requests 2"; flex drops it visually. */}
-            {chip.count ? " " : null}
-            <FilterCount count={chip.count} />
-          </Button>
-        );
-      })}
+      <Tabs
+        value={value}
+        onValueChange={(next) => onValueChange(String(next))}
+        className="min-w-0 flex-1"
+      >
+        <TabsList variant="line" aria-label={label}>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              data-slot="inbox-filters-tab"
+            >
+              {tab.label}
+              {/* A space so the name reads "For you 2"; flex drops it visually. */}
+              {tab.count ? " " : null}
+              <FilterCount count={tab.count} />
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+      {onUnreadOnlyChange ? (
+        <Toggle
+          variant="outline"
+          size="sm"
+          data-slot="inbox-filters-unread"
+          pressed={unreadOnly}
+          onPressedChange={(pressed) => onUnreadOnlyChange(pressed)}
+          className="shrink-0 rounded-full"
+        >
+          {unreadLabel}
+          {unreadCount ? " " : null}
+          <FilterCount count={unreadCount} />
+        </Toggle>
+      ) : null}
     </div>
   );
 }
@@ -512,6 +689,28 @@ export interface InboxItemAction {
   doneLabel?: string;
 }
 
+/** A person behind a row or one of its events: the photo, else initials on their hue. */
+export interface InboxActor {
+  /** The name — the initials and the accessible name. */
+  name: string;
+  /** The photo. @default undefined */
+  src?: string | null;
+  /** The hue behind the initials. @default undefined */
+  hue?: Person["hue"];
+}
+
+/** One of the events a grouped {@link InboxItem} stands for, listed when the row expands. */
+export interface InboxItemEvent {
+  /** A stable key. @default the index */
+  id?: string;
+  /** Who did it; `null` or unset for the system. @default undefined */
+  actor?: InboxActor | null;
+  /** What happened, after the actor's name ("commented: “Looks good”"). */
+  text: React.ReactNode;
+  /** When it happened. @default undefined */
+  time?: Date | string | number;
+}
+
 /** Props for {@link InboxItem}. */
 export interface InboxItemProps extends Omit<
   React.ComponentProps<"li">,
@@ -520,19 +719,25 @@ export interface InboxItemProps extends Omit<
   /** The sentence: plain text, or a template with {@link InboxEmphasis} for the actor and record. */
   title: React.ReactNode;
   /**
+   * The row's identity for the {@link Inbox}'s `activeId`, J / K and `onOpen`. Rows without one
+   * are skipped by J / K.
+   * @default undefined
+   */
+  value?: string;
+  /**
    * Unread: a dot in the start gutter, a soft full-bleed tint, the title in the foreground colour
    * (read titles are muted) and an sr-only "Unread".
    * @default false
    */
   unread?: boolean;
   /**
-   * The actor, as a 28px avatar: `{ name, src?, hue? }` — the photo, else initials on their hue.
-   * Takes precedence over `icon`.
+   * The actor, as a 28px avatar — the photo, else initials on their hue. Takes precedence over
+   * `icon`.
    * @default undefined
    */
-  avatar?: { name: string; src?: string | null; hue?: Person["hue"] };
+  avatar?: InboxActor;
   /**
-   * A system event's icon, drawn muted in a 28px tile.
+   * A system event's (or a record's) icon, drawn muted in a 28px tile.
    * @default undefined
    */
   icon?: React.ReactNode;
@@ -549,28 +754,64 @@ export interface InboxItemProps extends Omit<
    */
   destructive?: boolean;
   /**
-   * The muted line under the title ("Skyline Tower B · Project").
+   * The muted line under the title — a grouped row's latest event ("Sanjay commented"), or
+   * context ("Skyline Tower B · Project").
    * @default undefined
    */
   meta?: React.ReactNode;
+  /**
+   * Everyone behind a grouped row, as stacked 20px avatars on a line under `meta` — three, then
+   * "+n" — before the count. Their names are read out.
+   * @default undefined
+   */
+  actors?: readonly InboxActor[];
+  /**
+   * How many events this row stands for (one record's updates, grouped); above 1 it shows after
+   * the actors through `countLabel` ("9 updates").
+   * @default events.length
+   */
+  count?: number;
+  /**
+   * The count's words.
+   * @default (n) => "1 update" | "n updates"
+   */
+  countLabel?: (count: number) => string;
+  /**
+   * The events behind a grouped row, newest first. The count becomes a disclosure button that
+   * lists them under the row (collapsed at first).
+   * @default undefined
+   */
+  events?: readonly InboxItemEvent[];
   /**
    * When it happened; shown short, absolute on hover.
    * @default undefined
    */
   time?: Date | string | number;
   /**
-   * Where the row goes; the whole row is the link.
+   * Where the row goes; the whole row is the link. With the {@link Inbox}'s `onOpen` a plain click
+   * opens the row in place instead, and a modified click still opens `href` in a new tab.
    * @default undefined
    */
   href?: string;
   /**
-   * The link element to render instead of `<a>` (a router `Link`); it receives `href`, `className`
-   * and children.
+   * The link element to render instead of `<a>` (a router `Link`); it receives `href`, `className`,
+   * `onClick` and children.
    * @default undefined
    */
   linkRender?: React.ReactElement<Record<string, unknown>>;
   /**
-   * Up to three action chips.
+   * A request's state. `pending` shows the `actions` (Allow · Decline); `answered` replaces them
+   * with the `answeredLabel` line.
+   * @default undefined
+   */
+  status?: "pending" | "answered";
+  /**
+   * The line an answered request shows instead of its actions ("Granted by Sanjay · 5d").
+   * @default undefined
+   */
+  answeredLabel?: React.ReactNode;
+  /**
+   * Up to three action chips (hidden once `status` is `answered`).
    * @default undefined
    */
   actions?: InboxItemAction[];
@@ -580,82 +821,199 @@ export interface InboxItemProps extends Omit<
    */
   onToggleRead?: () => void;
   /**
-   * `DropdownMenuItem`s for the row's ⋯ menu; omit to hide it.
+   * `DropdownMenuItem`s for the row's ⋯ menu (Archive, Mark unread, Unwatch, Mute this type);
+   * omit to hide it.
    * @default undefined
    */
   menu?: React.ReactNode;
   /**
-   * How many events this row stands for; above 1 shows a count.
-   * @default undefined
+   * The ⋯ button's accessible name.
+   * @default "More actions"
    */
-  count?: number;
+  menuLabel?: string;
 }
+
+const defaultCountLabel = (n: number) =>
+  `${n} ${n === 1 ? "update" : "updates"}`;
+
+/** At most this many stacked avatars; the rest read "+n". */
+const ACTORS_SHOWN = 3;
+
+/** The click was on one of the row's own controls (a chip, the toggle, the ⋯ menu, a link). */
+const onControl = (event: React.SyntheticEvent) =>
+  !!(event.target as HTMLElement).closest(
+    "button,a,input,[role=menuitem],[role=button]",
+  );
 
 /**
  * One notification row: full-bleed, 16px sides and 12px vertical padding, a 28px avatar or muted
- * icon tile (with an optional kind `badge` on its corner), the title, a muted meta line and optional
- * action chips. Unread rows get a dot in the start gutter and a soft tint.
- * A fixed 64px right column holds the time, with Mark read / Mark unread and the ⋯ menu below it,
- * shown on hover or keyboard focus.
+ * icon tile (with an optional kind `badge` on its corner), the title, the `meta` line (a grouped
+ * row's latest event), a line with the stacked `actors` and the `count` ("9 updates", a disclosure
+ * for the `events` behind it), and the inline `actions` (Allow · Decline) or, once `status` is
+ * `answered`, the `answeredLabel`.
+ * Unread rows get a dot in the start gutter and a soft tint; the {@link Inbox}'s active row a start
+ * bar. A fixed 64px right column holds the time, with Mark read / Mark unread and the ⋯ menu below
+ * it, shown on hover or keyboard focus.
  *
  * @example
- * <InboxItem unread avatar={{ name: "Asha Kumar" }} badge={<UserRoundCheck />} title="Asha assigned you a task" href="/tasks/41" onToggleRead={toggle} />
+ * <InboxItem value="task-39" unread icon={<SquareCheck />} title="#39 Agent link RCA test"
+ *   actors={[sanjay, arjun]} count={9} events={events} meta="Sanjay commented" href="/tasks/39"
+ *   menu={<DropdownMenuItem onClick={archive}>Archive</DropdownMenuItem>} />
  */
 export function InboxItem({
   title,
+  value,
   unread = false,
   avatar,
   icon,
   badge,
   destructive = false,
   meta,
+  actors,
+  count: countProp,
+  countLabel = defaultCountLabel,
+  events,
   time,
   href,
   linkRender,
+  status,
+  answeredLabel,
   actions,
   onToggleRead,
   menu,
-  count,
+  menuLabel = "More actions",
   className,
+  onClick,
+  onKeyDown,
   ...props
 }: InboxItemProps) {
+  const inbox = React.useContext(InboxContext);
+  const tracked = !!inbox && value !== undefined;
+  const active = tracked && inbox.activeId === value;
+  const [expanded, setExpanded] = React.useState(false);
+  const eventsId = React.useId();
   const hasControls = Boolean(onToggleRead || menu);
+  const count = countProp ?? events?.length ?? 0;
+  const showCount = count > 1;
+  const expandable = showCount && !!events?.length;
+  const answered = status === "answered";
+
+  const open = () => {
+    if (!tracked) return;
+    inbox.activate(value);
+    inbox.open?.(value);
+  };
+
   const titleNode = (
     <>
       {unread ? <span className="sr-only">Unread: </span> : null}
       {title}
-      {count && count > 1 ? (
-        <span className="ms-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1 align-middle text-xs font-medium text-muted-foreground tabular-nums">
-          {count}
-        </span>
-      ) : null}
     </>
   );
   const linkClass = "after:absolute after:inset-0 after:content-['']";
+  const linkClick = (event: React.MouseEvent) => {
+    if (!tracked) return;
+    // A modified or middle click keeps the browser's own (a new tab); a plain one opens in place.
+    if (
+      !inbox.open ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      inbox.activate(value);
+      return;
+    }
+    event.preventDefault();
+    open();
+  };
+  const linkProps = {
+    href,
+    "data-slot": "inbox-item-link",
+    "aria-current": active ? ("true" as const) : undefined,
+  };
 
   let titleContent: React.ReactNode = titleNode;
-  if (href) {
+  if (!href && tracked && inbox.open) {
+    // No link, but the row opens: the title is the row's button (a span, so the sentence wraps
+    // like a link's), its overlay covering the row.
+    titleContent = (
+      <Button
+        variant="ghost"
+        nativeButton={false}
+        render={<span />}
+        data-slot="inbox-item-link"
+        aria-current={active ? "true" : undefined}
+        onClick={open}
+        className={cn(
+          "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 dark:hover:bg-transparent pointer-coarse:after:inset-0",
+          linkClass,
+        )}
+      >
+        {titleNode}
+      </Button>
+    );
+  } else if (href) {
     titleContent = linkRender ? (
       React.cloneElement(linkRender, {
-        href,
+        ...linkProps,
         className: cn(linkClass, linkRender.props.className as string),
+        onClick: (event: React.MouseEvent) => {
+          (
+            linkRender.props.onClick as
+              ((event: React.MouseEvent) => void) | undefined
+          )?.(event);
+          if (!event.defaultPrevented) linkClick(event);
+        },
         children: titleNode,
       })
     ) : (
-      <a href={href} className={linkClass}>
+      <a {...linkProps} className={linkClass} onClick={linkClick}>
         {titleNode}
       </a>
     );
   }
 
+  const shownActors = actors?.slice(0, ACTORS_SHOWN) ?? [];
+  const moreActors = (actors?.length ?? 0) - shownActors.length;
+  const countText = showCount ? countLabel(count) : null;
+  const hasByline = shownActors.length > 0 || showCount;
+
   return (
     <li
       data-slot="inbox-item"
+      data-value={value}
       data-unread={unread || undefined}
+      data-active={active || undefined}
+      data-status={status}
+      // A row with no link and nothing to open is focused itself while J / K walk the list.
+      tabIndex={tracked && !href && !inbox.open ? -1 : undefined}
+      aria-current={active && !href && !inbox.open ? "true" : undefined}
       className={cn(
-        "group/inbox-item relative flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60 data-unread:bg-accent/40 data-unread:hover:bg-accent/60",
+        "group/inbox-item relative flex scroll-mt-10 gap-3 px-4 py-3 transition-colors hover:bg-muted/60 data-unread:bg-accent/40 data-unread:hover:bg-accent/60",
+        // The active row (the one the peek shows): a 2px start bar over the accent tint.
+        "data-active:bg-accent data-active:before:absolute data-active:before:inset-y-0 data-active:before:start-0 data-active:before:w-0.5 data-active:before:bg-primary data-active:hover:bg-accent",
+        tracked && !href && inbox.open && "cursor-pointer",
         className,
       )}
+      onClick={(event) => {
+        onClick?.(event);
+        if (event.defaultPrevented || href || onControl(event)) return;
+        open();
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (
+          event.defaultPrevented ||
+          href ||
+          event.key !== "Enter" ||
+          event.target !== event.currentTarget
+        )
+          return;
+        event.preventDefault();
+        open();
+      }}
       {...props}
     >
       {unread ? (
@@ -705,7 +1063,121 @@ export function InboxItem({
             {meta}
           </p>
         ) : null}
-        {actions?.length ? (
+        {hasByline ? (
+          <div
+            data-slot="inbox-item-byline"
+            className="flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted-foreground"
+          >
+            {shownActors.length ? (
+              <span
+                data-slot="inbox-item-actors"
+                className="flex shrink-0 items-center gap-1"
+              >
+                <span aria-hidden className="flex -space-x-1">
+                  {shownActors.map((actor, i) => (
+                    <PersonAvatar
+                      key={`${actor.name}-${i}`}
+                      person={{
+                        name: actor.name,
+                        image: actor.src,
+                        hue: actor.hue,
+                      }}
+                      className="ring-2 ring-background data-[size=sm]:size-5"
+                    />
+                  ))}
+                </span>
+                {moreActors > 0 ? (
+                  <span aria-hidden className="tabular-nums">
+                    +{moreActors}
+                  </span>
+                ) : null}
+                <span className="sr-only">
+                  {actors!.map((actor) => actor.name).join(", ")}
+                </span>
+              </span>
+            ) : null}
+            {expandable ? (
+              <Button
+                variant="ghost"
+                size="xs"
+                data-slot="inbox-item-count"
+                aria-expanded={expanded}
+                aria-controls={eventsId}
+                onClick={() => setExpanded((e) => !e)}
+                className="relative z-10 -my-0.5 -ms-1 gap-0.5 px-1 font-normal text-muted-foreground hover:text-foreground"
+              >
+                {countText}
+                <ChevronDown
+                  aria-hidden
+                  className={cn(
+                    "transition-transform",
+                    expanded && "rotate-180",
+                  )}
+                />
+              </Button>
+            ) : showCount ? (
+              <span
+                data-slot="inbox-item-count"
+                className="shrink-0 tabular-nums"
+              >
+                {countText}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+        {expandable ? (
+          <ul
+            id={eventsId}
+            data-slot="inbox-item-events"
+            hidden={!expanded}
+            className="mt-1 flex flex-col gap-1 border-s border-border ps-3"
+          >
+            {events!.map((event, i) => (
+              <li
+                key={event.id ?? i}
+                className="flex min-w-0 items-start gap-1.5 text-xs leading-5 text-muted-foreground"
+              >
+                {event.actor ? (
+                  <PersonAvatar
+                    aria-hidden
+                    person={{
+                      name: event.actor.name,
+                      image: event.actor.src,
+                      hue: event.actor.hue,
+                    }}
+                    className="mt-0.5 shrink-0 data-[size=sm]:size-4"
+                  />
+                ) : null}
+                <span className="min-w-0">
+                  {event.actor ? (
+                    <span className="font-medium text-foreground">
+                      {event.actor.name}
+                    </span>
+                  ) : null}{" "}
+                  {event.text}
+                  {event.time !== undefined ? (
+                    <>
+                      {" "}
+                      <span aria-hidden>·</span>{" "}
+                      <RelativeTime date={event.time} focusable={false} />
+                    </>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {answered ? (
+          answeredLabel ? (
+            <p
+              data-slot="inbox-item-answered"
+              className="flex min-w-0 items-center gap-1 text-xs leading-5 text-muted-foreground"
+            >
+              <Check aria-hidden className="size-3.5 shrink-0" />
+              <span className="min-w-0 truncate">{answeredLabel}</span>
+            </p>
+          ) : null
+        ) : actions?.length ? (
           <div className="relative z-10 mt-1.5 flex flex-wrap gap-1.5">
             {actions.slice(0, 3).map((action, i) => (
               <Button
@@ -769,7 +1241,7 @@ export function InboxItem({
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="More actions"
+                      aria-label={menuLabel}
                     >
                       <MoreHorizontal />
                     </Button>

@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.25.86 sha256-dx6oifK6EomReC1O1YgFkCgGKcr5XozxgvJmMJvE7Qg=
+// @vegastack notifications-01@0.25.86 sha256-2uYz8P97jwB5lxUtvvkiZVPGFkOEgTnvlKY9ghYPP5I=
 
 "use client";
 
@@ -17,7 +17,6 @@ import {
   InboxMarkAllRead,
   InboxMenuAction,
   InboxSkeleton,
-  type InboxFilter,
   type InboxItemAction,
 } from "@/components/ui/inbox";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -114,14 +113,22 @@ function Row({
   );
   return (
     <InboxItem
+      value={n.id}
       unread={n.unread}
-      avatar={n.actor && !failed ? { name: n.actor } : undefined}
+      avatar={n.actor && !failed && !n.actors ? { name: n.actor } : undefined}
       icon={ICONS[n.kind]}
       destructive={failed}
       title={title}
       meta={n.meta}
       time={n.at}
+      actors={n.actors?.map((name) => ({ name }))}
       count={n.count}
+      events={n.events?.map((event) => ({
+        id: event.id,
+        actor: { name: event.actor },
+        text: event.text,
+        time: event.at,
+      }))}
       href={n.href}
       onToggleRead={onToggleRead}
       menu={
@@ -157,9 +164,10 @@ function Row({
 
 /**
  * The Inbox: a side `Sheet` holding the `Inbox` panel — "Mark all read" and a ⋯ menu in the
- * header, All | Unread chips with the unread count, rows grouped by day (Today, Yesterday, This
- * week, Last week, Earlier), each row one link with an avatar or icon, an unread tint, a rich
- * title, the time over its read toggle and ⋯, and optional action chips. The list pages 15 rows
+ * header, For you · Updates · Archived tabs with an Unread toggle, rows grouped by day (Today,
+ * Yesterday, This week, Last week, Earlier), each row one link with an avatar or icon, an unread
+ * tint, a rich title, a grouped row's actors and expandable updates, the time over its read toggle
+ * and ⋯, and optional action chips; J / K walk the rows. The list pages 15 rows
  * at a time as it scrolls (skeleton rows while loading, "Try again" on failure) and ends on
  * "You’re all caught up". Loading, a failed load and both empty cases have their own
  * states, and "Marked all read" is announced once.
@@ -183,17 +191,19 @@ export function InboxSheet({
   loadMoreError = false,
   now,
 }: InboxSheetProps) {
-  const [view, setView] = React.useState<InboxFilter>("all");
+  const [tab, setTab] = React.useState("for-you");
+  const [unreadOnly, setUnreadOnly] = React.useState(false);
   const { announce, Announcer } = useAnnouncer();
 
   const unread = notifications.filter((n) => n.unread).length;
-  const requests = notifications.filter((n) => n.decision).length;
-  const visible =
-    view === "unread"
-      ? notifications.filter((n) => n.unread)
-      : view === "requests"
-        ? notifications.filter((n) => n.decision)
-        : notifications;
+  // For you: what a person did to or asked of you; Updates: everything else you follow.
+  const inTab = (n: InboxNotification) =>
+    tab === "archived"
+      ? !!n.archived
+      : !n.archived && (tab === "for-you") === !!n.actor;
+  const visible = notifications.filter(
+    (n) => inTab(n) && (!unreadOnly || n.unread),
+  );
 
   let body: React.ReactNode;
   if (loading) {
@@ -207,20 +217,19 @@ export function InboxSheet({
       />
     );
   } else if (visible.length === 0) {
-    body =
-      view === "unread" ? (
-        <InboxEmpty title="You’re all caught up" />
-      ) : view === "requests" ? (
-        <InboxEmpty
-          title="No requests"
-          description="Approvals waiting on you show up here."
-        />
-      ) : (
-        <InboxEmpty
-          title="No notifications"
-          description="Assignments and meeting updates show up here."
-        />
-      );
+    body = unreadOnly ? (
+      <InboxEmpty title="You’re all caught up" />
+    ) : tab === "archived" ? (
+      <InboxEmpty
+        title="Nothing archived"
+        description="Archive a notification from its ⋯ menu to keep it here."
+      />
+    ) : (
+      <InboxEmpty
+        title="No notifications"
+        description="Assignments and meeting updates show up here."
+      />
+    );
   } else {
     const days = groupByDay(visible, (n) => n.at, { now });
     body = (
@@ -276,12 +285,11 @@ export function InboxSheet({
           }
           filters={
             <InboxFilters
-              value={view}
-              onValueChange={setView}
+              value={tab}
+              onValueChange={setTab}
+              unreadOnly={unreadOnly}
+              onUnreadOnlyChange={setUnreadOnly}
               unreadCount={unread}
-              extra={[
-                { value: "requests", label: "Requests", count: requests },
-              ]}
             />
           }
         >

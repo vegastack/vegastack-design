@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.86 sha256-hZdXKk+l848R0cK5zeO5A0vQw4jaTbS9EMTLYVbuqxA=
+// @vegastack comments@0.25.86 sha256-uJ01ybTyyQoVESpBy6UKtNIZyu3mRogGeRqU87HuVnQ=
 
 "use client";
 
@@ -142,6 +142,15 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 /**
+ * The body as it posts: a trailing lone "@" — a mention started and then left (Escape closes its
+ * menu and keeps the "@") — is dropped with the space before it.
+ */
+function postable(body: string): string {
+  const dangling = /(^|\s)@\s*$/.exec(body);
+  return dangling ? body.slice(0, dangling.index).trimEnd() : body;
+}
+
+/**
  * A 40px touch target around a 24px control on a coarse pointer, without growing the control (or
  * the row) itself.
  */
@@ -183,6 +192,11 @@ export interface CommentItemProps {
    * the box may be off screen. @default undefined
    */
   onReply?: () => void;
+  /**
+   * Show Reply as a hover action (beside add-reaction, on every pointer) instead of a touch-screen
+   * menu item — a compact thread's way in to its reply box. Needs `onReply`. @default false
+   */
+  replyAction?: boolean;
   /**
    * Add or remove the viewer's reaction; enables the pills and the add-reaction hover action.
    * May return a promise. @default undefined
@@ -255,6 +269,7 @@ export function CommentItem({
   onCopyLink,
   onCopyText,
   onReply,
+  replyAction = false,
   onReactionToggle,
   onChoose,
   highlighted = false,
@@ -316,9 +331,10 @@ export function CommentItem({
     ? (emoji: string) => onReactionToggle(comment.id, emoji)
     : undefined;
   const canReact = !!toggleReaction && !comment.deleted && !editing;
-  const unchanged = draft.trim() === comment.body.trim();
+  const unchanged = postable(draft).trim() === comment.body.trim();
 
-  const save = async (body: string) => {
+  const save = async (value: string) => {
+    const body = postable(value);
     if (!onEdit || !canEditThis || !body.trim() || saving) return;
     if (body.trim() === comment.body.trim()) return cancel();
     setSaving(true);
@@ -369,7 +385,10 @@ export function CommentItem({
     !comment.deleted &&
     !editing;
 
-  const canReply = !!onReply && coarse && !comment.deleted;
+  // A compact thread's Reply is a hover action on every pointer; otherwise a touch-screen menu item.
+  // A deleted first comment keeps its thread's Reply: the host's `onReply` decides.
+  const canReplyAction = !!onReply && replyAction && !editing;
+  const canReply = !!onReply && !replyAction && coarse && !comment.deleted;
   const canCopy = !!onCopyLink && !comment.deleted;
   const canCopyText = !!onCopyText && !comment.deleted && !!comment.body.trim();
   const canDeleteThis = !!onDelete && !!comment.canDelete && !comment.deleted;
@@ -481,7 +500,7 @@ export function CommentItem({
                       className={TOUCH_TARGET}
                       aria-label="Save"
                       loading={saving}
-                      disabled={!draft.trim() || unchanged}
+                      disabled={!postable(draft).trim() || unchanged}
                       onClick={() => void save(draft)}
                     />
                   }
@@ -491,8 +510,27 @@ export function CommentItem({
                 <TooltipContent>Save · {submitShortcut()}</TooltipContent>
               </Tooltip>
             </span>
-          ) : hasMenu || canReact ? (
+          ) : hasMenu || canReact || canReplyAction ? (
             <span className="-me-1 flex shrink-0 items-center gap-0.5">
+              {canReplyAction ? (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        data-slot="comment-reply"
+                        aria-label="Reply"
+                        className={cn("text-muted-foreground", HOVER_ACTION)}
+                        onClick={onReply}
+                      />
+                    }
+                  >
+                    <Reply aria-hidden />
+                  </TooltipTrigger>
+                  <TooltipContent>Reply</TooltipContent>
+                </Tooltip>
+              ) : null}
               {canReact ? (
                 <ReactionAdd
                   onSelect={(emoji) => {
@@ -1324,7 +1362,8 @@ export function CommentComposer({
     return () => document.removeEventListener("pointerdown", onDown, true);
   }, [folding, folded, idle, fold]);
 
-  const submit = async (value: string) => {
+  const submit = async (raw: string) => {
+    const value = postable(raw);
     if (
       (!value.trim() && !hasFiles) ||
       posting ||
@@ -1458,7 +1497,9 @@ export function CommentComposer({
           <SendButton
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
             loading={posting}
-            disabled={disabled || uploading > 0 || (!body.trim() && !hasFiles)}
+            disabled={
+              disabled || uploading > 0 || (!postable(body).trim() && !hasFiles)
+            }
             onClick={() => void submit(body)}
           />
         }
@@ -1597,6 +1638,14 @@ export interface CommentThreadProps {
   active?: boolean;
   /** Show the first comment, "N replies" and the last reply only, and no reply row. @default false */
   collapsed?: boolean;
+  /**
+   * `compact` — no reply row at rest: Reply is a hover action on the first comment (shown on hover
+   * or focus, always on a touch screen) that opens the row with the caret in it. The row folds
+   * away again once its reply posts, or when it is left empty (Escape, or focus moving out). A
+   * restored draft (`composer.defaultValue`) starts it open. For a record's busy history, where an
+   * open box under every thread doubles its height. @default "default"
+   */
+  density?: "default" | "compact";
   /** Called from a collapsed thread's "N replies" (shown as a button when set). @default undefined */
   onExpand?: () => void;
   /**
@@ -1703,6 +1752,7 @@ export function CommentThread({
   onQuoteClick,
   active = false,
   collapsed = false,
+  density = "default",
   onExpand,
   hiddenReplies = 0,
   onShowReplies,
@@ -1735,14 +1785,60 @@ export function CommentThread({
   const posting = pending || !!composer?.posting;
   const [error, setError] = React.useState<string | null>(null);
   const replyBox = React.useRef<HTMLDivElement>(null);
+  const card = React.useRef<HTMLElement>(null);
   // An upload into the reply holds Send until it lands (see `CommentComposer`).
   const [uploading, setUploading] = React.useState(0);
   const box = React.useRef<TextEditHandle>(null);
   const { resolved, orphaned, quote, root } = thread;
   // A deleted first comment keeps its thread open for replies (the host's `onReply` decides).
   const canReply = !collapsed && !!onReply;
+  const compact = density === "compact";
+  // `compact`: the reply row opens on demand; a restored draft keeps it open.
+  const [replyOpen, setReplyOpen] = React.useState(
+    () => !!composer?.defaultValue?.trim(),
+  );
+  const [openedHere, setOpenedHere] = React.useState(false);
+  const showReplyRow = canReply && (!compact || replyOpen);
+  // Any text keeps the row — a lone "@" too: its mention menu is portalled outside the row.
+  const idle =
+    !draft.trim() &&
+    !composer?.hasFiles &&
+    !posting &&
+    uploading === 0 &&
+    !error;
+  const closeReply = (focusReply: boolean) => {
+    setReplyOpen(false);
+    setOpenedHere(false);
+    // It reopens empty, never on a restored draft that was cleared.
+    setGeneration((g) => g + 1);
+    setDraft("");
+    if (focusReply)
+      requestAnimationFrame(() =>
+        card.current
+          ?.querySelector<HTMLElement>('[data-slot="comment-reply"]')
+          ?.focus(),
+      );
+  };
 
-  const reply = async (body: string) => {
+  // `compact`: a press anywhere else folds an empty row (a file picker's dialog is no press).
+  React.useEffect(() => {
+    if (!compact || !replyOpen || !idle) return;
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (
+        replyBox.current?.contains(target) ||
+        (card.current?.contains(target) &&
+          target?.closest('[data-slot="comment-reply"]'))
+      )
+        return;
+      closeReply(false);
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+  });
+
+  const reply = async (raw: string) => {
+    const body = postable(raw);
     if (
       !canReply ||
       composer?.disabled ||
@@ -1759,6 +1855,7 @@ export function CommentThread({
       setGeneration((g) => g + 1);
       setDraft("");
       composer?.onValueChange?.("");
+      if (compact) closeReply(true);
     } catch (e) {
       setError(errorMessage(e, "Couldn't post the reply."));
     } finally {
@@ -1767,6 +1864,12 @@ export function CommentThread({
   };
 
   const startReply = () => {
+    if (compact && !replyOpen) {
+      // The row mounts with the caret in it (`autoFocus`).
+      setReplyOpen(true);
+      setOpenedHere(true);
+      return;
+    }
     replyBox.current?.scrollIntoView({ block: "center", behavior: "smooth" });
     focusEditor(replyBox.current);
   };
@@ -1784,6 +1887,7 @@ export function CommentThread({
       onCopyText={onCopyText}
       onChoose={onChoose}
       onReply={isRoot && canReply ? startReply : undefined}
+      replyAction={isRoot && compact}
       onEditValueChange={onEditValueChange}
       {...editingProps(comment.id)}
       attachments={renderAttachments?.(comment)}
@@ -1812,7 +1916,9 @@ export function CommentThread({
 
   return (
     <article
+      ref={card}
       data-slot="comment-thread"
+      data-density={density}
       data-active={active ? "" : undefined}
       data-resolved={resolved ? "" : undefined}
       data-collapsed={collapsed ? "" : undefined}
@@ -1919,11 +2025,30 @@ export function CommentThread({
         ) : null}
         {shown.map((comment, i) => item(comment, false, i > 0))}
       </ul>
-      {canReply ? (
+      {showReplyRow ? (
         <div
           ref={replyBox}
           data-slot="comment-thread-reply"
           className="flex min-w-0 flex-col gap-1 border-t border-border/50 px-4 py-3"
+          onBlur={
+            compact
+              ? (event) => {
+                  const next = event.relatedTarget as Node | null;
+                  if (!next || event.currentTarget.contains(next) || !idle)
+                    return;
+                  closeReply(false);
+                }
+              : undefined
+          }
+          onKeyDown={
+            compact
+              ? (event) => {
+                  // A mention menu's Escape stops at the menu; one that reaches here is the box's.
+                  if (event.key !== "Escape" || !idle) return;
+                  closeReply(true);
+                }
+              : undefined
+          }
         >
           <div className="flex min-w-0 items-start gap-2">
             {viewer ? (
@@ -1932,7 +2057,7 @@ export function CommentThread({
             <CommentBox
               key={generation}
               layout="inline"
-              autoFocus={generation > 0}
+              autoFocus={generation > 0 || openedHere}
               label="Reply"
               defaultValue={
                 generation === 0 ? composer?.defaultValue : undefined
@@ -1965,7 +2090,7 @@ export function CommentThread({
                   disabled={
                     !!composer?.disabled ||
                     uploading > 0 ||
-                    (!draft.trim() && !composer?.hasFiles)
+                    (!postable(draft).trim() && !composer?.hasFiles)
                   }
                   onClick={() => void reply(draft)}
                 />

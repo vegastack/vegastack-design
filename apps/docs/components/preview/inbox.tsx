@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { FileText, Package, TriangleAlert, UserRoundCheck } from "lucide-react";
+import {
+  FileText,
+  KeyRound,
+  Package,
+  SquareCheck,
+  TriangleAlert,
+  UserRoundCheck,
+} from "lucide-react";
 import {
   Inbox,
   InboxEmphasis,
@@ -12,7 +19,6 @@ import {
   InboxMarkAllRead,
   InboxMenuAction,
   InboxSkeleton,
-  type InboxFilter,
   type InboxItemAction,
 } from "@/components/ui/inbox";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -22,20 +28,41 @@ const MIN = 60_000;
 
 function Frame({ children }: { children: ReactNode }) {
   return (
-    <div className="not-prose h-[28rem] w-full max-w-sm overflow-hidden rounded-lg border bg-background">
+    <div className="not-prose h-[32rem] w-full max-w-sm overflow-hidden rounded-lg border bg-background">
       {children}
     </div>
   );
 }
 
-/** The full panel: person, system, actionable and grouped rows. */
+const SANJAY = { name: "Sanjay Desai", hue: "blue" as const };
+const ARJUN = { name: "Arjun Mehta", hue: "green" as const };
+const ASHA = { name: "Asha Kumar", hue: "orange" as const };
+
+/** The row ⋯ menu the host supplies. */
+const rowMenu = (
+  <>
+    <DropdownMenuItem>Archive</DropdownMenuItem>
+    <DropdownMenuItem>Mark unread</DropdownMenuItem>
+    <DropdownMenuItem>Unwatch</DropdownMenuItem>
+    <DropdownMenuItem>Mute this type</DropdownMenuItem>
+  </>
+);
+
+/**
+ * The full panel: For you · Updates · Archived with the Unread toggle, a record's updates grouped
+ * into one row, a pending access request with Allow / Decline, an answered one, and J / K walking
+ * the rows (the active row is the one a peek would show).
+ */
 export function inbox(): ReactNode {
-  const [view, setView] = useState<InboxFilter>("all");
+  const [tab, setTab] = useState("for-you");
+  const [unreadOnly, setUnreadOnly] = useState(false);
   const [read, setRead] = useState<Record<string, boolean>>({});
-  const [decision, setDecision] = useState<InboxItemAction["state"]>("idle");
+  const [active, setActive] = useState<string | null>("task-39");
+  const [request, setRequest] = useState<"pending" | "answered">("pending");
+  const [allow, setAllow] = useState<InboxItemAction["state"]>("idle");
   const unread = (id: string) => !read[id];
   const toggle = (id: string) => () => setRead((r) => ({ ...r, [id]: !r[id] }));
-  const unreadCount = ["a", "b", "c"].filter(unread).length;
+  const unreadCount = ["task-39", "access-qa", "notes"].filter(unread).length;
   return (
     <Frame>
       <Inbox
@@ -44,7 +71,9 @@ export function inbox(): ReactNode {
           <>
             <InboxMarkAllRead
               disabled={unreadCount === 0}
-              onClick={() => setRead({ a: true, b: true, c: true })}
+              onClick={() =>
+                setRead({ "task-39": true, "access-qa": true, notes: true })
+              }
             />
             <InboxMenuAction>
               <DropdownMenuItem>Notification settings</DropdownMenuItem>
@@ -53,46 +82,91 @@ export function inbox(): ReactNode {
         }
         filters={
           <InboxFilters
-            value={view}
-            onValueChange={setView}
+            value={tab}
+            onValueChange={setTab}
+            tabs={[
+              { value: "for-you", label: "For you", count: 2 },
+              { value: "updates", label: "Updates" },
+              { value: "archived", label: "Archived" },
+            ]}
+            unreadOnly={unreadOnly}
+            onUnreadOnlyChange={setUnreadOnly}
             unreadCount={unreadCount}
           />
         }
+        activeId={active}
+        onActiveChange={setActive}
+        onOpen={setActive}
         onLoadMore={() => {}}
         hasMore={false}
       >
         <InboxGroup label="Today">
           <InboxItem
-            unread={unread("a")}
-            avatar={{ name: "Asha Kumar", hue: "orange" }}
-            badge={<UserRoundCheck />}
-            title={
-              <>
-                <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
-                <InboxEmphasis>Send Skyline delivery schedule</InboxEmphasis>
-              </>
-            }
-            meta="Skyline Tower B · Project"
-            time={NOW - 2 * MIN}
-            href="#"
-            onToggleRead={toggle("a")}
-            menu={<DropdownMenuItem>Mute this type</DropdownMenuItem>}
-            actions={[
+            value="task-39"
+            unread={unread("task-39")}
+            icon={<SquareCheck />}
+            title={<InboxEmphasis>#39 Agent link RCA test</InboxEmphasis>}
+            actors={[SANJAY, ARJUN]}
+            count={9}
+            events={[
               {
-                label: "Approve",
-                variant: "primary",
-                state: decision,
-                doneLabel: "Approved",
-                onClick: () => {
-                  setDecision("loading");
-                  setTimeout(() => setDecision("done"), 800);
-                },
+                id: "e3",
+                actor: SANJAY,
+                text: "commented: “Live comment 80821”",
+                time: NOW - 5 * MIN,
               },
-              { label: "Reject", onClick: () => {} },
+              {
+                id: "e2",
+                actor: ARJUN,
+                text: "moved it to In review",
+                time: NOW - 12 * MIN,
+              },
+              {
+                id: "e1",
+                actor: SANJAY,
+                text: "renamed it",
+                time: NOW - 20 * MIN,
+              },
             ]}
+            meta="Sanjay commented"
+            time={NOW - 5 * MIN}
+            href="#"
+            onToggleRead={toggle("task-39")}
+            menu={rowMenu}
           />
           <InboxItem
-            unread={unread("b")}
+            value="access-qa"
+            unread={unread("access-qa")}
+            avatar={ARJUN}
+            badge={<KeyRound />}
+            title={
+              <>
+                <InboxEmphasis>Arjun</InboxEmphasis> wants access to{" "}
+                <InboxEmphasis>QA plan</InboxEmphasis>
+              </>
+            }
+            meta="Page · Can edit"
+            time={NOW - 40 * MIN}
+            status={request}
+            answeredLabel="Granted by you · just now"
+            actions={[
+              {
+                label: "Allow",
+                variant: "primary",
+                state: allow,
+                onClick: () => {
+                  setAllow("loading");
+                  setTimeout(() => setRequest("answered"), 800);
+                },
+              },
+              { label: "Decline", onClick: () => setRequest("answered") },
+            ]}
+            onToggleRead={toggle("access-qa")}
+            menu={rowMenu}
+          />
+          <InboxItem
+            value="notes"
+            unread={unread("notes")}
             icon={<FileText />}
             title={
               <>
@@ -103,26 +177,29 @@ export function inbox(): ReactNode {
             meta="Meeting · 4 action items"
             time={NOW - 60 * MIN}
             href="#"
-            onToggleRead={toggle("b")}
-          />
-          <InboxItem
-            unread={unread("c")}
-            avatar={{ name: "Raj Patel", hue: "cyan" }}
-            badge={<UserRoundCheck />}
-            count={3}
-            title={
-              <>
-                <InboxEmphasis>Raj</InboxEmphasis> assigned you 3 tasks
-              </>
-            }
-            meta="Harbor Coffee · Customer"
-            time={NOW - 180 * MIN}
-            href="#"
-            onToggleRead={toggle("c")}
+            onToggleRead={toggle("notes")}
+            menu={rowMenu}
           />
         </InboxGroup>
         <InboxGroup label="Earlier">
           <InboxItem
+            value="access-sales"
+            avatar={ASHA}
+            badge={<KeyRound />}
+            title={
+              <>
+                <InboxEmphasis>Asha</InboxEmphasis> wanted access to{" "}
+                <InboxEmphasis>Sales pipeline</InboxEmphasis>
+              </>
+            }
+            time={NOW - 5 * 24 * 60 * MIN}
+            status="answered"
+            answeredLabel="Granted by Sanjay · 5d"
+            href="#"
+            menu={rowMenu}
+          />
+          <InboxItem
+            value="failed"
             icon={<TriangleAlert />}
             destructive
             title="Processing failed for Weekly sync"
@@ -131,13 +208,61 @@ export function inbox(): ReactNode {
             href="#"
             onToggleRead={() => {}}
           />
+        </InboxGroup>
+      </Inbox>
+    </Frame>
+  );
+}
+
+/** One record's updates grouped into one row: stacked actors, "9 updates" expanding to the list. */
+export function inboxGrouped(): ReactNode {
+  return (
+    <Frame>
+      <Inbox>
+        <InboxGroup label="Today">
           <InboxItem
-            icon={<Package />}
-            title="Price list export finished"
-            meta="1,284 products"
-            time={NOW - 50 * 60 * MIN}
+            value="task-39"
+            unread
+            icon={<SquareCheck />}
+            title={<InboxEmphasis>#39 Agent link RCA test</InboxEmphasis>}
+            actors={[SANJAY, ARJUN, ASHA, { name: "Kavya Nair" }]}
+            events={[
+              {
+                actor: SANJAY,
+                text: "commented: “Live comment 80821”",
+                time: NOW - 5 * MIN,
+              },
+              {
+                actor: ARJUN,
+                text: "moved it to In review",
+                time: NOW - 12 * MIN,
+              },
+              {
+                actor: ASHA,
+                text: "set the due date to Friday",
+                time: NOW - 30 * MIN,
+              },
+              { actor: SANJAY, text: "renamed it", time: NOW - 45 * MIN },
+            ]}
+            meta="Sanjay commented"
+            time={NOW - 5 * MIN}
             href="#"
-            onToggleRead={() => {}}
+            menu={rowMenu}
+          />
+          <InboxItem
+            value="assigned"
+            avatar={{ name: "Raj Patel", hue: "cyan" }}
+            badge={<UserRoundCheck />}
+            count={3}
+            countLabel={(n) => `${n} tasks`}
+            title={
+              <>
+                <InboxEmphasis>Raj</InboxEmphasis> assigned you tasks
+              </>
+            }
+            meta="Harbor Coffee · Customer"
+            time={NOW - 180 * MIN}
+            href="#"
           />
         </InboxGroup>
       </Inbox>
@@ -153,7 +278,7 @@ export function inboxLoadingMore(): ReactNode {
         <InboxGroup label="Today">
           <InboxItem
             unread
-            avatar={{ name: "Asha Kumar", hue: "orange" }}
+            avatar={ASHA}
             title={
               <>
                 <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
@@ -193,7 +318,16 @@ export function inboxLoadMoreError(): ReactNode {
 export function inboxEmpty(): ReactNode {
   return (
     <Frame>
-      <Inbox filters={<InboxFilters value="unread" onValueChange={() => {}} />}>
+      <Inbox
+        filters={
+          <InboxFilters
+            value="for-you"
+            onValueChange={() => {}}
+            unreadOnly
+            onUnreadOnlyChange={() => {}}
+          />
+        }
+      >
         <InboxEmpty description="New assignments and meeting updates show up here." />
       </Inbox>
     </Frame>
@@ -204,22 +338,33 @@ export function inboxEmpty(): ReactNode {
 export function inboxLoading(): ReactNode {
   return (
     <Frame>
-      <Inbox filters={<InboxFilters value="all" onValueChange={() => {}} />}>
+      <Inbox
+        filters={<InboxFilters value="for-you" onValueChange={() => {}} />}
+      >
         <InboxSkeleton />
       </Inbox>
     </Frame>
   );
 }
 
-/** An app-defined Requests chip after All and Unread, with its own count. */
-export function inboxFiltersExtra(): ReactNode {
-  const [view, setView] = useState<InboxFilter>("requests");
+/** App-defined tabs with counts, and the Unread toggle beside them. */
+export function inboxFilters(): ReactNode {
+  const [tab, setTab] = useState("mentions");
+  const [unreadOnly, setUnreadOnly] = useState(true);
   return (
-    <InboxFilters
-      value={view}
-      onValueChange={setView}
-      unreadCount={3}
-      extra={[{ value: "requests", label: "Requests", count: 2 }]}
-    />
+    <div className="w-full max-w-sm">
+      <InboxFilters
+        value={tab}
+        onValueChange={setTab}
+        tabs={[
+          { value: "for-you", label: "For you", count: 4 },
+          { value: "mentions", label: "Mentions", count: 2 },
+          { value: "updates", label: "Updates" },
+        ]}
+        unreadOnly={unreadOnly}
+        onUnreadOnlyChange={setUnreadOnly}
+        unreadCount={3}
+      />
+    </div>
   );
 }
