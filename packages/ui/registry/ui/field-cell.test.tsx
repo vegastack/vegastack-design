@@ -1156,3 +1156,80 @@ test('FieldCellEditor: a typed "today" is the day in the reader\'s time zone', a
     vi.useRealTimers();
   }
 });
+
+test("in a grid: @ in a long-text cell opens the mention menu, and choosing a person inserts the chip with the popover still open", async () => {
+  const commits: FieldValue[] = [];
+  const config: FieldConfig = {
+    mentions: {
+      kinds: [{ id: "user", noun: "Person", plural: "People", order: 0 }],
+      search: async () => [{ kind: "user", id: "u1", label: "Asha Rao" }],
+    },
+  };
+  await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={[
+        {
+          key: "notes",
+          header: "Notes",
+          minWidth: 10,
+          editable: {
+            type: "custom",
+            render: ({ row, seed, cancel }) => (
+              <FieldCellEditor
+                type="long_text"
+                label="Notes"
+                value={row.notes}
+                seed={seed}
+                config={config}
+                onCommit={(next) => {
+                  commits.push(next);
+                  cancel();
+                }}
+                onCancel={cancel}
+              />
+            ),
+          },
+        },
+      ]}
+      data={[{ id: "r1", notes: "" }]}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const cell = document.querySelector<HTMLElement>(
+    '[data-grid-row="r1"][data-grid-key="notes"]',
+  )!;
+  cell.focus();
+  await userEvent.keyboard("{Enter}");
+  const editor = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="popover-content"] [contenteditable="true"]',
+    );
+  await vi.waitFor(() =>
+    expect(
+      document.activeElement?.closest('[data-slot="popover-content"]'),
+    ).not.toBeNull(),
+  );
+  await userEvent.keyboard("Hi @");
+  const menu = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="suggestion-menu"][data-menu="text-edit-mention"]',
+    );
+  await vi.waitFor(() => expect(menu()?.textContent).toContain("Asha Rao"));
+  // The menu is portalled outside the cell's popover: choosing in it is not an outside press.
+  await userEvent.click(
+    [...menu()!.querySelectorAll<HTMLElement>('[role="option"]')].find((o) =>
+      o.textContent?.includes("Asha Rao"),
+    )!,
+  );
+  await vi.waitFor(() =>
+    expect(
+      editor()?.querySelector('[data-slot="inline-chip"]')?.textContent,
+    ).toContain("Asha Rao"),
+  );
+  expect(commits).toHaveLength(0);
+  expect(editor()).not.toBeNull();
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await vi.waitFor(() => expect(commits).toHaveLength(1));
+  expect(String(commits[0])).toContain("mention://user/u1");
+});

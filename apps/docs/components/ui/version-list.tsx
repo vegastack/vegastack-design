@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.80 sha256-g5mAkzPqmLSUnGteYX/Z2BFJeL56dSHft6WCPN1JA+Y=
+// @vegastack version-list@0.25.80 sha256-g7Ndg0XUR3/eQAucflFYY+36duoakYtKjpxlOWgVH9k=
 
 "use client";
 
@@ -102,10 +102,12 @@ export interface VersionListProps {
   /** Pin the relative times' clock (docs, tests). @default undefined */
   now?: number;
   /**
-   * The list's "Version history" heading is for assistive technology only — where the host
+   * The list's heading is for assistive technology only — where the host
    * already shows that title (a sheet's). @default false
    */
   headingHidden?: boolean;
+  /** The list's heading ("History" where the host calls it that). @default "Version history" */
+  heading?: string;
   /** Classes for the list. @default undefined */
   className?: string;
 }
@@ -140,6 +142,7 @@ export function VersionList({
   emptyState = "No versions yet",
   now,
   headingHidden = false,
+  heading = "Version history",
   className,
 }: VersionListProps) {
   const headingId = React.useId();
@@ -168,7 +171,7 @@ export function VersionList({
           id={headingId}
           className={cn("text-base font-medium", headingHidden && "sr-only")}
         >
-          Version history
+          {heading}
         </h2>
         {onNamedOnlyChange ? (
           <label
