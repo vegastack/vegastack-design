@@ -27447,6 +27447,7 @@
         "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/separator",
         "@vegastack/sheet",
@@ -27550,7 +27551,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["text-edit-content"]
+              "values": ["text-edit-content", "text-edit-slash-icon"]
             }
           ],
           "cssVariables": []
@@ -29394,8 +29395,11 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/panel-search",
+        "@vegastack/sheet",
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.8.36",
@@ -29426,17 +29430,29 @@
               "values": [""]
             },
             {
+              "name": "data-presentation",
+              "values": ["popover", "sheet"]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "suggestion-menu",
                 "suggestion-menu-description",
                 "suggestion-menu-group",
                 "suggestion-menu-group-label",
+                "suggestion-menu-icon",
                 "suggestion-menu-label",
                 "suggestion-menu-layer",
                 "suggestion-menu-option",
+                "suggestion-menu-search",
+                "suggestion-menu-sheet",
                 "suggestion-menu-shortcut",
-                "suggestion-menu-status"
+                "suggestion-menu-status",
+                "suggestion-menu-text"
               ]
             }
           ],
