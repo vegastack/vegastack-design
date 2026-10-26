@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.79 sha256-Utu6pGUZC/0Ui6nBmTitfxxkPXmXfyNmlIa1UHYIvLg=
+// @vegastack data-grid@0.25.79 sha256-s4z8g0+D2Nb2BVGzQ8H2BRh+IJATpn0KrsIauihGCwg=
 
 "use client";
 
@@ -1061,6 +1061,7 @@ function GridCellImpl<T>({
       data-slot="data-grid-cell"
       data-grid-row={rowId}
       data-grid-key={key}
+      data-editing={editing ? "" : undefined}
       tabIndex={tabStop ? 0 : -1}
       aria-selected={cellsMode ? inRange : undefined}
       data-in-range={inRange ? "" : undefined}
@@ -1719,6 +1720,53 @@ function isTypingKey(event: React.KeyboardEvent): boolean {
     !event.metaKey &&
     !event.altKey
   );
+}
+
+/**
+ * The tab stops a body cell's CONTENT renders (a link chip's `<a>`, a person chip, a checkbox): in
+ * a grid only the active cell is tabbable, so each leaves the tab order and is reached from its
+ * cell instead (Enter on a read-only cell, then arrows; Escape returns). A cell being edited keeps
+ * its editor's stops.
+ */
+const CELL_CONTENT_STOPS =
+  '[data-slot="data-grid-cell"]:not([data-editing]) :is(a[href], button, input, select, textarea, summary, [contenteditable="true"], [tabindex]):not([tabindex="-1"])';
+
+/** The widgets inside a body cell, in order, that the cell's keyboard model steps through. */
+function cellWidgets(cell: HTMLElement): HTMLElement[] {
+  return [
+    ...cell.querySelectorAll<HTMLElement>(
+      'a[href], button, input:not([type="hidden"]), select, textarea, summary, [contenteditable="true"], [tabindex]',
+    ),
+  ].filter(
+    (node) =>
+      !node.matches(":disabled") &&
+      node.getAttribute("aria-hidden") !== "true" &&
+      node.getClientRects().length > 0,
+  );
+}
+
+/** Take every cell's content stops out of the tab order, now and whenever the body changes. */
+function useCellContentOutOfTabOrder(table: HTMLTableElement | null) {
+  React.useEffect(() => {
+    if (!table) return;
+    const apply = () => {
+      for (const node of table.querySelectorAll<HTMLElement>(
+        CELL_CONTENT_STOPS,
+      ))
+        node.tabIndex = -1;
+    };
+    apply();
+    // Rows page and virtualise in and out, and chips resolve after they mount: re-apply on every
+    // change. Setting `tabindex` re-triggers once and then finds nothing left to do.
+    const observer = new MutationObserver(apply);
+    observer.observe(table, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["tabindex", "href", "contenteditable", "data-editing"],
+    });
+    return () => observer.disconnect();
+  }, [table]);
 }
 
 /**
@@ -3019,6 +3067,10 @@ export function DataGrid<T>({
       window.clearTimeout(reset);
     };
   }, []);
+  const [tableNode, setTableNode] = React.useState<HTMLTableElement | null>(
+    null,
+  );
+  useCellContentOutOfTabOrder(tableNode);
   const handleGridFocus = (event: React.FocusEvent<HTMLTableElement>) => {
     if (!tabbing.current || editing) return;
     const from = event.relatedTarget as Node | null;
@@ -3038,6 +3090,20 @@ export function DataGrid<T>({
     focusAt(resolved.rowId, resolved.key);
   };
 
+  // Escape on a widget inside a body cell returns to the cell in ONE press: caught before the
+  // widget's own layers (its name tooltip closes on Escape and keeps the key), which close as
+  // focus leaves them.
+  const handleGridKeyDownCapture = (
+    event: React.KeyboardEvent<HTMLTableElement>,
+  ) => {
+    if (event.key !== "Escape" || editing) return;
+    const inner = event.target as HTMLElement;
+    const cell = inner.closest<HTMLElement>('[data-slot="data-grid-cell"]');
+    if (!cell || cell === inner || !event.currentTarget.contains(cell)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    cell.focus();
+  };
   const handleGridKeyDown = (event: React.KeyboardEvent<HTMLTableElement>) => {
     // IME composition never moves, commits or opens anything.
     if (event.nativeEvent.isComposing || event.keyCode === 229) return;
@@ -3048,6 +3114,24 @@ export function DataGrid<T>({
       "[data-grid-row]",
     );
     if (!origin || !event.currentTarget.contains(origin)) return;
+    // Focus is on a widget INSIDE a body cell (a link chip reached with Enter): arrows step
+    // through the cell's widgets, Escape returns to the cell (`handleGridKeyDownCapture`), and
+    // every other key is the widget's own (Enter follows the link) — never an edit or a move.
+    // Up and Down still move.
+    const inner = event.target as HTMLElement;
+    if (inner !== origin && origin.dataset.slot === "data-grid-cell") {
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        const widgets = cellWidgets(origin);
+        const at = widgets.findIndex((node) => node.contains(inner));
+        const back =
+          (event.key === "ArrowLeft") !==
+          (getComputedStyle(event.currentTarget).direction === "rtl");
+        widgets[at + (back ? -1 : 1)]?.focus();
+        return;
+      }
+      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    }
     const rowId = origin.dataset.gridRow!;
     const isGroup = isLineRow(rowId);
     const key = isGroup ? resolved.key : origin.dataset.gridKey!;
@@ -3257,7 +3341,18 @@ export function DataGrid<T>({
       }
       return;
     }
-    if (!column.editable) return;
+    if (!column.editable) {
+      // A read-only cell's links and chips are reached from the cell: Enter (or F2) moves into
+      // its first widget, which shows its name as it takes focus.
+      if (event.key === "Enter" || event.key === "F2") {
+        const first = cellWidgets(origin)[0];
+        if (first) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+      return;
+    }
     if (event.key === "Enter" || event.key === "F2") {
       event.preventDefault();
       setEditingState({ rowId, key });
@@ -3594,6 +3689,7 @@ export function DataGrid<T>({
     <TruncationFocusProvider focusable={false}>
       <AnnouncerScope announce={announce}>
         <table
+          ref={setTableNode}
           data-slot="table"
           role="grid"
           aria-label={ariaLabel}
@@ -3611,6 +3707,7 @@ export function DataGrid<T>({
           data-grid-id={gridId}
           data-layout={fixed ? "fixed" : "auto"}
           onKeyDown={handleGridKeyDown}
+          onKeyDownCapture={handleGridKeyDownCapture}
           onFocusCapture={handleGridFocus}
           onCopy={handleCopy}
           onCut={handleCut}

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.79 sha256-dPHCENtpIjuPAovPgMiK6FdefuyRXJChB4HriwA6sug=
+// @vegastack text-edit@0.25.79 sha256-Q7HLPTNlYDOMAKgWfV4ZxIxCZY8TBoRiiLjdrQSMLdY=
 
 "use client";
 
@@ -12246,8 +12246,8 @@ export function TextEditEditor({
           [...uploadsRef.current.values()].map((upload) => upload.done),
         );
       },
-      focus: () => {
-        editorRef.current?.commands.focus();
+      focus: (position) => {
+        editorRef.current?.commands.focus(position ?? null);
       },
       getAnchorForSelection,
       markSaved,

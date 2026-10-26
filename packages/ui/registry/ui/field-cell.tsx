@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.79 sha256-l0zZtTAPRFohdgKs2hnPmS6f2DvQGVpj5xRtsYdLCTo=
+// @vegastack field-cell@0.25.79 sha256-UH2P1m28YiM1p+zhxLz7IlnPUY0z5HeQfjq9jrzPjE4=
 
 "use client";
 
@@ -1143,9 +1143,10 @@ export interface FieldCellEditorProps {
   /** The field's name, for the editor's accessible name. */
   label: string;
   /**
-   * The character that opened the editor (the slot's `seed`): a text, URL, email, phone or number
-   * field starts from it in place of the value, and a picker (choice, person, link) opens
-   * searching for it. Date, date-time and long text open as they are.
+   * The character that opened the editor (the slot's `seed`): a text, URL, email, phone, number or
+   * long-text field starts from it in place of the value, a date opens as a field that takes a
+   * typed date ("12/3", "Mar 12", "today") starting from it, and a picker (choice, person, link)
+   * opens searching for it. A date-time opens as it is.
    * @default undefined
    */
   seed?: string;
@@ -1203,6 +1204,93 @@ function typeInto(field: HTMLInputElement, text: string) {
   field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+/** Whether the reader's locale writes a numeric date month first ("3/12" is 12 March). */
+function monthFirst(): boolean {
+  const parts = new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(new Date(2000, 11, 31));
+  const order = parts
+    .filter((part) => part.type === "month" || part.type === "day")
+    .map((part) => part.type);
+  return order[0] === "month";
+}
+
+/** A typed date's pattern, in the reader's locale ("mm/dd/yyyy"): the typed field's hint. */
+function typedDatePattern(): string {
+  return monthFirst() ? "mm/dd/yyyy" : "dd/mm/yyyy";
+}
+
+/** A month named in the reader's locale or English, from its first three letters. */
+function monthOf(name: string): number | undefined {
+  if (name.length < 3) return undefined;
+  for (const locale of [undefined, "en"]) {
+    for (let month = 0; month < 12; month++) {
+      const long = new Intl.DateTimeFormat(locale, { month: "long" })
+        .format(new Date(2000, month, 1))
+        .toLowerCase();
+      if (long.startsWith(name.replace(/\.$/, ""))) return month + 1;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * A typed date as a calendar day (`"2026-03-12"`), or `undefined` when it isn't one: an ISO day,
+ * a numeric day and month in the locale's order with an optional year ("12/3", "12/3/26"), a
+ * month name with a day ("Mar 12", "12 March 2026"), or "today", "tomorrow", "yesterday".
+ */
+function parseTypedDay(
+  input: string,
+  now: Date = new Date(),
+): string | undefined {
+  const text = input
+    .trim()
+    .toLowerCase()
+    .replace(/,/g, " ")
+    .replace(/\s+/g, " ");
+  const day = (year: number, month: number, date: number) => {
+    if (month < 1 || month > 12 || date < 1 || date > 31) return undefined;
+    const value = `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
+    return parseCalendarDay(value) ? value : undefined;
+  };
+  const yearOf = (typed: string | undefined) =>
+    typed === undefined
+      ? now.getFullYear()
+      : typed.length === 2
+        ? 2000 + Number(typed)
+        : Number(typed);
+  const relative = { today: 0, tomorrow: 1, yesterday: -1 }[text];
+  if (relative !== undefined) {
+    const at = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + relative,
+    );
+    return day(at.getFullYear(), at.getMonth() + 1, at.getDate());
+  }
+  let match = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(text);
+  if (match) return day(Number(match[1]), Number(match[2]), Number(match[3]));
+  match = /^(\d{1,2})[-/.](\d{1,2})(?:[-/.](\d{2}|\d{4}))?$/.exec(text);
+  if (match) {
+    const [a, b] = [Number(match[1]), Number(match[2])];
+    const year = yearOf(match[3]);
+    return monthFirst() ? day(year, a, b) : day(year, b, a);
+  }
+  match = /^(\d{1,2}) ([a-z\u00c0-\u024f.]+)(?: (\d{2}|\d{4}))?$/.exec(text);
+  if (match) {
+    const month = monthOf(match[2]!);
+    return month ? day(yearOf(match[3]), month, Number(match[1])) : undefined;
+  }
+  match = /^([a-z\u00c0-\u024f.]+) (\d{1,2})(?: (\d{2}|\d{4}))?$/.exec(text);
+  if (match) {
+    const month = monthOf(match[1]!);
+    return month ? day(yearOf(match[3]), month, Number(match[2])) : undefined;
+  }
+  return undefined;
+}
+
 /** The editors made of several controls, which <kbd>Tab</kbd> steps through before it moves. */
 const COMPOUND_TYPES: ReadonlySet<FieldType> = new Set(["datetime"]);
 
@@ -1251,7 +1339,13 @@ export function FieldCellEditor({
   label,
   seed,
 }: FieldCellEditorProps) {
-  const [draft, setDraft] = React.useState<FieldValue>(value);
+  // A date opened by typing edits the typed text (a field, not the calendar), committed as the
+  // day it names.
+  const typedDate = type === "date" && Boolean(seed);
+  // Type-to-edit replaces the value: long text and a typed date start from the key itself.
+  const [draft, setDraft] = React.useState<FieldValue>(() =>
+    seed && (type === "long_text" || typedDate) ? seed : value,
+  );
   const done = React.useRef(false);
   const root = React.useRef<HTMLSpanElement | null>(null);
   const longText = React.useRef<TextEditHandle | null>(null);
@@ -1280,12 +1374,36 @@ export function FieldCellEditor({
       // The popover mounts its content a frame or two after the editor: focus it once it is there.
       let frame = 0;
       let tries = 0;
+      // Keys typed before the editor is there join the draft it opens with, so none is lost.
+      const keep = (event: KeyboardEvent) => {
+        if (
+          event.key.length !== 1 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey ||
+          event.isComposing
+        )
+          return;
+        event.preventDefault();
+        setDraft((text) => (typeof text === "string" ? text : "") + event.key);
+      };
+      const stopKeeping = () =>
+        document.removeEventListener("keydown", keep, true);
+      document.addEventListener("keydown", keep, true);
       const focusText = () => {
-        if (longText.current) longText.current.focus();
-        else if (++tries < 30) frame = requestAnimationFrame(focusText);
+        if (longText.current) {
+          stopKeeping();
+          // A seeded editor holds only the typed keys: the caret goes after them, so the next
+          // keys follow.
+          longText.current.focus(seed ? "end" : undefined);
+        } else if (++tries < 30) frame = requestAnimationFrame(focusText);
+        else stopKeeping();
       };
       focusText();
-      return () => cancelAnimationFrame(frame);
+      return () => {
+        cancelAnimationFrame(frame);
+        stopKeeping();
+      };
     }
     const scope = root.current;
     // A control's own hidden form input (a picker's, `aria-hidden`, out of the tab order) is
@@ -1305,15 +1423,25 @@ export function FieldCellEditor({
       target.click();
     // Type-to-edit: the key that opened the editor replaces the value, caret after it. (A picker
     // took it as its search instead.)
-    if (seed && SEEDED_TYPES.has(type) && field instanceof HTMLInputElement)
+    if (
+      seed &&
+      (SEEDED_TYPES.has(type) || typedDate) &&
+      field instanceof HTMLInputElement
+    )
       typeInto(field, seed);
     // Once, on open.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const drafted = DRAFT_TYPES.has(type);
+  const drafted = DRAFT_TYPES.has(type) || typedDate;
   // The move a picker's choice carries: Enter (down, Shift+Enter up) chose it, a click didn't.
   const pickMove = React.useRef<EditableCellMove | undefined>(undefined);
-  const valid = typeof draft !== "string" || isValidFieldText(type, draft);
+  const typedText = typedDate && typeof draft === "string" ? draft.trim() : "";
+  const typedDay = typedText ? parseTypedDay(typedText) : undefined;
+  const valid = typedDate
+    ? typedText === "" || typedDay !== undefined
+    : typeof draft !== "string" || isValidFieldText(type, draft);
+  // What a drafted editor commits: a typed date commits the day it names (empty clears it).
+  const out: FieldValue = typedDate ? (typedDay ?? null) : draft;
 
   if (type === "long_text") {
     const text = typeof draft === "string" ? draft : "";
@@ -1391,7 +1519,7 @@ export function FieldCellEditor({
         if (event.key === "Enter" && drafted) {
           event.preventDefault();
           event.stopPropagation();
-          if (valid) commit(draft, event.shiftKey ? "up" : "down");
+          if (valid) commit(out, event.shiftKey ? "up" : "down");
         } else if (event.key === "Tab") {
           // Tab commits and moves across; in a compound editor (a date-time's date and time) it
           // first steps through its own controls. A number's steppers are not stops.
@@ -1403,7 +1531,7 @@ export function FieldCellEditor({
           }
           event.preventDefault();
           event.stopPropagation();
-          if (valid) commit(draft, event.shiftKey ? "left" : "right");
+          if (valid) commit(out, event.shiftKey ? "left" : "right");
         }
       }}
       onBlur={(event) => {
@@ -1415,24 +1543,38 @@ export function FieldCellEditor({
           inOwnPopup(event.currentTarget, next)
         )
           return;
-        if (valid) commit(draft);
+        if (valid) commit(out);
         else cancel();
       }}
     >
-      <FieldInput
-        type={type}
-        value={draft}
-        config={config}
-        aria-label={label}
-        invalid={!valid}
-        defaultSearch={seed && SEARCHED_TYPES.has(type) ? seed : undefined}
-        className="w-full"
-        onChange={(next) => {
-          setDraft(next);
-          // A picker's choice is the commit, and moves on when Enter made it.
-          if (!drafted) commit(next, pickMove.current);
-        }}
-      />
+      {typedDate ? (
+        <Input
+          type="text"
+          inputMode="text"
+          autoComplete="off"
+          aria-label={label}
+          aria-invalid={!valid || undefined}
+          placeholder={typedDatePattern()}
+          value={typeof draft === "string" ? draft : ""}
+          className="h-7 w-full"
+          onChange={(event) => setDraft(event.target.value)}
+        />
+      ) : (
+        <FieldInput
+          type={type}
+          value={draft}
+          config={config}
+          aria-label={label}
+          invalid={!valid}
+          defaultSearch={seed && SEARCHED_TYPES.has(type) ? seed : undefined}
+          className="w-full"
+          onChange={(next) => {
+            setDraft(next);
+            // A picker's choice is the commit, and moves on when Enter made it.
+            if (!drafted) commit(next, pickMove.current);
+          }}
+        />
+      )}
     </span>
   );
 }

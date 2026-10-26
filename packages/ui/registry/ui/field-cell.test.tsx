@@ -897,3 +897,166 @@ test("in a grid: Enter and F2 open every picker with its list, and long text wit
     await vi.waitFor(() => expect(editing()).toBeNull());
   }
 });
+
+test("in a grid: typing on a cell of any type opens its editor holding every typed key, in place of the value", async () => {
+  const commits: [string, FieldValue][] = [];
+  const rows = [
+    { id: "r1", name: "Acme", notes: "note 30", due: "2026-10-24" as string },
+  ];
+  const column = (type: FieldType, key: "name" | "notes" | "due") => ({
+    key,
+    header: key,
+    minWidth: 10,
+    editable: {
+      type: "custom" as const,
+      render: ({
+        row,
+        seed,
+        cancel,
+      }: {
+        row: (typeof rows)[number];
+        seed?: string;
+        cancel: () => void;
+      }) => (
+        <FieldCellEditor
+          type={type}
+          label={key}
+          value={row[key]}
+          seed={seed}
+          onCommit={(next) => {
+            commits.push([key, next]);
+            cancel();
+          }}
+          onCancel={cancel}
+        />
+      ),
+    },
+  });
+  await render(
+    <DataGrid
+      aria-label="Requests"
+      columns={[
+        column("text", "name"),
+        column("long_text", "notes"),
+        column("date", "due"),
+      ]}
+      data={rows}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const cell = (key: string) =>
+    document.querySelector<HTMLElement>(
+      `[data-grid-row="r1"][data-grid-key="${key}"]`,
+    )!;
+  const editing = () =>
+    document.querySelector('[data-slot="field-cell-editor"]');
+
+  cell("name").focus();
+  await userEvent.keyboard("xyz{Enter}");
+  await vi.waitFor(() => expect(commits.at(-1)).toEqual(["name", "xyz"]));
+
+  // Long text: the first key is the document, and the next keys follow it (not before it).
+  cell("notes").focus();
+  await userEvent.keyboard("xyz");
+  const text = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="popover-content"] [contenteditable="true"]',
+    )?.textContent;
+  await vi.waitFor(() => expect(text()).toBe("xyz"));
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await vi.waitFor(() => expect(commits.at(-1)).toEqual(["notes", "xyz"]));
+  await vi.waitFor(() => expect(editing()).toBeNull());
+
+  // A date opens a field that takes the typed date, starting from the key.
+  cell("due").focus();
+  await userEvent.keyboard("1");
+  const dateField = () =>
+    document.querySelector<HTMLInputElement>(
+      '[data-slot="field-cell-editor"] input[aria-label="due"]',
+    );
+  await vi.waitFor(() => expect(dateField()?.value).toBe("1"));
+  await expect.element(dateField()!).toHaveFocus();
+  // The test browser's locale (en-US) writes the month first.
+  await userEvent.keyboard("2/5/2026{Enter}");
+  await vi.waitFor(() => expect(commits.at(-1)).toEqual(["due", "2026-12-05"]));
+
+  // A date that isn't one stays open, marked invalid; Escape leaves the value as it was.
+  cell("due").focus();
+  await userEvent.keyboard("q{Enter}");
+  await vi.waitFor(() =>
+    expect(dateField()?.getAttribute("aria-invalid")).toBe("true"),
+  );
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(editing()).toBeNull());
+  expect(commits).toHaveLength(3);
+
+  // Words and month names: "today" and "Mar 12".
+  cell("due").focus();
+  await userEvent.keyboard("mar 12, 2027{Enter}");
+  await vi.waitFor(() => expect(commits.at(-1)).toEqual(["due", "2027-03-12"]));
+});
+
+test("in a grid: Tab leaves from a cell holding link chips, and the chips are reached from the cell", async () => {
+  const targets = [
+    {
+      id: "c1",
+      kind: "customer",
+      label: "Greenfield Campus Authority",
+      href: "/c/1",
+    },
+    { id: "c2", kind: "customer", label: "Lumen Build", href: "/c/2" },
+  ];
+  const rows = [
+    { id: "r1", links: targets },
+    { id: "r2", links: targets },
+  ];
+  const screen = await render(
+    <>
+      <DataGrid
+        aria-label="Requests"
+        columns={[
+          {
+            key: "links",
+            header: "Customer",
+            minWidth: 10,
+            render: (row) => <FieldCellDisplay type="link" value={row.links} />,
+          },
+        ]}
+        data={rows}
+        getRowId={(row) => row.id}
+      />
+      <button type="button">After the grid</button>
+    </>,
+  );
+  const cell = document.querySelector<HTMLElement>(
+    '[data-grid-row="r1"][data-grid-key="links"]',
+  )!;
+  // Every chip is out of the tab order: the grid is one tab stop.
+  await vi.waitFor(() => {
+    const chips = document.querySelectorAll<HTMLElement>(
+      '[data-slot="data-grid-cell"] a[href]',
+    );
+    expect(chips.length).toBe(4);
+    for (const chip of chips) expect(chip.tabIndex).toBe(-1);
+  });
+  cell.focus();
+  await userEvent.keyboard("{Tab}");
+  await expect
+    .element(screen.getByRole("button", { name: "After the grid" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(cell));
+
+  // Enter moves into the cell's first chip (its name shows as it takes focus), arrows step
+  // through the chips, Escape returns to the cell.
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(document.activeElement?.textContent).toContain(
+      "Greenfield Campus Authority",
+    ),
+  );
+  await userEvent.keyboard("{ArrowRight}");
+  expect(document.activeElement?.textContent).toContain("Lumen Build");
+  await userEvent.keyboard("{Escape}");
+  expect(document.activeElement).toBe(cell);
+});

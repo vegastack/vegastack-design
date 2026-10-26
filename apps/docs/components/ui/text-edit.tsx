@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.79 sha256-dPHCENtpIjuPAovPgMiK6FdefuyRXJChB4HriwA6sug=
+// @vegastack text-edit@0.25.79 sha256-Q7HLPTNlYDOMAKgWfV4ZxIxCZY8TBoRiiLjdrQSMLdY=
 
 "use client";
 
@@ -426,8 +426,10 @@ export interface TextEditHandle {
   openFind: () => void;
   /** Commit pending edits now (before a comment is created, before navigating); resolves once uploads in flight have landed. */
   flush: () => Promise<void>;
-  /** Move focus into the editor. */
-  focus: () => void;
+  /**
+   * Move focus into the editor: the caret where it was, or at the document's `start` or `end`.
+   */
+  focus: (position?: "start" | "end") => void;
   /** The anchor of the current selection (with `y` in a collaborative editor), or null when nothing is selected. */
   getAnchorForSelection: () => TextEditAnchor | null;
   /** Pulse an annotation's highlight for 3 seconds and scroll it into view. */
@@ -1909,10 +1911,12 @@ export function TextEdit(props: TextEditProps) {
           await new Promise<void>((resolve) => handedRef.current.push(resolve));
         await editorHandle.current?.flush();
       },
-      focus: () => {
+      focus: (position) => {
         if (editorHandle.current && readyRef.current)
-          editorHandle.current.focus();
-        else activate("end");
+          editorHandle.current.focus(position);
+        // The read view takes focus meanwhile, so keys typed while the editor loads are kept and
+        // replayed into it.
+        else activateAndHold(position ?? "end");
       },
       getAnchorForSelection: () =>
         editorHandle.current?.getAnchorForSelection() ?? null,

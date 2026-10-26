@@ -1371,6 +1371,30 @@ test("GroupByPicker: two levels at most, each field once; read-only chips", asyn
   expect(screen.container.textContent).toContain("Owner");
 });
 
+test("SortBuilder and GroupByPicker: with every field already used, Add is disabled and nothing crashes", async () => {
+  const one = SORT_FIELDS.slice(0, 1);
+  const screen = await render(
+    <>
+      <SortBuilder
+        vocabulary={one}
+        value={[{ key: one[0]!.key, dir: "asc" }]}
+        onChange={() => {}}
+      />
+      <GroupByPicker
+        vocabulary={one}
+        value={[one[0]!.key]}
+        onChange={() => {}}
+      />
+      <GroupByPicker vocabulary={[]} value={[]} onChange={() => {}} />
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Add sort" }))
+    .toBeDisabled();
+  for (const add of screen.getByRole("button", { name: "Add group" }).all())
+    await expect.element(add).toBeDisabled();
+});
+
 test("SortBuilder: changing a row's field keeps the row (its picker keeps focus); a disabled summary is inert", async () => {
   const screen = await render(<SortHarness />);
   const picker = screen.getByRole("combobox", { name: "Sort field 1" });

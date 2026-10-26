@@ -99,9 +99,11 @@ text's editor takes the caret. In a grid it follows the spreadsheet keys:
 <kbd>Tab</kbd> right and <kbd>Shift</kbd>+<kbd>Tab</kbd> left — through
 `onCommit`'s `move` — and <kbd>Tab</kbd> first steps through a date-time's own
 date and time. The key that opened it (`seed`) replaces a text, URL, email,
-phone or number value, and a choice, person or link picker opens searching for
-it; date, date-time and long text open as they are, so one key never overwrites
-a note. While an IME is composing, no key commits or moves.
+phone, number or long-text value (keys typed while long text's editor loads
+follow it); a date opens as a field that takes a typed date ("12/3", "Mar 12",
+"today") starting from it; and a choice, person or link picker opens searching
+for it. A date-time opens as it is. While an IME is composing, no key commits or
+moves.
 
 <ComponentPreview
   name="fieldCellEditor"
