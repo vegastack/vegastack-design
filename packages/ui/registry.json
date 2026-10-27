@@ -12935,7 +12935,7 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe — as a full-screen overlay or in place as a file's page, with Share/Watch/menu header slots and a Details · Comments · Activity rail (a bottom sheet on a phone).",
       "categories": ["media"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12953,10 +12953,12 @@
         "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/markdown-view",
+        "@vegastack/sheet",
         "@vegastack/spinner",
         "@vegastack/table",
         "@vegastack/tabs",
         "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
       ],

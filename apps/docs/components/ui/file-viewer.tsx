@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.25.88 sha256-Uh9sxJNNiMeuw+0n96ZfbtktK2ZV2UZma9zwNVlHonQ=
+// @vegastack file-viewer@0.25.88 sha256-0fnkQWJEy75JO5EOpsuJaVul6CLEEWuXck73VCy1vcs=
 
 "use client";
 
@@ -9,6 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   DownloadIcon,
+  PanelRightIcon,
   XIcon,
 } from "lucide-react";
 
@@ -24,8 +25,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { useMediaQuery } from "@/components/ui/use-media-query";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 import { VideoPlayer } from "@/components/ui/video-player";
 import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
@@ -137,8 +146,12 @@ export interface FileViewerProps {
   index: number | null;
   /** Called with the next index when the user pages (arrows, buttons, swipe). */
   onIndexChange: (index: number) => void;
-  /** Called with `false` when the user closes it (Esc, ×, swipe down) — set `index` to `null`. */
-  onOpenChange: (open: boolean) => void;
+  /**
+   * Called with `false` when the user closes the overlay (Esc, ×, swipe down) — set `index` to
+   * `null`. Required in `mode="overlay"`; a page has nothing to close.
+   * @default undefined
+   */
+  onOpenChange?: (open: boolean) => void;
   /**
    * Parse a file the viewer has no stage for — an Office file with SheetJS or mammoth, say — and
    * return what to show. Called for every file that is not an image, PDF, video or audio; return
@@ -157,6 +170,128 @@ export interface FileViewerProps {
    * @default undefined
    */
   actions?: (item: FileViewerItem) => React.ReactNode;
+  /**
+   * `overlay` is the full-screen dark lightbox (a modal dialog). `page` renders the same viewer in
+   * place — a file's own page — filling its container, in the page's theme, with no close button.
+   * @default "overlay"
+   */
+  mode?: "overlay" | "page";
+  /**
+   * Header controls beside Download, for the open file: `share` and `watch` sit before it, `menu`
+   * (a ⋯ menu) after it. Each is a node, or a function of the open file. Pass ghost icon `Button`s
+   * with an `aria-label`.
+   * @default undefined
+   */
+  header?: FileViewerHeaderSlots;
+  /**
+   * The rail beside the stage: a tab per slot given — Details, Comments, Activity, in that order —
+   * each a node or a function of the open file. A header button opens and closes it; below 768px it
+   * is a bottom sheet.
+   * @default undefined
+   */
+  rail?: FileViewerRail;
+  /**
+   * Controlled rail state. Pair with `onRailOpenChange`.
+   * @default undefined
+   */
+  railOpen?: boolean;
+  /**
+   * The rail's initial state, uncontrolled. On a phone an initially open rail waits for the reader:
+   * the sheet opens only from the header button.
+   * @default false
+   */
+  defaultRailOpen?: boolean;
+  /**
+   * Fired when the reader opens or closes the rail.
+   * @default undefined
+   */
+  onRailOpenChange?: (open: boolean) => void;
+  /**
+   * Controlled rail tab. Pair with `onRailTabChange`.
+   * @default undefined
+   */
+  railTab?: FileViewerRailTab;
+  /**
+   * The rail tab shown first, uncontrolled.
+   * @default the first slot given
+   */
+  defaultRailTab?: FileViewerRailTab;
+  /**
+   * Fired when the reader picks a rail tab.
+   * @default undefined
+   */
+  onRailTabChange?: (tab: FileViewerRailTab) => void;
+  /**
+   * The rail's text: its tabs, its region name and the header button's name.
+   * @default { details: "Details", comments: "Comments", activity: "Activity", rail: "File details", toggle: "Details" }
+   */
+  railLabels?: Partial<Record<FileViewerRailTab | "rail" | "toggle", string>>;
+}
+
+/** A slot for the open file: a node, or a function of the file. */
+export type FileViewerSlot =
+  React.ReactNode | ((item: FileViewerItem) => React.ReactNode);
+
+/** The header controls beside Download. */
+export interface FileViewerHeaderSlots {
+  /**
+   * Before Download — a Share button.
+   * @default undefined
+   */
+  share?: FileViewerSlot;
+  /**
+   * Before Download, after Share — a Watch (bell) toggle.
+   * @default undefined
+   */
+  watch?: FileViewerSlot;
+  /**
+   * After Download — the file's ⋯ menu.
+   * @default undefined
+   */
+  menu?: FileViewerSlot;
+}
+
+/** A rail tab. */
+export type FileViewerRailTab = "details" | "comments" | "activity";
+
+/** The rail's content: a tab appears only for a slot that is given. */
+export interface FileViewerRail {
+  /**
+   * The file's facts — type, size, who uploaded it, where it lives.
+   * @default undefined
+   */
+  details?: FileViewerSlot;
+  /**
+   * The file's discussion.
+   * @default undefined
+   */
+  comments?: FileViewerSlot;
+  /**
+   * The file's history of changes.
+   * @default undefined
+   */
+  activity?: FileViewerSlot;
+}
+
+const RAIL_TABS: readonly FileViewerRailTab[] = [
+  "details",
+  "comments",
+  "activity",
+];
+
+const RAIL_LABELS: Record<FileViewerRailTab | "rail" | "toggle", string> = {
+  details: "Details",
+  comments: "Comments",
+  activity: "Activity",
+  rail: "File details",
+  toggle: "Details",
+};
+
+function resolveSlot(
+  slot: FileViewerSlot | undefined,
+  item: FileViewerItem,
+): React.ReactNode {
+  return typeof slot === "function" ? slot(item) : slot;
 }
 
 type Kind =
@@ -1354,8 +1489,20 @@ export function FileViewer({
   onOpenChange,
   loadPreview,
   actions,
+  mode = "overlay",
+  header,
+  rail,
+  railOpen: railOpenProp,
+  defaultRailOpen = false,
+  onRailOpenChange,
+  railTab: railTabProp,
+  defaultRailTab,
+  onRailTabChange,
+  railLabels,
 }: FileViewerProps) {
-  const open = index !== null && items.length > 0;
+  const page = mode === "page";
+  // A page always shows a file (the first when `index` is null); an overlay is open while it has one.
+  const open = items.length > 0 && (page || index !== null);
   // Keep showing the last file while the close animation runs, after `index` became null.
   const [shown, setShown] = React.useState(index ?? 0);
   if (index !== null && index !== shown) setShown(index);
@@ -1406,10 +1553,11 @@ export function FileViewer({
 
   const onSwipe = React.useCallback(
     (direction: Swipe) => {
-      if (direction === "close") onOpenChange(false);
-      else go(direction === "next" ? 1 : -1);
+      if (direction === "close") {
+        if (!page) onOpenChange?.(false);
+      } else go(direction === "next" ? 1 : -1);
     },
-    [go, onOpenChange],
+    [go, onOpenChange, page],
   );
 
   // Announce the destination on a page turn, never on open (the dialog's name covers that).
@@ -1442,6 +1590,15 @@ export function FileViewer({
       return;
     const target = event.target as HTMLElement;
     if (target.closest("input, textarea, [contenteditable='true']")) return;
+    // Keys that belong to a control of their own — the rail's tabs and panels, a header menu, a
+    // listbox — never page the files (React events bubble through portals, so the rail sheet and
+    // the menus count too).
+    if (
+      target.closest(
+        "[data-slot=file-viewer-rail], [data-slot=file-viewer-rail-sheet], [role=menu], [role=tablist], [role=listbox], [role=dialog]:not([data-slot=file-viewer])",
+      )
+    )
+      return;
     const zoom = (op: ZoomOp) => {
       event.preventDefault();
       zoomRef.current?.(op);
@@ -1469,12 +1626,321 @@ export function FileViewer({
     }
   };
 
+  // The rail: a tab per slot given; a column beside the stage, a bottom sheet on a phone.
+  const labels = { ...RAIL_LABELS, ...railLabels };
+  const railTabs = RAIL_TABS.filter(
+    (key) => rail?.[key] !== undefined && rail?.[key] !== null,
+  );
+  const hasRail = railTabs.length > 0;
+  const phone = useMediaQuery("(max-width: 767px)");
+  const [innerRailOpen, setInnerRailOpen] = React.useState(defaultRailOpen);
+  const railOpen = railOpenProp ?? innerRailOpen;
+  const setRailOpen = (next: boolean) => {
+    if (railOpenProp === undefined) setInnerRailOpen(next);
+    onRailOpenChange?.(next);
+  };
+  // On a phone the sheet opens only once the rail is opened after mount (the header button, or the
+  // host opening it): a rail that starts open never covers the file on arrival.
+  const [sheetAsked, setSheetAsked] = React.useState(false);
+  const [lastRailOpen, setLastRailOpen] = React.useState(railOpen);
+  if (lastRailOpen !== railOpen) {
+    setLastRailOpen(railOpen);
+    setSheetAsked(railOpen);
+  }
+  const sheetOpen = hasRail && phone && railOpen && sheetAsked;
+  const railShown = hasRail && (phone ? sheetOpen : railOpen);
+  const [innerRailTab, setInnerRailTab] = React.useState<FileViewerRailTab>(
+    defaultRailTab ?? railTabs[0] ?? "details",
+  );
+  const wantedTab = railTabProp ?? innerRailTab;
+  const railTab = railTabs.includes(wantedTab) ? wantedTab : railTabs[0];
+  const railId = React.useId();
+  const titleId = React.useId();
+
   if (!item) return null;
 
   const onFail = () => markFailed(item.id);
 
+  const railBody = hasRail ? (
+    <Tabs
+      value={railTab}
+      onValueChange={(value) => {
+        const next = value as FileViewerRailTab;
+        if (railTabProp === undefined) setInnerRailTab(next);
+        onRailTabChange?.(next);
+      }}
+      data-slot="file-viewer-rail-tabs"
+      className="min-h-0 flex-1 gap-0"
+    >
+      <TabsList
+        variant="line"
+        aria-label={labels.rail}
+        className="shrink-0 px-2 pt-2 data-[in-sheet]:pe-12"
+        data-in-sheet={phone ? "" : undefined}
+      >
+        {railTabs.map((key) => (
+          <TabsTrigger key={key} value={key}>
+            {labels[key]}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      {railTabs.map((key) => (
+        <TabsContent
+          key={key}
+          value={key}
+          data-slot="file-viewer-rail-panel"
+          className="min-h-0 overflow-y-auto p-4"
+        >
+          {resolveSlot(rail?.[key], item)}
+        </TabsContent>
+      ))}
+    </Tabs>
+  ) : null;
+
+  // Below 768px the rail is a bottom sheet over the stage, in the viewer's own theme.
+  const railSheet =
+    hasRail && phone ? (
+      <Sheet
+        open={sheetOpen}
+        onOpenChange={(next) => {
+          if (!next) {
+            setSheetAsked(false);
+            setRailOpen(false);
+          }
+        }}
+      >
+        <SheetContent
+          side="bottom"
+          data-slot="file-viewer-rail-sheet"
+          className={cn(
+            "gap-0 p-0 data-[side=bottom]:h-[70dvh]",
+            !page && "dark",
+          )}
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>{labels.rail}</SheetTitle>
+            <SheetDescription>{item.name}</SheetDescription>
+          </SheetHeader>
+          {railBody}
+        </SheetContent>
+      </Sheet>
+    ) : null;
+
+  const frame = (
+    <>
+      <div
+        data-slot="file-viewer-header"
+        className="flex min-w-0 shrink-0 items-center gap-2 ps-[calc(var(--spacing)*4+env(safe-area-inset-left))] pe-[calc(var(--spacing)*2+env(safe-area-inset-right))] pt-[calc(var(--spacing)*2+env(safe-area-inset-top))] pb-2"
+      >
+        <div className="flex min-w-0 flex-1 items-baseline gap-3">
+          {page ? (
+            <h1
+              id={titleId}
+              data-slot="file-viewer-title"
+              className="min-w-0 text-sm font-medium"
+            >
+              <span className="block truncate">{item.name}</span>
+            </h1>
+          ) : (
+            <DialogPrimitive.Title
+              data-slot="file-viewer-title"
+              className="min-w-0 text-sm font-medium"
+            >
+              <span className="block truncate">{item.name}</span>
+            </DialogPrimitive.Title>
+          )}
+          {count > 1 ? (
+            <span
+              data-slot="file-viewer-count"
+              className="shrink-0 text-sm text-muted-foreground tabular-nums"
+            >
+              {current + 1} of {count}
+            </span>
+          ) : null}
+        </div>
+        {actions ? (
+          <div
+            data-slot="file-viewer-actions"
+            className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
+          >
+            {actions(item)}
+          </div>
+        ) : null}
+        {header?.share !== undefined || header?.watch !== undefined ? (
+          <div
+            data-slot="file-viewer-header-slots"
+            className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
+          >
+            {resolveSlot(header?.share, item)}
+            {resolveSlot(header?.watch, item)}
+          </div>
+        ) : null}
+        {/* A real link, so it reads as one and the browser downloads it natively. */}
+        <a
+          href={item.downloadHref}
+          download
+          data-slot="file-viewer-download"
+          aria-label={`Download ${item.name}`}
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon" }),
+            chromeButton,
+          )}
+        >
+          <DownloadIcon />
+        </a>
+        {header?.menu !== undefined ? (
+          <div
+            data-slot="file-viewer-menu"
+            className="flex shrink-0 items-center [&_[data-slot=button]]:text-foreground"
+          >
+            {resolveSlot(header.menu, item)}
+          </div>
+        ) : null}
+        {hasRail ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            data-slot="file-viewer-rail-toggle"
+            aria-label={labels.toggle}
+            aria-pressed={railShown}
+            aria-controls={railShown && !phone ? railId : undefined}
+            className={chromeButton}
+            onClick={() => {
+              const next = !railShown;
+              if (phone) setSheetAsked(next);
+              if (next !== railOpen) setRailOpen(next);
+            }}
+          >
+            <PanelRightIcon className="rtl:-scale-x-100" />
+          </Button>
+        ) : null}
+        {page ? null : (
+          <DialogPrimitive.Close
+            data-slot="file-viewer-close"
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Close"
+                className={chromeButton}
+              />
+            }
+          >
+            <XIcon />
+          </DialogPrimitive.Close>
+        )}
+      </div>
+
+      <div data-slot="file-viewer-body" className="flex min-h-0 flex-1">
+        <div
+          data-slot="file-viewer-stage"
+          className="relative min-h-0 min-w-0 flex-1 pb-[env(safe-area-inset-bottom)]"
+        >
+          {baseKind === "image" ? (
+            <ImageStage
+              key={item.id}
+              item={item}
+              onSwipe={onSwipe}
+              zoomRef={zoomRef}
+              onFail={onFail}
+            />
+          ) : baseKind === "pdf" ? (
+            <React.Suspense fallback={<PdfLoading item={item} />}>
+              <LazyPdf
+                key={item.id}
+                src={item.pdfSrc ?? ""}
+                name={item.name}
+                zoomRef={zoomRef}
+                onError={onFail}
+                loading={<PdfLoading item={item} />}
+              />
+            </React.Suspense>
+          ) : baseKind === "video" || baseKind === "audio" ? (
+            <MediaStage
+              key={item.id}
+              item={item}
+              kind={baseKind}
+              active={open}
+              onSwipe={onSwipe}
+            />
+          ) : (
+            <PreviewStage
+              key={item.id}
+              item={item}
+              kind={
+                baseKind === "text" ||
+                baseKind === "table" ||
+                baseKind === "markdown" ||
+                baseKind === "workbook" ||
+                baseKind === "word"
+                  ? baseKind
+                  : "card"
+              }
+              loadPreview={failed.has(item.id) ? undefined : loadPreview}
+              onSwipe={onSwipe}
+              onResolve={onResolve}
+            />
+          )}
+
+          {count > 1 ? (
+            <>
+              {/* Centred with `inset-y-0 my-auto`, not a translate: the button's press
+                    `translate-y-px` shares `translate` and would drop it by half its height. */}
+              <Button
+                variant="secondary"
+                size="icon-lg"
+                aria-label="Previous file"
+                disabled={current === 0}
+                onClick={() => go(-1)}
+                className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
+              >
+                <ChevronLeftIcon className="rtl:rotate-180" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon-lg"
+                aria-label="Next file"
+                disabled={current === count - 1}
+                onClick={() => go(1)}
+                className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
+              >
+                <ChevronRightIcon className="rtl:rotate-180" />
+              </Button>
+            </>
+          ) : null}
+        </div>
+        {railShown && !phone ? (
+          <aside
+            id={railId}
+            data-slot="file-viewer-rail"
+            aria-label={labels.rail}
+            className="flex w-80 min-h-0 shrink-0 flex-col border-s border-border bg-background pb-[env(safe-area-inset-bottom)] xl:w-96"
+          >
+            {railBody}
+          </aside>
+        ) : null}
+      </div>
+      {railSheet}
+      <Announcer />
+    </>
+  );
+
+  if (page)
+    return (
+      <section
+        data-slot="file-viewer"
+        data-mode="page"
+        data-kind={kind}
+        aria-labelledby={titleId}
+        onKeyDown={onKeyDown}
+        className="flex h-full min-h-96 min-w-0 flex-col bg-background text-foreground"
+      >
+        {frame}
+      </section>
+    );
+
   return (
-    <Dialog open={open} onOpenChange={(next) => onOpenChange(next)}>
+    <Dialog open={open} onOpenChange={(next) => onOpenChange?.(next)}>
       <DialogPortal>
         <DialogPrimitive.Backdrop
           data-slot="file-viewer-backdrop"
@@ -1483,145 +1949,13 @@ export function FileViewer({
         <DialogPrimitive.Popup
           ref={popupRef}
           data-slot="file-viewer"
+          data-mode="overlay"
           data-kind={kind}
           initialFocus={popupNode}
           onKeyDown={onKeyDown}
           className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
         >
-          <div
-            data-slot="file-viewer-header"
-            className="flex min-w-0 shrink-0 items-center gap-2 ps-[calc(var(--spacing)*4+env(safe-area-inset-left))] pe-[calc(var(--spacing)*2+env(safe-area-inset-right))] pt-[calc(var(--spacing)*2+env(safe-area-inset-top))] pb-2"
-          >
-            <div className="flex min-w-0 flex-1 items-baseline gap-3">
-              <DialogPrimitive.Title
-                data-slot="file-viewer-title"
-                className="min-w-0 text-sm font-medium"
-              >
-                <span className="block truncate">{item.name}</span>
-              </DialogPrimitive.Title>
-              {count > 1 ? (
-                <span
-                  data-slot="file-viewer-count"
-                  className="shrink-0 text-sm text-muted-foreground tabular-nums"
-                >
-                  {current + 1} of {count}
-                </span>
-              ) : null}
-            </div>
-            {actions ? (
-              <div
-                data-slot="file-viewer-actions"
-                className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
-              >
-                {actions(item)}
-              </div>
-            ) : null}
-            {/* A real link, so it reads as one and the browser downloads it natively. */}
-            <a
-              href={item.downloadHref}
-              download
-              data-slot="file-viewer-download"
-              aria-label={`Download ${item.name}`}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                chromeButton,
-              )}
-            >
-              <DownloadIcon />
-            </a>
-            <DialogPrimitive.Close
-              data-slot="file-viewer-close"
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Close"
-                  className={chromeButton}
-                />
-              }
-            >
-              <XIcon />
-            </DialogPrimitive.Close>
-          </div>
-
-          <div
-            data-slot="file-viewer-stage"
-            className="relative min-h-0 flex-1 pb-[env(safe-area-inset-bottom)]"
-          >
-            {baseKind === "image" ? (
-              <ImageStage
-                key={item.id}
-                item={item}
-                onSwipe={onSwipe}
-                zoomRef={zoomRef}
-                onFail={onFail}
-              />
-            ) : baseKind === "pdf" ? (
-              <React.Suspense fallback={<PdfLoading item={item} />}>
-                <LazyPdf
-                  key={item.id}
-                  src={item.pdfSrc ?? ""}
-                  name={item.name}
-                  zoomRef={zoomRef}
-                  onError={onFail}
-                  loading={<PdfLoading item={item} />}
-                />
-              </React.Suspense>
-            ) : baseKind === "video" || baseKind === "audio" ? (
-              <MediaStage
-                key={item.id}
-                item={item}
-                kind={baseKind}
-                active={open}
-                onSwipe={onSwipe}
-              />
-            ) : (
-              <PreviewStage
-                key={item.id}
-                item={item}
-                kind={
-                  baseKind === "text" ||
-                  baseKind === "table" ||
-                  baseKind === "markdown" ||
-                  baseKind === "workbook" ||
-                  baseKind === "word"
-                    ? baseKind
-                    : "card"
-                }
-                loadPreview={failed.has(item.id) ? undefined : loadPreview}
-                onSwipe={onSwipe}
-                onResolve={onResolve}
-              />
-            )}
-
-            {count > 1 ? (
-              <>
-                {/* Centred with `inset-y-0 my-auto`, not a translate: the button's press
-                    `translate-y-px` shares `translate` and would drop it by half its height. */}
-                <Button
-                  variant="secondary"
-                  size="icon-lg"
-                  aria-label="Previous file"
-                  disabled={current === 0}
-                  onClick={() => go(-1)}
-                  className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
-                >
-                  <ChevronLeftIcon className="rtl:rotate-180" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon-lg"
-                  aria-label="Next file"
-                  disabled={current === count - 1}
-                  onClick={() => go(1)}
-                  className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
-                >
-                  <ChevronRightIcon className="rtl:rotate-180" />
-                </Button>
-              </>
-            ) : null}
-          </div>
-          <Announcer />
+          {frame}
         </DialogPrimitive.Popup>
       </DialogPortal>
     </Dialog>
