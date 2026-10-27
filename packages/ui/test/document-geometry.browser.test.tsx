@@ -6,6 +6,7 @@ import { afterEach, beforeAll, expect, test, vi } from "vitest";
 import { Button } from "../registry/ui/button";
 import {
   DocumentLayout,
+  DocumentLayoutAside,
   DocumentLayoutBody,
   DocumentLayoutContents,
   DocumentLayoutContentsButton,
@@ -851,4 +852,176 @@ test("first in the body, the decision bar stays under the top bar while the text
     ).toBe(56),
   );
   window.scrollTo(0, 0);
+});
+
+// ---- The aside: the discussion rail and the pinned outline -------------------------------------
+
+function AsidePage({
+  width,
+  aside,
+  measure,
+  margin = false,
+}: {
+  width: number;
+  aside: "discussion" | "outline" | null | undefined;
+  measure?: "document" | "wide";
+  margin?: boolean;
+}) {
+  return (
+    <div style={{ width }}>
+      <DocumentLayout aside={aside} measure={measure} margin={margin}>
+        <DocumentLayoutHeader>
+          <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
+        </DocumentLayoutHeader>
+        <DocumentLayoutContents>
+          <span className="block h-24 w-6" />
+        </DocumentLayoutContents>
+        <DocumentLayoutBody>
+          <MarkdownView typeScale="document">{PROSE}</MarkdownView>
+        </DocumentLayoutBody>
+        <DocumentLayoutMargin>Thread</DocumentLayoutMargin>
+        <DocumentLayoutAside
+          count={2}
+          onClose={() => {}}
+          tabs={[
+            { value: "open", label: "Open", count: 2, content: <p>Open</p> },
+            { value: "page", label: "Page", content: <p>Page</p> },
+          ]}
+        />
+        <DocumentLayoutAside kind="outline">
+          <p>Seats · Terms</p>
+        </DocumentLayoutAside>
+      </DocumentLayout>
+    </div>
+  );
+}
+
+async function measureAside(
+  width: number,
+  aside: "discussion" | "outline" | null | undefined,
+  props: { measure?: "document" | "wide"; margin?: boolean } = {},
+) {
+  const screen = await render(
+    <AsidePage width={width} aside={aside} {...props} />,
+  );
+  const shown = (selector: string) => {
+    const el = document.querySelector<HTMLElement>(selector);
+    return !!el && getComputedStyle(el).display !== "none";
+  };
+  const result = {
+    layout: slot("document-layout").getBoundingClientRect(),
+    body: slot("document-layout-body").getBoundingClientRect(),
+    discussion: document
+      .querySelector("aside[data-kind=discussion]")!
+      .getBoundingClientRect(),
+    discussionShown: shown("aside[data-kind=discussion]"),
+    outlineShown: shown("aside[data-kind=outline]"),
+    marginShown: shown("[data-slot=document-layout-margin]"),
+    contentsShown: shown("[data-slot=document-layout-contents]"),
+  };
+  await screen.unmount();
+  return result;
+}
+
+test("the discussion opens beside a text that never moves: the same place and width open or closed, at every inline tier", async () => {
+  await page.viewport(2400, 900);
+  for (const width of [1040, 1200, 1440, 1600, 2200]) {
+    const closed = await measureAside(width, null);
+    const open = await measureAside(width, "discussion");
+    expect(open.body.left, `${width}`).toBe(closed.body.left);
+    expect(open.body.width, `${width}`).toBe(closed.body.width);
+    expect(closed.discussionShown, `${width}`).toBe(false);
+    expect(open.discussionShown, `${width}`).toBe(true);
+    // The rail sits after the text, inside the layout's end gutter.
+    expect(open.discussion.left, `${width}`).toBe(open.body.right);
+    expect(open.discussion.right, `${width}`).toBeLessThanOrEqual(
+      open.layout.right,
+    );
+  }
+  // The rail is the margin's track: 20rem at L, 24rem from XL (its 2rem gap inside).
+  expect((await measureAside(1200, "discussion")).discussion.width).toBe(320);
+  expect((await measureAside(1600, "discussion")).discussion.width).toBe(384);
+});
+
+test("an open discussion takes the margin's place; without aside the layout is as before", async () => {
+  await page.viewport(2400, 900);
+  const open = await measureAside(1600, "discussion", { margin: true });
+  expect(open.marginShown).toBe(false);
+  expect(open.discussionShown).toBe(true);
+  const closed = await measureAside(1600, null, { margin: true });
+  expect(closed.marginShown).toBe(true);
+  // No aside at all: the old geometry (no track kept) and no rail.
+  const none = await measureAside(1600, undefined);
+  const plain = await measure(1600, { margin: false });
+  expect(none.body.left - none.layout.left).toBe(
+    plain.body.left - plain.layout.left,
+  );
+  expect(none.body.width).toBe(plain.body.width);
+  expect(none.discussionShown).toBe(false);
+});
+
+test("wide is 1200px less the open aside; a closed aside keeps no track in wide", async () => {
+  await page.viewport(2400, 900);
+  expect((await measureAside(1600, null, { measure: "wide" })).body.width).toBe(
+    1200,
+  );
+  expect(
+    (await measureAside(1600, "discussion", { measure: "wide" })).body.width,
+  ).toBe(1600 - 2 * 64 - 384);
+  expect(
+    (await measureAside(2200, "discussion", { measure: "wide" })).body.width,
+  ).toBe(1200);
+});
+
+test("the outline pins from XL in place of the contents rail's ticks; below XL the ticks stay", async () => {
+  await page.viewport(2400, 900);
+  const xl = await measureAside(1600, "outline");
+  expect(xl.outlineShown).toBe(true);
+  expect(xl.contentsShown).toBe(false);
+  const closed = await measureAside(1600, null);
+  expect(xl.body.left).toBe(closed.body.left);
+  expect(xl.body.width).toBe(closed.body.width);
+  const l = await measureAside(1200, "outline");
+  expect(l.outlineShown).toBe(false);
+  expect(l.contentsShown).toBe(true);
+});
+
+test("below L the discussion is a bottom sheet, the whole screen on a phone", async () => {
+  await page.viewport(900, 800);
+  const screen = await render(<AsidePage width={900} aside="discussion" />);
+  const sheet = await vi.waitFor(() => {
+    const el = document.querySelector<HTMLElement>(
+      "[data-slot=document-layout-aside-sheet]",
+    );
+    expect(el).not.toBeNull();
+    return el!;
+  });
+  expect(
+    getComputedStyle(document.querySelector("aside[data-kind=discussion]")!)
+      .display,
+  ).toBe("none");
+  await expect
+    .element(screen.getByRole("dialog", { name: "Comments 2" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("tab", { name: "Open 2" }))
+    .toBeInTheDocument();
+  expect(Math.round(sheet.getBoundingClientRect().height)).toBe(
+    Math.round(800 * 0.7),
+  );
+  await screen.unmount();
+
+  await page.viewport(390, 844);
+  const phone = await render(<AsidePage width={390} aside="discussion" />);
+  const full = await vi.waitFor(() => {
+    const el = document.querySelector<HTMLElement>(
+      "[data-slot=document-layout-aside-sheet]",
+    );
+    expect(el).not.toBeNull();
+    return el!;
+  });
+  await vi.waitFor(() =>
+    expect(Math.round(full.getBoundingClientRect().height)).toBe(844),
+  );
+  await phone.unmount();
 });

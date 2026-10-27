@@ -1,11 +1,14 @@
 "use client";
 
+import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
-import { Plus } from "lucide-react";
+import { ListTree, MessageSquare, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   DocumentLayout,
+  DocumentLayoutAside,
   DocumentLayoutBlock,
   DocumentLayoutBlockAction,
   DocumentLayoutBlockFooter,
@@ -142,6 +145,110 @@ export function documentLayoutWide(): ReactNode {
           <MarkdownView typeScale="document">{PAGE}</MarkdownView>
         </DocumentLayoutBody>
       </DocumentLayout>
+    </Wrapper>
+  );
+}
+
+function Thread({ who, text }: { who: string; text: string }) {
+  return (
+    <div className="flex flex-col gap-1 rounded-lg border border-border bg-muted/30 p-3 text-sm">
+      <p className="font-medium">{who}</p>
+      <p className="text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
+/**
+ * The aside: the discussion rail or the pinned outline in the track the layout keeps for it, so
+ * the text never moves when it opens. Below L the discussion is a bottom sheet; the outline pins
+ * from XL (the hover rail stays below it). The preview holds the L tier at least.
+ */
+export function documentLayoutAside(): ReactNode {
+  return <DocumentLayoutAsideExample />;
+}
+
+function DocumentLayoutAsideExample() {
+  const [aside, setAside] = React.useState<"discussion" | "outline" | null>(
+    "discussion",
+  );
+  return (
+    <Wrapper className="block p-0 py-8">
+      <div className="flex justify-end px-4 pb-4 sm:px-8">
+        <ToggleGroup
+          variant="outline"
+          size="sm"
+          spacing={0}
+          aria-label="Aside"
+          value={[aside ?? "none"]}
+          onValueChange={(keys: string[]) => {
+            const next = keys[0];
+            setAside(next === "discussion" || next === "outline" ? next : null);
+          }}
+        >
+          <ToggleGroupItem value="none">Closed</ToggleGroupItem>
+          <ToggleGroupItem value="discussion">
+            <MessageSquare aria-hidden />
+            Discussion
+          </ToggleGroupItem>
+          <ToggleGroupItem value="outline">
+            <ListTree aria-hidden />
+            Outline
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      {/* At least the L tier (64rem), scrolling sideways in a narrow column, so the rail shows
+          inline here; below L a page shows the discussion as a bottom sheet. */}
+      <div className="overflow-x-auto">
+        <DocumentLayout aside={aside} className="min-w-[64rem] px-4 sm:px-8">
+          <Header />
+          <Contents />
+          <DocumentLayoutBody>
+            <MarkdownView typeScale="document" headingIds>
+              {PAGE}
+            </MarkdownView>
+          </DocumentLayoutBody>
+          <DocumentLayoutAside
+            count={2}
+            onClose={() => setAside(null)}
+            tabs={[
+              {
+                value: "open",
+                label: "Open",
+                count: 2,
+                content: (
+                  <div className="flex flex-col gap-3">
+                    <Thread
+                      who="Priya · 2m"
+                      text="Is the 20-seat discount right?"
+                    />
+                    <Thread
+                      who="Sanjay · 1h"
+                      text="Link the renewal policy here."
+                    />
+                  </div>
+                ),
+              },
+              {
+                value: "resolved",
+                label: "Resolved",
+                content: (
+                  <Thread who="Asha · 3d" text="Typo in the title — fixed." />
+                ),
+              },
+              {
+                value: "page",
+                label: "Page",
+                content: (
+                  <Thread who="Meera · 1d" text="Ready for review on Friday." />
+                ),
+              },
+            ]}
+          />
+          <DocumentLayoutAside kind="outline" onClose={() => setAside(null)}>
+            <TableOfContents variant="list" sticky={false} items={OUTLINE} />
+          </DocumentLayoutAside>
+        </DocumentLayout>
+      </div>
     </Wrapper>
   );
 }

@@ -739,6 +739,7 @@ const expectedComponentWaveMembers = {
     "cursor-pager",
     "comment-margin",
     "version-list",
+    "version-compare",
     "view-tabs",
     "diff-view",
     "carousel",

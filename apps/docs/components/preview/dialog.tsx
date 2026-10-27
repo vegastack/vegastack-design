@@ -224,27 +224,37 @@ export function dialogSizes(): ReactNode {
   return (
     <Wrapper>
       <div className="flex flex-wrap gap-2">
-        {(["sm", "default", "md", "lg", "xl"] as const).map((size) => (
-          <Dialog key={size}>
-            <DialogTrigger render={<Button variant="outline" />}>
-              {size}
-            </DialogTrigger>
-            <DialogContent size={size}>
-              <DialogHeader>
-                <DialogTitle>size=&quot;{size}&quot;</DialogTitle>
-                <DialogDescription>
-                  The width cap steps with the size; below the sm breakpoint
-                  every size fills the viewport less a 1rem gutter.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose render={<Button variant="secondary" />}>
-                  Close
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        ))}
+        {(["sm", "default", "md", "lg", "xl", "fullscreen"] as const).map(
+          (size) => (
+            <Dialog key={size}>
+              <DialogTrigger render={<Button variant="outline" />}>
+                {size}
+              </DialogTrigger>
+              <DialogContent size={size}>
+                <DialogHeader>
+                  <DialogTitle>size=&quot;{size}&quot;</DialogTitle>
+                  <DialogDescription>
+                    {size === "fullscreen"
+                      ? "The viewport less a 16px inset (the whole screen on a phone): the header and footer stay put while the body scrolls."
+                      : "The width cap steps with the size; below the sm breakpoint every size fills the viewport less a 1rem gutter."}
+                  </DialogDescription>
+                </DialogHeader>
+                {size === "fullscreen" ? (
+                  <DialogBody className="flex flex-col gap-4">
+                    {Array.from({ length: 12 }, (_, index) => (
+                      <p key={index}>{LOREM}</p>
+                    ))}
+                  </DialogBody>
+                ) : null}
+                <DialogFooter>
+                  <DialogClose render={<Button variant="secondary" />}>
+                    Close
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ),
+        )}
       </div>
     </Wrapper>
   );

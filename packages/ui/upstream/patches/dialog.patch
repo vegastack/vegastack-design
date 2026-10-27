@@ -21,7 +21,11 @@
 #     upstream's `sm:max-w-sm` unconditionally, so a consumer's `sm:max-w-*` className still merges
 #     over it; `sm`, `md`, `lg` and `xl` step it to `max-w-xs`, `max-w-lg`, `max-w-2xl` and
 #     `max-w-5xl` through `data-[size=…]` (approved by MK 23-09-2026, a consumer gap; `md`, the
-#     512px step for share and settings dialogs, MK 03-10-2026).
+#     512px step for share and settings dialogs, MK 03-10-2026). `fullscreen` (MK, 27-10-2026,
+#     Regent product-cohesion mandate W1-DS3, UXP-14): the popup fills the viewport less a 16px
+#     inset (none below `sm`, where it also drops its border and radius and pads the safe areas),
+#     `h-[calc(100dvh-2rem)]`, as a flex column, so the header and footer stay put while the content
+#     between them scrolls; the corner × clears the status bar on a phone.
 #   API-21: `DialogBody` (`-mx-4 min-h-0 flex-1 overflow-y-auto px-4`, the focus-gutter idiom)
 #     scrolls between the header and the footer band. A popup that holds one switches from
 #     upstream's grid to a flex column capped at `max-h-[calc(100%-2rem)]` (upstream's own
@@ -48,7 +52,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..8b82607 100644
+index 0b42f3f..34c8c9a 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -105,7 +109,7 @@ index 0b42f3f..8b82607 100644
  }
  
  function DialogOverlay({
-@@ -32,29 +47,65 @@ function DialogOverlay({
+@@ -32,29 +47,68 @@ function DialogOverlay({
        data-slot="dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -143,7 +147,7 @@ index 0b42f3f..8b82607 100644
  }: DialogPrimitive.Popup.Props & {
 -  showCloseButton?: boolean
 +  showCloseButton?: boolean;
-+  size?: "sm" | "default" | "md" | "lg" | "xl";
++  size?: "sm" | "default" | "md" | "lg" | "xl" | "fullscreen";
 +  closeLabel?: string;
  }) {
 +  const modal = React.useContext(DialogModalContext);
@@ -169,6 +173,9 @@ index 0b42f3f..8b82607 100644
 -          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -          className
 +          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] grid-cols-1 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm wrap-break-word text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++          // OVL-16 fullscreen: the viewport less a 16px inset (none on a phone), a flex column whose
++          // header and footer stay put while the content between them scrolls.
++          "data-[size=fullscreen]:flex data-[size=fullscreen]:h-[calc(100dvh-2rem)] data-[size=fullscreen]:max-h-[calc(100dvh-2rem)] data-[size=fullscreen]:flex-col data-[size=fullscreen]:sm:max-w-[calc(100%-2rem)] data-[size=fullscreen]:max-sm:h-dvh data-[size=fullscreen]:max-sm:max-h-dvh data-[size=fullscreen]:max-sm:max-w-full data-[size=fullscreen]:max-sm:rounded-none data-[size=fullscreen]:max-sm:border-0 data-[size=fullscreen]:max-sm:pt-[calc(--spacing(4)+env(safe-area-inset-top))] data-[size=fullscreen]:max-sm:pb-[calc(--spacing(4)+env(safe-area-inset-bottom))]",
 +          // LAY-17: the corner × sits over the header's end; the header keeps clear of it, so a long
 +          // title wraps before the × instead of running under it.
 +          showCloseButton && "**:data-[slot=dialog-header]:pe-7",
@@ -176,12 +183,12 @@ index 0b42f3f..8b82607 100644
          )}
          {...props}
        >
-@@ -65,19 +116,18 @@ function DialogContent({
+@@ -65,19 +119,18 @@ function DialogContent({
              render={
                <Button
                  variant="ghost"
 -                className="absolute top-2 end-2"
-+                className="absolute top-2 end-2 active:not-aria-[haspopup]:translate-y-0"
++                className="absolute top-2 end-2 active:not-aria-[haspopup]:translate-y-0 in-data-[size=fullscreen]:max-sm:top-[calc(--spacing(2)+env(safe-area-inset-top))]"
                  size="icon-sm"
                />
              }
@@ -200,7 +207,7 @@ index 0b42f3f..8b82607 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,34 +137,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,34 +140,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -254,7 +261,7 @@ index 0b42f3f..8b82607 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -122,12 +184,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -122,12 +187,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
      <DialogPrimitive.Title
        data-slot="dialog-title"
        className={cn(
@@ -270,7 +277,7 @@ index 0b42f3f..8b82607 100644
  }
  
  function DialogDescription({
-@@ -139,15 +201,16 @@ function DialogDescription({
+@@ -139,15 +204,16 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -289,7 +296,7 @@ index 0b42f3f..8b82607 100644
    DialogClose,
    DialogContent,
    DialogDescription,
-@@ -157,4 +220,4 @@ export {
+@@ -157,4 +223,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,

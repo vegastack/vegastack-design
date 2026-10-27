@@ -134,6 +134,7 @@ export * from "./comments";
 export * from "./activity-feed";
 export * from "./comment-margin";
 export * from "./version-list";
+export * from "./version-compare";
 export * from "./diff-view";
 export * from "./mermaid-block";
 export * from "./reactions";

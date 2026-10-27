@@ -197,7 +197,8 @@
       "member-list",
       "record-header",
       "block-header",
-      "recent-strip"
+      "recent-strip",
+      "version-compare"
     ],
     "Content/marketing": [
       "alert",
@@ -32689,6 +32690,7 @@
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": [
+        "packages/ui/registry/ui/document-layout-aside.tsx",
         "packages/ui/registry/ui/document-layout-meta.tsx",
         "packages/ui/registry/ui/document-layout-sections.tsx",
         "packages/ui/registry/ui/document-layout-tools.tsx",
@@ -32851,7 +32853,7 @@
           }
         },
         {
-          "name": "DocumentLayoutAsideProps",
+          "name": "DocumentLayoutColumnProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/document-layout.tsx",
           "ref": {
@@ -33487,6 +33489,34 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DocumentLayoutAside",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "aside",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-aside.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutAsideProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutAsideTab",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -33509,9 +33539,12 @@
             "tier-xl",
             "tier-2xl",
             "wide",
-            "loading"
+            "loading",
+            "aside-discussion",
+            "aside-outline",
+            "aside-sheet"
           ],
-          "evidence": "packages/ui/registry/ui/document-layout.tsx + packages/ui/test/document-geometry.browser.test.tsx"
+          "evidence": "packages/ui/registry/ui/document-layout.tsx + packages/ui/registry/ui/document-layout.test.tsx + packages/ui/test/document-geometry.browser.test.tsx"
         },
         "accessibility": {
           "status": "covered",
@@ -33544,7 +33577,9 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/item",
+        "@vegastack/sheet",
         "@vegastack/skeleton",
+        "@vegastack/tabs",
         "@vegastack/use-overflow"
       ],
       "npmDependencies": [
@@ -33564,6 +33599,31 @@
       },
       "previewModule": "document-layout",
       "dataAttributes": {
+        "DocumentLayoutAside": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "document-layout-aside",
+                "document-layout-aside-body",
+                "document-layout-aside-close",
+                "document-layout-aside-count",
+                "document-layout-aside-header",
+                "document-layout-aside-panel",
+                "document-layout-aside-panel-frame",
+                "document-layout-aside-sheet",
+                "document-layout-aside-tab-count",
+                "document-layout-aside-tablist",
+                "document-layout-aside-tabs"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
         "DocumentLayoutMeta": {
           "attributes": [
             {
@@ -33963,6 +34023,10 @@
         },
         "DocumentLayout": {
           "attributes": [
+            {
+              "name": "data-aside",
+              "values": []
+            },
             {
               "name": "data-margin",
               "values": [""]
@@ -35533,11 +35597,141 @@
               "values": [
                 "version-list",
                 "version-list-empty",
+                "version-list-group",
+                "version-list-group-label",
                 "version-list-header",
                 "version-list-item",
                 "version-list-items",
                 "version-list-skeleton"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "version-compare",
+      "registryType": "registry:ui",
+      "title": "Version Compare",
+      "summary": "A document's version history at full size — the selected version (or its changes through DiffView) beside a day-grouped VersionList on resizable panels, with Restore and Copy pinned in a footer; on a phone the list first and the preview pushed in.",
+      "status": "stable",
+      "since": "0.25.90",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/version-compare.tsx"],
+      "publicSymbols": [
+        {
+          "name": "VersionCompare",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/version-compare.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/version-compare.tsx."
+          }
+        },
+        {
+          "name": "VersionCompareProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/version-compare.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "selected",
+            "show-changes",
+            "diff",
+            "phone-list",
+            "phone-preview",
+            "loading"
+          ],
+          "evidence": "packages/ui/registry/ui/version-compare.tsx + packages/ui/registry/ui/version-compare.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test", "keyboard"],
+          "evidence": "packages/ui/registry/ui/version-compare.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "show-changes", "phone"],
+          "evidence": "packages/ui/registry/ui/version-compare.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Resizable preview and list from 640px; below it one side at a time, the preview pushed in over the list."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "The pushed-in preview uses the shared motion-enter-up utility, which the global reduced-motion reset settles."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/version-compare",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/diff-view",
+        "@vegastack/label",
+        "@vegastack/resizable",
+        "@vegastack/switch",
+        "@vegastack/use-media-query",
+        "@vegastack/version-list"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.37",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/version-compare.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "version-compare",
+      "dataAttributes": {
+        "VersionCompare": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "version-compare",
+                "version-compare-actions",
+                "version-compare-list",
+                "version-compare-panels",
+                "version-compare-preview",
+                "version-compare-preview-body",
+                "version-compare-toolbar"
+              ]
+            },
+            {
+              "name": "data-view",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -35674,6 +35868,10 @@
             {
               "name": "data-active",
               "values": [""]
+            },
+            {
+              "name": "data-quote",
+              "values": ["hidden"]
             },
             {
               "name": "data-slot",

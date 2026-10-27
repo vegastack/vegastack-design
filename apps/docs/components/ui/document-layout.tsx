@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.89 sha256-eN9qTrQF3AbYDkClREOz4MDJWUWE6v0/KjMMRV11rYw=
+// @vegastack document-layout@0.25.89 sha256-SJaLDchIVPGyYAV7WMmHT2Omuz2//VQE7AYK6azsEHU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -8,6 +8,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // The tier hook is the one client leaf; it lives in its own file so this one stays server-safe.
 export { useDocumentLayoutTier } from "@/components/ui/use-document-layout-tier";
+// The discussion and outline aside (a client part: below the L tier it is a bottom sheet).
+export {
+  DocumentLayoutAside,
+  type DocumentLayoutAsideProps,
+  type DocumentLayoutAsideTab,
+} from "@/components/ui/document-layout-aside";
 // The meta lines under the title (client parts: the status row fits its chips to the width).
 export {
   DocumentLayoutMeta,
@@ -109,6 +115,13 @@ export {
  * document has headings, so a contents list that arrives (or goes) never moves the text. It
  * stacks above the text and the margin, so its open panel takes the pointer over both.
  *
+ * The aside (`aside`, opt-in): a host that gives the layout an `aside` — even `null`, closed —
+ * keeps the end track for it from the L tier whether it is open or not, so opening the discussion
+ * rail (or the pinned outline) never moves or narrows the text; the start track mirrors it while
+ * the width holds both, exactly as it mirrors the margin. `measure="wide"` keeps the track only
+ * while an aside is open (wide is the width less the open aside). Without `aside` nothing changes.
+ * `DocumentLayoutAside` is the rail itself; below L the discussion is a bottom sheet instead.
+ *
  * Each tier also sets `--document-layout-tier` (`s` · `m` · `l` · `xl` · `2xl`) on the grid,
  * which `useDocumentLayoutTier` reads — CSS is the one source of the tier.
  *
@@ -140,6 +153,17 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
    */
   measure?: "document" | "wide";
   /**
+   * The aside after the text: `"discussion"` (the comments rail), `"outline"` (the contents,
+   * pinned from the XL tier — below it the contents rail's hover ticks stay) or `null` (closed).
+   * Giving it at all, even `null`, keeps the end track for the aside from the L tier, so opening
+   * or closing it never moves the text (in `wide`, only an open aside takes its width). Put a
+   * `DocumentLayoutAside` of each kind in the layout; the one named here shows. An open
+   * discussion takes the comment margin's place; the pinned outline replaces the contents rail.
+   * Leave it unset for a layout with no aside (the margin and rail behave as before).
+   * @default undefined
+   */
+  aside?: "discussion" | "outline" | null;
+  /**
    * The canvas takes focus from a click in its read text (`tabIndex={-1}`, never a tab stop), so
    * a host knows the reader is in the page; it shows no focus cue of its own (the text does).
    * @default false
@@ -160,6 +184,10 @@ const GRID = cn(
   // whole width, which the `minmax(0, …)` track caps at what the gutters and margin leave.
   "[--document-layout-text:100cqw] @min-[40rem]/document-layout:[--document-layout-text:max(36rem,75cqw)] @min-[64rem]/document-layout:[--document-layout-text:clamp(40rem,75cqw,52rem)] @min-[90rem]/document-layout:[--document-layout-text:60rem] @min-[120rem]/document-layout:[--document-layout-text:64rem] data-[measure=wide]:[--document-layout-text:min(100cqw,75rem)]",
   "[--document-layout-margin:0rem] data-margin:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
+  // The aside keeps the same track open or closed (the text never moves for it); in `wide` only
+  // an open aside takes it — the discussion from L, the pinned outline from XL.
+  "data-aside:not-data-[measure=wide]:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-aside:not-data-[measure=wide]:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
+  "data-[aside=discussion]:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-[aside=discussion]:@min-[90rem]/document-layout:[--document-layout-margin:24rem] data-[aside=outline]:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
   // The start track mirrors the end side (margin + gutter) while the width holds both, so the text
   // stays centred with comments; with less room it narrows towards the gutter (asymmetric).
   "[--document-layout-start:clamp(var(--document-layout-gutter),calc(100cqw-var(--document-layout-text)-var(--document-layout-margin)-var(--document-layout-gutter)),calc(var(--document-layout-gutter)+var(--document-layout-margin)))]",
@@ -193,19 +221,23 @@ const GRID = cn(
 export function DocumentLayout({
   margin = false,
   measure = "document",
+  aside,
   focusable = false,
   className,
   children,
   ...props
 }: DocumentLayoutProps) {
+  // `null` is a closed aside (its track kept); unset is no aside at all.
+  const asideState = aside === undefined ? undefined : (aside ?? "none");
   return (
     <div
       data-slot="document-layout"
       data-margin={margin ? "" : undefined}
       data-measure={measure}
+      data-aside={asideState}
       tabIndex={focusable ? -1 : undefined}
       className={cn(
-        "@container/document-layout w-full min-w-0 [--document-layout-sticky-top:--spacing(8)] print:[page:document]",
+        "@container/document-layout w-full min-w-0 [--document-layout-aside-offset:--spacing(24)] [--document-layout-sticky-top:--spacing(8)] print:[page:document]",
         focusable && "outline-none",
         className,
       )}
@@ -215,6 +247,7 @@ export function DocumentLayout({
         data-slot="document-layout-grid"
         data-margin={margin ? "" : undefined}
         data-measure={measure}
+        data-aside={asideState}
         className={GRID}
       >
         {children}
@@ -399,7 +432,7 @@ export function DocumentLayoutFoot({
 }
 
 /** Native `aside` props for `DocumentLayoutContents` and `DocumentLayoutMargin`. */
-export type DocumentLayoutAsideProps = React.ComponentPropsWithRef<"aside">;
+export type DocumentLayoutColumnProps = React.ComponentPropsWithRef<"aside">;
 
 /**
  * `DocumentLayoutContents` — the contents rail's place, from the M tier: an `aside` named
@@ -421,7 +454,7 @@ export function DocumentLayoutContents({
   children,
   "aria-label": ariaLabel = "Contents",
   ...props
-}: DocumentLayoutAsideProps) {
+}: DocumentLayoutColumnProps) {
   return (
     <aside
       data-slot="document-layout-contents"
@@ -430,6 +463,8 @@ export function DocumentLayoutContents({
         // Its own stacking layer over the text and the margin (the sticky box inside makes one
         // too, which would otherwise trap the open panel under the margin that follows it).
         "pointer-events-none relative z-20 col-[rail] row-[1/span_3] hidden min-w-0 @min-[40rem]/document-layout:block print:hidden",
+        // The pinned outline (`aside="outline"`, from XL) replaces it; its gutter stays.
+        "@min-[90rem]/document-layout:in-data-[aside=outline]:hidden",
         className,
       )}
       {...props}
@@ -511,7 +546,9 @@ export function DocumentLayoutFloatingButton({
  * `margin`: an `aside` named "Comments" after the text (20rem, 24rem from XL, its 2rem gap
  * included), as tall as the text, positioned (`relative`) so threads can sit at their
  * highlights' tops. Cards in it take its whole width. Below L the host shows comments in a
- * popover or a sheet.
+ * popover or a sheet. An open discussion rail (`aside="discussion"`) takes its place, and so
+ * does the pinned outline from XL; pass `CommentMargin quote={false}` so cards beside their
+ * highlight do not repeat it.
  *
  * @example
  * <DocumentLayoutMargin>{threads.map((t) => <ThreadCard key={t.id} style={{ top: t.top }} />)}</DocumentLayoutMargin>
@@ -520,13 +557,15 @@ export function DocumentLayoutMargin({
   className,
   "aria-label": ariaLabel = "Comments",
   ...props
-}: DocumentLayoutAsideProps) {
+}: DocumentLayoutColumnProps) {
   return (
     <aside
       data-slot="document-layout-margin"
       aria-label={ariaLabel}
       className={cn(
         "relative col-[margin] row-[1/span_3] hidden min-w-0 ps-8 @min-[64rem]/document-layout:in-data-margin:block print:hidden",
+        // An open discussion rail, or the pinned outline, takes the margin's track.
+        "@min-[64rem]/document-layout:in-data-[aside=discussion]:hidden @min-[90rem]/document-layout:in-data-[aside=outline]:hidden",
         className,
       )}
       {...props}
@@ -540,6 +579,8 @@ export interface DocumentLayoutSkeletonProps extends React.ComponentPropsWithRef
   margin?: boolean;
   /** The text column, as the page will. @default "document" */
   measure?: "document" | "wide";
+  /** The aside, as the page will (its track, so the text lands where the page puts it). @default undefined */
+  aside?: DocumentLayoutProps["aside"];
   /**
    * Reserve the icon row above the title (32px and the group's 4px), as a page whose
    * `DocumentLayoutTitleGroup` holds a `DocumentLayoutIcon` will — an editable page always does.
@@ -587,6 +628,7 @@ const LINE_WIDTHS = [
 export function DocumentLayoutSkeleton({
   margin = false,
   measure = "document",
+  aside,
   icon = false,
   metaLines = 1,
   lines = 8,
@@ -609,6 +651,7 @@ export function DocumentLayoutSkeleton({
       aria-busy
       margin={margin}
       measure={measure}
+      aside={aside}
       className={className}
       {...props}
     >

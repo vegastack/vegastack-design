@@ -1,6 +1,7 @@
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import geometryCss from "../../test/geometry.css?inline";
 import {
   CommentMargin,
   CommentPopover,
@@ -93,4 +94,52 @@ test("CommentPopover shows its thread anchored to the highlight and closes on Es
     new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
   );
   await vi.waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+});
+
+test("quote={false} hides each card's quote, and a thread header left with nothing else; the default keeps it", async () => {
+  const thread = (id: string, resolve: boolean) => (
+    <article data-slot="comment-thread" data-testid={id}>
+      <div data-slot="comment-thread-header">
+        <div>
+          <blockquote data-slot="comment-thread-quote">
+            The quoted words
+          </blockquote>
+        </div>
+        {resolve ? <button type="button">Resolve</button> : null}
+      </div>
+      <p>First comment</p>
+    </article>
+  );
+  const items = [
+    { id: "a", top: 0, node: thread("a", false) },
+    { id: "b", top: 200, node: thread("b", true) },
+  ];
+  // The hiding is CSS: compile it.
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const shown = (el: Element | null) =>
+    !!el && getComputedStyle(el).display !== "none";
+  const screen = await render(<CommentMargin items={items} />);
+  const quotes = () =>
+    [
+      ...screen.container.querySelectorAll("[data-slot=comment-thread-quote]"),
+    ].map(shown);
+  expect(quotes()).toEqual([true, true]);
+  await screen.rerender(<CommentMargin items={items} quote={false} />);
+  expect(
+    screen.container
+      .querySelector("[data-slot=comment-margin]")
+      ?.getAttribute("data-quote"),
+  ).toBe("hidden");
+  expect(quotes()).toEqual([false, false]);
+  const header = (id: string) =>
+    screen.container.querySelector(
+      `[data-testid=${id}] [data-slot=comment-thread-header]`,
+    );
+  // A header with only the quote goes; one with the resolve control stays.
+  expect(shown(header("a"))).toBe(false);
+  expect(shown(header("b"))).toBe(true);
+  await expectNoA11yViolations(screen.container);
 });

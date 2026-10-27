@@ -75,6 +75,7 @@ starts with `icon-` is a component and never an icon.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
 - **`tag-group`** — Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.
 - **`value-change`** — An inline before → after diff of one value: the old value struck in a del, a muted arrow, the new value in an ins, with a spoken "changed from A to B".
+- **`version-compare`** — A document's version history at full size — the selected version (or its changes through DiffView) beside a day-grouped VersionList on resizable panels, with Restore and Copy pinned in a footer; on a phone the list first and the preview pushed in.
 - **`version-list`** — A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more — as a keyboard listbox.
 
 ## Data display

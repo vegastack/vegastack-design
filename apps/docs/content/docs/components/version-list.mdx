@@ -76,6 +76,19 @@ version, "Compared with" its baseline — or [`DiffView`](/docs/components/diff-
   file="components/preview/version-list.tsx"
 />
 
+### By day
+
+`groupBy="day"` puts the rows under a heading per calendar day ("Today", "Yesterday", "26
+September"), in the viewer's time zone; an unnamed row then shows its time of day only. The list
+stays one listbox, so the arrows cross from one day to the next. An agent's version
+(`author.kind: "agent"`) shows the agent avatar and its label. `VersionCompare` lists versions
+this way.
+
+<ComponentPreview
+  name="versionListByDay"
+  file="components/preview/version-list.tsx"
+/>
+
 ### Under a host's title
 
 `heading` names the list ("Version history" by default; "History" where the host calls it that).
@@ -99,6 +112,7 @@ title — a sheet's.
 - The rows are a `listbox` labelled "Version history", each an `option` with `aria-selected`; the
   list is one tab stop and the selection follows the arrow keys.
 - "Named only" is a `switch` labelled by its text.
+- By day, each day is a `group` inside the listbox, named by its heading.
 
 | Key                              | Action                             |
 | -------------------------------- | ---------------------------------- |

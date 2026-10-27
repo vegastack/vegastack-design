@@ -100,6 +100,7 @@
     "activity-feed",
     "comment-margin",
     "version-list",
+    "version-compare",
     "diff-view",
     "reactions",
     "settings-layout",

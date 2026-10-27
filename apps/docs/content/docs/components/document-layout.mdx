@@ -121,6 +121,54 @@ never the document's.
   file="components/preview/document-layout.tsx"
 />
 
+### Aside
+
+`aside` gives the layout a rail after the text: `"discussion"` (the comments) or `"outline"` (the
+contents), and `null` while it is closed. A layout with an `aside` — even `null` — keeps the end
+track for it from the L tier, so opening or closing the rail never moves or narrows the text; in
+`wide` only an open aside takes its width (wide is 1200px less the open aside). Put a
+`DocumentLayoutAside` of each kind in the layout and the one `aside` names shows:
+
+- **Discussion** — a non-modal rail as tall as the window: the heading with its `count`, a ×
+  (`onClose`), and `tabs` such as Open · Resolved · Page, plus Review while a review is open, each
+  with an optional count. The page stays readable and editable beside it. It takes the comment
+  margin's place, so pass `CommentMargin quote={false}` for the cards beside the text and keep the
+  quote in the rail. Below the L tier it is a bottom sheet instead, the whole screen below 640px.
+- **Outline** — the contents list, pinned from the XL tier while the discussion is closed; below XL
+  the contents rail's hover ticks stay.
+
+Leave `aside` unset and nothing changes: the margin and the rail behave as before.
+
+<ComponentPreview
+  name="documentLayoutAside"
+  file="components/preview/document-layout.tsx"
+/>
+
+```tsx
+<DocumentLayout
+  aside={discussion ? "discussion" : wideScreen ? "outline" : null}
+>
+  …
+  <DocumentLayoutAside
+    count={open.length}
+    onClose={() => setDiscussion(false)}
+    tabs={[
+      {
+        value: "open",
+        label: "Open",
+        count: open.length,
+        content: <OpenThreads />,
+      },
+      { value: "resolved", label: "Resolved", content: <ResolvedThreads /> },
+      { value: "page", label: "Page", content: <PageThread /> },
+    ]}
+  />
+  <DocumentLayoutAside kind="outline">
+    <TableOfContents items={outline} sticky={false} />
+  </DocumentLayoutAside>
+</DocumentLayout>
+```
+
 ### Title
 
 `DocumentLayoutTitle` is the document type scale's top step: 30/36 semibold in the heading face,
@@ -295,6 +343,11 @@ link prints its address.
 />
 
 <ApiTable
+  path="../../packages/ui/registry/ui/document-layout-aside.tsx"
+  name="DocumentLayoutAsideProps"
+/>
+
+<ApiTable
   path="../../packages/ui/registry/ui/document-layout.tsx"
   name="DocumentLayoutSkeletonProps"
 />
@@ -337,20 +390,28 @@ link prints its address.
 `DocumentLayoutHeader`, `DocumentLayoutTitleGroup`, `DocumentLayoutBody` and `DocumentLayoutFoot`
 take a `div`'s native props, `DocumentLayoutTitle` an `h1`'s; `DocumentLayoutContents` and `DocumentLayoutMargin` take an `aside`'s. What the contents
 hold sticks `--document-layout-sticky-top` (default `--spacing(8)`) below the top of the scroll
-container.
+container. The discussion rail sticks there too, as tall as the window less
+`--document-layout-aside-offset` (default `--spacing(24)`: the bar above and the offsets).
+`DocumentLayoutAsideTab` is `{ value, label, count?, content }`.
 
 ## Accessibility
 
 - The contents and the margin are two `aside` landmarks, named "Contents" and "Comments" (override
   with `aria-label`). Below their tier they are `display: none`, so they leave the accessibility
   tree with the screen.
+- The aside is an `aside` landmark named by its `title` ("Comments", "On this page"); its tabs are
+  a Base UI tab list named the same, and the × is a "Close" button. It is non-modal: focus stays
+  where the reader puts it, and the page beside it keeps working. Below L the discussion is a
+  modal bottom sheet with its own close.
 - Source order is reading order: the title area, the contents, the text, what follows it, then
   the comments — whatever the columns look like.
 - The skeleton is one `status` region named "Loading page" with `aria-busy`; its bars are hidden.
 
-| Key            | Action                                                       |
-| -------------- | ------------------------------------------------------------ |
-| <kbd>Tab</kbd> | Move through the contents, the text's links, then the margin |
+| Key                         | Action                                                                |
+| --------------------------- | --------------------------------------------------------------------- |
+| <kbd>Tab</kbd>              | Move through the contents, the text's links, then the margin or aside |
+| <kbd>←</kbd> / <kbd>→</kbd> | Move between the aside's tabs                                         |
+| <kbd>Esc</kbd>              | Close the discussion sheet (below L)                                  |
 
 <StatesTested name="document-layout" />
 

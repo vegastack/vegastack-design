@@ -1,9 +1,10 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { expect, onTestFinished, test } from "vitest";
 import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 import { expectNoA11yViolations } from "../../test/a11y";
+import geometryCss from "../../test/geometry.css?inline";
 import { DirectionProvider } from "./direction";
 import { Button } from "./button";
 import {
@@ -460,6 +461,53 @@ for (const [size, cap] of [
     expect(popup.className).toContain(cap);
   });
 }
+
+test('OVL-16: size="fullscreen" fills the viewport less a 16px inset (none on a phone); the body scrolls between a pinned header and footer', async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  onTestFinished(async () => {
+    await page.viewport(414, 896);
+  });
+  await page.viewport(1280, 800);
+  const screen = await render(
+    <Dialog>
+      <DialogTrigger>Open history</DialogTrigger>
+      <DialogContent size="fullscreen">
+        <DialogHeader>
+          <DialogTitle>History</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <div style={{ height: 3000 }}>A long version</div>
+        </DialogBody>
+        <DialogFooter>
+          <DialogClose>Done</DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>,
+  );
+  await screen.getByRole("button", { name: "Open history" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const popup = bySlot("dialog-content")!;
+  expect(popup.getAttribute("data-size")).toBe("fullscreen");
+  const box = () => popup.getBoundingClientRect();
+  await expect.poll(() => Math.round(box().width)).toBe(1280 - 32);
+  expect(Math.round(box().height)).toBe(800 - 32);
+  expect(Math.round(box().left)).toBe(16);
+  expect(Math.round(box().top)).toBe(16);
+  // The header and footer stay inside the popup; the body between them is the scroller.
+  const body = bySlot("dialog-body")!;
+  expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+  const footer = bySlot("dialog-footer")!.getBoundingClientRect();
+  expect(footer.bottom).toBeLessThanOrEqual(box().bottom);
+  await expectNoA11yViolations(document.body);
+
+  await page.viewport(390, 844);
+  await expect.poll(() => Math.round(box().width)).toBe(390);
+  expect(Math.round(box().height)).toBe(844);
+  expect(Math.round(box().top)).toBe(0);
+});
 
 test("no a11y violations — closed", async () => {
   const screen = await render(<Subject />);
