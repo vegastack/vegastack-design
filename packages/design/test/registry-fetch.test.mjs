@@ -1,6 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fetchRegistryWithRetry } from "../bin/registry-fetch.mjs";
+import {
+  backoff,
+  fetchRegistryWithRetry,
+  retryAfterMs,
+} from "../bin/registry-fetch.mjs";
 
 // No real waiting between tries.
 process.env.VEGASTACK_REGISTRY_RETRY_BASE_MS = "0";
@@ -100,4 +104,31 @@ test("a non-network error (a bug, a refused redirect policy) is not retried", as
     /bad input/,
   );
   assert.equal(calls(), 1);
+});
+
+test("a 404 whose body is cut off is still the 404: returned at once, never retried", async () => {
+  const cut = {
+    ok: false,
+    status: 404,
+    statusText: "Not Found",
+    headers: new Headers(),
+    text: async () => {
+      throw new TypeError("terminated");
+    },
+  };
+  const calls = stub([cut, response(200, "ok")]);
+  const res = await fetchRegistryWithRetry("https://r.test/x.json", {});
+  assert.equal(res.status, 404);
+  assert.equal(await res.text(), "");
+  assert.equal(calls(), 1);
+});
+
+test("Retry-After is read as seconds or as an HTTP date, and capped", () => {
+  const now = Date.UTC(2026, 9, 27, 12, 0, 0);
+  assert.equal(retryAfterMs("2", now), 2000);
+  assert.equal(retryAfterMs(new Date(now + 30_000).toUTCString(), now), 30_000);
+  assert.equal(retryAfterMs("soon", now), undefined);
+  assert.equal(backoff(0, "30"), 5000);
+  assert.equal(backoff(0, new Date(Date.now() + 30_000).toUTCString()), 5000);
+  assert.equal(backoff(0, "1"), 1000);
 });

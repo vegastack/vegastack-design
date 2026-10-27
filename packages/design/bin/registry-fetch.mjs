@@ -41,19 +41,40 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function backoff(attempt, retryAfter) {
-  if (retryAfter != null) {
-    const seconds = Number(retryAfter);
-    if (Number.isFinite(seconds) && seconds >= 0)
-      return Math.min(seconds * 1000, MAX_RETRY_AFTER_MS);
-  }
+/** A `Retry-After` in milliseconds — delta-seconds or an HTTP date — or undefined when absent/bad. */
+export function retryAfterMs(value, now = Date.now()) {
+  if (value == null || value === "") return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+  const at = Date.parse(value);
+  return Number.isFinite(at) ? Math.max(0, at - now) : undefined;
+}
+
+/** How long to wait before try `attempt + 1`: the server's `Retry-After` (capped), else backoff. */
+export function backoff(attempt, retryAfter) {
+  const asked = retryAfterMs(retryAfter);
+  if (asked !== undefined) return Math.min(asked, MAX_RETRY_AFTER_MS);
   return baseDelayMs() * 2 ** attempt * (0.5 + Math.random());
 }
 
+/** A Response-like whose body was read as `body` (or is read once, lazily, from `response`). */
+function settled(response, body) {
+  let pending = body === undefined ? undefined : Promise.resolve(body);
+  const read = () => (pending ??= response.text().catch(() => ""));
+  return {
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+    text: () => read(),
+    json: async () => JSON.parse(await read()),
+  };
+}
+
 /**
- * Fetch `url` and read its body as text, retrying transient failures. Resolves to a small
- * Response-like object whose body is already read (`text()`/`json()` never touch the network);
- * rejects with the last error when every try failed at the network level.
+ * Fetch `url`, retrying transient failures. Resolves to a small Response-like object: a 2xx's body
+ * is already read (so a cut-off body is retried); any other answer's is read once, lazily, and
+ * never retried. Rejects with the last error when every try failed at the network level.
  *
  * @param {string | URL} url
  * @param {RequestInit} init  headers and redirect policy; the timeout signal is added per try
@@ -79,15 +100,11 @@ export async function fetchRegistryWithRetry(url, init, options = {}) {
       // A stub (or an odd runtime) may offer only `json()`: hand it back untouched, so its parse
       // still happens — and its errors are still redacted — at the caller.
       if (typeof response.text !== "function") return response;
-      const body = await response.text();
-      return {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        text: async () => body,
-        json: async () => JSON.parse(body),
-      };
+      // Any other non-2xx (a 404, a 401/403, the last 5xx) is an answer: returned at once, its
+      // body read lazily and never retried — a body cut off mid-read can't turn it into a retry.
+      if (!response.ok) return settled(response);
+      // A 2xx's body is read inside the try, so a stream cut off mid-read ("terminated") retries.
+      return settled(response, await response.text());
     } catch (error) {
       lastError = error;
       if (!isTransientError(error) || last) throw error;
