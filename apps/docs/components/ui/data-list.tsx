@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.88 sha256-4g44xsZAZMbtPw+9ZCi8NCXDC2ZtneJfgNwsUV9Am0w=
+// @vegastack data-list@0.25.88 sha256-xJsY7CWm7VJRgWCuPxxlEH9KArU0PkcnL/XBkhBApoE=
 
 "use client";
 
@@ -116,6 +116,59 @@ export interface DataListCellContext {
   columnKey: string;
   /** Whether the cell's row is currently selected. */
   selected: boolean;
+  /**
+   * The list's row density. `compact` rows are one line: a render with a second line (a meta
+   * line over the title) leaves it out or puts it on the title's line — or wraps it in
+   * `DataListSecondary`, which compact hides. Always set by `DataList`; optional so a host can
+   * call a column's `render` itself.
+   */
+  density?: DataListDensity;
+}
+
+const DataListDensityContext =
+  React.createContext<DataListDensity>("comfortable");
+
+/**
+ * The density of the `DataList` around a cell — for a cell component deep in a `render` that
+ * lays itself out differently on a compact (one-line) row. `comfortable` outside a list.
+ *
+ * @example
+ * function TaskTitle({ task }: { task: Task }) {
+ *   const density = useDataListDensity();
+ *   return density === "compact" ? <span>{task.ref} {task.title}</span> : <TwoLines task={task} />;
+ * }
+ */
+export function useDataListDensity(): DataListDensity {
+  return React.useContext(DataListDensityContext);
+}
+
+/** Props accepted by `DataListSecondary`. */
+export type DataListSecondaryProps = React.ComponentPropsWithRef<"span">;
+
+/**
+ * `DataListSecondary` — the second line of a custom cell (a meta line over a title, a sub line
+ * under a name). It shows on a comfortable row and leaves on a compact one, so compact stays one
+ * line per row.
+ *
+ * @example
+ * render: (task) => (
+ *   <div className="flex min-w-0 flex-col">
+ *     <DataListSecondary className="text-xs text-muted-foreground">#{task.number} · {task.space}</DataListSecondary>
+ *     <span className="truncate">{task.title}</span>
+ *   </div>
+ * )
+ */
+export function DataListSecondary({
+  className,
+  ...props
+}: DataListSecondaryProps) {
+  return (
+    <span
+      data-slot="data-list-secondary"
+      className={cn("block min-w-0", className)}
+      {...props}
+    />
+  );
 }
 
 /** A row's image for a `thumbnail` column: a URL, or the URL with its blur preview and srcset. */
@@ -1416,6 +1469,9 @@ export function DataList<T>({
   ...tableProps
 }: DataListProps<T>) {
   const rootRef = React.useRef<HTMLDivElement | null>(null);
+  // Compact density is ONE line per row: merged values join the primary value's line.
+  const compactLine = density === "compact";
+  const lineLayout = compactLine ? "line" : mergedLayout;
   const loadingStatusId = React.useId();
   const hiddenHintId = React.useId();
   const sortHintId = React.useId();
@@ -1729,6 +1785,7 @@ export function DataList<T>({
           rowId,
           columnKey: col.key,
           selected: isSelected,
+          density,
         })
       : ((row as Record<string, React.ReactNode>)[col.key] ?? null);
 
@@ -1916,11 +1973,14 @@ export function DataList<T>({
           const value = !plain ? (
             raw
           ) : linkFirstCell || injectRowButton ? (
-            <span className="line-clamp-2" title={String(raw)}>
+            <span
+              className={compactLine ? "line-clamp-1" : "line-clamp-2"}
+              title={String(raw)}
+            >
               {raw}
             </span>
           ) : (
-            <TruncatedText lines={2} className="min-h-0">
+            <TruncatedText lines={compactLine ? 1 : 2} className="min-h-0">
               {raw}
             </TruncatedText>
           );
@@ -1934,6 +1994,8 @@ export function DataList<T>({
                 {...thumbnailProps(col.thumbnail(row))}
                 alt=""
                 fallback={thumbnailFallback}
+                // Compact rows are 32px: the thumbnail steps down to 24px to fit their line.
+                className={compactLine ? "size-6" : undefined}
               />
               <span className="min-w-0">{value}</span>
             </span>
@@ -1948,6 +2010,128 @@ export function DataList<T>({
           // matched by INTERACTIVE_SELECTOR, so the row's mouse onClick
           // guard skips it — no double-activation.
           const isActionCell = injectRowButton && colIdx === 0;
+          const primaryCell =
+            colIdx === 0 && linkFirstCell ? (
+              <RowLink
+                href={href!}
+                render={openingLink(cardLinkRender, row, index)}
+              >
+                {content}
+              </RowLink>
+            ) : isActionCell ? (
+              <button
+                type="button"
+                data-slot="data-list-row-action"
+                onClick={(event) => onRowClick?.(row, index, event)}
+                className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
+              >
+                {content}
+              </button>
+            ) : (
+              content
+            );
+          const mergedCell =
+            colIdx === 0 && mergedColumns.length > 0 ? (
+              // Overflow columns stack under the primary value. Each keeps its header as
+              // an sr-only prefix: a value lifted out of its column loses the header a
+              // screen reader would otherwise announce with it.
+              // `mt-1`, not `mt-0.5`: the injected row-action button is 24px tall inside a
+              // 20px line box (`-my-0.5`), so it overhangs the line by 2px. Stacking the
+              // merged block any closer would cover the bottom of its pointer target.
+              <span
+                data-slot="data-list-merged"
+                data-layout={lineLayout}
+                className={cn(
+                  // `font-normal`: the merged values are meta, not the title's weight.
+                  "flex min-w-0 text-xs font-normal text-muted-foreground",
+                  // Compact: beside the primary value on its one line, in the line's second half
+                  // (its contained inline size gives it no width of its own, so it takes a fixed
+                  // share): the values start at one x on every row and truncate there, and the
+                  // title truncates in the first half.
+                  compactLine ? "shrink-0 basis-1/2" : "mt-1",
+                  lineLayout === "line"
+                    ? // `line`: ONE text line that truncates — never a second or third line,
+                      // never an avatar (a picture in a meta line breaks its rhythm). Its
+                      // values share one centre line, so a chip, a time's 24px tooltip target
+                      // and plain text sit level with the dots between them. It contains its inline
+                      // size: the cell's width decides the line's, never the line the cell's (a
+                      // nowrap line's full width would squeeze the table, and a squeezed table
+                      // releases text — the line is kept out of that release, `SQUEEZE_CLASS`).
+                      "flex-row flex-nowrap items-center gap-x-1 overflow-hidden whitespace-nowrap contain-inline-size [&_[data-slot=avatar]]:hidden"
+                    : "flex-col gap-0.5",
+                )}
+              >
+                {mergedColumns
+                  .map((merged) => ({
+                    merged,
+                    node: merged.mergedRender
+                      ? merged.mergedRender(row, index, {
+                          rowId: id,
+                          columnKey: merged.key,
+                          selected: isSelected,
+                          density,
+                        })
+                      : renderCell(merged, row, index, id, isSelected),
+                  }))
+                  // `line` drops an empty value (nothing, "", or the "—" placeholder) with its
+                  // dot, so the line never reads "· —".
+                  .filter(
+                    ({ node }) =>
+                      lineLayout !== "line" || !isEmptyMergedValue(node),
+                  )
+                  .map(({ merged, node }, mergedIdx) => (
+                    // Each value wears its own column's face, whatever the primary cell's
+                    // `nowrap`/mono posture is (`mergedValueClass`); stacked, it wraps.
+                    <span
+                      key={merged.key}
+                      data-sorted={
+                        activeSort?.key === merged.key
+                          ? activeSort.direction
+                          : undefined
+                      }
+                      className={cn(
+                        mergedValueClass(merged),
+                        // `line`: each value is a centred row of its dot and ONE content box,
+                        // so a render that is itself a flex row (a person: avatar and name)
+                        // stays on the line instead of breaking under its dot.
+                        lineLayout === "line" &&
+                          "flex shrink items-center overflow-hidden whitespace-nowrap wrap-normal",
+                        // A figure (an end-aligned or mono column: a size, a count, an id) keeps
+                        // its whole width on a tight line; the text values beside it truncate
+                        // first ("Produ… · 1w ago · K Manoj… · 25 MB", never "25 M…").
+                        lineLayout === "line" &&
+                          (merged.align === "end" || merged.mono) &&
+                          "shrink-0",
+                      )}
+                    >
+                      {lineLayout === "line" && mergedIdx > 0 ? (
+                        // `line`: a decorative dot before every value but the first.
+                        <span aria-hidden="true" className="me-1 shrink-0">
+                          ·
+                        </span>
+                      ) : null}
+                      {!merged.mergedRender &&
+                      typeof merged.header === "string" ? (
+                        <span className="sr-only">{merged.header}: </span>
+                      ) : null}
+                      {lineLayout !== "line" ? (
+                        node
+                      ) : React.isValidElement(node) &&
+                        node.type !== React.Fragment ? (
+                        // One element (a chip, a time's 24px target, a person row): centred
+                        // as a flex item rather than sat on a baseline, and ellipsized.
+                        <span className="flex min-w-0 items-center [&>*]:min-w-0 [&>*]:overflow-hidden [&>*]:text-ellipsis [&>*]:whitespace-nowrap">
+                          {node}
+                        </span>
+                      ) : (
+                        // Text, a fragment or a list: inline in one truncating box, so its
+                        // spaces survive and it ends in an ellipsis.
+                        <span className="min-w-0 truncate">{node}</span>
+                      )}
+                    </span>
+                  ))}
+              </span>
+            ) : null;
           return (
             <TableCell
               key={col.key}
@@ -1960,120 +2144,23 @@ export function DataList<T>({
                 col.cellClassName?.(row, index),
               )}
             >
-              {colIdx === 0 && linkFirstCell ? (
-                <RowLink
-                  href={href!}
-                  render={openingLink(cardLinkRender, row, index)}
-                >
-                  {content}
-                </RowLink>
-              ) : isActionCell ? (
-                <button
-                  type="button"
-                  data-slot="data-list-row-action"
-                  onClick={(event) => onRowClick?.(row, index, event)}
-                  className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
-                >
-                  {content}
-                </button>
-              ) : (
-                content
-              )}
-              {colIdx === 0 && mergedColumns.length > 0 ? (
-                // Overflow columns stack under the primary value. Each keeps its header as
-                // an sr-only prefix: a value lifted out of its column loses the header a
-                // screen reader would otherwise announce with it.
-                // `mt-1`, not `mt-0.5`: the injected row-action button is 24px tall inside a
-                // 20px line box (`-my-0.5`), so it overhangs the line by 2px. Stacking the
-                // merged block any closer would cover the bottom of its pointer target.
+              {compactLine && colIdx === 0 && mergedColumns.length > 0 ? (
+                // Compact: one line — the primary value, then its merged values on the same line.
                 <span
-                  data-slot="data-list-merged"
-                  data-layout={mergedLayout}
-                  className={cn(
-                    // `font-normal`: the merged values are meta, not the title's weight.
-                    "mt-1 flex min-w-0 text-xs font-normal text-muted-foreground",
-                    mergedLayout === "line"
-                      ? // `line`: ONE text line that truncates — never a second or third line,
-                        // never an avatar (a picture in a meta line breaks its rhythm). Its
-                        // values share one centre line, so a chip, a time's 24px tooltip target
-                        // and plain text sit level with the dots between them. It contains its inline
-                        // size: the cell's width decides the line's, never the line the cell's (a
-                        // nowrap line's full width would squeeze the table, and a squeezed table
-                        // releases text — the line is kept out of that release, `SQUEEZE_CLASS`).
-                        "flex-row flex-nowrap items-center gap-x-1 overflow-hidden whitespace-nowrap contain-inline-size [&_[data-slot=avatar]]:hidden"
-                      : "flex-col gap-0.5",
-                  )}
+                  data-slot="data-list-compact-line"
+                  className="flex min-w-0 items-center gap-2"
                 >
-                  {mergedColumns
-                    .map((merged) => ({
-                      merged,
-                      node: merged.mergedRender
-                        ? merged.mergedRender(row, index, {
-                            rowId: id,
-                            columnKey: merged.key,
-                            selected: isSelected,
-                          })
-                        : renderCell(merged, row, index, id, isSelected),
-                    }))
-                    // `line` drops an empty value (nothing, "", or the "—" placeholder) with its
-                    // dot, so the line never reads "· —".
-                    .filter(
-                      ({ node }) =>
-                        mergedLayout !== "line" || !isEmptyMergedValue(node),
-                    )
-                    .map(({ merged, node }, mergedIdx) => (
-                      // Each value wears its own column's face, whatever the primary cell's
-                      // `nowrap`/mono posture is (`mergedValueClass`); stacked, it wraps.
-                      <span
-                        key={merged.key}
-                        data-sorted={
-                          activeSort?.key === merged.key
-                            ? activeSort.direction
-                            : undefined
-                        }
-                        className={cn(
-                          mergedValueClass(merged),
-                          // `line`: each value is a centred row of its dot and ONE content box,
-                          // so a render that is itself a flex row (a person: avatar and name)
-                          // stays on the line instead of breaking under its dot.
-                          mergedLayout === "line" &&
-                            "flex shrink items-center overflow-hidden whitespace-nowrap wrap-normal",
-                          // A figure (an end-aligned or mono column: a size, a count, an id) keeps
-                          // its whole width on a tight line; the text values beside it truncate
-                          // first ("Produ… · 1w ago · K Manoj… · 25 MB", never "25 M…").
-                          mergedLayout === "line" &&
-                            (merged.align === "end" || merged.mono) &&
-                            "shrink-0",
-                        )}
-                      >
-                        {mergedLayout === "line" && mergedIdx > 0 ? (
-                          // `line`: a decorative dot before every value but the first.
-                          <span aria-hidden="true" className="me-1 shrink-0">
-                            ·
-                          </span>
-                        ) : null}
-                        {!merged.mergedRender &&
-                        typeof merged.header === "string" ? (
-                          <span className="sr-only">{merged.header}: </span>
-                        ) : null}
-                        {mergedLayout !== "line" ? (
-                          node
-                        ) : React.isValidElement(node) &&
-                          node.type !== React.Fragment ? (
-                          // One element (a chip, a time's 24px target, a person row): centred
-                          // as a flex item rather than sat on a baseline, and ellipsized.
-                          <span className="flex min-w-0 items-center [&>*]:min-w-0 [&>*]:overflow-hidden [&>*]:text-ellipsis [&>*]:whitespace-nowrap">
-                            {node}
-                          </span>
-                        ) : (
-                          // Text, a fragment or a list: inline in one truncating box, so its
-                          // spaces survive and it ends in an ellipsis.
-                          <span className="min-w-0 truncate">{node}</span>
-                        )}
-                      </span>
-                    ))}
+                  <span className="flex min-w-0 flex-1 items-center">
+                    {primaryCell}
+                  </span>
+                  {mergedCell}
                 </span>
-              ) : null}
+              ) : (
+                <>
+                  {primaryCell}
+                  {mergedCell}
+                </>
+              )}
             </TableCell>
           );
         })}
@@ -2469,126 +2556,130 @@ export function DataList<T>({
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
     // clipped value or timestamp — so truncated text and RelativeTime in the cells are not tab
     // stops. A cell can opt back in with its own `focusable`.
-    <TruncationFocusProvider focusable={false}>
-      {loadingStatus}
-      <Table
-        ref={tableRef}
-        data-slot="data-list"
-        className={cn(
-          // The list density scale (`LIST_ROW_HEIGHT_CLASS`, shared with DataGrid): rows are at
-          // least 40px (comfortable, the header's height) or 32px (compact: 4px cell padding on
-          // the block axis and a 32px header row). Content that needs more grows the row.
-          density === "compact"
-            ? "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=data-list-row]]:h-8 [&_[data-slot=data-list-skeleton-row]]:h-8"
-            : "[&_[data-slot=data-list-row]]:h-10 [&_[data-slot=data-list-skeleton-row]]:h-10",
-          className,
-        )}
-        aria-busy={loading ? true : ariaBusy}
-        aria-describedby={tableDescribedBy}
-        aria-rowcount={loadMore?.hasMore ? -1 : undefined}
-        data-squeezed={squeezed ? "" : undefined}
-        data-strained={strained ? "" : undefined}
-        data-density={density}
-        {...tableProps}
-      >
-        <TableHeader>
-          <TableRow>
-            {selectable && (
-              <SelectAllHead
-                checked={allSelected}
-                indeterminate={indeterminate}
-                onToggle={toggleAll}
-                disabled={loading || rowIds.length === 0}
-              />
-            )}
-            {visibleColumns.map((col, colIdx) => (
-              <SortableHead
-                key={col.key}
-                data-slot="data-list-head"
-                column={col}
-                fill={colIdx === 0}
-                direction={
-                  activeSort?.key === col.key ? activeSort.direction : null
-                }
-                onSort={() => handleSort(col.key)}
-              />
-            ))}
-          </TableRow>
-        </TableHeader>
-
-        {loading ? (
-          <TableBody>
-            <SkeletonRows
-              columns={visibleColumns}
-              rows={loadingRows}
-              selectable={selectable}
-              slot="data-list-skeleton-row"
-            />
-          </TableBody>
-        ) : data.length === 0 ? (
-          <TableBody>
-            <EmptyRow colSpan={colSpan} slot="data-list-empty-row">
-              {noResults ? (
-                <NoResultsEmpty {...(noResults === true ? {} : noResults)} />
-              ) : (
-                (emptyState ?? <DataListEmptyState {...empty} />)
+    <DataListDensityContext.Provider value={density}>
+      <TruncationFocusProvider focusable={false}>
+        {loadingStatus}
+        <Table
+          ref={tableRef}
+          data-slot="data-list"
+          className={cn(
+            // The list density scale (`LIST_ROW_HEIGHT_CLASS`, shared with DataGrid): rows are at
+            // least 40px (comfortable, the header's height) or 32px (compact: 4px cell padding on
+            // the block axis and a 32px header row). Content that needs more grows the row.
+            density === "compact"
+              ? "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=data-list-row]]:h-8 [&_[data-slot=data-list-skeleton-row]]:h-8 [&_[data-slot=data-list-secondary]]:hidden"
+              : "[&_[data-slot=data-list-row]]:h-10 [&_[data-slot=data-list-skeleton-row]]:h-10",
+            className,
+          )}
+          aria-busy={loading ? true : ariaBusy}
+          aria-describedby={tableDescribedBy}
+          aria-rowcount={loadMore?.hasMore ? -1 : undefined}
+          data-squeezed={squeezed ? "" : undefined}
+          data-strained={strained ? "" : undefined}
+          data-density={density}
+          {...tableProps}
+        >
+          <TableHeader>
+            <TableRow>
+              {selectable && (
+                <SelectAllHead
+                  checked={allSelected}
+                  indeterminate={indeterminate}
+                  onToggle={toggleAll}
+                  disabled={loading || rowIds.length === 0}
+                />
               )}
-            </EmptyRow>
-          </TableBody>
-        ) : sectionGroups ? (
-          sectionGroups.map((group) => {
-            const expanded = groups[group.id] !== "collapsed";
-            return (
-              <TableBody
-                key={group.id}
-                data-slot="data-list-section"
-                data-section={group.id}
-                data-collapsed={expanded ? undefined : ""}
-              >
-                {group.label != null ? (
-                  <SectionRow
-                    id={group.id}
-                    label={group.label}
-                    count={group.count}
-                    colSpan={colSpan}
-                    expanded={expanded}
-                    onExpandedChange={(next) =>
-                      commitGroups({
-                        ...groups,
-                        [group.id]: next ? "expanded" : "collapsed",
-                      })
-                    }
-                    countLabel={sectionCountLabel}
-                  />
-                ) : null}
-                {expanded
-                  ? group.indexes.map((index) => renderRow(data[index]!, index))
-                  : null}
-              </TableBody>
-            );
-          })
-        ) : (
-          <TableBody>
-            {data.map((row, index) => renderRow(row, index))}
-          </TableBody>
-        )}
-        {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
-        {!loading &&
-        data.length > 0 &&
-        loadMore?.hasMore &&
-        loadMore.loading ? (
-          <TableBody data-slot="data-list-more">
-            <SkeletonRows
-              columns={visibleColumns}
-              rows={3}
-              selectable={selectable}
-              slot="data-list-skeleton-row"
-            />
-          </TableBody>
-        ) : null}
-      </Table>
-      {statusLines}
-    </TruncationFocusProvider>
+              {visibleColumns.map((col, colIdx) => (
+                <SortableHead
+                  key={col.key}
+                  data-slot="data-list-head"
+                  column={col}
+                  fill={colIdx === 0}
+                  direction={
+                    activeSort?.key === col.key ? activeSort.direction : null
+                  }
+                  onSort={() => handleSort(col.key)}
+                />
+              ))}
+            </TableRow>
+          </TableHeader>
+
+          {loading ? (
+            <TableBody>
+              <SkeletonRows
+                columns={visibleColumns}
+                rows={loadingRows}
+                selectable={selectable}
+                slot="data-list-skeleton-row"
+              />
+            </TableBody>
+          ) : data.length === 0 ? (
+            <TableBody>
+              <EmptyRow colSpan={colSpan} slot="data-list-empty-row">
+                {noResults ? (
+                  <NoResultsEmpty {...(noResults === true ? {} : noResults)} />
+                ) : (
+                  (emptyState ?? <DataListEmptyState {...empty} />)
+                )}
+              </EmptyRow>
+            </TableBody>
+          ) : sectionGroups ? (
+            sectionGroups.map((group) => {
+              const expanded = groups[group.id] !== "collapsed";
+              return (
+                <TableBody
+                  key={group.id}
+                  data-slot="data-list-section"
+                  data-section={group.id}
+                  data-collapsed={expanded ? undefined : ""}
+                >
+                  {group.label != null ? (
+                    <SectionRow
+                      id={group.id}
+                      label={group.label}
+                      count={group.count}
+                      colSpan={colSpan}
+                      expanded={expanded}
+                      onExpandedChange={(next) =>
+                        commitGroups({
+                          ...groups,
+                          [group.id]: next ? "expanded" : "collapsed",
+                        })
+                      }
+                      countLabel={sectionCountLabel}
+                    />
+                  ) : null}
+                  {expanded
+                    ? group.indexes.map((index) =>
+                        renderRow(data[index]!, index),
+                      )
+                    : null}
+                </TableBody>
+              );
+            })
+          ) : (
+            <TableBody>
+              {data.map((row, index) => renderRow(row, index))}
+            </TableBody>
+          )}
+          {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
+          {!loading &&
+          data.length > 0 &&
+          loadMore?.hasMore &&
+          loadMore.loading ? (
+            <TableBody data-slot="data-list-more">
+              <SkeletonRows
+                columns={visibleColumns}
+                rows={3}
+                selectable={selectable}
+                slot="data-list-skeleton-row"
+              />
+            </TableBody>
+          ) : null}
+        </Table>
+        {statusLines}
+      </TruncationFocusProvider>
+    </DataListDensityContext.Provider>
   );
 
   // ONE root in every configuration. The status lines (and the sr-only loading
@@ -2610,6 +2701,7 @@ export function DataList<T>({
               rowId: id,
               columnKey: col.key,
               selected: isSelected,
+              density,
             })
           : renderCell(col, row, index, id, isSelected),
       )

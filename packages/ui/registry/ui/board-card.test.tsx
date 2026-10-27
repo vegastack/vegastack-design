@@ -240,3 +240,45 @@ test("the title is medium by default and normal beside a status control", async 
   ).map((node) => node.dataset.weight);
   expect(weights).toEqual(["medium", "normal", "medium"]);
 });
+
+test("an empty chip is invisible at rest, stays in the tab order, and shows on hover, focus, an open menu and touch", async () => {
+  const screen = await render(
+    <BoardCard
+      title="Ship the docs"
+      chips={
+        <>
+          <BoardCardChip>Design</BoardCardChip>
+          <BoardCardChip
+            empty
+            render={<button type="button" aria-label="Set priority" />}
+          />
+        </>
+      }
+    />,
+  );
+  const chips = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="board-card-chip"]',
+  );
+  expect(chips[0]!.hasAttribute("data-empty")).toBe(false);
+  expect(chips[0]!.className).not.toContain("opacity-0");
+  const empty = chips[1]!;
+  expect(empty.hasAttribute("data-empty")).toBe(true);
+  const classes = empty.className.split(/\s+/);
+  expect(classes).toContain("opacity-0");
+  // Never display:none — a keyboard user tabs to it and it shows.
+  expect(classes).not.toContain("hidden");
+  for (const reveal of [
+    "group-hover/board-card:opacity-100",
+    "group-focus-within/board-card:opacity-100",
+    "focus-visible:opacity-100",
+    "aria-expanded:opacity-100",
+    "data-popup-open:opacity-100",
+    "pointer-coarse:opacity-100",
+    "[[data-slot=board-card]:hover_&]:opacity-100",
+    "[[data-slot=board-card]:focus-within_&]:opacity-100",
+  ])
+    expect(classes).toContain(reveal);
+  empty.focus();
+  expect(document.activeElement).toBe(empty);
+  await expectNoA11yViolations(screen.container);
+});

@@ -1,0 +1,136 @@
+---
+title: Block Header
+description: A live block's header row in a page — icon · title · View ▾ · Filter · ⋯ · ↗ Open — with an empty state that hosts the source picker.
+audience: public
+registry: block-header
+status: stable
+since: 0.25.89
+a11y: ⋯ menu and Open link named; picker named by the host
+preview: blockHeader
+---
+
+## Install
+
+<InstallSteps name="block-header" />
+
+## Usage
+
+```tsx
+import {
+  BlockHeader,
+  BlockHeaderButton,
+  BlockHeaderOpen,
+} from "@/components/ui/block-header";
+
+<DataGrid
+  embedded
+  toolbar={
+    <BlockHeader
+      icon={<Table2 />}
+      title={table.name}
+      menu={<DropdownMenuItem onClick={remove}>Remove block</DropdownMenuItem>}
+      open={<BlockHeaderOpen render={<Link href={table.href} />} />}
+    >
+      <ViewMenu trigger={<BlockHeaderButton />} />
+      <FilterPopover trigger={<BlockHeaderButton />} />
+    </BlockHeader>
+  }
+  {...grid}
+/>;
+```
+
+The one header row of a live block inside a page — a table view, a task list, any block that shows
+records from somewhere else. Left to right: the block's kind as an icon, what it shows, its
+controls (`BlockHeaderButton`s that open the host's View and Filter popovers), the ⋯ menu and
+**↗ Open**, a link to the source's own page. A block with no source yet passes `picker` instead: it
+sits where the title will be ("Pick a table…"), so a block inserts at once and is set up where it
+sits rather than in a dialog first.
+
+## Scope
+
+- Owns: the row's layout, the ⋯ menu trigger, the Open link's look, the empty state's place for a
+  picker, wrapping on a narrow block.
+- Does not own: the source picker, the View and Filter popovers, or what they change — those are
+  the host's. Nor the block's frame: `DataGrid embedded` rules the header off as its top, a task
+  list block puts it over its rows.
+- Compose with: [`DataGrid`](/docs/components/data-grid) `embedded` as its `toolbar`; a
+  `DropdownMenuTrigger` or `PopoverTrigger` with `render={<BlockHeaderButton />}`.
+
+## Anatomy
+
+<Anatomy name="block-header" />
+
+## Examples
+
+### Table block
+
+The title truncates; the controls follow it, and the ⋯ menu and Open sit at the end.
+
+<ComponentPreview
+  name="blockHeader"
+  file="components/preview/block-header.tsx"
+/>
+
+### Before a source is picked
+
+`picker` replaces the title and the controls. Pick a table in the preview: the header becomes the
+ready row; **Change table** in ⋯ brings the picker back.
+
+<ComponentPreview
+  name="blockHeaderEmpty"
+  file="components/preview/block-header.tsx"
+/>
+
+### Task list block, and a narrow column
+
+The same header serves a task list. In a narrow block the controls wrap under the title and,
+under 20rem, Open shows its icon alone (its label stays the link's name).
+
+<ComponentPreview
+  name="blockHeaderTasks"
+  file="components/preview/block-header.tsx"
+/>
+
+## API Reference
+
+### BlockHeader
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-header.tsx"
+  name="BlockHeaderProps"
+/>
+
+### BlockHeaderButton
+
+`BlockHeaderButton` takes `Button`'s props: a small quiet ghost button in the muted ink.
+
+### BlockHeaderOpen
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-header.tsx"
+  name="BlockHeaderOpenProps"
+/>
+
+## Accessibility
+
+- The icon is decorative; the title is plain text — name the block's content (the grid's
+  `aria-label`, the task list's label) for assistive technology.
+- The ⋯ trigger is named by `menuLabel` ("Block actions").
+- **Open** is a real link, so it opens in a new tab with a modified click; on a narrow block its
+  label is visually hidden but still names it.
+- The picker is the host's control and carries its own name.
+
+| Key                                 | Action                                 |
+| ----------------------------------- | -------------------------------------- |
+| <kbd>Tab</kbd>                      | Moves through the controls, ⋯ and Open |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens a control's popover or the menu  |
+| <kbd>Escape</kbd>                   | Closes the open popover or menu        |
+
+<StatesTested name="block-header" />
+
+## Do / Don't
+
+<DoDont
+  do="Insert a block at once with the picker in its header, and keep View, Filter and ⋯ in the same row for every kind of block."
+  dont="Open a configuration dialog before the block exists, or give the table block and the task list block different headers."
+/>

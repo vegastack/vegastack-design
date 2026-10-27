@@ -160,6 +160,25 @@ its figures and its header up at the end. `selectionActions` docks the same sele
   file="components/preview/data-grid.tsx"
 />
 
+### Embedded in a page
+
+`embedded` makes the grid a table block inside a page or document: one framed block with the
+`toolbar` (a [`BlockHeader`](/docs/components/block-header)) on top and the `footer` under the
+rows. Its height comes from its rows — at most `maxRows` (25 by default) — so it never scrolls
+inside itself; it scrolls sideways when its columns overflow, with no cap on how many show. The
+built-in column picker is off (the block header's View menu owns the fields). Rows open exactly as
+they do on a table page (`onRowOpen`), and cells edit in place.
+
+`footer` takes an object for a block: `{ onNewRow, shown, total }` puts **+ New row** at the start
+and "25 of 117" at the end (only while rows are left out). `readOnly` is for people who can see the
+table but not change it: no cell editors, paste, clear, fill or undo keys, no add-field column and
+no **+ New row** — rows still open, sort and select. Turn **Can edit** off in the preview.
+
+<ComponentPreview
+  name="dataGridEmbedded"
+  file="components/preview/data-grid.tsx"
+/>
+
 ### Empty state
 
 An empty grid wider than its box holds its empty (or error) state to the viewport — centred where
@@ -338,6 +357,15 @@ grid is described by that line and by the hidden-columns count.
 <ApiTable
   path="../../packages/ui/registry/ui/data-grid.tsx"
   name="DataGridProps"
+/>
+
+### Block footer
+
+`footer` as an object, for an `embedded` grid.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-grid.tsx"
+  name="DataGridBlockFooter"
 />
 
 ### Column

@@ -142,6 +142,18 @@ edit the field from the card.
   file="components/preview/board-card.tsx"
 />
 
+### Empty values
+
+A chip for a field with no value (no priority yet) is noise on every card. Pass `empty` to its
+`BoardCardChip`: it stays off the card at rest and shows when the card is pointed at or focused,
+while its own menu is open, and always on a touch screen — so it is still one click away. Point at
+the card in the preview.
+
+<ComponentPreview
+  name="boardCardEmptyChips"
+  file="components/preview/board-card.tsx"
+/>
+
 ### Minimal and linked
 
 Every slot but the title is optional. Standalone, `href` (with your router's `linkRender`) makes

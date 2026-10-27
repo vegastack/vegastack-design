@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 766,
-    "components": 178,
+    "totalRegistryItems": 767,
+    "components": 179,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 37,
     "Navigation/layout": 25,
     "Overlays": 23,
-    "Data display": 38,
+    "Data display": 39,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 12,
@@ -189,7 +189,8 @@
       "mermaid-block",
       "qr-code",
       "member-list",
-      "record-header"
+      "record-header",
+      "block-header"
     ],
     "Content/marketing": [
       "alert",
@@ -3541,6 +3542,10 @@
               "values": [""]
             },
             {
+              "name": "data-auto-hidden",
+              "values": [""]
+            },
+            {
               "name": "data-board-card-id",
               "values": []
             },
@@ -3559,6 +3564,10 @@
             {
               "name": "data-column",
               "values": []
+            },
+            {
+              "name": "data-compact",
+              "values": [""]
             },
             {
               "name": "data-drag-pending",
@@ -3586,6 +3595,10 @@
             },
             {
               "name": "data-move-locked",
+              "values": [""]
+            },
+            {
+              "name": "data-no-value",
               "values": [""]
             },
             {
@@ -3622,6 +3635,7 @@
                 "board-column-icon",
                 "board-column-menu",
                 "board-column-skeleton",
+                "board-column-skeleton-lane",
                 "board-column-title",
                 "board-drag-overlay",
                 "board-fade-end",
@@ -7968,6 +7982,15 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "DataGridBlockFooter",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -8101,6 +8124,10 @@
         "DataGrid": {
           "attributes": [
             {
+              "name": "data-embedded",
+              "values": [""]
+            },
+            {
               "name": "data-grid-id",
               "values": []
             },
@@ -8119,6 +8146,10 @@
             {
               "name": "data-layout-mode",
               "values": ["cards", "grid"]
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
             },
             {
               "name": "data-slot",
@@ -8395,6 +8426,34 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DataListSecondary",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DataListSecondaryProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useDataListDensity",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -8522,6 +8581,15 @@
       },
       "previewModule": "data-list",
       "dataAttributes": {
+        "DataListSecondary": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-list-secondary"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DataListEmptyState": {
           "attributes": [
             {
@@ -8587,6 +8655,7 @@
               "values": [
                 "data-list",
                 "data-list-card-select",
+                "data-list-compact-line",
                 "data-list-footer",
                 "data-list-grid",
                 "data-list-grid-item",
@@ -40431,6 +40500,175 @@
             {
               "name": "data-slot",
               "values": ["command-search-section"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "block-header",
+      "registryType": "registry:ui",
+      "title": "Block Header",
+      "summary": "A live block's header row in a page — icon · title · controls (View ▾, Filter) · ⋯ · ↗ Open — with an empty state that hosts the source picker (\"Pick a table…\").",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/block-header.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BlockHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BlockHeaderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockHeaderButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BlockHeaderButtonProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockHeaderOpen",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BlockHeaderOpenProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["ready", "empty"]
+          }
+        ],
+        "rationale": "A block with a source shows its title and controls; one without shows its picker in their place."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 40px row; controls are small ghost buttons."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "empty", "menu-open", "narrow"],
+          "evidence": "packages/ui/registry/ui/block-header.tsx + packages/ui/registry/ui/block-header.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/block-header.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "open", "empty"],
+          "evidence": "packages/ui/registry/ui/block-header.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "responsive-or-container-layout"
+        ],
+        "rationale": "The title truncates; the controls wrap under it on a narrow block and the Open label folds to its icon below 20rem of the block's width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the menu's transitions are DropdownMenu's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/block-header",
+      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/block-header.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "block-header",
+      "dataAttributes": {
+        "BlockHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "block-header",
+                "block-header-actions",
+                "block-header-controls",
+                "block-header-icon",
+                "block-header-menu",
+                "block-header-picker",
+                "block-header-title"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["empty", "ready"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockHeaderButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-header-button"]
             }
           ],
           "cssVariables": []

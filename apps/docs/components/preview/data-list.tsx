@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import {
   DataList,
+  DataListSecondary,
   rowActionsColumn,
   type DataListActions,
   type DataListColumn,
@@ -1769,6 +1770,39 @@ export function dataListDragInto(): ReactNode {
       <p className="text-xs text-muted-foreground" role="status">
         {log}
       </p>
+    </Wrapper>
+  );
+}
+
+/** Compact is one line per row: a custom title cell drops its meta line, merged values join the title. */
+export function dataListCompactLine(): ReactNode {
+  const [density, setDensity] = React.useState<"comfortable" | "compact">(
+    "compact",
+  );
+  return (
+    <Wrapper className="block">
+      <DataList
+        aria-label="People"
+        columns={[
+          {
+            key: "name",
+            header: "Name",
+            render: (p) => (
+              <div className="flex min-w-0 flex-col">
+                <DataListSecondary className="text-xs text-muted-foreground">
+                  {p.email}
+                </DataListSecondary>
+                <span className="truncate">{p.name}</span>
+              </div>
+            ),
+          },
+          ...columns.slice(1),
+        ]}
+        data={people}
+        getRowId={(p) => p.id}
+        density={density}
+        onDensityChange={setDensity}
+      />
     </Wrapper>
   );
 }

@@ -112,6 +112,7 @@ export * from "./upload-panel";
 export * from "./color-picker";
 export * from "./emoji-picker";
 export * from "./data-grid";
+export * from "./block-header";
 export * from "./view-tabs";
 export * from "./field-cell";
 export * from "./data-list";

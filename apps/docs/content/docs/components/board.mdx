@@ -122,6 +122,33 @@ fit scrolls sideways. The preview starts with two lanes collapsed.
 
 <ComponentPreview name="boardCollapsed" file="components/preview/board.tsx" />
 
+### Calm lanes
+
+Three opt-in props keep a board with sparse lanes quiet; a board without them behaves as before.
+`emptyLane="compact"` draws an empty lane as its header over a 48px dashed drop target, with a
+**+** that calls `onAdd` — never a tall "Nothing here" box. `emptyLane="collapse"` moves empty
+lanes into the **Hidden columns** list after the last lane: choosing one brings it back (compact),
+a card dragged onto it there lands in it, and a lane that a move empties stays put rather than
+vanishing under the pointer. `noValueLane="last"` puts the lane marked `noValue` ("No stage") after
+the others and lets it collapse even when the board is not `collapsible`.
+
+<ComponentPreview
+  name="boardCompactLanes"
+  file="components/preview/board.tsx"
+/>
+
+<ComponentPreview
+  name="boardCollapseEmpty"
+  file="components/preview/board.tsx"
+/>
+
+A board loading its first data shows one skeleton for the whole load: with `loading`, lane shells
+(`loadingLanes`, 4 by default) with skeleton titles stand in for the lanes — no skeleton cards and
+no counts. A single lane still fetching its first cards shows no count until they arrive, never a
+"0" over skeletons. When lanes overflow sideways, both edges fade and carry a soft scroll shadow.
+
+<ComponentPreview name="boardLoading" file="components/preview/board.tsx" />
+
 ### Server-gated moves
 
 Moves are optimistic: the card lands at once and shimmers while `onMove`'s promise is pending. A

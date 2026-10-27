@@ -202,3 +202,61 @@ export function boardCardSlots(): ReactNode {
     </Wrapper>
   );
 }
+
+/** An unset field stays off the card until you point at it, focus it or open its menu. */
+export function boardCardEmptyChips(): ReactNode {
+  const [priority, setPriority] = useState<CardPriority | null>(null);
+  return (
+    <Wrapper className="block max-w-xs">
+      <BoardCard
+        title="Order the sample lamps"
+        context="Harbour Tower"
+        chips={
+          <>
+            <BoardCardChip>
+              <Tag /> Lighting
+            </BoardCardChip>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <BoardCardChip
+                    empty={priority === null}
+                    render={
+                      <button
+                        type="button"
+                        aria-label={
+                          priority ? `Priority: ${priority}` : "Set priority"
+                        }
+                      />
+                    }
+                  />
+                }
+              >
+                <PriorityIcon
+                  priority={priority ?? "none"}
+                  size="xs"
+                  label=""
+                />
+                {priority
+                  ? priority.charAt(0).toUpperCase() + priority.slice(1)
+                  : null}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-40">
+                {CARD_PRIORITIES.map((p) => (
+                  <DropdownMenuItem key={p} onClick={() => setPriority(p)}>
+                    <PriorityIcon priority={p} size="sm" label="" />
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem onClick={() => setPriority(null)}>
+                  <PriorityIcon priority="none" size="sm" label="" />
+                  No priority
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        }
+      />
+    </Wrapper>
+  );
+}
