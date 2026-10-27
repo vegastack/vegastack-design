@@ -1143,7 +1143,7 @@
         "whenToUse": "Choosing one or more dates from a month grid — a booking range, a report period, a due date inside a Popover.",
         "whenNotToUse": "A free-text date a user already knows (an input with a mask) or a time-only value.",
         "version": "0.25.89",
-        "integrity": "sha256-rtUWiFshgKMwqLziRn8+JLmGa8frUNOlLQtc8E/O7Y8="
+        "integrity": "sha256-kcSeo1XSXmxIW+4lgeOIx6TkDRWK/koML+rQrYaoeVY="
       }
     },
     {

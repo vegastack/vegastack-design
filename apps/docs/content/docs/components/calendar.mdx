@@ -187,6 +187,8 @@ plus an optional `locale`.
   focused day is removed (FOC-6).
 - Booked or unavailable days should carry a non-colour marker as well as the dim — the Booked dates
   example uses a strike-through (A11Y-8).
+- Today's day button carries `aria-current="date"`, so a screen reader hears it as the current
+  date; visually it is an outline with medium weight, never the hover grey (A11Y-25).
 - `Calendar` is a client component: it holds the focused day and reacts to selection.
 
 <StatesTested name="calendar" />
@@ -210,6 +212,13 @@ Upstream's file plus `packages/ui/upstream/patches/calendar.patch`. Every hunk:
   `<select>` is `absolute inset-0` of that root, which upstream sizes from the caption's 20px line
   box — a 20px-tall pointer target. The dropdowns row is already `h-(--cell-size)`, so filling it
   costs no layout.
+- **TYP-18** — the weekday and week-number labels' `text-[0.8rem]` becomes `text-xs`.
+- **A11Y-25** — today is marked without the hover grey: the `today` cell drops upstream's
+  `bg-muted`, and the day button takes `font-medium` plus, only while today is unselected, a 1px
+  `border-foreground/40` outline (a border, never a ring — BRD-1). A selected today keeps the
+  ordinary primary or range fill. Today's button carries `aria-current="date"`, which
+  react-day-picker does not set. A read-only calendar, which renders no day buttons, draws the
+  same outline and weight on today's cell.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
