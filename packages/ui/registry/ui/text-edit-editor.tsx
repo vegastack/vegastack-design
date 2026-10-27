@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-cwINpJkHdZfKRNYbOqxrFB0T8fTp2RAGITLSL+CGmj8=
+// @vegastack text-edit@0.25.91 sha256-TO1EstHW6f8FGjV6W509/5LoUETh5DfhyNvzyYpL0TI=
 
 "use client";
 
@@ -11109,6 +11109,7 @@ export function TextEditEditor({
   placeholder,
   slashCommands = [],
   dragHandles = true,
+  inset = "auto",
   onCommit,
   onRevert,
   onSubmit,
@@ -13892,11 +13893,14 @@ export function TextEditEditor({
       ) : null}
       {dragHandles && editable && editor ? (
         <>
-          <BlockHandle
-            editor={editor}
-            runtime={blockMenuRuntime}
-            longPress={touchBlockMenu === "longPress"}
-          />
+          {/* `inset="none"`: the text is flush with the frame, so the block grip has no room. */}
+          {inset === "none" ? null : (
+            <BlockHandle
+              editor={editor}
+              runtime={blockMenuRuntime}
+              longPress={touchBlockMenu === "longPress"}
+            />
+          )}
           <TableControls editor={editor} markdown={markdown} />
         </>
       ) : null}

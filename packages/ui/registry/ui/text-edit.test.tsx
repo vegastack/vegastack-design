@@ -2954,6 +2954,42 @@ test("the block grip sits clear of the text inside a narrow frame", async () => 
   );
 });
 
+test('inset="none": flush with a title above it in a Dialog — no start padding, no block grip (POL-20)', async () => {
+  const screen = await render(
+    <div data-slot="dialog-content" style={{ padding: 16, width: 480 }}>
+      <input
+        aria-label="Title"
+        style={{ display: "block", padding: 0, border: 0 }}
+      />
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        inset="none"
+        placeholder="Add a description…"
+      />
+    </div>,
+  );
+  const content = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit-content"]',
+  )!;
+  // The read view (before any edit) and the editor share one box: no grip gutter in either.
+  expect(content.style.paddingInlineStart).toBe("");
+  await userEvent.click(content);
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  const paragraph = screen.container.querySelector(".ProseMirror p")!;
+  const title = screen.container.querySelector("input")!;
+  expect(paragraph.getBoundingClientRect().left).toBe(
+    title.getBoundingClientRect().left,
+  );
+  await userEvent.hover(paragraph);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  expect(
+    document.querySelector('[data-slot="text-edit-block-handle"]'),
+  ).toBeNull();
+});
+
 // ---- Citations: the read view stands in whenever the document is not being edited ------------
 
 const cite = (n: number) => ({ label: `Source ${n}` });

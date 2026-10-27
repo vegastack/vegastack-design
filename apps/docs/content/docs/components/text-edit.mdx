@@ -285,6 +285,13 @@ sit clear of the text and the caret; the read view the editor replaces carries t
 the swap never moves the text. On a page with room the text keeps its column, and a `boxed` editor
 — its own frame — holds the grip just inside its border.
 
+Where the editor must line up with a field above it — a New task dialog's description under a ghost
+`Input` or `Textarea` title — pass `inset="none"`: no start padding, so the text, the placeholder and
+the caret start where the title does, and the block grip (which would have no room) is not shown.
+
+<kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> still move blocks,
+and a table keeps its own grips.
+
 <ComponentPreview
   name="markdownBlockHandles"
   file="components/preview/text-edit.tsx"
