@@ -2900,10 +2900,13 @@
         "@vegastack/chip",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/sheet",
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -2916,7 +2919,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.25.89",
-        "integrity": "sha256-uQy+NUSu6JqZ1R5WOwN90R6/zYaunKm9QvAG4UVTgRE="
+        "integrity": "sha256-it59RAAAQGmqkpoY9hbbdHGtIJoiTlTHlMUXrExueW4="
       }
     },
     {

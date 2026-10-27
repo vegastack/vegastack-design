@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.25.89 sha256-uQy+NUSu6JqZ1R5WOwN90R6/zYaunKm9QvAG4UVTgRE=
+// @vegastack filter-bar@0.25.89 sha256-it59RAAAQGmqkpoY9hbbdHGtIJoiTlTHlMUXrExueW4=
 
 "use client";
 
@@ -8,6 +8,7 @@ import {
   ChevronDown,
   CirclePlus,
   ListFilter,
+  Search,
   Settings2,
   X,
 } from "lucide-react";
@@ -39,7 +40,17 @@ import {
   type PeoplePickerOption,
   type PeoplePickerValue,
 } from "@/components/ui/people-picker";
+import {
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useMediaQuery } from "@/components/ui/use-media-query";
 import { formatDateRange } from "@/lib/date-time";
+import { layoutTierQuery } from "@/lib/page-layout";
 
 /**
  * The calendar engine (`react-day-picker` + `date-fns`) is only needed for a date filter's custom
@@ -378,6 +389,21 @@ export interface FilterBarProps extends Omit<
    * @default "Row height"
    */
   densityLabel?: string;
+  /**
+   * Content before the search, on the same row as the tools — a grid list's `ViewTabs`. It takes
+   * all the room the search and the tools leave (at least 96px) and scrolls sideways when what it
+   * holds is wider (a `ViewTabs` folds itself into a select first). On a phone-width bar it stays first: with an icon search it shares the row with
+   * the tools; with a search field the field moves to a row of its own below.
+   * @default undefined
+   */
+  leading?: React.ReactNode;
+  /**
+   * How the search shows: `field`, the input itself; or `icon`, a Search button that expands into
+   * the field when pressed. An icon search stays a field while it holds a query; emptied, it folds
+   * back when focus leaves it or on Escape (focus returns to the button).
+   * @default "field"
+   */
+  searchMode?: "field" | "icon";
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -712,6 +738,8 @@ export function FilterBar({
   groupLabel = "Group",
   fieldsLabel = "Fields",
   densityLabel = "Row height",
+  leading,
+  searchMode = "field",
   ...props
 }: FilterBarProps) {
   const builderMode = filterBuilder != null;
@@ -824,25 +852,133 @@ export function FilterBar({
     onFiltersOpenChange,
   ]);
 
-  const searchField =
-    search != null ? (
+  // An icon search: a Search button until it is pressed, then the field; it stays the field while
+  // it holds a query, and folds back once it is empty and focus leaves it (or on Escape).
+  const iconSearch = searchMode === "icon";
+  const [searchExpanded, setSearchExpanded] = React.useState(false);
+  const searchOpen =
+    !iconSearch || searchExpanded || (search?.value ?? "") !== "";
+  const searchButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const searchFieldRef = React.useRef<HTMLInputElement | null>(null);
+  // Where focus goes once the field or the button has rendered.
+  const searchFocus = React.useRef<"field" | "button" | null>(null);
+  React.useEffect(() => {
+    const target = searchFocus.current;
+    if (target == null) return;
+    searchFocus.current = null;
+    (target === "field" ? searchFieldRef : searchButtonRef).current?.focus();
+  }, [searchOpen]);
+  const searchFieldInputRef = React.useMemo(
+    () => mergeRefs(searchFieldRef, searchInputProps?.ref),
+    [searchInputProps?.ref],
+  );
+  const searchName = search?.["aria-label"] ?? search?.placeholder ?? "Search";
+  // A query someone typed that the host has not yet heard settled (`onValueCommitted`), or `null`.
+  // Folding an icon search unmounts the field, which drops a commit still waiting out its
+  // debounce, so an emptied query still pending is settled at the fold instead. A value the host
+  // sets itself is never pending.
+  const pendingQuery = React.useRef<string | null>(null);
+  // A value the host sets that is not the pending edit supersedes it (SearchInput drops its timer).
+  const hostQuery = search?.value;
+  React.useEffect(() => {
+    if (pendingQuery.current !== null && hostQuery !== pendingQuery.current)
+      pendingQuery.current = null;
+  }, [hostQuery]);
+  const commitQuery = (value: string) => {
+    pendingQuery.current = null;
+    search?.onValueCommitted?.(value);
+  };
+  const foldSearch = (focusButton: boolean) => {
+    if (pendingQuery.current === "" && search?.onValueCommitted != null)
+      commitQuery("");
+    if (focusButton) searchFocus.current = "button";
+    setSearchExpanded(false);
+  };
+
+  const searchInput =
+    search == null ? null : (
       <SearchInput
         {...searchInputProps}
+        ref={searchFieldInputRef}
         value={search.value}
-        onValueChange={search.onValueChange}
-        onValueCommitted={search.onValueCommitted}
+        onValueChange={(next) => {
+          pendingQuery.current = next;
+          search.onValueChange(next);
+        }}
+        onValueCommitted={
+          search.onValueCommitted != null ? commitQuery : undefined
+        }
         debounceMs={search.debounceMs}
         placeholder={search.placeholder ?? "Search…"}
-        aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
+        aria-label={searchName}
         data-slot="filter-bar-search"
+        onFocus={(event) => {
+          searchInputProps?.onFocus?.(event);
+          // A field shown for its query stays a field once someone is in it, emptied or not, until
+          // focus leaves it or Escape folds it.
+          if (iconSearch) setSearchExpanded(true);
+        }}
+        onKeyDown={(event) => {
+          searchInputProps?.onKeyDown?.(event);
+          // Escape on an empty icon search folds it back (with a query, Escape clears it first).
+          if (
+            iconSearch &&
+            !event.defaultPrevented &&
+            event.key === "Escape" &&
+            event.currentTarget.value === ""
+          ) {
+            event.preventDefault();
+            foldSearch(true);
+          }
+        }}
         className={cn(
           // From `@lg` it is ~320px, and gives way (to 160px) before the controls beside it
           // would overflow the row.
           "h-8 w-full min-w-0 @lg/filter-bar:w-80 @lg/filter-bar:min-w-40 @lg/filter-bar:flex-initial",
+          // With `leading`, a phone-width bar keeps the leading content and the tools on the first
+          // row and gives the field a row of its own below them.
+          leading != null && "@max-lg/filter-bar:order-last",
           searchInputProps?.className,
         )}
       />
-    ) : null;
+    );
+  const searchField =
+    searchInput == null ? null : !iconSearch ? (
+      searchInput
+    ) : searchOpen ? (
+      // The field and its clear button are one group: focus leaving the group (not moving between
+      // them) releases the field — a query keeps it showing; an empty one folds it now.
+      <div
+        className="contents"
+        onBlur={(event) => {
+          if (
+            event.relatedTarget instanceof Node &&
+            event.currentTarget.contains(event.relatedTarget)
+          )
+            return;
+          if (event.currentTarget.querySelector("input")?.value) {
+            setSearchExpanded(false);
+          } else foldSearch(false);
+        }}
+      >
+        {searchInput}
+      </div>
+    ) : (
+      <Button
+        ref={searchButtonRef}
+        variant="ghost"
+        size="icon-sm"
+        data-slot="filter-bar-search-toggle"
+        aria-label={searchName}
+        className="size-8 shrink-0 text-muted-foreground"
+        onClick={() => {
+          searchFocus.current = "field";
+          setSearchExpanded(true);
+        }}
+      >
+        <Search aria-hidden />
+      </Button>
+    );
 
   const chips = filters.map((filter) => (
     <FilterChip
@@ -977,18 +1113,49 @@ export function FilterBar({
     { label: fieldsLabel, content: fields },
     { label: densityLabel, content: density },
   ].filter((section) => section.content != null);
+  const viewMenuBody = (
+    <>
+      {viewSections.map((section) => (
+        <ViewMenuSection key={section.label} label={section.label}>
+          {section.content}
+        </ViewMenuSection>
+      ))}
+      {viewActions != null ? (
+        <div
+          data-slot="filter-bar-view-actions"
+          className="flex flex-col gap-0.5 not-first:border-t not-first:pt-2"
+        >
+          {viewActions}
+        </div>
+      ) : null}
+    </>
+  );
+  const viewMenuTrigger = (
+    <BarButton
+      data-slot="filter-bar-view-menu"
+      icon={<Settings2 aria-hidden />}
+      label={viewMenuLabel}
+    />
+  );
+  // On a phone-width window (below the `tablet` layout tier) the View menu is a bottom sheet: an
+  // overlay follows the viewport, not the bar.
+  const phoneWindow = useMediaQuery(layoutTierQuery(undefined, "tablet"));
   const viewMenu =
-    viewSections.length > 0 || viewActions != null ? (
+    viewSections.length === 0 && viewActions == null ? null : phoneWindow ? (
+      <Sheet>
+        <SheetTrigger render={viewMenuTrigger} />
+        <SheetContent side="bottom" data-slot="filter-bar-view-sheet">
+          <SheetHeader>
+            <SheetTitle>{viewMenuLabel}</SheetTitle>
+          </SheetHeader>
+          <SheetBody className="flex flex-col gap-2.5 pb-4">
+            {viewMenuBody}
+          </SheetBody>
+        </SheetContent>
+      </Sheet>
+    ) : (
       <Popover>
-        <PopoverTrigger
-          render={
-            <BarButton
-              data-slot="filter-bar-view-menu"
-              icon={<Settings2 aria-hidden />}
-              label={viewMenuLabel}
-            />
-          }
-        />
+        <PopoverTrigger render={viewMenuTrigger} />
         <PopoverContent
           align="end"
           size="md"
@@ -996,24 +1163,13 @@ export function FilterBar({
           className="max-w-[calc(100vw-2rem)]"
           aria-label={viewMenuLabel}
         >
-          {viewSections.map((section) => (
-            <ViewMenuSection key={section.label} label={section.label}>
-              {section.content}
-            </ViewMenuSection>
-          ))}
-          {viewActions != null ? (
-            <div
-              data-slot="filter-bar-view-actions"
-              className="flex flex-col gap-0.5 not-first:border-t not-first:pt-2"
-            >
-              {viewActions}
-            </div>
-          ) : null}
+          {viewMenuBody}
         </PopoverContent>
       </Popover>
-    ) : null;
+    );
 
   const hasPrimaryRow =
+    leading != null ||
     search != null ||
     scope != null ||
     view != null ||
@@ -1039,16 +1195,32 @@ export function FilterBar({
         {...props}
       >
         {hasPrimaryRow ? (
-          // [Search ~320px] … [Filters (n)] [scope] [actions] [view]. Below `@lg` the
-          // search takes the full width and the controls wrap onto one row beneath it.
+          // [leading] [Search ~320px] … [Filters (n)] [Sort] [View] [scope] [actions] [view].
+          // Below `@lg` a search field takes the full width and the controls wrap onto one row
+          // beneath it — or, with `leading`, the leading content and the controls share the first
+          // row and the field goes below them.
           <div
             data-slot="filter-bar-primary"
             className="flex w-full min-w-0 flex-wrap items-center gap-2 @lg/filter-bar:flex-nowrap"
           >
+            {leading != null ? (
+              <div
+                data-slot="filter-bar-leading"
+                // Takes all the room the search and the tools leave (a zero basis, so it never asks
+                // for a row of its own and a `ViewTabs` — a size container — fills it), at least
+                // 96px, and scrolls sideways when what it holds is wider.
+                className="flex min-w-24 flex-1 basis-0 items-center overflow-x-auto scrollbar-none [&>*]:flex-1"
+              >
+                {leading}
+              </div>
+            ) : null}
             {searchField}
             <div
               data-slot="filter-bar-controls"
-              className="flex min-w-0 flex-1 items-center gap-2 @lg/filter-bar:flex-none @lg/filter-bar:ms-auto"
+              className={cn(
+                "flex min-w-0 flex-1 items-center gap-2 @lg/filter-bar:flex-none @lg/filter-bar:ms-auto",
+                leading != null && "@max-lg/filter-bar:flex-none",
+              )}
             >
               {filtersToggle}
               {sortControl}
