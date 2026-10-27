@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 762,
-    "components": 174,
+    "totalRegistryItems": 763,
+    "components": 175,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 36,
+    "Forms/editing": 37,
     "Navigation/layout": 23,
     "Overlays": 22,
     "Data display": 38,
@@ -63,6 +63,7 @@
     "Forms/editing": [
       "auto-save-input",
       "avatar-picker",
+      "block-toolbar",
       "calendar",
       "chip-input",
       "choice-card",
@@ -5995,15 +5996,6 @@
           }
         },
         {
-          "name": "codeBlockActionsClassName",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/code-block.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant export does not render or accept a runtime ref."
-          }
-        },
-        {
           "name": "codeBlockWrapStyle",
           "kind": "function",
           "source": "packages/ui/registry/ui/code-block.tsx",
@@ -6059,8 +6051,9 @@
       "engines": [],
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": [
-        "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/block-toolbar",
+        "@vegastack/code-highlight",
+        "@vegastack/copy-button"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.35",
@@ -6087,12 +6080,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "code-block",
-                "code-block-actions",
-                "code-block-header",
-                "code-block-pre"
-              ]
+              "values": ["code-block", "code-block-header", "code-block-pre"]
             },
             {
               "name": "data-wrap",
@@ -27451,6 +27439,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "TextEditBubbleContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditUploadOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -27532,6 +27538,7 @@
       "registryDependencies": [
         "@vegastack/alert",
         "@vegastack/avatar",
+        "@vegastack/block-toolbar",
         "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
@@ -27566,7 +27573,8 @@
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -29719,6 +29727,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/block-toolbar",
         "@vegastack/button",
         "@vegastack/code-block",
         "@vegastack/dialog",
@@ -29764,7 +29773,6 @@
                 "block-view-expand",
                 "block-view-header",
                 "block-view-hint",
-                "block-view-menu",
                 "block-view-mode",
                 "block-view-preview"
               ]
@@ -31275,6 +31283,173 @@
             {
               "name": "data-width",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "block-toolbar",
+      "registryType": "registry:ui",
+      "title": "Block Toolbar",
+      "summary": "The one place a block's own controls sit — its top-right corner, 28px icon buttons, at most four and a ⋯ menu for the rest — shared by code blocks, images and diagrams.",
+      "status": "stable",
+      "since": "0.25.88",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/block-toolbar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BlockToolbar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Props, ref included, spread onto the group div."
+          }
+        },
+        {
+          "name": "BlockToolbarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockToolbarButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Button inside a Tooltip trigger; no stable public ref."
+          }
+        },
+        {
+          "name": "BlockToolbarButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockToolbarMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to DropdownMenu; no stable public ref."
+          }
+        },
+        {
+          "name": "BlockToolbarMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "hover-reveal", "inline", "open"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover-reveal", "inline"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "A corner row of fixed 28px buttons; a coarse pointer always shows it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/block-toolbar",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "testFiles": ["packages/ui/registry/ui/block-toolbar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "block-toolbar",
+      "dataAttributes": {
+        "BlockToolbar": {
+          "attributes": [
+            {
+              "name": "data-placement",
+              "values": []
+            },
+            {
+              "name": "data-reveal",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockToolbarButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockToolbarMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar-menu"]
             }
           ],
           "cssVariables": []
@@ -34716,7 +34891,7 @@
             },
             {
               "name": "data-state",
-              "values": []
+              "values": ["empty"]
             }
           ],
           "cssVariables": []

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d53608d4be3dcc4d3c4be30273b24a56b8271a91a4bbf1441fa6da3f002af1e0",
+  "contractSha256": "784815d1085eb1639828daf92856c74b17e7a21778f1b9db394ed1466d38510b",
   "expectedCounts": {
-    "totalRegistryItems": 762,
-    "components": 174,
+    "totalRegistryItems": 763,
+    "components": 175,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1570,6 +1570,17 @@
         "packages/ui/registry/ui/record-chip.tsx"
       ],
       "docsSlug": "/docs/components/record-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "block-toolbar",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-toolbar.tsx"
+      ],
+      "docsSlug": "/docs/components/block-toolbar",
       "contractStatus": "reconciled"
     },
     {
