@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.92 sha256-GMI/r/MgwJd3EyRBfIFoEn8/4PsV2HYErVSBHEZ/f/g=
+// @vegastack field-cell@0.25.92 sha256-M6yRhs3p7t5n/zC9yWhxOroeZjh9hGAlIAF7vMwy3Oo=
 
 "use client";
 
@@ -68,6 +68,7 @@ import {
   zonedToday,
 } from "@/lib/date-time";
 import { FileKindTile } from "@/lib/file-kind";
+import { typedFirstLine } from "@/lib/text-edit-grammar";
 
 /* ---
 `field-cell` is one display and one editor per field type, so a table cell, a row panel and a
@@ -495,13 +496,21 @@ export interface FieldCellDisplayProps {
    * @default undefined
    */
   label?: string;
+  /**
+   * Where the value sits on its line. By default a number, currency, percent or calculated value
+   * sits at the end (a grid column's figures line up) and every other type at the start; `start`
+   * puts a number at the start too, where it reads as a property's value rather than a column's.
+   * @default undefined — by type
+   */
+  align?: "start" | "end";
   /** Extra classes for the root. @default undefined */
   className?: string;
 }
 
 /**
  * `FieldCellDisplay` — one field's value, on one line, the way every surface shows it: text that
- * truncates (the full value on hover and keyboard focus), end-aligned tabular numbers in the
+ * truncates (the full value on hover and keyboard focus) and a long text's first line as typed (no
+ * Markdown escapes, mentions as their names), end-aligned tabular numbers in the
  * reader's locale, a calendar day that never shifts with the zone, coloured choice tags with "+N",
  * a checkbox, people as avatars and names, links as `InlineChip`s in their four states, files as
  * kind tiles, and links out for URLs, emails and phones.
@@ -516,6 +525,7 @@ export function FieldCellDisplay({
   state = "ready",
   onToggle,
   label,
+  align,
   className,
 }: FieldCellDisplayProps) {
   const timeZone = useTimeZone();
@@ -526,7 +536,13 @@ export function FieldCellDisplay({
     <span
       data-slot="field-cell-display"
       data-type={type}
-      className={cn("flex min-w-0 items-center gap-1", extra, className)}
+      className={cn(
+        "flex min-w-0 items-center gap-1",
+        extra,
+        align === "start" && "justify-start",
+        align === "end" && "justify-end",
+        className,
+      )}
     >
       {children}
     </span>
@@ -545,7 +561,9 @@ export function FieldCellDisplay({
     case "text":
     case "long_text": {
       if (typeof value !== "string" || value === "") return empty;
-      const firstLine = value.split("\n")[0]!;
+      // A long text is Markdown: its first line shows as it was typed, mentions as their names.
+      const firstLine =
+        type === "long_text" ? typedFirstLine(value) : value.split("\n")[0]!;
       return root(<TruncatedText>{firstLine}</TruncatedText>);
     }
     case "number":
@@ -961,12 +979,14 @@ function DateTimeEditor({
       role="group"
       aria-label={ariaLabel}
       data-slot="field-datetime-editor"
-      className="flex min-w-0 flex-wrap items-center gap-2"
+      // The date takes what the time leaves, on one line where 8rem of date still fits.
+      className="flex w-full min-w-0 flex-wrap items-center gap-2 [&>[data-slot=date-picker]]:w-auto [&>[data-slot=date-picker]]:flex-1 [&>[data-slot=date-picker]]:basis-32"
     >
       <DatePicker
         id={id}
         size="sm"
         aria-label="Date"
+        className="w-auto min-w-0 flex-1 basis-32"
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
         disabled={disabled}
@@ -982,7 +1002,7 @@ function DateTimeEditor({
         aria-describedby={describedBy}
         disabled={disabled || !current}
         value={current?.time ?? ""}
-        className="h-7 w-28"
+        className="h-7 w-32 max-w-full min-w-0 max-md:w-36"
         onChange={(event) => current && commit(current.day, event.target.value)}
       />
     </span>
@@ -2260,7 +2280,12 @@ function LinkedProperty({
       <>
         {/* `managed`: the host's roving focus owns reachability, so the links are no tab stops. */}
         <TruncationFocusProvider focusable={!managed}>
-          <FieldCellDisplay type={type} value={shown} config={config} />
+          <FieldCellDisplay
+            type={type}
+            value={shown}
+            config={config}
+            align="start"
+          />
         </TruncationFocusProvider>
         <Button
           ref={trigger}
@@ -2497,7 +2522,12 @@ export function FieldProperty({
       text === "" ? (
         shownEmpty
       ) : (
-        <FieldCellDisplay type={type} value={value} config={config} />
+        <FieldCellDisplay
+          type={type}
+          value={value}
+          config={config}
+          align="start"
+        />
       );
   else
     body = (
@@ -2525,6 +2555,7 @@ export function FieldProperty({
               type={type}
               value={propertyValue(shown)}
               config={config}
+              align="start"
             />
           </TruncationFocusProvider>
         )}
@@ -2578,6 +2609,17 @@ export function FieldProperty({
           "flex-wrap",
           // The quiet hover wash on an editable value, as a ghost picker in a task's properties.
           "[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:transition-colors [&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:hover:bg-muted dark:[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:hover:bg-muted/50",
+          // While editing, the cell editor (or long text's in-place editor) takes the value's full
+          // width, and its box — a 32px field, a 36px choice picker — hangs over the line and past
+          // the column's start by its padding and border (as a select trigger's does), so its text
+          // stays where the resting value's text was and the row keeps its height.
+          "[&>[data-slot=editable-cell]:has(>[data-slot=field-cell-editor])]:w-full [&>[data-slot=editable-cell]:has(>[data-slot=field-property-long-text])]:w-full",
+          "[&>[data-slot=editable-cell]>[data-slot=field-cell-editor]]:-ms-[calc(var(--spacing)*2.5+1px)]",
+          // A one-character value ("2") is still a 24px target.
+          "[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:min-w-6",
+          type === "single_choice" || type === "multi_choice"
+            ? "[&>[data-slot=editable-cell]>[data-slot=field-cell-editor]]:-mt-2 [&>[data-slot=editable-cell]>[data-slot=field-cell-editor]]:-mb-1"
+            : "[&>[data-slot=editable-cell]>[data-slot=field-cell-editor]]:-mt-1.5 [&>[data-slot=editable-cell]>[data-slot=field-cell-editor]]:-mb-0.5",
         )}
         onKeyDown={
           still ||

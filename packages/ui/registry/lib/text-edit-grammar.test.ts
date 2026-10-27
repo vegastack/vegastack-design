@@ -21,6 +21,8 @@ import {
   readLiveBlock,
   DEFAULT_LIVE_BLOCK_KINDS,
   liveBlockNames,
+  mentionLabels,
+  typedFirstLine,
 } from "./text-edit-grammar";
 
 test("mentionMarkdown writes what parseMentionLink reads, escapes and all", () => {
@@ -329,4 +331,37 @@ test("a live block's rows may have no box: they read, round-trip and parse with 
       { name: "Bad", rowKind: "x", label: "X" },
     ]),
   ).toEqual(["tasks"]);
+});
+
+test("typedFirstLine: a long text's first line as typed — the line-start escape undone, mentions by name", () => {
+  expect(typedFirstLine("\\# Title\nmore")).toBe("# Title");
+  expect(typedFirstLine("\\- item")).toBe("- item");
+  expect(typedFirstLine("\\> quote")).toBe("> quote");
+  expect(typedFirstLine("1\\. first")).toBe("1. first");
+  expect(typedFirstLine("&#32;indented")).toBe(" indented");
+  expect(typedFirstLine("&#9;tabbed")).toBe("\ttabbed");
+  expect(typedFirstLine("\\:::tasks{a=1}")).toBe(":::tasks{a=1}");
+  // A backslash the editor did not add stays.
+  expect(typedFirstLine("\\not escaped")).toBe("\\not escaped");
+  expect(typedFirstLine("Hi [@Asha \\[R\\]](mention://user/u1)!")).toBe(
+    "Hi Asha [R]!",
+  );
+  expect(typedFirstLine("")).toBe("");
+});
+
+test("mentionLabels: every mention link reads as its label; other text is untouched", () => {
+  expect(
+    mentionLabels("[@A](mention://user/u1) and [@B](mention://page/p2)"),
+  ).toBe("A and B");
+  expect(mentionLabels("[link](https://example.com)")).toBe(
+    "[link](https://example.com)",
+  );
+  // Literal text the reader typed: an escaped link and a code span stay as they are.
+  expect(mentionLabels("\\[@A](mention://user/u1)")).toBe(
+    "\\[@A](mention://user/u1)",
+  );
+  expect(
+    mentionLabels("`[@A](mention://user/u1)` and [@B](mention://user/u2)"),
+  ).toBe("`[@A](mention://user/u1)` and B");
+  expect(mentionLabels("[@](mention://page/p1)")).toBe("Untitled");
 });

@@ -890,6 +890,18 @@ test("findQuery highlights every match without touching the DOM, and the bar ste
   if (registry) expect(registry.get("vs-find")?.size).toBe(2);
   // The text is unchanged: no marks were inserted.
   expect(screen.container.querySelector("mark")).toBeNull();
+  // The tint is a plain hoisted style (no Tailwind `::highlight` variant), scoped to a finding view.
+  const paint = document.head.querySelector(
+    'style[data-href~="markdown-view-find"]',
+  );
+  expect(paint?.textContent).toContain(
+    "[data-slot=markdown-view][data-finding]::highlight(vs-find-current)",
+  );
+  expect(
+    screen.container
+      .querySelector("[data-slot=markdown-view]")
+      ?.hasAttribute("data-finding"),
+  ).toBe(true);
   await bar.getByRole("button", { name: "Next match" }).click();
   await vi.waitFor(() => expect(count?.textContent).toBe("2 of 2"));
   await bar.getByRole("button", { name: "Close find" }).click();

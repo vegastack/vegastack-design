@@ -1824,3 +1824,76 @@ test("FieldProperty: a synchronous save after a pending one supersedes it", asyn
   expect(box.element().getAttribute("aria-checked")).toBe("false");
   expect(document.body.textContent).not.toContain("Couldn't save Paid");
 });
+
+test("FieldProperty: a number sits at the start of its property row; a grid's number stays at the end", async () => {
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Budget"
+          type="currency"
+          value={5000}
+          config={{ currency: "EUR" }}
+          readOnly
+        />
+        <FieldProperty label="Total" type="calculated" value={2480} />
+        <FieldProperty label="Qty" type="number" value={2} onSave={() => {}} />
+      </PropertyList>
+      <div data-testid="cell">
+        <FieldCellDisplay type="number" value={7} />
+      </div>
+    </>,
+  );
+  const rows = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="field-property"]',
+  );
+  expect(rows).toHaveLength(3);
+  // The harness compiles no CSS: the classes are the claim.
+  for (const row of rows) {
+    const display = row.querySelector<HTMLElement>(
+      '[data-slot="field-cell-display"]',
+    )!;
+    expect(display.classList.contains("justify-end")).toBe(false);
+    expect(display.classList.contains("justify-start")).toBe(true);
+  }
+  const cell = screen.getByTestId("cell").element();
+  expect(
+    cell
+      .querySelector('[data-slot="field-cell-display"]')!
+      .classList.contains("justify-end"),
+  ).toBe(true);
+});
+
+test("FieldProperty: an editable long text at rest reads as the grid's display — escapes undone, mentions by name", async () => {
+  const markdown = "\\# 2 for [@Asha Rao](mention://user/u1)\nCall first.";
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Notes"
+        type="long_text"
+        value={markdown}
+        onSave={() => {}}
+      />
+      <FieldProperty label="Brief" type="long_text" value={markdown} readOnly />
+    </PropertyList>,
+  );
+  const grid = await render(
+    <FieldCellDisplay type="long_text" value={markdown} />,
+  );
+  const shown = grid.container.textContent;
+  expect(shown).toBe("# 2 for Asha Rao");
+  const values = screen.container.querySelectorAll(
+    '[data-slot="property-value"]',
+  );
+  for (const value of values) {
+    expect(value.textContent).toBe(shown);
+    expect(value.textContent).not.toContain("mention://");
+  }
+  // Only the editor shows the source.
+  await userEvent.click(screen.getByText("# 2 for Asha Rao").first());
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('[data-slot="field-property-long-text"]'),
+    ).not.toBeNull(),
+  );
+});

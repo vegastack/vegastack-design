@@ -13205,6 +13205,7 @@
         "@vegastack/skeleton",
         "@vegastack/spinner",
         "@vegastack/text-edit",
+        "@vegastack/text-edit-grammar",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
@@ -18145,6 +18146,10 @@
         },
         "MarkdownView": {
           "attributes": [
+            {
+              "name": "data-finding",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["markdown-view"]
@@ -50422,6 +50427,24 @@
         },
         {
           "name": "parseMentionLink",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "mentionLabels",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "typedFirstLine",
           "kind": "function",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
           "ref": {
