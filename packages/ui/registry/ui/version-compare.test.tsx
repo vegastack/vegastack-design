@@ -188,3 +188,112 @@ test("phone: the list first; a picked version pushes its preview in, with the ac
   await userEvent.keyboard("{Enter}");
   await vi.waitFor(() => expect(root().dataset.view).toBe("preview"));
 });
+
+test('phone, defaultPhoneView="preview": opens straight on the selected version; Back returns to the list and reports it', async () => {
+  mockWide(false);
+  const onPhoneViewChange = vi.fn();
+  const screen = await render(
+    <div style={{ height: 600, display: "flex" }}>
+      <VersionCompare
+        versions={versions}
+        selectedId="v2"
+        currentId="v3"
+        now={now}
+        showChanges
+        diff={{
+          before: "Seats are billed yearly.",
+          after: "Seats are billed monthly.",
+        }}
+        defaultPhoneView="preview"
+        onPhoneViewChange={onPhoneViewChange}
+        preview={<p>Text of the selected version</p>}
+        actions={<Button>Restore this version</Button>}
+      />
+    </div>,
+  );
+  const root = () =>
+    screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  expect(root().dataset.view).toBe("preview");
+  expect(root().querySelector("[data-slot=diff-view]")).not.toBeNull();
+  await expect
+    .element(screen.getByRole("button", { name: "Restore this version" }))
+    .toBeInTheDocument();
+  // Opening on the preview moves no focus on its own.
+  expect(root().contains(document.activeElement)).toBe(false);
+  expect(onPhoneViewChange).not.toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+
+  await screen.getByRole("button", { name: "Versions" }).click();
+  expect(onPhoneViewChange).toHaveBeenLastCalledWith("list");
+  expect(root().dataset.view).toBe("list");
+  await vi.waitFor(() =>
+    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+      "version-list-item",
+    ),
+  );
+});
+
+test("phone, controlled phoneView: the host decides the side; a pick and Back report it", async () => {
+  mockWide(false);
+  const onPhoneViewChange = vi.fn();
+  function Controlled() {
+    const [view, setView] = React.useState<"list" | "preview">("preview");
+    return (
+      <div style={{ height: 600, display: "flex" }}>
+        <Button onClick={() => setView("preview")}>View changes</Button>
+        <VersionCompare
+          versions={versions}
+          selectedId="v2"
+          currentId="v3"
+          now={now}
+          phoneView={view}
+          onPhoneViewChange={(next) => {
+            onPhoneViewChange(next);
+            setView(next);
+          }}
+          preview={<p>Text of the selected version</p>}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Controlled />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  expect(root().dataset.view).toBe("preview");
+  await screen.getByRole("button", { name: "Versions" }).click();
+  expect(onPhoneViewChange).toHaveBeenLastCalledWith("list");
+  expect(root().dataset.view).toBe("list");
+  await expectNoA11yViolations(screen.container);
+
+  // The host pushes the preview in on its own: focus stays on the host's control.
+  await screen.getByRole("button", { name: "View changes" }).click();
+  expect(root().dataset.view).toBe("preview");
+  expect(document.activeElement?.textContent).toBe("View changes");
+
+  // A pick reports "preview".
+  await screen.getByRole("button", { name: "Versions" }).click();
+  await screen.getByRole("option", { name: /Before review/ }).click();
+  expect(onPhoneViewChange).toHaveBeenLastCalledWith("preview");
+  expect(root().dataset.view).toBe("preview");
+  await screen.unmount();
+
+  // A host that holds the list keeps it: the pick is only reported.
+  const held = vi.fn();
+  const fixed = await render(
+    <div style={{ height: 600, display: "flex" }}>
+      <VersionCompare
+        versions={versions}
+        selectedId="v2"
+        now={now}
+        phoneView="list"
+        onPhoneViewChange={held}
+      />
+    </div>,
+  );
+  await fixed.getByRole("option", { name: /Before review/ }).click();
+  expect(held).toHaveBeenLastCalledWith("preview");
+  expect(
+    fixed.container.querySelector<HTMLElement>("[data-slot=version-compare]")!
+      .dataset.view,
+  ).toBe("list");
+});
