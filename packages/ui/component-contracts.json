@@ -1614,6 +1614,25 @@
           }
         },
         {
+          "name": "AppShellProgress",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellProgressProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "AppShellProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/app-shell.tsx",
@@ -1845,6 +1864,15 @@
                 "app-shell-header-actions-group",
                 "app-shell-header-actions-menu"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellProgress": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-progress"]
             }
           ],
           "cssVariables": []

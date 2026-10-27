@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.25.89 sha256-/G4PI3bygJEl8DtEPJHKpQRvnRmc+5R2WL1iyCl6Bg4=
+// @vegastack app-shell@0.25.89 sha256-4rknXOSgh5+CcWr4QD+b4wB7mDstHQ8GLq+j/BjUPtA=
 
 "use client";
 
@@ -643,6 +643,55 @@ export function AppShellHeaderActions({
           </DropdownMenuContent>
         </DropdownMenu>
       ) : null}
+    </div>
+  );
+}
+
+/** Props accepted by `AppShellProgress`. */
+export interface AppShellProgressProps extends React.ComponentPropsWithRef<"div"> {
+  /**
+   * The progress bar's accessible name.
+   * @default "Loading"
+   */
+  label?: string;
+}
+
+/**
+ * `AppShellProgress` — the page is loading: a 2px indeterminate bar along the top of
+ * `AppShellContent`, shown at once. Render it with the route's skeleton wrapped in
+ * `motion-reveal`, so a fast load shows no skeleton at all and a slow one is never a blank page
+ * while the skeleton waits to fade in.
+ *
+ * @example
+ * // app/(app)/tasks/loading.tsx
+ * export default function Loading() {
+ *   return (
+ *     <>
+ *       <AppShellProgress />
+ *       <div className="motion-reveal"><TasksSkeleton /></div>
+ *     </>
+ *   );
+ * }
+ */
+export function AppShellProgress({
+  label = "Loading",
+  className,
+  ...props
+}: AppShellProgressProps) {
+  return (
+    <div
+      role="progressbar"
+      aria-label={label}
+      data-slot="app-shell-progress"
+      className={cn(
+        // Sticky in the scrolling content region, so it stays at the top however far the
+        // page was scrolled; the negative margin gives back its 2px, so nothing moves.
+        "pointer-events-none sticky top-0 z-10 -mb-0.5 h-0.5 w-full shrink-0 overflow-hidden",
+        className,
+      )}
+      {...props}
+    >
+      <div className="absolute inset-y-0 w-[35%] rounded-full bg-primary motion-indeterminate" />
     </div>
   );
 }

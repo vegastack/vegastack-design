@@ -299,6 +299,31 @@ export default function Loading() {
 }
 ```
 
+**Loading a page inside the shell.** A route's `loading.tsx` shows `AppShellProgress` — a 2px
+indeterminate bar stuck to the top of the content however far it was scrolled, at once — and its own skeleton wrapped in
+`motion-reveal` (a `@vegastack/design-tokens` utility): the skeleton waits 150ms
+(`--reveal-delay`) before it fades in, so a fast load never flashes a skeleton and a slow one is
+never a blank page while it waits. One skeleton per load, in the page's own shape.
+
+<ComponentPreview
+  name="appShellProgress"
+  file="components/preview/app-shell.tsx"
+/>
+
+```tsx
+// app/(app)/tasks/loading.tsx
+export default function Loading() {
+  return (
+    <>
+      <AppShellProgress label="Loading tasks" />
+      <div className="motion-reveal">
+        <TasksSkeleton />
+      </div>
+    </>
+  );
+}
+```
+
 ### Mobile
 
 Below 768px — upstream's one fixed breakpoint, read through `useIsMobile`, with no prop to retune
@@ -404,6 +429,13 @@ Each entry of `actions` and `menu` is an `AppShellHeaderAction`:
 <ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellHeaderAction"
+/>
+
+### AppShellProgress
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellProgressProps"
 />
 
 ### AppShellContent
