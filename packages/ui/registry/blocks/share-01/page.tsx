@@ -1,4 +1,4 @@
-// @vegastack share-01@0.25.88 sha256-N5nbrh0xQjS2bMs3cAbIE+rPY2DVxxUqdSmGffamwe8=
+// @vegastack share-01@0.25.89 sha256-F+L8+6Lyb4zvItxr5wjtax13yljmUN4zOMq++/xNXVI=
 
 import { ShareDemo } from "./components/share-demo";
 
