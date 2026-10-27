@@ -561,6 +561,46 @@ follow without a header, and select-all covers every loaded row. The collapsed s
   file="components/preview/data-list.tsx"
 />
 
+### Nested rows
+
+`getRowParentId` nests a row under another, one level deep — a sub-task under its task. A row
+whose parent is loaded shows right after it, its title stepped in, and in the parent's section
+whatever its own; a row whose parent is not in `data` (filtered out, not loaded yet) stays where
+it is. The list owns the order and the folding, the host owns the toggle: a cell's render receives
+`nesting` (`depth`, `children`, `expanded`, `setExpanded`) in its context and puts the control
+where it reads best — a sub-task count, say. Fold state is `collapsedParents` /
+`onCollapsedParentsChange` (every parent starts expanded). A peek's walk (`getRowOrder`) and
+shift-click ranges follow the rows as shown, so folded rows are skipped. List view only.
+
+```tsx
+<DataList
+  columns={[
+    {
+      key: "title",
+      header: "Task",
+      interactive: true,
+      render: (task, _i, { nesting } = {}) => (
+        <TaskTitle
+          task={task}
+          subtasks={
+            nesting?.children ? (
+              <SubtaskToggle
+                count={nesting.children}
+                expanded={nesting.expanded}
+                onToggle={() => nesting.setExpanded(!nesting.expanded)}
+              />
+            ) : null
+          }
+        />
+      ),
+    },
+  ]}
+  data={tasks}
+  getRowId={(t) => t.id}
+  getRowParentId={(t) => t.parentId}
+/>
+```
+
 ### List
 
 `view="list"` — the default — is the table on this page. Every other view below takes the same

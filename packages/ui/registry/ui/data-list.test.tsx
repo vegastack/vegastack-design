@@ -3149,6 +3149,68 @@ test("onRowOpen without an href: the whole row and its first-cell button open it
   );
 });
 
+test("getRowParentId nests a row under its parent, in the parent's section, and folds it", async () => {
+  interface Task {
+    id: string;
+    name: string;
+    group: "today" | "later";
+    parent?: string;
+  }
+  const tasks: Task[] = [
+    { id: "s1", name: "Sub one", group: "today", parent: "p" },
+    { id: "x", name: "Other", group: "today" },
+    { id: "p", name: "Parent", group: "later" },
+    { id: "s2", name: "Sub two", group: "later", parent: "p" },
+    { id: "o", name: "Orphan", group: "later", parent: "gone" },
+  ];
+  const actions = React.createRef<import("./data-list").DataListActions>();
+  const screen = await render(
+    <DataList<Task>
+      columns={[
+        {
+          key: "name",
+          header: "Task",
+          interactive: true,
+          render: (t, _i, ctx) =>
+            ctx?.nesting && ctx.nesting.children > 0 ? (
+              <button
+                type="button"
+                aria-expanded={ctx.nesting.expanded}
+                onClick={() => ctx.nesting!.setExpanded(!ctx.nesting!.expanded)}
+              >
+                {t.name}
+              </button>
+            ) : (
+              t.name
+            ),
+        },
+      ]}
+      data={tasks}
+      getRowId={(t) => t.id}
+      sections={[
+        { id: "today", label: "Today" },
+        { id: "later", label: "Later" },
+      ]}
+      getRowSection={(t) => t.group}
+      getRowParentId={(t) => t.parent}
+      actionsRef={actions}
+    />,
+  );
+  const ids = () =>
+    Array.from(
+      screen.container.querySelectorAll<HTMLElement>(
+        '[data-slot="data-list-row"]',
+      ),
+    ).map((row) => `${row.dataset.rowId}${row.dataset.depth ? ">" : ""}`);
+  // s1 leaves Today for its parent in Later; the orphan stays top-level.
+  expect(ids()).toEqual(["x", "p", "s1>", "s2>", "o"]);
+  expect(actions.current!.getRowOrder()).toEqual(["x", "p", "s1", "s2", "o"]);
+  await screen.getByRole("button", { name: "Parent" }).click();
+  expect(ids()).toEqual(["x", "p", "o"]);
+  expect(actions.current!.getRowOrder()).toEqual(["x", "p", "o"]);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("activeRowId marks the open row; actionsRef.getRowOrder walks the rows as they read", async () => {
   const actions = React.createRef<import("./data-list").DataListActions>();
   const screen = await render(

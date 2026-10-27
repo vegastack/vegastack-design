@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.89 sha256-6rWCgKP4z0Xwf1ElMJgugPNaB+eNXPfmQO2RcEVsHDk=
+// @vegastack data-list@0.25.89 sha256-V1s3w99ScncnXZbDRbp9OF+AhXHxjecyTJL/omxq34I=
 
 "use client";
 
@@ -124,6 +124,25 @@ export interface DataListCellContext {
    * call a column's `render` itself.
    */
   density?: DataListDensity;
+  /**
+   * The row's place when the list nests rows (`getRowParentId`): `depth` 1 for a row shown under
+   * its parent; for a parent, how many rows it holds, whether they show, and `setExpanded` to fold
+   * or unfold them — the host renders that toggle where it fits (a sub-task count). Unset when
+   * the list nests nothing.
+   */
+  nesting?: DataListRowNesting;
+}
+
+/** A row's place in a nesting list (`DataListCellContext.nesting`). */
+export interface DataListRowNesting {
+  /** 0 for a top-level row, 1 for a row shown under its parent. */
+  depth: 0 | 1;
+  /** How many rows show under this one when it is expanded (0 for a row with none). */
+  children: number;
+  /** Whether this row's nested rows show. */
+  expanded: boolean;
+  /** Fold (`false`) or unfold (`true`) this row's nested rows. */
+  setExpanded: (expanded: boolean) => void;
 }
 
 const DataListDensityContext =
@@ -646,6 +665,28 @@ export interface DataListProps<T> extends Omit<
    * @default (n) => `${n} rows`
    */
   sectionCountLabel?: (count: number) => string;
+  /**
+   * List view: nest a row under another — a sub-task under its task, one level deep. A row whose
+   * parent is in `data` shows right after it (after its earlier siblings, in `data` order),
+   * indented one step and in the parent's section whatever its own; a row whose parent is not in
+   * `data` (filtered out, not loaded) stays where it is, top-level. A parent's rows fold with
+   * `collapsedParents`; the host offers the toggle through the cell context's `nesting`. The
+   * peek's order (`getRowOrder`) and shift-click ranges follow the rows as shown. The grid and
+   * board views ignore it.
+   * @default undefined
+   */
+  getRowParentId?: (row: T) => string | null | undefined;
+  /**
+   * The ids of the parents whose nested rows are folded, controlled. Pair with
+   * `onCollapsedParentsChange`; without it every parent starts expanded.
+   * @default undefined
+   */
+  collapsedParents?: readonly string[];
+  /**
+   * Called with the folded parents' ids when a parent folds or unfolds.
+   * @default undefined
+   */
+  onCollapsedParentsChange?: (ids: string[]) => void;
   /**
    * Who orders the rows. `"manual"` only signals (`onSortChange`) and the parent sorts `data`;
    * `"client"` sorts `data` in place with each column's `compare` (or the default comparator).
@@ -1435,6 +1476,9 @@ export function DataList<T>({
   defaultGroupState,
   onGroupStateChange,
   sectionCountLabel,
+  getRowParentId,
+  collapsedParents: collapsedParentsProp,
+  onCollapsedParentsChange,
   sortMode = "manual",
   noResults,
   highlightedIds,
@@ -1719,6 +1763,67 @@ export function DataList<T>({
     [data, getRowId],
   );
 
+  // ---- nested rows (`getRowParentId`, list view only) ------------------------------------------
+  // `parentOf`: a nested row's index → its parent's; `childrenOf`: a parent's nested rows in
+  // `data` order. One level: a row whose parent is itself nested stays top-level.
+  const nesting = React.useMemo(() => {
+    if (!getRowParentId || activeView !== "list") return null;
+    const indexById = new Map(rowIds.map((id, index) => [id, index]));
+    const parentIndex = (index: number) => {
+      const id = getRowParentId(data[index]!);
+      const at = id == null ? undefined : indexById.get(id);
+      return at === index ? undefined : at;
+    };
+    const parentOf = new Map<number, number>();
+    const childrenOf = new Map<number, number[]>();
+    data.forEach((_, index) => {
+      const parent = parentIndex(index);
+      if (parent === undefined || parentIndex(parent) !== undefined) return;
+      parentOf.set(index, parent);
+      childrenOf.set(parent, [...(childrenOf.get(parent) ?? []), index]);
+    });
+    return parentOf.size > 0 ? { parentOf, childrenOf } : null;
+  }, [getRowParentId, activeView, rowIds, data]);
+  const [collapsedParents, commitCollapsedParents] = useControlledState<
+    readonly string[]
+  >(
+    collapsedParentsProp,
+    [],
+    onCollapsedParentsChange as ((ids: readonly string[]) => void) | undefined,
+  );
+  /** Top-level rows of `indexes`, each followed by its nested rows unless it is folded. */
+  const withNested = React.useCallback(
+    (indexes: readonly number[]): number[] =>
+      nesting
+        ? indexes
+            .filter((index) => !nesting.parentOf.has(index))
+            .flatMap((index) =>
+              collapsedParents.includes(rowIds[index]!)
+                ? [index]
+                : [index, ...(nesting.childrenOf.get(index) ?? [])],
+            )
+        : [...indexes],
+    [nesting, collapsedParents, rowIds],
+  );
+  const nestingOf = (index: number): DataListRowNesting | undefined => {
+    if (!nesting) return undefined;
+    const id = rowIds[index]!;
+    const expanded = !collapsedParents.includes(id);
+    return {
+      depth: nesting.parentOf.has(index) ? 1 : 0,
+      children: nesting.childrenOf.get(index)?.length ?? 0,
+      expanded,
+      setExpanded: (next) => {
+        if (next === expanded) return;
+        commitCollapsedParents(
+          next
+            ? collapsedParents.filter((parent) => parent !== id)
+            : [...collapsedParents, id],
+        );
+      },
+    };
+  };
+
   // A row's activation: `onRowOpen` (the peek) when set, else `onRowClick`.
   const onRowClick = React.useMemo(
     () =>
@@ -1790,6 +1895,7 @@ export function DataList<T>({
           columnKey: col.key,
           selected: isSelected,
           density,
+          nesting: nestingOf(index),
         })
       : ((row as Record<string, React.ReactNode>)[col.key] ?? null);
 
@@ -1911,6 +2017,7 @@ export function DataList<T>({
         {...rowAttributes}
         {...drag}
         data-row-id={id}
+        data-depth={nesting?.parentOf.has(index) ? 1 : undefined}
         data-highlighted={highlighted ? "" : undefined}
         data-slot="data-list-row"
         data-selected={isSelected ? "" : undefined}
@@ -2144,6 +2251,8 @@ export function DataList<T>({
                 // The first column is the record's title: the grid card's title weight, so a
                 // name reads the same in the list and the grid (`RECORD_TITLE_CLASS`).
                 colIdx === 0 && RECORD_TITLE_CLASS,
+                // A nested row's title steps in under its parent's (`getRowParentId`).
+                colIdx === 0 && nesting?.parentOf.has(index) && "ps-9",
                 col.className,
                 col.cellClassName?.(row, index),
               )}
@@ -2178,6 +2287,8 @@ export function DataList<T>({
     if (!sections || !getRowSection) return null;
     const byId = new Map<string, number[]>();
     data.forEach((row, index) => {
+      // A nested row shows under its parent, in the parent's section.
+      if (nesting?.parentOf.has(index)) return;
       const key = getRowSection(row);
       const list = byId.get(key);
       if (list) list.push(index);
@@ -2193,18 +2304,23 @@ export function DataList<T>({
       const indexes = byId.get(section.id);
       byId.delete(section.id);
       if (!indexes || indexes.length === 0) continue;
+      const shown = withNested(indexes);
       out.push({
         id: section.id,
         label: section.label,
-        count: section.count ?? indexes.length,
-        indexes,
+        count: section.count ?? shown.length,
+        indexes: shown,
       });
     }
     const rest = [...byId.values()].flat().sort((a, b) => a - b);
     if (rest.length > 0)
-      out.push({ id: "__unsectioned", label: null, indexes: rest });
+      out.push({
+        id: "__unsectioned",
+        label: null,
+        indexes: withNested(rest),
+      });
     return out;
-  }, [data, getRowSection, sections]);
+  }, [data, getRowSection, sections, nesting, withNested]);
 
   // ---- selection: ranges, keyboard, the bar -----------------------------------------------
   // The rows as they read, top to bottom — a shift-click range runs over these. A collapsed
@@ -2232,7 +2348,10 @@ export function DataList<T>({
           : group.indexes.map((index) => rowIds[index]!),
       );
     }
-    if (!sectionGroups) return rowIds;
+    if (!sectionGroups)
+      return withNested(rowIds.map((_, index) => index)).map(
+        (index) => rowIds[index]!,
+      );
     return sectionGroups.flatMap((group) =>
       activeView === "list" &&
       group.label != null &&
@@ -2240,7 +2359,7 @@ export function DataList<T>({
         ? []
         : group.indexes.map((index) => rowIds[index]!),
     );
-  }, [sectionGroups, rowIds, activeView, groups, lanesCollapsed]);
+  }, [sectionGroups, rowIds, activeView, groups, lanesCollapsed, withNested]);
 
   // ---- the open row (`activeRowId`) and the order a peek walks (`actionsRef`) ----------------
   const latestOrder = React.useRef(displayOrder);
@@ -2663,7 +2782,9 @@ export function DataList<T>({
             })
           ) : (
             <TableBody>
-              {data.map((row, index) => renderRow(row, index))}
+              {withNested(data.map((_, index) => index)).map((index) =>
+                renderRow(data[index]!, index),
+              )}
             </TableBody>
           )}
           {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
