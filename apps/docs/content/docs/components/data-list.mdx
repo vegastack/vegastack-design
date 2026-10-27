@@ -839,7 +839,10 @@ values into one compact meta line under the primary value, separated by a decora
 High · Arjun Mehta" — and truncates when the line runs out. Every value sits on the line's centre:
 a chip, a person (its avatar hidden) and a time with its 24px tooltip target stay level with the
 plain text and the dots, and a value that renders nothing, `""` or `"—"` — bare or as the only
-content of a plain element — drops with its dot. The default, `"stack"`, is one value per line.
+content of a plain element — drops with its dot. A figure — a column marked `align: "end"`, `mono`
+or `numeric` (a size, a count, an id, a date) — keeps its whole width on a tight line, and the text
+values beside it truncate first: "Produ… · 1w ago · K Manoj… · 25 MB", never "w ag". Mark a time
+column `numeric` so it stays whole. The default, `"stack"`, is one value per line.
 
 <ComponentPreview
   name="dataListFitting"

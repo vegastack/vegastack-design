@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.94 sha256-03pPbNz9tEpltmwSlRbwh7aUivVm7DMgOolACSF27os=
+// @vegastack data-list@0.25.94 sha256-81CtVioey138JI4UnYlpqIYgxuKURBYCaS8idDQl3bY=
 
 "use client";
 
@@ -2232,11 +2232,14 @@ export function DataList<T>({
                         // stays on the line instead of breaking under its dot.
                         lineLayout === "line" &&
                           "flex shrink items-center overflow-hidden whitespace-nowrap wrap-normal",
-                        // A figure (an end-aligned or mono column: a size, a count, an id) keeps
-                        // its whole width on a tight line; the text values beside it truncate
-                        // first ("Produ… · 1w ago · K Manoj… · 25 MB", never "25 M…").
+                        // A figure (an end-aligned, mono or numeric column: a size, a count, an
+                        // id, a date) keeps its whole width on a tight line; the text values
+                        // beside it truncate first ("Produ… · 1w ago · K Manoj… · 25 MB", never
+                        // "25 M…" or "w ag").
                         lineLayout === "line" &&
-                          (merged.align === "end" || merged.mono) &&
+                          (merged.align === "end" ||
+                            merged.mono ||
+                            merged.numeric) &&
                           "shrink-0",
                       )}
                     >
