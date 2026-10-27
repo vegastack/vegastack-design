@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 122,
+    "total": 123,
     "fromExtras": 46
   },
   "items": {
@@ -774,6 +774,12 @@
       "disposition": "keep",
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "block-header": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Regent product-cohesion W1-DS3 item 4 (UXP-05 R3, operator decision D13: table blocks editable in place), approved by the operator 2026-10-27",
+      "rationale": "Upstream ships no block header. A row of our own composing upstream button and dropdown-menu unchanged; carries no patch."
     }
   }
 }

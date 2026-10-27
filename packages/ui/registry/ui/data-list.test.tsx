@@ -7,8 +7,11 @@ import { ActionBarButton } from "./action-bar";
 import { useFileDrop } from "./use-file-drop";
 import {
   DataList,
+  DataListSecondary,
   rowActionsColumn,
+  useDataListDensity,
   type DataListColumn,
+  type DataListDensity,
   type SortState,
 } from "./data-list";
 
@@ -826,8 +829,12 @@ test("cellClassName is called per body cell and merged after column className", 
 });
 
 test("render receives the per-cell context (rowId, columnKey, selected) as a third argument", async () => {
-  const seen: Array<{ rowId: string; columnKey: string; selected: boolean }> =
-    [];
+  const seen: Array<{
+    rowId: string;
+    columnKey: string;
+    selected: boolean;
+    density?: string;
+  }> = [];
   const cols: DataListColumn<Row>[] = [
     {
       key: "name",
@@ -851,9 +858,24 @@ test("render receives the per-cell context (rowId, columnKey, selected) as a thi
   // mount — so assert on the LAST pass rather than on a pass count.
   expect(seen.length % 3).toBe(0);
   const last = seen.slice(-3);
-  expect(last[0]).toEqual({ rowId: "a", columnKey: "name", selected: false });
-  expect(last[1]).toEqual({ rowId: "b", columnKey: "name", selected: true });
-  expect(last[2]).toEqual({ rowId: "c", columnKey: "name", selected: false });
+  expect(last[0]).toEqual({
+    rowId: "a",
+    columnKey: "name",
+    selected: false,
+    density: "comfortable",
+  });
+  expect(last[1]).toEqual({
+    rowId: "b",
+    columnKey: "name",
+    selected: true,
+    density: "comfortable",
+  });
+  expect(last[2]).toEqual({
+    rowId: "c",
+    columnKey: "name",
+    selected: false,
+    density: "comfortable",
+  });
 });
 
 test("every remaining `<table>` prop type-checks and flows through to the table element", async () => {
@@ -3282,4 +3304,106 @@ test("a board's getRowOrder skips a collapsed lane's cards", async () => {
     />,
   );
   await expect.poll(() => actions.current?.getRowOrder()).toEqual(["a", "b"]);
+});
+
+test("compact is one line: merged values join the primary value's line, stacked layout included", async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="People"
+        density="compact"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Email" },
+          { key: "team", header: "Team" },
+        ]}
+        data={wideData}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  // A stack becomes a line, beside the primary value rather than under it.
+  expect(merged.dataset.layout).toBe("line");
+  expect(merged.className).not.toContain("mt-1");
+  const line = merged.closest<HTMLElement>(
+    '[data-slot="data-list-compact-line"]',
+  )!;
+  expect(line).not.toBeNull();
+  expect(line.className).toContain("items-center");
+  expect(line.textContent).toContain("Ada");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("compact clamps a plain primary value to one line; comfortable keeps two", async () => {
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `/people/${r.id}`}
+    />,
+  );
+  const clamp = () =>
+    screen.container.querySelector<HTMLElement>('[title="Ada"]')!.className;
+  expect(clamp()).toContain("line-clamp-2");
+  await screen.rerender(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `/people/${r.id}`}
+      density="compact"
+    />,
+  );
+  expect(clamp()).toContain("line-clamp-1");
+});
+
+test("custom cells read the density from render's context and useDataListDensity; DataListSecondary leaves compact rows", async () => {
+  const seen: (DataListDensity | undefined)[] = [];
+  function Title({ name }: { name: string }) {
+    const density = useDataListDensity();
+    return <span data-density-read={density}>{name}</span>;
+  }
+  const custom: DataListColumn<Row>[] = [
+    {
+      key: "name",
+      header: "Name",
+      render: (row, _index, context) => {
+        seen.push(context?.density);
+        return (
+          <div className="flex min-w-0 flex-col">
+            <DataListSecondary>{row.role}</DataListSecondary>
+            <Title name={row.name} />
+          </div>
+        );
+      },
+    },
+  ];
+  const screen = await render(
+    <DataList
+      columns={custom}
+      data={data}
+      getRowId={(r) => r.id}
+      density="compact"
+    />,
+  );
+  expect(seen).toContain("compact");
+  expect(
+    screen.container
+      .querySelector("[data-density-read]")!
+      .getAttribute("data-density-read"),
+  ).toBe("compact");
+  expect(screen.getByRole("table").element().className).toContain(
+    "[&_[data-slot=data-list-secondary]]:hidden",
+  );
+  expect(
+    screen.container.querySelectorAll('[data-slot="data-list-secondary"]')
+      .length,
+  ).toBe(3);
+  await expectNoA11yViolations(screen.container);
 });

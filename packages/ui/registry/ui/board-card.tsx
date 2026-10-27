@@ -1,4 +1,4 @@
-// @vegastack board-card@0.25.88 sha256-+r2KlpjoY6BDvRYCCpunCYRfeju6maY8cqxkeCT477E=
+// @vegastack board-card@0.25.88 sha256-L4aEC1fQ0GsOTSzo3wpdNDyFpRveKWwhs+b+ESz0Ey0=
 
 "use client";
 
@@ -531,7 +531,17 @@ export function BoardCard({
 }
 
 /** Props accepted by `BoardCardChip`. */
-export type BoardCardChipProps = useRender.ComponentProps<"span">;
+export type BoardCardChipProps = useRender.ComponentProps<"span"> & {
+  /**
+   * The field has no value (no priority, no due date): the chip is invisible at rest and shows
+   * on card hover, keyboard focus (its own, or the card's) and while its own menu is open (and
+   * always on a touch screen), so a card never carries an empty flag yet the field stays one Tab
+   * away. It keeps its place in the row, so put empty chips last. Pass it on an editable chip
+   * whose face is the unset icon.
+   * @default false
+   */
+  empty?: boolean;
+};
 
 /**
  * `BoardCardChip` — one small pill in a `BoardCard`'s `chips` row: a thin border, no fill, an
@@ -554,17 +564,25 @@ export type BoardCardChipProps = useRender.ComponentProps<"span">;
 export function BoardCardChip({
   className,
   render,
+  empty = false,
   ...props
 }: BoardCardChipProps) {
   return useRender({
     defaultTagName: "span",
     props: mergeProps<"span">(
       {
+        "data-empty": empty ? "" : undefined,
         className: cn(
           "inline-flex h-6 max-w-full min-w-0 shrink-0 items-center gap-1 rounded-full border border-border bg-transparent px-2 text-xs whitespace-nowrap text-muted-foreground [&>svg]:pointer-events-none [&>svg]:size-3 [&>svg]:shrink-0 [a,button]:relative [a,button]:z-10",
+          // An empty value is invisible at rest — shown when the card is pointed at or focused
+          // (standalone, or on a Board), when the chip itself has focus, while its menu is open,
+          // and on touch. Invisible, not gone: it stays in the tab order (the `renderField`
+          // precedent).
+          empty &&
+            "opacity-0 transition-opacity group-hover/board-card:opacity-100 group-focus-within/board-card:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100 [[data-slot=board-card]:focus-within_&]:opacity-100 [[data-slot=board-card]:hover_&]:opacity-100",
           className,
         ),
-      },
+      } as React.ComponentProps<"span">,
       props,
     ),
     render,

@@ -691,3 +691,74 @@ export function boardHeaderAdd(): ReactNode {
     </Wrapper>
   );
 }
+
+/* ── Calm lanes: compact or collapsed empty lanes, the "No value" lane last, one skeleton ── */
+
+const CALM: BoardColumn<Deal>[] = [
+  { id: "none", title: "No stage", items: [], noValue: true },
+  INITIAL[0]!,
+  INITIAL[1]!,
+  { id: "won", title: "Won", items: [] },
+  { id: "parked", title: "Parked", items: [] },
+];
+
+export function boardCompactLanes(): ReactNode {
+  const [columns, setColumns] = useState(CALM);
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        height="22rem"
+        aria-label="Deals"
+        columns={columns}
+        emptyLane="compact"
+        noValueLane="last"
+        getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
+        renderCard={dealCard}
+        onAdd={() => {}}
+        addLabel="Add deal"
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+export function boardCollapseEmpty(): ReactNode {
+  const [columns, setColumns] = useState(CALM);
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        height="22rem"
+        aria-label="Deals"
+        columns={columns}
+        emptyLane="collapse"
+        noValueLane="last"
+        getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
+        renderCard={dealCard}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+export function boardLoading(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        height="16rem"
+        aria-label="Deals"
+        loading
+        loadingLanes={4}
+        columns={[]}
+        getItemId={(deal) => deal.id}
+        renderCard={dealCard}
+        onMove={() => {}}
+      />
+    </Wrapper>
+  );
+}

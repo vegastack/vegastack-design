@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.88 sha256-+2TilKxXnkgzIJptP4Kj2Uz/I4/JWPPX+VDrCWs9F88=
+// @vegastack data-grid@0.25.88 sha256-/7wNxKO6U9d096AvEt7sQbJ2XYsSHzGBH7+Bee4POzk=
 
 "use client";
 
@@ -11,6 +11,7 @@ import {
   Columns3,
   Inbox,
   Maximize2,
+  Plus,
 } from "lucide-react";
 import {
   createColumnHelper,
@@ -548,7 +549,7 @@ export interface DataGridProps<T> {
    * off for a grid whose columns are fixed, or when the host drives visibility
    * from its own settings surface — a three-column read-only grid should not
    * carry a column manager.
-   * @default true
+   * @default true, or false when `embedded`
    */
   columnPicker?: boolean;
   /**
@@ -713,10 +714,13 @@ export interface DataGridProps<T> {
    * @default undefined
    */
   toolbar?: React.ReactNode;
-  /** Host slot below the table.
+  /**
+   * Host slot below the table — any node, or an `embedded` block's footer as an object
+   * (`DataGridBlockFooter`): "+ New row" at the start (hidden while `readOnly`) and "25 of 117"
+   * at the end.
    * @default undefined
    */
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | DataGridBlockFooter;
   /**
    * Accessible name for the grid.
    * @default "Data grid"
@@ -859,6 +863,58 @@ export interface DataGridProps<T> {
    * @default 3
    */
   cardFields?: number;
+  /**
+   * A table block inside a page or document (a live table view): the grid is framed as one block
+   * — `toolbar` (a `BlockHeader`) on top, the rows, then `footer` — and its height comes from its
+   * rows, at most `maxRows` of them, so it never scrolls inside itself; it scrolls sideways when
+   * its columns overflow, with no cap on how many show (the fixed layout). The column picker is
+   * off unless `columnPicker` asks for it, and `virtualize`/`maxHeight` do not apply. Rows open
+   * the same way as anywhere else (`onRowOpen`).
+   * @default false
+   */
+  embedded?: boolean;
+  /**
+   * The most rows the grid shows, the first ones in display order — an `embedded` block's cap.
+   * Tell the reader how many there are with `footer`'s `shown` and `total`.
+   * @default 25 when `embedded`, otherwise no cap
+   */
+  maxRows?: number;
+  /**
+   * Nothing in the grid edits: no cell editors, paste, clear, cut or fill, no undo keys, no
+   * `headerTrailing` ("add field") column and no "+ New row" in a block footer. Rows still open,
+   * sort and select. For people who can see a table but not change it.
+   * @default false
+   */
+  readOnly?: boolean;
+}
+
+/** An `embedded` grid's footer, passed as `footer`. */
+export interface DataGridBlockFooter {
+  /**
+   * Add a row — shows "+ New row" at the footer's start (not while `readOnly`).
+   * @default undefined
+   */
+  onNewRow?: () => void;
+  /**
+   * The new-row button's label.
+   * @default "New row"
+   */
+  newRowLabel?: string;
+  /**
+   * How many rows the block shows.
+   * @default undefined
+   */
+  shown?: number;
+  /**
+   * How many rows there are in all. When it is more than `shown`, the footer's end says so.
+   * @default undefined
+   */
+  total?: number;
+  /**
+   * The count text, from `shown` and `total`.
+   * @default (shown, total) => `${shown} of ${total}`
+   */
+  countLabel?: (shown: number, total: number) => string;
 }
 
 /** What `actionsRef` exposes. */
@@ -2600,6 +2656,72 @@ function useCellContentOutOfTabOrder(table: HTMLTableElement | null) {
   }, [table]);
 }
 
+/** Whether `footer` is an embedded block's footer object rather than a node. */
+function isBlockFooter(
+  footer: React.ReactNode | DataGridBlockFooter,
+): footer is DataGridBlockFooter {
+  return (
+    footer != null &&
+    typeof footer === "object" &&
+    !React.isValidElement(footer) &&
+    // React's own objects (an element, a portal) carry `$$typeof`; a block footer never does.
+    !("$$typeof" in footer) &&
+    !Array.isArray(footer) &&
+    !(Symbol.iterator in footer) &&
+    !("then" in footer)
+  );
+}
+
+const defaultBlockCount = (shown: number, total: number) =>
+  `${shown} of ${total}`;
+
+/** An embedded block's footer: "+ New row" at the start, "25 of 117" at the end. */
+function GridBlockFooter({
+  footer,
+  readOnly,
+}: {
+  footer: DataGridBlockFooter;
+  readOnly: boolean;
+}) {
+  const {
+    onNewRow,
+    newRowLabel = "New row",
+    shown,
+    total,
+    countLabel = defaultBlockCount,
+  } = footer;
+  const canAdd = onNewRow != null && !readOnly;
+  const counted = shown != null && total != null && total > shown;
+  if (!canAdd && !counted) return null;
+  return (
+    <div
+      data-slot="data-grid-footer"
+      className="flex min-h-10 min-w-0 items-center gap-2 border-t border-border px-1.5 py-1"
+    >
+      {canAdd ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          data-slot="data-grid-new-row"
+          className="text-muted-foreground"
+          onClick={onNewRow}
+        >
+          <Plus aria-hidden />
+          {newRowLabel}
+        </Button>
+      ) : null}
+      {counted ? (
+        <span
+          data-slot="data-grid-row-count"
+          className="ms-auto pe-1.5 text-xs text-muted-foreground tabular-nums"
+        >
+          {countLabel(shown, total)}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * `DataGrid<T>` — the full-parity data grid: client or host-sorted multi-key
  * sort, a column picker and host-applied `columnOrder` (drag a header to
@@ -2646,6 +2768,20 @@ function useCellContentOutOfTabOrder(table: HTMLTableElement | null) {
  *   maxHeight="70dvh"
  *   ariaRowCount={total + 1}
  * />
+ *
+ * @example
+ * // A table block in a page: sized to its rows, editable for people who can edit.
+ * <DataGrid
+ *   embedded
+ *   aria-label="QA fixtures"
+ *   columns={fields}
+ *   data={rows}
+ *   getRowId={(r) => r.id}
+ *   toolbar={<BlockHeader icon={<Table2 />} title="QA fixtures" />}
+ *   footer={{ onNewRow: addRow, shown: rows.length, total }}
+ *   readOnly={!canEdit}
+ *   onRowOpen={openPeek}
+ * />
  */
 export function DataGrid<T>({
   columns: declaredColumns,
@@ -2657,27 +2793,27 @@ export function DataGrid<T>({
   maxSortKeys = 2,
   columnVisibility,
   onColumnVisibilityChange,
-  columnPicker = true,
+  columnPicker: columnPickerProp,
   columnOrder,
   onColumnReorder,
   onColumnResize,
   virtualizeColumns = false,
-  headerTrailing,
+  headerTrailing: headerTrailingProp,
   groupState,
   onGroupStateChange,
   sections: hostSections,
   rowHeight,
   summaryRow,
   cellMenu,
-  onCellCommit,
+  onCellCommit: onCellCommitProp,
   cellStatus,
   selectable = false,
   selectedIds,
   onSelectionChange,
   loadMore,
   pagedMode,
-  virtualize = false,
-  maxHeight,
+  virtualize: virtualizeProp = false,
+  maxHeight: maxHeightProp,
   ariaRowCount,
   ariaColCount,
   ariaRowIndexOffset = 0,
@@ -2689,11 +2825,11 @@ export function DataGrid<T>({
   className,
   ref,
   selectionMode = "rows",
-  onCellsCommit,
-  onFill,
-  onPasteOverflow,
-  onUndo,
-  onRedo,
+  onCellsCommit: onCellsCommitProp,
+  onFill: onFillProp,
+  onPasteOverflow: onPasteOverflowProp,
+  onUndo: onUndoProp,
+  onRedo: onRedoProp,
   remoteChanges,
   onRowOpen,
   activeRowId,
@@ -2708,17 +2844,36 @@ export function DataGrid<T>({
   loadingRows = 5,
   phoneLayout = "scroll",
   cardFields = 3,
+  embedded = false,
+  maxRows = embedded ? 25 : undefined,
+  readOnly = false,
 }: DataGridProps<T>) {
+  // An embedded block sizes to its rows (no inner scroll, so no row windowing) and leaves column
+  // choice to its block header; a read-only grid drops every write path at the door.
+  const columnPicker = columnPickerProp ?? !embedded;
+  const virtualize = virtualizeProp && !embedded;
+  const maxHeight = embedded ? undefined : maxHeightProp;
+  const headerTrailing = readOnly ? undefined : headerTrailingProp;
+  const onCellCommit = readOnly ? undefined : onCellCommitProp;
+  const onCellsCommit = readOnly ? undefined : onCellsCommitProp;
+  const onFill = readOnly ? undefined : onFillProp;
+  const onPasteOverflow = readOnly ? undefined : onPasteOverflowProp;
+  const onUndo = readOnly ? undefined : onUndoProp;
+  const onRedo = readOnly ? undefined : onRedoProp;
   // A numeric column without an alignment of its own lines its figures — and its header — up at
-  // the end (UX-12). Normalised once, so every part reads one `align`.
+  // the end (UX-12). Normalised once, so every part reads one `align`. A read-only grid's columns
+  // lose their editors and paste parsers, so no cell edits, pastes, clears or fills.
   const columns = React.useMemo(
     () =>
-      declaredColumns.map((column) =>
-        column.numeric && column.align === undefined
-          ? { ...column, align: "end" as const }
-          : column,
-      ),
-    [declaredColumns],
+      declaredColumns.map((column) => {
+        let next = column;
+        if (next.numeric && next.align === undefined)
+          next = { ...next, align: "end" as const };
+        if (readOnly && (next.editable != null || next.parse != null))
+          next = { ...next, editable: undefined, parse: undefined };
+        return next;
+      }),
+    [declaredColumns, readOnly],
   );
   // ---- controlled-optional state (the shared house idiom) ------------------
   const [activeSort, commitSort] = useControlledState<DataGridSort[]>(
@@ -2770,6 +2925,7 @@ export function DataGrid<T>({
   }, [columns, columnOrder]);
 
   const fixed =
+    embedded ||
     virtualizeColumns ||
     onColumnResize != null ||
     columns.some(
@@ -3023,7 +3179,7 @@ export function DataGrid<T>({
 
   // ---- groups, flattened into one item list -------------------------------
   const groupColumn = hostSections ? undefined : columns.find((c) => c.group);
-  const items = React.useMemo<GridItem<T>[]>(() => {
+  const allItems = React.useMemo<GridItem<T>[]>(() => {
     type Section = {
       id: string;
       label: React.ReactNode;
@@ -3086,6 +3242,26 @@ export function DataGrid<T>({
     }
     return out;
   }, [hostSections, groupColumn, sortedRows, groups]);
+  // `maxRows`: the first rows in DISPLAY order (sorted, grouped, collapsed groups left out) — an
+  // embedded block's cap. Everything after the last row kept goes, group headers included.
+  const items = React.useMemo(() => {
+    if (maxRows == null) return allItems;
+    let rows = 0;
+    let end = allItems.length;
+    for (let index = 0; index < allItems.length; index++) {
+      if (allItems[index]!.kind !== "row") continue;
+      if (rows === Math.max(0, maxRows)) {
+        end = index;
+        break;
+      }
+      rows += 1;
+    }
+    if (rows < Math.max(0, maxRows)) return allItems;
+    // Cut right after the last row kept: no trailing group header or load-more row.
+    const cut = allItems.slice(0, end);
+    while (cut.length && cut.at(-1)!.kind !== "row") cut.pop();
+    return cut.length === allItems.length ? allItems : cut;
+  }, [allItems, maxRows]);
 
   const rowItems = React.useMemo(
     () =>
@@ -3243,6 +3419,22 @@ export function DataGrid<T>({
   const [menuTarget, setMenuTarget] = React.useState<GridPosition | null>(null);
 
   const nodes = React.useRef(new Map<string, HTMLElement>());
+  // Turning `readOnly` on mid-edit (the viewer lost edit access) drops the editor with its
+  // column's `editable`: cancel the edit too, and give focus back to the cell it was in, so the
+  // grid's keys (and Escape) work again.
+  React.useEffect(() => {
+    if (!readOnly) return;
+    setEditingState((current) => {
+      if (current == null) return current;
+      const cell = nodes.current.get(nodeKey(current.rowId, current.key));
+      if (
+        cell?.contains(document.activeElement) ||
+        document.activeElement === document.body
+      )
+        requestAnimationFrame(() => cell?.focus());
+      return null;
+    });
+  }, [readOnly]);
   const pendingFocus = React.useRef<string | null>(null);
   /** A focused cell that unmounted this commit (a refetch moved or removed its row). */
   const lostFocus = React.useRef<GridPosition | null>(null);
@@ -4727,9 +4919,20 @@ export function DataGrid<T>({
         ref={setRoot}
         data-slot="data-grid"
         data-layout-mode={cardMode ? "cards" : "grid"}
+        data-embedded={embedded ? "" : undefined}
+        data-read-only={readOnly ? "" : undefined}
+        // An embedded block is not part of the text around it (a page editor's own node).
+        contentEditable={embedded ? false : undefined}
         // Its own stacking context: the sticky header, summary row and frozen columns layer
         // inside the grid and never over the page's floating parts (an ActionBar at z-10).
-        className={cn("isolate flex w-full min-w-0 flex-col gap-3", className)}
+        className={cn(
+          "isolate flex w-full min-w-0 flex-col",
+          // Embedded: one framed block — header, rows and footer ruled from each other.
+          embedded
+            ? "overflow-hidden rounded-lg border border-border"
+            : "gap-3",
+          className,
+        )}
         // Viewport height flows through a custom property (contract-clean).
         style={
           maxHeight
@@ -4743,7 +4946,10 @@ export function DataGrid<T>({
           sortSummary != null) && (
           <div
             data-slot="data-grid-toolbar"
-            className="flex min-w-0 flex-wrap items-center justify-between gap-2"
+            className={cn(
+              "flex min-w-0 flex-wrap items-center justify-between gap-2",
+              embedded && "border-b border-border",
+            )}
           >
             <div className="min-w-0 flex-1">{toolbar}</div>
             {hiddenColumns.length > 0 ? (
@@ -4858,8 +5064,15 @@ export function DataGrid<T>({
         )}
 
         {pagedMode ? <CursorPager {...pagedMode} /> : null}
-        {footer != null ? (
-          <div data-slot="data-grid-footer">{footer}</div>
+        {isBlockFooter(footer) ? (
+          <GridBlockFooter footer={footer} readOnly={readOnly} />
+        ) : footer != null ? (
+          <div
+            data-slot="data-grid-footer"
+            className={cn(embedded && "border-t border-border")}
+          >
+            {footer}
+          </div>
         ) : null}
         {selectable && selectionActions && selected.size > 0 ? (
           <SelectionBarSpacer slot="data-grid-selection-spacer" />

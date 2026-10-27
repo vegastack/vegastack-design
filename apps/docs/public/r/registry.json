@@ -877,7 +877,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.88",
-        "integrity": "sha256-zEzEUkEpjBAL0xW0yiAM4nML1Dh3VBFh2z973repELY="
+        "integrity": "sha256-ASX6JwKmwRtfDaaR87DP9TypHvRqHvDEQ2I4Hk7iEuw="
       }
     },
     {
@@ -913,7 +913,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.25.88",
-        "integrity": "sha256-+r2KlpjoY6BDvRYCCpunCYRfeju6maY8cqxkeCT477E="
+        "integrity": "sha256-L4aEC1fQ0GsOTSzo3wpdNDyFpRveKWwhs+b+ESz0Ey0="
       }
     },
     {
@@ -1563,7 +1563,7 @@
       "name": "data-grid",
       "type": "registry:ui",
       "title": "Data Grid",
-      "description": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.",
+      "description": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, an APG grid keyboard layer with inline cell editing, and an embedded mode for a table block in a page (sized to its rows, read-only for viewers).",
       "categories": [
         "data"
       ],
@@ -1605,7 +1605,40 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.88",
-        "integrity": "sha256-+2TilKxXnkgzIJptP4Kj2Uz/I4/JWPPX+VDrCWs9F88="
+        "integrity": "sha256-/7wNxKO6U9d096AvEt7sQbJ2XYsSHzGBH7+Bee4POzk="
+      }
+    },
+    {
+      "name": "block-header",
+      "type": "registry:ui",
+      "title": "Block Header",
+      "description": "A live block's header row in a page — icon · title · controls (View ▾, Filter) · ⋯ · ↗ Open — with an empty state that hosts the source picker (\"Pick a table…\").",
+      "categories": [
+        "data",
+        "layout"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-header.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-header.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The top row of a block that shows records from elsewhere inside a page — a table view (DataGrid embedded's toolbar), a task list — and the block's unconfigured state with its picker.",
+        "whenNotToUse": "A page's own header (DocumentLayoutHeader), a section heading (DocumentLayoutSection), or a record's header.",
+        "version": "0.25.86",
+        "integrity": "sha256-VE78nfvFUfSb+feAAq00l11tUbVQ/yZlX/bXZnQllQQ="
       }
     },
     {
@@ -1650,7 +1683,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.88",
-        "integrity": "sha256-4g44xsZAZMbtPw+9ZCi8NCXDC2ZtneJfgNwsUV9Am0w="
+        "integrity": "sha256-xJsY7CWm7VJRgWCuPxxlEH9KArU0PkcnL/XBkhBApoE="
       }
     },
     {

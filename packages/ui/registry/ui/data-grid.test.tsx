@@ -3254,3 +3254,218 @@ test("phone cards show their fields whatever the table would have fitted (auto l
   ).map((dt) => dt.textContent);
   expect(labels).toEqual(["Stage", "Amount", "Ref"]);
 });
+
+test("embedded: one framed block sized to its rows, at most maxRows, the fixed layout and no column picker", async () => {
+  const many: Deal[] = Array.from({ length: 30 }, (_, index) => ({
+    id: `m${index}`,
+    name: `Deal ${index}`,
+    stage: "Open",
+    amount: index,
+  }));
+  const screen = await render(
+    <DataGrid
+      embedded
+      aria-label="Deals block"
+      columns={columns()}
+      data={many}
+      getRowId={(d) => d.id}
+      toolbar={<span>Block header</span>}
+      footer={{ shown: 25, total: 117, onNewRow: () => {} }}
+    />,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-grid"]',
+  )!;
+  expect(root.hasAttribute("data-embedded")).toBe(true);
+  expect(root.getAttribute("contenteditable")).toBe("false");
+  // Auto columns, yet the fixed layout: it scrolls sideways instead of hiding columns.
+  expect(
+    screen.container.querySelector("table")!.getAttribute("data-layout"),
+  ).toBe("fixed");
+  // The first 25 rows only.
+  expect(
+    screen.container.querySelectorAll('[data-slot="data-grid-row"]').length,
+  ).toBe(25);
+  // No built-in column picker: the block header owns its view controls.
+  expect(
+    Array.from(screen.container.querySelectorAll("button")).some(
+      (b) => b.textContent === "Columns",
+    ),
+  ).toBe(false);
+  // No inner vertical scroll cap.
+  const viewport = screen.container.querySelector<HTMLElement>(
+    '[data-slot="grid-viewport"]',
+  )!;
+  expect(viewport.style.getPropertyValue("--data-grid-max-height")).toBe("");
+  // The block footer: + New row and the count.
+  await expect
+    .element(screen.getByRole("button", { name: "New row" }))
+    .toBeInTheDocument();
+  await expect.element(screen.getByText("25 of 117")).toBeInTheDocument();
+  await expectNoA11yViolations(root);
+});
+
+test("embedded: a block footer calls onNewRow; a count shows only while rows are left out", async () => {
+  const onNewRow = vi.fn();
+  const screen = await render(
+    <DataGrid
+      embedded
+      aria-label="Deals block"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      footer={{ onNewRow, newRowLabel: "Add deal", shown: 3, total: 3 }}
+    />,
+  );
+  (
+    screen.getByRole("button", { name: "Add deal" }).element() as HTMLElement
+  ).click();
+  expect(onNewRow).toHaveBeenCalledTimes(1);
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-row-count"]'),
+  ).toBeNull();
+});
+
+test("a node footer still renders as given", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      footer={<span>Totals here</span>}
+    />,
+  );
+  await expect.element(screen.getByText("Totals here")).toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-new-row"]'),
+  ).toBeNull();
+});
+
+test("readOnly: cells never edit, no add-field column or New row; rows still open", async () => {
+  const onCellCommit = vi.fn();
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataGrid
+      embedded
+      readOnly
+      aria-label="Deals block"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      getRowLabel={(d) => d.name}
+      onCellCommit={onCellCommit}
+      onRowOpen={onRowOpen}
+      headerTrailing={(focus) => (
+        <Button size="icon-sm" aria-label="Add field" {...focus}>
+          +
+        </Button>
+      )}
+      footer={{ onNewRow: () => {}, shown: 3, total: 10 }}
+    />,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-grid"]',
+  )!;
+  expect(root.hasAttribute("data-read-only")).toBe(true);
+  expect(screen.container.querySelector('[aria-label="Add field"]')).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-new-row"]'),
+  ).toBeNull();
+  await expect.element(screen.getByText("3 of 10")).toBeInTheDocument();
+  const name = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="name"]',
+  )!;
+  name.focus();
+  await userEvent.keyboard("{F2}");
+  await userEvent.keyboard("x");
+  expect(name.hasAttribute("data-editing")).toBe(false);
+  expect(onCellCommit).not.toHaveBeenCalled();
+  (
+    screen.getByRole("button", { name: "Open Globex" }).element() as HTMLElement
+  ).click();
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "d2",
+    expect.objectContaining({ index: 1 }),
+  );
+  await expectNoA11yViolations(root);
+});
+
+test("maxRows keeps the first rows in display order — host sections included — and drops what follows", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      maxRows={2}
+      sections={[
+        { id: "won", label: "Won", rowIds: ["d2"] },
+        { id: "open", label: "Open", rowIds: ["d1", "d3"] },
+      ]}
+    />,
+  );
+  const rowIds = Array.from(
+    screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="data-grid-row"]',
+    ),
+  ).map((row) => row.dataset.rowId);
+  // Won's d2 first (the sections' order), then Open's d1 — never d1 first because data says so.
+  expect(rowIds).toEqual(["d2", "d1"]);
+});
+
+test("a portal or element footer is a node, never a block footer", async () => {
+  const host = document.createElement("div");
+  document.body.appendChild(host);
+  const { createPortal } = await import("react-dom");
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      footer={createPortal(<span>Portalled footer</span>, host)}
+    />,
+  );
+  await expect
+    .element(screen.getByText("Portalled footer"))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-new-row"]'),
+  ).toBeNull();
+  host.remove();
+});
+
+test("readOnly turning on mid-edit cancels the edit and hands focus back to the cell", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const name = () =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-grid-row="d1"][data-grid-key="name"]',
+    )!;
+  name().focus();
+  await userEvent.keyboard("{F2}");
+  await expect.poll(() => name().hasAttribute("data-editing")).toBe(true);
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={fixedColumns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      readOnly
+    />,
+  );
+  await expect.poll(() => name().hasAttribute("data-editing")).toBe(false);
+  await expect.poll(() => document.activeElement).toBe(name());
+  // The grid's keys work again.
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .poll(() => (document.activeElement as HTMLElement).dataset.gridKey)
+    .toBe("stage");
+});

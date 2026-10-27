@@ -822,3 +822,213 @@ test("M on a card opens its untouched menu on the first item, and Enter picks it
   await userEvent.keyboard("{Enter}");
   expect(onOpen).toHaveBeenCalledOnce();
 });
+
+function laneOrder(): string[] {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(
+      '[data-slot="board-scroller"] > [data-slot="board-column"], [data-slot="board-scroller"] > [data-slot="board-column-collapsed"]',
+    ),
+  ).map((el) => el.dataset.boardLane ?? "");
+}
+
+const withEmpty = (): BoardColumn<Deal>[] => [
+  { id: "none", title: "No stage", items: [], noValue: true },
+  ...makeColumns().map((column) =>
+    column.id === "parked"
+      ? { ...column, droppable: true, lockedReason: undefined }
+      : column,
+  ),
+  { id: "lost", title: "Lost", items: [] },
+];
+
+test("emptyLane unset keeps the tall empty state and the order given", async () => {
+  await render(<Controlled initial={withEmpty()} />);
+  expect(laneOrder()).toEqual(["none", "lead", "won", "parked", "lost"]);
+  const lost = document.querySelector('[data-column="lost"]')!;
+  expect(lost.hasAttribute("data-compact")).toBe(false);
+  expect(
+    lost.querySelector('[data-slot="board-column-empty"]')!.textContent,
+  ).toContain("Nothing here");
+});
+
+test('noValueLane="last" moves the no-value lane to the end, and it collapses on a non-collapsible board', async () => {
+  const screen = await render(
+    <Controlled initial={withEmpty()} noValueLane="last" collapsible={false} />,
+  );
+  expect(laneOrder()).toEqual(["lead", "won", "parked", "lost", "none"]);
+  expect(
+    document
+      .querySelector('[data-column="none"]')!
+      .hasAttribute("data-no-value"),
+  ).toBe(true);
+  expect(
+    document.querySelector(
+      '[data-column="lead"] [data-slot="board-column-collapse"]',
+    ),
+  ).toBeNull();
+  await press(screen.getByRole("button", { name: "Collapse No stage lane" }));
+  await expect
+    .poll(() =>
+      document.querySelector(
+        '[data-slot="board-column-collapsed"][data-board-lane="none"]',
+      ),
+    )
+    .not.toBeNull();
+});
+
+test('emptyLane="compact": an empty lane is its header over a 48px target whose + adds', async () => {
+  const onAdd = vi.fn();
+  const screen = await render(
+    <Controlled
+      initial={withEmpty()}
+      emptyLane="compact"
+      onAdd={onAdd}
+      addLabel="Add deal"
+    />,
+  );
+  const lost = document.querySelector<HTMLElement>('[data-column="lost"]')!;
+  expect(lost.hasAttribute("data-compact")).toBe(true);
+  expect(lost.className).toContain("self-start");
+  const target = lost.querySelector<HTMLElement>(
+    '[data-slot="board-column-empty"]',
+  )!;
+  expect(target.className).toContain("h-12");
+  expect(target.textContent).not.toContain("Nothing here");
+  // The lane's only add is the target's +, never a second one under it.
+  expect(lost.querySelectorAll('[data-slot="board-column-add"]').length).toBe(
+    1,
+  );
+  (target.querySelector("button") as HTMLElement).click();
+  expect(onAdd).toHaveBeenCalledWith("lost");
+  // A lane with cards is untouched.
+  expect(
+    document
+      .querySelector('[data-column="lead"]')!
+      .hasAttribute("data-compact"),
+  ).toBe(false);
+  await expect
+    .element(screen.getByRole("region", { name: "Lost, 0 cards" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+test('emptyLane="collapse": empty lanes wait in Hidden columns; choosing one brings it back compact', async () => {
+  const screen = await render(
+    <Controlled initial={withEmpty()} emptyLane="collapse" />,
+  );
+  expect(laneOrder()).toEqual(["lead", "won"]);
+  await expect
+    .element(screen.getByRole("heading", { name: "Hidden columns" }))
+    .toBeInTheDocument();
+  const waiting = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-auto-hidden]"),
+  ).map((el) => el.dataset.boardLane);
+  expect(waiting).toEqual(["none", "parked", "lost"]);
+  await press(screen.getByRole("button", { name: /Lost/ }));
+  await expect.poll(() => laneOrder()).toEqual(["lead", "won", "lost"]);
+  expect(
+    document
+      .querySelector('[data-column="lost"]')!
+      .hasAttribute("data-compact"),
+  ).toBe(true);
+  await expectNoA11yViolations(document.body);
+});
+
+test('emptyLane="collapse": a lane a move empties stays on the board; a keyboard move reaches a waiting lane', async () => {
+  const onMove = vi.fn();
+  await render(
+    <Controlled initial={withEmpty()} emptyLane="collapse" onMove={onMove} />,
+  );
+  // Won holds one card: move it right — into Parked, which waits in the hidden list.
+  surface("d3").focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowRight}");
+  // The ghost brings Parked onto the board while it is the target.
+  await expect.poll(() => laneOrder()).toContain("parked");
+  await userEvent.keyboard(" ");
+  expect(onMove).toHaveBeenLastCalledWith("d3", "parked", 0);
+  // Won is empty now, and stays (compact) rather than vanishing under the reader.
+  await expect.poll(() => laneOrder()).toEqual(["lead", "won", "parked"]);
+  expect(
+    document.querySelector('[data-column="won"]')!.hasAttribute("data-compact"),
+  ).toBe(true);
+});
+
+test("loading: lane shells only — no cards, no counts — and the board is busy", async () => {
+  const columns = makeColumns().map((column) => ({
+    ...column,
+    loading: true,
+    items: [],
+  }));
+  const screen = await render(
+    <Controlled initial={columns} loading loadingLanes={3} />,
+  );
+  await expect
+    .element(screen.getByRole("group", { name: "Deals" }))
+    .toHaveAttribute("aria-busy", "true");
+  expect(
+    document.querySelectorAll('[data-slot="board-column-skeleton-lane"]')
+      .length,
+  ).toBe(3);
+  expect(document.querySelector('[data-slot="board-column"]')).toBeNull();
+  expect(
+    document.querySelector('[data-slot="board-column-skeleton"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(document.body);
+});
+
+test("a lane loading its first cards shows no count", async () => {
+  const columns = makeColumns().map((column) =>
+    column.id === "won" ? { ...column, items: [], loading: true } : column,
+  );
+  await render(<Controlled initial={columns} />);
+  expect(
+    document.querySelector(
+      '[data-column="won"] [data-slot="board-column-count"]',
+    ),
+  ).toBeNull();
+  expect(
+    document.querySelector(
+      '[data-column="lead"] [data-slot="board-column-count"]',
+    )?.textContent,
+  ).toBe("2");
+});
+
+test("the overflow cue: both edges carry a fade with a scroll shadow", async () => {
+  await render(<Controlled />);
+  for (const slot of ["board-fade-start", "board-fade-end"]) {
+    const fade = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+    expect(fade.className).toContain("after:from-foreground/5");
+  }
+});
+
+test('emptyLane="collapse": bringing a lane back moves focus into it', async () => {
+  const screen = await render(
+    <Controlled initial={withEmpty()} emptyLane="collapse" />,
+  );
+  const waiting = screen.getByRole("button", { name: /Lost/ });
+  (waiting.element() as HTMLElement).focus();
+  (waiting.element() as HTMLElement).click();
+  await vi.waitFor(() =>
+    expect(
+      document.activeElement?.closest('[data-column="lost"]'),
+    ).not.toBeNull(),
+  );
+});
+
+test('emptyLane="collapse": bringing back a collapsed lane focuses its expand strip', async () => {
+  const columns = withEmpty().map((column) =>
+    column.id === "lost" ? { ...column, defaultCollapsed: true } : column,
+  );
+  const screen = await render(
+    <Controlled initial={columns} emptyLane="collapse" />,
+  );
+  const waiting = screen.getByRole("button", { name: /Lost/ });
+  (waiting.element() as HTMLElement).focus();
+  (waiting.element() as HTMLElement).click();
+  await vi.waitFor(() =>
+    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+      "board-column-collapsed",
+    ),
+  );
+});
