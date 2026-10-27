@@ -1,4 +1,4 @@
-// @vegastack field-type-picker@0.25.89 sha256-MMqJiQ1K4x6szDtrNZ3QW6tJng+3xlYOlIfccR6hnVU=
+// @vegastack field-type-picker@0.25.90 sha256-nHBpXAMO35VPefQvJveiIOfZ0d+2AxLqSpkn5or3CEk=
 
 "use client";
 

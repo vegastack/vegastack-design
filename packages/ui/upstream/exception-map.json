@@ -244,6 +244,7 @@
     "OVL-22": ["sheet"],
     "API-39": ["toggle"],
     "API-40": ["textarea"],
+    "A11Y-25": ["calendar"],
     "API-37": ["item"],
     "FRM-17": ["input"],
     "API-38": ["select", "combobox"],

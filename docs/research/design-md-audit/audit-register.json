@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "51a1f63240afcfdbc0041e529d49b893614045c5da4d5cdfd78464245a91859b",
+  "contractSha256": "78b7bdd4d37d15a8cdbdf77eadb20329248e0c3c60458eb46bce55070c90a9d1",
   "expectedCounts": {
-    "totalRegistryItems": 777,
+    "totalRegistryItems": 778,
     "components": 189,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
-    "libs": 21,
+    "libs": 22,
     "chartBlocks": 68
   },
   "records": [
@@ -8552,6 +8552,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/tile-overlay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "disclosure-trigger",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/disclosure-trigger.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

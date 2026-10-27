@@ -1,5 +1,5 @@
 # component: calendar
-# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6, TYP-18
+# decisions: A11Y-2, A11Y-25, DOC-1, DOC-2, FOC-1, FOC-6, TYP-18
 # hunks:
 #   FOC-1, FOC-6: the focused day's `group-data-[focused=true]/day:border-ring`, `:ring-[3px]` and
 #     `:ring-ring/50` glow is removed. The day button is a real `<button>`, so the global
@@ -12,12 +12,19 @@
 #   TYP-18: the weekday and week-number labels' `text-[0.8rem]` becomes `text-xs` (12px). These
 #     are dense grid labels, not a control tier, so they go DOWN to the ramp's small step rather
 #     than up to `text-sm` as Button's and Toggle's `sm` tier does (MK, 2026-09-22).
+#   A11Y-25: today is marked without the hover grey (MK request 27-10-2026, blanket approval D19).
+#     The `today` cell drops upstream's `bg-muted`; the day button takes `font-medium` on today and,
+#     only while today is unselected, a 1px `border-foreground/40` outline (a border, never a ring,
+#     per BRD-1), so a selected today keeps the ordinary primary/range fill. The button also sets
+#     `aria-current="date"` on today, which react-day-picker 10 does not.
+#     A read-only calendar (no `mode`) renders no day button, so the cell itself draws the same
+#     outline and weight when it holds no button (`not-has-[button]:`).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/calendar.tsx b/calendar.tsx
-index ebd9871..6ecc19f 100644
+index ebd9871..defd02b 100644
 --- a/calendar.tsx
 +++ b/calendar.tsx
 @@ -1,16 +1,20 @@
@@ -162,8 +169,9 @@ index ebd9871..6ecc19f 100644
 +          defaultClassNames.range_end,
          ),
          today: cn(
-           "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
+-          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
 -          defaultClassNames.today
++          "rounded-(--cell-radius) text-foreground data-[selected=true]:rounded-none not-has-[button]:border not-has-[button]:border-foreground/40 not-has-[button]:font-medium",
 +          defaultClassNames.today,
          ),
          outside: cn(
@@ -248,12 +256,14 @@ index ebd9871..6ecc19f 100644
  
    return (
      <Button
-@@ -209,13 +219,13 @@ function CalendarDayButton({
+@@ -208,14 +218,15 @@ function CalendarDayButton({
+       data-range-start={modifiers.range_start}
        data-range-end={modifiers.range_end}
        data-range-middle={modifiers.range_middle}
++      aria-current={modifiers.today ? "date" : undefined}
        className={cn(
 -        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
-+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
++        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground group-data-[today=true]/day:font-medium group-[[data-today=true]:not([data-selected=true])]/day:border group-[[data-today=true]:not([data-selected=true])]/day:border-foreground/40 dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
          defaultClassNames.day,
 -        className
 +        className,

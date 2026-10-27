@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.25.89 sha256-6IGfRJzxRwsfIAzv6E60YWqi1nZErVZVDDjl1kBRSqA=
+// @vegastack record-aside@0.25.90 sha256-dMfyk4tvFgPTs6Mxa/r2Wehxe7dKnTTX8Zcf1O25Uxc=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
@@ -174,7 +175,10 @@ export function RecordAsideSection({
                 <Button
                   variant="ghost"
                   size="xs"
-                  className="group/fold -mx-2 h-6 min-w-0 gap-0 px-2 text-sm font-medium"
+                  className={cn(
+                    "group/fold -mx-2 h-6 min-w-0 gap-0 px-2 text-sm font-medium",
+                    disclosureTriggerClasses,
+                  )}
                 />
               }
             >

@@ -214,6 +214,89 @@ test("FOC-1/FOC-6: the focused day carries no ring glow", async () => {
   expect(button.className).toContain("group-data-[focused=true]/day:z-10");
 });
 
+const FOURTEENTH = new Date(YEAR, 0, 14);
+
+const todayButton = (screen: { container: HTMLElement }) =>
+  screen.container.querySelector<HTMLButtonElement>(
+    'td[data-today="true"] button',
+  )!;
+
+test("A11Y-25: today carries aria-current=date, and no other day does", async () => {
+  const screen = await render(
+    <Calendar mode="single" defaultMonth={JANUARY} today={FOURTEENTH} />,
+  );
+  const today = todayButton(screen);
+  expect(today.getAttribute("aria-current")).toBe("date");
+  expect(
+    screen.container.querySelectorAll('button[aria-current="date"]'),
+  ).toHaveLength(1);
+});
+
+test("A11Y-25: today is an outline with medium weight, never the hover grey", async () => {
+  const screen = await render(
+    <Calendar mode="single" defaultMonth={JANUARY} today={FOURTEENTH} />,
+  );
+  // This lane compiles no CSS, so the contract is the class string: the cell drops upstream's
+  // `bg-muted` (hover's fill), and the button draws a hairline only while today is unselected.
+  const cell = screen.container.querySelector('td[data-today="true"]')!;
+  expect(cell.className).not.toContain("bg-muted");
+  const today = todayButton(screen);
+  expect(today.className).toContain("group-data-[today=true]/day:font-medium");
+  expect(today.className).toContain(
+    "group-[[data-today=true]:not([data-selected=true])]/day:border-foreground/40",
+  );
+  // The width half: without it the colour lands on `border-0` and the marker vanishes.
+  expect(today.className.split(/\s+/)).toContain(
+    "group-[[data-today=true]:not([data-selected=true])]/day:border",
+  );
+  expect(today.className).not.toMatch(/(?:^|\s)(?:inset-)?ring-1(?:\s|$)/);
+});
+
+test("A11Y-25: a read-only calendar (no mode, no day buttons) still marks today on the cell", async () => {
+  const screen = await render(
+    <Calendar defaultMonth={JANUARY} today={FOURTEENTH} />,
+  );
+  const cell = screen.container.querySelector('td[data-today="true"]')!;
+  expect(cell.querySelector("button")).toBeNull();
+  const classes = cell.className.split(/\s+/);
+  expect(classes).toContain("not-has-[button]:border");
+  expect(classes).toContain("not-has-[button]:border-foreground/40");
+  expect(classes).toContain("not-has-[button]:font-medium");
+});
+
+test("A11Y-25: a selected today keeps the primary fill and drops the outline", async () => {
+  const screen = await render(
+    <Calendar
+      mode="single"
+      defaultMonth={JANUARY}
+      today={FOURTEENTH}
+      selected={FOURTEENTH}
+    />,
+  );
+  const cell = screen.container.querySelector('td[data-today="true"]')!;
+  // The outline is keyed on `:not([data-selected=true])` of this very cell.
+  expect(cell.getAttribute("data-selected")).toBe("true");
+  const today = todayButton(screen);
+  expect(today.getAttribute("data-selected-single")).toBe("true");
+  expect(today.getAttribute("aria-current")).toBe("date");
+});
+
+test("no a11y violations — today, unselected and selected", async () => {
+  const unselected = await render(
+    <Calendar mode="single" defaultMonth={JANUARY} today={FOURTEENTH} />,
+  );
+  await expectNoA11yViolations(unselected.container);
+  const inRange = await render(
+    <Calendar
+      mode="range"
+      defaultMonth={JANUARY}
+      today={FOURTEENTH}
+      selected={{ from: new Date(YEAR, 0, 12), to: new Date(YEAR, 0, 16) }}
+    />,
+  );
+  await expectNoA11yViolations(inRange.container);
+});
+
 test("no a11y violations — rest", async () => {
   const screen = await render(
     <Calendar mode="single" defaultMonth={JANUARY} selected={TWELFTH} />,

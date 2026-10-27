@@ -1,8 +1,9 @@
-// @vegastack share-dialog@0.25.89 sha256-QAzKLpsdC5R3lVn+k57ISPER09eLrCKKL5F1wqaAcDU=
+// @vegastack share-dialog@0.25.90 sha256-svnXNfkF5ht9vD3DNQtQuLHVUH+aSEW+jQDEwlfGG0Q=
 
 "use client";
 
 import * as React from "react";
+import { cn } from "@vegastack/design";
 import {
   ChevronDown,
   GlobeIcon,
@@ -21,6 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
@@ -858,7 +860,10 @@ export function ShareDialog({
             <Button
               variant="ghost"
               size="sm"
-              className="-mx-2 w-[calc(100%+var(--spacing)*4)] justify-between px-2 text-xs font-medium text-muted-foreground hover:text-foreground aria-expanded:text-foreground [&[data-panel-open]>svg]:rotate-180"
+              className={cn(
+                "-mx-2 w-[calc(100%+var(--spacing)*4)] justify-between px-2 text-xs font-medium text-muted-foreground hover:text-foreground aria-expanded:text-foreground [&[data-panel-open]>svg]:rotate-180",
+                disclosureTriggerClasses,
+              )}
             />
           }
         >
