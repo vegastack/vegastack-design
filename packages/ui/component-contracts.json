@@ -13054,6 +13054,24 @@
           }
         },
         {
+          "name": "FieldProperty",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a property row; it forwards no ref."
+          }
+        },
+        {
+          "name": "FieldPropertyProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FieldType",
           "kind": "type",
           "source": "packages/ui/registry/ui/field-cell.tsx",
@@ -13072,21 +13090,21 @@
           }
         },
         {
-          "name": "isValidFieldText",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/field-cell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
           "name": "READ_ONLY_FIELD_TYPES",
           "kind": "component-constant",
           "source": "packages/ui/registry/ui/field-cell.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "isValidFieldText",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],
@@ -13165,12 +13183,16 @@
         "@vegastack/people-picker",
         "@vegastack/person-avatar",
         "@vegastack/popover",
+        "@vegastack/property-list",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
+        "@vegastack/spinner",
         "@vegastack/text-edit",
+        "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
+        "@vegastack/use-announcer",
         "@vegastack/use-async-search"
       ],
       "npmDependencies": [
@@ -13224,6 +13246,31 @@
             {
               "name": "data-slot",
               "values": ["field-cell-editor"]
+            },
+            {
+              "name": "data-type",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldProperty": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "field-property",
+                "field-property-conflict",
+                "field-property-empty"
+              ]
             },
             {
               "name": "data-type",

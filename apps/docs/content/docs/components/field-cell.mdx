@@ -139,11 +139,36 @@ moves.
   file="components/preview/field-cell.tsx"
 />
 
+### Property rows
+
+`FieldProperty` is one field as a record's property row, inside a `PropertyList` — a row peek, a
+row page, a customer's or project's custom fields. Its value is drawn exactly as the grid draws it
+(`FieldCellDisplay`), with no box at rest and a quiet wash on hover; a click, <kbd>Enter</kbd> or a
+typed character opens the grid cell's own editor (`FieldCellEditor`) in place. A checkbox toggles
+where it is. A value that is itself a link — a URL, email, phone, record chips or files — stays
+followable, so an **Edit** pencil beside it (on hover and focus, always on touch) opens the editor. Read-only types (calculated, auto number, created and updated at and by), `readOnly`
+and `disabled` show the value with no hover. `onSave` returns a promise: the value shows at once, a
+spinner follows after 300ms, and a rejection rolls back with a Retry toast. `conflict` says
+"Someone changed this field." under the value. An empty value reads "Empty". On a phone the value
+goes full width under its label.
+
+<ComponentPreview
+  name="fieldCellProperties"
+  file="components/preview/field-cell.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
   path="../../packages/ui/registry/ui/field-cell.tsx"
   name="FieldCellDisplayProps"
+/>
+
+### FieldProperty
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-cell.tsx"
+  name="FieldPropertyProps"
 />
 
 ### FieldInput

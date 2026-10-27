@@ -1,14 +1,18 @@
-// @vegastack field-cell@0.25.91 sha256-bbRXrdYN/sxWbqHEiSBLWV47kEoHk5rvFOxmghHDJCI=
+// @vegastack field-cell@0.25.91 sha256-HY6tvwRqeEX+R5SDBqs/DXSmzBDd2OONX5VpO8PZMJI=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
-import type { EditableCellMove } from "@/components/ui/editable-cell";
+import {
+  EditableCell,
+  type EditableCellMove,
+} from "@/components/ui/editable-cell";
 import { InlineChip, useInlineChipResolver } from "@/components/ui/inline-chip";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
@@ -19,6 +23,11 @@ import {
 } from "@/components/ui/people-picker";
 import { PersonAvatar } from "@/components/ui/person-avatar";
 import {
+  PropertyLabel,
+  PropertyRow,
+  PropertyValue,
+} from "@/components/ui/property-list";
+import {
   Popover,
   PopoverAnchor,
   PopoverContent,
@@ -26,6 +35,7 @@ import {
 import { useTimeZone } from "@/components/ui/relative-time";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   TextEdit,
   type MentionKind,
@@ -37,10 +47,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "@/components/ui/toast";
 import {
   TruncatedText,
+  TruncationFocusProvider,
   useTruncationFocusable,
 } from "@/components/ui/truncated-text";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   useAsyncSearch,
   type AsyncSearchLoader,
@@ -475,6 +488,12 @@ export interface FieldCellDisplayProps {
    * @default undefined
    */
   onToggle?: (next: boolean) => void;
+  /**
+   * The field's name: a checkbox's accessible name ("Done") where no column header names it (a
+   * property row). Without it the checkbox reads its state.
+   * @default undefined
+   */
+  label?: string;
   /** Extra classes for the root. @default undefined */
   className?: string;
 }
@@ -495,6 +514,7 @@ export function FieldCellDisplay({
   config = {},
   state = "ready",
   onToggle,
+  label,
   className,
 }: FieldCellDisplayProps) {
   const timeZone = useTimeZone();
@@ -616,7 +636,7 @@ export function FieldCellDisplay({
           checked={value === true}
           readOnly={!onToggle}
           tabIndex={onToggle ? tabIndex : -1}
-          aria-label={value === true ? "Checked" : "Unchecked"}
+          aria-label={label ?? (value === true ? "Checked" : "Unchecked")}
           onCheckedChange={(next) => onToggle?.(next === true)}
         />,
       );
@@ -1917,5 +1937,448 @@ export function FieldCellEditor({
         />
       )}
     </span>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * FieldProperty — one field as an editable property row (Regent POL-30)
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props for `FieldProperty`. */
+export interface FieldPropertyProps {
+  /** The field's name: the row's label and the editor's accessible name. */
+  label: string;
+  /** A leading icon for the label (the field type's). @default undefined */
+  icon?: React.ReactNode;
+  /** The field's type. */
+  type: FieldType;
+  /** The persisted value, in its type's shape. */
+  value: FieldValue;
+  /**
+   * The field's configuration (options, currency, people and record search…), as the grid's.
+   * @default {}
+   */
+  config?: FieldConfig;
+  /**
+   * Save the edited value. Return a promise: the value shows at once, a spinner follows after
+   * 300ms, and a rejection rolls the value back with an announcement and an error toast offering
+   * Retry — `EditableCell`'s contract. Fires only when the value changed.
+   * @default undefined
+   */
+  onSave?: (next: FieldValue) => void | Promise<void>;
+  /**
+   * Someone else changed the field while it was open: `true` shows "Someone changed this field."
+   * under the value; a node shows that instead.
+   * @default undefined
+   */
+  conflict?: boolean | React.ReactNode;
+  /** Show the value only: no hover, no edit. Read-only types always are. @default false */
+  readOnly?: boolean;
+  /** Disable the row: the value dims, no hover, no edit. @default false */
+  disabled?: boolean;
+  /**
+   * What an empty value reads as, muted.
+   * @default "Empty"
+   */
+  emptyText?: string;
+  /**
+   * `standalone` gives the value its own tab stop; `managed` hands reachability to the host's
+   * roving focus.
+   * @default "standalone"
+   */
+  focusMode?: "standalone" | "managed";
+  /** Raise the error toast with Retry when `onSave` rejects. @default true */
+  saveErrorToast?: boolean;
+  /** Extra classes for the row. @default undefined */
+  className?: string;
+}
+
+/** A field value as `EditableCell`'s string: `""` for empty, else its JSON. */
+function propertyString(value: FieldValue): string {
+  if (value == null || value === "") return "";
+  if (Array.isArray(value) && value.length === 0) return "";
+  return JSON.stringify(value);
+}
+
+/** The value back from `propertyString`. */
+function propertyValue(text: string): FieldValue {
+  return text === "" ? null : (JSON.parse(text) as FieldValue);
+}
+
+/** A printable key with no modifier: it opens the editor with itself as the seed (type-to-edit). */
+function isPropertyTypingKey(event: React.KeyboardEvent): boolean {
+  return (
+    event.key.length === 1 &&
+    event.key !== " " &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey &&
+    !event.nativeEvent.isComposing &&
+    event.keyCode !== 229
+  );
+}
+
+/**
+ * The async save a checkbox or linked-value property runs itself (an `EditableCell` runs its own):
+ * the value shows at once, a spinner after 300ms, and a rejection rolls back with an announcement
+ * and an error toast offering Retry — the same contract, word for word.
+ */
+function usePropertySave(
+  label: string,
+  onSave: ((next: FieldValue) => void | Promise<void>) | undefined,
+  saveErrorToast: boolean,
+) {
+  const [pending, setPending] = React.useState<{ value: FieldValue } | null>(
+    null,
+  );
+  const [spinner, setSpinner] = React.useState(false);
+  const { announce, Announcer } = useAnnouncer();
+  const saving = pending !== null;
+  React.useEffect(() => {
+    if (!saving) return setSpinner(false);
+    const timer = setTimeout(() => setSpinner(true), 300);
+    return () => clearTimeout(timer);
+  }, [saving]);
+  const save = (next: FieldValue) => {
+    const result = onSave?.(next);
+    if (!(result instanceof Promise)) return;
+    setPending({ value: next });
+    result.then(
+      () => setPending(null),
+      (error: unknown) => {
+        setPending(null);
+        announce(`Couldn't save ${label} — value restored`);
+        if (!saveErrorToast) return;
+        const id = toast.add({
+          type: "error",
+          title: `Couldn't save ${label}`,
+          description: error instanceof Error ? error.message : undefined,
+          actionProps: {
+            children: "Retry",
+            onClick: () => {
+              toast.close(id);
+              save(next);
+            },
+          },
+        });
+      },
+    );
+  };
+  return { pending, saving, spinner, save, Announcer };
+}
+
+/** The trailing spinner of a slow save (after 300ms); decorative — the save is announced. */
+function PropertySpinner() {
+  return (
+    <Spinner aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+  );
+}
+
+/** A checkbox property: it toggles where it is, saving at once — no edit state. */
+function CheckboxProperty({
+  label,
+  value,
+  onSave,
+  saveErrorToast,
+}: {
+  label: string;
+  value: FieldValue;
+  onSave: ((next: FieldValue) => void | Promise<void>) | undefined;
+  saveErrorToast: boolean;
+}) {
+  const { pending, saving, spinner, save, Announcer } = usePropertySave(
+    label,
+    onSave,
+    saveErrorToast,
+  );
+  const shown = pending ? pending.value : value;
+  return (
+    <span
+      data-slot="field-property-checkbox"
+      aria-busy={saving || undefined}
+      className="inline-flex items-center gap-1.5"
+    >
+      <FieldCellDisplay
+        type="checkbox"
+        value={shown === true}
+        label={label}
+        onToggle={onSave ? (next) => save(next) : undefined}
+      />
+      {spinner ? <PropertySpinner /> : null}
+      <Announcer />
+    </span>
+  );
+}
+
+/** The types whose value holds its own links (a URL, a record chip, a file): no edit button over it. */
+const LINKED_PROPERTY_TYPES: ReadonlySet<FieldType> = new Set([
+  "url",
+  "email",
+  "phone",
+  "link",
+  "file",
+]);
+
+/**
+ * A property whose value is itself a link — a URL, an email, a phone, record chips, files. The
+ * value stays followable, so it can't sit inside an edit button (a control in a control); an
+ * "Edit {label}" pencil beside it (shown on hover and focus, always on touch) opens the cell editor
+ * instead, and an empty value is the edit button itself.
+ */
+function LinkedProperty({
+  label,
+  type,
+  value,
+  config,
+  onSave,
+  emptyText,
+  saveErrorToast,
+}: {
+  label: string;
+  type: FieldType;
+  value: FieldValue;
+  config: FieldConfig;
+  onSave: (next: FieldValue) => void | Promise<void>;
+  emptyText: string;
+  saveErrorToast: boolean;
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const trigger = React.useRef<HTMLButtonElement>(null);
+  const { pending, saving, spinner, save, Announcer } = usePropertySave(
+    label,
+    onSave,
+    saveErrorToast,
+  );
+  const shown = pending ? pending.value : value;
+  const close = () => {
+    setEditing(false);
+    requestAnimationFrame(() => trigger.current?.focus());
+  };
+  let body: React.ReactNode;
+  if (editing)
+    body = (
+      <FieldCellEditor
+        type={type}
+        label={label}
+        value={shown}
+        config={config}
+        onCommit={(next) => {
+          close();
+          if (propertyString(next) !== propertyString(shown)) save(next);
+        }}
+        onCancel={close}
+      />
+    );
+  else if (propertyString(shown) === "")
+    body = (
+      <Button
+        ref={trigger}
+        variant="ghost"
+        size="xs"
+        data-slot="field-property-edit"
+        aria-label={`Edit ${label}`}
+        onClick={() => setEditing(true)}
+        className="-mx-1.5 -my-0.5 h-auto min-h-6 px-1.5 text-sm font-normal text-muted-foreground"
+      >
+        {emptyText}
+      </Button>
+    );
+  else
+    body = (
+      <>
+        <FieldCellDisplay type={type} value={shown} config={config} />
+        <Button
+          ref={trigger}
+          variant="ghost"
+          size="icon-xs"
+          data-slot="field-property-edit"
+          aria-label={`Edit ${label}`}
+          onClick={() => setEditing(true)}
+          className="shrink-0 opacity-0 group-hover/linked:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
+        >
+          <Pencil />
+        </Button>
+      </>
+    );
+  return (
+    <span
+      data-slot="field-property-linked"
+      aria-busy={saving || undefined}
+      className="group/linked inline-flex max-w-full min-w-0 items-center gap-1"
+    >
+      {body}
+      {spinner ? <PropertySpinner /> : null}
+      <Announcer />
+    </span>
+  );
+}
+
+/**
+ * `FieldProperty` — one field as a record's property row, inside a `PropertyList`: its name on
+ * the left and its value on the right, drawn exactly as the grid draws it (`FieldCellDisplay` —
+ * choice badges, avatars, link chips, files), with no box at rest and a quiet wash on hover. A
+ * click, <kbd>Enter</kbd> or a typed character opens the grid cell's own editor
+ * (`FieldCellEditor`) in place: text, numbers, URLs, emails and phones inline; long text growing
+ * in place; choices on the in-cell option list; dates on the calendar; a link on the record
+ * picker. A checkbox toggles where it is. Read-only types (calculated, auto number, created and
+ * updated at and by) never edit. Saving follows `EditableCell`: the value shows at once, a spinner
+ * after 300ms, rollback and a Retry toast on failure. On a phone (below 40rem) the value goes full
+ * width under its label.
+ *
+ * @example
+ * <PropertyList variant="inline" aria-label="Fields">
+ *   <FieldProperty label="Stage" type="single_choice" value={stage} config={{ options }} onSave={saveStage} />
+ *   <FieldProperty label="Budget" type="currency" value={budget} config={{ currency: "EUR" }} onSave={saveBudget} />
+ * </PropertyList>
+ */
+export function FieldProperty({
+  label,
+  icon,
+  type,
+  value,
+  config = {},
+  onSave,
+  conflict,
+  readOnly = false,
+  disabled = false,
+  emptyText = "Empty",
+  focusMode = "standalone",
+  saveErrorToast = true,
+  className,
+}: FieldPropertyProps) {
+  const [editing, setEditing] = React.useState(false);
+  const [seed, setSeed] = React.useState<string | undefined>(undefined);
+  const still =
+    readOnly || disabled || !onSave || READ_ONLY_FIELD_TYPES.has(type);
+  const text = propertyString(value);
+  const shownEmpty = (
+    <span
+      data-slot="field-property-empty"
+      className="text-sm text-muted-foreground"
+    >
+      {emptyText}
+    </span>
+  );
+  let body: React.ReactNode;
+  if (type === "checkbox")
+    body = (
+      <CheckboxProperty
+        label={label}
+        value={value}
+        onSave={still ? undefined : onSave}
+        saveErrorToast={saveErrorToast}
+      />
+    );
+  else if (!still && LINKED_PROPERTY_TYPES.has(type))
+    body = (
+      <LinkedProperty
+        label={label}
+        type={type}
+        value={value}
+        config={config}
+        onSave={onSave!}
+        emptyText={emptyText}
+        saveErrorToast={saveErrorToast}
+      />
+    );
+  else if (still)
+    body =
+      text === "" ? (
+        shownEmpty
+      ) : (
+        <FieldCellDisplay type={type} value={value} config={config} />
+      );
+  else
+    body = (
+      <EditableCell
+        variant="inline"
+        label={label}
+        value={text}
+        emptyText={emptyText}
+        focusMode={focusMode}
+        saveErrorToast={saveErrorToast}
+        editing={editing}
+        editSeed={seed}
+        onEditingChange={(open) => {
+          setEditing(open);
+          if (!open) setSeed(undefined);
+        }}
+        renderValue={(shown) => (
+          // The value sits inside the edit button: its links and chips take a pointer click (they
+          // open, they don't edit) but are no tab stops — Enter edits, as in a grid cell.
+          <TruncationFocusProvider focusable={false}>
+            <FieldCellDisplay
+              type={type}
+              value={propertyValue(shown)}
+              config={config}
+            />
+          </TruncationFocusProvider>
+        )}
+        editor={{
+          type: "custom",
+          render: (slot) => (
+            <FieldCellEditor
+              type={type}
+              label={label}
+              value={propertyValue(slot.value)}
+              config={config}
+              seed={slot.seed}
+              onCommit={(next) => slot.commit(propertyString(next))}
+              onCancel={slot.cancel}
+            />
+          ),
+        }}
+        onSave={(next) => onSave(propertyValue(next))}
+      />
+    );
+  return (
+    <PropertyRow
+      data-slot="field-property"
+      data-type={type}
+      data-read-only={still ? "" : undefined}
+      data-disabled={disabled ? "" : undefined}
+      className={cn(
+        // On a phone (below 40rem) the value goes full width under its label, in either variant.
+        "max-sm:grid-cols-1 max-sm:gap-y-0.5 max-sm:group-data-[variant=inline]/property-list:grid-cols-1",
+        disabled && "opacity-50",
+        className,
+      )}
+    >
+      <PropertyLabel icon={icon}>{label}</PropertyLabel>
+      <PropertyValue
+        // A conflict note takes its own line under the value, in a flex (inline) value too.
+        className="flex-wrap"
+        onKeyDown={
+          still ||
+          editing ||
+          type === "checkbox" ||
+          LINKED_PROPERTY_TYPES.has(type)
+            ? undefined
+            : (event) => {
+                // Type-to-edit: a character typed on the resting value opens the editor from it.
+                if (
+                  event.target instanceof HTMLElement &&
+                  event.target.closest("[data-slot=editable-cell-display]") &&
+                  isPropertyTypingKey(event)
+                ) {
+                  event.preventDefault();
+                  setSeed(event.key);
+                  setEditing(true);
+                }
+              }
+        }
+      >
+        {body}
+        {conflict ? (
+          <p
+            data-slot="field-property-conflict"
+            role="status"
+            className="mt-1 basis-full text-xs text-warning-text"
+          >
+            {conflict === true ? "Someone changed this field." : conflict}
+          </p>
+        ) : null}
+      </PropertyValue>
+    </PropertyRow>
   );
 }

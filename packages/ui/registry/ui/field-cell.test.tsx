@@ -6,10 +6,12 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { DataGrid } from "./data-grid";
 import { InlineChipProvider } from "./inline-chip";
 import { TimeZoneProvider } from "./relative-time";
+import { PropertyList } from "./property-list";
 import {
   FieldCellDisplay,
   FieldCellEditor,
   FieldInput,
+  FieldProperty,
   isValidFieldText,
   type FieldConfig,
   type FieldType,
@@ -1393,4 +1395,156 @@ test("in a grid: @ in a long-text cell opens the mention menu, and choosing a pe
   await userEvent.keyboard("{Control>}{Enter}{/Control}");
   await vi.waitFor(() => expect(commits).toHaveLength(1));
   expect(String(commits[0])).toContain("mention://user/u1");
+});
+
+/* ---- FieldProperty (Regent POL-30) ---------------------------------------------------------- */
+
+function Property(props: Partial<React.ComponentProps<typeof FieldProperty>>) {
+  return (
+    <PropertyList variant="inline" aria-label="Fields">
+      <FieldProperty label="Stage" type="text" value="Open" {...props} />
+    </PropertyList>
+  );
+}
+
+test("FieldProperty: the grid's value in a property row; a click opens the cell editor, Enter saves", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(<Property onSave={onSave} />);
+  const row = screen.container.querySelector('[data-slot="field-property"]')!;
+  expect(row.querySelector('[data-slot="property-label"]')?.textContent).toBe(
+    "Stage",
+  );
+  await userEvent.click(screen.getByText("Open"));
+  const field = screen.getByRole("textbox", { name: "Stage" });
+  await expect.element(field).toHaveFocus();
+  await userEvent.keyboard("{End} won{Enter}");
+  expect(onSave).toHaveBeenCalledWith("Open won");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: a typed character opens the editor from it (type-to-edit)", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(<Property onSave={onSave} />);
+  const display = screen.container.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  display.focus();
+  await userEvent.keyboard("W");
+  const field = screen.getByRole("textbox", { name: "Stage" });
+  await expect.element(field).toHaveValue("W");
+});
+
+test("FieldProperty: a rejected save rolls back the value", async () => {
+  const onSave = vi.fn(() => Promise.reject(new Error("no")));
+  const screen = await render(
+    <Property onSave={onSave} saveErrorToast={false} />,
+  );
+  await userEvent.click(screen.getByText("Open"));
+  await userEvent.keyboard("{End}!{Enter}");
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('[data-slot="field-property"] dd')
+        ?.textContent,
+    ).toContain("Open"),
+  );
+  expect(
+    screen.container.querySelector('[data-slot="field-property"] dd')
+      ?.textContent,
+  ).not.toContain("Open!");
+});
+
+test("FieldProperty: read-only types and readOnly never edit; empty reads Empty; conflict says so", async () => {
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Created"
+        type="created_at"
+        value="2026-10-01T10:00:00Z"
+        onSave={() => {}}
+      />
+      <FieldProperty label="Notes" type="text" value={null} readOnly />
+      <FieldProperty
+        label="Site"
+        type="url"
+        value="https://example.com"
+        onSave={() => {}}
+        conflict
+      />
+    </PropertyList>,
+  );
+  const rows = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="field-property"]',
+  );
+  expect(rows[0]!.hasAttribute("data-read-only")).toBe(true);
+  expect(rows[0]!.querySelector('[data-slot="editable-cell"]')).toBeNull();
+  expect(rows[1]!.textContent).toContain("Empty");
+  expect(rows[1]!.querySelector('[data-slot="editable-cell"]')).toBeNull();
+  expect(
+    rows[2]!.querySelector('[data-slot="field-property-conflict"]')
+      ?.textContent,
+  ).toBe("Someone changed this field.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: a checkbox toggles in place, named by its field, and rolls back on a failed save", async () => {
+  let fail = false;
+  const onSave = vi.fn(() =>
+    fail ? Promise.reject(new Error("no")) : Promise.resolve(),
+  );
+  function Box() {
+    const [value, setValue] = React.useState<FieldValue>(false);
+    return (
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Paid"
+          type="checkbox"
+          value={value}
+          saveErrorToast={false}
+          onSave={async (next) => {
+            await onSave();
+            setValue(next);
+          }}
+        />
+      </PropertyList>
+    );
+  }
+  const screen = await render(<Box />);
+  const box = screen.getByRole("checkbox", { name: "Paid" });
+  // This lane compiles no CSS (the 16px box has no size here): click the element itself.
+  (box.element() as HTMLElement).click();
+  await expect.element(box).toHaveAttribute("aria-checked", "true");
+  expect(
+    screen.container.querySelector('[data-slot="editable-cell"]'),
+  ).toBeNull();
+  fail = true;
+  (box.element() as HTMLElement).click();
+  await vi.waitFor(() =>
+    expect(box.element().getAttribute("aria-checked")).toBe("true"),
+  );
+});
+
+test("FieldProperty: a linked value (a URL) stays a link; the Edit pencil beside it opens the editor", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Site"
+        type="url"
+        value="https://example.com"
+        onSave={onSave}
+      />
+    </PropertyList>,
+  );
+  const link = screen.getByRole("link", { name: "https://example.com" });
+  await expect.element(link).toBeInTheDocument();
+  expect(link.element().closest('[role="button"]')).toBeNull();
+  (
+    screen.getByRole("button", { name: "Edit Site" }).element() as HTMLElement
+  ).click();
+  const field = screen.getByRole("textbox", { name: "Site" });
+  await expect.element(field).toHaveFocus();
+  await userEvent.fill(field, "https://vegastack.com");
+  await userEvent.keyboard("{Enter}");
+  expect(onSave).toHaveBeenCalledWith("https://vegastack.com");
+  await expectNoA11yViolations(screen.container);
 });

@@ -2742,12 +2742,16 @@
         "@vegastack/people-picker",
         "@vegastack/person-avatar",
         "@vegastack/popover",
+        "@vegastack/property-list",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
+        "@vegastack/spinner",
         "@vegastack/text-edit",
+        "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
+        "@vegastack/use-announcer",
         "@vegastack/use-async-search"
       ],
       "files": [
@@ -2761,7 +2765,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.91",
-        "integrity": "sha256-bbRXrdYN/sxWbqHEiSBLWV47kEoHk5rvFOxmghHDJCI="
+        "integrity": "sha256-HY6tvwRqeEX+R5SDBqs/DXSmzBDd2OONX5VpO8PZMJI="
       }
     },
     {

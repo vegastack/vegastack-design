@@ -2,10 +2,12 @@
 
 import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
+import { PropertyList } from "@/components/ui/property-list";
 import {
   FieldCellDisplay,
   FieldCellEditor,
   FieldInput,
+  FieldProperty,
   type FieldConfig,
   type FieldType,
   type FieldValue,
@@ -181,6 +183,75 @@ export function fieldCellEditor(): ReactNode {
           </button>
         )}
       </div>
+    </Wrapper>
+  );
+}
+
+/** One property row whose save takes a moment (the spinner shows after 300ms). */
+function SavedProperty(props: {
+  label: string;
+  type: FieldType;
+  initial: FieldValue;
+  config?: FieldConfig;
+  conflict?: boolean;
+}) {
+  const [value, setValue] = useState<FieldValue>(props.initial);
+  return (
+    <FieldProperty
+      label={props.label}
+      type={props.type}
+      value={value}
+      config={props.config}
+      conflict={props.conflict}
+      onSave={(next) =>
+        new Promise<void>((resolve) =>
+          setTimeout(() => {
+            setValue(next);
+            resolve();
+          }, 600),
+        )
+      }
+    />
+  );
+}
+
+/** A record's fields as property rows: the grid's values, edited in place. */
+export function fieldCellProperties(): ReactNode {
+  return (
+    <Wrapper>
+      <PropertyList
+        variant="inline"
+        aria-label="Sample request fields"
+        className="w-full max-w-md"
+      >
+        <SavedProperty label="Name" type="text" initial="ARC-120 sample" />
+        <SavedProperty
+          label="Stage"
+          type="single_choice"
+          initial="sent"
+          config={{ options: OPTIONS }}
+        />
+        <SavedProperty
+          label="Price"
+          type="currency"
+          initial={1240}
+          config={{ currency: "EUR" }}
+        />
+        <SavedProperty label="Due" type="date" initial="2026-11-12" />
+        <SavedProperty label="Paid" type="checkbox" initial={false} />
+        <SavedProperty label="Notes" type="text" initial={null} />
+        <SavedProperty
+          label="Website"
+          type="url"
+          initial="https://example.com"
+          conflict
+        />
+        <FieldProperty
+          label="Created"
+          type="created_at"
+          value="2026-10-01T10:00:00Z"
+        />
+      </PropertyList>
     </Wrapper>
   );
 }
