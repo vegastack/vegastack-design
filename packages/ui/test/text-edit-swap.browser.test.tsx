@@ -226,3 +226,57 @@ test("composer: 32px at rest, like Input, with an empty footer taking no room", 
   expect(outer.right - control.right).toBe(4);
   expect(outer.bottom - control.bottom).toBe(4);
 });
+
+test.each([
+  ["empty", ""],
+  ["with text", "Hello world, a first line."],
+] as const)(
+  'inset="none" in a Dialog (%s): the first line starts where the ghost title above it does (POL-20)',
+  async (_name, value) => {
+    await preloadTextEdit();
+    const frame = (twin: string, readOnly: boolean) => (
+      <div
+        data-twin={twin}
+        data-slot="dialog-content"
+        style={{ padding: 16, width: 480 }}
+      >
+        <input
+          aria-label={`Title ${twin}`}
+          style={{ display: "block", padding: 0, border: 0, width: "100%" }}
+        />
+        <TextEdit
+          format="markdown"
+          inset="none"
+          defaultValue={value}
+          placeholder="Add a description…"
+          readOnly={readOnly}
+          aria-label={`Description ${twin}`}
+        />
+      </div>
+    );
+    const screen = await render(
+      <div>
+        {frame("read", true)}
+        {frame("edit", false)}
+      </div>,
+    );
+    const edit = screen.container.querySelector<HTMLElement>(
+      "[data-twin=edit] [data-slot=text-edit]",
+    )!;
+    await vi.waitFor(() =>
+      expect(edit.querySelector(".ProseMirror")).not.toBeNull(),
+    );
+    for (const twin of ["read", "edit"]) {
+      const box = screen.container.querySelector<HTMLElement>(
+        `[data-twin=${twin}]`,
+      )!;
+      const title = box.querySelector("input")!.getBoundingClientRect();
+      const root = box.querySelector<HTMLElement>("[data-slot=text-edit]")!;
+      const line = firstLine(root);
+      expect(
+        Math.abs(root.getBoundingClientRect().x + line.x - title.x),
+        `${twin}: the first line's start against the title's`,
+      ).toBeLessThanOrEqual(0.5);
+    }
+  },
+);

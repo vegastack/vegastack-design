@@ -2954,7 +2954,7 @@ test("the block grip sits clear of the text inside a narrow frame", async () => 
   );
 });
 
-test('inset="none": flush with a title above it in a Dialog — no start padding, no block grip (POL-20)', async () => {
+test('inset="none": flush with a title above it in a Dialog — no start padding, an inert grip, the block menu kept (POL-20)', async () => {
   const screen = await render(
     <div data-slot="dialog-content" style={{ padding: 16, width: 480 }}>
       <input
@@ -2983,11 +2983,21 @@ test('inset="none": flush with a title above it in a Dialog — no start padding
   expect(paragraph.getBoundingClientRect().left).toBe(
     title.getBoundingClientRect().left,
   );
+  // The grip has no room: hovered, it stays invisible and inert…
   await userEvent.hover(paragraph);
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  expect(
-    document.querySelector('[data-slot="text-edit-block-handle"]'),
-  ).toBeNull();
+  const grip = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-block-handle"]');
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  expect(grip()!.hasAttribute("data-grip-hidden")).toBe(true);
+  expect(grip()!.className).toContain("opacity-0");
+  expect(grip()!.className).toContain("pointer-events-none");
+  // …and the keyboard still opens the block menu it anchors.
+  await userEvent.click(paragraph);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[role="menu"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("{Escape}");
 });
 
 // ---- Citations: the read view stands in whenever the document is not being edited ------------
