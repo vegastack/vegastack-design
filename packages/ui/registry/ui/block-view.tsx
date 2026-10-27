@@ -1,4 +1,4 @@
-// @vegastack block-view@0.25.90 sha256-BM5DWeQWtQzVSxKRzIJH120gQRt/yDya6qBdo+pBy1Q=
+// @vegastack block-view@0.25.91 sha256-lS7D/ujGrqJ6/U9ltdldhqjh2U33BGfNzU/wwETTnoo=
 
 "use client";
 

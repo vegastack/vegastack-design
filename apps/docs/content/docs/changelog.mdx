@@ -10,6 +10,48 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.91] — October 27, 2026
+
+### 🔧 Changed components
+
+- **CommentThread**, **CommentItem**: Resolve moves from the thread header to the first comment's action row — a ✓ hover action before add-reaction, shown on hover or focus and always on a touch screen — through `CommentItem`'s new `onResolve`. The header now shows only when it has something to say: the quote, "Original text was removed", or "Resolved by …" with Reopen; a page-level thread (no quote) no longer opens with an empty band above the author line. [docs](/docs/components/comments) ·
+  [`4f98ad7`](https://github.com/VegaStack/vegastack-design/commit/4f98ad7)
+- **FieldCellDisplay**, **FieldCellEditor**, **FieldInput**, **DataGrid**: a choice value is drawn as a `Badge` filled in its option's hue — no outlined pill — in a cell, a phone card, the editor's list and a form trigger, through the new exported `FieldChoiceBadge` (`hue` + Badge's props), still two then "+N" with every name on hover and keyboard focus. A choice cell's editor no longer puts a field with a pill and a chevron inside the cell: the cell keeps its badges where they were, and the option list opens under it at once with the search field first, each option a badge with a check on the chosen ones and "Add “…”" when `onCreateOption` is given. A single choice commits on the pick; a multiple choice now toggles with the list open (it used to commit and close on the first pick) and commits on Tab, on Enter with no option highlighted, or when the list closes; Escape cancels. `DataGrid` no longer shows the fill handle on a cell being edited. [docs](/docs/components/field-cell) ·
+  [`9d6ec9a`](https://github.com/VegaStack/vegastack-design/commit/9d6ec9a)
+- **VersionCompare**: the host can choose the side a phone shows — `defaultPhoneView` (`"list"` by default) or controlled `phoneView` with `onPhoneViewChange`, which reports `"preview"` on a pick and `"list"` from the back button. A "View changes" link to one checkpoint passes `defaultPhoneView="preview"` with `selectedId` and `showChanges`, so a phone opens on that version's changes instead of the list. Nothing changes when none is passed. [docs](/docs/components/version-compare) ·
+  [`5497cf6`](https://github.com/VegaStack/vegastack-design/commit/5497cf6)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.39`** (was `0.8.38`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.90 → 0.25.91.
+
+### 🐛 Fixed
+
+- Row states, empty values, phone board lanes and inline chips (Regent polish audit).
+
+  - **DataList** and **DataGrid** use one set of row states. Hover is a faint `muted`/30 wash with no start edge. A ticked row keeps the stronger `muted`/50 wash. The open row (`activeRowId`) gets the `accent` wash and the 2px start edge. The edge used to follow the mouse, because DataList's pointer-driven cursor drew it; now only the keyboard cursor and keyboard focus draw it.
+  - **DataGrid** pinned (frozen) cells now take a ticked row's wash. They checked `data-selected="true"`, but rows set `data-selected=""`. The phone card view has the same fix.
+  - **DataGrid** shows an empty primary value as a muted "Untitled" in the primary cell and in a card's title. The new `untitledLabel` prop overrides the word. Cards leave out fields that have no value, label included.
+  - **Board** on a phone with lane tabs: each lane header drops the title and count that its tab already shows, and keeps only its actions.
+  - **InlineChip** (mentions, file and record chips) never wraps. Its icon and label stay on one line, and a chip wider than its line ends in an ellipsis.
+  - **DataList** and **DataGrid** can show a sort set somewhere else, such as a toolbar. Pass `sort` without `onSortChange` and the headers are no longer sort buttons. The sorted column still shows a read-only ↑/↓ (with its position number in a multi-sort) and keeps `aria-sort`. `SortableHead` also draws the read-only glyph when it gets a `direction` and no `onSort`.
+  - **Board** card and lane menus and **SortableList** item menus use ⋯, the same as table rows. The app-shell header's actions menu keeps ⋮.
+  - **SortableList** takes `handle="fine"`: the drag grip ⠿ shows only on a mouse or pen. On a touch screen there is no grip, and a long-press still lifts the row or tile. The handle stays in the tab order and comes back into view while it has keyboard focus. The default, `handle="always"`, is unchanged.
+    [`1d94395`](https://github.com/VegaStack/vegastack-design/commit/1d94395)
+
+- **FieldCellEditor**: a choice cell's list puts focus in its search field as soon as the list is there, so the first keys typed after opening the editor search and choose instead of landing nowhere. [docs](/docs/components/field-cell) ·
+  [`0d6a462`](https://github.com/VegaStack/vegastack-design/commit/0d6a462)
+- **FilterBuilder**, **GroupByPicker**: "Add group" no longer means two things. `FilterBuilder`'s nested-condition button reads "Add condition group" (new `labels.addGroup`), and `GroupByPicker`'s add button reads "Group by" while no level is set and "Add level" once one is (new `labels` prop, `GroupByPickerLabels`: `groupBy`, `addLevel`). [docs](/docs/components/filter-bar-managed) ·
+  [`0d6a462`](https://github.com/VegaStack/vegastack-design/commit/0d6a462)
+- Enter that confirms an input-method (IME) candidate no longer submits or commits early. The Enter that ends an IME composition can arrive with `isComposing` already false and `keyCode` 229, and Enter-to-submit only checked `isComposing`. It now checks both, in **Textarea** `submitOnEnter`, **ChipInput**, **PickerPanel** search, **TaskInline**, **EditableCell**, `useInlineEdit`, **SearchInput** `onValueCommitted`, **DocumentLayout** find, **Transcript** search and speaker rename, the **AgentPanel** reply and instructions and the **DelegatePopover** ⌘Enter send, **TextEdit** (⌘Enter submit, block exits, the bookmark field, find and replace), the editor suggestion menus (`suggestionMenuKeyDown`, used by TextEdit and TemplateEditor), **BlockView**'s ⌘Enter, and the search-palette block's ⌘Enter. DataGrid, FieldCell and InlineChip already checked both.
+  [`4f4da52`](https://github.com/VegaStack/vegastack-design/commit/4f4da52)
+
+### ⚠️ Breaking
+
+- **ViewTabs**: the `+` menu offers just **Grid view** and **Board view**, each with its icon, instead of "Shared" and "Personal" groups of both. `onCreate` is now `(kind) => void` — it takes the kind alone; the host's own create step names the new view and decides who sees it (an "Only visible to me" switch). `canCreateShared` and the `createShared` / `createPersonal` labels are removed. Migrate `onCreate={(kind, scope) => …}` to `onCreate={(kind) => …}` and drop `canCreateShared`. The tab row's shared and personal grouping ("Mine") is unchanged. [docs](/docs/components/view-tabs) ·
+  [`9d6ec9a`](https://github.com/VegaStack/vegastack-design/commit/9d6ec9a)
+
 ## [0.25.90] — October 27, 2026
 
 ### 🧩 New components
