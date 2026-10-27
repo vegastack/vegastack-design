@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-cwINpJkHdZfKRNYbOqxrFB0T8fTp2RAGITLSL+CGmj8=
+// @vegastack text-edit@0.25.91 sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E=
 
 "use client";
 
@@ -1292,6 +1292,18 @@ export interface TextEditProps {
    */
   dragHandles?: boolean;
   /**
+   * The text's inline start. `auto`: inside a Dialog, Sheet, Drawer, Popover or Card whose padding
+   * is narrower than the block grip needs, the content takes just enough start padding for the ⋮⋮
+   * grip to sit before the text. `none`: the text starts at the editor's own edge — flush with a
+   * ghost `Input` or `Textarea` title above it (a New task dialog's description), placeholder and
+   * caret included — and the block grip, which would have no room, is not shown. Everything it
+   * opens stays: ⌘/ and ⇧F10 open the block menu, and on touch a long-press does (as with
+   * `touchBlockMenu="longPress"`, which `inset="none"` implies),
+   * ⌘⇧↑ / ⌘⇧↓ move blocks, and a table keeps its own grips.
+   * @default "auto"
+   */
+  inset?: "auto" | "none";
+  /**
    * Called with the serialized document when an edit is committed: focus leaves the editor with a
    * document that differs from the one focus arrived with, the page is hidden, the editor
    * unmounts mid-edit, or `autosave` fires. One commit path — a value is never committed twice.
@@ -2155,7 +2167,10 @@ export function TextEdit(props: TextEditProps) {
 
   const handleGutter = useHandleGutter(
     rootRef,
-    editable && editorProps.dragHandles !== false && !boxed,
+    editable &&
+      editorProps.dragHandles !== false &&
+      editorProps.inset !== "none" &&
+      !boxed,
   );
   const minCss = toCssLength(minHeight);
   const maxCss = toCssLength(maxHeight);

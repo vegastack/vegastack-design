@@ -2954,6 +2954,52 @@ test("the block grip sits clear of the text inside a narrow frame", async () => 
   );
 });
 
+test('inset="none": flush with a title above it in a Dialog — no start padding, an inert grip, the block menu kept (POL-20)', async () => {
+  const screen = await render(
+    <div data-slot="dialog-content" style={{ padding: 16, width: 480 }}>
+      <input
+        aria-label="Title"
+        style={{ display: "block", padding: 0, border: 0 }}
+      />
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        inset="none"
+        placeholder="Add a description…"
+      />
+    </div>,
+  );
+  const content = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit-content"]',
+  )!;
+  // The read view (before any edit) and the editor share one box: no grip gutter in either.
+  expect(content.style.paddingInlineStart).toBe("");
+  await userEvent.click(content);
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  const paragraph = screen.container.querySelector(".ProseMirror p")!;
+  const title = screen.container.querySelector("input")!;
+  expect(paragraph.getBoundingClientRect().left).toBe(
+    title.getBoundingClientRect().left,
+  );
+  // The grip has no room: hovered, it stays invisible and inert…
+  await userEvent.hover(paragraph);
+  const grip = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-block-handle"]');
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  expect(grip()!.hasAttribute("data-grip-hidden")).toBe(true);
+  expect(grip()!.className).toContain("opacity-0");
+  expect(grip()!.className).toContain("pointer-events-none");
+  // …and the keyboard still opens the block menu it anchors.
+  await userEvent.click(paragraph);
+  await userEvent.keyboard("{Shift>}{F10}{/Shift}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[role="menu"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("{Escape}");
+});
+
 // ---- Citations: the read view stands in whenever the document is not being edited ------------
 
 const cite = (n: number) => ({ label: `Source ${n}` });
@@ -8231,6 +8277,56 @@ test('touchBlockMenu="longPress": no grip on touch; a long press on a block open
   const screen = await markdownEditor({
     defaultValue: "Hold me",
     touchBlockMenu: "longPress",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("p")!);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(
+    document.querySelector('[data-slot="text-edit-block-handle"]'),
+  ).toBeNull();
+  const target = box.querySelector("p")!;
+  const rect = target.getBoundingClientRect();
+  const touch = new Touch({
+    identifier: 1,
+    target,
+    clientX: rect.left + 5,
+    clientY: rect.top + 5,
+  });
+  target.dispatchEvent(
+    new TouchEvent("touchstart", {
+      touches: [touch],
+      targetTouches: [touch],
+      changedTouches: [touch],
+      bubbles: true,
+    }),
+  );
+  await vi.waitFor(
+    () =>
+      expect(
+        document.querySelector('[data-slot="sheet-content"]')?.textContent,
+      ).toContain("Duplicate"),
+    { timeout: 2000 },
+  );
+});
+
+test('inset="none" on touch: no grip, and a long press opens the block menu with the default touchBlockMenu', async () => {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("pointer: coarse"),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+  const screen = await markdownEditor({
+    defaultValue: "Hold me",
+    inset: "none",
   });
   const box = screen.getByRole("textbox", { name: "Notes" }).element();
   await userEvent.click(box.querySelector("p")!);

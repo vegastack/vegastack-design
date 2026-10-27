@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-cwINpJkHdZfKRNYbOqxrFB0T8fTp2RAGITLSL+CGmj8=
+// @vegastack text-edit@0.25.91 sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E=
 
 "use client";
 
@@ -10546,11 +10546,18 @@ function BlockHandle({
   editor,
   runtime,
   longPress = false,
+  gripHidden = false,
 }: {
   editor: Editor;
   runtime: BlockMenuRuntime;
   /** On touch: no grip; a long press on a block opens its menu (`touchBlockMenu="longPress"`). */
   longPress?: boolean;
+  /**
+   * `inset="none"`: the text is flush with its frame, so there is no room for the grip. It stays
+   * mounted, invisible and inert, as the anchor for the block menu the keyboard (⌘/, ⇧F10, the
+   * context-menu key) and a touch long-press still open.
+   */
+  gripHidden?: boolean;
 }) {
   const { value, show, hideSoon, keep, pinnedRef } = useHover<BlockTarget>(
     (a, b) => a.dom === b.dom && a.pos === b.pos,
@@ -10813,11 +10820,13 @@ function BlockHandle({
                 width: size,
                 height: coarse ? 24 : 20,
               }}
+              data-grip-hidden={gripHidden ? "" : undefined}
               className={cn(
                 GRIP,
                 // A 24×28 hit area around the 16×20 grip (WCAG 2.5.8), reaching no further than
                 // the text's edge; on touch a 44px one, centred on the 24px grip.
                 "after:absolute after:-inset-x-1 after:-inset-y-1 after:content-[''] pointer-coarse:after:-inset-2.5",
+                gripHidden && "pointer-events-none opacity-0",
               )}
             >
               <GripVertical />
@@ -11109,6 +11118,7 @@ export function TextEditEditor({
   placeholder,
   slashCommands = [],
   dragHandles = true,
+  inset = "auto",
   onCommit,
   onRevert,
   onSubmit,
@@ -13895,7 +13905,10 @@ export function TextEditEditor({
           <BlockHandle
             editor={editor}
             runtime={blockMenuRuntime}
-            longPress={touchBlockMenu === "longPress"}
+            // `inset="none"`: flush with the frame, so the grip has no room; its menu stays — on
+            // touch through a long-press, whatever `touchBlockMenu` says, since there is no grip.
+            longPress={touchBlockMenu === "longPress" || inset === "none"}
+            gripHidden={inset === "none"}
           />
           <TableControls editor={editor} markdown={markdown} />
         </>
