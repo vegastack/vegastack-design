@@ -7238,6 +7238,23 @@ function TurnIntoPanel({
   );
 }
 
+/** The text column's width, followed as it resizes (the bubble's cap). */
+function useColumnWidth(editor: Editor, enabled: boolean): number | undefined {
+  const [width, setWidth] = React.useState<number | undefined>(() =>
+    enabled ? editor.view.dom.clientWidth || undefined : undefined,
+  );
+  React.useEffect(() => {
+    if (!enabled) return;
+    const dom = editor.view.dom;
+    const observer = new ResizeObserver(() =>
+      setWidth(dom.clientWidth || undefined),
+    );
+    observer.observe(dom);
+    return () => observer.disconnect();
+  }, [editor, enabled]);
+  return enabled ? width : undefined;
+}
+
 /** The unlinked checklist lines a selection reaches, with text: the bubble's Make task(s). */
 function selectedTaskLines(state: EditorState): OfferedLine[] {
   const { from, to, empty } = state.selection;
@@ -7292,6 +7309,10 @@ function SelectionMenu({
     editor,
     selector: ({ editor: ed }) => ({
       taskLines: makeTask?.() ? selectedTaskLines(ed.state).length : 0,
+      // The host's actions read the selection's text: a new selection redraws them.
+      selection: bubbleActions
+        ? `${ed.state.selection.from}:${ed.state.selection.to}`
+        : "",
       bold: ed.isActive("bold"),
       italic: ed.isActive("italic"),
       strike: ed.isActive("strike"),
@@ -7306,6 +7327,7 @@ function SelectionMenu({
       cell: inTableCell(ed.state),
     }),
   });
+  const columnWidth = useColumnWidth(editor, !docked);
   const close = () => onPanelChange(null);
 
   if (panel === "link")
@@ -7369,9 +7391,6 @@ function SelectionMenu({
   const surface = docked
     ? "flex h-full min-w-max items-center px-1"
     : cn(MENU_SURFACE, "flex-wrap");
-  const columnWidth = docked
-    ? undefined
-    : editor.view.dom.clientWidth || undefined;
   const selectionText = () => {
     const { from, to } = editor.state.selection;
     return editor.state.doc.textBetween(from, to, "\n", " ");
