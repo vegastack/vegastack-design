@@ -14242,10 +14242,13 @@
         "@vegastack/chip",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/sheet",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -14289,16 +14292,19 @@
                 "filter-bar-filter-builder",
                 "filter-bar-filters",
                 "filter-bar-filters-toggle",
+                "filter-bar-leading",
                 "filter-bar-primary",
                 "filter-bar-scope",
                 "filter-bar-search",
+                "filter-bar-search-toggle",
                 "filter-bar-sort",
                 "filter-bar-sort-content",
                 "filter-bar-trailing",
                 "filter-bar-view",
                 "filter-bar-view-actions",
                 "filter-bar-view-content",
-                "filter-bar-view-menu"
+                "filter-bar-view-menu",
+                "filter-bar-view-sheet"
               ]
             },
             {

@@ -2567,10 +2567,13 @@
         "@vegastack/chip",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/sheet",
+        "@vegastack/use-media-query"
       ],
       "files": [
         {

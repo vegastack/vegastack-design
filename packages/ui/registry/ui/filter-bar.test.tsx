@@ -1305,3 +1305,278 @@ test("filterBuilder, uncontrolled: a remembered row state neither opens the buil
   await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
   expect(window.sessionStorage.getItem("grid-builder-uncontrolled")).toBe("1");
 });
+
+// ---- leading, icon search, the View menu as a phone sheet --------------------------------------
+
+test("leading sits before the search on the tools' row", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <FilterBar
+      leading={<span>View tabs</span>}
+      search={{ value: "", onValueChange: () => {}, placeholder: "Search" }}
+      sort={<p>Sort</p>}
+    />,
+  );
+  const primary = screen.container.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-primary"]',
+  )!;
+  const leading = primary.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-leading"]',
+  )!;
+  expect(primary.firstElementChild).toBe(leading);
+  const search = primary.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-search"]',
+  )!;
+  const sort = screen.getByRole("button", { name: "Sort" }).element();
+  expect(leading.getBoundingClientRect().right).toBeLessThanOrEqual(
+    search.getBoundingClientRect().left,
+  );
+  expect(
+    Math.abs(
+      leading.getBoundingClientRect().top - sort.getBoundingClientRect().top,
+    ),
+  ).toBeLessThan(8);
+});
+
+test("on a phone-width bar, leading and the tools share the first row; a search field goes below", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const bar = (mode: "field" | "icon") => (
+    <div style={{ width: 360 }}>
+      <FilterBar
+        leading={<span className="whitespace-nowrap">Grid · Board · Mine</span>}
+        searchMode={mode}
+        search={{ value: "", onValueChange: () => {}, placeholder: "Search" }}
+        filterBuilder={<p>Builder</p>}
+        sort={<p>Sort</p>}
+        fields={<p>Fields</p>}
+        actions={<button type="button">New</button>}
+      />
+    </div>
+  );
+  const screen = await render(bar("icon"));
+  const top = (slot: string) =>
+    screen.container
+      .querySelector<HTMLElement>(`[data-slot="${slot}"]`)!
+      .getBoundingClientRect().top;
+  const row = screen.container.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-primary"]',
+  )!;
+  expect(
+    Math.abs(top("filter-bar-leading") - top("filter-bar-controls")),
+  ).toBeLessThan(8);
+  expect(
+    Math.abs(top("filter-bar-search-toggle") - top("filter-bar-controls")),
+  ).toBeLessThan(8);
+  expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1);
+  await screen.rerender(bar("field"));
+  expect(
+    Math.abs(top("filter-bar-leading") - top("filter-bar-controls")),
+  ).toBeLessThan(8);
+  expect(top("filter-bar-search")).toBeGreaterThan(
+    top("filter-bar-controls") + 8,
+  );
+});
+
+test("searchMode icon: the button expands into a focused field; Escape on an empty field folds it back", async () => {
+  function Harness() {
+    const [value, setValue] = React.useState("");
+    return (
+      <FilterBar
+        searchMode="icon"
+        search={{ value, onValueChange: setValue, placeholder: "Search rows" }}
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  const button = screen.getByRole("button", { name: "Search rows" });
+  await expect
+    .element(button)
+    .toHaveAttribute("data-slot", "filter-bar-search-toggle");
+  await button.click();
+  const field = screen.getByRole("searchbox", { name: "Search rows" });
+  await expect.element(field).toHaveFocus();
+  await userEvent.keyboard("ab");
+  // Escape clears the query first and keeps the field…
+  await userEvent.keyboard("{Escape}");
+  await expect.element(field).toHaveValue("");
+  await expect.element(field).toHaveFocus();
+  // …then folds it back, focus on the button.
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByRole("button", { name: "Search rows" }))
+    .toHaveFocus();
+  expect(screen.container.querySelector("input")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+function IconSearchHarness({ initial }: { initial: string }) {
+  const [value, setValue] = React.useState(initial);
+  return (
+    <>
+      <FilterBar
+        searchMode="icon"
+        search={{ value, onValueChange: setValue, placeholder: "Search" }}
+      />
+      <button type="button">Elsewhere</button>
+    </>
+  );
+}
+
+test("searchMode icon: a search holding a query stays a field", async () => {
+  const screen = await render(<IconSearchHarness initial="pump" />);
+  await expect
+    .element(screen.getByRole("searchbox", { name: "Search" }))
+    .toHaveValue("pump");
+  expect(
+    screen.container.querySelector('[data-slot="filter-bar-search-toggle"]'),
+  ).toBeNull();
+});
+
+test("searchMode icon: an empty field folds back when focus leaves it", async () => {
+  const screen = await render(<IconSearchHarness initial="" />);
+  await screen.getByRole("button", { name: "Search" }).click();
+  await expect
+    .element(screen.getByRole("searchbox", { name: "Search" }))
+    .toHaveFocus();
+  await screen.getByRole("button", { name: "Elsewhere" }).click();
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector("input")).toBeNull(),
+  );
+});
+
+test("the View menu is a bottom sheet on a phone-width window and a popover otherwise", async () => {
+  await page.viewport(390, 800);
+  const screen = await render(
+    <FilterBar fields={<p>Fields body</p>} viewActions={<p>Rename</p>} />,
+  );
+  const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
+  await screen.getByRole("button", { name: "View" }).click();
+  await vi.waitFor(() => {
+    expect(dialog()?.dataset.slot).toBe("filter-bar-view-sheet");
+    expect(dialog()?.dataset.side).toBe("bottom");
+    expect(dialog()?.textContent).toContain("Fields body");
+  });
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(dialog()).toBeNull());
+  await page.viewport(1280, 800);
+  await screen.getByRole("button", { name: "View" }).click();
+  await vi.waitFor(() =>
+    expect(dialog()?.dataset.slot).toBe("filter-bar-view-content"),
+  );
+});
+
+test("searchMode icon: a field shown for its query stays while someone empties it", async () => {
+  const screen = await render(<IconSearchHarness initial="pump" />);
+  const field = screen.getByRole("searchbox", { name: "Search" });
+  await field.click();
+  await userEvent.keyboard("{Backspace}{Backspace}{Backspace}{Backspace}");
+  await expect.element(field).toHaveValue("");
+  await expect.element(field).toHaveFocus();
+});
+
+test("searchMode icon: folding an emptied field settles the empty query the host has not heard", async () => {
+  const committed: string[] = [];
+  function Harness() {
+    const [value, setValue] = React.useState("");
+    return (
+      <>
+        <FilterBar
+          searchMode="icon"
+          search={{
+            value,
+            onValueChange: setValue,
+            onValueCommitted: (next) => committed.push(next),
+            debounceMs: 60_000,
+            placeholder: "Search",
+          }}
+        />
+        <button type="button">Elsewhere</button>
+      </>
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("button", { name: "Search" }).click();
+  await userEvent.keyboard("ab{Enter}");
+  expect(committed).toEqual(["ab"]);
+  await userEvent.keyboard("{Backspace}{Backspace}");
+  // The debounced "" is still pending; leaving the field folds it and settles "" now.
+  await screen.getByRole("button", { name: "Elsewhere" }).click();
+  await vi.waitFor(() => expect(committed).toEqual(["ab", ""]));
+  // Escape on an empty, already-settled field folds without committing again.
+  await screen.getByRole("button", { name: "Search" }).click();
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByRole("button", { name: "Search" }))
+    .toHaveFocus();
+  expect(committed).toEqual(["ab", ""]);
+});
+
+test("searchMode icon: a host-set query is never settled at the fold; leaving releases the field", async () => {
+  const committed: string[] = [];
+  let setFromHost: (value: string) => void = () => {};
+  function Harness() {
+    const [value, setValue] = React.useState("pump");
+    setFromHost = setValue;
+    return (
+      <>
+        <FilterBar
+          searchMode="icon"
+          search={{
+            value,
+            onValueChange: setValue,
+            onValueCommitted: (next) => committed.push(next),
+            placeholder: "Search",
+          }}
+        />
+        <button type="button">Elsewhere</button>
+      </>
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("searchbox", { name: "Search" }).click();
+  await screen.getByRole("button", { name: "Elsewhere" }).click();
+  // The host clears its own query: the released field folds, and nothing is committed.
+  setFromHost("");
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector("input")).toBeNull(),
+  );
+  expect(committed).toEqual([]);
+});
+
+test("searchMode icon: leaving through the clear button releases the field too", async () => {
+  let setFromHost: (value: string) => void = () => {};
+  function Harness() {
+    const [value, setValue] = React.useState("pump");
+    setFromHost = setValue;
+    return (
+      <>
+        <FilterBar
+          searchMode="icon"
+          search={{ value, onValueChange: setValue, placeholder: "Search" }}
+        />
+        <button type="button">Elsewhere</button>
+      </>
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("searchbox", { name: "Search" }).click();
+  await userEvent.tab();
+  await expect
+    .element(screen.getByRole("button", { name: "Clear search" }))
+    .toHaveFocus();
+  await userEvent.tab();
+  await expect
+    .element(screen.getByRole("button", { name: "Elsewhere" }))
+    .toHaveFocus();
+  setFromHost("");
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector("input")).toBeNull(),
+  );
+});

@@ -168,6 +168,22 @@ group, a field or the row height to see "View changed · Save · Reset" appear.
   file="components/preview/filter-bar.tsx"
 />
 
+### Table chrome
+
+A table puts its view tabs and its tools on one row: `leading` holds the `ViewTabs` before the
+search, and `searchMode="icon"` turns the search into a Search button that expands into the field
+when pressed. An icon search stays a field while it holds a query; emptied, it folds back when
+focus leaves it, or on <kbd>Esc</kbd> with focus back on the button. The leading content takes
+whatever the tools leave and scrolls sideways when squeezed (`ViewTabs` folds into a select
+first). On a phone-width bar the leading content and the tools keep the first row — a search
+**field** moves to a row of its own below them — and on a phone-width window (below the `tablet`
+layout tier, 40rem) the View menu opens as a bottom sheet instead of a popover.
+
+<ComponentPreview
+  name="filterBarTableChrome"
+  file="components/preview/filter-bar.tsx"
+/>
+
 ### View changed
 
 A saved view's unsaved changes ("View changed · Save ▾ · Reset") go in `trailing`. They share the
@@ -399,6 +415,10 @@ and `groupBy`) and adds its own:
 - With `filterBuilder`, the Filters toggle opens a named dialog popover ("Filters") instead, and
   focus returns to the toggle when it closes. Sort and View are buttons that open named dialog
   popovers ("Sort", "View"); each View section is a `role="group"` named by its heading.
+- An icon search (`searchMode="icon"`) is a button named like the field ("Search records");
+  pressing it shows the field with focus in it, and <kbd>Esc</kbd> on the empty field folds it
+  back with focus on the button. On a phone-width window the View menu is a modal bottom sheet
+  titled "View" that returns focus to its button when it closes.
 - The search field always has an accessible name — `search["aria-label"]`, then the placeholder,
   then "Search".
 

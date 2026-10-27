@@ -39,6 +39,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { NumberField } from "@/components/ui/number-field";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ViewTabs, type ViewTabsView } from "@/components/ui/view-tabs";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
 
@@ -767,6 +768,76 @@ export function filterBarViewChanged(): ReactNode {
         filterBuilder={<p className="text-sm">Filter conditions</p>}
         filters={filters}
         trailing={<ViewChanged onReset={() => setFilters([])} />}
+      />
+    </Wrapper>
+  );
+}
+
+const TABLE_VIEWS: ViewTabsView[] = [
+  { id: "all", name: "All records", kind: "grid", scope: "shared" },
+  { id: "status", name: "By status", kind: "board", scope: "shared" },
+  { id: "mine", name: "My follow-ups", kind: "grid", scope: "personal" },
+];
+
+/**
+ * A table's one-row chrome: the view tabs lead (`leading`), then an icon search that expands
+ * into the field (`searchMode="icon"`), Filters, Sort, the View menu and the primary action. On a
+ * phone-width window the View menu opens as a bottom sheet.
+ */
+export function filterBarTableChrome(): ReactNode {
+  const [view, setView] = useState("all");
+  const [query, setQuery] = useState("");
+  const [tree, setTree] = useState<GridGroup>(EMPTY_TREE);
+  const [sort, setSort] = useState<SortBuilderEntry[]>([]);
+  const [height, setHeight] = useState("short");
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <FilterBar
+        leading={
+          <ViewTabs views={TABLE_VIEWS} value={view} onValueChange={setView} />
+        }
+        searchMode="icon"
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search records",
+        }}
+        filterBuilder={
+          <FilterBuilder<string>
+            vocabulary={GRID_FIELDS}
+            value={tree}
+            onValueChange={setTree}
+          />
+        }
+        activeCount={tree.children.length}
+        sort={
+          <SortBuilder
+            vocabulary={GRID_SORTABLE}
+            value={sort}
+            onChange={setSort}
+          />
+        }
+        sortCount={sort.length}
+        density={
+          <ToggleGroup
+            variant="outline"
+            size="sm"
+            value={[height]}
+            onValueChange={(next) => {
+              if (next[0]) setHeight(next[0]);
+            }}
+          >
+            <ToggleGroupItem value="short">Short</ToggleGroupItem>
+            <ToggleGroupItem value="medium">Medium</ToggleGroupItem>
+            <ToggleGroupItem value="tall">Tall</ToggleGroupItem>
+          </ToggleGroup>
+        }
+        viewActions={
+          <Button variant="ghost" size="sm" className="justify-start">
+            Rename view
+          </Button>
+        }
+        actions={<Button size="sm">New record</Button>}
       />
     </Wrapper>
   );
