@@ -15063,7 +15063,7 @@
       "name": "file-viewer",
       "registryType": "registry:ui",
       "title": "File Viewer",
-      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (as a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
+      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe — as a full-screen overlay or in place as a file's page, with Share/Watch/menu header slots and a Details · Comments · Activity rail (a bottom sheet on a phone).",
       "status": "stable",
       "since": "0.23.61",
       "family": "media",
@@ -15172,12 +15172,53 @@
             "status": "not-applicable",
             "rationale": "A function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "FileViewerSlot",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerHeaderSlots",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerRail",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerRailTab",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, video, audio, text, table, markdown, html, card)."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "mode",
+            "values": ["overlay", "page"]
+          }
+        ],
+        "rationale": "mode: the full-screen overlay or the viewer in place as a file's page."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -15204,7 +15245,12 @@
             "zoomed",
             "loading",
             "error",
-            "single"
+            "single",
+            "page-mode",
+            "rail-open",
+            "rail-tabs",
+            "rail-sheet",
+            "header-slots"
           ],
           "evidence": "Controlled index opens and closes; data-kind names the stage on screen — image, pdf, video, audio, text, table (CSV or an app table), markdown, html (an app preview) or the file card; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; text, CSV and Markdown read their first 1 MB and say so when truncated, a table shows at most 500 rows; loadPreview supplies parsed content and null keeps the built-in reading; a failed read is the card; a video or audio stage pauses its player when paged away or closed, and an unplayable video shows the player's Download card; one item hides the count and paging."
         },
@@ -15252,10 +15298,12 @@
         "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/markdown-view",
+        "@vegastack/sheet",
         "@vegastack/spinner",
         "@vegastack/table",
         "@vegastack/tabs",
         "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
       ],
@@ -15299,15 +15347,29 @@
               "values": []
             },
             {
+              "name": "data-mode",
+              "values": ["overlay", "page"]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "file-viewer",
                 "file-viewer-actions",
                 "file-viewer-backdrop",
+                "file-viewer-body",
                 "file-viewer-close",
+                "file-viewer-controls",
                 "file-viewer-count",
                 "file-viewer-download",
                 "file-viewer-header",
+                "file-viewer-header-slots",
+                "file-viewer-menu",
+                "file-viewer-rail",
+                "file-viewer-rail-panel",
+                "file-viewer-rail-sheet",
+                "file-viewer-rail-tablist",
+                "file-viewer-rail-tabs",
+                "file-viewer-rail-toggle",
                 "file-viewer-stage",
                 "file-viewer-title"
               ]

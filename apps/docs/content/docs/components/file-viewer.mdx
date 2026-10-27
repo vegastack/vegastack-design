@@ -148,6 +148,33 @@ on the page, and starting one elsewhere pauses it.
 />
 ```
 
+### Rail and header controls
+
+A stored file carries its own discussion: `rail` puts a column beside the stage with a tab per slot
+you give — `details`, `comments`, `activity`, always in that order — and a header button (named
+"Details", `aria-pressed`) opens and closes it. `header` adds `share` and `watch` before Download
+and `menu` after it. Every slot is a node or a function of the open file, so the content follows
+paging. Below 768px the rail is a bottom sheet; a rail that starts open (`defaultRailOpen`) waits
+for the reader there, so the file is never covered on arrival. `railOpen` / `onRailOpenChange` and
+`railTab` / `onRailTabChange` control it — open Comments straight from a notification, say.
+
+<ComponentPreview
+  name="fileViewerRail"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Page mode
+
+`mode="page"` renders the same viewer in place — the file's own page — instead of the overlay: no
+dialog, no Close, the page's own theme, the file name as the page's `h1`, and the same paging,
+header controls and rail. It fills its container, so give that container a height. `onOpenChange`
+is not needed.
+
+<ComponentPreview
+  name="fileViewerPage"
+  file="components/preview/file-viewer.tsx"
+/>
+
 ### Text and code
 
 A text or code file with a `src` (`.txt`, `.log`, `.json`, `.yaml`, `.xml`, source files) shows
@@ -316,6 +343,18 @@ closes.
   name="FileViewerProps"
 />
 
+### FileViewerHeaderSlots and FileViewerRail
+
+<ApiTable
+  path="../../packages/ui/registry/ui/file-viewer.tsx"
+  name="FileViewerHeaderSlots"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/file-viewer.tsx"
+  name="FileViewerRail"
+/>
+
 ### FileViewerItem
 
 | Field          | Type                                                              | Notes                                                                                                                                                                                                                                   |
@@ -363,13 +402,19 @@ sniffed from the first line unless given, and `truncated` when rows remained pas
   in", "Zoom out", "Fit to width"); on a touch screen they grow to 44px.
 - Each rendered PDF page is an image named `{name}, page N`.
 - Motion (the zoom easing, the fade) collapses under reduced motion.
+- The rail is a `complementary` region named "File details" with a tab list; the header button
+  that opens it is a toggle (`aria-pressed`) and points at it (`aria-controls`). On a phone the rail
+  is a labelled bottom sheet. Arrow keys inside the rail, a header menu or another popup stay
+  there and never page the files.
+- In page mode the viewer is a `section` named by its `h1`, the file name; nothing is inert and
+  there is no Close.
 
 | Key                         | Action                              |
 | --------------------------- | ----------------------------------- |
 | <kbd>←</kbd> / <kbd>→</kbd> | Previous / next file.               |
 | <kbd>+</kbd> / <kbd>−</kbd> | Zoom the image or PDF in / out.     |
 | <kbd>0</kbd>                | Back to fit (fit width for a PDF).  |
-| <kbd>Esc</kbd>              | Close and return focus.             |
+| <kbd>Esc</kbd>              | Close and return focus (overlay).   |
 | <kbd>Tab</kbd>              | Move between the viewer's controls. |
 
 <StatesTested name="file-viewer" />

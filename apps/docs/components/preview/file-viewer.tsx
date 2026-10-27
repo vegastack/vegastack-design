@@ -2,12 +2,15 @@
 
 import { type ReactNode, useState } from "react";
 import {
+  BellIcon,
+  EllipsisIcon,
   FileAudioIcon,
   FileCodeIcon,
   FileSpreadsheetIcon,
   FileTextIcon,
   FileVideoIcon,
   PresentationIcon,
+  Share2Icon,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/file-viewer` (dogfoods the registry) → auto-scanned.
@@ -474,6 +477,87 @@ export function fileViewerEveryKind(): ReactNode {
         ))}
       </div>
       <FileViewer items={EVERY_KIND} {...viewer.props} />
+    </Wrapper>
+  );
+}
+
+/** The header controls and rail a library file carries: Share, Watch, ⋯, and Details · Comments · Activity. */
+const FILE_HEADER = {
+  share: (
+    <Button variant="ghost" size="icon" aria-label="Share">
+      <Share2Icon />
+    </Button>
+  ),
+  watch: (
+    <Button variant="ghost" size="icon" aria-label="Watch">
+      <BellIcon />
+    </Button>
+  ),
+  menu: (
+    <Button variant="ghost" size="icon" aria-label="More actions">
+      <EllipsisIcon />
+    </Button>
+  ),
+};
+
+const FILE_RAIL = {
+  details: (item: FileViewerItem) => (
+    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+      <dt className="text-muted-foreground">Name</dt>
+      <dd className="min-w-0 truncate">{item.name}</dd>
+      <dt className="text-muted-foreground">Type</dt>
+      <dd>{item.contentType}</dd>
+      <dt className="text-muted-foreground">Uploaded by</dt>
+      <dd>Ada Lovelace · 6 Oct</dd>
+      <dt className="text-muted-foreground">In</dt>
+      <dd>Sample images</dd>
+    </dl>
+  ),
+  comments: (
+    <p className="text-sm text-muted-foreground">
+      No comments yet. Start the discussion.
+    </p>
+  ),
+  activity: (
+    <p className="text-sm text-muted-foreground">
+      Ada Lovelace uploaded this file · 6 Oct
+    </p>
+  ),
+};
+
+/** A library file in the overlay: header controls beside Download and a rail with three tabs. */
+export function fileViewerRail(): ReactNode {
+  const viewer = useViewer();
+  return (
+    <Wrapper>
+      <Button variant="outline" onClick={() => viewer.open(0)}>
+        Open with comments
+      </Button>
+      <FileViewer
+        items={IMAGES}
+        {...viewer.props}
+        header={FILE_HEADER}
+        rail={FILE_RAIL}
+        defaultRailOpen
+      />
+    </Wrapper>
+  );
+}
+
+/** The same viewer as a file's own page: in place, in the page's theme, the rail open beside it. */
+export function fileViewerPage(): ReactNode {
+  const [index, setIndex] = useState(0);
+  return (
+    <Wrapper className="block h-[32rem] p-0">
+      <FileViewer
+        mode="page"
+        items={IMAGES}
+        index={index}
+        onIndexChange={setIndex}
+        header={FILE_HEADER}
+        rail={FILE_RAIL}
+        defaultRailOpen
+      />
     </Wrapper>
   );
 }
