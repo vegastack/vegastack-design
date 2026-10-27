@@ -1,4 +1,4 @@
-// @vegastack search-input@0.25.90 sha256-TwkEy23o5xbOG0+Jf468fNULDvh6cMlCNJ8EAXZtERs=
+// @vegastack search-input@0.25.90 sha256-ZpOulJYGjLy2JpnYQ3OMMuRR8/r0AVhuReKq59nEjD8=
 
 "use client";
 
@@ -174,6 +174,8 @@ function SearchInput({
           if (
             !event.defaultPrevented &&
             event.key === "Enter" &&
+            !event.nativeEvent.isComposing &&
+            event.keyCode !== 229 &&
             onValueCommitted != null
           ) {
             commitNow(event.currentTarget.value);

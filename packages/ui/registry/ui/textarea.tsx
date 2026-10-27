@@ -1,4 +1,4 @@
-// @vegastack textarea@0.25.90 sha256-Ur/lbzImgiK8f10TVayQ9dpW0PuItn+yukikvLn9KEQ=
+// @vegastack textarea@0.25.90 sha256-ql8/JSTHxol9M6PY6GYCIRks/sWlMxTvDYhC82c9IWY=
 
 "use client";
 
@@ -107,7 +107,10 @@ function Textarea({
           event.defaultPrevented ||
           event.key !== "Enter" ||
           event.shiftKey ||
-          event.nativeEvent.isComposing
+          // An input method's Enter confirms its candidate. The Enter that ends a composition can
+          // arrive with `isComposing` already false and `keyCode` 229 (MDN), so both are checked.
+          event.nativeEvent.isComposing ||
+          event.keyCode === 229
         )
           return;
         event.preventDefault();

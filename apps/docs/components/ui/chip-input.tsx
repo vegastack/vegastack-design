@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.25.90 sha256-pPYQ107pE2zXaRMEcbWW9C9mjxCFsdo9VzJ95Kx/yRo=
+// @vegastack chip-input@0.25.90 sha256-BkO+xLJhNmAiKHeyBuDD5olKj2fnhuhVmJSDWp480qo=
 
 "use client";
 
@@ -367,8 +367,9 @@ export function ChipInput({
           }}
           onKeyDown={(event) => {
             // Never commit mid-IME-composition — Enter there accepts the
-            // candidate, not the chip.
-            if (event.nativeEvent.isComposing) return;
+            // candidate, not the chip. The composition's last Enter can arrive with
+            // `isComposing` false and `keyCode` 229, so both are checked.
+            if (event.nativeEvent.isComposing || event.keyCode === 229) return;
             if (event.key === "Enter" || event.key === ",") {
               event.preventDefault();
               commitDraft();

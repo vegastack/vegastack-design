@@ -320,3 +320,31 @@ test("API-40: without submitOnEnter, Enter adds a line and never submits", async
   expect(el.value).toBe("a\nb");
   expect(submits).toBe(0);
 });
+
+test("submitOnEnter: the Enter that ends an IME composition (isComposing false, keyCode 229) never submits", async () => {
+  let submits = 0;
+  const screen = await render(
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        submits += 1;
+      }}
+    >
+      <Textarea aria-label="Title" variant="ghost" submitOnEnter />
+    </form>,
+  );
+  const el = screen.container.querySelector("textarea")!;
+  el.focus();
+  const ime = new KeyboardEvent("keydown", {
+    key: "Enter",
+    keyCode: 229,
+    isComposing: false,
+    bubbles: true,
+    cancelable: true,
+  });
+  expect(ime.keyCode).toBe(229);
+  el.dispatchEvent(ime);
+  expect(submits).toBe(0);
+  await userEvent.keyboard("{Enter}");
+  expect(submits).toBe(1);
+});

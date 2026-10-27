@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.90 sha256-XeoGGyJ1EeGkid0GVSvy0bbaLOi3JQBVG4HZGNInW+Q=
+// @vegastack document-layout@0.25.90 sha256-4gTfhCOX2u1ssLbiVsZUUVvktfhC2XNl7RjW6cHxKm0=
 
 "use client";
 
@@ -118,6 +118,8 @@ export function DocumentLayoutFindBar({
           value={value}
           onChange={(event) => onValueChange(event.currentTarget.value)}
           onKeyDown={(event) => {
+            // An IME's Enter confirms its candidate, not a find step.
+            if (event.nativeEvent.isComposing || event.keyCode === 229) return;
             if (event.key === "Enter") {
               event.preventDefault();
               if (!hasMatches) return;

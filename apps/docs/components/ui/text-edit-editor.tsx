@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.90 sha256-79oEQXa2ngKrILkaZ9fe/yrZNNE8w4swBzw0+OItsQE=
+// @vegastack text-edit@0.25.90 sha256-wEJNZPch771aZs6BCZlFVMYQ/Q834ooB/p2XyUhoA7E=
 
 "use client";
 
@@ -4772,6 +4772,9 @@ function BookmarkView({
               setInvalid(false);
             }}
             onKeyDown={(event) => {
+              // An IME's Enter (mid-composition, or the one ending it: keyCode 229) is not a commit.
+              if (event.nativeEvent.isComposing || event.keyCode === 229)
+                return;
               if (event.key === "Enter") {
                 event.preventDefault();
                 submit();
@@ -8839,6 +8842,8 @@ function FindBar({
               }}
               onKeyDown={(event) => {
                 if (event.key !== "Enter") return;
+                if (event.nativeEvent.isComposing || event.keyCode === 229)
+                  return;
                 event.preventDefault();
                 step(event.shiftKey ? -1 : 1);
               }}
@@ -8897,6 +8902,8 @@ function FindBar({
               }}
               onKeyDown={(event) => {
                 if (event.key !== "Enter") return;
+                if (event.nativeEvent.isComposing || event.keyCode === 229)
+                  return;
                 event.preventDefault();
                 editor.commands.replace();
                 reveal();
@@ -12613,6 +12620,9 @@ export function TextEditEditor({
       },
     },
     handleKeyDown: (view, event) => {
+      // An input method's keys (mid-composition, or the Enter that ends it with keyCode 229) belong
+      // to the IME: never a submit, a block exit or a popover dismissal.
+      if (event.isComposing || event.keyCode === 229) return false;
       // The paste popover goes on the next keystroke (Tab moves into it); Escape only closes it.
       if (pastedRef.current?.open && !MODIFIER_KEYS.has(event.key)) {
         // Tab moves into the popover, onto the choice in effect.

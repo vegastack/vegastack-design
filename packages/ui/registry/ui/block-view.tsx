@@ -1,4 +1,4 @@
-// @vegastack block-view@0.25.90 sha256-x9hzrlZUkmLwASR1BvntYLFsvfMH1vgMUlHzhLWmbYA=
+// @vegastack block-view@0.25.90 sha256-BM5DWeQWtQzVSxKRzIJH120gQRt/yDya6qBdo+pBy1Q=
 
 "use client";
 
@@ -225,7 +225,12 @@ export function BlockViewFrame({
         if (event.defaultPrevented) return;
         // From the block's own controls: ⌘Enter toggles, Escape goes back to the preview.
         const mod = event.metaKey || event.ctrlKey;
-        if (event.key === "Enter" && mod) {
+        if (
+          event.key === "Enter" &&
+          mod &&
+          !event.nativeEvent.isComposing &&
+          event.keyCode !== 229
+        ) {
           event.preventDefault();
           onModeChange(mode === "preview" ? "code" : "preview");
         } else if (event.key === "Escape" && mode === "code") {

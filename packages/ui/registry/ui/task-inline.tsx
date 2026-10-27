@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.25.90 sha256-yuf9ohaSvcuNaKswYWOxff2mFZw3Z/Mui4guNISOwHA=
+// @vegastack task-inline@0.25.90 sha256-Sxj6Uv/fI6QDj5U7HCtd52D/sZyCiREVqWlVJkqh6M0=
 
 "use client";
 
@@ -487,7 +487,11 @@ export function MakeTaskPopover({
     }
   };
   const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+    if (
+      event.key === "Enter" &&
+      !event.nativeEvent.isComposing &&
+      event.keyCode !== 229
+    ) {
       event.preventDefault();
       void submit();
     }

@@ -401,3 +401,26 @@ test("no a11y violations — inside a Field, valid and invalid", async () => {
   );
   await expectNoA11yViolations(invalid.container);
 });
+
+test("the Enter that ends an IME composition (keyCode 229) does not commit a chip", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <ChipInput aria-label="Tags" onValueChange={onValueChange} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await input.fill("東京");
+  const el = input.element() as HTMLInputElement;
+  el.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Enter",
+      keyCode: 229,
+      isComposing: false,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  expect(onValueChange).not.toHaveBeenCalled();
+  expect(chipTexts()).toEqual([]);
+  await userEvent.keyboard("{Enter}");
+  expect(chipTexts()).toEqual(["東京"]);
+});

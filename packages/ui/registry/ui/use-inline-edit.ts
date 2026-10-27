@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.25.90 sha256-/fMw0cOWbl9U+3vy90YAsm2UfSBDpS+qT7UdXOGh2jE=
+// @vegastack use-inline-edit@0.25.90 sha256-YCoef7VkHEzLxWsXQyIP/cnCPQw2XtxHhBQdp9XdcYY=
 
 "use client";
 
@@ -330,7 +330,8 @@ export function useInlineEdit({
 
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
-      if (event.nativeEvent?.isComposing) return;
+      // An IME's Enter (mid-composition, or the one ending it: `keyCode` 229) is not a commit.
+      if (event.nativeEvent?.isComposing || event.keyCode === 229) return;
       if (
         event.key === "Enter" &&
         (!multiline || event.metaKey || event.ctrlKey)

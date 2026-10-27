@@ -1,4 +1,4 @@
-// @vegastack delegate-popover@0.25.90 sha256-3fYFUyJa5PSwpMebYq2OHeAGEbGCr43w/aVF8net7Rk=
+// @vegastack delegate-popover@0.25.90 sha256-UJvkdRSdDDghtUs0/kQVGJol9vFjZMexdY0YFjktTv8=
 
 "use client";
 
@@ -370,7 +370,9 @@ export function DelegatePopover({
                   onKeyDown={(event) => {
                     if (
                       event.key === "Enter" &&
-                      (event.metaKey || event.ctrlKey)
+                      (event.metaKey || event.ctrlKey) &&
+                      !event.nativeEvent.isComposing &&
+                      event.keyCode !== 229
                     ) {
                       event.preventDefault();
                       void submit();
