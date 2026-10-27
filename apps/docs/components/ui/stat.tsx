@@ -1,4 +1,4 @@
-// @vegastack stat@0.25.88 sha256-w66UMuTchShhi9e/kd1kluuNI+p+HzOWKO2n6+dFINI=
+// @vegastack stat@0.25.88 sha256-lvMylRtJgJ1iZbgMtEN+0U3+3TeWB6SjGCFP3hbzpO0=
 
 "use client";
 
@@ -176,6 +176,161 @@ export function StatSkeleton({ size = "md", className }: StatSkeletonProps) {
         className={cn("flex items-center", size === "lg" ? "h-8" : "h-5")}
       >
         <Skeleton className={size === "lg" ? "h-7 w-14" : "h-4 w-12"} />
+      </div>
+    </div>
+  );
+}
+
+/** One stat in a `StatGroup`. */
+export interface StatGroupItem {
+  /**
+   * Stable key; the label is used when omitted.
+   * @default undefined
+   */
+  id?: string;
+  /** The label, read before the value ("Overdue 3"). */
+  label: string;
+  /** The count: `undefined` while it loads, `null` when the read failed (never shown as 0). */
+  value: number | null | undefined;
+  /**
+   * The list the stat counts — the cell becomes a link through `linkRender`.
+   * @default undefined
+   */
+  href?: string;
+}
+
+/** Props accepted by `StatGroup`. */
+export interface StatGroupProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /** The stats, in order — usually two to four. */
+  items: readonly StatGroupItem[];
+  /**
+   * Render nothing when every value is exactly `0` (loading and failed values are not zero), so
+   * an all-quiet row takes no space.
+   * @default false
+   */
+  hideWhenAllZero?: boolean;
+  /**
+   * The element a linked cell renders as — your router's link (`<Link />`). The cell's `href`,
+   * classes and children are merged into it.
+   * @default <a />
+   */
+  linkRender?: React.ReactElement;
+  /**
+   * Scale of each stat's value.
+   * @default "lg"
+   */
+  size?: "md" | "lg";
+  /**
+   * Formats a value.
+   * @default (n) => n.toLocaleString()
+   */
+  formatValue?: (value: number) => string;
+  /**
+   * Shown under the dash when a value failed to load.
+   * @default "Couldn't load"
+   */
+  errorLabel?: string;
+}
+
+/**
+ * `StatGroup` — a row of inline stats ("Overdue 3 · Today 5 · Upcoming 12 · Done 40") in one
+ * hairline-divided strip, each cell optionally a link to the list it counts. It follows its own
+ * width: one row from 24rem, a 2×2 grid below it. A loading value holds its line with a skeleton,
+ * a failed one reads "—" with `errorLabel`, and `hideWhenAllZero` drops a row with nothing to say.
+ *
+ * @example
+ * <StatGroup
+ *   hideWhenAllZero
+ *   linkRender={<Link href="" />}
+ *   items={[
+ *     { label: "Overdue", value: 1, href: "/tasks?due=overdue" },
+ *     { label: "Today", value: 3, href: "/tasks?due=today" },
+ *     { label: "Upcoming", value: 12, href: "/tasks?due=upcoming" },
+ *     { label: "Waiting on you", value: 2, href: "/inbox" },
+ *   ]}
+ * />
+ */
+export function StatGroup({
+  items,
+  hideWhenAllZero = false,
+  linkRender,
+  size = "lg",
+  formatValue = (n) => n.toLocaleString(),
+  errorLabel = "Couldn't load",
+  className,
+  ...props
+}: StatGroupProps) {
+  if (
+    hideWhenAllZero &&
+    items.length > 0 &&
+    items.every((item) => item.value === 0)
+  )
+    return null;
+  const cellClass =
+    "flex min-w-0 flex-col justify-center bg-card px-3 py-2.5 text-start";
+  return (
+    <div
+      data-slot="stat-group"
+      className={cn("@container/stat-group min-w-0", className)}
+      {...props}
+    >
+      <div
+        data-slot="stat-group-grid"
+        className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border @sm/stat-group:auto-cols-fr @sm/stat-group:grid-flow-col @sm/stat-group:grid-cols-none"
+      >
+        {items.map((item) => {
+          const stat = (
+            <Stat size={size}>
+              <StatLabel>{item.label}</StatLabel>
+              {item.value === undefined ? (
+                // Inside the value's own line box, so a cell is as tall loading as loaded.
+                <StatValue aria-hidden>
+                  <Skeleton className="inline-block h-[0.75em] w-10 align-middle" />
+                </StatValue>
+              ) : item.value === null ? (
+                <>
+                  <StatValue aria-hidden>—</StatValue>
+                  <StatEmpty className="text-xs">{errorLabel}</StatEmpty>
+                </>
+              ) : (
+                <StatValue>{formatValue(item.value)}</StatValue>
+              )}
+            </Stat>
+          );
+          const key = item.id ?? item.label;
+          if (item.href === undefined)
+            return (
+              <div
+                key={key}
+                data-slot="stat-group-item"
+                aria-busy={item.value === undefined ? true : undefined}
+                className={cellClass}
+              >
+                {stat}
+              </div>
+            );
+          const template = (linkRender ?? <a />) as React.ReactElement<{
+            className?: string;
+          }>;
+          return React.cloneElement(
+            template,
+            {
+              key,
+              href: item.href,
+              "data-slot": "stat-group-item",
+              "aria-busy": item.value === undefined ? true : undefined,
+              className: cn(
+                cellClass,
+                "transition-colors hover:bg-muted",
+                template.props.className,
+              ),
+            } as object,
+            stat,
+          );
+        })}
       </div>
     </div>
   );

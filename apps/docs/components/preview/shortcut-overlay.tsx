@@ -6,6 +6,7 @@ import { Wrapper } from "./wrapper";
 import {
   ShortcutOverlay,
   type ShortcutDefinition,
+  type ShortcutGroup,
 } from "@/components/ui/shortcut-overlay";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
@@ -96,6 +97,64 @@ export function shortcutOverlayFooter(): ReactNode {
               </a>
             </>
           }
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+const GROUPS: ShortcutGroup[] = [
+  {
+    id: "general",
+    label: "General",
+    items: [
+      { keys: ["⌘", "K"], label: "Open search" },
+      { keys: ["?"], label: "Show keyboard shortcuts" },
+      { keys: ["Esc"], label: "Close dialogs and menus" },
+    ],
+  },
+  {
+    id: "go-to",
+    label: "Go to",
+    items: [
+      { keys: ["G", "H"], label: "Go to Home" },
+      { keys: ["G", "T"], label: "Go to Tasks" },
+    ],
+  },
+  {
+    id: "task-page",
+    label: "Task page",
+    active: true,
+    items: [
+      { keys: ["D"], label: "Delegate" },
+      { keys: ["⇧", "S"], label: "Watch" },
+      { keys: ["⌘", "L"], label: "Copy link" },
+    ],
+  },
+  {
+    id: "meeting",
+    label: "Meeting recording",
+    active: false,
+    items: [
+      { keys: ["Space"], label: "Play or pause" },
+      { keys: ["J"], label: "Back 10 seconds" },
+    ],
+  },
+];
+
+export function shortcutOverlayGroups(): ReactNode {
+  const [open, setOpen] = useState(false);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-start gap-2">
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+          View shortcuts on a task page
+        </Button>
+        <ShortcutOverlay
+          groups={GROUPS}
+          open={open}
+          onOpenChange={setOpen}
+          triggerKey={false}
         />
       </div>
     </Wrapper>

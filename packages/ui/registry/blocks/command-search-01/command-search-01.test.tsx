@@ -11,7 +11,7 @@ import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
-import { CommandSearch, type SearchResult } from "./components/command-search";
+import { SearchPalette, type SearchResult } from "./components/search-palette";
 import { INDEX, sampleSearch } from "./components/sample-search";
 
 const skyline = INDEX.filter((r) => r.title.includes("Skyline"));
@@ -24,7 +24,7 @@ test("changing scope re-queries and keeps the query", async () => {
       _signal: AbortSignal,
     ): Promise<SearchResult[]> => skyline,
   );
-  const screen = await render(<CommandSearch search={search} defaultOpen />);
+  const screen = await render(<SearchPalette search={search} defaultOpen />);
   const input = screen.getByRole("combobox");
   await userEvent.type(input, "sky");
   await expect
@@ -46,7 +46,7 @@ test("changing scope re-queries and keeps the query", async () => {
 test("Mod+Enter opens the selected result in a new tab", async () => {
   const open = vi.spyOn(window, "open").mockImplementation(() => null);
   const screen = await render(
-    <CommandSearch search={async () => skyline} defaultOpen />,
+    <SearchPalette search={async () => skyline} defaultOpen />,
   );
   await userEvent.type(screen.getByRole("combobox"), "sky");
   await expect
@@ -59,7 +59,7 @@ test("Mod+Enter opens the selected result in a new tab", async () => {
 
 test("no results and a failed search have their own states", async () => {
   const empty = await render(
-    <CommandSearch search={async () => []} defaultOpen />,
+    <SearchPalette search={async () => []} defaultOpen />,
   );
   await userEvent.type(empty.getByRole("combobox"), "zzz");
   await expect
@@ -80,7 +80,7 @@ test("no results and a failed search have their own states", async () => {
   await empty.unmount();
 
   const failing = await render(
-    <CommandSearch
+    <SearchPalette
       search={async () => {
         throw new Error("offline");
       }}
@@ -106,7 +106,7 @@ test("Enter on a scope chip switches scope and opens nothing", async () => {
     skyline.map((r) => ({ ...r, href: `#${r.id}` })),
   );
   const screen = await render(
-    <CommandSearch search={search} defaultOpen onOpenChange={onOpenChange} />,
+    <SearchPalette search={search} defaultOpen onOpenChange={onOpenChange} />,
   );
   await userEvent.type(screen.getByRole("combobox"), "sky");
   await expect
@@ -127,7 +127,7 @@ test("a javascript: href is not followed", async () => {
   const open = vi.spyOn(window, "open").mockImplementation(() => null);
   const unsafe = { ...skyline[0]!, href: "javascript:void(0)" };
   const screen = await render(
-    <CommandSearch
+    <SearchPalette
       search={async () => [unsafe]}
       defaultOpen
       onOpenChange={onOpenChange}
@@ -159,7 +159,7 @@ test("a settled search announces its count once, and nothing while it is in flig
     characterData: true,
   });
   const screen = await render(
-    <CommandSearch search={sampleSearch} defaultOpen />,
+    <SearchPalette search={sampleSearch} defaultOpen />,
   );
   await userEvent.type(screen.getByRole("combobox"), "sky");
   const count = INDEX.filter((r) =>

@@ -10,6 +10,7 @@ import {
   Stat,
   StatDelta,
   StatEmpty,
+  StatGroup,
   StatLabel,
   StatSkeleton,
   StatValue,
@@ -124,6 +125,44 @@ export function statSkeleton(): ReactNode {
           </Item>
         ))}
       </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * `StatGroup` — one hairline-divided row of inline stats, each cell a link to the list it counts.
+ * It follows its own width: one row from 24rem, a 2×2 grid below. The second strip shows a loading
+ * and a failed value; an all-zero group with `hideWhenAllZero` renders nothing at all.
+ */
+export function statGroup(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <StatGroup
+        items={[
+          { label: "Overdue", value: 1, href: "#overdue" },
+          { label: "Today", value: 3, href: "#today" },
+          { label: "Upcoming", value: 12, href: "#upcoming" },
+          { label: "Waiting on you", value: 2, href: "#waiting" },
+        ]}
+      />
+      <div className="w-full max-w-80">
+        <StatGroup
+          size="md"
+          items={[
+            { label: "Drafts", value: 475 },
+            { label: "Missing specs", value: 122 },
+            { label: "Published", value: undefined },
+            { label: "Archived", value: null },
+          ]}
+        />
+      </div>
+      <StatGroup
+        hideWhenAllZero
+        items={[
+          { label: "Overdue", value: 0 },
+          { label: "Today", value: 0 },
+        ]}
+      />
     </Wrapper>
   );
 }

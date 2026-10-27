@@ -2,6 +2,7 @@
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
     "total": 124,
+    "total": 125,
     "fromExtras": 46
   },
   "items": {
@@ -798,6 +799,24 @@
       "family": "chat",
       "source": "Regent product-cohesion W1-DS3 agent slice (plan 41-agent-card-mockups.md, decisions D2/D10/D16; findings UXT-01/02/04/05/07/10/11/12/50, UXP-46) — MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
       "rationale": "Upstream ships no delegate picker. A fixed composition of popover, people-picker's PeoplePickerContent, textarea, select, empty and button: the one Delegate popover for tasks and rows; it carries no patch."
+    },
+    "help-menu": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent product-cohesion W1-DS3 item 9 (UXS-03, one Help menu), approved by the operator 2026-10-27",
+      "rationale": "Upstream ships no help menu. Composes upstream dropdown-menu and sidebar (SidebarMenuItem, SidebarMenuButton) with our NotificationDot unchanged; carries no patch."
+    },
+    "route-tabs": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent product-cohesion W1-DS3 item 15 (UXT-14, route tabs with a pending state), approved by the operator 2026-10-27",
+      "rationale": "Upstream's Tabs swap panels in place; it ships no link tabs. Reuses upstream tabs' tabsListVariants and tabsTriggerVariants unchanged for the look; the links, the pending state and the panel are ours; no patch."
+    },
+    "command-search": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Regent product-cohesion W1-DS3 item 16 (UXP-70, UXP-71, UXP-73, results-first search palette), approved by the operator 2026-10-27",
+      "rationale": "Upstream ships the cmdk command menu, not a search palette. Composes upstream command, dropdown-menu, toggle and toggle-group unchanged; the scope overflow, the in-flight state and the start sections are ours; no patch."
     }
   }
 }

@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.25.88 sha256-LbPykJpS1ai0ZAj93qONTbaUAf1qvJYS72W6jEuTGwQ=
+// @vegastack command-search-01@0.25.88 sha256-gNPgZsMsiaHqnoJhLhf2Ai5fnxdwXficVXIW+4hNsvs=
 
 "use client";
 
@@ -19,19 +19,20 @@ import {
 
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandDialog,
   CommandEmpty,
-  CommandFilters,
   CommandFooter,
   CommandGroup,
-  CommandInput,
   CommandItem,
-  CommandList,
   CommandLoading,
 } from "@/components/ui/command";
+import {
+  CommandSearch,
+  CommandSearchInput,
+  CommandSearchResults,
+  CommandSearchScopes,
+  CommandSearchSections,
+} from "@/components/ui/command-search";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /** One search result. */
@@ -58,6 +59,7 @@ export type SearchFn = (
   query: string,
   scope: string,
   signal: AbortSignal,
+  options: { includeArchived: boolean },
 ) => Promise<SearchResult[]>;
 
 /** The scopes, in chip order; "all" searches everything. */
@@ -125,8 +127,8 @@ function keepKeys(event: React.KeyboardEvent) {
     event.stopPropagation();
 }
 
-/** Props for {@link CommandSearch}. */
-export interface CommandSearchProps {
+/** Props for `SearchPalette`. */
+export interface SearchPaletteProps {
   /** Your search call. */
   search: SearchFn;
   /**
@@ -171,23 +173,26 @@ function ResultItem({
 }
 
 /**
- * The search palette: a `CommandDialog` that asks the host's `search(query, scope, signal)` and
- * shows the answer grouped by type. Scope chips sit after the input as their own Tab stop, and
- * Alt+← / Alt+→ switches scope without leaving the input; changing scope re-asks and keeps the
- * query. An empty query shows recents; typing waits `TIMINGS.searchDebounceMs` before asking. ↵
- * opens the selected result, ⌘↵ / Ctrl+↵ opens it in a new tab, and only http(s) links are followed.
- * The footer shows `CommandFooter`'s built-in key hints.
+ * The search palette, on the design system's `CommandSearch`: it asks the host's
+ * `search(query, scope, signal, { includeArchived })` and shows the answer grouped by type. Scope
+ * chips sit on one line after the input as their own Tab stop — what does not fit is in More, with
+ * Include archived — and Alt+← / Alt+→ switches scope without leaving the input; changing scope
+ * re-asks and keeps the query. An empty query shows recents; typing waits
+ * `TIMINGS.searchDebounceMs` before asking, and while it asks the last answer stays, dimmed, under
+ * the input's progress bar (an answer to an older query is dropped). ↵ opens the selected result,
+ * ⌘↵ / Ctrl+↵ opens it in a new tab, and only http(s) links are followed. The footer shows
+ * `CommandFooter`'s built-in key hints.
  *
  * @example
- * <CommandSearch search={(q, scope, signal) => api.search(q, scope, { signal })} recents={recent} />
+ * <SearchPalette search={(q, scope, signal) => api.search(q, scope, { signal })} recents={recent} />
  */
-export function CommandSearch({
+export function SearchPalette({
   search,
   recents = [],
   open: openProp,
   onOpenChange,
   defaultOpen = false,
-}: CommandSearchProps) {
+}: SearchPaletteProps) {
   const { announce, Announcer } = useAnnouncer();
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
   const open = openProp ?? uncontrolledOpen;
@@ -197,6 +202,7 @@ export function CommandSearch({
   };
   const [query, setQuery] = React.useState("");
   const [scope, setScope] = React.useState<string>("all");
+  const [includeArchived, setIncludeArchived] = React.useState(false);
   const [status, setStatus] = React.useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
@@ -220,7 +226,7 @@ export function CommandSearch({
     const controller = new AbortController();
     setStatus("loading");
     const timer = setTimeout(() => {
-      searchRef.current(q, scope, controller.signal).then(
+      searchRef.current(q, scope, controller.signal, { includeArchived }).then(
         (next) => {
           if (controller.signal.aborted) return;
           setResults(next);
@@ -236,7 +242,7 @@ export function CommandSearch({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [announce, query, scope, attempt]);
+  }, [announce, query, scope, includeArchived, attempt]);
 
   const shown = query.trim() ? results : recents;
   const byId = new Map(shown.map((r) => [r.id, r]));
@@ -278,92 +284,80 @@ export function CommandSearch({
     }
   }
 
+  const typed = query.trim() !== "";
   return (
-    <CommandDialog
+    <CommandSearch
       open={open}
       onOpenChange={setOpen}
       title="Search"
       description="Search meetings, tasks, products, families, accessories, customers, projects, attributes and pages"
+      pending={status === "loading"}
+      resultsLabel={silentResultsLabel}
+      value={selected}
+      onValueChange={setSelected}
+      onKeyDown={onCommandKeyDown}
     >
-      <Command
-        shouldFilter={false}
-        resultsLabel={silentResultsLabel}
-        value={selected}
-        onValueChange={setSelected}
-        onKeyDown={onCommandKeyDown}
-      >
-        <CommandInput
-          placeholder="Search…"
-          value={query}
-          onValueChange={setQuery}
-          onKeyDown={onInputKeyDown}
-          aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-        />
-        <Announcer />
-        <CommandFilters onKeyDown={keepKeys}>
-          <ToggleGroup
-            size="sm"
-            variant="outline"
-            wrap
-            deselectable={false}
-            aria-label="Search in"
-            value={[scope]}
-            onValueChange={(value) => {
-              if (value[0]) setScope(value[0]);
-            }}
+      <CommandSearchInput
+        placeholder="Search…"
+        value={query}
+        onValueChange={setQuery}
+        onKeyDown={onInputKeyDown}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      />
+      <Announcer />
+      <CommandSearchScopes
+        scopes={SCOPES}
+        value={scope}
+        onValueChange={setScope}
+        includeArchived={includeArchived}
+        onIncludeArchivedChange={setIncludeArchived}
+      />
+      <CommandSearchResults>
+        {status === "loading" && results.length === 0 ? (
+          <CommandLoading label="Searching…" />
+        ) : null}
+        {status === "error" ? (
+          <div
+            role="alert"
+            className="flex items-center justify-center gap-2 py-6 text-sm"
+            onKeyDown={keepKeys}
           >
-            {SCOPES.map((s) => (
-              <ToggleGroupItem key={s.value} value={s.value}>
-                {s.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </CommandFilters>
-        <CommandList>
-          {status === "loading" ? <CommandLoading label="Searching…" /> : null}
-          {status === "error" ? (
-            <div
-              role="alert"
-              className="flex items-center justify-center gap-2 py-6 text-sm"
-              onKeyDown={keepKeys}
+            <TriangleAlert
+              aria-hidden
+              className="size-4 text-destructive-text"
+            />
+            <span className="text-destructive-text">Couldn’t search</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAttempt((n) => n + 1)}
             >
-              <TriangleAlert
-                aria-hidden
-                className="size-4 text-destructive-text"
-              />
-              <span className="text-destructive-text">Couldn’t search</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAttempt((n) => n + 1)}
-              >
-                Try again
-              </Button>
-            </div>
-          ) : null}
-          {status === "ready" ? <CommandEmpty>No results</CommandEmpty> : null}
-          {query.trim() === "" && recents.length ? (
-            <CommandGroup heading="Recent">
-              {recents.map((r) => (
-                <ResultItem key={r.id} result={r} onOpen={openResult} />
-              ))}
-            </CommandGroup>
-          ) : null}
-          {status === "ready"
-            ? GROUPS.map((group) => {
-                const items = results.filter((r) => r.type === group.type);
-                return items.length ? (
-                  <CommandGroup key={group.type} heading={group.heading}>
-                    {items.map((r) => (
-                      <ResultItem key={r.id} result={r} onOpen={openResult} />
-                    ))}
-                  </CommandGroup>
-                ) : null;
-              })
-            : null}
-        </CommandList>
-        <CommandFooter className="hidden sm:flex" aria-hidden />
-      </Command>
-    </CommandDialog>
+              Try again
+            </Button>
+          </div>
+        ) : null}
+        {status === "ready" ? <CommandEmpty>No results</CommandEmpty> : null}
+        {!typed ? (
+          <CommandSearchSections
+            recent={recents.map((r) => (
+              <ResultItem key={r.id} result={r} onOpen={openResult} />
+            ))}
+          />
+        ) : null}
+        {typed && status !== "error"
+          ? GROUPS.map((group) => {
+              const items = results.filter((r) => r.type === group.type);
+              return items.length ? (
+                <CommandGroup key={group.type} heading={group.heading}>
+                  {items.map((r) => (
+                    <ResultItem key={r.id} result={r} onOpen={openResult} />
+                  ))}
+                </CommandGroup>
+              ) : null;
+            })
+          : null}
+      </CommandSearchResults>
+      <CommandFooter className="hidden sm:flex" aria-hidden />
+    </CommandSearch>
   );
 }

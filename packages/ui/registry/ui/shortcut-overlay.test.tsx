@@ -3,7 +3,11 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { ShortcutOverlay, type ShortcutDefinition } from "./shortcut-overlay";
+import {
+  ShortcutOverlay,
+  type ShortcutDefinition,
+  type ShortcutGroup,
+} from "./shortcut-overlay";
 
 const SHORTCUTS: ShortcutDefinition[] = [
   { keys: ["⌘", "K"], label: "Open command menu", category: "Navigation" },
@@ -286,5 +290,136 @@ test("no footer slot without the prop", async () => {
     .toBeInTheDocument();
   expect(
     document.querySelector('[data-slot="shortcut-overlay-footer"]'),
+  ).toBeNull();
+});
+
+const GROUPS: ShortcutGroup[] = [
+  {
+    id: "general",
+    label: "General",
+    items: [{ keys: ["⌘", "K"], label: "Open search" }],
+  },
+  {
+    id: "meeting",
+    label: "Meeting recording",
+    active: false,
+    items: [{ keys: ["Space"], label: "Play or pause" }],
+  },
+  {
+    id: "task",
+    label: "Task page",
+    active: true,
+    items: [
+      { keys: ["D"], label: "Delegate" },
+      { keys: ["⇧", "S"], label: "Watch" },
+      { keys: ["X"], label: "Hidden", when: false },
+    ],
+  },
+  {
+    id: "goto",
+    label: "Go to",
+    items: [{ keys: ["G", "H"], label: "Go to Home" }],
+  },
+];
+
+const headings = () =>
+  Array.from(
+    document.querySelectorAll('[data-slot="shortcut-overlay-category"] h3'),
+  ).map((h) => h.textContent);
+
+test("groups: the page's own first, then everywhere groups; other pages wait for All shortcuts", async () => {
+  const screen = await render(
+    <ShortcutOverlay groups={GROUPS} open triggerKey={false} />,
+  );
+  await expect
+    .element(screen.getByRole("dialog", { name: "Keyboard shortcuts" }))
+    .toBeInTheDocument();
+  expect(headings()).toEqual(["Task page", "General", "Go to"]);
+  // `when: false` drops an item inside a group too.
+  expect(document.body.textContent).not.toContain("Hidden");
+  await expect
+    .element(screen.getByText("Shortcuts available on this page."))
+    .toBeInTheDocument();
+
+  const all = screen.getByRole("switch", { name: "All shortcuts" });
+  await expect.element(all).not.toBeChecked();
+  await expectNoA11yViolations(document.body);
+  (all.element() as HTMLElement).click();
+  await expect.element(all).toBeChecked();
+  await expect
+    .poll(headings)
+    .toEqual(["Task page", "General", "Go to", "Meeting recording"]);
+  expect(
+    document
+      .querySelector('[data-slot="shortcut-overlay-category"][data-elsewhere]')
+      ?.querySelector("h3")?.textContent,
+  ).toBe("Meeting recording");
+  await expect
+    .element(screen.getByText("All keyboard shortcuts."))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+test("groups: All shortcuts resets each time the overlay opens", async () => {
+  function Host() {
+    const [open, setOpen] = React.useState(true);
+    return (
+      <>
+        <button type="button" onClick={() => setOpen((o) => !o)}>
+          Flip
+        </button>
+        <ShortcutOverlay
+          groups={GROUPS}
+          open={open}
+          onOpenChange={setOpen}
+          triggerKey={false}
+        />
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  (
+    screen
+      .getByRole("switch", { name: "All shortcuts" })
+      .element() as HTMLElement
+  ).click();
+  await expect.poll(headings).toContain("Meeting recording");
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.querySelector('[role="dialog"]')).toBeNull();
+  (
+    screen.getByRole("button", { name: "Flip" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("switch", { name: "All shortcuts" }))
+    .not.toBeChecked();
+  expect(headings()).not.toContain("Meeting recording");
+});
+
+test("groups: a filter query searches every group, the hidden ones too", async () => {
+  const screen = await render(
+    <ShortcutOverlay groups={GROUPS} open triggerKey={false} searchable />,
+  );
+  await screen
+    .getByRole("searchbox", { name: "Filter shortcuts" })
+    .fill("play");
+  expect(headings()).toEqual(["Meeting recording"]);
+  const rows = document.querySelectorAll('[data-slot="shortcut-overlay-row"]');
+  expect(rows).toHaveLength(1);
+});
+
+test("groups: no All shortcuts switch when every group applies here; description is overridable", async () => {
+  const screen = await render(
+    <ShortcutOverlay
+      groups={GROUPS.filter((g) => g.active !== false)}
+      open
+      triggerKey={false}
+      description="Keys for the task page."
+    />,
+  );
+  await expect
+    .element(screen.getByText("Keys for the task page."))
+    .toBeInTheDocument();
+  expect(
+    document.querySelector('[data-slot="shortcut-overlay-scope"]'),
   ).toBeNull();
 });

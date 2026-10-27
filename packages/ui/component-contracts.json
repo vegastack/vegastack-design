@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 763,
-    "components": 175,
+    "totalRegistryItems": 766,
+    "components": 178,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -23,8 +23,8 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 37,
-    "Navigation/layout": 23,
-    "Overlays": 22,
+    "Navigation/layout": 25,
+    "Overlays": 23,
     "Data display": 38,
     "Content/marketing": 15,
     "Shared internals": 6,
@@ -122,7 +122,9 @@
       "breadcrumb-cascade",
       "table-of-contents",
       "document-layout",
-      "settings-layout"
+      "settings-layout",
+      "help-menu",
+      "route-tabs"
     ],
     "Overlays": [
       "access-chip",
@@ -146,7 +148,8 @@
       "tooltip",
       "icon-picker",
       "info-hint",
-      "record-peek"
+      "record-peek",
+      "command-search"
     ],
     "Data display": [
       "activity-feed",
@@ -352,7 +355,8 @@
           "switch",
           "textarea",
           "toast",
-          "toggle"
+          "toggle",
+          "toggle-group"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -24348,6 +24352,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ShortcutGroup",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShortcutGroupItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -24369,7 +24391,9 @@
             "filtered",
             "empty-filter",
             "gated-when",
-            "suppressed"
+            "suppressed",
+            "page-scoped",
+            "all-shortcuts"
           ],
           "evidence": "Controlled-optional open; ? binding suppressed inside editable surfaces and by shouldHandle; when:false omits a binding; the filter narrows and shows an empty message."
         },
@@ -24402,8 +24426,10 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/label",
         "@vegastack/panel-search",
         "@vegastack/scroll-area",
+        "@vegastack/switch",
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
@@ -24424,13 +24450,18 @@
         "ShortcutOverlay": {
           "attributes": [
             {
+              "name": "data-elsewhere",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "shortcut-overlay",
                 "shortcut-overlay-category",
                 "shortcut-overlay-empty",
                 "shortcut-overlay-footer",
-                "shortcut-overlay-row"
+                "shortcut-overlay-row",
+                "shortcut-overlay-scope"
               ]
             }
           ],
@@ -25078,6 +25109,34 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "StatGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "StatGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StatGroupItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -25103,7 +25162,17 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "empty", "error", "success"],
+          "values": [
+            "default",
+            "empty",
+            "error",
+            "success",
+            "group",
+            "group-link",
+            "group-loading",
+            "group-failed",
+            "group-hidden-all-zero"
+          ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -25123,10 +25192,10 @@
       "responsive": {
         "status": "modeled",
         "risks": [
-          "text-truncation-and-flex-shrink",
-          "responsive-or-container-layout"
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
         ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "StatGroup is container-queried: one row of equal cells from 24rem of its own width, a 2x2 grid below."
       },
       "motion": {
         "status": "not-applicable",
@@ -25221,6 +25290,15 @@
                 "stat-skeleton-label",
                 "stat-skeleton-value"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["stat-group", "stat-group-grid", "stat-group-item"]
             }
           ],
           "cssVariables": []
@@ -39728,6 +39806,636 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "help-menu",
+      "registryType": "registry:ui",
+      "title": "Help Menu",
+      "summary": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/help-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "HelpMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/help-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "HelpMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/help-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "HelpMenuLink",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/help-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant dimension; the composed parts carry their own."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No size scale of its own; it composes the sized parts it renders."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "open",
+            "link-entry",
+            "action-entry",
+            "unread",
+            "collapsed-rail",
+            "version"
+          ],
+          "evidence": "packages/ui/registry/ui/help-menu.tsx + packages/ui/registry/ui/help-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "menu-semantics",
+            "labeled",
+            "unread-announced",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/help-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open", "unread", "collapsed"],
+          "evidence": "packages/ui/registry/ui/help-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "viewport-positioning-and-collision"
+        ],
+        "rationale": "Follows the sidebar: a full row expanded, the icon with a tooltip in the collapsed rail; the menu is a positioned popup clamped to the viewport."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the composed menu owns its enter and exit."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/help-menu",
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/sidebar"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/help-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "help-menu",
+      "dataAttributes": {
+        "HelpMenu": {
+          "attributes": [
+            {
+              "name": "data-entry",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "help-menu",
+                "help-menu-content",
+                "help-menu-dot",
+                "help-menu-item",
+                "help-menu-trigger",
+                "help-menu-version"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "route-tabs",
+      "registryType": "registry:ui",
+      "title": "Route Tabs",
+      "summary": "Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab and a pending bar while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/route-tabs.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RouteTabs",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "RouteTabsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RouteTab",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RouteTabsPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "RouteTabsPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RouteTabsProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "RouteTabsProviderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "overflow",
+            "values": ["visible", "scroll"]
+          }
+        ],
+        "rationale": "Whether a long strip scrolls sideways or never clips."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No size scale of its own; it composes the sized parts it renders."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "current-page",
+            "also-match",
+            "count",
+            "pending",
+            "controlled-pending",
+            "panel-pending",
+            "overflow-scroll"
+          ],
+          "evidence": "packages/ui/registry/ui/route-tabs.tsx + packages/ui/registry/ui/route-tabs.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "landmark",
+            "labeled",
+            "current-page",
+            "busy",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/route-tabs.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "current",
+            "pending",
+            "dimmed-panel",
+            "scroll"
+          ],
+          "evidence": "packages/ui/registry/ui/route-tabs.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll", "text-truncation-and-flex-shrink"],
+        "rationale": "overflow=scroll scrolls the strip sideways and keeps the current tab in view as counts arrive; visible never clips."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "motion-indeterminate (the pending bar's sweeping segment)",
+          "transition-opacity (the dimmed stale panel)"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css collapses motion-indeterminate to its resting segment and the opacity transition to its end state."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/route-tabs",
+      "registryDependencies": ["@vegastack/tabs"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34"
+      ],
+      "testFiles": ["packages/ui/registry/ui/route-tabs.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "route-tabs",
+      "dataAttributes": {
+        "RouteTabs": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": ["horizontal"]
+            },
+            {
+              "name": "data-overflow",
+              "values": []
+            },
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["route-tabs", "route-tabs-pending", "tabs-list"]
+            },
+            {
+              "name": "data-variant",
+              "values": ["default"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RouteTabsPanel": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["route-tabs-panel"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "command-search",
+      "registryType": "registry:ui",
+      "title": "Command Search",
+      "summary": "The search palette's frame, results first — one row of scope chips with a More menu (and Include archived), results up to min(60dvh, 520px), an in-flight state that dims stale results under an input progress bar, Recent · Create · Places start sections, and a preview pane from 1280px.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/command-search.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CommandSearch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchInputProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchScopes",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchScopesProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchScope",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchResults",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchResultsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchSections",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchSectionsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant dimension; the composed parts carry their own."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No size scale of its own; it composes the sized parts it renders."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "scope-chip",
+            "scope-overflow",
+            "include-archived",
+            "pending",
+            "stale-results",
+            "sections",
+            "preview"
+          ],
+          "evidence": "packages/ui/registry/ui/command-search.tsx + packages/ui/registry/ui/command-search.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "dialog-semantics",
+            "listbox",
+            "busy",
+            "menu-semantics",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/command-search.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "pending",
+            "more-active",
+            "archived-on",
+            "with-preview"
+          ],
+          "evidence": "packages/ui/registry/ui/command-search.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "overflow-and-scroll",
+          "responsive-or-container-layout",
+          "viewport-positioning-and-collision"
+        ],
+        "rationale": "The chip row never wraps — what does not fit moves into More, re-measured on resize; results cap at min(60dvh, 520px); the preview pane appears from 1280px and the dialog widens to hold it."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "motion-indeterminate (the pending bar's sweeping segment)",
+          "transition-opacity (the dimmed stale panel)"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css collapses motion-indeterminate to its resting segment and the opacity transition to its end state."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/command-search",
+      "registryDependencies": [
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/toggle",
+        "@vegastack/toggle-group"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/command-search.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "command-search",
+      "dataAttributes": {
+        "CommandSearch": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["command-search"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchInput": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["command-search-input", "command-search-progress"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchScopes": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            },
+            {
+              "name": "data-measure",
+              "values": ["chip", "more"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "command-search-archived-dot",
+                "command-search-more",
+                "command-search-more-content",
+                "command-search-scopes",
+                "command-search-scopes-ruler"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["on"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchResults": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-search-body", "command-search-preview"]
+            },
+            {
+              "name": "data-stale",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchSections": {
+          "attributes": [
+            {
+              "name": "data-section",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["command-search-section"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {
@@ -44701,33 +45409,15 @@
       "name": "command-search-01",
       "registryType": "registry:block",
       "title": "Command Search 01",
-      "summary": "A search palette — scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab.",
+      "summary": "A search palette on CommandSearch — one row of scope chips with More and Include archived, recents, results grouped by type, stale results dimmed while a search runs, loading, empty and error states, and ⌘↵ to open in a new tab.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
-        "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+        "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
         "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
         "packages/ui/registry/blocks/command-search-01/page.tsx"
       ],
       "publicSymbols": [
-        {
-          "name": "CommandSearch",
-          "kind": "component",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A block part is a composition, not an API: CommandSearch forwards no ref of its own, and its internals are not part of any published surface."
-          }
-        },
-        {
-          "name": "CommandSearchProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "INDEX",
           "kind": "component-constant",
@@ -44758,7 +45448,7 @@
         {
           "name": "SCOPES",
           "kind": "component-constant",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
@@ -44767,7 +45457,25 @@
         {
           "name": "SearchFn",
           "kind": "type",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SearchPalette",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: CommandSearch forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "SearchPaletteProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -44776,7 +45484,7 @@
         {
           "name": "SearchResult",
           "kind": "interface",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -44811,7 +45519,7 @@
         "accessibility": {
           "status": "covered",
           "values": ["semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx + packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"
+          "evidence": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx + packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -44838,10 +45546,10 @@
         "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
+        "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
-        "@vegastack/toggle-group",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
