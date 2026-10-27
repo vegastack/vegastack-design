@@ -1,0 +1,95 @@
+---
+title: Sidebar Menu Flyout
+description: A sidebar row whose entries open in a menu beside it on hover or press, such as Spaces in the collapsed icon rail.
+audience: public
+registry: sidebar-menu-flyout
+status: stable
+since: 0.25.90
+a11y: Menu button; Escape returns focus to the row
+preview: sidebarMenuFlyout
+---
+
+## Install
+
+<InstallSteps name="sidebar-menu-flyout" />
+
+## Usage
+
+```tsx
+import { SidebarMenuFlyout } from "@/components/ui/sidebar-menu-flyout";
+
+<SidebarMenu>
+  <SidebarMenuFlyout label="Spaces" icon={<LayoutGrid />} railOnly>
+    {spaces.map((space) => (
+      <DropdownMenuItem key={space.id} render={<Link href={space.href} />}>
+        {space.name}
+      </DropdownMenuItem>
+    ))}
+    <DropdownMenuSeparator />
+    <DropdownMenuItem render={<Link href="/spaces/new" />}>
+      <Plus />
+      New space
+    </DropdownMenuItem>
+  </SidebarMenuFlyout>
+</SidebarMenu>;
+```
+
+A sidebar row whose entries open beside it rather than under it. In the collapsed icon rail a
+nested list — the person's spaces — has no room to show inline, so the row keeps one icon and its
+entries open in a menu at its side, headed by the row's label, when the pointer rests on it or it is
+pressed. `railOnly` shows the row in the rail alone, so the expanded sidebar keeps its own inline
+group and the phone drawer lists the entries in full.
+
+## Scope
+
+- Owns: the row (a `SidebarMenuItem` with a `SidebarMenuButton` trigger), opening on hover and
+  press, the menu's place beside the row (under it in the phone drawer), the heading, the rail-only
+  display, and the row's count as on any sidebar row.
+- Does not own: the entries — they are the host's `DropdownMenuItem`s, links through `render`.
+- Compose with: [`Sidebar`](/docs/components/sidebar)'s `SidebarMenu`;
+  [`DropdownMenu`](/docs/components/dropdown-menu)'s items and separators;
+  [`AppShell`](/docs/components/app-shell)'s `railSeparators`.
+
+## Examples
+
+### Spaces in the icon rail
+
+Hover Spaces in the rail, or focus it and press Enter. Expand the sidebar with the header button:
+the flyout row goes and the inline Spaces group shows instead.
+
+<ComponentPreview
+  name="sidebarMenuFlyout"
+  file="components/preview/sidebar-menu-flyout.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/sidebar-menu-flyout.tsx"
+  name="SidebarMenuFlyoutProps"
+/>
+
+## Accessibility
+
+- The row is a menu button named by its label (and its count, as "Spaces 3 new"); the flyout is a
+  menu, its entries menu items.
+- In the collapsed rail the row shows its label as a tooltip on keyboard focus, as every rail row
+  does; the tooltip steps aside while the flyout is open.
+- Hover opens the flyout without taking focus. From the keyboard, Enter or Space opens it with the
+  first entry focused, and Escape closes it and returns focus to the row.
+
+| Key                                 | Action                                         |
+| ----------------------------------- | ---------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the flyout                               |
+| <kbd>↓</kbd> / <kbd>↑</kbd>         | Moves between the entries                      |
+| <kbd>Enter</kbd>                    | Follows the entry                              |
+| <kbd>Escape</kbd>                   | Closes the flyout and returns focus to the row |
+
+<StatesTested name="sidebar-menu-flyout" />
+
+## Do / Don't
+
+<DoDont
+  do="Reach a nested list from the collapsed rail through one flyout row, and keep the expanded sidebar's inline group with railOnly."
+  dont="Hide a whole group in the rail with no way to reach it, or show both the flyout row and the inline group in the expanded sidebar."
+/>
