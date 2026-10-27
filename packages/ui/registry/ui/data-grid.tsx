@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.89 sha256-oCZS/I8BChtLKYO/PFr8mqQtfglUOHfkDJb0m/Sp1OI=
+// @vegastack data-grid@0.25.89 sha256-e81fMss+1mHWPHbsd6//bu8a7U2GW4s4zkkGBxYgfTk=
 
 "use client";
 
@@ -2437,9 +2437,11 @@ function GridCardsSummary<T>({
   const loading = new Set(summaryRow.loading ?? []);
   const parts = columns.flatMap((column) => {
     const chosen = summaryRow.value[column.key];
-    const option = chosen
-      ? column.summaryOptions?.find((o) => o.value === chosen)
-      : undefined;
+    // `null`/absent is "none"; any other id — "" included — is a function, as in the footer.
+    const option =
+      chosen == null
+        ? undefined
+        : column.summaryOptions?.find((o) => o.value === chosen);
     return option ? [{ column, option }] : [];
   });
   if (summaryRow.label == null && parts.length === 0) return null;
