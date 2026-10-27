@@ -1,0 +1,124 @@
+---
+title: Field Type Link Step
+description: The "Links to" step of FieldTypePicker — grouped kinds of record, each explained in one line, and a table choice for Rows.
+audience: public
+registry: field-type-link-step
+status: stable
+since: 0.25.90
+a11y: searchable listbox per view; Backspace goes up a view
+preview: fieldTypeLinkStep
+---
+
+## Install
+
+<InstallSteps name="field-type-link-step" />
+
+## Usage
+
+```tsx
+import { FieldTypePicker } from "@/components/ui/field-type-picker";
+import { FieldTypeLinkStep } from "@/components/ui/field-type-link-step";
+
+<FieldTypePicker
+  types={[
+    ...types,
+    { id: "link", label: "Link to", icon: <Link2 />, next: true },
+  ]}
+  onSelect={(type) => addField({ type })}
+  renderStep={(type, controls) => (
+    <FieldTypeLinkStep
+      controls={controls}
+      kinds={recordKinds}
+      tables={tables}
+      onSelect={({ kind, table }) => addField({ type: type.id, kind, table })}
+    />
+  )}
+/>;
+```
+
+A link field points at another kind of record, and a flat list of a dozen kinds says nothing
+about what a link does. This step — rendered from [`FieldTypePicker`](/docs/components/field-type-picker)'s
+`renderStep` for the link type — lists the kinds in their groups, each with one line on what a
+link to it does. A kind marked `table` (Rows) asks which table in a third view and retitles the
+picker's step header ("Which table's rows?"); the choice comes back as `{ kind, table? }`.
+
+## Scope
+
+- Owns: the kinds and tables views, their search, the header title in the table view, and going
+  up a view.
+- Does not own: which kinds exist or what they're called (the host's `kinds`), the tables (the
+  host's `tables`), or the field it creates.
+- Compose with: `FieldTypePicker`, which draws the back header and owns the type list.
+
+## Examples
+
+### Add a link field
+
+Choose **Link to**, then a kind — or **Rows**, then a table.
+
+<ComponentPreview
+  name="fieldTypeLinkStep"
+  file="components/preview/field-type-link-step.tsx"
+/>
+
+### In place
+
+The same picker without a popover. The header's back button returns to the types; Backspace in
+an empty search goes up one view (tables → kinds → types).
+
+<ComponentPreview
+  name="fieldTypeLinkStepInline"
+  file="components/preview/field-type-link-step.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-type-link-step.tsx"
+  name="FieldTypeLinkStepProps"
+/>
+
+### FieldLinkKind
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-type-link-step.tsx"
+  name="FieldLinkKind"
+/>
+
+### FieldLinkTable
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-type-link-step.tsx"
+  name="FieldLinkTable"
+/>
+
+### FieldLinkChoice
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-type-link-step.tsx"
+  name="FieldLinkChoice"
+/>
+
+## Accessibility
+
+- Each view is a searchable listbox named by its search field ("Search kinds of record",
+  "Search tables"); the explanation is part of each option's text.
+- A kind that can't be chosen is disabled and says why.
+- The current choice reads "current" after its name.
+- Focus lands in the search on every view change.
+
+| Key                                       | Action                                      |
+| ----------------------------------------- | ------------------------------------------- |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowDown</kbd> | Moves through the kinds or tables           |
+| <kbd>Enter</kbd>                          | Chooses, or opens the table choice for Rows |
+| <kbd>Backspace</kbd> (empty search)       | Goes up one view: tables → kinds → types    |
+| <kbd>Escape</kbd>                         | Closes the popover the picker sits in       |
+
+<StatesTested name="field-type-link-step" />
+
+## Do / Don't
+
+<DoDont
+  do="Group the kinds and give each one line on what a link to it does; ask for the table right after Rows."
+  dont="List every record kind in one flat Select, or ask for the table in a separate field afterwards."
+/>

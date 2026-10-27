@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "0259ac82291179cdebb79d533fcc71c6d43c69ae8ce91b4caf56c22c9d58d77a",
+  "contractSha256": "96700bb1d4f440f26ea469f54ee8986d22ba91250091b0e5cdaea525ccd22d3a",
   "expectedCounts": {
-    "totalRegistryItems": 773,
-    "components": 185,
+    "totalRegistryItems": 774,
+    "components": 186,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -2058,6 +2058,17 @@
         "packages/ui/registry/ui/field-type-picker.tsx"
       ],
       "docsSlug": "/docs/components/field-type-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "field-type-link-step",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/field-type-link-step.tsx"
+      ],
+      "docsSlug": "/docs/components/field-type-link-step",
       "contractStatus": "reconciled"
     },
     {
