@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.89 sha256-F7UlwiRbAGjia6R7LwavS/Qwn6ppAtcQ0Qh+LVndJJA=
+// @vegastack field-cell@0.25.89 sha256-DnUqBjWmd0Y/Nw4QTZFDrRciDjxB0hqqiZG4OQpZjbk=
 
 "use client";
 
@@ -363,6 +363,8 @@ function Overflow({
   labels?: string[];
   tabIndex?: number;
 }) {
+  // A tap shows the names too: a touch screen has no hover, and a tooltip opens on nothing else.
+  const [open, setOpen] = React.useState(false);
   if (count <= 0) return null;
   const className = "shrink-0 text-xs text-muted-foreground tabular-nums";
   if (!labels || labels.length === 0)
@@ -373,12 +375,13 @@ function Overflow({
     );
   const names = labels.join(", ");
   return (
-    <Tooltip>
+    <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger
         render={
           <span
             data-slot="field-cell-more"
             tabIndex={tabIndex ?? 0}
+            onClick={() => setOpen((shown) => !shown)}
             // A tab stop: at least a 24px-wide hit area, however short the count.
             className={cn(
               className,
@@ -600,6 +603,9 @@ export function FieldCellDisplay({
             tabIndex={tabIndex}
           />
         </>,
+        // A clipped name's 24px disclosure target (taller than the 20px badge) keeps its whole box
+        // inside the row, so a clipping wrapper (a grid cell's) never cuts it.
+        "min-h-6",
       );
     }
     case "checkbox":
@@ -1236,6 +1242,7 @@ function ChoiceCellEditor({
   config,
   label,
   defaultSearch,
+  creating,
   onChange,
   onClose,
 }: {
@@ -1244,25 +1251,51 @@ function ChoiceCellEditor({
   config: FieldConfig;
   label: string;
   defaultSearch?: string;
+  /** The option `onCreateOption` is still making, if any: the edit waits for it. */
+  creating: React.RefObject<Promise<unknown> | null>;
   onChange: (value: FieldValue) => void;
   /** The list closed without a key or a pick ending the edit (a click outside, the cell again). */
   onClose: () => void;
 }) {
-  const options = [...(config.options ?? [])];
-  const chosen = chosenOptions(value, config);
+  // The list opens with the editor.
+  const [open, setOpen] = React.useState(true);
+  // Options made here stay listed (and chosen) until the host's `config.options` carries them.
+  const [made, setMade] = React.useState<FieldChoiceOption[]>([]);
+  const listed = config.options ?? [];
+  const options = [
+    ...listed,
+    ...made.filter((option) => !listed.some((known) => known.id === option.id)),
+  ];
+  const chosen = chosenOptions(value, { options });
+  const onCreateOption = config.onCreateOption
+    ? (text: string) => {
+        const pending = config.onCreateOption!(text).then((option) => {
+          setMade((list) => [...list, option]);
+          return option;
+        });
+        creating.current = pending;
+        const settle = () => {
+          if (creating.current === pending) creating.current = null;
+        };
+        pending.then(settle, settle);
+        return pending;
+      }
+    : undefined;
   const common = {
     items: options,
     itemToKey: (option: FieldChoiceOption) => option.id,
     itemToStringLabel: (option: FieldChoiceOption) => option.label,
     renderItem: choiceFace,
-    onCreateOption: config.onCreateOption,
+    onCreateOption,
     searchLabel: "Search options",
     defaultSearch,
     "aria-label": label,
     // A narrow column still gets a list its option names fit in.
     contentClassName: "min-w-56",
-    onOpenChange: (open: boolean) => {
-      if (!open) onClose();
+    open,
+    onOpenChange: (next: boolean) => {
+      setOpen(next);
+      if (!next) onClose();
     },
     // The cell itself is the trigger: its badges as they are, no field chrome around them, in
     // the resting cell's box (`EditableCell`'s padding), so opening the editor moves nothing.
@@ -1271,7 +1304,7 @@ function ChoiceCellEditor({
         variant="ghost"
         data-slot="field-cell-choice-trigger"
         // No wash, no press nudge: the cell is what is being edited, not a button on it.
-        className="h-auto w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent dark:hover:bg-transparent"
+        className="h-auto min-h-9 w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent dark:hover:bg-transparent"
       >
         {chosen.slice(0, CHOICES_SHOWN).map((option) => (
           <FieldChoiceBadge key={option.id} hue={option.hue}>
@@ -1562,6 +1595,8 @@ export function FieldCellEditor({
   const done = React.useRef(false);
   // The draft as of the last change, for a commit scheduled outside a render (a list closing).
   const latest = React.useRef<FieldValue>(draft);
+  // A choice option `onCreateOption` is still making.
+  const creating = React.useRef<Promise<unknown> | null>(null);
   const choice = type === "single_choice" || type === "multi_choice";
   const multiChoice = type === "multi_choice";
   const root = React.useRef<HTMLSpanElement | null>(null);
@@ -1585,6 +1620,9 @@ export function FieldCellEditor({
     // The field itself first (a number's input, not its Decrease button), then a picker trigger.
     // A seeded picker opened searching: its popup's search field holds focus, not the trigger.
     if (seed && SEARCHED_TYPES.has(type)) return;
+    // A choice's list is open from the first render, its search field focused: no trigger press,
+    // whose click the just-opened list could take for a press outside it and close.
+    if (type === "single_choice" || type === "multi_choice") return;
     // Long text edits in a popover outside the cell: its editor takes the caret, however the
     // editor was opened (Enter, F2, a click).
     if (type === "long_text") {
@@ -1804,6 +1842,7 @@ export function FieldCellEditor({
           config={config}
           label={label}
           defaultSearch={seed || undefined}
+          creating={creating}
           onChange={(next) => {
             setDraft(next);
             latest.current = next;
@@ -1811,11 +1850,18 @@ export function FieldCellEditor({
             if (!multiChoice) commit(next, pickMove.current);
           }}
           onClose={() => {
-            // After the event that closed the list: a pick in the same event commits first.
-            setTimeout(() => {
+            const settle = () => {
               if (multiChoice && !sameChoices(latest.current, value))
                 commit(latest.current);
               else cancel();
+            };
+            // After the event that closed the list: a pick in the same event commits first. An
+            // option still being made ("Add “…”" closed the list) is waited for, then chosen.
+            setTimeout(() => {
+              const pending = creating.current;
+              if (!pending) return settle();
+              const later = () => setTimeout(settle, 0);
+              pending.then(later, later);
             }, 0);
           }}
         />
