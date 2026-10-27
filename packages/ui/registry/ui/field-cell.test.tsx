@@ -6,10 +6,12 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { DataGrid } from "./data-grid";
 import { InlineChipProvider } from "./inline-chip";
 import { TimeZoneProvider } from "./relative-time";
+import { PropertyList } from "./property-list";
 import {
   FieldCellDisplay,
   FieldCellEditor,
   FieldInput,
+  FieldProperty,
   isValidFieldText,
   type FieldConfig,
   type FieldType,
@@ -1393,4 +1395,432 @@ test("in a grid: @ in a long-text cell opens the mention menu, and choosing a pe
   await userEvent.keyboard("{Control>}{Enter}{/Control}");
   await vi.waitFor(() => expect(commits).toHaveLength(1));
   expect(String(commits[0])).toContain("mention://user/u1");
+});
+
+/* ---- FieldProperty (Regent POL-30) ---------------------------------------------------------- */
+
+function Property(props: Partial<React.ComponentProps<typeof FieldProperty>>) {
+  return (
+    <PropertyList variant="inline" aria-label="Fields">
+      <FieldProperty label="Stage" type="text" value="Open" {...props} />
+    </PropertyList>
+  );
+}
+
+test("FieldProperty: the grid's value in a property row; a click opens the cell editor, Enter saves", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(<Property onSave={onSave} />);
+  const row = screen.container.querySelector('[data-slot="field-property"]')!;
+  expect(row.querySelector('[data-slot="property-label"]')?.textContent).toBe(
+    "Stage",
+  );
+  await userEvent.click(screen.getByText("Open"));
+  const field = screen.getByRole("textbox", { name: "Stage" });
+  await expect.element(field).toHaveFocus();
+  await userEvent.keyboard("{End} won{Enter}");
+  expect(onSave).toHaveBeenCalledWith("Open won");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: a typed character opens the editor from it (type-to-edit)", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(<Property onSave={onSave} />);
+  const display = screen.container.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  display.focus();
+  await userEvent.keyboard("W");
+  const field = screen.getByRole("textbox", { name: "Stage" });
+  await expect.element(field).toHaveValue("W");
+});
+
+test("FieldProperty: a rejected save rolls back the value", async () => {
+  const onSave = vi.fn(() => Promise.reject(new Error("no")));
+  const screen = await render(
+    <Property onSave={onSave} saveErrorToast={false} />,
+  );
+  await userEvent.click(screen.getByText("Open"));
+  await userEvent.keyboard("{End}!{Enter}");
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('[data-slot="field-property"] dd')
+        ?.textContent,
+    ).toContain("Open"),
+  );
+  expect(
+    screen.container.querySelector('[data-slot="field-property"] dd')
+      ?.textContent,
+  ).not.toContain("Open!");
+});
+
+test("FieldProperty: read-only types and readOnly never edit; empty reads Empty; conflict says so", async () => {
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Created"
+        type="created_at"
+        value="2026-10-01T10:00:00Z"
+        onSave={() => {}}
+      />
+      <FieldProperty label="Notes" type="text" value={null} readOnly />
+      <FieldProperty
+        label="Site"
+        type="url"
+        value="https://example.com"
+        onSave={() => {}}
+        conflict
+      />
+    </PropertyList>,
+  );
+  const rows = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="field-property"]',
+  );
+  expect(rows[0]!.hasAttribute("data-read-only")).toBe(true);
+  expect(rows[0]!.querySelector('[data-slot="editable-cell"]')).toBeNull();
+  expect(rows[1]!.textContent).toContain("Empty");
+  expect(rows[1]!.querySelector('[data-slot="editable-cell"]')).toBeNull();
+  expect(
+    rows[2]!.querySelector('[data-slot="field-property-conflict"]')
+      ?.textContent,
+  ).toBe("Someone changed this field.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: a checkbox toggles in place, named by its field, and rolls back on a failed save", async () => {
+  let fail = false;
+  const onSave = vi.fn(() =>
+    fail ? Promise.reject(new Error("no")) : Promise.resolve(),
+  );
+  function Box() {
+    const [value, setValue] = React.useState<FieldValue>(false);
+    return (
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Paid"
+          type="checkbox"
+          value={value}
+          saveErrorToast={false}
+          onSave={async (next) => {
+            await onSave();
+            setValue(next);
+          }}
+        />
+      </PropertyList>
+    );
+  }
+  const screen = await render(<Box />);
+  const box = screen.getByRole("checkbox", { name: "Paid" });
+  // This lane compiles no CSS (the 16px box has no size here): click the element itself.
+  (box.element() as HTMLElement).click();
+  await expect.element(box).toHaveAttribute("aria-checked", "true");
+  expect(
+    screen.container.querySelector('[data-slot="editable-cell"]'),
+  ).toBeNull();
+  fail = true;
+  (box.element() as HTMLElement).click();
+  await vi.waitFor(() =>
+    expect(box.element().getAttribute("aria-checked")).toBe("true"),
+  );
+});
+
+test("FieldProperty: a linked value (a URL) stays a link; the Edit pencil beside it opens the editor", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Site"
+        type="url"
+        value="https://example.com"
+        onSave={onSave}
+      />
+    </PropertyList>,
+  );
+  const link = screen.getByRole("link", { name: "https://example.com" });
+  await expect.element(link).toBeInTheDocument();
+  expect(link.element().closest('[role="button"]')).toBeNull();
+  (
+    screen.getByRole("button", { name: "Edit Site" }).element() as HTMLElement
+  ).click();
+  const field = screen.getByRole("textbox", { name: "Site" });
+  await expect.element(field).toHaveFocus();
+  await userEvent.fill(field, "https://vegastack.com");
+  await userEvent.keyboard("{Enter}");
+  expect(onSave).toHaveBeenCalledWith("https://vegastack.com");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: the same person picked again (keys in another order) saves nothing", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Owner"
+        type="person"
+        value={{ name: "Asha", id: "u1" } as unknown as FieldValue}
+        config={{ people: [{ id: "u1", name: "Asha" }] }}
+        onSave={onSave}
+      />
+    </PropertyList>,
+  );
+  await userEvent.click(screen.getByText("Asha"));
+  const option = await vi.waitFor(() => {
+    const el = document.querySelector<HTMLElement>('[role="option"]');
+    if (!el) throw new Error("no option");
+    return el;
+  });
+  option.click();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onSave).not.toHaveBeenCalled();
+});
+
+test("FieldProperty: a file field shows its files and never edits", async () => {
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Drawings"
+        type="file"
+        value={[{ id: "f1", name: "plan.pdf" }]}
+        onSave={() => {}}
+      />
+    </PropertyList>,
+  );
+  const row = screen.container.querySelector('[data-slot="field-property"]')!;
+  expect(row.hasAttribute("data-read-only")).toBe(true);
+  expect(row.querySelector('[data-slot="field-property-edit"]')).toBeNull();
+});
+
+test("FieldProperty: managed focus — no tab stops of its own; a host opens the editor through `editing`", async () => {
+  function Host() {
+    const [editing, setEditing] = React.useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setEditing(true)}>
+          Open
+        </button>
+        <PropertyList aria-label="Fields">
+          <FieldProperty
+            label="Site"
+            type="url"
+            value="https://example.com"
+            onSave={() => {}}
+            focusMode="managed"
+            editing={editing}
+            onEditingChange={setEditing}
+          />
+          <FieldProperty
+            label="Paid"
+            type="checkbox"
+            value={false}
+            onSave={() => {}}
+            focusMode="managed"
+          />
+        </PropertyList>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  const link = screen.getByRole("link", { name: "https://example.com" });
+  expect(link.element().getAttribute("tabindex")).toBe("-1");
+  expect(
+    screen
+      .getByRole("button", { name: "Edit Site" })
+      .element()
+      .getAttribute("tabindex"),
+  ).toBe("-1");
+  expect(
+    screen
+      .getByRole("checkbox", { name: "Paid" })
+      .element()
+      .getAttribute("tabindex"),
+  ).toBe("-1");
+  (
+    screen.getByRole("button", { name: "Open" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Site" }))
+    .toHaveFocus();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: long text edits in place (no popover) and commits when focus leaves", async () => {
+  const onSave = vi.fn((_next: FieldValue) => Promise.resolve());
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Notes"
+          type="long_text"
+          value="First line"
+          onSave={onSave}
+        />
+      </PropertyList>
+      <button type="button">Elsewhere</button>
+    </>,
+  );
+  await userEvent.click(screen.getByText("First line"));
+  const editor = await vi.waitFor(() => {
+    const el = screen.container.querySelector<HTMLElement>(
+      '[data-slot="field-property-long-text"] .ProseMirror',
+    );
+    if (!el) throw new Error("no editor");
+    return el;
+  });
+  expect(document.querySelector('[data-slot="popover-content"]')).toBeNull();
+  editor.focus();
+  await userEvent.keyboard("{Control>}{End}{/Control} more");
+  await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
+  await vi.waitFor(() => expect(onSave).toHaveBeenCalled());
+  expect(onSave.mock.calls[0]![0]).toContain("more");
+});
+
+test("FieldProperty: Enter commits and keeps focus on the value; Tab commits and moves to the next row", async () => {
+  const onSave = vi.fn((_next: FieldValue) => Promise.resolve());
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty label="Name" type="text" value="Alpha" onSave={onSave} />
+      <FieldProperty label="Code" type="text" value="B-2" onSave={onSave} />
+    </PropertyList>,
+  );
+  const displays = () =>
+    screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="editable-cell-display"]',
+    );
+  await userEvent.click(screen.getByText("Alpha"));
+  await userEvent.keyboard("{End}!{Enter}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(displays()[0]));
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(screen.getByRole("textbox", { name: "Name" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(displays()[1]));
+});
+
+test("FieldProperty: long text — Escape reverts; a typed character's edit is saved when focus leaves", async () => {
+  const onSave = vi.fn((_next: FieldValue) => Promise.resolve());
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Notes"
+          type="long_text"
+          value="First line"
+          onSave={onSave}
+        />
+      </PropertyList>
+      <button type="button">Elsewhere</button>
+    </>,
+  );
+  const editor = async () =>
+    vi.waitFor(() => {
+      const el = screen.container.querySelector<HTMLElement>(
+        '[data-slot="field-property-long-text"] .ProseMirror',
+      );
+      if (!el) throw new Error("no editor");
+      return el;
+    });
+  await userEvent.click(screen.getByText("First line"));
+  (await editor()).focus();
+  await userEvent.keyboard(" changed{Escape}");
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('[data-slot="field-property-long-text"]'),
+    ).toBeNull(),
+  );
+  expect(onSave).not.toHaveBeenCalled();
+  // Type-to-edit: "W" replaces the value, and leaving saves it.
+  const display = screen.container.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  display.focus();
+  await userEvent.keyboard("W");
+  await editor();
+  await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
+  await vi.waitFor(() => expect(onSave).toHaveBeenCalled());
+  expect(String(onSave.mock.calls[0]![0])).toContain("W");
+});
+
+test("FieldProperty: Tab out of a linked value's editor goes on to the next control", async () => {
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Site"
+          type="url"
+          value="https://example.com"
+          onSave={() => Promise.resolve()}
+        />
+      </PropertyList>
+      <button type="button">After</button>
+    </>,
+  );
+  (
+    screen.getByRole("button", { name: "Edit Site" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Site" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await expect
+    .element(screen.getByRole("button", { name: "After" }))
+    .toHaveFocus();
+});
+
+test("FieldProperty: an older save settling late never overrides a newer one", async () => {
+  const resolvers: (() => void)[] = [];
+  const onSave = vi.fn(
+    () => new Promise<void>((resolve) => resolvers.push(resolve)),
+  );
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Paid"
+        type="checkbox"
+        value={false}
+        onSave={onSave}
+      />
+    </PropertyList>,
+  );
+  const box = screen.getByRole("checkbox", { name: "Paid" });
+  (box.element() as HTMLElement).click(); // → true (pending)
+  await expect.element(box).toHaveAttribute("aria-checked", "true");
+  (box.element() as HTMLElement).click(); // → false (pending, newer)
+  await expect.element(box).toHaveAttribute("aria-checked", "false");
+  resolvers[0]!(); // the older save settles: the newer pending value stays shown
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(box.element().getAttribute("aria-checked")).toBe("false");
+  expect(onSave).toHaveBeenCalledTimes(2);
+});
+
+test("FieldProperty: a synchronous save after a pending one supersedes it", async () => {
+  let rejectFirst!: (error: unknown) => void;
+  let calls = 0;
+  const onSave = vi.fn(() => {
+    calls++;
+    if (calls === 1)
+      return new Promise<void>((_resolve, reject) => {
+        rejectFirst = reject;
+      });
+    return undefined;
+  });
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Paid"
+        type="checkbox"
+        value={false}
+        onSave={onSave}
+        saveErrorToast={false}
+      />
+    </PropertyList>,
+  );
+  const box = screen.getByRole("checkbox", { name: "Paid" });
+  (box.element() as HTMLElement).click(); // async → true (pending)
+  await expect.element(box).toHaveAttribute("aria-checked", "true");
+  (box.element() as HTMLElement).click(); // sync: no pending value; shows the persisted value
+  await expect.element(box).toHaveAttribute("aria-checked", "false");
+  rejectFirst(new Error("late"));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(box.element().getAttribute("aria-checked")).toBe("false");
+  expect(document.body.textContent).not.toContain("Couldn't save Paid");
 });

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E=
+// @vegastack text-edit@0.25.91 sha256-OUPHHi8gOYvN9mKvQsqGoMrJp3Tkt9hW0Q8QOaAochg=
 
 "use client";
 
@@ -65,6 +65,18 @@ export type TextEditSlashCommand =
  * `onFileUpload` is set, `diagram` only when `blockViews.mermaid` is, `bookmark` only with
  * `bookmarks`.
  */
+/**
+ * Every floating part of an editing `TextEdit` — the bubble menu, link and image panels, the slash
+ * and mention menus, block and table menus. Focus moving into one of them stays in the edit
+ * session; a host wrapping the editor (an inline property editor) uses it to tell "focus left the
+ * editor" from "focus went into the editor's own panel".
+ *
+ * @example
+ * if ((next as Element | null)?.closest(TEXT_EDIT_SESSION_SELECTOR)) return; // still editing
+ */
+export const TEXT_EDIT_SESSION_SELECTOR =
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=suggestion-menu-sheet],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+
 export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "text",
   "h1",

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E=
+// @vegastack text-edit@0.25.91 sha256-OUPHHi8gOYvN9mKvQsqGoMrJp3Tkt9hW0Q8QOaAochg=
 
 "use client";
 
@@ -314,6 +314,7 @@ import {
 import { TaskInline } from "@/components/ui/task-inline";
 import {
   linkedTaskId,
+  TEXT_EDIT_SESSION_SELECTOR,
   TEXT_EDIT_UPLOAD_ABORT,
   type TextEditSectionMark,
   type TextEditTaskItem,
@@ -6321,8 +6322,7 @@ const MENU_SURFACE =
   "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
-const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=suggestion-menu-sheet],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+const FLOATING_SLOTS = TEXT_EDIT_SESSION_SELECTOR;
 
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
