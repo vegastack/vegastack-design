@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.42
+
+### Patch Changes
+
+- [#823](https://github.com/vegastack/vegastack-design/pull/823) [`61dc419`](https://github.com/vegastack/vegastack-design/commit/61dc4191ef17e9aa0617a100bcc356fc029ba9a0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 A long text whose first line ends in a hard break (<kbd>Shift</kbd>+<kbd>Enter</kbd>) no longer shows a trailing backslash at rest in a grid cell or a **FieldProperty** row: `typedFirstLine` drops the break's marker (`\` or two trailing spaces) when it takes the first line. [docs](https://design.vegastack.com/docs/components/field-cell)
+
 ## 0.8.41
 
 ### Patch Changes

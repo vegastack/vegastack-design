@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.94] — October 28, 2026
+
+<!-- assembled from 1 changeset: 69af9e977c52 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.42`** (was `0.8.41`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.93 → 0.25.94.
+
+### 🐛 Fixed
+
+- A long text whose first line ends in a hard break (<kbd>Shift</kbd>+<kbd>Enter</kbd>) no longer shows a trailing backslash at rest in a grid cell or a **FieldProperty** row: `typedFirstLine` drops the break's marker (`\` or two trailing spaces) when it takes the first line. [docs](https://design.vegastack.com/docs/components/field-cell) ·
+  [`61dc419`](https://github.com/VegaStack/vegastack-design/commit/61dc419)
+
 ## [0.25.93] — October 28, 2026
 
 <!-- assembled from 3 changesets: f7e21733dec6 -->
