@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.91 sha256-VJb+PuPdQNGuTidrH9cv4RJLRYF07Z7JAOtajetwNNY=
+// @vegastack view-tabs@0.25.91 sha256-wNKbYLZu0L7tH3cgKNqfJYD/oJTToIoNScXtiDoa0DY=
 
 "use client";
 
@@ -388,6 +388,9 @@ export function ViewTabs({
       // select, and expands again when the host widens.
       className={cn(
         "relative flex w-full min-w-0 items-center gap-1",
+        // Collapsed, the measuring tab row is wider than the room: clipped sideways, it never
+        // widens the page (vertically the select's focus and popup stay unclipped).
+        narrow && "overflow-x-clip",
         className,
       )}
     >

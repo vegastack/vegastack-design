@@ -1916,7 +1916,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
         "version": "0.25.91",
-        "integrity": "sha256-VJb+PuPdQNGuTidrH9cv4RJLRYF07Z7JAOtajetwNNY="
+        "integrity": "sha256-wNKbYLZu0L7tH3cgKNqfJYD/oJTToIoNScXtiDoa0DY="
       }
     },
     {
