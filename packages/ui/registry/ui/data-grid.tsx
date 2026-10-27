@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.94 sha256-vwfvTut/sDVflCo6xqEm9LEhBzqnAKHkv11UU85KvzM=
+// @vegastack data-grid@0.25.94 sha256-cDRd/P0KLPuztCQSWvsuXwaLltoiIjC7d69HXEcq9u8=
 
 "use client";
 
@@ -1458,12 +1458,37 @@ function GridCellImpl<T>({
       style={stickyStyle(placed.offset)}
     >
       {openLabel != null ? (
-        <RowOpenButton
-          label={openLabel}
-          onOpen={(event) => api.openRow(rowId, event)}
-        />
-      ) : null}
-      {fixed && rowHeight === "tall" ? (
+        // The Open button and the value share one flex row, the value taking what is left:
+        // side by side as inline boxes, a full-width value (an editable cell's display is
+        // `max-w-full`) overflowed the cell by the button's width, and the cell's own
+        // ellipsis then replaced the whole value — ref and all — with "…".
+        <div
+          data-slot="data-grid-cell-lead"
+          className={cn(
+            "flex min-w-0",
+            fixed && rowHeight === "tall" ? "items-start" : "items-center",
+          )}
+        >
+          <RowOpenButton
+            label={openLabel}
+            onOpen={(event) => api.openRow(rowId, event)}
+          />
+          <div
+            data-slot="data-grid-cell-content"
+            // Fixed layout clips plain text with its own ellipsis here (the cell's applies to
+            // its own lines only); auto layout keeps the cell's wrapping, and an open editor is
+            // never clipped (its focus outline sits outside it).
+            className={cn(
+              "min-w-0 flex-1",
+              fixed && rowHeight === "tall"
+                ? TALL_CONTENT_CLASS
+                : fixed && !editing && "truncate",
+            )}
+          >
+            {content}
+          </div>
+        </div>
+      ) : fixed && rowHeight === "tall" ? (
         <div data-slot="data-grid-cell-content" className={TALL_CONTENT_CLASS}>
           {content}
         </div>

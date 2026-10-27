@@ -2990,6 +2990,70 @@ test("without onRowOpen there is no Open button and Enter on the primary cell ed
   await expect.poll(() => name.hasAttribute("data-editing")).toBe(true);
 });
 
+test("a long primary value beside the Open button keeps its ref and ends in an ellipsis, never a lone …", async () => {
+  // Regression: the button and an editable value (a `max-w-full` inline box) sat side by side,
+  // so a long value overflowed the cell by the button's width and the cell's own ellipsis
+  // replaced the whole value — ref included — with "…".
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const long = "Pendant over the counter, entrance feature";
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        {
+          key: "name",
+          header: "Name",
+          width: 240,
+          editable: { type: "text" },
+          render: (d: Deal) => (
+            <span className="flex min-w-0 items-center gap-2">
+              <span data-testid={`ref-${d.id}`} className="shrink-0">
+                FX-{d.id}
+              </span>
+              <TruncatedText>{d.name}</TruncatedText>
+            </span>
+          ),
+        },
+        { key: "stage", header: "Stage", width: 120 },
+      ]}
+      data={[{ id: "1", name: long, stage: "Open", amount: 1 }]}
+      getRowId={(d) => d.id}
+      getRowLabel={(d) => d.name}
+      onRowOpen={() => {}}
+      columnPicker={false}
+    />,
+  );
+  const cell = screen.container.querySelector<HTMLElement>(
+    '[data-grid-row="1"][data-grid-key="name"]',
+  )!;
+  await expect
+    .element(screen.getByRole("button", { name: `Open ${long}` }))
+    .toBeInTheDocument();
+  const box = cell.getBoundingClientRect();
+  const padEnd = parseFloat(getComputedStyle(cell).paddingInlineEnd);
+  const display = cell.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  // The value fits the cell beside the button: nothing for the cell's ellipsis to swallow.
+  expect(display.getBoundingClientRect().right).toBeLessThanOrEqual(
+    box.right - padEnd + 0.5,
+  );
+  // The ref shows in full, inside the cell.
+  const ref = screen.getByTestId("ref-1").element().getBoundingClientRect();
+  expect(ref.width).toBeGreaterThan(0);
+  expect(ref.right).toBeLessThanOrEqual(box.right);
+  // The name itself is what truncates, with its own ellipsis.
+  const name =
+    display.querySelector<HTMLElement>('[data-slot="truncated-text"]') ??
+    display.querySelector<HTMLElement>(".truncate")!;
+  expect(name.getBoundingClientRect().width).toBeGreaterThan(40);
+  expect(name.scrollWidth).toBeGreaterThan(name.clientWidth);
+  expect(getComputedStyle(name).textOverflow).toBe("ellipsis");
+});
+
 test("activeRowId marks the open row; actionsRef walks the display order and focuses a cell", async () => {
   const actions = React.createRef<import("./data-grid").DataGridActions>();
   const screen = await render(
