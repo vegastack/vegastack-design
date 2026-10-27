@@ -936,6 +936,35 @@ test('emptyLane="compact": an empty lane is its header over a 48px target whose 
   await expectNoA11yViolations(document.body);
 });
 
+test('emptyLane="collapse": an empty lane the host shows from Hidden columns stays on the board', async () => {
+  function Host() {
+    const [shown, setShown] = React.useState(false);
+    const columns = makeColumns().filter((c) => c.id !== "parked");
+    return (
+      <Board<Deal>
+        aria-label="Deals"
+        height="24rem"
+        columns={
+          shown
+            ? [...columns, { id: "lost", title: "Lost", items: [] }]
+            : columns
+        }
+        getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
+        renderCard={(deal) => <span>{deal.name}</span>}
+        onMove={() => {}}
+        emptyLane="collapse"
+        hiddenColumns={shown ? [] : [{ id: "lost", label: "Lost", count: 0 }]}
+        onShowColumn={() => setShown(true)}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  expect(laneOrder()).toEqual(["lead", "won"]);
+  await press(screen.getByRole("button", { name: /^Lost/ }));
+  await expect.poll(() => laneOrder()).toEqual(["lead", "won", "lost"]);
+});
+
 test('emptyLane="collapse": empty lanes wait in Hidden columns; choosing one brings it back compact', async () => {
   const screen = await render(
     <Controlled initial={withEmpty()} emptyLane="collapse" />,

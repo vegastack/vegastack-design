@@ -1,4 +1,4 @@
-// @vegastack board@0.25.89 sha256-l/0lMuolgkRPTdo7fkS0a1m2EGI/vTKnmFlosdk4H/Q=
+// @vegastack board@0.25.89 sha256-qYkpD3VQkyqLa99GZ/ckQTTL4dpD0CGSnVmyBnUqmXI=
 
 "use client";
 
@@ -2051,7 +2051,11 @@ export function Board<T>({
                   data-slot="board-hidden-column"
                   className="justify-start font-normal"
                   disabled={!onShowColumn}
-                  onClick={() => onShowColumn?.(hidden.id)}
+                  onClick={() => {
+                    // Shown on purpose: it stays on the board even while it is empty.
+                    keepLane(hidden.id);
+                    onShowColumn?.(hidden.id);
+                  }}
                 >
                   {hidden.icon}
                   <span className="min-w-0 truncate">{hidden.label}</span>
