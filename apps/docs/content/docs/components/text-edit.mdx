@@ -293,7 +293,8 @@ the swap never moves the text. On a page with room the text keeps its column, an
 ### Find, emoji, heading links, word count and host slash items
 
 - **Find and replace** (`findReplace`): <kbd>Mod</kbd> <kbd>F</kbd> inside the editor opens a find
-  bar docked at the top of the text (`role="search"`, below `floatingSafeArea.top`), with the
+  bar that floats over the top of the text at its end (`role="search"`, below
+  `floatingSafeArea.top`) — the document never moves when it opens — with the
   selection's text as the term. It offers "3 of 12", previous / next (<kbd>Enter</kbd>,
   <kbd>Shift</kbd> <kbd>Enter</kbd>, <kbd>Mod</kbd> <kbd>G</kbd>), match case,
   whole word and regular expression (RE2, so no pattern can run away). While
@@ -368,6 +369,20 @@ the swap never moves the text. On a page with room the text keeps its column, an
   plain text, the text after the title stays after the chip ("Order glass — by Friday");
   otherwise the whole line stays after the chip, mentions included. Nested lines stay. Linking is
   one undo step.
+- **One box per task** (`onTaskOpen`): a linked line draws as a
+  [`TaskInline`](/docs/components/task-inline) — the line's own box, round, is the task's done
+  state; the task chip becomes the title, which opens the task on a click (or
+  <kbd>Alt</kbd>+<kbd>Enter</kbd> with the caret on the line):
+  `onTaskOpen(taskId)`, the host's peek. The assignee's avatar and a due chip
+  follow the title (`mentionStatus`'s `assignee`, `due` and `overdue`, else the
+  `InlineChipProvider`'s `state`), and ↗ to the task's page (`mentionHref`)
+  shows on hover. The read view and `MarkdownView` take the same prop. Without
+  it the line is a checkbox and a task chip, as before.
+- **→ Task**: with `onMakeTask`, the pointer resting on an unlinked checklist line shows **→ Task**
+  at the end of its text — Make task, one click from the line. `onMakeTask(items, { anchor })`
+  hands over the first line's element: point a
+  [`MakeTaskPopover`](/docs/components/task-inline#make-a-task-from-a-line) at it instead of
+  opening a modal.
 - **The task changed elsewhere**: `handleRef.setTaskItemChecked(taskId, checked)` ticks or
   unticks every line linked to it. It is not an undo step and returns how many lines changed.
 - **Closed targets** (`mentionStatus(kind, id)`): return `{ struck: true, status: "Canceled" }` to
@@ -397,7 +412,8 @@ the swap never moves the text. On a page with room the text keeps its column, an
   mentionStatus={(kind, id) =>
     kind === "task" && closed(id) ? { struck: true, status: label(id) } : null
   }
-  onMakeTask={(items) => openMakeTaskDialog(items)} // then handle.current.linkTaskItems(links)
+  onMakeTask={(items, { anchor }) => openMakeTaskPopover(items, anchor)} // then handle.current.linkTaskItems(links)
+  onTaskOpen={(taskId) => openTaskPeek(taskId)}
   onTaskItemToggle={(taskId, checked) => setTaskDone(taskId, checked)}
   sectionMarks={[
     { key: heading.blockId, tone: "warning", label: "May be out of date" },
@@ -521,6 +537,81 @@ person never links, and an id starting with `restricted:` is a muted chip for a
 target the reader may not open — the app keeps the real id after the colon so an
 edit never loses the mention.
 
+### Bookmarks
+
+`bookmarks` turns on a link shown as a card: the page's title, a line about it when the host has
+one, and its icon with the site's address — **Bookmark** in the slash menu (the new card asks for
+the address: Enter makes it, Escape removes it) and in the paste popover. The preview is the
+`InlineChipProvider`'s `linkPreview` — the app's server reads the page, so the reader's browser
+never contacts the site — with the optional `siteName`, `description` and `image` fields; nothing
+loads from the site itself and nothing plays (live embeds stay `embeds`, for allow-listed video
+hosts). While editing, a click selects the card and <kbd>Cmd/Ctrl</kbd>-click opens the page.
+A bookmark is stored as `[url](url "bookmark")` on its own line — a link to any other Markdown
+reader — and `MarkdownView` draws it as the same card (`MarkdownBookmark`, which also takes
+`preview` or `fetchPreview` directly). Without `bookmarks`, a bookmark already in the document
+still shows as a card.
+
+<ComponentPreview
+  name="textEditBookmarks"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Editing ergonomics
+
+- **Leaving a code block**: <kbd>Mod</kbd> <kbd>Enter</kbd>, or <kbd>↓</kbd> on its last line, puts
+  the caret on the line below — a new paragraph when nothing follows — and a footer under the block
+  says so ("⌘↵ to exit") while the caret is in it. A composer with `onSubmit` keeps sending on
+  <kbd>Mod</kbd> <kbd>Enter</kbd>.
+- **Block chrome**: a code block's wrap and copy, an image's Replace, Caption, Alt text and Open
+  (Download and Copy link in ⋯), and a diagram's expand and actions all sit in a
+  [`BlockToolbar`](/docs/components/block-toolbar): the top-right corner, 28px buttons, four at
+  most.
+- **The block grip** is still a 16×20 glyph, with a 24×28 hit area around it.
+  `touchBlockMenu="longPress"` drops the grip on a coarse pointer: half a second held still on a
+  block opens its menu as a bottom sheet.
+- **Upload progress**: `onImageUpload` and `onFileUpload` get `onProgress(0…1)`. Call it and the
+  placeholder shows how far along it is — the picture itself, dimmed in its own proportions, with
+  a bar along its foot; a file chip with a ring — instead of a spinner. The insert panel closes the
+  moment a file is picked.
+- **The selection bubble** stays inside the text column (never over an outline rail or a comment
+  margin beside it), wrapping onto a second row when the column is narrower. With `onMakeTask`, a
+  selection reaching unlinked
+  checklist lines offers **Make task** / **Make N tasks**, and `bubbleActions({ text, close })`
+  adds the host's own actions ("Ask agent…") before Comment. `toolbar="dock"` puts the selection's
+  formatting in a 44px bar along the bottom of the window on a coarse pointer, above the on-screen
+  keyboard.
+
+<ComponentPreview
+  name="textEditErgonomics"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Roomy menus and phone sheets
+
+`menuSize="lg"` gives the slash and mention menus room: 320px wide and up to `min(60vh, 440px)`
+tall, each block with a line saying what it is ("Big section heading"), and the full slash menu
+grouped **Basic · the host's items · Media · Advanced**, so the host's own blocks
+(`slashActions`, under their `group` — "Insert" unless named) are one screen away instead of at the
+bottom. Filtered, the menu drops its headings as before.
+
+`mentions.sections` fixes the `@` menu's order whatever the query matches best: `["people",
+"agents", "records"]` lists People, then Agents (the `agent` kind, drawn with the agent avatar),
+then each record kind under its `plural`, the nearest match first. A person's description (an
+email) shows only on the highlighted row, unless two people in the menu share the name; an
+option's `descriptionShown: "always"` keeps a note in view ("Can't see this page").
+
+`menuPresentation="auto"` turns both menus into a bottom `Sheet` on a coarse pointer or a window
+under 640px: a search field takes the keyboard (<kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd>
+
+<kbd>Esc</kbd>) over 44px rows, and a pick lands at the caret the `/` or `@` was
+typed at. On a fine pointer it is the caret menu. Both props default to today's
+240/288px caret menus.
+
+<ComponentPreview
+  name="textEditRoomyMenus"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Pasting links
 
 A lone http(s) link pasted at the caret (not over a selection, not in code, not pasted as plain
@@ -535,8 +626,11 @@ text) lands as its URL's text, then becomes what it names, as in Notion and Goog
   title when that answers within 1.5 seconds (the URL waits as text until then, and the link and
   its title land as one step); the link card shows the page's icon and title.
 
-Where there is a second choice, a small popover under the paste offers it — **Mention · Link** or
-**Embed · Link**, the one in effect pressed — until the next keystroke, a click or Escape; Tab
+With `bookmarks`, a link pasted where a block can stand (alone on its line, in the document, a
+quote, a callout or a toggle) also offers **Bookmark** — a card (see Bookmarks).
+
+Where there is a second choice, a small popover under the paste offers it — **Mention · Link**,
+**Embed · Link**, **Link · Bookmark** or **Embed · Link · Bookmark**, the one in effect pressed — until the next keystroke, a click or Escape; Tab
 moves into it. Each step is an undo step of its own, so undo right after a paste leaves the URL
 as text, in a shared document too. Leaving the text before an answer comes leaves a link, and a late answer changes nothing.
 
@@ -663,9 +757,10 @@ page until it is 0.
 An image works like Notion's. Hover it (or tap it on touch) for a small blurred toolbar at its
 top-right: **Replace** (the image panel, whose upload or link takes its place — another site's link
 imports through `onExternalImage`), **Caption** (Markdown's image title, `![alt](src "caption")`, shown under the image — `MarkdownView` renders it as a `figure` with a `figcaption`), **Alt text** (edited in place), **Open** (the `FileViewer`,
-paging through every image in the document; a double-click does the same), **Download** (from
-`imageDownloadHref(src)` when given, a link that saves the file, else the image itself) and **Copy
-link**. Delete is the block menu's, or <kbd>Backspace</kbd> on the selected image
+paging through every image in the document; a double-click does the same) — 28px
+[`BlockToolbar`](/docs/components/block-toolbar) buttons, four at most — and a ⋯ menu with
+**Download** (from `imageDownloadHref(src)` when given, a link that saves the file, else the image
+itself) and **Copy link**. Delete is the block menu's, or <kbd>Backspace</kbd> on the selected image
 (<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd> undoes). An image that can't load keeps a dashed frame so it
 can still be replaced. Selected, it shows a thin outline at the same `rounded-lg` radius, and pill handles on its
 left and right edges resize it
@@ -733,7 +828,10 @@ goes back to the preview and moves the caret on past the block; the caret arrivi
 previewed block (arrow keys) opens its source; a double-click on the diagram does too. The mode is
 the viewer's own, never saved in the document — the document keeps an ordinary fenced code block,
 so exports, search and agents read the source. The slash menu and Turn into offer **Diagram**
-(only while `blockViews.mermaid` is set): a new block opens in Code with the view's starter.
+(only while `blockViews.mermaid` is set): a new block opens in Code with the view's starter — for
+`mermaidBlockView`, one `%%` comment saying what to type, which draws "Nothing to draw yet" until a
+diagram is typed. <kbd>Mod</kbd> <kbd>Enter</kbd>, or <kbd>↓</kbd> on the source's last line, leaves
+the diagram for the line below (a new one when none follows), as in a code block.
 
 <ComponentPreview
   name="mermaidBlockTextEdit"

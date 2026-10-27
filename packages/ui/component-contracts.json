@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 770,
+    "components": 182,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -22,13 +22,13 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 35,
-    "Navigation/layout": 23,
-    "Overlays": 22,
-    "Data display": 38,
+    "Forms/editing": 38,
+    "Navigation/layout": 25,
+    "Overlays": 23,
+    "Data display": 39,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 10,
+    "AI/chat": 12,
     "Hooks": 16,
     "Block": 1,
     "Animated icons": 467
@@ -63,6 +63,7 @@
     "Forms/editing": [
       "auto-save-input",
       "avatar-picker",
+      "block-toolbar",
       "calendar",
       "chip-input",
       "choice-card",
@@ -92,10 +93,12 @@
       "sortable-list",
       "space-picker",
       "tag-group",
+      "task-inline",
       "template-editor",
       "text-edit",
       "upload-dialog",
-      "upload-panel"
+      "upload-panel",
+      "formula-input"
     ],
     "Navigation/layout": [
       "accordion",
@@ -120,7 +123,9 @@
       "breadcrumb-cascade",
       "table-of-contents",
       "document-layout",
-      "settings-layout"
+      "settings-layout",
+      "help-menu",
+      "route-tabs"
     ],
     "Overlays": [
       "access-chip",
@@ -144,7 +149,8 @@
       "tooltip",
       "icon-picker",
       "info-hint",
-      "record-peek"
+      "record-peek",
+      "command-search"
     ],
     "Data display": [
       "activity-feed",
@@ -184,7 +190,8 @@
       "mermaid-block",
       "qr-code",
       "member-list",
-      "record-header"
+      "record-header",
+      "block-header"
     ],
     "Content/marketing": [
       "alert",
@@ -221,7 +228,9 @@
       "questionnaire",
       "transcript",
       "approval-card",
-      "agent-edit-banner"
+      "agent-edit-banner",
+      "agent-panel",
+      "delegate-popover"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -348,7 +357,8 @@
           "switch",
           "textarea",
           "toast",
-          "toggle"
+          "toggle",
+          "toggle-group"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -3533,6 +3543,10 @@
               "values": [""]
             },
             {
+              "name": "data-auto-hidden",
+              "values": [""]
+            },
+            {
               "name": "data-board-card-id",
               "values": []
             },
@@ -3551,6 +3565,10 @@
             {
               "name": "data-column",
               "values": []
+            },
+            {
+              "name": "data-compact",
+              "values": [""]
             },
             {
               "name": "data-drag-pending",
@@ -3578,6 +3596,10 @@
             },
             {
               "name": "data-move-locked",
+              "values": [""]
+            },
+            {
+              "name": "data-no-value",
               "values": [""]
             },
             {
@@ -3614,6 +3636,7 @@
                 "board-column-icon",
                 "board-column-menu",
                 "board-column-skeleton",
+                "board-column-skeleton-lane",
                 "board-column-title",
                 "board-drag-overlay",
                 "board-fade-end",
@@ -5994,15 +6017,6 @@
           }
         },
         {
-          "name": "codeBlockActionsClassName",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/code-block.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant export does not render or accept a runtime ref."
-          }
-        },
-        {
           "name": "codeBlockWrapStyle",
           "kind": "function",
           "source": "packages/ui/registry/ui/code-block.tsx",
@@ -6058,8 +6072,9 @@
       "engines": [],
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": [
-        "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/block-toolbar",
+        "@vegastack/code-highlight",
+        "@vegastack/copy-button"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.35",
@@ -6086,12 +6101,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "code-block",
-                "code-block-actions",
-                "code-block-header",
-                "code-block-pre"
-              ]
+              "values": ["code-block", "code-block-header", "code-block-pre"]
             },
             {
               "name": "data-wrap",
@@ -7973,6 +7983,15 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "DataGridBlockFooter",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -8106,6 +8125,10 @@
         "DataGrid": {
           "attributes": [
             {
+              "name": "data-embedded",
+              "values": [""]
+            },
+            {
               "name": "data-grid-id",
               "values": []
             },
@@ -8124,6 +8147,10 @@
             {
               "name": "data-layout-mode",
               "values": ["cards", "grid"]
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
             },
             {
               "name": "data-slot",
@@ -8400,6 +8427,34 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DataListSecondary",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DataListSecondaryProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useDataListDensity",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -8527,6 +8582,15 @@
       },
       "previewModule": "data-list",
       "dataAttributes": {
+        "DataListSecondary": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-list-secondary"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DataListEmptyState": {
           "attributes": [
             {
@@ -8592,6 +8656,7 @@
               "values": [
                 "data-list",
                 "data-list-card-select",
+                "data-list-compact-line",
                 "data-list-footer",
                 "data-list-grid",
                 "data-list-grid-item",
@@ -14998,7 +15063,7 @@
       "name": "file-viewer",
       "registryType": "registry:ui",
       "title": "File Viewer",
-      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (as a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
+      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe — as a full-screen overlay or in place as a file's page, with Share/Watch/menu header slots and a Details · Comments · Activity rail (a bottom sheet on a phone).",
       "status": "stable",
       "since": "0.23.61",
       "family": "media",
@@ -15107,12 +15172,53 @@
             "status": "not-applicable",
             "rationale": "A function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "FileViewerSlot",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerHeaderSlots",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerRail",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerRailTab",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, video, audio, text, table, markdown, html, card)."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "mode",
+            "values": ["overlay", "page"]
+          }
+        ],
+        "rationale": "mode: the full-screen overlay or the viewer in place as a file's page."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -15139,7 +15245,12 @@
             "zoomed",
             "loading",
             "error",
-            "single"
+            "single",
+            "page-mode",
+            "rail-open",
+            "rail-tabs",
+            "rail-sheet",
+            "header-slots"
           ],
           "evidence": "Controlled index opens and closes; data-kind names the stage on screen — image, pdf, video, audio, text, table (CSV or an app table), markdown, html (an app preview) or the file card; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; text, CSV and Markdown read their first 1 MB and say so when truncated, a table shows at most 500 rows; loadPreview supplies parsed content and null keeps the built-in reading; a failed read is the card; a video or audio stage pauses its player when paged away or closed, and an unplayable video shows the player's Download card; one item hides the count and paging."
         },
@@ -15187,10 +15298,12 @@
         "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/markdown-view",
+        "@vegastack/sheet",
         "@vegastack/spinner",
         "@vegastack/table",
         "@vegastack/tabs",
         "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
       ],
@@ -15234,15 +15347,29 @@
               "values": []
             },
             {
+              "name": "data-mode",
+              "values": ["overlay", "page"]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "file-viewer",
                 "file-viewer-actions",
                 "file-viewer-backdrop",
+                "file-viewer-body",
                 "file-viewer-close",
+                "file-viewer-controls",
                 "file-viewer-count",
                 "file-viewer-download",
                 "file-viewer-header",
+                "file-viewer-header-slots",
+                "file-viewer-menu",
+                "file-viewer-rail",
+                "file-viewer-rail-panel",
+                "file-viewer-rail-sheet",
+                "file-viewer-rail-tablist",
+                "file-viewer-rail-tabs",
+                "file-viewer-rail-toggle",
                 "file-viewer-stage",
                 "file-viewer-title"
               ]
@@ -17443,6 +17570,60 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MarkdownBookmark",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props spread onto the card's anchor; no stable public ref beyond it."
+          }
+        },
+        {
+          "name": "MarkdownBookmarkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownBookmarkPreview",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownTaskInline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to TaskInline; no stable public ref."
+          }
+        },
+        {
+          "name": "MarkdownTaskInlineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownMentionStatus",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -17514,6 +17695,8 @@
         "@vegastack/embed-providers",
         "@vegastack/inline-chip",
         "@vegastack/popover",
+        "@vegastack/skeleton",
+        "@vegastack/task-inline",
         "@vegastack/text-anchor",
         "@vegastack/text-edit-grammar",
         "@vegastack/toast",
@@ -17585,6 +17768,43 @@
             {
               "name": "data-tone",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownTaskInline": {
+          "attributes": [
+            {
+              "name": "data-anchor-text",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownBookmark": {
+          "attributes": [
+            {
+              "name": "data-anchor-block",
+              "values": [""]
+            },
+            {
+              "name": "data-anchor-text",
+              "values": []
+            },
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "markdown-bookmark",
+                "markdown-bookmark-address",
+                "markdown-bookmark-description",
+                "markdown-bookmark-image",
+                "markdown-bookmark-text",
+                "markdown-bookmark-title"
+              ]
             }
           ],
           "cssVariables": []
@@ -24264,6 +24484,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ShortcutGroup",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShortcutGroupItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -24285,7 +24523,9 @@
             "filtered",
             "empty-filter",
             "gated-when",
-            "suppressed"
+            "suppressed",
+            "page-scoped",
+            "all-shortcuts"
           ],
           "evidence": "Controlled-optional open; ? binding suppressed inside editable surfaces and by shouldHandle; when:false omits a binding; the filter narrows and shows an empty message."
         },
@@ -24318,8 +24558,10 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/label",
         "@vegastack/panel-search",
         "@vegastack/scroll-area",
+        "@vegastack/switch",
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
@@ -24340,13 +24582,18 @@
         "ShortcutOverlay": {
           "attributes": [
             {
+              "name": "data-elsewhere",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "shortcut-overlay",
                 "shortcut-overlay-category",
                 "shortcut-overlay-empty",
                 "shortcut-overlay-footer",
-                "shortcut-overlay-row"
+                "shortcut-overlay-row",
+                "shortcut-overlay-scope"
               ]
             }
           ],
@@ -24994,6 +25241,34 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "StatGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "StatGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StatGroupItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -25019,7 +25294,17 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "empty", "error", "success"],
+          "values": [
+            "default",
+            "empty",
+            "error",
+            "success",
+            "group",
+            "group-link",
+            "group-loading",
+            "group-failed",
+            "group-hidden-all-zero"
+          ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -25039,10 +25324,10 @@
       "responsive": {
         "status": "modeled",
         "risks": [
-          "text-truncation-and-flex-shrink",
-          "responsive-or-container-layout"
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
         ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+        "rationale": "StatGroup is container-queried: one row of equal cells from 24rem of its own width, a 2x2 grid below."
       },
       "motion": {
         "status": "not-applicable",
@@ -25137,6 +25422,15 @@
                 "stat-skeleton-label",
                 "stat-skeleton-value"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["stat-group", "stat-group-grid", "stat-group-item"]
             }
           ],
           "cssVariables": []
@@ -26855,6 +27149,15 @@
             "target": "div",
             "rationale": "Source forwards the ref to the bordered root div."
           }
+        },
+        {
+          "name": "TemplateEditorTrigger",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/template-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -27339,6 +27642,42 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MentionSection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditMakeTaskContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditBubbleContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditUploadOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -27420,6 +27759,7 @@
       "registryDependencies": [
         "@vegastack/alert",
         "@vegastack/avatar",
+        "@vegastack/block-toolbar",
         "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
@@ -27438,11 +27778,13 @@
         "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/suggestion-menu",
         "@vegastack/tabs",
+        "@vegastack/task-inline",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/text-edit-grammar",
@@ -27452,7 +27794,8 @@
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -27541,7 +27884,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["text-edit-content"]
+              "values": ["text-edit-content", "text-edit-slash-icon"]
             }
           ],
           "cssVariables": []
@@ -29314,6 +29657,15 @@
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "useSuggestionMenuSheet",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -29376,8 +29728,11 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/panel-search",
+        "@vegastack/sheet",
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.8.36",
@@ -29408,17 +29763,29 @@
               "values": [""]
             },
             {
+              "name": "data-presentation",
+              "values": ["popover", "sheet"]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "suggestion-menu",
                 "suggestion-menu-description",
                 "suggestion-menu-group",
                 "suggestion-menu-group-label",
+                "suggestion-menu-icon",
                 "suggestion-menu-label",
                 "suggestion-menu-layer",
                 "suggestion-menu-option",
+                "suggestion-menu-search",
+                "suggestion-menu-sheet",
                 "suggestion-menu-shortcut",
-                "suggestion-menu-status"
+                "suggestion-menu-status",
+                "suggestion-menu-text"
               ]
             }
           ],
@@ -29581,6 +29948,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/block-toolbar",
         "@vegastack/button",
         "@vegastack/code-block",
         "@vegastack/dialog",
@@ -29626,7 +29994,6 @@
                 "block-view-expand",
                 "block-view-header",
                 "block-view-hint",
-                "block-view-menu",
                 "block-view-mode",
                 "block-view-preview"
               ]
@@ -31137,6 +31504,360 @@
             {
               "name": "data-width",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "block-toolbar",
+      "registryType": "registry:ui",
+      "title": "Block Toolbar",
+      "summary": "The one place a block's own controls sit — its top-right corner, 28px icon buttons, at most four and a ⋯ menu for the rest — shared by code blocks, images and diagrams.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/block-toolbar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BlockToolbar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Props, ref included, spread onto the group div."
+          }
+        },
+        {
+          "name": "BlockToolbarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockToolbarButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Button inside a Tooltip trigger; no stable public ref."
+          }
+        },
+        {
+          "name": "BlockToolbarButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockToolbarMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to DropdownMenu; no stable public ref."
+          }
+        },
+        {
+          "name": "BlockToolbarMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "hover-reveal", "inline", "open"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover-reveal", "inline"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "A corner row of fixed 28px buttons; a coarse pointer always shows it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/block-toolbar",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "testFiles": ["packages/ui/registry/ui/block-toolbar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "block-toolbar",
+      "dataAttributes": {
+        "BlockToolbar": {
+          "attributes": [
+            {
+              "name": "data-placement",
+              "values": []
+            },
+            {
+              "name": "data-reveal",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockToolbarButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockToolbarMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar-menu"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "task-inline",
+      "registryType": "registry:ui",
+      "title": "Task Inline",
+      "summary": "A task in running text — one box (its done state), the title that opens it, the assignee's avatar, a due chip and ↗ to its page — and MakeTaskPopover, which makes that task from a checklist line in place.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/task-inline.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TaskInline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props spread onto the root span; its ref is the span's."
+          }
+        },
+        {
+          "name": "TaskInlineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskInlinePerson",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MakeTaskPopover",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Popover; no stable public ref."
+          }
+        },
+        {
+          "name": "MakeTaskPopoverProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MakeTaskLine",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "done",
+            "struck",
+            "overdue",
+            "read-only",
+            "open",
+            "pending"
+          ],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "done", "struck", "overdue"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "An inline box that wraps with its line; the popover is the Popover's width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/task-inline",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/input",
+        "@vegastack/person-avatar",
+        "@vegastack/popover"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "testFiles": ["packages/ui/registry/ui/task-inline.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "task-inline",
+      "dataAttributes": {
+        "TaskInline": {
+          "attributes": [
+            {
+              "name": "data-done",
+              "values": [""]
+            },
+            {
+              "name": "data-overdue",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "task-inline",
+                "task-inline-assignee",
+                "task-inline-due",
+                "task-inline-open",
+                "task-inline-status",
+                "task-inline-title"
+              ]
+            },
+            {
+              "name": "data-struck",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MakeTaskPopover": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "make-task-popover",
+                "make-task-popover-actions",
+                "make-task-popover-anchor",
+                "make-task-popover-fields",
+                "make-task-popover-line",
+                "make-task-popover-lines",
+                "make-task-popover-title"
+              ]
             }
           ],
           "cssVariables": []
@@ -34391,7 +35112,7 @@
             },
             {
               "name": "data-state",
-              "values": []
+              "values": ["empty"]
             }
           ],
           "cssVariables": []
@@ -38612,6 +39333,1545 @@
             {
               "name": "data-slot",
               "values": ["record-header-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "agent-panel",
+      "registryType": "registry:ui",
+      "title": "Agent Panel",
+      "summary": "An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/agent-panel.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AgentPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the RecordAsideCard root (card) or the Collapsible root div (section)."
+          }
+        },
+        {
+          "name": "AgentSlot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the ghost Button (or the muted span when it can't delegate)."
+          }
+        },
+        {
+          "name": "AgentChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the SplitChipButton."
+          }
+        },
+        {
+          "name": "AgentStateBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the root span."
+          }
+        },
+        {
+          "name": "AgentStateRing",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the root span."
+          }
+        },
+        {
+          "name": "AgentHoverCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A HoverCard root with its own trigger button; it takes no ref."
+          }
+        },
+        {
+          "name": "AgentState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentStateLabels",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentStateBadgeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentStateRingProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentSlotProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentHoverCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentHoverCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelEvent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelRun",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelChoice",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["card", "section"]
+          }
+        ],
+        "rationale": "The rail card on a record page and the collapsible section in a peek."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills the rail or the peek; the slot and the pill take the ghost-chip and SplitChip heights."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "none",
+            "queued",
+            "queued-hint",
+            "working",
+            "question",
+            "approval",
+            "failed",
+            "blocked",
+            "done",
+            "stopped",
+            "disconnected",
+            "instructions-edit",
+            "latest",
+            "reply",
+            "reply-disabled",
+            "history-undo",
+            "undo-disabled",
+            "menu",
+            "section-collapsed",
+            "slot-empty",
+            "slot-disabled",
+            "chip",
+            "ring",
+            "hover-card",
+            "labels"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-panel.tsx + packages/ui/registry/ui/agent-panel.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "polite-state-announcement",
+            "named-menu",
+            "decorative-avatar",
+            "silent-relative-time",
+            "undo-disabled-reason",
+            "state-word-not-colour",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-panel.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "card-states",
+            "section",
+            "slot",
+            "chip",
+            "badge-ring",
+            "hover-card"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-panel.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Lines wrap in a narrow rail; the agent's name truncates in the slot and pill while the state word never does; the section header's summary truncates on one line."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the working spinner is Spinner's animate-spin and the menu, hover card and collapsible transitions are their own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/agent-panel",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/dropdown-menu",
+        "@vegastack/hover-card",
+        "@vegastack/input-group",
+        "@vegastack/person-avatar",
+        "@vegastack/record-aside",
+        "@vegastack/record-chip",
+        "@vegastack/relative-time",
+        "@vegastack/spinner",
+        "@vegastack/textarea",
+        "@vegastack/tooltip",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/agent-panel.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "agent-panel",
+      "dataAttributes": {
+        "AgentStateBadge": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-state-badge"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentStateRing": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-state-ring"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentSlot": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["agent-slot"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentChip": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["agent-chip"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentHoverCard": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "agent-hover-card",
+                "agent-hover-card-avatar",
+                "agent-hover-card-name"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentPanel": {
+          "attributes": [
+            {
+              "name": "data-attention",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "agent-panel",
+                "agent-panel-content",
+                "agent-panel-header"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": ["card", "section"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "delegate-popover",
+      "registryType": "registry:ui",
+      "title": "Delegate Popover",
+      "summary": "Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/delegate-popover.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DelegatePopover",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A Popover root whose trigger is the child element (which keeps its own ref); it takes no ref."
+          }
+        },
+        {
+          "name": "DelegatePopoverAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look; the bulk title, the When finished row and the empty state follow the props passed."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Popover size md (320px)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pick",
+            "disabled-reason",
+            "search",
+            "keyboard",
+            "instructions",
+            "when-finished",
+            "bulk",
+            "empty",
+            "loading",
+            "pending",
+            "connect",
+            "labels"
+          ],
+          "evidence": "packages/ui/registry/ui/delegate-popover.tsx + packages/ui/registry/ui/delegate-popover.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labelled-fields",
+            "listbox-keyboard",
+            "disabled-option-reason",
+            "busy-submit",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/delegate-popover.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "bulk", "empty", "loading"],
+          "evidence": "packages/ui/registry/ui/delegate-popover.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "A 320px popover clamped to the window less 2rem; the agent list scrolls past 12rem."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the popover's transition is Popover's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/delegate-popover",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/label",
+        "@vegastack/people-picker",
+        "@vegastack/popover",
+        "@vegastack/select",
+        "@vegastack/separator",
+        "@vegastack/skeleton",
+        "@vegastack/spinner",
+        "@vegastack/textarea"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/delegate-popover.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "delegate-popover",
+      "dataAttributes": {
+        "DelegatePopover": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end", "inline-start"]
+            },
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "delegate-popover",
+                "delegate-popover-empty",
+                "delegate-popover-finish",
+                "delegate-popover-footer",
+                "delegate-popover-form",
+                "delegate-popover-loading",
+                "delegate-popover-submit"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "help-menu",
+      "registryType": "registry:ui",
+      "title": "Help Menu",
+      "summary": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/help-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "HelpMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/help-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "HelpMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/help-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "HelpMenuLink",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/help-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant dimension; the composed parts carry their own."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No size scale of its own; it composes the sized parts it renders."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "open",
+            "link-entry",
+            "action-entry",
+            "unread",
+            "collapsed-rail",
+            "version"
+          ],
+          "evidence": "packages/ui/registry/ui/help-menu.tsx + packages/ui/registry/ui/help-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "menu-semantics",
+            "labeled",
+            "unread-announced",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/help-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open", "unread", "collapsed"],
+          "evidence": "packages/ui/registry/ui/help-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "viewport-positioning-and-collision"
+        ],
+        "rationale": "Follows the sidebar: a full row expanded, the icon with a tooltip in the collapsed rail; the menu is a positioned popup clamped to the viewport."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the composed menu owns its enter and exit."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/help-menu",
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/sidebar"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/help-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "help-menu",
+      "dataAttributes": {
+        "HelpMenu": {
+          "attributes": [
+            {
+              "name": "data-entry",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "help-menu",
+                "help-menu-content",
+                "help-menu-dot",
+                "help-menu-item",
+                "help-menu-trigger",
+                "help-menu-version"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "route-tabs",
+      "registryType": "registry:ui",
+      "title": "Route Tabs",
+      "summary": "Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab and a pending bar while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/route-tabs.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RouteTabs",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "RouteTabsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RouteTab",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RouteTabsPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "RouteTabsPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RouteTabsProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "RouteTabsProviderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/route-tabs.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "overflow",
+            "values": ["visible", "scroll"]
+          }
+        ],
+        "rationale": "Whether a long strip scrolls sideways or never clips."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No size scale of its own; it composes the sized parts it renders."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "current-page",
+            "also-match",
+            "count",
+            "pending",
+            "controlled-pending",
+            "panel-pending",
+            "overflow-scroll"
+          ],
+          "evidence": "packages/ui/registry/ui/route-tabs.tsx + packages/ui/registry/ui/route-tabs.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "landmark",
+            "labeled",
+            "current-page",
+            "busy",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/route-tabs.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "current",
+            "pending",
+            "dimmed-panel",
+            "scroll"
+          ],
+          "evidence": "packages/ui/registry/ui/route-tabs.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll", "text-truncation-and-flex-shrink"],
+        "rationale": "overflow=scroll scrolls the strip sideways and keeps the current tab in view as counts arrive; visible never clips."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "motion-indeterminate (the pending bar's sweeping segment)",
+          "transition-opacity (the dimmed stale panel)"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css collapses motion-indeterminate to its resting segment and the opacity transition to its end state."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/route-tabs",
+      "registryDependencies": ["@vegastack/tabs"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34"
+      ],
+      "testFiles": ["packages/ui/registry/ui/route-tabs.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "route-tabs",
+      "dataAttributes": {
+        "RouteTabs": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": ["horizontal"]
+            },
+            {
+              "name": "data-overflow",
+              "values": []
+            },
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["route-tabs", "route-tabs-pending", "tabs-list"]
+            },
+            {
+              "name": "data-variant",
+              "values": ["default"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RouteTabsPanel": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["route-tabs-panel"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "command-search",
+      "registryType": "registry:ui",
+      "title": "Command Search",
+      "summary": "The search palette's frame, results first — one row of scope chips with a More menu (and Include archived), results up to min(60dvh, 520px), an in-flight state that dims stale results under an input progress bar, Recent · Create · Places start sections, and a preview pane from 1280px.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/command-search.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CommandSearch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchInputProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchScopes",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchScopesProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchScope",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchResults",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchResultsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommandSearchSections",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The component renders a composed tree and takes no ref of its own."
+          }
+        },
+        {
+          "name": "CommandSearchSectionsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/command-search.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant dimension; the composed parts carry their own."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No size scale of its own; it composes the sized parts it renders."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "scope-chip",
+            "scope-overflow",
+            "include-archived",
+            "pending",
+            "stale-results",
+            "sections",
+            "preview"
+          ],
+          "evidence": "packages/ui/registry/ui/command-search.tsx + packages/ui/registry/ui/command-search.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "dialog-semantics",
+            "listbox",
+            "busy",
+            "menu-semantics",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/command-search.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "pending",
+            "more-active",
+            "archived-on",
+            "with-preview"
+          ],
+          "evidence": "packages/ui/registry/ui/command-search.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "overflow-and-scroll",
+          "responsive-or-container-layout",
+          "viewport-positioning-and-collision"
+        ],
+        "rationale": "The chip row never wraps — what does not fit moves into More, re-measured on resize; results cap at min(60dvh, 520px); the preview pane appears from 1280px and the dialog widens to hold it."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "motion-indeterminate (the pending bar's sweeping segment)",
+          "transition-opacity (the dimmed stale panel)"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css collapses motion-indeterminate to its resting segment and the opacity transition to its end state."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/command-search",
+      "registryDependencies": [
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/toggle",
+        "@vegastack/toggle-group"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/command-search.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "command-search",
+      "dataAttributes": {
+        "CommandSearch": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["command-search"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchInput": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["command-search-input", "command-search-progress"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchScopes": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            },
+            {
+              "name": "data-measure",
+              "values": ["chip", "more"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "command-search-archived-dot",
+                "command-search-more",
+                "command-search-more-content",
+                "command-search-scopes",
+                "command-search-scopes-ruler"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["on"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchResults": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-search-body", "command-search-preview"]
+            },
+            {
+              "name": "data-stale",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSearchSections": {
+          "attributes": [
+            {
+              "name": "data-section",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["command-search-section"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "block-header",
+      "registryType": "registry:ui",
+      "title": "Block Header",
+      "summary": "A live block's header row in a page — icon · title · controls (View ▾, Filter) · ⋯ · ↗ Open — with an empty state that hosts the source picker (\"Pick a table…\").",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/block-header.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BlockHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BlockHeaderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockHeaderButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BlockHeaderButtonProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockHeaderOpen",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BlockHeaderOpenProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-header.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["ready", "empty"]
+          }
+        ],
+        "rationale": "A block with a source shows its title and controls; one without shows its picker in their place."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 40px row; controls are small ghost buttons."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "empty", "menu-open", "narrow"],
+          "evidence": "packages/ui/registry/ui/block-header.tsx + packages/ui/registry/ui/block-header.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/block-header.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "open", "empty"],
+          "evidence": "packages/ui/registry/ui/block-header.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "responsive-or-container-layout"
+        ],
+        "rationale": "The title truncates; the controls wrap under it on a narrow block and the Open label folds to its icon below 20rem of the block's width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the menu's transitions are DropdownMenu's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/block-header",
+      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/block-header.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "block-header",
+      "dataAttributes": {
+        "BlockHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "block-header",
+                "block-header-actions",
+                "block-header-controls",
+                "block-header-icon",
+                "block-header-menu",
+                "block-header-picker",
+                "block-header-title"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["empty", "ready"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockHeaderButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-header-button"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "formula-input",
+      "registryType": "registry:ui",
+      "title": "Formula Input",
+      "summary": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "rich-text",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/formula-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FormulaInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/formula-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FormulaInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/formula-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FormulaInputField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/formula-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "One look; the status line shows the preview or the error."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "TemplateEditor's single-line height."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "empty",
+            "menu-open",
+            "preview",
+            "error",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/formula-input.tsx + packages/ui/registry/ui/formula-input.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "described",
+            "invalid",
+            "keyboard",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/formula-input.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "empty", "preview", "error", "invalid-token"],
+          "evidence": "packages/ui/registry/ui/formula-input.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "One line that wraps on screen like an Input; the status line wraps under it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/formula-input",
+      "registryDependencies": ["@vegastack/template-editor"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.36"
+      ],
+      "testFiles": ["packages/ui/registry/ui/formula-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "formula-input",
+      "dataAttributes": {
+        "FormulaInput": {
+          "attributes": [
+            {
+              "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "formula-input",
+                "formula-input-error",
+                "formula-input-preview",
+                "formula-input-status"
+              ]
             }
           ],
           "cssVariables": []
@@ -43590,33 +45850,15 @@
       "name": "command-search-01",
       "registryType": "registry:block",
       "title": "Command Search 01",
-      "summary": "A search palette — scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab.",
+      "summary": "A search palette on CommandSearch — one row of scope chips with More and Include archived, recents, results grouped by type, stale results dimmed while a search runs, loading, empty and error states, and ⌘↵ to open in a new tab.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
-        "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+        "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
         "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
         "packages/ui/registry/blocks/command-search-01/page.tsx"
       ],
       "publicSymbols": [
-        {
-          "name": "CommandSearch",
-          "kind": "component",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A block part is a composition, not an API: CommandSearch forwards no ref of its own, and its internals are not part of any published surface."
-          }
-        },
-        {
-          "name": "CommandSearchProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "INDEX",
           "kind": "component-constant",
@@ -43647,7 +45889,7 @@
         {
           "name": "SCOPES",
           "kind": "component-constant",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
@@ -43656,7 +45898,25 @@
         {
           "name": "SearchFn",
           "kind": "type",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SearchPalette",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: CommandSearch forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "SearchPaletteProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -43665,7 +45925,7 @@
         {
           "name": "SearchResult",
           "kind": "interface",
-          "source": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "source": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -43700,7 +45960,7 @@
         "accessibility": {
           "status": "covered",
           "values": ["semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx + packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"
+          "evidence": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx + packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -43727,10 +45987,10 @@
         "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
+        "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
-        "@vegastack/toggle-group",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
@@ -47089,6 +49349,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "BOOKMARK_TITLE",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "bookmarkMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -47453,6 +49731,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "bookmarkOfParagraph",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

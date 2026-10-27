@@ -1231,6 +1231,170 @@ export function textEditEditorTools(): ReactNode {
   );
 }
 
+/** The roomy menus' people, agents and records: two Bens share a name, so their emails stay. */
+const ROOMY_OPTIONS: MentionOption[] = [
+  {
+    kind: "user",
+    id: "u1",
+    label: "Asha Rao",
+    description: "asha@example.com",
+  },
+  { kind: "user", id: "u2", label: "Ben Ito", description: "ben@example.com" },
+  {
+    kind: "user",
+    id: "u3",
+    label: "Ben Ito",
+    description: "ben.ito@example.com",
+  },
+  { kind: "agent", id: "a1", label: "Scribe" },
+  { kind: "page", id: "p1", label: "Q3 install plan" },
+  { kind: "task", id: "t1", label: "Wire the east panel" },
+];
+
+const ROOMY_KINDS: MentionKindConfig[] = [
+  ...MENTION_KINDS,
+  { id: "agent", noun: "Agent", plural: "Agents", order: 4 },
+];
+
+/**
+ * Roomy menus — `menuSize="lg"`: a 320px slash menu where each block says what it is, grouped
+ * Basic · the host's items · Media · Advanced; `@` in fixed sections (People · Agents · Records).
+ * `menuPresentation="auto"` turns both into a bottom sheet with a search field on a phone.
+ */
+export function textEditRoomyMenus(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "Type / for a block, or @ to mention someone.",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <InlineChipProvider value={{ kinds: CHIP_KINDS }}>
+        <TextEdit
+          format="markdown"
+          value={markdown}
+          onValueChange={setMarkdown}
+          menuSize="lg"
+          menuPresentation="auto"
+          mentions={{
+            kinds: ROOMY_KINDS,
+            sections: ["people", "agents", "records"],
+            search: (query, { signal }) =>
+              new Promise<MentionOption[]>((resolve, reject) => {
+                const timer = setTimeout(
+                  () =>
+                    resolve(
+                      ROOMY_OPTIONS.filter((option) =>
+                        option.label
+                          .toLowerCase()
+                          .includes(query.toLowerCase()),
+                      ),
+                    ),
+                  150,
+                );
+                signal.addEventListener("abort", () => {
+                  clearTimeout(timer);
+                  reject(signal.reason);
+                });
+              }),
+          }}
+          slashActions={[
+            {
+              id: "page",
+              label: "Page",
+              description: "A page inside this one",
+              group: "Insert",
+              icon: <FilePlus aria-hidden />,
+              onSelect: ({ insertMention }) =>
+                insertMention({ kind: "page", id: "p42", label: "New page" }),
+            },
+          ]}
+          aria-label="Notes with roomy menus"
+        />
+      </InlineChipProvider>
+    </Wrapper>
+  );
+}
+
+/**
+ * Bookmarks — `/bookmark` asks for an address and makes a card; paste a lone link on its own line
+ * and choose **Bookmark**. The preview comes from the provider's `linkPreview` (a stand-in here).
+ */
+export function textEditBookmarks(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    'Our install guide:\n\n[https://design.vegastack.com/docs](https://design.vegastack.com/docs "bookmark")\n\nType /bookmark for another, or paste a link on an empty line.',
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <InlineChipProvider
+        value={{
+          linkPreview: async (url) => {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            const host = new URL(url).host;
+            return {
+              title:
+                host === "design.vegastack.com"
+                  ? "VegaStack Design — Docs"
+                  : host,
+              siteName: host === "design.vegastack.com" ? "VegaStack" : null,
+              description:
+                host === "design.vegastack.com"
+                  ? "Components, tokens and guides for building VegaStack products."
+                  : null,
+            };
+          },
+        }}
+      >
+        <TextEdit
+          format="markdown"
+          value={markdown}
+          onValueChange={setMarkdown}
+          bookmarks
+          aria-label="Notes with bookmarks"
+        />
+      </InlineChipProvider>
+    </Wrapper>
+  );
+}
+
+/**
+ * Editing ergonomics — select text for the bubble, and Make task(s) on the checklist
+ * lines; `⌘↵` (or ↓ on the last line) leaves the code block; a host action sits in the bubble.
+ */
+export function textEditErgonomics(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "Select some text for the bubble.\n\n- [ ] Order the glass\n- [ ] Book the crane\n\n```js\nconst answer = 42;\n```",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        toolbar="dock"
+        touchBlockMenu="longPress"
+        onMakeTask={(items) =>
+          toast.add({
+            title:
+              items.length > 1 ? `Make ${items.length} tasks` : "Make a task",
+          })
+        }
+        bubbleActions={({ text }) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 text-xs"
+            onClick={() =>
+              toast.add({ title: `Asked about ${text.length} characters` })
+            }
+          >
+            Ask…
+          </Button>
+        )}
+        aria-label="Notes with editing ergonomics"
+      />
+    </Wrapper>
+  );
+}
+
 const TASKS_HTML = [
   '<h2 data-blockid="next">Next steps</h2>',
   '<ul data-type="taskList">',
@@ -1278,10 +1442,17 @@ export function textEditTasks(): ReactNode {
         handleRef={handle}
         aria-label="Notes with linked tasks"
         mentionStatus={(kind, id) =>
-          kind === "task" && id === "T-139"
-            ? { struck: true, status: "Canceled" }
-            : null
+          kind !== "task"
+            ? null
+            : id === "T-139"
+              ? { struck: true, status: "Canceled" }
+              : {
+                  assignee: { name: "Asha Rao", hue: "blue" },
+                  due: "Fri 31 Oct",
+                }
         }
+        mentionHref={(kind, id) => `#${kind}-${id}`}
+        onTaskOpen={(id) => toast.add({ title: `${id} opened in its peek` })}
         onMakeTask={(items) => {
           const links = items.map((item) => ({
             key: item.key,

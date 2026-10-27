@@ -1,5 +1,5 @@
 # component: toggle
-# decisions: A11Y-1, A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14
+# decisions: A11Y-1, A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, API-39
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
 #     focus-visible:ring-ring/50` and the `aria-invalid` rings are removed.
@@ -21,14 +21,19 @@
 #   A11Y-1: a pressed toggle names its ink (`aria-pressed:text-foreground`, `data-[state=on]:`)
 #     instead of inheriting it, so a selected chip inside a muted parent still reads at AA on the
 #     `muted` selected fill.
+#   API-39: a pressed toggle is filled so pressed never reads as hover — `aria-pressed:` /
+#     `data-[state=on]:` take `bg-primary/10` (upstream's `bg-muted` is the hover fill), a pressed
+#     toggle under the pointer deepens to `bg-primary/15`, and the `outline` variant's pressed border
+#     is `border-primary/30`. Unpressed keeps upstream's transparent fill and `hover:bg-muted`.
+#     ToggleGroup items take it through `toggleVariants` with no hunk of their own.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle.tsx b/toggle.tsx
-index 1651768..3ca6c40 100644
+index 1651768..d8117cc 100644
 --- a/toggle.tsx
 +++ b/toggle.tsx
-@@ -1,11 +1,13 @@
+@@ -1,21 +1,24 @@
 -"use client"
 +"use client";
  
@@ -43,11 +48,15 @@ index 1651768..3ca6c40 100644
  
  const toggleVariants = cva(
 -  "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-+  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted aria-pressed:text-foreground data-[state=on]:bg-muted data-[state=on]:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
++  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-primary/10 aria-pressed:text-foreground aria-pressed:hover:bg-primary/15 data-[state=on]:bg-primary/10 data-[state=on]:text-foreground data-[state=on]:hover:bg-primary/15 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
    {
      variants: {
        variant: {
-@@ -15,7 +17,7 @@ const toggleVariants = cva(
+         default: "bg-transparent",
+-        outline: "border border-input bg-transparent hover:bg-muted",
++        outline:
++          "border border-input bg-transparent hover:bg-muted aria-pressed:border-primary/30 data-[state=on]:border-primary/30",
+       },
        size: {
          default:
            "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
@@ -56,7 +65,7 @@ index 1651768..3ca6c40 100644
          lg: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
        },
      },
-@@ -23,22 +25,55 @@ const toggleVariants = cva(
+@@ -23,22 +26,55 @@ const toggleVariants = cva(
        variant: "default",
        size: "default",
      },

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "59864832e0c4bbec8f7ce108dff81b38605e7c2bea992922537608dc8f848833",
+  "contractSha256": "2c5c4b9e0549b8d0641aa3a5bd8d681a95bf82b57fb667af933a2e0a53c0cf62",
   "inventory": {
-    "expected": 761,
-    "actual": 761,
-    "unique": 761
+    "expected": 770,
+    "actual": 770,
+    "unique": 770
   },
   "classes": {
-    "components": 173,
+    "components": 182,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -47,11 +47,12 @@
       ]
     },
     "Forms/editing": {
-      "expected": 35,
-      "actual": 35,
+      "expected": 38,
+      "actual": 38,
       "members": [
         "auto-save-input",
         "avatar-picker",
+        "block-toolbar",
         "calendar",
         "chip-input",
         "choice-card",
@@ -66,6 +67,7 @@
         "field-grid",
         "filter-bar",
         "filter-bar-managed",
+        "formula-input",
         "input-group",
         "input-otp",
         "native-select",
@@ -81,6 +83,7 @@
         "sortable-list",
         "space-picker",
         "tag-group",
+        "task-inline",
         "template-editor",
         "text-edit",
         "upload-dialog",
@@ -88,8 +91,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 25,
+      "actual": 25,
       "members": [
         "accordion",
         "app-shell",
@@ -102,12 +105,14 @@
         "direction",
         "document-layout",
         "folder-tree",
+        "help-menu",
         "menubar",
         "multi-step-form",
         "navigation-menu",
         "pagination",
         "record-layout",
         "resizable",
+        "route-tabs",
         "scroll-area",
         "settings-layout",
         "sidebar",
@@ -117,12 +122,13 @@
       ]
     },
     "Overlays": {
-      "expected": 22,
-      "actual": 22,
+      "expected": 23,
+      "actual": 23,
       "members": [
         "access-chip",
         "action-bar",
         "alert-dialog",
+        "command-search",
         "context-menu",
         "dialog",
         "drawer",
@@ -145,10 +151,11 @@
       ]
     },
     "Data display": {
-      "expected": 38,
-      "actual": 38,
+      "expected": 39,
+      "actual": 39,
       "members": [
         "activity-feed",
+        "block-header",
         "board-card",
         "card",
         "carousel",
@@ -222,13 +229,15 @@
       ]
     },
     "AI/chat": {
-      "expected": 10,
-      "actual": 10,
+      "expected": 12,
+      "actual": 12,
       "members": [
         "agent-edit-banner",
+        "agent-panel",
         "approval-card",
         "attachment",
         "bubble",
+        "delegate-popover",
         "marker",
         "message",
         "message-scroller",
@@ -823,7 +832,7 @@
       ]
     }
   },
-  "componentRoutes": 167,
+  "componentRoutes": 176,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-0JwqrdPQSdf35nOqJVAREmUAQAMli+A3L3pLUUw5W5g=
+// @vegastack text-edit@0.25.88 sha256-DTeClijxeXj7dGETG1aFH0qJU3dS1PBqmsTuEBU9vc4=
 
 "use client";
 
@@ -97,6 +97,7 @@ import {
   BetweenVerticalEnd,
   BetweenVerticalStart,
   Bold,
+  Bookmark as BookmarkIcon,
   Bot,
   ChevronDown,
   CircleCheck,
@@ -156,7 +157,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
   CODE_LANGUAGES,
-  codeBlockActionsClassName,
   codeBlockControlClassName,
   codeBlockControlsPadClassName,
   codeBlockPreClassName,
@@ -230,12 +230,14 @@ import {
   SuggestionMenu,
   suggestionMenuKeyDown,
   suggestionMenuOptionId,
+  useSuggestionMenuSheet,
   type SuggestionMenuOption,
 } from "@/components/ui/suggestion-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
+  MarkdownBookmark,
   MarkdownEmbed,
   MarkdownLiveBlock,
   MEDIA_AUDIO_CLASS,
@@ -259,6 +261,7 @@ import {
   DEFAULT_LIVE_BLOCK_KINDS,
   headingIds,
   isRecordMentionKind,
+  RESTRICTED_MENTION_PREFIX,
   type CalloutTone,
   type LiveBlockKind,
   type MentionKind,
@@ -273,6 +276,7 @@ import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { usePlatform } from "@/components/ui/use-platform";
 import { FileTypeIcon } from "@/lib/file-kind";
 import {
   anchorFromRange,
@@ -287,6 +291,8 @@ import {
 import type {
   MentionKindConfig,
   MentionOption,
+  MentionSection,
+  TextEditMentionStatus,
   TextEditAnchor,
   TextEditCollaboration,
   TextEditCollaborationUser,
@@ -299,6 +305,13 @@ import type {
   TextEditHeadingAnchor,
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
+import { PersonAvatar } from "@/components/ui/person-avatar";
+import {
+  BlockToolbarButton,
+  BlockToolbar,
+  BlockToolbarMenu,
+} from "@/components/ui/block-toolbar";
+import { TaskInline } from "@/components/ui/task-inline";
 import {
   linkedTaskId,
   TEXT_EDIT_UPLOAD_ABORT,
@@ -339,6 +352,10 @@ interface SlashSpec {
   glyph?: React.ReactNode;
   /** Muted text after the label (a host item's description, or why it is disabled). */
   description?: string;
+  /** What the block is, in a few words: a built-in's line on a `menuSize="lg"` menu. */
+  blurb?: string;
+  /** A host item's heading (`TextEditSlashAction.group`). */
+  hostGroup?: string;
   /** Shown but not choosable. */
   disabled?: boolean;
   run: (ed: Editor, range: Range, open: (panel: Panel) => void) => void;
@@ -368,9 +385,55 @@ const SLASH_GROUP: Record<TextEditSlashCommand, string> = {
   video: "Media",
   audio: "Media",
   file: "Media",
+  bookmark: "Media",
   link: "Insert",
 };
 const HOST_SLASH_GROUP = "Insert";
+
+/**
+ * The `menuSize="lg"` menu's headings (UXP-03): the basic blocks, then the host's own items, then
+ * media, then the advanced blocks. A host item takes its own `group` ("Insert" by default).
+ */
+const LG_SLASH_GROUP: Record<
+  TextEditSlashCommand,
+  "Basic" | "Media" | "Advanced"
+> = {
+  text: "Basic",
+  h1: "Basic",
+  h2: "Basic",
+  h3: "Basic",
+  h4: "Basic",
+  bulletList: "Basic",
+  orderedList: "Basic",
+  taskList: "Basic",
+  blockquote: "Basic",
+  callout: "Basic",
+  toggle: "Basic",
+  divider: "Basic",
+  image: "Media",
+  video: "Media",
+  audio: "Media",
+  file: "Media",
+  bookmark: "Media",
+  link: "Media",
+  codeBlock: "Advanced",
+  diagram: "Advanced",
+  table: "Advanced",
+};
+
+/** A slash item's heading in the full menu, by size. */
+function slashGroup(spec: SlashSpec, lg: boolean): string {
+  if (spec.id.startsWith("host:")) return spec.hostGroup ?? HOST_SLASH_GROUP;
+  const id = spec.id as TextEditSlashCommand;
+  return lg ? LG_SLASH_GROUP[id] : SLASH_GROUP[id];
+}
+
+/** Where a slash item sits on the full `lg` menu: Basic · the host's · Media · Advanced. */
+function lgSlashRank(spec: SlashSpec): number {
+  if (spec.id.startsWith("host:")) return 1;
+  const group = LG_SLASH_GROUP[spec.id as TextEditSlashCommand];
+  return group === "Basic" ? 0 : group === "Media" ? 2 : 3;
+}
 
 const heading =
   (level: 1 | 2 | 3 | 4) =>
@@ -380,6 +443,7 @@ const heading =
 const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   text: {
     id: "text",
+    blurb: "Plain text",
     label: "Text",
     keywords: "paragraph plain p",
     icon: Pilcrow,
@@ -388,6 +452,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h1: {
     id: "h1",
+    blurb: "Big section heading",
     label: "Heading 1",
     keywords: "title h1 #",
     hint: "#",
@@ -396,6 +461,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h2: {
     id: "h2",
+    blurb: "Medium section heading",
     label: "Heading 2",
     keywords: "subtitle h2 ##",
     hint: "##",
@@ -404,6 +470,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h3: {
     id: "h3",
+    blurb: "Small section heading",
     label: "Heading 3",
     keywords: "h3 ###",
     hint: "###",
@@ -412,6 +479,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   h4: {
     id: "h4",
+    blurb: "Smallest heading",
     label: "Heading 4",
     keywords: "h4 ####",
     hint: "####",
@@ -420,6 +488,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   bulletList: {
     id: "bulletList",
+    blurb: "A simple bulleted list",
     label: "Bullet list",
     keywords: "unordered ul bullets -",
     hint: "-",
@@ -429,6 +498,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   orderedList: {
     id: "orderedList",
+    blurb: "A list with numbers",
     label: "Numbered list",
     keywords: "ordered ol numbers 1.",
     hint: "1.",
@@ -438,6 +508,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   taskList: {
     id: "taskList",
+    blurb: "Track to-dos with checkboxes",
     label: "Checklist",
     keywords: "todo task checkbox [ ]",
     hint: "[ ]",
@@ -447,6 +518,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   blockquote: {
     id: "blockquote",
+    blurb: "Capture a quote",
     label: "Quote",
     keywords: "blockquote citation >",
     hint: ">",
@@ -456,6 +528,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   callout: {
     id: "callout",
+    blurb: "Make a note stand out",
     label: "Callout",
     keywords: "note tip warning alert info admonition",
     icon: Info,
@@ -464,6 +537,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   toggle: {
     id: "toggle",
+    blurb: "Hide content inside a fold",
     label: "Toggle",
     keywords: "details summary collapse disclosure fold",
     icon: ChevronDown,
@@ -474,6 +548,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   divider: {
     id: "divider",
+    blurb: "Separate sections",
     label: "Divider",
     keywords: "hr rule separator line ---",
     hint: "---",
@@ -483,6 +558,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   codeBlock: {
     id: "codeBlock",
+    blurb: "Code with syntax highlighting",
     label: "Code block",
     keywords: "pre snippet fence ```",
     hint: "```",
@@ -492,6 +568,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   diagram: {
     id: "diagram",
+    blurb: "A flowchart or sequence, from text",
     label: "Diagram",
     keywords: "mermaid flowchart sequence gantt chart",
     icon: Workflow,
@@ -502,6 +579,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   table: {
     id: "table",
+    blurb: "Rows and columns",
     label: "Table",
     keywords: "grid rows columns gfm",
     icon: TableIcon,
@@ -515,6 +593,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   image: {
     id: "image",
+    blurb: "Upload or link an image",
     label: "Image",
     keywords: "picture photo img url",
     icon: ImageIcon,
@@ -525,6 +604,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   video: {
     id: "video",
+    blurb: "Upload or link a video",
     label: "Video",
     keywords: "movie clip mp4 webm recording youtube loom embed",
     icon: Film,
@@ -535,6 +615,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   audio: {
     id: "audio",
+    blurb: "Upload or link a sound clip",
     label: "Audio",
     keywords: "sound music voice recording mp3",
     icon: AudioLines,
@@ -545,6 +626,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   },
   file: {
     id: "file",
+    blurb: "Attach any file",
     label: "File",
     keywords: "upload attachment document pdf",
     icon: FileIcon,
@@ -553,8 +635,20 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
       open("file");
     },
   },
+  bookmark: {
+    id: "bookmark",
+    blurb: "A link as a card with its title",
+    label: "Bookmark",
+    keywords: "link card preview url web page site",
+    icon: BookmarkIcon,
+    run: (ed, range) => {
+      ed.chain().focus().deleteRange(range).run();
+      insertBookmark(ed, "");
+    },
+  },
   link: {
     id: "link",
+    blurb: "Link to a page or site",
     label: "Link",
     keywords: "url href anchor",
     hint: "⌘K",
@@ -565,6 +659,41 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
     },
   },
 };
+
+/**
+ * Put a bookmark card where the caret's block is — in place of an empty paragraph, else after the
+ * block — with an empty address its card asks for, selected.
+ */
+function insertBookmark(ed: Editor, url: string) {
+  const type = ed.state.schema.nodes.bookmark;
+  if (!type) return;
+  const { $from } = ed.state.selection;
+  const node = type.create({ url });
+  const tr = ed.state.tr;
+  // A bookmark stands where Markdown can hold one (`EMBED_CONTAINERS`: the document, a quote, a
+  // callout, a toggle) — in place of an empty paragraph there, else after the block holding the
+  // caret (a list, a table) in the nearest such container.
+  let depth = $from.depth;
+  while (depth > 0 && !EMBED_CONTAINERS.has($from.node(depth - 1).type.name))
+    depth--;
+  const block = depth > 0 ? $from.node(depth) : null;
+  let at: number;
+  if (
+    depth > 0 &&
+    block?.type.name === "paragraph" &&
+    block.content.size === 0
+  ) {
+    at = $from.before(depth);
+    tr.replaceWith(at, $from.after(depth), node);
+  } else {
+    at = depth > 0 ? $from.after(depth) : $from.pos;
+    tr.insert(at, node);
+  }
+  if (tr.doc.resolve(at + node.nodeSize).nodeAfter === null)
+    tr.insert(at + node.nodeSize, ed.state.schema.nodes.paragraph!.create());
+  tr.setSelection(NodeSelection.create(tr.doc, at));
+  ed.view.dispatch(tr.scrollIntoView());
+}
 
 /** Put an empty toggle where the caret's block is (replacing it when empty), caret in its summary. */
 function insertToggle(ed: Editor) {
@@ -605,6 +734,7 @@ const BLOCK_COMMANDS: ReadonlySet<TextEditSlashCommand> = new Set([
   "codeBlock",
   "diagram",
   "table",
+  "bookmark",
   "divider",
 ]);
 
@@ -650,6 +780,7 @@ function hostSlashSpec(action: TextEditSlashAction): SlashSpec {
     keywords: (action.keywords ?? []).join(" "),
     icon: Plus,
     glyph: action.icon,
+    hostGroup: action.group,
     description: action.disabled
       ? (action.disabledReason ?? action.description)
       : action.description,
@@ -685,6 +816,7 @@ function filterSlash(
   query: string,
   inCell = false,
   actions: readonly TextEditSlashAction[] = [],
+  lg = false,
 ): SlashSpec[] {
   const q = query.trim().toLowerCase();
   // Words, and a run of letters and a run of digits apart: `head2` is "head" and "2".
@@ -695,11 +827,24 @@ function filterSlash(
   // One menu everywhere: the canonical order, whatever order the host's subset lists; the host's
   // own items after the built-in ones.
   const wanted = new Set(allowed);
-  return [
+  // The host's items with the same `group` sit together, groups in the order they first appear.
+  const groups = [
+    ...new Set(actions.map((action) => action.group ?? HOST_SLASH_GROUP)),
+  ];
+  const hosted = actions
+    .map((action, index) => ({ action, index }))
+    .sort(
+      (a, b) =>
+        groups.indexOf(a.action.group ?? HOST_SLASH_GROUP) -
+          groups.indexOf(b.action.group ?? HOST_SLASH_GROUP) ||
+        a.index - b.index,
+    )
+    .map(({ action }) => hostSlashSpec(action));
+  const found = [
     ...(Object.keys(SLASH) as TextEditSlashCommand[])
       .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
       .map((id) => SLASH[id]),
-    ...actions.map(hostSlashSpec),
+    ...hosted,
   ].filter((spec) => {
     if (!q) return true;
     const label = spec.label.toLowerCase();
@@ -717,6 +862,16 @@ function filterSlash(
       )
     );
   });
+  // The full `lg` menu in its group order (a stable sort): the arrow keys walk it as it shows.
+  return lg && !q
+    ? found
+        .map((spec, index) => ({ spec, index }))
+        .sort(
+          (a, b) =>
+            lgSlashRank(a.spec) - lgSlashRank(b.spec) || a.index - b.index,
+        )
+        .map(({ spec }) => spec)
+    : found;
 }
 
 /**
@@ -833,24 +988,41 @@ function useEditorEditable(editor: Editor): boolean {
 
 /**
  * Task item node view: the system `Checkbox` beside a content box — the same DOM `MarkdownView`
- * renders for a GFM task item, so `prose.taskList` lays both out identically.
+ * renders for a GFM task item, so `prose.taskList` lays both out identically. A linked line
+ * (`linkedTaskId`) drawn as a `TaskInline` (`onTaskOpen`) takes the round task box: its one box.
  */
-function TaskItemView({ node, updateAttributes, editor }: ReactNodeViewProps) {
-  const checked = Boolean(node.attrs.checked);
-  const editable = useEditorEditable(editor);
-  return (
-    <NodeViewWrapper className="contents">
-      <Checkbox
-        contentEditable={false}
-        checked={checked}
-        disabled={!editable}
-        onCheckedChange={(next) => updateAttributes({ checked: next === true })}
-        aria-label={checked ? "Mark task not done" : "Mark task done"}
-        className="data-disabled:cursor-default data-disabled:opacity-100"
-      />
-      <NodeViewContent data-slot="task-item-content" />
-    </NodeViewWrapper>
-  );
+function taskItemView(runtime: EditorRuntime) {
+  return function TaskItemView({
+    node,
+    updateAttributes,
+    editor,
+  }: ReactNodeViewProps) {
+    const checked = Boolean(node.attrs.checked);
+    const editable = useEditorEditable(editor);
+    React.useSyncExternalStore(
+      runtime.labels.subscribe,
+      runtime.labels.get,
+      runtime.labels.get,
+    );
+    const task =
+      runtime.taskOpen.current !== undefined && linkedTaskId(node) !== null;
+    return (
+      <NodeViewWrapper className="contents">
+        <Checkbox
+          contentEditable={false}
+          checked={checked}
+          disabled={!editable}
+          shape={task ? "circle" : undefined}
+          onCheckedChange={(next) =>
+            updateAttributes({ checked: next === true })
+          }
+          aria-label={checked ? "Mark task not done" : "Mark task done"}
+          className="data-disabled:cursor-default data-disabled:opacity-100"
+        />
+        <NodeViewContent data-slot="task-item-content" />
+      </NodeViewWrapper>
+    );
+  };
 }
 
 /**
@@ -945,6 +1117,61 @@ function currentCode(node: PMNode): string {
   return text;
 }
 
+/** Whether the caret sits inside the node at `getPos()` while the editor has focus. */
+function useCaretInside(
+  editor: Editor,
+  getPos: ReactNodeViewProps["getPos"],
+): boolean {
+  const read = React.useCallback(() => {
+    if (editor.isDestroyed || !editor.isFocused || !editor.isEditable)
+      return false;
+    const pos = typeof getPos === "function" ? getPos() : undefined;
+    if (typeof pos !== "number") return false;
+    const node = editor.state.doc.nodeAt(pos);
+    const { from, to } = editor.state.selection;
+    return !!node && from > pos && to < pos + node.nodeSize;
+  }, [editor, getPos]);
+  return React.useSyncExternalStore(
+    React.useCallback(
+      (onChange: () => void) => {
+        editor.on("selectionUpdate", onChange);
+        editor.on("focus", onChange);
+        editor.on("blur", onChange);
+        return () => {
+          editor.off("selectionUpdate", onChange);
+          editor.off("focus", onChange);
+          editor.off("blur", onChange);
+        };
+      },
+      [editor],
+    ),
+    read,
+    () => false,
+  );
+}
+
+/**
+ * The footer under a code block (or a diagram's source) while the caret is in it: how to leave
+ * it — ⌘↵ (Ctrl+Enter), or ↓ on its last line (UXP-07).
+ */
+function CodeExitHint({
+  editor,
+  getPos,
+}: Pick<ReactNodeViewProps, "editor" | "getPos">) {
+  const inside = useCaretInside(editor, getPos);
+  const { os } = usePlatform();
+  if (!inside) return null;
+  return (
+    <p
+      data-slot="text-edit-code-hint"
+      contentEditable={false}
+      className="m-0 px-4 pb-2 text-xs text-muted-foreground select-none print:hidden"
+    >
+      {os === "mac" ? "⌘↵" : "Ctrl+Enter"} to exit
+    </p>
+  );
+}
+
 function CodeBlockView({
   node,
   editor,
@@ -1002,10 +1229,7 @@ function CodeBlockView({
             {codeLanguageName(language)}
           </span>
         ) : null}
-        <div
-          data-slot="code-block-actions"
-          className={codeBlockActionsClassName}
-        >
+        <BlockToolbar aria-label="Code block actions">
           {editor.isEditable ? (
             <MenuTip label={wrap ? "Don't wrap lines" : "Wrap lines"}>
               <Toggle
@@ -1015,7 +1239,7 @@ function CodeBlockView({
                 data-slot="code-block-wrap"
                 onMouseDown={(event) => event.preventDefault()}
                 onPressedChange={(next) => updateAttributes({ wrap: next })}
-                className="size-6 min-w-6 px-0 text-muted-foreground"
+                className="size-7 min-w-7 px-0 text-muted-foreground"
               >
                 <WrapText />
               </Toggle>
@@ -1023,11 +1247,12 @@ function CodeBlockView({
           ) : null}
           <CopyButton
             value={currentCode(node)}
-            size="icon-xs"
+            size="icon-sm"
             variant="ghost"
             copyLabel="Copy code"
+            className="text-muted-foreground"
           />
-        </div>
+        </BlockToolbar>
       </div>
       <pre
         data-slot="code-block-pre"
@@ -1042,6 +1267,7 @@ function CodeBlockView({
           style={{ whiteSpace: "inherit" }}
         />
       </pre>
+      <CodeExitHint editor={editor} getPos={getPos} />
     </NodeViewWrapper>
   );
 }
@@ -1079,6 +1305,43 @@ function turnIntoBlockView(ed: Editor, language: string) {
       return true;
     })
     .run();
+}
+
+/**
+ * Put the caret just past the block that ends at `end`: at the start of the block after it, or in
+ * a new empty paragraph there when none follows (or the next is not text). One undo step.
+ */
+function exitBlock(editor: Editor, end: number) {
+  const { state } = editor;
+  const next = state.doc.resolve(end).nodeAfter;
+  if (next?.isTextblock) {
+    editor.view.dispatch(
+      state.tr
+        .setSelection(TextSelection.create(state.doc, end + 1))
+        .scrollIntoView(),
+    );
+    return;
+  }
+  const paragraph = state.schema.nodes.paragraph!.create();
+  const tr = state.tr.insert(end, paragraph);
+  tr.setSelection(TextSelection.create(tr.doc, end + 1));
+  editor.view.dispatch(tr.scrollIntoView());
+}
+
+/**
+ * The code block the caret is in — its position and node — or null. A block view's source is one
+ * too.
+ */
+function caretCodeBlock(
+  state: EditorState,
+): { pos: number; node: PMNode } | null {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name === "codeBlock")
+      return { pos: $from.before(depth), node };
+  }
+  return null;
 }
 
 /** Asks a block view's node view to change its mode (the editor's ⌘Enter and Escape). */
@@ -1167,18 +1430,12 @@ function BlockCodeView({
         editor.commands.focus(at.to - 1, { scrollIntoView: false });
         return;
       }
-      // Preview: a caret inside the source moves on to the next text after the block.
+      // Preview: a caret inside the source moves on past the block — into the block after it, or
+      // a new paragraph there when nothing follows (⌘↵ and ↓ at the last line leave the diagram).
       const { state } = editor;
       const { from, to } = state.selection;
       if (from <= at.from || to >= at.to) return;
-      const after = TextSelection.findFrom(state.doc.resolve(at.to), 1, true);
-      if (after) editor.view.dispatch(state.tr.setSelection(after));
-      else
-        frameRef.current
-          ?.querySelector<HTMLElement>(
-            "[data-slot=block-view-mode][aria-pressed=false]",
-          )
-          ?.focus();
+      exitBlock(editor, at.to);
     },
     [editor, span],
   );
@@ -1221,18 +1478,21 @@ function BlockCodeView({
         onModeChange={setMode}
         editable={editable}
         code={
-          <pre
-            data-slot="code-block-pre"
-            data-wrap={wrap ? "" : undefined}
-            style={codeBlockWrapStyle(wrap)}
-            className={codeBlockPreClassName}
-          >
-            <NodeViewContent<"code">
-              as="code"
-              className="font-mono"
-              style={{ whiteSpace: "inherit" }}
-            />
-          </pre>
+          <>
+            <pre
+              data-slot="code-block-pre"
+              data-wrap={wrap ? "" : undefined}
+              style={codeBlockWrapStyle(wrap)}
+              className={codeBlockPreClassName}
+            >
+              <NodeViewContent<"code">
+                as="code"
+                className="font-mono"
+                style={{ whiteSpace: "inherit" }}
+              />
+            </pre>
+            <CodeExitHint editor={editor} getPos={getPos} />
+          </>
         }
       />
     </NodeViewWrapper>
@@ -1587,6 +1847,8 @@ interface SlashRuntime {
   allowed: React.RefObject<readonly TextEditSlashCommand[]>;
   /** The host's own items (`slashActions`). */
   actions: React.RefObject<readonly TextEditSlashAction[]>;
+  /** A `menuSize="lg"` menu: the full list in its own group order. */
+  lg: React.RefObject<boolean>;
   get: () => SlashState | null;
   set: (next: SlashState | null) => void;
   open: (panel: Panel) => void;
@@ -1617,6 +1879,7 @@ function slashExtension(runtime: SlashRuntime) {
               query,
               inTableCell(ed.state),
               runtime.actions.current,
+              runtime.lg.current,
             ),
           command: ({ editor: ed, range, props }) =>
             props.run(ed, range, runtime.open),
@@ -2613,27 +2876,117 @@ function uploadPlaceholder(upload: UploadWidget): HTMLElement {
   root.setAttribute("role", "status");
   root.setAttribute("aria-label", `Uploading ${upload.name}`);
   if (upload.preview) {
+    // The picture itself, dimmed, in its own proportions — the box the image lands in — with a
+    // bar along its foot once the host reports progress (UXP-06).
     root.setAttribute("data-kind", "image");
     root.className = "relative inline-block max-w-full align-bottom";
     const image = document.createElement("img");
     image.src = upload.preview;
     image.alt = "";
-    image.className = "block max-h-60 opacity-50";
+    image.className = "block max-h-60 rounded-lg opacity-50";
     const overlay = document.createElement("span");
     overlay.className =
       "absolute inset-0 grid place-items-center text-foreground";
-    overlay.append(spinner("size-5"));
-    root.append(image, overlay);
+    const spin = spinner("size-5");
+    overlay.append(spin);
+    const track = document.createElement("span");
+    track.setAttribute("data-slot", "text-edit-upload-progress");
+    track.className =
+      "absolute inset-x-3 bottom-3 hidden h-1 overflow-hidden rounded-full bg-foreground/15";
+    const bar = document.createElement("span");
+    bar.className =
+      "block h-full w-0 rounded-full bg-primary transition-[width]";
+    track.append(bar);
+    root.append(image, overlay, track);
+    watchUploadProgress(upload.id, (fraction) => {
+      track.classList.remove("hidden");
+      spin.classList.add("hidden");
+      bar.style.width = `${Math.round(fraction * 100)}%`;
+      root.setAttribute("data-progress", String(Math.round(fraction * 100)));
+    });
   } else {
+    // A file chip with a ring that fills as the upload goes (a spinner until it reports).
     root.setAttribute("data-kind", "file");
     root.className =
       "inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1 align-baseline text-muted-foreground";
     const name = document.createElement("span");
     name.className = "truncate";
     name.textContent = upload.name;
-    root.append(spinner("size-3"), name);
+    const spin = spinner("size-3");
+    const ring = progressRing();
+    ring.element.classList.add("hidden");
+    root.append(spin, ring.element, name);
+    watchUploadProgress(upload.id, (fraction) => {
+      spin.classList.add("hidden");
+      ring.element.classList.remove("hidden");
+      ring.draw(fraction);
+      root.setAttribute("data-progress", String(Math.round(fraction * 100)));
+    });
   }
   return root;
+}
+
+/**
+ * Each upload's progress (0–1) as the host reports it (`onProgress`), and the placeholders drawing
+ * it: a widget drawn again (a redraw of its decoration) picks up the last value.
+ */
+const UPLOAD_PROGRESS = new Map<string, number>();
+const UPLOAD_PROGRESS_VIEWS = new Map<
+  string,
+  Set<(fraction: number) => void>
+>();
+
+function reportUploadProgress(id: string, fraction: number) {
+  const value = Math.min(1, Math.max(0, fraction));
+  UPLOAD_PROGRESS.set(id, value);
+  for (const draw of UPLOAD_PROGRESS_VIEWS.get(id) ?? []) draw(value);
+}
+
+function forgetUploadProgress(id: string) {
+  UPLOAD_PROGRESS.delete(id);
+  UPLOAD_PROGRESS_VIEWS.delete(id);
+}
+
+/** Draw `id`'s progress with `draw`, now (when known) and as it moves. */
+function watchUploadProgress(id: string, draw: (fraction: number) => void) {
+  let views = UPLOAD_PROGRESS_VIEWS.get(id);
+  if (!views) UPLOAD_PROGRESS_VIEWS.set(id, (views = new Set()));
+  views.add(draw);
+  const now = UPLOAD_PROGRESS.get(id);
+  if (now !== undefined) draw(now);
+}
+
+/** A 12px ring that fills with its fraction — the file chip's progress. */
+function progressRing(): {
+  element: SVGSVGElement;
+  draw: (fraction: number) => void;
+} {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("data-slot", "text-edit-upload-ring");
+  svg.setAttribute("class", "size-3 shrink-0 -rotate-90");
+  const track = document.createElementNS(SVG_NS, "circle");
+  const bar = document.createElementNS(SVG_NS, "circle");
+  for (const circle of [track, bar]) {
+    circle.setAttribute("cx", "8");
+    circle.setAttribute("cy", "8");
+    circle.setAttribute("r", "6");
+    circle.setAttribute("fill", "none");
+    circle.setAttribute("stroke-width", "2.5");
+    circle.setAttribute("stroke", "currentColor");
+  }
+  track.setAttribute("class", "opacity-25");
+  const length = 2 * Math.PI * 6;
+  bar.setAttribute("stroke-dasharray", String(length));
+  bar.setAttribute("stroke-dashoffset", String(length));
+  bar.setAttribute("stroke-linecap", "round");
+  svg.append(track, bar);
+  return {
+    element: svg,
+    draw: (fraction) =>
+      bar.setAttribute("stroke-dashoffset", String(length * (1 - fraction))),
+  };
 }
 
 /** Upload placeholders: widgets that ride along with edits until their upload resolves. */
@@ -2865,9 +3218,15 @@ function groupResults(
   options: readonly MentionOption[],
   kinds: readonly MentionKindConfig[],
   query = "",
+  sections?: readonly MentionSection[],
 ): MentionOption[] {
   const enabled = new Set(kinds.map((kind) => kind.id));
-  const offered = options.filter((option) => enabled.has(option.kind));
+  // With sections, a kind whose section is left out is not offered at all (before any cap).
+  const offered = options.filter(
+    (option) =>
+      enabled.has(option.kind) &&
+      (!sections || sections.includes(mentionSection(option.kind))),
+  );
   const own = [
     ...new Set(
       offered.flatMap((option) => (option.group ? [option.group] : [])),
@@ -2880,17 +3239,34 @@ function groupResults(
   );
   const best = (group: MentionOption[]) =>
     Math.min(...group.map((option) => mentionMatchRank(option.label, query)));
-  return [
-    ...own.flatMap((group) =>
-      offered.filter((option) => option.group === group).slice(0, 5),
-    ),
-    // A stable sort: groups that match as well keep their `order`.
-    ...groups
+  // A stable sort: groups that match as well keep their `order`.
+  const byMatch = (list: MentionOption[][]) =>
+    list
       .filter((group) => group.length > 0)
       .map((group) => ({ group, rank: best(group) }))
       .sort((a, b) => a.rank - b.rank)
-      .flatMap(({ group }) => group),
+      .flatMap(({ group }) => group);
+  const ownRows = own.flatMap((group) =>
+    offered.filter((option) => option.group === group).slice(0, 5),
+  );
+  if (!sections) return [...ownRows, ...byMatch(groups)];
+  // Fixed sections: people, agents, then the records — only the records sort by match.
+  const kindOf = (group: MentionOption[]) => group[0]?.kind;
+  return [
+    ...ownRows,
+    ...sections.flatMap((section) => {
+      const inSection = groups.filter(
+        (group) =>
+          group.length > 0 && mentionSection(kindOf(group)!) === section,
+      );
+      return section === "records" ? byMatch(inSection) : inSection.flat();
+    }),
   ];
+}
+
+/** The `@` menu section a kind belongs to (`TextEditMentions.sections`). */
+function mentionSection(kind: MentionKind): MentionSection {
+  return kind === "user" ? "people" : kind === "agent" ? "agents" : "records";
 }
 
 /** How long a keystroke waits for the next before the mention search asks. */
@@ -2953,22 +3329,53 @@ function mentionStatus(state: MentionMenuState): string | undefined {
 function mentionOptions(
   state: MentionMenuState,
   kinds: readonly MentionKindConfig[],
+  sections?: readonly MentionSection[],
 ): SuggestionMenuOption[] {
   const byId = new Map(kinds.map((kind) => [kind.id, kind]));
-  return flatOptions(state.results).map((option) => {
+  const results = flatOptions(state.results);
+  // People who share a name keep their email in view, to tell them apart.
+  const names = new Map<string, number>();
+  for (const option of results)
+    if (option.kind === "user")
+      names.set(option.label, (names.get(option.label) ?? 0) + 1);
+  return results.map((option) => {
     const config = byId.get(option.kind);
+    const person =
+      sections !== undefined &&
+      (option.kind === "user" || option.kind === "agent");
     return {
       key: `${option.group ? `${option.group}:` : ""}${option.kind}:${option.id}`,
       label: option.label,
       description: option.description,
+      descriptionShown:
+        option.descriptionShown ??
+        (sections &&
+        option.kind === "user" &&
+        (names.get(option.label) ?? 0) < 2
+          ? "active"
+          : "always"),
       group: option.group ?? config?.plural ?? option.kind,
       icon: (
         <span
           aria-hidden
           data-slot="text-edit-mention-icon"
-          className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm"
+          className={cn(
+            "flex size-5 shrink-0 items-center justify-center overflow-hidden",
+            person && !option.icon ? "rounded-full" : "rounded-sm",
+          )}
         >
-          {option.icon ?? mentionKindIcon(config, option.kind)}
+          {option.icon ??
+            (person ? (
+              <PersonAvatar
+                person={{
+                  name: option.label,
+                  kind: option.kind === "agent" ? "agent" : "person",
+                }}
+                className="size-5"
+              />
+            ) : (
+              mentionKindIcon(config, option.kind)
+            ))}
         </span>
       ),
     };
@@ -3267,8 +3674,9 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
 }
 
 /**
- * Each image's hover toolbar (top-right, blurred): while editable Replace, Caption and Alt text, then Open,
- * Download and Copy link. Delete is the block menu's (and Backspace on the selected image).
+ * Each image's hover toolbar (top-right, blurred; `BlockToolbar` buttons, four at most): while
+ * editable Replace, Caption and Alt text, then Open, and ⋯ with Download and Copy link. Delete is
+ * the block menu's (and Backspace on the selected image).
  */
 function ImageMenus({
   editor,
@@ -3316,26 +3724,8 @@ function ImageMenus({
   );
 }
 
-function ImageToolButton({
-  label,
-  children,
-  ...props
-}: React.ComponentProps<typeof Button> & { label: string }) {
-  return (
-    <MenuTip label={label}>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xs"
-        aria-label={label}
-        onMouseDown={(event) => event.preventDefault()}
-        {...props}
-      >
-        {children}
-      </Button>
-    </MenuTip>
-  );
-}
+/** An image toolbar's button: the shared `BlockToolbarButton` (28px). */
+const ImageToolButton = BlockToolbarButton;
 
 function ImageMenu({
   editor,
@@ -3370,7 +3760,7 @@ function ImageMenu({
   // The host's attachment link saves the file in place; the image's own URL opens in a new tab.
   const saveFrom = (shareable ? downloadHref?.(raw) : null) ?? null;
   return (
-    <>
+    <BlockToolbar aria-label="Image actions" placement="inline">
       {editable && onReplace ? (
         <ImageToolButton
           label="Replace"
@@ -3405,28 +3795,35 @@ function ImageMenu({
           <Maximize2 />
         </ImageToolButton>
       ) : null}
-      <ImageToolButton
-        label="Download"
-        render={
-          saveFrom ? (
-            <a href={saveFrom} download />
-          ) : (
-            <a href={src} download target="_blank" rel="noopener noreferrer" />
-          )
-        }
-        nativeButton={false}
-      >
-        <Download />
-      </ImageToolButton>
-      {shareable ? (
-        <ImageToolButton
-          label="Copy link"
-          onClick={() => void navigator.clipboard?.writeText(absolute)}
+      {/* Four buttons at most (UXP-08): the rest in ⋯. */}
+      <BlockToolbarMenu label="More image actions">
+        <DropdownMenuItem
+          render={
+            saveFrom ? (
+              <a href={saveFrom} download />
+            ) : (
+              <a
+                href={src}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            )
+          }
         >
-          <LinkIcon />
-        </ImageToolButton>
-      ) : null}
-    </>
+          <Download />
+          Download
+        </DropdownMenuItem>
+        {shareable ? (
+          <DropdownMenuItem
+            onClick={() => void navigator.clipboard?.writeText(absolute)}
+          >
+            <LinkIcon />
+            Copy link
+          </DropdownMenuItem>
+        ) : null}
+      </BlockToolbarMenu>
+    </BlockToolbar>
   );
 }
 
@@ -3507,9 +3904,11 @@ function ImageTextAttribute({
             <Button
               type="button"
               variant="ghost"
-              size="icon-xs"
+              size="icon-sm"
               aria-label={copy.label}
+              data-slot="block-toolbar-button"
               onMouseDown={(event) => event.preventDefault()}
+              className="text-muted-foreground"
             />
           }
         >
@@ -3580,6 +3979,8 @@ interface EditorRuntime {
   mentionLabel: React.RefObject<TextEditProps["mentionLabel"]>;
   /** A closed target's struck chip and status tag (`mentionStatus`); read with the labels. */
   mentionStatus: React.RefObject<TextEditProps["mentionStatus"]>;
+  /** `onTaskOpen`: a linked checklist line draws as a `TaskInline`. */
+  taskOpen: React.RefObject<TextEditProps["onTaskOpen"]>;
   labels: Versioned;
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
@@ -3591,6 +3992,8 @@ interface EditorRuntime {
     get: () => MentionMenuState | null;
     set: (next: MentionMenuState | null) => void;
     query: (query: string) => void;
+    /** The menu is a sheet (`menuPresentation="auto"` on a phone): its search field owns the query. */
+    sheet: () => boolean;
   };
 }
 
@@ -3599,7 +4002,7 @@ interface EditorRuntime {
  * `InlineChipProvider`); a click places the caret, ⌘/Ctrl-click opens its target in a new tab.
  */
 function mentionView(runtime: EditorRuntime) {
-  return function MentionView({ node }: ReactNodeViewProps) {
+  return function MentionView({ node, editor, getPos }: ReactNodeViewProps) {
     const {
       kind,
       id,
@@ -3627,6 +4030,59 @@ function mentionView(runtime: EditorRuntime) {
         : stored || own) || "…";
     const hrefFor = runtime.mentionHref.current;
     const closed = runtime.mentionStatus.current?.(kind, id);
+    const resolver = useInlineChipResolver();
+    const open = runtime.taskOpen.current;
+    const asTask =
+      !!open && kind === "task" && !id.startsWith(RESTRICTED_MENTION_PREFIX);
+    // The line's box as it is now: a tick changes the task item, never this chip's node, so the
+    // chip follows the document rather than its own redraws.
+    const lineState = React.useSyncExternalStore(
+      React.useCallback(
+        (onChange: () => void) => {
+          if (!asTask) return () => {};
+          editor.on("transaction", onChange);
+          return () => {
+            editor.off("transaction", onChange);
+          };
+        },
+        [asTask, editor],
+      ),
+      () => {
+        if (!asTask) return "none";
+        const line = taskLineOf(editor, getPos);
+        return line ? (line.checked ? "checked" : "open") : "none";
+      },
+      () => "none",
+    );
+    const line =
+      lineState === "none" ? null : { checked: lineState === "checked" };
+    if (open && line) {
+      // A linked checklist line: the line's box is the task's; the chip is its title and meta.
+      const state = closed ?? resolver?.state?.(kind, id) ?? null;
+      const href = hrefFor ? hrefFor(kind, id) : resolver?.href?.(kind, id);
+      return (
+        <NodeViewWrapper
+          as="span"
+          className="inline"
+          contentEditable={false}
+          spellCheck={false}
+        >
+          <TaskInline
+            checkbox={false}
+            title={label}
+            // The line's box is the task's one done state: the title follows it.
+            done={line.checked}
+            struck={state?.struck === true}
+            status={state?.status}
+            assignee={(state as TextEditMentionStatus | null)?.assignee}
+            due={(state as TextEditMentionStatus | null)?.due}
+            overdue={(state as TextEditMentionStatus | null)?.overdue}
+            onOpen={() => open(id)}
+            href={href ?? undefined}
+          />
+        </NodeViewWrapper>
+      );
+    }
     return (
       // An atom: never editable text, never spellchecked.
       <NodeViewWrapper
@@ -3655,6 +4111,40 @@ function mentionView(runtime: EditorRuntime) {
   };
 }
 
+/**
+ * The checklist line the mention at `getPos()` leads — the first inline of a task item's first
+ * paragraph: a linked line's task (`linkedTaskId`) — with its box's state; null otherwise.
+ */
+function taskLineOf(
+  editor: Editor,
+  getPos: ReactNodeViewProps["getPos"],
+): { checked: boolean } | null {
+  const pos = typeof getPos === "function" ? getPos() : undefined;
+  if (typeof pos !== "number" || editor.isDestroyed) return null;
+  try {
+    const $pos = editor.state.doc.resolve(pos);
+    const item = $pos.depth >= 2 ? $pos.node(-1) : null;
+    return $pos.parent.type.name === "paragraph" &&
+      $pos.index() === 0 &&
+      item?.type.name === "taskItem" &&
+      $pos.index(-1) === 0
+      ? { checked: Boolean(item.attrs.checked) }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The task a caret on a linked checklist line names, or null (`onTaskOpen`'s Alt+Enter). */
+function caretTask(state: EditorState): string | null {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name === "taskItem") return linkedTaskId(node);
+  }
+  return null;
+}
+
 /** The `@` mention's editing behaviour: a chip deletes whole, and `@` opens the mention menu. */
 function mentionBehaviour(runtime: EditorRuntime) {
   return Extension.create({
@@ -3676,6 +4166,21 @@ function mentionBehaviour(runtime: EditorRuntime) {
       return {
         Backspace: removeBeside(true),
         Delete: removeBeside(false),
+        // A linked line drawn as a TaskInline: Alt+Enter on it opens the task (a comment
+        // highlight under the caret answers first).
+        "Alt-Enter": () => {
+          const open = runtime.taskOpen.current;
+          const { state } = this.editor;
+          if (
+            !open ||
+            annotationAt(ANNOTATION_KEY.getState(state), state.selection.from)
+          )
+            return false;
+          const task = caretTask(state);
+          if (!task) return false;
+          open(task);
+          return true;
+        },
       };
     },
     addProseMirrorPlugins() {
@@ -3706,8 +4211,12 @@ function mentionBehaviour(runtime: EditorRuntime) {
               props: SuggestionProps<MentionOption, MentionOption>,
             ) => {
               const previous = runtime.mention.get();
+              // In a sheet the search field's text is the query: an update of the suggestion (a
+              // collaborator's edit moving its range) keeps it.
+              const sheet = previous !== null && runtime.mention.sheet();
+              const query = sheet ? previous.query : props.query;
               runtime.mention.set({
-                query: props.query,
+                query,
                 results: previous?.results ?? null,
                 loading: previous ? previous.loading : true,
                 error: previous?.error ?? false,
@@ -3715,8 +4224,8 @@ function mentionBehaviour(runtime: EditorRuntime) {
                 rect: props.clientRect?.() ?? null,
                 command: props.command,
               });
-              if (props.query !== previous?.query || !previous)
-                runtime.mention.query(props.query);
+              if (!previous || (!sheet && props.query !== previous.query))
+                runtime.mention.query(query);
             };
             return {
               onStart: show,
@@ -4201,6 +4710,107 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
   );
 }
 
+/**
+ * A bookmark's node view: `MarkdownBookmark`'s card, selectable and draggable as a block (a click
+ * selects it; ⌘/Ctrl-click opens the page). An empty one — just inserted from the slash menu — is a
+ * field for the address: Enter makes the card, Escape (or an empty Enter) removes it.
+ */
+function BookmarkView({
+  node,
+  selected,
+  editor,
+  updateAttributes,
+  deleteNode,
+}: ReactNodeViewProps) {
+  const url = String(node.attrs.url ?? "");
+  const editable = useEditorEditable(editor);
+  const [draft, setDraft] = React.useState("");
+  const [invalid, setInvalid] = React.useState(false);
+  const fieldRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    if (!url && editable) fieldRef.current?.focus();
+  }, [url, editable]);
+  if (!url) {
+    if (!editable) return <NodeViewWrapper className="hidden" />;
+    const submit = () => {
+      if (!draft.trim()) {
+        deleteNode();
+        editor.commands.focus();
+        return;
+      }
+      const href = parseLink(draft);
+      if (!href || !/^https?:\/\//i.test(href) || !URL.canParse(href)) {
+        setInvalid(true);
+        return;
+      }
+      // The address as the URL parser writes it, so it round-trips exactly (`bookmarkMarkdown`).
+      updateAttributes({ url: new URL(href).href });
+      editor.commands.focus();
+    };
+    return (
+      <NodeViewWrapper
+        data-slot="text-edit-bookmark"
+        contentEditable={false}
+        className="my-2"
+      >
+        <div
+          data-slot="text-edit-bookmark-form"
+          className="flex items-center gap-2 rounded-lg border border-dashed border-border p-2"
+        >
+          <BookmarkIcon
+            aria-hidden
+            className="ms-1 size-4 shrink-0 text-muted-foreground"
+          />
+          <Input
+            ref={fieldRef}
+            aria-label="Bookmark address"
+            aria-invalid={invalid || undefined}
+            placeholder="Paste a link to bookmark…"
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.currentTarget.value);
+              setInvalid(false);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                submit();
+              } else if (event.key === "Escape") {
+                event.preventDefault();
+                deleteNode();
+                editor.commands.focus();
+              }
+            }}
+            className="h-8 border-0 bg-transparent px-1 shadow-none dark:bg-transparent"
+          />
+          <Button type="button" size="sm" onClick={submit}>
+            Bookmark
+          </Button>
+        </div>
+      </NodeViewWrapper>
+    );
+  }
+  return (
+    <NodeViewWrapper
+      data-slot="text-edit-bookmark"
+      data-drag-handle=""
+      contentEditable={false}
+      data-selected={selected ? "true" : undefined}
+      className="my-2 rounded-lg data-selected:[&_[data-slot=markdown-bookmark]]:outline-2 data-selected:[&_[data-slot=markdown-bookmark]]:outline-info"
+    >
+      <MarkdownBookmark
+        url={url}
+        className="my-0"
+        onClick={(event) => {
+          // While editing a click selects the card; ⌘/Ctrl-click opens the page.
+          if (editable && !(event.metaKey || event.ctrlKey))
+            event.preventDefault();
+        }}
+      />
+    </NodeViewWrapper>
+  );
+}
+
 /* --- live blocks -----------------------------------------------------------------------------*/
 
 /**
@@ -4323,7 +4933,7 @@ function TaskQueryView({
  * default applies), a link, a mention of the app's record (`TextEditMentions.fromUrl`) or a video
  * embed.
  */
-type PastedForm = "text" | "link" | "mention" | "embed";
+type PastedForm = "text" | "link" | "mention" | "embed" | "bookmark";
 
 /** A form the paste popover offers. */
 type PastedChoice = Exclude<PastedForm, "text">;
@@ -4541,14 +5151,18 @@ function pastedRange(
   if (to > doc.content.size) return null;
   // Turned into a code block meanwhile (it holds neither links nor mentions): it stays as typed.
   if (doc.resolve(from).parent.type.spec.code) return null;
-  if (pasted.form === "mention" || pasted.form === "embed") {
+  if (
+    pasted.form === "mention" ||
+    pasted.form === "embed" ||
+    pasted.form === "bookmark"
+  ) {
     const node = doc.nodeAt(from);
     const same =
       pasted.form === "mention"
         ? node?.type.name === "mention" &&
           node.attrs.kind === pasted.mention?.kind &&
           node.attrs.id === pasted.mention?.id
-        : node?.type.name === "embed" && node.attrs.url === pasted.url;
+        : node?.type.name === pasted.form && node.attrs.url === pasted.url;
     return same && from + node!.nodeSize === to ? range : null;
   }
   const want = pasted.form === "link" ? pasted.text : pasted.url;
@@ -5252,7 +5866,7 @@ function buildExtensions(
     // here, as `renderHTML` would — a removed code block, mention or video looks removed.
     nodeViews: {
       taskItem: () =>
-        ReactNodeViewRenderer(TaskItemView, {
+        ReactNodeViewRenderer(taskItemView(editorRuntime), {
           as: "li",
           attrs: ({ node }) => ({
             "data-type": "taskItem",
@@ -5270,6 +5884,13 @@ function buildExtensions(
         ReactNodeViewRenderer(mentionView(editorRuntime), {
           as: "span",
           attrs: changeAttrsOf,
+          // A linked line's title and ↗ are the task's own controls: ProseMirror never sees their
+          // presses (no caret placed, no node selected).
+          stopEvent: ({ event }) =>
+            event.target instanceof Element &&
+            event.target.closest(
+              "[data-slot=task-inline-title],[data-slot=task-inline-open]",
+            ) !== null,
         }),
       callout: () =>
         ReactNodeViewRenderer(CalloutView, { attrs: changeAttrsOf }),
@@ -5280,6 +5901,15 @@ function buildExtensions(
       video: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       audio: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       embed: () => ReactNodeViewRenderer(EmbedView, { attrs: changeAttrsOf }),
+      bookmark: () =>
+        ReactNodeViewRenderer(BookmarkView, {
+          attrs: changeAttrsOf,
+          // The empty card's address field is its own: ProseMirror never sees its keys or clicks.
+          stopEvent: ({ event }) =>
+            event.target instanceof Element &&
+            event.target.closest("[data-slot=text-edit-bookmark-form]") !==
+              null,
+        }),
       taskQuery: () =>
         ReactNodeViewRenderer(TaskQueryView, { attrs: changeAttrsOf }),
     },
@@ -5689,7 +6319,7 @@ const MENU_SURFACE =
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-link-card],[data-slot=text-edit-paste],[data-slot=suggestion-menu],[data-slot=suggestion-menu-sheet],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
  * The one portal the editor's own floating parts render through (drag handle, table grips and
@@ -6059,6 +6689,7 @@ const PASTED_CHOICE_LABEL: Record<PastedChoice, string> = {
   mention: "Mention",
   embed: "Embed",
   link: "Link",
+  bookmark: "Bookmark",
 };
 
 /**
@@ -6101,7 +6732,9 @@ function PasteMenu({
       if (!range) return;
       const start = editor.view.coordsAtPos(range.from);
       const block =
-        pasted.form === "embed" ? editor.view.nodeDOM(range.from) : null;
+        pasted.form === "embed" || pasted.form === "bookmark"
+          ? editor.view.nodeDOM(range.from)
+          : null;
       const bottom =
         block instanceof HTMLElement
           ? block.getBoundingClientRect().bottom
@@ -6607,6 +7240,41 @@ function TurnIntoPanel({
   );
 }
 
+/** The text column's width, followed as it resizes (the bubble's cap). */
+function useColumnWidth(editor: Editor, enabled: boolean): number | undefined {
+  const [width, setWidth] = React.useState<number | undefined>(() =>
+    enabled ? editor.view.dom.clientWidth || undefined : undefined,
+  );
+  React.useEffect(() => {
+    if (!enabled) return;
+    const dom = editor.view.dom;
+    const observer = new ResizeObserver(() =>
+      setWidth(dom.clientWidth || undefined),
+    );
+    observer.observe(dom);
+    return () => observer.disconnect();
+  }, [editor, enabled]);
+  return enabled ? width : undefined;
+}
+
+/** The unlinked checklist lines a selection reaches, with text: the bubble's Make task(s). */
+function selectedTaskLines(state: EditorState): OfferedLine[] {
+  const { from, to, empty } = state.selection;
+  if (empty) return [];
+  const lines: OfferedLine[] = [];
+  state.doc.nodesBetween(from, to, (node, at) => {
+    if (node.isTextblock) return false;
+    if (node.type.name !== "taskItem") return true;
+    const lineEnd = at + 1 + (node.firstChild?.nodeSize ?? 0);
+    if (from < lineEnd && to > at + 1 && !linkedTaskId(node)) {
+      const text = taskItemText(node);
+      if (text) lines.push({ pos: at, text });
+    }
+    return true;
+  });
+  return lines;
+}
+
 function SelectionMenu({
   editor,
   panel,
@@ -6616,6 +7284,9 @@ function SelectionMenu({
   onComment,
   onOpenFile,
   onImageLink,
+  makeTask,
+  bubbleActions,
+  docked = false,
 }: {
   editor: Editor;
   panel: Panel | null;
@@ -6629,10 +7300,21 @@ function SelectionMenu({
   onOpenFile?: (href: string) => boolean;
   /** Start a comment on the selection; absent when the host takes no comments. */
   onComment?: () => void;
+  /** `onMakeTask`, read when chosen: Make task(s) for the checklist lines selected. */
+  makeTask?: () => TextEditProps["onMakeTask"];
+  /** The host's own selection actions (`bubbleActions`). */
+  bubbleActions?: TextEditProps["bubbleActions"];
+  /** Drawn in the bottom dock (`toolbar="dock"` on touch), not floating over the selection. */
+  docked?: boolean;
 }) {
   const state = useEditorState({
     editor,
     selector: ({ editor: ed }) => ({
+      taskLines: makeTask?.() ? selectedTaskLines(ed.state).length : 0,
+      // The host's actions read the selection's text: a new selection redraws them.
+      selection: bubbleActions
+        ? `${ed.state.selection.from}:${ed.state.selection.to}`
+        : "",
       bold: ed.isActive("bold"),
       italic: ed.isActive("italic"),
       strike: ed.isActive("strike"),
@@ -6647,6 +7329,7 @@ function SelectionMenu({
       cell: inTableCell(ed.state),
     }),
   });
+  const columnWidth = useColumnWidth(editor, !docked);
   const close = () => onPanelChange(null);
 
   if (panel === "link")
@@ -6705,15 +7388,64 @@ function SelectionMenu({
       }
     />
   ) : null;
+  // The bubble floats over the selection, wrapping onto a second row rather than spilling past the
+  // text column; docked, it is the bottom bar's row (no surface of its own).
+  const surface = docked
+    ? "flex h-full min-w-max items-center px-1"
+    : cn(MENU_SURFACE, "flex-wrap");
+  const selectionText = () => {
+    const { from, to } = editor.state.selection;
+    return editor.state.doc.textBetween(from, to, "\n", " ");
+  };
+  const hostActions = bubbleActions ? (
+    <span
+      data-slot="text-edit-bubble-actions"
+      className="flex items-center gap-0.5"
+    >
+      {bubbleActions({
+        text: selectionText(),
+        close: () => {
+          const { to } = editor.state.selection;
+          editor.chain().focus().setTextSelection(to).run();
+        },
+      })}
+    </span>
+  ) : null;
+  const tasksButton =
+    state.taskLines > 0 && makeTask ? (
+      <Toolbar.Button
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            data-slot="text-edit-bubble-make-task"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              const make = makeTask();
+              const lines = selectedTaskLines(editor.state);
+              if (make && lines.length > 0)
+                make(...makeTaskCall(editor, lines));
+            }}
+            className="gap-1 px-2 text-xs"
+          >
+            <CircleCheck />
+            {state.taskLines > 1
+              ? `Make ${state.taskLines} tasks`
+              : "Make task"}
+          </Button>
+        }
+      />
+    ) : null;
   // Read-only: the selection can only be commented on.
   if (!editor.isEditable)
     return (
       <Toolbar.Root
         data-slot="text-edit-bubble-menu"
         aria-label="Selection actions"
-        className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+        className={cn(surface, "flex items-center gap-0.5")}
       >
         {commentButton}
+        {hostActions}
       </Toolbar.Root>
     );
 
@@ -6722,7 +7454,8 @@ function SelectionMenu({
     <Toolbar.Root
       data-slot="text-edit-bubble-menu"
       aria-label="Selection formatting"
-      className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+      style={columnWidth ? { maxWidth: columnWidth } : undefined}
+      className={cn(surface, "flex items-center gap-0.5")}
     >
       {state?.cell ? null : (
         <>
@@ -6794,8 +7527,15 @@ function SelectionMenu({
           }
         />
       </MenuTip>
-      {/* Formatting first (what the selection is, then its marks, its link, clearing them), the
-          conversation last. */}
+      {/* Formatting first (what the selection is, then its marks, its link, clearing them), then
+          what the selection can become (tasks, the host's actions), the conversation last. */}
+      {tasksButton || hostActions ? (
+        <>
+          <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+          {tasksButton}
+          {hostActions}
+        </>
+      ) : null}
       {commentButton ? (
         <>
           <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
@@ -8042,148 +8782,160 @@ function FindBar({
   );
 
   return (
+    // Floats over the text like a browser's find bar: a zero-height sticky row under the host's
+    // header, the bar hanging from its end — the document never moves when it opens (UXP-18).
     <div
-      role="search"
-      aria-label="Find in page"
-      data-slot="text-edit-find"
-      data-text-edit-menu=""
+      data-slot="text-edit-find-layer"
       style={{ top }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          event.stopPropagation();
-          onClose();
-        } else if (
-          (event.metaKey || event.ctrlKey) &&
-          event.key.toLowerCase() === "g"
-        ) {
-          event.preventDefault();
-          step(event.shiftKey ? -1 : 1);
-        } else if (
-          (event.metaKey || event.ctrlKey) &&
-          event.key.toLowerCase() === "f"
-        ) {
-          event.preventDefault();
-          findRef.current?.select();
-        }
-      }}
-      className="sticky z-20 mb-3 flex flex-col gap-1.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+      className="pointer-events-none sticky z-20 h-0 print:hidden"
     >
-      <div className="flex flex-wrap items-center gap-1">
-        <label htmlFor={inputId} className="sr-only">
-          Find
-        </label>
-        {/* The field gives way first, so the bar stays one row in a 27rem text column. */}
-        <div className="relative min-w-24 flex-1">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            ref={findRef}
-            id={inputId}
-            value={term}
-            placeholder="Find"
-            autoComplete="off"
-            spellCheck={false}
-            aria-invalid={badPattern || undefined}
-            onChange={(event) => {
-              setTerm(event.target.value);
-              editor.commands.setSearchTerm(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
-              event.preventDefault();
-              step(event.shiftKey ? -1 : 1);
-            }}
-            className="h-8 ps-8 pointer-coarse:h-11"
-          />
-        </div>
-        <span
-          aria-hidden
-          className="min-w-16 text-center text-xs text-muted-foreground tabular-nums"
-        >
-          {count}
-        </span>
-        {iconButton(
-          "Previous match",
-          <ChevronUp />,
-          () => step(-1),
-          snap.results === 0,
-        )}
-        {iconButton(
-          "Next match",
-          <ChevronDown />,
-          () => step(1),
-          snap.results === 0,
-        )}
-        {toggle("Match case", <CaseSensitive />, snap.caseSensitive, (value) =>
-          editor.commands.setCaseSensitive(value),
-        )}
-        {toggle("Whole word", <WholeWord />, snap.wholeWord, (value) =>
-          editor.commands.setWholeWord(value),
-        )}
-        {toggle("Regular expression", <Regex />, snap.useRegex, (value) =>
-          editor.commands.setUseRegex(value),
-        )}
-        {editable
-          ? toggle("Replace", <Replace />, replacing, setReplacing)
-          : null}
-        {iconButton("Close find", <X />, onClose)}
-      </div>
-      {editable && replacing ? (
+      <div
+        role="search"
+        aria-label="Find in page"
+        data-slot="text-edit-find"
+        data-text-edit-menu=""
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            onClose();
+          } else if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === "g"
+          ) {
+            event.preventDefault();
+            step(event.shiftKey ? -1 : 1);
+          } else if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === "f"
+          ) {
+            event.preventDefault();
+            findRef.current?.select();
+          }
+        }}
+        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+      >
         <div className="flex flex-wrap items-center gap-1">
-          <label htmlFor={replaceId} className="sr-only">
-            Replace with
+          <label htmlFor={inputId} className="sr-only">
+            Find
           </label>
-          <Input
-            id={replaceId}
-            value={replacement}
-            placeholder="Replace with"
-            autoComplete="off"
-            spellCheck={false}
-            onChange={(event) => {
-              setReplacement(event.target.value);
-              editor.commands.setReplaceTerm(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
-              event.preventDefault();
-              editor.commands.replace();
-              reveal();
-            }}
-            className="h-8 min-w-40 flex-1 pointer-coarse:h-11"
-          />
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={snap.results === 0}
-            onClick={() => {
-              editor.commands.replace();
-              reveal();
-            }}
+          {/* The field gives way first, so the bar stays one row in a 27rem text column. */}
+          <div className="relative min-w-24 flex-1">
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              ref={findRef}
+              id={inputId}
+              value={term}
+              placeholder="Find"
+              autoComplete="off"
+              spellCheck={false}
+              aria-invalid={badPattern || undefined}
+              onChange={(event) => {
+                setTerm(event.target.value);
+                editor.commands.setSearchTerm(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+                step(event.shiftKey ? -1 : 1);
+              }}
+              className="h-8 ps-8 pointer-coarse:h-11"
+            />
+          </div>
+          <span
+            aria-hidden
+            className="min-w-16 text-center text-xs text-muted-foreground tabular-nums"
           >
-            <Replace />
-            Replace
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={snap.results === 0}
-            onClick={() => {
-              const n = snap.results;
-              editor.commands.replaceAll();
-              announce(n === 1 ? "Replaced 1 match" : `Replaced ${n} matches`);
-            }}
-          >
-            <ReplaceAll />
-            Replace all
-          </Button>
+            {count}
+          </span>
+          {iconButton(
+            "Previous match",
+            <ChevronUp />,
+            () => step(-1),
+            snap.results === 0,
+          )}
+          {iconButton(
+            "Next match",
+            <ChevronDown />,
+            () => step(1),
+            snap.results === 0,
+          )}
+          {toggle(
+            "Match case",
+            <CaseSensitive />,
+            snap.caseSensitive,
+            (value) => editor.commands.setCaseSensitive(value),
+          )}
+          {toggle("Whole word", <WholeWord />, snap.wholeWord, (value) =>
+            editor.commands.setWholeWord(value),
+          )}
+          {toggle("Regular expression", <Regex />, snap.useRegex, (value) =>
+            editor.commands.setUseRegex(value),
+          )}
+          {editable
+            ? toggle("Replace", <Replace />, replacing, setReplacing)
+            : null}
+          {iconButton("Close find", <X />, onClose)}
         </div>
-      ) : null}
-      <Announcer />
+        {editable && replacing ? (
+          <div className="flex flex-wrap items-center gap-1">
+            <label htmlFor={replaceId} className="sr-only">
+              Replace with
+            </label>
+            <Input
+              id={replaceId}
+              value={replacement}
+              placeholder="Replace with"
+              autoComplete="off"
+              spellCheck={false}
+              onChange={(event) => {
+                setReplacement(event.target.value);
+                editor.commands.setReplaceTerm(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+                editor.commands.replace();
+                reveal();
+              }}
+              className="h-8 min-w-40 flex-1 pointer-coarse:h-11"
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={snap.results === 0}
+              onClick={() => {
+                editor.commands.replace();
+                reveal();
+              }}
+            >
+              <Replace />
+              Replace
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={snap.results === 0}
+              onClick={() => {
+                const n = snap.results;
+                editor.commands.replaceAll();
+                announce(
+                  n === 1 ? "Replaced 1 match" : `Replaced ${n} matches`,
+                );
+              }}
+            >
+              <ReplaceAll />
+              Replace all
+            </Button>
+          </div>
+        ) : null}
+        <Announcer />
+      </div>
     </div>
   );
 }
@@ -8384,6 +9136,110 @@ function HeadingLink({
   );
 }
 
+/**
+ * **→ Task** at the end of the unlinked checklist line the pointer rests on (`onMakeTask`): Make
+ * task, one click from the line itself rather than behind the block handle. Fine pointers only —
+ * on touch the line's block menu has Make task.
+ */
+function MakeTaskHint({
+  editor,
+  makeTask,
+}: {
+  editor: Editor;
+  makeTask: () => TextEditProps["onMakeTask"];
+}) {
+  const hover = useHover<number>((a, b) => a === b);
+  const [, redraw] = React.useReducer((n: number) => n + 1, 0);
+  React.useEffect(() => {
+    const dom = editor.view.dom;
+    const linePos = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null;
+      const item = target.closest("li[data-type=taskItem]");
+      if (!item || !dom.contains(item)) return null;
+      let pos: number;
+      try {
+        pos = editor.view.posAtDOM(item, 0) - 1;
+      } catch {
+        return null;
+      }
+      return editor.state.doc.nodeAt(pos)?.type.name === "taskItem"
+        ? pos
+        : null;
+    };
+    const onMove = (event: MouseEvent) => {
+      const pos = linePos(event.target);
+      if (pos !== null) hover.show(pos);
+      else hover.hideSoon();
+    };
+    const onChange = ({ transaction }: { transaction: Transaction }) => {
+      if (!transaction.docChanged) return;
+      hover.show(null);
+      redraw();
+    };
+    const onScroll = () => hover.show(null);
+    dom.addEventListener("mousemove", onMove);
+    dom.addEventListener("mouseleave", hover.hideSoon);
+    editor.on("transaction", onChange);
+    window.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () => {
+      dom.removeEventListener("mousemove", onMove);
+      dom.removeEventListener("mouseleave", hover.hideSoon);
+      editor.off("transaction", onChange);
+      window.removeEventListener("scroll", onScroll, { capture: true });
+    };
+  }, [editor, hover.show, hover.hideSoon]);
+
+  const pos = hover.value;
+  if (pos === null || editor.isDestroyed || !editor.isEditable) return null;
+  const node = editor.state.doc.nodeAt(pos);
+  if (
+    node?.type.name !== "taskItem" ||
+    linkedTaskId(node) !== null ||
+    !taskItemText(node)
+  )
+    return null;
+  const line = node.firstChild;
+  if (!line) return null;
+  // The end of the line's own text (its first paragraph), not of a nested list under it.
+  const end = editor.view.coordsAtPos(pos + 1 + line.nodeSize - 1);
+  return (
+    <FloatingLayer>
+      <Button
+        type="button"
+        variant="ghost"
+        size="xs"
+        data-slot="text-edit-make-task"
+        aria-label={`Make a task of “${taskItemText(node)}”`}
+        onMouseEnter={hover.keep}
+        onMouseLeave={hover.hideSoon}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => {
+          const make = makeTask();
+          const now = editor.state.doc.nodeAt(pos);
+          if (!make || now?.type.name !== "taskItem" || linkedTaskId(now))
+            return;
+          const text = taskItemText(now);
+          if (!text) return;
+          hover.show(null);
+          make(...makeTaskCall(editor, [{ pos, text }]));
+        }}
+        style={{
+          position: "fixed",
+          left: end.right + 8,
+          top: (end.top + end.bottom) / 2 - 12,
+        }}
+        className="z-50 h-6 gap-1 px-1.5 text-muted-foreground"
+      >
+        <ArrowRight aria-hidden />
+        Task
+      </Button>
+    </FloatingLayer>
+  );
+}
+
 /* --- linked task items (J9) ---------------------------------------------------------------------*/
 
 /**
@@ -8438,6 +9294,20 @@ function makeTaskItems(state: EditorState, block: LiveBlock): OfferedLine[] {
   }
   const text = taskItemText(node);
   return text ? [{ pos, text }] : [];
+}
+
+/**
+ * `onMakeTask`'s arguments for `lines`: the lines offered (each given its key), and the first
+ * line's element to point a popover at.
+ */
+function makeTaskCall(
+  editor: Editor,
+  lines: OfferedLine[],
+): [TextEditTaskItem[], { anchor: HTMLElement | null }] {
+  const items = offerTaskItems(editor, lines);
+  // After the offer: giving a line its key only sets an attribute, so it keeps its place.
+  const dom = editor.view.nodeDOM(lines[0]!.pos);
+  return [items, { anchor: dom instanceof HTMLElement ? dom : null }];
 }
 
 /** The position in `line` after `offset` characters of its text (atoms count as none). */
@@ -9060,7 +9930,9 @@ interface BlockMenuRuntime {
   /** `headingLinkHref`: a heading's Copy link. */
   headingLink: (pos: number) => string | null;
   /** `onMakeTask`: Make task on an unlinked checklist line. */
-  makeTask: () => ((items: TextEditTaskItem[]) => void) | undefined;
+  makeTask: () => TextEditProps["onMakeTask"];
+  /** The block menu opened or closed: the selection toolbar steps aside while it is open. */
+  menuOpenChange: (open: boolean) => void;
 }
 
 /** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
@@ -9235,7 +10107,7 @@ function blockActions(
         icon: CircleCheck,
         run: live((now) => {
           const lines = makeTaskItems(editor.state, now);
-          if (lines.length > 0) makeTask(offerTaskItems(editor, lines));
+          if (lines.length > 0) makeTask(...makeTaskCall(editor, lines));
         }),
       },
       null,
@@ -9629,6 +10501,9 @@ function blockNow(editor: Editor, block: BlockTarget): BlockTarget | null {
   return null;
 }
 
+/** How long a touch is held still on a block before its menu opens (`touchBlockMenu="longPress"`). */
+const LONG_PRESS_MS = 500;
+
 /** Whether the primary pointer is coarse (touch): the handle follows the caret, not the hover. */
 function useCoarsePointer() {
   const [coarse, setCoarse] = React.useState(false);
@@ -9663,9 +10538,12 @@ function caretBlock(editor: Editor): BlockTarget | null {
 function BlockHandle({
   editor,
   runtime,
+  longPress = false,
 }: {
   editor: Editor;
   runtime: BlockMenuRuntime;
+  /** On touch: no grip; a long press on a block opens its menu (`touchBlockMenu="longPress"`). */
+  longPress?: boolean;
 }) {
   const { value, show, hideSoon, keep, pinnedRef } = useHover<BlockTarget>(
     (a, b) => a.dom === b.dom && a.pos === b.pos,
@@ -9682,21 +10560,29 @@ function BlockHandle({
     (block: BlockTarget) => {
       pinnedRef.current = true;
       menuOpenRef.current = true;
+      runtime.menuOpenChange(true);
       show(block);
       heldRef.current?.release();
       heldRef.current = holdBlock(editor, block);
       setMenu(heldRef.current);
     },
-    [editor, pinnedRef, show],
+    [editor, pinnedRef, show, runtime],
   );
   const closeMenu = React.useCallback(() => {
     heldRef.current?.release();
     heldRef.current = null;
     setMenu(null);
     menuOpenRef.current = false;
+    runtime.menuOpenChange(false);
     pinnedRef.current = false;
-  }, [pinnedRef]);
-  React.useEffect(() => () => heldRef.current?.release(), []);
+  }, [pinnedRef, runtime]);
+  React.useEffect(
+    () => () => {
+      heldRef.current?.release();
+      if (menuOpenRef.current) runtime.menuOpenChange(false);
+    },
+    [runtime],
+  );
 
   React.useEffect(() => {
     const dom = editor.view.dom;
@@ -9725,9 +10611,10 @@ function BlockHandle({
       }
       if (!coarse) show(null);
     };
-    // Touch: the handle follows the caret's block (there is no hover).
+    // Touch: the handle follows the caret's block (there is no hover) — unless a long press is
+    // the way in, and there is no handle at all.
     const onSelection = () => {
-      if (!coarse || pinnedRef.current) return;
+      if (!coarse || pinnedRef.current || longPress) return;
       show(editor.isFocused ? caretBlock(editor) : null);
     };
     dom.addEventListener("mousemove", onMove);
@@ -9742,7 +10629,61 @@ function BlockHandle({
       editor.off("selectionUpdate", onSelection);
       editor.off("focus", onSelection);
     };
-  }, [editor, show, hideSoon, pinnedRef, coarse, openMenu]);
+  }, [editor, show, hideSoon, pinnedRef, coarse, openMenu, longPress]);
+
+  // `touchBlockMenu="longPress"`: half a second held still on a block opens its menu as a sheet.
+  React.useEffect(() => {
+    if (!coarse || !longPress) return;
+    const dom = editor.view.dom;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let start: { x: number; y: number } | null = null;
+    let fired = false;
+    const cancel = () => {
+      clearTimeout(timer);
+      timer = undefined;
+      start = null;
+    };
+    const onStart = (event: TouchEvent) => {
+      cancel();
+      fired = false;
+      const touch = event.touches[0];
+      if (event.touches.length !== 1 || !touch) return;
+      if (!(event.target instanceof Node)) return;
+      const block = blockAt(editor.view, event.target);
+      if (!block || block.node.type.name === "table") return;
+      start = { x: touch.clientX, y: touch.clientY };
+      timer = setTimeout(() => {
+        timer = undefined;
+        const now = blockNow(editor, block);
+        if (!now) return;
+        fired = true;
+        openMenu(now);
+      }, LONG_PRESS_MS);
+    };
+    const onMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!start || !touch) return;
+      if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 8)
+        cancel();
+    };
+    const onEnd = (event: TouchEvent) => {
+      cancel();
+      // The press opened the menu: its release is not also a tap on the text.
+      if (fired) event.preventDefault();
+      fired = false;
+    };
+    dom.addEventListener("touchstart", onStart, { passive: true });
+    dom.addEventListener("touchmove", onMove, { passive: true });
+    dom.addEventListener("touchend", onEnd);
+    dom.addEventListener("touchcancel", cancel);
+    return () => {
+      cancel();
+      dom.removeEventListener("touchstart", onStart);
+      dom.removeEventListener("touchmove", onMove);
+      dom.removeEventListener("touchend", onEnd);
+      dom.removeEventListener("touchcancel", cancel);
+    };
+  }, [editor, coarse, longPress, openMenu]);
 
   const block = value && value.dom.isConnected ? value : null;
   // The open dropdown's block went from the page (Turn into rebuilt it, a collaborator deleted it):
@@ -9830,7 +10771,7 @@ function BlockHandle({
   return (
     <>
       <FloatingLayer>
-        {block && box ? (
+        {block && box && !(coarse && longPress) ? (
           <DropdownMenu
             open={menu !== null && !coarse}
             onOpenChange={(open) => {
@@ -9867,8 +10808,9 @@ function BlockHandle({
               }}
               className={cn(
                 GRIP,
-                // A 44px hit area on touch, centred on the 24px grip.
-                "pointer-coarse:after:absolute pointer-coarse:after:-inset-2.5 pointer-coarse:after:content-['']",
+                // A 24×28 hit area around the 16×20 grip (WCAG 2.5.8), reaching no further than
+                // the text's edge; on touch a 44px one, centred on the 24px grip.
+                "after:absolute after:-inset-x-1 after:-inset-y-1 after:content-[''] pointer-coarse:after:-inset-2.5",
               )}
             >
               <GripVertical />
@@ -9909,6 +10851,112 @@ function BlockHandle({
         />
       ) : null}
     </>
+  );
+}
+
+/**
+ * Whether a selection gets the formatting toolbar: text selected (not a node, not cells, not in
+ * code), and the editor editable or taking comments.
+ */
+function formattable(
+  ed: Editor,
+  state: EditorState,
+  from: number,
+  to: number,
+  canComment: boolean,
+): boolean {
+  return (
+    (ed.isEditable || canComment) &&
+    from !== to &&
+    // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
+    // format, so no menu.
+    state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
+    !(state.selection instanceof NodeSelection) &&
+    !(state.selection instanceof CellSelection) &&
+    !ed.isActive("codeBlock")
+  );
+}
+
+/**
+ * The bottom of the visual viewport, as a distance from the layout viewport's bottom: the on-screen
+ * keyboard's height on a phone (0 elsewhere), so a docked bar sits above it.
+ */
+function useKeyboardInset(enabled: boolean): number {
+  const [inset, setInset] = React.useState(0);
+  React.useEffect(() => {
+    const viewport = enabled ? window.visualViewport : null;
+    if (!viewport) return;
+    const update = () =>
+      setInset(
+        Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop),
+      );
+    update();
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
+    return () => {
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
+    };
+  }, [enabled]);
+  return inset;
+}
+
+/**
+ * `toolbar="dock"` on a coarse pointer: the selection's formatting in a 44px bar along the bottom
+ * of the window, above the on-screen keyboard, while text is selected (UXP-10).
+ */
+function SelectionDock({
+  editor,
+  canComment,
+  bottom,
+  children,
+}: {
+  editor: Editor;
+  canComment: boolean;
+  /** The host's bottom bar, kept clear (`floatingSafeArea.bottom`). */
+  bottom: number;
+  children: React.ReactNode;
+}) {
+  const selection = useEditorState({
+    editor,
+    selector: ({ editor: ed }) => {
+      const { from, to } = ed.state.selection;
+      return {
+        focused: ed.isFocused,
+        formattable:
+          !isFindMatch(ed.state, from, to) &&
+          formattable(ed, ed.state, from, to, canComment),
+      };
+    },
+  });
+  // Focus in the dock (a Tab into it, a menu it opened) keeps it up: the selection is unchanged.
+  const [inside, setInside] = React.useState(false);
+  const shown = selection.formattable && (selection.focused || inside);
+  const keyboard = useKeyboardInset(shown);
+  if (!shown) return null;
+  return (
+    <FloatingLayer>
+      <div
+        data-slot="text-edit-dock"
+        onFocus={() => setInside(true)}
+        onBlur={(event) => {
+          const next = event.relatedTarget as Element | null;
+          if (
+            next &&
+            (event.currentTarget.contains(next) ||
+              next.closest?.("[data-text-edit-menu]"))
+          )
+            return;
+          setInside(false);
+        }}
+        // Keep the selection: a press on the bar never takes focus from the text.
+        onMouseDown={(event) => event.preventDefault()}
+        style={{ bottom: Math.max(bottom, keyboard) }}
+        className="fixed inset-x-0 z-50 h-11 overflow-x-auto overscroll-x-contain border-t border-border bg-popover text-popover-foreground no-scrollbar pb-[env(safe-area-inset-bottom)]"
+      >
+        {children}
+      </div>
+    </FloatingLayer>
   );
 }
 
@@ -10071,6 +11119,7 @@ export function TextEditEditor({
   mentionStatus: mentionStatusProp,
   onTaskItemToggle,
   onMakeTask,
+  onTaskOpen,
   sectionMarks,
   onSectionMark,
   onImageUpload,
@@ -10118,6 +11167,12 @@ export function TextEditEditor({
   onStatsChange,
   findReplace = false,
   emoji = false,
+  menuSize = "default",
+  menuPresentation = "popover",
+  bookmarks = false,
+  bubbleActions,
+  toolbar = "bubble",
+  touchBlockMenu = "handle",
 }: TextEditEditorProps) {
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
@@ -10209,15 +11264,27 @@ export function TextEditEditor({
       slashCommands.filter(
         (command) =>
           (command !== "file" || onFileUpload) &&
-          (command !== "diagram" || blockViews?.mermaid),
+          (command !== "diagram" || blockViews?.mermaid) &&
+          (command !== "bookmark" || bookmarks),
       ),
-    [slashCommands, onFileUpload, blockViews],
+    [slashCommands, onFileUpload, blockViews, bookmarks],
   );
   const slashRef = React.useRef<readonly TextEditSlashCommand[]>(allowedSlash);
   slashRef.current = allowedSlash;
+  const bookmarksRef = React.useRef(bookmarks);
+  bookmarksRef.current = bookmarks;
   const slashActionsRef =
     React.useRef<readonly TextEditSlashAction[]>(slashActions);
   slashActionsRef.current = slashActions;
+  const menuLg = menuSize === "lg";
+  const coarsePointer = useCoarsePointer();
+  const menuLgRef = React.useRef(menuLg);
+  menuLgRef.current = menuLg;
+  // `menuPresentation="auto"` on a phone: the menus are sheets with their own search field.
+  const menuSheet = useSuggestionMenuSheet(menuPresentation);
+  const menuSheetRef = React.useRef(menuSheet);
+  menuSheetRef.current = menuSheet;
+  const [sheetQuery, setSheetQuery] = React.useState("");
   const toggleStateRef = React.useRef(toggleState);
   toggleStateRef.current = toggleState;
   const headingLinkRef = React.useRef(headingLinkHref);
@@ -10244,11 +11311,14 @@ export function TextEditEditor({
   mentionLabelRef.current = mentionLabel;
   const mentionStatusRef = React.useRef(mentionStatusProp);
   mentionStatusRef.current = mentionStatusProp;
+  const taskOpenRef = React.useRef(onTaskOpen);
+  taskOpenRef.current = onTaskOpen;
+  const taskInline = onTaskOpen !== undefined;
   // Chips read `mentionLabel` and `mentionStatus` at render: a new one re-renders them.
   const [labels] = React.useState(() => new Versioned());
   React.useEffect(
     () => labels.bump(),
-    [labels, mentionLabel, mentionStatusProp],
+    [labels, mentionLabel, mentionStatusProp, taskInline],
   );
   // Linked checklist lines and section marks: read through refs by the extensions and the menu.
   const taskToggleRef = React.useRef(onTaskItemToggle);
@@ -10268,6 +11338,8 @@ export function TextEditEditor({
   fileLinkPrefixRef.current = fileLinkPrefix;
 
   const [panel, setPanel] = React.useState<Panel | null>(null);
+  // The block menu is open: the selection toolbar would cover its items, so it steps aside.
+  const [blockMenuOpen, setBlockMenuOpen] = React.useState(false);
   // One key per instance for each floating menu, so an effect can show or hide exactly this
   // editor's menu.
   const [menuKeys] = React.useState(() => ({
@@ -10284,6 +11356,29 @@ export function TextEditEditor({
   }, []);
 
   const editorRef = React.useRef<Editor | null>(null);
+  // The slash menu's rows: the plugin's for the typed `/query`, or — in a sheet, whose search
+  // field takes the typing — filtered by that field.
+  const slashFiltered = menuSheet ? sheetQuery.trim() !== "" : !!slash?.query;
+  const slashRows = React.useMemo(
+    () =>
+      !slash
+        ? []
+        : menuSheet
+          ? filterSlash(
+              allowedSlash,
+              sheetQuery,
+              editorRef.current ? inTableCell(editorRef.current.state) : false,
+              slashActions,
+              menuLg,
+            )
+          : slash.items,
+    [slash, menuSheet, sheetQuery, allowedSlash, slashActions, menuLg],
+  );
+  // A sheet's search starts empty each time a menu opens.
+  const menuOpen = slash !== null || mentionMenu !== null;
+  React.useEffect(() => {
+    if (!menuOpen) setSheetQuery("");
+  }, [menuOpen]);
   const chipResolver = useInlineChipResolver();
   const chipResolverRef = React.useRef(chipResolver);
   chipResolverRef.current = chipResolver;
@@ -10322,16 +11417,31 @@ export function TextEditEditor({
       const text = form === "link" ? (opts.title ?? pasted.url) : pasted.url;
       let from = range.from;
       let size: number;
-      if (form === "embed") {
-        const match = matchEmbed(pasted.url);
-        const host = embedHost(state.doc, range.from);
-        if (!match || !host || !schema.nodes.embed) return;
-        const embed = schema.nodes.embed.create({
-          provider: match.provider,
-          url: pasted.url,
-        });
+      if (form === "embed" || form === "bookmark") {
+        const match = form === "embed" ? matchEmbed(pasted.url) : null;
+        // From one block to the other: the block stands where the other did.
+        const swap = pasted.form === "embed" || pasted.form === "bookmark";
+        const host = swap
+          ? (() => {
+              const $at = state.doc.resolve(range.from);
+              return {
+                paragraph: schema.nodes.paragraph!.create(),
+                from: range.from,
+                to: range.to,
+                container: $at.parent,
+              };
+            })()
+          : embedHost(state.doc, range.from);
+        const type = schema.nodes[form];
+        if ((form === "embed" && !match) || !host || !type) return;
+        const embed = type.create(
+          form === "embed"
+            ? { provider: match!.provider, url: pasted.url }
+            : { url: pasted.url },
+        );
         // Alone in its paragraph, the link becomes the embed; beside text, the embed follows it.
-        if (host.paragraph.content.size === range.to - range.from) {
+        if (swap) tr.replaceWith(range.from, range.to, embed);
+        else if (host.paragraph.content.size === range.to - range.from) {
           tr.replaceWith(host.from, host.to, embed);
           from = host.from;
         } else {
@@ -10358,7 +11468,7 @@ export function TextEditEditor({
                 text,
                 schema.marks.link!.create({ href: pasted.url }).addToSet(marks),
               );
-        if (pasted.form === "embed") {
+        if (pasted.form === "embed" || pasted.form === "bookmark") {
           tr.replaceWith(
             range.from,
             range.to,
@@ -10431,11 +11541,23 @@ export function TextEditEditor({
         match && embedsOn(ed, match.provider) && state.schema.nodes.embed
           ? embedHost(state.doc, from)
           : null;
+      // A bookmark where a block can stand in for the paste (`bookmarks`).
+      // (Only an address the URL parser writes as it is: a bookmark keeps it exactly.)
+      const bookmarkHost =
+        !answer &&
+        bookmarksRef.current &&
+        state.schema.nodes.bookmark &&
+        URL.canParse(url) &&
+        new URL(url).href === url
+          ? embedHost(state.doc, from)
+          : null;
       const offers: PastedChoice[] = answer
         ? ["mention", "link"]
-        : host
-          ? ["embed", "link"]
-          : ["link"];
+        : [
+            ...(host ? (["embed"] as const) : []),
+            "link" as const,
+            ...(bookmarkHost ? (["bookmark"] as const) : []),
+          ];
       const id = ++pasteIdRef.current;
       const end = from + url.length;
       const tr = state.tr
@@ -10568,7 +11690,7 @@ export function TextEditEditor({
     searchRef.current = {};
   }, []);
   const runSearch = React.useCallback(
-    (query: string) => {
+    (query: string, typedInSheet = false) => {
       stopSearch();
       const source = callbacks.current.mentions;
       const current = mentionStateRef.current;
@@ -10588,10 +11710,17 @@ export function TextEditEditor({
       const show = (options: MentionOption[], loading: boolean) => {
         const state = mentionStateRef.current;
         if (!state) return false;
-        if (!loading && options.length === 0 && /\s$/.test(query)) return true;
+        // (A sheet's search field is a search, never a sentence: it stays open.)
+        if (
+          !typedInSheet &&
+          !loading &&
+          options.length === 0 &&
+          /\s$/.test(query)
+        )
+          return true;
         setMention({
           ...state,
-          results: groupResults(options, source.kinds, query),
+          results: groupResults(options, source.kinds, query, source.sections),
           loading,
           error: false,
           index: 0,
@@ -10616,6 +11745,7 @@ export function TextEditEditor({
                 ),
                 source.kinds,
                 query,
+                source.sections,
               )
             : null,
           loading: true,
@@ -10687,6 +11817,7 @@ export function TextEditEditor({
       {
         allowed: slashRef,
         actions: slashActionsRef,
+        lg: menuLgRef,
         get: () => slashStateRef.current,
         set: (next) => {
           slashStateRef.current = next;
@@ -10699,6 +11830,7 @@ export function TextEditEditor({
         mentionImage: mentionImageRef,
         mentionLabel: mentionLabelRef,
         mentionStatus: mentionStatusRef,
+        taskOpen: taskOpenRef,
         labels,
         collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
@@ -10714,6 +11846,7 @@ export function TextEditEditor({
             setMention(next);
           },
           query: runSearch,
+          sheet: () => menuSheetRef.current,
         },
       },
       {
@@ -10848,6 +11981,7 @@ export function TextEditEditor({
         return anchor ? href(anchor) : null;
       },
       makeTask: () => makeTaskRef.current,
+      menuOpenChange: setBlockMenuOpen,
     }),
     [],
   );
@@ -11042,6 +12176,11 @@ export function TextEditEditor({
         return false;
       const id = `upload-${Math.random().toString(36).slice(2)}`;
       const controller = new AbortController();
+      // The host's progress, drawn in the placeholder (a ring on a file, a bar on an image).
+      const onProgress = (fraction: number) => {
+        if (!controller.signal.aborted && Number.isFinite(fraction))
+          reportUploadProgress(id, fraction);
+      };
       const preview = image ? URL.createObjectURL(file) : null;
       // The image to replace, followed through every change while the upload runs (anyone's).
       const target = replace ? holdPosition(ed, replace.pos, true) : null;
@@ -11160,7 +12299,7 @@ export function TextEditEditor({
       const done = (
         image
           ? Promise.all([
-              uploadImage!(file, { signal: controller.signal }),
+              uploadImage!(file, { signal: controller.signal, onProgress }),
               natural,
             ]).then(([result, size]) =>
               land({
@@ -11172,20 +12311,22 @@ export function TextEditEditor({
                 },
               }),
             )
-          : uploadFile!(file, { signal: controller.signal }).then((result) =>
-              land(
-                kind === "video" || kind === "audio"
-                  ? { type: kind, attrs: { src: result.href } }
-                  : {
-                      type: "text",
-                      text: result.name,
-                      marks: [{ type: "link", attrs: { href: result.href } }],
-                    },
-              ),
+          : uploadFile!(file, { signal: controller.signal, onProgress }).then(
+              (result) =>
+                land(
+                  kind === "video" || kind === "audio"
+                    ? { type: kind, attrs: { src: result.href } }
+                    : {
+                        type: "text",
+                        text: result.name,
+                        marks: [{ type: "link", attrs: { href: result.href } }],
+                      },
+                ),
             )
       )
         .catch(fail)
         .finally(() => {
+          forgetUploadProgress(id);
           if (preview && !failed) URL.revokeObjectURL(preview);
           if (!failed) target?.release();
           uploadsRef.current.delete(id);
@@ -11493,6 +12634,34 @@ export function TextEditEditor({
       if (SLASH_KEY.getState(view.state)?.active) return false;
       if (MENTION_KEY.getState(view.state)?.active) return false;
       const mod = event.metaKey || event.ctrlKey;
+      // In a code block (a diagram's source too), ⌘Enter leaves it — a diagram for its preview —
+      // and ↓ on its last line does the same: the caret goes on below, never trapped (UXP-07). A
+      // composer that sends on ⌘Enter keeps sending.
+      const code =
+        editorRef.current?.isEditable && view.state.selection.empty
+          ? caretCodeBlock(view.state)
+          : null;
+      if (code) {
+        const lastLine =
+          event.key === "ArrowDown" &&
+          !mod &&
+          !event.shiftKey &&
+          !event.altKey &&
+          !code.node.textContent
+            .slice(view.state.selection.$from.parentOffset)
+            .includes("\n") &&
+          // The last visual row too: a wrapped last line still moves down within itself.
+          view.endOfTextblock("down");
+        const exit =
+          (event.key === "Enter" && mod && !callbacks.current.onSubmit) ||
+          lastLine;
+        if (exit) {
+          event.preventDefault();
+          if (!blockViewKey(view, editorRef.current))
+            exitBlock(editorRef.current!, code.pos + code.node.nodeSize);
+          return true;
+        }
+      }
       // In a block view's source, ⌘Enter and Escape go back to its preview.
       if (
         ((event.key === "Enter" && mod) || event.key === "Escape") &&
@@ -12395,7 +13564,12 @@ export function TextEditEditor({
     return {
       ...FLOATING,
       flip: { padding },
-      shift: { padding },
+      // Clamped to the text column (UXP-10): never over an outline rail or a comment margin beside
+      // it, as long as the column is as wide as the bubble.
+      shift: {
+        padding,
+        ...(editor ? { boundary: editor.view.dom } : {}),
+      },
       // A link or media panel opens under its line, at the caret's start, like the slash menu that
       // opened it — never over the text above (the title, the previous block). The formatting
       // toolbar sits above the selection.
@@ -12416,26 +13590,22 @@ export function TextEditEditor({
         },
       },
     };
-  }, [safeTop, safeBottom, panel, caretInLink]);
+  }, [safeTop, safeBottom, panel, caretInLink, editor]);
+  // `toolbar="dock"` on touch: the selection's formatting is the bottom dock, not the bubble.
+  const docked = toolbar === "dock" && coarsePointer;
   const showBubble = React.useCallback(
     ({ editor: ed, from, to, state }: MenuShowProps) =>
       // A panel asked for opens; Find stepping onto a match brings no toolbar over the find bar.
       panel !== null ||
-      (!isFindMatch(state, from, to) &&
+      (!blockMenuOpen &&
+        !isFindMatch(state, from, to) &&
         // The caret in a link (editable): the link card.
         ((ed.isEditable &&
           from === to &&
           ed.isActive("link") &&
           !ed.isActive("codeBlock")) ||
-          ((ed.isEditable || canComment) &&
-            from !== to &&
-            // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
-            // format, so no menu.
-            state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
-            !(state.selection instanceof NodeSelection) &&
-            !(state.selection instanceof CellSelection) &&
-            !ed.isActive("codeBlock")))),
-    [panel, canComment],
+          (!docked && formattable(ed, state, from, to, canComment)))),
+    [panel, canComment, docked, blockMenuOpen],
   );
   // The bubble menu's anchor: the selection's live rect, with the editor as its context element so
   // the `hide` middleware measures it against the editor's clipping ancestors. A cell selection
@@ -12545,43 +13715,85 @@ export function TextEditEditor({
             onImageLink={editable ? panelImageLink : undefined}
             onOpenFile={openFileLink}
             onComment={canComment ? comment : undefined}
+            makeTask={onMakeTask ? () => makeTaskRef.current : undefined}
+            bubbleActions={bubbleActions}
           />
         </BubbleMenu>
+      ) : null}
+      {docked && (editable || canComment) && editor && panel === null ? (
+        <SelectionDock
+          editor={editor}
+          canComment={canComment}
+          bottom={safeBottom}
+        >
+          <SelectionMenu
+            editor={editor}
+            panel={null}
+            onPanelChange={setPanel}
+            onLeave={leave}
+            onOpenFile={openFileLink}
+            onComment={canComment ? comment : undefined}
+            makeTask={onMakeTask ? () => makeTaskRef.current : undefined}
+            bubbleActions={bubbleActions}
+            docked
+          />
+        </SelectionDock>
       ) : null}
       {slash && editable ? (
         <SuggestionMenu
           id={slashListId}
           aria-label="Insert block"
           data-menu="text-edit-slash"
-          className="w-60"
+          className={menuLg ? undefined : "w-60"}
+          size={menuSize}
+          presentation={menuPresentation}
+          query={sheetQuery}
+          onQueryChange={(query) => {
+            setSheetQuery(query);
+            const next = { ...slash, index: 0 };
+            slashStateRef.current = next;
+            setSlashState(next);
+          }}
+          onClose={() => {
+            const ed = editorRef.current;
+            if (ed && !ed.isDestroyed) exitSuggestion(ed.view, SLASH_KEY);
+          }}
+          searchPlaceholder="Search blocks"
           anchor={slash.rect}
           floatingSafeArea={floatingSafeArea}
-          options={slash.items.map((spec) => {
+          options={slashRows.map((spec) => {
             const Icon = spec.icon;
             return {
               key: spec.id,
               label: spec.label,
               // Headings only on the full menu: a filtered list is short enough to scan.
-              group: slash.query
-                ? undefined
-                : spec.id.startsWith("host:")
-                  ? HOST_SLASH_GROUP
-                  : SLASH_GROUP[spec.id as TextEditSlashCommand],
-              icon: spec.glyph ?? <Icon />,
+              group: slashFiltered ? undefined : slashGroup(spec, menuLg),
+              icon: menuLg ? (
+                <span
+                  aria-hidden
+                  data-slot="text-edit-slash-icon"
+                  className="flex size-7 items-center justify-center rounded-md border border-border bg-background"
+                >
+                  {spec.glyph ?? <Icon />}
+                </span>
+              ) : (
+                (spec.glyph ?? <Icon />)
+              ),
               shortcut: spec.hint,
-              description: spec.description,
+              description:
+                spec.description ?? (menuLg ? spec.blurb : undefined),
               disabled: spec.disabled,
             };
           })}
-          activeIndex={slash.index}
+          activeIndex={Math.min(slash.index, Math.max(slashRows.length - 1, 0))}
           onActiveIndexChange={(index) => {
             const next = { ...slash, index };
             slashStateRef.current = next;
             setSlashState(next);
           }}
           onSelect={(index) => {
-            const spec = slash.items[index]!;
-            if (!spec.disabled) slash.command(spec);
+            const spec = slashRows[index];
+            if (spec && !spec.disabled) slash.command(spec);
           }}
         />
       ) : null}
@@ -12602,10 +13814,27 @@ export function TextEditEditor({
           id={mentionListId}
           aria-label="Mention"
           data-menu="text-edit-mention"
-          className="w-72"
+          className={menuLg ? undefined : "w-72"}
+          size={menuSize}
+          presentation={menuPresentation}
+          query={sheetQuery}
+          onQueryChange={(query) => {
+            setSheetQuery(query);
+            setMention({ ...mentionMenu, query, index: 0 });
+            runSearch(query, true);
+          }}
+          onClose={() => {
+            const ed = editorRef.current;
+            if (ed && !ed.isDestroyed) exitSuggestion(ed.view, MENTION_KEY);
+          }}
+          searchPlaceholder="Search people and pages"
           anchor={mentionMenu.rect}
           floatingSafeArea={floatingSafeArea}
-          options={mentionOptions(mentionMenu, mentions?.kinds ?? [])}
+          options={mentionOptions(
+            mentionMenu,
+            mentions?.kinds ?? [],
+            mentions?.sections,
+          )}
           status={mentionStatus(mentionMenu)}
           emptyMessage="No matches"
           loading={mentionMenu.loading}
@@ -12642,6 +13871,9 @@ export function TextEditEditor({
           onSelect={(index) => emojiMenu.command(emojiMenu.items[index]!)}
         />
       ) : null}
+      {onMakeTask && editable && editor && !diffing && !coarsePointer ? (
+        <MakeTaskHint editor={editor} makeTask={() => makeTaskRef.current} />
+      ) : null}
       {headingLinkHref && editor && !diffing ? (
         <HeadingLink
           editor={editor}
@@ -12650,7 +13882,11 @@ export function TextEditEditor({
       ) : null}
       {dragHandles && editable && editor ? (
         <>
-          <BlockHandle editor={editor} runtime={blockMenuRuntime} />
+          <BlockHandle
+            editor={editor}
+            runtime={blockMenuRuntime}
+            longPress={touchBlockMenu === "longPress"}
+          />
           <TableControls editor={editor} markdown={markdown} />
         </>
       ) : null}

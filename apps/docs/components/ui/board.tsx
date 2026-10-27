@@ -1,4 +1,4 @@
-// @vegastack board@0.25.88 sha256-zEzEUkEpjBAL0xW0yiAM4nML1Dh3VBFh2z973repELY=
+// @vegastack board@0.25.88 sha256-ASX6JwKmwRtfDaaR87DP9TypHvRqHvDEQ2I4Hk7iEuw=
 
 "use client";
 
@@ -203,6 +203,12 @@ export interface BoardColumn<T> {
    * @default false
    */
   hideable?: boolean;
+  /**
+   * The lane for cards with no value in the grouping field ("No status"). The board's
+   * `noValueLane` places it.
+   * @default false
+   */
+  noValue?: boolean;
 }
 
 /** A lane the host has hidden — listed under "Hidden columns" after the last lane. */
@@ -424,6 +430,35 @@ export interface BoardProps<T> {
    */
   canMoveItem?: (item: T) => boolean;
   /**
+   * How a lane with no cards shows. `compact`: its header over a 48px drop target with "+" (when
+   * the board has `onAdd`), never a tall "Nothing here" box. `collapse`: it leaves the board for
+   * the Hidden columns list — choosing it there brings it back, a card dragged onto it there
+   * lands in it, and a lane a move empties stays on the board (compact) rather than jumping
+   * away under the pointer. Either way the compact target replaces the lane's `empty` and
+   * `emptyState`. Unset, an empty lane shows its `empty` state as before. A lane with a count, a
+   * loading lane or one that pages more is never empty.
+   * @default undefined
+   */
+  emptyLane?: "compact" | "collapse";
+  /**
+   * `last` puts the lane marked `noValue` after every other lane, and lets it collapse even on a
+   * board that is not `collapsible`. Unset, lanes keep the order given.
+   * @default undefined
+   */
+  noValueLane?: "last";
+  /**
+   * The board is loading its first data: lane shells with skeleton titles stand in for the
+   * lanes, with no cards and no counts — one skeleton for the whole load, never a skeleton card
+   * under a lane that says "0". `columns` is ignored meanwhile.
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * How many lane shells `loading` shows — the number of lanes the board will have.
+   * @default 4
+   */
+  loadingLanes?: number;
+  /**
    * Accessible name for the board.
    * @default "Board"
    */
@@ -554,7 +589,7 @@ const cardClasses =
  * />
  */
 export function Board<T>({
-  columns,
+  columns: givenColumns,
   getItemId,
   renderCard,
   onMove,
@@ -589,12 +624,58 @@ export function Board<T>({
   dragDisabled = false,
   readOnly: boardReadOnly = false,
   canMoveItem,
+  emptyLane,
+  noValueLane,
+  loading: boardLoading = false,
+  loadingLanes = 4,
   "aria-label": ariaLabel = "Board",
   className,
   ref,
 }: BoardProps<T>) {
   // A card's activation: the in-place open when the host asked for one, else the plain activation.
   const onCardActivate = onCardOpen ?? onCardActivateProp;
+  // `noValueLane="last"`: the "No value" lane after every other one.
+  const columns = React.useMemo(
+    () =>
+      noValueLane === "last" && givenColumns.some((column) => column.noValue)
+        ? [
+            ...givenColumns.filter((column) => !column.noValue),
+            ...givenColumns.filter((column) => column.noValue),
+          ]
+        : givenColumns,
+    [givenColumns, noValueLane],
+  );
+  // `emptyLane="collapse"`: lanes the user brought back from the hidden list, and lanes a move
+  // emptied, stay on the board while it lives.
+  const [keptEmpty, setKeptEmpty] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const keepLane = (id: string) =>
+    setKeptEmpty((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  /**
+   * Bring a waiting lane back from the hidden list: it renders, scrolls into view, and focus
+   * moves to its header's first control (the list button that had it goes away).
+   */
+  const revealLane = (id: string) => {
+    flushSync(() => keepLane(id));
+    const lane = rootRef.current?.querySelector<HTMLElement>(
+      `:is([data-slot="board-column"], [data-slot="board-column-collapsed"])[data-board-lane="${CSS.escape(id)}"]`,
+    );
+    if (!lane) return;
+    lane.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
+    // A collapsed lane is itself the expand button; an open lane focuses its header's first
+    // control, or the lane itself when it has none.
+    const control =
+      lane.dataset.slot === "board-column-collapsed"
+        ? lane
+        : lane.querySelector<HTMLElement>("header button");
+    if (!control) lane.setAttribute("tabindex", "-1");
+    (control ?? lane).focus({ preventScroll: true });
+  };
   const isMobile = useIsMobile();
   const reducedMotion = usePrefersReducedMotion();
   const { announce, Announcer } = useAnnouncer();
@@ -710,6 +791,11 @@ export function Board<T>({
     )
       return;
     const next = moveInLists(listsRef.current, move.id, move.to);
+    if (
+      emptyLane === "collapse" &&
+      (next[move.from.container]?.length ?? 0) === 0
+    )
+      keepLane(move.from.container);
     setOptimistic({ lists: next, base: baseSignature });
     const count = next[move.to.container]?.length ?? 0;
     const label = cardLabel(move.id);
@@ -1011,7 +1097,24 @@ export function Board<T>({
   };
   const uid = React.useId();
   const contentId = (id: string) => `${uid}-card-${encodeURIComponent(id)}`;
-  const visibleColumns = columns.filter((column) => !isCollapsed(column));
+  /**
+   * A lane with nothing in it: no cards loaded, held or arriving (the keyboard ghost, an
+   * optimistic move), no count, not loading and no further page.
+   */
+  const isEmptyLane = (column: BoardColumn<T>) =>
+    !column.loading &&
+    !column.loadMore?.hasMore &&
+    (column.count ?? 0) === 0 &&
+    (lists[column.id]?.length ?? 0) === 0 &&
+    (display[column.id]?.length ?? 0) === 0;
+  /** `emptyLane="collapse"`: an empty lane waits in the Hidden columns list instead. */
+  const isAutoHidden = (column: BoardColumn<T>) =>
+    emptyLane === "collapse" &&
+    !keptEmpty.has(column.id) &&
+    isEmptyLane(column);
+  const laneColumns = columns.filter((column) => !isAutoHidden(column));
+  const autoHiddenColumns = columns.filter(isAutoHidden);
+  const visibleColumns = laneColumns.filter((column) => !isCollapsed(column));
   const firstCardId = visibleColumns.flatMap(
     (column) => display[column.id] ?? [],
   )[0];
@@ -1275,7 +1378,7 @@ export function Board<T>({
     const observer = new ResizeObserver(onScrollerScroll);
     observer.observe(scroller);
     return () => observer.disconnect();
-  }, [onScrollerScroll, columns.length]);
+  }, [onScrollerScroll, laneColumns.length]);
   const showLane = (index: number) => {
     const scroller = scrollerRef.current;
     const lane =
@@ -1474,7 +1577,11 @@ export function Board<T>({
     const readOnly = isReadOnly(column);
     const receivable = canReceive(column);
     const count = column.count ?? column.items.length;
+    // A lane still fetching its first cards has no count to show yet (never "0" over skeletons).
+    const countPending = column.loading === true && column.items.length === 0;
     const dropOver = drag?.over?.container === column.id;
+    const canCollapse =
+      collapsible || (noValueLane === "last" && column.noValue === true);
     if (isCollapsed(column)) {
       return (
         <Tooltip key={column.id}>
@@ -1495,13 +1602,15 @@ export function Board<T>({
                   aria-hidden="true"
                   data-slot="board-column-expand-icon"
                 />
-                <span
-                  aria-hidden="true"
-                  data-slot="board-column-count"
-                  className="text-xs text-muted-foreground tabular-nums"
-                >
-                  {count}
-                </span>
+                {countPending ? null : (
+                  <span
+                    aria-hidden="true"
+                    data-slot="board-column-count"
+                    className="text-xs text-muted-foreground tabular-nums"
+                  >
+                    {count}
+                  </span>
+                )}
                 <span
                   aria-hidden="true"
                   data-slot="board-column-collapsed-title"
@@ -1541,6 +1650,13 @@ export function Board<T>({
     const showAdd =
       onAdd !== undefined && column.addable !== false && !readOnly;
     const empty = laneIds.length === 0 && gapIndex === -1;
+    // `emptyLane`: an empty lane is its header over a 48px drop target ("+" adds), not a tall
+    // empty state — also a "collapse" lane the user brought back or a move emptied.
+    const compact =
+      emptyLane !== undefined &&
+      empty &&
+      !column.loading &&
+      !column.loadMore?.hasMore;
     // The add button rides the scroll content: a full-width row after the last card (and
     // LoadMore), or a content-width action under the default empty state when the lane is empty.
     const addInHeader = addPlacement === "header";
@@ -1549,7 +1665,7 @@ export function Board<T>({
       empty &&
       !column.loading &&
       !(dragging && receivable) &&
-      column.emptyState === undefined;
+      (compact || column.emptyState === undefined);
     const headerAdd =
       showAdd && addInHeader ? (
         <Tooltip>
@@ -1608,11 +1724,14 @@ export function Board<T>({
         data-board-lane={column.id}
         data-read-only={readOnly ? "" : undefined}
         data-drop-over={dropOver ? "" : undefined}
+        data-no-value={column.noValue ? "" : undefined}
+        data-compact={compact ? "" : undefined}
         className={cn(
           // A subtle top-down fade marks the lane; drop-over swaps it for a solid accent wash.
           "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent transition-colors data-drop-over:bg-accent/60 data-drop-over:bg-none",
           "max-md:basis-full max-md:snap-start max-md:snap-always",
-          fill ? "h-full" : "self-start",
+          // A compact empty lane is as tall as its header and drop target, even on a fill board.
+          fill && !compact ? "h-full" : "self-start",
         )}
       >
         <header
@@ -1633,15 +1752,17 @@ export function Board<T>({
           >
             {column.title}
           </span>
-          <span
-            data-slot="board-column-count"
-            className="text-xs text-muted-foreground tabular-nums"
-          >
-            {count}
-          </span>
+          {countPending ? null : (
+            <span
+              data-slot="board-column-count"
+              className="text-xs text-muted-foreground tabular-nums"
+            >
+              {count}
+            </span>
+          )}
           <div className="ms-auto flex shrink-0 items-center gap-0.5">
             {renderColumnAction ? renderColumnAction(column) : null}
-            {collapsible ? (
+            {canCollapse ? (
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -1694,7 +1815,36 @@ export function Board<T>({
           )}
         >
           {empty ? (
-            column.loading ? null : dragging && receivable ? (
+            column.loading ? null : compact ? (
+              <div
+                data-slot="board-column-empty"
+                data-compact=""
+                data-dragging={dragging && receivable ? "" : undefined}
+                className="flex h-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground data-dragging:border-primary/40 data-dragging:text-foreground"
+              >
+                {dragging && receivable ? (
+                  "Drop here"
+                ) : showAdd && !addInHeader ? (
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={addText}
+                          data-slot="board-column-add"
+                          onClick={() => onAdd(column.id)}
+                          className="text-muted-foreground"
+                        >
+                          <Plus />
+                        </Button>
+                      }
+                    />
+                    <TooltipContent>{addText}</TooltipContent>
+                  </Tooltip>
+                ) : null}
+              </div>
+            ) : dragging && receivable ? (
               <div
                 data-slot="board-column-empty"
                 data-dragging=""
@@ -1791,6 +1941,7 @@ export function Board<T>({
       data-dragging={dragging ? "" : undefined}
       role="group"
       aria-label={ariaLabel}
+      aria-busy={boardLoading ? true : undefined}
       // Only --* custom properties — the classes consume them.
       style={
         {
@@ -1807,12 +1958,12 @@ export function Board<T>({
         className,
       )}
     >
-      {isMobile && columns.length > 1 ? (
+      {isMobile && !boardLoading && laneColumns.length > 1 ? (
         <div
           data-slot="board-lane-tabs"
           className="flex shrink-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {columns.map((column, index) => (
+          {laneColumns.map((column, index) => (
             <Button
               key={column.id}
               variant="ghost"
@@ -1845,8 +1996,30 @@ export function Board<T>({
             fill ? "h-full items-stretch" : "items-start",
           )}
         >
-          {columns.map(renderLane)}
-          {hiddenColumns && hiddenColumns.length > 0 ? (
+          {boardLoading
+            ? Array.from({ length: Math.max(1, loadingLanes) }, (_, index) => (
+                <div
+                  key={index}
+                  aria-hidden="true"
+                  data-slot="board-column-skeleton-lane"
+                  className={cn(
+                    "flex min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent px-3 pt-3 pb-2",
+                    "max-md:basis-full max-md:snap-start",
+                    fill ? "h-full" : "h-48 self-start",
+                  )}
+                >
+                  <div className="flex h-5 items-center gap-2">
+                    <Skeleton className="size-4 shrink-0 rounded-full" />
+                    <Skeleton
+                      className={cn("h-3.5", index % 2 ? "w-16" : "w-24")}
+                    />
+                  </div>
+                </div>
+              ))
+            : laneColumns.map(renderLane)}
+          {!boardLoading &&
+          ((hiddenColumns && hiddenColumns.length > 0) ||
+            autoHiddenColumns.length > 0) ? (
             <section
               aria-labelledby={hiddenHeadingId}
               data-slot="board-hidden-columns"
@@ -1861,7 +2034,7 @@ export function Board<T>({
               >
                 {hiddenColumnsLabel}
               </h2>
-              {hiddenColumns.map((hidden) => (
+              {(hiddenColumns ?? []).map((hidden) => (
                 <Button
                   key={hidden.id}
                   variant="ghost"
@@ -1880,6 +2053,30 @@ export function Board<T>({
                   ) : null}
                 </Button>
               ))}
+              {autoHiddenColumns.map((column) => (
+                // An empty lane waiting here (`emptyLane="collapse"`): choosing it brings it
+                // back, and it takes a card dropped on it.
+                <Button
+                  key={column.id}
+                  variant="ghost"
+                  size="sm"
+                  data-slot="board-hidden-column"
+                  data-auto-hidden=""
+                  data-board-lane={column.id}
+                  data-board-strip=""
+                  data-drop-over={
+                    drag?.over?.container === column.id ? "" : undefined
+                  }
+                  className="justify-start font-normal data-drop-over:bg-accent"
+                  onClick={() => revealLane(column.id)}
+                >
+                  {column.icon}
+                  <span className="min-w-0 truncate">{laneLabel(column)}</span>
+                  <span className="ms-auto text-muted-foreground tabular-nums">
+                    0
+                  </span>
+                </Button>
+              ))}
             </section>
           ) : null}
           {trailing != null ? (
@@ -1894,17 +2091,19 @@ export function Board<T>({
             </div>
           ) : null}
         </div>
+        {/* The overflow cue: a fade over the clipped lanes and, at the very edge, a soft scroll
+            shadow, so a board wider than its box reads as one that scrolls. */}
         <div
           aria-hidden="true"
           data-slot="board-fade-start"
           data-visible={fades.start ? "" : undefined}
-          className="pointer-events-none absolute inset-y-0 start-0 w-8 bg-linear-to-r from-background to-transparent opacity-0 transition-opacity data-visible:opacity-100 rtl:bg-linear-to-l"
+          className="pointer-events-none absolute inset-y-0 start-0 w-8 bg-linear-to-r from-background to-transparent opacity-0 transition-opacity after:absolute after:inset-y-0 after:start-0 after:w-2 after:bg-linear-to-r after:from-foreground/5 after:to-transparent after:content-[''] data-visible:opacity-100 rtl:bg-linear-to-l rtl:after:bg-linear-to-l"
         />
         <div
           aria-hidden="true"
           data-slot="board-fade-end"
           data-visible={fades.end ? "" : undefined}
-          className="pointer-events-none absolute inset-y-0 end-0 w-8 bg-linear-to-l from-background to-transparent opacity-0 transition-opacity data-visible:opacity-100 rtl:bg-linear-to-r"
+          className="pointer-events-none absolute inset-y-0 end-0 w-8 bg-linear-to-l from-background to-transparent opacity-0 transition-opacity after:absolute after:inset-y-0 after:end-0 after:w-2 after:bg-linear-to-l after:from-foreground/5 after:to-transparent after:content-[''] data-visible:opacity-100 rtl:bg-linear-to-r rtl:after:bg-linear-to-r"
         />
       </div>
       <Announcer />

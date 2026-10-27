@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-0JwqrdPQSdf35nOqJVAREmUAQAMli+A3L3pLUUw5W5g=
+// @vegastack text-edit@0.25.88 sha256-DTeClijxeXj7dGETG1aFH0qJU3dS1PBqmsTuEBU9vc4=
 
 "use client";
 
@@ -25,6 +25,7 @@ import type { EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
+import type { TaskInlinePerson } from "@/components/ui/task-inline";
 import type { Doc as YDoc } from "yjs";
 import type { Awareness } from "y-protocols/awareness";
 
@@ -55,12 +56,14 @@ export type TextEditSlashCommand =
   | "video"
   | "audio"
   | "file"
+  | "bookmark"
   | "divider"
   | "link";
 
 /**
  * Every slash command, in menu order — the default `slashCommands`. `file` shows only when
- * `onFileUpload` is set, `diagram` only when `blockViews.mermaid` is.
+ * `onFileUpload` is set, `diagram` only when `blockViews.mermaid` is, `bookmark` only with
+ * `bookmarks`.
  */
 export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "text",
@@ -81,6 +84,7 @@ export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "video",
   "audio",
   "file",
+  "bookmark",
   "divider",
   "link",
 ];
@@ -143,7 +147,21 @@ export interface MentionOption {
    * @default undefined — the kind's own group
    */
   group?: string;
+  /**
+   * When `description` shows: always, or only on the highlighted row. With `sections`, a
+   * person's description (an email) shows only on the highlighted row unless another person in
+   * the menu has the same name; pass `"always"` for a note that must stay in view ("Can't see
+   * this page").
+   * @default "active" for a person in a menu with `sections`, else "always"
+   */
+  descriptionShown?: "always" | "active";
 }
+
+/**
+ * A section of the `@` menu (`TextEditMentions.sections`): `people` (the `user` kind), `agents`
+ * (the `agent` kind) or `records` (every other kind, a group per kind under its `plural`).
+ */
+export type MentionSection = "people" | "agents" | "records";
 
 /** The `@` menu's source: which kinds it offers, and the search behind it. */
 export interface TextEditMentions {
@@ -179,6 +197,15 @@ export interface TextEditMentions {
     url: string,
     options: { signal: AbortSignal },
   ) => Promise<MentionOption | null> | null;
+  /**
+   * Fixed sections, in this order: People, then Agents, then Records — each record kind its own
+   * group, nearest match first — whatever the query matches best (an option's own `group`,
+   * "Recent", still comes first). A section left out is not shown. People and agents show their
+   * avatar (an agent's is the bot variant) when the option brings no `icon`, and a person's email
+   * shows only on the highlighted row unless two people share the name.
+   * @default undefined — groups by kind, ordered by `order` and the query's best match
+   */
+  sections?: readonly MentionSection[];
 }
 
 /** What an image upload resolves to: the image's final URL (and optional alt text and size). */
@@ -195,6 +222,22 @@ export interface TextEditImageUpload {
   /** Intrinsic height in px (with `width`).
    * @default undefined */
   height?: number;
+}
+
+/**
+ * What `onImageUpload` and `onFileUpload` are handed with the file.
+ *
+ * @example
+ * onImageUpload={(file, { signal, onProgress }) => upload(file, { signal, onProgress })}
+ */
+export interface TextEditUploadOptions {
+  /** Aborts when the placeholder is deleted or the editor unmounts (`TEXT_EDIT_UPLOAD_ABORT`). */
+  signal: AbortSignal;
+  /**
+   * Report how far the upload is (0–1): the placeholder shows it — a bar on an image, a ring on a
+   * file chip — instead of a spinner. Optional to call.
+   */
+  onProgress: (fraction: number) => void;
 }
 
 /** What a file upload resolves to: a link inserted as `[name](href)`, shown as a file chip. */
@@ -250,6 +293,12 @@ export interface TextEditSlashAction {
   disabled?: boolean;
   /** Why it is disabled, shown in place of `description`. @default undefined */
   disabledReason?: string;
+  /**
+   * The heading it is listed under in the full menu ("Regent"); host items with the same group sit
+   * together, after the basic blocks on a `menuSize="lg"` menu and at the end otherwise.
+   * @default "Insert"
+   */
+  group?: string;
   /** Chosen: the typed `/query` is already gone. */
   onSelect: (ctx: TextEditSlashActionContext) => void;
 }
@@ -265,6 +314,20 @@ export interface TextEditMentionStatus {
   struck?: boolean;
   /** A small tag after the label ("Canceled", "Duplicate"). @default undefined */
   status?: string;
+  /**
+   * A task's assignee: with `onTaskOpen`, a linked checklist line shows their avatar after the
+   * title.
+   * @default undefined
+   */
+  assignee?: TaskInlinePerson | null;
+  /**
+   * A task's due date, as the host words it ("Fri 31 Oct"): with `onTaskOpen`, a linked line shows
+   * it as a small date chip.
+   * @default undefined
+   */
+  due?: string | null;
+  /** The due date has passed: the chip takes the destructive ink. @default false */
+  overdue?: boolean;
 }
 
 /** An unlinked checklist line `onMakeTask` offers: its key and its text. */
@@ -276,6 +339,25 @@ export interface TextEditTaskItem {
   key: string;
   /** The line's text, trimmed: the new task's suggested title. */
   text: string;
+}
+
+/**
+ * What a host's selection action (`bubbleActions`) is handed.
+ *
+ * @example
+ * bubbleActions={({ text, close }) => <Button size="sm" variant="ghost" onClick={() => { ask(text); close(); }}>Ask…</Button>}
+ */
+export interface TextEditBubbleContext {
+  /** The selected text (blocks joined by line breaks). */
+  text: string;
+  /** Collapse the selection to its end — the bubble closes, the caret stays. */
+  close: () => void;
+}
+
+/** Where `onMakeTask` was asked from: the first line's element, to point a popover at. */
+export interface TextEditMakeTaskContext {
+  /** The first line's element (its `li`), or null when it is not on the page. */
+  anchor: HTMLElement | null;
 }
 
 /** A checklist line to link to a task (`linkTaskItems`). */
@@ -1161,6 +1243,42 @@ export interface TextEditProps {
    */
   slashActions?: readonly TextEditSlashAction[];
   /**
+   * The host's own selection actions ("Ask agent…"), after the formatting and before Comment, in the
+   * bubble (and the dock). Called with the selection's text each time the bubble draws; return
+   * `Button`s (`variant="ghost" size="sm"`). With `onMakeTask`, a selection reaching unlinked
+   * checklist lines also shows **Make task** / **Make N tasks** there.
+   * @default undefined
+   */
+  bubbleActions?: (context: TextEditBubbleContext) => React.ReactNode;
+  /**
+   * Where the selection's formatting shows on a coarse pointer: `bubble` floats it over the
+   * selection; `dock` puts it in a 44px bar at the bottom of the window (above the on-screen
+   * keyboard), as phone editors do. A fine pointer always gets the bubble.
+   * @default "bubble"
+   */
+  toolbar?: "bubble" | "dock";
+  /**
+   * The block menu on a coarse pointer: `handle` shows the ⋮⋮ grip beside the caret's block (a tap
+   * opens the menu); `longPress` shows no grip — a long press on a block (half a second, held
+   * still) opens its menu as a bottom sheet.
+   * @default "handle"
+   */
+  touchBlockMenu?: "handle" | "longPress";
+  /**
+   * The slash and mention menus' size (`SuggestionMenu`'s): `lg` is 320px wide and up to
+   * `min(60vh, 440px)` tall, each block with a line saying what it is, the slash menu grouped Basic ·
+   * the host's items · Media · Advanced.
+   * @default "default"
+   */
+  menuSize?: "default" | "lg";
+  /**
+   * Where the slash and mention menus show (`SuggestionMenu`'s `presentation`): `auto` opens a
+   * bottom sheet with a search field on a coarse pointer or a window under 640px, and floats at
+   * the caret otherwise.
+   * @default "popover"
+   */
+  menuPresentation?: "popover" | "auto";
+  /**
    * Whether the placeholder yields to the "Type / for commands" hint while focused and empty.
    * Off keeps the placeholder (a comment box's "Add a comment…") in every state.
    * @default true
@@ -1348,10 +1466,25 @@ export interface TextEditProps {
   onTaskItemToggle?: (taskId: string, checked: boolean) => void;
   /**
    * Adds **Make task** to the block menu of an unlinked checklist line (**Make N tasks** when
-   * several are selected); called with the lines. Create the tasks, then `linkTaskItems`.
+   * several are selected), and a **→ Task** button at the end of an unlinked checklist line the
+   * pointer rests on; called with the lines and the first line's element (`anchor` — point a
+   * `MakeTaskPopover` at it). Create the tasks, then `linkTaskItems`.
    * @default undefined
    */
-  onMakeTask?: (items: TextEditTaskItem[]) => void;
+  onMakeTask?: (
+    items: TextEditTaskItem[],
+    context: TextEditMakeTaskContext,
+  ) => void;
+  /**
+   * A linked checklist line (`linkedTaskId`) draws as a `TaskInline`: one round box (the task's
+   * done state), the title — which calls this on a click, or <kbd>Alt</kbd>+<kbd>Enter</kbd> with
+   * the caret on the line: open the task's peek — then the assignee's avatar and the due date
+   * (`mentionStatus`'s `assignee`, `due` and `overdue`, else the `InlineChipProvider`'s `state`)
+   * and ↗ to the task's page (`mentionHref`) on hover. Without it the line is a checkbox and a task
+   * chip, as before.
+   * @default undefined
+   */
+  onTaskOpen?: (taskId: string) => void;
   /**
    * Marked sections: each draws a small marker in the gutter beside its heading (named `label`)
    * and a `tone` bar along the section — decorations only, with no layout shift. A key matching
@@ -1378,21 +1511,24 @@ export interface TextEditProps {
    * It shows dimmed under a spinner until the promise resolves with its URL, then commits — even
    * after focus has left. A rejection leaves it in place as a failed upload (Retry, Remove) and
    * calls `onUploadError`. `signal` aborts when its placeholder is deleted or the editor unmounts;
-   * `signal.reason` says which (`TEXT_EDIT_UPLOAD_ABORT`).
+   * `signal.reason` says which (`TEXT_EDIT_UPLOAD_ABORT`). Call `onProgress(0…1)` as the upload
+   * goes and the placeholder (the image itself, dimmed, in its own proportions) shows a bar along
+   * its foot instead of a spinner.
    * @default undefined
    */
   onImageUpload?: (
     file: File,
-    options: { signal: AbortSignal },
+    options: TextEditUploadOptions,
   ) => Promise<TextEditImageUpload>;
   /**
    * Upload any other file dropped, pasted or picked (the slash menu's File): it lands as a link
-   * `[name](href)`, shown as a file chip. Without it, non-image files are ignored.
+   * `[name](href)`, shown as a file chip. Without it, non-image files are ignored. While it uploads
+   * its chip shows a ring that fills as `onProgress` reports (a spinner until it does).
    * @default undefined
    */
   onFileUpload?: (
     file: File,
-    options: { signal: AbortSignal },
+    options: TextEditUploadOptions,
   ) => Promise<TextEditFileUpload>;
   /**
    * Called when an upload rejects — show a toast. Its placeholder stays in the text, saying the
@@ -1414,6 +1550,17 @@ export interface TextEditProps {
    * @default undefined
    */
   embeds?: EmbedProviders;
+  /**
+   * Bookmarks: a link shown as a card with its page's title, icon and site — **Bookmark** in the
+   * slash menu (paste or type the address into the new card), and **Link · Bookmark** in the
+   * popover under a lone link pasted where a block can stand (**Embed · Link · Bookmark** for a
+   * video with `embeds`). The preview comes from the `InlineChipProvider`'s `linkPreview` (the
+   * app's server reads the page; the reader's browser never contacts the site). Stored as
+   * `[url](url "bookmark")` on its own line — a link to any other reader. Without it a bookmark
+   * already in the document still shows as a card.
+   * @default false
+   */
+  bookmarks?: boolean;
   /**
    * Draws a live task list — a `taskQuery` block, `:::tasks{…}` in Markdown — with the host's own
    * component (it fetches this reader's rows), in the editor and in the read view before it.
@@ -1515,8 +1662,8 @@ export interface TextEditProps {
    */
   onStatsChange?: (stats: TextEditStats) => void;
   /**
-   * Find and replace: <kbd>⌘F</kbd> inside the editor opens a find bar docked at the top of the
-   * text (Replace only while editable), <kbd>⌘G</kbd> / <kbd>⇧⌘G</kbd> step through the matches,
+   * Find and replace: <kbd>⌘F</kbd> inside the editor opens a find bar that floats over the top of
+   * the text, at its end, like a browser's — the document never moves (Replace only while editable), <kbd>⌘G</kbd> / <kbd>⇧⌘G</kbd> step through the matches,
    * and <kbd>Esc</kbd> closes it with the caret back where it was. Outside the editor the
    * browser's own find runs. `handleRef.openFind()` opens it from a menu.
    * @default false
@@ -2109,7 +2256,13 @@ export function TextEdit(props: TextEditProps) {
     },
     // A link click places the caret, as in the editor, instead of navigating.
     onClick: (event: React.MouseEvent) => {
-      if (editable && (event.target as Element).closest?.("a"))
+      // A task line's ↗ and a bookmark card are links of their own: they navigate.
+      if (
+        editable &&
+        (event.target as Element).closest?.(
+          "a:not([data-slot=task-inline-open]):not([data-slot=markdown-bookmark])",
+        )
+      )
         event.preventDefault();
     },
   };
@@ -2198,6 +2351,7 @@ export function TextEdit(props: TextEditProps) {
               mentionHref={props.mentionHref}
               mentionImage={props.mentionImage}
               mentionStatus={props.mentionStatus}
+              onTaskOpen={props.onTaskOpen}
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}
@@ -2292,5 +2446,13 @@ export function TextEdit(props: TextEditProps) {
 const ALL_ORIGINS = ["*"] as const;
 
 /** A citation marker in the read view: its press and focus belong to it, not to editing. */
+/**
+ * A control of its own in the read view — a citation, a task line's title or ↗, a bookmark card:
+ * pressing or focusing it never starts an edit.
+ */
 const isCitation = (target: EventTarget) =>
-  Boolean((target as Element).closest?.("[data-slot=markdown-citation]"));
+  Boolean(
+    (target as Element).closest?.(
+      "[data-slot=markdown-citation],[data-slot=task-inline-title],[data-slot=task-inline-open],[data-slot=markdown-bookmark]",
+    ),
+  );

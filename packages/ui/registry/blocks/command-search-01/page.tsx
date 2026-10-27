@@ -1,11 +1,11 @@
-// @vegastack command-search-01@0.25.88 sha256-LbPykJpS1ai0ZAj93qONTbaUAf1qvJYS72W6jEuTGwQ=
+// @vegastack command-search-01@0.25.88 sha256-gNPgZsMsiaHqnoJhLhf2Ai5fnxdwXficVXIW+4hNsvs=
 
 "use client";
 
 import * as React from "react";
 import { Search } from "lucide-react";
 
-import { CommandSearch } from "./components/command-search";
+import { SearchPalette } from "./components/search-palette";
 import { RECENTS, sampleSearch } from "./components/sample-search";
 import { AppShellPage } from "@/components/ui/app-shell";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
 
 /**
  * `command-search-01` — the search palette on a page: a Search button (and ⌘K / Ctrl+K) opening
- * `CommandSearch` over the sample index. In an app, mount the palette once in the shell and open
+ * `SearchPalette` (on the design system's `CommandSearch`) over the sample index. In an app, mount the palette once in the shell and open
  * it from the sidebar's Search row.
  *
  * @example
@@ -60,7 +60,7 @@ export default function Page() {
           {formatShortcut(["mod", "K"], os)}
         </Kbd>
       </Button>
-      <CommandSearch
+      <SearchPalette
         search={sampleSearch}
         recents={RECENTS}
         open={open}

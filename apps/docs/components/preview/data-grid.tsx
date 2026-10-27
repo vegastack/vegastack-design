@@ -1,7 +1,17 @@
 "use client";
 
 import { type ReactNode, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, CircleDot, Hash, Plus, Type } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  CircleDot,
+  Hash,
+  ListFilter,
+  Plus,
+  Table2,
+  Type,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-grid` (dogfoods the registry) → auto-scanned.
 import {
@@ -14,6 +24,13 @@ import { ActionBarButton } from "@/components/ui/action-bar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import {
+  BlockHeader,
+  BlockHeaderButton,
+  BlockHeaderOpen,
+} from "@/components/ui/block-header";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface Deal {
   id: string;
@@ -746,6 +763,114 @@ export function dataGridEmpty(): ReactNode {
         data={[]}
         getRowId={(row) => row.id}
         columnPicker={false}
+      />
+    </Wrapper>
+  );
+}
+
+/* ── A table block in a page: sized to its rows, editable in place for people who can edit ── */
+
+type BlockRow = Sample & { owner: string; site: string };
+const BLOCK_ROWS: BlockRow[] = SAMPLES.map((sample, index) => ({
+  ...sample,
+  owner: ["Priya", "Mel", "Ada"][index % 3]!,
+  site: ["Pune", "Leeds", "Austin"][index % 3]!,
+}));
+
+export function dataGridEmbedded(): ReactNode {
+  const [rows, setRows] = useState(BLOCK_ROWS);
+  const [canEdit, setCanEdit] = useState(true);
+  const [open, setOpen] = useState<string | null>(null);
+  const total = 117;
+  const columns: DataGridColumn<BlockRow>[] = [
+    {
+      key: "name",
+      header: "Name",
+      icon: <Type />,
+      editable: { type: "text" },
+    },
+    {
+      key: "status",
+      header: "Status",
+      icon: <CircleDot />,
+      editable: {
+        type: "select",
+        options: ["Requested", "Sent", "Received", "Closed"].map((value) => ({
+          value,
+          label: value,
+        })),
+      },
+    },
+    {
+      key: "qty",
+      header: "Qty",
+      icon: <Hash />,
+      numeric: true,
+      editable: { type: "number" },
+    },
+    { key: "owner", header: "Owner", editable: { type: "text" } },
+    { key: "site", header: "Site", editable: { type: "text" } },
+  ];
+  return (
+    <Wrapper className="block space-y-3">
+      <div className="flex items-center gap-2">
+        <Switch
+          id="grid-can-edit"
+          checked={canEdit}
+          onCheckedChange={setCanEdit}
+        />
+        <Label htmlFor="grid-can-edit">Can edit</Label>
+      </div>
+      <DataGrid<BlockRow>
+        embedded
+        maxRows={5}
+        aria-label="Sample requests"
+        columns={columns}
+        data={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        readOnly={!canEdit}
+        onRowOpen={(id) => setOpen(id)}
+        activeRowId={open}
+        onCellCommit={(row, key, value) =>
+          setRows((current) =>
+            current.map((r) =>
+              r.id === row.id
+                ? { ...r, [key]: key === "qty" ? Number(value) : value }
+                : r,
+            ),
+          )
+        }
+        toolbar={
+          <BlockHeader
+            icon={<Table2 />}
+            title="Sample requests"
+            open={<BlockHeaderOpen href="#sample-requests" />}
+          >
+            <BlockHeaderButton>
+              Grid <ChevronDown />
+            </BlockHeaderButton>
+            <BlockHeaderButton>
+              <ListFilter /> Filter
+            </BlockHeaderButton>
+          </BlockHeader>
+        }
+        footer={{
+          onNewRow: () =>
+            setRows((current) => [
+              {
+                id: `n${current.length + 1}`,
+                name: "",
+                status: "Requested",
+                qty: 0,
+                owner: "",
+                site: "",
+              },
+              ...current,
+            ]),
+          shown: Math.min(rows.length, 5),
+          total,
+        }}
       />
     </Wrapper>
   );

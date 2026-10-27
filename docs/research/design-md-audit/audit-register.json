@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "59864832e0c4bbec8f7ce108dff81b38605e7c2bea992922537608dc8f848833",
+  "contractSha256": "2c5c4b9e0549b8d0641aa3a5bd8d681a95bf82b57fb667af933a2e0a53c0cf62",
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 770,
+    "components": 182,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1573,6 +1573,28 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "block-toolbar",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-toolbar.tsx"
+      ],
+      "docsSlug": "/docs/components/block-toolbar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "task-inline",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/task-inline.tsx"
+      ],
+      "docsSlug": "/docs/components/task-inline",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "record-list",
       "inventoryClass": "component",
       "wave": "Data display",
@@ -1926,6 +1948,83 @@
         "packages/ui/registry/ui/record-header.tsx"
       ],
       "docsSlug": "/docs/components/record-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-panel",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-panel",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "delegate-popover",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/delegate-popover.tsx"
+      ],
+      "docsSlug": "/docs/components/delegate-popover",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "help-menu",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/help-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/help-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "route-tabs",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/route-tabs.tsx"
+      ],
+      "docsSlug": "/docs/components/route-tabs",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "command-search",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/command-search.tsx"
+      ],
+      "docsSlug": "/docs/components/command-search",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "block-header",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-header.tsx"
+      ],
+      "docsSlug": "/docs/components/block-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "formula-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "rich-text",
+      "sourceFiles": [
+        "packages/ui/registry/ui/formula-input.tsx"
+      ],
+      "docsSlug": "/docs/components/formula-input",
       "contractStatus": "reconciled"
     },
     {
@@ -7306,7 +7405,7 @@
       "wave": "Block",
       "family": "starter-block",
       "sourceFiles": [
-        "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+        "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
         "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
         "packages/ui/registry/blocks/command-search-01/page.tsx"
       ],

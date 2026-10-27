@@ -1,0 +1,112 @@
+---
+title: Help Menu
+description: The sidebar-footer Help item — What's new with an unread dot, Docs, Keyboard shortcuts, support and the version, in one menu.
+audience: public
+registry: help-menu
+status: stable
+since: 0.25.89
+a11y: menu button; unread in the name; rail tooltip
+preview: helpMenu
+---
+
+## Install
+
+<InstallSteps name="help-menu" />
+
+## Usage
+
+```tsx
+"use client";
+
+import Link from "next/link";
+import { HelpMenu } from "@/components/ui/help-menu";
+import { SidebarFooter, SidebarMenu } from "@/components/ui/sidebar";
+
+export function AppSidebarFooter({ unread, openShortcuts }: Props) {
+  return (
+    <SidebarFooter>
+      <SidebarMenu>
+        <HelpMenu
+          whatsNewUnread={unread}
+          version="v1.8.21"
+          linkRender={<Link href="" />}
+          links={{
+            whatsNew: { href: "/docs/whats-new" },
+            docs: { href: "/docs" },
+            shortcuts: { onSelect: openShortcuts },
+            support: { href: "mailto:support@example.com", external: true },
+          }}
+        />
+      </SidebarMenu>
+    </SidebarFooter>
+  );
+}
+```
+
+Learning the product is one job — what changed, how something works, which keys do what, who to
+ask — so it gets one item, at the foot of the sidebar. A dot on "Docs" does not say "something
+changed"; here What's new carries the dot, and so does the Help item itself until it is read.
+
+## Scope
+
+- Owns: the trigger (label, icon, unread dot, rail tooltip), the four entries in a fixed order,
+  their icons and default labels, the shortcut hint and the version line.
+- Does not own: routing — link entries render through `linkRender` — the unread state, which the
+  host computes, or the shortcuts overlay, which an action entry opens (`ShortcutOverlay`).
+- Compose with: `SidebarFooter` and `SidebarMenu`; extra `DropdownMenuItem`s go in as children,
+  after Contact support.
+
+## Examples
+
+### In the sidebar
+
+Every entry is optional and is either a link (`href`, rendered through `linkRender`, `external`
+for a new tab) or an action (`onSelect`). Omit an entry and it is not shown. `whatsNewUnread`
+puts the dot on What's new and on the trigger, and adds "(new updates)" to both names.
+
+<ComponentPreview name="helpMenu" file="components/preview/help-menu.tsx" />
+
+### In the collapsed rail
+
+In an icon-collapsed sidebar the item is the help icon with a "Help" tooltip, and the unread dot
+moves onto the icon's corner.
+
+<ComponentPreview name="helpMenuRail" file="components/preview/help-menu.tsx" />
+
+## API Reference
+
+### HelpMenu
+
+<ApiTable
+  path="../../packages/ui/registry/ui/help-menu.tsx"
+  name="HelpMenuProps"
+/>
+
+Each entry:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/help-menu.tsx"
+  name="HelpMenuLink"
+/>
+
+## Accessibility
+
+- The trigger is a menu button named by its label; while there is something new its name is
+  "Help (new updates)", and What's new says the same — the dot itself is decorative.
+- In the collapsed rail the trigger keeps its name and shows it as a tooltip.
+- The version line is a menu label, not an item, so the arrow keys skip it.
+
+| Key                                 | Action                         |
+| ----------------------------------- | ------------------------------ |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the menu                 |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Moves between the entries      |
+| <kbd>Escape</kbd>                   | Closes the menu, focus returns |
+
+<StatesTested name="help-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="Put What's new, the docs and the shortcuts behind one Help item, and let What's new carry the unread dot."
+  dont="Repeat Docs or Settings in the account menu, or mark the Docs link with a dot that never says what changed."
+/>

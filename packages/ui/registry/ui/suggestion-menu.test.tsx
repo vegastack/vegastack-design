@@ -302,3 +302,213 @@ test("loading with no rows shows placeholder rows as tall as the list grows; a s
   await vi.waitFor(() => expect(region.textContent).toBe("Searching…"));
   await expectNoA11yViolations(document.body);
 });
+
+/** Answer every media query as `matches(query)` until restored. */
+function stubMediaQueries(matches: (query: string) => boolean) {
+  return vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: matches(query),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+}
+
+test('size="lg": 320px wide, two-line rows with an icon box, capped at min(60vh, 440px)', async () => {
+  const many: SuggestionMenuOption[] = Array.from({ length: 20 }, (_, at) => ({
+    key: `o${at}`,
+    label: `Block ${at}`,
+    description: "What the block is",
+    icon: <Plus />,
+    group: at < 10 ? "Basic" : "Media",
+  }));
+  const screen = await render(<Menu size="lg" options={many} />);
+  const menu = document.querySelector<HTMLElement>(
+    '[data-slot="suggestion-menu"]',
+  )!;
+  expect(menu.dataset.size).toBe("lg");
+  expect(menu.getBoundingClientRect().width).toBe(320);
+  expect(menu.getBoundingClientRect().height).toBeLessThanOrEqual(
+    Math.min(window.innerHeight * 0.6, 440) + 0.5,
+  );
+  const first = rows()[0]!;
+  // The description is a second line under the label, not trailing text.
+  const text = first.querySelector('[data-slot="suggestion-menu-text"]')!;
+  expect(
+    text.querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent,
+  ).toBe("What the block is");
+  const icon = first.querySelector<HTMLElement>(
+    '[data-slot="suggestion-menu-icon"]',
+  )!;
+  expect(icon.getBoundingClientRect().width).toBe(28);
+  // (A list that scrolls is reached through the editor's textbox, which this test has none of.)
+  await screen.rerender(<Menu size="lg" options={many.slice(0, 4)} />);
+  await expectNoA11yViolations(document.body);
+});
+
+test('descriptionShown="active": the description shows on the highlighted row only', async () => {
+  const people: SuggestionMenuOption[] = [
+    {
+      key: "a",
+      label: "Asha Rao",
+      description: "asha@x.co",
+      descriptionShown: "active",
+    },
+    {
+      key: "b",
+      label: "Ben Ito",
+      description: "ben@x.co",
+      descriptionShown: "active",
+    },
+  ];
+  await render(<Menu options={people} />);
+  const description = (row: HTMLElement) =>
+    row.querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent ?? null;
+  expect(description(rows()[0]!)).toBe("asha@x.co");
+  expect(description(rows()[1]!)).toBeNull();
+  await userEvent.hover(rows()[1]!);
+  await vi.waitFor(() => expect(description(rows()[1]!)).toBe("ben@x.co"));
+  expect(description(rows()[0]!)).toBeNull();
+});
+
+test('presentation="auto": a bottom sheet with a search field on a phone, which drives the keys', async () => {
+  const restore = stubMediaQueries((query) =>
+    query.includes("pointer: coarse"),
+  );
+  const onQueryChange = vi.fn();
+  const onSelect = vi.fn();
+  const onClose = vi.fn();
+  function Sheeted() {
+    const [index, setIndex] = React.useState(0);
+    const [query, setQuery] = React.useState("");
+    return (
+      <SuggestionMenu
+        id="menu"
+        aria-label="Insert block"
+        anchor={anchor()}
+        options={OPTIONS}
+        presentation="auto"
+        query={query}
+        onQueryChange={(next) => {
+          setQuery(next);
+          onQueryChange(next);
+        }}
+        onClose={onClose}
+        activeIndex={index}
+        onActiveIndexChange={setIndex}
+        onSelect={onSelect}
+      />
+    );
+  }
+  try {
+    await render(<Sheeted />);
+    const sheet = await vi.waitFor(() => {
+      const found = document.querySelector<HTMLElement>(
+        '[data-slot="suggestion-menu-sheet"]',
+      );
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    const list = sheet.querySelector<HTMLElement>(
+      '[data-slot="suggestion-menu"]',
+    )!;
+    expect(list.dataset.presentation).toBe("sheet");
+    const search = sheet.querySelector<HTMLInputElement>(
+      '[data-slot="suggestion-menu-search"]',
+    )!;
+    await vi.waitFor(() => expect(document.activeElement).toBe(search));
+    expect(search.getAttribute("aria-controls")).toBe("menu");
+    expect(search.getAttribute("aria-activedescendant")).toBe(
+      suggestionMenuOptionId("menu", 0),
+    );
+    // 44px rows on touch.
+    expect(rows()[0]!.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+      44,
+    );
+    await userEvent.keyboard("po");
+    expect(onQueryChange).toHaveBeenLastCalledWith("po");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(search.getAttribute("aria-activedescendant")).toBe(
+      suggestionMenuOptionId("menu", 1),
+    );
+    await userEvent.keyboard("{Enter}");
+    expect(onSelect).toHaveBeenCalledWith(1);
+    await expectNoA11yViolations(document.body);
+    await userEvent.keyboard("{Escape}");
+    expect(onClose).toHaveBeenCalled();
+  } finally {
+    restore.mockRestore();
+  }
+});
+
+test('presentation="auto" on a fine pointer and a wide window stays a popover', async () => {
+  const restore = stubMediaQueries(() => false);
+  try {
+    await render(<Menu presentation="auto" />);
+    expect(
+      document.querySelector('[data-slot="suggestion-menu-sheet"]'),
+    ).toBeNull();
+    expect(
+      document.querySelector<HTMLElement>('[data-slot="suggestion-menu"]')
+        ?.dataset.presentation,
+    ).toBe("popover");
+  } finally {
+    restore.mockRestore();
+  }
+});
+
+test("the sheet announces inside itself (the page behind it is inert), and an IME's Enter picks nothing", async () => {
+  const restore = stubMediaQueries((query) =>
+    query.includes("pointer: coarse"),
+  );
+  const onSelect = vi.fn();
+  try {
+    await render(<Menu presentation="auto" options={[]} onSelect={onSelect} />);
+    const sheet = await vi.waitFor(() => {
+      const found = document.querySelector<HTMLElement>(
+        '[data-slot="suggestion-menu-sheet"]',
+      );
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    await vi.waitFor(() =>
+      expect(sheet.querySelector('[role="status"]')?.textContent).toBe(
+        "No results",
+      ),
+    );
+  } finally {
+    restore.mockRestore();
+  }
+  const restoreAgain = stubMediaQueries((query) =>
+    query.includes("pointer: coarse"),
+  );
+  try {
+    document.body.innerHTML = "";
+    await render(<Menu presentation="auto" onSelect={onSelect} />);
+    const search = await vi.waitFor(() => {
+      const found = document.querySelector<HTMLInputElement>(
+        '[data-slot="suggestion-menu-search"]',
+      );
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    search.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        isComposing: true,
+      }),
+    );
+    expect(onSelect).not.toHaveBeenCalled();
+  } finally {
+    restoreAgain.mockRestore();
+  }
+});

@@ -2,7 +2,7 @@ import { render } from "vitest-browser-react";
 import { afterEach, expect, test, vi } from "vitest";
 import mermaid from "mermaid";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { MermaidBlock, renderMermaid } from "./mermaid-block";
+import { MermaidBlock, mermaidBlockView, renderMermaid } from "./mermaid-block";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -211,4 +211,16 @@ test("a diagram never scrolled near keeps its source for print instead of a plac
   // Out of sight on screen; paper shows it.
   expect(fallback!.className).toMatch(/(^| )hidden( |$)/);
   expect(fallback!.className).toContain("print:block");
+});
+
+test("a diagram of only comments (a new block's starter) says there is nothing to draw yet", async () => {
+  const screen = await render(
+    <MermaidBlock source={"%% Type a Mermaid diagram\n"} />,
+  );
+  const figure = screen.container.querySelector<HTMLElement>(
+    '[data-slot="mermaid-block"]',
+  )!;
+  expect(figure.dataset.state).toBe("empty");
+  expect(figure.textContent).toBe("Nothing to draw yet");
+  expect(mermaidBlockView.starter.trim().startsWith("%%")).toBe(true);
 });

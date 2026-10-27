@@ -342,6 +342,32 @@ const columns: DataListColumn<Person>[] = [
   file="components/preview/data-list.tsx"
 />
 
+### Density
+
+`density` sets the list's row height on one scale shared with `DataGrid`: `comfortable` rows are at
+least 40px, `compact` rows 32px. `onDensityChange` mounts a `DensityToggle` beside the view switch.
+**Compact is one line per row.** Merged values join the primary value's line instead of stacking
+under it (the `line` layout, whatever `mergedLayout` says), a plain primary value clamps to one
+line, and a thumbnail steps down to 24px. A custom `render` reads the density from its third
+argument (`context.density`) or, deeper down, `useDataListDensity()`; wrap a cell's second line in
+`DataListSecondary` and compact leaves it out.
+
+```tsx
+render: (task) => (
+  <div className="flex min-w-0 flex-col">
+    <DataListSecondary className="text-xs text-muted-foreground">
+      #{task.number} · {task.space}
+    </DataListSecondary>
+    <span className="truncate">{task.title}</span>
+  </div>
+);
+```
+
+<ComponentPreview
+  name="dataListCompactLine"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Loading & Empty states
 
 `loading` swaps the body for `loadingRows` skeleton rows (default `5`). When `data` is empty and not loading,

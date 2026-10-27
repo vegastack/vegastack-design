@@ -1,0 +1,197 @@
+---
+title: Agent Panel
+description: An agent on a record as a collaborator — whom it acts for, its state and actions, instructions, latest messages, a reply box and runs with Undo.
+audience: public
+registry: agent-panel
+status: stable
+since: 0.25.89
+a11y: polite announcements, named controls, state not by colour
+preview: agentPanel
+---
+
+## Install
+
+<InstallSteps name="agent-panel" />
+
+## Usage
+
+```tsx
+import {
+  AgentChip,
+  AgentPanel,
+  AgentSlot,
+  AgentStateRing,
+} from "@/components/ui/agent-panel";
+
+<AgentPanel
+  agent={{ name: "Claude Code", via: "Priya", access: "Read & write" }}
+  state="working"
+  startedAt={run.startedAt}
+  progress={run.lastNote}
+  instructions={delegation.instructions}
+  onInstructionsChange={canSteer ? saveInstructions : undefined}
+  latest={events}
+  latestTotal={eventCount}
+  onShowAll={() => filterActivity(agent.id)}
+  onReply={canSteer ? reply : undefined}
+  runs={runs.map((run) => ({
+    ...run,
+    onView: () => openRun(run),
+    onUndo: () => undo(run),
+  }))}
+  onViewAgent={openAgent}
+  onChangeAgent={canSteer ? openDelegate : undefined}
+  onStop={canSteer ? stop : undefined}
+  onRemove={canRemove ? remove : undefined}
+/>;
+```
+
+The panel is presentational: the host owns the delegation and passes its state, its data and the
+callbacks. **The callbacks decide what shows**: pass `onReply`, `onInstructionsChange` and `onStop`
+only to the person who delegated, `onRemove` to them and to admins, and `onReconnect` to the
+agent's owner. `state="none"` renders nothing — the Delegate slot carries the empty state.
+
+Each state reads the props it needs: `queued` (`queuedHint` once it has waited a while), `working`
+(`startedAt`, `progress`), `question` (`question`, `choices`, `onAnswer`), `approval` (`approval`,
+`onApprove`, `onDecline`), `failed` (`error`, `onRetry`), `blocked` (`blockedReason`,
+`onReconnect`), `done` (`finishedAt`, `durationSeconds`, `summary`, `onMarkDone`) and `stopped`
+(`stoppedBy`, `finishedAt`, `changeCount`, `onDelegateAgain`). A finished, failed or stopped card
+whose agent was disconnected since takes `disconnected` and adds a muted note — it never turns back
+into Needs you.
+
+## Scope
+
+Placement follows one rule: **the rail card on a record page** (`variant="card"`, directly under
+Properties — above it while it needs you, `data-attention`), **the section in a peek**
+(`variant="section"`), **the pill in a peek's pill row and a phone's facts row** (`AgentChip`),
+**the one-line Delegate property** (`AgentSlot`) and **the state mark or ring in lists and boards**
+(`AgentStateBadge`, `AgentStateRing`). `AgentHoverCard` puts the agent's facts behind its avatar or
+name anywhere it appears. Choosing an agent is the `DelegatePopover`; an agent's edit to a document
+is the `AgentEditBanner`. Every string comes in through `labels` and `stateLabels`, with the English
+defaults shown here.
+
+## Anatomy
+
+<Anatomy name="agent-panel" />
+
+## Examples
+
+<ComponentPreview name="agentPanel" file="components/preview/agent-panel.tsx" />
+
+### States
+
+The same card in every state: Queued with Stop and the hint after a while; Needs you with the
+question, one-tap answers and Reply…; Wants approval with Approve and Decline; Failed with Retry and
+Remove; Blocked with Reconnect for the owner; Done with its date, run time, closing message and
+Mark task done; Stopped with what stays and Delegate again — and a done card whose agent was
+disconnected since. History's Undo shows disabled with its reason when the run can't be undone.
+
+<ComponentPreview
+  name="agentPanelStates"
+  file="components/preview/agent-panel.tsx"
+/>
+
+### Section
+
+In a peek the panel is a collapsible section whose header is the one-line summary and the state's
+quick action. It opens unless the work is done or stopped.
+
+<ComponentPreview
+  name="agentPanelSection"
+  file="components/preview/agent-panel.tsx"
+/>
+
+### Slot, chip, badge and ring
+
+`AgentSlot` is the Delegate property's value on one line — the agent's name truncates, its state
+word never does — with the ghost "Delegate to an agent…" when empty and the muted reason when the
+viewer can't delegate. `AgentChip` is the same as a pill; `AgentStateBadge` the state as icon and
+word; `AgentStateRing` rings an agent's avatar amber while it needs you and red when it failed.
+Hover the agent for `AgentHoverCard`.
+
+<ComponentPreview
+  name="agentPanelSlot"
+  file="components/preview/agent-panel.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentPanelProps"
+/>
+
+### AgentPanelRun
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentPanelRun"
+/>
+
+### AgentPanelEvent
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentPanelEvent"
+/>
+
+### AgentSlot
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentSlotProps"
+/>
+
+### AgentChip
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentChipProps"
+/>
+
+### AgentStateRing
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentStateRingProps"
+/>
+
+### AgentHoverCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentHoverCardProps"
+/>
+
+## Accessibility
+
+- A change of state while the panel is on screen is announced politely ("Claude Code: Needs
+  you"); the state it mounts with is not. Relative times tick silently.
+- The state is always an icon **and** a word; colour is never the only cue. The ring's state is
+  said to screen readers unless the word is already beside it (`srLabel={false}`).
+- The ⋯ menu is named for the agent ("More actions for Claude Code") and lists only the actions
+  the viewer has. The agent's bot is decoration; the words name it.
+- A run that can't be undone keeps a focusable, disabled Undo whose reason is its tooltip and its
+  accessible description.
+- The section's header is a heading holding the disclosure button, with `aria-expanded`.
+
+| Key                                 | Action                                                         |
+| ----------------------------------- | -------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the menu, the state's actions, ✎, Reply and runs. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate a button, or open and close the section.              |
+| <kbd>Ctrl</kbd> + <kbd>Enter</kbd>  | Send a reply, or save edited instructions (⌘ on a Mac).        |
+| <kbd>Esc</kbd>                      | Cancel editing the instructions.                               |
+
+<StatesTested name="agent-panel" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass only the callbacks the viewer may use, and let the card's state say what the agent needs next — answer, approve, retry, reconnect."
+  dont="Squeeze a delegation into the Assignee cell, or show a finished card as Needs you because its agent was disconnected since."
+/>
+
+<DoDont
+  do="Keep the Delegate property on one line with AgentSlot and the conversation in the card."
+  dont="Repeat the agent's messages in the property row or hide its question deep in the activity feed."
+/>

@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.88 sha256-aaiZavINjYJPAMaZMl2JR09XEl5mQMD3Y9VsEPEtZgA=
+// @vegastack text-edit-schema@0.25.88 sha256-Bhb4INvzAkORk+Kq4DLe5WlpTTQUE2FERmYJNu5LT8Y=
 
 import {
   Extension,
@@ -44,6 +44,8 @@ import { Paragraph } from "@tiptap/extension-paragraph";
 import { Table, TableKit } from "@tiptap/extension-table";
 import { UniqueID } from "@tiptap/extension-unique-id";
 import {
+  BOOKMARK_TITLE,
+  bookmarkMarkdown,
   CALLOUT_BLOCK,
   MEDIA_BLOCK,
   DEFAULT_LIVE_BLOCK_KINDS,
@@ -94,6 +96,7 @@ export type TextEditNodeView =
   | "video"
   | "audio"
   | "embed"
+  | "bookmark"
   | "taskQuery";
 
 /** What `textEditExtensions` takes. Every option is client-only: none changes the schema. */
@@ -142,6 +145,7 @@ export const BLOCK_ID_TYPES = [
   "table",
   "codeBlock",
   "embed",
+  "bookmark",
   "taskQuery",
 ] as const;
 
@@ -381,6 +385,8 @@ function cellLines(
       return [`${prefix}${String(node.attrs?.src ?? "")}`];
     case "embed":
       return [`${prefix}${String(node.attrs?.url ?? "")}`];
+    case "bookmark":
+      return [`${prefix}${bookmarkMarkdown(String(node.attrs?.url ?? ""))}`];
     default:
       return children.flatMap((child) => cellLines(child, h, prefix));
   }
@@ -1457,6 +1463,72 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
   });
 }
 
+/**
+ * The bookmark a lone link is, when it is one: a paragraph holding only a link titled `bookmark`
+ * (`BOOKMARK_TITLE`) to an http(s) address, whose text is that address. Any other lone link —
+ * one with words of its own included — stays a link.
+ */
+export function bookmarkOfParagraph(
+  paragraph: JSONContent,
+): { type: "bookmark"; attrs: { url: string } } | null {
+  const [only, ...rest] = paragraph.content ?? [];
+  if (paragraph.type !== "paragraph" || !only || rest.length) return null;
+  if (only.type !== "text" || only.marks?.length !== 1) return null;
+  const link = only.marks[0]!;
+  const href = String(link.attrs?.href ?? "");
+  if (link.type !== "link" || link.attrs?.title !== BOOKMARK_TITLE) return null;
+  // Its text is its own address: a titled link with words of its own stays a link.
+  if (only.text !== href) return null;
+  return /^https?:\/\//i.test(href)
+    ? { type: "bookmark", attrs: { url: href } }
+    : null;
+}
+
+/**
+ * A link shown as a card (a bookmark) — an atom block `{ url }`: the page's title, icon, site and
+ * address, from the host's link preview (`InlineChipProvider`'s `linkPreview`), never fetched by the
+ * reader's browser from the site itself. Its Markdown is `[<url>](<url> "bookmark")` alone on its
+ * line — a link to any other reader — and the parse makes such a line a bookmark again
+ * (`text-edit-markdown`). In HTML it is a link inside a `div[data-type=bookmark]`. An empty one
+ * (`url: ""`, just inserted) asks for its address, and writes nothing to Markdown until it has one.
+ */
+function bookmarkNode(view: (() => NodeViewRenderer) | undefined) {
+  return Node.create({
+    name: "bookmark",
+    group: "block",
+    atom: true,
+    draggable: true,
+    selectable: true,
+    addAttributes() {
+      return {
+        url: {
+          default: "",
+          parseHTML: (element) =>
+            element.getAttribute("data-url") ??
+            element.querySelector("a")?.getAttribute("href") ??
+            "",
+          renderHTML: (attrs) => (attrs.url ? { "data-url": attrs.url } : {}),
+        },
+      };
+    },
+    parseHTML() {
+      return [{ tag: "div[data-type=bookmark]" }];
+    },
+    renderHTML({ node, HTMLAttributes }) {
+      const url = String(node.attrs.url ?? "");
+      return [
+        "div",
+        mergeAttributes({ "data-type": "bookmark" }, HTMLAttributes),
+        ["a", { href: url, ...LINK_ATTRIBUTES }, url],
+      ];
+    },
+    renderText: ({ node }) => String(node.attrs.url ?? ""),
+    renderMarkdown: (node) =>
+      node.attrs?.url ? bookmarkMarkdown(String(node.attrs.url)) : "",
+    ...(view ? { addNodeView: view } : {}),
+  });
+}
+
 /** A live block's `kind` attribute: `null` for a task list (`tasks`), else its name. */
 function liveKindAttr(kind: unknown): string | null {
   return typeof kind === "string" && kind && kind !== "tasks" ? kind : null;
@@ -1676,6 +1748,7 @@ export function textEditExtensions(
     mediaNode("video", view.video),
     mediaNode("audio", view.audio),
     embedNode(view.embed),
+    bookmarkNode(view.bookmark),
     taskQueryNode(
       view.taskQuery,
       options.liveBlockKinds ?? DEFAULT_LIVE_BLOCK_KINDS,

@@ -1,0 +1,133 @@
+---
+title: Route Tabs
+description: Tabs whose panels are pages — a named nav of links drawn as pill tabs, one URL per tab, current at once on click with a pending bar while the page loads.
+audience: public
+registry: route-tabs
+status: stable
+since: 0.25.89
+a11y: nav landmark; aria-current; aria-busy while loading
+preview: routeTabs
+---
+
+## Install
+
+<InstallSteps name="route-tabs" />
+
+## Usage
+
+```tsx
+"use client"; // app/connections/connections-tabs.tsx — it reads the path
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  RouteTabs,
+  RouteTabsPanel,
+  RouteTabsProvider,
+} from "@/components/ui/route-tabs";
+
+export function ConnectionsFrame({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  return (
+    <RouteTabsProvider>
+      <RouteTabs
+        label="Connections"
+        currentHref={pathname}
+        linkRender={<Link href="" scroll={false} />}
+        tabs={[
+          { href: "/connections", label: "Your connections" },
+          { href: "/connections/everyone", label: "Everyone", count: 12 },
+          { href: "/connections/activity", label: "Activity" },
+        ]}
+      />
+      <RouteTabsPanel>{children}</RouteTabsPanel>
+    </RouteTabsProvider>
+  );
+}
+```
+
+When each tab is its own URL, the tabs are navigation, not a `Tabs` widget: a `nav` of links that
+look like the pill tabs. Put them in the section's layout so a switch swaps only the page below.
+A clicked tab is current at once and carries a thin pending bar until the router's path moves, and
+the page below dims meanwhile — so a slow page never leaves the previous tab looking chosen with
+its old content (or its empty state) on screen.
+
+## Scope
+
+- Owns: the strip's look (Tabs' own recipes), the current-tab match (`href` or an `also` path),
+  the optimistic current tab and its pending bar, counts, the sideways scroll that keeps the
+  current tab in view, and the dimmed panel.
+- Does not own: routing — links render through `linkRender`, the host passes `currentHref` (and,
+  if it knows better, `pendingHref`).
+- Compose with: `PageHeader`'s tabs slot, or a section layout; `RouteTabsProvider` joins the tabs
+  and the panel when they sit apart.
+
+## Anatomy
+
+<Anatomy name="route-tabs" />
+
+## Examples
+
+### Page tabs
+
+Choose a tab: it is current at once, the pending bar runs under it, and the page below dims until
+the new page arrives (the demo waits 1.2s). A count follows the label in the muted ink; an `also`
+path — a record's own page under the tab — keeps the tab current.
+
+<ComponentPreview name="routeTabs" file="components/preview/route-tabs.tsx" />
+
+### A long strip
+
+`overflow="scroll"` lets the strip scroll sideways when it outgrows its column, with edge fades,
+and keeps the current tab in view — counts arriving after the first paint included.
+
+<ComponentPreview
+  name="routeTabsScroll"
+  file="components/preview/route-tabs.tsx"
+/>
+
+## API Reference
+
+### RouteTabs
+
+<ApiTable
+  path="../../packages/ui/registry/ui/route-tabs.tsx"
+  name="RouteTabsProps"
+/>
+
+Each tab:
+
+<ApiTable path="../../packages/ui/registry/ui/route-tabs.tsx" name="RouteTab" />
+
+### RouteTabsPanel
+
+<ApiTable
+  path="../../packages/ui/registry/ui/route-tabs.tsx"
+  name="RouteTabsPanelProps"
+/>
+
+### RouteTabsProvider
+
+Holds the loading tab for the `RouteTabs` and `RouteTabsPanel` below it; it takes only `children`.
+
+## Accessibility
+
+- The strip is a `nav` landmark named by `label`; the current tab's link carries
+  `aria-current="page"`, and a tab's own `aria-label` replaces its visible name when that is not
+  enough ("Tasks, 3 open").
+- While a page loads, the nav and the panel are `aria-busy`; the pending bar is decorative.
+- Modified clicks (⌘, Ctrl, Shift, Alt) open the link as the browser would and start nothing.
+
+| Key              | Action                       |
+| ---------------- | ---------------------------- |
+| <kbd>Tab</kbd>   | Moves between the tab links  |
+| <kbd>Enter</kbd> | Opens the focused tab's page |
+
+<StatesTested name="route-tabs" />
+
+## Do / Don't
+
+<DoDont
+  do="Use route tabs for a section's sub-pages, each with its own URL, in the section's layout."
+  dont="Use Tabs for pages with URLs, or leave the old page undimmed while the next one loads."
+/>

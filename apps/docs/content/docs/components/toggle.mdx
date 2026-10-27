@@ -110,4 +110,9 @@ Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
   [Button](/docs/components/button)'s is — a `display: contents` wrapper generates no box and so
   accepts no `opacity`, which would leave the label painted at full strength under the spinner.
   This is why `toggle` depends on the `spinner` registry item.
+- **API-39** — a pressed toggle is filled, so pressed never reads as hover: `aria-pressed` and
+  `data-[state=on]` take `bg-primary/10` (upstream's `bg-muted` is also its hover fill), hovering a
+  pressed toggle deepens it to `bg-primary/15`, and the `outline` variant's pressed border is
+  `border-primary/30`. The ink stays `text-foreground`, icons included. An unpressed toggle keeps
+  upstream's transparent fill and `hover:bg-muted`. ToggleGroup items inherit it.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

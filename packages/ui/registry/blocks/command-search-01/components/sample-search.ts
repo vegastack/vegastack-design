@@ -1,11 +1,11 @@
-// @vegastack command-search-01@0.25.88 sha256-LbPykJpS1ai0ZAj93qONTbaUAf1qvJYS72W6jEuTGwQ=
+// @vegastack command-search-01@0.25.88 sha256-gNPgZsMsiaHqnoJhLhf2Ai5fnxdwXficVXIW+4hNsvs=
 
 /**
  * A stand-in for the host's search API: an in-memory index, a short delay, and the abort signal
  * honoured. Replace `sampleSearch` with your own call.
  */
 
-import type { SearchResult } from "./command-search";
+import type { SearchResult } from "./search-palette";
 
 /** Everything the sample can find. */
 export const INDEX: SearchResult[] = [

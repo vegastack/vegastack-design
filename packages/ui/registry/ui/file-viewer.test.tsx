@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { describe, expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import geometryCss from "../../test/geometry.css?inline";
@@ -737,4 +737,296 @@ test("a small image opens at its natural size, never upscaled, inside the viewpo
     .getBoundingClientRect();
   expect(stage.bottom).toBeLessThanOrEqual(window.innerHeight);
   expect(stage.right).toBeLessThanOrEqual(window.innerWidth);
+});
+
+/* ── Rail, header slots and page mode (W1-DS3 item 2) ──────────────────────────────────────── */
+
+const RAIL = {
+  details: (item: FileViewerItem) => <p>Type of {item.name}</p>,
+  comments: <p>No comments yet</p>,
+};
+
+function mockPhone(phone: boolean) {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: phone && query.includes("max-width: 767px"),
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+}
+
+const slotOf = (name: string) =>
+  document.querySelector<HTMLElement>(`[data-slot="${name}"]`);
+
+test("without rail, header or mode the overlay is unchanged: no rail button, a Close button", async () => {
+  const screen = await render(<Harness initial={0} />);
+  await expect
+    .element(screen.getByRole("dialog", { name: "kitchen.jpg" }))
+    .toBeVisible();
+  expect(slotOf("file-viewer")?.getAttribute("data-mode")).toBe("overlay");
+  expect(slotOf("file-viewer-rail-toggle")).toBeNull();
+  expect(slotOf("file-viewer-rail")).toBeNull();
+  expect(slotOf("file-viewer-header-slots")).toBeNull();
+  await expect
+    .element(screen.getByRole("button", { name: "Close" }))
+    .toBeVisible();
+});
+
+test("header slots: share and watch before Download, the menu after it, each given the open file", async () => {
+  const seen: string[] = [];
+  const screen = await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      header={{
+        share: (item) => {
+          seen.push(item.id);
+          return (
+            <Button variant="ghost" size="icon" aria-label="Share">
+              <InfoIcon />
+            </Button>
+          );
+        },
+        watch: (
+          <Button variant="ghost" size="icon" aria-label="Watch">
+            <InfoIcon />
+          </Button>
+        ),
+        menu: (
+          <Button variant="ghost" size="icon" aria-label="More">
+            <InfoIcon />
+          </Button>
+        ),
+      }}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Share" }))
+    .toBeVisible();
+  const slots = slotOf("file-viewer-header-slots")!;
+  expect(slots.nextElementSibling?.getAttribute("data-slot")).toBe(
+    "file-viewer-download",
+  );
+  expect(
+    slotOf("file-viewer-download")?.nextElementSibling?.getAttribute(
+      "data-slot",
+    ),
+  ).toBe("file-viewer-menu");
+  expect(seen).toContain("a");
+  await expectNoA11yViolations(document.body);
+});
+
+test("rail: the header button opens a rail with a tab per slot given; tabs switch; arrows stay in the tabs", async () => {
+  mockPhone(false);
+  const onRailOpenChange = vi.fn();
+  const screen = await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      rail={RAIL}
+      onRailOpenChange={onRailOpenChange}
+    />,
+  );
+  const toggle = screen.getByRole("button", { name: "Details" });
+  await expect.element(toggle).toHaveAttribute("aria-pressed", "false");
+  expect(slotOf("file-viewer-rail")).toBeNull();
+  (toggle.element() as HTMLElement).click();
+  await expect.element(toggle).toHaveAttribute("aria-pressed", "true");
+  expect(onRailOpenChange).toHaveBeenCalledWith(true);
+  const rail = screen.getByRole("complementary", { name: "File details" });
+  await expect.element(rail).toBeInTheDocument();
+  const tabs = Array.from(rail.element().querySelectorAll('[role="tab"]')).map(
+    (t) => t.textContent,
+  );
+  expect(tabs).toEqual(["Details", "Comments"]);
+  await expect
+    .element(screen.getByText("Type of kitchen.jpg"))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+
+  // The tab list's own arrow keys move between tabs, never to the next file.
+  (
+    screen.getByRole("tab", { name: "Details" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowRight}");
+  const comments = screen.getByRole("tab", { name: "Comments" });
+  await expect.poll(() => document.activeElement).toBe(comments.element());
+  await expect.element(screen.getByText("1 of 2")).toBeInTheDocument();
+  (comments.element() as HTMLElement).click();
+  await expect.element(comments).toHaveAttribute("aria-selected", "true");
+  await expect.element(screen.getByText("No comments yet")).toBeInTheDocument();
+});
+
+test("rail: controlled railOpen and railTab; defaultRailTab picks the first tab", async () => {
+  mockPhone(false);
+  function Host() {
+    const [open, setOpen] = React.useState(true);
+    const [tab, setTab] = React.useState<"details" | "comments" | "activity">(
+      "comments",
+    );
+    return (
+      <FileViewer
+        items={ITEMS}
+        index={0}
+        onIndexChange={() => {}}
+        onOpenChange={() => {}}
+        rail={{ ...RAIL, activity: <p>Uploaded by KK</p> }}
+        railOpen={open}
+        onRailOpenChange={setOpen}
+        railTab={tab}
+        onRailTabChange={setTab}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  await expect
+    .element(screen.getByRole("tab", { name: "Comments" }))
+    .toHaveAttribute("aria-selected", "true");
+  (
+    screen.getByRole("tab", { name: "Activity" }).element() as HTMLElement
+  ).click();
+  await expect.element(screen.getByText("Uploaded by KK")).toBeInTheDocument();
+  (
+    screen.getByRole("button", { name: "Details" }).element() as HTMLElement
+  ).click();
+  await expect.poll(() => slotOf("file-viewer-rail")).toBeNull();
+});
+
+test("rail on a phone is a bottom sheet the reader opens; an initially open rail does not cover the file", async () => {
+  mockPhone(true);
+  const screen = await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      rail={RAIL}
+      defaultRailOpen
+    />,
+  );
+  await expect
+    .element(screen.getByRole("dialog", { name: "kitchen.jpg" }))
+    .toBeVisible();
+  expect(slotOf("file-viewer-rail")).toBeNull();
+  expect(slotOf("file-viewer-rail-sheet")).toBeNull();
+  (
+    screen.getByRole("button", { name: "Details" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("dialog", { name: "File details" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Type of kitchen.jpg"))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+test("page mode: the same viewer in place — a heading, no dialog and no Close; arrows still page", async () => {
+  mockPhone(false);
+  function Page() {
+    const [index, setIndex] = React.useState(0);
+    return (
+      <FileViewer
+        mode="page"
+        items={ITEMS}
+        index={index}
+        onIndexChange={setIndex}
+        rail={RAIL}
+        defaultRailOpen
+      />
+    );
+  }
+  const screen = await render(<Page />);
+  await expect
+    .element(screen.getByRole("heading", { level: 1, name: "kitchen.jpg" }))
+    .toBeInTheDocument();
+  expect(document.querySelector('[role="dialog"]')).toBeNull();
+  expect(slotOf("file-viewer")?.getAttribute("data-mode")).toBe("page");
+  expect(screen.container.querySelector('[aria-label="Close"]')).toBeNull();
+  // A page's rail can start open.
+  await expect
+    .element(screen.getByRole("complementary", { name: "File details" }))
+    .toBeInTheDocument();
+  (
+    screen.getByRole("button", { name: "Next file" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("heading", { level: 1, name: "spec-sheet.docx" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("rail on a phone, controlled: railOpen opens the sheet outright and dismissing asks to close", async () => {
+  mockPhone(true);
+  const onRailOpenChange = vi.fn();
+  const screen = await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      rail={RAIL}
+      railOpen
+      onRailOpenChange={onRailOpenChange}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("dialog", { name: "File details" }))
+    .toBeInTheDocument();
+  const sheet = slotOf("file-viewer-rail-sheet")!;
+  (
+    sheet.querySelector(
+      '[data-slot="sheet-close"], button[aria-label="Close"]',
+    ) as HTMLElement | null
+  )?.click();
+  await expect.poll(() => onRailOpenChange.mock.calls.at(-1)?.[0]).toBe(false);
+});
+
+test("the header's controls never push past a 320px screen; each stays reachable (compiled CSS)", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await page.viewport(320, 640);
+  onTestFinished(async () => {
+    await page.viewport(414, 896);
+  });
+  const icon = (label: string) => (
+    <Button variant="ghost" size="icon" aria-label={label}>
+      <InfoIcon />
+    </Button>
+  );
+  await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      header={{
+        share: icon("Share"),
+        watch: icon("Watch"),
+        menu: icon("More"),
+      }}
+      rail={RAIL}
+    />,
+  );
+  await expect.poll(() => slotOf("file-viewer-header")).not.toBeNull();
+  const header = slotOf("file-viewer-header")!;
+  expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth + 1);
+  const close = slotOf("file-viewer-close")!.getBoundingClientRect();
+  expect(close.right).toBeLessThanOrEqual(320.5);
+  const controls = slotOf("file-viewer-controls")!;
+  expect(controls.scrollWidth).toBeGreaterThanOrEqual(controls.clientWidth);
 });

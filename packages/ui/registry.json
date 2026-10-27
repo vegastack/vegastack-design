@@ -450,7 +450,8 @@
         "@vegastack/code-block",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -1176,7 +1177,8 @@
       ],
       "registryDependencies": [
         "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/code-highlight",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -1390,7 +1392,7 @@
       "name": "data-grid",
       "type": "registry:ui",
       "title": "Data Grid",
-      "description": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.",
+      "description": "The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, an APG grid keyboard layer with inline cell editing, and an embedded mode for a table block in a page (sized to its rows, read-only for viewers).",
       "categories": ["data"],
       "dependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -1430,6 +1432,32 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.88"
+      }
+    },
+    {
+      "name": "block-header",
+      "type": "registry:ui",
+      "title": "Block Header",
+      "description": "A live block's header row in a page — icon · title · controls (View ▾, Filter) · ⋯ · ↗ Open — with an empty state that hosts the source picker (\"Pick a table…\").",
+      "categories": ["data", "layout"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-header.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-header.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The top row of a block that shows records from elsewhere inside a page — a table view (DataGrid embedded's toolbar), a task list — and the block's unconfigured state with its picker.",
+        "whenNotToUse": "A page's own header (DocumentLayoutHeader), a section heading (DocumentLayoutSection), or a record's header.",
+        "version": "0.25.86"
       }
     },
     {
@@ -2425,7 +2453,10 @@
       ],
       "registryDependencies": [
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
+        "@vegastack/panel-search",
+        "@vegastack/sheet"
       ],
       "files": [
         {
@@ -12935,7 +12966,7 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe — as a full-screen overlay or in place as a file's page, with Share/Watch/menu header slots and a Details · Comments · Activity rail (a bottom sheet on a phone).",
       "categories": ["media"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12953,10 +12984,12 @@
         "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/markdown-view",
+        "@vegastack/sheet",
         "@vegastack/spinner",
         "@vegastack/table",
         "@vegastack/tabs",
         "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
       ],
@@ -13283,7 +13316,9 @@
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
         "@vegastack/embed-providers",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/task-inline",
+        "@vegastack/skeleton"
       ],
       "files": [
         {
@@ -13613,6 +13648,67 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.25.88"
+      }
+    },
+    {
+      "name": "block-toolbar",
+      "type": "registry:ui",
+      "title": "Block Toolbar",
+      "description": "The one place a block's own controls sit: its top-right corner, 28px icon buttons named and tipped by their labels, at most four and a ⋯ menu for the rest, always shown or revealed on the block's hover and focus.",
+      "categories": ["forms"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-toolbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-toolbar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A block in a document with controls of its own — a code block's copy, an image's caption and alt text, a diagram's expand — so every block's chrome sits in the same corner at the same size.",
+        "whenNotToUse": "A page's or a panel's toolbar (a header row of actions), or a selection's formatting (TextEdit's bubble).",
+        "version": "0.25.87"
+      }
+    },
+    {
+      "name": "task-inline",
+      "type": "registry:ui",
+      "title": "Task Inline",
+      "description": "A task in running text — one round box (its done state), the title that opens its peek, the assignee's avatar, a due chip and ↗ to its page on hover — plus MakeTaskPopover, which makes that task from a checklist line in place, with the host's assignee, due and space pickers in slots.",
+      "categories": ["forms"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/input",
+        "@vegastack/person-avatar",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/task-inline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/task-inline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
+        "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
+        "version": "0.25.87"
       }
     },
     {
@@ -14694,8 +14790,10 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/label",
         "@vegastack/panel-search",
         "@vegastack/scroll-area",
+        "@vegastack/switch",
         "@vegastack/use-platform"
       ],
       "files": [
@@ -15159,6 +15257,30 @@
       }
     },
     {
+      "name": "formula-input",
+      "type": "registry:ui",
+      "title": "Formula Input",
+      "description": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": ["@vegastack/template-editor"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/formula-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/formula-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A calculated field's formula — field chips, numbers and + − × ÷ on one line, with the host's first-row result and error under it.",
+        "whenNotToUse": "Free text with placeholders (TemplateEditor), or a plain number (Input).",
+        "version": "0.25.88"
+      }
+    },
+    {
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",
@@ -15215,7 +15337,11 @@
         "@vegastack/separator",
         "@vegastack/use-announcer",
         "@vegastack/emoji-data",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/person-avatar",
+        "@vegastack/task-inline",
+        "@vegastack/block-toolbar",
+        "@vegastack/use-platform"
       ],
       "files": [
         {
@@ -18096,7 +18222,7 @@
       "name": "command-search-01",
       "type": "registry:block",
       "title": "Command Search 01",
-      "description": "A search palette — scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab.",
+      "description": "A search palette on CommandSearch — one row of scope chips with More and Include archived, recents, results grouped by type, stale results dimmed while a search runs, loading, empty and error states, and ⌘↵ to open in a new tab.",
       "categories": ["search", "navigation"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -18107,18 +18233,18 @@
         "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
+        "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
-        "@vegastack/toggle-group",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
       "files": [
         {
-          "path": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "path": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "type": "registry:component",
-          "target": "app/command-search-01/components/command-search.tsx"
+          "target": "app/command-search-01/components/search-palette.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
@@ -18442,6 +18568,165 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.25.88"
+      }
+    },
+    {
+      "name": "agent-panel",
+      "type": "registry:ui",
+      "title": "Agent Panel",
+      "description": "An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/dropdown-menu",
+        "@vegastack/hover-card",
+        "@vegastack/input-group",
+        "@vegastack/person-avatar",
+        "@vegastack/record-aside",
+        "@vegastack/record-chip",
+        "@vegastack/relative-time",
+        "@vegastack/spinner",
+        "@vegastack/textarea",
+        "@vegastack/tooltip",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/agent-panel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/agent-panel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
+        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
+        "version": "0.25.86"
+      }
+    },
+    {
+      "name": "delegate-popover",
+      "type": "registry:ui",
+      "title": "Delegate Popover",
+      "description": "Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/label",
+        "@vegastack/people-picker",
+        "@vegastack/popover",
+        "@vegastack/select",
+        "@vegastack/separator",
+        "@vegastack/skeleton",
+        "@vegastack/spinner",
+        "@vegastack/textarea"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/delegate-popover.tsx",
+          "type": "registry:ui",
+          "target": "@ui/delegate-popover.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
+        "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
+        "version": "0.25.86"
+      }
+    },
+    {
+      "name": "help-menu",
+      "type": "registry:ui",
+      "title": "Help Menu",
+      "description": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "categories": ["navigation", "layout"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/sidebar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/help-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/help-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An app's one place to learn the product, at the foot of its sidebar: what changed, the docs, the shortcuts, support and the version.",
+        "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
+        "version": "0.25.86"
+      }
+    },
+    {
+      "name": "route-tabs",
+      "type": "registry:ui",
+      "title": "Route Tabs",
+      "description": "Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab and a pending bar while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": ["@vegastack/tabs"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/route-tabs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/route-tabs.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
+        "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
+        "version": "0.25.86"
+      }
+    },
+    {
+      "name": "command-search",
+      "type": "registry:ui",
+      "title": "Command Search",
+      "description": "The search palette's frame, results first — one row of scope chips with a More menu (and Include archived), results up to min(60dvh, 520px), an in-flight state that dims stale results under an input progress bar, Recent · Create · Places start sections, and a preview pane from 1280px.",
+      "categories": ["search", "navigation", "overlay"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/toggle",
+        "@vegastack/toggle-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/command-search.tsx",
+          "type": "registry:ui",
+          "target": "@ui/command-search.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
+        "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (FilterBar's search).",
+        "version": "0.25.86"
       }
     }
   ]

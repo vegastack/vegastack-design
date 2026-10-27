@@ -55,7 +55,7 @@ import ReviewSplit01Page from "../registry/blocks/review-split-01/page";
 import ListPage01Page from "../registry/blocks/list-page-01/page";
 import { InboxSheet } from "../registry/blocks/notifications-01/components/inbox-sheet";
 import { NOTIFICATIONS } from "../registry/blocks/notifications-01/components/sample-notifications";
-import { CommandSearch } from "../registry/blocks/command-search-01/components/command-search";
+import { SearchPalette } from "../registry/blocks/command-search-01/components/search-palette";
 import { INDEX } from "../registry/blocks/command-search-01/components/sample-search";
 
 /**
@@ -1257,13 +1257,26 @@ for (const theme of ["light", "dark"] as const) {
     await inbox.unmount();
 
     const palette = await render(
-      <CommandSearch search={async () => INDEX} defaultOpen />,
+      <SearchPalette search={async () => INDEX} defaultOpen />,
     );
     await userEvent.type(palette.getByRole("combobox"), "sky");
     await expect
       .element(palette.getByRole("option").first())
       .toBeInTheDocument();
     await settledOverlay('[data-slot="dialog-content"]');
+    // Audit the results at rest: while a query is in flight they are dimmed on purpose (stale).
+    await expect
+      .poll(
+        () =>
+          document.querySelector("[data-stale]") === null &&
+          [
+            ...document.querySelectorAll<HTMLElement>(
+              '[data-slot="command-search-body"] > *',
+            ),
+          ].every((el) => Number(getComputedStyle(el).opacity) >= 0.99),
+        { timeout: 5000 },
+      )
+      .toBe(true);
     const search = await contrastViolations(document.body);
     expect(
       [
