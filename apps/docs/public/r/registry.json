@@ -1608,7 +1608,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.89",
-        "integrity": "sha256-pXBWcumYR2ya3KdF5m3MzmF5ma1UGZzXRb8rzf3ro8U="
+        "integrity": "sha256-oCZS/I8BChtLKYO/PFr8mqQtfglUOHfkDJb0m/Sp1OI="
       }
     },
     {
@@ -17531,6 +17531,37 @@
         "whenNotToUse": "Any other fixed list (Select) or record list (RecordPicker).",
         "version": "0.25.88",
         "integrity": "sha256-MMqJiQ1K4x6szDtrNZ3QW6tJng+3xlYOlIfccR6hnVU="
+      }
+    },
+    {
+      "name": "field-type-link-step",
+      "type": "registry:ui",
+      "title": "Field Type Link Step",
+      "description": "The \"Links to\" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/command",
+        "@vegastack/field-type-picker"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/field-type-link-step.tsx",
+          "type": "registry:ui",
+          "target": "@ui/field-type-link-step.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A link field's second step in FieldTypePicker's renderStep: which kind of record it points at, and for rows which table.",
+        "whenNotToUse": "Picking a record itself (RecordPicker), or a field type (FieldTypePicker).",
+        "version": "0.25.88",
+        "integrity": "sha256-zwIEK9PqMqC+HmHE6AjL3WY7QADVvzKyWqzYhTI0L3g="
       }
     },
     {

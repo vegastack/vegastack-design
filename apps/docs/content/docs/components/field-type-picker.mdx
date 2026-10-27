@@ -50,7 +50,9 @@ with a `disabledReason` shows why and can't be chosen.
 A type with `next` opens a second step instead of being chosen — "Link to" asking which kind of
 record. `renderStep(type, { back, setTitle })` draws it under a back header
 (`data-slot="field-type-picker-step-header"`, the type's icon and label, retitled with `setTitle`);
-the step reports its own final choice.
+the step reports its own final choice. For a link field,
+[`FieldTypeLinkStep`](/docs/components/field-type-link-step) is that step: grouped kinds of record
+with one-line explanations, and a table choice for Rows.
 
 ```tsx
 <FieldTypePicker

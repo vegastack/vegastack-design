@@ -3469,3 +3469,81 @@ test("readOnly turning on mid-edit cancels the edit and hands focus back to the 
     .poll(() => (document.activeElement as HTMLElement).dataset.gridKey)
     .toBe("stage");
 });
+
+test("phoneLayout=cards with a summaryRow: one read-only line above the cards with the count and each summarised column", async () => {
+  const onValueChange = vi.fn();
+  const cols: DataGridColumn<Deal>[] = [
+    ...fixedColumns().slice(0, 2),
+    {
+      key: "amount",
+      header: "Amount",
+      width: 100,
+      numeric: true,
+      summaryOptions: [
+        { value: "sum", label: "Sum" },
+        { value: "avg", label: "Average" },
+      ],
+    },
+  ];
+  function Sized({ loadingKeys }: { loadingKeys?: string[] }) {
+    return (
+      <div style={{ width: 360 }}>
+        <DataGrid
+          aria-label="Deals"
+          columns={cols}
+          data={DEALS}
+          getRowId={(d) => d.id}
+          phoneLayout="cards"
+          columnPicker={false}
+          summaryRow={{
+            label: "3 deals",
+            value: { amount: "sum" },
+            onValueChange,
+            results: { amount: "600" },
+            loading: loadingKeys,
+          }}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Sized />);
+  const line = () =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-grid-cards-summary"]',
+    );
+  await expect.poll(line).not.toBeNull();
+  expect(line()!.textContent).toBe("3 dealsAmount·Sum600");
+  // Above the cards, and read-only: no picker.
+  expect(
+    line()!.compareDocumentPosition(
+      screen.container.querySelector('[data-slot="data-grid-cards"]')!,
+    ) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(line()!.querySelector("button, [role=combobox]")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+  await screen.rerender(<Sized loadingKeys={["amount"]} />);
+  await expect
+    .poll(() => line()!.querySelector('[data-slot="skeleton"]'))
+    .not.toBeNull();
+});
+
+test("phoneLayout=cards without a summaryRow draws no summary line", async () => {
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={fixedColumns()}
+        data={DEALS}
+        getRowId={(d) => d.id}
+        phoneLayout="cards"
+        columnPicker={false}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="data-grid-cards"]'))
+    .not.toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="data-grid-cards-summary"]'),
+  ).toBeNull();
+});

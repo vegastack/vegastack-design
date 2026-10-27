@@ -41,6 +41,7 @@
     "record-picker",
     "destination-picker",
     "field-type-picker",
+    "field-type-link-step",
     "country-select",
     "region-select",
     "date-picker",

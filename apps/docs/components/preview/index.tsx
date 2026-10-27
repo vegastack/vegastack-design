@@ -204,3 +204,4 @@ export * from "./record-header";
 export * from "./record-picker";
 export * from "./destination-picker";
 export * from "./field-type-picker";
+export * from "./field-type-link-step";

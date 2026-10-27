@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 773,
-    "components": 185,
+    "totalRegistryItems": 774,
+    "components": 186,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 41,
+    "Forms/editing": 42,
     "Navigation/layout": 25,
     "Overlays": 23,
     "Data display": 39,
@@ -101,7 +101,8 @@
       "formula-input",
       "record-picker",
       "destination-picker",
-      "field-type-picker"
+      "field-type-picker",
+      "field-type-link-step"
     ],
     "Navigation/layout": [
       "accordion",
@@ -41394,6 +41395,162 @@
             {
               "name": "data-step",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "field-type-link-step",
+      "registryType": "registry:ui",
+      "title": "Field Type Link Step",
+      "summary": "The \"Links to\" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).",
+      "status": "stable",
+      "since": "0.25.90",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/field-type-link-step.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FieldTypeLinkStep",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FieldTypeLinkStepProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldLinkKind",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldLinkTable",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldLinkChoice",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "view",
+            "values": ["kinds", "tables"]
+          }
+        ],
+        "rationale": "The kinds list, or the table choice for a kind marked table."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Command rows."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "searching",
+            "empty",
+            "disabled-kind",
+            "current",
+            "tables",
+            "tables-loading"
+          ],
+          "evidence": "packages/ui/registry/ui/field-type-link-step.tsx + packages/ui/registry/ui/field-type-link-step.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/field-type-link-step.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "highlighted", "disabled", "current"],
+          "evidence": "packages/ui/registry/ui/field-type-link-step.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Names and explanations truncate to one line each in the popover's width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/field-type-link-step",
+      "registryDependencies": [
+        "@vegastack/command",
+        "@vegastack/field-type-picker"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.36",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/field-type-link-step.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "field-type-link-step",
+      "dataAttributes": {
+        "FieldTypeLinkStep": {
+          "attributes": [
+            {
+              "name": "data-checked",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "field-type-link-step",
+                "field-type-link-step-kind",
+                "field-type-link-step-table"
+              ]
+            },
+            {
+              "name": "data-view",
+              "values": ["kinds", "tables"]
             }
           ],
           "cssVariables": []

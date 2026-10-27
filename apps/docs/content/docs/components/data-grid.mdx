@@ -122,7 +122,9 @@ width, and the `headerTrailing` "+" column stays right after the last real colum
 On a phone-width container (under 40rem) `phoneLayout="cards"` shows each row as a card: the
 primary value as its title (it opens the row, with `onRowOpen`) and the next `cardFields` columns
 (3 by default) as labelled values. The grid decides by its own width, so a tablet keeps the grid
-and a narrow pane gets cards.
+and a narrow pane gets cards. A grid with a `summaryRow` shows it above the cards as one read-only
+line — its `label` ("412 rows"), then "Amount · Sum 12,400" for each summarised column — wrapping on
+a narrow screen; the functions are chosen from the table's footer.
 
 ### The toolbar
 

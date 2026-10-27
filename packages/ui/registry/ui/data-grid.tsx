@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.89 sha256-pXBWcumYR2ya3KdF5m3MzmF5ma1UGZzXRb8rzf3ro8U=
+// @vegastack data-grid@0.25.89 sha256-oCZS/I8BChtLKYO/PFr8mqQtfglUOHfkDJb0m/Sp1OI=
 
 "use client";
 
@@ -614,7 +614,9 @@ export interface DataGridProps<T> {
   rowHeight?: DataGridRowHeight;
   /**
    * The summary row: a sticky footer of per-column functions (`summaryOptions`)
-   * with the host's computed values. The grid computes nothing over its rows.
+   * with the host's computed values. The grid computes nothing over its rows. As cards
+   * (`phoneLayout="cards"` on a phone-width grid) it is one read-only line above them: the
+   * `label`, then "Column · Function result" for each summarised column, wrapping as it must.
    * @default undefined
    */
   summaryRow?: DataGridSummaryRow;
@@ -2421,6 +2423,58 @@ function GridBody<T>({
  * content's own links and the checkbox stay clickable above it). Cells don't edit here; the record
  * the card opens does.
  */
+/**
+ * The summary row as one read-only line above the cards (`phoneLayout="cards"`): the count, then
+ * "Column · Function result" for each summarised column — the footer's own values, read only.
+ */
+function GridCardsSummary<T>({
+  summaryRow,
+  columns,
+}: {
+  summaryRow: DataGridSummaryRow;
+  columns: readonly DataGridColumn<T>[];
+}) {
+  const loading = new Set(summaryRow.loading ?? []);
+  const parts = columns.flatMap((column) => {
+    const chosen = summaryRow.value[column.key];
+    const option = chosen
+      ? column.summaryOptions?.find((o) => o.value === chosen)
+      : undefined;
+    return option ? [{ column, option }] : [];
+  });
+  if (summaryRow.label == null && parts.length === 0) return null;
+  return (
+    <div
+      data-slot="data-grid-cards-summary"
+      className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"
+    >
+      {summaryRow.label != null ? (
+        <span data-slot="data-grid-cards-summary-label">
+          {summaryRow.label}
+        </span>
+      ) : null}
+      {parts.map(({ column, option }) => (
+        <span
+          key={column.key}
+          data-slot="data-grid-cards-summary-item"
+          className="inline-flex min-w-0 items-center gap-1"
+        >
+          <span className="truncate">{columnLabel(column)}</span>
+          <span aria-hidden="true">·</span>
+          <span>{option.label}</span>
+          {loading.has(column.key) ? (
+            <Skeleton className="h-3 w-8" />
+          ) : (
+            <span className="font-medium text-foreground tabular-nums">
+              {summaryRow.results?.[column.key] ?? "—"}
+            </span>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function GridCards<T>({
   items,
   columns,
@@ -5006,6 +5060,9 @@ export function DataGrid<T>({
 
         {cardMode ? (
           <>
+            {summaryRow && !loading ? (
+              <GridCardsSummary summaryRow={summaryRow} columns={cardColumns} />
+            ) : null}
             <GridCards
               items={items}
               // Every shown column, before the table's revelation merged or dropped any: a card
