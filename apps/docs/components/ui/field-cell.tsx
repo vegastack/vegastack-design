@@ -1,9 +1,11 @@
-// @vegastack field-cell@0.25.89 sha256-Vpj38VigZ8oT5Dy0ShXs+4dqQBKEXj48d82OkG5ot0E=
+// @vegastack field-cell@0.25.89 sha256-F7UlwiRbAGjia6R7LwavS/Qwn6ppAtcQ0Qh+LVndJJA=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import type { EditableCellMove } from "@/components/ui/editable-cell";
@@ -24,7 +26,6 @@ import {
 import { useTimeZone } from "@/components/ui/relative-time";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tag, TagGroup } from "@/components/ui/tag-group";
 import {
   TextEdit,
   type MentionKind,
@@ -208,6 +209,95 @@ export const READ_ONLY_FIELD_TYPES: ReadonlySet<FieldType> = new Set([
 
 /** The most chips, avatars or thumbnails a cell shows before a count. */
 const SHOWN = 3;
+
+/** The most choice badges a cell shows before a count. */
+const CHOICES_SHOWN = 2;
+
+/**
+ * A choice's hue on a `Badge` — Badge's documented custom-colour route, on the AA-gated tag tokens
+ * (`-subtle` fill, `-text` ink): a filled pill with no outline. The neutral option is Badge's own
+ * `secondary`. Static literals, so the Tailwind scanner sees every string.
+ */
+const CHOICE_HUE: Record<ChipHue, string> = {
+  neutral: "bg-secondary text-secondary-foreground",
+  blue: "bg-tag-blue-subtle text-tag-blue-text",
+  cyan: "bg-tag-cyan-subtle text-tag-cyan-text",
+  green: "bg-tag-green-subtle text-tag-green-text",
+  lime: "bg-tag-lime-subtle text-tag-lime-text",
+  yellow: "bg-tag-yellow-subtle text-tag-yellow-text",
+  orange: "bg-tag-orange-subtle text-tag-orange-text",
+  red: "bg-tag-red-subtle text-tag-red-text",
+  pink: "bg-tag-pink-subtle text-tag-pink-text",
+  magenta: "bg-tag-magenta-subtle text-tag-magenta-text",
+  purple: "bg-tag-purple-subtle text-tag-purple-text",
+};
+
+/** Props accepted by `FieldChoiceBadge`. */
+export interface FieldChoiceBadgeProps extends Omit<
+  React.ComponentProps<typeof Badge>,
+  "variant"
+> {
+  /**
+   * The option's hue (`FieldChoiceOption.hue`).
+   * @default "neutral"
+   */
+  hue?: ChipHue;
+}
+
+/**
+ * `FieldChoiceBadge` — one choice option's value, the way the system draws it everywhere: a
+ * `Badge` filled in the option's hue (a cell, a phone card, a picker's list, a trigger). It
+ * shrinks to its container: wrap the label in `<span className="min-w-0 truncate">` (or a
+ * `TruncatedText`) so a long name ends in an ellipsis.
+ *
+ * @example
+ * <FieldChoiceBadge hue="green"><span className="min-w-0 truncate">Sent</span></FieldChoiceBadge>
+ */
+export function FieldChoiceBadge({
+  hue = "neutral",
+  className,
+  ...props
+}: FieldChoiceBadgeProps) {
+  return (
+    <Badge
+      variant="secondary"
+      data-hue={hue}
+      // Shrinks with its cell (`min-w-0`); `overflow-visible` lets a clipped name's 24px
+      // disclosure target (`TruncatedText`) keep its whole box around the 20px pill.
+      className={cn(
+        "max-w-full min-w-0 shrink justify-start overflow-visible",
+        CHOICE_HUE[hue],
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** A choice field's chosen options, in the value's order (an id with no option is skipped). */
+function chosenOptions(
+  value: FieldValue,
+  config: FieldConfig,
+): FieldChoiceOption[] {
+  const ids =
+    typeof value === "string"
+      ? [value]
+      : Array.isArray(value)
+        ? (value as string[])
+        : [];
+  return ids
+    .map((id) => config.options?.find((option) => option.id === id))
+    .filter((option): option is FieldChoiceOption => option != null);
+}
+
+/** A choice option in a list or on a trigger: its badge, the name cut with an ellipsis. */
+function choiceFace(option: FieldChoiceOption) {
+  return (
+    <FieldChoiceBadge hue={option.hue}>
+      <span className="min-w-0 truncate">{option.label}</span>
+    </FieldChoiceBadge>
+  );
+}
 
 /** Number formatting per type, in the reader's locale. */
 function formatNumber(type: FieldType, value: number, config: FieldConfig) {
@@ -493,26 +583,23 @@ export function FieldCellDisplay({
         : empty;
     case "single_choice":
     case "multi_choice": {
-      const ids =
-        typeof value === "string"
-          ? [value]
-          : Array.isArray(value)
-            ? (value as string[])
-            : [];
-      const chosen = ids
-        .map((id) => config.options?.find((option) => option.id === id))
-        .filter((option): option is FieldChoiceOption => option != null);
+      const chosen = chosenOptions(value, config);
       if (chosen.length === 0) return empty;
       return root(
-        <TagGroup max={2} className="min-w-0 flex-nowrap overflow-hidden">
-          {chosen.map((option) => (
-            <Tag key={option.id} hue={option.hue ?? "neutral"}>
+        <>
+          {chosen.slice(0, CHOICES_SHOWN).map((option) => (
+            <FieldChoiceBadge key={option.id} hue={option.hue}>
               {/* A clipped name is revealed on hover and on keyboard focus. */}
               {/* A clipped name becomes a tab stop: never under the 24px target floor. */}
               <TruncatedText className="min-w-6">{option.label}</TruncatedText>
-            </Tag>
+            </FieldChoiceBadge>
           ))}
-        </TagGroup>,
+          <Overflow
+            count={chosen.length - CHOICES_SHOWN}
+            labels={chosen.slice(CHOICES_SHOWN).map((option) => option.label)}
+            tabIndex={tabIndex}
+          />
+        </>,
       );
     }
     case "checkbox":
@@ -1025,9 +1112,7 @@ export function FieldInput({
         items: options,
         itemToKey: (option: FieldChoiceOption) => option.id,
         itemToStringLabel: (option: FieldChoiceOption) => option.label,
-        renderItem: (option: FieldChoiceOption) => (
-          <Tag hue={option.hue ?? "neutral"}>{option.label}</Tag>
-        ),
+        renderItem: choiceFace,
         onCreateOption: config.onCreateOption,
         placeholder: config.placeholder ?? "Choose…",
         searchLabel: "Search options",
@@ -1136,6 +1221,98 @@ export function FieldInput({
     default:
       return null;
   }
+}
+
+/**
+ * A choice cell's editor (`FieldCellEditor`): the cell keeps showing its badges — no field, no
+ * chevron — and the option list opens under it at once, the search field first, each option drawn
+ * as its badge with a check on the chosen ones. A single choice commits on the pick; a multiple
+ * choice toggles with the list open and commits when the edit ends. "Add “…”" ends the list when
+ * `onCreateOption` is given.
+ */
+function ChoiceCellEditor({
+  multiple,
+  value,
+  config,
+  label,
+  defaultSearch,
+  onChange,
+  onClose,
+}: {
+  multiple: boolean;
+  value: FieldValue;
+  config: FieldConfig;
+  label: string;
+  defaultSearch?: string;
+  onChange: (value: FieldValue) => void;
+  /** The list closed without a key or a pick ending the edit (a click outside, the cell again). */
+  onClose: () => void;
+}) {
+  const options = [...(config.options ?? [])];
+  const chosen = chosenOptions(value, config);
+  const common = {
+    items: options,
+    itemToKey: (option: FieldChoiceOption) => option.id,
+    itemToStringLabel: (option: FieldChoiceOption) => option.label,
+    renderItem: choiceFace,
+    onCreateOption: config.onCreateOption,
+    searchLabel: "Search options",
+    defaultSearch,
+    "aria-label": label,
+    // A narrow column still gets a list its option names fit in.
+    contentClassName: "min-w-56",
+    onOpenChange: (open: boolean) => {
+      if (!open) onClose();
+    },
+    // The cell itself is the trigger: its badges as they are, no field chrome around them, in
+    // the resting cell's box (`EditableCell`'s padding), so opening the editor moves nothing.
+    renderTrigger: () => (
+      <Button
+        variant="ghost"
+        data-slot="field-cell-choice-trigger"
+        // No wash, no press nudge: the cell is what is being edited, not a button on it.
+        className="h-auto w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent dark:hover:bg-transparent"
+      >
+        {chosen.slice(0, CHOICES_SHOWN).map((option) => (
+          <FieldChoiceBadge key={option.id} hue={option.hue}>
+            <span className="min-w-0 truncate">{option.label}</span>
+          </FieldChoiceBadge>
+        ))}
+        {chosen.length > CHOICES_SHOWN ? (
+          // The display's "+N" box (`Overflow`), so the row keeps its height.
+          <span className="inline-block min-h-6 min-w-6 shrink-0 text-center text-xs leading-6 text-muted-foreground tabular-nums">
+            +{chosen.length - CHOICES_SHOWN}
+          </span>
+        ) : null}
+      </Button>
+    ),
+  };
+  if (multiple)
+    return (
+      <SearchableSelect<FieldChoiceOption, true>
+        {...common}
+        multiple
+        value={chosen}
+        onValueChange={(next) => onChange(next.map((option) => option.id))}
+      />
+    );
+  return (
+    <SearchableSelect<FieldChoiceOption>
+      {...common}
+      value={chosen[0] ?? null}
+      onValueChange={(next) => onChange(next?.id ?? null)}
+    />
+  );
+}
+
+/** Whether two choice values hold the same ids, in any order. */
+function sameChoices(a: FieldValue, b: FieldValue) {
+  const ids = (v: FieldValue) =>
+    (typeof v === "string" ? [v] : Array.isArray(v) ? (v as string[]) : [])
+      .slice()
+      .sort()
+      .join("\u0000");
+  return ids(a) === ids(b);
 }
 
 /** Props accepted by `FieldCellEditor`. */
@@ -1348,8 +1525,10 @@ function inOwnPopup(root: Element, node: Element | null) {
  * commits a TYPED value, so the host saves it and closes the slot itself:
  * `editable: { type: "custom", render: ({ cancel }) => <FieldCellEditor … onCommit={(v) => {
  * save(v); cancel(); }} onCancel={cancel} /> }`. Text, numbers and date-times edit a draft and
- * commit on <kbd>Enter</kbd> or when focus leaves the editor; pickers (date, choice, person, link)
- * commit on choosing; long text opens the `TextEdit` editor in a popover
+ * commit on <kbd>Enter</kbd> or when focus leaves the editor; pickers (date, single choice, person,
+ * link) commit on choosing; a multiple choice toggles with its list open and commits on
+ * <kbd>Tab</kbd>, on <kbd>Enter</kbd> with no option highlighted, or when the list closes; long
+ * text opens the `TextEdit` editor in a popover
  * (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> or closing it saves); <kbd>Escape</kbd> cancels
  * the edit, an open picker or calendar with it.
  * The editor takes focus as it opens. A read-only type cancels at once.
@@ -1381,6 +1560,10 @@ export function FieldCellEditor({
         : value,
   );
   const done = React.useRef(false);
+  // The draft as of the last change, for a commit scheduled outside a render (a list closing).
+  const latest = React.useRef<FieldValue>(draft);
+  const choice = type === "single_choice" || type === "multi_choice";
+  const multiChoice = type === "multi_choice";
   const root = React.useRef<HTMLSpanElement | null>(null);
   const longText = React.useRef<TextEditHandle | null>(null);
   const commit = (next: FieldValue, move?: EditableCellMove) => {
@@ -1565,6 +1748,17 @@ export function FieldCellEditor({
         }
         pickMove.current =
           event.key === "Enter" ? (event.shiftKey ? "up" : "down") : undefined;
+        // A multiple choice toggles on Enter while an option is highlighted; with none, Enter
+        // ends the edit and commits what is ticked.
+        if (
+          multiChoice &&
+          event.key === "Enter" &&
+          !(event.target as Element).getAttribute?.("aria-activedescendant")
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          commit(latest.current, event.shiftKey ? "up" : "down");
+        }
       }}
       onPointerDownCapture={() => {
         pickMove.current = undefined;
@@ -1603,7 +1797,29 @@ export function FieldCellEditor({
         else cancel();
       }}
     >
-      {typedDate ? (
+      {choice ? (
+        <ChoiceCellEditor
+          multiple={multiChoice}
+          value={draft}
+          config={config}
+          label={label}
+          defaultSearch={seed || undefined}
+          onChange={(next) => {
+            setDraft(next);
+            latest.current = next;
+            // A single choice's pick is the commit, and moves on when Enter made it.
+            if (!multiChoice) commit(next, pickMove.current);
+          }}
+          onClose={() => {
+            // After the event that closed the list: a pick in the same event commits first.
+            setTimeout(() => {
+              if (multiChoice && !sameChoices(latest.current, value))
+                commit(latest.current);
+              else cancel();
+            }, 0);
+          }}
+        />
+      ) : typedDate ? (
         <Input
           type="text"
           inputMode="text"

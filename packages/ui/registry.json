@@ -2391,6 +2391,8 @@
         "@vegastack/design-tokens@^0.8.35"
       ],
       "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/chip",
         "@vegastack/date-picker",
@@ -2406,7 +2408,6 @@
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tag-group",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",

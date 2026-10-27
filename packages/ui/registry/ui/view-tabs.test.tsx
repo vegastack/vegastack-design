@@ -51,22 +51,19 @@ test("shared views first, then Mine; a lock on the locked view; arrows rove the 
   await expectNoA11yViolations(screen.container);
 });
 
-test("the + menu creates a grid or board, shared or personal; shared choices can be withheld", async () => {
+test("the + menu offers a grid or a board, and reports only the kind", async () => {
   const onCreate = vi.fn();
   const screen = await render(<Harness onCreate={onCreate} />);
   await screen.getByRole("button", { name: "New view" }).click();
   await expectNoA11yViolations(document.body);
   const items = screen.getByRole("menuitem");
-  await expect.poll(() => items.elements().length).toBe(4);
+  await expect.poll(() => items.elements().length).toBe(2);
+  expect(items.elements().map((item) => item.textContent?.trim())).toEqual([
+    "Grid view",
+    "Board view",
+  ]);
   await items.nth(1).click();
-  expect(onCreate).toHaveBeenCalledWith("board", "shared");
-  await screen.rerender(
-    <Harness onCreate={onCreate} canCreateShared={false} />,
-  );
-  await screen.getByRole("button", { name: "New view" }).click();
-  await expect
-    .poll(() => screen.getByRole("menuitem").elements().length)
-    .toBe(2);
+  expect(onCreate).toHaveBeenCalledWith("board");
 });
 
 test("the open view's actions sit in a ⋯ menu named for it", async () => {

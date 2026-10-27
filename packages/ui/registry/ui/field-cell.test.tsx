@@ -277,6 +277,81 @@ test("FieldCellEditor: an invalid URL never commits; a read-only type cancels at
   await expect.poll(() => cancelled.mock.calls.length).toBe(1);
 });
 
+test("a choice shows as a badge in its hue, in the cell and in the editor's list", async () => {
+  const screen = await render(
+    <FieldCellDisplay
+      type="single_choice"
+      value="sent"
+      config={{ options: OPTIONS }}
+    />,
+  );
+  const badge = screen.container.querySelector('[data-slot="badge"]');
+  expect(badge?.getAttribute("data-hue")).toBe("green");
+  expect(badge?.textContent).toBe("Sent");
+  await screen.rerender(
+    <FieldCellEditor
+      type="single_choice"
+      label="Status"
+      value="sent"
+      config={{ options: OPTIONS }}
+      onCommit={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  // The cell is the trigger: its badge, no field chrome and no chevron around it.
+  const editor = screen.container.querySelector(
+    '[data-slot="field-cell-editor"]',
+  )!;
+  expect(
+    editor.querySelector('[data-slot="field-cell-choice-trigger"] [data-hue]'),
+  ).not.toBeNull();
+  expect(editor.querySelector("svg")).toBeNull();
+  // The list is open with its search field, each option a badge, the chosen one checked.
+  await expect.element(screen.getByLabelText("Search options")).toBeVisible();
+  const sent = screen.getByRole("option", { name: "Sent" });
+  await expect.element(sent).toHaveAttribute("aria-selected", "true");
+  expect(sent.element().querySelector('[data-hue="green"]')).not.toBeNull();
+  await expectNoA11yViolations(document.body);
+});
+
+test("a multiple choice toggles with its list open and commits on Tab; Escape cancels", async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  const editor = (key: string) => (
+    <FieldCellEditor
+      key={key}
+      type="multi_choice"
+      label="Stages"
+      value={["req"]}
+      config={{ options: OPTIONS }}
+      onCommit={onCommit}
+      onCancel={onCancel}
+    />
+  );
+  const screen = await render(editor("a"));
+  await screen.getByRole("option", { name: "Sent" }).click();
+  await screen.getByRole("option", { name: "Requested" }).click();
+  // Still open: each pick toggled, nothing committed yet.
+  await expect.element(screen.getByRole("listbox")).toBeVisible();
+  expect(onCommit).not.toHaveBeenCalled();
+  await userEvent.keyboard("{Tab}");
+  expect(onCommit).toHaveBeenCalledWith(["sent"], "right");
+
+  await screen.rerender(editor("b"));
+  await screen.getByRole("option", { name: "Closed" }).click();
+  await userEvent.keyboard("{Escape}");
+  expect(onCancel).toHaveBeenCalledTimes(1);
+  expect(onCommit).toHaveBeenCalledTimes(1);
+
+  // A click away commits what is ticked.
+  await screen.rerender(editor("c"));
+  await screen.getByRole("option", { name: "Closed" }).click();
+  await userEvent.click(document.body, { position: { x: 1, y: 1 } });
+  await expect
+    .poll(() => onCommit.mock.calls.at(-1))
+    .toEqual([["req", "closed"], undefined]);
+});
+
 test("a choice editor adds the typed option through onCreateOption", async () => {
   const onCreateOption = vi.fn(async (label: string) => ({ id: "new", label }));
   const onChange = vi.fn();
