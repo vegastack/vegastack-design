@@ -5,6 +5,7 @@ import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   DocumentLayout,
+  DocumentLayoutAside,
   DocumentLayoutBlock,
   DocumentLayoutBlockAction,
   DocumentLayoutBlockFooter,
@@ -445,5 +446,133 @@ test("a live block holds rows as a list, a note and a footer action, and is not 
   await expect
     .element(screen.getByRole("button", { name: "Try again" }))
     .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+function Discussion({
+  aside,
+  onClose,
+}: {
+  aside: "discussion" | "outline" | null | undefined;
+  onClose?: () => void;
+}) {
+  return (
+    <DocumentLayout aside={aside} margin>
+      <DocumentLayoutBody>
+        <p>Body text.</p>
+      </DocumentLayoutBody>
+      {/* The margin is display:none while the discussion is open; this unstyled harness shows
+          every part, so it takes a name of its own here. */}
+      <DocumentLayoutMargin aria-label="Threads beside the text">
+        <p>A thread</p>
+      </DocumentLayoutMargin>
+      <DocumentLayoutAside
+        count={3}
+        onClose={onClose}
+        tabs={[
+          {
+            value: "open",
+            label: "Open",
+            count: 3,
+            content: <p>Open threads</p>,
+          },
+          {
+            value: "resolved",
+            label: "Resolved",
+            content: <p>Resolved threads</p>,
+          },
+          { value: "page", label: "Page", content: <p>The page thread</p> },
+        ]}
+      />
+      <DocumentLayoutAside kind="outline">
+        <p>Pricing · Seats · Terms</p>
+      </DocumentLayoutAside>
+    </DocumentLayout>
+  );
+}
+
+test("aside: unset writes no flag (the layout as before); null keeps the track closed; a kind names the open one", async () => {
+  const screen = await render(<Discussion aside={undefined} />);
+  const grid = () =>
+    screen.container.querySelector<HTMLElement>(
+      "[data-slot=document-layout-grid]",
+    )!;
+  expect(grid().hasAttribute("data-aside")).toBe(false);
+  await screen.rerender(<Discussion aside={null} />);
+  expect(grid().dataset.aside).toBe("none");
+  await screen.rerender(<Discussion aside="discussion" />);
+  expect(grid().dataset.aside).toBe("discussion");
+  expect(
+    screen.container
+      .querySelector("[data-slot=document-layout]")
+      ?.getAttribute("data-aside"),
+  ).toBe("discussion");
+  // The track is CSS: kept for any aside in the document measure, only an open one in wide.
+  expect(grid().className).toContain(
+    "data-aside:not-data-[measure=wide]:@min-[64rem]/document-layout:[--document-layout-margin:20rem]",
+  );
+});
+
+test("the discussion aside: a named region with its count, tabs with counts, a close button", async () => {
+  const onClose = vi.fn();
+  const screen = await render(
+    <Discussion aside="discussion" onClose={onClose} />,
+  );
+  const aside = screen.container.querySelector<HTMLElement>(
+    "aside[data-slot=document-layout-aside][data-kind=discussion]",
+  )!;
+  expect(aside.getAttribute("aria-label")).toBe("Comments");
+  expect(
+    aside.querySelector("[data-slot=document-layout-aside-count]")?.textContent,
+  ).toBe("3");
+  await expect
+    .element(screen.getByRole("tab", { name: "Open 3" }))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(screen.getByText("Open threads")).toBeInTheDocument();
+  await screen.getByRole("tab", { name: "Resolved" }).click();
+  await expect
+    .element(screen.getByText("Resolved threads"))
+    .toBeInTheDocument();
+  await screen.getByRole("button", { name: "Close" }).click();
+  expect(onClose).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the aside's tabs can be controlled; without tabs it shows its children; the outline is its own region", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <DocumentLayout aside="outline">
+      <DocumentLayoutBody>
+        <p>Body text.</p>
+      </DocumentLayoutBody>
+      <DocumentLayoutAside
+        title="Discussion"
+        value="page"
+        onValueChange={onValueChange}
+        tabs={[
+          { value: "open", label: "Open", content: <p>Open threads</p> },
+          { value: "page", label: "Page", content: <p>The page thread</p> },
+        ]}
+      />
+      <DocumentLayoutAside kind="outline">
+        <p>Pricing · Seats · Terms</p>
+      </DocumentLayoutAside>
+    </DocumentLayout>,
+  );
+  await expect
+    .element(screen.getByRole("tab", { name: "Page" }))
+    .toHaveAttribute("aria-selected", "true");
+  await screen.getByRole("tab", { name: "Open" }).click();
+  expect(onValueChange).toHaveBeenCalledWith("open");
+  // Controlled: the host has not moved it.
+  await expect
+    .element(screen.getByRole("tab", { name: "Page" }))
+    .toHaveAttribute("aria-selected", "true");
+  const outline = screen.container.querySelector<HTMLElement>(
+    "aside[data-kind=outline]",
+  )!;
+  expect(outline.getAttribute("aria-label")).toBe("On this page");
+  expect(outline.textContent).toContain("Pricing · Seats · Terms");
+  expect(outline.querySelector("[role=tablist]")).toBeNull();
   await expectNoA11yViolations(screen.container);
 });

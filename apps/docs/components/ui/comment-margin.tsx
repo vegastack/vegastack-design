@@ -1,4 +1,4 @@
-// @vegastack comment-margin@0.25.89 sha256-VIMF4ifTHAJO72vmHOgVZWjsZ6uH/ybMUpEoRdzqGes=
+// @vegastack comment-margin@0.25.89 sha256-1EORoJ7ge8ysV3IH7cCg6cHcVCApP2qqu+i1G0l48oQ=
 
 "use client";
 
@@ -39,6 +39,13 @@ export interface CommentMarginProps {
    * @default null
    */
   activeId?: string | null;
+  /**
+   * Show each card's quote (`CommentThread`'s quoted words). `false` hides it — a card beside its
+   * own highlight need not repeat it (the discussion rail and the sheet keep it) — and drops a
+   * header left empty without it, so the card starts at its first comment.
+   * @default true
+   */
+  quote?: boolean;
   /** Classes for the margin column. @default undefined */
   className?: string;
 }
@@ -76,7 +83,8 @@ export function layoutCommentMargin(
  * level with its highlight, pushed down just enough not to overlap the card above; the active
  * card sits exactly level with its text and the cards above it move up (Google Docs behaviour).
  * Heights are measured live, so a card that grows (a reply box opening) re-flows the rest.
- * Cards whose `top` is `null` (their text is gone) are not rendered.
+ * Cards whose `top` is `null` (their text is gone) are not rendered. `quote={false}` hides each
+ * card's quote, which sits right beside the highlight it repeats.
  *
  * @example
  * <CommentMargin activeId={activeId}
@@ -86,6 +94,7 @@ export function CommentMargin({
   items,
   gap = 12,
   activeId = null,
+  quote = true,
   className,
 }: CommentMarginProps) {
   const [heights, setHeights] = React.useState<Record<string, number>>({});
@@ -153,7 +162,15 @@ export function CommentMargin({
   return (
     <div
       data-slot="comment-margin"
-      className={cn("relative min-w-0", className)}
+      data-quote={quote ? undefined : "hidden"}
+      className={cn(
+        "relative min-w-0",
+        // No quote beside the highlight it repeats; a thread header with nothing else to show
+        // (no resolve or reopen control, no resolved line) goes with it.
+        !quote &&
+          "[&_[data-slot=comment-thread-quote]]:hidden [&_[data-slot=comment-thread-header]:not(:has([data-slot=comment-thread-resolved],button:not([data-slot=comment-thread-quote])))]:hidden",
+        className,
+      )}
       style={{ minHeight: bottom }}
     >
       {placed.map((item) => (

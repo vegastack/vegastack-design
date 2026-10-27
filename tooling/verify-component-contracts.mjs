@@ -581,7 +581,7 @@ const expectedWaves = {
   "Forms/editing": 42,
   "Navigation/layout": 26,
   Overlays: 23,
-  "Data display": 40,
+  "Data display": 41,
   "Content/marketing": 15,
   "AI/chat": 12,
   // Not a browse group: components other components install, with no page of their own. See
@@ -739,6 +739,7 @@ const expectedComponentWaveMembers = {
     "cursor-pager",
     "comment-margin",
     "version-list",
+    "version-compare",
     "view-tabs",
     "diff-view",
     "carousel",

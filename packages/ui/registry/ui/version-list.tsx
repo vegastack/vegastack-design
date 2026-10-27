@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.89 sha256-F6nTUb0sjzg4o9+XwL3n0YU0eXwn3l5soV87SZVDxI4=
+// @vegastack version-list@0.25.89 sha256-qtj76RUy2uGfMNWQwcvnJ6N7McRsXe2PSyVwvSmXLzE=
 
 "use client";
 
@@ -12,7 +12,11 @@ import {
   PersonName,
   type Person,
 } from "@/components/ui/person-avatar";
-import { RelativeTime } from "@/components/ui/relative-time";
+import {
+  DateTime,
+  RelativeTime,
+  useTimeZone,
+} from "@/components/ui/relative-time";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
@@ -108,8 +112,29 @@ export interface VersionListProps {
   headingHidden?: boolean;
   /** The list's heading ("History" where the host calls it that). @default "Version history" */
   heading?: string;
+  /**
+   * `day` groups the rows under a heading per calendar day ("Today", "Yesterday", "26 October"),
+   * in the viewer's time zone, and an unnamed row shows its time of day only.
+   * @default undefined
+   */
+  groupBy?: "day";
   /** Classes for the list. @default undefined */
   className?: string;
+}
+
+/** `useSyncExternalStore`'s subscribe for a value that never changes after hydration. */
+const subscribeNever = () => () => {};
+
+/** A calendar day's key in a time zone (the viewer's when unset): `2026-10-27`. */
+function dayKey(at: VersionItem["at"], timeZone: string | undefined): string {
+  const date = new Date(at);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }
 
 /** A row's badge: its own `label`, else its kind's — unless its name already says it. */
@@ -124,6 +149,8 @@ function badgeOf(version: VersionItem): string | null {
  * name when it has one, a badge for how it came to be ("Before a large deletion", "Before an
  * agent's edits", "Approved" — `VersionKind`) and one for the document's current text ("Current"). A listbox with one tab stop: ↑/↓, Home and End move
  * the selection. A "Named only" switch in the header, and the next page loads on scroll.
+ * `groupBy="day"` puts the rows under a heading per day. An agent author (`kind: "agent"`) shows
+ * the agent avatar.
  *
  * @example
  * <VersionList versions={versions} selectedId={selected} onSelect={setSelected}
@@ -143,9 +170,20 @@ export function VersionList({
   now,
   headingHidden = false,
   heading = "Version history",
+  groupBy,
   className,
 }: VersionListProps) {
   const headingId = React.useId();
+  const groupId = React.useId();
+  // The day a row falls on: in the app's time zone when one is provided; otherwise UTC on the
+  // server and through hydration (both sides group alike), then the viewer's own zone.
+  const contextZone = useTimeZone();
+  const hydrated = React.useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+  const timeZone = contextZone ?? (hydrated ? undefined : "UTC");
   const switchId = React.useId();
   const selectedIndex = versions.findIndex((v) => v.id === selectedId);
   const nav = useListNav({
@@ -156,6 +194,123 @@ export function VersionList({
   React.useEffect(() => {
     if (selectedIndex >= 0) setActiveIndex(selectedIndex);
   }, [selectedIndex, setActiveIndex]);
+
+  // The rows, in day groups when `groupBy="day"` (the list's own order, newest first).
+  const byDay = groupBy === "day";
+  const groups: {
+    key: string;
+    rows: { version: VersionItem; index: number }[];
+  }[] = [];
+  if (byDay)
+    versions.forEach((version, index) => {
+      const key = dayKey(version.at, timeZone);
+      const last = groups[groups.length - 1];
+      if (last && last.key === key) last.rows.push({ version, index });
+      else groups.push({ key, rows: [{ version, index }] });
+    });
+
+  const row = (version: VersionItem, index: number) => {
+    const selected = version.id === selectedId;
+    const badge = badgeOf(version);
+    const item = nav.getItemProps(index);
+    return (
+      <div
+        key={version.id}
+        role="option"
+        aria-selected={selected}
+        data-slot="version-list-item"
+        data-selected={selected ? "true" : undefined}
+        data-kind={version.kind}
+        tabIndex={item.tabIndex}
+        ref={item.ref}
+        onFocus={() => {
+          item.onFocus();
+          if (!selected) onSelect?.(version.id);
+        }}
+        onClick={() => {
+          if (!selected) onSelect?.(version.id);
+        }}
+        className="flex min-w-0 cursor-default flex-col gap-1 rounded-md px-2 py-1.5 text-sm select-none hover:bg-accent data-selected:bg-muted"
+      >
+        <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          {version.name ? (
+            <span className="min-w-0 font-medium wrap-anywhere">
+              {version.name}
+            </span>
+          ) : byDay ? (
+            // The day is the group's heading: the row says the time.
+            <DateTime
+              date={version.at}
+              variant="time"
+              title={false}
+              timeZone={timeZone}
+              className="tabular-nums"
+            />
+          ) : (
+            <RelativeTime
+              date={version.at}
+              mode="day"
+              withTime
+              capitalize
+              now={now}
+              className="tabular-nums"
+            />
+          )}
+          {version.id === currentId ? (
+            <Badge variant="secondary">Current</Badge>
+          ) : null}
+          {badge ? (
+            <Badge
+              variant={version.kind === "approved" ? "success" : "outline"}
+            >
+              {badge}
+            </Badge>
+          ) : null}
+        </span>
+        {version.author || version.name ? (
+          <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            {version.author ? (
+              <>
+                <PersonAvatar person={version.author} className="size-4" />
+                <span className="min-w-0 truncate">
+                  <PersonName person={version.author} agentLabel={false} />
+                </span>
+                {version.author.kind === "agent" ? (
+                  // Outside the truncation, so the label stays whole; the name already
+                  // says "agent" to a screen reader.
+                  <PersonAgentLabel aria-hidden />
+                ) : null}
+                {/* An agent already carries its label; a host's own "Agent" badge would repeat it. */}
+                {version.author.kind === "agent" &&
+                version.author.badge === "Agent" ? null : (
+                  <PersonBadge badge={version.author.badge} />
+                )}
+              </>
+            ) : null}
+            {version.name ? (
+              <>
+                {version.author ? <span aria-hidden>·</span> : null}
+                <RelativeTime
+                  date={version.at}
+                  mode="day"
+                  withTime
+                  // Alone on its line (no author before it): it starts the line.
+                  capitalize={!version.author}
+                  now={now}
+                  className="shrink-0 tabular-nums"
+                />
+              </>
+            ) : null}
+          </span>
+        ) : null}
+        {version.summary ? (
+          <span className="text-xs text-muted-foreground">
+            {version.summary}
+          </span>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <section
@@ -216,107 +371,34 @@ export function VersionList({
           onKeyDown={nav.handleKeyDown}
           className="flex flex-col gap-0.5"
         >
-          {versions.map((version, index) => {
-            const selected = version.id === selectedId;
-            const badge = badgeOf(version);
-            const item = nav.getItemProps(index);
-            return (
-              <div
-                key={version.id}
-                role="option"
-                aria-selected={selected}
-                data-slot="version-list-item"
-                data-selected={selected ? "true" : undefined}
-                data-kind={version.kind}
-                tabIndex={item.tabIndex}
-                ref={item.ref}
-                onFocus={() => {
-                  item.onFocus();
-                  if (!selected) onSelect?.(version.id);
-                }}
-                onClick={() => {
-                  if (!selected) onSelect?.(version.id);
-                }}
-                className="flex min-w-0 cursor-default flex-col gap-1 rounded-md px-2 py-1.5 text-sm select-none hover:bg-accent data-selected:bg-muted"
-              >
-                <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                  {version.name ? (
-                    <span className="min-w-0 font-medium wrap-anywhere">
-                      {version.name}
-                    </span>
-                  ) : (
+          {!byDay
+            ? versions.map((version, index) => row(version, index))
+            : groups.map((group) => (
+                <div
+                  key={group.key}
+                  role="group"
+                  aria-labelledby={`${groupId}-${group.key}`}
+                  data-slot="version-list-group"
+                  className="flex flex-col gap-0.5 not-first:mt-2"
+                >
+                  <div
+                    id={`${groupId}-${group.key}`}
+                    role="presentation"
+                    data-slot="version-list-group-label"
+                    className="px-2 pt-1 pb-0.5 text-xs font-medium text-muted-foreground"
+                  >
                     <RelativeTime
-                      date={version.at}
+                      date={group.rows[0]!.version.at}
                       mode="day"
-                      withTime
                       capitalize
+                      title={false}
                       now={now}
-                      className="tabular-nums"
+                      timeZone={timeZone}
                     />
-                  )}
-                  {version.id === currentId ? (
-                    <Badge variant="secondary">Current</Badge>
-                  ) : null}
-                  {badge ? (
-                    <Badge
-                      variant={
-                        version.kind === "approved" ? "success" : "outline"
-                      }
-                    >
-                      {badge}
-                    </Badge>
-                  ) : null}
-                </span>
-                {version.author || version.name ? (
-                  <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                    {version.author ? (
-                      <>
-                        <PersonAvatar
-                          person={version.author}
-                          className="size-4"
-                        />
-                        <span className="min-w-0 truncate">
-                          <PersonName
-                            person={version.author}
-                            agentLabel={false}
-                          />
-                        </span>
-                        {version.author.kind === "agent" ? (
-                          // Outside the truncation, so the label stays whole; the name already
-                          // says "agent" to a screen reader.
-                          <PersonAgentLabel aria-hidden />
-                        ) : null}
-                        {/* An agent already carries its label; a host's own "Agent" badge would repeat it. */}
-                        {version.author.kind === "agent" &&
-                        version.author.badge === "Agent" ? null : (
-                          <PersonBadge badge={version.author.badge} />
-                        )}
-                      </>
-                    ) : null}
-                    {version.name ? (
-                      <>
-                        {version.author ? <span aria-hidden>·</span> : null}
-                        <RelativeTime
-                          date={version.at}
-                          mode="day"
-                          withTime
-                          // Alone on its line (no author before it): it starts the line.
-                          capitalize={!version.author}
-                          now={now}
-                          className="shrink-0 tabular-nums"
-                        />
-                      </>
-                    ) : null}
-                  </span>
-                ) : null}
-                {version.summary ? (
-                  <span className="text-xs text-muted-foreground">
-                    {version.summary}
-                  </span>
-                ) : null}
-              </div>
-            );
-          })}
+                  </div>
+                  {group.rows.map(({ version, index }) => row(version, index))}
+                </div>
+              ))}
         </div>
       )}
       {!loading && versions.length > 0 && loadMore ? (

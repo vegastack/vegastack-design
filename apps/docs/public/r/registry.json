@@ -238,7 +238,9 @@
         "@vegastack/input-group",
         "@vegastack/skeleton",
         "@vegastack/item",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/sheet",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -265,13 +267,18 @@
           "path": "packages/ui/registry/ui/document-layout-sections.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-sections.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-aside.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-aside.tsx"
         }
       ],
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.89",
-        "integrity": "sha256-eN9qTrQF3AbYDkClREOz4MDJWUWE6v0/KjMMRV11rYw="
+        "integrity": "sha256-hygzr02UEzgJuAzsVSiq5BCI6o44lX6MNma6HXEODmo="
       }
     },
     {
@@ -413,7 +420,7 @@
         "whenToUse": "Inline comment threads beside a document (TextEdit annotations + onAnnotationsLayout) on wide screens; the popover below the margin breakpoint.",
         "whenNotToUse": "A plain comments section under a record (CommentList), or touch-sized screens (Sheet side=\"bottom\").",
         "version": "0.25.89",
-        "integrity": "sha256-VIMF4ifTHAJO72vmHOgVZWjsZ6uH/ybMUpEoRdzqGes="
+        "integrity": "sha256-1EORoJ7ge8ysV3IH7cCg6cHcVCApP2qqu+i1G0l48oQ="
       }
     },
     {
@@ -449,7 +456,43 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.25.89",
-        "integrity": "sha256-F6nTUb0sjzg4o9+XwL3n0YU0eXwn3l5soV87SZVDxI4="
+        "integrity": "sha256-qtj76RUy2uGfMNWQwcvnJ6N7McRsXe2PSyVwvSmXLzE="
+      }
+    },
+    {
+      "name": "version-compare",
+      "type": "registry:ui",
+      "title": "Version Compare",
+      "description": "A document's version history at full size — the selected version (or its changes through DiffView) beside a day-grouped VersionList on resizable panels, with Restore and Copy pinned in a footer; on a phone the list first and the preview pushed in.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.37",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/diff-view",
+        "@vegastack/label",
+        "@vegastack/resizable",
+        "@vegastack/switch",
+        "@vegastack/use-media-query",
+        "@vegastack/version-list"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/version-compare.tsx",
+          "type": "registry:ui",
+          "target": "@ui/version-compare.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
+        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (Timeline), or comparing two arbitrary texts (DiffView).",
+        "version": "0.25.89",
+        "integrity": "sha256-F4KOeVFyqD/IIVZWpOmYH3t6x2Le8M78RAAY9tT9Dtk="
       }
     },
     {
@@ -2010,7 +2053,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.25.89",
-        "integrity": "sha256-ND9LgeHUXN2deJNcvuG/MhBohB2bEVwzeMN6Bv9BPBY="
+        "integrity": "sha256-/8gzQ+poChq2/PFWhsLY4NL+3XQkbwIqve4AsNuuDuI="
       }
     },
     {

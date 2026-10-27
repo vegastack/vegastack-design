@@ -32,6 +32,10 @@ Docs' behaviour. Heights are measured live, so a card that grows (its reply box 
 the rest. A card whose `top` is `null` — its text was deleted — is not drawn; list those threads
 elsewhere ("Text removed").
 
+`quote={false}` hides each card's quote (`CommentThread`'s quoted words): a card level with its own
+highlight need not repeat it. A thread header left with nothing else goes with it, so the card
+starts at its first comment; the discussion rail (`DocumentLayoutAside`) keeps the quote.
+
 <ComponentPreview
   name="commentMargin"
   file="components/preview/comment-margin.tsx"

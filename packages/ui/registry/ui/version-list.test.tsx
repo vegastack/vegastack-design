@@ -223,3 +223,78 @@ test("headingHidden keeps the list's heading for assistive technology only", asy
   await expect.element(heading).toBeInTheDocument();
   expect(heading.element().className).toContain("sr-only");
 });
+
+test('groupBy="day" puts the rows under a heading per day; an unnamed row shows its time; arrows walk across days', async () => {
+  const now = Date.parse("2026-09-29T12:00:00Z");
+  const claude = {
+    name: "Claude",
+    kind: "agent" as const,
+    via: "Asha Rao",
+  };
+  const rows: VersionItem[] = [
+    { id: "d1", author: asha, at: "2026-09-29T10:00:00Z", kind: "auto" },
+    {
+      id: "d2",
+      author: claude,
+      at: "2026-09-29T09:00:00Z",
+      kind: "agent_checkpoint",
+    },
+    {
+      id: "d3",
+      author: asha,
+      at: "2026-09-28T10:00:00Z",
+      kind: "named",
+      name: "Before review",
+    },
+  ];
+  const onSelect = vi.fn();
+  const screen = await render(
+    <VersionList
+      versions={rows}
+      groupBy="day"
+      now={now}
+      selectedId="d1"
+      onSelect={onSelect}
+    />,
+  );
+  const groups = screen.container.querySelectorAll(
+    "[data-slot=version-list-group]",
+  );
+  expect(groups).toHaveLength(2);
+  await expect
+    .element(screen.getByRole("group", { name: "Today" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("group", { name: "Yesterday" }))
+    .toBeInTheDocument();
+  expect(groups[0]!.querySelectorAll("[role=option]")).toHaveLength(2);
+  // The day is the heading: an unnamed row reads its time of day only.
+  const first = screen.container.querySelector<HTMLElement>(
+    "[data-slot=version-list-item]",
+  )!;
+  expect(first.querySelector("[data-slot=date-time]")).not.toBeNull();
+  expect(first.textContent).not.toMatch(/today/i);
+  // An agent's version carries the agent avatar.
+  const agentRow = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=version-list-item]",
+  )[1]!;
+  expect(agentRow.textContent).toContain("Claude");
+  expect(agentRow.querySelector("[data-kind=agent]")).not.toBeNull();
+  // One listbox: the arrows cross the day boundary.
+  first.focus();
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  expect(onSelect).toHaveBeenLastCalledWith("d3");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("without groupBy the rows stay one flat list, as before", async () => {
+  const screen = await render(<VersionList versions={versions} />);
+  expect(
+    screen.container.querySelector("[data-slot=version-list-group]"),
+  ).toBeNull();
+  expect(
+    screen.container.querySelectorAll(
+      "[data-slot=version-list-items] > [role=option]",
+    ),
+  ).toHaveLength(3);
+});

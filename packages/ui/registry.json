@@ -211,7 +211,9 @@
         "@vegastack/input-group",
         "@vegastack/skeleton",
         "@vegastack/item",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/sheet",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -238,6 +240,11 @@
           "path": "packages/ui/registry/ui/document-layout-sections.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-sections.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/document-layout-aside.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout-aside.tsx"
         }
       ],
       "meta": {
@@ -406,6 +413,39 @@
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
+        "version": "0.25.89"
+      }
+    },
+    {
+      "name": "version-compare",
+      "type": "registry:ui",
+      "title": "Version Compare",
+      "description": "A document's version history at full size — the selected version (or its changes through DiffView) beside a day-grouped VersionList on resizable panels, with Restore and Copy pinned in a footer; on a phone the list first and the preview pushed in.",
+      "categories": ["display"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.37",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/diff-view",
+        "@vegastack/label",
+        "@vegastack/resizable",
+        "@vegastack/switch",
+        "@vegastack/use-media-query",
+        "@vegastack/version-list"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/version-compare.tsx",
+          "type": "registry:ui",
+          "target": "@ui/version-compare.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
+        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (Timeline), or comparing two arbitrary texts (DiffView).",
         "version": "0.25.89"
       }
     },

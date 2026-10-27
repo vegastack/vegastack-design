@@ -101,3 +101,28 @@ export function versionListStates(): ReactNode {
     </Wrapper>
   );
 }
+
+const CLAUDE = { name: "Claude", kind: "agent" as const, via: "Asha Rao" };
+
+/**
+ * By day: a heading per calendar day, each unnamed row its time of day, and an agent's version
+ * under the agent avatar.
+ */
+export function versionListByDay(): ReactNode {
+  const [selected, setSelected] = React.useState("v8");
+  const versions = VERSIONS.map((version) =>
+    version.id === "v7" ? { ...version, author: CLAUDE } : version,
+  );
+  return (
+    <Wrapper className="block max-w-80">
+      <VersionList
+        versions={versions}
+        currentId="v8"
+        selectedId={selected}
+        onSelect={setSelected}
+        groupBy="day"
+        now={NOW}
+      />
+    </Wrapper>
+  );
+}

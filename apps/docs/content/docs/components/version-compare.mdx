@@ -1,0 +1,120 @@
+---
+title: Version Compare
+description: A document's version history at full size — the selected version or its changes beside a day-grouped version list, with Restore and Copy pinned.
+audience: public
+registry: version-compare
+status: stable
+since: 0.25.90
+a11y: named preview region, version listbox, labelled switch
+preview: versionCompare
+---
+
+## Install
+
+<InstallSteps name="version-compare" />
+
+## Usage
+
+`VersionCompare` is a document's history at full size, for `DialogContent size="fullscreen"`: the
+selected version's text on the start side, the versions beside it, and the actions on the selected
+version in a footer that stays put while both sides scroll.
+
+```tsx
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { VersionCompare } from "@/components/ui/version-compare";
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogContent size="fullscreen">
+    <DialogHeader>
+      <DialogTitle>History · Pricing v2</DialogTitle>
+    </DialogHeader>
+    <VersionCompare
+      versions={versions}
+      currentId={versions[0]?.id}
+      selectedId={selected}
+      onSelect={setSelected}
+      showChanges={showChanges}
+      onShowChangesChange={setShowChanges}
+      preview={<MarkdownView typeScale="document">{text}</MarkdownView>}
+      diff={showChanges ? { before: previousText, after: text } : null}
+      actions={
+        <>
+          <Button variant="outline" onClick={copy}>
+            Copy
+          </Button>
+          <Button onClick={restore}>Restore this version</Button>
+        </>
+      }
+    />
+  </DialogContent>
+</Dialog>;
+```
+
+- **The list** is a [`VersionList`](/docs/components/version-list) grouped by day: "Current", the
+  kind badges, an agent's versions under the agent avatar (`author.kind: "agent"`), Named only
+  (`namedOnly`, `onNamedOnlyChange`) and scroll paging (`loadMore`) pass straight through.
+- **The preview** is `preview`, the host's own rendering of the selected version (`MarkdownView`, a
+  read-only `TextEdit`). With "Show changes" on (`showChanges`, its switch shown when
+  `onShowChangesChange` is set) and a `diff` given, the preview is a
+  [`DiffView`](/docs/components/diff-view) of the two texts instead; without a `diff` the host's
+  `preview` stays, so a host can show its own formatted diff (`TextEdit`'s `diff` view).
+- **`toolbar`** sits beside "Show changes": a compare-with toggle, "Name this version".
+- **`actions`** — Restore this version, Copy — sit in the footer.
+
+The preview and the list share a [`ResizablePanels`](/docs/components/resizable) group: drag the
+handle to give the list more room (it keeps at least 240px). Below 640px one side shows at a time:
+the list first; a tap (or Enter) on a version pushes its preview in, with the actions, and a
+"Versions" button goes back.
+
+<ComponentPreview
+  name="versionCompare"
+  file="components/preview/version-compare.tsx"
+/>
+
+## Examples
+
+### In a full-screen dialog
+
+Its home: `DialogContent size="fullscreen"` fills the viewport less a 16px inset (the whole screen
+on a phone), so the dialog's header stays at the top and `VersionCompare` fills the rest.
+
+<ComponentPreview
+  name="versionCompareDialog"
+  file="components/preview/version-compare.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/version-compare.tsx"
+  name="VersionCompareProps"
+/>
+
+## Accessibility
+
+- The preview is a region named "Selected version" (`previewLabel`); the list is the
+  `VersionList` listbox, each day a `group` named by its heading, one tab stop with the selection
+  following the arrow keys.
+- "Show changes" is a `switch` labelled by its text; the resize handle is a focusable separator.
+- On a phone the back button is a labelled "Versions" button.
+
+| Key                         | Action                                                       |
+| --------------------------- | ------------------------------------------------------------ |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Select the previous / next version                           |
+| <kbd>Enter</kbd>            | On a phone, open the selected version's preview              |
+| <kbd>←</kbd> / <kbd>→</kbd> | On the focused handle, resize the preview and the list       |
+| <kbd>Tab</kbd>              | Move through the toolbar, the preview, the list, the actions |
+
+<StatesTested name="version-compare" />
+
+## Do / Don't
+
+<DoDont
+  do='Open it in DialogContent size="fullscreen" with the document&apos;s name in the title, and keep Restore this version in actions so it is always in view.'
+  dont="Squeeze it into a side sheet or a default-size dialog, or restore a version from a row click."
+/>

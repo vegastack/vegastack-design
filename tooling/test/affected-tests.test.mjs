@@ -104,6 +104,8 @@ describe("affected component closure", () => {
       "sortable-list",
       "text-edit",
       "upload-dialog",
+      // version-compare's preview reads the selected version through a MarkdownView.
+      "version-compare",
     ]);
     expect(result.geometryFixtures).toContain("codeBlock");
     expect(result.geometryFixtures).toContain("markdownView");

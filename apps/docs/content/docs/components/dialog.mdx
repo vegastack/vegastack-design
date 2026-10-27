@@ -116,13 +116,18 @@ its own `overflow-y-auto` element so the header stays in view.
 as `data-size`, the same axis `AlertDialogContent` carries. Below `sm` every size fills the viewport
 less a 1rem gutter.
 
-| Size      | Cap                  | Use it for                                                      |
-| --------- | -------------------- | --------------------------------------------------------------- |
-| `sm`      | `max-w-xs` (320px)   | A one-field prompt                                              |
-| `default` | `max-w-sm` (384px)   | A short form or a confirmation with a little context            |
-| `md`      | `max-w-lg` (512px)   | Share and settings dialogs: people rows with a level menu, tabs |
-| `lg`      | `max-w-2xl` (672px)  | A two-column form, a long create flow                           |
-| `xl`      | `max-w-5xl` (1024px) | A bulk-edit table or an attribute editor                        |
+| Size         | Cap                                              | Use it for                                                           |
+| ------------ | ------------------------------------------------ | -------------------------------------------------------------------- |
+| `sm`         | `max-w-xs` (320px)                               | A one-field prompt                                                   |
+| `default`    | `max-w-sm` (384px)                               | A short form or a confirmation with a little context                 |
+| `md`         | `max-w-lg` (512px)                               | Share and settings dialogs: people rows with a level menu, tabs      |
+| `lg`         | `max-w-2xl` (672px)                              | A two-column form, a long create flow                                |
+| `xl`         | `max-w-5xl` (1024px)                             | A bulk-edit table or an attribute editor                             |
+| `fullscreen` | The viewport less a 16px inset (none on a phone) | A full-screen surface — a document's version history beside its text |
+
+`fullscreen` is also a height: the popup is `h-[calc(100dvh-2rem)]`, a flex column whose header and
+footer stay put while a `DialogBody` (or a `VersionCompare`) between them scrolls. Below `sm` it is
+the whole screen, with no border or radius, padded clear of the safe areas.
 
 <ComponentPreview name="dialogSizes" file="components/preview/dialog.tsx" />
 
@@ -231,11 +236,14 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
 - **BRD-1** — `DialogContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
-- **OVL-16** — `DialogContent` takes `size?: "sm" | "default" | "md" | "lg" | "xl"` (default
+- **OVL-16** — `DialogContent` takes `size?: "sm" | "default" | "md" | "lg" | "xl" | "fullscreen"` (default
   `"default"`) and reflects it as `data-size`, the axis `AlertDialogContent` already carries.
   `default` keeps upstream's `sm:max-w-sm` unconditionally; `sm`, `md`, `lg` and `xl` step it to
   `max-w-xs`, `max-w-lg`, `max-w-2xl` and `max-w-5xl` through `data-[size=…]`. Approved by MK
   23-09-2026 for a consumer gap; `md` added 03-10-2026 for share and settings dialogs.
+  `fullscreen` (MK 27-10-2026, Regent product-cohesion W1-DS3, UXP-14) fills the viewport less a
+  16px inset (none on a phone), `h-[calc(100dvh-2rem)]`, with the header and footer pinned and the
+  body scrolling.
 - **OVL-18** — `DialogFooter` drops upstream's `-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50 p-4`
   band: it is as plain as the header, right-aligned from `sm` and stacked below it. Its opt-in close
   is `variant="secondary"`. MK, 2026-09-25.

@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.89 sha256-eN9qTrQF3AbYDkClREOz4MDJWUWE6v0/KjMMRV11rYw=
+// @vegastack document-layout@0.25.89 sha256-hygzr02UEzgJuAzsVSiq5BCI6o44lX6MNma6HXEODmo=
 
 "use client";
 
@@ -6,13 +6,15 @@ import * as React from "react";
 import type { DocumentLayoutTier } from "@/components/ui/document-layout";
 
 const TIERS = new Set<DocumentLayoutTier>(["s", "m", "l", "xl", "2xl"]);
+const GRID = "[data-slot=document-layout-grid]";
 
 /**
  * `useDocumentLayoutTier` — the tier a `DocumentLayout` is at now (`s` · `m` · `l` · `xl` · `2xl`), for
  * the branches CSS cannot take: comments in the margin or in a popover, the contents in a list or
  * a sheet. It reads `--document-layout-tier`, which the layout's container queries set, so the
  * script and the stylesheet can never disagree about the width a tier starts at. Re-read whenever
- * the layout resizes. `fallback` is the answer on the server and before the first measurement.
+ * the layout resizes. `ref` is the layout itself or any element inside it (a part reads the
+ * layout around it). `fallback` is the answer on the server and before the first measurement.
  *
  * @example
  * const ref = React.useRef<HTMLDivElement>(null);
@@ -27,9 +29,9 @@ export function useDocumentLayoutTier(
   React.useLayoutEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const grid =
-      root.querySelector<HTMLElement>("[data-slot=document-layout-grid]") ??
-      root;
+    // The layout itself (the grid inside it), or a part inside the layout (the grid around it).
+    const inner = root.querySelector<HTMLElement>(GRID);
+    const grid = inner ?? root.closest<HTMLElement>(GRID) ?? root;
     const read = () => {
       const value = getComputedStyle(grid)
         .getPropertyValue("--document-layout-tier")
@@ -38,7 +40,7 @@ export function useDocumentLayoutTier(
     };
     read();
     const observer = new ResizeObserver(read);
-    observer.observe(root);
+    observer.observe(inner ? root : grid);
     return () => observer.disconnect();
   }, [ref]);
   return tier;
