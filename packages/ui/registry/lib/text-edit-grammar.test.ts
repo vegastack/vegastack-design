@@ -356,4 +356,12 @@ test("mentionLabels: every mention link reads as its label; other text is untouc
   expect(mentionLabels("[link](https://example.com)")).toBe(
     "[link](https://example.com)",
   );
+  // Literal text the reader typed: an escaped link and a code span stay as they are.
+  expect(mentionLabels("\\[@A](mention://user/u1)")).toBe(
+    "\\[@A](mention://user/u1)",
+  );
+  expect(
+    mentionLabels("`[@A](mention://user/u1)` and [@B](mention://user/u2)"),
+  ).toBe("`[@A](mention://user/u1)` and B");
+  expect(mentionLabels("[@](mention://page/p1)")).toBe("Untitled");
 });

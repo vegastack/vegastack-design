@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.92 sha256-odGUB/G+N8JdNjAchI06AsX4W5WEwJv3DREh8cPSr40=
+// @vegastack text-edit-grammar@0.25.92 sha256-/KequKP9Lrswrk7Zz3o+zqUWalL+xgc2vKhjD9req0w=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -436,14 +436,30 @@ export function typedFirstLine(markdown: string): string {
   return mentionLabels(typed);
 }
 
-/** A text's mention links as their labels (`[@Asha Rao](mention://user/u1)` → `Asha Rao`). */
+/**
+ * A text's mention links as their labels (`[@Asha Rao](mention://user/u1)` → `Asha Rao`; an empty
+ * label reads "Untitled"). Text inside a code span and a link whose `[` is escaped (literal text
+ * the reader typed) stay as they are.
+ */
 export function mentionLabels(text: string): string {
-  return text.includes("mention://")
-    ? text.replace(
-        new RegExp(MENTION_LINK_SOURCE, "g"),
-        (_link, label: string) => label.replace(/\\([^\n])/g, "$1"),
-      )
-    : text;
+  if (!text.includes("mention://")) return text;
+  const link = new RegExp(MENTION_LINK_SOURCE, "g");
+  // Code spans (a backtick run to the next run of the same length) are left alone.
+  return text
+    .split(/(?<!\\)(`+)([\s\S]*?)\1/)
+    .map((part, index, parts) => {
+      // `split` with two groups yields [text, ticks, code, text, ticks, code, …].
+      if (index % 3 === 1) return part + parts[index + 1] + part;
+      if (index % 3 === 2) return "";
+      return part.replace(link, (match: string, label: string, ...rest) => {
+        const offset = rest[rest.length - 2] as number;
+        let slashes = 0;
+        while (part[offset - 1 - slashes] === "\\") slashes++;
+        if (slashes % 2 === 1) return match;
+        return label.replace(/\\([^\n])/g, "$1") || "Untitled";
+      });
+    })
+    .join("");
 }
 
 /**

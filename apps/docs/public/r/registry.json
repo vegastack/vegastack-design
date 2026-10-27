@@ -2226,7 +2226,7 @@
         "version": "0.25.92",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-odGUB/G+N8JdNjAchI06AsX4W5WEwJv3DREh8cPSr40="
+        "integrity": "sha256-/KequKP9Lrswrk7Zz3o+zqUWalL+xgc2vKhjD9req0w="
       }
     },
     {
@@ -2766,7 +2766,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.92",
-        "integrity": "sha256-HC1UrY3XZTpKOrt1Q5EwXBqvpaDCEdCv1PvboJI0Xms="
+        "integrity": "sha256-M6yRhs3p7t5n/zC9yWhxOroeZjh9hGAlIAF7vMwy3Oo="
       }
     },
     {
@@ -16602,7 +16602,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.92",
-        "integrity": "sha256-YXjjgMvSg4BG/1+PQmdhF7OASHzXD3NSF+Mw8yXMDWg="
+        "integrity": "sha256-qDOZ0s1AzgkYtWUTIYZsTVM8LhkAkbImenwVZEGf2ZE="
       }
     },
     {

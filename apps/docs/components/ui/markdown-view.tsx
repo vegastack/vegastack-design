@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.92 sha256-YXjjgMvSg4BG/1+PQmdhF7OASHzXD3NSF+Mw8yXMDWg=
+// @vegastack markdown-view@0.25.92 sha256-qDOZ0s1AzgkYtWUTIYZsTVM8LhkAkbImenwVZEGf2ZE=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -3039,7 +3039,7 @@ const FIND_HIGHLIGHT_CSS = [
 ]
   .map(
     ([name, tint]) =>
-      `[data-slot=markdown-view][data-finding]::highlight(${name}),[data-slot=markdown-view][data-finding] *::highlight(${name}){background-color:color-mix(in oklab,var(--color-warning) ${tint}%,transparent)}`,
+      `[data-slot=markdown-view][data-finding]::highlight(${name}),[data-slot=markdown-view][data-finding] *::highlight(${name}){background-color:color-mix(in oklab,var(--warning) ${tint}%,transparent)}`,
   )
   .join("");
 

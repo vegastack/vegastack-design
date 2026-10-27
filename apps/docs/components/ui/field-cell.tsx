@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.92 sha256-HC1UrY3XZTpKOrt1Q5EwXBqvpaDCEdCv1PvboJI0Xms=
+// @vegastack field-cell@0.25.92 sha256-M6yRhs3p7t5n/zC9yWhxOroeZjh9hGAlIAF7vMwy3Oo=
 
 "use client";
 
@@ -1002,7 +1002,7 @@ function DateTimeEditor({
         aria-describedby={describedBy}
         disabled={disabled || !current}
         value={current?.time ?? ""}
-        className="h-7 w-32 shrink-0 max-md:w-36"
+        className="h-7 w-32 max-w-full min-w-0 max-md:w-36"
         onChange={(event) => current && commit(current.day, event.target.value)}
       />
     </span>
