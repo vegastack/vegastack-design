@@ -1183,9 +1183,12 @@ for (const entry of markdownManifest.entries) {
 
 const llmsIndex = await readFile(path.join(OUT_DIR, "llms.txt"), "utf8");
 const llmsFull = await readFile(path.join(OUT_DIR, "llms-full.txt"), "utf8");
+// The index's tripwire, like the corpus budget below: a runaway guard, not a ration. MK blanket
+// approval 27-10-2026 (D19, Regent product cohesion), same reasoning as the 10-10 llms-full raise:
+// raised from 100 KiB when new record and picker components crossed it.
 assert.ok(
-  Buffer.byteLength(llmsIndex) < 100 * 1024,
-  "llms.txt exceeds 100 KiB",
+  Buffer.byteLength(llmsIndex) < 128 * 1024,
+  "llms.txt exceeds 128 KiB",
 );
 // The agent-corpus budget. The ceiling is a RUNAWAY tripwire, not a documentation ration:
 // `llms-full.txt` exists to be consumed WHOLE, and what it must catch is a generated dump (an icon
