@@ -140,6 +140,7 @@ export * from "./cursor-pager";
 export * from "./load-more";
 export * from "./text-edit";
 export * from "./template-editor";
+export * from "./formula-input";
 export * from "./marker";
 export * from "./message";
 export * from "./bubble";

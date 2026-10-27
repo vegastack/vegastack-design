@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "59864832e0c4bbec8f7ce108dff81b38605e7c2bea992922537608dc8f848833",
+  "contractSha256": "c3c8d0ccecf1a23756103e591f3a4e5dfa22690bcdc6b6bfbcd02ca9c5f94b47",
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 762,
+    "components": 174,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1360,6 +1360,17 @@
         "packages/ui/registry/ui/template-editor.tsx"
       ],
       "docsSlug": "/docs/components/template-editor",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "formula-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "rich-text",
+      "sourceFiles": [
+        "packages/ui/registry/ui/formula-input.tsx"
+      ],
+      "docsSlug": "/docs/components/formula-input",
       "contractStatus": "reconciled"
     },
     {

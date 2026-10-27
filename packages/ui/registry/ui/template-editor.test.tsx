@@ -260,3 +260,36 @@ test("singleLine: one paragraph, Enter inserts nothing, pasted line breaks becom
   );
   expect(box.element().querySelectorAll("p")).toHaveLength(1);
 });
+
+test('triggers={["{"]}: one brace opens the picker under pickerLabel, and @ stays text', async () => {
+  const onChange = vi.fn();
+  function Braces() {
+    const [value, setValue] = React.useState("");
+    return (
+      <TemplateEditor
+        aria-label="Formula"
+        tokens={TOKENS}
+        triggers={["{"]}
+        pickerLabel="Insert field"
+        value={value}
+        onChange={(next) => {
+          setValue(next);
+          onChange(next);
+        }}
+      />
+    );
+  }
+  const screen = await render(<Braces />);
+  const box = screen.getByRole("textbox", { name: "Formula" });
+  await box.click();
+  await userEvent.keyboard("a @");
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(menu()).toBeNull();
+  await userEvent.keyboard(" {{eff");
+  await vi.waitFor(() => expect(menu()).not.toBeNull());
+  expect(menu()!.getAttribute("aria-label")).toBe("Insert field");
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(onChange.mock.calls.at(-1)?.[0]).toBe("a @ {{efficacy}} "),
+  );
+});
