@@ -9,6 +9,7 @@ import {
   Component,
   Flag,
   Folder,
+  Plus,
   Timer,
   UserRound,
   X,
@@ -223,6 +224,34 @@ export function recordAsideEmpty(): ReactNode {
             <ActionListEmpty>No suggestions</ActionListEmpty>
           </RecordAsideSection>
         </RecordAsideCard>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Sections that fold from their title; the empty one is its header alone. */
+export function recordAsideCollapsible(): ReactNode {
+  return (
+    <Wrapper className="block max-w-sm">
+      <div className="flex flex-col gap-4">
+        <RecordAsideSection
+          collapsible
+          headingLevel="h3"
+          title="Attachments"
+          count={2}
+          action={<RecordAsideAction label="Add attachment" icon={<Plus />} />}
+        >
+          <p className="text-sm text-muted-foreground">
+            pricing-q4.pdf · brief.docx
+          </p>
+        </RecordAsideSection>
+        <RecordAsideSection
+          collapsible
+          headingLevel="h3"
+          title="Related"
+          count={0}
+          action={<RecordAsideAction label="Add related" icon={<Plus />} />}
+        />
       </div>
     </Wrapper>
   );

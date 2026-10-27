@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 119,
+    "total": 122,
     "fromExtras": 46
   },
   "items": {
@@ -757,6 +757,23 @@
       "family": "display",
       "source": "Regent product-cohesion W1-DS3 item 7 (UXS-18, one people-in-X list), approved by the operator 2026-10-27",
       "rationale": "Upstream ships no membership list. Composes upstream button, dropdown-menu, scroll-area and skeleton with our permission-menu and person-avatar unchanged; carries no patch."
+    },
+    "record-peek": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Regent product-cohesion mandate W1-DS2 (D1, one side peek), MK 2026-10-26",
+      "rationale": "Upstream ships no such component; a composition of the system's own parts with no patch."
+    },
+    "record-header": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Regent product-cohesion mandate W1-DS2 (DS-14, record header contract), MK 2026-10-26",
+      "rationale": "Upstream ships no such component; a composition of the system's own parts with no patch."
+    },
+    "use-record-peek-row": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
     }
   }
 }

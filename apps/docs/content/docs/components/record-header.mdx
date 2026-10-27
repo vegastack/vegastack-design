@@ -1,0 +1,102 @@
+---
+title: Record Header
+description: One head for every record on its page and in a peek — location, key, icon, title renamed in place, status, meta, chips, presence and actions.
+audience: public
+registry: record-header
+status: preview
+since: 0.25.88
+a11y: one heading, an editable title with its label
+preview: recordHeader
+---
+
+## Install
+
+<InstallSteps name="record-header" />
+
+## Usage
+
+```tsx
+import { RecordHeader } from "@/components/ui/record-header";
+
+<RecordHeader
+  eyebrow={<SpaceChip space={space} />}
+  keyBadge={task.ref}
+  title={task.title}
+  onRename={(title) => updateTask({ title })}
+  status={<StatusBadge status={task.status} />}
+  presence={<AvatarStack people={here} max={3} />}
+  actions={<TaskActionsMenu task={task} />}
+  meta={<MetaLine>…</MetaLine>}
+  chips={<TaskChips task={task} />}
+/>;
+```
+
+## Scope
+
+One anatomy for every record kind and both places a record opens. An eyebrow line holds where the
+record lives and its key, with presence and the actions at its end; then the icon and the title —
+renamed in place with `onRename` — with the status beside it; then the meta line and the chip
+row. Every slot but the title is optional and leaves no gap when empty. On a full page the
+breadcrumb and the actions usually live in the top bar (`AppShellHeaderActions`); inside a
+`RecordPeek` they belong here, with `level={2}`.
+
+## Anatomy
+
+<Anatomy name="record-header" />
+
+## Examples
+
+### A record page
+
+<ComponentPreview
+  name="recordHeader"
+  file="components/preview/record-header.tsx"
+/>
+
+### In a peek
+
+`level={2}` makes the title an `h2` at the peek's size, under the peek's own name.
+
+<ComponentPreview
+  name="recordHeaderPeek"
+  file="components/preview/record-header.tsx"
+/>
+
+### Loading
+
+`RecordHeaderSkeleton` draws the same heights, so nothing moves when the record arrives.
+
+<ComponentPreview
+  name="recordHeaderSkeleton"
+  file="components/preview/record-header.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-header.tsx"
+  name="RecordHeaderProps"
+/>
+
+### RecordHeaderSkeleton
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-header.tsx"
+  name="RecordHeaderSkeletonProps"
+/>
+
+## Accessibility
+
+- The title is the record's one heading (`h1` on its page, `h2` in a peek). Renamed in place it
+  is an `EditableCell` labelled by `titleLabel`: Enter or blur saves, Esc reverts, a failed save
+  rolls back and is announced.
+- The key chip, status and meta are text; icons beside them are decorative.
+
+<StatesTested name="record-header" />
+
+## Do / Don't
+
+<DoDont
+  do="Head every record — task, meeting, row, page, customer — with RecordHeader, on its page and in its peek."
+  dont="Compose a record title, key and status by hand per module, or put a second heading above the title."
+/>
