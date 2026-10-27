@@ -8340,8 +8340,36 @@
           }
         },
         {
+          "name": "DataListRowNesting",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataListRowProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListSecondary",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DataListSecondaryProps",
+          "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -8459,25 +8487,6 @@
         {
           "name": "SortState",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DataListSecondary",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-list.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "DataListSecondaryProps",
-          "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -8658,6 +8667,10 @@
             },
             {
               "name": "data-density",
+              "values": []
+            },
+            {
+              "name": "data-depth",
               "values": []
             },
             {
@@ -9931,6 +9944,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "displayCount",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
