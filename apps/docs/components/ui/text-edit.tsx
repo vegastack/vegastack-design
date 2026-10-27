@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-VAD9fci0hrsEFpYYggYUrd5i96kNYvHMLDVOMqPH0Ys=
+// @vegastack text-edit@0.25.91 sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E=
 
 "use client";
 
@@ -1297,7 +1297,8 @@ export interface TextEditProps {
    * grip to sit before the text. `none`: the text starts at the editor's own edge — flush with a
    * ghost `Input` or `Textarea` title above it (a New task dialog's description), placeholder and
    * caret included — and the block grip, which would have no room, is not shown. Everything it
-   * opens stays: ⌘/ and ⇧F10 open the block menu, a touch long-press too (`touchBlockMenu`),
+   * opens stays: ⌘/ and ⇧F10 open the block menu, and on touch a long-press does (as with
+   * `touchBlockMenu="longPress"`, which `inset="none"` implies),
    * ⌘⇧↑ / ⌘⇧↓ move blocks, and a table keeps its own grips.
    * @default "auto"
    */

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.91 sha256-VAD9fci0hrsEFpYYggYUrd5i96kNYvHMLDVOMqPH0Ys=
+// @vegastack text-edit@0.25.91 sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E=
 
 "use client";
 
@@ -13905,8 +13905,9 @@ export function TextEditEditor({
           <BlockHandle
             editor={editor}
             runtime={blockMenuRuntime}
-            longPress={touchBlockMenu === "longPress"}
-            // `inset="none"`: flush with the frame, so the grip has no room; its menu stays.
+            // `inset="none"`: flush with the frame, so the grip has no room; its menu stays — on
+            // touch through a long-press, whatever `touchBlockMenu` says, since there is no grip.
+            longPress={touchBlockMenu === "longPress" || inset === "none"}
             gripHidden={inset === "none"}
           />
           <TableControls editor={editor} markdown={markdown} />

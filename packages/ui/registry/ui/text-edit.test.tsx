@@ -8309,6 +8309,56 @@ test('touchBlockMenu="longPress": no grip on touch; a long press on a block open
   );
 });
 
+test('inset="none" on touch: no grip, and a long press opens the block menu with the default touchBlockMenu', async () => {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("pointer: coarse"),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+  const screen = await markdownEditor({
+    defaultValue: "Hold me",
+    inset: "none",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("p")!);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(
+    document.querySelector('[data-slot="text-edit-block-handle"]'),
+  ).toBeNull();
+  const target = box.querySelector("p")!;
+  const rect = target.getBoundingClientRect();
+  const touch = new Touch({
+    identifier: 1,
+    target,
+    clientX: rect.left + 5,
+    clientY: rect.top + 5,
+  });
+  target.dispatchEvent(
+    new TouchEvent("touchstart", {
+      touches: [touch],
+      targetTouches: [touch],
+      changedTouches: [touch],
+      bubbles: true,
+    }),
+  );
+  await vi.waitFor(
+    () =>
+      expect(
+        document.querySelector('[data-slot="sheet-content"]')?.textContent,
+      ).toContain("Duplicate"),
+    { timeout: 2000 },
+  );
+});
+
 test("the image toolbar: four 28px buttons at most, Download and Copy link in ⋯", async () => {
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
