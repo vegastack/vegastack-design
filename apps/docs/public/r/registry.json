@@ -16487,7 +16487,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.88",
-        "integrity": "sha256-aS8nN50P5HdHNiTfZD1EZcBZXu7JeXwad83AY95Rwr0="
+        "integrity": "sha256-IL15L6gIPB3kkbex8uKkBOdgzCZnM5FsqDzydbNd84w="
       }
     },
     {
@@ -16865,7 +16865,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.25.87",
-        "integrity": "sha256-2JKdZEFDsnalloO73Y9SBaEoHxbF+9EP1/2/a49DB98="
+        "integrity": "sha256-otiItDSSqjD3wwtCAq6T8C/He86LFyo6BuEu1+0bSgQ="
       }
     },
     {

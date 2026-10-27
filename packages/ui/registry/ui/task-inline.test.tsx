@@ -246,3 +246,16 @@ test("MakeTaskPopover keeps the titles being edited when the host re-renders wit
     )!.value,
   ).toBe("Order glass now");
 });
+
+test("↗ is a tab stop even with no box and no title button, and shows once focused", async () => {
+  const screen = await render(
+    <p>
+      <TaskInline title="Order glass" checkbox={false} href="/tasks/t1" />
+    </p>,
+  );
+  const link = screen.getByRole("link", { name: "Open task page" }).element();
+  expect(link.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+  await userEvent.tab();
+  expect(document.activeElement).toBe(link);
+  await vi.waitFor(() => expect(link.getBoundingClientRect().width).toBe(24));
+});

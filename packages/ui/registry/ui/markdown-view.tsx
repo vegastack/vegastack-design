@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-aS8nN50P5HdHNiTfZD1EZcBZXu7JeXwad83AY95Rwr0=
+// @vegastack markdown-view@0.25.88 sha256-IL15L6gIPB3kkbex8uKkBOdgzCZnM5FsqDzydbNd84w=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1536,7 +1536,10 @@ function leadingTaskMention(body: DocNode[]): El | null {
   );
   if (!first || typeof first === "string") return null;
   // A loose item's text is a paragraph; a tight one's sits in the item itself.
-  const inline = first.tag === "p" ? first.children[0] : first;
+  let inline = first.tag === "p" ? first.children[0] : first;
+  // A comment on the mention wraps it in its highlight: the mention is inside.
+  while (inline && typeof inline !== "string" && inline.tag === "annotation")
+    inline = inline.children[0];
   return inline &&
     typeof inline !== "string" &&
     inline.tag === "mention" &&

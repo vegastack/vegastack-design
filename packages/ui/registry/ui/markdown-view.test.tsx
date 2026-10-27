@@ -1901,3 +1901,17 @@ test("a bookmark whose address holds Markdown characters is still a card", async
       ?.getAttribute("href"),
   ).toBe("https://example.com/a*b*c");
 });
+
+test("onTaskOpen: a comment on the line's task keeps it a TaskInline", async () => {
+  const screen = await render(
+    <MarkdownView
+      onTaskOpen={() => {}}
+      annotations={[{ id: "c1", anchor: { quote: "@Order glass" } }]}
+    >
+      {"- [ ] [@Order glass](mention://task/t1)"}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="task-inline"]'),
+  ).not.toBeNull();
+});

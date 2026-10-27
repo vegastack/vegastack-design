@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.25.88 sha256-2JKdZEFDsnalloO73Y9SBaEoHxbF+9EP1/2/a49DB98=
+// @vegastack task-inline@0.25.88 sha256-otiItDSSqjD3wwtCAq6T8C/He86LFyo6BuEu1+0bSgQ=
 
 "use client";
 
@@ -277,13 +277,16 @@ export function TaskInline({
           contentEditable={false}
           title={openLabel}
           className={cn(
-            META,
-            // Shown only while the task is hovered or holds focus (Tab from the title reaches it): out
-            // of the way of the line below when the line wraps, and never a stray target on touch.
-            "relative hidden size-5 justify-center rounded-sm text-muted-foreground group-focus-within/task-inline:inline-flex group-hover/task-inline:inline-flex hover:bg-accent hover:text-accent-foreground after:absolute after:-inset-1 after:content-['']",
+            "ms-1.5 rounded-sm align-middle text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            // Visually hidden — still a tab stop — until the task is hovered or holds focus: out of
+            // the way of the line below when the line wraps, and never a stray target on touch.
+            "sr-only group-focus-within/task-inline:not-sr-only group-hover/task-inline:not-sr-only focus-visible:not-sr-only",
           )}
         >
-          <ArrowUpRight aria-hidden className="size-3.5" />
+          {/* The 24px box, drawn once the link shows. */}
+          <span className="inline-flex size-6 items-center justify-center">
+            <ArrowUpRight aria-hidden className="size-3.5" />
+          </span>
         </a>
       ) : null}
     </span>
