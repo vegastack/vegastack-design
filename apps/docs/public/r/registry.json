@@ -1651,7 +1651,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.91",
-        "integrity": "sha256-I5H84YjgfwVm0XqQxhR/5ymz3XVhapJ4YGthLU8m8po="
+        "integrity": "sha256-o6MAhHTFNb9Sxo+8B2JKip/UwkaQHnbaAkSzVCb0ciA="
       }
     },
     {
@@ -1916,7 +1916,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
         "version": "0.25.91",
-        "integrity": "sha256-sXDK3V8HBmlWGP1KUN6pQe4oY6oB7vhXnsasActC/Kw="
+        "integrity": "sha256-wNKbYLZu0L7tH3cgKNqfJYD/oJTToIoNScXtiDoa0DY="
       }
     },
     {

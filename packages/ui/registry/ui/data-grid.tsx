@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.91 sha256-I5H84YjgfwVm0XqQxhR/5ymz3XVhapJ4YGthLU8m8po=
+// @vegastack data-grid@0.25.91 sha256-o6MAhHTFNb9Sxo+8B2JKip/UwkaQHnbaAkSzVCb0ciA=
 
 "use client";
 
@@ -4681,6 +4681,50 @@ export function DataGrid<T>({
     };
   }, [viewport, frozenPlaced.length, columnVirtualizer]);
 
+  // More columns past the end: a quiet trailing edge shadow on the frame while the viewport can
+  // still scroll sideways (an embedded block's wide table on a phone). The extent is read when the
+  // viewport or its content resizes, the offset once a frame from the column virtualiser — the
+  // scroll handler itself reads no layout, as above.
+  const [frame, setFrame] = React.useState<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    if (!viewport || !frame) return;
+    let extent = 0;
+    let more: boolean | null = null;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const offset = Math.abs(
+        columnVirtualizer.scrollOffset ?? viewport.scrollLeft,
+      );
+      const next = extent - offset > 1;
+      if (next !== more) {
+        more = next;
+        frame.toggleAttribute("data-more-x", next);
+      }
+    };
+    const measure = () => {
+      extent = viewport.scrollWidth - viewport.clientWidth;
+      update();
+    };
+    const onScroll = () => {
+      if (raf === 0) raf = requestAnimationFrame(update);
+    };
+    measure();
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(measure);
+    observer?.observe(viewport);
+    if (viewport.firstElementChild)
+      observer?.observe(viewport.firstElementChild);
+    viewport.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      observer?.disconnect();
+      viewport.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [viewport, frame, columnVirtualizer]);
+
   // ---- render --------------------------------------------------------------
   /** A closed function picker hands focus back to its cell, which roves. */
   const refocusFooter = (key: string) => {
@@ -5021,7 +5065,9 @@ export function DataGrid<T>({
     ref: setViewport,
     "data-slot": "grid-viewport",
     className: cn(
-      "relative overflow-auto",
+      // `overscroll-x-contain`: a sideways pan that reaches the end stops there instead of moving
+      // the page (vertical pans still reach it).
+      "relative overflow-auto overscroll-x-contain",
       maxHeight != null && "max-h-[calc(var(--data-grid-max-height))]",
     ),
     // Native focus scrolling keeps the focused cell clear of the sticky header, the summary row
@@ -5151,40 +5197,58 @@ export function DataGrid<T>({
             />
             {loadMore ? <LoadMore {...loadMore} /> : null}
           </>
-        ) : cellMenu ? (
-          <ContextMenu
-            onOpenChange={(open) => {
-              if (open) return;
-              // Back to the cell the menu was for, once the popup lets go of focus.
-              const target = menuTarget;
-              requestAnimationFrame(() => {
-                if (!target) return;
-                const focused = document.activeElement;
-                if (
-                  focused instanceof HTMLElement &&
-                  focused !== document.body &&
-                  viewport?.contains(focused) !== true
-                )
-                  return;
-                nodes.current.get(nodeKey(target.rowId, target.key))?.focus();
-              });
-            }}
-          >
-            <ContextMenuTrigger
-              {...viewportProps}
-              // A right click and a long press (Base UI opens that one from its own touch timer,
-              // with no contextmenu event) both resolve the cell first.
-              onContextMenu={claimMenu}
-              onTouchStart={claimMenu}
-            >
-              {viewportInner}
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-              {menuTarget ? cellMenu(menuTarget.rowId, menuTarget.key) : null}
-            </ContextMenuContent>
-          </ContextMenu>
         ) : (
-          <div {...viewportProps}>{viewportInner}</div>
+          <div
+            ref={setFrame}
+            data-slot="data-grid-viewport-frame"
+            className="relative flex min-h-0 min-w-0 flex-col"
+          >
+            {cellMenu ? (
+              <ContextMenu
+                onOpenChange={(open) => {
+                  if (open) return;
+                  // Back to the cell the menu was for, once the popup lets go of focus.
+                  const target = menuTarget;
+                  requestAnimationFrame(() => {
+                    if (!target) return;
+                    const focused = document.activeElement;
+                    if (
+                      focused instanceof HTMLElement &&
+                      focused !== document.body &&
+                      viewport?.contains(focused) !== true
+                    )
+                      return;
+                    nodes.current
+                      .get(nodeKey(target.rowId, target.key))
+                      ?.focus();
+                  });
+                }}
+              >
+                <ContextMenuTrigger
+                  {...viewportProps}
+                  // A right click and a long press (Base UI opens that one from its own touch timer,
+                  // with no contextmenu event) both resolve the cell first.
+                  onContextMenu={claimMenu}
+                  onTouchStart={claimMenu}
+                >
+                  {viewportInner}
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  {menuTarget
+                    ? cellMenu(menuTarget.rowId, menuTarget.key)
+                    : null}
+                </ContextMenuContent>
+              </ContextMenu>
+            ) : (
+              <div {...viewportProps}>{viewportInner}</div>
+            )}
+            {/* More columns past the end: a quiet edge shadow, like the frozen edge's. */}
+            <span
+              aria-hidden
+              data-slot="data-grid-more-x"
+              className="pointer-events-none absolute inset-y-0 end-0 z-30 w-3 bg-linear-to-l from-foreground/10 to-transparent opacity-0 transition-opacity duration-fast in-data-more-x:opacity-100 rtl:bg-linear-to-r"
+            />
+          </div>
         )}
 
         {pagedMode ? <CursorPager {...pagedMode} /> : null}

@@ -8,6 +8,12 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { DropdownMenuItem } from "./dropdown-menu";
 import { ViewTabs, type ViewTabsView } from "./view-tabs";
 
+// The tabs collapse to a select by MEASURING the tab row against the room it has, which needs real
+// layout: every test here mounts the compiled lane stylesheet.
+const sheet = document.createElement("style");
+sheet.textContent = geometryCss;
+document.head.append(sheet);
+
 const VIEWS: ViewTabsView[] = [
   { id: "mine", name: "My follow-ups", kind: "grid", scope: "personal" },
   { id: "all", name: "All requests", kind: "grid", scope: "shared" },
@@ -158,4 +164,95 @@ test("a cut view name shows in full in a tooltip, and the tab and the select rea
     parseFloat(getComputedStyle(name).lineHeight) * 1.5,
   );
   await expectNoA11yViolations(document.body);
+});
+
+test("tabs stay inline while they fit and collapse to the select only when they don't — and come back", async () => {
+  function Sized() {
+    const [width, setWidth] = React.useState(420);
+    const [value, setValue] = React.useState("g");
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setWidth((w) => (w === 420 ? 120 : 420))}
+        >
+          Resize
+        </button>
+        <div style={{ width }}>
+          <ViewTabs
+            views={[
+              { id: "g", name: "Grid", kind: "grid", scope: "shared" },
+              { id: "b", name: "Board", kind: "board", scope: "shared" },
+            ]}
+            value={value}
+            onValueChange={setValue}
+            onCreate={() => {}}
+          />
+        </div>
+      </>
+    );
+  }
+  const screen = await render(<Sized />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>('[data-slot="view-tabs"]')!;
+  await vi.waitFor(() =>
+    expect(root().hasAttribute("data-narrow")).toBe(false),
+  );
+  expect(screen.container.querySelector('[role="combobox"]')).toBeNull();
+  await screen.getByRole("button", { name: "Resize" }).click();
+  await vi.waitFor(() => expect(root().hasAttribute("data-narrow")).toBe(true));
+  // Collapsed: the tab row stays mounted (to be measured) but is hidden and inert.
+  const tabs = root().querySelector('[role="tablist"]')!.closest("[inert]");
+  expect(tabs).not.toBeNull();
+  await screen.getByRole("button", { name: "Resize" }).click();
+  await vi.waitFor(() =>
+    expect(root().hasAttribute("data-narrow")).toBe(false),
+  );
+});
+
+test("in a flex host, a collapsed row widens back to tabs; dropping the + re-measures", async () => {
+  function Host() {
+    const [width, setWidth] = React.useState(120);
+    const [create, setCreate] = React.useState(true);
+    const [value, setValue] = React.useState("g");
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setWidth((w) => (w === 120 ? 420 : 120))}
+        >
+          Resize
+        </button>
+        <button type="button" onClick={() => setCreate((c) => !c)}>
+          Toggle create
+        </button>
+        <div style={{ display: "flex", width }}>
+          <ViewTabs
+            views={[
+              { id: "g", name: "Grid", kind: "grid", scope: "shared" },
+              { id: "b", name: "Board", kind: "board", scope: "shared" },
+            ]}
+            value={value}
+            onValueChange={setValue}
+            onCreate={create ? () => {} : undefined}
+          />
+        </div>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>('[data-slot="view-tabs"]')!;
+  await vi.waitFor(() => expect(root().hasAttribute("data-narrow")).toBe(true));
+  await screen.getByRole("button", { name: "Resize" }).click();
+  await vi.waitFor(() =>
+    expect(root().hasAttribute("data-narrow")).toBe(false),
+  );
+  await screen.getByRole("button", { name: "Resize" }).click();
+  await vi.waitFor(() => expect(root().hasAttribute("data-narrow")).toBe(true));
+  // The + toggled away changes neither observed box; the row still re-measures.
+  await screen.getByRole("button", { name: "Toggle create" }).click();
+  await vi.waitFor(() =>
+    expect(root().querySelector('[data-slot="view-tabs-create"]')).toBeNull(),
+  );
 });

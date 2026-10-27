@@ -2,6 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, onTestFinished, test, vi } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { ContextMenuItem } from "./context-menu";
@@ -65,6 +66,48 @@ function bodyCellTexts(columnIndex: number): string[] {
         ?.textContent ?? "",
   );
 }
+
+test("more columns past the end: the frame shows a trailing edge cue until the viewport is scrolled to the end", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const many = Array.from({ length: 8 }, (_, index) => ({
+    key: `c${index}`,
+    header: `Column ${index}`,
+    width: 160,
+  }));
+  const host = document.body.appendChild(document.createElement("div"));
+  onTestFinished(() => host.remove());
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <DataGrid
+        embedded
+        aria-label="Wide"
+        columns={many}
+        data={[{ id: "r1" }]}
+        getRowId={(row: { id: string }) => row.id}
+      />
+    </div>,
+    { container: host },
+  );
+  const frame = () =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-grid-viewport-frame"]',
+    )!;
+  await vi.waitFor(
+    () => expect(frame()?.hasAttribute("data-more-x")).toBe(true),
+    { timeout: 5000 },
+  );
+  const viewport = frame().querySelector<HTMLElement>(
+    '[data-slot="grid-viewport"]',
+  )!;
+  viewport.scrollLeft = viewport.scrollWidth;
+  viewport.dispatchEvent(new Event("scroll"));
+  await vi.waitFor(() =>
+    expect(frame().hasAttribute("data-more-x")).toBe(false),
+  );
+});
 
 test("renders a labelled role=grid with columnheaders and gridcells", async () => {
   const screen = await render(
