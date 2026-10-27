@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.25.90 sha256-dYXYP7BbfcWcy+c/vHmLXu85ZLuZi8MMr7IK9RLHHec=
+// @vegastack version-compare@0.25.90 sha256-AH9yvYJ4a5IkU3amUL8IsoVwhUctoTBf6Y00xe5zVJM=
 
 "use client";
 
@@ -75,6 +75,19 @@ export interface VersionCompareProps
   previewLabel?: string;
   /** The phone's back button, from the preview to the list. @default "Versions" */
   backLabel?: string;
+  /**
+   * The side a phone shows (controlled) — `"preview"` opens straight on the selected version, as
+   * a link to one checkpoint's changes does. Pair with `onPhoneViewChange`. Ignored at 640px and
+   * up, where both sides show. @default undefined
+   */
+  phoneView?: "list" | "preview";
+  /** The side a phone shows first (uncontrolled). @default "list" */
+  defaultPhoneView?: "list" | "preview";
+  /**
+   * Called when the reader moves between the sides on a phone: `"preview"` on picking a version,
+   * `"list"` from the back button. @default undefined
+   */
+  onPhoneViewChange?: (view: "list" | "preview") => void;
 }
 
 /**
@@ -83,7 +96,8 @@ export interface VersionCompareProps
  * `DiffView` while `showChanges` is on), the versions in a `VersionList` beside it — grouped by
  * day, an agent's versions under the agent avatar — on `ResizablePanels`, and `actions` (Restore
  * this version, Copy) in a footer that stays put while both sides scroll. Below 640px the list
- * comes first and picking a version pushes its preview in, with a back button to the list.
+ * comes first and picking a version pushes its preview in, with a back button to the list;
+ * `phoneView` / `defaultPhoneView` open it on the preview instead.
  *
  * @example
  * <Dialog open={open} onOpenChange={setOpen}>
@@ -119,26 +133,37 @@ export function VersionCompare({
   showChangesLabel = "Show changes",
   previewLabel = "Selected version",
   backLabel = "Versions",
+  phoneView,
+  defaultPhoneView = "list",
+  onPhoneViewChange,
   className,
   ...props
 }: VersionCompareProps) {
   const switchId = React.useId();
   const wide = useMediaQuery("(min-width: 40rem)");
-  // On a phone one side shows at a time: the list first, a picked version's preview pushed in.
-  const [view, setViewState] = React.useState<"list" | "preview">("list");
+  // On a phone one side shows at a time: the list first (unless the host opens the preview), a
+  // picked version's preview pushed in.
+  const [viewState, setViewState] = React.useState(defaultPhoneView);
+  const view = phoneView ?? viewState;
   const phonePreview = !wide && view === "preview";
   // Moving between the sides unmounts the focused control: focus follows the reader — to Back on
-  // the way in, to the selected version on the way out.
+  // the way in, to the selected version on the way out. A move the host makes on its own leaves
+  // focus where it is, and so does a move the host declines: every request re-renders, so the
+  // effect settles it in the same commit as the host's answer.
   const back = React.useRef<HTMLButtonElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
-  const moved = React.useRef(false);
+  const moving = React.useRef<"list" | "preview" | null>(null);
+  const [requests, setRequests] = React.useState(0);
   const setView = (next: "list" | "preview") => {
-    moved.current = true;
-    setViewState(next);
+    moving.current = next;
+    setRequests((count) => count + 1);
+    if (phoneView === undefined) setViewState(next);
+    onPhoneViewChange?.(next);
   };
   React.useEffect(() => {
-    if (!moved.current) return;
-    moved.current = false;
+    const target = moving.current;
+    moving.current = null;
+    if (target === null || target !== view) return;
     if (view === "preview") back.current?.focus();
     else
       listRef.current
@@ -146,7 +171,7 @@ export function VersionCompare({
           "[data-slot=version-list-item][data-selected]",
         )
         ?.focus();
-  }, [view]);
+  }, [view, requests]);
 
   const list = (
     <VersionList

@@ -71,6 +71,28 @@ handle to give the list more room (it keeps at least 240px). Below 640px one sid
 the list first; a tap (or Enter) on a version pushes its preview in, with the actions, and a
 "Versions" button goes back.
 
+A host that opens the history on one version — a "View changes" link to an agent's checkpoint —
+sets `selectedId`, `showChanges` and `defaultPhoneView="preview"`, so a phone opens on that
+version's changes rather than the list; "Versions" still goes back. To drive the side itself, pass
+`phoneView` with `onPhoneViewChange`, which reports `"preview"` on a pick and `"list"` from the back
+button. A side the host sets moves no focus; a side the reader picks takes focus with it.
+
+```tsx
+// Opened from "View changes" on a checkpoint: start on it, compared with now.
+const [selected, setSelected] = React.useState(checkpointId);
+const [showChanges, setShowChanges] = React.useState(true);
+
+<VersionCompare
+  versions={versions}
+  selectedId={selected}
+  onSelect={setSelected}
+  showChanges={showChanges}
+  onShowChangesChange={setShowChanges}
+  diff={showChanges ? { before: textOf(selected), after: currentText } : null}
+  defaultPhoneView="preview"
+/>;
+```
+
 <ComponentPreview
   name="versionCompare"
   file="components/preview/version-compare.tsx"
