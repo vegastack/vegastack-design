@@ -54,11 +54,10 @@ own props win over the provider.
 
 ### Headings, lists and wrapping
 
-The chip is an inline box, not an inline-flex one: its label is ordinary text on the line's
-baseline, its icon a 1em glyph, so it takes the size of a heading or a list item and wraps with its
-line, the ground continuing on each line. Its icon and the label's first word stay on one line: a
-wrap breaks the label after them, not between the icon and its name. A first word over 16
-characters wraps like the text around it, so a narrow column can still break it.
+The chip is an inline-block, not an inline-flex one: its label is ordinary text on the line's
+baseline, its icon a 1em glyph, so it takes the size of a heading or a list item. It is one unit
+and never wraps: the whole chip moves to the next line, its icon always beside its label, and a
+chip wider than its line ends in an ellipsis. Its box never makes the line taller.
 
 <ComponentPreview
   name="inlineChipContexts"

@@ -921,7 +921,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.90",
-        "integrity": "sha256-JUcmeU8AUV6aC1enbS/5tunsv/IXjZcAs/l+oH7jJCI="
+        "integrity": "sha256-u331inEnJ0SDxgGhOV98ovvlu+VwE+/pYQIONaDEPbQ="
       }
     },
     {
@@ -1651,7 +1651,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.90",
-        "integrity": "sha256-/1fiyjCvAvXJ/6GQhlYu6scUtZy+Zo2SFV6yVhZNLJw="
+        "integrity": "sha256-R1dP8So+gER+IFijs8cGZU4pe0nGjr/RGL7frFBkMVk="
       }
     },
     {
@@ -1729,7 +1729,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.90",
-        "integrity": "sha256-CLcnriJq3S7jTjDcJqwZ/JFL8b3b6BFBnYDBaXseRZM="
+        "integrity": "sha256-IYu73BlEinb1cNoPT88KDLMq/2cEYWcQewiOv1p0GeQ="
       }
     },
     {
@@ -1986,7 +1986,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.90",
-        "integrity": "sha256-g9P7ogCjDVjvth97XqVfzRWgQtio1Voh0JgjbaH8aRc="
+        "integrity": "sha256-YV9LKrnzPhTX2lj4asAY7Zq8uo/BrdfrS4sXf9wtbgE="
       }
     },
     {
@@ -16543,7 +16543,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.90",
-        "integrity": "sha256-sLxKJ8rJpv/4x3UIreTap2tboMefLwVlMJhMz73Mm/k="
+        "integrity": "sha256-19c+5uNaKZ2f8fY8ilCFJCCj2Rmu94bJwmWYu8kAXRs="
       }
     },
     {
@@ -18522,7 +18522,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.90",
-        "integrity": "sha256-9rw7GF/vs8WbkfzGsoi8/OIPVxI2cv0mMlRkjSWuC8s="
+        "integrity": "sha256-gWsnQp/yURuljnsXpJYi5XhPx1B499cs17Hu3cuVgYo="
       }
     },
     {

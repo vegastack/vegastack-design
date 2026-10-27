@@ -1091,14 +1091,9 @@ export function EditableCell({
           <SelectValue placeholder={editor.placeholder}>
             {renderValue
               ? (selected: unknown) =>
-                  typeof selected === "string" && selected ? (
-                    renderValue(selected)
-                  ) : editor.placeholder ? (
-                    // A render callback outranks `placeholder`: an empty value draws it itself.
-                    <span className="text-muted-foreground">
-                      {editor.placeholder}
-                    </span>
-                  ) : null
+                  typeof selected === "string" && selected
+                    ? renderValue(selected)
+                    : null
               : undefined}
           </SelectValue>
         </SelectTrigger>

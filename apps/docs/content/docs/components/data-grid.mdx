@@ -86,7 +86,9 @@ component's own.
    hooks (`DataList` invokes `render` as a plain function and cannot allow
    that).
 2. The grid **sorts its own data** — that is what the row-model engine is for.
-   `sort`/`onSortChange` stay controllable for URL state.
+   `sort`/`onSortChange` stay controllable for URL state. Pass `sort` **without**
+   `onSortChange` when a toolbar owns the sort: headers stop being sort buttons, and each sorted
+   column shows a read-only ↑/↓ (with its ordinal in a multi-sort) and `aria-sort`.
 
 ## Scope
 
@@ -121,10 +123,8 @@ width, and the `headerTrailing` "+" column stays right after the last real colum
 
 On a phone-width container (under 40rem) `phoneLayout="cards"` shows each row as a card: the
 primary value as its title (it opens the row, with `onRowOpen`) and the next `cardFields` columns
-(3 by default) as labelled values; a field with no value (empty text, `null`, an empty list) is
-left out of its card, label and all. A row whose primary value is empty reads a muted "Untitled"
-(`emptyPrimaryLabel`) as its card title and in its primary cell. The grid decides by its own width,
-so a tablet keeps the grid and a narrow pane gets cards. A grid with a `summaryRow` shows it above the cards as one read-only
+(3 by default) as labelled values. The grid decides by its own width, so a tablet keeps the grid
+and a narrow pane gets cards. A grid with a `summaryRow` shows it above the cards as one read-only
 line — its `label` ("412 rows"), then "Amount · Sum 12,400" for each summarised column — wrapping on
 a narrow screen; the functions are chosen from the table's footer.
 

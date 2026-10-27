@@ -172,7 +172,7 @@ test("inline-chip-avatar: inside the chip, sized and centred with the text, in e
   }
 });
 
-test("inline-chip-wrap: a long first word still breaks inside a narrow column", async () => {
+test("inline-chip-wrap: a long chip never overflows a narrow column", async () => {
   const screen = await mountAll();
   const column = screen.getByTestId("narrow").element();
   expect(column.scrollWidth).toBeLessThanOrEqual(column.clientWidth);
@@ -190,21 +190,23 @@ test("inline-chip-editor: a mention in the editor is atomic and never spellcheck
   }
 });
 
-test("inline-chip-lead: a wrapping chip never breaks between its icon and the label's first word", async () => {
+test("inline-chip-unit: a chip never wraps — its icon and label stay on one line, cut with an ellipsis (POL-25)", async () => {
   const screen = await mountAll();
-  const chip = screen.getByTestId("product").element();
-  const lead = chip.querySelector("[data-slot=inline-chip-lead]")!;
-  const icon = lead
+  const chip = screen.getByTestId("product").element() as HTMLElement;
+  const icon = chip
     .querySelector("[data-slot=inline-chip-icon]")!
     .getBoundingClientRect();
-  const range = document.createRange();
-  range.selectNodeContents(lead.lastElementChild!);
-  const word = range.getBoundingClientRect();
-  expect(lead.textContent).toBe("Sub");
+  const label = chip
+    .querySelector("[data-slot=inline-chip-label]")!
+    .getBoundingClientRect();
   const centre = (r: DOMRect) => r.top + r.height / 2;
-  // On one line: their centres sit well within a line's height of each other.
-  expect(Math.abs(centre(word) - centre(icon))).toBeLessThan(6);
-  expect(chip.getClientRects().length).toBeGreaterThan(1);
+  expect(chip.getClientRects()).toHaveLength(1);
+  expect(Math.abs(centre(label) - centre(icon))).toBeLessThan(6);
+  expect(getComputedStyle(chip).whiteSpace).toBe("nowrap");
+  expect(getComputedStyle(chip).textOverflow).toBe("ellipsis");
+  expect(chip.getBoundingClientRect().width).toBeLessThanOrEqual(
+    chip.parentElement!.getBoundingClientRect().width + 0.5,
+  );
 });
 
 test("a cell's link chips never break inside a name, even in a narrow cell inside prose", async () => {
