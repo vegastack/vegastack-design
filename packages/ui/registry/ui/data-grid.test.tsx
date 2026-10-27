@@ -3559,3 +3559,78 @@ test("phoneLayout=cards without a summaryRow draws no summary line", async () =>
     screen.container.querySelector('[data-slot="data-grid-cards-summary"]'),
   ).toBeNull();
 });
+
+test("an empty primary value reads a muted Untitled; a phone card leaves out a field with no value", async () => {
+  const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 50 }];
+  const cols: DataGridColumn<Deal>[] = [
+    { key: "name", header: "Name" },
+    { key: "stage", header: "Stage" },
+    { key: "amount", header: "Amount" },
+  ];
+  function Sized({ width }: { width: number }) {
+    return (
+      <div style={{ width }}>
+        <DataGrid
+          aria-label="Deals"
+          columns={cols}
+          data={rows}
+          getRowId={(d) => d.id}
+          phoneLayout="cards"
+          columnPicker={false}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Sized width={360} />);
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="data-grid-card"]'))
+    .not.toBeNull();
+  const card = screen.container.querySelector('[data-slot="data-grid-card"]')!;
+  expect(
+    card.querySelector('[data-slot="data-grid-empty-primary"]')?.textContent,
+  ).toBe("Untitled");
+  // Stage is empty: no label and no blank value; Amount stays.
+  expect([...card.querySelectorAll("dt")].map((dt) => dt.textContent)).toEqual([
+    "Amount",
+  ]);
+  await screen.rerender(<Sized width={900} />);
+  await expect
+    .poll(() =>
+      screen.container.querySelector(
+        '[role="rowheader"] [data-slot="data-grid-empty-primary"]',
+      ),
+    )
+    .not.toBeNull();
+});
+
+// Last in the file: it loads the compiled stylesheet, so computed colours are real.
+test("a selected row's frozen cells take the row's selected wash", async () => {
+  await import("../../test/geometry.css");
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", frozen: true, width: 160 },
+        { key: "stage", header: "Stage", width: 160 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      selectable
+      selectedIds={new Set(["d1"])}
+      onSelectionChange={() => {}}
+      columnPicker={false}
+    />,
+  );
+  const cell = (row: string, key: string) =>
+    screen.container.querySelector<HTMLElement>(
+      `[data-grid-row="${row}"][data-grid-key="${key}"]`,
+    )!;
+  await expect.poll(() => cell("d1", "name")).not.toBeNull();
+  const bg = (node: HTMLElement) => getComputedStyle(node).backgroundColor;
+  const rowBg = getComputedStyle(
+    cell("d1", "stage").closest("tr")!,
+  ).backgroundColor;
+  // The frozen cell is opaque but no longer the page's white: it differs from an unselected row's.
+  expect(bg(cell("d1", "name"))).not.toBe(bg(cell("d2", "name")));
+  expect(rowBg).not.toBe("rgba(0, 0, 0, 0)");
+});

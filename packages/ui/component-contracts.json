@@ -14658,6 +14658,15 @@
           }
         },
         {
+          "name": "GroupByPickerLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "GroupByPickerProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",

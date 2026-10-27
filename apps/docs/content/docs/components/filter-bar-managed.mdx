@@ -85,8 +85,8 @@ inert.
 
 ### One level
 
-`maxDepth={1}` is a flat list of conditions: there is no add-group control, and no reason to
-explain one.
+`maxDepth={1}` is a flat list of conditions: there is no "Add condition group" control, and no
+reason to explain one.
 
 <ComponentPreview
   name="filterBarManagedOneLevel"
@@ -183,8 +183,9 @@ shape defaults for that type alone, so one editor can serve a type's every opera
 
 `SortBuilder` edits up to three sort keys (`{ key, dir }`, first one first) and `GroupByPicker` up
 to two grouping levels (outermost first), both from the same field vocabulary. Rows reorder by drag
-or `SortableList`'s keyboard move mode, × removes one, and "Add sort" / "Add group" append the next
-free field. With `readOnly` both show removable `FilterChip`s. They edit data; the host sorts and
+or `SortableList`'s keyboard move mode, × removes one, and "Add sort" appends the next free field.
+`GroupByPicker`'s button reads "Group by" while no level is set and "Add level" once one is, so it
+never shares a name with `FilterBuilder`'s "Add condition group" (both are in `labels`). With `readOnly` both show removable `FilterChip`s. They edit data; the host sorts and
 groups.
 
 <ComponentPreview

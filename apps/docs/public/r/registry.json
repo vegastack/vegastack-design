@@ -1651,7 +1651,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.90",
-        "integrity": "sha256-OOnv0w93l/7qhlnBR12uNktbOhtQ+/RtSbmWrPTnMOw="
+        "integrity": "sha256-pNZ6rOKZ7Hlljr0C/5AbBFv2uiJdb91T6k62wN+6vbg="
       }
     },
     {
@@ -3028,7 +3028,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.25.90",
-        "integrity": "sha256-DUBqvq5EsDTXzojzdGBBpZ9XQG3Xo/5c+kqOKQfWEfI="
+        "integrity": "sha256-UOn9EZjQupy5u9D+qNMeBsIfaT6UbT2ezsGNQvbNJwg="
       }
     },
     {
