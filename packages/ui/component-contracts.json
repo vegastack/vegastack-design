@@ -28,7 +28,7 @@
     "Data display": 38,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 10,
+    "AI/chat": 12,
     "Hooks": 16,
     "Block": 1,
     "Animated icons": 467
@@ -223,7 +223,9 @@
       "questionnaire",
       "transcript",
       "approval-card",
-      "agent-edit-banner"
+      "agent-edit-banner",
+      "agent-panel",
+      "delegate-popover"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -39112,6 +39114,615 @@
             {
               "name": "data-slot",
               "values": ["record-header-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "agent-panel",
+      "registryType": "registry:ui",
+      "title": "Agent Panel",
+      "summary": "An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/agent-panel.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AgentPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the RecordAsideCard root (card) or the Collapsible root div (section)."
+          }
+        },
+        {
+          "name": "AgentSlot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the ghost Button (or the muted span when it can't delegate)."
+          }
+        },
+        {
+          "name": "AgentChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the SplitChipButton."
+          }
+        },
+        {
+          "name": "AgentStateBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the root span."
+          }
+        },
+        {
+          "name": "AgentStateRing",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the root span."
+          }
+        },
+        {
+          "name": "AgentHoverCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A HoverCard root with its own trigger button; it takes no ref."
+          }
+        },
+        {
+          "name": "AgentState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentStateLabels",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentStateBadgeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentStateRingProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentSlotProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentHoverCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentHoverCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelEvent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelRun",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelChoice",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["card", "section"]
+          }
+        ],
+        "rationale": "The rail card on a record page and the collapsible section in a peek."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills the rail or the peek; the slot and the pill take the ghost-chip and SplitChip heights."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "none",
+            "queued",
+            "queued-hint",
+            "working",
+            "question",
+            "approval",
+            "failed",
+            "blocked",
+            "done",
+            "stopped",
+            "disconnected",
+            "instructions-edit",
+            "latest",
+            "reply",
+            "reply-disabled",
+            "history-undo",
+            "undo-disabled",
+            "menu",
+            "section-collapsed",
+            "slot-empty",
+            "slot-disabled",
+            "chip",
+            "ring",
+            "hover-card",
+            "labels"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-panel.tsx + packages/ui/registry/ui/agent-panel.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "polite-state-announcement",
+            "named-menu",
+            "decorative-avatar",
+            "silent-relative-time",
+            "undo-disabled-reason",
+            "state-word-not-colour",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-panel.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "card-states",
+            "section",
+            "slot",
+            "chip",
+            "badge-ring",
+            "hover-card"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-panel.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Lines wrap in a narrow rail; the agent's name truncates in the slot and pill while the state word never does; the section header's summary truncates on one line."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the working spinner is Spinner's animate-spin and the menu, hover card and collapsible transitions are their own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/agent-panel",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/dropdown-menu",
+        "@vegastack/hover-card",
+        "@vegastack/input-group",
+        "@vegastack/person-avatar",
+        "@vegastack/record-aside",
+        "@vegastack/record-chip",
+        "@vegastack/relative-time",
+        "@vegastack/spinner",
+        "@vegastack/textarea",
+        "@vegastack/tooltip",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/agent-panel.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "agent-panel",
+      "dataAttributes": {
+        "AgentStateBadge": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-state-badge"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentStateRing": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-state-ring"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentSlot": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["agent-slot"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentChip": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["agent-chip"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentHoverCard": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "agent-hover-card",
+                "agent-hover-card-avatar",
+                "agent-hover-card-name"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentPanel": {
+          "attributes": [
+            {
+              "name": "data-attention",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "agent-panel",
+                "agent-panel-content",
+                "agent-panel-header"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": ["card", "section"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "delegate-popover",
+      "registryType": "registry:ui",
+      "title": "Delegate Popover",
+      "summary": "Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/delegate-popover.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DelegatePopover",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A Popover root whose trigger is the child element (which keeps its own ref); it takes no ref."
+          }
+        },
+        {
+          "name": "DelegatePopoverAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DelegatePopoverProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look; the bulk title, the When finished row and the empty state follow the props passed."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Popover size md (320px)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pick",
+            "disabled-reason",
+            "search",
+            "keyboard",
+            "instructions",
+            "when-finished",
+            "bulk",
+            "empty",
+            "loading",
+            "pending",
+            "connect",
+            "labels"
+          ],
+          "evidence": "packages/ui/registry/ui/delegate-popover.tsx + packages/ui/registry/ui/delegate-popover.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labelled-fields",
+            "listbox-keyboard",
+            "disabled-option-reason",
+            "busy-submit",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/delegate-popover.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "bulk", "empty", "loading"],
+          "evidence": "packages/ui/registry/ui/delegate-popover.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "A 320px popover clamped to the window less 2rem; the agent list scrolls past 12rem."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the popover's transition is Popover's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/delegate-popover",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/label",
+        "@vegastack/people-picker",
+        "@vegastack/popover",
+        "@vegastack/select",
+        "@vegastack/separator",
+        "@vegastack/skeleton",
+        "@vegastack/spinner",
+        "@vegastack/textarea"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.17",
+        "@vegastack/design@^0.8.34",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/delegate-popover.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "delegate-popover",
+      "dataAttributes": {
+        "DelegatePopover": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end", "inline-start"]
+            },
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "delegate-popover",
+                "delegate-popover-empty",
+                "delegate-popover-finish",
+                "delegate-popover-footer",
+                "delegate-popover-form",
+                "delegate-popover-loading",
+                "delegate-popover-submit"
+              ]
             }
           ],
           "cssVariables": []

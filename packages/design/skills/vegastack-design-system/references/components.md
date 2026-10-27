@@ -205,7 +205,9 @@ starts with `icon-` is a component and never an icon.
 ## Chat
 
 - **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.
+- **`agent-panel`** — An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.
 - **`approval-card`** — An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.
+- **`delegate-popover`** — Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
 
 ## Communication

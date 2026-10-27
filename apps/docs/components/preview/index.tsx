@@ -39,6 +39,8 @@ export * from "./code-block";
 export * from "./tool-call-chip";
 export * from "./approval-card";
 export * from "./agent-edit-banner";
+export * from "./agent-panel";
+export * from "./delegate-popover";
 export * from "./navigation-menu";
 export * from "./announcement-banner";
 export * from "./accordion";
