@@ -1,4 +1,4 @@
-// @vegastack record-peek@0.25.89 sha256-Tjb/UJ/x7yOR+pG7lLE7Jy40zqKCmixyyYXlVUR8TxA=
+// @vegastack record-peek@0.25.89 sha256-wUYge9VeD6MZWQPRC8f9EzgIYNnANL0vRH4+oK9K3oI=
 
 "use client";
 
@@ -497,7 +497,7 @@ export function RecordPeek({
           {position && position.total > 1 && position.index >= 0 ? (
             <span
               data-slot="record-peek-position"
-              className="px-1 text-xs text-muted-foreground tabular-nums"
+              className="shrink-0 px-1 text-xs whitespace-nowrap text-muted-foreground tabular-nums"
             >
               {formatPosition(position.index, position.total)}
             </span>
