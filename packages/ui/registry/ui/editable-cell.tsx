@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.90 sha256-UZ55ZiZ9WubVG1MsfmcX1KwQBIlCrO0c+I5Y6I1Bb64=
+// @vegastack editable-cell@0.25.90 sha256-+Pf1BtOiYIFN1iW8flLwA2XKw1rTsM1pwfd84tkjrsE=
 
 "use client";
 
@@ -628,7 +628,10 @@ function InlineTextBody({
   };
 
   const onFieldKeyDown = (event: React.KeyboardEvent) => {
-    if (onNavigate && !event.nativeEvent?.isComposing) {
+    if (
+      onNavigate &&
+      !(event.nativeEvent?.isComposing || event.keyCode === 229)
+    ) {
       const isTab = event.key === "Tab";
       const isEnter = event.key === "Enter" && !multiline;
       if (isTab || isEnter) {
@@ -645,7 +648,7 @@ function InlineTextBody({
     if (
       event.key === "Enter" &&
       (!multiline || event.metaKey || event.ctrlKey) &&
-      !event.nativeEvent?.isComposing &&
+      !(event.nativeEvent?.isComposing || event.keyCode === 229) &&
       !accepts(edit.draft)
     ) {
       event.preventDefault();

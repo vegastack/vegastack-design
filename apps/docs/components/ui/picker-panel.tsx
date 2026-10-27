@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.25.90 sha256-ifgnqn15g6qMOU2whoVEC2+OqXwHQ7nZtTLWdveYka0=
+// @vegastack picker-panel@0.25.90 sha256-QEXVtNE6OmNxifwRzFxqCxtfGn8yRGHyr4O4SDoBSWk=
 
 "use client";
 import * as React from "react";
@@ -193,7 +193,8 @@ export function PickerPanel({
             onKeyDown={(event) => {
               // Enter picks the first result; ↓ moves into the grid. Never mid-composition (an
               // IME's Enter confirms its candidate).
-              if (event.nativeEvent.isComposing) return;
+              if (event.nativeEvent.isComposing || event.keyCode === 229)
+                return;
               if (event.key === "Enter" && query.trim() && flat.length) {
                 event.preventDefault();
                 onSelect(flat[0]!.key);

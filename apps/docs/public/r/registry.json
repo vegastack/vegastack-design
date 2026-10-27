@@ -278,7 +278,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.25.90",
-        "integrity": "sha256-XeoGGyJ1EeGkid0GVSvy0bbaLOi3JQBVG4HZGNInW+Q="
+        "integrity": "sha256-4gTfhCOX2u1ssLbiVsZUUVvktfhC2XNl7RjW6cHxKm0="
       }
     },
     {
@@ -1321,7 +1321,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.25.90",
-        "integrity": "sha256-pPYQ107pE2zXaRMEcbWW9C9mjxCFsdo9VzJ95Kx/yRo="
+        "integrity": "sha256-BkO+xLJhNmAiKHeyBuDD5olKj2fnhuhVmJSDWp480qo="
       }
     },
     {
@@ -2712,7 +2712,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.90",
-        "integrity": "sha256-UZ55ZiZ9WubVG1MsfmcX1KwQBIlCrO0c+I5Y6I1Bb64="
+        "integrity": "sha256-+Pf1BtOiYIFN1iW8flLwA2XKw1rTsM1pwfd84tkjrsE="
       }
     },
     {
@@ -16790,7 +16790,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.25.90",
-        "integrity": "sha256-qWDTu1LwWmW3ComGmts/vNFPw0m0590UJznEvEGQN+Q="
+        "integrity": "sha256-Zl4FLfs2NfS1V3izUN3NKbQYolczgqHBBud8RAPrjXY="
       }
     },
     {
@@ -17007,7 +17007,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.25.90",
-        "integrity": "sha256-yuf9ohaSvcuNaKswYWOxff2mFZw3Z/Mui4guNISOwHA="
+        "integrity": "sha256-Sxj6Uv/fI6QDj5U7HCtd52D/sZyCiREVqWlVJkqh6M0="
       }
     },
     {
@@ -18203,7 +18203,7 @@
         "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.25.90",
-        "integrity": "sha256-TwkEy23o5xbOG0+Jf468fNULDvh6cMlCNJ8EAXZtERs="
+        "integrity": "sha256-ZpOulJYGjLy2JpnYQ3OMMuRR8/r0AVhuReKq59nEjD8="
       }
     },
     {
@@ -19039,7 +19039,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.25.90",
-        "integrity": "sha256-Ur/lbzImgiK8f10TVayQ9dpW0PuItn+yukikvLn9KEQ="
+        "integrity": "sha256-ql8/JSTHxol9M6PY6GYCIRks/sWlMxTvDYhC82c9IWY="
       }
     },
     {
@@ -19410,7 +19410,7 @@
         "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
         "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.25.90",
-        "integrity": "sha256-/fMw0cOWbl9U+3vy90YAsm2UfSBDpS+qT7UdXOGh2jE="
+        "integrity": "sha256-YCoef7VkHEzLxWsXQyIP/cnCPQw2XtxHhBQdp9XdcYY="
       }
     },
     {
@@ -22765,7 +22765,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.25.90",
-        "integrity": "sha256-ifgnqn15g6qMOU2whoVEC2+OqXwHQ7nZtTLWdveYka0="
+        "integrity": "sha256-QEXVtNE6OmNxifwRzFxqCxtfGn8yRGHyr4O4SDoBSWk="
       }
     },
     {
@@ -22991,7 +22991,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.25.90",
-        "integrity": "sha256-Qt+s8ig/LWSh6QVs/ko8KIMWV3hz0aAxWRD3dthml5E="
+        "integrity": "sha256-YGQCrPpza/x07w5MUIwoiVxomNp/FD1Lr27+2A9cmb4="
       }
     },
     {
@@ -23030,7 +23030,7 @@
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
         "version": "0.25.90",
-        "integrity": "sha256-3fYFUyJa5PSwpMebYq2OHeAGEbGCr43w/aVF8net7Rk="
+        "integrity": "sha256-UJvkdRSdDDghtUs0/kQVGJol9vFjZMexdY0YFjktTv8="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack transcript@0.25.90 sha256-qWDTu1LwWmW3ComGmts/vNFPw0m0590UJznEvEGQN+Q=
+// @vegastack transcript@0.25.90 sha256-Zl4FLfs2NfS1V3izUN3NKbQYolczgqHBBud8RAPrjXY=
 
 "use client";
 
@@ -1230,6 +1230,8 @@ export function TranscriptSearch({
         onChange={(event) => setQuery(event.currentTarget.value)}
         onKeyDown={(event) => {
           if (event.key !== "Enter") return;
+          // An IME's Enter confirms its candidate, not a search step.
+          if (event.nativeEvent.isComposing || event.keyCode === 229) return;
           event.preventDefault();
           step(event.shiftKey ? -1 : 1);
         }}
@@ -1309,6 +1311,7 @@ function SpeakerChip({
           onFocus={(event) => event.currentTarget.select()}
           onBlur={() => finish(true)}
           onKeyDown={(event) => {
+            if (event.nativeEvent.isComposing || event.keyCode === 229) return;
             if (event.key === "Enter") {
               event.preventDefault();
               finish(true);

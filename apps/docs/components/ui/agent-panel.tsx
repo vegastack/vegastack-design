@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.25.90 sha256-Qt+s8ig/LWSh6QVs/ko8KIMWV3hz0aAxWRD3dthml5E=
+// @vegastack agent-panel@0.25.90 sha256-YGQCrPpza/x07w5MUIwoiVxomNp/FD1Lr27+2A9cmb4=
 
 "use client";
 
@@ -1452,7 +1452,12 @@ function ReplyBox({
           aria-describedby={disabled ? reasonId : undefined}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            if (
+              event.key === "Enter" &&
+              (event.metaKey || event.ctrlKey) &&
+              !event.nativeEvent.isComposing &&
+              event.keyCode !== 229
+            ) {
               event.preventDefault();
               void send();
             }
