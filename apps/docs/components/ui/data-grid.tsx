@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.94 sha256-P5UeocEtjZdliG1gJns3a5NjiRVf+hcSR2KtWRJS9PA=
+// @vegastack data-grid@0.25.94 sha256-cDRd/P0KLPuztCQSWvsuXwaLltoiIjC7d69HXEcq9u8=
 
 "use client";
 
@@ -1475,9 +1475,14 @@ function GridCellImpl<T>({
           />
           <div
             data-slot="data-grid-cell-content"
+            // Fixed layout clips plain text with its own ellipsis here (the cell's applies to
+            // its own lines only); auto layout keeps the cell's wrapping, and an open editor is
+            // never clipped (its focus outline sits outside it).
             className={cn(
               "min-w-0 flex-1",
-              fixed && rowHeight === "tall" ? TALL_CONTENT_CLASS : "truncate",
+              fixed && rowHeight === "tall"
+                ? TALL_CONTENT_CLASS
+                : fixed && !editing && "truncate",
             )}
           >
             {content}
