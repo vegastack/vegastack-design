@@ -1264,6 +1264,19 @@ for (const theme of ["light", "dark"] as const) {
       .element(palette.getByRole("option").first())
       .toBeInTheDocument();
     await settledOverlay('[data-slot="dialog-content"]');
+    // Audit the results at rest: while a query is in flight they are dimmed on purpose (stale).
+    await expect
+      .poll(
+        () =>
+          document.querySelector("[data-stale]") === null &&
+          [
+            ...document.querySelectorAll<HTMLElement>(
+              '[data-slot="command-search-body"] > *',
+            ),
+          ].every((el) => Number(getComputedStyle(el).opacity) >= 0.99),
+        { timeout: 5000 },
+      )
+      .toBe(true);
     const search = await contrastViolations(document.body);
     expect(
       [

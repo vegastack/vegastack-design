@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-COeQ7ms4WC2hun6TeXISlGiSsPX/NNoJT3mlhBpoEH0=
+// @vegastack text-edit@0.25.88 sha256-DTeClijxeXj7dGETG1aFH0qJU3dS1PBqmsTuEBU9vc4=
 
 "use client";
 
@@ -9931,6 +9931,8 @@ interface BlockMenuRuntime {
   headingLink: (pos: number) => string | null;
   /** `onMakeTask`: Make task on an unlinked checklist line. */
   makeTask: () => TextEditProps["onMakeTask"];
+  /** The block menu opened or closed: the selection toolbar steps aside while it is open. */
+  menuOpenChange: (open: boolean) => void;
 }
 
 /** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
@@ -10558,21 +10560,29 @@ function BlockHandle({
     (block: BlockTarget) => {
       pinnedRef.current = true;
       menuOpenRef.current = true;
+      runtime.menuOpenChange(true);
       show(block);
       heldRef.current?.release();
       heldRef.current = holdBlock(editor, block);
       setMenu(heldRef.current);
     },
-    [editor, pinnedRef, show],
+    [editor, pinnedRef, show, runtime],
   );
   const closeMenu = React.useCallback(() => {
     heldRef.current?.release();
     heldRef.current = null;
     setMenu(null);
     menuOpenRef.current = false;
+    runtime.menuOpenChange(false);
     pinnedRef.current = false;
-  }, [pinnedRef]);
-  React.useEffect(() => () => heldRef.current?.release(), []);
+  }, [pinnedRef, runtime]);
+  React.useEffect(
+    () => () => {
+      heldRef.current?.release();
+      if (menuOpenRef.current) runtime.menuOpenChange(false);
+    },
+    [runtime],
+  );
 
   React.useEffect(() => {
     const dom = editor.view.dom;
@@ -11328,6 +11338,8 @@ export function TextEditEditor({
   fileLinkPrefixRef.current = fileLinkPrefix;
 
   const [panel, setPanel] = React.useState<Panel | null>(null);
+  // The block menu is open: the selection toolbar would cover its items, so it steps aside.
+  const [blockMenuOpen, setBlockMenuOpen] = React.useState(false);
   // One key per instance for each floating menu, so an effect can show or hide exactly this
   // editor's menu.
   const [menuKeys] = React.useState(() => ({
@@ -11969,6 +11981,7 @@ export function TextEditEditor({
         return anchor ? href(anchor) : null;
       },
       makeTask: () => makeTaskRef.current,
+      menuOpenChange: setBlockMenuOpen,
     }),
     [],
   );
@@ -13584,14 +13597,15 @@ export function TextEditEditor({
     ({ editor: ed, from, to, state }: MenuShowProps) =>
       // A panel asked for opens; Find stepping onto a match brings no toolbar over the find bar.
       panel !== null ||
-      (!isFindMatch(state, from, to) &&
+      (!blockMenuOpen &&
+        !isFindMatch(state, from, to) &&
         // The caret in a link (editable): the link card.
         ((ed.isEditable &&
           from === to &&
           ed.isActive("link") &&
           !ed.isActive("codeBlock")) ||
           (!docked && formattable(ed, state, from, to, canComment)))),
-    [panel, canComment, docked],
+    [panel, canComment, docked, blockMenuOpen],
   );
   // The bubble menu's anchor: the selection's live rect, with the editor as its context element so
   // the `hide` middleware measures it against the editor's clipping ancestors. A cell selection
