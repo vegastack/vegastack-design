@@ -11,3 +11,4 @@
 - **InlineChip** (mentions, file and record chips) never wraps. Its icon and label stay on one line, and a chip wider than its line ends in an ellipsis.
 - **DataList** and **DataGrid** can show a sort set somewhere else, such as a toolbar. Pass `sort` without `onSortChange` and the headers are no longer sort buttons. The sorted column still shows a read-only ↑/↓ (with its position number in a multi-sort) and keeps `aria-sort`. `SortableHead` also draws the read-only glyph when it gets a `direction` and no `onSort`.
 - **Board** card and lane menus and **SortableList** item menus use ⋯, the same as table rows. The app-shell header's actions menu keeps ⋮.
+- **SortableList** takes `handle="fine"`: the drag grip ⠿ shows only on a mouse or pen. On a touch screen there is no grip, and a long-press still lifts the row or tile. The handle stays in the tab order and comes back into view while it has keyboard focus. The default, `handle="always"`, is unchanged.

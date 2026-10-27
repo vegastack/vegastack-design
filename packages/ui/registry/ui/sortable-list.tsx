@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.90 sha256-oZJU+JO+9JPB4dLesHLPfDm4HTkpovX5w0GSTTxptmo=
+// @vegastack sortable-list@0.25.90 sha256-gWsnQp/yURuljnsXpJYi5XhPx1B499cs17Hu3cuVgYo=
 
 "use client";
 
@@ -240,6 +240,15 @@ export interface SortableListProps<
    */
   align?: "center" | "start";
   /**
+   * When the drag handle (⠿) shows. `always`: on every pointer. `fine`: only on a mouse or pen —
+   * on a touch screen there is no grip (it would sit over the content, a card's type icon) and a
+   * long-press on the row or tile still lifts it. The handle stays in the tab order either way:
+   * hidden visually on touch, it reappears while it has keyboard focus, so Space-to-move works
+   * with a keyboard on any device.
+   * @default "always"
+   */
+  handle?: "always" | "fine";
+  /**
    * Accessible name for the list.
    * @default "Sortable list"
    */
@@ -320,6 +329,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   header,
   flush = false,
   align = "center",
+  handle = "always",
   "aria-label": ariaLabel = "Sortable list",
   className,
   ref,
@@ -549,7 +559,10 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                   <span
                     aria-hidden="true"
                     data-slot="sortable-list-handle-spacer"
-                    className="size-7 shrink-0"
+                    className={cn(
+                      "size-7 shrink-0",
+                      handle === "fine" && "pointer-coarse:hidden",
+                    )}
                   />
                 )
               ) : (
@@ -558,6 +571,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                   size={grid ? "icon-xs" : "icon-sm"}
                   aria-label={`Reorder ${label}`}
                   data-slot="sortable-list-handle"
+                  data-handle={handle}
                   // A long-press on the handle lifts the row too.
                   data-drag-surface=""
                   ref={handleProps.ref as React.Ref<HTMLButtonElement>}
@@ -569,6 +583,10 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                     // The tile's top-left overlay slot, on the scrim.
                     grid &&
                       cn(tileCornerClasses.start, tileOverlayButtonClasses),
+                    // `handle="fine"`: no grip on touch (a long-press lifts the row), back while
+                    // the handle has keyboard focus.
+                    handle === "fine" &&
+                      "pointer-coarse:not-focus-visible:sr-only",
                   )}
                 >
                   <GripVertical />

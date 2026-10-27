@@ -33,6 +33,7 @@ function Controlled({
     | "renderItem"
     | "getItemActions"
     | "onRemove"
+    | "handle"
   >
 >) {
   const [items, setItems] = React.useState<SortableListItem[]>(
@@ -715,4 +716,28 @@ test("a touch drop lands where the finger lifts, even before the next frame re-t
   window.dispatchEvent(touch("pointermove", at(row("gamma"), 0.8)));
   window.dispatchEvent(touch("pointerup", at(row("gamma"), 0.8)));
   await vi.waitFor(() => expect(onMove).toHaveBeenCalledWith("alpha", 2));
+});
+
+test('handle="fine": the grip hides on a coarse pointer yet stays a keyboard handle (POL-28)', async () => {
+  const onMove = vi.fn();
+  const screen = await render(<Controlled handle="fine" onMove={onMove} />);
+  const grip = screen.getByRole("button", { name: "Reorder Alpha" });
+  await expect.element(grip).toBeInTheDocument();
+  // This lane compiles no CSS: the contract is the class — hidden on touch unless focused.
+  expect(grip.element().getAttribute("data-handle")).toBe("fine");
+  expect(grip.element().className).toContain(
+    "pointer-coarse:not-focus-visible:sr-only",
+  );
+  // Still the keyboard's handle: Space lifts the row and ArrowDown moves it.
+  (grip.element() as HTMLElement).focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(onMove).toHaveBeenCalledWith("alpha", 1);
+  await userEvent.keyboard("{Escape}");
+  const plain = await render(<Controlled />);
+  expect(
+    plain.container
+      .querySelector('[data-slot="sortable-list-handle"]')!
+      .className.includes("pointer-coarse:not-focus-visible:sr-only"),
+  ).toBe(false);
 });
