@@ -1,4 +1,4 @@
-// @vegastack grid-clipboard@0.25.88 sha256-rxB94XWSnyqS0FGYrCKJZTvAWuDobbJGIYTmmTRVxYA=
+// @vegastack grid-clipboard@0.25.89 sha256-ksddtk1+M6GZSwTJPvlWvFJ6EFoic3iiZKUiQqkLofY=
 
 /* ---
 `grid-clipboard` is the spreadsheet clipboard as data: what a grid writes when it copies a range
