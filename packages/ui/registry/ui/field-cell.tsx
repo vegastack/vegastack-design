@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.90 sha256-7ZIiTtn5ssFfRVY3lwdYiy22WPQGlf5CUVeJIDEYmpA=
+// @vegastack field-cell@0.25.90 sha256-GqCePC1TUy6ku1pJSsstahJvBlJ0N0XKG9L+3Mx7WE0=
 
 "use client";
 
@@ -364,6 +364,8 @@ function Overflow({
   tabIndex?: number;
 }) {
   // A tap shows the names too: a touch screen has no hover, and a tooltip opens on nothing else.
+  // In an editable grid cell the tap is the cell's (not a control of its own), so it opens the
+  // editor, whose list shows every value — the fuller disclosure.
   const [open, setOpen] = React.useState(false);
   if (count <= 0) return null;
   const className = "shrink-0 text-xs text-muted-foreground tabular-nums";
