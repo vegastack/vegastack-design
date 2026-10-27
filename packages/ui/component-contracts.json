@@ -8255,6 +8255,10 @@
               "values": ["cards", "grid"]
             },
             {
+              "name": "data-prose",
+              "values": ["off"]
+            },
+            {
               "name": "data-read-only",
               "values": [""]
             },

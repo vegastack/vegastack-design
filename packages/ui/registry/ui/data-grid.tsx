@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.92 sha256-HE0kh0K8LdLDeCTWO6dsBZGM7eN0ubtxy02dAuRv7p8=
+// @vegastack data-grid@0.25.92 sha256-ucH29/O62KX1zbRfnGegSthcwVvO2EZ2XUCrf8PhtWA=
 
 "use client";
 
@@ -5084,6 +5084,8 @@ export function DataGrid<T>({
       <div
         ref={setRoot}
         data-slot="data-grid"
+        // Inside a page's prose (an embedded block): the prose recipe's table rules stay out.
+        data-prose="off"
         data-layout-mode={cardMode ? "cards" : "grid"}
         data-embedded={embedded ? "" : undefined}
         data-read-only={readOnly ? "" : undefined}

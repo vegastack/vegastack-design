@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.92 sha256-4f7LB1Mc/ey7OU3goLXxYDDtcbN8V2Zy6kc6UD2iavw=
+// @vegastack text-edit@0.25.92 sha256-65kOBEX73cSiOcyhaQsh2vhkXvZyZBD3H5kLC+xTySQ=
 
 "use client";
 
@@ -655,12 +655,17 @@ const editorBaseClassName = cn(
   "supports-[animation-timeline:scroll()]:[&_.tableWrapper]:scroll-fade-x [&_.tableWrapper]:[--scroll-fade-size:--spacing(6)] [&_.tableWrapper]:[--scroll-fade-reveal:--spacing(6)]",
   // Fixed layout: columns keep their width (equal, or as resized) while you type, and text wraps
   // inside its cell instead of pushing the other columns right.
-  "[&_table]:table-fixed",
+  // The editor's own tables only (`.tableWrapper`), never a table a block view draws (an embedded
+  // DataGrid sizes its own columns).
+  "[&_.tableWrapper>table]:table-fixed",
   // A document ending in a table or an atom keeps room under it to click, where the caret goes.
   "[&.te-open-end]:pb-6",
   // Column resizing (editable only): a thin primary line on the hovered column border, and the
-  // resize cursor while the pointer is on it.
-  "[&_td]:relative [&_th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
+  // resize cursor while the pointer is on it. Scoped to the editor's own table cells (direct
+  // children of `.tableWrapper`'s table): a bare `[&_td]:relative` also reached a table drawn
+  // inside a block view — an embedded `DataGrid`, even one nested in an editor table's cell — and
+  // beat its frozen cells' `sticky`, so the pinned column scrolled away.
+  "[&_.tableWrapper>table>tbody>tr>td]:relative [&_.tableWrapper>table>tbody>tr>th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
   // A selected atom (a mention, a divider) gets a tint; a selected image keeps its own radius and
   // shows its outline instead (the image node view).
   "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
