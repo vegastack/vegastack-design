@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 776,
-    "components": 188,
+    "totalRegistryItems": 777,
+    "components": 189,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 42,
     "Navigation/layout": 26,
     "Overlays": 23,
-    "Data display": 40,
+    "Data display": 41,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 12,

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "898ab91998d557c69ab0a236563bdcd4fe8070260983de870aa078dd2bf0e3d9",
+  "contractSha256": "99b6ff55966a01b19009f68d0041430ee91ddb05a7756a6e462a8d74c9d726e6",
   "expectedCounts": {
-    "totalRegistryItems": 776,
-    "components": 188,
+    "totalRegistryItems": 777,
+    "components": 189,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1633,6 +1633,7 @@
       "wave": "Navigation/layout",
       "family": "layout",
       "sourceFiles": [
+        "packages/ui/registry/ui/document-layout-aside.tsx",
         "packages/ui/registry/ui/document-layout-meta.tsx",
         "packages/ui/registry/ui/document-layout-sections.tsx",
         "packages/ui/registry/ui/document-layout-tools.tsx",
@@ -1706,6 +1707,17 @@
         "packages/ui/registry/ui/version-list.tsx"
       ],
       "docsSlug": "/docs/components/version-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "version-compare",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/version-compare.tsx"
+      ],
+      "docsSlug": "/docs/components/version-compare",
       "contractStatus": "reconciled"
     },
     {
