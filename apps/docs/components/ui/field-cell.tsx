@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.91 sha256-0lpEnpYVSGVhJno0WPcfR7MRX/DTlBwa4fqyQhdM6CA=
+// @vegastack field-cell@0.25.91 sha256-YvhApWhCotEVr4HXkvwA1Pl1zUrVCck/59MLkYNvCl8=
 
 "use client";
 
@@ -37,6 +37,7 @@ import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import {
+  TEXT_EDIT_SESSION_SELECTOR,
   TextEdit,
   type MentionKind,
   type TextEditHandle,
@@ -2071,6 +2072,8 @@ function usePropertySave(
   );
   const [spinner, setSpinner] = React.useState(false);
   const { announce, Announcer } = useAnnouncer();
+  // Only the latest save settles the shown value: an older one finishing late changes nothing.
+  const sequence = React.useRef(0);
   const saving = pending !== null;
   React.useEffect(() => {
     if (!saving) return setSpinner(false);
@@ -2080,10 +2083,14 @@ function usePropertySave(
   const save = (next: FieldValue) => {
     const result = onSave?.(next);
     if (!(result instanceof Promise)) return;
+    const seq = ++sequence.current;
     setPending({ value: next });
     result.then(
-      () => setPending(null),
+      () => {
+        if (seq === sequence.current) setPending(null);
+      },
       (error: unknown) => {
+        if (seq !== sequence.current) return;
         setPending(null);
         announce(`Couldn't save ${label} — value restored`);
         if (!saveErrorToast) return;
@@ -2200,12 +2207,18 @@ function LinkedProperty({
   const shown = pending ? pending.value : value;
   // Focus comes back to the Edit pencil only when it would otherwise be lost (Enter, Escape, a
   // pick); a click into another field keeps its focus there.
-  const close = () => {
+  const close = (move?: EditableCellMove) => {
     setEditing(false);
     requestAnimationFrame(() => {
       const active = document.activeElement;
-      if (!active || active === document.body || root.current?.contains(active))
-        trigger.current?.focus();
+      if (active && active !== document.body && !root.current?.contains(active))
+        return;
+      const target = trigger.current;
+      if (!target) return;
+      // Tab / Shift+Tab out of the editor go on to the next or previous control.
+      if (move === "right" || move === "left")
+        focusAdjacent(target, move === "right" ? "next" : "previous");
+      else target.focus();
     });
   };
   let body: React.ReactNode;
@@ -2216,11 +2229,11 @@ function LinkedProperty({
         label={label}
         value={shown}
         config={config}
-        onCommit={(next) => {
-          close();
+        onCommit={(next, move) => {
+          close(move);
           if (propertyString(next) !== propertyString(shown)) save(next);
         }}
-        onCancel={close}
+        onCancel={() => close()}
       />
     );
   else if (propertyString(shown) === "")
@@ -2324,9 +2337,7 @@ function LongTextPropertyEditor({
           if (
             active &&
             (wrapper.contains(active) ||
-              active.closest(
-                '[data-text-edit-menu],[data-slot="popover-content"],[data-slot="dropdown-menu-content"],[role="dialog"],[role="menu"],[role="listbox"]',
-              ))
+              active.closest(TEXT_EDIT_SESSION_SELECTOR))
           )
             return;
           if (draft.current !== persisted) return finish(draft.current);

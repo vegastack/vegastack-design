@@ -1739,3 +1739,55 @@ test("FieldProperty: long text — Escape reverts; a typed character's edit is s
   await vi.waitFor(() => expect(onSave).toHaveBeenCalled());
   expect(String(onSave.mock.calls[0]![0])).toContain("W");
 });
+
+test("FieldProperty: Tab out of a linked value's editor goes on to the next control", async () => {
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Site"
+          type="url"
+          value="https://example.com"
+          onSave={() => Promise.resolve()}
+        />
+      </PropertyList>
+      <button type="button">After</button>
+    </>,
+  );
+  (
+    screen.getByRole("button", { name: "Edit Site" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Site" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await expect
+    .element(screen.getByRole("button", { name: "After" }))
+    .toHaveFocus();
+});
+
+test("FieldProperty: an older save settling late never overrides a newer one", async () => {
+  const resolvers: (() => void)[] = [];
+  const onSave = vi.fn(
+    () => new Promise<void>((resolve) => resolvers.push(resolve)),
+  );
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Paid"
+        type="checkbox"
+        value={false}
+        onSave={onSave}
+      />
+    </PropertyList>,
+  );
+  const box = screen.getByRole("checkbox", { name: "Paid" });
+  (box.element() as HTMLElement).click(); // → true (pending)
+  await expect.element(box).toHaveAttribute("aria-checked", "true");
+  (box.element() as HTMLElement).click(); // → false (pending, newer)
+  await expect.element(box).toHaveAttribute("aria-checked", "false");
+  resolvers[0]!(); // the older save settles: the newer pending value stays shown
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(box.element().getAttribute("aria-checked")).toBe("false");
+  expect(onSave).toHaveBeenCalledTimes(2);
+});

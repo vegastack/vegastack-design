@@ -27558,7 +27558,80 @@
       ],
       "publicSymbols": [
         {
+          "name": "ImageViewerScope",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ImageViewerScopeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "LiveBlockKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionKindConfig",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionSection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "TEXT_EDIT_COMPACT_SLASH_COMMANDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A list of slash-command names, not a component."
+          }
+        },
+        {
+          "name": "TEXT_EDIT_SESSION_SELECTOR",
           "kind": "constant",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -27585,12 +27658,12 @@
           }
         },
         {
-          "name": "preloadTextEdit",
-          "kind": "function",
+          "name": "TextAnchor",
+          "kind": "type",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A loader function, not a component."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -27604,89 +27677,8 @@
           }
         },
         {
-          "name": "TextEditEditor",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/text-edit-editor.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Internal: the lazily loaded editor TextEdit renders inside its own root, which owns the forwarded ref."
-          }
-        },
-        {
-          "name": "TextEditEditorProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit-editor.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditSlashCommand",
+          "name": "TextEditAnchor",
           "kind": "type",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MentionKind",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MentionOption",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditMentions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditImageUpload",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditFileUpload",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditOutlineItem",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
@@ -27712,35 +27704,7 @@
           }
         },
         {
-          "name": "TextEditHandle",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextAnchor",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ImageViewerScope",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "ImageViewerScopeProps",
+          "name": "TextEditBubbleContext",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -27776,8 +27740,26 @@
           }
         },
         {
-          "name": "TextEditAnchor",
-          "kind": "type",
+          "name": "TextEditEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/text-edit-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Internal: the lazily loaded editor TextEdit renders inside its own root, which owns the forwarded ref."
+          }
+        },
+        {
+          "name": "TextEditEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditFileUpload",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
@@ -27785,7 +27767,7 @@
           }
         },
         {
-          "name": "TextEditYAnchor",
+          "name": "TextEditHandle",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -27795,6 +27777,78 @@
         },
         {
           "name": "TextEditHeadingAnchor",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditImageUpload",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditMakeTaskContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditMentionStatus",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditMentions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditNodeLike",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditOutlineItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditSectionMark",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -27821,52 +27875,16 @@
           }
         },
         {
+          "name": "TextEditSlashCommand",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "TextEditStats",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditToggleState",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "linkedTaskId",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function over a document node, not a component."
-          }
-        },
-        {
-          "name": "TextEditMentionStatus",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditNodeLike",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditSectionMark",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -27893,43 +27911,7 @@
           }
         },
         {
-          "name": "MentionKindConfig",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "LiveBlockKind",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MentionSection",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditMakeTaskContext",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditBubbleContext",
+          "name": "TextEditToggleState",
           "kind": "interface",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -27944,6 +27926,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditYAnchor",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "linkedTaskId",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function over a document node, not a component."
+          }
+        },
+        {
+          "name": "preloadTextEdit",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loader function, not a component."
           }
         }
       ],

@@ -2765,7 +2765,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.91",
-        "integrity": "sha256-0lpEnpYVSGVhJno0WPcfR7MRX/DTlBwa4fqyQhdM6CA="
+        "integrity": "sha256-YvhApWhCotEVr4HXkvwA1Pl1zUrVCck/59MLkYNvCl8="
       }
     },
     {
@@ -19015,7 +19015,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.91",
-        "integrity": "sha256-Ep/rsTJx73CgDnOu/7dXztwpbctDafmYT/j3fooAL4E="
+        "integrity": "sha256-OUPHHi8gOYvN9mKvQsqGoMrJp3Tkt9hW0Q8QOaAochg="
       }
     },
     {
