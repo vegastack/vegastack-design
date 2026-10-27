@@ -8399,3 +8399,54 @@ test("the image toolbar: four 28px buttons at most, Download and Copy link in â‹
     ).toContain("Download"),
   );
 });
+
+test("a table drawn inside a live block keeps its own cell positioning: the editor's resize rule reaches only its own tables", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const kinds = [
+    ...DEFAULT_LIVE_BLOCK_KINDS,
+    { name: "table", rowKind: "row", label: "Table view", empty: "No rows" },
+  ];
+  const screen = await markdownEditor({
+    defaultValue:
+      '| A | B |\n| --- | --- |\n| 1 | 2 |\n\n:::table{id="b1" view="v1"}\n- [ ] [@Row](mention://row/r1)\n:::',
+    liveBlockKinds: kinds,
+    renderLiveBlock: () => (
+      <div data-prose="off">
+        <table>
+          <thead>
+            <tr>
+              <th data-testid="head">Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="sticky start-0" data-testid="pinned">
+                Name
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    ),
+  });
+  const pinned = await vi.waitFor(() => {
+    const el = screen.container.querySelector<HTMLElement>(
+      '[data-testid="pinned"]',
+    );
+    if (!el) throw new Error("no live block");
+    return el;
+  });
+  // An embedded DataGrid's frozen column is a sticky cell: the editor must not make it relative.
+  expect(getComputedStyle(pinned).position).toBe("sticky");
+  // Under `data-prose="off"` (a DataGrid's root) the prose table rules stay out: no prose padding.
+  const head = screen.container.querySelector<HTMLElement>(
+    '[data-testid="head"]',
+  )!;
+  expect(getComputedStyle(head).paddingInlineStart).not.toBe("12px");
+  // The editor's own table still positions its cells for the column-resize handle.
+  const own = screen.container.querySelector<HTMLElement>(".tableWrapper td")!;
+  expect(getComputedStyle(own).position).toBe("relative");
+});

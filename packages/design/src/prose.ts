@@ -129,12 +129,14 @@ export const prose = {
   // take the radius so a header or selected fill never pokes past the curve. Cells take
   // `break-word`, not the root's `anywhere`, so a column keeps its words whole and the table scrolls
   // in its box rather than crushing to one character per line.
+  // A table a component draws inside prose (an embedded DataGrid in a live block) is its own:
+  // anything under `[data-prose="off"]` is left alone by every table rule here.
   table:
-    "[&_table]:w-full [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:rounded-lg [&_table]:border [&_table]:border-border",
+    "[&_table:not([data-prose=off]_*)]:w-full [&_table:not([data-prose=off]_*)]:border-separate [&_table:not([data-prose=off]_*)]:border-spacing-0 [&_table:not([data-prose=off]_*)]:rounded-lg [&_table:not([data-prose=off]_*)]:border [&_table:not([data-prose=off]_*)]:border-border",
   tableRules:
-    "[&_th]:border-e [&_th]:border-b [&_th]:border-border [&_td]:border-e [&_td]:border-b [&_td]:border-border [&_tr>*:last-child]:border-e-0 [&_tbody>tr:last-child>*]:border-b-0 [&_tr:first-child>*:first-child]:rounded-ss-lg [&_tr:first-child>*:last-child]:rounded-se-lg [&_tbody>tr:last-child>*:first-child]:rounded-es-lg [&_tbody>tr:last-child>*:last-child]:rounded-ee-lg",
+    "[&_th:not([data-prose=off]_*)]:border-e [&_th:not([data-prose=off]_*)]:border-b [&_th:not([data-prose=off]_*)]:border-border [&_td:not([data-prose=off]_*)]:border-e [&_td:not([data-prose=off]_*)]:border-b [&_td:not([data-prose=off]_*)]:border-border [&_tr:not([data-prose=off]_*)>*:last-child]:border-e-0 [&_tbody:not([data-prose=off]_*)>tr:last-child>*]:border-b-0 [&_tr:not([data-prose=off]_*):first-child>*:first-child]:rounded-ss-lg [&_tr:not([data-prose=off]_*):first-child>*:last-child]:rounded-se-lg [&_tbody:not([data-prose=off]_*)>tr:last-child>*:first-child]:rounded-es-lg [&_tbody:not([data-prose=off]_*)>tr:last-child>*:last-child]:rounded-ee-lg",
   tableCells:
-    "[&_th]:bg-muted/50 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:align-top [&_th]:font-medium [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0 [&_th]:wrap-break-word [&_td]:wrap-break-word",
+    "[&_th:not([data-prose=off]_*)]:bg-muted/50 [&_th:not([data-prose=off]_*)]:px-3 [&_th:not([data-prose=off]_*)]:py-2 [&_th:not([data-prose=off]_*)]:text-start [&_th:not([data-prose=off]_*)]:align-top [&_th:not([data-prose=off]_*)]:font-medium [&_td:not([data-prose=off]_*)]:px-3 [&_td:not([data-prose=off]_*)]:py-2 [&_td:not([data-prose=off]_*)]:align-top [&_td_p:not([data-prose=off]_*)]:my-0 [&_th_p:not([data-prose=off]_*)]:my-0 [&_th:not([data-prose=off]_*)]:wrap-break-word [&_td:not([data-prose=off]_*)]:wrap-break-word",
 
   img: "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
 } as const;
