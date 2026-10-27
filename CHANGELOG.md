@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.93] — October 28, 2026
+
+<!-- assembled from 3 changesets: f7e21733dec6 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.41`** (was `0.8.40`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.92 → 0.25.93.
+
+### 🐛 Fixed
+
+- **FieldProperty** values sit where a property's value starts. A read-only number, currency, percent or calculated value no longer slides to the far end of the row: `FieldCellDisplay` takes a new `align` prop (`"start" | "end"`; by default a number keeps the grid column's end alignment), and FieldProperty passes `align="start"`. An open editor now fills the value column instead of shrinking to the value, and its box hangs over the line as the resting value's does, so the row keeps its height entering and leaving edit and the text stays put. A long text shows its first line as typed — the editor's Markdown escapes (`\#`, `1\.`) undone and mentions by name — at rest, in a grid cell and in a property row alike; only the editor shows the source. The new `typedFirstLine` and `mentionLabels` helpers in `text-edit-grammar` do it. A date-time editor keeps its date and time on one line where they fit, and the time no longer clips "PM". [docs](https://design.vegastack.com/docs/components/field-cell) ·
+  [`3b7eea8`](https://github.com/VegaStack/vegastack-design/commit/3b7eea8)
+- **MarkdownView**'s find tint is a plain hoisted style instead of Tailwind `::highlight()` variants, so a consuming app's Tailwind build no longer warns "'highlight' is not recognized as a valid pseudo-element" (Turbopack's "1 Issue" badge). The matches paint exactly as before. [docs](https://design.vegastack.com/docs/components/markdown-view) ·
+  [`3b7eea8`](https://github.com/VegaStack/vegastack-design/commit/3b7eea8)
+- An embedded **DataGrid** inside a **TextEdit** page (a live table block) keeps its pinned column pinned while it scrolls sideways. The editor's column-resize rule set `position: relative` on every `td`/`th` beneath it, which beat the frozen cells' `sticky`. It now reaches only the editor's own table cells, as does its `table-fixed`. The prose recipe's table rules (borders, padding, header ground) also leave alone anything under `[data-prose="off"]`, which DataGrid's root now carries, so a grid in a page's prose draws exactly as it does on a table page: its pinned header stays opaque and its cells keep their own padding. The read view's pinned column already stayed put. [docs](https://design.vegastack.com/docs/components/data-grid) ·
+  [`b75815b`](https://github.com/VegaStack/vegastack-design/commit/b75815b)
+
 ## [0.25.92] — October 27, 2026
 
 <!-- assembled from 4 changesets: 679f2d4f539e -->

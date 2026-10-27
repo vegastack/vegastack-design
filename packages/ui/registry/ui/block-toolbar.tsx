@@ -1,4 +1,4 @@
-// @vegastack block-toolbar@0.25.92 sha256-yhFazHlJ5AK99fOvlPXWxTIlJ5lM2VMHWC23Fwetrew=
+// @vegastack block-toolbar@0.25.93 sha256-w6eSHf+Me2MT8a7CAKRzSWeJ7Mu6gC91oVMRq96FdOM=
 
 "use client";
 
