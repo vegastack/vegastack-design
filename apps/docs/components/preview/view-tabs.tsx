@@ -21,7 +21,9 @@ export function viewTabs(): ReactNode {
         views={views}
         value={value}
         onValueChange={setValue}
-        onCreate={(kind, scope) => {
+        // The host's own create step would ask for a name and "Only visible to me"; the
+        // preview adds a shared view straight away.
+        onCreate={(kind) => {
           const id = `v${views.length + 1}`;
           setViews([
             ...views,
@@ -29,7 +31,7 @@ export function viewTabs(): ReactNode {
               id,
               name: kind === "board" ? "New board" : "New view",
               kind,
-              scope,
+              scope: "shared",
             },
           ]);
           setValue(id);

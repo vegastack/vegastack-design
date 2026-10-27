@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.90 sha256-ACajM/zkDcl1dL7tD2Z3g5rzl8pPGklTvpuzZyxh76g=
+// @vegastack data-grid@0.25.90 sha256-OOnv0w93l/7qhlnBR12uNktbOhtQ+/RtSbmWrPTnMOw=
 
 "use client";
 
@@ -2398,7 +2398,9 @@ function GridBody<T>({
               fillEnabled &&
               inRange &&
               rowIndex === range!.bottom &&
-              fill == null
+              fill == null &&
+              // No handle while a cell is being edited: the editor owns the cell.
+              editing == null
             }
             fillTarget={inFill}
             remoteChanges={remoteChanges}

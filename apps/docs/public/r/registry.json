@@ -1651,7 +1651,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.90",
-        "integrity": "sha256-ACajM/zkDcl1dL7tD2Z3g5rzl8pPGklTvpuzZyxh76g="
+        "integrity": "sha256-OOnv0w93l/7qhlnBR12uNktbOhtQ+/RtSbmWrPTnMOw="
       }
     },
     {
@@ -1916,7 +1916,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
         "version": "0.25.90",
-        "integrity": "sha256-DHyzn591o+WyByLupZOfkjne2xZINyPe2+NzFX5jPr4="
+        "integrity": "sha256-QFTMo2twy8C8Qb+tl9XogkA0ws9wskCO6Sw/xhUkSIw="
       }
     },
     {
@@ -2728,6 +2728,8 @@
         "@vegastack/design-tokens@^0.8.38"
       ],
       "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/chip",
         "@vegastack/date-picker",
@@ -2743,7 +2745,6 @@
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tag-group",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
@@ -2760,7 +2761,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.90",
-        "integrity": "sha256-SRCEj1LKYXaGjbo3c6MVviKQUUa+huebOaK+rm0tHt0="
+        "integrity": "sha256-GqCePC1TUy6ku1pJSsstahJvBlJ0N0XKG9L+3Mx7WE0="
       }
     },
     {

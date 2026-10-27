@@ -12946,6 +12946,25 @@
           }
         },
         {
+          "name": "FieldChoiceBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Spreads its props, ref included, onto the Badge it renders (a span)."
+          }
+        },
+        {
+          "name": "FieldChoiceBadgeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FieldChoiceOption",
           "kind": "interface",
           "source": "packages/ui/registry/ui/field-cell.tsx",
@@ -13087,7 +13106,7 @@
             "file-tiles",
             "link-out"
           ],
-          "evidence": "Tag hues, InlineChip states, PersonAvatar, FileKindTile, tabular end-aligned numbers."
+          "evidence": "Choice badges in the tag hues, InlineChip states, PersonAvatar, FileKindTile, tabular end-aligned numbers."
         }
       },
       "responsive": {
@@ -13106,6 +13125,8 @@
       "engines": [],
       "docsSlug": "/docs/components/field-cell",
       "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/chip",
         "@vegastack/date-picker",
@@ -13121,7 +13142,6 @@
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tag-group",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
@@ -13142,6 +13162,15 @@
       },
       "previewModule": "field-cell",
       "dataAttributes": {
+        "FieldChoiceBadge": {
+          "attributes": [
+            {
+              "name": "data-hue",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
         "FieldCellDisplay": {
           "attributes": [
             {

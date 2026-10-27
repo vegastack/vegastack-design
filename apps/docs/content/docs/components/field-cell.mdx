@@ -54,7 +54,7 @@ editor as a plain form control.
 | `number`, `currency`, `percent`        | End-aligned tabular figures in the reader's locale           | `NumberField` — "1,5" is 1.5 where the comma is the decimal |
 | `date`                                 | A calendar day that never shifts with the zone               | `DatePicker`                                                |
 | `datetime`                             | Date and time in the reader's zone                           | `DatePicker` and a time field                               |
-| `single_choice`, `multi_choice`        | Coloured tags, "+N" past two                                 | `SearchableSelect`, Add option with `onCreateOption`        |
+| `single_choice`, `multi_choice`        | `FieldChoiceBadge`s in the option's hue, "+N" past two       | The option list, Add option with `onCreateOption`           |
 | `checkbox`                             | A checkbox that toggles in place (`onToggle`)                | A checkbox                                                  |
 | `person`                               | Avatar and name; several as avatars                          | `PeoplePicker`                                              |
 | `link`                                 | `InlineChip`s in four states, "+N" past three                | An async record search (`searchRecords`)                    |
@@ -81,6 +81,32 @@ the host's providers. Locale and time zone come from the reader (`TimeZoneProvid
 
 ## Examples
 
+### Choice values
+
+A choice value is a [`Badge`](/docs/components/badge) filled in its option's hue — Badge's custom
+colour route on the tag tokens, never an outlined pill — and `FieldChoiceBadge` is that badge, so
+every surface draws an option the same way: a cell, a phone card, the editor's list, a form
+trigger. Use it wherever the host shows an option outside a field cell (a board card, a filter
+value). A cell shows two and "+N"; a cut name and the hidden ones show on hover and keyboard focus.
+
+```tsx
+import { FieldChoiceBadge } from "@/components/ui/field-cell";
+
+<FieldChoiceBadge hue="green">
+  <span className="min-w-0 truncate">Sent</span>
+</FieldChoiceBadge>;
+```
+
+In a grid the choice editor puts no field in the cell: the cell keeps its badges where they were,
+and the option list opens under it at once — the search field first, each option as its badge, a
+check on the chosen ones, and "Add “…”" at the end when `config.onCreateOption` is given. A single
+choice commits on the pick. A multiple choice toggles with the list open and commits on
+
+<kbd>Tab</kbd>, on <kbd>Enter</kbd> with no option highlighted, or when the list
+closes (a click away); <kbd>Escape</kbd> cancels. As a form control
+(`FieldInput`, a record's property row) a choice is a `SearchableSelect` field
+with the same badges in its list.
+
 ### Editors as form controls
 
 <ComponentPreview
@@ -90,7 +116,8 @@ the host's providers. Locale and time zone come from the reader (`TimeZoneProvid
 
 ### A cell editor
 
-A picker commits on choosing (chosen with <kbd>Enter</kbd>, it also moves down); text, numbers and date-times commit on <kbd>Enter</kbd> or when focus
+A picker commits on choosing (chosen with <kbd>Enter</kbd>, it also moves down) — a multiple
+choice when the edit ends, as above; text, numbers and date-times commit on <kbd>Enter</kbd> or when focus
 leaves the editor (not into its own calendar); long text opens in a popover, with the `@` mention
 menu when `config.mentions` is given (with `mentionHref` and `mentionImage`, as `TextEdit` takes
 them; the row panel's `FieldInput` too); <kbd>Escape</kbd>
@@ -140,6 +167,13 @@ moves.
   name="FieldConfig"
 />
 
+### FieldChoiceBadge
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-cell.tsx"
+  name="FieldChoiceBadgeProps"
+/>
+
 ## Accessibility
 
 - Every editor is named by its field (`aria-label` / `label`) and marks a value it refuses
@@ -155,6 +189,7 @@ moves.
 | Key                                              | Action                                                         |
 | ------------------------------------------------ | -------------------------------------------------------------- |
 | <kbd>Enter</kbd>                                 | Commit a text, number, URL, email or phone editor; move down.  |
+| <kbd>Enter</kbd> in a choice list                | Pick the highlighted option (a multiple choice toggles it).    |
 | <kbd>Shift</kbd>+<kbd>Enter</kbd>                | Commit and move up.                                            |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Commit and move right / left (past the editor's own controls). |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>    | Commit long text.                                              |

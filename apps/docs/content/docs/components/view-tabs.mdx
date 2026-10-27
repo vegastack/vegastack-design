@@ -26,7 +26,7 @@ import { ViewTabs } from "@/components/ui/view-tabs";
   ]}
   value={view}
   onValueChange={setView}
-  onCreate={(kind, scope) => createView(kind, scope)}
+  onCreate={(kind) => openCreateView(kind)}
   getViewActions={(view) => (
     <DropdownMenuItem onClick={() => rename(view)}>Rename</DropdownMenuItem>
   )}
@@ -35,8 +35,9 @@ import { ViewTabs } from "@/components/ui/view-tabs";
 
 `ViewTabs` is the row of saved views over a table or a list. Shared views come first (a locked view
 carries a lock), then a divider and the reader's own under **Mine**. Each tab shows the view's kind
-— a grid or a board — and its name. `onCreate` adds a **+** menu: a grid or a board view, shared or
-personal (`canCreateShared={false}` hides the shared choices). `getViewActions` puts the open view's
+— a grid or a board — and its name. `onCreate` adds a **+** menu with two items, **Grid view** and
+**Board view**, and is called with the kind alone: the host's own create step names the view and
+decides who sees it (an "Only visible to me" switch), so the menu never asks shared or personal. `getViewActions` puts the open view's
 items (rename, duplicate, delete) in a ⋯ menu after the tabs. A long name ends in an ellipsis; when
 it is cut, the full name shows in a tooltip on hover and keyboard focus, and the tab still reads the
 whole name to a screen reader. The narrow select's list wraps a long name instead.
@@ -53,6 +54,7 @@ groups. For a list/grid layout switch over the same data, use
 | Which views exist, their order and who may change them | Host                            |
 | Saving a changed view ("Save for everyone", "Reset")   | Host                            |
 | Rename, duplicate, delete                              | Host — through `getViewActions` |
+| Naming a new view, shared or only visible to the maker | Host — after `onCreate(kind)`   |
 
 ## Examples
 

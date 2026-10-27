@@ -2539,6 +2539,18 @@ test("⌘/Ctrl+D fills down through the range; undo and redo keys reach the host
   ).not.toBeNull();
 });
 
+test("the fill handle is on the active cell, never on a cell being edited", async () => {
+  await render(cellsGrid({ onFill: vi.fn() }));
+  const handle = () =>
+    cellAt("d1", "name").querySelector('[data-slot="data-grid-fill-handle"]');
+  cellAt("d1", "name").focus();
+  await expect.poll(handle).not.toBeNull();
+  await userEvent.keyboard("{F2}");
+  await expect.poll(handle).toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(handle).not.toBeNull();
+});
+
 test("the fill handle drags down and reports the rows it covered; Alt continues a series", async () => {
   const onFill = vi.fn();
   await render(cellsGrid({ onFill }));
