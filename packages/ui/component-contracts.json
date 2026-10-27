@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 774,
-    "components": 186,
+    "totalRegistryItems": 776,
+    "components": 188,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -23,9 +23,9 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 42,
-    "Navigation/layout": 25,
+    "Navigation/layout": 26,
     "Overlays": 23,
-    "Data display": 39,
+    "Data display": 40,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 12,
@@ -129,7 +129,8 @@
       "document-layout",
       "settings-layout",
       "help-menu",
-      "route-tabs"
+      "route-tabs",
+      "sidebar-menu-flyout"
     ],
     "Overlays": [
       "access-chip",
@@ -195,7 +196,8 @@
       "qr-code",
       "member-list",
       "record-header",
-      "block-header"
+      "block-header",
+      "recent-strip"
     ],
     "Content/marketing": [
       "alert",
@@ -1706,6 +1708,43 @@
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
+        },
+        {
+          "name": "AppShellFold",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders its children or nothing; there is no element of its own to take a ref."
+          }
+        },
+        {
+          "name": "AppShellFoldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellHeaderMobileAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "AppShellHeaderMobileActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -1731,7 +1770,14 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "loading", "open"],
+          "values": [
+            "default",
+            "loading",
+            "open",
+            "mobile-actions",
+            "phone-fold",
+            "rail-separators"
+          ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -1808,6 +1854,10 @@
         "AppShellSidebar": {
           "attributes": [
             {
+              "name": "data-rail-separators",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["app-shell-sidebar"]
             }
@@ -1821,7 +1871,21 @@
               "values": [
                 "app-shell-header",
                 "app-shell-header-actions",
-                "app-shell-header-middle"
+                "app-shell-header-middle",
+                "app-shell-header-mobile-actions"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellHeaderMobileAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "app-shell-header-mobile-action",
+                "app-shell-header-mobile-action-count",
+                "app-shell-header-mobile-action-dot"
               ]
             }
           ],
@@ -41579,6 +41643,296 @@
             {
               "name": "data-view",
               "values": ["kinds", "tables"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "recent-strip",
+      "registryType": "registry:ui",
+      "title": "Recent Strip",
+      "summary": "One row of the records a person opened last — compact cards in a sideways strip with edge fades and roving arrow keys, a single line of chips on a phone, collapsible, with a same-shape skeleton.",
+      "status": "stable",
+      "since": "0.25.90",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/recent-strip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecentStrip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/recent-strip.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "RecentStripProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/recent-strip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecentStripItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/recent-strip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["open", "closed"]
+          }
+        ],
+        "rationale": "A collapsible strip is open or folded to its heading; a strip that is not collapsible is always open."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One card size; under 28rem of its own width the cards become one line of chips (a container query, not a size prop)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "max",
+            "collapsed",
+            "loading",
+            "empty",
+            "empty-state",
+            "link-render",
+            "keyboard-roving",
+            "overflow"
+          ],
+          "evidence": "packages/ui/registry/ui/recent-strip.tsx + packages/ui/registry/ui/recent-strip.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled-region",
+            "heading",
+            "keyboard",
+            "single-tab-stop",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/recent-strip.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "collapsed",
+            "loading",
+            "chips"
+          ],
+          "evidence": "packages/ui/registry/ui/recent-strip.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "responsive-or-container-layout",
+          "overflow-scroll"
+        ],
+        "rationale": "Titles truncate inside fixed-width cards; the strip scrolls sideways with edge fades, and below 28rem of its own width the cards become one line of chips."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned keyframes. The toggle chevron turns with a transition the global reduced-motion reset ends at once; the scroll buttons scroll smoothly, and instantly under prefers-reduced-motion (usePrefersReducedMotion); the edge fades are scroll-driven."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/recent-strip",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/skeleton",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.37",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/recent-strip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "recent-strip",
+      "dataAttributes": {
+        "RecentStrip": {
+          "attributes": [
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "recent-strip",
+                "recent-strip-content",
+                "recent-strip-empty",
+                "recent-strip-toggle"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["closed", "open"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "sidebar-menu-flyout",
+      "registryType": "registry:ui",
+      "title": "Sidebar Menu Flyout",
+      "summary": "A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.",
+      "status": "stable",
+      "since": "0.25.90",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/sidebar-menu-flyout.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SidebarMenuFlyout",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SidebarMenuFlyoutProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant dimension; the row and the menu carry their own."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The sidebar row's size; the menu is DropdownMenu's."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "open",
+            "hover-open",
+            "keyboard-open",
+            "rail-only",
+            "badge",
+            "phone-drawer"
+          ],
+          "evidence": "packages/ui/registry/ui/sidebar-menu-flyout.tsx + packages/ui/registry/ui/sidebar-menu-flyout.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "menu-semantics",
+            "labeled",
+            "focus-return",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/sidebar-menu-flyout.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open", "active", "collapsed"],
+          "evidence": "packages/ui/registry/ui/sidebar-menu-flyout.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "viewport-positioning-and-collision"
+        ],
+        "rationale": "Beside the row in the rail, under it in the phone drawer; the menu is a positioned popup clamped to the viewport."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the composed menu owns its enter and exit."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/sidebar-menu-flyout",
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/sidebar"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.37"
+      ],
+      "testFiles": ["packages/ui/registry/ui/sidebar-menu-flyout.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "sidebar-menu-flyout",
+      "dataAttributes": {
+        "SidebarMenuFlyout": {
+          "attributes": [
+            {
+              "name": "data-rail-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "sidebar-menu-flyout",
+                "sidebar-menu-flyout-content",
+                "sidebar-menu-flyout-label",
+                "sidebar-menu-flyout-trigger"
+              ]
             }
           ],
           "cssVariables": []

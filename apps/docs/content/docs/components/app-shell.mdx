@@ -343,6 +343,29 @@ make it visible without resizing your window.
   file="components/preview/app-shell.tsx"
 />
 
+### Tablet rail
+
+From 768px up to 1023px an icon rail rests as icons. Counts stay at each icon's top-end corner (a
+dot past two characters), `railSeparators` rules a hairline between the groups once their labels
+fold away, and a nested list such as Spaces opens beside its row through
+[`SidebarMenuFlyout`](/docs/components/sidebar-menu-flyout) `railOnly`.
+
+<ComponentPreview name="appShellRail" file="components/preview/app-shell.tsx" />
+
+### Phone bar
+
+On a phone the sidebar is a drawer, so what it holds is two taps away. `mobileActions` puts the
+most frequent jumps in the bar — Search, and the Inbox with its count — each an
+`AppShellHeaderMobileAction` of 40px, before `actions`, so the page's primary stays rightmost; the
+sidebar trigger grows to 40px with them. `AppShellFold` folds the drawer's footer entries (Docs,
+Trash, Settings) into the profile menu on a phone: wrap the sidebar's copy in `place="sidebar"` and
+the menu's in `place="menu"`, and exactly one renders. Narrow the window below 768px to see both.
+
+<ComponentPreview
+  name="appShellPhoneBar"
+  file="components/preview/app-shell.tsx"
+/>
+
 ### Route-change focus
 
 `AppShell` is deliberately router-agnostic — it has no dependency on Next.js/React Router and
@@ -417,6 +440,20 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
   name="AppShellHeaderProps"
 />
 
+### AppShellHeaderMobileAction
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellHeaderMobileActionProps"
+/>
+
+### AppShellFold
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellFoldProps"
+/>
+
 ### AppShellHeaderActions
 
 <ApiTable
@@ -487,6 +524,8 @@ Each entry of `actions` and `menu` is an `AppShellHeaderAction`:
 - **Mobile trigger.** `SidebarTrigger` always renders in `AppShellHeader` — below the mobile
   breakpoint it's the only way to open the sidebar, and it's never nested inside the collapsible
   rail it controls (see `sidebar.tsx`'s own composition note).
+- **Phone tools.** Each `AppShellHeaderMobileAction` is a 40px button named by its label, with
+  its count in the name ("Inbox 15 unread"); the pill on the icon is decorative.
 - **Reduced motion.** The sidebar's collapse/expand and the mobile sheet's slide-in both route
   through the design system's centralized `prefers-reduced-motion` block — no shell-specific
   motion to opt out of.

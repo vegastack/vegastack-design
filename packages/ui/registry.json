@@ -18851,6 +18851,65 @@
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (FilterBar's search).",
         "version": "0.25.89"
       }
+    },
+    {
+      "name": "recent-strip",
+      "type": "registry:ui",
+      "title": "Recent Strip",
+      "description": "One row of the records a person opened last — compact cards in a sideways strip with edge fades and roving arrow keys, a single line of chips on a phone, collapsible, with a same-shape skeleton.",
+      "categories": ["data", "navigation"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.37",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/skeleton",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/recent-strip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/recent-strip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
+        "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
+        "version": "0.25.89"
+      }
+    },
+    {
+      "name": "sidebar-menu-flyout",
+      "type": "registry:ui",
+      "title": "Sidebar Menu Flyout",
+      "description": "A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "@vegastack/design@^0.8.37",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/sidebar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sidebar-menu-flyout.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A nested list in the collapsed icon rail (Spaces and + New space), where an inline group has no room; railOnly keeps the expanded sidebar's own group.",
+        "whenNotToUse": "A row that goes somewhere on its own (SidebarMenuButton), a submenu inside the expanded sidebar (SidebarMenuSub), or the profile or workspace menu (DropdownMenu with a SidebarMenuButton trigger).",
+        "version": "0.25.89"
+      }
     }
   ]
 }

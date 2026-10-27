@@ -852,6 +852,18 @@
       "family": "forms",
       "source": "Regent product-cohesion W1-DS3 item 14 (UXP-44, link field kinds), approved by the operator 2026-10-27",
       "rationale": "Upstream ships no field-type picker. The link step of our field-type-picker, composing upstream command unchanged; carries no patch."
+    },
+    "recent-strip": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent product-cohesion W1-DS3 item 8 (UXP-30, UXP-50; ruling: one Recent row, Home's Jump back in), approved by the operator 2026-10-27 (MK blanket approval D19)",
+      "rationale": "Upstream ships no recents strip. A list of our own composing upstream button, collapsible and skeleton unchanged, with our useListNav for the roving tab stop; carries no patch."
+    },
+    "sidebar-menu-flyout": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent product-cohesion W1-DS3 item 17 (UXS-01: the tablet rail reaches Spaces), approved by the operator 2026-10-27 (MK blanket approval D19)",
+      "rationale": "Upstream ships no rail flyout. A row of our own composing upstream sidebar (SidebarMenuItem, SidebarMenuButton) and dropdown-menu unchanged; carries no patch."
     }
   }
 }

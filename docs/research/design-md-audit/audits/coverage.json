@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9634f6dfa423db5629fe40139451de7a14ee0e2f72e8f2fb7c9fe2b6811c4ce7",
+  "contractSha256": "898ab91998d557c69ab0a236563bdcd4fe8070260983de870aa078dd2bf0e3d9",
   "inventory": {
-    "expected": 774,
-    "actual": 774,
-    "unique": 774
+    "expected": 776,
+    "actual": 776,
+    "unique": 776
   },
   "classes": {
-    "components": 186,
+    "components": 188,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -95,8 +95,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 25,
-      "actual": 25,
+      "expected": 26,
+      "actual": 26,
       "members": [
         "accordion",
         "app-shell",
@@ -120,6 +120,7 @@
         "scroll-area",
         "settings-layout",
         "sidebar",
+        "sidebar-menu-flyout",
         "stepper",
         "table-of-contents",
         "tabs"
@@ -155,8 +156,8 @@
       ]
     },
     "Data display": {
-      "expected": 39,
-      "actual": 39,
+      "expected": 40,
+      "actual": 40,
       "members": [
         "activity-feed",
         "block-header",
@@ -186,6 +187,7 @@
         "property-list",
         "qr-code",
         "reactions",
+        "recent-strip",
         "record-aside",
         "record-header",
         "record-list",
@@ -836,7 +838,7 @@
       ]
     }
   },
-  "componentRoutes": 180,
+  "componentRoutes": 182,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

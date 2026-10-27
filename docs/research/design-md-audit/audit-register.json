@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9634f6dfa423db5629fe40139451de7a14ee0e2f72e8f2fb7c9fe2b6811c4ce7",
+  "contractSha256": "898ab91998d557c69ab0a236563bdcd4fe8070260983de870aa078dd2bf0e3d9",
   "expectedCounts": {
-    "totalRegistryItems": 774,
-    "components": 186,
+    "totalRegistryItems": 776,
+    "components": 188,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -2069,6 +2069,28 @@
         "packages/ui/registry/ui/field-type-link-step.tsx"
       ],
       "docsSlug": "/docs/components/field-type-link-step",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "recent-strip",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/recent-strip.tsx"
+      ],
+      "docsSlug": "/docs/components/recent-strip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "sidebar-menu-flyout",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/sidebar-menu-flyout.tsx"
+      ],
+      "docsSlug": "/docs/components/sidebar-menu-flyout",
       "contractStatus": "reconciled"
     },
     {

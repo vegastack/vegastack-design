@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.25.89 sha256-4rknXOSgh5+CcWr4QD+b4wB7mDstHQ8GLq+j/BjUPtA=
+// @vegastack app-shell@0.25.89 sha256-dh3KFgYAaCJbq9wpPys+8N001mp5B7t4183rmE/bQ4o=
 
 "use client";
 
@@ -252,7 +252,15 @@ function AppShellRailFold({
 /** Props accepted by `AppShellSidebar`. */
 export interface AppShellSidebarProps extends React.ComponentProps<
   typeof Sidebar
-> {}
+> {
+  /**
+   * In the collapsed icon rail, rule a hairline between consecutive `SidebarGroup`s (in the 8px
+   * gap their padding already leaves), so the rail's icons read in their groups once the group
+   * labels have folded away. The expanded sidebar and the phone drawer are unchanged.
+   * @default false
+   */
+  railSeparators?: boolean;
+}
 
 /**
  * `AppShellSidebar` — a thin, opinionated wrapper over `Sidebar`: defaults `aria-label` to
@@ -278,6 +286,7 @@ export interface AppShellSidebarProps extends React.ComponentProps<
 export function AppShellSidebar({
   "aria-label": ariaLabel = "Main navigation",
   collapsible = "offcanvas",
+  railSeparators = false,
   children,
   ...props
 }: AppShellSidebarProps) {
@@ -288,7 +297,12 @@ export function AppShellSidebar({
       <nav
         data-slot="app-shell-sidebar"
         aria-label={ariaLabel}
-        className="flex h-full min-h-0 w-full flex-col"
+        data-rail-separators={railSeparators ? "" : undefined}
+        className={cn(
+          "flex h-full min-h-0 w-full flex-col",
+          railSeparators &&
+            "group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:pointer-events-none group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:absolute group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:inset-x-2 group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:top-0 group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:h-px group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:bg-sidebar-border group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:content-['']",
+        )}
       >
         {children}
       </nav>
@@ -305,6 +319,14 @@ export interface AppShellHeaderProps extends React.ComponentProps<"header"> {
    * @default undefined
    */
   actions?: React.ReactNode;
+  /**
+   * The phone's own tools, before `actions` (so the page's primary stays rightmost): Search and
+   * the Inbox with its count, each an `AppShellHeaderMobileAction`. Shown only below 768px, where
+   * the sidebar — which holds them at every other width — is a drawer; with it the sidebar
+   * trigger is a 40px target on a phone too. Omit to keep the bar as it is.
+   * @default undefined
+   */
+  mobileActions?: React.ReactNode;
 }
 
 /**
@@ -324,16 +346,33 @@ export interface AppShellHeaderProps extends React.ComponentProps<"header"> {
  * container queries instead of a JS measure or a viewport breakpoint:
  * `hidden @2xl/app-shell-header:inline-flex`.
  *
+ * **The phone bar.** `mobileActions` puts what the drawer hides one tap away on a phone — Search
+ * and the Inbox with its count — between the title and the page's actions, at 40px each.
+ *
  * @example
  * <AppShellHeader actions={<Button size="sm">New agent</Button>}>
  *   <Breadcrumb>
  *     <BreadcrumbList>…</BreadcrumbList>
  *   </Breadcrumb>
  * </AppShellHeader>
+ *
+ * @example
+ * <AppShellHeader
+ *   mobileActions={
+ *     <>
+ *       <AppShellHeaderMobileAction label="Search" icon={<Search />} onClick={openSearch} />
+ *       <AppShellHeaderMobileAction label="Inbox" icon={<Inbox />} count={15} countLabel="unread" onClick={openInbox} />
+ *     </>
+ *   }
+ *   actions={<PageActions />}
+ * >
+ *   <Breadcrumb>…</Breadcrumb>
+ * </AppShellHeader>
  */
 export function AppShellHeader({
   className,
   actions,
+  mobileActions,
   children,
   ...props
 }: AppShellHeaderProps) {
@@ -347,13 +386,23 @@ export function AppShellHeader({
       )}
       {...props}
     >
-      <SidebarTrigger />
+      <SidebarTrigger
+        className={mobileActions ? "max-md:size-10" : undefined}
+      />
       <div
         data-slot="app-shell-header-middle"
         className="flex min-w-0 flex-1 items-center gap-2"
       >
         {children}
       </div>
+      {mobileActions ? (
+        <div
+          data-slot="app-shell-header-mobile-actions"
+          className="flex shrink-0 items-center md:hidden"
+        >
+          {mobileActions}
+        </div>
+      ) : null}
       {actions ? (
         <div
           data-slot="app-shell-header-actions"
@@ -364,6 +413,124 @@ export function AppShellHeader({
       ) : null}
     </header>
   );
+}
+
+/** Props accepted by `AppShellHeaderMobileAction`. */
+export interface AppShellHeaderMobileActionProps extends Omit<
+  React.ComponentProps<typeof Button>,
+  "children" | "size" | "variant"
+> {
+  /** The tool's name ("Search", "Inbox") — its accessible name; the button shows the icon alone. */
+  label: string;
+  /** The tool's icon. */
+  icon: React.ReactNode;
+  /**
+   * A count at the icon's top-end corner ("15"); nothing at 0 or below.
+   * @default undefined
+   */
+  count?: number;
+  /**
+   * The highest count shown as a number; above it the pill reads "99+".
+   * @default 99
+   */
+  countMax?: number;
+  /**
+   * The count's words in the name: "Inbox 15 unread".
+   * @default undefined
+   */
+  countLabel?: string;
+  /**
+   * A dot at the corner instead of a number — something new, uncounted. A `count` wins.
+   * @default false
+   */
+  dot?: boolean;
+}
+
+/**
+ * `AppShellHeaderMobileAction` — one of the phone bar's tools: a 40px ghost icon button with an
+ * optional count pill (or a dot) at its top-end corner. The count is part of its name ("Inbox 15
+ * unread") and the pill is decorative. A link renders through `render`.
+ *
+ * @example
+ * <AppShellHeaderMobileAction label="Inbox" icon={<Inbox />} count={15} countLabel="unread" onClick={openInbox} />
+ */
+export function AppShellHeaderMobileAction({
+  label,
+  icon,
+  count,
+  countMax = 99,
+  countLabel,
+  dot = false,
+  className,
+  ...props
+}: AppShellHeaderMobileActionProps) {
+  const counted = count !== undefined && count > 0;
+  const shown = counted
+    ? count > countMax
+      ? `${countMax}+`
+      : String(count)
+    : null;
+  return (
+    <Button
+      data-slot="app-shell-header-mobile-action"
+      variant="ghost"
+      size="icon-lg"
+      className={cn("relative size-10", className)}
+      {...props}
+    >
+      {icon}
+      <span className="sr-only">
+        {label}
+        {shown ? ` ${shown}${countLabel ? ` ${countLabel}` : ""}` : ""}
+      </span>
+      {shown ? (
+        <span
+          data-slot="app-shell-header-mobile-action-count"
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-xs leading-4 font-medium text-primary-foreground tabular-nums"
+        >
+          {shown}
+        </span>
+      ) : dot ? (
+        <span
+          data-slot="app-shell-header-mobile-action-dot"
+          aria-hidden="true"
+          className="pointer-events-none absolute top-2 end-2 size-2 rounded-full bg-primary"
+        />
+      ) : null}
+    </Button>
+  );
+}
+
+/** Props accepted by `AppShellFold`. */
+export interface AppShellFoldProps {
+  /**
+   * Which copy this is: `sidebar` — the entries' place in the sidebar, left out of the phone
+   * drawer; `menu` — their place in the profile menu, rendered only while the sidebar is the phone
+   * drawer.
+   */
+  place: "sidebar" | "menu";
+  /** The entries, in the shape their place needs (sidebar rows, or menu items). */
+  children: React.ReactNode;
+}
+
+/**
+ * `AppShellFold` — folds a set of sidebar entries (Docs · Trash · Settings) into the profile menu
+ * on a phone, where the drawer is short and its footer would sit under the fold: wrap the sidebar
+ * copy in `place="sidebar"` and the profile menu's copy in `place="menu"`. Exactly one of the two
+ * renders — the sidebar's on a tablet or a desktop, the menu's in the phone drawer — so nothing is
+ * ever unreachable. The shell supplies the mechanism; the entries are the host's.
+ *
+ * @example
+ * <AppShellFold place="sidebar"><SidebarGroup>…Docs · Trash · Settings…</SidebarGroup></AppShellFold>
+ * // …and inside the profile menu's DropdownMenuContent:
+ * <AppShellFold place="menu">
+ *   <DropdownMenuItem render={<Link href="/settings" />}><Settings />Settings</DropdownMenuItem>
+ * </AppShellFold>
+ */
+export function AppShellFold({ place, children }: AppShellFoldProps) {
+  const { isMobile } = useSidebar();
+  return (place === "menu") === isMobile ? <>{children}</> : null;
 }
 
 /** Props accepted by `AppShellHeaderSlot`. */

@@ -2,8 +2,13 @@
 
 import { useState, type ReactNode } from "react";
 import {
+  BookOpen,
+  CheckSquare,
   Home,
   Inbox,
+  LayoutGrid,
+  Plus,
+  Search,
   Settings,
   BarChart3,
   Bot,
@@ -17,8 +22,10 @@ import { Wrapper } from "./wrapper";
 import {
   AppShell,
   AppShellContent,
+  AppShellFold,
   AppShellHeader,
   AppShellHeaderActions,
+  AppShellHeaderMobileAction,
   AppShellPage,
   AppShellProgress,
   AppShellSection,
@@ -45,6 +52,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SidebarMenuFlyout } from "@/components/ui/sidebar-menu-flyout";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const NAV_ITEMS = [
   { key: "home", label: "Home", icon: Home, badge: undefined },
@@ -477,6 +492,206 @@ export function appShellProgress(): ReactNode {
           </div>
         </AppShellPage>
       </AppShellContent>
+    </Wrapper>
+  );
+}
+
+/**
+ * The tablet's icon rail: counts at each icon's corner, hairlines between the groups
+ * (`railSeparators`), and Spaces reached through a flyout (`SidebarMenuFlyout railOnly`).
+ */
+export function appShellRail(): ReactNode {
+  return (
+    <Wrapper className="block h-104 overflow-hidden p-0" style={FRAME}>
+      <AppShell className="h-full min-h-0" defaultOpen={false}>
+        <AppShellSidebar collapsible="icon" railSeparators className="h-full">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Search">
+                    <Search />
+                    <span>Search</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Inbox"
+                    badge={15}
+                    badgeLabel="15 unread"
+                  >
+                    <Inbox />
+                    <span>Inbox</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Home" isActive>
+                    <Home />
+                    <span>Home</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Work</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Tasks"
+                    badge={2}
+                    badgeLabel="2 due"
+                  >
+                    <CheckSquare />
+                    <span>Tasks</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuFlyout
+                  label="Spaces"
+                  icon={<LayoutGrid />}
+                  railOnly
+                >
+                  <DropdownMenuItem>General</DropdownMenuItem>
+                  <DropdownMenuItem>Product</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Plus />
+                    New space
+                  </DropdownMenuItem>
+                </SidebarMenuFlyout>
+              </SidebarMenu>
+            </SidebarGroup>
+            <SidebarGroup className="mt-auto">
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Settings">
+                    <Settings />
+                    <span>Settings</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </AppShellSidebar>
+        <div className="flex h-full min-w-0 flex-1 flex-col">
+          <AppShellHeader>
+            <span className="truncate text-sm font-medium text-foreground">
+              Tablet rail
+            </span>
+          </AppShellHeader>
+          <AppShellContent landmark="region" aria-label="Rail content">
+            <p className="p-4 text-sm text-muted-foreground">
+              Hover Spaces for its flyout; expand the rail with the header
+              button.
+            </p>
+          </AppShellContent>
+        </div>
+      </AppShell>
+    </Wrapper>
+  );
+}
+
+/**
+ * The phone bar: Search and the Inbox with its count beside the page's primary, and the footer's
+ * Docs and Settings folded into the profile menu while the sidebar is the phone drawer. The
+ * phone tools show below 768px of the window.
+ */
+export function appShellPhoneBar(): ReactNode {
+  return (
+    <Wrapper className="block h-104 overflow-hidden p-0" style={FRAME}>
+      <AppShell className="h-full min-h-0">
+        <AppShellSidebar className="h-full">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive>
+                    <Home />
+                    <span>Home</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+            <AppShellFold place="sidebar">
+              <SidebarGroup className="mt-auto">
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton>
+                      <BookOpen />
+                      <span>Docs</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton>
+                      <Settings />
+                      <span>Settings</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroup>
+            </AppShellFold>
+          </SidebarContent>
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={<SidebarMenuButton />}>
+                    <span className="flex size-4 items-center justify-center rounded-full bg-muted text-xs">
+                      M
+                    </span>
+                    <span>Maya Kapoor</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="top" className="min-w-48">
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <AppShellFold place="menu">
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <BookOpen />
+                        Docs
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Settings />
+                        Settings
+                      </DropdownMenuItem>
+                    </AppShellFold>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Sign out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </AppShellSidebar>
+        <div className="flex h-full min-w-0 flex-1 flex-col">
+          <AppShellHeader
+            mobileActions={
+              <>
+                <AppShellHeaderMobileAction label="Search" icon={<Search />} />
+                <AppShellHeaderMobileAction
+                  label="Inbox"
+                  icon={<Inbox />}
+                  count={15}
+                  countLabel="unread"
+                />
+              </>
+            }
+            actions={
+              <Button size="icon-lg" className="size-10" aria-label="New page">
+                <Plus />
+              </Button>
+            }
+          >
+            <span className="truncate text-sm font-medium text-foreground">
+              Settings
+            </span>
+          </AppShellHeader>
+          <AppShellContent landmark="region" aria-label="Phone content">
+            <p className="p-4 text-sm text-muted-foreground">
+              Narrow the window below 768px: Search and Inbox join the bar, and
+              Docs and Settings move into the profile menu.
+            </p>
+          </AppShellContent>
+        </div>
+      </AppShell>
     </Wrapper>
   );
 }

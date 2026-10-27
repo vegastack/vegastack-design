@@ -3,13 +3,15 @@ import { render } from "vitest-browser-react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Bell, Home, Inbox, Share2 } from "lucide-react";
+import { Bell, Home, Inbox, Search, Settings, Share2 } from "lucide-react";
 import { RAIL_COLLAPSED_QUERY } from "@/lib/page-layout";
 import {
   AppShell,
   AppShellContent,
   AppShellHeader,
+  AppShellFold,
   AppShellHeaderActions,
+  AppShellHeaderMobileAction,
   AppShellHeaderShow,
   AppShellHeaderSlot,
   AppShellPage,
@@ -983,4 +985,198 @@ test("AppShellProgress is a named, indeterminate progress bar at the top of the 
   expect(tokens).toContain("top-0");
   expect(tokens).toContain("-mb-0.5");
   await expectNoA11yViolations(screen.container);
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * W1-DS3 item 17 (UXS-01, UXS-02): the phone bar, the rail separators and the phone fold.
+ * ------------------------------------------------------------------------------------------- */
+
+function PhoneBarDemo({
+  withMobileActions = true,
+}: {
+  withMobileActions?: boolean;
+}) {
+  return (
+    <AppShell>
+      <AppShellSidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
+                  <Home />
+                  <span>Home</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+          <AppShellFold place="sidebar">
+            <SidebarGroup data-testid="footer-group">
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <Settings />
+                    <span>Settings</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </AppShellFold>
+          <AppShellFold place="menu">
+            <span data-testid="menu-copy">Settings in the profile menu</span>
+          </AppShellFold>
+        </SidebarContent>
+      </AppShellSidebar>
+      <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <AppShellHeader
+          actions={<Button size="sm">New</Button>}
+          mobileActions={
+            withMobileActions ? (
+              <>
+                <AppShellHeaderMobileAction label="Search" icon={<Search />} />
+                <AppShellHeaderMobileAction
+                  label="Inbox"
+                  icon={<Inbox />}
+                  count={15}
+                  countLabel="unread"
+                />
+              </>
+            ) : undefined
+          }
+        >
+          <span className="truncate">Settings</span>
+        </AppShellHeader>
+        <AppShellContent>
+          <p>Content</p>
+        </AppShellContent>
+      </div>
+    </AppShell>
+  );
+}
+
+test("mobileActions sits between the title and the actions, phone-only, with 40px targets", async () => {
+  const screen = await render(<PhoneBarDemo />);
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-header"]',
+  )!;
+  const slots = [...header.children].map((el) => el.getAttribute("data-slot"));
+  expect(slots).toEqual([
+    "sidebar-trigger",
+    "app-shell-header-middle",
+    "app-shell-header-mobile-actions",
+    "app-shell-header-actions",
+  ]);
+  const tools = header.querySelector(
+    '[data-slot="app-shell-header-mobile-actions"]',
+  )!;
+  expect(tools.className).toContain("md:hidden");
+  await expect
+    .element(screen.getByRole("button", { name: "Search" }))
+    .toHaveClass("size-10");
+  // The count is in the name; the pill is decorative.
+  const inbox = screen.getByRole("button", { name: "Inbox 15 unread" });
+  await expect
+    .element(inbox)
+    .toHaveAttribute("data-slot", "app-shell-header-mobile-action");
+  const pill = inbox
+    .element()
+    .querySelector('[data-slot="app-shell-header-mobile-action-count"]')!;
+  expect(pill.textContent).toBe("15");
+  expect(pill.getAttribute("aria-hidden")).toBe("true");
+  // With the phone tools, the trigger is a 40px target on a phone as well.
+  expect(
+    header.querySelector('[data-slot="sidebar-trigger"]')!.className,
+  ).toContain("max-md:size-10");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("without mobileActions the header renders as before: no slot, the trigger keeps its size", async () => {
+  const screen = await render(<PhoneBarDemo withMobileActions={false} />);
+  const header = screen.container.querySelector(
+    '[data-slot="app-shell-header"]',
+  )!;
+  expect(
+    header.querySelector('[data-slot="app-shell-header-mobile-actions"]'),
+  ).toBeNull();
+  expect(
+    header.querySelector('[data-slot="sidebar-trigger"]')!.className,
+  ).not.toContain("size-10");
+});
+
+test("AppShellHeaderMobileAction caps the count at countMax+ and shows a dot when asked", async () => {
+  const screen = await render(
+    <div>
+      <AppShellHeaderMobileAction label="Inbox" icon={<Inbox />} count={240} />
+      <AppShellHeaderMobileAction label="Updates" icon={<Bell />} dot />
+      <AppShellHeaderMobileAction label="Search" icon={<Search />} count={0} />
+    </div>,
+  );
+  const inbox = screen.getByRole("button", { name: "Inbox 99+" });
+  expect(
+    inbox
+      .element()
+      .querySelector('[data-slot="app-shell-header-mobile-action-count"]')!
+      .textContent,
+  ).toBe("99+");
+  const updates = screen.getByRole("button", { name: "Updates" });
+  expect(
+    updates
+      .element()
+      .querySelector('[data-slot="app-shell-header-mobile-action-dot"]'),
+  ).not.toBeNull();
+  const search = screen.getByRole("button", { name: "Search" });
+  expect(
+    search
+      .element()
+      .querySelector('[data-slot^="app-shell-header-mobile-action-"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("AppShellFold renders the sidebar copy on a desktop and the menu copy only in the phone drawer", async () => {
+  const desktop = await render(<PhoneBarDemo />);
+  expect(
+    desktop.container.querySelector('[data-testid="footer-group"]'),
+  ).not.toBeNull();
+  expect(
+    desktop.container.querySelector('[data-testid="menu-copy"]'),
+  ).toBeNull();
+  await desktop.unmount();
+  await withMobileViewport(async () => {
+    const screen = await render(<PhoneBarDemo />);
+    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(document.querySelector('[data-testid="footer-group"]')).toBeNull();
+    expect(document.querySelector('[data-testid="menu-copy"]')).not.toBeNull();
+  });
+});
+
+test("railSeparators is opt-in and rules groups apart in the collapsed rail only", async () => {
+  const plain = await render(
+    <AppShell>
+      <AppShellSidebar collapsible="icon">
+        <SidebarContent />
+      </AppShellSidebar>
+    </AppShell>,
+  );
+  const plainNav = plain.container.querySelector(
+    '[data-slot="app-shell-sidebar"]',
+  )!;
+  expect(plainNav.hasAttribute("data-rail-separators")).toBe(false);
+  expect(plainNav.className).not.toContain("sidebar-group");
+  await plain.unmount();
+  const screen = await render(
+    <AppShell>
+      <AppShellSidebar collapsible="icon" railSeparators>
+        <SidebarContent />
+      </AppShellSidebar>
+    </AppShell>,
+  );
+  const nav = screen.container.querySelector(
+    '[data-slot="app-shell-sidebar"]',
+  )!;
+  expect(nav.hasAttribute("data-rail-separators")).toBe(true);
+  expect(nav.className).toContain(
+    "group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:bg-sidebar-border",
+  );
 });

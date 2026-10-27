@@ -1,0 +1,134 @@
+---
+title: Recent Strip
+description: One row of the records a person opened last, as compact cards in a sideways strip with edge fades and arrow keys, and a single line of chips on a phone.
+audience: public
+registry: recent-strip
+status: stable
+since: 0.25.90
+a11y: Named region; one Tab stop, arrow keys between cards
+preview: recentStrip
+---
+
+## Install
+
+<InstallSteps name="recent-strip" />
+
+## Usage
+
+```tsx
+import { RecentStrip } from "@/components/ui/recent-strip";
+
+<RecentStrip
+  label="Recent"
+  collapsible
+  open={recentOpen}
+  onOpenChange={saveRecentOpen}
+  linkRender={<Link href="" />}
+  items={recents.map((r) => ({
+    href: r.href,
+    icon: <KindIcon kind={r.kind} />,
+    title: r.title,
+    meta: `${r.kindLabel} · ${r.when}`,
+  }))}
+/>;
+```
+
+One row of the records a person opened last, so they can jump back in without the main list being
+pushed down a screen. Up to `max` (six) compact cards — an icon tile, the title and one meta line —
+sit in a strip that scrolls sideways, with fades at the clipped edges and, on a mouse, buttons at
+the ends. On a narrow strip (under 28rem of its own width, so a phone) the cards become a single
+line of chips. The strip is one Tab stop; ← and → move between the cards.
+
+## Scope
+
+- Owns: the heading and its fold toggle, the strip's layout, scroll fades and end buttons, the card
+  and chip shapes, the roving tab stop, the loading skeleton, and rendering nothing when empty.
+- Does not own: which records are recent, their order, their icons or meta text, or remembering
+  whether the strip is folded — pass `open`/`onOpenChange` and keep it where the host keeps
+  preferences.
+- Compose with: a router link through `linkRender`; a formatted time in the `meta` text (the card
+  is one link, so `meta` is plain text, never a control); the list it sits
+  above ([`DataList`](/docs/components/data-list)).
+
+## Examples
+
+### Recent row
+
+Six cards; the strip scrolls past the frame with fades at the clipped edge.
+
+<ComponentPreview
+  name="recentStrip"
+  file="components/preview/recent-strip.tsx"
+/>
+
+### Collapsible
+
+`collapsible` makes the heading a toggle that folds the strip to its heading row. Control it with
+`open`/`onOpenChange` to remember the choice.
+
+<ComponentPreview
+  name="recentStripCollapsible"
+  file="components/preview/recent-strip.tsx"
+/>
+
+### On a phone
+
+Under 28rem of the strip's own width the cards become one line of chips — the icon and the
+title — so the list below starts in the first screen.
+
+<ComponentPreview
+  name="recentStripPhone"
+  file="components/preview/recent-strip.tsx"
+/>
+
+### Loading and empty
+
+`loading` keeps the heading and shows skeleton cards of the same shape. With no records the strip
+renders nothing, unless `emptyState` gives it a line to show.
+
+<ComponentPreview
+  name="recentStripStates"
+  file="components/preview/recent-strip.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/recent-strip.tsx"
+  name="RecentStripProps"
+/>
+
+### RecentStripItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/recent-strip.tsx"
+  name="RecentStripItem"
+/>
+
+## Accessibility
+
+- The strip is a region named by its heading; the cards are a list of links, each named by its
+  title and meta line. Icons are decorative.
+- One Tab stop for the whole strip: the arrow keys move between the cards, and focusing a card
+  scrolls it into view.
+- A collapsible heading is a button with `aria-expanded`, inside the heading element
+  (`headingRender`, an `h2` by default).
+- The scroll buttons at the ends are for the mouse only — out of the tab order and hidden from
+  assistive technology, which reaches every card with the keys.
+
+| Key                                 | Action                               |
+| ----------------------------------- | ------------------------------------ |
+| <kbd>Tab</kbd>                      | Enters the strip at its current card |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Moves to the previous or next card   |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Moves to the first or last card      |
+| <kbd>Enter</kbd>                    | Opens the card                       |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | On the heading, folds or opens it    |
+
+<StatesTested name="recent-strip" />
+
+## Do / Don't
+
+<DoDont
+  do="Show one Recent row of up to six records above the list, folded away when the person chooses, and render nothing when there is nothing recent."
+  dont="Stack Recently viewed and Recently updated grids above the list, so the list starts a screen or more down on a phone."
+/>
