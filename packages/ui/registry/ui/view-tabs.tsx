@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.91 sha256-w9jxWvlpW6nrvH4i9sO+rHa26ft5h88KbXZg6xvpuEU=
+// @vegastack view-tabs@0.25.91 sha256-VJb+PuPdQNGuTidrH9cv4RJLRYF07Z7JAOtajetwNNY=
 
 "use client";
 
@@ -265,7 +265,8 @@ function ViewSelectTrigger({
 /**
  * `ViewTabs` — a table's saved views: shared ones, a divider, then the reader's own; a lock on a
  * locked view; a `+` menu to create a grid or board view; the open view's ⋯
- * menu. Below `@3xl` (the component's own width) the row is one `Select` with the same groups.
+ * menu. When the tabs don't fit the width it is given (measured), the row is one `Select` with the
+ * same groups; it fills its container, so it can measure the room it has.
  *
  * @example
  * <ViewTabs
@@ -323,7 +324,7 @@ export function ViewTabs({
     observer.observe(root);
     observer.observe(list);
     return () => observer.disconnect();
-  }, [measure, views.length]);
+  }, [measure, views.length, onCreate != null, actions != null]);
   const mergedRef = React.useMemo(
     () => (ref ? mergeRefs(rootRef, ref) : rootRef),
     [ref],
@@ -382,7 +383,13 @@ export function ViewTabs({
       ref={mergedRef}
       data-slot="view-tabs"
       data-narrow={narrow ? "" : undefined}
-      className={cn("relative flex min-w-0 items-center gap-1", className)}
+      // `w-full`: it fills the room its host gives it (as the size container it used to be), so a
+      // collapsed row — whose tabs are out of flow — still measures the whole room, never just the
+      // select, and expands again when the host widens.
+      className={cn(
+        "relative flex w-full min-w-0 items-center gap-1",
+        className,
+      )}
     >
       {/* Wide: the tab row. Collapsed, it stays mounted out of flow, hidden and inert, to be
           measured. */}

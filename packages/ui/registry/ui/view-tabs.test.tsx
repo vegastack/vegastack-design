@@ -209,3 +209,50 @@ test("tabs stay inline while they fit and collapse to the select only when they 
     expect(root().hasAttribute("data-narrow")).toBe(false),
   );
 });
+
+test("in a flex host, a collapsed row widens back to tabs; dropping the + re-measures", async () => {
+  function Host() {
+    const [width, setWidth] = React.useState(120);
+    const [create, setCreate] = React.useState(true);
+    const [value, setValue] = React.useState("g");
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setWidth((w) => (w === 120 ? 420 : 120))}
+        >
+          Resize
+        </button>
+        <button type="button" onClick={() => setCreate((c) => !c)}>
+          Toggle create
+        </button>
+        <div style={{ display: "flex", width }}>
+          <ViewTabs
+            views={[
+              { id: "g", name: "Grid", kind: "grid", scope: "shared" },
+              { id: "b", name: "Board", kind: "board", scope: "shared" },
+            ]}
+            value={value}
+            onValueChange={setValue}
+            onCreate={create ? () => {} : undefined}
+          />
+        </div>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>('[data-slot="view-tabs"]')!;
+  await vi.waitFor(() => expect(root().hasAttribute("data-narrow")).toBe(true));
+  await screen.getByRole("button", { name: "Resize" }).click();
+  await vi.waitFor(() =>
+    expect(root().hasAttribute("data-narrow")).toBe(false),
+  );
+  await screen.getByRole("button", { name: "Resize" }).click();
+  await vi.waitFor(() => expect(root().hasAttribute("data-narrow")).toBe(true));
+  // The + toggled away changes neither observed box; the row still re-measures.
+  await screen.getByRole("button", { name: "Toggle create" }).click();
+  await vi.waitFor(() =>
+    expect(root().querySelector('[data-slot="view-tabs-create"]')).toBeNull(),
+  );
+});
