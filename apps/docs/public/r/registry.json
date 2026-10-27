@@ -19012,7 +19012,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.25.89",
-        "integrity": "sha256-N+5zEpWNI69Sn6gFPmSgd5jqss64EYF/1SP92B1A5KU="
+        "integrity": "sha256-IFdJ3XTI5GmGb/ORfZ/24HW4Qpu4Uw8K7cYNZnn9ybY="
       }
     },
     {

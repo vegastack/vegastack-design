@@ -28061,14 +28061,24 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "ghost"],
+            "evidence": "packages/ui/registry/ui/textarea.tsx: cva variant"
+          }
+        ]
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "lg"],
+            "evidence": "packages/ui/registry/ui/textarea.tsx: cva size"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -28127,8 +28137,16 @@
         "Textarea": {
           "attributes": [
             {
+              "name": "data-size",
+              "values": ["default"]
+            },
+            {
               "name": "data-slot",
               "values": ["textarea"]
+            },
+            {
+              "name": "data-variant",
+              "values": ["default"]
             }
           ],
           "cssVariables": []
