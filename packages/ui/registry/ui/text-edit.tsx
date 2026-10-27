@@ -224,6 +224,22 @@ export interface TextEditImageUpload {
   height?: number;
 }
 
+/**
+ * What `onImageUpload` and `onFileUpload` are handed with the file.
+ *
+ * @example
+ * onImageUpload={(file, { signal, onProgress }) => upload(file, { signal, onProgress })}
+ */
+export interface TextEditUploadOptions {
+  /** Aborts when the placeholder is deleted or the editor unmounts (`TEXT_EDIT_UPLOAD_ABORT`). */
+  signal: AbortSignal;
+  /**
+   * Report how far the upload is (0–1): the placeholder shows it — a bar on an image, a ring on a
+   * file chip — instead of a spinner. Optional to call.
+   */
+  onProgress: (fraction: number) => void;
+}
+
 /** What a file upload resolves to: a link inserted as `[name](href)`, shown as a file chip. */
 export interface TextEditFileUpload {
   /** The file's URL; one starting with `fileLinkPrefix` renders as a file chip. */
@@ -323,6 +339,19 @@ export interface TextEditTaskItem {
   key: string;
   /** The line's text, trimmed: the new task's suggested title. */
   text: string;
+}
+
+/**
+ * What a host's selection action (`bubbleActions`) is handed.
+ *
+ * @example
+ * bubbleActions={({ text, close }) => <Button size="sm" variant="ghost" onClick={() => { ask(text); close(); }}>Ask…</Button>}
+ */
+export interface TextEditBubbleContext {
+  /** The selected text (blocks joined by line breaks). */
+  text: string;
+  /** Collapse the selection to its end — the bubble closes, the caret stays. */
+  close: () => void;
 }
 
 /** Where `onMakeTask` was asked from: the first line's element, to point a popover at. */
@@ -1214,6 +1243,28 @@ export interface TextEditProps {
    */
   slashActions?: readonly TextEditSlashAction[];
   /**
+   * The host's own selection actions ("Ask agent…"), after the formatting and before Comment, in the
+   * bubble (and the dock). Called with the selection's text each time the bubble draws; return
+   * `Button`s (`variant="ghost" size="sm"`). With `onMakeTask`, a selection reaching unlinked
+   * checklist lines also shows **Make task** / **Make N tasks** there.
+   * @default undefined
+   */
+  bubbleActions?: (context: TextEditBubbleContext) => React.ReactNode;
+  /**
+   * Where the selection's formatting shows on a coarse pointer: `bubble` floats it over the
+   * selection; `dock` puts it in a 44px bar at the bottom of the window (above the on-screen
+   * keyboard), as phone editors do. A fine pointer always gets the bubble.
+   * @default "bubble"
+   */
+  toolbar?: "bubble" | "dock";
+  /**
+   * The block menu on a coarse pointer: `handle` shows the ⋮⋮ grip beside the caret's block (a tap
+   * opens the menu); `longPress` shows no grip — a long press on a block (half a second, held
+   * still) opens its menu as a bottom sheet.
+   * @default "handle"
+   */
+  touchBlockMenu?: "handle" | "longPress";
+  /**
    * The slash and mention menus' size (`SuggestionMenu`'s): `lg` is 320px wide and up to
    * `min(60vh, 440px)` tall, each block with a line saying what it is, the slash menu grouped Basic ·
    * the host's items · Media · Advanced.
@@ -1460,21 +1511,24 @@ export interface TextEditProps {
    * It shows dimmed under a spinner until the promise resolves with its URL, then commits — even
    * after focus has left. A rejection leaves it in place as a failed upload (Retry, Remove) and
    * calls `onUploadError`. `signal` aborts when its placeholder is deleted or the editor unmounts;
-   * `signal.reason` says which (`TEXT_EDIT_UPLOAD_ABORT`).
+   * `signal.reason` says which (`TEXT_EDIT_UPLOAD_ABORT`). Call `onProgress(0…1)` as the upload
+   * goes and the placeholder (the image itself, dimmed, in its own proportions) shows a bar along
+   * its foot instead of a spinner.
    * @default undefined
    */
   onImageUpload?: (
     file: File,
-    options: { signal: AbortSignal },
+    options: TextEditUploadOptions,
   ) => Promise<TextEditImageUpload>;
   /**
    * Upload any other file dropped, pasted or picked (the slash menu's File): it lands as a link
-   * `[name](href)`, shown as a file chip. Without it, non-image files are ignored.
+   * `[name](href)`, shown as a file chip. Without it, non-image files are ignored. While it uploads
+   * its chip shows a ring that fills as `onProgress` reports (a spinner until it does).
    * @default undefined
    */
   onFileUpload?: (
     file: File,
-    options: { signal: AbortSignal },
+    options: TextEditUploadOptions,
   ) => Promise<TextEditFileUpload>;
   /**
    * Called when an upload rejects — show a toast. Its placeholder stays in the text, saying the
@@ -1608,8 +1662,8 @@ export interface TextEditProps {
    */
   onStatsChange?: (stats: TextEditStats) => void;
   /**
-   * Find and replace: <kbd>⌘F</kbd> inside the editor opens a find bar docked at the top of the
-   * text (Replace only while editable), <kbd>⌘G</kbd> / <kbd>⇧⌘G</kbd> step through the matches,
+   * Find and replace: <kbd>⌘F</kbd> inside the editor opens a find bar that floats over the top of
+   * the text, at its end, like a browser's — the document never moves (Replace only while editable), <kbd>⌘G</kbd> / <kbd>⇧⌘G</kbd> step through the matches,
    * and <kbd>Esc</kbd> closes it with the caret back where it was. Outside the editor the
    * browser's own find runs. `handleRef.openFind()` opens it from a menu.
    * @default false

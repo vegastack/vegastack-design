@@ -293,7 +293,8 @@ the swap never moves the text. On a page with room the text keeps its column, an
 ### Find, emoji, heading links, word count and host slash items
 
 - **Find and replace** (`findReplace`): <kbd>Mod</kbd> <kbd>F</kbd> inside the editor opens a find
-  bar docked at the top of the text (`role="search"`, below `floatingSafeArea.top`), with the
+  bar that floats over the top of the text at its end (`role="search"`, below
+  `floatingSafeArea.top`) — the document never moves when it opens — with the
   selection's text as the term. It offers "3 of 12", previous / next (<kbd>Enter</kbd>,
   <kbd>Shift</kbd> <kbd>Enter</kbd>, <kbd>Mod</kbd> <kbd>G</kbd>), match case,
   whole word and regular expression (RE2, so no pattern can run away). While
@@ -555,6 +556,36 @@ still shows as a card.
   file="components/preview/text-edit.tsx"
 />
 
+### Editing ergonomics
+
+- **Leaving a code block**: <kbd>Mod</kbd> <kbd>Enter</kbd>, or <kbd>↓</kbd> on its last line, puts
+  the caret on the line below — a new paragraph when nothing follows — and a footer under the block
+  says so ("⌘↵ to exit") while the caret is in it. A composer with `onSubmit` keeps sending on
+  <kbd>Mod</kbd> <kbd>Enter</kbd>.
+- **Block chrome**: a code block's wrap and copy, an image's Replace, Caption, Alt text and Open
+  (Download and Copy link in ⋯), and a diagram's expand and actions all sit in a
+  [`BlockToolbar`](/docs/components/block-toolbar): the top-right corner, 28px buttons, four at
+  most.
+- **The block grip** is still a 16×20 glyph, with a 24×28 hit area around it.
+  `touchBlockMenu="longPress"` drops the grip on a coarse pointer: half a second held still on a
+  block opens its menu as a bottom sheet.
+- **Upload progress**: `onImageUpload` and `onFileUpload` get `onProgress(0…1)`. Call it and the
+  placeholder shows how far along it is — the picture itself, dimmed in its own proportions, with
+  a bar along its foot; a file chip with a ring — instead of a spinner. The insert panel closes the
+  moment a file is picked.
+- **The selection bubble** stays inside the text column (never over an outline rail or a comment
+  margin beside it), wrapping onto a second row when the column is narrower. With `onMakeTask`, a
+  selection reaching unlinked
+  checklist lines offers **Make task** / **Make N tasks**, and `bubbleActions({ text, close })`
+  adds the host's own actions ("Ask agent…") before Comment. `toolbar="dock"` puts the selection's
+  formatting in a 44px bar along the bottom of the window on a coarse pointer, above the on-screen
+  keyboard.
+
+<ComponentPreview
+  name="textEditErgonomics"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Roomy menus and phone sheets
 
 `menuSize="lg"` gives the slash and mention menus room: 320px wide and up to `min(60vh, 440px)`
@@ -726,9 +757,10 @@ page until it is 0.
 An image works like Notion's. Hover it (or tap it on touch) for a small blurred toolbar at its
 top-right: **Replace** (the image panel, whose upload or link takes its place — another site's link
 imports through `onExternalImage`), **Caption** (Markdown's image title, `![alt](src "caption")`, shown under the image — `MarkdownView` renders it as a `figure` with a `figcaption`), **Alt text** (edited in place), **Open** (the `FileViewer`,
-paging through every image in the document; a double-click does the same), **Download** (from
-`imageDownloadHref(src)` when given, a link that saves the file, else the image itself) and **Copy
-link**. Delete is the block menu's, or <kbd>Backspace</kbd> on the selected image
+paging through every image in the document; a double-click does the same) — 28px
+[`BlockToolbar`](/docs/components/block-toolbar) buttons, four at most — and a ⋯ menu with
+**Download** (from `imageDownloadHref(src)` when given, a link that saves the file, else the image
+itself) and **Copy link**. Delete is the block menu's, or <kbd>Backspace</kbd> on the selected image
 (<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd> undoes). An image that can't load keeps a dashed frame so it
 can still be replaced. Selected, it shows a thin outline at the same `rounded-lg` radius, and pill handles on its
 left and right edges resize it
@@ -796,7 +828,10 @@ goes back to the preview and moves the caret on past the block; the caret arrivi
 previewed block (arrow keys) opens its source; a double-click on the diagram does too. The mode is
 the viewer's own, never saved in the document — the document keeps an ordinary fenced code block,
 so exports, search and agents read the source. The slash menu and Turn into offer **Diagram**
-(only while `blockViews.mermaid` is set): a new block opens in Code with the view's starter.
+(only while `blockViews.mermaid` is set): a new block opens in Code with the view's starter — for
+`mermaidBlockView`, one `%%` comment saying what to type, which draws "Nothing to draw yet" until a
+diagram is typed. <kbd>Mod</kbd> <kbd>Enter</kbd>, or <kbd>↓</kbd> on the source's last line, leaves
+the diagram for the line below (a new one when none follows), as in a code block.
 
 <ComponentPreview
   name="mermaidBlockTextEdit"

@@ -689,6 +689,12 @@ export interface MermaidBlockProps extends Omit<
    * @default 0
    */
   debounce?: number;
+  /**
+   * What a diagram with nothing to draw says — an empty source, or only `%%` comments (a new
+   * diagram's starter).
+   * @default "Nothing to draw yet"
+   */
+  emptyMessage?: string;
 }
 
 /**
@@ -710,6 +716,7 @@ export function MermaidBlock({
   source,
   theme: themeProp,
   debounce = 0,
+  emptyMessage = "Nothing to draw yet",
   className,
   style,
   ref,
@@ -720,10 +727,12 @@ export function MermaidBlock({
   const pageTheme = usePageTheme(figureRef);
   const theme: MermaidTheme = themeProp ?? pageTheme;
   const near = useNearViewport(figureRef);
+  // Only comments (a new diagram's starter) or nothing: a calm line, never an error.
+  const blank = blankMermaid(source);
   const { svg, error, pending } = useMermaidSvg(source, {
     debounce,
     theme,
-    enabled: near,
+    enabled: near && !blank,
   });
 
   const sourceHash = React.useMemo(() => hash(source), [source]);
@@ -773,7 +782,7 @@ export function MermaidBlock({
     };
   }, [svg, error, pending, source, theme]);
 
-  const failed = !svg && error !== null;
+  const failed = !svg && error !== null && !blank;
   // One calm sentence pointing at the line; the parser's own words sit behind Details.
   const check = error?.line ? `check line ${error.line}` : "check its source";
   const status = error
@@ -788,6 +797,26 @@ export function MermaidBlock({
     : failed
       ? "failed"
       : "loading";
+
+  if (blank)
+    return (
+      <figure
+        ref={setRef}
+        data-slot="mermaid-block"
+        data-state="empty"
+        aria-label="Diagram"
+        className={cn("m-0 flex min-w-0 max-w-full flex-col", className)}
+        style={style}
+        {...props}
+      >
+        <p
+          data-slot="mermaid-block-status"
+          className="m-0 px-4 py-6 text-center text-xs text-muted-foreground"
+        >
+          {emptyMessage}
+        </p>
+      </figure>
+    );
 
   return (
     <figure
@@ -920,18 +949,22 @@ async function svgFor(
   return "svg" in result ? result.svg : null;
 }
 
-const STARTER = `flowchart LR
-  accTitle: Draft to published
-  accDescr: A draft is reviewed, then published or sent back.
-  draft[Draft] --> review{Review}
-  review -->|Approved| published([Published])
-  review -->|Changes| draft
+/**
+ * A new diagram's source: a comment saying what to type, nothing to delete first (UXP-07). It
+ * draws nothing ("Nothing to draw yet") until a diagram is typed.
+ */
+const STARTER = `%% Type a Mermaid diagram — for example: flowchart LR, then A --> B
 `;
+
+/** Whether `source` holds nothing but blank lines and `%%` comments: nothing to draw yet. */
+function blankMermaid(source: string): boolean {
+  return !source.replace(/^\s*%%.*$/gm, "").trim();
+}
 
 /**
  * `mermaidBlockView` — the ready `blockViews` entry for ```mermaid fences:
  * `<TextEdit blockViews={{ mermaid: mermaidBlockView }} />` (and the same on `MarkdownView`).
- * Labelled "Diagram", split view on a wide block, a small flowchart starter, a Code-mode hint
+ * Labelled "Diagram", split view on a wide block, an empty starter (one comment), a Code-mode hint
  * while `accTitle`/`accDescr` are missing, and Copy SVG / Download SVG in the block's ⋯ menu.
  *
  * @example

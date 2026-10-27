@@ -1355,6 +1355,46 @@ export function textEditBookmarks(): ReactNode {
   );
 }
 
+/**
+ * Editing ergonomics — select text for the bubble, and Make task(s) on the checklist
+ * lines; `⌘↵` (or ↓ on the last line) leaves the code block; a host action sits in the bubble.
+ */
+export function textEditErgonomics(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "Select some text for the bubble.\n\n- [ ] Order the glass\n- [ ] Book the crane\n\n```js\nconst answer = 42;\n```",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        toolbar="dock"
+        touchBlockMenu="longPress"
+        onMakeTask={(items) =>
+          toast.add({
+            title:
+              items.length > 1 ? `Make ${items.length} tasks` : "Make a task",
+          })
+        }
+        bubbleActions={({ text }) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 text-xs"
+            onClick={() =>
+              toast.add({ title: `Asked about ${text.length} characters` })
+            }
+          >
+            Ask…
+          </Button>
+        )}
+        aria-label="Notes with editing ergonomics"
+      />
+    </Wrapper>
+  );
+}
+
 const TASKS_HTML = [
   '<h2 data-blockid="next">Next steps</h2>',
   '<ul data-type="taskList">',

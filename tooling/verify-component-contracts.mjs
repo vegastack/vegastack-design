@@ -578,7 +578,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 36,
+  "Forms/editing": 37,
   "Navigation/layout": 23,
   Overlays: 22,
   "Data display": 38,
@@ -636,6 +636,7 @@ const expectedComponentWaveMembers = {
   ],
   "Forms/editing": [
     "auto-save-input",
+    "block-toolbar",
     "avatar-picker",
     "calendar",
     "chip-input",

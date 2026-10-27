@@ -157,7 +157,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
   CODE_LANGUAGES,
-  codeBlockActionsClassName,
   codeBlockControlClassName,
   codeBlockControlsPadClassName,
   codeBlockPreClassName,
@@ -277,6 +276,7 @@ import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { usePlatform } from "@/components/ui/use-platform";
 import { FileTypeIcon } from "@/lib/file-kind";
 import {
   anchorFromRange,
@@ -306,6 +306,11 @@ import type {
 } from "@/components/ui/text-edit";
 import type { AvatarHue } from "@/components/ui/avatar";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import {
+  BlockToolbarButton,
+  BlockToolbar,
+  BlockToolbarMenu,
+} from "@/components/ui/block-toolbar";
 import { TaskInline } from "@/components/ui/task-inline";
 import {
   linkedTaskId,
@@ -1112,6 +1117,61 @@ function currentCode(node: PMNode): string {
   return text;
 }
 
+/** Whether the caret sits inside the node at `getPos()` while the editor has focus. */
+function useCaretInside(
+  editor: Editor,
+  getPos: ReactNodeViewProps["getPos"],
+): boolean {
+  const read = React.useCallback(() => {
+    if (editor.isDestroyed || !editor.isFocused || !editor.isEditable)
+      return false;
+    const pos = typeof getPos === "function" ? getPos() : undefined;
+    if (typeof pos !== "number") return false;
+    const node = editor.state.doc.nodeAt(pos);
+    const { from, to } = editor.state.selection;
+    return !!node && from > pos && to < pos + node.nodeSize;
+  }, [editor, getPos]);
+  return React.useSyncExternalStore(
+    React.useCallback(
+      (onChange: () => void) => {
+        editor.on("selectionUpdate", onChange);
+        editor.on("focus", onChange);
+        editor.on("blur", onChange);
+        return () => {
+          editor.off("selectionUpdate", onChange);
+          editor.off("focus", onChange);
+          editor.off("blur", onChange);
+        };
+      },
+      [editor],
+    ),
+    read,
+    () => false,
+  );
+}
+
+/**
+ * The footer under a code block (or a diagram's source) while the caret is in it: how to leave
+ * it — ⌘↵ (Ctrl+Enter), or ↓ on its last line (UXP-07).
+ */
+function CodeExitHint({
+  editor,
+  getPos,
+}: Pick<ReactNodeViewProps, "editor" | "getPos">) {
+  const inside = useCaretInside(editor, getPos);
+  const { os } = usePlatform();
+  if (!inside) return null;
+  return (
+    <p
+      data-slot="text-edit-code-hint"
+      contentEditable={false}
+      className="m-0 px-4 pb-2 text-xs text-muted-foreground select-none print:hidden"
+    >
+      {os === "mac" ? "⌘↵" : "Ctrl+Enter"} to exit
+    </p>
+  );
+}
+
 function CodeBlockView({
   node,
   editor,
@@ -1169,10 +1229,7 @@ function CodeBlockView({
             {codeLanguageName(language)}
           </span>
         ) : null}
-        <div
-          data-slot="code-block-actions"
-          className={codeBlockActionsClassName}
-        >
+        <BlockToolbar aria-label="Code block actions">
           {editor.isEditable ? (
             <MenuTip label={wrap ? "Don't wrap lines" : "Wrap lines"}>
               <Toggle
@@ -1182,7 +1239,7 @@ function CodeBlockView({
                 data-slot="code-block-wrap"
                 onMouseDown={(event) => event.preventDefault()}
                 onPressedChange={(next) => updateAttributes({ wrap: next })}
-                className="size-6 min-w-6 px-0 text-muted-foreground"
+                className="size-7 min-w-7 px-0 text-muted-foreground"
               >
                 <WrapText />
               </Toggle>
@@ -1190,11 +1247,12 @@ function CodeBlockView({
           ) : null}
           <CopyButton
             value={currentCode(node)}
-            size="icon-xs"
+            size="icon-sm"
             variant="ghost"
             copyLabel="Copy code"
+            className="text-muted-foreground"
           />
-        </div>
+        </BlockToolbar>
       </div>
       <pre
         data-slot="code-block-pre"
@@ -1209,6 +1267,7 @@ function CodeBlockView({
           style={{ whiteSpace: "inherit" }}
         />
       </pre>
+      <CodeExitHint editor={editor} getPos={getPos} />
     </NodeViewWrapper>
   );
 }
@@ -1246,6 +1305,41 @@ function turnIntoBlockView(ed: Editor, language: string) {
       return true;
     })
     .run();
+}
+
+/**
+ * Put the caret just past the block that ends at `end`: at the start of the block after it, or in
+ * a new empty paragraph there when none follows (or the next is not text). One undo step.
+ */
+function exitBlock(editor: Editor, end: number) {
+  const { state } = editor;
+  const next = state.doc.resolve(end).nodeAfter;
+  if (next?.isTextblock) {
+    editor.view.dispatch(
+      state.tr.setSelection(TextSelection.create(state.doc, end + 1)),
+    );
+    return;
+  }
+  const paragraph = state.schema.nodes.paragraph!.create();
+  const tr = state.tr.insert(end, paragraph);
+  tr.setSelection(TextSelection.create(tr.doc, end + 1));
+  editor.view.dispatch(tr.scrollIntoView());
+}
+
+/**
+ * The code block the caret is in — its position and node — or null. A block view's source is one
+ * too.
+ */
+function caretCodeBlock(
+  state: EditorState,
+): { pos: number; node: PMNode } | null {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const node = $from.node(depth);
+    if (node.type.name === "codeBlock")
+      return { pos: $from.before(depth), node };
+  }
+  return null;
 }
 
 /** Asks a block view's node view to change its mode (the editor's ⌘Enter and Escape). */
@@ -1334,18 +1428,12 @@ function BlockCodeView({
         editor.commands.focus(at.to - 1, { scrollIntoView: false });
         return;
       }
-      // Preview: a caret inside the source moves on to the next text after the block.
+      // Preview: a caret inside the source moves on past the block — into the block after it, or
+      // a new paragraph there when nothing follows (⌘↵ and ↓ at the last line leave the diagram).
       const { state } = editor;
       const { from, to } = state.selection;
       if (from <= at.from || to >= at.to) return;
-      const after = TextSelection.findFrom(state.doc.resolve(at.to), 1, true);
-      if (after) editor.view.dispatch(state.tr.setSelection(after));
-      else
-        frameRef.current
-          ?.querySelector<HTMLElement>(
-            "[data-slot=block-view-mode][aria-pressed=false]",
-          )
-          ?.focus();
+      exitBlock(editor, at.to);
     },
     [editor, span],
   );
@@ -1388,18 +1476,21 @@ function BlockCodeView({
         onModeChange={setMode}
         editable={editable}
         code={
-          <pre
-            data-slot="code-block-pre"
-            data-wrap={wrap ? "" : undefined}
-            style={codeBlockWrapStyle(wrap)}
-            className={codeBlockPreClassName}
-          >
-            <NodeViewContent<"code">
-              as="code"
-              className="font-mono"
-              style={{ whiteSpace: "inherit" }}
-            />
-          </pre>
+          <>
+            <pre
+              data-slot="code-block-pre"
+              data-wrap={wrap ? "" : undefined}
+              style={codeBlockWrapStyle(wrap)}
+              className={codeBlockPreClassName}
+            >
+              <NodeViewContent<"code">
+                as="code"
+                className="font-mono"
+                style={{ whiteSpace: "inherit" }}
+              />
+            </pre>
+            <CodeExitHint editor={editor} getPos={getPos} />
+          </>
         }
       />
     </NodeViewWrapper>
@@ -2783,27 +2874,117 @@ function uploadPlaceholder(upload: UploadWidget): HTMLElement {
   root.setAttribute("role", "status");
   root.setAttribute("aria-label", `Uploading ${upload.name}`);
   if (upload.preview) {
+    // The picture itself, dimmed, in its own proportions — the box the image lands in — with a
+    // bar along its foot once the host reports progress (UXP-06).
     root.setAttribute("data-kind", "image");
     root.className = "relative inline-block max-w-full align-bottom";
     const image = document.createElement("img");
     image.src = upload.preview;
     image.alt = "";
-    image.className = "block max-h-60 opacity-50";
+    image.className = "block max-h-60 rounded-lg opacity-50";
     const overlay = document.createElement("span");
     overlay.className =
       "absolute inset-0 grid place-items-center text-foreground";
-    overlay.append(spinner("size-5"));
-    root.append(image, overlay);
+    const spin = spinner("size-5");
+    overlay.append(spin);
+    const track = document.createElement("span");
+    track.setAttribute("data-slot", "text-edit-upload-progress");
+    track.className =
+      "absolute inset-x-3 bottom-3 hidden h-1 overflow-hidden rounded-full bg-foreground/15";
+    const bar = document.createElement("span");
+    bar.className =
+      "block h-full w-0 rounded-full bg-primary transition-[width]";
+    track.append(bar);
+    root.append(image, overlay, track);
+    watchUploadProgress(upload.id, (fraction) => {
+      track.classList.remove("hidden");
+      spin.classList.add("hidden");
+      bar.style.width = `${Math.round(fraction * 100)}%`;
+      root.setAttribute("data-progress", String(Math.round(fraction * 100)));
+    });
   } else {
+    // A file chip with a ring that fills as the upload goes (a spinner until it reports).
     root.setAttribute("data-kind", "file");
     root.className =
       "inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1 align-baseline text-muted-foreground";
     const name = document.createElement("span");
     name.className = "truncate";
     name.textContent = upload.name;
-    root.append(spinner("size-3"), name);
+    const spin = spinner("size-3");
+    const ring = progressRing();
+    ring.element.classList.add("hidden");
+    root.append(spin, ring.element, name);
+    watchUploadProgress(upload.id, (fraction) => {
+      spin.classList.add("hidden");
+      ring.element.classList.remove("hidden");
+      ring.draw(fraction);
+      root.setAttribute("data-progress", String(Math.round(fraction * 100)));
+    });
   }
   return root;
+}
+
+/**
+ * Each upload's progress (0–1) as the host reports it (`onProgress`), and the placeholders drawing
+ * it: a widget drawn again (a redraw of its decoration) picks up the last value.
+ */
+const UPLOAD_PROGRESS = new Map<string, number>();
+const UPLOAD_PROGRESS_VIEWS = new Map<
+  string,
+  Set<(fraction: number) => void>
+>();
+
+function reportUploadProgress(id: string, fraction: number) {
+  const value = Math.min(1, Math.max(0, fraction));
+  UPLOAD_PROGRESS.set(id, value);
+  for (const draw of UPLOAD_PROGRESS_VIEWS.get(id) ?? []) draw(value);
+}
+
+function forgetUploadProgress(id: string) {
+  UPLOAD_PROGRESS.delete(id);
+  UPLOAD_PROGRESS_VIEWS.delete(id);
+}
+
+/** Draw `id`'s progress with `draw`, now (when known) and as it moves. */
+function watchUploadProgress(id: string, draw: (fraction: number) => void) {
+  let views = UPLOAD_PROGRESS_VIEWS.get(id);
+  if (!views) UPLOAD_PROGRESS_VIEWS.set(id, (views = new Set()));
+  views.add(draw);
+  const now = UPLOAD_PROGRESS.get(id);
+  if (now !== undefined) draw(now);
+}
+
+/** A 12px ring that fills with its fraction — the file chip's progress. */
+function progressRing(): {
+  element: SVGSVGElement;
+  draw: (fraction: number) => void;
+} {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("data-slot", "text-edit-upload-ring");
+  svg.setAttribute("class", "size-3 shrink-0 -rotate-90");
+  const track = document.createElementNS(SVG_NS, "circle");
+  const bar = document.createElementNS(SVG_NS, "circle");
+  for (const circle of [track, bar]) {
+    circle.setAttribute("cx", "8");
+    circle.setAttribute("cy", "8");
+    circle.setAttribute("r", "6");
+    circle.setAttribute("fill", "none");
+    circle.setAttribute("stroke-width", "2.5");
+    circle.setAttribute("stroke", "currentColor");
+  }
+  track.setAttribute("class", "opacity-25");
+  const length = 2 * Math.PI * 6;
+  bar.setAttribute("stroke-dasharray", String(length));
+  bar.setAttribute("stroke-dashoffset", String(length));
+  bar.setAttribute("stroke-linecap", "round");
+  svg.append(track, bar);
+  return {
+    element: svg,
+    draw: (fraction) =>
+      bar.setAttribute("stroke-dashoffset", String(length * (1 - fraction))),
+  };
 }
 
 /** Upload placeholders: widgets that ride along with edits until their upload resolves. */
@@ -3491,8 +3672,9 @@ function imageView(runtime: ImageRuntime): NodeViewRenderer {
 }
 
 /**
- * Each image's hover toolbar (top-right, blurred): while editable Replace, Caption and Alt text, then Open,
- * Download and Copy link. Delete is the block menu's (and Backspace on the selected image).
+ * Each image's hover toolbar (top-right, blurred; `BlockToolbar` buttons, four at most): while
+ * editable Replace, Caption and Alt text, then Open, and ⋯ with Download and Copy link. Delete is
+ * the block menu's (and Backspace on the selected image).
  */
 function ImageMenus({
   editor,
@@ -3540,26 +3722,8 @@ function ImageMenus({
   );
 }
 
-function ImageToolButton({
-  label,
-  children,
-  ...props
-}: React.ComponentProps<typeof Button> & { label: string }) {
-  return (
-    <MenuTip label={label}>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xs"
-        aria-label={label}
-        onMouseDown={(event) => event.preventDefault()}
-        {...props}
-      >
-        {children}
-      </Button>
-    </MenuTip>
-  );
-}
+/** An image toolbar's button: the shared `BlockToolbarButton` (28px). */
+const ImageToolButton = BlockToolbarButton;
 
 function ImageMenu({
   editor,
@@ -3594,7 +3758,7 @@ function ImageMenu({
   // The host's attachment link saves the file in place; the image's own URL opens in a new tab.
   const saveFrom = (shareable ? downloadHref?.(raw) : null) ?? null;
   return (
-    <>
+    <BlockToolbar aria-label="Image actions" placement="inline">
       {editable && onReplace ? (
         <ImageToolButton
           label="Replace"
@@ -3629,28 +3793,35 @@ function ImageMenu({
           <Maximize2 />
         </ImageToolButton>
       ) : null}
-      <ImageToolButton
-        label="Download"
-        render={
-          saveFrom ? (
-            <a href={saveFrom} download />
-          ) : (
-            <a href={src} download target="_blank" rel="noopener noreferrer" />
-          )
-        }
-        nativeButton={false}
-      >
-        <Download />
-      </ImageToolButton>
-      {shareable ? (
-        <ImageToolButton
-          label="Copy link"
-          onClick={() => void navigator.clipboard?.writeText(absolute)}
+      {/* Four buttons at most (UXP-08): the rest in ⋯. */}
+      <BlockToolbarMenu label="More image actions">
+        <DropdownMenuItem
+          render={
+            saveFrom ? (
+              <a href={saveFrom} download />
+            ) : (
+              <a
+                href={src}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            )
+          }
         >
-          <LinkIcon />
-        </ImageToolButton>
-      ) : null}
-    </>
+          <Download />
+          Download
+        </DropdownMenuItem>
+        {shareable ? (
+          <DropdownMenuItem
+            onClick={() => void navigator.clipboard?.writeText(absolute)}
+          >
+            <LinkIcon />
+            Copy link
+          </DropdownMenuItem>
+        ) : null}
+      </BlockToolbarMenu>
+    </BlockToolbar>
   );
 }
 
@@ -3731,9 +3902,11 @@ function ImageTextAttribute({
             <Button
               type="button"
               variant="ghost"
-              size="icon-xs"
+              size="icon-sm"
               aria-label={copy.label}
+              data-slot="block-toolbar-button"
               onMouseDown={(event) => event.preventDefault()}
+              className="text-muted-foreground"
             />
           }
         >
@@ -7065,6 +7238,24 @@ function TurnIntoPanel({
   );
 }
 
+/** The unlinked checklist lines a selection reaches, with text: the bubble's Make task(s). */
+function selectedTaskLines(state: EditorState): OfferedLine[] {
+  const { from, to, empty } = state.selection;
+  if (empty) return [];
+  const lines: OfferedLine[] = [];
+  state.doc.nodesBetween(from, to, (node, at) => {
+    if (node.isTextblock) return false;
+    if (node.type.name !== "taskItem") return true;
+    const lineEnd = at + 1 + (node.firstChild?.nodeSize ?? 0);
+    if (from < lineEnd && to > at + 1 && !linkedTaskId(node)) {
+      const text = taskItemText(node);
+      if (text) lines.push({ pos: at, text });
+    }
+    return true;
+  });
+  return lines;
+}
+
 function SelectionMenu({
   editor,
   panel,
@@ -7074,6 +7265,9 @@ function SelectionMenu({
   onComment,
   onOpenFile,
   onImageLink,
+  makeTask,
+  bubbleActions,
+  docked = false,
 }: {
   editor: Editor;
   panel: Panel | null;
@@ -7087,10 +7281,17 @@ function SelectionMenu({
   onOpenFile?: (href: string) => boolean;
   /** Start a comment on the selection; absent when the host takes no comments. */
   onComment?: () => void;
+  /** `onMakeTask`, read when chosen: Make task(s) for the checklist lines selected. */
+  makeTask?: () => TextEditProps["onMakeTask"];
+  /** The host's own selection actions (`bubbleActions`). */
+  bubbleActions?: TextEditProps["bubbleActions"];
+  /** Drawn in the bottom dock (`toolbar="dock"` on touch), not floating over the selection. */
+  docked?: boolean;
 }) {
   const state = useEditorState({
     editor,
     selector: ({ editor: ed }) => ({
+      taskLines: makeTask?.() ? selectedTaskLines(ed.state).length : 0,
       bold: ed.isActive("bold"),
       italic: ed.isActive("italic"),
       strike: ed.isActive("strike"),
@@ -7163,15 +7364,67 @@ function SelectionMenu({
       }
     />
   ) : null;
+  // The bubble floats over the selection, wrapping onto a second row rather than spilling past the
+  // text column; docked, it is the bottom bar's row (no surface of its own).
+  const surface = docked
+    ? "flex h-full min-w-max items-center px-1"
+    : cn(MENU_SURFACE, "flex-wrap");
+  const columnWidth = docked
+    ? undefined
+    : editor.view.dom.clientWidth || undefined;
+  const selectionText = () => {
+    const { from, to } = editor.state.selection;
+    return editor.state.doc.textBetween(from, to, "\n", " ");
+  };
+  const hostActions = bubbleActions ? (
+    <span
+      data-slot="text-edit-bubble-actions"
+      className="flex items-center gap-0.5"
+    >
+      {bubbleActions({
+        text: selectionText(),
+        close: () => {
+          const { to } = editor.state.selection;
+          editor.chain().focus().setTextSelection(to).run();
+        },
+      })}
+    </span>
+  ) : null;
+  const tasksButton =
+    state.taskLines > 0 && makeTask ? (
+      <Toolbar.Button
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            data-slot="text-edit-bubble-make-task"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              const make = makeTask();
+              const lines = selectedTaskLines(editor.state);
+              if (make && lines.length > 0)
+                make(...makeTaskCall(editor, lines));
+            }}
+            className="gap-1 px-2 text-xs"
+          >
+            <CircleCheck />
+            {state.taskLines > 1
+              ? `Make ${state.taskLines} tasks`
+              : "Make task"}
+          </Button>
+        }
+      />
+    ) : null;
   // Read-only: the selection can only be commented on.
   if (!editor.isEditable)
     return (
       <Toolbar.Root
         data-slot="text-edit-bubble-menu"
         aria-label="Selection actions"
-        className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+        className={cn(surface, "flex items-center gap-0.5")}
       >
         {commentButton}
+        {hostActions}
       </Toolbar.Root>
     );
 
@@ -7180,7 +7433,8 @@ function SelectionMenu({
     <Toolbar.Root
       data-slot="text-edit-bubble-menu"
       aria-label="Selection formatting"
-      className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+      style={columnWidth ? { maxWidth: columnWidth } : undefined}
+      className={cn(surface, "flex items-center gap-0.5")}
     >
       {state?.cell ? null : (
         <>
@@ -7252,8 +7506,15 @@ function SelectionMenu({
           }
         />
       </MenuTip>
-      {/* Formatting first (what the selection is, then its marks, its link, clearing them), the
-          conversation last. */}
+      {/* Formatting first (what the selection is, then its marks, its link, clearing them), then
+          what the selection can become (tasks, the host's actions), the conversation last. */}
+      {tasksButton || hostActions ? (
+        <>
+          <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+          {tasksButton}
+          {hostActions}
+        </>
+      ) : null}
       {commentButton ? (
         <>
           <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
@@ -8500,148 +8761,160 @@ function FindBar({
   );
 
   return (
+    // Floats over the text like a browser's find bar: a zero-height sticky row under the host's
+    // header, the bar hanging from its end — the document never moves when it opens (UXP-18).
     <div
-      role="search"
-      aria-label="Find in page"
-      data-slot="text-edit-find"
-      data-text-edit-menu=""
+      data-slot="text-edit-find-layer"
       style={{ top }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          event.stopPropagation();
-          onClose();
-        } else if (
-          (event.metaKey || event.ctrlKey) &&
-          event.key.toLowerCase() === "g"
-        ) {
-          event.preventDefault();
-          step(event.shiftKey ? -1 : 1);
-        } else if (
-          (event.metaKey || event.ctrlKey) &&
-          event.key.toLowerCase() === "f"
-        ) {
-          event.preventDefault();
-          findRef.current?.select();
-        }
-      }}
-      className="sticky z-20 mb-3 flex flex-col gap-1.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+      className="pointer-events-none sticky z-20 h-0 print:hidden"
     >
-      <div className="flex flex-wrap items-center gap-1">
-        <label htmlFor={inputId} className="sr-only">
-          Find
-        </label>
-        {/* The field gives way first, so the bar stays one row in a 27rem text column. */}
-        <div className="relative min-w-24 flex-1">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            ref={findRef}
-            id={inputId}
-            value={term}
-            placeholder="Find"
-            autoComplete="off"
-            spellCheck={false}
-            aria-invalid={badPattern || undefined}
-            onChange={(event) => {
-              setTerm(event.target.value);
-              editor.commands.setSearchTerm(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
-              event.preventDefault();
-              step(event.shiftKey ? -1 : 1);
-            }}
-            className="h-8 ps-8 pointer-coarse:h-11"
-          />
-        </div>
-        <span
-          aria-hidden
-          className="min-w-16 text-center text-xs text-muted-foreground tabular-nums"
-        >
-          {count}
-        </span>
-        {iconButton(
-          "Previous match",
-          <ChevronUp />,
-          () => step(-1),
-          snap.results === 0,
-        )}
-        {iconButton(
-          "Next match",
-          <ChevronDown />,
-          () => step(1),
-          snap.results === 0,
-        )}
-        {toggle("Match case", <CaseSensitive />, snap.caseSensitive, (value) =>
-          editor.commands.setCaseSensitive(value),
-        )}
-        {toggle("Whole word", <WholeWord />, snap.wholeWord, (value) =>
-          editor.commands.setWholeWord(value),
-        )}
-        {toggle("Regular expression", <Regex />, snap.useRegex, (value) =>
-          editor.commands.setUseRegex(value),
-        )}
-        {editable
-          ? toggle("Replace", <Replace />, replacing, setReplacing)
-          : null}
-        {iconButton("Close find", <X />, onClose)}
-      </div>
-      {editable && replacing ? (
+      <div
+        role="search"
+        aria-label="Find in page"
+        data-slot="text-edit-find"
+        data-text-edit-menu=""
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            onClose();
+          } else if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === "g"
+          ) {
+            event.preventDefault();
+            step(event.shiftKey ? -1 : 1);
+          } else if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === "f"
+          ) {
+            event.preventDefault();
+            findRef.current?.select();
+          }
+        }}
+        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+      >
         <div className="flex flex-wrap items-center gap-1">
-          <label htmlFor={replaceId} className="sr-only">
-            Replace with
+          <label htmlFor={inputId} className="sr-only">
+            Find
           </label>
-          <Input
-            id={replaceId}
-            value={replacement}
-            placeholder="Replace with"
-            autoComplete="off"
-            spellCheck={false}
-            onChange={(event) => {
-              setReplacement(event.target.value);
-              editor.commands.setReplaceTerm(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
-              event.preventDefault();
-              editor.commands.replace();
-              reveal();
-            }}
-            className="h-8 min-w-40 flex-1 pointer-coarse:h-11"
-          />
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={snap.results === 0}
-            onClick={() => {
-              editor.commands.replace();
-              reveal();
-            }}
+          {/* The field gives way first, so the bar stays one row in a 27rem text column. */}
+          <div className="relative min-w-24 flex-1">
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              ref={findRef}
+              id={inputId}
+              value={term}
+              placeholder="Find"
+              autoComplete="off"
+              spellCheck={false}
+              aria-invalid={badPattern || undefined}
+              onChange={(event) => {
+                setTerm(event.target.value);
+                editor.commands.setSearchTerm(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+                step(event.shiftKey ? -1 : 1);
+              }}
+              className="h-8 ps-8 pointer-coarse:h-11"
+            />
+          </div>
+          <span
+            aria-hidden
+            className="min-w-16 text-center text-xs text-muted-foreground tabular-nums"
           >
-            <Replace />
-            Replace
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={snap.results === 0}
-            onClick={() => {
-              const n = snap.results;
-              editor.commands.replaceAll();
-              announce(n === 1 ? "Replaced 1 match" : `Replaced ${n} matches`);
-            }}
-          >
-            <ReplaceAll />
-            Replace all
-          </Button>
+            {count}
+          </span>
+          {iconButton(
+            "Previous match",
+            <ChevronUp />,
+            () => step(-1),
+            snap.results === 0,
+          )}
+          {iconButton(
+            "Next match",
+            <ChevronDown />,
+            () => step(1),
+            snap.results === 0,
+          )}
+          {toggle(
+            "Match case",
+            <CaseSensitive />,
+            snap.caseSensitive,
+            (value) => editor.commands.setCaseSensitive(value),
+          )}
+          {toggle("Whole word", <WholeWord />, snap.wholeWord, (value) =>
+            editor.commands.setWholeWord(value),
+          )}
+          {toggle("Regular expression", <Regex />, snap.useRegex, (value) =>
+            editor.commands.setUseRegex(value),
+          )}
+          {editable
+            ? toggle("Replace", <Replace />, replacing, setReplacing)
+            : null}
+          {iconButton("Close find", <X />, onClose)}
         </div>
-      ) : null}
-      <Announcer />
+        {editable && replacing ? (
+          <div className="flex flex-wrap items-center gap-1">
+            <label htmlFor={replaceId} className="sr-only">
+              Replace with
+            </label>
+            <Input
+              id={replaceId}
+              value={replacement}
+              placeholder="Replace with"
+              autoComplete="off"
+              spellCheck={false}
+              onChange={(event) => {
+                setReplacement(event.target.value);
+                editor.commands.setReplaceTerm(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+                editor.commands.replace();
+                reveal();
+              }}
+              className="h-8 min-w-40 flex-1 pointer-coarse:h-11"
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={snap.results === 0}
+              onClick={() => {
+                editor.commands.replace();
+                reveal();
+              }}
+            >
+              <Replace />
+              Replace
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={snap.results === 0}
+              onClick={() => {
+                const n = snap.results;
+                editor.commands.replaceAll();
+                announce(
+                  n === 1 ? "Replaced 1 match" : `Replaced ${n} matches`,
+                );
+              }}
+            >
+              <ReplaceAll />
+              Replace all
+            </Button>
+          </div>
+        ) : null}
+        <Announcer />
+      </div>
     </div>
   );
 }
@@ -10205,6 +10478,9 @@ function blockNow(editor: Editor, block: BlockTarget): BlockTarget | null {
   return null;
 }
 
+/** How long a touch is held still on a block before its menu opens (`touchBlockMenu="longPress"`). */
+const LONG_PRESS_MS = 500;
+
 /** Whether the primary pointer is coarse (touch): the handle follows the caret, not the hover. */
 function useCoarsePointer() {
   const [coarse, setCoarse] = React.useState(false);
@@ -10239,9 +10515,12 @@ function caretBlock(editor: Editor): BlockTarget | null {
 function BlockHandle({
   editor,
   runtime,
+  longPress = false,
 }: {
   editor: Editor;
   runtime: BlockMenuRuntime;
+  /** On touch: no grip; a long press on a block opens its menu (`touchBlockMenu="longPress"`). */
+  longPress?: boolean;
 }) {
   const { value, show, hideSoon, keep, pinnedRef } = useHover<BlockTarget>(
     (a, b) => a.dom === b.dom && a.pos === b.pos,
@@ -10301,9 +10580,10 @@ function BlockHandle({
       }
       if (!coarse) show(null);
     };
-    // Touch: the handle follows the caret's block (there is no hover).
+    // Touch: the handle follows the caret's block (there is no hover) — unless a long press is
+    // the way in, and there is no handle at all.
     const onSelection = () => {
-      if (!coarse || pinnedRef.current) return;
+      if (!coarse || pinnedRef.current || longPress) return;
       show(editor.isFocused ? caretBlock(editor) : null);
     };
     dom.addEventListener("mousemove", onMove);
@@ -10318,7 +10598,61 @@ function BlockHandle({
       editor.off("selectionUpdate", onSelection);
       editor.off("focus", onSelection);
     };
-  }, [editor, show, hideSoon, pinnedRef, coarse, openMenu]);
+  }, [editor, show, hideSoon, pinnedRef, coarse, openMenu, longPress]);
+
+  // `touchBlockMenu="longPress"`: half a second held still on a block opens its menu as a sheet.
+  React.useEffect(() => {
+    if (!coarse || !longPress) return;
+    const dom = editor.view.dom;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let start: { x: number; y: number } | null = null;
+    let fired = false;
+    const cancel = () => {
+      clearTimeout(timer);
+      timer = undefined;
+      start = null;
+    };
+    const onStart = (event: TouchEvent) => {
+      cancel();
+      fired = false;
+      const touch = event.touches[0];
+      if (event.touches.length !== 1 || !touch) return;
+      if (!(event.target instanceof Node)) return;
+      const block = blockAt(editor.view, event.target);
+      if (!block || block.node.type.name === "table") return;
+      start = { x: touch.clientX, y: touch.clientY };
+      timer = setTimeout(() => {
+        timer = undefined;
+        const now = blockNow(editor, block);
+        if (!now) return;
+        fired = true;
+        openMenu(now);
+      }, LONG_PRESS_MS);
+    };
+    const onMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!start || !touch) return;
+      if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 8)
+        cancel();
+    };
+    const onEnd = (event: TouchEvent) => {
+      cancel();
+      // The press opened the menu: its release is not also a tap on the text.
+      if (fired) event.preventDefault();
+      fired = false;
+    };
+    dom.addEventListener("touchstart", onStart, { passive: true });
+    dom.addEventListener("touchmove", onMove, { passive: true });
+    dom.addEventListener("touchend", onEnd);
+    dom.addEventListener("touchcancel", cancel);
+    return () => {
+      cancel();
+      dom.removeEventListener("touchstart", onStart);
+      dom.removeEventListener("touchmove", onMove);
+      dom.removeEventListener("touchend", onEnd);
+      dom.removeEventListener("touchcancel", cancel);
+    };
+  }, [editor, coarse, longPress, openMenu]);
 
   const block = value && value.dom.isConnected ? value : null;
   // The open dropdown's block went from the page (Turn into rebuilt it, a collaborator deleted it):
@@ -10406,7 +10740,7 @@ function BlockHandle({
   return (
     <>
       <FloatingLayer>
-        {block && box ? (
+        {block && box && !(coarse && longPress) ? (
           <DropdownMenu
             open={menu !== null && !coarse}
             onOpenChange={(open) => {
@@ -10443,8 +10777,9 @@ function BlockHandle({
               }}
               className={cn(
                 GRIP,
-                // A 44px hit area on touch, centred on the 24px grip.
-                "pointer-coarse:after:absolute pointer-coarse:after:-inset-2.5 pointer-coarse:after:content-['']",
+                // A 24×28 hit area around the 16×20 grip (WCAG 2.5.8), reaching no further than
+                // the text's edge; on touch a 44px one, centred on the 24px grip.
+                "after:absolute after:-inset-x-1 after:-inset-y-1 after:content-[''] pointer-coarse:after:-inset-2.5",
               )}
             >
               <GripVertical />
@@ -10485,6 +10820,112 @@ function BlockHandle({
         />
       ) : null}
     </>
+  );
+}
+
+/**
+ * Whether a selection gets the formatting toolbar: text selected (not a node, not cells, not in
+ * code), and the editor editable or taking comments.
+ */
+function formattable(
+  ed: Editor,
+  state: EditorState,
+  from: number,
+  to: number,
+  canComment: boolean,
+): boolean {
+  return (
+    (ed.isEditable || canComment) &&
+    from !== to &&
+    // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
+    // format, so no menu.
+    state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
+    !(state.selection instanceof NodeSelection) &&
+    !(state.selection instanceof CellSelection) &&
+    !ed.isActive("codeBlock")
+  );
+}
+
+/**
+ * The bottom of the visual viewport, as a distance from the layout viewport's bottom: the on-screen
+ * keyboard's height on a phone (0 elsewhere), so a docked bar sits above it.
+ */
+function useKeyboardInset(enabled: boolean): number {
+  const [inset, setInset] = React.useState(0);
+  React.useEffect(() => {
+    const viewport = enabled ? window.visualViewport : null;
+    if (!viewport) return;
+    const update = () =>
+      setInset(
+        Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop),
+      );
+    update();
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
+    return () => {
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
+    };
+  }, [enabled]);
+  return inset;
+}
+
+/**
+ * `toolbar="dock"` on a coarse pointer: the selection's formatting in a 44px bar along the bottom
+ * of the window, above the on-screen keyboard, while text is selected (UXP-10).
+ */
+function SelectionDock({
+  editor,
+  canComment,
+  bottom,
+  children,
+}: {
+  editor: Editor;
+  canComment: boolean;
+  /** The host's bottom bar, kept clear (`floatingSafeArea.bottom`). */
+  bottom: number;
+  children: React.ReactNode;
+}) {
+  const selection = useEditorState({
+    editor,
+    selector: ({ editor: ed }) => {
+      const { from, to } = ed.state.selection;
+      return {
+        focused: ed.isFocused,
+        formattable:
+          !isFindMatch(ed.state, from, to) &&
+          formattable(ed, ed.state, from, to, canComment),
+      };
+    },
+  });
+  // Focus in the dock (a Tab into it, a menu it opened) keeps it up: the selection is unchanged.
+  const [inside, setInside] = React.useState(false);
+  const shown = selection.formattable && (selection.focused || inside);
+  const keyboard = useKeyboardInset(shown);
+  if (!shown) return null;
+  return (
+    <FloatingLayer>
+      <div
+        data-slot="text-edit-dock"
+        onFocus={() => setInside(true)}
+        onBlur={(event) => {
+          const next = event.relatedTarget as Element | null;
+          if (
+            next &&
+            (event.currentTarget.contains(next) ||
+              next.closest?.("[data-text-edit-menu]"))
+          )
+            return;
+          setInside(false);
+        }}
+        // Keep the selection: a press on the bar never takes focus from the text.
+        onMouseDown={(event) => event.preventDefault()}
+        style={{ bottom: Math.max(bottom, keyboard) }}
+        className="fixed inset-x-0 z-50 h-11 overflow-x-auto overscroll-x-contain border-t border-border bg-popover text-popover-foreground no-scrollbar pb-[env(safe-area-inset-bottom)]"
+      >
+        {children}
+      </div>
+    </FloatingLayer>
   );
 }
 
@@ -10698,6 +11139,9 @@ export function TextEditEditor({
   menuSize = "default",
   menuPresentation = "popover",
   bookmarks = false,
+  bubbleActions,
+  toolbar = "bubble",
+  touchBlockMenu = "handle",
 }: TextEditEditorProps) {
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
@@ -11698,6 +12142,11 @@ export function TextEditEditor({
         return false;
       const id = `upload-${Math.random().toString(36).slice(2)}`;
       const controller = new AbortController();
+      // The host's progress, drawn in the placeholder (a ring on a file, a bar on an image).
+      const onProgress = (fraction: number) => {
+        if (!controller.signal.aborted && Number.isFinite(fraction))
+          reportUploadProgress(id, fraction);
+      };
       const preview = image ? URL.createObjectURL(file) : null;
       // The image to replace, followed through every change while the upload runs (anyone's).
       const target = replace ? holdPosition(ed, replace.pos, true) : null;
@@ -11816,7 +12265,7 @@ export function TextEditEditor({
       const done = (
         image
           ? Promise.all([
-              uploadImage!(file, { signal: controller.signal }),
+              uploadImage!(file, { signal: controller.signal, onProgress }),
               natural,
             ]).then(([result, size]) =>
               land({
@@ -11828,20 +12277,22 @@ export function TextEditEditor({
                 },
               }),
             )
-          : uploadFile!(file, { signal: controller.signal }).then((result) =>
-              land(
-                kind === "video" || kind === "audio"
-                  ? { type: kind, attrs: { src: result.href } }
-                  : {
-                      type: "text",
-                      text: result.name,
-                      marks: [{ type: "link", attrs: { href: result.href } }],
-                    },
-              ),
+          : uploadFile!(file, { signal: controller.signal, onProgress }).then(
+              (result) =>
+                land(
+                  kind === "video" || kind === "audio"
+                    ? { type: kind, attrs: { src: result.href } }
+                    : {
+                        type: "text",
+                        text: result.name,
+                        marks: [{ type: "link", attrs: { href: result.href } }],
+                      },
+                ),
             )
       )
         .catch(fail)
         .finally(() => {
+          forgetUploadProgress(id);
           if (preview && !failed) URL.revokeObjectURL(preview);
           if (!failed) target?.release();
           uploadsRef.current.delete(id);
@@ -12149,6 +12600,32 @@ export function TextEditEditor({
       if (SLASH_KEY.getState(view.state)?.active) return false;
       if (MENTION_KEY.getState(view.state)?.active) return false;
       const mod = event.metaKey || event.ctrlKey;
+      // In a code block (a diagram's source too), ⌘Enter leaves it — a diagram for its preview —
+      // and ↓ on its last line does the same: the caret goes on below, never trapped (UXP-07). A
+      // composer that sends on ⌘Enter keeps sending.
+      const code =
+        editorRef.current?.isEditable && view.state.selection.empty
+          ? caretCodeBlock(view.state)
+          : null;
+      if (code) {
+        const lastLine =
+          event.key === "ArrowDown" &&
+          !mod &&
+          !event.shiftKey &&
+          !event.altKey &&
+          !code.node.textContent
+            .slice(view.state.selection.$from.parentOffset)
+            .includes("\n");
+        const exit =
+          (event.key === "Enter" && mod && !callbacks.current.onSubmit) ||
+          lastLine;
+        if (exit) {
+          event.preventDefault();
+          if (!blockViewKey(view, editorRef.current))
+            exitBlock(editorRef.current!, code.pos + code.node.nodeSize);
+          return true;
+        }
+      }
       // In a block view's source, ⌘Enter and Escape go back to its preview.
       if (
         ((event.key === "Enter" && mod) || event.key === "Escape") &&
@@ -13051,7 +13528,12 @@ export function TextEditEditor({
     return {
       ...FLOATING,
       flip: { padding },
-      shift: { padding },
+      // Clamped to the text column (UXP-10): never over an outline rail or a comment margin beside
+      // it, as long as the column is as wide as the bubble.
+      shift: {
+        padding,
+        ...(editor ? { boundary: editor.view.dom } : {}),
+      },
       // A link or media panel opens under its line, at the caret's start, like the slash menu that
       // opened it — never over the text above (the title, the previous block). The formatting
       // toolbar sits above the selection.
@@ -13072,7 +13554,9 @@ export function TextEditEditor({
         },
       },
     };
-  }, [safeTop, safeBottom, panel, caretInLink]);
+  }, [safeTop, safeBottom, panel, caretInLink, editor]);
+  // `toolbar="dock"` on touch: the selection's formatting is the bottom dock, not the bubble.
+  const docked = toolbar === "dock" && coarsePointer;
   const showBubble = React.useCallback(
     ({ editor: ed, from, to, state }: MenuShowProps) =>
       // A panel asked for opens; Find stepping onto a match brings no toolbar over the find bar.
@@ -13083,15 +13567,8 @@ export function TextEditEditor({
           from === to &&
           ed.isActive("link") &&
           !ed.isActive("codeBlock")) ||
-          ((ed.isEditable || canComment) &&
-            from !== to &&
-            // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
-            // format, so no menu.
-            state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
-            !(state.selection instanceof NodeSelection) &&
-            !(state.selection instanceof CellSelection) &&
-            !ed.isActive("codeBlock")))),
-    [panel, canComment],
+          (!docked && formattable(ed, state, from, to, canComment)))),
+    [panel, canComment, docked],
   );
   // The bubble menu's anchor: the selection's live rect, with the editor as its context element so
   // the `hide` middleware measures it against the editor's clipping ancestors. A cell selection
@@ -13201,8 +13678,29 @@ export function TextEditEditor({
             onImageLink={editable ? panelImageLink : undefined}
             onOpenFile={openFileLink}
             onComment={canComment ? comment : undefined}
+            makeTask={onMakeTask ? () => makeTaskRef.current : undefined}
+            bubbleActions={bubbleActions}
           />
         </BubbleMenu>
+      ) : null}
+      {docked && (editable || canComment) && editor && panel === null ? (
+        <SelectionDock
+          editor={editor}
+          canComment={canComment}
+          bottom={safeBottom}
+        >
+          <SelectionMenu
+            editor={editor}
+            panel={null}
+            onPanelChange={setPanel}
+            onLeave={leave}
+            onOpenFile={openFileLink}
+            onComment={canComment ? comment : undefined}
+            makeTask={onMakeTask ? () => makeTaskRef.current : undefined}
+            bubbleActions={bubbleActions}
+            docked
+          />
+        </SelectionDock>
       ) : null}
       {slash && editable ? (
         <SuggestionMenu
@@ -13347,7 +13845,11 @@ export function TextEditEditor({
       ) : null}
       {dragHandles && editable && editor ? (
         <>
-          <BlockHandle editor={editor} runtime={blockMenuRuntime} />
+          <BlockHandle
+            editor={editor}
+            runtime={blockMenuRuntime}
+            longPress={touchBlockMenu === "longPress"}
+          />
           <TableControls editor={editor} markdown={markdown} />
         </>
       ) : null}

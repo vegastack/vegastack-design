@@ -450,7 +450,8 @@
         "@vegastack/code-block",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -1176,7 +1177,8 @@
       ],
       "registryDependencies": [
         "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/code-highlight",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -13621,6 +13623,35 @@
       }
     },
     {
+      "name": "block-toolbar",
+      "type": "registry:ui",
+      "title": "Block Toolbar",
+      "description": "The one place a block's own controls sit: its top-right corner, 28px icon buttons named and tipped by their labels, at most four and a ⋯ menu for the rest, always shown or revealed on the block's hover and focus.",
+      "categories": ["forms"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-toolbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-toolbar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A block in a document with controls of its own — a code block's copy, an image's caption and alt text, a diagram's expand — so every block's chrome sits in the same corner at the same size.",
+        "whenNotToUse": "A page's or a panel's toolbar (a header row of actions), or a selection's formatting (TextEdit's bubble).",
+        "version": "0.25.87"
+      }
+    },
+    {
       "name": "task-inline",
       "type": "registry:ui",
       "title": "Task Inline",
@@ -15254,7 +15285,9 @@
         "@vegastack/emoji-data",
         "@vegastack/block-view",
         "@vegastack/person-avatar",
-        "@vegastack/task-inline"
+        "@vegastack/task-inline",
+        "@vegastack/block-toolbar",
+        "@vegastack/use-platform"
       ],
       "files": [
         {

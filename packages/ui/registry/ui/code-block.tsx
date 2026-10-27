@@ -7,6 +7,7 @@ import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
 import type { createLowlight } from "lowlight";
 import { CopyButton } from "@/components/ui/copy-button";
+import { BlockToolbar } from "@/components/ui/block-toolbar";
 import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
@@ -193,9 +194,6 @@ export function codeBlockWrapStyle(wrap: boolean): React.CSSProperties {
 export const codeBlockControlsPadClassName = "pt-9 print:pt-3";
 /** The controls (language top-left, icon buttons top-right): always shown, above the code; never printed. */
 export const codeBlockControlClassName = "absolute top-1.5 z-10 print:hidden";
-/** The top-right icon row: wrap and copy. */
-export const codeBlockActionsClassName =
-  "absolute end-1.5 top-1.5 z-10 flex items-center gap-0.5 print:hidden";
 
 /** Props accepted by `CodeBlock`. */
 export interface CodeBlockProps extends React.ComponentPropsWithRef<"figure"> {
@@ -278,17 +276,15 @@ export function CodeBlock({
         </figcaption>
       ) : null}
       {copyValue != null ? (
-        <div
-          data-slot="code-block-actions"
-          className={codeBlockActionsClassName}
-        >
+        <BlockToolbar aria-label="Code block actions">
           <CopyButton
             value={copyValue}
-            size="icon-xs"
+            size="icon-sm"
             variant="ghost"
             copyLabel={copyLabel ?? "Copy"}
+            className="text-muted-foreground"
           />
-        </div>
+        </BlockToolbar>
       ) : null}
       <pre
         data-slot="code-block-pre"

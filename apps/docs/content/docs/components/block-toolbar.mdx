@@ -1,0 +1,125 @@
+---
+title: Block Toolbar
+description: The one place a block's own controls sit — its top-right corner, 28px icon buttons, at most four and a ⋯ for the rest.
+audience: public
+registry: block-toolbar
+status: stable
+since: 0.25.88
+a11y: a named group; every button named and tipped by its label
+preview: blockToolbar
+---
+
+## Install
+
+<InstallSteps name="block-toolbar" />
+
+## Usage
+
+```tsx
+import {
+  BlockToolbar,
+  BlockToolbarButton,
+  BlockToolbarMenu,
+} from "@/components/ui/block-toolbar";
+
+<figure className="group/block relative">
+  <BlockToolbar aria-label="Image actions" reveal="hover">
+    <BlockToolbarButton label="Caption" onClick={editCaption}>
+      <Captions />
+    </BlockToolbarButton>
+    <BlockToolbarMenu label="More image actions">
+      <DropdownMenuItem onClick={copyLink}>
+        <Link />
+        Copy link
+      </DropdownMenuItem>
+    </BlockToolbarMenu>
+  </BlockToolbar>
+  …
+</figure>;
+```
+
+Every block with chrome puts its controls in the same corner at the same size: a code block's
+wrap and copy, an image's replace, caption, alt text and open, a diagram's expand and actions. At
+most four buttons show; whatever else the block can do goes in the ⋯ menu. Buttons are 28px ghost
+icon buttons named by `label`, which is also their tooltip, and a press never takes focus from an
+editor the block sits in. The toolbar never prints.
+
+## Scope
+
+- Owns: the corner, the 28px buttons and their tooltips, the ⋯ menu, the hover reveal.
+- Does not own: what the controls do — they are the block's — or the block's own header.
+- Compose with: `CopyButton` (`size="icon-sm"`) and `Toggle` (`className="size-7"`) as children
+  when a control is one of those.
+
+## Anatomy
+
+<Anatomy name="block-toolbar" />
+
+## Examples
+
+### Shown on hover
+
+`reveal="hover"` hides the toolbar until the block — an ancestor with the `group/block` class —
+is hovered or holds focus, and keeps it shown while its menu is open. A coarse pointer, which has
+no hover, always shows it.
+
+<ComponentPreview
+  name="blockToolbar"
+  file="components/preview/block-toolbar.tsx"
+/>
+
+### Always shown
+
+The default: a code block's copy is always there. `placement="inline"` drops the corner position
+for a block that already has a header row (a diagram's).
+
+<ComponentPreview
+  name="blockToolbarAlways"
+  file="components/preview/block-toolbar.tsx"
+/>
+
+## API Reference
+
+### BlockToolbar
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-toolbar.tsx"
+  name="BlockToolbarProps"
+/>
+
+### BlockToolbarButton
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-toolbar.tsx"
+  name="BlockToolbarButtonProps"
+/>
+
+### BlockToolbarMenu
+
+<ApiTable
+  path="../../packages/ui/registry/ui/block-toolbar.tsx"
+  name="BlockToolbarMenuProps"
+/>
+
+## Accessibility
+
+- The toolbar is a group named by `aria-label` ("Image actions").
+- Every button is named by its `label`, shown as its tooltip on hover and focus.
+- A hover-revealed toolbar shows while anything in the block holds focus, so the keyboard reaches
+  it.
+
+| Key                                       | Action                      |
+| ----------------------------------------- | --------------------------- |
+| <kbd>Tab</kbd>                            | Moves through the buttons   |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>       | Presses a button or opens ⋯ |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowDown</kbd> | Moves through the open menu |
+| <kbd>Escape</kbd>                         | Closes the menu             |
+
+<StatesTested name="block-toolbar" />
+
+## Do / Don't
+
+<DoDont
+  do="Put a block's controls in its top-right corner at 28px, four at most, the rest in ⋯."
+  dont="Give each block its own chrome — a label on the left, 24px icons on the right, six of them in a row."
+/>

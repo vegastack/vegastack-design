@@ -3,24 +3,17 @@
 "use client";
 
 import * as React from "react";
-import {
-  Copy,
-  Ellipsis,
-  Maximize2,
-  Minus,
-  Plus,
-  RotateCcw,
-} from "lucide-react";
+import { Copy, Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { codeBlockPreClassName } from "@/components/ui/code-block";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  BlockToolbar,
+  BlockToolbarButton,
+  BlockToolbarMenu,
+} from "@/components/ui/block-toolbar";
 import { toast } from "@/components/ui/toast";
 
 /* ------------------------------------------------------------------------------------------------
@@ -273,33 +266,15 @@ export function BlockViewFrame({
             </Button>
           ))}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          aria-label={`Expand ${label.toLowerCase()}`}
-          data-slot="block-view-expand"
-          onClick={() => setExpanded(true)}
-          className="text-muted-foreground"
-        >
-          <Maximize2 aria-hidden />
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`${label} actions`}
-                data-slot="block-view-menu"
-                className="text-muted-foreground"
-              />
-            }
+        <BlockToolbar aria-label={`${label} actions`} placement="inline">
+          <BlockToolbarButton
+            label={`Expand ${label.toLowerCase()}`}
+            data-slot="block-view-expand"
+            onClick={() => setExpanded(true)}
           >
-            <Ellipsis aria-hidden />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-40">
+            <Maximize2 aria-hidden />
+          </BlockToolbarButton>
+          <BlockToolbarMenu label={`${label} actions`}>
             <DropdownMenuItem
               onClick={() =>
                 void run({
@@ -326,8 +301,8 @@ export function BlockViewFrame({
                 </DropdownMenuItem>
               );
             })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </BlockToolbarMenu>
+        </BlockToolbar>
       </div>
       <div
         data-slot="block-view-body"
