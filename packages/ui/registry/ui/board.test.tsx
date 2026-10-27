@@ -125,6 +125,30 @@ test("renders lanes with counts, cards as list items, and a locked empty lane", 
     .toBeInTheDocument();
 });
 
+test('counts above 99 show "99+"; the spoken names keep the number', async () => {
+  const initial = makeColumns().map((column) =>
+    column.id === "lead" ? { ...column, count: 250 } : column,
+  );
+  const screen = await render(
+    <Controlled
+      initial={initial}
+      countLabel={(n) => `${n} deals`}
+      hiddenColumns={[{ id: "lost", label: "Lost", count: 120 }]}
+      onShowColumn={() => {}}
+    />,
+  );
+  const lead = screen.getByRole("region", { name: "Lead, 250 deals" });
+  await expect.element(lead).toBeInTheDocument();
+  const count = (lead.element() as HTMLElement).querySelector(
+    '[data-slot="board-column-header"] [data-slot="board-column-count"]',
+  )!;
+  expect(count.textContent).toBe("99+");
+  expect(count.getAttribute("aria-hidden")).toBe("true");
+  await expect
+    .element(screen.getByRole("button", { name: /^Lost\s*,\s*120 deals$/ }))
+    .toBeInTheDocument();
+});
+
 test("lanes are 20rem wide by default, grow, and the scroller hides its scrollbar", async () => {
   await render(<Controlled />);
   const board = document.querySelector<HTMLElement>('[data-slot="board"]')!;
@@ -910,6 +934,35 @@ test('emptyLane="compact": an empty lane is its header over a 48px target whose 
     .element(screen.getByRole("region", { name: "Lost, 0 cards" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
+});
+
+test('emptyLane="collapse": an empty lane the host shows from Hidden columns stays on the board', async () => {
+  function Host() {
+    const [shown, setShown] = React.useState(false);
+    const columns = makeColumns().filter((c) => c.id !== "parked");
+    return (
+      <Board<Deal>
+        aria-label="Deals"
+        height="24rem"
+        columns={
+          shown
+            ? [...columns, { id: "lost", title: "Lost", items: [] }]
+            : columns
+        }
+        getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
+        renderCard={(deal) => <span>{deal.name}</span>}
+        onMove={() => {}}
+        emptyLane="collapse"
+        hiddenColumns={shown ? [] : [{ id: "lost", label: "Lost", count: 0 }]}
+        onShowColumn={() => setShown(true)}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  expect(laneOrder()).toEqual(["lead", "won"]);
+  await press(screen.getByRole("button", { name: /^Lost/ }));
+  await expect.poll(() => laneOrder()).toEqual(["lead", "won", "lost"]);
 });
 
 test('emptyLane="collapse": empty lanes wait in Hidden columns; choosing one brings it back compact', async () => {

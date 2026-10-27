@@ -1,4 +1,4 @@
-// @vegastack board@0.25.89 sha256-ilnHKqyMTkpb2LBz6Zvi1YofvIAZxeX1+aDXF2tHIhw=
+// @vegastack board@0.25.89 sha256-qYkpD3VQkyqLa99GZ/ckQTTL4dpD0CGSnVmyBnUqmXI=
 
 "use client";
 
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   defaultActionsLabel,
+  displayCount,
   openFromKey,
   pickShortcut,
   RowActionMenuItems,
@@ -1608,7 +1609,7 @@ export function Board<T>({
                     data-slot="board-column-count"
                     className="text-xs text-muted-foreground tabular-nums"
                   >
-                    {count}
+                    {displayCount(count)}
                   </span>
                 )}
                 <span
@@ -1753,11 +1754,13 @@ export function Board<T>({
             {column.title}
           </span>
           {countPending ? null : (
+            // The lane region's name already says the count ("Todo, 14 tasks").
             <span
+              aria-hidden="true"
               data-slot="board-column-count"
               className="text-xs text-muted-foreground tabular-nums"
             >
-              {count}
+              {displayCount(count)}
             </span>
           )}
           <div className="ms-auto flex shrink-0 items-center gap-0.5">
@@ -1974,8 +1977,14 @@ export function Board<T>({
               className="shrink-0 text-muted-foreground data-active:bg-accent data-active:text-foreground"
             >
               {laneLabel(column)}
-              <span className="text-xs text-muted-foreground tabular-nums">
-                {column.count ?? column.items.length}
+              <span
+                aria-hidden="true"
+                className="text-xs text-muted-foreground tabular-nums"
+              >
+                {displayCount(column.count ?? column.items.length)}
+              </span>
+              <span className="sr-only">
+                , {countLabel(column.count ?? column.items.length)}
               </span>
             </Button>
           ))}
@@ -2042,14 +2051,26 @@ export function Board<T>({
                   data-slot="board-hidden-column"
                   className="justify-start font-normal"
                   disabled={!onShowColumn}
-                  onClick={() => onShowColumn?.(hidden.id)}
+                  onClick={() => {
+                    // Shown on purpose: it stays on the board even while it is empty.
+                    keepLane(hidden.id);
+                    onShowColumn?.(hidden.id);
+                  }}
                 >
                   {hidden.icon}
                   <span className="min-w-0 truncate">{hidden.label}</span>
                   {hidden.count != null ? (
-                    <span className="ms-auto text-muted-foreground tabular-nums">
-                      {hidden.count}
-                    </span>
+                    <>
+                      <span
+                        aria-hidden="true"
+                        className="ms-auto text-muted-foreground tabular-nums"
+                      >
+                        {displayCount(hidden.count)}
+                      </span>
+                      <span className="sr-only">
+                        , {countLabel(hidden.count)}
+                      </span>
+                    </>
                   ) : null}
                 </Button>
               ))}
