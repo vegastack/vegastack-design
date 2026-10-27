@@ -34551,7 +34551,8 @@
                 "comment-item",
                 "comment-question",
                 "comment-replies",
-                "comment-reply"
+                "comment-reply",
+                "comment-resolve"
               ]
             },
             {

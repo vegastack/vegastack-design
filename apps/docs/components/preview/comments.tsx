@@ -298,7 +298,8 @@ const THREAD: CommentThreadData = {
 
 /**
  * A thread about a piece of text: the quote (click it to find the highlight), the first comment,
- * its replies and a one-line "Reply…" box that opens when focused. ✓ resolves it.
+ * its replies and a one-line "Reply…" box that opens when focused. The first comment's ✓
+ * resolves it.
  */
 export function commentsThreadCard(): ReactNode {
   const [thread, setThread] = React.useState(THREAD);

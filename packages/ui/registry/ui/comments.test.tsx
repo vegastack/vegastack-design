@@ -173,7 +173,7 @@ const reply = (id: string, body: string): CommentData => ({
   createdAt: 0,
 });
 
-test("a thread shows its quote, root and replies, and the ✓ resolves it", async () => {
+test("a thread shows its quote, root and replies, and the first comment's ✓ resolves it", async () => {
   const onResolve = vi.fn();
   const onQuoteClick = vi.fn();
   const screen = await render(
@@ -195,9 +195,31 @@ test("a thread shows its quote, root and replies, and the ✓ resolves it", asyn
   await expect.element(screen.getByText("Yes, per the spec.")).toBeVisible();
   await screen.getByText("25 A breaker").click();
   expect(onQuoteClick).toHaveBeenCalled();
+  expect(
+    screen.container.querySelector(
+      "[data-slot=comment-item][data-variant=root] [data-slot=comment-resolve]",
+    ),
+  ).not.toBeNull();
   await screen.getByRole("button", { name: "Resolve" }).click();
   expect(onResolve).toHaveBeenCalled();
   await expectNoA11yViolations(screen.container);
+});
+
+test("a thread with no quote opens on its first comment, with no header band", async () => {
+  const screen = await render(
+    <CommentThread
+      thread={{ id: "t1", root: rootComment, replies: [] }}
+      onReply={vi.fn()}
+      onResolve={vi.fn()}
+      now={0}
+    />,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=comment-thread-header]"),
+  ).toBeNull();
+  expect(
+    screen.container.querySelectorAll("[data-slot=comment-resolve]"),
+  ).toHaveLength(1);
 });
 
 test("a resolved thread shows who resolved it and Reopen calls onReopen", async () => {
@@ -211,10 +233,14 @@ test("a resolved thread shows who resolved it and Reopen calls onReopen", async 
         resolved: { by: asha, at: "2026-09-29T10:00:00Z" },
       }}
       onReply={vi.fn()}
+      onResolve={vi.fn()}
       onReopen={onReopen}
     />,
   );
   await expect.element(screen.getByText(/Resolved by Asha/)).toBeVisible();
+  expect(
+    screen.container.querySelector("[data-slot=comment-resolve]"),
+  ).toBeNull();
   await userEvent.click(screen.getByRole("button", { name: "Reopen" }));
   expect(onReopen).toHaveBeenCalled();
   expect(screen.container.querySelector("[data-resolved]")).not.toBeNull();
