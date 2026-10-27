@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-5Dm+7wFsPs11813ddiJwVsHzSrdVpGfOYF7L6Xq4ShQ=
+// @vegastack text-edit@0.25.88 sha256-O/zsNwaaGFNqNa/q1ewjlzmhLyWDZ7y3OFYWcNcN4QA=
 
 "use client";
 
@@ -12634,7 +12634,9 @@ export function TextEditEditor({
           !event.altKey &&
           !code.node.textContent
             .slice(view.state.selection.$from.parentOffset)
-            .includes("\n");
+            .includes("\n") &&
+          // The last visual row too: a wrapped last line still moves down within itself.
+          view.endOfTextblock("down");
         const exit =
           (event.key === "Enter" && mod && !callbacks.current.onSubmit) ||
           lastLine;
