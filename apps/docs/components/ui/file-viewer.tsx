@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.25.88 sha256-0fnkQWJEy75JO5EOpsuJaVul6CLEEWuXck73VCy1vcs=
+// @vegastack file-viewer@0.25.88 sha256-r9I6xb0WmryI2lmPf4SSH0uQai6VS+NOYNiWqDmIHfg=
 
 "use client";
 
@@ -1647,7 +1647,9 @@ export function FileViewer({
     setLastRailOpen(railOpen);
     setSheetAsked(railOpen);
   }
-  const sheetOpen = hasRail && phone && railOpen && sheetAsked;
+  // Controlled, the host decides outright; uncontrolled, an initially open rail waits for the reader.
+  const sheetOpen =
+    hasRail && phone && railOpen && (railOpenProp !== undefined || sheetAsked);
   const railShown = hasRail && (phone ? sheetOpen : railOpen);
   const [innerRailTab, setInnerRailTab] = React.useState<FileViewerRailTab>(
     defaultRailTab ?? railTabs[0] ?? "details",
@@ -1672,18 +1674,20 @@ export function FileViewer({
       data-slot="file-viewer-rail-tabs"
       className="min-h-0 flex-1 gap-0"
     >
-      <TabsList
-        variant="line"
-        aria-label={labels.rail}
-        className="shrink-0 px-2 pt-2 data-[in-sheet]:pe-12"
-        data-in-sheet={phone ? "" : undefined}
+      {/* The spacing sits on a wrapper: the list keeps its own height, so each tab stays a full
+          32px target (a sheet leaves room for its own × at the end). */}
+      <div
+        data-slot="file-viewer-rail-tablist"
+        className={cn("shrink-0 px-2 pt-2", phone && "pe-12")}
       >
-        {railTabs.map((key) => (
-          <TabsTrigger key={key} value={key}>
-            {labels[key]}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+        <TabsList variant="line" aria-label={labels.rail}>
+          {railTabs.map((key) => (
+            <TabsTrigger key={key} value={key}>
+              {labels[key]}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
       {railTabs.map((key) => (
         <TabsContent
           key={key}
@@ -1732,7 +1736,7 @@ export function FileViewer({
         data-slot="file-viewer-header"
         className="flex min-w-0 shrink-0 items-center gap-2 ps-[calc(var(--spacing)*4+env(safe-area-inset-left))] pe-[calc(var(--spacing)*2+env(safe-area-inset-right))] pt-[calc(var(--spacing)*2+env(safe-area-inset-top))] pb-2"
       >
-        <div className="flex min-w-0 flex-1 items-baseline gap-3">
+        <div className="flex min-w-16 flex-1 items-baseline gap-3">
           {page ? (
             <h1
               id={titleId}
@@ -1758,62 +1762,69 @@ export function FileViewer({
             </span>
           ) : null}
         </div>
-        {actions ? (
-          <div
-            data-slot="file-viewer-actions"
-            className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
-          >
-            {actions(item)}
-          </div>
-        ) : null}
-        {header?.share !== undefined || header?.watch !== undefined ? (
-          <div
-            data-slot="file-viewer-header-slots"
-            className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
-          >
-            {resolveSlot(header?.share, item)}
-            {resolveSlot(header?.watch, item)}
-          </div>
-        ) : null}
-        {/* A real link, so it reads as one and the browser downloads it natively. */}
-        <a
-          href={item.downloadHref}
-          download
-          data-slot="file-viewer-download"
-          aria-label={`Download ${item.name}`}
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "icon" }),
-            chromeButton,
-          )}
+        {/* Every control but Close: on a narrow screen they scroll sideways rather than push the
+            header past the edge, so each stays reachable and the name keeps some room. */}
+        <div
+          data-slot="file-viewer-controls"
+          className="flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-none"
         >
-          <DownloadIcon />
-        </a>
-        {header?.menu !== undefined ? (
-          <div
-            data-slot="file-viewer-menu"
-            className="flex shrink-0 items-center [&_[data-slot=button]]:text-foreground"
+          {actions ? (
+            <div
+              data-slot="file-viewer-actions"
+              className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
+            >
+              {actions(item)}
+            </div>
+          ) : null}
+          {header?.share !== undefined || header?.watch !== undefined ? (
+            <div
+              data-slot="file-viewer-header-slots"
+              className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
+            >
+              {resolveSlot(header?.share, item)}
+              {resolveSlot(header?.watch, item)}
+            </div>
+          ) : null}
+          {/* A real link, so it reads as one and the browser downloads it natively. */}
+          <a
+            href={item.downloadHref}
+            download
+            data-slot="file-viewer-download"
+            aria-label={`Download ${item.name}`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              chromeButton,
+            )}
           >
-            {resolveSlot(header.menu, item)}
-          </div>
-        ) : null}
-        {hasRail ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            data-slot="file-viewer-rail-toggle"
-            aria-label={labels.toggle}
-            aria-pressed={railShown}
-            aria-controls={railShown && !phone ? railId : undefined}
-            className={chromeButton}
-            onClick={() => {
-              const next = !railShown;
-              if (phone) setSheetAsked(next);
-              if (next !== railOpen) setRailOpen(next);
-            }}
-          >
-            <PanelRightIcon className="rtl:-scale-x-100" />
-          </Button>
-        ) : null}
+            <DownloadIcon />
+          </a>
+          {header?.menu !== undefined ? (
+            <div
+              data-slot="file-viewer-menu"
+              className="flex shrink-0 items-center [&_[data-slot=button]]:text-foreground"
+            >
+              {resolveSlot(header.menu, item)}
+            </div>
+          ) : null}
+          {hasRail ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              data-slot="file-viewer-rail-toggle"
+              aria-label={labels.toggle}
+              aria-pressed={railShown}
+              aria-controls={railShown && !phone ? railId : undefined}
+              className={chromeButton}
+              onClick={() => {
+                const next = !railShown;
+                if (phone) setSheetAsked(next);
+                if (next !== railOpen) setRailOpen(next);
+              }}
+            >
+              <PanelRightIcon className="rtl:-scale-x-100" />
+            </Button>
+          ) : null}
+        </div>
         {page ? null : (
           <DialogPrimitive.Close
             data-slot="file-viewer-close"

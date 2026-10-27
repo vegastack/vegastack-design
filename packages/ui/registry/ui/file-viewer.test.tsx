@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { describe, expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import geometryCss from "../../test/geometry.css?inline";
@@ -966,4 +966,67 @@ test("page mode: the same viewer in place — a heading, no dialog and no Close;
     .element(screen.getByRole("heading", { level: 1, name: "spec-sheet.docx" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
+});
+
+test("rail on a phone, controlled: railOpen opens the sheet outright and dismissing asks to close", async () => {
+  mockPhone(true);
+  const onRailOpenChange = vi.fn();
+  const screen = await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      rail={RAIL}
+      railOpen
+      onRailOpenChange={onRailOpenChange}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("dialog", { name: "File details" }))
+    .toBeInTheDocument();
+  const sheet = slotOf("file-viewer-rail-sheet")!;
+  (
+    sheet.querySelector(
+      '[data-slot="sheet-close"], button[aria-label="Close"]',
+    ) as HTMLElement | null
+  )?.click();
+  await expect.poll(() => onRailOpenChange.mock.calls.at(-1)?.[0]).toBe(false);
+});
+
+test("the header's controls never push past a 320px screen; each stays reachable (compiled CSS)", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await page.viewport(320, 640);
+  onTestFinished(async () => {
+    await page.viewport(414, 896);
+  });
+  const icon = (label: string) => (
+    <Button variant="ghost" size="icon" aria-label={label}>
+      <InfoIcon />
+    </Button>
+  );
+  await render(
+    <FileViewer
+      items={ITEMS}
+      index={0}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      header={{
+        share: icon("Share"),
+        watch: icon("Watch"),
+        menu: icon("More"),
+      }}
+      rail={RAIL}
+    />,
+  );
+  await expect.poll(() => slotOf("file-viewer-header")).not.toBeNull();
+  const header = slotOf("file-viewer-header")!;
+  expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth + 1);
+  const close = slotOf("file-viewer-close")!.getBoundingClientRect();
+  expect(close.right).toBeLessThanOrEqual(320.5);
+  const controls = slotOf("file-viewer-controls")!;
+  expect(controls.scrollWidth).toBeGreaterThanOrEqual(controls.clientWidth);
 });

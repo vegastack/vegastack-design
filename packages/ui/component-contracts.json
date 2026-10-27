@@ -15278,10 +15278,6 @@
         "FileViewer": {
           "attributes": [
             {
-              "name": "data-in-sheet",
-              "values": [""]
-            },
-            {
               "name": "data-kind",
               "values": []
             },
@@ -15297,6 +15293,7 @@
                 "file-viewer-backdrop",
                 "file-viewer-body",
                 "file-viewer-close",
+                "file-viewer-controls",
                 "file-viewer-count",
                 "file-viewer-download",
                 "file-viewer-header",
@@ -15305,6 +15302,7 @@
                 "file-viewer-rail",
                 "file-viewer-rail-panel",
                 "file-viewer-rail-sheet",
+                "file-viewer-rail-tablist",
                 "file-viewer-rail-tabs",
                 "file-viewer-rail-toggle",
                 "file-viewer-stage",
