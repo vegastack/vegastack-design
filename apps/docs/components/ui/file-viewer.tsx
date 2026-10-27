@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.25.88 sha256-r9I6xb0WmryI2lmPf4SSH0uQai6VS+NOYNiWqDmIHfg=
+// @vegastack file-viewer@0.25.88 sha256-FaI/Z265eaafIXej01rjulYDoXrmw5hbdE9zx0P630I=
 
 "use client";
 
@@ -1423,9 +1423,10 @@ function MediaStage({
           poster={item.thumb?.src ?? undefined}
           downloadHref={item.downloadHref}
           onSourceExpired={item.refreshSrc}
-          // Letterbox, never crop: a portrait phone clip keeps its whole frame.
+          // Letterbox, never crop: a portrait phone clip keeps its whole frame. The width cap reads
+          // the stage's own height (a size container), so a page-mode viewer in a short box fits.
           videoClassName="object-contain"
-          className="w-full max-w-[min(64rem,calc((100dvh-10rem)*16/9))]"
+          className="w-full max-w-[min(64rem,calc((100cqh-7rem)*16/9))]"
         />
       ) : (
         <AudioPlayer
@@ -1845,7 +1846,7 @@ export function FileViewer({
       <div data-slot="file-viewer-body" className="flex min-h-0 flex-1">
         <div
           data-slot="file-viewer-stage"
-          className="relative min-h-0 min-w-0 flex-1 pb-[env(safe-area-inset-bottom)]"
+          className="relative min-h-0 min-w-0 flex-1 pb-[env(safe-area-inset-bottom)] [container-type:size]"
         >
           {baseKind === "image" ? (
             <ImageStage
