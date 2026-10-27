@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.89 sha256-V1s3w99ScncnXZbDRbp9OF+AhXHxjecyTJL/omxq34I=
+// @vegastack data-list@0.25.89 sha256-yFp8Vt+UfK5ZuYYcf0ArD8B9ABLfAYAYQH/X36iXr6k=
 
 "use client";
 
@@ -1780,7 +1780,9 @@ export function DataList<T>({
       const parent = parentIndex(index);
       if (parent === undefined || parentIndex(parent) !== undefined) return;
       parentOf.set(index, parent);
-      childrenOf.set(parent, [...(childrenOf.get(parent) ?? []), index]);
+      const siblings = childrenOf.get(parent);
+      if (siblings) siblings.push(index);
+      else childrenOf.set(parent, [index]);
     });
     return parentOf.size > 0 ? { parentOf, childrenOf } : null;
   }, [getRowParentId, activeView, rowIds, data]);
@@ -1791,6 +1793,10 @@ export function DataList<T>({
     [],
     onCollapsedParentsChange as ((ids: readonly string[]) => void) | undefined,
   );
+  const folded = React.useMemo(
+    () => new Set(collapsedParents),
+    [collapsedParents],
+  );
   /** Top-level rows of `indexes`, each followed by its nested rows unless it is folded. */
   const withNested = React.useCallback(
     (indexes: readonly number[]): number[] =>
@@ -1798,17 +1804,23 @@ export function DataList<T>({
         ? indexes
             .filter((index) => !nesting.parentOf.has(index))
             .flatMap((index) =>
-              collapsedParents.includes(rowIds[index]!)
+              folded.has(rowIds[index]!)
                 ? [index]
                 : [index, ...(nesting.childrenOf.get(index) ?? [])],
             )
         : [...indexes],
-    [nesting, collapsedParents, rowIds],
+    [nesting, folded, rowIds],
   );
+  /** How many rows `indexes` hold with their nested rows, folded or not (a section's count). */
+  const nestedCount = (indexes: readonly number[]) =>
+    indexes.reduce(
+      (n, index) => n + 1 + (nesting?.childrenOf.get(index)?.length ?? 0),
+      0,
+    );
   const nestingOf = (index: number): DataListRowNesting | undefined => {
     if (!nesting) return undefined;
     const id = rowIds[index]!;
-    const expanded = !collapsedParents.includes(id);
+    const expanded = !folded.has(id);
     return {
       depth: nesting.parentOf.has(index) ? 1 : 0,
       children: nesting.childrenOf.get(index)?.length ?? 0,
@@ -2180,6 +2192,7 @@ export function DataList<T>({
                           rowId: id,
                           columnKey: merged.key,
                           selected: isSelected,
+                          nesting: nestingOf(index),
                           density,
                         })
                       : renderCell(merged, row, index, id, isSelected),
@@ -2304,12 +2317,12 @@ export function DataList<T>({
       const indexes = byId.get(section.id);
       byId.delete(section.id);
       if (!indexes || indexes.length === 0) continue;
-      const shown = withNested(indexes);
       out.push({
         id: section.id,
         label: section.label,
-        count: section.count ?? shown.length,
-        indexes: shown,
+        // Every row the section holds, nested ones folded away included.
+        count: section.count ?? nestedCount(indexes),
+        indexes: withNested(indexes),
       });
     }
     const rest = [...byId.values()].flat().sort((a, b) => a - b);

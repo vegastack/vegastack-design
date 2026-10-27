@@ -579,7 +579,7 @@ shift-click ranges follow the rows as shown, so folded rows are skipped. List vi
       key: "title",
       header: "Task",
       interactive: true,
-      render: (task, _i, { nesting } = {}) => (
+      render: (task, _i, { nesting }) => (
         <TaskTitle
           task={task}
           subtasks={

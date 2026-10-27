@@ -3205,8 +3205,15 @@ test("getRowParentId nests a row under its parent, in the parent's section, and 
   // s1 leaves Today for its parent in Later; the orphan stays top-level.
   expect(ids()).toEqual(["x", "p", "s1>", "s2>", "o"]);
   expect(actions.current!.getRowOrder()).toEqual(["x", "p", "s1", "s2", "o"]);
+  const laterCount = () =>
+    screen.container.querySelector(
+      '[data-section="later"] [data-slot="section-row-count"]',
+    )!.textContent;
+  expect(laterCount()).toBe("4");
   await screen.getByRole("button", { name: "Parent" }).click();
   expect(ids()).toEqual(["x", "p", "o"]);
+  // Folding hides rows, not what the section holds.
+  expect(laterCount()).toBe("4");
   expect(actions.current!.getRowOrder()).toEqual(["x", "p", "o"]);
   await expectNoA11yViolations(screen.container);
 });
