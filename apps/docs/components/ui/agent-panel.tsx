@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.25.89 sha256-GaWPb7NGV90RYvmhm104k+88VU7Kq5RU3XexKK1euUM=
+// @vegastack agent-panel@0.25.89 sha256-12klJKM0IpsyIk95uId00uGX2v/9/H3p5+yN/AdIpgE=
 
 "use client";
 
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
 import {
   Collapsible,
   CollapsibleContent,
@@ -1845,7 +1846,10 @@ export function AgentPanel({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="group/agent-trigger h-7 min-w-0 flex-1 justify-start gap-1.5 px-1.5 text-sm aria-expanded:not-hover:bg-transparent"
+                  className={cn(
+                    "group/agent-trigger h-7 min-w-0 flex-1 justify-start gap-1.5 px-1.5 text-sm",
+                    disclosureTriggerClasses,
+                  )}
                 />
               }
             >

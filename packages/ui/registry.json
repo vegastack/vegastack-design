@@ -1750,7 +1750,8 @@
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -2165,6 +2166,27 @@
       "meta": {
         "whenToUse": "Building a tile surface with controls over an image — spread tileCornerClasses on the slot, tileOverlayButtonClasses on a ghost icon Button, tileGroupClass on the tile.",
         "whenNotToUse": "Chrome that does not sit over media — use a plain Button.",
+        "version": "0.25.89"
+      }
+    },
+    {
+      "name": "disclosure-trigger",
+      "type": "registry:lib",
+      "title": "Disclosure Trigger",
+      "description": "The one class recipe for a ghost Button that expands a section in place — clears the popup-open grey that aria-expanded paints, so an open section never looks pressed — shared by RecordAsideSection, SectionToggle, AgentPanel and ShareDialog.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/disclosure-trigger.ts",
+          "type": "registry:lib",
+          "target": "@lib/disclosure-trigger.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A ghost Button that is a CollapsibleTrigger or otherwise toggles a section open in place — put disclosureTriggerClasses in its className.",
+        "whenNotToUse": "A trigger that opens a popup (menu, popover, select) — there the aria-expanded grey is the right cue.",
         "version": "0.25.89"
       }
     },
@@ -14520,7 +14542,8 @@
         "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -16287,7 +16310,8 @@
         "@vegastack/switch",
         "@vegastack/tabs",
         "@vegastack/textarea",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -18757,7 +18781,8 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {

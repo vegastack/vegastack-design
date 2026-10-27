@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 777,
+    "totalRegistryItems": 778,
     "components": 189,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
-    "libs": 21,
+    "libs": 22,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -10540,7 +10540,8 @@
         "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -36385,7 +36386,8 @@
         "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.8.37",
@@ -37893,7 +37895,8 @@
         "@vegastack/switch",
         "@vegastack/tabs",
         "@vegastack/textarea",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.35",
@@ -40002,7 +40005,8 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/disclosure-trigger"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.35",
@@ -51930,6 +51934,83 @@
         "packages/ui/registry/lib/tile-overlay.test.ts",
         "packages/ui/registry/ui/attachment.test.tsx",
         "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "disclosure-trigger",
+      "registryType": "registry:lib",
+      "title": "Disclosure Trigger",
+      "summary": "The one class recipe for a ghost Button that expands a section in place — clears the popup-open grey that aria-expanded paints, so an open section never looks pressed — shared by RecordAsideSection, SectionToggle, AgentPanel and ShareDialog.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/disclosure-trigger.ts"],
+      "publicSymbols": [
+        {
+          "name": "disclosureTriggerClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/disclosure-trigger.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Class strings: consumers own the DOM and state; this recipe styles it."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the disclosure Button's aria-expanded comes from Collapsible or the caller."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["expanded", "hover"],
+          "evidence": "aria-expanded clears the ghost bg-muted while not hovered; hover keeps the variant's fill."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/disclosure-trigger.test.ts",
+        "packages/ui/registry/ui/record-aside.test.tsx",
+        "packages/ui/registry/ui/data-table-parts.test.tsx"
       ],
       "coverage": {
         "source": "required",
