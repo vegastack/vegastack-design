@@ -127,6 +127,29 @@ trigger.
   file="components/preview/searchable-select.tsx"
 />
 
+For a picker that lives in a chip row — a customer or project pill on a record — `renderTrigger`
+replaces the whole trigger with your own element, built from the current selection. The field
+chrome (border, chevron, clear control) goes with it; the popup, search, keyboard and value
+contract stay. The element must hold a ref and take button props.
+
+```tsx
+<SearchableSelect
+  items={customers}
+  value={customer}
+  onValueChange={setCustomer}
+  itemToKey={(c) => c.id}
+  itemToStringLabel={(c) => c.name}
+  aria-label="Customer"
+  renderTrigger={([selected]) => (
+    <RecordChip
+      icon={<Building2 />}
+      value={selected?.name}
+      placeholder="No customer"
+    />
+  )}
+/>
+```
+
 ### Long values
 
 The trigger is one line and cuts a long value off. For a long user-entered name — a product, a task,

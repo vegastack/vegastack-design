@@ -104,6 +104,17 @@ assistive technology.
 
 <ComponentPreview name="itemGroup" file="components/preview/item.tsx" />
 
+`variant="flush"` is the group for rows inside a card: no gap between rows, and the rows bleed
+into the card's padding so their text lines up with the card's own content.
+
+```tsx
+<Card>
+  <CardContent>
+    <ItemGroup variant="flush">…</ItemGroup>
+  </CardContent>
+</Card>
+```
+
 ### Header
 
 Use `ItemHeader` to add a header above the item content — a cover image, for instance.
@@ -250,3 +261,5 @@ Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
   3px `focus-visible:ring-ring/50` glow, so the global 2px outline is what a focused item shows.
 - **LAY-11** — `ItemTitle` loses `line-clamp-1`, which upstream sets on the same element as `flex`.
   Truncation goes on an inner span instead.
+- **API-37** — `ItemGroup` takes `variant` (`default` · `flush`): `flush` lays rows with no gap and
+  bleeds them into the enclosing card's padding. MK, 2026-10-26.

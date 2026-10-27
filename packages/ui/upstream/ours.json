@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 127,
+    "total": 130,
     "fromExtras": 46
   },
   "items": {
@@ -828,6 +828,24 @@
       "family": "rich-text",
       "source": "Regent product-cohesion W1-DS3 item 14 (UXP-43, table field editing), approved by the operator 2026-10-27",
       "rationale": "Upstream ships no formula editor. A composition of our template-editor (single-line, `{` trigger) with a status line; carries no patch."
+    },
+    "record-picker": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Regent product-cohesion mandate W1-DS2 (DS-13), MK 2026-10-26",
+      "rationale": "Upstream ships no such component; a composition of the system's own parts with no patch."
+    },
+    "destination-picker": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Regent product-cohesion mandate W1-DS2 (DS-13), MK 2026-10-26",
+      "rationale": "Upstream ships no such component; a composition of the system's own parts with no patch."
+    },
+    "field-type-picker": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Regent product-cohesion mandate W1-DS2 (UX-07), MK 2026-10-26",
+      "rationale": "Upstream ships no such component; a composition of the system's own parts with no patch."
     }
   }
 }

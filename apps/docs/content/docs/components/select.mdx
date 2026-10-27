@@ -151,6 +151,22 @@ Keep short picklists and inline triggers on one line.
 
 <ComponentPreview name="selectWrap" file="components/preview/select.tsx" />
 
+### Loading and errors
+
+Options that come from a server get a status row in the popup: `SelectContent loading` shows a
+spinner, and `error` (with `onRetry`) shows the failure with a Try again button, so a failed read
+never looks like an empty list.
+
+```tsx
+<SelectContent loading={isPending} error={failed} onRetry={refetch}>
+  {options.map((o) => (
+    <SelectItem key={o.id} value={o.id}>
+      {o.name}
+    </SelectItem>
+  ))}
+</SelectContent>
+```
+
 ### States
 
 The trigger's rest, invalid and disabled chrome, closed.
@@ -232,3 +248,5 @@ focus-visible:ring-3 focus-visible:ring-ring/50` is removed outright, `outline-n
   too, and under it `SelectItem`'s text drops `whitespace-nowrap` and `shrink-0`
   ([Long values](#long-values)). MK, 2026-10-13.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **API-38** — `SelectContent` takes `loading`, `error` and `onRetry`: a status row after the list —
+  a spinner, or the failure with Try again. MK, 2026-10-26.

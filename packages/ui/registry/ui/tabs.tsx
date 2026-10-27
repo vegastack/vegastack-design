@@ -1,4 +1,4 @@
-// @vegastack tabs@0.25.89 sha256-i2F0Oyec5AxEYvogwIguG3KT0v3bo3eV1olsLCPlDI0=
+// @vegastack tabs@0.25.89 sha256-wCaKf1UsL2/G0g61NPIirngPL3JSc3b4CmQIBA93FSQ=
 
 "use client";
 
@@ -115,6 +115,11 @@ const tabsTriggerVariants = cva([
   "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
   "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
   "group-data-[size=sm]/tabs-list:px-2 group-data-[size=sm]/tabs-list:[&_svg:not([class*='size-'])]:size-3.5",
+  // A11Y-24: on a coarse pointer a horizontal tab's hit area reaches 44px tall (an invisible
+  // `before:` box; `after:` is the line indicator), never wider, so neighbouring tabs never
+  // overlap. Only where the list does not scroll: a scrolling list clips its overflow, and a
+  // vertical list's neighbours sit above and below.
+  "group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:absolute group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:inset-x-0 group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:-inset-y-2 group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:content-[''] group-data-[size=sm]/tabs-list:group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:-inset-y-2.5",
   "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-not-data-vertical/tabs:after:inset-x-0 group-not-data-vertical/tabs:after:bottom-[-5px] group-not-data-vertical/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
 ]);
 

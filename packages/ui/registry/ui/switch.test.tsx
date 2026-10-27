@@ -213,3 +213,11 @@ fieldWiringTests({
   render: (props) => <Switch {...props} />,
   find: (screen, name) => screen.getByRole("switch", { name }),
 });
+
+test("A11Y-24: a coarse pointer gets a hit area of at least 44px", async () => {
+  const screen = await render(<Switch aria-label="On" />);
+  const tokens = screen.container
+    .querySelector<HTMLElement>('[data-slot="switch"]')!
+    .className.split(/\s+/);
+  expect(tokens).toContain("pointer-coarse:after:-inset-y-4");
+});

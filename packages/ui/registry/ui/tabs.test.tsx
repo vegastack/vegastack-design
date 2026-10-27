@@ -641,3 +641,23 @@ test("no a11y violations — RTL", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("A11Y-24: on a coarse pointer a trigger's hit area reaches 44px tall, never wider", async () => {
+  const screen = await render(
+    <Tabs defaultValue="a">
+      <TabsList>
+        <TabsTrigger value="a">A</TabsTrigger>
+      </TabsList>
+    </Tabs>,
+  );
+  const tokens = screen
+    .getByRole("tab", { name: "A" })
+    .element()
+    .className.split(/\s+/);
+  expect(tokens).toContain(
+    "group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:-inset-y-2",
+  );
+  expect(tokens).toContain(
+    "group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:inset-x-0",
+  );
+});

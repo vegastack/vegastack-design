@@ -358,3 +358,17 @@ test("API-26: an item in its own Field still takes that Field's label", async ()
     .element(screen.getByRole("radio", { name: "Kubernetes" }))
     .toBeInTheDocument();
 });
+
+test("A11Y-24: a coarse pointer gets a 44×44 hit area", async () => {
+  const screen = await render(
+    <RadioGroup aria-label="Size" defaultValue="s">
+      <RadioGroupItem value="s" aria-label="Small" />
+    </RadioGroup>,
+  );
+  const item = screen.container.querySelector<HTMLElement>(
+    '[data-slot="radio-group-item"]',
+  )!;
+  expect(item.className.split(/\s+/)).toContain(
+    "pointer-coarse:after:-inset-3.5",
+  );
+});

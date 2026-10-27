@@ -1,0 +1,78 @@
+---
+title: Destination Picker
+description: Choose where something goes — spaces at the top of a folders-only tree, recent places, a folder search, and destinations refused with a reason.
+audience: public
+registry: destination-picker
+status: preview
+since: 0.25.89
+a11y: folders-only tree, refusals announced
+preview: destinationPicker
+---
+
+## Install
+
+<InstallSteps name="destination-picker" />
+
+## Usage
+
+```tsx
+import { DestinationPicker } from "@/components/ui/destination-picker";
+
+<DialogBody>
+  <DestinationPicker
+    spaces={spaces}
+    loadFolders={(space, parent) => api.folders(space, parent)}
+    value={target}
+    onValueChange={setTarget}
+    disabledReason={(d) =>
+      d.folderId === item.parentId ? "It's already here" : undefined
+    }
+    recents={recentPlaces}
+    search={(q, signal) => api.searchFolders(q, { signal })}
+  />
+</DialogBody>;
+```
+
+## Scope
+
+The body of every "Move to…" dialog. The spaces are the top of a folders-only `FolderTree` in
+picker mode; each opens to its folders (loaded once through `loadFolders`), and choosing a space
+means its top level. The host owns the dialog and its Move button, enabled once `value` is set.
+
+## Anatomy
+
+<Anatomy name="destination-picker" />
+
+## Examples
+
+### Move to…
+
+`recents` sit above the tree, `search` finds a folder anywhere (the tree comes back when the box
+is cleared), and `disabledReason` keeps a destination visible while refusing it: the reason shows
+on the row, under the picker, and is announced.
+
+<ComponentPreview
+  name="destinationPicker"
+  file="components/preview/destination-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/destination-picker.tsx"
+  name="DestinationPickerProps"
+/>
+
+## Accessibility
+
+- The tree is `FolderTree`'s picker mode: one tab stop, arrow keys move and open, Enter chooses.
+- A refused choice is announced through a polite live region and stays visible as text.
+
+<StatesTested name="destination-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Use DestinationPicker for every move — pages, files, tables, tasks — so one place reads the same everywhere."
+  dont="Hand-build breadcrumbs and folder lists in each move dialog, or hide destinations that can't take the move."
+/>

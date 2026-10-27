@@ -578,7 +578,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 38,
+  "Forms/editing": 41,
   "Navigation/layout": 25,
   Overlays: 23,
   "Data display": 39,
@@ -673,6 +673,9 @@ const expectedComponentWaveMembers = {
     "text-edit",
     "upload-dialog",
     "upload-panel",
+    "record-picker",
+    "destination-picker",
+    "field-type-picker",
   ],
   "Navigation/layout": [
     "accordion",

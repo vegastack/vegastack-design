@@ -201,3 +201,6 @@ export * from "./icon-picker";
 export * from "./icon-glyph";
 export * from "./record-peek";
 export * from "./record-header";
+export * from "./record-picker";
+export * from "./destination-picker";
+export * from "./field-type-picker";

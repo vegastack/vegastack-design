@@ -593,3 +593,32 @@ test("no a11y violations — wrap, open", async () => {
   await userEvent.click(screen.getByRole("combobox", { name: "Fruit" }));
   await expectNoA11yViolations(document.body);
 });
+
+test("API-38: SelectContent shows a loading row, then an error with Try again", async () => {
+  let retried = 0;
+  function Async({ state }: { state: "loading" | "error" }) {
+    return (
+      <Select defaultOpen>
+        <SelectTrigger aria-label="Owner">
+          <SelectValue placeholder="Owner" />
+        </SelectTrigger>
+        <SelectContent
+          loading={state === "loading"}
+          error={state === "error" ? true : undefined}
+          onRetry={() => retried++}
+        />
+      </Select>
+    );
+  }
+  const screen = await render(<Async state="loading" />);
+  await expect.element(screen.getByText("Loading…")).toBeVisible();
+  const status = document.querySelector('[data-slot="select-status"]')!;
+  expect(status.getAttribute("role")).toBe("status");
+  expect(status.getAttribute("aria-busy")).toBe("true");
+  await screen.rerender(<Async state="error" />);
+  await expect
+    .element(screen.getByText("Couldn't load the options."))
+    .toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+  expect(retried).toBe(1);
+});

@@ -9,6 +9,7 @@ import {
   type SearchableSelectProps,
 } from "./searchable-select";
 import { PersonAvatar } from "./person-avatar";
+import { Button } from "./button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 interface Project {
@@ -803,4 +804,43 @@ test("onCreateOption: clearing while the new option is on its way keeps it clear
   land({ id: "dune", name: "Dune" });
   await new Promise((resolve) => setTimeout(resolve, 50));
   expect(onValueChange.mock.calls.map(([v]) => v)).toEqual([null]);
+});
+
+test("renderTrigger replaces the trigger with the host's element and keeps the picker", async () => {
+  const items = [
+    { id: "a", name: "Acme" },
+    { id: "b", name: "Globex" },
+  ];
+  function Chip() {
+    const [value, setValue] = React.useState<(typeof items)[number] | null>(
+      items[0]!,
+    );
+    return (
+      <SearchableSelect
+        items={items}
+        value={value}
+        onValueChange={setValue}
+        itemToKey={(i) => i.id}
+        itemToStringLabel={(i) => i.name}
+        aria-label="Customer"
+        renderTrigger={(selected) => (
+          <Button variant="ghost" size="sm" data-testid="chip">
+            {selected[0]?.name ?? "No customer"}
+          </Button>
+        )}
+      />
+    );
+  }
+  const screen = await render(<Chip />);
+  const chip = screen.getByTestId("chip");
+  await expect.element(chip).toHaveTextContent("Acme");
+  expect(
+    screen.container.querySelector('[data-slot="searchable-select-clear"]'),
+  ).toBeNull();
+  expect(
+    screen.container.querySelector("svg.lucide-chevrons-up-down"),
+  ).toBeNull();
+  await userEvent.click(chip);
+  await userEvent.click(screen.getByRole("option", { name: "Globex" }));
+  await expect.element(chip).toHaveTextContent("Globex");
 });

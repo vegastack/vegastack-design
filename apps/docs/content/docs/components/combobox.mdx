@@ -220,6 +220,16 @@ muted row above the list.
   file="components/preview/combobox.tsx"
 />
 
+When the fetch itself is in flight or fails, say so in the popup instead of showing an empty list:
+`ComboboxContent loading` shows a spinner row, and `error` (with `onRetry`) shows the failure with a
+Try again button.
+
+```tsx
+<ComboboxContent loading={isPending} error={failed} onRetry={refetch}>
+  <ComboboxList>…</ComboboxList>
+</ComboboxContent>
+```
+
 ### States
 
 The closed input's rest, invalid and disabled chrome. Click or Tab into the field to see the focus
@@ -344,3 +354,6 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
+- **API-38** — `ComboboxContent` takes `loading`, `error` and `onRetry`: a status row after the list
+  — a spinner, or the failure with Try again — so an async list never shows an empty popup.
+  MK, 2026-10-26.

@@ -128,3 +128,29 @@ test("personDisplayName and personAccessibleName", () => {
   );
   expect(personAccessibleName({ name: "Asha Rao" })).toBe("Asha Rao");
 });
+
+test("an agent with a photo keeps its bot badge, so it never passes for a person", async () => {
+  const screen = await render(
+    <PersonAvatar
+      person={{
+        name: "Claude Code",
+        kind: "agent",
+        image: "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+      }}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="person-avatar-agent-badge"]'),
+  ).not.toBeNull();
+  const human = await render(
+    <PersonAvatar
+      person={{
+        name: "Asha",
+        image: "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+      }}
+    />,
+  );
+  expect(
+    human.container.querySelector('[data-slot="person-avatar-agent-badge"]'),
+  ).toBeNull();
+});

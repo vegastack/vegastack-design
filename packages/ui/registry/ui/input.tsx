@@ -1,4 +1,4 @@
-// @vegastack input@0.25.89 sha256-STkwKEd6yz1KpR9eW+ujHDIxosUmPm5lYv2wgzKtkvw=
+// @vegastack input@0.25.89 sha256-C80EYYC/EY7JnIJCrrK7nJxXIrbqWBATQmrgNNzNLH4=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -35,7 +35,15 @@ const inputVariants = cva(
 );
 
 type InputProps = Omit<React.ComponentProps<"input">, "size"> &
-  VariantProps<typeof inputVariants>;
+  VariantProps<typeof inputVariants> & {
+    /**
+     * `false` (FRM-17) marks a name-like field that is not a credential — a record, table or field
+     * name — so browsers and password managers stop offering to fill it: `autoComplete="off"`,
+     * `data-1p-ignore`, `data-lpignore="true"`, `data-bwignore`. An explicit `autoComplete` wins.
+     * @default true
+     */
+    credential?: boolean;
+  };
 
 /**
  * `Input` — a single-line text field.
@@ -44,13 +52,29 @@ type InputProps = Omit<React.ComponentProps<"input">, "size"> &
  *   150ms ease-out) and paints no fill; an invalid field keeps its destructive border focused or not.
  * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
  * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).
+ * - `credential={false}`: a name that is not a login — password managers leave it alone.
  *
  * @example
  * <Input variant="ghost" size="lg" placeholder="Issue title" aria-label="Title" />
  */
-function Input({ className, type, variant, size, ...props }: InputProps) {
+function Input({
+  className,
+  type,
+  variant,
+  size,
+  credential = true,
+  ...props
+}: InputProps) {
   return (
     <InputPrimitive
+      {...(credential
+        ? null
+        : {
+            autoComplete: "off",
+            "data-1p-ignore": "",
+            "data-lpignore": "true",
+            "data-bwignore": "",
+          })}
       type={type}
       data-slot="input"
       data-variant={variant ?? "default"}

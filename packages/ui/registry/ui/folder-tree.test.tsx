@@ -580,3 +580,37 @@ test("a folder with hasChildren false is a leaf: a spacer for its disclosure, da
   expect(onExpandedChange).not.toHaveBeenCalled();
   expect(loadChildren).not.toHaveBeenCalled();
 });
+
+test("picker mode: a refused folder is aria-disabled with its reason, still opens, and still reports the click", async () => {
+  const onSelectedChange = vi.fn();
+  const screen = await render(
+    <FolderTree
+      aria-label="Destinations"
+      mode="picker"
+      rootItems={{
+        all: [
+          {
+            id: "here",
+            label: "Here",
+            kind: "folder",
+            hasChildren: false,
+            disabledReason: "It's already here",
+          },
+          { id: "there", label: "There", kind: "folder", hasChildren: false },
+        ],
+      }}
+      expanded={[]}
+      onExpandedChange={() => {}}
+      onSelectedChange={onSelectedChange}
+    />,
+  );
+  const here = screen.getByRole("button", { name: "Here", exact: true });
+  await expect.element(here).toHaveAttribute("aria-disabled", "true");
+  await expect.element(here).toHaveAccessibleDescription("It's already here");
+  await expect
+    .element(screen.getByRole("button", { name: "There", exact: true }))
+    .not.toHaveAttribute("aria-disabled");
+  await userEvent.click(here, { force: true });
+  expect(onSelectedChange).toHaveBeenCalledWith("here");
+  await expectNoA11yViolations(screen.container);
+});

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9c46bd91111530fd09f3171b8d2c4e05777e637a628ef42f96902fb92d0d8bd1",
+  "contractSha256": "8665bfb4cf6dd6cb66879c7d5de250dd7753db82fb24acff028a6ec18e9a31ae",
   "expectedCounts": {
-    "totalRegistryItems": 770,
-    "components": 182,
+    "totalRegistryItems": 773,
+    "components": 185,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -2025,6 +2025,39 @@
         "packages/ui/registry/ui/formula-input.tsx"
       ],
       "docsSlug": "/docs/components/formula-input",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/record-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "destination-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/destination-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/destination-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "field-type-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/field-type-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/field-type-picker",
       "contractStatus": "reconciled"
     },
     {

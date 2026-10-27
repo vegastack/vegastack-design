@@ -242,7 +242,11 @@
     "API-35": ["select"],
     "API-36": ["attachment", "badge", "popover", "sheet", "skeleton"],
     "OVL-22": ["sheet"],
-    "API-39": ["toggle"]
+    "API-39": ["toggle"],
+    "API-37": ["item"],
+    "FRM-17": ["input"],
+    "API-38": ["select", "combobox"],
+    "A11Y-24": ["button", "checkbox", "radio-group", "switch", "tabs"]
   },
   "advisory": {
     "A11Y-2": [

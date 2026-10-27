@@ -106,6 +106,9 @@ without it. `badge` adds a trailing count.
 
 `mode="picker"` shows folders only, marks one `selected`, and has no menus and no drag — the tree
 for a Move dialog, which is also the keyboard path for every drag: put "Move…" in the row menu.
+A node's `disabledReason` keeps a folder that can't take the move visible and openable, but
+`aria-disabled` with the reason as its description and in place of its badge. `DestinationPicker`
+builds the whole Move to… body on this mode.
 
 <ComponentPreview
   name="folderTreePicker"
