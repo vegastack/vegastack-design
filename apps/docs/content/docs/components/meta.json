@@ -173,6 +173,8 @@
     "tool-call-chip",
     "approval-card",
     "agent-edit-banner",
+    "agent-panel",
+    "delegate-popover",
     "message-scroller",
     "transcript",
     "questionnaire",

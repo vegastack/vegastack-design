@@ -1,0 +1,114 @@
+---
+title: Delegate Popover
+description: Hand a record or a selection to an agent — pick one of your agents, say what to do and, for a task, what happens when it finishes.
+audience: public
+registry: delegate-popover
+status: stable
+since: 0.25.89
+a11y: labelled fields, listbox keyboard, disabled reasons shown
+preview: delegatePopover
+---
+
+## Install
+
+<InstallSteps name="delegate-popover" />
+
+## Usage
+
+```tsx
+import { AgentSlot } from "@/components/ui/agent-panel";
+import { DelegatePopover } from "@/components/ui/delegate-popover";
+
+<DelegatePopover
+  agents={agents.map((a) => ({
+    id: a.id,
+    name: a.name,
+    access: a.accessSummary,
+    disabledReason: a.readOnly ? "Can't — read only" : undefined,
+  }))}
+  whenFinishedOptions={[
+    { value: "review", label: "Move to review" },
+    { value: "done", label: "Mark done" },
+  ]}
+  onConnect={() => router.push("/settings/agents")}
+  onDelegate={({ agentId, instructions, whenFinished }) =>
+    delegate(task.id, { agentId, instructions, whenFinished })
+  }
+>
+  <AgentSlot agent={delegation?.agent} state={delegation?.state} />
+</DelegatePopover>;
+```
+
+The child is the trigger — the Delegate property's `AgentSlot`, a peek's `AgentChip`, a bulk bar's
+button. The host passes the viewer's agents and receives `{ agentId, instructions, whenFinished }`;
+a returned promise keeps the popover open, its button busy, until it settles, and open with the
+choice if it fails. The host shows the toast ("Delegated to Claude Code · Undo"). The `D` key opens
+it through `open` and `onOpenChange`.
+
+## Scope
+
+One popover for tasks and table rows. Leave `whenFinishedOptions` out for rows and bulk, and give
+bulk its own `title` ("Delegate 40 rows to…"). An agent that can't take the work is still listed,
+disabled, with its `disabledReason`. With no agents it explains how to connect one. Choosing a
+person is the `PeoplePicker`; showing an agent already on the work is the `AgentPanel`.
+
+## Examples
+
+<ComponentPreview
+  name="delegatePopover"
+  file="components/preview/delegate-popover.tsx"
+/>
+
+### States
+
+Bulk rows (their own title, no When finished), no agents connected, and agents loading.
+
+<ComponentPreview
+  name="delegatePopoverStates"
+  file="components/preview/delegate-popover.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/delegate-popover.tsx"
+  name="DelegatePopoverProps"
+/>
+
+### DelegatePopoverAgent
+
+<ApiTable
+  path="../../packages/ui/registry/ui/delegate-popover.tsx"
+  name="DelegatePopoverAgent"
+/>
+
+## Accessibility
+
+- The popover is a dialog named by its title; focus starts in the search field and returns to the
+  trigger when it closes.
+- The agents are a listbox: the chosen agent is checked and said as selected; a disabled agent
+  keeps its reason as its second line.
+- The instructions and When finished are labelled fields. Delegate stays disabled until an agent
+  is chosen, and is busy while a returned promise runs.
+
+| Key                                | Action                                            |
+| ---------------------------------- | ------------------------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>        | Move through the agents from the search field.    |
+| <kbd>Enter</kbd>                   | Choose the highlighted agent.                     |
+| <kbd>Tab</kbd>                     | Move to the instructions, When finished, buttons. |
+| <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | Delegate from the instructions (⌘ on a Mac).      |
+| <kbd>Esc</kbd>                     | Close and return focus to the trigger.            |
+
+<StatesTested name="delegate-popover" />
+
+## Do / Don't
+
+<DoDont
+  do="List every agent the viewer has, and disable the ones that can't take the work with their reason."
+  dont="Hide an agent that can't take it, or open an empty dialog with a disabled button when no agent is connected."
+/>
+
+<DoDont
+  do="Use one verb, Delegate, for tasks and rows alike."
+  dont="Offer Hand off and Take back on one surface and Delegate on another."
+/>

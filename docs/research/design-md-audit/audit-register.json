@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "59864832e0c4bbec8f7ce108dff81b38605e7c2bea992922537608dc8f848833",
+  "contractSha256": "1b0f105253ed9bac41cd9d4bb121ebbdc978668711bf7edf0a3f473a208d4d64",
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 763,
+    "components": 175,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1926,6 +1926,28 @@
         "packages/ui/registry/ui/record-header.tsx"
       ],
       "docsSlug": "/docs/components/record-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-panel",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-panel",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "delegate-popover",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/delegate-popover.tsx"
+      ],
+      "docsSlug": "/docs/components/delegate-popover",
       "contractStatus": "reconciled"
     },
     {

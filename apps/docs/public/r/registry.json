@@ -22599,6 +22599,87 @@
         "version": "0.25.88",
         "integrity": "sha256-nc6famgBX1rxL9HUKaERZrUq0j124D/Rn3Bv+JqRI3s="
       }
+    },
+    {
+      "name": "agent-panel",
+      "type": "registry:ui",
+      "title": "Agent Panel",
+      "description": "An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/dropdown-menu",
+        "@vegastack/hover-card",
+        "@vegastack/input-group",
+        "@vegastack/person-avatar",
+        "@vegastack/record-aside",
+        "@vegastack/record-chip",
+        "@vegastack/relative-time",
+        "@vegastack/spinner",
+        "@vegastack/textarea",
+        "@vegastack/tooltip",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/agent-panel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/agent-panel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
+        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
+        "version": "0.25.86",
+        "integrity": "sha256-gAYTUZjw1pRAnzUOhKGUV9d3sc3RcOr6inQ+YhyXA98="
+      }
+    },
+    {
+      "name": "delegate-popover",
+      "type": "registry:ui",
+      "title": "Delegate Popover",
+      "description": "Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/label",
+        "@vegastack/people-picker",
+        "@vegastack/popover",
+        "@vegastack/select",
+        "@vegastack/separator",
+        "@vegastack/skeleton",
+        "@vegastack/spinner",
+        "@vegastack/textarea"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/delegate-popover.tsx",
+          "type": "registry:ui",
+          "target": "@ui/delegate-popover.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
+        "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
+        "version": "0.25.86",
+        "integrity": "sha256-F4jm/lHYdndNPkZk1CkMM+ekQ3Vti73gdXs9C/8kQuc="
+      }
     }
   ]
 }

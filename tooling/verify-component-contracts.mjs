@@ -583,7 +583,7 @@ const expectedWaves = {
   Overlays: 22,
   "Data display": 38,
   "Content/marketing": 15,
-  "AI/chat": 10,
+  "AI/chat": 12,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
   "Shared internals": 6,
@@ -787,9 +787,11 @@ const expectedComponentWaveMembers = {
   ],
   "AI/chat": [
     "agent-edit-banner",
+    "agent-panel",
     "approval-card",
     "attachment",
     "bubble",
+    "delegate-popover",
     "marker",
     "message",
     "message-scroller",
