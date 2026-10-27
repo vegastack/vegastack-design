@@ -10,6 +10,33 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.92] — October 27, 2026
+
+### 🧩 New components
+
+- **FieldProperty** (in `field-cell`): one field as an editable property row inside a **PropertyList**, for a row peek, a row page, or a customer's or project's custom fields. The name sits on the left. The value sits on the right, drawn exactly as the grid draws it (`FieldCellDisplay`), with no box at rest and a quiet wash on hover. A click, Enter or a typed character opens the grid cell's own editor (`FieldCellEditor`) in place: text, numbers, URLs, emails and phones inline, long text growing in place, choices on the in-cell option list, dates on the calendar, and a link on the record picker. A checkbox toggles where it is. A value that is itself a link (URL, email, phone, record chips) stays followable, and an Edit pencil beside it opens the editor. Files show and never edit here. Read-only types, `readOnly` and `disabled` never edit and show no hover. `focusMode="managed"` with `editing` and `onEditingChange` lets a host's roving focus own reachability and open the editor. `onSave` returns a promise: the value shows at once, a spinner follows after 300ms, and a rejection rolls back with a Retry toast, as **EditableCell** does. `conflict` shows "Someone changed this field." under the value. An empty value reads "Empty" (`emptyText`). On a phone the value goes full width under its label. **FieldCellDisplay** takes a `label` that names a checkbox. [docs](/docs/components/field-cell) ·
+  [`1fc6977`](https://github.com/VegaStack/vegastack-design/commit/1fc6977)
+
+### 🔧 Changed components
+
+- **TextEdit** takes `inset="none"` so it can sit flush with a ghost **Input** or **Textarea** title above it. Inside a Dialog, Sheet, Drawer, Popover or Card whose padding is narrower than the block grip needs, TextEdit adds start padding (about 10px in a Dialog) so the ⋮⋮ grip sits before the text. That pushed a New task dialog's "Add a description…" right of its title. With `inset="none"` the text, placeholder and caret start at the editor's own edge, and the block grip is not shown. The block menu still opens from ⌘/ or ⇧F10, and on touch from a long-press (implied, whatever `touchBlockMenu` says); ⌘⇧↑ and ⌘⇧↓ still move blocks, and tables keep their grips. The default, `inset="auto"`, is unchanged. [docs](/docs/components/text-edit) ·
+  [`507578d`](https://github.com/VegaStack/vegastack-design/commit/507578d)
+
+### 🛠 CLI & tooling
+
+- `vegastack-design check-updates` and the registry verification behind `add` retry transient registry failures before reporting the registry unreachable. A network error ("fetch failed"), a response cut off mid-read ("terminated"), a 5xx or a 429 gets up to three tries, with jittered exponential backoff, a 15-second timeout per try and `Retry-After` honoured (seconds or a date, up to 5 seconds). Item fetches still run at most eight at a time. A 404, a 401/403 or an integrity mismatch is still an answer and fails at once. This stops `--fail-on-update` from failing CI on a passing network flake. [docs](/docs/guides/troubleshooting) ·
+  [`103f084`](https://github.com/VegaStack/vegastack-design/commit/103f084)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.40`** (was `0.8.39`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.91 → 0.25.92.
+
+### 🐛 Fixed
+
+- **ViewTabs** stays as tabs while they fit. It used to switch to its narrow `Select` below a fixed `@3xl` container width, so in a **FilterBar** `leading` slot a table page's two short tabs ("Grid", "Board") collapsed to "Grid ▾", with the `+` floating far right, once the facet row opened. Now it measures its tab row against the room it has: it collapses only when the tabs don't fit, and goes back to tabs as soon as they do. The collapsed select keeps its `+` and ⋯ beside it. The root is no longer a size container. **DataGrid** shows a quiet trailing edge shade while more columns sit past the end of a sideways-scrolling viewport (an `embedded` block on a phone, for one), and the viewport uses `overscroll-x-contain`, so a sideways pan stops at the grid instead of moving the page. [docs](/docs/components/view-tabs) ·
+  [`c140a1d`](https://github.com/VegaStack/vegastack-design/commit/c140a1d)
+
 ## [0.25.91] — October 27, 2026
 
 ### 🔧 Changed components
