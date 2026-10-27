@@ -1,4 +1,4 @@
-// @vegastack record-peek@0.25.87 sha256-DwkbxiKvd1VKehE3u8ZWI/vbUii01oK41bYKqxcw/tg=
+// @vegastack record-peek@0.25.88 sha256-C2fbMr3cd7k9MSRMdsh78KI3h+r+pUrH0hxm7LFkIeI=
 
 "use client";
 

@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.88] — October 27, 2026
+
+### 🧩 New components
+
+- **RecordPeek**: a record opened beside its list — a non-modal side panel, resizable by its start edge (480px to 90% of the window, remembered with `storageKey`), whose header walks the list (↑/↓ and J/K, "n of N" from `position`, disabled at the ends), opens the full page (⌘↵ / Ctrl+↵ through `fullLink`, `fullHref` or `onOpenFull`), holds the record's `actions` and closes with Esc, returning focus to the row (`returnFocus`). Full-screen below the tablet tier. **useRecordPeekRow**: `data-peek-active` on the open row of a hand-rolled list, scrolled into view as the peek walks (`DataList`, `DataGrid` and `Board` take `activeRowId`). **RecordHeader**: one head for every record on its page and in a peek — eyebrow (where it lives) and key chip, icon and title renamed in place, status, meta line, chips, presence and actions — with `RecordHeaderSkeleton`. **RecordAsideSection**: `collapsible` (the title folds the section; an empty one is its header alone), `open`/`defaultOpen`/`onOpenChange`, `notice` and `headingLevel`; its count is read as a separate word. [docs](/docs/components/record-peek) ·
+  [`caccebb`](https://github.com/VegaStack/vegastack-design/commit/caccebb)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.36`** (was `0.8.35`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.87 → 0.25.88.
+
 ## [0.25.87] — October 27, 2026
 
 ### 🧩 New components

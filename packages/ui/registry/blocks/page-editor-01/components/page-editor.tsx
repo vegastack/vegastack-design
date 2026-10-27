@@ -1,4 +1,4 @@
-// @vegastack page-editor-01@0.25.87 sha256-W6F5Rk0JUKl3cJ4Eu5Rz3LIbZQwq3ahRUtJBbVqR9bI=
+// @vegastack page-editor-01@0.25.88 sha256-OdWSGo4NJxXcl/UPrTqzuTf7f/X93acq0xXtyJx6fjc=
 
 "use client";
 

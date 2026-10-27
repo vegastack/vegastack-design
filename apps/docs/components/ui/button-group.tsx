@@ -1,4 +1,4 @@
-// @vegastack button-group@0.25.87 sha256-6Ds8gvY5WjBMRBVdSnCW9nTVkmv9uutcB44kUzv4ATw=
+// @vegastack button-group@0.25.88 sha256-5i+JgVGhvJav0Hzo0wKx/A5fk5KtZqqLOzB/dNnJQeE=
 
 "use client";
 
