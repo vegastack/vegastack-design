@@ -16981,7 +16981,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.25.89",
-        "integrity": "sha256-/GvJjZzez230BBg3MX2K6ZV31zwy8XpNuhxoFwY1ZpE="
+        "integrity": "sha256-pocMFrunuj6xZ5SoZe6wLBcf3HlNd2Jwv/CsPt9Oy1s="
       }
     },
     {

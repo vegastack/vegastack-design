@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.25.89 sha256-/GvJjZzez230BBg3MX2K6ZV31zwy8XpNuhxoFwY1ZpE=
+// @vegastack task-inline@0.25.89 sha256-pocMFrunuj6xZ5SoZe6wLBcf3HlNd2Jwv/CsPt9Oy1s=
 
 "use client";
 
@@ -364,6 +364,12 @@ export interface MakeTaskPopoverProps {
    * @default "Cancel"
    */
   cancelLabel?: string;
+  /**
+   * The longest title a line takes, in characters: the title inputs stop there, so an over-long
+   * title can't be typed (and can't fail the whole batch on the server).
+   * @default 500
+   */
+  titleMaxLength?: number;
 }
 
 interface Row {
@@ -433,6 +439,7 @@ export function MakeTaskPopover({
   title,
   createLabel,
   cancelLabel = "Cancel",
+  titleMaxLength = 500,
 }: MakeTaskPopoverProps) {
   const point = useAnchorPoint(anchor, open);
   const [rows, setRows] = React.useState<Row[]>([]);
@@ -501,13 +508,18 @@ export function MakeTaskPopover({
         align="start"
         size="md"
         aria-labelledby={titleId}
-        className="gap-3"
+        // Never taller than the room the window leaves: the lines scroll between the heading and
+        // the actions, which stay in view (a page can make up to 50 tasks at once).
+        className="max-h-(--available-height) gap-3"
       >
-        <PopoverHeader>
+        <PopoverHeader className="shrink-0">
           <PopoverTitle id={titleId}>{heading}</PopoverTitle>
         </PopoverHeader>
         {several ? (
-          <ul data-slot="make-task-popover-lines" className="grid gap-1.5">
+          <ul
+            data-slot="make-task-popover-lines"
+            className="-mx-1 grid min-h-0 gap-1.5 overflow-y-auto overscroll-contain px-1 py-0.5"
+          >
             {rows.map((row, index) => (
               <li
                 key={row.key}
@@ -530,6 +542,7 @@ export function MakeTaskPopover({
                 <Input
                   aria-label={`Title of task ${index + 1}`}
                   value={row.title}
+                  maxLength={titleMaxLength}
                   disabled={!row.keep}
                   onKeyDown={onKeyDown}
                   onChange={(event) => {
@@ -549,6 +562,7 @@ export function MakeTaskPopover({
             data-slot="make-task-popover-title"
             aria-label="Task title"
             value={rows[0]?.title ?? ""}
+            maxLength={titleMaxLength}
             onKeyDown={onKeyDown}
             onChange={(event) => {
               const value = event.currentTarget.value;
@@ -563,7 +577,7 @@ export function MakeTaskPopover({
         {slots.length > 0 ? (
           <div
             data-slot="make-task-popover-fields"
-            className="flex flex-wrap items-center gap-1.5"
+            className="flex shrink-0 flex-wrap items-center gap-1.5"
           >
             {assignee}
             {due}
@@ -572,7 +586,7 @@ export function MakeTaskPopover({
         ) : null}
         <div
           data-slot="make-task-popover-actions"
-          className="flex justify-end gap-2"
+          className="flex shrink-0 justify-end gap-2"
         >
           <Button
             type="button"
