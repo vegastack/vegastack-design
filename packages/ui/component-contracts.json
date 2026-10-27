@@ -8268,9 +8268,11 @@
                 "data-grid-head-trailing",
                 "data-grid-hidden-hint",
                 "data-grid-more",
+                "data-grid-more-x",
                 "data-grid-sort-hint",
                 "data-grid-summary",
                 "data-grid-toolbar",
+                "data-grid-viewport-frame",
                 "table",
                 "table-header"
               ]
@@ -9710,6 +9712,10 @@
         "ViewTabs": {
           "attributes": [
             {
+              "name": "data-narrow",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "view-tabs",
@@ -9717,7 +9723,8 @@
                 "view-tabs-create",
                 "view-tabs-divider",
                 "view-tabs-list",
-                "view-tabs-mine"
+                "view-tabs-mine",
+                "view-tabs-narrow"
               ]
             }
           ],

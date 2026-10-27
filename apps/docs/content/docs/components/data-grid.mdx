@@ -169,7 +169,10 @@ its figures and its header up at the end. `selectionActions` docks the same sele
 `embedded` makes the grid a table block inside a page or document: one framed block with the
 `toolbar` (a [`BlockHeader`](/docs/components/block-header)) on top and the `footer` under the
 rows. Its height comes from its rows — at most `maxRows` (25 by default) — so it never scrolls
-inside itself; it scrolls sideways when its columns overflow, with no cap on how many show. The
+inside itself; it scrolls sideways when its columns overflow, with no cap on how many show. While
+more columns sit past the end, a quiet edge shade marks the trailing side (any grid that
+overflows sideways shows it), and a sideways pan stops at the grid's edge instead of moving the
+page. The
 built-in column picker is off (the block header's View menu owns the fields). Rows open exactly as
 they do on a table page (`onRowOpen`), and cells edit in place.
 
