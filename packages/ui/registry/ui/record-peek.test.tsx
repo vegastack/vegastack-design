@@ -91,6 +91,11 @@ test("renders a non-modal panel named by its label, with the position and the bo
     .element(screen.getByRole("dialog", { name: "Task" }))
     .toBeVisible();
   expect(slot("record-peek-position")?.textContent).toBe("2 of 3");
+  // The position stays on one line beside the arrows on a phone.
+  expect(slot("record-peek-position")?.className).toContain(
+    "whitespace-nowrap",
+  );
+  expect(slot("record-peek-position")?.className).toContain("shrink-0");
   await expect
     .element(screen.getByTestId("body"))
     .toHaveTextContent("Record b");
