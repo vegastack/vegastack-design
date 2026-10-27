@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.90 sha256-pNZ6rOKZ7Hlljr0C/5AbBFv2uiJdb91T6k62wN+6vbg=
+// @vegastack data-grid@0.25.90 sha256-LgWtF3qifhf903MqGPnWTo26AaypbrW7f9U8JXFQQDU=
 
 "use client";
 
@@ -1106,11 +1106,12 @@ function readValue<T>(column: DataGridColumn<T>, row: T): unknown {
 
 /**
  * Whether the row has no value in this column: `null`, blank text or an empty list. A column with
- * no `accessor` whose `key` is not on the row is never judged empty — its `render` draws from
- * elsewhere.
+ * a `render`, no `accessor` and a `key` that is not on the row is never judged empty — its
+ * `render` draws from elsewhere.
  */
 function hasNoValue<T>(column: DataGridColumn<T>, row: T): boolean {
   if (
+    column.render &&
     !column.accessor &&
     !(
       typeof row === "object" &&
@@ -1188,12 +1189,13 @@ const HEAD_BASE_CLASS =
 
 /**
  * Sticky frozen cells are opaque, so scrolled cells never show through; the row's state tints mix
- * in. The selected row is matched as `data-[selected]` (presence): the tokens' `data-selected`
- * custom variant reads `[data-selected="true"]`, which the row's empty attribute never matched,
- * so a selected row's frozen cells stayed white.
+ * in. The selected row is matched by attribute presence: the tokens' `data-selected` custom
+ * variant reads `[data-selected="true"]`, which the row's empty attribute never matched, so a
+ * selected row's frozen cells stayed white. The open row's accent wins over the selected wash,
+ * as it does on the row itself.
  */
 const FROZEN_CELL_CLASS =
-  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-[selected]/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-peek-active/row:bg-accent";
+  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-[[data-selected]:not([data-peek-active])]/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-peek-active/row:bg-accent";
 /** The frozen edge's shadow, shown while the viewport is scrolled sideways (`data-scrolled-x`). */
 // A box shadow, not a pseudo-element: body cells clip their overflow (one line, truncated), and a
 // cell's own shadow is painted outside its box, where the clip does not reach.
@@ -1342,12 +1344,21 @@ function GridCellImpl<T>({
   const editable = column.editable;
   // A custom editor gets the row it edits; the other editors pass through unchanged.
   const editor = React.useMemo<EditableCellEditor | undefined>(() => {
-    if (!editable || editable.type !== "custom") return editable;
+    if (!editable) return editable;
+    // An empty primary select or date rests on its trigger's placeholder: "Untitled".
+    if (
+      emptyLabel != null &&
+      (editable.type === "select" || editable.type === "date")
+    )
+      return { ...editable, placeholder: emptyLabel };
+    if (editable.type !== "custom") return editable;
     const render = editable.render;
     return { type: "custom", render: (props) => render({ ...props, row }) };
-  }, [editable, row]);
+  }, [editable, row, emptyLabel]);
   // Only an editable cell reads its value as a string; a read-only cell's renderer gets the row.
-  const persisted = editor ? String(readValue(column, row) ?? "") : "";
+  const raw = editor ? String(readValue(column, row) ?? "") : "";
+  // A blank primary (only spaces) rests as empty, so it reads "Untitled" like the card's title.
+  const persisted = emptyLabel != null && raw.trim() === "" ? "" : raw;
   // The column's `render` stays the display (tags, chips, avatars), not the value's text.
   // While a commit is pending the row still holds the old value, so the pending value shows
   // as text until the host's new row arrives.
@@ -2648,7 +2659,7 @@ function GridCards<T>({
             data-row-id={id}
             data-selected={selected.has(id) ? "" : undefined}
             data-peek-active={activeRowId === id ? "" : undefined}
-            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-[selected]:bg-muted/50 data-peek-active:bg-accent"
+            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-peek-active:bg-accent [&[data-selected]:not([data-peek-active])]:bg-muted/50"
           >
             {onOpen ? (
               <Button

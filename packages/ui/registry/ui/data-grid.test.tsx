@@ -3561,7 +3561,11 @@ test("phoneLayout=cards without a summaryRow draws no summary line", async () =>
 });
 
 test("an empty primary value reads a muted Untitled; a phone card leaves out a field with no value", async () => {
-  const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 50 }];
+  // A blank name, an empty stage, and a row that leaves both keys out.
+  const rows = [
+    { id: "e1", name: "  ", stage: "", amount: 50 },
+    { id: "e2", amount: 70 },
+  ] as Deal[];
   const cols: DataGridColumn<Deal>[] = [
     { key: "name", header: "Name" },
     { key: "stage", header: "Stage" },
@@ -3585,22 +3589,26 @@ test("an empty primary value reads a muted Untitled; a phone card leaves out a f
   await expect
     .poll(() => screen.container.querySelector('[data-slot="data-grid-card"]'))
     .not.toBeNull();
-  const card = screen.container.querySelector('[data-slot="data-grid-card"]')!;
-  expect(
-    card.querySelector('[data-slot="data-grid-empty-primary"]')?.textContent,
-  ).toBe("Untitled");
-  // Stage is empty: no label and no blank value; Amount stays.
-  expect([...card.querySelectorAll("dt")].map((dt) => dt.textContent)).toEqual([
-    "Amount",
-  ]);
+  for (const card of screen.container.querySelectorAll(
+    '[data-slot="data-grid-card"]',
+  )) {
+    expect(
+      card.querySelector('[data-slot="data-grid-empty-primary"]')?.textContent,
+    ).toBe("Untitled");
+    // Stage has no value: no label and no blank line; Amount stays.
+    expect(
+      [...card.querySelectorAll("dt")].map((dt) => dt.textContent),
+    ).toEqual(["Amount"]);
+  }
   await screen.rerender(<Sized width={900} />);
   await expect
-    .poll(() =>
-      screen.container.querySelector(
-        '[role="rowheader"] [data-slot="data-grid-empty-primary"]',
-      ),
+    .poll(
+      () =>
+        screen.container.querySelectorAll(
+          '[role="rowheader"] [data-slot="data-grid-empty-primary"]',
+        ).length,
     )
-    .not.toBeNull();
+    .toBe(2);
 });
 
 // Last in the file: it loads the compiled stylesheet, so computed colours are real.
@@ -3616,8 +3624,10 @@ test("a selected row's frozen cells take the row's selected wash", async () => {
       data={DEALS}
       getRowId={(d) => d.id}
       selectable
-      selectedIds={new Set(["d1"])}
+      selectedIds={new Set(["d1", "d3"])}
       onSelectionChange={() => {}}
+      onRowOpen={() => {}}
+      activeRowId="d3"
       columnPicker={false}
     />,
   );
@@ -3633,4 +3643,8 @@ test("a selected row's frozen cells take the row's selected wash", async () => {
   // The frozen cell is opaque but no longer the page's white: it differs from an unselected row's.
   expect(bg(cell("d1", "name"))).not.toBe(bg(cell("d2", "name")));
   expect(rowBg).not.toBe("rgba(0, 0, 0, 0)");
+  // Selected and open: the open row's accent, frozen cell and row alike.
+  expect(bg(cell("d3", "name"))).toBe(
+    getComputedStyle(cell("d3", "stage").closest("tr")!).backgroundColor,
+  );
 });

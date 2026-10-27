@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.90 sha256-GqCePC1TUy6ku1pJSsstahJvBlJ0N0XKG9L+3Mx7WE0=
+// @vegastack field-cell@0.25.90 sha256-3IQUxxMsuhl3XtPB2QZ2ChYsbFQmLtEn7+pwYL1I9ZM=
 
 "use client";
 
@@ -1261,6 +1261,26 @@ function ChoiceCellEditor({
 }) {
   // The list opens with the editor.
   const [open, setOpen] = React.useState(true);
+  // ...and its search field takes focus as soon as it is there, so the first keys search and
+  // choose (the list mounts a frame or more after the editor; keys before that would be lost).
+  const trigger = React.useRef<HTMLButtonElement | null>(null);
+  React.useEffect(() => {
+    let frame = 0;
+    let tries = 0;
+    const focusSearch = () => {
+      const popup = document.getElementById(
+        trigger.current?.getAttribute("aria-controls") ?? "",
+      );
+      const search = popup?.querySelector<HTMLInputElement>(
+        'input:not([type="hidden"])',
+      );
+      if (search) {
+        if (!popup!.contains(document.activeElement)) search.focus();
+      } else if (++tries < 30) frame = requestAnimationFrame(focusSearch);
+    };
+    focusSearch();
+    return () => cancelAnimationFrame(frame);
+  }, []);
   // Options made here stay listed (and chosen) until the host's `config.options` carries them.
   const [made, setMade] = React.useState<FieldChoiceOption[]>([]);
   const listed = config.options ?? [];
@@ -1294,6 +1314,7 @@ function ChoiceCellEditor({
     "aria-label": label,
     // A narrow column still gets a list its option names fit in.
     contentClassName: "min-w-56",
+    ref: trigger,
     open,
     onOpenChange: (next: boolean) => {
       setOpen(next);
