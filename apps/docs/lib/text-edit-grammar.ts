@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.92 sha256-bQoTwABiwbhPF7bUzIP2tM+EAJi7zRt3GRY1LOkIVAo=
+// @vegastack text-edit-grammar@0.25.92 sha256-odGUB/G+N8JdNjAchI06AsX4W5WEwJv3DREh8cPSr40=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -407,6 +407,44 @@ function directiveValue(value: string): string {
  * (`liveBlockKinds`); any other name stays text.
  */
 export const LIVE_BLOCK_NAME = "[a-z][a-z0-9_]*";
+
+/** A line `TextEdit` kept as paragraph text with a leading backslash (`escapeLineStart`'s tests). */
+const ESCAPED_LINE_START = new RegExp(
+  String.raw`^\\(?=#{1,6}(?:[ \t]|$)|:::${LIVE_BLOCK_NAME}\{|>|<[a-zA-Z/!?]|=+[ \t]*$|[-+](?:[ \t]|$)|(?:-[ \t]*){3,}$)`,
+  "u",
+);
+
+/**
+ * A long text's first line as the reader typed it — what a one-line cell or property shows. The
+ * one escape `TextEdit` writes to keep a paragraph line from reading as block Markdown is undone
+ * (a leading `&#32;` / `&#9;`, a backslash before a heading, quote, list, rule, setext, HTML or
+ * live-block marker, `1\.` for a numbered line), and each mention link reads as its label.
+ *
+ * @example
+ * typedFirstLine("\\# 1 [@Asha Rao](mention://user/u1)\nmore"); // "# 1 Asha Rao"
+ */
+export function typedFirstLine(markdown: string): string {
+  const end = markdown.indexOf("\n");
+  const line = end === -1 ? markdown : markdown.slice(0, end);
+  const typed = line.startsWith("&#32;")
+    ? ` ${line.slice(5)}`
+    : line.startsWith("&#9;")
+      ? `\t${line.slice(4)}`
+      : ESCAPED_LINE_START.test(line)
+        ? line.slice(1)
+        : line.replace(/^(\d{1,9})\\([.)])(?=[ \t]|$)/u, "$1$2");
+  return mentionLabels(typed);
+}
+
+/** A text's mention links as their labels (`[@Asha Rao](mention://user/u1)` → `Asha Rao`). */
+export function mentionLabels(text: string): string {
+  return text.includes("mention://")
+    ? text.replace(
+        new RegExp(MENTION_LINK_SOURCE, "g"),
+        (_link, label: string) => label.replace(/\\([^\n])/g, "$1"),
+      )
+    : text;
+}
 
 /**
  * A live block kind as the host reads and shows it: its `name` (after `:::`), the mention kind of

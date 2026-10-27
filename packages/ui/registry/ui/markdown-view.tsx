@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.92 sha256-RGUSRupR17t7ALVycF/yTKqrwOcyHfMhbsCeqID09BE=
+// @vegastack markdown-view@0.25.92 sha256-YXjjgMvSg4BG/1+PQmdhF7OASHzXD3NSF+Mw8yXMDWg=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -2942,13 +2942,18 @@ export function MarkdownView({
       data-slot="markdown-view"
       data-type-scale={typeScale}
       data-view-id={effects ? viewId : undefined}
+      data-finding={findQuery?.trim() ? "" : undefined}
       className={cn(
         typeScale === "document" ? documentProse : compactProse,
-        findQuery?.trim() && findHighlightClassName,
         className,
       )}
       {...props}
     >
+      {findQuery?.trim() ? (
+        <style href="markdown-view-find" precedence="default">
+          {FIND_HIGHLIGHT_CSS}
+        </style>
+      ) : null}
       {renderTop(tree, {
         images: normalizeAllowedImageOrigins(allowedImageOrigins),
         headingOffset: Math.trunc(headingOffset),
@@ -3023,11 +3028,20 @@ const documentProse = cn(
   documentPrintClassName,
 );
 /**
- * The find highlights (`::highlight()`, painted on this view's text only): every match on the
- * warning tint, the current one stronger.
+ * The find highlights (`::highlight()`, painted on a finding view's text only): every match on the
+ * warning tint, the current one stronger. A plain hoisted style rather than Tailwind variants —
+ * Tailwind's CSS parser does not know the `::highlight()` pseudo-element and warns on every build
+ * that scans this file.
  */
-const findHighlightClassName =
-  "[&::highlight(vs-find)]:bg-warning/20 [&_*::highlight(vs-find)]:bg-warning/20 [&::highlight(vs-find-current)]:bg-warning/50 [&_*::highlight(vs-find-current)]:bg-warning/50";
+const FIND_HIGHLIGHT_CSS = [
+  ["vs-find", 20],
+  ["vs-find-current", 50],
+]
+  .map(
+    ([name, tint]) =>
+      `[data-slot=markdown-view][data-finding]::highlight(${name}),[data-slot=markdown-view][data-finding] *::highlight(${name}){background-color:color-mix(in oklab,var(--color-warning) ${tint}%,transparent)}`,
+  )
+  .join("");
 
 /** The app's own scale: the prose recipe and the chips' rules. */
 const compactProse = cn(proseClassName, markdownExtrasClassName);

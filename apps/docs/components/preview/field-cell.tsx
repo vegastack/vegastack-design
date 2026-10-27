@@ -220,11 +220,17 @@ export function fieldCellProperties(): ReactNode {
   return (
     <Wrapper>
       <PropertyList
-        variant="inline"
         aria-label="Sample request fields"
         className="w-full max-w-md"
       >
         <SavedProperty label="Name" type="text" initial="ARC-120 sample" />
+        <SavedProperty
+          label="Notes"
+          type="long_text"
+          initial={
+            "\\# 2 for [@Asha Rao](mention://user/u1)\nCall before delivery."
+          }
+        />
         <SavedProperty
           label="Stage"
           type="single_choice"
@@ -232,19 +238,61 @@ export function fieldCellProperties(): ReactNode {
           config={{ options: OPTIONS }}
         />
         <SavedProperty
+          label="Tags"
+          type="multi_choice"
+          initial={["requested", "sent"]}
+          config={{ options: OPTIONS }}
+        />
+        <SavedProperty label="Qty" type="number" initial={2} />
+        <SavedProperty
           label="Price"
           type="currency"
           initial={1240}
           config={{ currency: "EUR" }}
         />
+        <SavedProperty label="Discount" type="percent" initial={0.125} />
         <SavedProperty label="Due" type="date" initial="2026-11-12" />
+        <SavedProperty
+          label="Visit"
+          type="datetime"
+          initial="2026-11-12T09:30:00.000Z"
+        />
         <SavedProperty label="Paid" type="checkbox" initial={false} />
-        <SavedProperty label="Notes" type="text" initial={null} />
+        <SavedProperty
+          label="Owner"
+          type="person"
+          initial={{ id: "u1", name: "Asha Rao" }}
+        />
+        <SavedProperty
+          label="Contact"
+          type="email"
+          initial="asha@example.com"
+        />
+        <SavedProperty label="Phone" type="phone" initial={null} />
         <SavedProperty
           label="Website"
           type="url"
           initial="https://example.com"
           conflict
+        />
+        <FieldProperty
+          label="Total"
+          type="calculated"
+          value={2480}
+          config={{ currency: "EUR" }}
+        />
+        <FieldProperty
+          label="Budget"
+          type="currency"
+          value={5000}
+          config={{ currency: "EUR" }}
+          readOnly
+        />
+        <FieldProperty
+          label="Ref"
+          type="autonumber"
+          value={12}
+          config={{ prefix: "SR-" }}
         />
         <FieldProperty
           label="Created"

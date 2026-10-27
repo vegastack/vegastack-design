@@ -2433,6 +2433,7 @@
         "@vegastack/skeleton",
         "@vegastack/spinner",
         "@vegastack/text-edit",
+        "@vegastack/text-edit-grammar",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
