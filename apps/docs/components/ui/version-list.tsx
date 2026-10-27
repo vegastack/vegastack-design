@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.89 sha256-4hk23HGtn3hWUXfL5GwgtVYHjMBClqFV5iwMzXuXjlc=
+// @vegastack version-list@0.25.89 sha256-qtj76RUy2uGfMNWQwcvnJ6N7McRsXe2PSyVwvSmXLzE=
 
 "use client";
 
@@ -122,6 +122,9 @@ export interface VersionListProps {
   className?: string;
 }
 
+/** `useSyncExternalStore`'s subscribe for a value that never changes after hydration. */
+const subscribeNever = () => () => {};
+
 /** A calendar day's key in a time zone (the viewer's when unset): `2026-10-27`. */
 function dayKey(at: VersionItem["at"], timeZone: string | undefined): string {
   const date = new Date(at);
@@ -172,7 +175,15 @@ export function VersionList({
 }: VersionListProps) {
   const headingId = React.useId();
   const groupId = React.useId();
-  const timeZone = useTimeZone();
+  // The day a row falls on: in the app's time zone when one is provided; otherwise UTC on the
+  // server and through hydration (both sides group alike), then the viewer's own zone.
+  const contextZone = useTimeZone();
+  const hydrated = React.useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+  const timeZone = contextZone ?? (hydrated ? undefined : "UTC");
   const switchId = React.useId();
   const selectedIndex = versions.findIndex((v) => v.id === selectedId);
   const nav = useListNav({
@@ -232,6 +243,7 @@ export function VersionList({
               date={version.at}
               variant="time"
               title={false}
+              timeZone={timeZone}
               className="tabular-nums"
             />
           ) : (
@@ -381,6 +393,7 @@ export function VersionList({
                       capitalize
                       title={false}
                       now={now}
+                      timeZone={timeZone}
                     />
                   </div>
                   {group.rows.map(({ version, index }) => row(version, index))}

@@ -165,8 +165,18 @@ test("phone: the list first; a picked version pushes its preview in, with the ac
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 
+  // Focus follows: to Back on the way in, to the selected version on the way out.
+  await vi.waitFor(() =>
+    expect(document.activeElement?.textContent).toContain("Versions"),
+  );
   await screen.getByRole("button", { name: "Versions" }).click();
   expect(root().dataset.view).toBe("list");
+  await vi.waitFor(() =>
+    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+      "version-list-item",
+    ),
+  );
+  expect(document.activeElement?.textContent).toContain("Before review");
 
   // Enter on a row pushes it in too; the arrows only move the selection.
   const row = screen.container.querySelector<HTMLElement>(
@@ -176,5 +186,5 @@ test("phone: the list first; a picked version pushes its preview in, with the ac
   await userEvent.keyboard("{ArrowUp}");
   expect(root().dataset.view).toBe("list");
   await userEvent.keyboard("{Enter}");
-  expect(root().dataset.view).toBe("preview");
+  await vi.waitFor(() => expect(root().dataset.view).toBe("preview"));
 });

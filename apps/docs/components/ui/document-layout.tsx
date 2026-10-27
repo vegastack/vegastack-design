@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.89 sha256-SJaLDchIVPGyYAV7WMmHT2Omuz2//VQE7AYK6azsEHU=
+// @vegastack document-layout@0.25.89 sha256-u8u7YxUcDNQzfUMlD0mLIJK1wLEHhYDv/Gqu9rv80PU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -119,7 +119,8 @@ export {
  * keeps the end track for it from the L tier whether it is open or not, so opening the discussion
  * rail (or the pinned outline) never moves or narrows the text; the start track mirrors it while
  * the width holds both, exactly as it mirrors the margin. `measure="wide"` keeps the track only
- * while an aside is open (wide is the width less the open aside). Without `aside` nothing changes.
+ * while an aside is open: the text and the open aside share wide's block (`min(100%, 1200px)`
+ * less the gutters), the text keeping its start edge. Without `aside` nothing changes.
  * `DocumentLayoutAside` is the rail itself; below L the discussion is a bottom sheet instead.
  *
  * Each tier also sets `--document-layout-tier` (`s` · `m` · `l` · `xl` · `2xl`) on the grid,
@@ -156,7 +157,8 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
    * The aside after the text: `"discussion"` (the comments rail), `"outline"` (the contents,
    * pinned from the XL tier — below it the contents rail's hover ticks stay) or `null` (closed).
    * Giving it at all, even `null`, keeps the end track for the aside from the L tier, so opening
-   * or closing it never moves the text (in `wide`, only an open aside takes its width). Put a
+   * or closing it never moves the text (in `wide`, an open aside takes its width out of wide's
+   * 1200px block and the text keeps its start edge). Put a
    * `DocumentLayoutAside` of each kind in the layout; the one named here shows. An open
    * discussion takes the comment margin's place; the pinned outline replaces the contents rail.
    * Leave it unset for a layout with no aside (the margin and rail behave as before).
@@ -185,12 +187,17 @@ const GRID = cn(
   "[--document-layout-text:100cqw] @min-[40rem]/document-layout:[--document-layout-text:max(36rem,75cqw)] @min-[64rem]/document-layout:[--document-layout-text:clamp(40rem,75cqw,52rem)] @min-[90rem]/document-layout:[--document-layout-text:60rem] @min-[120rem]/document-layout:[--document-layout-text:64rem] data-[measure=wide]:[--document-layout-text:min(100cqw,75rem)]",
   "[--document-layout-margin:0rem] data-margin:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
   // The aside keeps the same track open or closed (the text never moves for it); in `wide` only
-  // an open aside takes it — the discussion from L, the pinned outline from XL.
+  // an open aside takes it — the discussion from L, the pinned outline from XL — out of wide's
+  // own 75rem block (below).
   "data-aside:not-data-[measure=wide]:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-aside:not-data-[measure=wide]:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
   "data-[aside=discussion]:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-[aside=discussion]:@min-[90rem]/document-layout:[--document-layout-margin:24rem] data-[aside=outline]:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
   // The start track mirrors the end side (margin + gutter) while the width holds both, so the text
   // stays centred with comments; with less room it narrows towards the gutter (asymmetric).
   "[--document-layout-start:clamp(var(--document-layout-gutter),calc(100cqw-var(--document-layout-text)-var(--document-layout-margin)-var(--document-layout-gutter)),calc(var(--document-layout-gutter)+var(--document-layout-margin)))]",
+  // Wide with an open aside: the text and the aside share wide's block (the width less the
+  // gutters, up to 75rem), so the text keeps its start edge and gives the aside its end.
+  "data-[measure=wide]:data-[aside=discussion]:[--document-layout-text:calc(min(100cqw-2*var(--document-layout-gutter),75rem)-var(--document-layout-margin))] data-[measure=wide]:data-[aside=discussion]:[--document-layout-start:var(--document-layout-gutter)]",
+  "data-[measure=wide]:data-[aside=outline]:[--document-layout-text:calc(min(100cqw-2*var(--document-layout-gutter),75rem)-var(--document-layout-margin))] data-[measure=wide]:data-[aside=outline]:[--document-layout-start:var(--document-layout-gutter)]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",

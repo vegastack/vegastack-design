@@ -198,8 +198,8 @@ function DocumentLayoutAsideExample() {
       </div>
       {/* At least the L tier (64rem), scrolling sideways in a narrow column, so the rail shows
           inline here; below L a page shows the discussion as a bottom sheet. */}
-      <div className="overflow-x-auto">
-        <DocumentLayout aside={aside} className="min-w-[64rem] px-4 sm:px-8">
+      <div className="overflow-x-auto px-4 sm:px-8">
+        <DocumentLayout aside={aside} className="min-w-[64rem]">
           <Header />
           <Contents />
           <DocumentLayoutBody>

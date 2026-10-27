@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.89 sha256-SJaLDchIVPGyYAV7WMmHT2Omuz2//VQE7AYK6azsEHU=
+// @vegastack document-layout@0.25.89 sha256-u8u7YxUcDNQzfUMlD0mLIJK1wLEHhYDv/Gqu9rv80PU=
 
 "use client";
 
@@ -8,6 +8,8 @@ import { XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetAction,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -289,8 +291,8 @@ export function DocumentLayoutAside({
         >
           <SheetContent
             side="bottom"
-            closeLabel={closeLabel}
-            showCloseButton={!!onClose}
+            // The × sits in the header, inside the padding that clears the status bar.
+            showCloseButton={false}
             data-slot="document-layout-aside-sheet"
             className={cn(
               "gap-0 p-0 data-[side=bottom]:h-[70dvh]",
@@ -298,12 +300,29 @@ export function DocumentLayoutAside({
               "data-[side=bottom]:max-sm:h-dvh data-[side=bottom]:max-sm:max-h-dvh data-[side=bottom]:max-sm:border-t-0 data-[side=bottom]:max-sm:pt-[env(safe-area-inset-top)]",
             )}
           >
-            <SheetHeader className="pb-2">
+            <SheetHeader className="items-center pb-2">
               <SheetTitle className="flex items-baseline gap-1.5">
                 {heading}
                 {countText ? " " : null}
                 {countText}
               </SheetTitle>
+              {onClose ? (
+                <SheetAction>
+                  <SheetClose
+                    data-slot="document-layout-aside-close"
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={closeLabel}
+                        className="-me-1 text-muted-foreground"
+                      />
+                    }
+                  >
+                    <XIcon aria-hidden />
+                  </SheetClose>
+                </SheetAction>
+              ) : null}
             </SheetHeader>
             {body}
           </SheetContent>

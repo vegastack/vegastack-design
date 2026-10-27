@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.25.89 sha256-A0Qt+xGaRf+vKlkhW29Iu/BV5wKnQa3b7mXfd/1gfdE=
+// @vegastack version-compare@0.25.89 sha256-F4KOeVFyqD/IIVZWpOmYH3t6x2Le8M78RAAY9tT9Dtk=
 
 "use client";
 
@@ -125,8 +125,28 @@ export function VersionCompare({
   const switchId = React.useId();
   const wide = useMediaQuery("(min-width: 40rem)");
   // On a phone one side shows at a time: the list first, a picked version's preview pushed in.
-  const [view, setView] = React.useState<"list" | "preview">("list");
+  const [view, setViewState] = React.useState<"list" | "preview">("list");
   const phonePreview = !wide && view === "preview";
+  // Moving between the sides unmounts the focused control: focus follows the reader — to Back on
+  // the way in, to the selected version on the way out.
+  const back = React.useRef<HTMLButtonElement>(null);
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const moved = React.useRef(false);
+  const setView = (next: "list" | "preview") => {
+    moved.current = true;
+    setViewState(next);
+  };
+  React.useEffect(() => {
+    if (!moved.current) return;
+    moved.current = false;
+    if (view === "preview") back.current?.focus();
+    else
+      listRef.current
+        ?.querySelector<HTMLElement>(
+          "[data-slot=version-list-item][data-selected]",
+        )
+        ?.focus();
+  }, [view]);
 
   const list = (
     <VersionList
@@ -161,6 +181,7 @@ export function VersionCompare({
               variant="ghost"
               size="sm"
               className="-ms-2"
+              ref={back}
               onClick={() => setView("list")}
             >
               <ChevronLeft aria-hidden />
@@ -229,6 +250,7 @@ export function VersionCompare({
       ) : (
         <div
           key="list"
+          ref={listRef}
           data-slot="version-compare-list"
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
           // A picked row (a tap, or Enter) pushes its preview in; the arrow keys only move.
@@ -246,8 +268,11 @@ export function VersionCompare({
               (event.target as HTMLElement).closest(
                 "[data-slot=version-list-item]",
               )
-            )
+            ) {
+              // Focus moves to Back as the preview opens: the key must not press it as well.
+              event.preventDefault();
               setView("preview");
+            }
           }}
         >
           {list}

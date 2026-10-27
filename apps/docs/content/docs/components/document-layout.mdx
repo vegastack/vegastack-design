@@ -126,7 +126,8 @@ never the document's.
 `aside` gives the layout a rail after the text: `"discussion"` (the comments) or `"outline"` (the
 contents), and `null` while it is closed. A layout with an `aside` — even `null` — keeps the end
 track for it from the L tier, so opening or closing the rail never moves or narrows the text; in
-`wide` only an open aside takes its width (wide is 1200px less the open aside). Put a
+`wide` the text and an open aside share wide's `min(100%, 1200px)` block — the text keeps its
+start edge and gives the aside its end. Put a
 `DocumentLayoutAside` of each kind in the layout and the one `aside` names shows:
 
 - **Discussion** — a non-modal rail as tall as the window: the heading with its `count`, a ×

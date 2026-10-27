@@ -960,17 +960,21 @@ test("an open discussion takes the margin's place; without aside the layout is a
   expect(none.discussionShown).toBe(false);
 });
 
-test("wide is 1200px less the open aside; a closed aside keeps no track in wide", async () => {
+test("wide is min(100%, 1200px) less the open aside, the text keeping its start edge; a closed aside keeps no track", async () => {
   await page.viewport(2400, 900);
-  expect((await measureAside(1600, null, { measure: "wide" })).body.width).toBe(
-    1200,
-  );
-  expect(
-    (await measureAside(1600, "discussion", { measure: "wide" })).body.width,
-  ).toBe(1600 - 2 * 64 - 384);
-  expect(
-    (await measureAside(2200, "discussion", { measure: "wide" })).body.width,
-  ).toBe(1200);
+  for (const [width, gutter, aside] of [
+    [1200, 48, 320],
+    [1600, 64, 384],
+    [2200, 64, 384],
+  ] as const) {
+    const closed = await measureAside(width, null, { measure: "wide" });
+    const open = await measureAside(width, "discussion", { measure: "wide" });
+    const block = Math.min(width - 2 * gutter, 1200);
+    expect(closed.body.width, `${width}`).toBe(block);
+    expect(open.body.width, `${width}`).toBe(block - aside);
+    expect(open.body.left, `${width}`).toBe(closed.body.left);
+    expect(open.discussion.left, `${width}`).toBe(open.body.right);
+  }
 });
 
 test("the outline pins from XL in place of the contents rail's ticks; below XL the ticks stay", async () => {
