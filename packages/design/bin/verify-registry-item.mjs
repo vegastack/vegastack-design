@@ -69,6 +69,7 @@ import { pathToFileURL } from "node:url";
 import { join, resolve, basename, relative, isAbsolute, sep } from "node:path";
 import { createHash } from "node:crypto";
 import tsconfigPaths from "tsconfig-paths";
+import { fetchRegistryWithRetry } from "./registry-fetch.mjs";
 
 const { loadConfig: loadTsconfigPaths } = tsconfigPaths;
 
@@ -271,11 +272,12 @@ async function fetchRegistryText(url, headers, label) {
   assertRegistryRequest(url, headers);
   let response;
   try {
-    response = await fetch(url, {
-      headers,
-      redirect: "error",
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    });
+    // Transient failures are retried with backoff first (see registry-fetch.mjs).
+    response = await fetchRegistryWithRetry(
+      url,
+      { headers, redirect: "error" },
+      { timeoutMs: REQUEST_TIMEOUT_MS },
+    );
   } catch (error) {
     throw new RegistryAccessError(`${label} request failed: ${error.message}`);
   }
