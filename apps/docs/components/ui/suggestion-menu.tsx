@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.88 sha256-fcZCqhieokiNLom0lpELH9VFhfjr5spZ90+f7UZgkFU=
+// @vegastack suggestion-menu@0.25.88 sha256-+YVR9DhNs5vYSZr7iiK6eA7KUFrGgYrILzxagX1ZAOw=
 
 "use client";
 
@@ -655,7 +655,7 @@ export function SuggestionMenu({
           <SheetHeader className="pb-2">
             <SheetTitle>{ariaLabel}</SheetTitle>
           </SheetHeader>
-          <PanelSearch className="mx-4 mb-1 h-11 rounded-md px-1">
+          <PanelSearch className="mx-4 mb-2 h-11 shrink-0 rounded-lg border px-3">
             <PanelSearchField
               data-slot="suggestion-menu-search"
               aria-label={ariaLabel}

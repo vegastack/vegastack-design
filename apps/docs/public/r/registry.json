@@ -2752,7 +2752,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.25.88",
-        "integrity": "sha256-fcZCqhieokiNLom0lpELH9VFhfjr5spZ90+f7UZgkFU="
+        "integrity": "sha256-+YVR9DhNs5vYSZr7iiK6eA7KUFrGgYrILzxagX1ZAOw="
       }
     },
     {
