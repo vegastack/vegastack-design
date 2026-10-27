@@ -30,6 +30,7 @@ import {
   rewriteRegistryAliases,
   stripShadcnLeadingCommentPrologue,
 } from "./verify-registry-item.mjs";
+import { fetchRegistryWithRetry } from "./registry-fetch.mjs";
 
 const ITEM_NAME_SOURCE = "[a-z0-9]+(?:-[a-z0-9]+)*";
 const VERSION_SOURCE =
@@ -319,13 +320,15 @@ function assertRegistryRequest(url, headers) {
   return parsed;
 }
 
+// Transient failures (network errors, a cut-off body, 5xx, 429) are retried with backoff before
+// the caller reports the registry unreachable; a 404 or any other answer returns at once.
 async function fetchRegistry(url, headers) {
   assertRegistryRequest(url, headers);
-  return fetch(url, {
-    headers: nonEmptyHeaders(headers),
-    redirect: "error",
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
+  return fetchRegistryWithRetry(
+    url,
+    { headers: nonEmptyHeaders(headers), redirect: "error" },
+    { timeoutMs: REQUEST_TIMEOUT_MS },
+  );
 }
 
 // Resolve { urlTemplate, headers } in precedence order: --registry > components.json > env.

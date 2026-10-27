@@ -197,6 +197,15 @@ one cue for both (FOC-14's text-entry exception, MK 2026-09-27).
 
 ## Updates
 
+### `check-updates` says it "could not reach the registry"
+
+Every registry request already gets three tries with a short, jittered backoff: a network error, a
+response cut off mid-read ("terminated"), a 5xx or a 429 (its `Retry-After`, seconds or a date, honoured up to 5 seconds) is retried
+before anything is reported, and item fetches run at most eight at a time. So this message means
+the registry was unreachable for several seconds, not a one-off blip: check the runner's network,
+the registry URL and its Access credentials. A 404, a 401/403 or an integrity mismatch is an
+answer, never retried, and fails at once.
+
 ### `check-updates` says "No VegaStack components found" despite copied components
 
 **Cause 1 (layout): it is looking in the wrong directory.** It resolves
