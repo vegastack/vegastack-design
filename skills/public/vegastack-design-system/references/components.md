@@ -68,7 +68,7 @@ starts with `icon-` is a component and never an icon.
 - **`meta-line`** — An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.
 - **`qr-code`** — A QR code for a value, drawn as one crisp SVG path — dark modules on a light rounded tile in both themes, with the standard quiet zone — encoded during render (server or client) by uqr; an empty or unencodable value draws the empty tile.
 - **`reactions`** — Slack-style emoji reactions: pills with counts that toggle, a hover card naming who reacted, and an add-reaction button with quick reactions.
-- **`record-header`** — The head of any record on its page or in a peek — where it lives, its key, icon and title renamed in place, status, meta line, chips, presence and actions.
+- **`record-header`** — One head for every record, on its page and in a peek.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
 - **`tag-group`** — Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.
 - **`value-change`** — An inline before → after diff of one value: the old value struck in a del, a muted arrow, the new value in an ins, with a spoken "changed from A to B".
@@ -134,7 +134,7 @@ starts with `icon-` is a component and never an icon.
 - **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`picker-panel`** — A searchable, selectable item in an internal picker panel.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
-- **`record-peek`** — A record opened beside its list — a non-modal, resizable side panel whose header walks the list (↑/↓, J/K, n of N), opens the full page (⌘↵) and closes with focus back on the row; full-screen below the tablet tier.
+- **`record-peek`** — A record opened beside its list: non-modal, resizable, ↑/↓ J/K walk, ⌘↵ full page.
 - **`responsive-dialog`** — One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.
 - **`share-dialog`** — Share one item — invite people and teams with one access level, people with access and why, the item's space access, and a view-only public link behind a Publish switch; a Dialog on wide screens, a bottom Sheet on phones.
 - **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).
