@@ -16487,7 +16487,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.88",
-        "integrity": "sha256-2/sln8AMsMLUyoI4NDJM4AqdDvc4QbPSRAhe4aU18e8="
+        "integrity": "sha256-aS8nN50P5HdHNiTfZD1EZcBZXu7JeXwad83AY95Rwr0="
       }
     },
     {
@@ -16865,7 +16865,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.25.87",
-        "integrity": "sha256-uuBorzXt1ai2n9mBThz4uAkeN3J0Bsg6EpfiFHRVyGk="
+        "integrity": "sha256-2JKdZEFDsnalloO73Y9SBaEoHxbF+9EP1/2/a49DB98="
       }
     },
     {
@@ -18703,7 +18703,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.88",
-        "integrity": "sha256-gjWumphyJgxRzIa6pLLQY5enpM6jvA3cfFEy6/y85mE="
+        "integrity": "sha256-csnrKesOqwx++LqAEfbVIlsMGPQVaezBEo4UDouRqnY="
       }
     },
     {

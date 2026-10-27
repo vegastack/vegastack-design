@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-2/sln8AMsMLUyoI4NDJM4AqdDvc4QbPSRAhe4aU18e8=
+// @vegastack markdown-view@0.25.88 sha256-aS8nN50P5HdHNiTfZD1EZcBZXu7JeXwad83AY95Rwr0=
 
 "use client";
 
@@ -1331,6 +1331,11 @@ export interface MarkdownTaskInlineProps {
   href?: string | null;
   /** The title was clicked: open the task. */
   onOpen: () => void;
+  /**
+   * What the comment anchor text reads for it (`@label`, as the mention chip it stands for).
+   * @default undefined
+   */
+  "data-anchor-text"?: string;
 }
 
 /**
@@ -1348,6 +1353,7 @@ export function MarkdownTaskInline({
   done,
   href,
   onOpen,
+  "data-anchor-text": anchorText,
 }: MarkdownTaskInlineProps) {
   const resolver = useInlineChipResolver();
   const shown =
@@ -1366,6 +1372,9 @@ export function MarkdownTaskInline({
       overdue={shown?.overdue}
       onOpen={onOpen}
       href={href ?? resolver?.href?.("task", id) ?? undefined}
+      // Its own controls in an editable read view: never part of the text being edited.
+      contentEditable={false}
+      data-anchor-text={anchorText}
     />
   );
 }
@@ -1482,6 +1491,8 @@ export function MarkdownBookmark({
       target="_blank"
       rel="noreferrer noopener"
       aria-busy={loading || undefined}
+      // A link of its own, never editable text: an editable anchor does not navigate.
+      contentEditable={false}
       className={cn(
         "my-2 flex w-full max-w-full min-w-0 items-center gap-3 rounded-lg border border-border bg-card p-3 text-card-foreground transition-colors hover:bg-accent/50",
         className,

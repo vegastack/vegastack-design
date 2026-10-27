@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.88 sha256-2/sln8AMsMLUyoI4NDJM4AqdDvc4QbPSRAhe4aU18e8=
+// @vegastack markdown-view@0.25.88 sha256-aS8nN50P5HdHNiTfZD1EZcBZXu7JeXwad83AY95Rwr0=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1126,7 +1126,9 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
         // A code block's text as written, a final newline included — as `TextEdit` reads it.
         text += textOf(child);
       } else if (
-        ["hr", "video", "audio", "embed", "tasks"].includes(child.tag)
+        ["hr", "video", "audio", "embed", "bookmark", "tasks"].includes(
+          child.tag,
+        )
       ) {
         block();
         text += LEAF_TEXT;
@@ -2061,6 +2063,9 @@ function renderNode(
             state={closed ?? null}
             href={ctx.mentionHref ? ctx.mentionHref(kind, id) : undefined}
             onOpen={() => open(id)}
+            {...(ctx.anchorAttrs
+              ? { "data-anchor-text": `@${attrs.label ?? ""}` }
+              : {})}
           />
         );
       }

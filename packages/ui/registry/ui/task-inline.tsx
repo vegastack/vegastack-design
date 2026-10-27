@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.25.88 sha256-uuBorzXt1ai2n9mBThz4uAkeN3J0Bsg6EpfiFHRVyGk=
+// @vegastack task-inline@0.25.88 sha256-2JKdZEFDsnalloO73Y9SBaEoHxbF+9EP1/2/a49DB98=
 
 "use client";
 
@@ -105,7 +105,7 @@ export interface TaskInlineProps extends Omit<
    */
   onOpen?: () => void;
   /**
-   * The task's own page: a ↗ link at the end, shown on hover and focus.
+   * The task's own page: a ↗ link at the end, shown while the task is hovered or holds focus.
    * @default undefined
    */
   href?: string | null;
@@ -213,7 +213,11 @@ export function TaskInline({
               onOpen();
             }
           }}
-          className={cn(titleClass, "cursor-pointer hover:underline")}
+          className={cn(
+            titleClass,
+            // A 28px tall hit area around the line-high title (WCAG 2.5.8), as `InlineChip`'s.
+            "relative cursor-pointer before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] hover:underline",
+          )}
         >
           {title}
         </span>
@@ -270,10 +274,13 @@ export function TaskInline({
           href={href}
           aria-label={openLabel}
           onMouseDown={(event) => event.stopPropagation()}
+          contentEditable={false}
           title={openLabel}
           className={cn(
             META,
-            "relative size-5 justify-center rounded-sm text-muted-foreground opacity-0 transition-opacity group-hover/task-inline:opacity-100 hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 pointer-coarse:opacity-100 after:absolute after:-inset-0.5 after:content-['']",
+            // Shown only while the task is hovered or holds focus (Tab from the title reaches it): out
+            // of the way of the line below when the line wraps, and never a stray target on touch.
+            "relative hidden size-5 justify-center rounded-sm text-muted-foreground group-focus-within/task-inline:inline-flex group-hover/task-inline:inline-flex hover:bg-accent hover:text-accent-foreground after:absolute after:-inset-1 after:content-['']",
           )}
         >
           <ArrowUpRight aria-hidden className="size-3.5" />

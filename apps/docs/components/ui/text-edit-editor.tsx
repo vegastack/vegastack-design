@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.88 sha256-gjWumphyJgxRzIa6pLLQY5enpM6jvA3cfFEy6/y85mE=
+// @vegastack text-edit@0.25.88 sha256-csnrKesOqwx++LqAEfbVIlsMGPQVaezBEo4UDouRqnY=
 
 "use client";
 
@@ -4564,11 +4564,12 @@ function BookmarkView({
         return;
       }
       const href = parseLink(draft);
-      if (!href || !/^https?:\/\//i.test(href)) {
+      if (!href || !/^https?:\/\//i.test(href) || !URL.canParse(href)) {
         setInvalid(true);
         return;
       }
-      updateAttributes({ url: href });
+      // The address as the URL parser writes it, so it round-trips exactly (`bookmarkMarkdown`).
+      updateAttributes({ url: new URL(href).href });
       editor.commands.focus();
     };
     return (
@@ -11064,8 +11065,13 @@ export function TextEditEditor({
           ? embedHost(state.doc, from)
           : null;
       // A bookmark where a block can stand in for the paste (`bookmarks`).
+      // (Only an address the URL parser writes as it is: a bookmark keeps it exactly.)
       const bookmarkHost =
-        !answer && bookmarksRef.current && state.schema.nodes.bookmark
+        !answer &&
+        bookmarksRef.current &&
+        state.schema.nodes.bookmark &&
+        URL.canParse(url) &&
+        new URL(url).href === url
           ? embedHost(state.doc, from)
           : null;
       const offers: PastedChoice[] = answer

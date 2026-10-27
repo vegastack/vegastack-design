@@ -31,7 +31,7 @@ export function taskInline(): ReactNode {
     },
     {
       id: "t3",
-      title: "Confirm the delivery slot with the site office",
+      title: "Confirm the delivery slot",
       assignee: { name: "Scribe", kind: "agent" as const },
       due: "Yesterday",
       overdue: true,
@@ -40,7 +40,7 @@ export function taskInline(): ReactNode {
   ];
   return (
     <Wrapper className="flex-col items-stretch gap-2">
-      <ul className="grid gap-2 text-sm">
+      <ul className="grid gap-3 text-sm">
         {tasks.map((task) => (
           <li key={task.id}>
             <TaskInline
