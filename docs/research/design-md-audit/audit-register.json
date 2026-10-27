@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "05a6a49aa966e7c37bf3d23c29c7c11b2daf3d573d008f61c2e77aea60705068",
+  "contractSha256": "d53608d4be3dcc4d3c4be30273b24a56b8271a91a4bbf1441fa6da3f002af1e0",
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 762,
+    "components": 174,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1570,6 +1570,17 @@
         "packages/ui/registry/ui/record-chip.tsx"
       ],
       "docsSlug": "/docs/components/record-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "task-inline",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/task-inline.tsx"
+      ],
+      "docsSlug": "/docs/components/task-inline",
       "contractStatus": "reconciled"
     },
     {
