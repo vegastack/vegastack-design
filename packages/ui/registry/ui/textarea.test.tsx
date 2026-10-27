@@ -1,3 +1,4 @@
+import "../../test/geometry.css"; // compiled Tailwind + token theme
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
@@ -245,4 +246,77 @@ test("API-26: a standalone textarea carries a generated id, as Base UI's Input d
   const screen = await render(<Textarea aria-label="Standalone" />);
   const box = screen.getByRole("textbox", { name: "Standalone" }).element();
   expect(box.id).toMatch(/^base-ui-/);
+});
+
+test("API-40: ghost lg is borderless, starts at one row and grows with its text", async () => {
+  const screen = await render(
+    <div style={{ width: 240 }}>
+      <Textarea variant="ghost" size="lg" aria-label="Title" />
+    </div>,
+  );
+  const el = screen.container.querySelector("textarea")!;
+  expect(el.dataset.variant).toBe("ghost");
+  expect(el.dataset.size).toBe("lg");
+  expect(el.rows).toBe(1);
+  expect(el.className).toContain("border-0");
+  expect(el.className).toContain("bg-transparent");
+  expect(el.className).toContain("font-heading");
+  expect(el.className).not.toContain("border-input");
+  const before = el.getBoundingClientRect().height;
+  await userEvent.type(
+    el,
+    "A task title long enough to wrap onto a second line here",
+  );
+  await expect
+    .poll(() => el.getBoundingClientRect().height)
+    .toBeGreaterThan(before);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("API-40: the default variant keeps upstream's bordered field", async () => {
+  const screen = await render(<Textarea aria-label="Notes" />);
+  const el = screen.container.querySelector("textarea")!;
+  expect(el.dataset.variant).toBe("default");
+  expect(el.className).toContain("border-input");
+  expect(el.getAttribute("rows")).toBeNull();
+});
+
+test("API-40: submitOnEnter submits the form on Enter; Shift+Enter adds a line", async () => {
+  let submits = 0;
+  const screen = await render(
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        submits += 1;
+      }}
+    >
+      <Textarea aria-label="Title" variant="ghost" submitOnEnter />
+    </form>,
+  );
+  const el = screen.container.querySelector("textarea")!;
+  await userEvent.type(el, "First");
+  await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
+  expect(el.value).toBe("First\n");
+  expect(submits).toBe(0);
+  await userEvent.keyboard("{Enter}");
+  expect(submits).toBe(1);
+  expect(el.value).toBe("First\n");
+});
+
+test("API-40: without submitOnEnter, Enter adds a line and never submits", async () => {
+  let submits = 0;
+  const screen = await render(
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        submits += 1;
+      }}
+    >
+      <Textarea aria-label="Notes" />
+    </form>,
+  );
+  const el = screen.container.querySelector("textarea")!;
+  await userEvent.type(el, "a{Enter}b");
+  expect(el.value).toBe("a\nb");
+  expect(submits).toBe(0);
 });

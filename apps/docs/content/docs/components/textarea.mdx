@@ -129,4 +129,9 @@ focus-visible:ring-ring/50` becomes `outline-hidden`, with no ring and no glow. 
 - **API-26** — the `<textarea>` renders through Base UI `Field.Control`, so inside a `Field` it takes
   its label, the rendered description and error ids, and `aria-invalid` with no props, like `Input`.
   The file gains `"use client"`, because `Field.Control` is hook-backed.
+- **API-40** — `variant` (`default` · `ghost`) and `size` (`default` · `lg`), as on `Input`, and
+  `submitOnEnter`. `ghost` is borderless and transparent, starts at one row and grows with its
+  text (a measured height where the browser lacks `field-sizing: content`); `lg` is the heading
+  size; with `submitOnEnter`, Enter submits the form and Shift+Enter adds a line. For a big title
+  that may wrap: `<Textarea variant="ghost" size="lg" submitOnEnter />`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
