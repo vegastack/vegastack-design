@@ -1358,8 +1358,11 @@ function GridCellImpl<T>({
   // Only an editable cell reads its value as a string; a read-only cell's renderer gets the row.
   const persisted = editor ? String(readValue(column, row) ?? "") : "";
   // A blank primary (empty or only spaces) reads "Untitled" at rest, like the card's title; the
-  // editor still gets the stored value. A select's trigger draws through this too.
-  const blankPrimary = emptyLabel != null && persisted.trim() === "";
+  // editor still gets the stored value. A select reads it as its trigger's placeholder instead.
+  const blankPrimary =
+    emptyLabel != null &&
+    persisted.trim() === "" &&
+    editor?.type !== "select";
   // The column's `render` stays the display (tags, chips, avatars), not the value's text.
   // While a commit is pending the row still holds the old value, so the pending value shows
   // as text until the host's new row arrives.
