@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9c46bd91111530fd09f3171b8d2c4e05777e637a628ef42f96902fb92d0d8bd1",
+  "contractSha256": "8665bfb4cf6dd6cb66879c7d5de250dd7753db82fb24acff028a6ec18e9a31ae",
   "inventory": {
-    "expected": 770,
-    "actual": 770,
-    "unique": 770
+    "expected": 773,
+    "actual": 773,
+    "unique": 773
   },
   "classes": {
-    "components": 182,
+    "components": 185,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -47,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 38,
-      "actual": 38,
+      "expected": 41,
+      "actual": 41,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -60,11 +60,13 @@
         "combobox",
         "country-select",
         "date-picker",
+        "destination-picker",
         "dropzone",
         "editable-cell",
         "field",
         "field-cell",
         "field-grid",
+        "field-type-picker",
         "filter-bar",
         "filter-bar-managed",
         "formula-input",
@@ -75,6 +77,7 @@
         "password-input",
         "people-picker",
         "record-chip",
+        "record-picker",
         "region-select",
         "search-input",
         "searchable-select",
@@ -832,7 +835,7 @@
       ]
     }
   },
-  "componentRoutes": 176,
+  "componentRoutes": 179,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

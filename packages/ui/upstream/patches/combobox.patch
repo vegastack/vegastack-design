@@ -1,6 +1,9 @@
 # component: combobox
-# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, API-34, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14
+# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, API-34, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-38
 # hunks:
+#   API-38 (MK 2026-10-26, Regent product-cohesion W1-DS2): `ComboboxContent` takes `loading`, `error`,
+#     `onRetry` and their labels: a `combobox-status` row (`role="status"`) after the list — a spinner
+#     while loading, the error with a Try again button — so an async list never shows an empty popup.
 #   API-31: the clear button and the chip remove button add `active:not-aria-[haspopup]:translate-y-0`
 #     so a × never moves when pressed (MK, 25-09-2026).
 #   API-34: `ComboboxChips` takes `showClear` (and `clearLabel`, "Clear all") and renders a
@@ -87,10 +90,10 @@
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..7f4eee5 100644
+index 39e776a..b9231cc 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
-@@ -1,22 +1,28 @@
+@@ -1,22 +1,29 @@
 -"use client"
 +"use client";
  
@@ -104,6 +107,7 @@ index 39e776a..7f4eee5 100644
  
 -import { Button } from "@/components/ui/button"
 +import { Button } from "@/components/ui/button";
++import { Spinner } from "@/components/ui/spinner";
  import {
    InputGroup,
    InputGroupAddon,
@@ -128,7 +132,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxTrigger({
-@@ -33,20 +39,42 @@ function ComboboxTrigger({
+@@ -33,20 +40,42 @@ function ComboboxTrigger({
        {children}
        <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
      </ComboboxPrimitive.Trigger>
@@ -175,7 +179,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxInput({
-@@ -57,8 +85,8 @@ function ComboboxInput({
+@@ -57,8 +86,8 @@ function ComboboxInput({
    showClear = false,
    ...props
  }: ComboboxPrimitive.Input.Props & {
@@ -186,7 +190,7 @@ index 39e776a..7f4eee5 100644
  }) {
    return (
      <InputGroup className={cn("w-auto", className)}>
-@@ -72,16 +100,39 @@ function ComboboxInput({
+@@ -72,16 +101,39 @@ function ComboboxInput({
              size="icon-xs"
              variant="ghost"
              render={<ComboboxTrigger />}
@@ -227,16 +231,51 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxContent({
-@@ -97,6 +148,8 @@ function ComboboxContent({
+@@ -91,12 +143,42 @@ function ComboboxContent({
+   align = "start",
+   alignOffset = 0,
+   anchor,
++  children,
++  loading = false,
++  error,
++  onRetry,
++  loadingLabel = "Loading…",
++  errorLabel = "Couldn't load the options.",
++  retryLabel = "Try again",
+   ...props
+ }: ComboboxPrimitive.Popup.Props &
+   Pick<
      ComboboxPrimitive.Positioner.Props,
      "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
-   >) {
+-  >) {
++  > & {
++    /**
++     * API-38: the options are being fetched — a spinner row (`loadingLabel`) so an async list is
++     * never an empty popup.
++     * @default false
++     */
++    loading?: boolean;
++    /**
++     * API-38: the options could not be fetched — an error row (`error` itself when a string, else
++     * `errorLabel`) with a Try again button when `onRetry` is set. Wins over `loading`.
++     * @default undefined
++     */
++    error?: React.ReactNode;
++    /** API-38: fetch the options again. @default undefined */
++    onRetry?: () => void;
++    /** @default "Loading…" */
++    loadingLabel?: React.ReactNode;
++    /** @default "Couldn't load the options." */
++    errorLabel?: React.ReactNode;
++    /** @default "Try again" */
++    retryLabel?: string;
++  }) {
 +  const themeScope = useInternalThemeScope();
 +
    return (
      <ComboboxPrimitive.Portal>
        <ComboboxPrimitive.Positioner
-@@ -105,17 +158,20 @@ function ComboboxContent({
+@@ -105,17 +187,54 @@ function ComboboxContent({
          align={align}
          alignOffset={alignOffset}
          anchor={anchor}
@@ -252,7 +291,42 @@ index 39e776a..7f4eee5 100644
 +            className,
 +          )}
            {...props}
-         />
+-        />
++        >
++          {children}
++          {loading || error ? (
++            <div
++              data-slot="combobox-status"
++              data-state={error ? "error" : "loading"}
++              role="status"
++              aria-busy={error ? undefined : true}
++              className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground"
++            >
++              {error ? (
++                <>
++                  <span className="min-w-0 flex-1">
++                    {typeof error === "string" ? error : errorLabel}
++                  </span>
++                  {onRetry ? (
++                    <Button
++                      type="button"
++                      size="xs"
++                      variant="outline"
++                      onClick={onRetry}
++                    >
++                      {retryLabel}
++                    </Button>
++                  ) : null}
++                </>
++              ) : (
++                <>
++                  <Spinner />
++                  {loadingLabel}
++                </>
++              )}
++            </div>
++          ) : null}
++        </ComboboxPrimitive.Popup>
        </ComboboxPrimitive.Positioner>
      </ComboboxPrimitive.Portal>
 -  )
@@ -260,7 +334,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
-@@ -124,11 +180,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+@@ -124,11 +243,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
        data-slot="combobox-list"
        className={cn(
          "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
@@ -274,7 +348,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxItem({
-@@ -136,25 +192,29 @@ function ComboboxItem({
+@@ -136,25 +255,29 @@ function ComboboxItem({
    children,
    ...props
  }: ComboboxPrimitive.Item.Props) {
@@ -321,7 +395,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
-@@ -164,7 +224,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+@@ -164,7 +287,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
        className={cn(className)}
        {...props}
      />
@@ -330,7 +404,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxLabel({
-@@ -177,13 +237,13 @@ function ComboboxLabel({
+@@ -177,13 +300,13 @@ function ComboboxLabel({
        className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -346,7 +420,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
-@@ -191,12 +251,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+@@ -191,12 +314,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
      <ComboboxPrimitive.Empty
        data-slot="combobox-empty"
        className={cn(
@@ -382,7 +456,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxSeparator({
-@@ -209,24 +289,38 @@ function ComboboxSeparator({
+@@ -209,24 +352,38 @@ function ComboboxSeparator({
        className={cn("-mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -427,7 +501,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxChip({
-@@ -235,21 +329,28 @@ function ComboboxChip({
+@@ -235,21 +392,28 @@ function ComboboxChip({
    showRemove = true,
    ...props
  }: ComboboxPrimitive.Chip.Props & {
@@ -460,7 +534,7 @@ index 39e776a..7f4eee5 100644
            className="-ms-1 opacity-50 hover:opacity-100"
            data-slot="combobox-chip-remove"
          >
-@@ -257,7 +358,7 @@ function ComboboxChip({
+@@ -257,7 +421,7 @@ function ComboboxChip({
          </ComboboxPrimitive.ChipRemove>
        )}
      </ComboboxPrimitive.Chip>
@@ -469,7 +543,7 @@ index 39e776a..7f4eee5 100644
  }
  
  function ComboboxChipsInput({
-@@ -267,14 +368,14 @@ function ComboboxChipsInput({
+@@ -267,14 +431,14 @@ function ComboboxChipsInput({
    return (
      <ComboboxPrimitive.Input
        data-slot="combobox-chip-input"
@@ -487,7 +561,7 @@ index 39e776a..7f4eee5 100644
  }
  
  export {
-@@ -287,6 +388,7 @@ export {
+@@ -287,6 +451,7 @@ export {
    ComboboxLabel,
    ComboboxCollection,
    ComboboxEmpty,
@@ -495,7 +569,7 @@ index 39e776a..7f4eee5 100644
    ComboboxSeparator,
    ComboboxChips,
    ComboboxChip,
-@@ -294,4 +396,4 @@ export {
+@@ -294,4 +459,4 @@ export {
    ComboboxTrigger,
    ComboboxValue,
    useComboboxAnchor,

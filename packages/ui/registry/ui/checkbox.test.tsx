@@ -339,3 +339,11 @@ fieldWiringTests({
   render: (props) => <Checkbox {...props} />,
   find: (screen, name) => screen.getByRole("checkbox", { name }),
 });
+
+test("A11Y-24: a coarse pointer gets a hit area of at least 44px", async () => {
+  const screen = await render(<Checkbox aria-label="Done" />);
+  const tokens = screen.container
+    .querySelector<HTMLElement>('[data-slot="checkbox"]')!
+    .className.split(/\s+/);
+  expect(tokens).toContain("pointer-coarse:after:-inset-3.5");
+});

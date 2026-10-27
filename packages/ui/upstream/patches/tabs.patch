@@ -1,6 +1,11 @@
 # component: tabs
-# decisions: A11Y-20, API-5, API-25, API-29, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, LAY-14
+# decisions: A11Y-20, API-5, API-25, API-29, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, LAY-14, A11Y-24
 # hunks:
+#   A11Y-24 (widened MK 2026-10-26, Regent product-cohesion W1-DS2): on a coarse pointer a
+#     horizontal trigger's invisible `before:` hit area reaches 44px tall (`-inset-y-2`,
+#     `-inset-y-2.5` in a `sm` list) and never wider, so neighbouring tabs never overlap; only in a
+#     list that does not scroll (`data-overflow="visible"`), which would clip it. `after:` stays
+#     the indicator.
 #   API-29: `TabsList` gains a `size` axis (`default` | `sm`, written as `data-size`); `sm` is the
 #     compact h-7 list for scope/view tabs in a FilterBar, and its triggers take `px-2` and 14px
 #     icons. Tabs keep the one focus ring left in the system, from base.css (FOC-13).
@@ -55,7 +60,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..9204bbf 100644
+index c3262d3..124786c 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
 @@ -1,8 +1,9 @@
@@ -72,7 +77,7 @@ index c3262d3..9204bbf 100644
  
  function Tabs({
    className,
-@@ -13,69 +14,174 @@ function Tabs({
+@@ -13,69 +14,179 @@ function Tabs({
      <TabsPrimitive.Root
        data-slot="tabs"
        data-orientation={orientation}
@@ -182,6 +187,11 @@ index c3262d3..9204bbf 100644
 +  "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
 +  "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
 +  "group-data-[size=sm]/tabs-list:px-2 group-data-[size=sm]/tabs-list:[&_svg:not([class*='size-'])]:size-3.5",
++  // A11Y-24: on a coarse pointer a horizontal tab's hit area reaches 44px tall (an invisible
++  // `before:` box; `after:` is the line indicator), never wider, so neighbouring tabs never
++  // overlap. Only where the list does not scroll: a scrolling list clips its overflow, and a
++  // vertical list's neighbours sit above and below.
++  "group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:absolute group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:inset-x-0 group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:-inset-y-2 group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:content-[''] group-data-[size=sm]/tabs-list:group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:-inset-y-2.5",
 +  "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-not-data-vertical/tabs:after:inset-x-0 group-not-data-vertical/tabs:after:bottom-[-5px] group-not-data-vertical/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-end-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
 +]);
 +

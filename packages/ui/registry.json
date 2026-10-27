@@ -1261,7 +1261,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/spinner"
       ],
       "files": [
         {
@@ -14150,6 +14151,93 @@
       }
     },
     {
+      "name": "record-picker",
+      "type": "registry:ui",
+      "title": "Record Picker",
+      "description": "Pick records of the kinds the app passes in — search, kind filter, recents, refused rows — in a popover or a dialog.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/dialog",
+        "@vegastack/use-async-search"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Linking, relating or inserting records of several kinds: a relation field, a mention target, a block source, a Link to… dialog.",
+        "whenNotToUse": "A fixed option list (Select, SearchableSelect), people (PeoplePicker) or a place to move something (DestinationPicker).",
+        "version": "0.25.88"
+      }
+    },
+    {
+      "name": "destination-picker",
+      "type": "registry:ui",
+      "title": "Destination Picker",
+      "description": "Choose where something goes — spaces, their folders, recents, search, refusals with a reason.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/folder-tree",
+        "@vegastack/panel-search",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-async-search"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/destination-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/destination-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A Move to… dialog: moving a page, file, folder, table, task or meeting into a space or folder.",
+        "whenNotToUse": "Picking a record to link (RecordPicker) or a space alone (SpacePicker).",
+        "version": "0.25.88"
+      }
+    },
+    {
+      "name": "field-type-picker",
+      "type": "registry:ui",
+      "title": "Field Type Picker",
+      "description": "A searchable, grouped list of field types with icons, and an optional second step.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/command"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/field-type-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/field-type-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing a field type: + Add field on a table, a form builder, a field settings Type row.",
+        "whenNotToUse": "Any other fixed list (Select) or record list (RecordPicker).",
+        "version": "0.25.88"
+      }
+    },
+    {
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
@@ -14660,7 +14748,11 @@
         "@vegastack/design@^0.8.37",
         "@vegastack/design-tokens@^0.8.35"
       ],
-      "registryDependencies": ["@vegastack/item"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/item",
+        "@vegastack/spinner"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/select.tsx",

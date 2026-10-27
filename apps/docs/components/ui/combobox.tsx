@@ -1,4 +1,4 @@
-// @vegastack combobox@0.25.89 sha256-bKNLu1+7lFVV+JVvR+1qKE9WaMj31kcRwuO8bHxDHMM=
+// @vegastack combobox@0.25.89 sha256-2k75vsuK2EYecu+b4a4jNm7KalWen7EUkVgaNlcjhKs=
 
 "use client";
 
@@ -8,6 +8,7 @@ import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   InputGroup,
   InputGroupAddon,
@@ -144,12 +145,40 @@ function ComboboxContent({
   align = "start",
   alignOffset = 0,
   anchor,
+  children,
+  loading = false,
+  error,
+  onRetry,
+  loadingLabel = "Loading…",
+  errorLabel = "Couldn't load the options.",
+  retryLabel = "Try again",
   ...props
 }: ComboboxPrimitive.Popup.Props &
   Pick<
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
-  >) {
+  > & {
+    /**
+     * API-38: the options are being fetched — a spinner row (`loadingLabel`) so an async list is
+     * never an empty popup.
+     * @default false
+     */
+    loading?: boolean;
+    /**
+     * API-38: the options could not be fetched — an error row (`error` itself when a string, else
+     * `errorLabel`) with a Try again button when `onRetry` is set. Wins over `loading`.
+     * @default undefined
+     */
+    error?: React.ReactNode;
+    /** API-38: fetch the options again. @default undefined */
+    onRetry?: () => void;
+    /** @default "Loading…" */
+    loadingLabel?: React.ReactNode;
+    /** @default "Couldn't load the options." */
+    errorLabel?: React.ReactNode;
+    /** @default "Try again" */
+    retryLabel?: string;
+  }) {
   const themeScope = useInternalThemeScope();
 
   return (
@@ -170,7 +199,41 @@ function ComboboxContent({
             className,
           )}
           {...props}
-        />
+        >
+          {children}
+          {loading || error ? (
+            <div
+              data-slot="combobox-status"
+              data-state={error ? "error" : "loading"}
+              role="status"
+              aria-busy={error ? undefined : true}
+              className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground"
+            >
+              {error ? (
+                <>
+                  <span className="min-w-0 flex-1">
+                    {typeof error === "string" ? error : errorLabel}
+                  </span>
+                  {onRetry ? (
+                    <Button
+                      type="button"
+                      size="xs"
+                      variant="outline"
+                      onClick={onRetry}
+                    >
+                      {retryLabel}
+                    </Button>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <Spinner />
+                  {loadingLabel}
+                </>
+              )}
+            </div>
+          ) : null}
+        </ComboboxPrimitive.Popup>
       </ComboboxPrimitive.Positioner>
     </ComboboxPrimitive.Portal>
   );

@@ -1,0 +1,94 @@
+---
+title: Field Type Picker
+description: A searchable list of field types with their icons, in groups, for adding a field or changing its type.
+audience: public
+registry: field-type-picker
+status: preview
+since: 0.25.89
+a11y: combobox search over a grouped listbox
+preview: fieldTypePicker
+---
+
+## Install
+
+<InstallSteps name="field-type-picker" />
+
+## Usage
+
+```tsx
+import { FieldTypePicker } from "@/components/ui/field-type-picker";
+
+<PopoverContent className="p-0">
+  <FieldTypePicker types={fieldTypes} onSelect={(type) => addField(type)} />
+</PopoverContent>;
+```
+
+## Scope
+
+Choosing a field's type: "+ Add field" on a table, a form builder, the Type row of a field's
+settings. The app passes its types with their icons and groups; the picker searches names,
+descriptions and `keywords`.
+
+## Anatomy
+
+<Anatomy name="field-type-picker" />
+
+## Examples
+
+### Add a field
+
+Ungrouped types come first, then the groups in `groupOrder`. The current type is checked; a type
+with a `disabledReason` shows why and can't be chosen.
+
+<ComponentPreview
+  name="fieldTypePicker"
+  file="components/preview/field-type-picker.tsx"
+/>
+
+### A second step
+
+A type with `next` opens a second step instead of being chosen — "Link to" asking which kind of
+record. `renderStep(type, { back, setTitle })` draws it under a back header
+(`data-slot="field-type-picker-step-header"`, the type's icon and label, retitled with `setTitle`);
+the step reports its own final choice.
+
+```tsx
+<FieldTypePicker
+  types={[
+    ...types,
+    { id: "link", label: "Link to", icon: <Link2 />, next: true },
+  ]}
+  onSelect={addField}
+  renderStep={(type, { back }) => (
+    <LinkKindStep onBack={back} onPick={addLink} />
+  )}
+/>
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-type-picker.tsx"
+  name="FieldTypePickerProps"
+/>
+
+### FieldTypeOption
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-type-picker.tsx"
+  name="FieldTypeOption"
+/>
+
+## Accessibility
+
+- A combobox search over a grouped listbox: ↑/↓ move, Enter chooses, Esc closes the host popover.
+- Icons are decorative; each type is named by its label.
+
+<StatesTested name="field-type-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Offer field types through FieldTypePicker with an icon for every type."
+  dont="List field types in a plain Select with no search or icons."
+/>

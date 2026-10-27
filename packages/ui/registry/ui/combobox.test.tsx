@@ -879,3 +879,29 @@ test("no a11y violations — chips with clear-all, closed and open", async () =>
   );
   await expectNoA11yViolations(document.body);
 });
+
+test("API-38: ComboboxContent shows a loading row, and an error with Try again", async () => {
+  let retried = 0;
+  const screen = await render(
+    <Combobox items={[] as string[]} defaultOpen>
+      <ComboboxInput aria-label="Customer" />
+      <ComboboxContent
+        error="Couldn't reach the server."
+        onRetry={() => retried++}
+      >
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  await expect
+    .element(screen.getByText("Couldn't reach the server."))
+    .toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+  expect(retried).toBe(1);
+});

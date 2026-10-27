@@ -1,4 +1,4 @@
-// @vegastack select@0.25.89 sha256-Edj5LUHAPhIOApG/DQ/lYAA+qJGVhsAw7iDiTG4u/xA=
+// @vegastack select@0.25.89 sha256-FRyw/sec6sSwZp5x7dC1EugInuYk/ghBvZ+MhJ6iVxo=
 
 "use client";
 
@@ -7,6 +7,8 @@ import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { cva } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
 
 import {
@@ -109,12 +111,40 @@ function SelectContent({
   alignOffset = 0,
   alignItemWithTrigger = true,
   wrap = false,
+  loading = false,
+  error,
+  onRetry,
+  loadingLabel = "Loading…",
+  errorLabel = "Couldn't load the options.",
+  retryLabel = "Try again",
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
-  > & { wrap?: boolean }) {
+  > & {
+    wrap?: boolean;
+    /**
+     * API-38: the options are being fetched — a spinner row (`loadingLabel`) so an async list is
+     * never an empty popup.
+     * @default false
+     */
+    loading?: boolean;
+    /**
+     * API-38: the options could not be fetched — an error row (`error` itself when a string, else
+     * `errorLabel`) with a Try again button when `onRetry` is set. Wins over `loading`.
+     * @default undefined
+     */
+    error?: React.ReactNode;
+    /** API-38: fetch the options again. @default undefined */
+    onRetry?: () => void;
+    /** @default "Loading…" */
+    loadingLabel?: React.ReactNode;
+    /** @default "Couldn't load the options." */
+    errorLabel?: React.ReactNode;
+    /** @default "Try again" */
+    retryLabel?: string;
+  }) {
   const themeScope = useInternalThemeScope();
 
   return (
@@ -139,6 +169,38 @@ function SelectContent({
         >
           <SelectScrollUpButton />
           <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          {loading || error ? (
+            <div
+              data-slot="select-status"
+              data-state={error ? "error" : "loading"}
+              role="status"
+              aria-busy={error ? undefined : true}
+              className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground"
+            >
+              {error ? (
+                <>
+                  <span className="min-w-0 flex-1">
+                    {typeof error === "string" ? error : errorLabel}
+                  </span>
+                  {onRetry ? (
+                    <Button
+                      type="button"
+                      size="xs"
+                      variant="outline"
+                      onClick={onRetry}
+                    >
+                      {retryLabel}
+                    </Button>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <Spinner />
+                  {loadingLabel}
+                </>
+              )}
+            </div>
+          ) : null}
           <SelectScrollDownButton />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>

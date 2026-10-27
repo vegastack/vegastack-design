@@ -213,3 +213,30 @@ fieldWiringTests({
   render: (props) => <Input {...props} />,
   find: (screen, name) => screen.getByRole("textbox", { name }),
 });
+
+test("FRM-17: credential={false} keeps password managers off a name field; autoComplete still wins", async () => {
+  const screen = await render(
+    <>
+      <Input aria-label="Table name" credential={false} />
+      <Input aria-label="Email" credential={false} autoComplete="email" />
+      <Input aria-label="Plain" />
+    </>,
+  );
+  const name = screen.getByRole("textbox", { name: "Table name" }).element();
+  expect(name.getAttribute("autocomplete")).toBe("off");
+  expect(name.hasAttribute("data-1p-ignore")).toBe(true);
+  expect(name.getAttribute("data-lpignore")).toBe("true");
+  expect(name.hasAttribute("data-bwignore")).toBe(true);
+  expect(
+    screen
+      .getByRole("textbox", { name: "Email" })
+      .element()
+      .getAttribute("autocomplete"),
+  ).toBe("email");
+  expect(
+    screen
+      .getByRole("textbox", { name: "Plain" })
+      .element()
+      .hasAttribute("data-1p-ignore"),
+  ).toBe(false);
+});

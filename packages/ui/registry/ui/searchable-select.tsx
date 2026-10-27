@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.89 sha256-K6rxRozRgkSdP0GPOrGBDKlj9+Lq+o+C4tDIOugXiUQ=
+// @vegastack searchable-select@0.25.89 sha256-G/Eh1JCKV4xi3rFqKkV1u8GGWKX9XLKsyhNo+SnfqLs=
 
 "use client";
 
@@ -194,6 +194,15 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   renderTriggerValue?: (selected: Item[]) => string;
+  /**
+   * Replace the whole trigger with your own element — a `RecordChip`, an inline pill — for a
+   * picker that lives in a chip row: return the element to render as the trigger, built from
+   * the current selection. The field chrome (border, chevron, clear control) goes with it; the
+   * popup, search, keyboard and value contract stay the same. The element must be able to hold a
+   * ref and take button props (Base UI merges them in).
+   * @default undefined
+   */
+  renderTrigger?: (selected: Item[]) => React.ReactElement;
   /**
    * The trigger's text for a multiple selection of more than two.
    * @default (n) => `${n} selected`
@@ -464,6 +473,7 @@ export function SearchableSelect<
   retryLabel = "Try again",
   countLabel = (n) => `${n} selected`,
   renderTriggerValue,
+  renderTrigger,
   isItemEqualToValue,
   itemToStringLabel,
   itemToKey,
@@ -713,7 +723,7 @@ export function SearchableSelect<
         : hasValue
           ? valueText(selectedList)
           : placeholder);
-  const showClear = clearable && hasValue;
+  const showClear = clearable && hasValue && !renderTrigger;
   const ghost = variant === "ghost";
   // One truncated line, or with `wrap` the whole value (LAY-11: `min-w-0` either way).
   const valueClass = wrap ? "min-w-0" : "min-w-0 truncate";
@@ -772,76 +782,94 @@ export function SearchableSelect<
           isCreateRow(item) ? "" : itemToKey(item)
         }
       >
-        <BaseCombobox.Trigger
-          id={id}
-          ref={triggerRef}
-          disabled={disabled}
-          aria-label={triggerLabel}
-          aria-invalid={ariaInvalid || undefined}
-          aria-describedby={ariaDescribedBy}
-          // The styling hook for "nothing selected yet", so a wrapper can tint the trigger from
-          // the outside without reaching through to the value span.
-          data-placeholder={hasValue ? undefined : ""}
-          render={
-            <Button
-              variant="outline"
-              size={size === "sm" ? "sm" : "default"}
-              // `pe-9` is the trailing reserve the chevron AND the clear control share, so the
-              // label's box is identical whether or not something is selected. The `sm` tier
-              // keeps the 14px text of `Select size="sm"`, so an inline row reads as one type.
-              className={cn(
-                "w-full justify-start pe-9 font-normal",
-                size === "sm" && "text-sm",
-                ghost &&
-                  "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent",
-                // `wrap`: the trigger's fixed height becomes its minimum, and the value runs onto
-                // as many lines as it needs; one line still measures the fixed height.
-                wrap &&
-                  cn(
-                    "h-auto text-start whitespace-normal wrap-anywhere",
-                    size === "sm" ? "min-h-7 py-0.5" : "min-h-8 py-1",
-                  ),
-                className,
-              )}
-              data-slot={`${slot}-trigger`}
-            />
-          }
-        >
-          <ComboboxValue>
-            {(selected: Item | Item[] | null) => {
-              const list = Array.isArray(selected)
-                ? selected
-                : selected
-                  ? [selected]
-                  : [];
-              if (renderTriggerValue)
+        {renderTrigger ? (
+          <BaseCombobox.Trigger
+            id={id}
+            ref={triggerRef}
+            disabled={disabled}
+            aria-label={triggerLabel}
+            aria-invalid={ariaInvalid || undefined}
+            aria-describedby={ariaDescribedBy}
+            data-placeholder={hasValue ? undefined : ""}
+            data-slot={`${slot}-trigger`}
+            render={renderTrigger(selectedList)}
+          />
+        ) : (
+          <BaseCombobox.Trigger
+            id={id}
+            ref={triggerRef}
+            disabled={disabled}
+            aria-label={triggerLabel}
+            aria-invalid={ariaInvalid || undefined}
+            aria-describedby={ariaDescribedBy}
+            // The styling hook for "nothing selected yet", so a wrapper can tint the trigger from
+            // the outside without reaching through to the value span.
+            data-placeholder={hasValue ? undefined : ""}
+            render={
+              <Button
+                variant="outline"
+                size={size === "sm" ? "sm" : "default"}
+                // `pe-9` is the trailing reserve the chevron AND the clear control share, so the
+                // label's box is identical whether or not something is selected. The `sm` tier
+                // keeps the 14px text of `Select size="sm"`, so an inline row reads as one type.
+                className={cn(
+                  "w-full justify-start pe-9 font-normal",
+                  size === "sm" && "text-sm",
+                  ghost &&
+                    "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent",
+                  // `wrap`: the trigger's fixed height becomes its minimum, and the value runs onto
+                  // as many lines as it needs; one line still measures the fixed height.
+                  wrap &&
+                    cn(
+                      "h-auto text-start whitespace-normal wrap-anywhere",
+                      size === "sm" ? "min-h-7 py-0.5" : "min-h-8 py-1",
+                    ),
+                  className,
+                )}
+                data-slot={`${slot}-trigger`}
+              />
+            }
+          >
+            <ComboboxValue>
+              {(selected: Item | Item[] | null) => {
+                const list = Array.isArray(selected)
+                  ? selected
+                  : selected
+                    ? [selected]
+                    : [];
+                if (renderTriggerValue)
+                  return (
+                    <span className={valueClass}>
+                      {renderTriggerValue(list)}
+                    </span>
+                  );
+                if (list.length === 0)
+                  return (
+                    <span className={cn(valueClass, "text-muted-foreground")}>
+                      {placeholder}
+                    </span>
+                  );
+                // A flex child only truncates with `min-w-0` (LAY-11).
+                const person = isMultiple
+                  ? undefined
+                  : itemToAvatar?.(list[0]!);
                 return (
-                  <span className={valueClass}>{renderTriggerValue(list)}</span>
+                  <>
+                    {person ? (
+                      <PersonAvatar
+                        person={person}
+                        className="data-[size=sm]:size-5"
+                      />
+                    ) : null}
+                    <span className={valueClass}>
+                      {isMultiple ? valueText(list) : face(list[0]!)}
+                    </span>
+                  </>
                 );
-              if (list.length === 0)
-                return (
-                  <span className={cn(valueClass, "text-muted-foreground")}>
-                    {placeholder}
-                  </span>
-                );
-              // A flex child only truncates with `min-w-0` (LAY-11).
-              const person = isMultiple ? undefined : itemToAvatar?.(list[0]!);
-              return (
-                <>
-                  {person ? (
-                    <PersonAvatar
-                      person={person}
-                      className="data-[size=sm]:size-5"
-                    />
-                  ) : null}
-                  <span className={valueClass}>
-                    {isMultiple ? valueText(list) : face(list[0]!)}
-                  </span>
-                </>
-              );
-            }}
-          </ComboboxValue>
-        </BaseCombobox.Trigger>
+              }}
+            </ComboboxValue>
+          </BaseCombobox.Trigger>
+        )}
         <ComboboxContent
           align="start"
           className={cn(
@@ -979,7 +1007,7 @@ export function SearchableSelect<
         >
           <X />
         </Button>
-      ) : (
+      ) : renderTrigger ? null : (
         <ChevronsUpDown
           aria-hidden
           className={cn(

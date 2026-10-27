@@ -1,4 +1,4 @@
-// @vegastack item@0.25.89 sha256-DQf+tYnS5RCxNSUrz9FTkVog5Wfw1nW9h6Gsn/wJe9s=
+// @vegastack item@0.25.89 sha256-XiQdFYOSWfZmVjU+Rmlrt00rjj9XQLV+vY5gC9lsQTE=
 
 "use client";
 
@@ -24,8 +24,16 @@ function ItemGroup({
   className,
   children,
   ref,
+  variant = "default",
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  /**
+   * `flush` (API-37): rows with no gap between them, bled into the enclosing card's padding so
+   * a row's text lines up with the card's own content — a list of rows inside a card.
+   * @default "default"
+   */
+  variant?: "default" | "flush";
+}) {
   const groupRef = React.useRef<HTMLDivElement>(null);
   const mergedRef = React.useMemo(
     () => mergeRefs<HTMLDivElement>(groupRef, ref),
@@ -54,8 +62,12 @@ function ItemGroup({
       ref={mergedRef}
       role="list"
       data-slot="item-group"
+      data-variant={variant}
       className={cn(
-        "group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
+        "group/item-group flex flex-col",
+        variant === "flush"
+          ? "-mx-3 w-auto gap-0"
+          : "w-full gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
         className,
       )}
       {...props}

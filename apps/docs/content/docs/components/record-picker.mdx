@@ -1,0 +1,104 @@
+---
+title: Record Picker
+description: Pick one or several records of the kinds the app passes in — search, kind filter, recents and refused rows — in a popover or a dialog.
+audience: public
+registry: record-picker
+status: preview
+since: 0.25.89
+a11y: combobox search, grouped listbox, disabled rows with reasons
+preview: recordPicker
+---
+
+## Install
+
+<InstallSteps name="record-picker" />
+
+## Usage
+
+```tsx
+import { RecordPicker } from "@/components/ui/record-picker";
+
+<PopoverContent size="lg" className="p-0">
+  <RecordPicker
+    kinds={[
+      { id: "page", noun: "Pages", icon: <FileText /> },
+      { id: "table", noun: "Tables", icon: <Table2 /> },
+    ]}
+    search={(q, { kind, cursor, signal }) =>
+      api.search({ q, kind, cursor }, { signal })
+    }
+    recents={recent}
+    onPick={(item) => link(item)}
+  />
+</PopoverContent>;
+```
+
+## Scope
+
+One way to pick records, whatever their kind: a relation field, a block's source, a "Link to…"
+dialog. The picker knows no kinds — the app passes them with their nouns and icons, and its own
+`search` loader (debounced, abortable and paged through `useAsyncSearch`). People have
+`PeoplePicker`; a place to move something has `DestinationPicker`.
+
+## Anatomy
+
+<Anatomy name="record-picker" />
+
+## Examples
+
+### In a popover
+
+Type to search; the kind filter narrows it ("All" by default); `recents` show while the box is
+empty; results group by kind. A record with a `disabledReason` shows why and can't be picked.
+
+<ComponentPreview
+  name="recordPicker"
+  file="components/preview/record-picker.tsx"
+/>
+
+### In a dialog, picking several
+
+`RecordPickerDialog` with `multiple`: the dialog starts from `value` (the records picked before),
+rows toggle with a check, and Done reports the whole set through `onConfirm` (`onValueChange`
+follows each toggle). `value` holds records, not keys, so an earlier pick survives a search that
+no longer shows it. While a new search is on its way, Enter can't pick a row from the last one.
+
+<ComponentPreview
+  name="recordPickerDialog"
+  file="components/preview/record-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-picker.tsx"
+  name="RecordPickerProps"
+/>
+
+### RecordPickerDialog
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-picker.tsx"
+  name="RecordPickerDialogProps"
+/>
+
+## Accessibility
+
+| Key   | Does                                |
+| ----- | ----------------------------------- |
+| Type  | Searches the app's records          |
+| ↑ / ↓ | Moves through the results           |
+| Enter | Picks (or toggles, with `multiple`) |
+| Esc   | Closes the popover or dialog        |
+
+- The search box drives a grouped listbox; a refused row is `aria-disabled` and reads its reason.
+- Loading, errors and "Load more" sit outside the listbox, in a status row.
+
+<StatesTested name="record-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Use one RecordPicker for every 'pick a record' job, passing the kinds and the app's search."
+  dont="Build a picker dialog per record kind, or filter a full list of records on the client."
+/>

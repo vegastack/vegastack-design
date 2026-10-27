@@ -1,11 +1,16 @@
-// @vegastack person-avatar@0.25.89 sha256-GqdYLwjS/LezPEycGu4BxP04safXWbo9uRJSPpH4gEE=
+// @vegastack person-avatar@0.25.89 sha256-jmHs7iV3PnY1S67vvEuYVrwnUMHCDXmHG5d180h9rgc=
 
 "use client";
 
 import * as React from "react";
 import { Bot, UsersRound } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  type AvatarHue,
+} from "@/components/ui/avatar";
 
 /* ------------------------------------------------------------------------------------------------
  * PersonAvatar — the ONE way a person is drawn as an avatar: their photo, else their initials on
@@ -127,7 +132,8 @@ export interface PersonAvatarProps extends Omit<
  *
  * A team (`kind="team"`, or `person.kind`) is a rounded-square tile with the `UsersRound` icon on
  * its hue, and no photo or initials. An agent (`kind="agent"`) is the `Bot` icon on the purple tag
- * hue whatever its `hue` — under its photo, when it has one.
+ * hue whatever its `hue`; with a photo it keeps a purple bot badge at the corner, so an agent never
+ * passes for a person.
  *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
  * @example <PersonAvatar person={{ name: "Sales", kind: "team", hue: "green" }} />
@@ -210,6 +216,17 @@ export function PersonAvatar({
           // Over the initials (the root is `relative` and sized), so nothing shifts when it lands.
           className="absolute inset-0 aspect-square size-full rounded-full object-cover"
         />
+      ) : null}
+      {agent && showImage ? (
+        // An agent with a photo still reads as an agent: the bot badge at the corner (IN-20).
+        <AvatarBadge
+          data-slot="person-avatar-agent-badge"
+          aria-hidden
+          // AvatarBadge drops its glyph at `sm`; an agent's badge keeps the bot at every size.
+          className="bg-tag-purple text-background group-data-[size=sm]/avatar:size-3 group-data-[size=sm]/avatar:[&>svg]:inline group-data-[size=sm]/avatar:[&>svg]:size-2"
+        >
+          <Bot />
+        </AvatarBadge>
       ) : null}
     </Avatar>
   );

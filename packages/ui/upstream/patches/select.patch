@@ -1,6 +1,9 @@
 # component: select
-# decisions: API-19, API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-35
+# decisions: API-19, API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-35, API-38
 # hunks:
+#   API-38 (MK 2026-10-26, Regent product-cohesion W1-DS2): `SelectContent` takes `loading`, `error`,
+#     `onRetry` and their labels: a `select-status` row (`role="status"`) after the list — a spinner
+#     while loading, the error with a Try again button — so an async list never shows an empty popup.
 #   API-19: `SelectItem` calls Item's `useItemDescriptionId()`, provides its `register` through
 #     `ItemDescriptionContext`, and sets `aria-describedby` on the option once an `ItemDescription`
 #     inside it registers, so a two-line option (`ItemContent` > `ItemTitle` + `ItemDescription`)
@@ -52,10 +55,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..55c71ea 100644
+index e8a22e1..4129dc9 100644
 --- a/select.tsx
 +++ b/select.tsx
-@@ -1,11 +1,41 @@
+@@ -1,11 +1,43 @@
 -"use client"
 +"use client";
  
@@ -68,6 +71,8 @@ index e8a22e1..55c71ea 100644
 +import { cva } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
 +import { useInternalThemeScope } from "@vegastack/design/theme-scope";
++import { Button } from "@/components/ui/button";
++import { Spinner } from "@/components/ui/spinner";
 +import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
  
 -const Select = SelectPrimitive.Root
@@ -103,7 +108,7 @@ index e8a22e1..55c71ea 100644
  
  function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
    return (
-@@ -14,7 +44,7 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
+@@ -14,7 +46,7 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
        className={cn("scroll-my-1 p-1", className)}
        {...props}
      />
@@ -112,7 +117,7 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
-@@ -24,24 +54,37 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+@@ -24,24 +56,37 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
        className={cn("flex flex-1 text-start", className)}
        {...props}
      />
@@ -154,7 +159,7 @@ index e8a22e1..55c71ea 100644
        )}
        {...props}
      >
-@@ -52,7 +95,7 @@ function SelectTrigger({
+@@ -52,7 +97,7 @@ function SelectTrigger({
          }
        />
      </SelectPrimitive.Trigger>
@@ -163,24 +168,52 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectContent({
-@@ -63,12 +106,15 @@ function SelectContent({
+@@ -63,12 +108,43 @@ function SelectContent({
    align = "center",
    alignOffset = 0,
    alignItemWithTrigger = true,
 +  wrap = false,
++  loading = false,
++  error,
++  onRetry,
++  loadingLabel = "Loading…",
++  errorLabel = "Couldn't load the options.",
++  retryLabel = "Try again",
    ...props
  }: SelectPrimitive.Popup.Props &
    Pick<
      SelectPrimitive.Positioner.Props,
      "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
 -  >) {
-+  > & { wrap?: boolean }) {
++  > & {
++    wrap?: boolean;
++    /**
++     * API-38: the options are being fetched — a spinner row (`loadingLabel`) so an async list is
++     * never an empty popup.
++     * @default false
++     */
++    loading?: boolean;
++    /**
++     * API-38: the options could not be fetched — an error row (`error` itself when a string, else
++     * `errorLabel`) with a Try again button when `onRetry` is set. Wins over `loading`.
++     * @default undefined
++     */
++    error?: React.ReactNode;
++    /** API-38: fetch the options again. @default undefined */
++    onRetry?: () => void;
++    /** @default "Loading…" */
++    loadingLabel?: React.ReactNode;
++    /** @default "Couldn't load the options." */
++    errorLabel?: React.ReactNode;
++    /** @default "Try again" */
++    retryLabel?: string;
++  }) {
 +  const themeScope = useInternalThemeScope();
 +
    return (
      <SelectPrimitive.Portal>
        <SelectPrimitive.Positioner
-@@ -77,12 +123,16 @@ function SelectContent({
+@@ -77,21 +153,57 @@ function SelectContent({
          align={align}
          alignOffset={alignOffset}
          alignItemWithTrigger={alignItemWithTrigger}
@@ -199,7 +232,40 @@ index e8a22e1..55c71ea 100644
            {...props}
          >
            <SelectScrollUpButton />
-@@ -91,7 +141,7 @@ function SelectContent({
+           <SelectPrimitive.List>{children}</SelectPrimitive.List>
++          {loading || error ? (
++            <div
++              data-slot="select-status"
++              data-state={error ? "error" : "loading"}
++              role="status"
++              aria-busy={error ? undefined : true}
++              className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground"
++            >
++              {error ? (
++                <>
++                  <span className="min-w-0 flex-1">
++                    {typeof error === "string" ? error : errorLabel}
++                  </span>
++                  {onRetry ? (
++                    <Button
++                      type="button"
++                      size="xs"
++                      variant="outline"
++                      onClick={onRetry}
++                    >
++                      {retryLabel}
++                    </Button>
++                  ) : null}
++                </>
++              ) : (
++                <>
++                  <Spinner />
++                  {loadingLabel}
++                </>
++              )}
++            </div>
++          ) : null}
+           <SelectScrollDownButton />
          </SelectPrimitive.Popup>
        </SelectPrimitive.Positioner>
      </SelectPrimitive.Portal>
@@ -208,7 +274,7 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectLabel({
-@@ -104,7 +154,7 @@ function SelectLabel({
+@@ -104,7 +216,7 @@ function SelectLabel({
        className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -217,7 +283,7 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectItem({
-@@ -112,27 +162,31 @@ function SelectItem({
+@@ -112,27 +224,31 @@ function SelectItem({
    children,
    ...props
  }: SelectPrimitive.Item.Props) {
@@ -268,7 +334,7 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectSeparator({
-@@ -145,7 +199,7 @@ function SelectSeparator({
+@@ -145,7 +261,7 @@ function SelectSeparator({
        className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -277,7 +343,7 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectScrollUpButton({
-@@ -157,14 +211,13 @@ function SelectScrollUpButton({
+@@ -157,14 +273,13 @@ function SelectScrollUpButton({
        data-slot="select-scroll-up-button"
        className={cn(
          "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -295,7 +361,7 @@ index e8a22e1..55c71ea 100644
  }
  
  function SelectScrollDownButton({
-@@ -176,14 +229,13 @@ function SelectScrollDownButton({
+@@ -176,14 +291,13 @@ function SelectScrollDownButton({
        data-slot="select-scroll-down-button"
        className={cn(
          "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -313,7 +379,7 @@ index e8a22e1..55c71ea 100644
  }
  
  export {
-@@ -197,4 +249,4 @@ export {
+@@ -197,4 +311,4 @@ export {
    SelectSeparator,
    SelectTrigger,
    SelectValue,

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 770,
-    "components": 182,
+    "totalRegistryItems": 773,
+    "components": 185,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 38,
+    "Forms/editing": 41,
     "Navigation/layout": 25,
     "Overlays": 23,
     "Data display": 39,
@@ -98,7 +98,10 @@
       "text-edit",
       "upload-dialog",
       "upload-panel",
-      "formula-input"
+      "formula-input",
+      "record-picker",
+      "destination-picker",
+      "field-type-picker"
     ],
     "Navigation/layout": [
       "accordion",
@@ -6642,7 +6645,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/spinner"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -6696,7 +6700,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["combobox-content"]
+              "values": ["combobox-content", "combobox-status"]
+            },
+            {
+              "name": "data-state",
+              "values": ["error", "loading"]
             }
           ],
           "cssVariables": []
@@ -15612,6 +15620,10 @@
               "values": []
             },
             {
+              "name": "data-refused",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "folder-tree",
@@ -15620,6 +15632,7 @@
                 "folder-tree-icon",
                 "folder-tree-item",
                 "folder-tree-label",
+                "folder-tree-reason",
                 "folder-tree-row",
                 "folder-tree-row-actions",
                 "folder-tree-section",
@@ -16542,6 +16555,10 @@
             {
               "name": "data-slot",
               "values": ["item-group"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -23389,7 +23406,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/select",
-      "registryDependencies": ["@vegastack/item"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/item",
+        "@vegastack/spinner"
+      ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
@@ -23455,7 +23476,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["select-content"]
+              "values": ["select-content", "select-status"]
+            },
+            {
+              "name": "data-state",
+              "values": ["error", "loading"]
             },
             {
               "name": "data-wrap",
@@ -36518,7 +36543,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["avatar-image"]
+              "values": ["avatar-image", "person-avatar-agent-badge"]
             }
           ],
           "cssVariables": []
@@ -40872,6 +40897,475 @@
                 "formula-input-preview",
                 "formula-input-status"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-picker",
+      "registryType": "registry:ui",
+      "title": "Record Picker",
+      "summary": "Pick records of the kinds the app passes in — search, kind filter, recents, refused rows — in a popover or a dialog.",
+      "status": "preview",
+      "since": "0.25.89",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/record-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordPicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-picker.tsx."
+          }
+        },
+        {
+          "name": "RecordPickerDialog",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-picker.tsx."
+          }
+        },
+        {
+          "name": "RecordPickerDialogProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPickerItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "recordPickerKey",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "RecordPickerKind",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPickerSearch",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPickerSearchContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "loading",
+            "error",
+            "empty",
+            "disabled-item",
+            "multiple"
+          ],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-picker",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/dialog",
+        "@vegastack/use-async-search"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.36",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-picker",
+      "dataAttributes": {
+        "RecordPicker": {
+          "attributes": [
+            {
+              "name": "data-checked",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "record-picker",
+                "record-picker-footer",
+                "record-picker-item",
+                "record-picker-kinds"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "destination-picker",
+      "registryType": "registry:ui",
+      "title": "Destination Picker",
+      "summary": "Choose where something goes — spaces, their folders, recents, search, refusals with a reason.",
+      "status": "preview",
+      "since": "0.25.89",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/destination-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Destination",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/destination-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DestinationEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/destination-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DestinationFolder",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/destination-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DestinationPicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/destination-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/destination-picker.tsx."
+          }
+        },
+        {
+          "name": "DestinationPickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/destination-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DestinationSpace",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/destination-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "loading", "refused", "search", "recents"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/destination-picker",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/folder-tree",
+        "@vegastack/panel-search",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-async-search"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.36",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/destination-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "destination-picker",
+      "dataAttributes": {
+        "DestinationPicker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "destination-picker",
+                "destination-picker-entry",
+                "destination-picker-recents",
+                "destination-picker-refused",
+                "destination-picker-results"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "field-type-picker",
+      "registryType": "registry:ui",
+      "title": "Field Type Picker",
+      "summary": "A searchable, grouped list of field types with icons, and an optional second step.",
+      "status": "preview",
+      "since": "0.25.89",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/field-type-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FieldTypeOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldTypePicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-type-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field-type-picker.tsx."
+          }
+        },
+        {
+          "name": "FieldTypePickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldTypePickerStepControls",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-type-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "search", "disabled-item", "current", "step"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/field-type-picker",
+      "registryDependencies": ["@vegastack/button", "@vegastack/command"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.36",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/field-type-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "field-type-picker",
+      "dataAttributes": {
+        "FieldTypePicker": {
+          "attributes": [
+            {
+              "name": "data-checked",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "field-type-picker",
+                "field-type-picker-back",
+                "field-type-picker-item",
+                "field-type-picker-step-content",
+                "field-type-picker-step-header"
+              ]
+            },
+            {
+              "name": "data-step",
+              "values": []
             }
           ],
           "cssVariables": []

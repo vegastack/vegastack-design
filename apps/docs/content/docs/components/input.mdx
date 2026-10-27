@@ -134,6 +134,21 @@ any extra work.
 
 <ComponentPreview name="inputRtl" file="components/preview/input.tsx" />
 
+### Not a credential
+
+A field that holds a record's name — a table, a field, a page title — is not a login, but password
+managers offer to fill any `name`-like input. `credential={false}` turns that off
+(`autoComplete="off"` and the 1Password, LastPass and Bitwarden ignore markers); an explicit
+`autoComplete` still wins.
+
+```tsx
+<Input
+  credential={false}
+  aria-label="Table name"
+  defaultValue="Sample requests"
+/>
+```
+
 ### States
 
 Rest, filled, invalid and disabled in one frame. Click or Tab into a field to see the focus state: the
@@ -196,3 +211,5 @@ focus-visible:ring-ring/50` becomes `outline-hidden`, with no ring and no glow. 
 - **API-26** — NO HUNK: Base UI's `Input` is `Field.Control`, so inside a `Field` it already takes
   its label, the rendered description and error ids, and `aria-invalid` from the Field.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **FRM-17** — `Input` takes `credential`; `false` marks a non-credential name field so password
+  managers leave it alone. MK, 2026-10-26.

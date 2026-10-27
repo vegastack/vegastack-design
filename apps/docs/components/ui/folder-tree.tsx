@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.25.89 sha256-SH09Z5u2xEA1F+8Cy4HXRmPOxPDqdssYfzlGinWVT/Y=
+// @vegastack folder-tree@0.25.89 sha256-71VvoyG8PYYhfoVKTX5vRm7NyW6WBeTHPc8yfsGYOoM=
 
 "use client";
 
@@ -79,6 +79,12 @@ export interface FolderTreeNode {
   contentType?: string;
   /** A trailing count or badge (an unread count, "3"). */
   badge?: React.ReactNode;
+  /**
+   * Picker mode: why this row can't be chosen. The row stays visible and still opens (its folders
+   * may be choosable), is `aria-disabled` with the reason as its description, shows the reason in
+   * place of `badge`, and still reports a click to `onSelectedChange` so the host can say why.
+   */
+  disabledReason?: string;
 }
 
 /** A section heading ("Shared", "Private") and the root items under it. */
@@ -791,6 +797,8 @@ function FolderTree({
       const listId = `folder-tree-${idBase}-${node.id}`;
       const rowTab = tabIndexOf(key);
       const active = picker ? selected === node.id : activeId === node.id;
+      const refused =
+        picker && node.disabledReason ? node.disabledReason : null;
       out.push(
         <li key={key} data-slot="folder-tree-item">
           <RowContext.Provider value={{ tabIndex: rowTab }}>
@@ -806,6 +814,7 @@ function FolderTree({
               data-leaf={leaf ? "" : undefined}
               data-active={active ? "" : undefined}
               data-expanded={open ? "" : undefined}
+              data-refused={refused ? "" : undefined}
               style={{ "--folder-tree-depth": depth } as React.CSSProperties}
               className={rowClasses}
             >
@@ -832,6 +841,8 @@ function FolderTree({
                 linkRender={linkRender}
                 aria-current={!picker && active ? "page" : undefined}
                 aria-pressed={picker ? active : undefined}
+                aria-disabled={refused ? true : undefined}
+                aria-describedby={refused ? `${listId}-reason` : undefined}
                 onClick={
                   picker
                     ? () => onSelectedChange?.(node.id)
@@ -868,7 +879,15 @@ function FolderTree({
                   {node.label}
                 </span>
               </RowControl>
-              {node.badge != null ? (
+              {refused ? (
+                <span
+                  id={`${listId}-reason`}
+                  data-slot="folder-tree-reason"
+                  className="min-w-0 shrink truncate px-1 text-xs text-muted-foreground"
+                >
+                  {refused}
+                </span>
+              ) : node.badge != null ? (
                 <span
                   data-slot="folder-tree-badge"
                   className="shrink-0 px-1 text-xs text-muted-foreground tabular-nums"

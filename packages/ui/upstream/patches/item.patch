@@ -1,6 +1,9 @@
 # component: item
-# decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11
+# decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11, API-37
 # hunks:
+#   API-37 (MK 2026-10-26, Regent product-cohesion W1-DS2): `ItemGroup` takes `variant`
+#     (`default` · `flush`, as `data-variant`); `flush` lays the rows with no gap and bleeds them
+#     into the enclosing card's padding (`-mx-3 w-auto gap-0`).
 #   API-29: `Item` takes `highlighted` — the "just changed" flash: `data-highlighted` and the
 #     `bg-accent` wash eased in over `duration-slow` (MK, 2026-09-25).
 #   A11Y-7: `ItemGroup` licenses `role="listitem"` on the `Item`s inside it through context, and
@@ -34,10 +37,10 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/item.tsx b/item.tsx
-index edb2ea3..b32c0bf 100644
+index edb2ea3..9f2f416 100644
 --- a/item.tsx
 +++ b/item.tsx
-@@ -1,23 +1,68 @@
+@@ -1,23 +1,80 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
@@ -68,8 +71,16 @@ index edb2ea3..b32c0bf 100644
 +  className,
 +  children,
 +  ref,
++  variant = "default",
 +  ...props
-+}: React.ComponentProps<"div">) {
++}: React.ComponentProps<"div"> & {
++  /**
++   * `flush` (API-37): rows with no gap between them, bled into the enclosing card's padding so
++   * a row's text lines up with the card's own content — a list of rows inside a card.
++   * @default "default"
++   */
++  variant?: "default" | "flush";
++}) {
 +  const groupRef = React.useRef<HTMLDivElement>(null);
 +  const mergedRef = React.useMemo(
 +    () => mergeRefs<HTMLDivElement>(groupRef, ref),
@@ -99,9 +110,14 @@ index edb2ea3..b32c0bf 100644
 +      ref={mergedRef}
        role="list"
        data-slot="item-group"
++      data-variant={variant}
        className={cn(
-         "group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
+-        "group/item-group flex w-full flex-col gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
 -        className
++        "group/item-group flex flex-col",
++        variant === "flush"
++          ? "-mx-3 w-auto gap-0"
++          : "w-full gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
 +        className,
        )}
        {...props}
@@ -116,7 +132,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  function ItemSeparator({
-@@ -28,14 +73,19 @@ function ItemSeparator({
+@@ -28,14 +85,19 @@ function ItemSeparator({
      <Separator
        data-slot="item-separator"
        orientation="horizontal"
@@ -138,7 +154,7 @@ index edb2ea3..b32c0bf 100644
    {
      variants: {
        variant: {
-@@ -53,23 +103,51 @@ const itemVariants = cva(
+@@ -53,23 +115,51 @@ const itemVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -196,7 +212,7 @@ index edb2ea3..b32c0bf 100644
      ),
      render,
      state: {
-@@ -77,11 +155,18 @@ function Item({
+@@ -77,11 +167,18 @@ function Item({
        variant,
        size,
      },
@@ -217,7 +233,7 @@ index edb2ea3..b32c0bf 100644
    {
      variants: {
        variant: {
-@@ -94,8 +179,8 @@ const itemMediaVariants = cva(
+@@ -94,8 +191,8 @@ const itemMediaVariants = cva(
      defaultVariants: {
        variant: "default",
      },
@@ -228,7 +244,7 @@ index edb2ea3..b32c0bf 100644
  
  function ItemMedia({
    className,
-@@ -109,7 +194,7 @@ function ItemMedia({
+@@ -109,7 +206,7 @@ function ItemMedia({
        className={cn(itemMediaVariants({ variant, className }))}
        {...props}
      />
@@ -237,7 +253,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -118,11 +203,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -118,11 +215,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-content"
        className={cn(
          "flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
@@ -251,7 +267,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -130,25 +215,69 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
+@@ -130,25 +227,69 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
      <div
        data-slot="item-title"
        className={cn(
@@ -264,8 +280,9 @@ index edb2ea3..b32c0bf 100644
      />
 -  )
 +  );
-+}
-+
+ }
+ 
+-function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
 +/**
 + * API-19 — a row that owns an accessible description (a command option, a menu item, a select
 + * option) provides a register function here; an `ItemDescription` inside it reports its `id`,
@@ -292,9 +309,8 @@ index edb2ea3..b32c0bf 100644
 +  const [id, setId] = React.useState("");
 +  const register = React.useCallback((next?: string) => setId(next ?? ""), []);
 +  return { id, register: own ? null : register };
- }
- 
--function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
++}
++
 +function ItemDescription({
 +  className,
 +  id: idProp,
@@ -327,7 +343,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
-@@ -158,7 +287,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
+@@ -158,7 +299,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex items-center gap-2", className)}
        {...props}
      />
@@ -336,7 +352,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -167,11 +296,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -167,11 +308,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-header"
        className={cn(
          "flex basis-full items-center justify-between gap-2",
@@ -350,7 +366,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -180,11 +309,39 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -180,11 +321,39 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-footer"
        className={cn(
          "flex basis-full items-center justify-between gap-2",
@@ -392,7 +408,7 @@ index edb2ea3..b32c0bf 100644
  }
  
  export {
-@@ -193,9 +350,12 @@ export {
+@@ -193,9 +362,12 @@ export {
    ItemContent,
    ItemActions,
    ItemGroup,

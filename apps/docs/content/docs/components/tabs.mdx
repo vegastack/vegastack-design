@@ -377,3 +377,5 @@ Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
+- **A11Y-24** — a trigger's invisible hit area reaches 44px tall on a coarse pointer, never wider, so
+  neighbouring tabs never overlap. Widened by MK, 2026-10-26.

@@ -1216,7 +1216,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.25.89",
-        "integrity": "sha256-UgFizL7U4jvtlepMriaJGRjKzVhDEjx8zkfY62T8wqQ="
+        "integrity": "sha256-odKOjehu/vgI+iVJFEkqeT7iM4FL/k0oE05Piq5rS7I="
       }
     },
     {
@@ -1416,7 +1416,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/spinner"
       ],
       "files": [
         {
@@ -1429,7 +1430,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.25.89",
-        "integrity": "sha256-bKNLu1+7lFVV+JVvR+1qKE9WaMj31kcRwuO8bHxDHMM="
+        "integrity": "sha256-2k75vsuK2EYecu+b4a4jNm7KalWen7EUkVgaNlcjhKs="
       }
     },
     {
@@ -16200,7 +16201,7 @@
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
         "version": "0.25.89",
-        "integrity": "sha256-SH09Z5u2xEA1F+8Cy4HXRmPOxPDqdssYfzlGinWVT/Y="
+        "integrity": "sha256-71VvoyG8PYYhfoVKTX5vRm7NyW6WBeTHPc8yfsGYOoM="
       }
     },
     {
@@ -16289,7 +16290,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.25.89",
-        "integrity": "sha256-STkwKEd6yz1KpR9eW+ujHDIxosUmPm5lYv2wgzKtkvw="
+        "integrity": "sha256-C80EYYC/EY7JnIJCrrK7nJxXIrbqWBATQmrgNNzNLH4="
       }
     },
     {
@@ -16382,7 +16383,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions. Rows rendered as links or buttons can sit inside an ItemGroup (the list item moves to a wrapper), and ItemGroupLabel names a group.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.25.89",
-        "integrity": "sha256-DQf+tYnS5RCxNSUrz9FTkVog5Wfw1nW9h6Gsn/wJe9s="
+        "integrity": "sha256-XiQdFYOSWfZmVjU+Rmlrt00rjj9XQLV+vY5gC9lsQTE="
       }
     },
     {
@@ -17434,6 +17435,105 @@
       }
     },
     {
+      "name": "record-picker",
+      "type": "registry:ui",
+      "title": "Record Picker",
+      "description": "Pick records of the kinds the app passes in — search, kind filter, recents, refused rows — in a popover or a dialog.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/dialog",
+        "@vegastack/use-async-search"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Linking, relating or inserting records of several kinds: a relation field, a mention target, a block source, a Link to… dialog.",
+        "whenNotToUse": "A fixed option list (Select, SearchableSelect), people (PeoplePicker) or a place to move something (DestinationPicker).",
+        "version": "0.25.88",
+        "integrity": "sha256-8ty9SEYO5r0lkliUKt+s8MEarDOPcxl5yaUAAq72Fdg="
+      }
+    },
+    {
+      "name": "destination-picker",
+      "type": "registry:ui",
+      "title": "Destination Picker",
+      "description": "Choose where something goes — spaces, their folders, recents, search, refusals with a reason.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/folder-tree",
+        "@vegastack/panel-search",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-async-search"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/destination-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/destination-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A Move to… dialog: moving a page, file, folder, table, task or meeting into a space or folder.",
+        "whenNotToUse": "Picking a record to link (RecordPicker) or a space alone (SpacePicker).",
+        "version": "0.25.88",
+        "integrity": "sha256-V27B42G0KnH+deJtZUtCAvYTxI5iDCJ/Wpd84rqLwRo="
+      }
+    },
+    {
+      "name": "field-type-picker",
+      "type": "registry:ui",
+      "title": "Field Type Picker",
+      "description": "A searchable, grouped list of field types with icons, and an optional second step.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/field-type-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/field-type-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing a field type: + Add field on a table, a form builder, a field settings Type row.",
+        "whenNotToUse": "Any other fixed list (Select) or record list (RecordPicker).",
+        "version": "0.25.88",
+        "integrity": "sha256-MMqJiQ1K4x6szDtrNZ3QW6tJng+3xlYOlIfccR6hnVU="
+      }
+    },
+    {
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
@@ -17652,7 +17752,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.25.89",
-        "integrity": "sha256-GqdYLwjS/LezPEycGu4BxP04safXWbo9uRJSPpH4gEE="
+        "integrity": "sha256-jmHs7iV3PnY1S67vvEuYVrwnUMHCDXmHG5d180h9rgc="
       }
     },
     {
@@ -17782,7 +17882,7 @@
         "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
         "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.25.89",
-        "integrity": "sha256-Cazi8FSI+xPSNGZqy0WrfF20w5VWSs4Ts2sfXRtVZOM="
+        "integrity": "sha256-S9sOApfHBIMBht0slwqAiPbj0KTDYq0lh153nTxf6bA="
       }
     },
     {
@@ -17939,7 +18039,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.89",
-        "integrity": "sha256-K6rxRozRgkSdP0GPOrGBDKlj9+Lq+o+C4tDIOugXiUQ="
+        "integrity": "sha256-G/Eh1JCKV4xi3rFqKkV1u8GGWKX9XLKsyhNo+SnfqLs="
       }
     },
     {
@@ -18018,7 +18118,9 @@
         "@vegastack/design-tokens@^0.8.35"
       ],
       "registryDependencies": [
-        "@vegastack/item"
+        "@vegastack/button",
+        "@vegastack/item",
+        "@vegastack/spinner"
       ],
       "files": [
         {
@@ -18031,7 +18133,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.25.89",
-        "integrity": "sha256-Edj5LUHAPhIOApG/DQ/lYAA+qJGVhsAw7iDiTG4u/xA="
+        "integrity": "sha256-FRyw/sec6sSwZp5x7dC1EugInuYk/ghBvZ+MhJ6iVxo="
       }
     },
     {
@@ -18526,7 +18628,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.25.89",
-        "integrity": "sha256-qoEbxL4AZnuaDx05z0JQDewhHjn0FfeDxO1Z9cOvjK0="
+        "integrity": "sha256-G3x3KOaiYaPHIeldF1i32gcnHnPgP59S4+dyuT3Wb9s="
       }
     },
     {
@@ -18589,7 +18691,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.25.89",
-        "integrity": "sha256-i2F0Oyec5AxEYvogwIguG3KT0v3bo3eV1olsLCPlDI0="
+        "integrity": "sha256-wCaKf1UsL2/G0g61NPIirngPL3JSc3b4CmQIBA93FSQ="
       }
     },
     {
