@@ -27,13 +27,14 @@
 #     into `textareaVariants` (cva) with `variant` (`default` = upstream's bordered field, `ghost` =
 #     borderless, transparent, one row, no resize) and `size` (`default` = upstream's type size, `lg`
 #     = heading size), reflected as `data-variant`/`data-size`; `submitOnEnter` makes Enter submit
-#     the form (Shift+Enter and IME composition untouched); a ghost textarea grows with its text by
+#     the form (Shift+Enter and IME composition untouched — `isComposing` or `keyCode` 229, the
+#     composition-ending Enter); a ghost textarea grows with its text by
 #     a measured height where the browser lacks `field-sizing: content`.
 diff --git a/textarea.tsx b/textarea.tsx
-index 5141de7..0bdc8ea 100644
+index 5141de7..ef7c084 100644
 --- a/textarea.tsx
 +++ b/textarea.tsx
-@@ -1,17 +1,122 @@
+@@ -1,17 +1,125 @@
 -import * as React from "react"
 -import { cn } from "cn"
 +"use client";
@@ -150,7 +151,10 @@ index 5141de7..0bdc8ea 100644
 +          event.defaultPrevented ||
 +          event.key !== "Enter" ||
 +          event.shiftKey ||
-+          event.nativeEvent.isComposing
++          // An input method's Enter confirms its candidate. The Enter that ends a composition can
++          // arrive with `isComposing` already false and `keyCode` 229 (MDN), so both are checked.
++          event.nativeEvent.isComposing ||
++          event.keyCode === 229
 +        )
 +          return;
 +        event.preventDefault();

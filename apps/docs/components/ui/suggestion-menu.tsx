@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.90 sha256-P7JewrYGYKoHCzvFWMXbXilKaZJvHvHSA0wAZWUGjZo=
+// @vegastack suggestion-menu@0.25.90 sha256-I42LOu13rxI/0cxnYktmYbxANQt9bNPPt86/Y0kVQQ4=
 
 "use client";
 
@@ -298,6 +298,9 @@ export function suggestionMenuKeyDown(
     holdWhenEmpty = false,
   }: SuggestionMenuKeyTarget,
 ): boolean {
+  // An input method's keys (mid-composition, or the Enter that ends it with keyCode 229) pick its
+  // candidate, never a row.
+  if (event.isComposing || event.keyCode === 229) return false;
   if (event.key === "Escape") {
     event.stopPropagation();
     onClose();

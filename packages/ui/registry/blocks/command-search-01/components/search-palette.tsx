@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.25.90 sha256-MPOGAfxtd7840mN22+sycXk7cfj6EBBxQDAjngG6SFE=
+// @vegastack command-search-01@0.25.90 sha256-hPZ/3D8bngvARwjqS3XK45Mvmzp4ndZxMiBkVBIFK7A=
 
 "use client";
 
@@ -275,7 +275,12 @@ export function SearchPalette({
 
   function onCommandKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     // cmdk's onSelect receives no event, so the new-tab path reads the selection here.
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    if (
+      event.key === "Enter" &&
+      (event.metaKey || event.ctrlKey) &&
+      !event.nativeEvent.isComposing &&
+      event.keyCode !== 229
+    ) {
       const result = byId.get(selected);
       if (result) {
         event.preventDefault();

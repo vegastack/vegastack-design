@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.25.90 sha256-YGQCrPpza/x07w5MUIwoiVxomNp/FD1Lr27+2A9cmb4=
+// @vegastack agent-panel@0.25.90 sha256-ws+XP+K9cTJ/FwqDc01mYm6j6AvIBA9AYXgWNePIStY=
 
 "use client";
 
@@ -1314,7 +1314,9 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
                 close();
               } else if (
                 event.key === "Enter" &&
-                (event.metaKey || event.ctrlKey)
+                (event.metaKey || event.ctrlKey) &&
+                !event.nativeEvent.isComposing &&
+                event.keyCode !== 229
               ) {
                 event.preventDefault();
                 void save();
