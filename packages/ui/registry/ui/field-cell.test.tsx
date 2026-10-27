@@ -1791,3 +1791,36 @@ test("FieldProperty: an older save settling late never overrides a newer one", a
   expect(box.element().getAttribute("aria-checked")).toBe("false");
   expect(onSave).toHaveBeenCalledTimes(2);
 });
+
+test("FieldProperty: a synchronous save after a pending one supersedes it", async () => {
+  let rejectFirst!: (error: unknown) => void;
+  let calls = 0;
+  const onSave = vi.fn(() => {
+    calls++;
+    if (calls === 1)
+      return new Promise<void>((_resolve, reject) => {
+        rejectFirst = reject;
+      });
+    return undefined;
+  });
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Paid"
+        type="checkbox"
+        value={false}
+        onSave={onSave}
+        saveErrorToast={false}
+      />
+    </PropertyList>,
+  );
+  const box = screen.getByRole("checkbox", { name: "Paid" });
+  (box.element() as HTMLElement).click(); // async → true (pending)
+  await expect.element(box).toHaveAttribute("aria-checked", "true");
+  (box.element() as HTMLElement).click(); // sync: no pending value; shows the persisted value
+  await expect.element(box).toHaveAttribute("aria-checked", "false");
+  rejectFirst(new Error("late"));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(box.element().getAttribute("aria-checked")).toBe("false");
+  expect(document.body.textContent).not.toContain("Couldn't save Paid");
+});

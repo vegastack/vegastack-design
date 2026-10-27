@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.91 sha256-YvhApWhCotEVr4HXkvwA1Pl1zUrVCck/59MLkYNvCl8=
+// @vegastack field-cell@0.25.91 sha256-D4zLskoU0YkwqfN1UZeL2zL/lqnr4UUQD9ucLWmVhnU=
 
 "use client";
 
@@ -2081,9 +2081,13 @@ function usePropertySave(
     return () => clearTimeout(timer);
   }, [saving]);
   const save = (next: FieldValue) => {
-    const result = onSave?.(next);
-    if (!(result instanceof Promise)) return;
+    // Every save advances the sequence, a synchronous one too: it supersedes any still in flight.
     const seq = ++sequence.current;
+    const result = onSave?.(next);
+    if (!(result instanceof Promise)) {
+      setPending(null);
+      return;
+    }
     setPending({ value: next });
     result.then(
       () => {
