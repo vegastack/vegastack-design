@@ -13,6 +13,7 @@ import {
   AppShellHeaderShow,
   AppShellHeaderSlot,
   AppShellPage,
+  AppShellProgress,
   AppShellSection,
   AppShellSidebar,
   AppShellSkeleton,
@@ -966,4 +967,20 @@ test("AppShellHeaderActions hands focus from a vanishing ⋮ back to the last ac
   await expect
     .poll(() => document.activeElement?.getAttribute("data-action"))
     .toBe("open");
+});
+
+test("AppShellProgress is a named, indeterminate progress bar at the top of the content", async () => {
+  const screen = await render(
+    <AppShellContent landmark="region" aria-label="Page">
+      <AppShellProgress label="Loading tasks" />
+    </AppShellContent>,
+  );
+  const bar = screen.getByRole("progressbar", { name: "Loading tasks" });
+  await expect.element(bar).toBeInTheDocument();
+  expect(bar.element().hasAttribute("aria-valuenow")).toBe(false);
+  const tokens = bar.element().className.split(/\s+/);
+  expect(tokens).toContain("sticky");
+  expect(tokens).toContain("top-0");
+  expect(tokens).toContain("-mb-0.5");
+  await expectNoA11yViolations(screen.container);
 });

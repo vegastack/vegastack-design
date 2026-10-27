@@ -20,6 +20,7 @@ import {
   AppShellHeader,
   AppShellHeaderActions,
   AppShellPage,
+  AppShellProgress,
   AppShellSection,
   AppShellSidebar,
   AppShellSkeleton,
@@ -43,6 +44,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const NAV_ITEMS = [
   { key: "home", label: "Home", icon: Home, badge: undefined },
@@ -458,6 +460,23 @@ export function appShellHeaderActions(): ReactNode {
           </div>
         </AppShell>
       ))}
+    </Wrapper>
+  );
+}
+
+/** A page loading inside the shell: the bar at once, the skeleton after the reveal delay. */
+export function appShellProgress(): ReactNode {
+  return (
+    <Wrapper className="block h-64 overflow-hidden bg-muted p-0">
+      <AppShellContent landmark="region" aria-label="Page content">
+        <AppShellProgress label="Loading page" />
+        <AppShellPage className="motion-reveal">
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-7 w-1/3" />
+            <Skeleton className="h-24" />
+          </div>
+        </AppShellPage>
+      </AppShellContent>
     </Wrapper>
   );
 }

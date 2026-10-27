@@ -748,6 +748,20 @@
   animation: vs-enter-up var(--duration-fast) var(--motion-ease-standard);
 }
 
+/* ---------------------------------------------------------------------------
+ * motion-reveal — a loading placeholder that waits before it fades in
+ * (Regent product cohesion PF-07, 2026-10-27).
+ *
+ * A load that finishes within the delay (--reveal-delay, 150ms) never flashes a
+ * skeleton; a slower one fades its skeleton in with motion-enter-up. Pair it with
+ * AppShellProgress, which shows at once, so the delay never reads as a blank
+ * page. Reduced motion collapses it to the end state: shown at once.
+ * ------------------------------------------------------------------------- */
+@utility motion-reveal {
+  animation: vs-enter-up var(--duration-fast) var(--motion-ease-standard)
+    var(--reveal-delay, 150ms) both;
+}
+
 @keyframes vs-shake {
   /* Small ±4px jiggle, decaying — subtle by design (dense dev-tool aesthetic). */
   15% {

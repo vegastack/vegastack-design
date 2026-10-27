@@ -215,7 +215,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.25.89",
-        "integrity": "sha256-/G4PI3bygJEl8DtEPJHKpQRvnRmc+5R2WL1iyCl6Bg4="
+        "integrity": "sha256-4rknXOSgh5+CcWr4QD+b4wB7mDstHQ8GLq+j/BjUPtA="
       }
     },
     {
