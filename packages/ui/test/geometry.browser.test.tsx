@@ -2806,6 +2806,8 @@ test("DataGrid: a multi-key sort's ordinal never sits on an end column's label",
           { key: "ref", direction: "asc" },
           { key: "amount", direction: "desc" },
         ]}
+        // Sortable headers (a controlled sort with no `onSortChange` is read-only, D24).
+        onSortChange={() => {}}
       />
     </div>,
   );
