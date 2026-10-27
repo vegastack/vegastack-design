@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "784815d1085eb1639828daf92856c74b17e7a21778f1b9db394ed1466d38510b",
+  "contractSha256": "2c5c4b9e0549b8d0641aa3a5bd8d681a95bf82b57fb667af933a2e0a53c0cf62",
   "expectedCounts": {
-    "totalRegistryItems": 763,
-    "components": 175,
+    "totalRegistryItems": 770,
+    "components": 182,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1948,6 +1948,83 @@
         "packages/ui/registry/ui/record-header.tsx"
       ],
       "docsSlug": "/docs/components/record-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-panel",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-panel",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "delegate-popover",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/delegate-popover.tsx"
+      ],
+      "docsSlug": "/docs/components/delegate-popover",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "help-menu",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/help-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/help-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "route-tabs",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/route-tabs.tsx"
+      ],
+      "docsSlug": "/docs/components/route-tabs",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "command-search",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/command-search.tsx"
+      ],
+      "docsSlug": "/docs/components/command-search",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "block-header",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-header.tsx"
+      ],
+      "docsSlug": "/docs/components/block-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "formula-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "rich-text",
+      "sourceFiles": [
+        "packages/ui/registry/ui/formula-input.tsx"
+      ],
+      "docsSlug": "/docs/components/formula-input",
       "contractStatus": "reconciled"
     },
     {
@@ -7328,7 +7405,7 @@
       "wave": "Block",
       "family": "starter-block",
       "sourceFiles": [
-        "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+        "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
         "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
         "packages/ui/registry/blocks/command-search-01/page.tsx"
       ],

@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**175 components**, plus 467 animated-icon items, 17 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 21 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 763 registry items in total.
+**182 components**, plus 467 animated-icon items, 17 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 21 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 770 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -58,6 +58,7 @@ starts with `icon-` is a component and never an icon.
 ## Display
 
 - **`activity-feed`** — A record's history, Linear style: comment threads and activity events ("Priya changed status from Open to Done · 2h") in one list, with an All / Comments / Activity filter, an order toggle, one actor's runs of changes as one line (a chain of one field's values, or "made 3 changes" expanding), collapsible event groups, a New divider, a floating Jump to latest, J/K/X keyboard navigation and a skeleton.
+- **`block-header`** — A live block's header row in a page — icon · title · controls (View ▾, Filter) · ⋯ · ↗ Open — with an empty state that hosts the source picker ("Pick a table…").
 - **`block-view`** — The frame TextEdit and MarkdownView draw a fenced block in when a blockViews entry renders its language: label, Preview / Code, split on a wide editable block, Expand with pan and pinch, and a ⋯ menu.
 - **`chip`** — The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.
 - **`code-block`** — A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.
@@ -125,6 +126,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`access-chip`** — How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.
 - **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
+- **`command-search`** — The search palette's frame, results first — one row of scope chips with a More menu (and Include archived), results up to min(60dvh, 520px), an in-flight state that dims stale results under an input progress bar, Recent · Create · Places start sections, and a preview pane from 1280px.
 - **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
 - **`dialog`** — A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.
 - **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
@@ -150,11 +152,13 @@ starts with `icon-` is a component and never an icon.
 - **`breadcrumb-cascade`** — Two additions to a breadcrumb trail for a file browser: BreadcrumbDropTarget, a crumb that takes rows dragged from a DataList, and BreadcrumbSiblings, a menu of a segment's siblings.
 - **`command`** — A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
 - **`folder-tree`** — A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.
+- **`help-menu`** — The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
 - **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
+- **`route-tabs`** — Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab and a pending bar while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.
 - **`sidebar`** — A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.
 - **`stepper`** — A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.
 - **`table-of-contents`** — The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.
@@ -199,6 +203,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Rich text
 
+- **`formula-input`** — A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.
 - **`template-editor`** — A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens; optional single-line mode and as-you-type replacements for formulas.
 - **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.
 

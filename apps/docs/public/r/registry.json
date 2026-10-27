@@ -18168,8 +18168,10 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/kbd",
+        "@vegastack/label",
         "@vegastack/panel-search",
         "@vegastack/scroll-area",
+        "@vegastack/switch",
         "@vegastack/use-platform"
       ],
       "files": [
@@ -18183,7 +18185,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.25.88",
-        "integrity": "sha256-OHvNfrJrZt60J59rBWhKkuf3jhMvS2mPr8/io3CNh2s="
+        "integrity": "sha256-4bLOq1XWie9DPi3uCefjhHtmAk6ue0Vb8SlWRSbTyV0="
       }
     },
     {
@@ -18369,7 +18371,7 @@
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.25.88",
-        "integrity": "sha256-w66UMuTchShhi9e/kd1kluuNI+p+HzOWKO2n6+dFINI="
+        "integrity": "sha256-lvMylRtJgJ1iZbgMtEN+0U3+3TeWB6SjGCFP3hbzpO0="
       },
       "registryDependencies": [
         "@vegastack/skeleton"
@@ -18922,7 +18924,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.25.88",
-        "integrity": "sha256-klV3ldbbTUW3H4fUqHjOcOidxhSM5al++cZFPzVWr4g="
+        "integrity": "sha256-qWQp0aT9J9QvcNKVErskAod/02xQ5eZlVwmZaIaRH3Y="
       }
     },
     {
@@ -22346,7 +22348,7 @@
       "name": "command-search-01",
       "type": "registry:block",
       "title": "Command Search 01",
-      "description": "A search palette — scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab.",
+      "description": "A search palette on CommandSearch — one row of scope chips with More and Include archived, recents, results grouped by type, stale results dimmed while a search runs, loading, empty and error states, and ⌘↵ to open in a new tab.",
       "categories": [
         "search",
         "navigation"
@@ -22360,18 +22362,18 @@
         "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
+        "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
-        "@vegastack/toggle-group",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
       "files": [
         {
-          "path": "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+          "path": "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
           "type": "registry:component",
-          "target": "app/command-search-01/components/command-search.tsx"
+          "target": "app/command-search-01/components/search-palette.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
@@ -22388,7 +22390,7 @@
         "whenToUse": "App-wide search behind ⌘K and the sidebar's Search row — copy it once and pass your search call.",
         "whenNotToUse": "Filtering one list in place — use FilterBar's search.",
         "version": "0.25.88",
-        "integrity": "sha256-LbPykJpS1ai0ZAj93qONTbaUAf1qvJYS72W6jEuTGwQ="
+        "integrity": "sha256-gNPgZsMsiaHqnoJhLhf2Ai5fnxdwXficVXIW+4hNsvs="
       }
     },
     {
@@ -22821,6 +22823,104 @@
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
         "version": "0.25.86",
         "integrity": "sha256-F4jm/lHYdndNPkZk1CkMM+ekQ3Vti73gdXs9C/8kQuc="
+      }
+    },
+    {
+      "name": "help-menu",
+      "type": "registry:ui",
+      "title": "Help Menu",
+      "description": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "categories": [
+        "navigation",
+        "layout"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/sidebar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/help-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/help-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An app's one place to learn the product, at the foot of its sidebar: what changed, the docs, the shortcuts, support and the version.",
+        "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
+        "version": "0.25.86",
+        "integrity": "sha256-JLLpHIIMbLps8pIphtkxbiun6r0ZIb9q2oN3VA5geko="
+      }
+    },
+    {
+      "name": "route-tabs",
+      "type": "registry:ui",
+      "title": "Route Tabs",
+      "description": "Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab and a pending bar while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/tabs"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/route-tabs.tsx",
+          "type": "registry:ui",
+          "target": "@ui/route-tabs.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
+        "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
+        "version": "0.25.86",
+        "integrity": "sha256-W+Ff+ZhIi2nQOYjwpuqR0H3YWTzfxbQT3WeJHn4aFBU="
+      }
+    },
+    {
+      "name": "command-search",
+      "type": "registry:ui",
+      "title": "Command Search",
+      "description": "The search palette's frame, results first — one row of scope chips with a More menu (and Include archived), results up to min(60dvh, 520px), an in-flight state that dims stale results under an input progress bar, Recent · Create · Places start sections, and a preview pane from 1280px.",
+      "categories": [
+        "search",
+        "navigation",
+        "overlay"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.34",
+        "@vegastack/design-tokens@^0.8.17"
+      ],
+      "registryDependencies": [
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/toggle",
+        "@vegastack/toggle-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/command-search.tsx",
+          "type": "registry:ui",
+          "target": "@ui/command-search.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
+        "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (FilterBar's search).",
+        "version": "0.25.86",
+        "integrity": "sha256-tnWjbt66inoG/BpoxDpbVoj4Pcj6UY0VY16H66yaSUw="
       }
     }
   ]
