@@ -1,4 +1,4 @@
-// @vegastack timeline@0.25.94 sha256-8Hljxt6o1KlgwftZ6HEdSoGo7aUeMdMYwmU0p/rHq3w=
+// @vegastack timeline@0.25.95 sha256-YZ/t2AOazeXwLLtPgUnlkQMktkK7KEePXNHMEnL/xOQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

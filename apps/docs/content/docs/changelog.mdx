@@ -10,6 +10,20 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.95] — October 28, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.43`** (was `0.8.42`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.94 → 0.25.95.
+
+### 🐛 Fixed
+
+- **DataGrid** keeps a long primary value readable beside the row's Open button. The button and an editable value sat side by side as inline boxes, so a value long enough to fill the column overflowed the cell by the button's width, and the cell's ellipsis then replaced the whole value — its ref or leading content included — with a lone "…". The button and the value now share one flex row (`data-grid-cell-lead`), the value takes the width that is left, and a long value ends in its own ellipsis. [docs](/docs/components/data-grid) ·
+  [`025f625`](https://github.com/VegaStack/vegastack-design/commit/025f625)
+- A **DataList** `numeric` column (a date, a count) keeps its whole width on a narrow list's `line` meta line, like an end-aligned or `mono` one: the text values beside it truncate first, so "1w ago" never clips to "w ag". [docs](/docs/components/data-list) ·
+  [`78b59e3`](https://github.com/VegaStack/vegastack-design/commit/78b59e3)
+
 ## [0.25.94] — October 28, 2026
 
 ### 📦 npm

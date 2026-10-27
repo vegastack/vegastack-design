@@ -1,4 +1,4 @@
-// @vegastack spinner@0.25.94 sha256-6LTWU+8HIOmRzjdHj/8Gszz0JR2OyLYrXwSLDKaMfh8=
+// @vegastack spinner@0.25.95 sha256-Worof0haD9IZHUtEcJiOS4vA4MI2uoR9Tw3I83hmXcQ=
 
 import { cn } from "@vegastack/design";
 import { LoaderIcon } from "lucide-react";

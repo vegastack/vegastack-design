@@ -1,4 +1,4 @@
-// @vegastack page-layout@0.25.94 sha256-OG+s2ys8qar04+rk4pmGLK6JgslGWwcxb7nBNGCKWoM=
+// @vegastack page-layout@0.25.95 sha256-CdzeZXdI7DhqQ9YM7FOSJAZz6UenRQC/G1ybw+08s1o=
 
 /**
  * The page-layout contract — how wide each route's page is, declared once. `AppShellPage` takes a
