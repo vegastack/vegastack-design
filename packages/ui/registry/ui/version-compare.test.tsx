@@ -277,6 +277,41 @@ test("phone, controlled phoneView: the host decides the side; a pick and Back re
   expect(root().dataset.view).toBe("preview");
   await screen.unmount();
 
+  // A host that declines Back, then moves to the list on its own: focus stays on its control.
+  function Declining() {
+    const [view, setView] = React.useState<"list" | "preview">("preview");
+    return (
+      <div style={{ height: 600, display: "flex" }}>
+        <Button onClick={() => setView("list")}>Show all</Button>
+        <VersionCompare
+          versions={versions}
+          selectedId="v2"
+          now={now}
+          phoneView={view}
+          onPhoneViewChange={() => {}}
+          preview={<p>Text of the selected version</p>}
+        />
+      </div>
+    );
+  }
+  const declining = await render(<Declining />);
+  await declining.getByRole("button", { name: "Versions" }).click();
+  expect(
+    declining.container.querySelector<HTMLElement>(
+      "[data-slot=version-compare]",
+    )!.dataset.view,
+  ).toBe("preview");
+  await declining.getByRole("button", { name: "Show all" }).click();
+  await vi.waitFor(() =>
+    expect(
+      declining.container.querySelector<HTMLElement>(
+        "[data-slot=version-compare]",
+      )!.dataset.view,
+    ).toBe("list"),
+  );
+  expect(document.activeElement?.textContent).toBe("Show all");
+  await declining.unmount();
+
   // A host that holds the list keeps it: the pick is only reported.
   const held = vi.fn();
   const fixed = await render(

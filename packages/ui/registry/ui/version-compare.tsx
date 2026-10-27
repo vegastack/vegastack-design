@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.25.90 sha256-0YZBGWOpT+6zGi/YXfsSSoYLrsg5Vxv8ZUkG3bS0/eI=
+// @vegastack version-compare@0.25.90 sha256-AH9yvYJ4a5IkU3amUL8IsoVwhUctoTBf6Y00xe5zVJM=
 
 "use client";
 
@@ -148,19 +148,22 @@ export function VersionCompare({
   const phonePreview = !wide && view === "preview";
   // Moving between the sides unmounts the focused control: focus follows the reader — to Back on
   // the way in, to the selected version on the way out. A move the host makes on its own leaves
-  // focus where it is.
+  // focus where it is, and so does a move the host declines: every request re-renders, so the
+  // effect settles it in the same commit as the host's answer.
   const back = React.useRef<HTMLButtonElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
   const moving = React.useRef<"list" | "preview" | null>(null);
+  const [requests, setRequests] = React.useState(0);
   const setView = (next: "list" | "preview") => {
     moving.current = next;
+    setRequests((count) => count + 1);
     if (phoneView === undefined) setViewState(next);
     onPhoneViewChange?.(next);
   };
   React.useEffect(() => {
     const target = moving.current;
     moving.current = null;
-    if (target !== view) return;
+    if (target === null || target !== view) return;
     if (view === "preview") back.current?.focus();
     else
       listRef.current
@@ -168,7 +171,7 @@ export function VersionCompare({
           "[data-slot=version-list-item][data-selected]",
         )
         ?.focus();
-  }, [view]);
+  }, [view, requests]);
 
   const list = (
     <VersionList

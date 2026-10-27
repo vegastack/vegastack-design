@@ -78,15 +78,19 @@ version's changes rather than the list; "Versions" still goes back. To drive the
 button. A side the host sets moves no focus; a side the reader picks takes focus with it.
 
 ```tsx
+// Opened from "View changes" on a checkpoint: start on it, compared with now.
+const [selected, setSelected] = React.useState(checkpointId);
+const [showChanges, setShowChanges] = React.useState(true);
+
 <VersionCompare
   versions={versions}
-  selectedId={checkpointId}
+  selectedId={selected}
   onSelect={setSelected}
-  showChanges
+  showChanges={showChanges}
   onShowChangesChange={setShowChanges}
-  diff={{ before: checkpointText, after: currentText }}
+  diff={showChanges ? { before: textOf(selected), after: currentText } : null}
   defaultPhoneView="preview"
-/>
+/>;
 ```
 
 <ComponentPreview
