@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.90 sha256-g9P7ogCjDVjvth97XqVfzRWgQtio1Voh0JgjbaH8aRc=
+// @vegastack data-table-parts@0.25.90 sha256-YV9LKrnzPhTX2lj4asAY7Zq8uo/BrdfrS4sXf9wtbgE=
 
 "use client";
 
@@ -396,12 +396,29 @@ export const LIST_ROW_HEIGHT_CLASS = {
 } as const;
 
 /**
+ * The ONE row-state ladder, shared by `DataList` and `DataGrid` so a list and a grid answer the
+ * same way (Regent POL-01):
+ *
+ * - hover — `ROW_HOVER_CLASS`, a faint `muted`/30 wash and nothing else;
+ * - selected (ticked) — `SELECTED_ROW_CLASS`, the stronger `muted`/50 wash, held through hover;
+ * - open (`activeRowId`) — `PEEK_ACTIVE_ROW_CLASS`, the `accent` wash plus the 2px `foreground`
+ *   start edge. The edge belongs to the open row (and to keyboard focus or the keyboard cursor,
+ *   which point at the row the next Enter opens); the pointer never draws it.
+ */
+export const ROW_HOVER_CLASS = "hover:bg-muted/30";
+
+/**
  * The row whose record is open beside the list or grid (a peek, `activeRowId`): it carries
- * `data-peek-active` and the `accent` wash, held through hover so the open row never flickers
- * under the pointer. A selected row's own wash (`SELECTED_ROW_CLASS`) is applied after it, so
- * the checkbox's state still reads.
+ * `data-peek-active`, the `accent` wash held through hover so the open row never flickers under
+ * the pointer, and the 2px start edge, painted as the first cell's background layer (a table row
+ * can't hold a positioned `::before`). A selected row's own wash (`SELECTED_ROW_CLASS`) is applied
+ * after it, so the checkbox's state still reads; the edge stays.
  */
 export const PEEK_ACTIVE_ROW_CLASS =
+  "data-peek-active:bg-accent data-peek-active:hover:bg-accent [&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-peek-active]>:first-child]:bg-no-repeat [&[data-peek-active]>:first-child]:bg-size-[2px_100%] [&[data-peek-active]>:first-child]:bg-left rtl:[&[data-peek-active]>:first-child]:bg-right";
+
+/** The card whose record is open beside a card grid: the same `accent` wash, with no edge. */
+export const PEEK_ACTIVE_CARD_CLASS =
   "data-peek-active:bg-accent data-peek-active:hover:bg-accent";
 
 /** What a row-open callback (`onRowOpen`) receives beside the row id. */
@@ -804,7 +821,8 @@ export interface SortableHeadProps extends Omit<
   order?: number;
   /**
    * Activate the sort. Omitted (or with `column.sortable` false) the header
-   * renders as static text.
+   * renders as static text — still with a read-only direction glyph and
+   * `aria-sort` when `direction` is set (a sort chosen elsewhere, a toolbar).
    * @default undefined
    */
   onSort?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -866,7 +884,7 @@ export function SortableHead({
       data-sortable={sortable ? "" : undefined}
       data-sorted={direction ?? undefined}
       aria-sort={
-        sortable
+        sortable || direction
           ? direction === "asc"
             ? "ascending"
             : direction === "desc"
@@ -895,10 +913,54 @@ export function SortableHead({
         >
           {column.header}
         </SortHeaderButton>
+      ) : direction ? (
+        // Sorted, but not from this header (a toolbar owns the sort): the label with a read-only
+        // glyph, in the same place `SortHeaderButton` draws it — trailing, or leading in an end
+        // column so the label's end stays on the values' end.
+        // Inline, not flex: the label's own text keeps the baseline (an icon-first flex row takes
+        // its baseline from the svg and lifts the label — the SortHeaderButton regression).
+        <span data-slot="data-table-sort-indicator">
+          {column.align === "end" ? (
+            <SortGlyph direction={direction} order={order} className="me-1" />
+          ) : null}
+          {column.header}
+          {column.align === "end" ? null : (
+            <SortGlyph direction={direction} order={order} className="ms-1" />
+          )}
+        </span>
       ) : (
         column.header
       )}
     </TableHead>
+  );
+}
+
+/** The active sort's glyph — ↑ or ↓, with a multi-sort ordinal — drawn read-only. */
+function SortGlyph({
+  direction,
+  order,
+  className,
+}: {
+  direction: SortDirection;
+  order: number | undefined;
+  className?: string;
+}) {
+  return (
+    <span
+      aria-hidden
+      data-slot="data-table-sort-glyph"
+      className={cn(
+        "inline-flex items-center gap-0.5 align-middle text-foreground",
+        className,
+      )}
+    >
+      {direction === "asc" ? (
+        <ArrowUp className="size-3.5" />
+      ) : (
+        <ArrowDown className="size-3.5" />
+      )}
+      {order != null ? <span className="text-xs">{order}</span> : null}
+    </span>
   );
 }
 

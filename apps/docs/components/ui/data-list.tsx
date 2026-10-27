@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.90 sha256-CLcnriJq3S7jTjDcJqwZ/JFL8b3b6BFBnYDBaXseRZM=
+// @vegastack data-list@0.25.90 sha256-IYu73BlEinb1cNoPT88KDLMq/2cEYWcQewiOv1p0GeQ=
 
 "use client";
 
@@ -30,7 +30,9 @@ import {
   mergedValueClass,
   offscreenSortSummary,
   revealColumns,
+  PEEK_ACTIVE_CARD_CLASS,
   PEEK_ACTIVE_ROW_CLASS,
+  ROW_HOVER_CLASS,
   SELECTED_ROW_CLASS,
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
@@ -488,7 +490,9 @@ export interface DataListProps<T> extends Omit<
   /**
    * Controlled active sort. Pair with `onSortChange`. Omit for uncontrolled
    * sorting (the component tracks which header is active, but you must still
-   * order `data` yourself in `onSortChange`).
+   * order `data` yourself in `onSortChange`). Passed WITHOUT `onSortChange`, the
+   * sort is owned elsewhere (a toolbar's Sort control): headers are not buttons,
+   * and the sorted column shows a read-only ↑/↓ and `aria-sort`.
 
    * @default undefined
    */
@@ -1189,11 +1193,14 @@ const FOCUS_ROW_CLASS =
 
 /**
  * The keyboard cursor's row (`keyboardNavigation` / `cursorId`): the same cue as keyboard focus,
- * the hover wash plus the 2px start edge. `data-cursor` is painted on the row imperatively, so a
- * cursor move (one per row the pointer crosses) re-renders nothing.
+ * the wash plus the 2px start edge. `data-cursor` is painted on the row imperatively, so a
+ * cursor move (one per row the pointer crosses) re-renders nothing. Its value says who moved it:
+ * `key` (the keys, or a controlled `cursorId`) draws the edge; `pointer` (the mouse following
+ * rows) draws nothing beyond the row's own faint hover wash, so hover never reads as the open
+ * row, whose edge this is too (`PEEK_ACTIVE_ROW_CLASS`).
  */
 const CURSOR_ROW_CLASS =
-  "data-cursor:bg-muted/50 [&[data-cursor]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-cursor]>:first-child]:bg-no-repeat [&[data-cursor]>:first-child]:bg-size-[2px_100%] [&[data-cursor]>:first-child]:bg-left rtl:[&[data-cursor]>:first-child]:bg-right";
+  "data-[cursor=key]:bg-muted/50 [&[data-cursor=key]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-cursor=key]>:first-child]:bg-no-repeat [&[data-cursor=key]>:first-child]:bg-size-[2px_100%] [&[data-cursor=key]>:first-child]:bg-left rtl:[&[data-cursor=key]>:first-child]:bg-right";
 
 /** Lists with `keyboardNavigation` on, in mount order: only the last one answers the keys. */
 const keyboardLists: object[] = [];
@@ -1662,6 +1669,9 @@ export function DataList<T>({
     null,
     onSortChange,
   );
+  // A controlled sort with no `onSortChange` is set elsewhere (a toolbar): the headers show it
+  // read-only — the glyph and `aria-sort` — and never sort on a click.
+  const sortLocked = sort !== undefined && onSortChange === undefined;
   const handleSort = React.useCallback(
     (key: string) => {
       // One key at a time: DataList only SIGNALS intent, and a presentational
@@ -2044,6 +2054,8 @@ export function DataList<T>({
             : undefined
         }
         className={cn(
+          // Hover is a faint wash only (the row-state ladder in `data-table-parts`).
+          ROW_HOVER_CLASS,
           clickable &&
             "cursor-pointer [&_a]:no-underline [&_a:focus-visible]:no-underline [&_a:hover]:no-underline",
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
@@ -2400,6 +2412,7 @@ export function DataList<T>({
       cursorId !== undefined ||
       onCursorChange !== undefined);
   const cursorRef = React.useRef<string | null>(null);
+  const cursorModeRef = React.useRef<"key" | "pointer">("key");
   const rowElement = React.useCallback(
     (id: string) =>
       rootRef.current?.querySelector<HTMLElement>(
@@ -2414,22 +2427,29 @@ export function DataList<T>({
       for (const el of root.querySelectorAll("[data-cursor]"))
         if (el.getAttribute("data-row-id") !== id)
           el.removeAttribute("data-cursor");
-      if (id) rowElement(id)?.setAttribute("data-cursor", "");
+      if (id)
+        rowElement(id)?.setAttribute("data-cursor", cursorModeRef.current);
     },
     [rowElement],
   );
   const moveCursor = React.useCallback(
-    (id: string | null) => {
-      if (cursorRef.current === id) return;
+    (id: string | null, mode: "key" | "pointer" = "key") => {
+      if (cursorRef.current === id && cursorModeRef.current === mode) return;
+      const moved = cursorRef.current !== id;
       cursorRef.current = id;
+      cursorModeRef.current = mode;
       paintCursor(id);
+      if (!moved) return;
       onCursorChange?.(id);
     },
     [paintCursor, onCursorChange],
   );
   // Every render: take a controlled value, drop a cursor whose row left, repaint remounted rows.
   React.useLayoutEffect(() => {
-    if (cursorId !== undefined) cursorRef.current = cursorId;
+    if (cursorId !== undefined && cursorId !== cursorRef.current) {
+      cursorRef.current = cursorId;
+      cursorModeRef.current = "key";
+    }
     if (cursorRef.current !== null && !rowIds.includes(cursorRef.current))
       cursorRef.current = null;
     paintCursor(tracksCursor ? cursorRef.current : null);
@@ -2440,7 +2460,7 @@ export function DataList<T>({
       '[data-slot="data-list-row"]',
     );
     const id = row?.getAttribute("data-row-id");
-    if (id && rootRef.current?.contains(row!)) moveCursor(id);
+    if (id && rootRef.current?.contains(row!)) moveCursor(id, "pointer");
   };
   // The cursor row's activation: its link (so the router and `target` apply), its injected
   // row button, `onRowClick`, or a plain navigation to its href.
@@ -2734,7 +2754,7 @@ export function DataList<T>({
                   direction={
                     activeSort?.key === col.key ? activeSort.direction : null
                   }
-                  onSort={() => handleSort(col.key)}
+                  onSort={sortLocked ? undefined : () => handleSort(col.key)}
                 />
               ))}
             </TableRow>
@@ -2887,7 +2907,7 @@ export function DataList<T>({
         className={cn(
           !onBoard && selectable && gridSize !== "lg" && "ps-9",
           // The card whose record is open beside the grid (`activeRowId`).
-          !onBoard && PEEK_ACTIVE_ROW_CLASS,
+          !onBoard && PEEK_ACTIVE_CARD_CLASS,
         )}
         // A card that wraps its own controls (the row-actions menu, or an `interactive` column's
         // button or link) cannot be a `button` — that nests interactive content (axe

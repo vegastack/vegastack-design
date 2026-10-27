@@ -202,6 +202,9 @@ with the next `{ key, direction }` (or `null` when cleared). The click cycle is 
 - **Client** (`sortMode="client"`, or any column with its own `compare`): `DataList` orders `data`
   itself with the column's `compare(a, b)` (ascending; descending is its reverse), else a default
   comparator over `row[key]` (numbers, dates, then numeric-aware strings, empties last).
+- **Read-only** (`sort` without `onSortChange`): the sort is owned elsewhere, such as a toolbar's
+  Sort control. No header is a button; the sorted column shows a read-only ↑/↓
+  (`data-slot="data-table-sort-indicator"`) and carries `aria-sort`.
 
 ```tsx
 <DataList

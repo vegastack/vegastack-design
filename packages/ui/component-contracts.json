@@ -3746,6 +3746,10 @@
               ]
             },
             {
+              "name": "data-tabbed",
+              "values": [""]
+            },
+            {
               "name": "data-visible",
               "values": [""]
             }
@@ -10149,6 +10153,15 @@
           }
         },
         {
+          "name": "PEEK_ACTIVE_CARD_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
           "name": "PEEK_ACTIVE_ROW_CLASS",
           "kind": "component-constant",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -10291,6 +10304,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ROW_HOVER_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -10569,6 +10591,10 @@
         },
         "SortableHead": {
           "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-table-sort-indicator"]
+            },
             {
               "name": "data-sortable",
               "values": [""]
@@ -17250,7 +17276,6 @@
                 "inline-chip-badge",
                 "inline-chip-icon",
                 "inline-chip-label",
-                "inline-chip-lead",
                 "inline-chip-person",
                 "inline-chip-preview",
                 "inline-chip-status",
@@ -25166,6 +25191,10 @@
             },
             {
               "name": "data-drop-over",
+              "values": []
+            },
+            {
+              "name": "data-handle",
               "values": []
             },
             {

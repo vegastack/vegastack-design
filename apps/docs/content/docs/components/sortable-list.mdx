@@ -170,6 +170,11 @@ swipe that moves before the hold completes scrolls the page as usual, the page d
 under a lifted row, and the long-press menu is suppressed. The list scrolls when the finger nears
 its scroll container's edge.
 
+Where the grip would sit over the content on a phone (a card's type icon), pass `handle="fine"`:
+the grip shows only on a mouse or pen, and on a touch screen the long-press is the way to drag.
+The handle stays in the tab order and reappears while it has keyboard focus, so Space-to-move
+still works with a keyboard.
+
 ### Drag handle
 
 Only the handle starts a pointer drag — the rest of the row stays free for text selection and the
