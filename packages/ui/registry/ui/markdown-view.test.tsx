@@ -1836,3 +1836,82 @@ test("a highlight ending in a link's text puts its pill after the link, never in
   ).toBeTruthy();
   await expectNoA11yViolations(root);
 });
+
+test("a bookmark line is a card with the provider's preview; another reader's link otherwise", async () => {
+  const { InlineChipProvider } = await import("./inline-chip");
+  const linkPreview = vi.fn(async () => ({
+    title: "Example guide",
+    icon: null,
+    siteName: "Example",
+  }));
+  const screen = await render(
+    <InlineChipProvider value={{ linkPreview }}>
+      <MarkdownView>
+        {'[https://example.com/guide](https://example.com/guide "bookmark")'}
+      </MarkdownView>
+    </InlineChipProvider>,
+  );
+  const card = await vi.waitFor(() => {
+    const found = screen.container.querySelector<HTMLAnchorElement>(
+      '[data-slot="markdown-bookmark"]',
+    );
+    expect(found?.textContent).toContain("Example guide");
+    return found!;
+  });
+  expect(card.getAttribute("href")).toBe("https://example.com/guide");
+  expect(card.getAttribute("target")).toBe("_blank");
+  expect(card.textContent).toContain("Example · example.com/guide");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("onTaskOpen: a linked checklist line is a TaskInline with one round box", async () => {
+  const onTaskOpen = vi.fn();
+  const screen = await render(
+    <MarkdownView
+      onTaskOpen={onTaskOpen}
+      mentionStatus={() => ({ due: "Fri", assignee: { name: "Asha Rao" } })}
+    >
+      {"- [ ] [@Order glass](mention://task/t1)\n- [ ] Plain"}
+    </MarkdownView>,
+  );
+  const items = screen.container.querySelectorAll("li[data-type=taskItem]");
+  expect(items[0]!.querySelectorAll('[role="checkbox"]')).toHaveLength(1);
+  expect(
+    items[0]!
+      .querySelector('[data-slot="checkbox"]')
+      ?.getAttribute("data-shape"),
+  ).toBe("circle");
+  expect(items[1]!.querySelector('[data-slot="task-inline"]')).toBeNull();
+  await userEvent.click(
+    items[0]!.querySelector<HTMLElement>('[data-slot="task-inline-title"]')!,
+  );
+  expect(onTaskOpen).toHaveBeenCalledWith("t1");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a bookmark whose address holds Markdown characters is still a card", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {'[https://example.com/a\\*b\\*c](https://example.com/a*b*c "bookmark")'}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container
+      .querySelector('[data-slot="markdown-bookmark"]')
+      ?.getAttribute("href"),
+  ).toBe("https://example.com/a*b*c");
+});
+
+test("onTaskOpen: a comment on the line's task keeps it a TaskInline", async () => {
+  const screen = await render(
+    <MarkdownView
+      onTaskOpen={() => {}}
+      annotations={[{ id: "c1", anchor: { quote: "@Order glass" } }]}
+    >
+      {"- [ ] [@Order glass](mention://task/t1)"}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="task-inline"]'),
+  ).not.toBeNull();
+});

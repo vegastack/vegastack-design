@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 763,
+    "components": 175,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 35,
+    "Forms/editing": 37,
     "Navigation/layout": 23,
     "Overlays": 22,
     "Data display": 38,
@@ -63,6 +63,7 @@
     "Forms/editing": [
       "auto-save-input",
       "avatar-picker",
+      "block-toolbar",
       "calendar",
       "chip-input",
       "choice-card",
@@ -92,6 +93,7 @@
       "sortable-list",
       "space-picker",
       "tag-group",
+      "task-inline",
       "template-editor",
       "text-edit",
       "upload-dialog",
@@ -5994,15 +5996,6 @@
           }
         },
         {
-          "name": "codeBlockActionsClassName",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/code-block.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant export does not render or accept a runtime ref."
-          }
-        },
-        {
           "name": "codeBlockWrapStyle",
           "kind": "function",
           "source": "packages/ui/registry/ui/code-block.tsx",
@@ -6058,8 +6051,9 @@
       "engines": [],
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": [
-        "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/block-toolbar",
+        "@vegastack/code-highlight",
+        "@vegastack/copy-button"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.35",
@@ -6086,12 +6080,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "code-block",
-                "code-block-actions",
-                "code-block-header",
-                "code-block-pre"
-              ]
+              "values": ["code-block", "code-block-header", "code-block-pre"]
             },
             {
               "name": "data-wrap",
@@ -17443,6 +17432,60 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MarkdownBookmark",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props spread onto the card's anchor; no stable public ref beyond it."
+          }
+        },
+        {
+          "name": "MarkdownBookmarkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownBookmarkPreview",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownTaskInline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to TaskInline; no stable public ref."
+          }
+        },
+        {
+          "name": "MarkdownTaskInlineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownMentionStatus",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -17514,6 +17557,8 @@
         "@vegastack/embed-providers",
         "@vegastack/inline-chip",
         "@vegastack/popover",
+        "@vegastack/skeleton",
+        "@vegastack/task-inline",
         "@vegastack/text-anchor",
         "@vegastack/text-edit-grammar",
         "@vegastack/toast",
@@ -17585,6 +17630,43 @@
             {
               "name": "data-tone",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownTaskInline": {
+          "attributes": [
+            {
+              "name": "data-anchor-text",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownBookmark": {
+          "attributes": [
+            {
+              "name": "data-anchor-block",
+              "values": [""]
+            },
+            {
+              "name": "data-anchor-text",
+              "values": []
+            },
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "markdown-bookmark",
+                "markdown-bookmark-address",
+                "markdown-bookmark-description",
+                "markdown-bookmark-image",
+                "markdown-bookmark-text",
+                "markdown-bookmark-title"
+              ]
             }
           ],
           "cssVariables": []
@@ -27339,6 +27421,42 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MentionSection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditMakeTaskContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditBubbleContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditUploadOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -27420,6 +27538,7 @@
       "registryDependencies": [
         "@vegastack/alert",
         "@vegastack/avatar",
+        "@vegastack/block-toolbar",
         "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
@@ -27438,11 +27557,13 @@
         "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/suggestion-menu",
         "@vegastack/tabs",
+        "@vegastack/task-inline",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/text-edit-grammar",
@@ -27452,7 +27573,8 @@
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -27541,7 +27663,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["text-edit-content"]
+              "values": ["text-edit-content", "text-edit-slash-icon"]
             }
           ],
           "cssVariables": []
@@ -29314,6 +29436,15 @@
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "useSuggestionMenuSheet",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -29376,8 +29507,11 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/panel-search",
+        "@vegastack/sheet",
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.8.36",
@@ -29408,17 +29542,29 @@
               "values": [""]
             },
             {
+              "name": "data-presentation",
+              "values": ["popover", "sheet"]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "suggestion-menu",
                 "suggestion-menu-description",
                 "suggestion-menu-group",
                 "suggestion-menu-group-label",
+                "suggestion-menu-icon",
                 "suggestion-menu-label",
                 "suggestion-menu-layer",
                 "suggestion-menu-option",
+                "suggestion-menu-search",
+                "suggestion-menu-sheet",
                 "suggestion-menu-shortcut",
-                "suggestion-menu-status"
+                "suggestion-menu-status",
+                "suggestion-menu-text"
               ]
             }
           ],
@@ -29581,6 +29727,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/block-toolbar",
         "@vegastack/button",
         "@vegastack/code-block",
         "@vegastack/dialog",
@@ -29626,7 +29773,6 @@
                 "block-view-expand",
                 "block-view-header",
                 "block-view-hint",
-                "block-view-menu",
                 "block-view-mode",
                 "block-view-preview"
               ]
@@ -31137,6 +31283,360 @@
             {
               "name": "data-width",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "block-toolbar",
+      "registryType": "registry:ui",
+      "title": "Block Toolbar",
+      "summary": "The one place a block's own controls sit — its top-right corner, 28px icon buttons, at most four and a ⋯ menu for the rest — shared by code blocks, images and diagrams.",
+      "status": "stable",
+      "since": "0.25.88",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/block-toolbar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BlockToolbar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Props, ref included, spread onto the group div."
+          }
+        },
+        {
+          "name": "BlockToolbarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockToolbarButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Button inside a Tooltip trigger; no stable public ref."
+          }
+        },
+        {
+          "name": "BlockToolbarButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BlockToolbarMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to DropdownMenu; no stable public ref."
+          }
+        },
+        {
+          "name": "BlockToolbarMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/block-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "hover-reveal", "inline", "open"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover-reveal", "inline"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "A corner row of fixed 28px buttons; a coarse pointer always shows it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/block-toolbar",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "testFiles": ["packages/ui/registry/ui/block-toolbar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "block-toolbar",
+      "dataAttributes": {
+        "BlockToolbar": {
+          "attributes": [
+            {
+              "name": "data-placement",
+              "values": []
+            },
+            {
+              "name": "data-reveal",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockToolbarButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BlockToolbarMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["block-toolbar-menu"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "task-inline",
+      "registryType": "registry:ui",
+      "title": "Task Inline",
+      "summary": "A task in running text — one box (its done state), the title that opens it, the assignee's avatar, a due chip and ↗ to its page — and MakeTaskPopover, which makes that task from a checklist line in place.",
+      "status": "stable",
+      "since": "0.25.88",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/task-inline.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TaskInline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props spread onto the root span; its ref is the span's."
+          }
+        },
+        {
+          "name": "TaskInlineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskInlinePerson",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MakeTaskPopover",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Popover; no stable public ref."
+          }
+        },
+        {
+          "name": "MakeTaskPopoverProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MakeTaskLine",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-inline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "done",
+            "struck",
+            "overdue",
+            "read-only",
+            "open",
+            "pending"
+          ],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "done", "struck", "overdue"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "An inline box that wraps with its line; the popover is the Popover's width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/task-inline",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/input",
+        "@vegastack/person-avatar",
+        "@vegastack/popover"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "testFiles": ["packages/ui/registry/ui/task-inline.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "task-inline",
+      "dataAttributes": {
+        "TaskInline": {
+          "attributes": [
+            {
+              "name": "data-done",
+              "values": [""]
+            },
+            {
+              "name": "data-overdue",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "task-inline",
+                "task-inline-assignee",
+                "task-inline-due",
+                "task-inline-open",
+                "task-inline-status",
+                "task-inline-title"
+              ]
+            },
+            {
+              "name": "data-struck",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MakeTaskPopover": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "make-task-popover",
+                "make-task-popover-actions",
+                "make-task-popover-anchor",
+                "make-task-popover-fields",
+                "make-task-popover-line",
+                "make-task-popover-lines",
+                "make-task-popover-title"
+              ]
             }
           ],
           "cssVariables": []
@@ -34391,7 +34891,7 @@
             },
             {
               "name": "data-state",
-              "values": []
+              "values": ["empty"]
             }
           ],
           "cssVariables": []
@@ -47089,6 +47589,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "BOOKMARK_TITLE",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "bookmarkMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -47453,6 +47971,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "bookmarkOfParagraph",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

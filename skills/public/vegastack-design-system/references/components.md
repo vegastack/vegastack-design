@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**173 components**, plus 467 animated-icon items, 17 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 21 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 761 registry items in total.
+**175 components**, plus 467 animated-icon items, 17 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 21 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 763 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -20,6 +20,7 @@ starts with `icon-` is a component and never an icon.
 ## Form
 
 - **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status; plus useAutoSave (debounced, serialised changed-fields save for a whole form) and AutoSaveIndicator.
+- **`block-toolbar`** — The one place a block's own controls sit — its top-right corner, 28px icon buttons, at most four and a ⋯ menu for the rest — shared by code blocks, images and diagrams.
 - **`calendar`** — A date-field calendar on React DayPicker — single, multiple and range selection.
 - **`checkbox`** — A binary (or indeterminate) toggle on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).
 - **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.
@@ -51,6 +52,7 @@ starts with `icon-` is a component and never an icon.
 - **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
 - **`space-picker`** — SpaceChip — a space as a quiet property chip (tile, name, chevron), or an outlined one for a create dialog's header — and SpacePicker, that chip opening a searchable list of spaces, one line each, with My space first, a check on the current one and disabled rows that say why.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
+- **`task-inline`** — A task in running text — one box (its done state), the title that opens it, the assignee's avatar, a due chip and ↗ to its page — and MakeTaskPopover, which makes that task from a checklist line in place.
 - **`textarea`** — A styled native textarea that grows with its content; focus darkens its border subtly with an ease and paints no fill.
 
 ## Display

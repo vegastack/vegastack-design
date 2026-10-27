@@ -1905,6 +1905,7 @@ test("uploads: a pasted image shows the uploading overlay, then its final src �
   );
   expect(onImageUpload).toHaveBeenCalledWith(file, {
     signal: expect.any(AbortSignal),
+    onProgress: expect.any(Function),
   });
 
   // Focus leaves before the upload lands: nothing changed yet, so nothing is committed.
@@ -2664,7 +2665,7 @@ test("image: dragging a side handle resizes it and stores the width in the Markd
   ).toHaveLength(0);
 });
 
-test("image: the toolbar has Replace and Alt text and no ⋯ menu; Alt text saves on Enter", async () => {
+test("image: the toolbar has Replace and Alt text (the rest in ⋯, BlockToolbar's four-button rule); Alt text saves on Enter", async () => {
   const onValueChange = vi.fn();
   const md = `Before\n\n![Chart](${PIXEL})`;
   const screen = await markdownEditor({
@@ -2672,9 +2673,10 @@ test("image: the toolbar has Replace and Alt text and no ⋯ menu; Alt text save
     onValueChange,
     onImageUpload: async () => ({ src: PIXEL }),
   });
+  // Download and Copy link sit in ⋯ (UXP-08): at most four buttons show.
   expect(
     document.querySelector('[aria-label="More image actions"]'),
-  ).toBeNull();
+  ).not.toBeNull();
   await expect
     .element(screen.getByRole("button", { name: "Replace" }))
     .toBeInTheDocument();
@@ -7450,4 +7452,854 @@ test("image: inserted by link into an empty list item, the caret moves past it �
   await userEvent.keyboard("after");
   await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("after"));
   expect(lastValue(onValueChange)).toContain("/files/pic.png");
+});
+
+// ---- W1-DS3 · roomy menus: menuSize="lg", mention sections, phone sheets (UXP-03, 11, 21) -----
+
+test('menuSize="lg": the slash menu is 320px, each block says what it is, grouped Basic · host · Media · Advanced', async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    menuSize: "lg",
+    slashActions: [
+      {
+        id: "page",
+        label: "Page",
+        icon: <span aria-hidden>P</span>,
+        description: "A page inside this one",
+        group: "Regent",
+        onSelect: () => {},
+      },
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const menu = slashMenu()!;
+  expect(menu.getBoundingClientRect().width).toBe(320);
+  const headings = [
+    ...menu.querySelectorAll('[data-slot="suggestion-menu-group-label"]'),
+  ].map((each) => each.textContent);
+  expect(headings).toEqual(["Basic", "Regent", "Media", "Advanced"]);
+  const heading1 = [
+    ...menu.querySelectorAll<HTMLElement>(
+      '[data-slot="suggestion-menu-option"]',
+    ),
+  ].find((row) => row.textContent?.includes("Heading 1"))!;
+  expect(
+    heading1.querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent,
+  ).toBe("Big section heading");
+  // The arrows walk the rows as they show: the host's item right after the basic blocks.
+  const labels = [
+    ...menu.querySelectorAll('[data-slot="suggestion-menu-label"]'),
+  ].map((each) => each.textContent);
+  expect(labels.indexOf("Page")).toBe(labels.indexOf("Divider") + 1);
+  await userEvent.keyboard("head");
+  await vi.waitFor(() =>
+    expect(
+      slashMenu()!.querySelectorAll(
+        '[data-slot="suggestion-menu-group-label"]',
+      ),
+    ).toHaveLength(0),
+  );
+  await expectNoA11yViolations(slashMenu()!);
+});
+
+test("mentions sections: People · Agents · Records by type; an email shows on the active row unless two people share the name", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    { kind: "page", id: "p1", label: "Asha's notes" },
+    { kind: "user", id: "u1", label: "Asha Rao", description: "asha@x.co" },
+    { kind: "agent", id: "a1", label: "Scribe" },
+    { kind: "task", id: "t1", label: "Order glass" },
+    { kind: "user", id: "u2", label: "Ben Ito", description: "ben@x.co" },
+    { kind: "user", id: "u3", label: "Ben Ito", description: "ben2@x.co" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: mentionKinds("user", "agent", "page", "task"),
+      sections: ["people", "agents", "records"],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.getAttribute("role")).toBe("listbox"),
+  );
+  const groups = [...mentionMenu()!.querySelectorAll('[role="group"]')];
+  expect(groups.map((group) => group.firstElementChild?.textContent)).toEqual([
+    "People",
+    "Your agents",
+    "Pages",
+    "Tasks",
+  ]);
+  const row = (label: string) =>
+    [
+      ...mentionMenu()!.querySelectorAll<HTMLElement>(
+        '[data-slot="suggestion-menu-option"]',
+      ),
+    ].filter((each) => each.textContent?.includes(label));
+  const email = (each: HTMLElement) =>
+    each.querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent ?? null;
+  // Asha is the active row: her email shows. The two Bens keep theirs to tell them apart.
+  expect(email(row("Asha Rao")[0]!)).toBe("asha@x.co");
+  expect(row("Ben Ito").map(email)).toEqual(["ben@x.co", "ben2@x.co"]);
+  // The agent draws the agent avatar.
+  expect(
+    row("Scribe")[0]!.querySelector('[data-slot="avatar"][data-kind="agent"]'),
+  ).not.toBeNull();
+  await userEvent.keyboard("{ArrowDown}");
+  await vi.waitFor(() => expect(email(row("Asha Rao")[0]!)).toBeNull());
+  await expectNoA11yViolations(mentionMenu()!);
+});
+
+test('menuPresentation="auto" on a phone: / opens a sheet whose search filters, and Enter turns the line into the pick', async () => {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("max-width: 639px"),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    menuPresentation: "auto",
+    menuSize: "lg",
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  const search = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLInputElement>(
+      '[data-slot="suggestion-menu-sheet"] [data-slot="suggestion-menu-search"]',
+    );
+    expect(found).not.toBeNull();
+    expect(document.activeElement).toBe(found);
+    return found!;
+  });
+  await userEvent.keyboard("heading 2");
+  expect(search.value).toBe("heading 2");
+  await vi.waitFor(() =>
+    expect(
+      [
+        ...document.querySelectorAll(
+          '[data-slot="suggestion-menu-sheet"] [data-slot="suggestion-menu-label"]',
+        ),
+      ].map((each) => each.textContent),
+    ).toEqual(["Heading 2"]),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror h2")).not.toBeNull(),
+  );
+  expect(lastValue(onValueChange) ?? "").not.toContain("/");
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="suggestion-menu-sheet"]'),
+    ).toBeNull(),
+  );
+});
+
+test("slashActions with the same group sit together under one heading", async () => {
+  const item = (id: string, group: string) => ({
+    id,
+    label: id,
+    group,
+    icon: <span aria-hidden>·</span>,
+    onSelect: () => {},
+  });
+  const screen = await markdownEditor({
+    slashCommands: ["text"],
+    slashActions: [
+      item("Page", "Regent"),
+      item("Clip", "Other"),
+      item("Task list", "Regent"),
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const groups = [
+    ...slashMenu()!.querySelectorAll('[data-slot="suggestion-menu-group"]'),
+  ].map((group) => [
+    group.querySelector('[data-slot="suggestion-menu-group-label"]')
+      ?.textContent,
+    [...group.querySelectorAll('[data-slot="suggestion-menu-label"]')].map(
+      (each) => each.textContent,
+    ),
+  ]);
+  expect(groups).toEqual([
+    ["Text", ["Text"]],
+    ["Regent", ["Page", "Task list"]],
+    ["Other", ["Clip"]],
+  ]);
+});
+
+test("mentions sections: a section left out is dropped before the five-a-group cap", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    ...[1, 2, 3, 4, 5].map((n) => ({
+      kind: "page",
+      id: `p${n}`,
+      label: `Page ${n}`,
+      group: "Recent",
+    })),
+    { kind: "user", id: "u1", label: "Asha Rao", group: "Recent" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: mentionKinds("user", "page"),
+      sections: ["people"],
+      search,
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(
+      [
+        ...(mentionMenu()?.querySelectorAll(
+          '[data-slot="suggestion-menu-label"]',
+        ) ?? []),
+      ].map((each) => each.textContent),
+    ).toEqual(["Asha Rao"]),
+  );
+});
+
+// ---- W1-DS3 · TaskInline lines, Make task in place, bookmarks (UXP-22, UXP-09, UXP-04) --------
+
+test("onTaskOpen: a linked line is one round box and a TaskInline — title opens the task, avatar, due, ↗", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const onTaskOpen = vi.fn();
+  const onTaskItemToggle = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)\n- [ ] Plain line",
+    onTaskOpen,
+    onTaskItemToggle,
+    mentionHref: (kind, id) => `/${kind}s/${id}`,
+    mentionStatus: (kind) =>
+      kind === "task"
+        ? {
+            assignee: { name: "Asha Rao", hue: "blue" },
+            due: "Fri 31 Oct",
+          }
+        : null,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const items = box.querySelectorAll("li[data-type=taskItem]");
+  // One box on the linked line, the round one; the plain line keeps its square box.
+  expect(items[0]!.querySelectorAll('[role="checkbox"]')).toHaveLength(1);
+  expect(
+    items[0]!
+      .querySelector('[data-slot="checkbox"]')
+      ?.getAttribute("data-shape"),
+  ).toBe("circle");
+  expect(
+    items[1]!
+      .querySelector('[data-slot="checkbox"]')
+      ?.getAttribute("data-shape"),
+  ).toBe("square");
+  const inline = items[0]!.querySelector('[data-slot="task-inline"]')!;
+  expect(inline).not.toBeNull();
+  expect(items[0]!.querySelector('[data-slot="inline-chip"]')).toBeNull();
+  expect(
+    inline.querySelector('[data-slot="task-inline-due"]')?.textContent,
+  ).toBe("Due Fri 31 Oct");
+  expect(
+    inline
+      .querySelector('[data-slot="task-inline-open"]')
+      ?.getAttribute("href"),
+  ).toBe("/tasks/t1");
+  await userEvent.click(
+    inline.querySelector<HTMLElement>('[data-slot="task-inline-title"]')!,
+  );
+  expect(onTaskOpen).toHaveBeenCalledWith("t1");
+  // Alt+Enter with the caret on the line opens it too.
+  onTaskOpen.mockClear();
+  await userEvent.click(items[1]!.querySelector("p")!);
+  await vi.waitFor(() => expect(document.activeElement).toBe(box));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard("{ArrowUp}{End}");
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+  await vi.waitFor(() => expect(onTaskOpen).toHaveBeenCalledWith("t1"));
+  // The line's own box is the task's.
+  await userEvent.click(
+    box.querySelector('li[data-type=taskItem] [role="checkbox"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(onTaskItemToggle).toHaveBeenCalledWith("t1", true),
+  );
+  await expectNoA11yViolations(box);
+});
+
+test("without onTaskOpen a linked line stays a checkbox and a task chip", async () => {
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  expect(box.querySelector('[data-slot="task-inline"]')).toBeNull();
+  expect(box.querySelector('[data-slot="inline-chip"]')).not.toBeNull();
+});
+
+test("MarkdownView-backed read view draws the same TaskInline line with onTaskOpen", async () => {
+  const onTaskOpen = vi.fn();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      readOnly
+      aria-label="Notes"
+      defaultValue={"- [x] [@Order glass](mention://task/t1)"}
+      onTaskOpen={onTaskOpen}
+    />,
+  );
+  const inline = await vi.waitFor(() => {
+    const found = screen.container.querySelector('[data-slot="task-inline"]');
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  expect(screen.container.querySelectorAll('[role="checkbox"]')).toHaveLength(
+    1,
+  );
+  await userEvent.click(
+    inline.querySelector<HTMLElement>('[data-slot="task-inline-title"]')!,
+  );
+  expect(onTaskOpen).toHaveBeenCalledWith("t1");
+});
+
+test("→ Task on a hovered unlinked line calls onMakeTask with the line and its element", async () => {
+  const onMakeTask = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass\n- [ ] [@Linked](mention://task/t9)",
+    onMakeTask,
+    onTaskOpen: () => {},
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const lines = box.querySelectorAll<HTMLElement>("li[data-type=taskItem]");
+  await userEvent.hover(lines[0]!.querySelector("p")!);
+  const hint = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-make-task"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  expect(hint.getAttribute("aria-label")).toBe("Make a task of “Order glass”");
+  await userEvent.click(hint);
+  await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledOnce());
+  const [items, context] = onMakeTask.mock.lastCall! as [
+    { key: string; text: string }[],
+    { anchor: HTMLElement | null },
+  ];
+  expect(items.map((item) => item.text)).toEqual(["Order glass"]);
+  expect(context.anchor).toBe(lines[0]);
+  // A linked line offers nothing.
+  await userEvent.hover(lines[1]!);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-make-task"]'),
+    ).toBeNull(),
+  );
+});
+
+test("the block menu's Make task hands over the line's element too", async () => {
+  const onMakeTask = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass",
+    onMakeTask,
+  });
+  await makeTaskOn(screen, onMakeTask, 0);
+  const context = onMakeTask.mock.lastCall![1] as { anchor: HTMLElement };
+  expect(context.anchor.matches("li[data-type=taskItem]")).toBe(true);
+});
+
+test("bookmarks round-trip as a link titled bookmark, and draw as a card with the host's preview", async () => {
+  const linkPreview = vi.fn(async () => ({
+    title: "Example guide",
+    siteName: "Example",
+    description: "How to do the thing.",
+  }));
+  const onValueChange = vi.fn();
+  const markdown =
+    'Read this:\n\n[https://example.com/guide](https://example.com/guide "bookmark")\n\nThen go.';
+  const screen = await render(
+    <InlineChipProvider value={{ linkPreview }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        defaultValue={markdown}
+        onValueChange={onValueChange}
+      />
+    </InlineChipProvider>,
+  );
+  const card = await vi.waitFor(() => {
+    const found = screen.container.querySelector<HTMLAnchorElement>(
+      '[data-slot="markdown-bookmark"]',
+    );
+    expect(found).not.toBeNull();
+    expect(found!.textContent).toContain("Example guide");
+    return found!;
+  });
+  expect(card.textContent).toContain("How to do the thing.");
+  expect(card.textContent).toContain("example.com/guide");
+  expect(card.getAttribute("href")).toBe("https://example.com/guide");
+  expect(linkPreview).toHaveBeenCalledWith(
+    "https://example.com/guide",
+    expect.anything(),
+  );
+  const doc = markdownToDoc(markdown).toJSON();
+  expect(doc.content?.[1]).toEqual({
+    type: "bookmark",
+    attrs: expect.objectContaining({ url: "https://example.com/guide" }),
+  });
+  await expectNoA11yViolations(screen.container);
+});
+
+test("bookmarks: the slash menu's Bookmark asks for the address and makes the card", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ bookmarks: true, onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/bookm");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent).toContain("Bookmark"),
+  );
+  await userEvent.keyboard("{Enter}");
+  const field = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLInputElement>(
+      'input[aria-label="Bookmark address"]',
+    );
+    expect(found).not.toBeNull();
+    expect(document.activeElement).toBe(found);
+    return found!;
+  });
+  await userEvent.keyboard("example.com/a{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      '[https://example.com/a](https://example.com/a "bookmark")',
+    ),
+  );
+  expect(field.isConnected).toBe(false);
+});
+
+test("bookmarks: without the prop the slash menu has no Bookmark", async () => {
+  const screen = await markdownEditor();
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/bookm");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent ?? "").not.toContain("Bookmark"),
+  );
+});
+
+test("bookmarks: a lone link pasted on its own line offers Link · Bookmark, and Bookmark makes the card", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ bookmarks: true, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box);
+  pasteData(box.querySelector("p") ?? box, {
+    "text/plain": "https://example.com/b",
+  });
+  await vi.waitFor(() =>
+    expect(
+      [...(pastePopover()?.querySelectorAll("button") ?? [])].map(
+        (each) => each.textContent,
+      ),
+    ).toEqual(["Link", "Bookmark"]),
+  );
+  await userEvent.click(pasteChoice("Bookmark")!);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      '[https://example.com/b](https://example.com/b "bookmark")',
+    ),
+  );
+  expect(box.querySelector('[data-slot="markdown-bookmark"]')).not.toBeNull();
+  // Undo puts the URL back as text, as for every paste choice.
+  await userEvent.keyboard(
+    `${MAC ? "{Meta>}" : "{Control>}"}z${MAC ? "{/Meta}" : "{/Control}"}`,
+  );
+  await vi.waitFor(() =>
+    expect(box.querySelector('[data-slot="markdown-bookmark"]')).toBeNull(),
+  );
+});
+
+test("onTaskOpen: the line's box is the one done state, and a restricted task stays a chip", async () => {
+  const screen = await markdownEditor({
+    defaultValue:
+      "- [ ] [@Order glass](mention://task/t1)\n- [ ] [@…](mention://task/restricted:t2)",
+    onTaskOpen: () => {},
+    mentionStatus: () => ({ done: true }),
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const items = box.querySelectorAll("li[data-type=taskItem]");
+  // The task reads done elsewhere, but the line's box is unticked: the title follows the box.
+  expect(
+    items[0]!
+      .querySelector('[data-slot="task-inline"]')
+      ?.hasAttribute("data-done"),
+  ).toBe(false);
+  expect(items[1]!.querySelector('[data-slot="task-inline"]')).toBeNull();
+  expect(items[1]!.querySelector('[data-slot="inline-chip"]')).not.toBeNull();
+});
+
+test("bookmarks: Bookmark from the slash menu in a list lands after the list, where Markdown holds it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    bookmarks: true,
+    defaultValue: "- one",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("li p")!);
+  await userEvent.keyboard(`${END}{Enter}/bookm`);
+  await vi.waitFor(() =>
+    expect(slashMenu()?.textContent).toContain("Bookmark"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("aria-label")).toBe(
+      "Bookmark address",
+    ),
+  );
+  await userEvent.keyboard("example.com/z{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      '\n\n[https://example.com/z](https://example.com/z "bookmark")',
+    ),
+  );
+  expect(lastValue(onValueChange)!.startsWith("- one")).toBe(true);
+});
+
+test("onTaskOpen: ticking the line's box restyles the title at once", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] [@Order glass](mention://task/t1)",
+    onTaskOpen: () => {},
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const inline = () => box.querySelector('[data-slot="task-inline"]')!;
+  expect(inline().hasAttribute("data-done")).toBe(false);
+  await userEvent.click(box.querySelector('li [role="checkbox"]')!);
+  await vi.waitFor(() => expect(inline().hasAttribute("data-done")).toBe(true));
+});
+
+// ---- W1-DS3 · editor ergonomics (UXP-06, 07, 08, 09, 10, 18, 21) -------------------------------
+
+const MOD_ENTER = MAC ? "{Meta>}{Enter}{/Meta}" : "{Control>}{Enter}{/Control}";
+
+test("the block grip's hit area is 24×28 around its 16×20 box", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <div style={{ paddingInlineStart: 64 }}>
+      <TextEdit
+        format="markdown"
+        aria-label="Notes"
+        defaultValue={"First\n\nSecond"}
+      />
+    </div>,
+  );
+  const box = await vi.waitFor(() => {
+    const found = screen.container.querySelector<HTMLElement>(".ProseMirror");
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.hover(box.querySelector("p")!);
+  const grip = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-block-handle"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  const rect = grip.getBoundingClientRect();
+  expect(rect.width).toBe(16);
+  expect(rect.height).toBe(20);
+  // 4px beyond its start, its end and below it: still the grip.
+  const hit = (x: number, y: number) => document.elementFromPoint(x, y);
+  expect(hit(rect.left - 3.5, rect.top + rect.height / 2)).toBe(grip);
+  expect(hit(rect.right + 3.5, rect.top + rect.height / 2)).toBe(grip);
+  // (The grip sits at the frame's top here: below stands for above.)
+  expect(hit(rect.left + rect.width / 2, rect.bottom + 3.5)).toBe(grip);
+});
+
+test("the find bar floats over the text: opening it moves no line", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const handle = React.createRef<TextEditHandle>();
+  const screen = await markdownEditor({
+    defaultValue: "First line\n\nSecond line",
+    findReplace: true,
+    handleRef: handle,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const top = box.querySelector("p")!.getBoundingClientRect().top;
+  handle.current!.openFind();
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-find"]'),
+    ).not.toBeNull(),
+  );
+  expect(box.querySelector("p")!.getBoundingClientRect().top).toBe(top);
+});
+
+test("code blocks: ⌘↵ and ↓ on the last line leave the block for a line below; the footer says how", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "```js\nconst a = 1;\nconst b = 2;\n```",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("pre code")!);
+  await vi.waitFor(() =>
+    expect(
+      box.querySelector('[data-slot="text-edit-code-hint"]')?.textContent,
+    ).toMatch(/to exit$/),
+  );
+  await userEvent.keyboard(`${MOD_ENTER}x`);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "```js\nconst a = 1;\nconst b = 2;\n```\n\nx",
+    ),
+  );
+  expect(box.querySelector('[data-slot="text-edit-code-hint"]')).toBeNull();
+  // ↓ on the last line: into the paragraph below.
+  await userEvent.click(box.querySelector("pre code")!);
+  caretAt(box.querySelector("pre code")!, 0);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}y");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "```js\nconst a = 1;\nconst b = 2;\n```\n\nyx",
+    ),
+  );
+});
+
+test("onImageUpload's onProgress draws a bar on the image placeholder; onFileUpload's a ring on the chip", async () => {
+  let imageProgress: ((fraction: number) => void) | undefined;
+  let fileProgress: ((fraction: number) => void) | undefined;
+  const screen = await markdownEditor({
+    onImageUpload: (_file, { onProgress }) => {
+      imageProgress = onProgress;
+      return new Promise(() => {});
+    },
+    onFileUpload: (_file, { onProgress }) => {
+      fileProgress = onProgress;
+      return new Promise(() => {});
+    },
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box);
+  pasteFiles(box, [png()]);
+  await vi.waitFor(() => expect(imageProgress).toBeDefined());
+  imageProgress!(0.4);
+  const image = await vi.waitFor(() => {
+    const found = box.querySelector<HTMLElement>(
+      '[data-slot="text-edit-upload"][data-kind="image"]',
+    );
+    expect(found?.getAttribute("data-progress")).toBe("40");
+    return found!;
+  });
+  expect(
+    image.querySelector('[data-slot="text-edit-upload-progress"]'),
+  ).not.toBeNull();
+  pasteFiles(box, [
+    new File(["%PDF"], "plan.pdf", { type: "application/pdf" }),
+  ]);
+  await vi.waitFor(() => expect(fileProgress).toBeDefined());
+  fileProgress!(0.75);
+  await vi.waitFor(() =>
+    expect(
+      box
+        .querySelector('[data-slot="text-edit-upload"][data-kind="file"]')
+        ?.getAttribute("data-progress"),
+    ).toBe("75"),
+  );
+  expect(
+    box.querySelector('[data-slot="text-edit-upload-ring"]'),
+  ).not.toBeNull();
+});
+
+test("the bubble: Make task(s) for selected checklist lines, and the host's bubbleActions", async () => {
+  const onMakeTask = vi.fn();
+  const bubbleActions = vi.fn(({ text }: { text: string }) => (
+    <button type="button" data-testid="ask">
+      Ask about {text.length} chars
+    </button>
+  ));
+  const screen = await markdownEditor({
+    defaultValue: "- [ ] Order glass\n- [ ] Book crane\n\nAfter",
+    onMakeTask,
+    bubbleActions,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box);
+  await selectAllOf(box.querySelector("ul")!);
+  const make = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-bubble-make-task"]',
+    );
+    expect(found?.textContent).toBe("Make 2 tasks");
+    return found!;
+  });
+  expect(document.querySelector('[data-testid="ask"]')).not.toBeNull();
+  expect(bubbleActions).toHaveBeenCalled();
+  await userEvent.click(make);
+  await vi.waitFor(() => expect(onMakeTask).toHaveBeenCalledOnce());
+  expect(
+    (onMakeTask.mock.lastCall![0] as { text: string }[]).map((l) => l.text),
+  ).toEqual(["Order glass", "Book crane"]);
+});
+
+test('toolbar="dock" on a coarse pointer: the formatting is a bottom bar, not a bubble', async () => {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("pointer: coarse"),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    defaultValue: "Dock this text",
+    toolbar: "dock",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box);
+  selectText(box.querySelector("p")!, "this");
+  const dock = await vi.waitFor(() => {
+    const found = document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-dock"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  expect(
+    dock.querySelector('[data-slot="text-edit-bubble-menu"]'),
+  ).not.toBeNull();
+  expect(getComputedStyle(dock).position).toBe("fixed");
+  // Only one formatting toolbar: none floats over the selection.
+  expect(
+    document.querySelectorAll('[data-slot="text-edit-bubble-menu"]'),
+  ).toHaveLength(1);
+});
+
+test('touchBlockMenu="longPress": no grip on touch; a long press on a block opens its menu sheet', async () => {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("pointer: coarse"),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+  const screen = await markdownEditor({
+    defaultValue: "Hold me",
+    touchBlockMenu: "longPress",
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("p")!);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(
+    document.querySelector('[data-slot="text-edit-block-handle"]'),
+  ).toBeNull();
+  const target = box.querySelector("p")!;
+  const rect = target.getBoundingClientRect();
+  const touch = new Touch({
+    identifier: 1,
+    target,
+    clientX: rect.left + 5,
+    clientY: rect.top + 5,
+  });
+  target.dispatchEvent(
+    new TouchEvent("touchstart", {
+      touches: [touch],
+      targetTouches: [touch],
+      changedTouches: [touch],
+      bubbles: true,
+    }),
+  );
+  await vi.waitFor(
+    () =>
+      expect(
+        document.querySelector('[data-slot="sheet-content"]')?.textContent,
+      ).toContain("Duplicate"),
+    { timeout: 2000 },
+  );
+});
+
+test("the image toolbar: four 28px buttons at most, Download and Copy link in ⋯", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    defaultValue: `![A diagram|400x300](${icon})`,
+    onImageUpload: async () => ({ src: icon }),
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.hover(box.querySelector("img")!);
+  const bar = await vi.waitFor(() => {
+    const found = box.querySelector<HTMLElement>(
+      '[data-slot="block-toolbar"][aria-label="Image actions"]',
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  const buttons = [
+    ...bar.querySelectorAll<HTMLElement>(
+      '[data-slot="block-toolbar-button"], [data-slot="block-toolbar-menu"]',
+    ),
+  ];
+  // Replace, Caption, Alt text, Open — and ⋯.
+  expect(buttons).toHaveLength(5);
+  expect(buttons.length).toBeGreaterThanOrEqual(3);
+  expect(buttons.length).toBeLessThanOrEqual(5);
+  for (const button of buttons)
+    expect(button.getBoundingClientRect().height).toBe(28);
+  await userEvent.click(
+    bar.querySelector<HTMLElement>('[data-slot="block-toolbar-menu"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(
+      [...document.querySelectorAll('[role="menuitem"]')].map(
+        (each) => each.textContent,
+      ),
+    ).toContain("Download"),
+  );
 });

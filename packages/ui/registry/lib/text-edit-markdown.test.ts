@@ -250,3 +250,44 @@ test("a host's live block names survive the server's read and write; others stay
   expect(normalizeMarkdown(tasks)).toBe(tasks);
   expect(markdownToDoc(tasks).firstChild?.attrs.kind).toBeNull();
 });
+
+test("a bookmark line round-trips, and only an http(s) link titled bookmark is one", () => {
+  const md =
+    'Before\n\n[https://example.com/a](https://example.com/a "bookmark")\n\nAfter';
+  const doc = markdownToDoc(md);
+  expect(doc.child(1).type.name).toBe("bookmark");
+  expect(doc.child(1).attrs.url).toBe("https://example.com/a");
+  expect(docToMarkdown(doc)).toBe(md);
+  // Another title, a non-web address, or text beside it: a link.
+  for (const other of [
+    '[https://example.com/a](https://example.com/a "Example")',
+    '[x](mailto:a@b.c "bookmark")',
+    'See [https://example.com/a](https://example.com/a "bookmark") here',
+  ])
+    expect(markdownToDoc(other).child(0).type.name).toBe("paragraph");
+});
+
+test("a bookmark's address round-trips whatever Markdown it holds; a titled link with words stays a link", () => {
+  for (const url of [
+    "https://example.com/a*b*c",
+    "https://example.com/~x~/_y_",
+    "https://example.com/q?a=1&b=[2]",
+    "https://example.com/`code`",
+  ]) {
+    const doc = markdownToDoc(
+      docToMarkdown(
+        textEditSchema().nodeFromJSON({
+          type: "doc",
+          content: [{ type: "bookmark", attrs: { url } }],
+        }),
+      ),
+    );
+    expect(doc.child(0).type.name).toBe("bookmark");
+    expect(doc.child(0).attrs.url).toBe(url);
+  }
+  const titled = markdownToDoc(
+    '[Saved title](https://example.com "bookmark")',
+  ).child(0);
+  expect(titled.type.name).toBe("paragraph");
+  expect(titled.textContent).toBe("Saved title");
+});

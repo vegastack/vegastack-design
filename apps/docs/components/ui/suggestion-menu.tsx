@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.88 sha256-QzWU908B7PKynUPp2QTBmq/ykUOa+OWWTZd9QOhvDM4=
+// @vegastack suggestion-menu@0.25.88 sha256-+YVR9DhNs5vYSZr7iiK6eA7KUFrGgYrILzxagX1ZAOw=
 
 "use client";
 
@@ -8,6 +8,14 @@ import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { useMediaQuery } from "@/components/ui/use-media-query";
+import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 /* ------------------------------------------------------------------------------------------------
  * SuggestionMenu — the caret-anchored list an editor opens while you type a trigger (`@`, `/`,
@@ -47,10 +55,17 @@ export interface SuggestionMenuOption {
    */
   icon?: React.ReactNode;
   /**
-   * Muted trailing text — a unit, an email, a folder. Truncates before the label does.
+   * Muted text — a unit, an email, a folder, what a block is. At the row's end, truncating before
+   * the label does; on a `size="lg"` menu, a second line under the label.
    * @default undefined
    */
   description?: React.ReactNode;
+  /**
+   * When the description shows: always, or only on the highlighted row (hovered or reached with
+   * the arrows), at the row's end — an email beside a name that is already unique.
+   * @default "always"
+   */
+  descriptionShown?: "always" | "active";
   /**
    * A keyboard hint at the end of the row, in `DropdownMenuShortcut`'s look.
    * @default undefined
@@ -127,6 +142,40 @@ export interface SuggestionMenuProps extends Omit<
    * @default undefined
    */
   floatingSafeArea?: { top?: number; bottom?: number };
+  /**
+   * The menu's size. `lg` is 320px wide and up to `min(60vh, 440px)` tall, its rows two lines
+   * (the label, the description under it) with a 28px icon box — a block menu with room to say
+   * what each block is.
+   * @default "default"
+   */
+  size?: "default" | "lg";
+  /**
+   * Where the menu shows. `popover` floats at the caret. `auto` does too on a fine pointer, and on
+   * a coarse pointer or a window under 640px opens a bottom `Sheet` instead: a search field
+   * (`query` / `onQueryChange`, which takes the keyboard — ↑ ↓ Enter Escape) over 44px rows.
+   * @default "popover"
+   */
+  presentation?: "popover" | "auto";
+  /**
+   * The sheet's search text (`presentation="auto"` on a phone): what the editor filters by.
+   * @default ""
+   */
+  query?: string;
+  /**
+   * The sheet's search field changed.
+   * @default undefined
+   */
+  onQueryChange?: (query: string) => void;
+  /**
+   * The sheet was dismissed (Escape, its close button, a tap outside): close the menu.
+   * @default undefined
+   */
+  onClose?: () => void;
+  /**
+   * The sheet's search field placeholder.
+   * @default "Search…"
+   */
+  searchPlaceholder?: string;
 }
 
 /** The popup surface: the combobox popup's chrome (border, radius, shadow, padding). */
@@ -187,6 +236,8 @@ function SuggestionMenuSkeleton() {
 
 /** Tallest the list grows (`ComboboxList`'s 18rem), and the least it shrinks to near an edge. */
 const MAX_HEIGHT = 288;
+/** A `size="lg"` menu's tallest: `min(60vh, 440px)`. */
+const lgMaxHeight = () => Math.min(window.innerHeight * 0.6, 440);
 const MIN_HEIGHT = 120;
 /** Gap from the caret, and from the viewport's edges. */
 const CARET_GAP = 4;
@@ -275,22 +326,47 @@ function place(
   anchor: DOMRect,
   safeTop: number,
   safeBottom: number,
+  maxHeight: number,
 ) {
   const below = anchor.bottom + CARET_GAP;
   const roomBelow = window.innerHeight - below - VIEWPORT_GAP - safeBottom;
   const roomAbove = anchor.top - CARET_GAP - VIEWPORT_GAP - safeTop;
-  const flip = roomBelow < MAX_HEIGHT && roomAbove > roomBelow;
+  const flip = roomBelow < maxHeight && roomAbove > roomBelow;
   const left = Math.max(
     VIEWPORT_GAP,
     Math.min(anchor.left, window.innerWidth - node.offsetWidth - VIEWPORT_GAP),
   );
   node.style.left = `${left}px`;
-  node.style.maxHeight = `${Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, flip ? roomAbove : roomBelow))}px`;
+  node.style.maxHeight = `${Math.max(MIN_HEIGHT, Math.min(maxHeight, flip ? roomAbove : roomBelow))}px`;
   node.style.top = flip ? "" : `${below}px`;
   node.style.bottom = flip
     ? `${window.innerHeight - anchor.top + CARET_GAP}px`
     : "";
   node.dataset.side = flip ? "top" : "bottom";
+}
+
+/**
+ * Whether `presentation="auto"` shows the sheet: a coarse pointer, or a window under 640px.
+ */
+const SHEET_QUERY = "(pointer: coarse), (max-width: 639px)";
+
+/** A sheet row: the popover row at a 44px touch height. */
+const SHEET_ROW = "min-h-11";
+
+/**
+ * Whether a `SuggestionMenu` with this `presentation` shows as a bottom sheet now (`auto` on a
+ * coarse pointer or a window under 640px) — so the editor that opens it can filter by the sheet's
+ * search field (`query`) instead of the text after the trigger.
+ *
+ * @example
+ * const sheet = useSuggestionMenuSheet("auto");
+ * const rows = filter(sheet ? sheetQuery : typedQuery);
+ */
+export function useSuggestionMenuSheet(
+  presentation: "popover" | "auto" = "popover",
+): boolean {
+  const wanted = useMediaQuery(SHEET_QUERY);
+  return presentation === "auto" && wanted;
 }
 
 /**
@@ -300,6 +376,8 @@ function place(
  * editor's arrow keys and the pointer's movement — movement, not enter, so a keyboard scroll that
  * slides rows under a resting pointer never steals it. With no rows it shows `status` or
  * `emptyMessage` in place of an empty listbox, and announces a text message politely.
+ * `size="lg"` is the roomy block menu (320px, two-line rows); `presentation="auto"` turns it into a
+ * bottom sheet with its own search field on a phone.
  *
  * @example
  * <SuggestionMenu
@@ -325,6 +403,12 @@ export function SuggestionMenu({
   loadingMessage = "Searching…",
   loading = false,
   floatingSafeArea,
+  size = "default",
+  presentation = "popover",
+  query = "",
+  onQueryChange,
+  onClose,
+  searchPlaceholder = "Search…",
   className,
   style,
   ref,
@@ -334,6 +418,8 @@ export function SuggestionMenu({
   const { announce, Announcer } = useAnnouncer();
   const localRef = React.useRef<HTMLDivElement | null>(null);
   const setRef = React.useMemo(() => mergeRefs(localRef, ref), [ref]);
+  const sheet = useSuggestionMenuSheet(presentation);
+  const lg = size === "lg";
 
   const showRows = options.length > 0 && status == null;
   const placeholder = !showRows && status == null && loading;
@@ -354,21 +440,23 @@ export function SuggestionMenu({
 
   React.useLayoutEffect(() => {
     const node = localRef.current;
-    if (!node || !anchor) {
+    if (!node || !anchor || sheet) {
       heldHeight.current = 0;
       return;
     }
+    const maxHeight = lg ? lgMaxHeight() : MAX_HEIGHT;
     place(
       node,
       anchor,
       floatingSafeArea?.top ?? 0,
       floatingSafeArea?.bottom ?? 0,
+      maxHeight,
     );
     // Rows about to be replaced never let the surface shrink, and placeholder rows after the
     // first answer never let it grow: the answer lands in the same box.
     const held =
       loading && heldHeight.current
-        ? `${Math.min(heldHeight.current, parseFloat(node.style.maxHeight) || MAX_HEIGHT)}px`
+        ? `${Math.min(heldHeight.current, parseFloat(node.style.maxHeight) || maxHeight)}px`
         : "";
     node.style.minHeight = held;
     node.style.height = placeholder ? held : "";
@@ -399,6 +487,9 @@ export function SuggestionMenu({
 
   const row = (option: SuggestionMenuOption, index: number) => {
     const active = index === activeIndex;
+    const onlyActive = option.descriptionShown === "active";
+    // A `lg` row's description is a second line; one shown only while active stays at the end.
+    const below = lg && !onlyActive && option.description != null;
     return (
       <div
         key={option.key}
@@ -417,24 +508,54 @@ export function SuggestionMenu({
         }}
         className={cn(
           SUGGESTION_MENU_ROW,
+          lg && "gap-2.5 py-1.5",
+          sheet && SHEET_ROW,
           option.disabled && "cursor-not-allowed opacity-50",
         )}
       >
-        {option.icon}
-        <span
-          data-slot="suggestion-menu-label"
-          className="min-w-0 flex-1 truncate"
-        >
-          {option.label}
-        </span>
-        {option.description != null ? (
+        {option.icon != null && lg ? (
           <span
-            data-slot="suggestion-menu-description"
-            className="max-w-[45%] shrink-0 truncate text-xs text-muted-foreground"
+            data-slot="suggestion-menu-icon"
+            className="flex size-7 shrink-0 items-center justify-center"
           >
-            {option.description}
+            {option.icon}
           </span>
-        ) : null}
+        ) : (
+          option.icon
+        )}
+        {below ? (
+          <span
+            data-slot="suggestion-menu-text"
+            className="flex min-w-0 flex-1 flex-col"
+          >
+            <span data-slot="suggestion-menu-label" className="truncate">
+              {option.label}
+            </span>
+            <span
+              data-slot="suggestion-menu-description"
+              className="truncate text-xs text-muted-foreground"
+            >
+              {option.description}
+            </span>
+          </span>
+        ) : (
+          <>
+            <span
+              data-slot="suggestion-menu-label"
+              className="min-w-0 flex-1 truncate"
+            >
+              {option.label}
+            </span>
+            {option.description != null && (!onlyActive || active) ? (
+              <span
+                data-slot="suggestion-menu-description"
+                className="max-w-[45%] shrink-0 truncate text-xs text-muted-foreground"
+              >
+                {option.description}
+              </span>
+            ) : null}
+          </>
+        )}
         {option.shortcut != null ? (
           <span
             data-slot="suggestion-menu-shortcut"
@@ -447,63 +568,140 @@ export function SuggestionMenu({
     );
   };
 
+  const list = (
+    <div
+      ref={setRef}
+      id={id}
+      data-slot="suggestion-menu"
+      data-size={size}
+      data-presentation={sheet ? "sheet" : "popover"}
+      // A list with no options is not a listbox (A11Y-7): the message is a status instead.
+      role={showRows ? "listbox" : undefined}
+      aria-label={showRows ? ariaLabel : undefined}
+      aria-busy={(loading && (showRows || placeholder)) || undefined}
+      data-loading={placeholder ? "" : undefined}
+      style={sheet ? style : { position: "fixed", ...style }}
+      // Keep focus (and the caret) where it is: in the editor, or in the sheet's search field.
+      onMouseDown={(event) => event.preventDefault()}
+      className={
+        sheet
+          ? cn(
+              // Positioned, so a row's `offsetTop` is the list's own (the active row scrolls in).
+              "relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-2 no-scrollbar data-loading:overflow-hidden",
+              className,
+            )
+          : cn(
+              SURFACE,
+              // Never wider than the window less its 8px edge gaps.
+              lg ? "w-80 max-w-[calc(100vw-1rem)]" : "w-64",
+              "data-loading:overflow-hidden",
+              className,
+            )
+      }
+      {...props}
+    >
+      {showRows ? (
+        runs.map((run, at) => {
+          const end = runs[at + 1]?.start ?? options.length;
+          const rows = options
+            .slice(run.start, end)
+            .map((option, offset) => row(option, run.start + offset));
+          if (run.group === undefined)
+            return (
+              <React.Fragment key={`run-${run.start}`}>{rows}</React.Fragment>
+            );
+          const labelId = `${id}-group-${run.start}`;
+          return (
+            <div
+              key={`run-${run.start}`}
+              role="group"
+              aria-labelledby={labelId}
+              data-slot="suggestion-menu-group"
+            >
+              <div
+                id={labelId}
+                data-slot="suggestion-menu-group-label"
+                className={GROUP_LABEL}
+              >
+                {run.group}
+              </div>
+              {rows}
+            </div>
+          );
+        })
+      ) : placeholder ? (
+        <SuggestionMenuSkeleton />
+      ) : (
+        <div data-slot="suggestion-menu-status" className={STATUS}>
+          {message}
+        </div>
+      )}
+    </div>
+  );
+
+  if (sheet)
+    return (
+      <Sheet
+        open
+        onOpenChange={(next) => {
+          if (!next) onClose?.();
+        }}
+      >
+        <SheetContent
+          side="bottom"
+          data-slot="suggestion-menu-sheet"
+          className="max-h-[70dvh] gap-0"
+        >
+          <SheetHeader className="pb-2">
+            <SheetTitle>{ariaLabel}</SheetTitle>
+          </SheetHeader>
+          <PanelSearch className="mx-4 mb-2 h-11 shrink-0 rounded-lg border px-3">
+            <PanelSearchField
+              data-slot="suggestion-menu-search"
+              aria-label={ariaLabel}
+              placeholder={searchPlaceholder}
+              role="combobox"
+              aria-expanded
+              aria-controls={id}
+              aria-activedescendant={
+                showRows ? suggestionMenuOptionId(id, activeIndex) : undefined
+              }
+              autoComplete="off"
+              value={query}
+              onValueChange={(next) => onQueryChange?.(next)}
+              onKeyDown={(event) => {
+                // An IME composing (Enter confirms its text) owns the keys.
+                if (event.nativeEvent.isComposing || event.keyCode === 229)
+                  return;
+                // ↑ ↓ Enter here, as the editor's keys drive the popover; Escape closes.
+                if (
+                  suggestionMenuKeyDown(event.nativeEvent, {
+                    count: showRows ? options.length : 0,
+                    activeIndex,
+                    onActiveIndexChange,
+                    onSelect: (index) => {
+                      if (!options[index]?.disabled) onSelect(index);
+                    },
+                    onClose: () => onClose?.(),
+                  })
+                )
+                  event.preventDefault();
+              }}
+            />
+          </PanelSearch>
+          {list}
+          {/* Inside the modal sheet: outside it, the page is inert and nothing is read out. */}
+          <Announcer />
+        </SheetContent>
+      </Sheet>
+    );
+
   return createPortal(
     <div
       data-slot="suggestion-menu-layer"
       className={cn("contents", themeScope)}
     >
-      <div
-        ref={setRef}
-        id={id}
-        data-slot="suggestion-menu"
-        // A list with no options is not a listbox (A11Y-7): the message is a status instead.
-        role={showRows ? "listbox" : undefined}
-        aria-label={showRows ? ariaLabel : undefined}
-        aria-busy={(loading && (showRows || placeholder)) || undefined}
-        data-loading={placeholder ? "" : undefined}
-        style={{ position: "fixed", ...style }}
-        // Keep focus (and the caret) in the editor.
-        onMouseDown={(event) => event.preventDefault()}
-        className={cn(SURFACE, "w-64 data-loading:overflow-hidden", className)}
-        {...props}
-      >
-        {showRows ? (
-          runs.map((run, at) => {
-            const end = runs[at + 1]?.start ?? options.length;
-            const rows = options
-              .slice(run.start, end)
-              .map((option, offset) => row(option, run.start + offset));
-            if (run.group === undefined)
-              return (
-                <React.Fragment key={`run-${run.start}`}>{rows}</React.Fragment>
-              );
-            const labelId = `${id}-group-${run.start}`;
-            return (
-              <div
-                key={`run-${run.start}`}
-                role="group"
-                aria-labelledby={labelId}
-                data-slot="suggestion-menu-group"
-              >
-                <div
-                  id={labelId}
-                  data-slot="suggestion-menu-group-label"
-                  className={GROUP_LABEL}
-                >
-                  {run.group}
-                </div>
-                {rows}
-              </div>
-            );
-          })
-        ) : placeholder ? (
-          <SuggestionMenuSkeleton />
-        ) : (
-          <div data-slot="suggestion-menu-status" className={STATUS}>
-            {message}
-          </div>
-        )}
-      </div>
+      {list}
       <Announcer />
     </div>,
     document.body,

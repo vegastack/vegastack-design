@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.88 sha256-JHzW1+kSBvrMtz4bsUIBflabyUDUWKpuwP0T1D/1veI=
+// @vegastack text-edit-grammar@0.25.88 sha256-PlteR3tX6/H302wa0he4ch3Vyv7Ds3/x/RwLuKGW2nQ=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -11,7 +11,8 @@
  * strikethrough and autolinks; plus `[@label](mention://<kind>/<id>)` mentions, GitHub's
  * `> [!NOTE]` callouts, `<details><summary>…</summary>` toggles, `<video>`/`<audio>` blocks on a
  * line of their own, `![alt|320](src)` image widths, `lang wrap` fence info and `<br>` line breaks
- * (in a table cell or a heading), and `:::<name>{…}` … `:::` live blocks — `:::tasks` live task
+ * (in a table cell or a heading), `[<url>](<url> "bookmark")` bookmark lines, and
+ * `:::<name>{…}` … `:::` live blocks — `:::tasks` live task
  * lists and any other block name the host reads (a container directive whose rows are list item
  * lines, with or without a task box). Any other raw HTML is literal text.
  */
@@ -252,6 +253,28 @@ export function markdownDestination(href: string): string {
     );
   if (!/[\s()<>]/.test(safe)) return safe;
   return `<${safe.replace(/[<>\n]/g, (ch) => encodeURIComponent(ch))}>`;
+}
+
+/* --- bookmarks ----------------------------------------------------------------------------------*/
+
+/**
+ * The title that makes a lone link a bookmark card: `[<url>](<url> "bookmark")` alone on its line.
+ * Any other reader shows a link; `MarkdownView` and `TextEdit` show a card (title, icon and site
+ * from the host's link preview).
+ */
+export const BOOKMARK_TITLE = "bookmark";
+
+/**
+ * A bookmark as Markdown: the URL as a link to itself, titled `bookmark`, on a line of its own.
+ *
+ * @example
+ * bookmarkMarkdown("https://example.com/a"); // '[https://example.com/a](https://example.com/a "bookmark")'
+ */
+export function bookmarkMarkdown(url: string): string {
+  // The address as its own text, every character Markdown reads inline escaped — so the text
+  // parses back to exactly the address (`bookmarkOfParagraph` holds them equal).
+  const text = url.replace(/[\\`*_~[\]<>!|&]/g, (ch) => `\\${ch}`);
+  return `[${text}](${markdownDestination(url)} "${BOOKMARK_TITLE}")`;
 }
 
 /** A link or image title inside `"…"`: its quotes and its escaping backslashes escaped. */

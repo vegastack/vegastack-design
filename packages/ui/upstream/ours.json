@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 122,
+    "total": 124,
     "fromExtras": 46
   },
   "items": {
@@ -774,6 +774,18 @@
       "disposition": "keep",
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "task-inline": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Regent product-cohesion W1-DS3 item 5 (UXP-22, UXP-09), approved by the operator 2026-10-27",
+      "rationale": "Upstream ships no task chip or make-task popover; a small composition of Checkbox, PersonAvatar, Popover, Input and Button with no patch."
+    },
+    "block-toolbar": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Regent product-cohesion W1-DS3 item 12 (UXP-08), approved by the operator 2026-10-27",
+      "rationale": "Upstream ships no block chrome; a small composition of Button, Tooltip and DropdownMenu with no patch."
     }
   }
 }

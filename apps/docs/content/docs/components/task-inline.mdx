@@ -1,0 +1,138 @@
+---
+title: Task Inline
+description: A task in running text — one box, the title that opens it, the assignee and due date — and MakeTaskPopover, to make one from a line.
+audience: public
+registry: task-inline
+status: stable
+since: 0.25.88
+a11y: one named checkbox; the title is a button; ↗ is a named link
+preview: taskInline
+---
+
+## Install
+
+<InstallSteps name="task-inline" />
+
+## Usage
+
+```tsx
+import { MakeTaskPopover, TaskInline } from "@/components/ui/task-inline";
+
+<TaskInline
+  title="Order glass for block B"
+  done={task.done}
+  assignee={{ name: "Asha Rao", hue: "blue" }}
+  due="Fri 31 Oct"
+  onToggle={(done) => setDone(task.id, done)}
+  onOpen={() => openPeek(task.id)}
+  href={`/tasks/${task.id}`}
+/>;
+```
+
+A task where people write: a checklist line linked to a task, or a task named in a sentence. It
+has **one** box — the task's done state — so a linked checklist line no longer shows the line's box
+and a task glyph beside it. The title opens the task where the host shows it (`onOpen`, a peek),
+the assignee's avatar and a due chip follow it, and ↗ to the task's own page shows on hover and
+focus. It is an inline box: it wraps with its line, at that line's size.
+
+[`TextEdit`](/docs/components/text-edit) and [`MarkdownView`](/docs/components/markdown-view) draw a
+linked checklist line with it when the host passes `onTaskOpen` — the line's own box stays the
+task's box (`checkbox={false}` here). `MakeTaskPopover` is how such a line is made: anchored to the
+line, never a modal.
+
+## Scope
+
+- Owns: the box, the title as the task's open control, the avatar, the due chip, ↗, and the make
+  popover's titles, keep boxes and Create.
+- Does not own: the task — its state comes in through props and every change goes out through a
+  callback — or the assignee, due date and space pickers, which the host puts in the popover's
+  slots.
+- Compose with: [`PeoplePicker`](/docs/components/people-picker),
+  [`DatePicker`](/docs/components/date-picker) and [`SpacePicker`](/docs/components/space-picker)
+  in `MakeTaskPopover`'s `assignee`, `due` and `space`.
+
+## Anatomy
+
+<Anatomy name="task-inline" />
+
+## Examples
+
+### Tick, open, see who and when
+
+`done` mutes the title; `struck` strikes a closed task through with its `status` tag; `overdue`
+turns the due chip to the destructive ink. A click on a title calls `onOpen` and never moves a caret
+or starts an edit around it.
+
+<ComponentPreview name="taskInline" file="components/preview/task-inline.tsx" />
+
+### Read-only, in a sentence
+
+Without `onToggle` the box shows the state and cannot change it; without `onOpen` the title is
+text.
+
+<ComponentPreview
+  name="taskInlineReadOnly"
+  file="components/preview/task-inline.tsx"
+/>
+
+### Make a task from a line
+
+`MakeTaskPopover` points at `anchor` (TextEdit's `onMakeTask` hands over the first line's element)
+and follows it as the page scrolls. The line's text is the title; Enter in it, or Create, calls
+`onCreate` with the kept lines — return a promise and the popover stays busy until it settles, and
+open if it rejects.
+
+<ComponentPreview
+  name="makeTaskPopover"
+  file="components/preview/task-inline.tsx"
+/>
+
+### Several lines
+
+Each line gets a keep box and its own title; one assignee, due date and space go to every task.
+Create counts the lines kept.
+
+<ComponentPreview
+  name="makeTaskPopoverSeveral"
+  file="components/preview/task-inline.tsx"
+/>
+
+## API Reference
+
+### TaskInline
+
+<ApiTable
+  path="../../packages/ui/registry/ui/task-inline.tsx"
+  name="TaskInlineProps"
+/>
+
+### MakeTaskPopover
+
+<ApiTable
+  path="../../packages/ui/registry/ui/task-inline.tsx"
+  name="MakeTaskPopoverProps"
+/>
+
+## Accessibility
+
+- The box is a checkbox named for what it does ("Mark task done"); read-only, it still reports its
+  state.
+- The title is a button (Enter or Space opens the task); ↗ is a link named by `openLabel`.
+- The avatar is named "Assigned to Asha Rao"; the due chip reads "Due Fri 31 Oct".
+- The popover is named by its heading; Escape closes it and returns focus.
+
+| Key                                 | Action                                         |
+| ----------------------------------- | ---------------------------------------------- |
+| <kbd>Space</kbd>                    | Ticks or unticks the box                       |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | On the title: opens the task                   |
+| <kbd>Enter</kbd>                    | In a title in the popover: creates the task(s) |
+| <kbd>Escape</kbd>                   | Closes the popover                             |
+
+<StatesTested name="task-inline" />
+
+## Do / Don't
+
+<DoDont
+  do="Show a task in text with one box — the task's own — and let its title open the task in place."
+  dont="Draw a checklist box and a task chip with its own glyph side by side, or open a modal to make a task from a line."
+/>

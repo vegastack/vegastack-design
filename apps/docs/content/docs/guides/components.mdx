@@ -42,7 +42,13 @@ their own because there is nothing to choose: you get them by adding the compone
   `<body>`, flips above the caret when below is short, and never takes focus: the editor keeps
   the caret, owns the keys through `suggestionMenuKeyDown`, and points `aria-activedescendant` at
   `suggestionMenuOptionId(listId, index)`. The pointer moves the same active row by MOVING over
-  it, so a keyboard scroll under a resting pointer never steals it. It arrives with either editor.
+  it, so a keyboard scroll under a resting pointer never steals it. `size="lg"` is the roomy block
+  menu (320px, up to `min(60vh, 440px)`, the description a second line under the label);
+  `presentation="auto"` opens a bottom `Sheet` with its own search field (`query`,
+  `onQueryChange`, `onClose`) on a coarse pointer or a window under 640px, and
+  `useSuggestionMenuSheet(presentation)` tells the editor when it does; an option's
+  `descriptionShown: "active"` shows its description on the highlighted row only. It arrives with
+  either editor.
 - **`@vegastack/person-avatar`** — `PersonAvatar` and the `Person` shape: the one way a person is
   drawn — their photo, else their initials (its `personInitials` rule) on their own `hue`, else on
   the muted fallback. [`PersonHoverCard`](/docs/components/person-hover-card),

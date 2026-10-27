@@ -119,6 +119,8 @@
     "value-change",
     "file-card",
     "record-chip",
+    "block-toolbar",
+    "task-inline",
     "record-list",
     "item",
     "chart",

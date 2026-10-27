@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.88 sha256-WzrmYPLo8EQCuHeN+2x5No0DzUwc8JMrSecv6kJY1hU=
+// @vegastack text-edit-markdown@0.25.88 sha256-VFQ4+eRcdGSpmnnK8yfhlbn2TGMUiRpASJZMVV7pvDA=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -23,6 +23,7 @@ import {
   TASK_MARKER,
   blockId,
   embedOfParagraph,
+  bookmarkOfParagraph,
   textEditExtensions,
   resetParseCaches,
   textEditSchema,
@@ -544,6 +545,12 @@ function normalizeParsed(node: JSONContent): JSONContent {
       embedOfParagraph(child)
     )
       content.push(embedOfParagraph(child)!);
+    else if (
+      child.type === "paragraph" &&
+      EMBED_CONTAINERS.has(node.type ?? "") &&
+      bookmarkOfParagraph(child)
+    )
+      content.push(bookmarkOfParagraph(child)!);
     else {
       const done = normalizeParsed(child);
       if (done.type === LIST_RUNS) content.push(...(done.content ?? []));

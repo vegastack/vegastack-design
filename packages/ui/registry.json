@@ -450,7 +450,8 @@
         "@vegastack/code-block",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -1176,7 +1177,8 @@
       ],
       "registryDependencies": [
         "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/code-highlight",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -2425,7 +2427,10 @@
       ],
       "registryDependencies": [
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
+        "@vegastack/panel-search",
+        "@vegastack/sheet"
       ],
       "files": [
         {
@@ -13283,7 +13288,9 @@
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
         "@vegastack/embed-providers",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/task-inline",
+        "@vegastack/skeleton"
       ],
       "files": [
         {
@@ -13613,6 +13620,67 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.25.88"
+      }
+    },
+    {
+      "name": "block-toolbar",
+      "type": "registry:ui",
+      "title": "Block Toolbar",
+      "description": "The one place a block's own controls sit: its top-right corner, 28px icon buttons named and tipped by their labels, at most four and a ⋯ menu for the rest, always shown or revealed on the block's hover and focus.",
+      "categories": ["forms"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-toolbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-toolbar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A block in a document with controls of its own — a code block's copy, an image's caption and alt text, a diagram's expand — so every block's chrome sits in the same corner at the same size.",
+        "whenNotToUse": "A page's or a panel's toolbar (a header row of actions), or a selection's formatting (TextEdit's bubble).",
+        "version": "0.25.87"
+      }
+    },
+    {
+      "name": "task-inline",
+      "type": "registry:ui",
+      "title": "Task Inline",
+      "description": "A task in running text — one round box (its done state), the title that opens its peek, the assignee's avatar, a due chip and ↗ to its page on hover — plus MakeTaskPopover, which makes that task from a checklist line in place, with the host's assignee, due and space pickers in slots.",
+      "categories": ["forms"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/input",
+        "@vegastack/person-avatar",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/task-inline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/task-inline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
+        "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
+        "version": "0.25.87"
       }
     },
     {
@@ -15215,7 +15283,11 @@
         "@vegastack/separator",
         "@vegastack/use-announcer",
         "@vegastack/emoji-data",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/person-avatar",
+        "@vegastack/task-inline",
+        "@vegastack/block-toolbar",
+        "@vegastack/use-platform"
       ],
       "files": [
         {

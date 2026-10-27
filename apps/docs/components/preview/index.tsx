@@ -134,6 +134,8 @@ export * from "./page-editor-01";
 export * from "./share-01";
 export * from "./share-dialog";
 export * from "./member-list";
+export * from "./task-inline";
+export * from "./block-toolbar";
 export * from "./view-toggle";
 export * from "./data-list-pager";
 export * from "./cursor-pager";

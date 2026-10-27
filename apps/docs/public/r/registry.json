@@ -501,7 +501,8 @@
         "@vegastack/code-block",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -514,7 +515,7 @@
         "whenToUse": "Internal to TextEdit and MarkdownView: pass blockViews to either rather than mounting it.",
         "whenNotToUse": "Showing code (CodeBlock) or a standalone diagram (MermaidBlock).",
         "version": "0.25.88",
-        "integrity": "sha256-ZO6b4as8m3pPSJjinQs5XWBbcHs8b0g3fBwVst+/O7I="
+        "integrity": "sha256-sJ7Xh77YzHySMtb6aV9abFLvtkDjeRrohDvy+L5UJXk="
       }
     },
     {
@@ -545,7 +546,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.25.88",
-        "integrity": "sha256-0CMLuwHapns9nFkef1qUT7GpBN5+Hor/iwiXdxSMTjY="
+        "integrity": "sha256-UhGCDBo3w07hIwLUB9G7fBZdCx2f9hjTPXSxYepXVlc="
       }
     },
     {
@@ -1322,7 +1323,8 @@
       ],
       "registryDependencies": [
         "@vegastack/copy-button",
-        "@vegastack/code-highlight"
+        "@vegastack/code-highlight",
+        "@vegastack/block-toolbar"
       ],
       "files": [
         {
@@ -1335,7 +1337,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.25.88",
-        "integrity": "sha256-CWq3jc9pwbSXuQ2hgoarqkBwQLltG1AvQHJTUWQ+54M="
+        "integrity": "sha256-IMMHbSr23fXcVtEdzOk5Xbzp5FP9u/rOBjLpUi5mYmc="
       }
     },
     {
@@ -2146,7 +2148,7 @@
         "version": "0.25.88",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-JHzW1+kSBvrMtz4bsUIBflabyUDUWKpuwP0T1D/1veI="
+        "integrity": "sha256-PlteR3tX6/H302wa0he4ch3Vyv7Ds3/x/RwLuKGW2nQ="
       }
     },
     {
@@ -2211,7 +2213,7 @@
         "version": "0.25.88",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-aaiZavINjYJPAMaZMl2JR09XEl5mQMD3Y9VsEPEtZgA="
+        "integrity": "sha256-Bhb4INvzAkORk+Kq4DLe5WlpTTQUE2FERmYJNu5LT8Y="
       }
     },
     {
@@ -2244,7 +2246,7 @@
         "version": "0.25.88",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-WzrmYPLo8EQCuHeN+2x5No0DzUwc8JMrSecv6kJY1hU="
+        "integrity": "sha256-VFQ4+eRcdGSpmnnK8yfhlbn2TGMUiRpASJZMVV7pvDA="
       }
     },
     {
@@ -2736,7 +2738,10 @@
       ],
       "registryDependencies": [
         "@vegastack/skeleton",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query",
+        "@vegastack/panel-search",
+        "@vegastack/sheet"
       ],
       "files": [
         {
@@ -2749,7 +2754,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.25.88",
-        "integrity": "sha256-QzWU908B7PKynUPp2QTBmq/ykUOa+OWWTZd9QOhvDM4="
+        "integrity": "sha256-+YVR9DhNs5vYSZr7iiK6eA7KUFrGgYrILzxagX1ZAOw="
       }
     },
     {
@@ -16430,7 +16435,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.25.88",
-        "integrity": "sha256-+M8dTcs5/xTk1IKQk8KuFtGHWDAi/o0K8wWbX0b6xec="
+        "integrity": "sha256-keWn7fykHKQCfTI9KnNWtZXBQF9WHjUJasOiDglLc2Q="
       }
     },
     {
@@ -16459,7 +16464,9 @@
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
         "@vegastack/embed-providers",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/task-inline",
+        "@vegastack/skeleton"
       ],
       "files": [
         {
@@ -16482,7 +16489,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.88",
-        "integrity": "sha256-vx0VkJ1i4sTPBwb5U6bqUfkHIShciPEzBw82RLV4ykw="
+        "integrity": "sha256-IL15L6gIPB3kkbex8uKkBOdgzCZnM5FsqDzydbNd84w="
       }
     },
     {
@@ -16826,6 +16833,73 @@
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.25.88",
         "integrity": "sha256-FyDvTVqUNxGizKyaDy7E9nB+hZLbAR69AVWp5xwd4d0="
+      }
+    },
+    {
+      "name": "block-toolbar",
+      "type": "registry:ui",
+      "title": "Block Toolbar",
+      "description": "The one place a block's own controls sit: its top-right corner, 28px icon buttons named and tipped by their labels, at most four and a ⋯ menu for the rest, always shown or revealed on the block's hover and focus.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/block-toolbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/block-toolbar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A block in a document with controls of its own — a code block's copy, an image's caption and alt text, a diagram's expand — so every block's chrome sits in the same corner at the same size.",
+        "whenNotToUse": "A page's or a panel's toolbar (a header row of actions), or a selection's formatting (TextEdit's bubble).",
+        "version": "0.25.87",
+        "integrity": "sha256-WP7sMKZLH7YWFpxYOY+PkqzYb/soQfGy7Q3RtoWof6I="
+      }
+    },
+    {
+      "name": "task-inline",
+      "type": "registry:ui",
+      "title": "Task Inline",
+      "description": "A task in running text — one round box (its done state), the title that opens its peek, the assignee's avatar, a due chip and ↗ to its page on hover — plus MakeTaskPopover, which makes that task from a checklist line in place, with the host's assignee, due and space pickers in slots.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.35",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/input",
+        "@vegastack/person-avatar",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/task-inline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/task-inline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
+        "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
+        "version": "0.25.87",
+        "integrity": "sha256-otiItDSSqjD3wwtCAq6T8C/He86LFyo6BuEu1+0bSgQ="
       }
     },
     {
@@ -18643,7 +18717,11 @@
         "@vegastack/separator",
         "@vegastack/use-announcer",
         "@vegastack/emoji-data",
-        "@vegastack/block-view"
+        "@vegastack/block-view",
+        "@vegastack/person-avatar",
+        "@vegastack/task-inline",
+        "@vegastack/block-toolbar",
+        "@vegastack/use-platform"
       ],
       "files": [
         {
@@ -18661,7 +18739,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.88",
-        "integrity": "sha256-0JwqrdPQSdf35nOqJVAREmUAQAMli+A3L3pLUUw5W5g="
+        "integrity": "sha256-COeQ7ms4WC2hun6TeXISlGiSsPX/NNoJT3mlhBpoEH0="
       }
     },
     {

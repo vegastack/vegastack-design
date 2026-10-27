@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.88 sha256-+M8dTcs5/xTk1IKQk8KuFtGHWDAi/o0K8wWbX0b6xec=
+// @vegastack inline-chip@0.25.88 sha256-keWn7fykHKQCfTI9KnNWtZXBQF9WHjUJasOiDglLc2Q=
 
 "use client";
 
@@ -145,6 +145,12 @@ export interface InlineChipLinkPreview {
   title: string;
   /** Its icon's URL (the app's own, proxied copy). @default undefined */
   icon?: string | null;
+  /** The site's name ("GitHub"): a bookmark card's address line. @default undefined */
+  siteName?: string | null;
+  /** A line or two about the page: a bookmark card's blurb. @default undefined */
+  description?: string | null;
+  /** A picture of the page (the app's own, proxied copy): a bookmark card's thumbnail. @default undefined */
+  image?: string | null;
 }
 
 const InlineChipContext = React.createContext<InlineChipResolver | null>(null);
