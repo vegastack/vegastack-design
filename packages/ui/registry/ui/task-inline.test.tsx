@@ -259,3 +259,56 @@ test("↗ is a tab stop even with no box and no title button, and shows once foc
   expect(document.activeElement).toBe(link);
   await vi.waitFor(() => expect(link.getBoundingClientRect().width).toBe(24));
 });
+
+test("MakeTaskPopover with 50 lines fits the window: the lines scroll, the heading and actions stay in view, titles stop at titleMaxLength", async () => {
+  const lines = Array.from({ length: 50 }, (_, index) => ({
+    key: `l${index}`,
+    text: `Line ${index + 1}`,
+  }));
+  await render(
+    <MakeTaskPopover
+      open
+      onOpenChange={() => {}}
+      anchor={null}
+      lines={lines}
+      onCreate={() => {}}
+      titleMaxLength={12}
+    />,
+  );
+  const popup = await vi.waitFor(() => {
+    const el = document.querySelector<HTMLElement>(
+      '[data-slot="make-task-popover"]',
+    );
+    expect(el).not.toBeNull();
+    return el!;
+  });
+  const list = popup.querySelector<HTMLElement>(
+    '[data-slot="make-task-popover-lines"]',
+  )!;
+  await vi.waitFor(() => {
+    expect(popup.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      window.innerHeight,
+    );
+    expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+  });
+  const actions = popup.querySelector<HTMLElement>(
+    '[data-slot="make-task-popover-actions"]',
+  )!;
+  const heading = popup.querySelector<HTMLElement>(
+    '[data-slot="popover-title"]',
+  );
+  expect(actions.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    window.innerHeight,
+  );
+  expect(actions.getBoundingClientRect().height).toBeGreaterThan(0);
+  if (heading)
+    expect(heading.getBoundingClientRect().top).toBeGreaterThanOrEqual(0);
+  const first = popup.querySelector<HTMLInputElement>(
+    '[aria-label="Title of task 1"]',
+  )!;
+  expect(first.maxLength).toBe(12);
+  await userEvent.clear(first);
+  await userEvent.type(first, "abcdefghijklmnopq");
+  expect(first.value).toBe("abcdefghijkl");
+  await expectNoA11yViolations(popup);
+});
