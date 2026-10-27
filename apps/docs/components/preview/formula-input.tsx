@@ -46,7 +46,9 @@ function evaluate(formula: string): { value?: string; error?: string } {
 
 /** + − × ÷ and brackets over numbers, by recursive descent; null when it doesn't parse. */
 function calculate(text: string): number | null {
-  const tokens = text.match(/\d+(?:\.\d+)?|[-+*/()]/g) ?? [];
+  const tokens = text.match(/\d*\.?\d+|[-+*/()]/g) ?? [];
+  // Every character must belong to a token: "1.. + 2" is not a formula.
+  if (tokens.join("") !== text.replace(/\s+/g, "")) return null;
   let at = 0;
   const factor = (): number | null => {
     const token = tokens[at++];

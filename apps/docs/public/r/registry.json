@@ -18610,7 +18610,7 @@
         "whenToUse": "A calculated field's formula — field chips, numbers and + − × ÷ on one line, with the host's first-row result and error under it.",
         "whenNotToUse": "Free text with placeholders (TemplateEditor), or a plain number (Input).",
         "version": "0.25.88",
-        "integrity": "sha256-rvAFmRGdUCb8B2Poy2x1yms+58ebcg1zpJNgsnps430="
+        "integrity": "sha256-aqxc8X7ujgesXC8Lx17j0f10zLwlLxCZq41mTei7K48="
       }
     },
     {

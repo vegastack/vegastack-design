@@ -107,7 +107,8 @@ test("nothing to say: the status line is empty and takes no room", async () => {
     '[data-slot="formula-input-status"]',
   )!;
   expect(status.textContent).toBe("");
-  expect(status.className).toContain("empty:hidden");
+  expect(status.className).toContain("empty:sr-only");
+  expect(status.className).not.toContain("hidden");
 });
 
 test("forwards a ref to the root", async () => {

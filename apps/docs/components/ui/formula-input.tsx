@@ -1,4 +1,4 @@
-// @vegastack formula-input@0.25.88 sha256-rvAFmRGdUCb8B2Poy2x1yms+58ebcg1zpJNgsnps430=
+// @vegastack formula-input@0.25.88 sha256-aqxc8X7ujgesXC8Lx17j0f10zLwlLxCZq41mTei7K48=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -199,12 +199,13 @@ export function FormulaInput({
         aria-invalid={failed ? true : undefined}
       />
       {/* One status line: the error, or else the preview. Polite, so a formula fixed or broken
-          by the last keystroke is heard once it settles. */}
+          by the last keystroke is heard once it settles; mounted (visually collapsed, never
+          display:none) while empty, so its first message is announced. */}
       <p
         id={statusId}
         data-slot="formula-input-status"
         aria-live="polite"
-        className="min-h-5 text-xs leading-5 empty:hidden"
+        className="min-h-5 text-xs leading-5 empty:sr-only"
       >
         {failed ? (
           <span
