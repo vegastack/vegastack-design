@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.90 sha256-LgWtF3qifhf903MqGPnWTo26AaypbrW7f9U8JXFQQDU=
+// @vegastack data-grid@0.25.90 sha256-/1fiyjCvAvXJ/6GQhlYu6scUtZy+Zo2SFV6yVhZNLJw=
 
 "use client";
 
@@ -1356,20 +1356,24 @@ function GridCellImpl<T>({
     return { type: "custom", render: (props) => render({ ...props, row }) };
   }, [editable, row, emptyLabel]);
   // Only an editable cell reads its value as a string; a read-only cell's renderer gets the row.
-  const raw = editor ? String(readValue(column, row) ?? "") : "";
-  // A blank primary (only spaces) rests as empty, so it reads "Untitled" like the card's title.
-  const persisted = emptyLabel != null && raw.trim() === "" ? "" : raw;
+  const persisted = editor ? String(readValue(column, row) ?? "") : "";
+  // A blank primary (empty or only spaces) reads "Untitled" at rest, like the card's title; the
+  // editor still gets the stored value. A select's trigger draws through this too.
+  const blankPrimary = emptyLabel != null && persisted.trim() === "";
   // The column's `render` stays the display (tags, chips, avatars), not the value's text.
   // While a commit is pending the row still holds the old value, so the pending value shows
   // as text until the host's new row arrives.
-  const renderValue = column.render
-    ? (shown: string) =>
-        shown === persisted ? (
-          <Cell column={column} row={row} context={context} />
-        ) : (
-          <span className="min-w-0 truncate">{shown}</span>
-        )
-    : undefined;
+  const renderValue =
+    column.render || blankPrimary
+      ? (shown: string) =>
+          emptyLabel != null && shown.trim() === "" ? (
+            <EmptyPrimary label={emptyLabel} />
+          ) : column.render && shown === persisted ? (
+            <Cell column={column} row={row} context={context} />
+          ) : (
+            <span className="min-w-0 truncate">{shown}</span>
+          )
+      : undefined;
   // A `custom` editor's cell rests as `EditableCellRest` (no state machine, no effects): the
   // grid mounts dozens per scroll tick. It becomes the full `EditableCell` when it edits or the
   // host reports a save status, and stays one while mounted, so a save in flight keeps its

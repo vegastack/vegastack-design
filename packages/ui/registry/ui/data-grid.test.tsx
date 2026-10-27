@@ -3611,6 +3611,45 @@ test("an empty primary value reads a muted Untitled; a phone card leaves out a f
     .toBe(2);
 });
 
+test("an editable primary that is blank reads Untitled at rest; its editor keeps the stored value", async () => {
+  const rows = [
+    { id: "b1", name: "  ", stage: "Open", amount: 1 },
+    { id: "b2", name: "", stage: "", amount: 2 },
+  ] as Deal[];
+  const onCellCommit = vi.fn();
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", editable: { type: "text" } },
+        {
+          key: "stage",
+          header: "Stage",
+          editable: {
+            type: "select",
+            options: [{ value: "Open", label: "Open" }],
+          },
+        },
+      ]}
+      data={rows}
+      getRowId={(d) => d.id}
+      onCellCommit={onCellCommit}
+      columnPicker={false}
+    />,
+  );
+  const cell = (row: string) =>
+    document.querySelector<HTMLElement>(
+      `[data-grid-row="${row}"][data-grid-key="name"]`,
+    )!;
+  await expect.poll(() => cell("b1")?.textContent).toContain("Untitled");
+  expect(cell("b2").textContent).toContain("Untitled");
+  cell("b1").focus();
+  await userEvent.keyboard("{F2}");
+  await expect
+    .poll(() => (document.activeElement as HTMLInputElement | null)?.value)
+    .toBe("  ");
+});
+
 // Last in the file: it loads the compiled stylesheet, so computed colours are real.
 test("a selected row's frozen cells take the row's selected wash", async () => {
   await import("../../test/geometry.css");
