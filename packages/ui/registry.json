@@ -15255,6 +15255,30 @@
       }
     },
     {
+      "name": "formula-input",
+      "type": "registry:ui",
+      "title": "Formula Input",
+      "description": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": ["@vegastack/template-editor"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/formula-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/formula-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A calculated field's formula — field chips, numbers and + − × ÷ on one line, with the host's first-row result and error under it.",
+        "whenNotToUse": "Free text with placeholders (TemplateEditor), or a plain number (Input).",
+        "version": "0.25.88"
+      }
+    },
+    {
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",

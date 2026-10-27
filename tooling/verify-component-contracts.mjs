@@ -578,7 +578,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 37,
+  "Forms/editing": 38,
   "Navigation/layout": 25,
   Overlays: 23,
   "Data display": 39,
@@ -669,6 +669,7 @@ const expectedComponentWaveMembers = {
     "tag-group",
     "task-inline",
     "template-editor",
+    "formula-input",
     "text-edit",
     "upload-dialog",
     "upload-panel",

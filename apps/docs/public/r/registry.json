@@ -18688,7 +18688,36 @@
         "whenToUse": "Marketing or description text built from spec placeholders (\"Recessed @Power downlight with @Efficacy…\"), stored as {{id}} tokens a renderer fills in.",
         "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
         "version": "0.25.88",
-        "integrity": "sha256-AayiYDaZfK9A2CvzjSMyE6rj1WBraffX/+5lL9KqS+M="
+        "integrity": "sha256-5PACKYSL8d+TfG3l/VZWFKGRceNHtmKDKdaPzUCG/AQ="
+      }
+    },
+    {
+      "name": "formula-input",
+      "type": "registry:ui",
+      "title": "Formula Input",
+      "description": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.36",
+        "@vegastack/design-tokens@^0.8.35"
+      ],
+      "registryDependencies": [
+        "@vegastack/template-editor"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/formula-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/formula-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A calculated field's formula — field chips, numbers and + − × ÷ on one line, with the host's first-row result and error under it.",
+        "whenNotToUse": "Free text with placeholders (TemplateEditor), or a plain number (Input).",
+        "version": "0.25.88",
+        "integrity": "sha256-aqxc8X7ujgesXC8Lx17j0f10zLwlLxCZq41mTei7K48="
       }
     },
     {

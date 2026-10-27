@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 767,
-    "components": 179,
+    "totalRegistryItems": 768,
+    "components": 180,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 37,
+    "Forms/editing": 38,
     "Navigation/layout": 25,
     "Overlays": 23,
     "Data display": 39,
@@ -97,7 +97,8 @@
       "template-editor",
       "text-edit",
       "upload-dialog",
-      "upload-panel"
+      "upload-panel",
+      "formula-input"
     ],
     "Navigation/layout": [
       "accordion",
@@ -27086,6 +27087,15 @@
             "target": "div",
             "rationale": "Source forwards the ref to the bordered root div."
           }
+        },
+        {
+          "name": "TemplateEditorTrigger",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/template-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -40669,6 +40679,137 @@
             {
               "name": "data-slot",
               "values": ["block-header-button"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "formula-input",
+      "registryType": "registry:ui",
+      "title": "Formula Input",
+      "summary": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
+      "status": "stable",
+      "since": "0.25.89",
+      "family": "rich-text",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/formula-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FormulaInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/formula-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FormulaInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/formula-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FormulaInputField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/formula-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "One look; the status line shows the preview or the error."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "TemplateEditor's single-line height."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "empty",
+            "menu-open",
+            "preview",
+            "error",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/formula-input.tsx + packages/ui/registry/ui/formula-input.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "described",
+            "invalid",
+            "keyboard",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/formula-input.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "empty", "preview", "error", "invalid-token"],
+          "evidence": "packages/ui/registry/ui/formula-input.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "One line that wraps on screen like an Input; the status line wraps under it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/formula-input",
+      "registryDependencies": ["@vegastack/template-editor"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.35",
+        "@vegastack/design@^0.8.36"
+      ],
+      "testFiles": ["packages/ui/registry/ui/formula-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "formula-input",
+      "dataAttributes": {
+        "FormulaInput": {
+          "attributes": [
+            {
+              "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "formula-input",
+                "formula-input-error",
+                "formula-input-preview",
+                "formula-input-status"
+              ]
             }
           ],
           "cssVariables": []

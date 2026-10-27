@@ -1,0 +1,108 @@
+---
+title: Formula Input
+description: A calculated field's formula on one line — field chips from {, × and ÷ as you type, the first row's result under it and its error in its place.
+audience: public
+registry: formula-input
+status: stable
+since: 0.25.89
+a11y: labelled textbox, listbox picker, polite status line
+preview: formulaInput
+---
+
+## Install
+
+<InstallSteps name="formula-input" />
+
+## Usage
+
+```tsx
+import { FormulaInput } from "@/components/ui/formula-input";
+
+<Field>
+  <FieldLabel>Formula</FieldLabel>
+  <FormulaInput
+    value={formula}
+    onChange={setFormula}
+    fields={numberFields.map((f) => ({
+      key: f.id,
+      label: f.name,
+      type: f.typeLabel,
+    }))}
+    preview={check.ok ? format(check.firstRow) : undefined}
+    error={check.ok ? undefined : check.message}
+  />
+</Field>;
+```
+
+A calculated field's formula as one line. Typing `{` opens a picker of the table's fields and
+inserts the chosen one as a chip; `*` and `/` read as × and ÷. Under the input, the first row's
+result ("First row = 1,240") — or, while the formula is wrong, what is wrong (`Unknown field {Qyt}`), which marks the input invalid. The value is text with each field written as `{{key}}`
+(`{{qty}} × {{price}}`); parsing, checking and evaluating it are the host's.
+
+## Scope
+
+- Owns: the one-line editor with field chips, the `{` picker, the operator replacements, the
+  status line (preview or error) and its announcement.
+- Does not own: the grammar, the evaluation or which fields a formula may use — pass only those as
+  `fields`.
+- Built on: [`TemplateEditor`](/docs/components/template-editor) (`singleLine`,
+  `triggers={["{"]}`). A full `TextEdit` would bring blocks, a toolbar and collaboration a formula
+  has no use for.
+
+## Examples
+
+### With a live preview
+
+Edit the formula: the result under it follows the first row (Qty 4, Unit price 310).
+
+<ComponentPreview
+  name="formulaInput"
+  file="components/preview/formula-input.tsx"
+/>
+
+### Error
+
+An unknown field's chip shows invalid (`invalidFields`) and the error takes the preview's place.
+
+<ComponentPreview
+  name="formulaInputError"
+  file="components/preview/formula-input.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/formula-input.tsx"
+  name="FormulaInputProps"
+/>
+
+### FormulaInputField
+
+<ApiTable
+  path="../../packages/ui/registry/ui/formula-input.tsx"
+  name="FormulaInputField"
+/>
+
+## Accessibility
+
+- The input is a `textbox` named by its `FieldLabel` (or `aria-label`); the picker is a listbox it
+  points at with `aria-activedescendant`.
+- The status line describes the input and is a polite live region: a fixed or broken formula is
+  heard once, after the keystroke. An error sets `aria-invalid`.
+- A chip is one character for the caret: <kbd>Backspace</kbd> removes it whole.
+
+| Key                                       | Action                                  |
+| ----------------------------------------- | --------------------------------------- |
+| <kbd>{"{"}</kbd>                          | Opens the field picker                  |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowDown</kbd> | Moves through the fields                |
+| <kbd>Enter</kbd> / <kbd>Tab</kbd>         | Inserts the highlighted field as a chip |
+| <kbd>Escape</kbd>                         | Closes the picker                       |
+
+<StatesTested name="formula-input" />
+
+## Do / Don't
+
+<DoDont
+  do="Offer only the fields a formula can use, and show the first row's result as the formula is typed."
+  dont="Ask for a formula in a plain text box with field names typed in braces and no check until save."
+/>

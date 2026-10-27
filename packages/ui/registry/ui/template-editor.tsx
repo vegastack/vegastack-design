@@ -1,4 +1,4 @@
-// @vegastack template-editor@0.25.88 sha256-AayiYDaZfK9A2CvzjSMyE6rj1WBraffX/+5lL9KqS+M=
+// @vegastack template-editor@0.25.88 sha256-5PACKYSL8d+TfG3l/VZWFKGRceNHtmKDKdaPzUCG/AQ=
 
 "use client";
 
@@ -71,6 +71,16 @@ export interface TemplateEditorReplacement {
 }
 
 /**
+ * What opens the placeholder picker: `@` at the start of a word, `{{`, or a single `{` (one
+ * brace, as a formula writes a field). `{` already opens on the first brace of `{{`, so pass one
+ * of the two.
+ *
+ * @example
+ * const triggers: TemplateEditorTrigger[] = ["{"];
+ */
+export type TemplateEditorTrigger = "@" | "{{" | "{";
+
+/**
  * Props for `TemplateEditor`.
  *
  * @example
@@ -115,6 +125,16 @@ export interface TemplateEditorProps {
    * @default false
    */
   singleLine?: boolean;
+  /**
+   * What opens the picker. Read when the editor mounts; remount (a new `key`) to change it.
+   * @default ["@", "{{"]
+   */
+  triggers?: readonly TemplateEditorTrigger[];
+  /**
+   * The picker's accessible name.
+   * @default "Insert placeholder"
+   */
+  pickerLabel?: string;
   /**
    * The editable surface's id (an enclosing `Field` supplies one).
    * @default undefined
@@ -226,6 +246,7 @@ interface TokenLookup {
 
 interface TemplateRuntime {
   singleLine: boolean;
+  triggers: readonly TemplateEditorTrigger[];
   replacements: () => readonly TemplateEditorReplacement[];
   lookup: (id: string) => TokenLookup;
   /** Repaints every mounted chip; set when a chip mounts, called when tokens change. */
@@ -351,7 +372,14 @@ interface MenuState {
 }
 
 const AT_KEY = new PluginKey("templateEditorAt");
+const DEFAULT_TRIGGERS: readonly TemplateEditorTrigger[] = ["@", "{{"];
 const BRACES_KEY = new PluginKey("templateEditorBraces");
+const BRACE_KEY = new PluginKey("templateEditorBrace");
+const TRIGGER_KEYS: Record<TemplateEditorTrigger, PluginKey> = {
+  "@": AT_KEY,
+  "{{": BRACES_KEY,
+  "{": BRACE_KEY,
+};
 
 function filterTokens(
   tokens: readonly TemplateEditorToken[],
@@ -442,10 +470,9 @@ function pickerExtension(runtime: TemplateRuntime) {
   return Extension.create({
     name: "templateEditorPicker",
     addProseMirrorPlugins() {
-      return [
-        pickerSuggestion(this.editor, runtime, AT_KEY, "@"),
-        pickerSuggestion(this.editor, runtime, BRACES_KEY, "{{"),
-      ];
+      return runtime.triggers.map((trigger) =>
+        pickerSuggestion(this.editor, runtime, TRIGGER_KEYS[trigger], trigger),
+      );
     },
   });
 }
@@ -627,6 +654,8 @@ function TemplateEditor({
   invalidTokenIds,
   replacements,
   singleLine: singleLineProp = false,
+  triggers: triggersProp = DEFAULT_TRIGGERS,
+  pickerLabel = "Insert placeholder",
   id,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -643,6 +672,7 @@ function TemplateEditor({
   const listId = React.useId();
   // Read once: it shapes the schema and the keymap, which are built when the editor mounts.
   const [singleLine] = React.useState(singleLineProp);
+  const [triggers] = React.useState(triggersProp);
 
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
@@ -662,6 +692,7 @@ function TemplateEditor({
   const runtime = React.useMemo<TemplateRuntime>(
     () => ({
       singleLine,
+      triggers,
       replacements: () => replacementsRef.current ?? [],
       lookup: (tokenId) => {
         const match = tokensRef.current.find((item) => item.id === tokenId);
@@ -679,7 +710,7 @@ function TemplateEditor({
         setMenuState(next);
       },
     }),
-    [singleLine],
+    [singleLine, triggers],
   );
 
   const extensions = React.useMemo(
@@ -838,7 +869,7 @@ function TemplateEditor({
       {menu && !disabled ? (
         <SuggestionMenu
           id={listId}
-          aria-label="Insert placeholder"
+          aria-label={pickerLabel}
           data-menu="template-editor"
           anchor={menu.rect}
           options={menu.items.map((token) => ({
