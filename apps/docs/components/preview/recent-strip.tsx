@@ -107,7 +107,7 @@ export function recentStripPhone(): ReactNode {
 /** Loading: skeleton cards of the same shape under the heading; empty: nothing, or `emptyState`. */
 export function recentStripStates(): ReactNode {
   return (
-    <Wrapper className="flex flex-col items-stretch gap-6">
+    <Wrapper className="block space-y-6">
       <RecentStrip loading />
       <RecentStrip
         label="Jump back in"
