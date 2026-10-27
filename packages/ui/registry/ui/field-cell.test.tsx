@@ -1672,3 +1672,70 @@ test("FieldProperty: long text edits in place (no popover) and commits when focu
   await vi.waitFor(() => expect(onSave).toHaveBeenCalled());
   expect(onSave.mock.calls[0]![0]).toContain("more");
 });
+
+test("FieldProperty: Enter commits and keeps focus on the value; Tab commits and moves to the next row", async () => {
+  const onSave = vi.fn((_next: FieldValue) => Promise.resolve());
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty label="Name" type="text" value="Alpha" onSave={onSave} />
+      <FieldProperty label="Code" type="text" value="B-2" onSave={onSave} />
+    </PropertyList>,
+  );
+  const displays = () =>
+    screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="editable-cell-display"]',
+    );
+  await userEvent.click(screen.getByText("Alpha"));
+  await userEvent.keyboard("{End}!{Enter}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(displays()[0]));
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(screen.getByRole("textbox", { name: "Name" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await vi.waitFor(() => expect(document.activeElement).toBe(displays()[1]));
+});
+
+test("FieldProperty: long text — Escape reverts; a typed character's edit is saved when focus leaves", async () => {
+  const onSave = vi.fn((_next: FieldValue) => Promise.resolve());
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Notes"
+          type="long_text"
+          value="First line"
+          onSave={onSave}
+        />
+      </PropertyList>
+      <button type="button">Elsewhere</button>
+    </>,
+  );
+  const editor = async () =>
+    vi.waitFor(() => {
+      const el = screen.container.querySelector<HTMLElement>(
+        '[data-slot="field-property-long-text"] .ProseMirror',
+      );
+      if (!el) throw new Error("no editor");
+      return el;
+    });
+  await userEvent.click(screen.getByText("First line"));
+  (await editor()).focus();
+  await userEvent.keyboard(" changed{Escape}");
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('[data-slot="field-property-long-text"]'),
+    ).toBeNull(),
+  );
+  expect(onSave).not.toHaveBeenCalled();
+  // Type-to-edit: "W" replaces the value, and leaving saves it.
+  const display = screen.container.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  display.focus();
+  await userEvent.keyboard("W");
+  await editor();
+  await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
+  await vi.waitFor(() => expect(onSave).toHaveBeenCalled());
+  expect(String(onSave.mock.calls[0]![0])).toContain("W");
+});

@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.91 sha256-Y+q0Qlzs3QgJ3R4hq7qzMFfvdOPJhD12LaqMhDLIO08=
+// @vegastack field-cell@0.25.91 sha256-0lpEnpYVSGVhJno0WPcfR7MRX/DTlBwa4fqyQhdM6CA=
 
 "use client";
 
@@ -2029,6 +2029,20 @@ function propertyValue(text: string): FieldValue {
   return text === "" ? null : (JSON.parse(text) as FieldValue);
 }
 
+/** The controls a Tab can land on, in document order. */
+const TABBABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[contenteditable="true"],[tabindex]';
+
+/** Focus the control before or after `from` in the Tab order (what Tab out of an editor does). */
+function focusAdjacent(from: HTMLElement, direction: "next" | "previous") {
+  const all = [...document.querySelectorAll<HTMLElement>(TABBABLE)].filter(
+    (el) => el === from || (el.tabIndex >= 0 && el.getClientRects().length > 0),
+  );
+  const index = all.indexOf(from);
+  const target = all[index + (direction === "next" ? 1 : -1)];
+  (target ?? from).focus();
+}
+
 /** A printable key with no modifier: it opens the editor with itself as the seed (type-to-edit). */
 function isPropertyTypingKey(event: React.KeyboardEvent): boolean {
   return (
@@ -2282,7 +2296,11 @@ function LongTextPropertyEditor({
 }) {
   const handle = React.useRef<TextEditHandle>(null);
   const done = React.useRef(false);
-  const start = seed ?? (typeof value === "string" ? value : "");
+  const persisted = typeof value === "string" ? value : "";
+  const start = seed ?? persisted;
+  // The draft as typed, compared with the PERSISTED value when focus leaves: a seeded edit ("W"
+  // typed on the resting value) is TextEdit's own baseline, so it would report no change.
+  const draft = React.useRef(start);
   React.useEffect(() => {
     handle.current?.focus("end");
   }, []);
@@ -2296,11 +2314,22 @@ function LongTextPropertyEditor({
       data-slot="field-property-long-text"
       className="w-full min-w-0"
       onBlur={(event) => {
-        if (event.currentTarget.contains(event.relatedTarget as Node | null))
-          return;
-        // After the editor's own blur commit (a change), or closed unchanged.
+        const wrapper = event.currentTarget;
+        if (wrapper.contains(event.relatedTarget as Node | null)) return;
+        // After the editor's own blur commit (a change), or closed unchanged — unless focus went
+        // into the editor's own floating surfaces (the link panel, a menu), which keep the edit.
         setTimeout(() => {
           if (done.current) return;
+          const active = document.activeElement;
+          if (
+            active &&
+            (wrapper.contains(active) ||
+              active.closest(
+                '[data-text-edit-menu],[data-slot="popover-content"],[data-slot="dropdown-menu-content"],[role="dialog"],[role="menu"],[role="listbox"]',
+              ))
+          )
+            return;
+          if (draft.current !== persisted) return finish(draft.current);
           done.current = true;
           onCancel();
         }, 0);
@@ -2311,6 +2340,10 @@ function LongTextPropertyEditor({
         inset="none"
         aria-label={label}
         defaultValue={start}
+        onValueChange={(next) => {
+          draft.current = next;
+        }}
+        escapeBehavior="revert"
         handleRef={handle}
         placeholder={config.placeholder}
         mentions={config.mentions}
@@ -2370,6 +2403,38 @@ export function FieldProperty({
   };
   const managed = focusMode === "managed";
   const [seed, setSeed] = React.useState<string | undefined>(undefined);
+  const valueRef = React.useRef<HTMLElement>(null);
+  // Where focus goes when the editor closes: back onto the value (Enter, Escape, a pick), or on
+  // to the next or previous control (Tab) — never pulled back from a field the reader clicked into.
+  const move = React.useRef<"next" | "previous" | null>(null);
+  const wasEditing = React.useRef(editing);
+  React.useEffect(() => {
+    const closed = wasEditing.current && !editing;
+    wasEditing.current = editing;
+    if (!closed) return;
+    const direction = move.current;
+    move.current = null;
+    requestAnimationFrame(() => {
+      const box = valueRef.current;
+      const display = box?.querySelector<HTMLElement>(
+        "[data-slot=editable-cell-display]",
+      );
+      if (!box || !display) return;
+      const active = document.activeElement;
+      if (active && active !== document.body && !box.contains(active)) return;
+      if (direction) focusAdjacent(display, direction);
+      else if (!managed) display.focus();
+    });
+  }, [editing, managed]);
+  // `managed`: nothing inside the row is a tab stop — the host's roving focus owns reachability
+  // (record chips and links included, which take no focus policy of their own).
+  React.useLayoutEffect(() => {
+    if (!managed || editing) return;
+    for (const el of valueRef.current?.querySelectorAll<HTMLElement>(
+      'a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])',
+    ) ?? [])
+      el.tabIndex = -1;
+  });
   // Files have no in-place editor (uploads are the host's): they show, like the read-only types.
   const still =
     readOnly ||
@@ -2430,6 +2495,9 @@ export function FieldProperty({
         saveErrorToast={saveErrorToast}
         editing={editing}
         editSeed={seed}
+        onNavigate={(direction, via) => {
+          if (via === "tab") move.current = direction;
+        }}
         onEditingChange={(open) => {
           setEditing(open);
           if (!open) setSeed(undefined);
@@ -2464,7 +2532,9 @@ export function FieldProperty({
                 value={propertyValue(slot.value)}
                 config={config}
                 seed={slot.seed}
-                onCommit={(next) => slot.commit(propertyString(next))}
+                onCommit={(next, keyMove) =>
+                  slot.commit(propertyString(next), keyMove)
+                }
                 onCancel={slot.cancel}
               />
             ),
@@ -2487,6 +2557,7 @@ export function FieldProperty({
     >
       <PropertyLabel icon={icon}>{label}</PropertyLabel>
       <PropertyValue
+        ref={valueRef}
         className={cn(
           // A conflict note takes its own line under the value, in a flex (inline) value too.
           "flex-wrap",
