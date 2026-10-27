@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.90 sha256-9YLW8lE9SYZKRHdtKarZnFeXCIGxw1Hl7hCmQYpOcUQ=
+// @vegastack comments@0.25.90 sha256-xV6bTa4JEYqGWZx7lqtFBGVTvu5fhJE8cqMtJ4llCAI=
 
 "use client";
 
@@ -160,7 +160,7 @@ const TOUCH_TARGET =
 /** A comment's avatar (and the reply row's): 20px, as Linear's. */
 const AVATAR = "data-[size=sm]:size-5";
 
-/** The hover actions (add reaction, ⋯): shown on hover or focus inside the comment, while their
+/** The hover actions (resolve, add reaction, ⋯): shown on hover or focus inside the comment, while their
  * popup is open, and always on a coarse pointer, where there is no hover. */
 const HOVER_ACTION =
   "opacity-0 transition-opacity duration-150 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
@@ -197,6 +197,11 @@ export interface CommentItemProps {
    * menu item — a compact thread's way in to its reply box. Needs `onReply`. @default false
    */
   replyAction?: boolean;
+  /**
+   * Resolve the comment's thread — a ✓ hover action before add-reaction. `CommentThread` passes
+   * it to the first comment while the thread is open. May return a promise. @default undefined
+   */
+  onResolve?: () => void | Promise<unknown>;
   /**
    * Add or remove the viewer's reaction; enables the pills and the add-reaction hover action.
    * May return a promise. @default undefined
@@ -251,9 +256,9 @@ export interface CommentItemProps {
 
 /**
  * `CommentItem` — one comment: a header row (avatar, name and badge, relative time, "(edited)")
- * with hover actions at its end (add reaction, and a ⋯ menu — Reply on a touch screen, Copy link,
- * Copy text, Edit, Delete — for what the viewer may do), then the Markdown body, its files and its
- * reaction pills. Edit turns the body into a compact box and the header actions into ✕ Cancel and
+ * with hover actions at its end (✓ Resolve with `onResolve`, add reaction, and a ⋯ menu — Reply on
+ * a touch screen, Copy link, Copy text, Edit, Delete — for what the viewer may do), then the
+ * Markdown body, its files and its reaction pills. Edit turns the body into a compact box and the header actions into ✕ Cancel and
  * ✓ Save (disabled while empty or unchanged); Cmd/Ctrl+Enter saves and Escape cancels. Delete is
  * immediate — the host offers Undo.
  *
@@ -270,6 +275,7 @@ export function CommentItem({
   onCopyText,
   onReply,
   replyAction = false,
+  onResolve,
   onReactionToggle,
   onChoose,
   highlighted = false,
@@ -388,6 +394,7 @@ export function CommentItem({
   // A compact thread's Reply is a hover action on every pointer; otherwise a touch-screen menu item.
   // A deleted first comment keeps its thread's Reply: the host's `onReply` decides.
   const canReplyAction = !!onReply && replyAction && !editing;
+  const canResolve = !!onResolve && !editing;
   const canReply = !!onReply && !replyAction && coarse && !comment.deleted;
   const canCopy = !!onCopyLink && !comment.deleted;
   const canCopyText = !!onCopyText && !comment.deleted && !!comment.body.trim();
@@ -510,8 +517,29 @@ export function CommentItem({
                 <TooltipContent>Save · {submitShortcut()}</TooltipContent>
               </Tooltip>
             </span>
-          ) : hasMenu || canReact || canReplyAction ? (
+          ) : hasMenu || canReact || canReplyAction || canResolve ? (
             <span className="-me-1 flex shrink-0 items-center gap-0.5">
+              {canResolve ? (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        data-slot="comment-resolve"
+                        aria-label="Resolve"
+                        className={cn("text-muted-foreground", HOVER_ACTION)}
+                        onClick={() =>
+                          void Promise.resolve(onResolve?.()).catch(() => {})
+                        }
+                      />
+                    }
+                  >
+                    <Check aria-hidden />
+                  </TooltipTrigger>
+                  <TooltipContent>Resolve</TooltipContent>
+                </Tooltip>
+              ) : null}
               {canReplyAction ? (
                 <Tooltip>
                   <TooltipTrigger
@@ -1628,7 +1656,10 @@ export interface CommentThreadProps {
   viewer?: Pick<Person, "name" | "email" | "image" | "hue">;
   /** Post a reply; omit to show the thread without a reply row. The box clears on success and keeps text on failure. @default undefined */
   onReply?: MaybeAsync<[body: string]>;
-  /** Resolve the thread; the header shows a ✓ button when set. @default undefined */
+  /**
+   * Resolve the thread; the first comment shows a ✓ hover action (before add-reaction) while the
+   * thread is open. @default undefined
+   */
   onResolve?: () => void | Promise<unknown>;
   /** Reopen a resolved thread; the resolved header shows Reopen when set. @default undefined */
   onReopen?: () => void | Promise<unknown>;
@@ -1735,7 +1766,9 @@ export interface CommentThreadProps {
  * when the thread is about a piece of text, the first comment, "Show N more replies", the replies
  * — indented to the name, each over a hairline — and a flat reply row at the foot with the
  * viewer's avatar, a one-line "Write a reply…" box, attach and Send (Cmd/Ctrl+Enter sends). The
- * header's ✓ resolves it; a resolved thread says who resolved it and when, and offers Reopen.
+ * first comment's ✓ resolves it; a resolved thread says who resolved it and when, and offers
+ * Reopen. The header shows only when it has something to say: the quote, "Original text was
+ * removed", or the resolved line.
  * `collapsed` shows the first comment, "N replies" and the last reply.
  *
  * @example
@@ -1888,6 +1921,7 @@ export function CommentThread({
       onChoose={onChoose}
       onReply={isRoot && canReply ? startReply : undefined}
       replyAction={isRoot && compact}
+      onResolve={isRoot && !resolved ? onResolve : undefined}
       onEditValueChange={onEditValueChange}
       {...editingProps(comment.id)}
       attachments={renderAttachments?.(comment)}
@@ -1912,7 +1946,7 @@ export function CommentThread({
   const folded = collapsed
     ? Math.max(0, thread.replies.length - 1) + hiddenReplies
     : hiddenReplies;
-  const hasHeader = orphaned || !!quote || !!resolved || !!onResolve;
+  const hasHeader = orphaned || !!quote || !!resolved;
 
   return (
     <article
@@ -1977,36 +2011,15 @@ export function CommentThread({
               </p>
             ) : null}
           </div>
-          {resolved ? (
-            onReopen ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="-me-1"
-                onClick={() => void Promise.resolve(onReopen()).catch(() => {})}
-              >
-                Reopen
-              </Button>
-            ) : null
-          ) : onResolve ? (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Resolve"
-                    className="-me-1 text-muted-foreground"
-                    onClick={() =>
-                      void Promise.resolve(onResolve()).catch(() => {})
-                    }
-                  />
-                }
-              >
-                <Check aria-hidden />
-              </TooltipTrigger>
-              <TooltipContent>Resolve</TooltipContent>
-            </Tooltip>
+          {resolved && onReopen ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-me-1"
+              onClick={() => void Promise.resolve(onReopen()).catch(() => {})}
+            >
+              Reopen
+            </Button>
           ) : null}
         </div>
       ) : null}

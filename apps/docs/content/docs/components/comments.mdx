@@ -221,7 +221,9 @@ them), the replies and the reply row with the viewer's avatar. Hover a comment f
 page: the quoted words (a button when `onQuoteClick` is set, to find the highlight), the first
 comment, its replies, and the reply row
 (<kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> sends; the box clears when `onReply` resolves and keeps the
-text when it rejects). ✓ in the header calls `onResolve`. Pass `composer` to give the reply box
+text when it rejects). ✓ in the first comment's actions calls `onResolve` while the thread is open;
+the header above it shows only the quote, "Original text was removed" or the resolved line, so a
+thread with none of them opens straight on the first comment. Pass `composer` to give the reply box
 `mentions`, `mentionHref` and uploads, and `renderAttachments` to show each comment's files.
 `active` lifts the card beside its highlight. Lay threads beside the text with
 [`CommentMargin`](/docs/components/comment-margin).
@@ -332,8 +334,8 @@ threads (`LoadMore`'s `skeleton`). `CommentListSkeleton` is the whole list's fir
   `separator` named for its day.
 - Errors are announced with `role="alert"`.
 - Reaction pills are toggle buttons (`aria-pressed`) named with the emoji and count.
-- A thread is an `article` named for its first comment's author; its ✓ is a button named
-  "Resolve", and the reply box is a textbox named "Reply". In a compact thread, Reply is a button
+- A thread is an `article` named for its first comment's author; its first comment's ✓ is a
+  button named "Resolve" (a hover action, shown on focus), and the reply box is a textbox named "Reply". In a compact thread, Reply is a button
   that stays in the tab order while hidden and shows on focus.
 
 | Key                               | Action                            |
