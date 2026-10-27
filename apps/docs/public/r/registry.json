@@ -1729,7 +1729,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.94",
-        "integrity": "sha256-03pPbNz9tEpltmwSlRbwh7aUivVm7DMgOolACSF27os="
+        "integrity": "sha256-81CtVioey138JI4UnYlpqIYgxuKURBYCaS8idDQl3bY="
       }
     },
     {
@@ -1986,7 +1986,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.94",
-        "integrity": "sha256-1xYH+2PXjb6gMu73t1X8GN6jOvZcdccw/lx7Jv/mj64="
+        "integrity": "sha256-Z+H86xCxGfQy6tGHAWYvvI8+tGaW8YyHJ4oCH3Q34y8="
       }
     },
     {

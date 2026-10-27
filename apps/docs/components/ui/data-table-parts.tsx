@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.94 sha256-1xYH+2PXjb6gMu73t1X8GN6jOvZcdccw/lx7Jv/mj64=
+// @vegastack data-table-parts@0.25.94 sha256-Z+H86xCxGfQy6tGHAWYvvI8+tGaW8YyHJ4oCH3Q34y8=
 
 "use client";
 
@@ -102,6 +102,8 @@ export interface DataTableColumnLayout {
   /**
    * Set this column's BODY values in tabular figures, in the regular face — for a count, an amount,
    * a size or a date, so their digits line up down the column (`mono` already does for codes).
+   * On a DataList's `line` meta line a numeric value is a figure: it keeps its whole width and the
+   * text values beside it truncate first.
    * @default false
    */
   numeric?: boolean;
