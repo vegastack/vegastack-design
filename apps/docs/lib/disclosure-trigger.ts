@@ -1,4 +1,4 @@
-// @vegastack disclosure-trigger@0.25.90 sha256-Fquc9szju8fKpn9aH2W564GVIPnKRQFodmJ5elnar2A=
+// @vegastack disclosure-trigger@0.25.91 sha256-iqJfla1xssGjSBRXCXwdzSsEZ2evT4yvDgFlvnU2xp8=
 
 /**
  * disclosure-trigger — the ONE class recipe for a ghost `Button` that expands and collapses a
