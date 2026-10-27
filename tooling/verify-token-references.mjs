@@ -111,6 +111,12 @@ const RUNTIME_VARIABLES = new Set([
   // phone floating buttons and the bar's own dock spacer read it with a 0px fallback. A measured
   // runtime value, not a theme value, so it can live nowhere in the token contract.
   "--document-layout-dock",
+  // `DocumentLayout` declares its sticky offset and the aside's height offset on its root
+  // (`[--document-layout-sticky-top:…]`, `[--document-layout-aside-offset:…]`); its
+  // `DocumentLayoutAside` part, in its own client file, reads both inside that root. Layout
+  // geometry the layout owns, not theme values.
+  "--document-layout-sticky-top",
+  "--document-layout-aside-offset",
   // The page gutter: `AppShell` declares it on its root (and `AppShellHeader`/`AppShellPage` on
   // themselves) from `pageGutterClasses`, and `RecordLayoutRail` — a descendant of the page —
   // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so
