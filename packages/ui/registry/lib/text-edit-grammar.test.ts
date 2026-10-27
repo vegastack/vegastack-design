@@ -352,6 +352,7 @@ test("typedFirstLine: a long text's first line as typed — the line-start escap
     "1. QA first line",
   );
   expect(typedFirstLine("first line  \nsecond")).toBe("first line");
+  expect(typedFirstLine("abc  \n\nnext")).toBe("abc  ");
   // An escaped backslash at the end is text.
   expect(typedFirstLine("ends in \\\\\nnext")).toBe("ends in \\\\");
   // With no next line there is no break to drop.

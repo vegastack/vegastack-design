@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.93 sha256-FC+sneEhbdzG6sYnPb+zPHHVqYLzKBwvs0cfJytlQHk=
+// @vegastack text-edit-grammar@0.25.93 sha256-exfHqa2gYGZTbDcqZaLEQGOjYmirypladWIICG4pyXg=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -431,7 +431,9 @@ export function typedFirstLine(markdown: string): string {
   // spaces) loses the marker; an escaped backslash (`\\`) is text and stays.
   if (end !== -1) {
     const slashes = /\\*$/.exec(line)![0].length;
-    line = slashes % 2 === 1 ? line.slice(0, -1) : line.replace(/ {2,}$/, "");
+    if (slashes % 2 === 1) line = line.slice(0, -1);
+    // Spaces before a blank line end a paragraph, not a line: they are text.
+    else if (markdown[end + 1] !== "\n") line = line.replace(/ {2,}$/, "");
   }
   const typed = line.startsWith("&#32;")
     ? ` ${line.slice(5)}`
