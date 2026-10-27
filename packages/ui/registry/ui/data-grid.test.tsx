@@ -3559,3 +3559,127 @@ test("phoneLayout=cards without a summaryRow draws no summary line", async () =>
     screen.container.querySelector('[data-slot="data-grid-cards-summary"]'),
   ).toBeNull();
 });
+
+test("POL-01/13: hover is a faint wash, the open row carries the edge, and frozen cells take a selected row's wash", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", width: 200, frozen: true },
+        { key: "stage", header: "Stage", width: 160 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      selectable
+      selectedIds={new Set(["d1"])}
+      onSelectionChange={() => {}}
+      activeRowId="d2"
+    />,
+  );
+  const row = (id: string) =>
+    screen.container.querySelector<HTMLElement>(
+      `[data-slot="data-grid-row"][data-row-id="${id}"]`,
+    )!;
+  await expect.poll(() => row("d1")).not.toBeNull();
+  // Hover is the faint step; a ticked row holds the stronger one through hover.
+  expect(row("d3").className.split(/\s+/)).toContain("hover:bg-muted/30");
+  expect(row("d1").className.split(/\s+/)).toContain("hover:bg-muted/50");
+  expect(row("d2").className).toContain(
+    "[&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))]",
+  );
+  expect(row("d1").hasAttribute("data-selected")).toBe(true);
+  // The row's `data-selected` is `""`: the frozen cell keys on presence, not the `="true"` variant.
+  const frozen = row("d1").querySelector<HTMLElement>(
+    '[data-slot="data-grid-cell"]',
+  )!;
+  expect(frozen.className).toContain("group-data-[selected]/row:bg-");
+  expect(frozen.className).not.toContain("group-data-selected/row:");
+  // Open outranks selected on a pinned cell as on the row (a doubled attribute selector).
+  expect(frozen.className).toContain(
+    "[[data-peek-active][data-peek-active]>&]:bg-accent",
+  );
+});
+
+test("POL-14: an empty primary value reads Untitled, muted; a card leaves out empty fields", async () => {
+  const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 5 }];
+  const grid = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={rows}
+      getRowId={(d) => d.id}
+    />,
+  );
+  await expect
+    .poll(() =>
+      grid.container.querySelector('[data-slot="data-grid-primary-value"]'),
+    )
+    .not.toBeNull();
+  const value = grid.container.querySelector(
+    '[data-slot="data-grid-primary-value"]',
+  )!;
+  expect(value.getAttribute("data-untitled")).toBe("Untitled");
+  expect(value.className).toContain(
+    "empty:before:content-[attr(data-untitled)]",
+  );
+  grid.unmount();
+
+  const cards = await render(
+    <div style={{ width: 360 }}>
+      <DataGrid
+        aria-label="Deals"
+        columns={[
+          { key: "name", header: "Name", minWidth: 160 },
+          { key: "stage", header: "Stage", minWidth: 160 },
+          { key: "amount", header: "Amount", minWidth: 160 },
+        ]}
+        data={[{ id: "e1", name: "", stage: "", amount: 5 }]}
+        getRowId={(d) => d.id}
+        phoneLayout="cards"
+        columnPicker={false}
+        untitledLabel="No name"
+      />
+    </div>,
+  );
+  await expect
+    .poll(() => cards.container.querySelector('[data-slot="data-grid-card"]'))
+    .not.toBeNull();
+  const title = cards.container.querySelector(
+    '[data-slot="data-grid-card-title"]',
+  )!;
+  expect(title.getAttribute("data-untitled")).toBe("No name");
+  expect(title.textContent).toBe("");
+  const dd = Array.from(cards.container.querySelectorAll("dd"));
+  expect(dd[0]!.textContent).toBe("");
+  expect(dd[0]!.className).toContain("empty:hidden");
+  expect(dd[0]!.previousElementSibling!.className).toContain(
+    "[&:has(+dd:empty)]:hidden",
+  );
+  expect(dd[1]!.textContent).toBe("5");
+});
+
+test("D24: a sort set without onSortChange shows read-only — the glyph and aria-sort, no sort button", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({ sortable: true })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      sort={[{ key: "stage", direction: "asc" }]}
+    />,
+  );
+  const head = await vi.waitFor(() => {
+    const el = screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-grid-head"][data-grid-key="stage"]',
+    );
+    if (!el) throw new Error("no head");
+    return el;
+  });
+  expect(head.getAttribute("aria-sort")).toBe("ascending");
+  expect(
+    head.querySelector('[data-slot="data-grid-head-sort"]'),
+  ).not.toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="data-table-sort"]'),
+  ).toBeNull();
+});

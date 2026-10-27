@@ -1,10 +1,10 @@
-// @vegastack sortable-list@0.25.90 sha256-9rw7GF/vs8WbkfzGsoi8/OIPVxI2cv0mMlRkjSWuC8s=
+// @vegastack sortable-list@0.25.90 sha256-oZJU+JO+9JPB4dLesHLPfDm4HTkpovX5w0GSTTxptmo=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import { EllipsisVertical, GripVertical, X } from "lucide-react";
+import { Ellipsis, GripVertical, X } from "lucide-react";
 import { dragItemClasses } from "@/lib/drag-item";
 import {
   tileColumnClasses,
@@ -621,7 +621,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                                 : "opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
                             }
                           >
-                            <EllipsisVertical />
+                            <Ellipsis />
                           </Button>
                         }
                       />

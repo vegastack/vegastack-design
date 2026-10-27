@@ -86,7 +86,9 @@ component's own.
    hooks (`DataList` invokes `render` as a plain function and cannot allow
    that).
 2. The grid **sorts its own data** — that is what the row-model engine is for.
-   `sort`/`onSortChange` stay controllable for URL state.
+   `sort`/`onSortChange` stay controllable for URL state. Pass `sort` **without**
+   `onSortChange` when a toolbar owns the sort: headers stop being sort buttons, and each sorted
+   column shows a read-only ↑/↓ (with its ordinal in a multi-sort) and `aria-sort`.
 
 ## Scope
 

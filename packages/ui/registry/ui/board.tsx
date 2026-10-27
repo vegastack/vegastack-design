@@ -1,11 +1,11 @@
-// @vegastack board@0.25.90 sha256-JUcmeU8AUV6aC1enbS/5tunsv/IXjZcAs/l+oH7jJCI=
+// @vegastack board@0.25.90 sha256-u331inEnJ0SDxgGhOV98ovvlu+VwE+/pYQIONaDEPbQ=
 
 "use client";
 
 import * as React from "react";
 import { flushSync } from "react-dom";
 import {
-  EllipsisVertical,
+  Ellipsis,
   EyeOff,
   Inbox,
   PanelLeftClose,
@@ -1538,7 +1538,7 @@ export function Board<T>({
             }
             className={CARD_MENU_CLASS}
           >
-            <EllipsisVertical />
+            <Ellipsis />
           </Button>
         ) : (
           <DropdownMenu
@@ -1557,7 +1557,7 @@ export function Board<T>({
                   tabIndex={rovingTarget === id ? 0 : -1}
                   className={CARD_MENU_CLASS}
                 >
-                  <EllipsisVertical />
+                  <Ellipsis />
                 </Button>
               }
             />
@@ -1574,6 +1574,10 @@ export function Board<T>({
     );
   };
 
+  // On a phone with more than one lane, the lane strip names each lane and its count, so the
+  // lane's own header drops its title, icon and count (Regent POL-17: "Todo 22" twice) and keeps
+  // only its actions, in a slim row — gone entirely when the lane has none.
+  const laneTabsShown = isMobile && !boardLoading && laneColumns.length > 1;
   const renderLane = (column: BoardColumn<T>) => {
     const readOnly = isReadOnly(column);
     const receivable = canReceive(column);
@@ -1646,6 +1650,7 @@ export function Board<T>({
         : []),
     ];
     const hasLaneMenu = columnActions.length > 0;
+    const columnAction = renderColumnAction ? renderColumnAction(column) : null;
     const addText =
       typeof addLabel === "function" ? addLabel(column) : addLabel;
     const showAdd =
@@ -1737,9 +1742,20 @@ export function Board<T>({
       >
         <header
           data-slot="board-column-header"
-          className="flex min-w-0 shrink-0 items-center gap-2 px-3 pt-3 pb-2"
+          data-tabbed={laneTabsShown ? "" : undefined}
+          className={cn(
+            "flex min-w-0 shrink-0 items-center gap-2 px-3 pt-3 pb-2",
+            laneTabsShown && "pt-1 pb-1",
+            // Tabbed and with nothing to act on, the header has nothing left to show.
+            laneTabsShown &&
+              columnAction == null &&
+              !canCollapse &&
+              headerAdd == null &&
+              !hasLaneMenu &&
+              "hidden",
+          )}
         >
-          {column.icon != null ? (
+          {laneTabsShown ? null : column.icon != null ? (
             <span
               data-slot="board-column-icon"
               className="flex shrink-0 items-center [&>svg]:size-4"
@@ -1747,13 +1763,15 @@ export function Board<T>({
               {column.icon}
             </span>
           ) : null}
-          <span
-            data-slot="board-column-title"
-            className="min-w-0 truncate text-sm font-medium"
-          >
-            {column.title}
-          </span>
-          {countPending ? null : (
+          {laneTabsShown ? null : (
+            <span
+              data-slot="board-column-title"
+              className="min-w-0 truncate text-sm font-medium"
+            >
+              {column.title}
+            </span>
+          )}
+          {countPending || laneTabsShown ? null : (
             // The lane region's name already says the count ("Todo, 14 tasks").
             <span
               aria-hidden="true"
@@ -1764,7 +1782,7 @@ export function Board<T>({
             </span>
           )}
           <div className="ms-auto flex shrink-0 items-center gap-0.5">
-            {renderColumnAction ? renderColumnAction(column) : null}
+            {columnAction}
             {canCollapse ? (
               <Tooltip>
                 <TooltipTrigger
@@ -1794,7 +1812,7 @@ export function Board<T>({
                       aria-label={`${laneLabel(column)} lane actions`}
                       data-slot="board-column-menu"
                     >
-                      <EllipsisVertical />
+                      <Ellipsis />
                     </Button>
                   }
                 />

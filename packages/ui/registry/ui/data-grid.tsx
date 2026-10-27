@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.90 sha256-OOnv0w93l/7qhlnBR12uNktbOhtQ+/RtSbmWrPTnMOw=
+// @vegastack data-grid@0.25.90 sha256-R1dP8So+gER+IFijs8cGZU4pe0nGjr/RGL7frFBkMVk=
 
 "use client";
 
@@ -46,6 +46,7 @@ import {
   offscreenSortSummary,
   PEEK_ACTIVE_ROW_CLASS,
   revealColumns,
+  ROW_HOVER_CLASS,
   SELECTED_ROW_CLASS,
   SelectionActionBar,
   SelectionBarSpacer,
@@ -515,7 +516,10 @@ export interface DataGridProps<T> {
    */
   sortMode?: "client" | "manual";
   /**
-   * Controlled multi-sort (priority order). Omit for uncontrolled.
+   * Controlled multi-sort (priority order). Omit for uncontrolled. Passed WITHOUT
+   * `onSortChange`, the sort is owned elsewhere (a toolbar's Sort control):
+   * headers are not sort buttons, and each sorted column shows a read-only ↑/↓
+   * (with its ordinal in a multi-sort) and `aria-sort`.
 
    * @default undefined
    */
@@ -804,6 +808,14 @@ export interface DataGridProps<T> {
    */
   getRowLabel?: (row: T) => string;
   /**
+   * What an empty primary value reads as — in the primary cell and a card's title — muted, so a
+   * row with no name is never a blank row. The same word `Board` cards use. "Empty" is whatever
+   * renders nothing: a column `render` must return `null` (not an empty `<span>`) for an empty
+   * value, and the same rule leaves an empty field out of a phone card.
+   * @default "Untitled"
+   */
+  untitledLabel?: string;
+  /**
    * The grid's imperative actions: `focusCell(rowId, key)` moves the active cell (a new row's
    * primary cell, as soon as the row is in `data`), and `getRowOrder()` returns the loaded row ids
    * in display order, as a peek's ↑/↓ walk them.
@@ -1049,6 +1061,8 @@ interface ColumnWindow<T> {
   rowHeight?: DataGridRowHeight;
   /** Rows open (`onRowOpen`): the primary cell leads with the Open button. */
   openable: boolean;
+  /** What an empty primary value reads as (`untitledLabel`). */
+  untitledLabel: string;
 }
 
 /** The stable handle rows and cells reach the grid through. */
@@ -1129,7 +1143,7 @@ function Cell<T>({
  * `[&_tr:last-child]:border-0`), and at 150 columns every row a scroll tick inserts re-matched them
  * — style recalculation was most of the tick.
  */
-const ROW_BASE_CLASS = "border-b hover:bg-muted/50";
+const ROW_BASE_CLASS = cn("border-b", ROW_HOVER_CLASS);
 // No `position` here: a positioned cell is a paint layer of its own, and at 150 columns the ~600
 // layered cells made paint and layerize most of a scroll tick. A cell is `relative` only while it
 // can hold an absolute child (a remote change's cue, the fill handle); a frozen one is `sticky`.
@@ -1145,9 +1159,17 @@ const CELL_BASE_CLASS =
 const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
 
-/** Sticky frozen cells are opaque, so scrolled cells never show through; the row's state tints mix in. */
+/**
+ * Sticky frozen cells are opaque, so scrolled cells never show through; the row's state washes mix
+ * in at the row-state ladder's own strengths (hover 30%, selected 50%, open `accent`). The row's
+ * `data-selected` is present-or-absent (`""`), so the selected step keys on `data-[selected]`:
+ * the tokens' `data-selected` custom variant matches only `="true"`, which is why the pinned
+ * column stayed white in a ticked row (Regent POL-13). The open step is doubled in specificity so
+ * it outranks selected, as it does on the row itself (an attribute variant beats the row's plain
+ * selected wash): a row both open and ticked is open, pinned cells included.
+ */
 const FROZEN_CELL_CLASS =
-  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-selected/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] group-data-peek-active/row:bg-accent";
+  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_30%,var(--color-background))] group-data-[selected]/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] [[data-peek-active][data-peek-active]>&]:bg-accent";
 /** The frozen edge's shadow, shown while the viewport is scrolled sideways (`data-scrolled-x`). */
 // A box shadow, not a pseudo-element: body cells clip their overflow (one line, truncated), and a
 // cell's own shadow is painted outside its box, where the clip does not reach.
@@ -1186,6 +1208,8 @@ interface GridCellProps<T> {
   remote: DataGridRemoteChange | undefined;
   /** The primary cell of an openable row: the Open button's accessible name. */
   openLabel: string | undefined;
+  /** The primary cell: what an empty value reads as (`untitledLabel`). */
+  untitledLabel: string | undefined;
 }
 
 /** How long a remote change's author chip stays. */
@@ -1278,6 +1302,7 @@ function GridCellImpl<T>({
   fillTarget,
   remote,
   openLabel,
+  untitledLabel,
 }: GridCellProps<T>) {
   const api = useGridApi();
   const { column, key } = placed;
@@ -1346,13 +1371,26 @@ function GridCellImpl<T>({
     if (node) awake.current = true;
   }, []);
   const content = !editor ? (
-    <Cell column={column} row={row} context={context} />
+    untitledLabel != null ? (
+      // An empty primary value reads as `untitledLabel`, muted — CSS-generated, so a column's own
+      // `render` decides what "empty" is: whatever renders nothing.
+      <span
+        data-slot="data-grid-primary-value"
+        data-untitled={untitledLabel}
+        className="empty:before:text-muted-foreground empty:before:content-[attr(data-untitled)]"
+      >
+        <Cell column={column} row={row} context={context} />
+      </span>
+    ) : (
+      <Cell column={column} row={row} context={context} />
+    )
   ) : editor.type === "custom" && !full ? (
     <EditableCellRest
       value={persisted}
       label={placed.label}
-      // An empty cell is blank; the editor's placeholder shows only once it edits (UX-11).
-      emptyText=""
+      // An empty cell is blank, except the primary one, which reads as `untitledLabel`; the
+      // editor's placeholder shows only once it edits (UX-11).
+      emptyText={untitledLabel ?? ""}
       renderValue={renderValue}
       onStartEditing={() => api.setEditing(rowId, key, true)}
       ref={restRef}
@@ -1363,7 +1401,7 @@ function GridCellImpl<T>({
       label={placed.label}
       editor={editor}
       renderValue={renderValue}
-      emptyText=""
+      emptyText={untitledLabel ?? ""}
       focusMode="managed"
       editing={editing}
       editSeed={editSeed}
@@ -1624,6 +1662,7 @@ function GridRowImpl<T>({
       }
       remote={remoteChanges?.get(gridCellKey(rowId, placed.key))}
       openLabel={placed.primary && w.openable ? `Open ${rowLabel}` : undefined}
+      untitledLabel={placed.primary ? w.untitledLabel : undefined}
     />
   );
   return (
@@ -1713,6 +1752,11 @@ interface GridHeadCellProps<T> {
   dragPending: boolean;
   /** The primary column of an openable grid: the label sits over the values, past the Open slot. */
   openSlot: boolean;
+  /**
+   * A controlled `sort` with no `onSortChange`: the sort is set elsewhere (a toolbar), so a header
+   * shows it read-only — the glyph and `aria-sort`, never a sort button.
+   */
+  sortLocked: boolean;
 }
 
 function GridHeadCellImpl<T>({
@@ -1730,10 +1774,11 @@ function GridHeadCellImpl<T>({
   dropEdge,
   dragPending,
   openSlot,
+  sortLocked,
 }: GridHeadCellProps<T>) {
   const api = useGridApi();
   const { column, key } = p;
-  const sortable = column.sortable === true;
+  const sortable = column.sortable === true && !sortLocked;
   const align = columnAlign(column);
   const [menuArmed, setMenuArmed] = React.useState(false);
   const menuLive = menuArmed || menuOpen || tabStop;
@@ -1864,9 +1909,13 @@ function GridHeadCellImpl<T>({
       {text}
     </SortHeaderButton>
   ) : (
+    // Not a sort button, but the column may still be sorted (from a toolbar, `sortLocked`): the
+    // glyph shows read-only, leading in an end column so the label's end is the values' end.
     <>
+      {align === "end" ? sortGlyph : null}
       {icon}
       {text}
+      {align === "end" ? null : sortGlyph}
     </>
   );
   return (
@@ -1879,7 +1928,7 @@ function GridHeadCellImpl<T>({
       role="columnheader"
       aria-colindex={p.ariaColIndex}
       aria-sort={
-        sortable
+        sortable || direction
           ? direction === "asc"
             ? "ascending"
             : direction === "desc"
@@ -2495,6 +2544,7 @@ function GridCards<T>({
   loadingRows,
   emptyState,
   ariaLabel,
+  untitledLabel,
 }: {
   items: readonly GridItem<T>[];
   columns: readonly DataGridColumn<T>[];
@@ -2511,6 +2561,7 @@ function GridCards<T>({
   loadingRows: number;
   emptyState: React.ReactNode;
   ariaLabel: string;
+  untitledLabel: string;
 }) {
   const primary = columns[0];
   const shown = columns.slice(1, 1 + Math.max(0, fields));
@@ -2587,7 +2638,7 @@ function GridCards<T>({
             data-row-id={id}
             data-selected={selected.has(id) ? "" : undefined}
             data-peek-active={activeRowId === id ? "" : undefined}
-            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-selected:bg-muted/50 data-peek-active:bg-accent"
+            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-[selected]:bg-muted/50 data-peek-active:bg-accent"
           >
             {onOpen ? (
               <Button
@@ -2609,7 +2660,9 @@ function GridCards<T>({
               ) : null}
               <div
                 data-slot="data-grid-card-title"
-                className="min-w-0 flex-1 font-medium wrap-anywhere"
+                // An empty primary value reads as `untitledLabel`, muted, as the grid's cell does.
+                data-untitled={untitledLabel}
+                className="min-w-0 flex-1 font-medium wrap-anywhere empty:before:font-normal empty:before:text-muted-foreground empty:before:content-[attr(data-untitled)]"
               >
                 {primary ? (
                   <Cell column={primary} row={row} context={context} />
@@ -2619,14 +2672,16 @@ function GridCards<T>({
             {shown.length > 0 ? (
               <dl
                 data-slot="data-grid-card-fields"
-                className="pointer-events-none relative grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-3 gap-y-1 text-xs [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+                // A field with no value is left out — label and all — and a card whose fields are
+                // all empty shows none, so a card never lists bare labels ("Notes", "Status").
+                className="pointer-events-none relative grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-3 gap-y-1 text-xs [&:not(:has(dd:not(:empty)))]:hidden [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
               >
                 {shown.map((column) => (
                   <React.Fragment key={column.key}>
-                    <dt className="truncate text-muted-foreground">
+                    <dt className="truncate text-muted-foreground [&:has(+dd:empty)]:hidden">
                       {columnLabel(column)}
                     </dt>
-                    <dd className="min-w-0 truncate">
+                    <dd className="min-w-0 truncate empty:hidden">
                       <Cell column={column} row={row} context={context} />
                     </dd>
                   </React.Fragment>
@@ -2892,6 +2947,7 @@ export function DataGrid<T>({
   onRowOpen,
   activeRowId,
   getRowLabel,
+  untitledLabel = "Untitled",
   actionsRef,
   selectionActions,
   selectionLabel,
@@ -2939,6 +2995,9 @@ export function DataGrid<T>({
     EMPTY_SORT,
     onSortChange,
   );
+  // A controlled sort with no `onSortChange` is set elsewhere (a toolbar): headers show it
+  // read-only — the glyph and `aria-sort` — and never sort on a click.
+  const sortLocked = sort !== undefined && onSortChange === undefined;
   const [visibility, commitVisibility] = useControlledState<
     Record<string, boolean>
   >(columnVisibility, EMPTY_VISIBILITY, onColumnVisibilityChange);
@@ -3170,9 +3229,11 @@ export function DataGrid<T>({
       merged: mergedColumns,
       rowHeight,
       openable,
+      untitledLabel,
     };
   }, [
     openable,
+    untitledLabel,
     fixed,
     selectable,
     selectOffset,
@@ -4686,6 +4747,7 @@ export function DataGrid<T>({
         dropEdge={item?.["data-drop-edge"]}
         dragPending={item?.["data-drag-pending"] != null}
         openSlot={p.primary && openable}
+        sortLocked={sortLocked}
       />
     );
   };
@@ -5085,6 +5147,7 @@ export function DataGrid<T>({
               loadingRows={loadingRows}
               emptyState={emptyState}
               ariaLabel={ariaLabel}
+              untitledLabel={untitledLabel}
             />
             {loadMore ? <LoadMore {...loadMore} /> : null}
           </>

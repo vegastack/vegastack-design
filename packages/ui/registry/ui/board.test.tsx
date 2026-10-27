@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Board, type BoardColumn, type BoardProps } from "./board";
 import { useTruncationFocusable } from "./truncated-text";
@@ -109,6 +109,13 @@ function announcement(): string {
     .join(" ");
 }
 
+/** A desktop-width board: the lane headers carry their titles and counts (a phone's lane strip
+ * names the lanes instead). The browser lane's default viewport is a phone's. */
+async function onDesktop() {
+  await page.viewport(1280, 800);
+  onTestFinished(() => page.viewport(414, 896));
+}
+
 test("renders lanes with counts, cards as list items, and a locked empty lane", async () => {
   const screen = await render(<Controlled />);
   await expect
@@ -126,6 +133,7 @@ test("renders lanes with counts, cards as list items, and a locked empty lane", 
 });
 
 test('counts above 99 show "99+"; the spoken names keep the number', async () => {
+  await onDesktop();
   const initial = makeColumns().map((column) =>
     column.id === "lead" ? { ...column, count: 250 } : column,
   );
@@ -390,6 +398,7 @@ test('addPlacement="header" puts an icon add button in each lane header', async 
 });
 
 test("a lane icon leads its title, and trailing renders after the last lane in the scroller", async () => {
+  await onDesktop();
   const initial = makeColumns().map((column, index) =>
     index === 0 ? { ...column, icon: <svg aria-hidden="true" /> } : column,
   );
@@ -1031,6 +1040,7 @@ test("loading: lane shells only — no cards, no counts — and the board is bus
 });
 
 test("a lane loading its first cards shows no count", async () => {
+  await onDesktop();
   const columns = makeColumns().map((column) =>
     column.id === "won" ? { ...column, items: [], loading: true } : column,
   );
@@ -1084,4 +1094,18 @@ test('emptyLane="collapse": bringing back a collapsed lane focuses its expand st
       "board-column-collapsed",
     ),
   );
+});
+
+test("POL-17: on a phone with lane tabs, a lane header drops the title and count the tab already shows", async () => {
+  const screen = await render(<Controlled />);
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="board-lane-tabs"]'))
+    .not.toBeNull();
+  const header = screen.container.querySelector(
+    '[data-slot="board-column-header"]',
+  )!;
+  expect(header.hasAttribute("data-tabbed")).toBe(true);
+  expect(header.querySelector('[data-slot="board-column-title"]')).toBeNull();
+  expect(header.querySelector('[data-slot="board-column-count"]')).toBeNull();
+  await expectNoA11yViolations(screen.container);
 });

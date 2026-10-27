@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.25.90 sha256-sLxKJ8rJpv/4x3UIreTap2tboMefLwVlMJhMz73Mm/k=
+// @vegastack inline-chip@0.25.90 sha256-19c+5uNaKZ2f8fY8ilCFJCCj2Rmu94bJwmWYu8kAXRs=
 
 "use client";
 
@@ -18,12 +18,15 @@ import {
 /* ------------------------------------------------------------------------------------------------
  * InlineChip — the one inline reference in running text: a person, an agent, a file or any record
  * kind the host names (`InlineChipResolver.kinds`), in an editor, a rendered Markdown body or a
- * comment. It is an INLINE box, never inline-flex: an inline-flex box whose first item is an icon
- * takes its baseline from the icon's bottom edge, which lifts the label above the text beside it.
- * Here the label is ordinary inline text on the line's own baseline, the icon is a 1em glyph nudged down by the usual
- * `-0.125em`, and the tint is the inline box's own background — so the chip reads at the size,
- * baseline and line height of whatever it sits in (a paragraph, a heading, a list item) and wraps
- * with it (`box-decoration-clone` keeps the ground and padding on both lines).
+ * comment. It is an inline-BLOCK that never wraps, never inline-flex: an inline-flex box whose
+ * first item is an icon takes its baseline from the icon's bottom edge, which lifts the label above
+ * the text beside it. Here the label is ordinary text on the line's own baseline, the icon is a 1em
+ * glyph nudged down by the usual `-0.125em`, and the tint is the box's own background — so the
+ * chip reads at the size, baseline and line height of whatever it sits in (a paragraph, a
+ * heading, a list item). The chip is one unit (Regent POL-25): its icon and label never part
+ * across a line break, and a chip wider than its line is cut with an ellipsis at `max-w-full`.
+ * The cut is `overflow: clip`, not `hidden`: a `hidden` inline-block takes its baseline from its
+ * bottom edge and drops off the line, while `clip` keeps the text's own baseline.
  * ----------------------------------------------------------------------------------------------*/
 
 /**
@@ -208,15 +211,17 @@ const toneOf = (kind: InlineChipKind) =>
   kind === "user" ? PERSON_TONE : RECORD_TONE;
 
 /**
- * The chip's box: inline, padded 4px each side, the small radius, cloned on a wrap. It never
+ * The chip's box: one unbroken inline-block line, padded 4px each side, the small radius, cut
+ * with an ellipsis at the line's width. It is an inline target in running text (WCAG 2.5.8's
+ * inline exception), so the `before:` hit area clipped with it is a nicety, not the target. It never
  * spellchecks (a name is not a misspelling) and is atomic text in an editor. The ink is a
  * custom property worn by an inner span, so a prose root's link colour (`[&_a]:text-…`, which
  * out-specifies a class on the `<a>`) never reaches the label; `inlineChipProseClassName` undoes
- * the prose underline. A `before:` hit area lifts the line to a 24px target without moving
+ * the prose underline. A `before:` hit area, 1px past the 22px box each way, makes a 24px target without moving
  * anything.
  */
 const CHIP =
-  "relative box-decoration-clone rounded-sm px-1 py-px font-medium no-underline transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] data-restricted:bg-muted data-restricted:[--inline-chip-ink:var(--color-muted-foreground)] data-interactive:cursor-pointer data-interactive:hover:underline data-interactive:hover:decoration-(--inline-chip-ink)/40 data-interactive:hover:underline-offset-2";
+  "relative inline-block max-w-full overflow-x-clip text-ellipsis -my-px whitespace-nowrap rounded-sm px-1 py-px font-medium no-underline transition-colors before:absolute before:inset-x-0 before:-inset-y-px before:content-[''] data-restricted:bg-muted data-restricted:[--inline-chip-ink:var(--color-muted-foreground)] data-interactive:cursor-pointer data-interactive:hover:underline data-interactive:hover:decoration-(--inline-chip-ink)/40 data-interactive:hover:underline-offset-2";
 
 /** The leading glyph: 1em, a hair below the baseline's centre like any inline icon, muted. */
 const ICON =
@@ -335,16 +340,6 @@ const CARD_KEEPING_KEYS = new Set([
   "CapsLock",
   "Tab",
 ]);
-
-/** The longest first word kept on the lead's line (longer ones wrap like any text). */
-const LEAD_WORD_MAX = 16;
-
-/** A label's first word (with any leading space) and the rest, which starts at the next space. */
-function splitFirstWord(label: string): { first: string; rest: string } {
-  const match = /^\s*\S*/.exec(label);
-  const end = match ? match[0].length : 0;
-  return { first: label.slice(0, end), rest: label.slice(end) };
-}
 
 /** A link or image URL that is relative or uses a safe protocol; anything else becomes `""`. */
 function safeUrl(value: string): string {
@@ -540,27 +535,14 @@ export function InlineChip({
     className: cn(CHIP, toneOf(kind), className),
     ...props,
   };
-  // The lead and the first word sit in a no-wrap run, so the line never breaks between them. A
-  // long first word (over `LEAD_WORD_MAX` characters) is left to wrap as the text around it does,
-  // so a narrow column can still break it. A struck label's line never
-  // crosses the lead: text decoration skips an inline-block.
-  const { first, rest } = splitFirstWord(label);
-  const words =
-    first.trim().length <= LEAD_WORD_MAX ? (
-      <>
-        <span data-slot="inline-chip-lead" className="whitespace-nowrap">
-          {lead}
-          {/* The word itself still wraps where the line can't hold it (a narrow column). */}
-          <span className="whitespace-normal">{first}</span>
-        </span>
-        {rest}
-      </>
-    ) : (
-      <>
-        {lead}
-        {label}
-      </>
-    );
+  // The chip never wraps, so the lead and the label always share a line. A struck label's line
+  // never crosses the lead: text decoration skips an inline-block.
+  const words = (
+    <>
+      {lead}
+      {label}
+    </>
+  );
   // The ink sits on an inner span, so a prose root's link colour on the `<a>` never reaches it.
   const body = (
     <span data-slot="inline-chip-label" className="text-(--inline-chip-ink)">

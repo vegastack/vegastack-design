@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ActionBarButton } from "./action-bar";
@@ -31,6 +31,13 @@ const data: Row[] = [
   { id: "b", name: "Bea", role: "Designer" },
   { id: "c", name: "Cole", role: "Manager" },
 ];
+
+/** A desktop-width board: the lane headers carry their titles and counts (a phone's lane strip
+ * names the lanes instead). The browser lane's default viewport is a phone's. */
+async function onDesktop() {
+  await page.viewport(1280, 800);
+  onTestFinished(() => page.viewport(414, 896));
+}
 
 test("renders column headers and row data", async () => {
   const screen = await render(
@@ -108,6 +115,7 @@ test("reflects the controlled sort via aria-sort + data-sorted", async () => {
       data={data}
       getRowId={(r) => r.id}
       sort={sort}
+      onSortChange={() => {}}
     />,
   );
   const head = screen.container.querySelector<HTMLElement>(
@@ -2870,6 +2878,7 @@ test("a clickable grid card holding an interactive column is a labelled group, n
 });
 
 test("board view passes each section's icon and ⋯ actions, a header add button and boardTrailing to the Board", async () => {
+  await onDesktop();
   const onAdd = vi.fn();
   const onHide = vi.fn();
   const screen = await render(
@@ -2961,10 +2970,17 @@ test("keyboardNavigation: the cursor follows the pointer and ignores keys typed 
   await userEvent.hover(screen.getByText("Cole"));
   const cole = document.querySelector('[data-row-id="c"]')!;
   expect(cole.hasAttribute("data-cursor")).toBe(true);
+  // The pointer's cursor is hover only: no start edge, which belongs to the open row (POL-01).
+  expect(cole.getAttribute("data-cursor")).toBe("pointer");
+  expect(cole.className).not.toContain("data-cursor:");
+  expect(cole.className).toContain("[&[data-cursor=key]>:first-child]:bg-");
   await userEvent.keyboard("k");
   expect(
     document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),
   ).toBe(true);
+  expect(
+    document.querySelector('[data-row-id="b"]')!.getAttribute("data-cursor"),
+  ).toBe("key");
   await userEvent.click(screen.getByRole("textbox", { name: "Search" }));
   await userEvent.keyboard("j");
   expect(
@@ -3474,5 +3490,34 @@ test("custom cells read the density from render's context and useDataListDensity
     screen.container.querySelectorAll('[data-slot="data-list-secondary"]')
       .length,
   ).toBe(3);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("D24: a sort set without onSortChange shows read-only — the glyph and aria-sort, no sort button", async () => {
+  const screen = await render(
+    <DataList
+      aria-label="People"
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      sort={{ key: "role", direction: "desc" }}
+    />,
+  );
+  const heads = Array.from(
+    screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="data-list-head"]',
+    ),
+  );
+  const role = heads.find((h) => h.textContent === "Role")!;
+  const name = heads.find((h) => h.textContent === "Name")!;
+  expect(role.getAttribute("aria-sort")).toBe("descending");
+  expect(
+    role.querySelector('[data-slot="data-table-sort-indicator"]'),
+  ).not.toBeNull();
+  // Neither the sorted column nor a `sortable` one is a sort button now.
+  expect(
+    screen.container.querySelector('[data-slot="data-table-sort"]'),
+  ).toBeNull();
+  expect(name.hasAttribute("aria-sort")).toBe(false);
   await expectNoA11yViolations(screen.container);
 });

@@ -1283,10 +1283,12 @@ for (const [name, fixture] of FIXTURES) {
         )
           continue;
         // An InlineChip (a mention or file link that opens or previews) is a target in a block
-        // of text by design: an inline box on the text's baseline, wrapping with its line.
+        // of text by design (WCAG 2.5.8's inline exception): one unbroken inline-block on the
+        // text's baseline, cut with an ellipsis at the line's width (POL-25). Blockified (a flex
+        // cell) it computes `block` and is measured like any other control.
         if (
           control.getAttribute("data-slot") === "inline-chip" &&
-          getComputedStyle(control).display === "inline"
+          ["inline", "inline-block"].includes(getComputedStyle(control).display)
         )
           continue;
 
