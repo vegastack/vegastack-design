@@ -347,6 +347,15 @@ test("typedFirstLine: a long text's first line as typed — the line-start escap
     "Hi Asha [R]!",
   );
   expect(typedFirstLine("")).toBe("");
+  // A hard break (Shift+Enter) ends the first line without its marker.
+  expect(typedFirstLine("1\\. QA first line\\\nsecond line")).toBe(
+    "1. QA first line",
+  );
+  expect(typedFirstLine("first line  \nsecond")).toBe("first line");
+  // An escaped backslash at the end is text.
+  expect(typedFirstLine("ends in \\\\\nnext")).toBe("ends in \\\\");
+  // With no next line there is no break to drop.
+  expect(typedFirstLine("only line \\")).toBe("only line \\");
 });
 
 test("mentionLabels: every mention link reads as its label; other text is untouched", () => {

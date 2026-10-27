@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.93 sha256-IIgF9gS2hyB2vSE9Fyc62iOxoN6iB+NjnMMhCdbVX3k=
+// @vegastack text-edit-grammar@0.25.93 sha256-FC+sneEhbdzG6sYnPb+zPHHVqYLzKBwvs0cfJytlQHk=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -418,14 +418,21 @@ const ESCAPED_LINE_START = new RegExp(
  * A long text's first line as the reader typed it — what a one-line cell or property shows. The
  * one escape `TextEdit` writes to keep a paragraph line from reading as block Markdown is undone
  * (a leading `&#32;` / `&#9;`, a backslash before a heading, quote, list, rule, setext, HTML or
- * live-block marker, `1\.` for a numbered line), and each mention link reads as its label.
+ * live-block marker, `1\.` for a numbered line), a hard break's marker at the line's end goes, and
+ * each mention link reads as its label.
  *
  * @example
  * typedFirstLine("\\# 1 [@Asha Rao](mention://user/u1)\nmore"); // "# 1 Asha Rao"
  */
 export function typedFirstLine(markdown: string): string {
   const end = markdown.indexOf("\n");
-  const line = end === -1 ? markdown : markdown.slice(0, end);
+  let line = end === -1 ? markdown : markdown.slice(0, end);
+  // A line that ends in a hard break (Shift+Enter: `\` before the newline, or two or more trailing
+  // spaces) loses the marker; an escaped backslash (`\\`) is text and stays.
+  if (end !== -1) {
+    const slashes = /\\*$/.exec(line)![0].length;
+    line = slashes % 2 === 1 ? line.slice(0, -1) : line.replace(/ {2,}$/, "");
+  }
   const typed = line.startsWith("&#32;")
     ? ` ${line.slice(5)}`
     : line.startsWith("&#9;")
