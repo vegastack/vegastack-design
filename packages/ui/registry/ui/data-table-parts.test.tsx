@@ -71,6 +71,30 @@ test("SectionRow is a rowgroup header with a disclosure and a muted count (DS-34
   await expectNoA11yViolations(screen.container);
 });
 
+test('SectionRow shows a count above 99 as "99+" and says the number', async () => {
+  const screen = await render(
+    <Table aria-label="Tasks">
+      <TableBody>
+        <SectionRow
+          id="later"
+          label="Later"
+          count={250}
+          colSpan={2}
+          expanded
+          onExpandedChange={() => {}}
+        />
+      </TableBody>
+    </Table>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Later, 250 rows" }))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="section-row-count"]')!
+      .textContent,
+  ).toBe("99+");
+});
+
 // ---- DS-32: row actions --------------------------------------------------------------------
 
 test("RowActionsMenu names its trigger from the row and runs an action (DS-32)", async () => {

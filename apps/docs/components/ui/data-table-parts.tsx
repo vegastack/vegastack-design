@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.89 sha256-U1YuVd5TD6kSEVEJBC+ML5UOtg5VJs7bxj8tvQMM/gw=
+// @vegastack data-table-parts@0.25.89 sha256-HLZdoDmlY4rPG+MvLP+cj5jiHkFdoHPSTAVpo3tJHsI=
 
 "use client";
 
@@ -1679,6 +1679,19 @@ export interface SectionToggleProps {
 const defaultCountLabel = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
 
 /**
+ * A count as a section or lane header shows it: the number up to 99, then `"99+"` — the cap the
+ * notification bell and the Inbox use. Pair it with the count's spoken label, which keeps the
+ * number the host passed (a host that counts only up to 100 says "more than 99" there).
+ *
+ * @example
+ * displayCount(14) // "14"
+ * displayCount(250) // "99+"
+ */
+export function displayCount(n: number): string {
+  return n > 99 ? "99+" : String(n);
+}
+
+/**
  * `SectionToggle` — the disclosure button a section or group header carries: a chevron, the
  * label, and a muted tabular count. DataGrid's group row and `SectionRow` both render it.
  *
@@ -1723,7 +1736,7 @@ export function SectionToggle({
             data-slot="section-row-count"
             className="text-muted-foreground tabular-nums"
           >
-            {count}
+            {displayCount(count)}
           </span>
           <span className="sr-only">, {countLabel(count)}</span>
         </>

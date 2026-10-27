@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.89 sha256-Me8b2CgLRVGlJP3T+YV2zRBbPleFk5DkYLnBnKobPFk=
+// @vegastack data-list@0.25.89 sha256-6rWCgKP4z0Xwf1ElMJgugPNaB+eNXPfmQO2RcEVsHDk=
 
 "use client";
 
@@ -25,6 +25,7 @@ import {
 import {
   columnCellClass,
   DEFAULT_COLUMN_MIN_WIDTH,
+  displayCount,
   EmptyRow,
   mergedValueClass,
   offscreenSortSummary,
@@ -1282,6 +1283,9 @@ function RowLink({
   }
   return <a {...props} />;
 }
+
+/** A section's count as a screen reader hears it, by default (`sectionCountLabel`). */
+const rowCount = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
 
 /**
  * `DataList<T>` — a generic, typed data table with row selection, sortable
@@ -2934,11 +2938,20 @@ export function DataList<T>({
             {group.label != null ? (
               <h3 className="text-sm font-medium">
                 {group.label}
-                <span className="font-normal text-muted-foreground">
+                <span
+                  aria-hidden="true"
+                  className="font-normal text-muted-foreground"
+                >
                   {" · "}
                   <span className="tabular-nums">
-                    {group.count ?? group.indexes.length}
+                    {displayCount(group.count ?? group.indexes.length)}
                   </span>
+                </span>
+                <span className="sr-only">
+                  ,{" "}
+                  {(sectionCountLabel ?? rowCount)(
+                    group.count ?? group.indexes.length,
+                  )}
                 </span>
               </h3>
             ) : null}

@@ -125,6 +125,30 @@ test("renders lanes with counts, cards as list items, and a locked empty lane", 
     .toBeInTheDocument();
 });
 
+test('counts above 99 show "99+"; the spoken names keep the number', async () => {
+  const initial = makeColumns().map((column) =>
+    column.id === "lead" ? { ...column, count: 250 } : column,
+  );
+  const screen = await render(
+    <Controlled
+      initial={initial}
+      countLabel={(n) => `${n} deals`}
+      hiddenColumns={[{ id: "lost", label: "Lost", count: 120 }]}
+      onShowColumn={() => {}}
+    />,
+  );
+  const lead = screen.getByRole("region", { name: "Lead, 250 deals" });
+  await expect.element(lead).toBeInTheDocument();
+  const count = (lead.element() as HTMLElement).querySelector(
+    '[data-slot="board-column-header"] [data-slot="board-column-count"]',
+  )!;
+  expect(count.textContent).toBe("99+");
+  expect(count.getAttribute("aria-hidden")).toBe("true");
+  await expect
+    .element(screen.getByRole("button", { name: /^Lost\s*,\s*120 deals$/ }))
+    .toBeInTheDocument();
+});
+
 test("lanes are 20rem wide by default, grow, and the scroller hides its scrollbar", async () => {
   await render(<Controlled />);
   const board = document.querySelector<HTMLElement>('[data-slot="board"]')!;
