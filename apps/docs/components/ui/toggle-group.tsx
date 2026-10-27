@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.25.94 sha256-ee4Ow9EFBr3GUt61acnLItA5gP+hMYpdOXTF5NWieso=
+// @vegastack toggle-group@0.25.95 sha256-4Z11VZE+1Qxa4tjnnZKIYX/n9r43VWU2Ql42vYJSylA=
 
 "use client";
 

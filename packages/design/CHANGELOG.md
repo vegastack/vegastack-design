@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.8.43
+
+### Patch Changes
+
+- [#825](https://github.com/vegastack/vegastack-design/pull/825) [`025f625`](https://github.com/vegastack/vegastack-design/commit/025f62579c63ec109d858cb9d40cebc3f68c39a8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **DataGrid** keeps a long primary value readable beside the row's Open button. The button and an editable value sat side by side as inline boxes, so a value long enough to fill the column overflowed the cell by the button's width, and the cell's ellipsis then replaced the whole value — its ref or leading content included — with a lone "…". The button and the value now share one flex row (`data-grid-cell-lead`), the value takes the width that is left, and a long value ends in its own ellipsis. [docs](https://design.vegastack.com/docs/components/data-grid)
+
+- [#826](https://github.com/vegastack/vegastack-design/pull/826) [`78b59e3`](https://github.com/vegastack/vegastack-design/commit/78b59e32db3d47196cb836db78533efa8c0ff3ff) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 A **DataList** `numeric` column (a date, a count) keeps its whole width on a narrow list's `line` meta line, like an end-aligned or `mono` one: the text values beside it truncate first, so "1w ago" never clips to "w ag". [docs](https://design.vegastack.com/docs/components/data-list)
+
 ## 0.8.42
 
 ### Patch Changes
