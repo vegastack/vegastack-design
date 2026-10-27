@@ -1,4 +1,4 @@
-// @vegastack toggle@0.25.88 sha256-klV3ldbbTUW3H4fUqHjOcOidxhSM5al++cZFPzVWr4g=
+// @vegastack toggle@0.25.88 sha256-qWQp0aT9J9QvcNKVErskAod/02xQ5eZlVwmZaIaRH3Y=
 
 "use client";
 
@@ -9,12 +9,13 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 
 const toggleVariants = cva(
-  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted aria-pressed:text-foreground data-[state=on]:bg-muted data-[state=on]:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
+  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-primary/10 aria-pressed:text-foreground aria-pressed:hover:bg-primary/15 data-[state=on]:bg-primary/10 data-[state=on]:text-foreground data-[state=on]:hover:bg-primary/15 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
   {
     variants: {
       variant: {
         default: "bg-transparent",
-        outline: "border border-input bg-transparent hover:bg-muted",
+        outline:
+          "border border-input bg-transparent hover:bg-muted aria-pressed:border-primary/30 data-[state=on]:border-primary/30",
       },
       size: {
         default:

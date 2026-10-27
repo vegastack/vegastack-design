@@ -140,6 +140,21 @@ test("API-5: the loading dim is scoped so a loading toggle is not dimmed twice",
   expect(toggleVariants({})).toContain("disabled:not-data-loading:opacity-50");
 });
 
+test("API-39: pressed takes a primary fill and a deeper hover, never upstream's muted hover fill", async () => {
+  const classes = toggleVariants().split(" ");
+  expect(classes).toContain("aria-pressed:bg-primary/10");
+  expect(classes).toContain("data-[state=on]:bg-primary/10");
+  expect(classes).toContain("aria-pressed:hover:bg-primary/15");
+  expect(classes).toContain("aria-pressed:text-foreground");
+  expect(classes).not.toContain("aria-pressed:bg-muted");
+  expect(classes).not.toContain("data-[state=on]:bg-muted");
+  // Unpressed keeps upstream's hover.
+  expect(classes).toContain("hover:bg-muted");
+  const outline = toggleVariants({ variant: "outline" }).split(" ");
+  expect(outline).toContain("aria-pressed:border-primary/30");
+  expect(outline).toContain("border-input");
+});
+
 test("no a11y violations — rest", async () => {
   const screen = await render(
     <div>

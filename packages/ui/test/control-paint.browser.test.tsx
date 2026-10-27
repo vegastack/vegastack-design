@@ -16,6 +16,7 @@ import { Switch } from "../registry/ui/switch";
 import { Textarea } from "../registry/ui/textarea";
 import { Toaster, toast } from "../registry/ui/toast";
 import { Toggle } from "../registry/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "../registry/ui/toggle-group";
 import { isTransparent } from "./color";
 
 /**
@@ -560,5 +561,50 @@ describe("Toggle — the loading label is hidden by a box that still holds the w
     expect(
       getComputedStyle(q.testId("busy-icon").parentElement!).columnGap,
     ).toBe(getComputedStyle(q.testId("idle-icon").parentElement!).columnGap);
+  });
+});
+
+describe("Toggle — API-39: pressed is a fill of its own, never the hover fill", () => {
+  /**
+   * Upstream paints a pressed toggle `bg-muted`, which is also its hover fill, so a pressed toggle
+   * and a hovered unpressed one looked the same (Regent UXT-25, the Show subtasks toggle). API-39
+   * fills pressed with the primary at 10% and moves the outline variant's pressed border to the
+   * primary at 30%. Compared against the `--muted` token and the unpressed twin, never a hue.
+   */
+  test("a pressed toggle (and a pressed ToggleGroup item) is not muted and not transparent", async () => {
+    const screen = await render(
+      <Stage>
+        <div data-testid="muted" className="size-4 bg-muted" />
+        <Toggle data-testid="off">Subtasks</Toggle>
+        <Toggle data-testid="on" defaultPressed>
+          Subtasks
+        </Toggle>
+        <Toggle data-testid="outline-off" variant="outline">
+          Subtasks
+        </Toggle>
+        <Toggle data-testid="outline-on" variant="outline" defaultPressed>
+          Subtasks
+        </Toggle>
+        <ToggleGroup aria-label="View" defaultValue={["list"]}>
+          <ToggleGroupItem data-testid="item-on" value="list">
+            List
+          </ToggleGroupItem>
+          <ToggleGroupItem value="board">Board</ToggleGroupItem>
+        </ToggleGroup>
+      </Stage>,
+    );
+    await settle();
+    const q = within(screen.container);
+    const bg = (id: string) => getComputedStyle(q.testId(id)).backgroundColor;
+    const muted = numbers(bg("muted"));
+    expect(isTransparent(bg("off"))).toBe(true);
+    for (const id of ["on", "outline-on", "item-on"]) {
+      expect(isTransparent(bg(id))).toBe(false);
+      expect(numbers(bg(id))).not.toEqual(muted);
+    }
+    expect(bg("item-on")).toBe(bg("on"));
+    const border = (id: string) =>
+      getComputedStyle(q.testId(id)).borderTopColor;
+    expect(border("outline-on")).not.toBe(border("outline-off"));
   });
 });

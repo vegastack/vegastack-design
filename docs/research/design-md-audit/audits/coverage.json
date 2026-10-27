@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "59864832e0c4bbec8f7ce108dff81b38605e7c2bea992922537608dc8f848833",
+  "contractSha256": "67708d0d16060c3881a5dd56873db79222b65a3977359d9e06beae0b3d58971e",
   "inventory": {
-    "expected": 761,
-    "actual": 761,
-    "unique": 761
+    "expected": 764,
+    "actual": 764,
+    "unique": 764
   },
   "classes": {
-    "components": 173,
+    "components": 176,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -88,8 +88,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 25,
+      "actual": 25,
       "members": [
         "accordion",
         "app-shell",
@@ -102,12 +102,14 @@
         "direction",
         "document-layout",
         "folder-tree",
+        "help-menu",
         "menubar",
         "multi-step-form",
         "navigation-menu",
         "pagination",
         "record-layout",
         "resizable",
+        "route-tabs",
         "scroll-area",
         "settings-layout",
         "sidebar",
@@ -117,12 +119,13 @@
       ]
     },
     "Overlays": {
-      "expected": 22,
-      "actual": 22,
+      "expected": 23,
+      "actual": 23,
       "members": [
         "access-chip",
         "action-bar",
         "alert-dialog",
+        "command-search",
         "context-menu",
         "dialog",
         "drawer",
@@ -823,7 +826,7 @@
       ]
     }
   },
-  "componentRoutes": 167,
+  "componentRoutes": 170,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

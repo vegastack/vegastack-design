@@ -1,0 +1,179 @@
+---
+title: Command Search
+description: The search palette, results first — one-row scope chips with More, results to 520px, stale results dimmed while a search runs.
+audience: public
+registry: command-search
+status: stable
+since: 0.25.89
+a11y: dialog, combobox, listbox; aria-busy while searching
+preview: commandSearch
+---
+
+## Install
+
+<InstallSteps name="command-search" />
+
+## Usage
+
+```tsx
+"use client";
+
+import {
+  CommandSearch,
+  CommandSearchInput,
+  CommandSearchResults,
+  CommandSearchScopes,
+  CommandSearchSections,
+} from "@/components/ui/command-search";
+import {
+  CommandFooter,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { useAsyncSearch } from "@/components/ui/use-async-search";
+
+export function SearchPalette({ open, onOpenChange }: Props) {
+  const [scope, setScope] = React.useState("all");
+  const [archived, setArchived] = React.useState(false);
+  // Debounced and abortable; an answer that arrives after a newer request started is dropped.
+  const search = useAsyncSearch(
+    (q, { signal }) => api.search({ q, scope, archived }, { signal }),
+    { enabled: open, deps: [scope, archived] },
+  );
+  return (
+    <CommandSearch
+      open={open}
+      onOpenChange={onOpenChange}
+      pending={search.loading}
+    >
+      <CommandSearchInput
+        value={search.query}
+        onValueChange={search.onSearchChange}
+      />
+      <CommandSearchScopes
+        scopes={SCOPES}
+        value={scope}
+        onValueChange={setScope}
+        includeArchived={archived}
+        onIncludeArchivedChange={setArchived}
+      />
+      <CommandSearchResults>
+        {search.query ? (
+          <Results items={search.items} />
+        ) : (
+          <CommandSearchSections
+            recent={recent}
+            create={create}
+            places={places}
+          />
+        )}
+      </CommandSearchResults>
+      <CommandFooter />
+    </CommandSearch>
+  );
+}
+```
+
+A search palette is for finding things, so the results get the room: the scope chips sit on one
+line that never wraps — whatever does not fit goes into **More**, with "Include archived" — and the
+results run to `min(60dvh, 520px)`. While a new answer is on its way the old one stays, dimmed and
+marked busy, with a thin bar running under the input, so stale results never read as the answer to
+what was just typed. Pair it with `useAsyncSearch`, which drops out-of-order answers, and pass its
+`loading` as `pending`.
+
+## Scope
+
+- Owns: the palette frame (a `CommandDialog` holding a `Command` that does not filter), the
+  one-row scope chips and their More overflow, the archived toggle, the results' height cap, the
+  in-flight dimming and progress bar, the start sections' order, and the preview pane.
+- Does not own: searching — the host's loader and `useAsyncSearch` — the results' rows, opening a
+  result, or recents.
+- Compose with: `CommandGroup`, `CommandItem` and `CommandEmpty` for the results, and
+  `CommandFooter` for key hints.
+
+## Anatomy
+
+<Anatomy name="command-search" />
+
+## Examples
+
+### Results first
+
+Open the palette: with nothing typed it lists Recent, Create and Places, in that order. Type to
+search — each answer takes 700ms here, so the bar under the input and the dimmed stale results are
+visible. Pick a scope from the chips or from More; a scope picked from More names its trigger.
+
+<ComponentPreview
+  name="commandSearch"
+  file="components/preview/command-search.tsx"
+/>
+
+### Preview pane
+
+Pass `preview` with the highlighted result's summary and, from 1280px of viewport, the palette
+widens and shows it beside the results. Below 1280px the pane is not shown.
+
+<ComponentPreview
+  name="commandSearchPreview"
+  file="components/preview/command-search.tsx"
+/>
+
+## API Reference
+
+### CommandSearch
+
+<ApiTable
+  path="../../packages/ui/registry/ui/command-search.tsx"
+  name="CommandSearchProps"
+/>
+
+It also takes `Command`'s props (`value`, `onValueChange`, `onKeyDown`, `resultsLabel`).
+
+### CommandSearchInput
+
+`CommandInput`'s props; the placeholder defaults to "Search or jump to…".
+
+### CommandSearchScopes
+
+<ApiTable
+  path="../../packages/ui/registry/ui/command-search.tsx"
+  name="CommandSearchScopesProps"
+/>
+
+### CommandSearchResults
+
+`CommandList`'s props.
+
+### CommandSearchSections
+
+<ApiTable
+  path="../../packages/ui/registry/ui/command-search.tsx"
+  name="CommandSearchSectionsProps"
+/>
+
+## Accessibility
+
+- The palette is a labelled dialog around cmdk's combobox and listbox; the result count is
+  announced by `Command` (`resultsLabel`).
+- While `pending`, the results are `aria-busy`; the progress bar is decorative.
+- The visible chips are a toggle group named "Search in"; More is a menu button whose name is the
+  scope it holds, and says "(Include archived)" while archived items are included.
+- <kbd>Enter</kbd>, <kbd>↑</kbd>/<kbd>↓</kbd> and <kbd>Home</kbd>/<kbd>End</kbd>
+  on a chip or in the More menu stay with that control instead of moving the
+  results' selection.
+
+| Key                         | Action                                     |
+| --------------------------- | ------------------------------------------ |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves through the results (from the input) |
+| <kbd>Enter</kbd>            | Opens the selected result                  |
+| <kbd>Tab</kbd>              | Moves to the scope chips and More          |
+| <kbd>Escape</kbd>           | Closes the palette                         |
+
+<StatesTested name="command-search" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the scopes on one line and let More hold the rest; dim the old answer while the next one loads."
+  dont="Wrap the chips onto a second row above a five-result list, or leave stale results looking current."
+/>

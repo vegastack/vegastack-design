@@ -69,6 +69,17 @@ While counts load, a `Skeleton` stands in for the value and the label keeps nami
 
 <ComponentPreview name="statLinkedTiles" file="components/preview/stat.tsx" />
 
+### Stat group
+
+`StatGroup` is a compact row of inline stats — "Overdue 1 · Today 3 · Upcoming 12" — in one
+hairline-divided strip, for a home page or a dashboard header where four tiles would take a whole
+row. It follows its own width, not the viewport: one row of equal cells from 24rem, a 2×2 grid
+below. A cell with an `href` is a link through `linkRender` (your router's `Link`), named label
+first. `undefined` is loading (a skeleton holds the value's line), `null` is a failed read ("—" and
+`errorLabel`, never 0), and `hideWhenAllZero` renders nothing when every value is exactly zero.
+
+<ComponentPreview name="statGroup" file="components/preview/stat.tsx" />
+
 ### Loading
 
 `StatSkeleton` is a Stat while it loads — a label bar over a value bar at the Stat's own `size` —
@@ -98,12 +109,22 @@ elements.
   name="StatSkeletonProps"
 />
 
+### StatGroup
+
+<ApiTable path="../../packages/ui/registry/ui/stat.tsx" name="StatGroupProps" />
+
+Each item:
+
+<ApiTable path="../../packages/ui/registry/ui/stat.tsx" name="StatGroupItem" />
+
 ## Accessibility
 
 - Keep the label visible so the value has an adjacent human-readable name.
 - Delta copy carries direction with words or a sign; color is supplementary.
 - Use `StatEmpty` for missing data instead of a dash or a misleading numeric zero.
 - Tabular numerals keep changing values aligned without changing their spoken representation.
+- A `StatGroup` cell that is loading is `aria-busy`; its dash on a failed read is hidden from
+  assistive technology, which hears `errorLabel` instead.
 
 <StatesTested name="stat" />
 

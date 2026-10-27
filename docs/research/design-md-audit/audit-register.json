@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "59864832e0c4bbec8f7ce108dff81b38605e7c2bea992922537608dc8f848833",
+  "contractSha256": "67708d0d16060c3881a5dd56873db79222b65a3977359d9e06beae0b3d58971e",
   "expectedCounts": {
-    "totalRegistryItems": 761,
-    "components": 173,
+    "totalRegistryItems": 764,
+    "components": 176,
     "animatedIcons": 467,
     "hooks": 17,
     "blocks": 15,
@@ -1926,6 +1926,39 @@
         "packages/ui/registry/ui/record-header.tsx"
       ],
       "docsSlug": "/docs/components/record-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "help-menu",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/help-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/help-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "route-tabs",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/route-tabs.tsx"
+      ],
+      "docsSlug": "/docs/components/route-tabs",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "command-search",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/command-search.tsx"
+      ],
+      "docsSlug": "/docs/components/command-search",
       "contractStatus": "reconciled"
     },
     {
@@ -7306,7 +7339,7 @@
       "wave": "Block",
       "family": "starter-block",
       "sourceFiles": [
-        "packages/ui/registry/blocks/command-search-01/components/command-search.tsx",
+        "packages/ui/registry/blocks/command-search-01/components/search-palette.tsx",
         "packages/ui/registry/blocks/command-search-01/components/sample-search.ts",
         "packages/ui/registry/blocks/command-search-01/page.tsx"
       ],

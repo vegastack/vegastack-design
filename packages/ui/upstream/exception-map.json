@@ -241,7 +241,8 @@
     "TYP-19": ["dialog"],
     "API-35": ["select"],
     "API-36": ["attachment", "badge", "popover", "sheet", "skeleton"],
-    "OVL-22": ["sheet"]
+    "OVL-22": ["sheet"],
+    "API-39": ["toggle"]
   },
   "advisory": {
     "A11Y-2": [
