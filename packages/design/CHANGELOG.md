@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.40
+
+### Patch Changes
+
+- [#817](https://github.com/vegastack/vegastack-design/pull/817) [`103f084`](https://github.com/vegastack/vegastack-design/commit/103f084c5f8a9a8b7a2d5443d53fec46713edc12) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 `vegastack-design check-updates` and the registry verification behind `add` retry transient registry failures before reporting the registry unreachable. A network error ("fetch failed"), a response cut off mid-read ("terminated"), a 5xx or a 429 gets up to three tries, with jittered exponential backoff, a 15-second timeout per try and `Retry-After` honoured (seconds or a date, up to 5 seconds). Item fetches still run at most eight at a time. A 404, a 401/403 or an integrity mismatch is still an answer and fails at once. This stops `--fail-on-update` from failing CI on a passing network flake. [docs](https://design.vegastack.com/docs/guides/troubleshooting)
+
 ## 0.8.39
 
 ### Patch Changes
