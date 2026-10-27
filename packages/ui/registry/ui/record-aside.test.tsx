@@ -54,6 +54,23 @@ test("a collapsible section folds from its title and keeps its count and action"
   await expectNoA11yViolations(screen.container);
 });
 
+test("an expanded section's trigger does not keep the ghost popup-open fill (disclosure-trigger)", async () => {
+  const screen = await render(
+    <RecordAsideSection collapsible title="Subtasks" count={3}>
+      <p>Three subtasks</p>
+    </RecordAsideSection>,
+  );
+  const toggle = screen
+    .getByRole("button", { name: "Subtasks 3" })
+    .element() as HTMLButtonElement;
+  expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  // This lane compiles no CSS: the contract is the shared recipe's literal on the trigger,
+  // the same one SectionToggle carries.
+  expect(toggle.className.split(/\s+/)).toContain(
+    "aria-expanded:not-hover:bg-transparent",
+  );
+});
+
 test("an empty collapsible section is its header alone", async () => {
   const screen = await render(
     <RecordAsideSection

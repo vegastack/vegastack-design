@@ -1972,7 +1972,8 @@
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -1985,7 +1986,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.89",
-        "integrity": "sha256-HLZdoDmlY4rPG+MvLP+cj5jiHkFdoHPSTAVpo3tJHsI="
+        "integrity": "sha256-FHcIhkPD1Zr3eSOU8pjd7igbWOA9PlUOsLLy3t+r5rM="
       }
     },
     {
@@ -2449,6 +2450,30 @@
         "whenNotToUse": "Chrome that does not sit over media — use a plain Button.",
         "version": "0.25.89",
         "integrity": "sha256-fA0VcsYzVSI2F7R2jgE78KIL++g0C82HAS1kke4nJbc="
+      }
+    },
+    {
+      "name": "disclosure-trigger",
+      "type": "registry:lib",
+      "title": "Disclosure Trigger",
+      "description": "The one class recipe for a ghost Button that expands a section in place — clears the popup-open grey that aria-expanded paints, so an open section never looks pressed — shared by RecordAsideSection, SectionToggle, AgentPanel and ShareDialog.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/disclosure-trigger.ts",
+          "type": "registry:lib",
+          "target": "@lib/disclosure-trigger.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A ghost Button that is a CollapsibleTrigger or otherwise toggles a section open in place — put disclosureTriggerClasses in its className.",
+        "whenNotToUse": "A trigger that opens a popup (menu, popover, select) — there the aria-expanded grey is the right cue.",
+        "version": "0.25.89",
+        "integrity": "sha256-il+E2t6iT02kxnWP1i1Nui+d37MptfnqfoKCcFcPClM="
       }
     },
     {
@@ -17853,7 +17878,8 @@
         "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -17866,7 +17892,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.25.89",
-        "integrity": "sha256-6IGfRJzxRwsfIAzv6E60YWqi1nZErVZVDDjl1kBRSqA="
+        "integrity": "sha256-gceBF9tNX2sMSwzkHYiSHOZIklwaONPdpgI9eCwKluc="
       }
     },
     {
@@ -19874,7 +19900,8 @@
         "@vegastack/switch",
         "@vegastack/tabs",
         "@vegastack/textarea",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -19887,7 +19914,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members — MemberList.",
         "version": "0.25.89",
-        "integrity": "sha256-QAzKLpsdC5R3lVn+k57ISPER09eLrCKKL5F1wqaAcDU="
+        "integrity": "sha256-g5mHzJjxxiUL41fxhvDJve1gD9ckyd2EvGG+CHl88hE="
       }
     },
     {
@@ -22949,7 +22976,8 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/disclosure-trigger"
       ],
       "files": [
         {
@@ -22962,7 +22990,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.25.89",
-        "integrity": "sha256-GaWPb7NGV90RYvmhm104k+88VU7Kq5RU3XexKK1euUM="
+        "integrity": "sha256-12klJKM0IpsyIk95uId00uGX2v/9/H3p5+yN/AdIpgE="
       }
     },
     {

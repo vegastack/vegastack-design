@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.89 sha256-HLZdoDmlY4rPG+MvLP+cj5jiHkFdoHPSTAVpo3tJHsI=
+// @vegastack data-table-parts@0.25.89 sha256-FHcIhkPD1Zr3eSOU8pjd7igbWOA9PlUOsLLy3t+r5rM=
 
 "use client";
 
@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
 
 /* ---
 The parts BOTH table renderers are built from. `DataList` (presentational) and
@@ -1716,14 +1717,13 @@ export function SectionToggle({
       {...(tabIndex !== undefined && { tabIndex })}
       aria-expanded={expanded}
       onClick={() => onExpandedChange(!expanded)}
-      // `aria-expanded` on upstream's ghost Button means "this control's POPUP is open", and it
-      // paints `bg-muted text-foreground` to say so. Here it means "this SECTION is expanded",
-      // the resting state of every section — so the two neutralisers keep the resting header
-      // quiet and leave hover and press to the variant.
+      // `aria-expanded` here means "this SECTION is expanded", not "a popup is open":
+      // `disclosureTriggerClasses` clears the ghost fill, and the header keeps its muted ink.
       className={cn(
         // design.md "Headings": a table section row is a group label.
         "-mx-2 min-w-0 justify-start text-xs font-medium text-muted-foreground",
-        "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
+        disclosureTriggerClasses,
+        "aria-expanded:text-muted-foreground",
         "[&_svg:not([class*='size-'])]:size-3",
       )}
     >
