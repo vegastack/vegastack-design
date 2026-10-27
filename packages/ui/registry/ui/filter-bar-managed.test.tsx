@@ -228,7 +228,7 @@ test("DS-28: a disabled add-group stays focusable with aria-disabled", async () 
     />,
   );
   const nested = screen
-    .getByRole("button", { name: "Add group" })
+    .getByRole("button", { name: "Add condition group" })
     .nth(0)
     .element() as HTMLButtonElement;
   expect(nested.getAttribute("aria-disabled")).toBe("true");
@@ -340,7 +340,9 @@ test("the depth cap disables add-group with a readable reason", async () => {
   );
   // The nested group (depth 2) is at the cap; its add-group is disabled.
   // DOM order: the nested group's footer renders before the root's.
-  const addGroupButtons = screen.getByRole("button", { name: "Add group" });
+  const addGroupButtons = screen.getByRole("button", {
+    name: "Add condition group",
+  });
   const nested = addGroupButtons.nth(0).element() as HTMLButtonElement;
   const root = addGroupButtons.nth(1).element() as HTMLButtonElement;
   expect(root.getAttribute("aria-disabled")).not.toBe("true");
@@ -372,7 +374,7 @@ test("the condition cap disables add-condition but never add-group (restructurin
     .element() as HTMLButtonElement;
   expect(addCondition.getAttribute("aria-disabled")).toBe("true");
   const addGroup = screen
-    .getByRole("button", { name: "Add group" })
+    .getByRole("button", { name: "Add condition group" })
     .element() as HTMLButtonElement;
   // An empty group adds zero conditions — at the cap the user may still
   // restructure the filter.
@@ -520,7 +522,9 @@ test("keyboard-only: build and remove a nested condition without a pointer", asy
   const screen = await render(<Controlled initial={EMPTY} />);
   // Add a group by keyboard.
   (
-    screen.getByRole("button", { name: "Add group" }).element() as HTMLElement
+    screen
+      .getByRole("button", { name: "Add condition group" })
+      .element() as HTMLElement
   ).focus();
   await userEvent.keyboard("{Enter}");
   expect(
@@ -1352,12 +1356,13 @@ test("GroupByPicker: two levels at most, each field once; read-only chips", asyn
     );
   }
   const screen = await render(<Harness />);
-  await screen.getByRole("button", { name: "Add group" }).click();
+  // One level set: the button adds the next, inner level.
+  await screen.getByRole("button", { name: "Add level" }).click();
   expect(document.querySelectorAll('[aria-label^="Group level"]')).toHaveLength(
     2,
   );
   await expect
-    .element(screen.getByRole("button", { name: "Add group" }))
+    .element(screen.getByRole("button", { name: "Add level" }))
     .toBeDisabled();
   await expectNoA11yViolations(screen.container);
   await screen.rerender(
@@ -1391,8 +1396,13 @@ test("SortBuilder and GroupByPicker: with every field already used, Add is disab
   await expect
     .element(screen.getByRole("button", { name: "Add sort" }))
     .toBeDisabled();
-  for (const add of screen.getByRole("button", { name: "Add group" }).all())
-    await expect.element(add).toBeDisabled();
+  await expect
+    .element(screen.getByRole("button", { name: "Add level" }))
+    .toBeDisabled();
+  // No level set: the button reads "Group by".
+  await expect
+    .element(screen.getByRole("button", { name: "Group by" }))
+    .toBeDisabled();
 });
 
 test("SortBuilder: changing a row's field keeps the row (its picker keeps focus); a disabled summary is inert", async () => {

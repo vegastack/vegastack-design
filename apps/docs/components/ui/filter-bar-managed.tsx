@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.25.90 sha256-DUBqvq5EsDTXzojzdGBBpZ9XQG3Xo/5c+kqOKQfWEfI=
+// @vegastack filter-bar-managed@0.25.90 sha256-UOn9EZjQupy5u9D+qNMeBsIfaT6UbT2ezsGNQvbNJwg=
 
 "use client";
 
@@ -366,6 +366,8 @@ export interface FilterBuilderLabels {
   matchAny: string;
   /** The add-condition button. */
   addCondition: string;
+  /** The button that adds a nested group of conditions. */
+  addGroup: string;
   /** The read-only summary of an empty tree. */
   empty: string;
   /** A missing value's message. */
@@ -384,6 +386,7 @@ const DEFAULT_LABELS: FilterBuilderLabels = {
   matchAll: "All conditions match",
   matchAny: "Any condition matches",
   addCondition: "Add condition",
+  addGroup: "Add condition group",
   empty: "No filters",
   valueRequired: "Value required",
   field: "Field",
@@ -1258,7 +1261,7 @@ export function FilterBuilder<V = unknown>({
                 )
               }
             >
-              <Plus /> Add group
+              <Plus /> {labels.addGroup}
             </Button>
           ) : null}
           {/* Cap reasons render as VISIBLE text beside the affordance, readable by everyone. */}
@@ -1971,6 +1974,19 @@ export function SortBuilder({
   );
 }
 
+/** The words `GroupByPicker` shows. */
+export interface GroupByPickerLabels {
+  /** The add button while no level is set. */
+  groupBy: string;
+  /** The add button once a level is set: the next, inner level. */
+  addLevel: string;
+}
+
+const GROUP_BY_LABELS: GroupByPickerLabels = {
+  groupBy: "Group by",
+  addLevel: "Add level",
+};
+
 /** Props accepted by `GroupByPicker`. */
 export interface GroupByPickerProps {
   /** The fields that can group — the same vocabulary `FilterBuilder` takes. */
@@ -1999,6 +2015,11 @@ export interface GroupByPickerProps {
    * @default "Group by"
    */
   "aria-label"?: string;
+  /**
+   * The component's words: the add button reads "Group by" with no level set, then "Add level".
+   * @default English
+   */
+  labels?: Partial<GroupByPickerLabels>;
   /** Extra classes for the root.
    * @default undefined
    */
@@ -2007,7 +2028,7 @@ export interface GroupByPickerProps {
 
 /**
  * `GroupByPicker` — up to two grouping levels, outermost first: a field per row, drag to reorder,
- * × to remove, "Add group" for the next free field. `readOnly` shows them as `FilterChip`s. The
+ * × to remove, "Group by" (then "Add level") for the next free field. `readOnly` shows them as `FilterChip`s. The
  * host groups.
  *
  * @example
@@ -2025,8 +2046,10 @@ export function GroupByPicker({
   readOnly = false,
   disabled = false,
   "aria-label": ariaLabel = "Group by",
+  labels: labelsProp,
   className,
 }: GroupByPickerProps) {
+  const labels = { ...GROUP_BY_LABELS, ...labelsProp };
   const labelOf = (key: string) =>
     vocabulary.find((f) => f.key === key)?.label ?? key;
   const free = remaining(vocabulary, value);
@@ -2110,7 +2133,7 @@ export function GroupByPicker({
           if (next) onChange([...value, next.key]);
         }}
       >
-        <Plus /> Add group
+        <Plus /> {value.length === 0 ? labels.groupBy : labels.addLevel}
       </Button>
     </div>
   );

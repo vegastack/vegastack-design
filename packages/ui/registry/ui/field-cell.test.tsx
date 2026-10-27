@@ -509,7 +509,8 @@ test("FieldCellEditor: a picker opens its list or calendar with the editor; long
     />,
   );
   await expect.element(screen.getByRole("listbox")).toBeVisible();
-  // Focus is on a control the reader can use — never a picker's hidden form input.
+  // Focus goes to the list's search field — never a picker's hidden form input.
+  await expect.element(screen.getByLabelText("Search options")).toHaveFocus();
   expect(document.activeElement?.getAttribute("aria-hidden")).not.toBe("true");
   await userEvent.keyboard("{ArrowDown}{Enter}");
   await expect.poll(() => choose.mock.calls.length).toBe(1);
