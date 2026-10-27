@@ -13128,14 +13128,19 @@
             "filling",
             "recalculating",
             "read-only",
-            "invalid"
+            "invalid",
+            "hover",
+            "saving",
+            "error",
+            "conflict",
+            "disabled"
           ],
-          "evidence": "FieldCellDisplay per type with filling/recalculating states; FieldCellEditor commit/cancel; FieldInput controlled per type; read-only types; URL/email/phone validation."
+          "evidence": "FieldCellDisplay per type with filling/recalculating states; FieldCellEditor commit/cancel; FieldInput controlled per type; read-only types; URL/email/phone validation. FieldProperty: a quiet hover wash on an editable value; saving shows a spinner after 300ms; a rejected save rolls back with a Retry toast; a conflict note under the value; disabled and read-only show no hover and never edit."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["keyboard", "labeled", "aria-invalid"],
-          "evidence": "Every editor named by the field; Escape cancels, Enter commits text, pickers commit on choice; aria-invalid on invalid input; truncated text reveals on focus; overflow counts read in full by screen readers."
+          "values": ["keyboard", "labeled", "aria-invalid", "focus-management"],
+          "evidence": "Every editor named by the field; Escape cancels, Enter commits text, pickers commit on choice; aria-invalid on invalid input; truncated text reveals on focus; overflow counts read in full by screen readers. FieldProperty: standalone or managed focus (managed removes every tab stop; the host opens the editor through `editing`); focus returns to the Edit pencil only when it would be lost."
         },
         "visual": {
           "status": "observed",
@@ -13154,9 +13159,9 @@
         }
       },
       "responsive": {
-        "status": "none-observed",
+        "status": "observed",
         "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "One line, truncating within its cell; overflow becomes +N."
+        "rationale": "One line, truncating within its cell; overflow becomes +N. FieldProperty stacks the value full width under its label below 40rem (max-sm)."
       },
       "motion": {
         "status": "not-applicable",

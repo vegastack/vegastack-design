@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.91 sha256-HY6tvwRqeEX+R5SDBqs/DXSmzBDd2OONX5VpO8PZMJI=
+// @vegastack field-cell@0.25.91 sha256-Y+q0Qlzs3QgJ3R4hq7qzMFfvdOPJhD12LaqMhDLIO08=
 
 "use client";
 
@@ -1987,17 +1987,41 @@ export interface FieldPropertyProps {
    * @default "standalone"
    */
   focusMode?: "standalone" | "managed";
+  /**
+   * Controlled edit mode: a `managed` host opens the editor (its own Enter, a "Edit all fields"
+   * pass). Omit it and the row opens on a click, <kbd>Enter</kbd> or a typed character.
+   * @default undefined
+   */
+  editing?: boolean;
+  /** Called when the row opens or closes its editor. @default undefined */
+  onEditingChange?: (editing: boolean) => void;
   /** Raise the error toast with Retry when `onSave` rejects. @default true */
   saveErrorToast?: boolean;
   /** Extra classes for the row. @default undefined */
   className?: string;
 }
 
-/** A field value as `EditableCell`'s string: `""` for empty, else its JSON. */
+/** JSON with object keys in sorted order: one string per value, whatever order its keys came in. */
+function stableJson(value: unknown): string {
+  return JSON.stringify(value, (_key, inner: unknown) =>
+    inner && typeof inner === "object" && !Array.isArray(inner)
+      ? Object.fromEntries(
+          Object.keys(inner as Record<string, unknown>)
+            .sort()
+            .map((key) => [key, (inner as Record<string, unknown>)[key]]),
+        )
+      : inner,
+  );
+}
+
+/**
+ * A field value as `EditableCell`'s string: `""` for empty, else its key-sorted JSON — so the same
+ * person picked again (keys in another order) is the same string, and saves nothing.
+ */
 function propertyString(value: FieldValue): string {
   if (value == null || value === "") return "";
   if (Array.isArray(value) && value.length === 0) return "";
-  return JSON.stringify(value);
+  return stableJson(value);
 }
 
 /** The value back from `propertyString`. */
@@ -2080,11 +2104,13 @@ function CheckboxProperty({
   value,
   onSave,
   saveErrorToast,
+  managed,
 }: {
   label: string;
   value: FieldValue;
   onSave: ((next: FieldValue) => void | Promise<void>) | undefined;
   saveErrorToast: boolean;
+  managed: boolean;
 }) {
   const { pending, saving, spinner, save, Announcer } = usePropertySave(
     label,
@@ -2098,25 +2124,27 @@ function CheckboxProperty({
       aria-busy={saving || undefined}
       className="inline-flex items-center gap-1.5"
     >
-      <FieldCellDisplay
-        type="checkbox"
-        value={shown === true}
-        label={label}
-        onToggle={onSave ? (next) => save(next) : undefined}
-      />
+      {/* `managed`: the host's roving focus owns reachability — no tab stop of its own. */}
+      <TruncationFocusProvider focusable={!managed}>
+        <FieldCellDisplay
+          type="checkbox"
+          value={shown === true}
+          label={label}
+          onToggle={onSave ? (next) => save(next) : undefined}
+        />
+      </TruncationFocusProvider>
       {spinner ? <PropertySpinner /> : null}
       <Announcer />
     </span>
   );
 }
 
-/** The types whose value holds its own links (a URL, a record chip, a file): no edit button over it. */
+/** The types whose value holds its own links (a URL, a record chip): no edit button over it. */
 const LINKED_PROPERTY_TYPES: ReadonlySet<FieldType> = new Set([
   "url",
   "email",
   "phone",
   "link",
-  "file",
 ]);
 
 /**
@@ -2133,6 +2161,9 @@ function LinkedProperty({
   onSave,
   emptyText,
   saveErrorToast,
+  managed,
+  editing,
+  setEditing,
 }: {
   label: string;
   type: FieldType;
@@ -2141,18 +2172,27 @@ function LinkedProperty({
   onSave: (next: FieldValue) => void | Promise<void>;
   emptyText: string;
   saveErrorToast: boolean;
+  managed: boolean;
+  editing: boolean;
+  setEditing: (editing: boolean) => void;
 }) {
-  const [editing, setEditing] = React.useState(false);
   const trigger = React.useRef<HTMLButtonElement>(null);
+  const root = React.useRef<HTMLSpanElement>(null);
   const { pending, saving, spinner, save, Announcer } = usePropertySave(
     label,
     onSave,
     saveErrorToast,
   );
   const shown = pending ? pending.value : value;
+  // Focus comes back to the Edit pencil only when it would otherwise be lost (Enter, Escape, a
+  // pick); a click into another field keeps its focus there.
   const close = () => {
     setEditing(false);
-    requestAnimationFrame(() => trigger.current?.focus());
+    requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (!active || active === document.body || root.current?.contains(active))
+        trigger.current?.focus();
+    });
   };
   let body: React.ReactNode;
   if (editing)
@@ -2177,6 +2217,7 @@ function LinkedProperty({
         size="xs"
         data-slot="field-property-edit"
         aria-label={`Edit ${label}`}
+        tabIndex={managed ? -1 : undefined}
         onClick={() => setEditing(true)}
         className="-mx-1.5 -my-0.5 h-auto min-h-6 px-1.5 text-sm font-normal text-muted-foreground"
       >
@@ -2186,13 +2227,17 @@ function LinkedProperty({
   else
     body = (
       <>
-        <FieldCellDisplay type={type} value={shown} config={config} />
+        {/* `managed`: the host's roving focus owns reachability, so the links are no tab stops. */}
+        <TruncationFocusProvider focusable={!managed}>
+          <FieldCellDisplay type={type} value={shown} config={config} />
+        </TruncationFocusProvider>
         <Button
           ref={trigger}
           variant="ghost"
           size="icon-xs"
           data-slot="field-property-edit"
           aria-label={`Edit ${label}`}
+          tabIndex={managed ? -1 : undefined}
           onClick={() => setEditing(true)}
           className="shrink-0 opacity-0 group-hover/linked:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
         >
@@ -2202,6 +2247,7 @@ function LinkedProperty({
     );
   return (
     <span
+      ref={root}
       data-slot="field-property-linked"
       aria-busy={saving || undefined}
       className="group/linked inline-flex max-w-full min-w-0 items-center gap-1"
@@ -2210,6 +2256,74 @@ function LinkedProperty({
       {spinner ? <PropertySpinner /> : null}
       <Announcer />
     </span>
+  );
+}
+
+/**
+ * Long text edited in place: the document editor grows with its text where the value was (no
+ * popover, no box), with the `@` menu when `config.mentions` is given. Focus leaving it commits a
+ * change (or closes it unchanged), <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> commits, and
+ * <kbd>Escape</kbd> reverts.
+ */
+function LongTextPropertyEditor({
+  label,
+  value,
+  seed,
+  config,
+  onCommit,
+  onCancel,
+}: {
+  label: string;
+  value: FieldValue;
+  seed?: string;
+  config: FieldConfig;
+  onCommit: (value: FieldValue) => void;
+  onCancel: () => void;
+}) {
+  const handle = React.useRef<TextEditHandle>(null);
+  const done = React.useRef(false);
+  const start = seed ?? (typeof value === "string" ? value : "");
+  React.useEffect(() => {
+    handle.current?.focus("end");
+  }, []);
+  const finish = (markdown: string) => {
+    if (done.current) return;
+    done.current = true;
+    onCommit(markdown.trim() === "" ? null : markdown);
+  };
+  return (
+    <div
+      data-slot="field-property-long-text"
+      className="w-full min-w-0"
+      onBlur={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget as Node | null))
+          return;
+        // After the editor's own blur commit (a change), or closed unchanged.
+        setTimeout(() => {
+          if (done.current) return;
+          done.current = true;
+          onCancel();
+        }, 0);
+      }}
+    >
+      <TextEdit
+        format="markdown"
+        inset="none"
+        aria-label={label}
+        defaultValue={start}
+        handleRef={handle}
+        placeholder={config.placeholder}
+        mentions={config.mentions}
+        mentionHref={config.mentionHref}
+        mentionImage={config.mentionImage}
+        onCommit={finish}
+        onSubmit={finish}
+        onRevert={() => {
+          done.current = true;
+          onCancel();
+        }}
+      />
+    </div>
   );
 }
 
@@ -2243,13 +2357,26 @@ export function FieldProperty({
   disabled = false,
   emptyText = "Empty",
   focusMode = "standalone",
+  editing: editingProp,
+  onEditingChange,
   saveErrorToast = true,
   className,
 }: FieldPropertyProps) {
-  const [editing, setEditing] = React.useState(false);
+  const [editingState, setEditingState] = React.useState(false);
+  const editing = editingProp ?? editingState;
+  const setEditing = (open: boolean) => {
+    setEditingState(open);
+    onEditingChange?.(open);
+  };
+  const managed = focusMode === "managed";
   const [seed, setSeed] = React.useState<string | undefined>(undefined);
+  // Files have no in-place editor (uploads are the host's): they show, like the read-only types.
   const still =
-    readOnly || disabled || !onSave || READ_ONLY_FIELD_TYPES.has(type);
+    readOnly ||
+    disabled ||
+    !onSave ||
+    READ_ONLY_FIELD_TYPES.has(type) ||
+    type === "file";
   const text = propertyString(value);
   const shownEmpty = (
     <span
@@ -2267,6 +2394,7 @@ export function FieldProperty({
         value={value}
         onSave={still ? undefined : onSave}
         saveErrorToast={saveErrorToast}
+        managed={managed}
       />
     );
   else if (!still && LINKED_PROPERTY_TYPES.has(type))
@@ -2279,6 +2407,9 @@ export function FieldProperty({
         onSave={onSave!}
         emptyText={emptyText}
         saveErrorToast={saveErrorToast}
+        managed={managed}
+        editing={editing}
+        setEditing={setEditing}
       />
     );
   else if (still)
@@ -2316,17 +2447,27 @@ export function FieldProperty({
         )}
         editor={{
           type: "custom",
-          render: (slot) => (
-            <FieldCellEditor
-              type={type}
-              label={label}
-              value={propertyValue(slot.value)}
-              config={config}
-              seed={slot.seed}
-              onCommit={(next) => slot.commit(propertyString(next))}
-              onCancel={slot.cancel}
-            />
-          ),
+          render: (slot) =>
+            type === "long_text" ? (
+              <LongTextPropertyEditor
+                label={label}
+                value={propertyValue(slot.value)}
+                seed={slot.seed}
+                config={config}
+                onCommit={(next) => slot.commit(propertyString(next))}
+                onCancel={slot.cancel}
+              />
+            ) : (
+              <FieldCellEditor
+                type={type}
+                label={label}
+                value={propertyValue(slot.value)}
+                config={config}
+                seed={slot.seed}
+                onCommit={(next) => slot.commit(propertyString(next))}
+                onCancel={slot.cancel}
+              />
+            ),
         }}
         onSave={(next) => onSave(propertyValue(next))}
       />
@@ -2346,8 +2487,12 @@ export function FieldProperty({
     >
       <PropertyLabel icon={icon}>{label}</PropertyLabel>
       <PropertyValue
-        // A conflict note takes its own line under the value, in a flex (inline) value too.
-        className="flex-wrap"
+        className={cn(
+          // A conflict note takes its own line under the value, in a flex (inline) value too.
+          "flex-wrap",
+          // The quiet hover wash on an editable value, as a ghost picker in a task's properties.
+          "[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:transition-colors [&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:hover:bg-muted dark:[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:hover:bg-muted/50",
+        )}
         onKeyDown={
           still ||
           editing ||

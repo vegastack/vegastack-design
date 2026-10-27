@@ -1548,3 +1548,127 @@ test("FieldProperty: a linked value (a URL) stays a link; the Edit pencil beside
   expect(onSave).toHaveBeenCalledWith("https://vegastack.com");
   await expectNoA11yViolations(screen.container);
 });
+
+test("FieldProperty: the same person picked again (keys in another order) saves nothing", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Owner"
+        type="person"
+        value={{ name: "Asha", id: "u1" } as unknown as FieldValue}
+        config={{ people: [{ id: "u1", name: "Asha" }] }}
+        onSave={onSave}
+      />
+    </PropertyList>,
+  );
+  await userEvent.click(screen.getByText("Asha"));
+  const option = await vi.waitFor(() => {
+    const el = document.querySelector<HTMLElement>('[role="option"]');
+    if (!el) throw new Error("no option");
+    return el;
+  });
+  option.click();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onSave).not.toHaveBeenCalled();
+});
+
+test("FieldProperty: a file field shows its files and never edits", async () => {
+  const screen = await render(
+    <PropertyList aria-label="Fields">
+      <FieldProperty
+        label="Drawings"
+        type="file"
+        value={[{ id: "f1", name: "plan.pdf" }]}
+        onSave={() => {}}
+      />
+    </PropertyList>,
+  );
+  const row = screen.container.querySelector('[data-slot="field-property"]')!;
+  expect(row.hasAttribute("data-read-only")).toBe(true);
+  expect(row.querySelector('[data-slot="field-property-edit"]')).toBeNull();
+});
+
+test("FieldProperty: managed focus — no tab stops of its own; a host opens the editor through `editing`", async () => {
+  function Host() {
+    const [editing, setEditing] = React.useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setEditing(true)}>
+          Open
+        </button>
+        <PropertyList aria-label="Fields">
+          <FieldProperty
+            label="Site"
+            type="url"
+            value="https://example.com"
+            onSave={() => {}}
+            focusMode="managed"
+            editing={editing}
+            onEditingChange={setEditing}
+          />
+          <FieldProperty
+            label="Paid"
+            type="checkbox"
+            value={false}
+            onSave={() => {}}
+            focusMode="managed"
+          />
+        </PropertyList>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  const link = screen.getByRole("link", { name: "https://example.com" });
+  expect(link.element().getAttribute("tabindex")).toBe("-1");
+  expect(
+    screen
+      .getByRole("button", { name: "Edit Site" })
+      .element()
+      .getAttribute("tabindex"),
+  ).toBe("-1");
+  expect(
+    screen
+      .getByRole("checkbox", { name: "Paid" })
+      .element()
+      .getAttribute("tabindex"),
+  ).toBe("-1");
+  (
+    screen.getByRole("button", { name: "Open" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Site" }))
+    .toHaveFocus();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("FieldProperty: long text edits in place (no popover) and commits when focus leaves", async () => {
+  const onSave = vi.fn((_next: FieldValue) => Promise.resolve());
+  const screen = await render(
+    <>
+      <PropertyList aria-label="Fields">
+        <FieldProperty
+          label="Notes"
+          type="long_text"
+          value="First line"
+          onSave={onSave}
+        />
+      </PropertyList>
+      <button type="button">Elsewhere</button>
+    </>,
+  );
+  await userEvent.click(screen.getByText("First line"));
+  const editor = await vi.waitFor(() => {
+    const el = screen.container.querySelector<HTMLElement>(
+      '[data-slot="field-property-long-text"] .ProseMirror',
+    );
+    if (!el) throw new Error("no editor");
+    return el;
+  });
+  expect(document.querySelector('[data-slot="popover-content"]')).toBeNull();
+  editor.focus();
+  await userEvent.keyboard("{Control>}{End}{/Control} more");
+  await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
+  await vi.waitFor(() => expect(onSave).toHaveBeenCalled());
+  expect(onSave.mock.calls[0]![0]).toContain("more");
+});
