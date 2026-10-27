@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.89 sha256-u8u7YxUcDNQzfUMlD0mLIJK1wLEHhYDv/Gqu9rv80PU=
+// @vegastack document-layout@0.25.89 sha256-hygzr02UEzgJuAzsVSiq5BCI6o44lX6MNma6HXEODmo=
 
 "use client";
 
@@ -307,7 +307,8 @@ export function DocumentLayoutAside({
                 {countText}
               </SheetTitle>
               {onClose ? (
-                <SheetAction>
+                // It is the sheet's only close: no corner × to leave room for.
+                <SheetAction className="me-0 self-center">
                   <SheetClose
                     data-slot="document-layout-aside-close"
                     render={
