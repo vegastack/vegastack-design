@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.97
+
+### Patch Changes
+
+- [#831](https://github.com/vegastack/vegastack-design/pull/831) [`ba95612`](https://github.com/vegastack/vegastack-design/commit/ba956125b67bb3d6241abbbc62947af5df7dffff) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **TextEdit** highlights text: the bubble menu's **Highlight**, <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>H</kbd> or typing `==text==`. VegaStack Markdown stores it as `==text==`, with an optional colour right after it (`==text=={green}`: yellow, green, blue, purple, pink or red — every colour reads, renders and round-trips; the editor makes yellow). **MarkdownView** renders it as `<mark data-color>` on the colour's `tag-*-subtle` fill (the prose recipe's new `mark` rule, kept in print), and `typedFirstLine` and the new `highlightText` read it as plain text. `text-edit-grammar` adds `readHighlight`, `highlightMarkdown`, `HIGHLIGHT_COLORS` and `HIGHLIGHT_SUFFIX_SQL`. A literal `==` run that could open or close a highlight is now written `\=\=`. [docs](https://design.vegastack.com/docs/guides/markdown)
+
+- Updated dependencies [[`ba95612`](https://github.com/vegastack/vegastack-design/commit/ba956125b67bb3d6241abbbc62947af5df7dffff)]:
+  - @vegastack/design@0.8.45
+
 ## 0.25.96
 
 ### Patch Changes

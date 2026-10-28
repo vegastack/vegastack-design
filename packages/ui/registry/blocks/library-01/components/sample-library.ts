@@ -1,4 +1,4 @@
-// @vegastack library-01@0.25.96 sha256-c+XyErJzM0TqHSfG7HgMhq8LXdHSM0EbevnAlAILIv8=
+// @vegastack library-01@0.25.97 sha256-IMUD+mbNZrwt0SXUGkm/p7rb5iAW0Adxp2qCilLwVTc=
 
 /** One item in the library: a folder, a page or a file, with its place in the tree. */
 export interface LibraryItem {
