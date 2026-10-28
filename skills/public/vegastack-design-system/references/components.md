@@ -239,6 +239,6 @@ starts with `icon-` is a component and never an icon.
 - **`destination-picker`** — Choose where something goes — spaces, their folders, recents, search, refusals with a reason.
 - **`field-type-link-step`** — The "Links to" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).
 - **`field-type-picker`** — A searchable, grouped list of field types with icons, and an optional second step.
-- **`record-picker`** — Pick records of the kinds the app passes in — search, kind filter, recents, refused rows — in a popover or a dialog.
+- **`record-picker`** — Pick records of the kinds the app passes in — search, kind filter, recents, folder browsing, refused rows — in a popover or a dialog.
 - **`upload-dialog`** — The "Add files" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.
 - **`upload-panel`** — The uploads card pinned bottom-end: a header naming the batch with time left, file and folder rows with progress rings, failures with Retry, interrupted rows with Choose file and destination links, a done card that dismisses itself, a confirm before cancelling, and a bottom sheet on phones. Controlled; the host engine uploads.

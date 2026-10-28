@@ -41435,7 +41435,7 @@
       "name": "record-picker",
       "registryType": "registry:ui",
       "title": "Record Picker",
-      "summary": "Pick records of the kinds the app passes in — search, kind filter, recents, refused rows — in a popover or a dialog.",
+      "summary": "Pick records of the kinds the app passes in — search, kind filter, recents, folder browsing, refused rows — in a popover or a dialog.",
       "status": "preview",
       "since": "0.25.89",
       "family": "forms",
@@ -41453,6 +41453,15 @@
           }
         },
         {
+          "name": "RecordPickerBrowse",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "RecordPickerDialog",
           "kind": "component",
           "source": "packages/ui/registry/ui/record-picker.tsx",
@@ -41464,6 +41473,15 @@
         },
         {
           "name": "RecordPickerDialogProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordPickerFolder",
           "kind": "interface",
           "source": "packages/ui/registry/ui/record-picker.tsx",
           "ref": {
@@ -41545,7 +41563,11 @@
             "error",
             "empty",
             "disabled-item",
-            "multiple"
+            "multiple",
+            "browse",
+            "empty-folder",
+            "select-all",
+            "busy"
           ],
           "evidence": "Observed from the component's prop branches."
         },
@@ -41576,9 +41598,11 @@
       "engines": [],
       "docsSlug": "/docs/components/record-picker",
       "registryDependencies": [
+        "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/dialog",
+        "@vegastack/use-announcer",
         "@vegastack/use-async-search"
       ],
       "npmDependencies": [
@@ -41604,13 +41628,29 @@
               "values": [""]
             },
             {
+              "name": "data-folder",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "record-picker",
+                "record-picker-folder",
                 "record-picker-footer",
                 "record-picker-item",
-                "record-picker-kinds"
+                "record-picker-kinds",
+                "record-picker-path",
+                "record-picker-select-all"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordPickerDialog": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-picker-dialog-footer"]
             }
           ],
           "cssVariables": []
