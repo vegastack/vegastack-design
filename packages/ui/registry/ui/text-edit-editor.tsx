@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.96 sha256-Ar3GHe6keAhtv01E2PimYCvLI3ZWyTX+eZSgqr5anSA=
+// @vegastack text-edit@0.25.96 sha256-TCAlu2eoEtsEGSvSgzR00QEF1BqYt8Edg2eMJu8YG1I=
 
 "use client";
 
@@ -136,6 +136,7 @@ import {
   RemoveFormatting,
   SquareCode,
   Strikethrough,
+  Highlighter,
   Table as TableIcon,
   Trash2,
   Upload,
@@ -6414,6 +6415,13 @@ const MARKS = [
     run: (ed: Editor) => ed.chain().focus().toggleStrike().run(),
   },
   {
+    id: "highlight",
+    label: "Highlight",
+    shortcut: "⇧⌘H",
+    icon: Highlighter,
+    run: (ed: Editor) => ed.chain().focus().toggleHighlight().run(),
+  },
+  {
     id: "code",
     label: "Inline code",
     shortcut: "⌘E",
@@ -7322,6 +7330,7 @@ function SelectionMenu({
       italic: ed.isActive("italic"),
       strike: ed.isActive("strike"),
       code: ed.isActive("code"),
+      highlight: ed.isActive("highlight"),
       link: ed.isActive("link"),
       href: ed.isActive("link")
         ? String(ed.getAttributes("link").href ?? "")

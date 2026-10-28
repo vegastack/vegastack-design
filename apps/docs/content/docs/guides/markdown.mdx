@@ -48,6 +48,7 @@ hard breaks. Edit the lower copy: the upper one follows.
 | Headings      | `#` … `######`      | `MarkdownView headingOffset` moves them down under a page heading.                  |
 | Bold / italic | `**b**` / `_i_`     |                                                                                     |
 | Strikethrough | `~~s~~`             | Needs the `strike` action to edit.                                                  |
+| Highlight     | `==h==`             | `==h=={green}` for a colour (yellow, green, blue, purple, pink, red); a `<mark>`.   |
 | Inline code   | `` `c` ``           | A muted chip.                                                                       |
 | Code block    | ` ```ts `           | The `CodeBlock` surface (language and copy) in both modes.                          |
 | Link          | `[t](url)`          | View mode autolinks bare URLs; external links open a new tab with `rel="noopener"`. |
@@ -99,7 +100,7 @@ element still works, so every document round-trips.
 ## Bubble menu
 
 Selecting text floats a small menu: **Turn into** (text, headings 1–4, the three lists, quote or
-code block), bold, italic, strikethrough, inline code, link and **Clear formatting**. The link
+code block), bold, italic, strikethrough, highlight, inline code, link and **Clear formatting**. The link
 button, and <kbd>Mod</kbd> <kbd>K</kbd>, turn the menu into an inline URL input: <kbd>Enter</kbd>
 applies it, <kbd>Esc</kbd> closes it, and on an existing link **Open** and **Remove** sit beside it.
 Pasting a URL over a selection links it directly. Links open in a new tab with
@@ -205,6 +206,7 @@ elsewhere.
 | <kbd>Mod</kbd> <kbd>K</kbd>                                                | Add or edit the link          |
 | <kbd>Mod</kbd> <kbd>E</kbd>                                                | Inline code                   |
 | <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>X</kbd> (or <kbd>S</kbd>)             | Strikethrough                 |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>H</kbd>                               | Highlight                     |
 | <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>2</kbd> / <kbd>3</kbd>                  | Heading 2 / 3                 |
 | <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>7</kbd> / <kbd>8</kbd> / <kbd>9</kbd> | Ordered / bullet / task list  |
 | <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>B</kbd>                               | Blockquote                    |
@@ -234,6 +236,7 @@ dropped) before it is parsed.
 | `**text**`         | **Bold**          |
 | `*text*`, `_text_` | _Italic_          |
 | `~~text~~`         | ~~Strikethrough~~ |
+| `==text==`         | Highlight         |
 | `` `text` ``       | Inline code       |
 
 Every rule works in every editor: `slashCommands` limits the menu, never the schema.
@@ -243,7 +246,7 @@ Every rule works in every editor: `slashCommands` limits the menu, never the sch
 What `TextEdit` stores is **VegaStack Markdown v1**: CommonMark with GFM tables, task lists,
 strikethrough and autolinks, plus mentions (`[@Asha Rao](mention://user/u1)`), callouts
 (`> [!NOTE]`), toggles (`<details><summary>…</summary>`), `<video>`/`<audio>` lines, image widths
-(`![Diagram|320](/a.png)`), `lang wrap` fence info and `<br>` line breaks. Three registry libs hold
+(`![Diagram|320](/a.png)`), `lang wrap` fence info, `<br>` line breaks and highlights. Three registry libs hold
 it, with no React and no DOM, so a server reads and writes exactly what the editor does:
 
 | Lib                  | What it holds                                                                                                 |
@@ -277,6 +280,15 @@ The rules a writer can rely on:
   (`[text][ref]` and its `[ref]: url "Title"` definition) is written as an inline link, its title
   kept; a definition nothing uses is dropped. Inline code can sit inside a link, bold, italic or
   strikethrough (``[`code`](/x)``).
+- **Highlights.** `==text==` is a highlight in the default colour (yellow); `==text=={green}` —
+  the colour in braces right after the closing `==` — is one of `HIGHLIGHT_COLORS` (yellow, green,
+  blue, purple, pink, red). The opening `==` is followed by neither a space nor `=`, the closing one
+  follows neither a space nor a `\`, and the first such `==` closes it: a `==` in a code span or a
+  link's destination never does, and a blank line ends it. `a == b` stays text; a `==` run that could
+  open or close one is written `\=\=`. The editor makes the default colour (the bubble menu, <kbd>Mod</kbd>
+  <kbd>Shift</kbd> <kbd>H</kbd>, or typing `==text==`); every colour reads,
+  renders and is kept. Plain-text readers use `highlightText` (and
+  `typedFirstLine`, which applies it).
 - **Linear parsing.** A megabyte parses in well under a second — adversarial input included (long
   runs of unmatched `*`, `~`, `[`, unclosed toggles) — and every `TextEdit` and every server call
   uses its own `marked` instance.

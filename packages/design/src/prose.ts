@@ -79,6 +79,8 @@ export const prose = {
   strong: "[&_strong]:font-semibold",
   em: "[&_em]:italic",
   del: "[&_del]:line-through [&_s]:line-through",
+  // A highlight (`==text==`): its colour's subtle tag fill behind body ink, kept on paper too.
+  mark: "[&_mark]:rounded-xs [&_mark]:bg-tag-yellow-subtle [&_mark]:px-0.5 [&_mark]:text-inherit [&_mark]:box-decoration-clone [&_mark]:[print-color-adjust:exact] [&_mark[data-color=green]]:bg-tag-green-subtle [&_mark[data-color=blue]]:bg-tag-blue-subtle [&_mark[data-color=purple]]:bg-tag-purple-subtle [&_mark[data-color=pink]]:bg-tag-pink-subtle [&_mark[data-color=red]]:bg-tag-red-subtle",
 
   // Lists. Items and markers are body text: family, size and ink inherit (a `::marker` takes the
   // item's font), so `1.` and `•` never read as a second typeface or a second colour. One thing

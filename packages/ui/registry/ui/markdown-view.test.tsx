@@ -209,6 +209,21 @@ test("renders blockquotes", async () => {
   expect(quote?.textContent).toContain("quoted text");
 });
 
+test("renders highlights as <mark> in their colour; a lone == stays text", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {"==plain== and ==**bold** red=={red}, a == b"}
+    </MarkdownView>,
+  );
+  const marks = [...screen.container.querySelectorAll("mark")];
+  expect(marks.map((mark) => [mark.dataset.color, mark.textContent])).toEqual([
+    ["yellow", "plain"],
+    ["red", "bold red"],
+  ]);
+  expect(marks[1]!.querySelector("strong")).not.toBeNull();
+  expect(screen.container.textContent).toContain("a == b");
+});
+
 test("renders GFM tables, strikethrough, and task lists", async () => {
   const md = [
     "| A | B |",

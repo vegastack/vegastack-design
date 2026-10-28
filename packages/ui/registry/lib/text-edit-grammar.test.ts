@@ -1,6 +1,10 @@
 import { expect, test } from "vitest";
 import {
+  HIGHLIGHT_SUFFIX_SQL,
   MENTION_KIND_PATTERN,
+  highlightMarkdown,
+  highlightText,
+  readHighlight,
   MENTION_LINK_SOURCE,
   MENTION_LINK_SQL,
   codeFenceInfo,
@@ -374,4 +378,58 @@ test("mentionLabels: every mention link reads as its label; other text is untouc
     mentionLabels("`[@A](mention://user/u1)` and [@B](mention://user/u2)"),
   ).toBe("`[@A](mention://user/u1)` and B");
   expect(mentionLabels("[@](mention://page/p1)")).toBe("Untitled");
+});
+
+test("readHighlight: ==text== and a colour; spaces, escapes, code and link destinations never close it", () => {
+  expect(readHighlight("==Ship **Friday**=={red} please")).toEqual({
+    raw: "==Ship **Friday**=={red}",
+    text: "Ship **Friday**",
+    color: "red",
+  });
+  expect(readHighlight("==a==")).toEqual({
+    raw: "==a==",
+    text: "a",
+    color: "yellow",
+  });
+  // `{yellow}` is the default; a colour the palette lacks stays text after the highlight.
+  expect(readHighlight("==a=={yellow}")?.raw).toBe("==a=={yellow}");
+  expect(readHighlight("==a=={orange}")?.raw).toBe("==a==");
+  for (const none of [
+    "== a==",
+    "===a==",
+    "==a ==",
+    "==a\\==",
+    "==a\n\nb==",
+    "=a=",
+    "==a",
+  ])
+    expect(readHighlight(none)).toBeNull();
+  expect(readHighlight("==`x == y` z==")?.text).toBe("`x == y` z");
+  expect(readHighlight("==[a](https://x.y/?q==1) b==")?.text).toBe(
+    "[a](https://x.y/?q==1) b",
+  );
+  expect(readHighlight("==a\nb==")?.text).toBe("a\nb");
+  expect(highlightMarkdown("x", "green")).toBe("==x=={green}");
+  expect(highlightMarkdown("x")).toBe("==x==");
+});
+
+test("highlightText and typedFirstLine read a highlight as its text", () => {
+  expect(highlightText("Ship ==Friday=={red}, a == b, `==c==`")).toBe(
+    "Ship Friday, a == b, `==c==`",
+  );
+  expect(highlightText("\\==a== and ==open")).toBe("\\==a== and ==open");
+  // A code span closes only on a run of its own length.
+  expect(highlightText("`a``` ==b=={red} c`")).toBe("`a``` ==b=={red} c`");
+  expect(
+    typedFirstLine("==Due== [@Asha](mention://user/u1)=={blue}\nmore"),
+  ).toBe("Due Asha=={blue}");
+  expect(typedFirstLine("==Due [@Asha](mention://user/u1)=={blue}\nmore")).toBe(
+    "Due Asha",
+  );
+  expect(
+    new RegExp(HIGHLIGHT_SUFFIX_SQL, "g")[Symbol.replace](
+      "==a=={green} b",
+      "==",
+    ),
+  ).toBe("==a== b");
 });
