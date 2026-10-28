@@ -9,6 +9,7 @@ import { describe, expect, test } from "vitest";
 import {
   ADVERSARIAL,
   ADVERSARIAL_PARAGRAPH,
+  caseDoc,
   checkCase,
   corpusCases,
   largeMarkdown,
@@ -19,6 +20,7 @@ import {
   docToMarkdown,
   markdownToDoc,
 } from "../../packages/ui/registry/lib/text-edit-markdown.ts";
+import { highlightText } from "../../packages/ui/registry/lib/text-edit-grammar.ts";
 import {
   textEditDiffSchema,
   textEditSchema,
@@ -173,4 +175,92 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
     const back = markdownToDoc(docToMarkdown(doc));
     expect(back.firstChild?.textContent).toBe(code);
   });
+});
+
+test("a highlight of any length round-trips, and two parses never share state", () => {
+  const long = "a".repeat(100_000);
+  const doc = markdownToDoc(`==${long}==`);
+  expect(doc.firstChild.firstChild.marks.map((mark) => mark.type.name)).toEqual(
+    ["highlight"],
+  );
+  expect(docToMarkdown(markdownToDoc(docToMarkdown(doc)))).toBe(`==${long}==`);
+  const a = `==${"a".repeat(298)}`;
+  const b = `${a.slice(0, 80)}==${a.slice(82)}`;
+  docToMarkdown(markdownToDoc(a));
+  expect(docToMarkdown(markdownToDoc(b))).toBe(docToMarkdown(markdownToDoc(b)));
+  expect(markdownToDoc(b).firstChild.firstChild.marks.length).toBe(1);
+});
+
+test("highlights read in linear time: a rescan has no cutoff, plain text has no per-opener scan", () => {
+  const inner = `==a [x](x ==b${"c".repeat(70_000)}==)`;
+  expect(JSON.stringify(markdownToDoc(inner).toJSON())).toContain(
+    '"highlight"',
+  );
+  const time = (text) => {
+    const start = performance.now();
+    highlightText(text);
+    return performance.now() - start;
+  };
+  const small = time("==a ".repeat(20_000));
+  const large = time("==a ".repeat(200_000));
+  expect(large).toBeLessThan(Math.max(small, 5) * 40);
+  // Highlights do not nest: a highlight's text is read without the highlight reader.
+  const nested = (n) => `${"==a](".repeat(n)}x${")z==".repeat(n)}`;
+  expect(() => highlightText(nested(20_000))).not.toThrow();
+  expect(() => markdownToDoc(nested(20_000))).not.toThrow();
+  // A run of many highlighted space nodes is written in linear time.
+  const spaces = (n) => ({
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          ...Array.from({ length: n }, (_, i) => ({
+            type: "text",
+            text: " ",
+            marks: [{ type: "highlight" }, { type: i % 2 ? "bold" : "italic" }],
+          })),
+          { type: "text", text: "x", marks: [{ type: "highlight" }] },
+        ],
+      },
+    ],
+  });
+  const write = (n) => {
+    const doc = textEditSchema().nodeFromJSON(spaces(n));
+    const start = performance.now();
+    docToMarkdown(doc);
+    return performance.now() - start;
+  };
+  const fewNodes = write(4_000);
+  expect(write(40_000)).toBeLessThan(Math.max(fewNodes, 5) * 40);
+  const spans = (n) => `==a ${"`x` ".repeat(n)}${"==a ".repeat(n)}\`x==\``;
+  const few = time(spans(4_000));
+  expect(time(spans(40_000))).toBeLessThan(Math.max(few, 5) * 40);
+});
+
+test("every highlighted character stays highlighted through Markdown and back", () => {
+  // Each non-space character of a document, in order, and whether it is highlighted.
+  const flags = (doc) => {
+    const out = [];
+    doc.descendants((node) => {
+      if (node.isText) {
+        const on = node.marks.some((mark) => mark.type.name === "highlight");
+        for (const ch of node.text) if (!/\s/.test(ch)) out.push([ch, on]);
+      } else if (node.isLeaf) out.push(["\uFFFC", false]);
+      return true;
+    });
+    return out;
+  };
+  for (const each of corpusCases().filter((c) =>
+    c.name.includes("highlight"),
+  )) {
+    const before = flags(caseDoc(each));
+    const after = flags(markdownToDoc(docToMarkdown(caseDoc(each))));
+    expect(after.map(([ch]) => ch).join(""), each.name).toBe(
+      before.map(([ch]) => ch).join(""),
+    );
+    before.forEach(([ch, on], at) => {
+      if (on) expect(after[at][1], `${each.name}: ${ch} at ${at}`).toBe(true);
+    });
+  }
 });

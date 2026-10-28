@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.96 sha256-p1fvmFinEd2DKrYT2jDRdx3JRSbs7skvL5gaMyGBNbM=
+// @vegastack text-edit-schema@0.25.96 sha256-+tnf9uLJ+QKr3wdbEO9ZksoiJmtTQ5qddOaalqkuJGM=
 
 import {
   Extension,
@@ -6,6 +6,7 @@ import {
   Node,
   decodeHtmlEntities,
   getSchema,
+  markInputRule,
   mergeAttributes,
   textblockTypeInputRule,
   type AnyExtension,
@@ -47,7 +48,11 @@ import {
   BOOKMARK_TITLE,
   bookmarkMarkdown,
   CALLOUT_BLOCK,
+  DEFAULT_HIGHLIGHT_COLOR,
   MEDIA_BLOCK,
+  highlightMarkdown,
+  isHighlightColor,
+  type HighlightColor,
   DEFAULT_LIVE_BLOCK_KINDS,
   LIVE_BLOCK_NAME,
   liveBlockNames,
@@ -575,6 +580,96 @@ const LinkMd = Link.extend({
  * Markdown order: code innermost.
  */
 const CodeMd = Code.extend({ excludes: "" });
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    highlight: {
+      /** Highlight the selection in `color` (default: `DEFAULT_HIGHLIGHT_COLOR`). */
+      setHighlight: (attributes?: { color?: HighlightColor }) => ReturnType;
+      /** Highlight the selection, or remove its highlight when it already has one. */
+      toggleHighlight: (attributes?: { color?: HighlightColor }) => ReturnType;
+      /** Remove the selection's highlight. */
+      unsetHighlight: () => ReturnType;
+    };
+  }
+}
+
+/**
+ * A text highlight: `==text==` in the default colour, `==text=={green}` in another
+ * (`HIGHLIGHT_COLORS`), drawn as `<mark data-color>`. A colour the palette does not hold reads as
+ * the default. Typing `==text==` highlights it; ⇧⌘H toggles it on the selection.
+ */
+const HighlightMd = Mark.create({
+  name: "highlight",
+  // The outermost mark (above link's 1000): `==**a** [b](/x)==`, never a highlight inside a code
+  // span or around half of a bold run.
+  priority: 1001,
+  addAttributes() {
+    return {
+      color: {
+        default: DEFAULT_HIGHLIGHT_COLOR,
+        parseHTML: (element) => {
+          const color = element.getAttribute("data-color");
+          return isHighlightColor(color) ? color : DEFAULT_HIGHLIGHT_COLOR;
+        },
+        renderHTML: (attrs) => ({
+          "data-color": isHighlightColor(attrs.color)
+            ? attrs.color
+            : DEFAULT_HIGHLIGHT_COLOR,
+        }),
+      },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "mark" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["mark", HTMLAttributes, 0];
+  },
+  markdownTokenName: "highlight",
+  // Read by `highlightTokenizer`, which `@/lib/text-edit-markdown` puts on its own marked.
+  parseMarkdown: (token, helpers) =>
+    helpers.applyMark("highlight", helpers.parseInline(token.tokens || []), {
+      color: isHighlightColor(token.color)
+        ? token.color
+        : DEFAULT_HIGHLIGHT_COLOR,
+    }),
+  renderMarkdown: (node, h) =>
+    highlightMarkdown(
+      h.renderChildren(node),
+      isHighlightColor(node.attrs?.color)
+        ? node.attrs.color
+        : DEFAULT_HIGHLIGHT_COLOR,
+    ),
+  addCommands() {
+    return {
+      setHighlight:
+        (attributes) =>
+        ({ commands }) =>
+          commands.setMark(this.name, attributes),
+      toggleHighlight:
+        (attributes) =>
+        ({ commands }) =>
+          commands.toggleMark(this.name, attributes),
+      unsetHighlight:
+        () =>
+        ({ commands }) =>
+          commands.unsetMark(this.name),
+    };
+  },
+  addKeyboardShortcuts() {
+    return { "Mod-Shift-h": () => this.editor.commands.toggleHighlight() };
+  },
+  addInputRules() {
+    return [
+      markInputRule({
+        // `==text==` typed: the opening `==` after a space or the line's start.
+        find: /(?:^|\s)(==(?!\s|=)((?:[^=\n]|=(?!=))*[^\s=\\])==)$/,
+        type: this.type,
+      }),
+    ];
+  },
+});
 
 /**
  * The node a GFM task checkbox parses to: never in a document — the parse's normalization makes
@@ -1713,6 +1808,7 @@ export function textEditExtensions(
     }),
     HardBreakMd,
     CodeMd,
+    HighlightMd,
     LinkMd.configure({
       openOnClick: false,
       autolink: true,

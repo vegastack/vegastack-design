@@ -1,6 +1,6 @@
-// @vegastack text-edit-markdown@0.25.96 sha256-pp7tcr20Qfu95HmyKTYUBgoEvJhcsKG2ptjRPBPn80A=
+// @vegastack text-edit-markdown@0.25.96 sha256-SL8yBbtkJ5VWbvrFbnEnGQOzDuJNfSV7qxVMYQkSiHQ=
 
-import type { AnyExtension, JSONContent } from "@tiptap/core";
+import { Mark, type AnyExtension, type JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import {
@@ -12,7 +12,12 @@ import {
 } from "marked";
 import { anchorText } from "@/lib/text-anchor-doc";
 import {
+  DEFAULT_HIGHLIGHT_COLOR,
+  HIGHLIGHT_COLORS,
   boundedTokenizers,
+  highlightMarkdown,
+  highlightTokenizer,
+  isHighlightColor,
   trackedLexing,
   type LiveBlockKind,
   type MentionKind,
@@ -92,7 +97,7 @@ function createMarked(): typeof marked {
       src,
       (options ?? instance.defaults) as never,
     )) as typeof instance.lexer;
-  instance.use({ tokenizer });
+  instance.use({ tokenizer, extensions: [highlightTokenizer as never] });
   // `MarkdownManager` types its option as the global `marked` namespace; an instance has the same
   // `Lexer`, `defaults` and `use` it calls.
   return instance as unknown as typeof marked;
@@ -107,7 +112,17 @@ const SPACE = /\s/;
  * Text escaped only where Markdown would read it as syntax. `before`/`after` are the characters
  * either side of the text node (unknown at a node edge: treated as not a space and not a letter).
  */
-function escapeText(text: string): string {
+function escapeText(
+  text: string,
+  edges: { start: boolean; end: boolean; marked: boolean } = {
+    start: false,
+    end: false,
+    marked: false,
+  },
+): string {
+  // A marked text's edge spaces are written outside its marks, against their delimiters.
+  const lead = edges.marked ? text.length - text.trimStart().length : 0;
+  const trail = edges.marked ? text.trimEnd().length : text.length;
   let out = "";
   for (let i = 0; i < text.length; i++) {
     const ch = text[i]!;
@@ -133,6 +148,41 @@ function escapeText(text: string): string {
       case "~":
         out += SPACE.test(next) ? ch : "\\~";
         break;
+      case "=": {
+        // A run of two or more opens or closes a highlight unless spaces surround it (`a == b`):
+        // every `=` of such a run is escaped. A node's edges count as not a space.
+        let end = i;
+        while (text[end] === "=") end++;
+        const run = end - i;
+        // A block's own start or end is a space; another node's edge, or a mark's, is not.
+        const before =
+          i > lead
+            ? text[i - 1]!
+            : i === 0 && edges.start && !edges.marked
+              ? " "
+              : "";
+        const after =
+          end < trail
+            ? text[end]!
+            : end === text.length && edges.end && !edges.marked
+              ? " "
+              : "";
+        const spaced =
+          before !== "" &&
+          SPACE.test(before) &&
+          after !== "" &&
+          SPACE.test(after);
+        // Three or more can close one even between spaces (`a === b`: `==` after `=`) — unless
+        // the run is its whole block's text, with nothing to open one (`===`, a setext look).
+        const alone =
+          i === 0 && end === text.length && edges.start && edges.end;
+        out +=
+          run >= 2 && (!spaced || (run >= 3 && !alone))
+            ? "\\=".repeat(run)
+            : "=".repeat(run);
+        i = end - 1;
+        break;
+      }
       case "&":
         // Only where it would read as an entity: `R&D` stays, `&amp;` is written `&amp;amp;`.
         out +=
@@ -259,11 +309,15 @@ function encodeText(
   );
   if (parent?.type === "codeBlock") return text;
   if (marks.includes("code")) return codeSpanText(text);
-  let out = escapeText(text);
-  // Inside link text a `]` would end the link.
-  if (marks.includes("link")) out = out.replace(/\]/g, "\\]");
   const siblings = parent?.content ?? [];
   const index = indexIn(siblings, node);
+  let out = escapeText(text, {
+    start: index === 0,
+    end: index >= 0 && index === siblings.length - 1,
+    marked: marks.length > 0,
+  });
+  // Inside link text a `]` would end the link.
+  if (marks.includes("link")) out = out.replace(/\]/g, "\\]");
   const next = index >= 0 ? siblings[index + 1] : undefined;
   // `!` then a link opening reads as an image.
   if (
@@ -274,6 +328,29 @@ function encodeText(
     )
   )
     out = `${out.slice(0, -1)}\\!`;
+  // A highlight's edge: a `=` there would join its `==` (`==a===` closes after `a`), and a
+  // colour in braces after one would read as its colour.
+  const highlighted = (each?: JSONContent) =>
+    each?.marks?.some((mark) =>
+      (typeof mark === "string" ? mark : mark.type).startsWith("highlight"),
+    ) ?? false;
+  const prev = index > 0 ? siblings[index - 1] : undefined;
+  const mine = highlighted(node);
+  if (
+    out.startsWith("=") &&
+    (mine || highlighted(prev) || prev?.text?.endsWith("="))
+  )
+    out = `\\${out}`;
+  if (
+    /(?:^|[^\\])=$/.test(out) &&
+    (mine || highlighted(next) || next?.text?.startsWith("="))
+  )
+    out = `${out.slice(0, -1)}\\=`;
+  if (highlighted(prev) && HIGHLIGHT_SUFFIX_TEXT.test(out)) out = `\\${out}`;
+  // A highlight's `](` would read as a link destination its closing `==` cannot end in.
+  if (mine) out = out.replace(/((?:^|[^\\])(?:\\\\)*)\](?=\()/g, "$1\\]");
+  // A highlight's closing `==` never follows a backslash: a last `\` is written as its reference.
+  if (mine) out = out.replace(/((?:^|[^\\])(?:\\\\)*)\\\\(\s*)$/, "$1&#92;$2");
   // A heading's trailing `#`s are its closing sequence.
   if (
     parent?.type === "heading" &&
@@ -282,6 +359,189 @@ function encodeText(
   )
     out = out.replace(/#([ \t]*)$/, "\\#$1");
   return out;
+}
+
+/** Text that would read as a highlight's colour right after its closing `==`. */
+const HIGHLIGHT_SUFFIX_TEXT = new RegExp(
+  `^\\{(?:${HIGHLIGHT_COLORS.join("|")})\\}`,
+);
+
+/** A coloured highlight's writer mark: `highlight:<colour>` (`withHighlightColors`). */
+const highlightWriter = (color: string) => `highlight:${color}`;
+
+/**
+ * Writers for the coloured highlights, one mark type per colour. Tiptap's writer tells marks apart
+ * by type alone: two highlights of different colours side by side would be written as one, in
+ * the first one's colour. Each colour written as its own type closes one and opens the next.
+ */
+const HIGHLIGHT_WRITERS = HIGHLIGHT_COLORS.filter(
+  (color) => color !== DEFAULT_HIGHLIGHT_COLOR,
+).map((color) =>
+  Mark.create({
+    name: highlightWriter(color),
+    // Outermost, as the highlight mark itself (`text-edit-schema`).
+    priority: 1001,
+    renderMarkdown: (node, h) =>
+      highlightMarkdown(h.renderChildren(node), color),
+  }),
+);
+
+/** A text node's highlight mark, if it has one. */
+const highlightOf = (node: JSONContent) =>
+  node.type === "text"
+    ? node.marks?.find(
+        (mark) => typeof mark !== "string" && mark.type === "highlight",
+      )
+    : undefined;
+
+/** The same highlight: one run of the writer's (`==…==` once). */
+const sameHighlight = (
+  a: ReturnType<typeof highlightOf>,
+  b: ReturnType<typeof highlightOf>,
+) =>
+  Boolean(a && b) &&
+  (a!.attrs?.color ?? DEFAULT_HIGHLIGHT_COLOR) ===
+    (b!.attrs?.color ?? DEFAULT_HIGHLIGHT_COLOR);
+
+/** Whether a text node is inline code. */
+const isCode = (node: JSONContent) =>
+  node.type === "text" &&
+  (node.marks?.some(
+    (mark) => (typeof mark === "string" ? mark : mark.type) === "code",
+  ) ??
+    false);
+
+/** `node` without its highlight (other marks kept). */
+function unhighlighted(node: JSONContent, text = node.text): JSONContent {
+  const { marks: all, ...rest } = node;
+  const marks = (all ?? []).filter((mark) => mark !== highlightOf(node));
+  return marks.length ? { ...rest, text, marks } : { ...rest, text };
+}
+
+/** `node` with `mark` as its highlight. */
+function rehighlighted(
+  node: JSONContent,
+  mark: NonNullable<ReturnType<typeof highlightOf>>,
+): JSONContent {
+  const marks = (node.marks ?? []).filter((each) => each !== highlightOf(node));
+  // Highlight first: the outermost mark, as the schema ranks it.
+  return { ...node, marks: [mark, ...marks] };
+}
+
+/**
+ * `content` as Markdown can hold its highlights:
+ * - a code span is one piece of text a highlight is around or not (`==`a`==`): a run of inline
+ *   code partly highlighted is highlighted whole, in its first highlight's colour;
+ * - a highlight's edge spaces go outside it (`==a ==` cannot close, `== a==` cannot open),
+ *   keeping their other marks — a code span's spaces are its text and stay.
+ */
+function highlightsWritable(content: JSONContent[]): JSONContent[] {
+  const nodes = [...content];
+  for (let i = 0; i < nodes.length;) {
+    if (!isCode(nodes[i]!)) {
+      i++;
+      continue;
+    }
+    let end = i;
+    while (end < nodes.length && isCode(nodes[end]!)) end++;
+    let mark: ReturnType<typeof highlightOf>;
+    for (let at = i; at < end && !mark; at++) mark = highlightOf(nodes[at]!);
+    if (mark)
+      for (let at = i; at < end; at++)
+        if (!sameHighlight(highlightOf(nodes[at]!), mark))
+          nodes[at] = rehighlighted(nodes[at]!, mark);
+    i = end;
+  }
+  const out: JSONContent[] = [];
+  for (let i = 0; i < nodes.length;) {
+    const mark = highlightOf(nodes[i]!);
+    if (!mark) {
+      out.push(nodes[i++]!);
+      continue;
+    }
+    let end = i + 1;
+    while (end < nodes.length && sameHighlight(highlightOf(nodes[end]!), mark))
+      end++;
+    // The run is nodes[first, last); spaces split off its ends go before and after it.
+    let first = i;
+    let last = end;
+    const before: JSONContent[] = [];
+    const after: JSONContent[] = [];
+    let head: JSONContent | null = null;
+    let tail: JSONContent | null = null;
+    while (first < last && !isCode(nodes[first]!)) {
+      const text = nodes[first]!.text ?? "";
+      const lead = text.length - text.trimStart().length;
+      if (lead === 0) break;
+      before.push(unhighlighted(nodes[first]!, text.slice(0, lead)));
+      if (lead < text.length) {
+        head = { ...nodes[first]!, text: text.slice(lead) };
+        break;
+      }
+      first++;
+    }
+    while (last > first && !isCode(nodes[last - 1]!)) {
+      const node = last - 1 === first && head ? head : nodes[last - 1]!;
+      const text = node.text ?? "";
+      const keep = text.trimEnd().length;
+      if (keep === text.length) break;
+      after.push(unhighlighted(node, text.slice(keep)));
+      if (keep > 0) {
+        tail = { ...node, text: text.slice(0, keep) };
+        break;
+      }
+      if (last - 1 === first) head = null;
+      last--;
+    }
+    out.push(...before);
+    for (let at = first; at < last; at++)
+      out.push(
+        at === last - 1 && tail
+          ? tail
+          : at === first && head
+            ? head
+            : nodes[at]!,
+      );
+    out.push(...after.reverse());
+    i = end;
+  }
+  // Text the passes above left side by side with the same marks is one node, as ProseMirror
+  // keeps it: a code span split in two would pad each half's edge spaces on its own.
+  const merged: JSONContent[] = [];
+  for (const node of out) {
+    const prev = merged[merged.length - 1];
+    if (
+      prev?.type === "text" &&
+      node.type === "text" &&
+      JSON.stringify(prev.marks ?? []) === JSON.stringify(node.marks ?? [])
+    )
+      merged[merged.length - 1] = { ...prev, text: `${prev.text}${node.text}` };
+    else merged.push(node);
+  }
+  return merged;
+}
+
+/** `node` with each coloured highlight as its colour's writer mark (`HIGHLIGHT_WRITERS`). */
+function withHighlightColors(node: JSONContent): JSONContent {
+  let out = node;
+  if (node.marks?.length) {
+    let changed = false;
+    const marks = node.marks.map((mark) => {
+      if (typeof mark === "string" || mark.type !== "highlight") return mark;
+      const color = mark.attrs?.color;
+      if (!isHighlightColor(color) || color === DEFAULT_HIGHLIGHT_COLOR)
+        return mark;
+      changed = true;
+      return { type: highlightWriter(color) };
+    });
+    if (changed) out = { ...node, marks };
+  }
+  return out.content
+    ? {
+        ...out,
+        content: highlightsWritable(out.content).map(withHighlightColors),
+      }
+    : out;
 }
 
 /** Raw HTML as literal text in every environment; a `<br>` is a line break. Never the DOM. */
@@ -309,7 +569,10 @@ function htmlAsText(token: {
 export function createMarkdownManager(
   extensions: AnyExtension[] = textEditExtensions(),
 ): MarkdownManager {
-  const created = new MarkdownManager({ extensions, marked: createMarked() });
+  const created = new MarkdownManager({
+    extensions: [...extensions, ...HIGHLIGHT_WRITERS],
+    marked: createMarked(),
+  });
   const internals = created as unknown as ManagerInternals;
   internals.encodeTextForMarkdown = encodeText;
   internals.parseHTMLToken = htmlAsText;
@@ -326,7 +589,7 @@ export function createMarkdownManager(
   const write = created.serialize.bind(created);
   created.serialize = (doc: JSONContent) => {
     CODE_SPACE = codeSpaceFor(doc);
-    const written = write(doc);
+    const written = write(withHighlightColors(doc));
     return CODE_SPACE === " " ? written : written.replaceAll(CODE_SPACE, " ");
   };
   return created;

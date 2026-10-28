@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.96 sha256-XPJ/NSqjXYWtanIPgnUw0j2KYCd+dG60/Sjkx2iGTn8=
+// @vegastack text-edit-grammar@0.25.96 sha256-WTJv5dUu2Xi2dFwvYA8kr4viefio9AVs7XtPMO+Ewds=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -12,6 +12,7 @@
  * `> [!NOTE]` callouts, `<details><summary>…</summary>` toggles, `<video>`/`<audio>` blocks on a
  * line of their own, `![alt|320](src)` image widths, `lang wrap` fence info and `<br>` line breaks
  * (in a table cell or a heading), `[<url>](<url> "bookmark")` bookmark lines, and
+ * `==text==` highlights (`==text=={green}` for a colour), and
  * `:::<name>{…}` … `:::` live blocks — `:::tasks` live task
  * lists and any other block name the host reads (a container directive whose rows are list item
  * lines, with or without a task box). Any other raw HTML is literal text.
@@ -168,6 +169,401 @@ export const MEDIA_BLOCK =
 export function mediaMarkdown(kind: "video" | "audio", src: string): string {
   return `<${kind} src="${src.replace(/"/g, "%22")}"></${kind}>`;
 }
+
+/* --- highlights --------------------------------------------------------------------------------*/
+
+/**
+ * The colours a highlight takes, the default first. `==text==` is a highlight in the default
+ * colour; `==text=={green}` (the colour in braces right after the closing `==`) is any other. Each
+ * colour is drawn on its `tag-<colour>-subtle` token, the text keeping its own ink.
+ */
+export const HIGHLIGHT_COLORS = [
+  "yellow",
+  "green",
+  "blue",
+  "purple",
+  "pink",
+  "red",
+] as const;
+
+/** A highlight's colour (`HIGHLIGHT_COLORS`). */
+export type HighlightColor = (typeof HIGHLIGHT_COLORS)[number];
+
+/** The colour `==text==` (no suffix) is drawn in. */
+export const DEFAULT_HIGHLIGHT_COLOR: HighlightColor = "yellow";
+
+/** Whether `value` is a highlight colour. */
+export function isHighlightColor(value: unknown): value is HighlightColor {
+  return (HIGHLIGHT_COLORS as readonly unknown[]).includes(value);
+}
+
+/** `{green}` after a highlight's closing `==`: group 1 the colour. */
+const HIGHLIGHT_SUFFIX = new RegExp(`^\\{(${HIGHLIGHT_COLORS.join("|")})\\}`);
+
+/**
+ * A highlight's colour suffix right after its closing `==`, as a PostgreSQL regular expression:
+ * `regexp_replace(text, HIGHLIGHT_SUFFIX_SQL, '==', 'g')` leaves a text's words without the colour
+ * names (a search index never matches "green" for a green highlight).
+ */
+export const HIGHLIGHT_SUFFIX_SQL = `==\\{(?:${HIGHLIGHT_COLORS.join("|")})\\}`;
+
+const SPACE_CHAR = /\s/;
+
+/** How long a link destination may be — marked's bounded link reader reads no further. */
+const DESTINATION_WINDOW = 65_536;
+
+/**
+ * What a scan of one source knows once: each backtick run's start, by its length (a code span
+ * closes on the next run of its own length). Kept on a lexer's frame, so a source is indexed
+ * once however many highlights it holds.
+ */
+interface HighlightIndex {
+  source: string;
+  runs?: Map<number, number[]>;
+  /** `==` that could close a highlight: after neither a space nor a `\`. */
+  closers?: number[];
+  /** The last scan (`readHighlightAt`). */
+  scan?: HighlightScan;
+}
+
+/** The index of `frame`'s source (or a fresh one of `source`). */
+function highlightIndex(
+  frame: LexFrame | null,
+  source: string,
+): HighlightIndex {
+  if (!frame) return { source };
+  let index = frame.memo.highlight as HighlightIndex | undefined;
+  if (!index) frame.memo.highlight = index = { source: frame.source };
+  return index;
+}
+
+/** The first of the sorted `positions` at or after `from`; -1 when none. */
+function nextAt(positions: readonly number[], from: number): number {
+  let low = 0;
+  let high = positions.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (positions[mid]! < from) low = mid + 1;
+    else high = mid;
+  }
+  return low < positions.length ? positions[low]! : -1;
+}
+
+/**
+ * Where the code span opening at `at` (a backtick run) ends — just past its closing run of exactly
+ * the same length — or -1 when nothing closes it (the run is then literal backticks).
+ */
+function codeSpanEnd(index: HighlightIndex, at: number): number {
+  const { source } = index;
+  if (!index.runs) {
+    index.runs = new Map();
+    for (let i = source.indexOf("`"); i !== -1;) {
+      let run = 1;
+      while (source[i + run] === "`") run++;
+      const list = index.runs.get(run);
+      if (list) list.push(i);
+      else index.runs.set(run, [i]);
+      i = source.indexOf("`", i + run);
+    }
+  }
+  let run = 1;
+  while (source[at + run] === "`") run++;
+  const close = nextAt(index.runs.get(run) ?? [], at + run);
+  return close === -1 ? -1 : close + run;
+}
+
+/**
+ * Where the link destination opening at `at` (the `(` after a link's `]`) ends — just past its
+ * `)` — or -1 when it does not close within `DESTINATION_WINDOW`. A `<…>` destination ends at its
+ * `>`; a plain one at the `)` that balances its parentheses, past a quoted title. Escapes are
+ * skipped; a blank line ends the search.
+ */
+function destinationEnd(source: string, at: number): number {
+  const stop = Math.min(source.length, at + DESTINATION_WINDOW);
+  let i = at + 1;
+  while (source[i] === " " || source[i] === "\t" || source[i] === "\n") i++;
+  if (source[i] === "<") {
+    for (i++; i < stop; i++) {
+      const ch = source[i]!;
+      if (ch === "\\") i++;
+      else if (ch === "\n" || ch === "<") return -1;
+      else if (ch === ">") break;
+    }
+    if (i >= stop) return -1;
+  }
+  let depth = 1;
+  for (; i < stop; i++) {
+    const ch = source[i]!;
+    if (ch === "\\") i++;
+    else if (ch === "\n" && source[i + 1] === "\n") return -1;
+    else if ((ch === '"' || ch === "'") && /\s/.test(source[i - 1]!)) {
+      // A title (`"…"`, `'…'`) after a space: a `)` inside it is its text.
+      let close = i + 1;
+      while (close < stop && source[close] !== ch && source[close] !== "\n")
+        close += source[close] === "\\" ? 2 : 1;
+      if (source[close] === ch) i = close;
+    } else if (ch === "(") depth++;
+    else if (ch === ")" && --depth === 0) return i + 1;
+  }
+  return -1;
+}
+
+/** One scan's result (`readHighlightAt`). */
+interface HighlightScan {
+  /** Where the scan started (an opener's offset). */
+  from: number;
+  /** The closing `==` it found (an offset), or -1: none before the paragraph's end. */
+  closer: number;
+  /** Where it stopped. */
+  end: number;
+  /**
+   * The stretches it stepped over, `[start, end)` offsets in order: code spans and link
+   * destinations. An opener anywhere else reads exactly as this scan did from there on.
+   */
+  skipped: [number, number][];
+}
+
+/** The first `==` from `from` that can close a highlight: the scan both readers share. */
+function scanHighlight(index: HighlightIndex, from: number): HighlightScan {
+  const { source } = index;
+  const skipped: [number, number][] = [];
+  let i = from + 2;
+  while (i < source.length) {
+    const ch = source[i]!;
+    if (ch === "\\") {
+      i += 2;
+      continue;
+    }
+    if (ch === "\n" && source[i + 1] === "\n") break;
+    if (ch === "`") {
+      const end = codeSpanEnd(index, i);
+      if (end === -1) {
+        while (source[i] === "`") i++;
+        continue;
+      }
+      skipped.push([i, end]);
+      i = end;
+      continue;
+    }
+    // A link's destination: `](` then its `(…)` (a lone one is text to marked, but never closes
+    // a highlight either; the writer escapes the `]` of a highlight's `](` text).
+    if (ch === "]" && source[i + 1] === "(") {
+      const end = destinationEnd(source, i + 1);
+      if (end !== -1) {
+        skipped.push([i, end]);
+        i = end;
+        continue;
+      }
+    }
+    if (
+      ch === "=" &&
+      source[i + 1] === "=" &&
+      i > from + 2 &&
+      !SPACE_CHAR.test(source[i - 1]!) &&
+      source[i - 1] !== "\\"
+    )
+      return { from, closer: i, end: i, skipped };
+    i++;
+  }
+  return { from, closer: -1, end: i, skipped };
+}
+
+/**
+ * The highlight opening at `offset` in the index's source: its closing `==` (an offset), or -1. A
+ * later opener the last scan passed in its starting state closes where that scan did, so a
+ * paragraph of openers costs one scan, not one per opener.
+ */
+function closerAt(index: HighlightIndex, offset: number): number {
+  const { source } = index;
+  if (!source.startsWith("==", offset)) return -1;
+  const first = source[offset + 2];
+  if (first === undefined || first === "=" || SPACE_CHAR.test(first)) return -1;
+  if (!index.closers) {
+    index.closers = [];
+    for (
+      let i = source.indexOf("==");
+      i !== -1;
+      i = source.indexOf("==", i + 1)
+    )
+      if (i > 0 && !SPACE_CHAR.test(source[i - 1]!) && source[i - 1] !== "\\")
+        index.closers.push(i);
+  }
+  // No `==` after it could close it: nothing to scan.
+  if (nextAt(index.closers, offset + 3) === -1) return -1;
+  const last = index.scan;
+  const reuse =
+    last !== undefined &&
+    offset > last.from &&
+    offset < last.end &&
+    (last.closer === -1 || last.closer >= offset + 3) &&
+    !inside(last.skipped, offset);
+  const scan = reuse ? last : scanHighlight(index, offset);
+  index.scan = scan;
+  return scan.closer;
+}
+
+/** Whether `offset` falls in one of `spans` (sorted, disjoint `[start, end)`). */
+function inside(spans: readonly [number, number][], offset: number): boolean {
+  let low = 0;
+  let high = spans.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (spans[mid]![0] <= offset) low = mid + 1;
+    else high = mid;
+  }
+  return low > 0 && offset < spans[low - 1]![1];
+}
+
+/** The highlight opening at `offset` of the index's source, read whole. */
+function highlightAt(
+  index: HighlightIndex,
+  offset: number,
+): { raw: string; text: string; color: HighlightColor } | null {
+  const closer = closerAt(index, offset);
+  if (closer === -1) return null;
+  const { source } = index;
+  const suffix = HIGHLIGHT_SUFFIX.exec(source.slice(closer + 2, closer + 10));
+  return {
+    raw: source.slice(offset, closer + 2 + (suffix ? suffix[0].length : 0)),
+    text: source.slice(offset + 2, closer),
+    color:
+      (suffix?.[1] as HighlightColor | undefined) ?? DEFAULT_HIGHLIGHT_COLOR,
+  };
+}
+
+/**
+ * Read a highlight — `==text==`, or `==text=={<colour>}` — at the start of `source`; `null` when
+ * `source` does not start with one. The opening `==` is followed by a character that is not a
+ * space or `=`; the closing `==` follows one that is not a space or a backslash, and the first
+ * such `==` closes it (highlights do not nest). A `==` inside a code span or a link's destination
+ * never closes it, a `\` escapes the next character, and a blank line ends the search. `text` is
+ * the highlight's inline Markdown, as written. `frame` (a tracked lexer's, `lexFrame`) keeps the
+ * source's indexes, so a paragraph is read in linear time.
+ *
+ * @example
+ * readHighlight("==Ship **Friday**=={red} please");
+ * // { raw: "==Ship **Friday**=={red}", text: "Ship **Friday**", color: "red" }
+ */
+export function readHighlight(
+  source: string,
+  frame: LexFrame | null = null,
+): { raw: string; text: string; color: HighlightColor } | null {
+  if (!source.startsWith("==")) return null;
+  return highlightAt(
+    highlightIndex(frame, source),
+    frame ? frame.source.length - source.length : 0,
+  );
+}
+
+/** The Markdown for a highlight around `markdown` (inline Markdown): `==…==`, then its colour. */
+export function highlightMarkdown(
+  markdown: string,
+  color: HighlightColor = DEFAULT_HIGHLIGHT_COLOR,
+): string {
+  return `==${markdown}==${color === DEFAULT_HIGHLIGHT_COLOR ? "" : `{${color}}`}`;
+}
+
+/**
+ * A text with every highlight read as its text: the `==` around it and its `{colour}` dropped —
+ * what a one-line display, a snippet or a search index reads. A `==` that opens no highlight, an
+ * escaped one and one inside a code span stay as written. Linear in the text's length.
+ *
+ * @example
+ * highlightText("Ship ==Friday=={red}, a == b"); // "Ship Friday, a == b"
+ */
+export function highlightText(text: string): string {
+  if (!text.includes("==")) return text;
+  const index: HighlightIndex = { source: text };
+  let out = "";
+  let i = 0;
+  let copied = 0;
+  while (i < text.length) {
+    const ch = text[i]!;
+    if (ch === "\\") {
+      i += 2;
+      continue;
+    }
+    if (ch === "`") {
+      const end = codeSpanEnd(index, i);
+      if (end !== -1) i = end;
+      else while (text[i] === "`") i++;
+      continue;
+    }
+    if (ch === "=" && text[i + 1] === "=") {
+      const found = text[i - 1] === "=" ? null : highlightAt(index, i);
+      if (found) {
+        // Highlights do not nest: a `==` inside one is its text.
+        out += text.slice(copied, i) + found.text;
+        i += found.raw.length;
+        copied = i;
+        continue;
+      }
+    }
+    i++;
+  }
+  return out + text.slice(copied);
+}
+
+/** Highlights being read now: their text is lexed without the highlight reader. */
+let inHighlight = 0;
+
+/**
+ * The highlight reader both VegaStack Markdown readers lex with — `MarkdownView` and the editor's
+ * parse (`@/lib/text-edit-markdown`): a marked inline extension making `highlight` tokens
+ * (`color`, and the inline `tokens` of its text). Make the instance's lexers tracked
+ * (`trackedLexing`), so a long paragraph is scanned once.
+ */
+export const highlightTokenizer = {
+  name: "highlight",
+  level: "inline" as const,
+  start(this: unknown, src: string): number {
+    if (inHighlight > 0) return -1;
+    const frame = lexFrame(this, src);
+    if (!frame) return src.indexOf("==");
+    let at = frame.memo.highlights as number[] | undefined;
+    if (!at) {
+      at = [];
+      const source = frame.source;
+      for (
+        let i = source.indexOf("==");
+        i !== -1;
+        i = source.indexOf("==", i + 1)
+      )
+        at.push(i);
+      frame.memo.highlights = at;
+    }
+    const offset = frame.source.length - src.length;
+    let low = 0;
+    let high = at.length;
+    while (low < high) {
+      const mid = (low + high) >> 1;
+      if (at[mid]! < offset) low = mid + 1;
+      else high = mid;
+    }
+    return low < at.length ? at[low]! - offset : -1;
+  },
+  tokenizer(
+    this: { lexer: { inlineTokens(src: string): unknown[] } },
+    src: string,
+  ) {
+    if (inHighlight > 0) return undefined;
+    const found = readHighlight(src, lexFrame(this, src));
+    if (!found) return undefined;
+    // Highlights do not nest: a `==` inside one is its text.
+    inHighlight++;
+    try {
+      return {
+        type: "highlight",
+        raw: found.raw,
+        text: found.text,
+        color: found.color,
+        tokens: this.lexer.inlineTokens(found.text),
+      };
+    } finally {
+      inHighlight--;
+    }
+  },
+};
 
 /* --- headings, images, code fences --------------------------------------------------------------*/
 
@@ -418,8 +814,8 @@ const ESCAPED_LINE_START = new RegExp(
  * A long text's first line as the reader typed it — what a one-line cell or property shows. The
  * one escape `TextEdit` writes to keep a paragraph line from reading as block Markdown is undone
  * (a leading `&#32;` / `&#9;`, a backslash before a heading, quote, list, rule, setext, HTML or
- * live-block marker, `1\.` for a numbered line), a hard break's marker at the line's end goes, and
- * each mention link reads as its label.
+ * live-block marker, `1\.` for a numbered line), a hard break's marker at the line's end goes, a
+ * highlight reads as its text, and each mention link reads as its label.
  *
  * @example
  * typedFirstLine("\\# 1 [@Asha Rao](mention://user/u1)\nmore"); // "# 1 Asha Rao"
@@ -442,7 +838,7 @@ export function typedFirstLine(markdown: string): string {
       : ESCAPED_LINE_START.test(line)
         ? line.slice(1)
         : line.replace(/^(\d{1,9})\\([.)])(?=[ \t]|$)/u, "$1$2");
-  return mentionLabels(typed);
+  return mentionLabels(highlightText(typed));
 }
 
 /**

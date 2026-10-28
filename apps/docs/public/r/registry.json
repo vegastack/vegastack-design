@@ -2226,7 +2226,7 @@
         "version": "0.25.96",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-XPJ/NSqjXYWtanIPgnUw0j2KYCd+dG60/Sjkx2iGTn8="
+        "integrity": "sha256-WTJv5dUu2Xi2dFwvYA8kr4viefio9AVs7XtPMO+Ewds="
       }
     },
     {
@@ -2291,7 +2291,7 @@
         "version": "0.25.96",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-p1fvmFinEd2DKrYT2jDRdx3JRSbs7skvL5gaMyGBNbM="
+        "integrity": "sha256-+tnf9uLJ+QKr3wdbEO9ZksoiJmtTQ5qddOaalqkuJGM="
       }
     },
     {
@@ -2324,7 +2324,7 @@
         "version": "0.25.96",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-pp7tcr20Qfu95HmyKTYUBgoEvJhcsKG2ptjRPBPn80A="
+        "integrity": "sha256-SL8yBbtkJ5VWbvrFbnEnGQOzDuJNfSV7qxVMYQkSiHQ="
       }
     },
     {
@@ -16602,7 +16602,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.96",
-        "integrity": "sha256-U5rq9iSEZbmWF2kthbHipzgmF5vJUHyBO9WCrFK+Odk="
+        "integrity": "sha256-b6AJ7lO4iviXAkcL+tjtfIOlB34kxorbb2s5aceJLoM="
       }
     },
     {
@@ -19018,7 +19018,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.96",
-        "integrity": "sha256-Ar3GHe6keAhtv01E2PimYCvLI3ZWyTX+eZSgqr5anSA="
+        "integrity": "sha256-TCAlu2eoEtsEGSvSgzR00QEF1BqYt8Edg2eMJu8YG1I="
       }
     },
     {

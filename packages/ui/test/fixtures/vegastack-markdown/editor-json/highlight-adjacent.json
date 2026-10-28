@@ -1,0 +1,158 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "x"
+        },
+        {
+          "type": "text",
+          "text": "red",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "red"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "blue",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "blue"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "plain"
+        },
+        {
+          "type": "text",
+          "text": "yellow",
+          "marks": [
+            {
+              "type": "highlight"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "green",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "green"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "ends with =",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "green"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "=next"
+        },
+        {
+          "type": "text",
+          "text": " "
+        },
+        {
+          "type": "text",
+          "text": "{red}"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "hl",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "blue"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "{red} after a highlight"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "a="
+        },
+        {
+          "type": "text",
+          "text": "=b"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "bold and ",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "pink"
+              }
+            },
+            {
+              "type": "bold"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "pink",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "pink"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

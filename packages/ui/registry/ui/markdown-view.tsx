@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.96 sha256-U5rq9iSEZbmWF2kthbHipzgmF5vJUHyBO9WCrFK+Odk=
+// @vegastack markdown-view@0.25.96 sha256-b6AJ7lO4iviXAkcL+tjtfIOlB34kxorbb2s5aceJLoM=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -28,7 +28,10 @@ import {
   TOGGLE_CLOSE,
   TOGGLE_OPEN,
   boundedTokenizers,
+  DEFAULT_HIGHLIGHT_COLOR,
   headingIds,
+  highlightTokenizer,
+  isHighlightColor,
   lexFrame,
   parseCodeFenceInfo,
   parseImageAlt,
@@ -471,6 +474,11 @@ function inline(tokens: Token[] | undefined): DocNode[] {
       case "del":
         out.push(el(t.type, {}, inline(t.tokens)));
         break;
+      case "highlight":
+        out.push(
+          el("mark", { "data-color": String(t.color) }, inline(t.tokens)),
+        );
+        break;
       case "codespan":
         out.push(el("code", {}, [t.text]));
         break;
@@ -687,28 +695,31 @@ function readerFor(liveBlockKinds: readonly LiveBlockKind[]): Marked {
     reader = new Marked({
       gfm: true,
       tokenizer: boundedTokenizers(Tokenizer.prototype),
-      extensions: names.length
-        ? [
-            {
-              name: TASKS_TOKEN,
-              level: "block",
-              start: liveBlockStart(names),
-              tokenizer(src: string) {
-                const block = readLiveBlock(src, { names });
-                return block
-                  ? {
-                      type: TASKS_TOKEN,
-                      raw: block.raw,
-                      kind: block.kind,
-                      id: block.id ?? "",
-                      query: block.query,
-                      snapshot: block.snapshot,
-                    }
-                  : undefined;
+      extensions: [
+        highlightTokenizer as never,
+        ...(names.length
+          ? [
+              {
+                name: TASKS_TOKEN,
+                level: "block" as const,
+                start: liveBlockStart(names),
+                tokenizer(src: string) {
+                  const block = readLiveBlock(src, { names });
+                  return block
+                    ? {
+                        type: TASKS_TOKEN,
+                        raw: block.raw,
+                        kind: block.kind,
+                        id: block.id ?? "",
+                        query: block.query,
+                        snapshot: block.snapshot,
+                      }
+                    : undefined;
+                },
               },
-            },
-          ]
-        : [],
+            ]
+          : []),
+      ],
     });
     readers.set(key, reader);
   }
@@ -1373,6 +1384,8 @@ const HTML_ATTRS = new Set([
   "data-label",
   "data-slot",
   "data-tone",
+  // A highlight's colour (`<mark data-color>`).
+  "data-color",
 ]);
 
 function htmlAttrs(source: string): Record<string, string> {
@@ -2342,6 +2355,20 @@ function renderNode(
     }
     case "code":
       return <code key={key}>{children()}</code>;
+    case "mark":
+      // A highlight (`==text==`, TextEdit's `<mark data-color>`): its colour from the palette.
+      return (
+        <mark
+          key={key}
+          data-color={
+            isHighlightColor(attrs["data-color"])
+              ? attrs["data-color"]
+              : DEFAULT_HIGHLIGHT_COLOR
+          }
+        >
+          {children()}
+        </mark>
+      );
     case "details": {
       const fallback = attrs.open !== undefined;
       const state = ctx.toggleState;
