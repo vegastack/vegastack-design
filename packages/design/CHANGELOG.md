@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.8.44
+
+### Patch Changes
+
+- [#828](https://github.com/vegastack/vegastack-design/pull/828) [`0530a15`](https://github.com/vegastack/vegastack-design/commit/0530a152f8c03a2f9f365900fbbde320f1139782) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **AgentHoverCard** shows the agent's `lastAction` (its latest progress line, under the state), and its body ships on its own as **AgentCard**. **PersonHoverCard** takes a host's card through `PersonHoverCardProvider` (keyed by the new optional `Person.id`), so an agent's name in comments and activity opens the same agent card. [docs](https://design.vegastack.com/docs/components/agent-panel)
+
+- [#829](https://github.com/vegastack/vegastack-design/pull/829) [`5725c61`](https://github.com/vegastack/vegastack-design/commit/5725c611f2b1d68cbfe4593fb96981ab441f3bc8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **RecordPicker** browses folders: pass a `browse` loader (one folder's contents, `null` for the top) and mark folder rows `folder: true`, and the empty search box walks the app's folders — a folder opens instead of being picked, a breadcrumb (or Backspace in the empty box) climbs back, and typing still searches everything. With `multiple`, `selectAll` adds a "Select all" for the rows on screen; `kindFilter={false}` hides the kind filter. **RecordPickerDialog** takes a counting `confirmLabel` ("Add 3"), a `cancelLabel`, and an async `onConfirm` that keeps the dialog open and busy until it settles (`false` keeps it open); its confirm is off while nothing is picked. [docs](https://design.vegastack.com/docs/components/record-picker)
+
 ## 0.8.43
 
 ### Patch Changes

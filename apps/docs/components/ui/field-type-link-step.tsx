@@ -1,4 +1,4 @@
-// @vegastack field-type-link-step@0.25.95 sha256-yreZHAuflGCEZncgENXEOCHmFxEW5iAsGSA6J3uRNl8=
+// @vegastack field-type-link-step@0.25.96 sha256-i4zBJ5wJt/HBTCda4qmDmcGU5dNcE7JBIIxa1BVUCrA=
 
 "use client";
 
