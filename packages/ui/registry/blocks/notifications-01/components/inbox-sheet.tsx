@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.25.95 sha256-wh7VMfLt9rymNdUBINnnFKxrGgzoxcmruiujkiWJF0Y=
+// @vegastack notifications-01@0.25.96 sha256-3r4yh5X56+CVR3Jv0EUGV0g4IfSb6R6j2AxTK5kTic8=
 
 "use client";
 

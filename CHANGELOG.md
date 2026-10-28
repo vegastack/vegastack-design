@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.96] — October 28, 2026
+
+<!-- assembled from 2 changesets: d69e09561560 -->
+
+### 🧩 New components
+
+- **RecordPicker** browses folders: pass a `browse` loader (one folder's contents, `null` for the top) and mark folder rows `folder: true`, and the empty search box walks the app's folders — a folder opens instead of being picked, a breadcrumb (or Backspace in the empty box) climbs back, and typing still searches everything. With `multiple`, `selectAll` adds a "Select all" for the rows on screen; `kindFilter={false}` hides the kind filter. **RecordPickerDialog** takes a counting `confirmLabel` ("Add 3"), a `cancelLabel`, and an async `onConfirm` that keeps the dialog open and busy until it settles (`false` keeps it open); its confirm is off while nothing is picked. [docs](https://design.vegastack.com/docs/components/record-picker) ·
+  [`5725c61`](https://github.com/VegaStack/vegastack-design/commit/5725c61)
+
+### 🔧 Changed components
+
+- **AgentHoverCard** shows the agent's `lastAction` (its latest progress line, under the state), and its body ships on its own as **AgentCard**. **PersonHoverCard** takes a host's card through `PersonHoverCardProvider` (keyed by the new optional `Person.id`), so an agent's name in comments and activity opens the same agent card. [docs](https://design.vegastack.com/docs/components/agent-panel) ·
+  [`0530a15`](https://github.com/VegaStack/vegastack-design/commit/0530a15)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.44`** (was `0.8.43`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.95 → 0.25.96.
+
 ## [0.25.95] — October 28, 2026
 
 <!-- assembled from 2 changesets: c118173fd56b -->
