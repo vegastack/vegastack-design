@@ -1,11 +1,11 @@
 ---
 title: Record Picker
-description: Pick one or several records of the kinds the app passes in — search, kind filter, recents and refused rows — in a popover or a dialog.
+description: Pick one or several records of the kinds the app passes in — search, kind filter, recents, folder browsing and refused rows — in a popover or a dialog.
 audience: public
 registry: record-picker
 status: preview
 since: 0.25.89
-a11y: combobox search, grouped listbox, disabled rows with reasons
+a11y: combobox search, grouped listbox, folder breadcrumb
 preview: recordPicker
 ---
 
@@ -37,8 +37,10 @@ import { RecordPicker } from "@/components/ui/record-picker";
 
 One way to pick records, whatever their kind: a relation field, a block's source, a "Link to…"
 dialog. The picker knows no kinds — the app passes them with their nouns and icons, and its own
-`search` loader (debounced, abortable and paged through `useAsyncSearch`). People have
-`PeoplePicker`; a place to move something has `DestinationPicker`.
+`search` loader (debounced, abortable and paged through `useAsyncSearch`). With a `browse`
+loader the picker also walks the app's folders, one folder at a time, so an "Add from…" dialog
+can be browsed as well as searched. People have `PeoplePicker`; a place to move something — a
+folder to choose, not records inside it — has `DestinationPicker`.
 
 ## Anatomy
 
@@ -68,6 +70,26 @@ no longer shows it. While a new search is on its way, Enter can't pick a row fro
   file="components/preview/record-picker.tsx"
 />
 
+### Browsing folders
+
+Pass `browse` — the app's listing of one folder (`null` is the top), paged like `search` — and
+mark folder rows with `folder: true`. While the search box is empty the list is the open folder's
+contents in the app's order; choosing a folder opens it (it is never picked), and the breadcrumb
+above the list, or Backspace in the empty box, climbs back. Typing searches everything through
+`search`, wherever it lives; a folder found that way opens from the top of the trail. `recents`
+show at the top only. With `multiple`, ticks survive moving between folders, and `selectAll` adds
+a "Select all" for the rows on screen. `kindFilter={false}` hides the kind filter when the
+loaders can't narrow by kind.
+
+In a dialog, `confirmLabel` can count the picks ("Add 3"), `cancelLabel` adds a Cancel button, and
+an async `onConfirm` keeps the dialog open and the button busy until it settles — `false` keeps it
+open so the reader can try again. The confirm is off while nothing is picked.
+
+<ComponentPreview
+  name="recordPickerBrowse"
+  file="components/preview/record-picker.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
@@ -84,14 +106,17 @@ no longer shows it. While a new search is on its way, Enter can't pick a row fro
 
 ## Accessibility
 
-| Key   | Does                                |
-| ----- | ----------------------------------- |
-| Type  | Searches the app's records          |
-| ↑ / ↓ | Moves through the results           |
-| Enter | Picks (or toggles, with `multiple`) |
-| Esc   | Closes the popover or dialog        |
+| Key                   | Does                                                |
+| --------------------- | --------------------------------------------------- |
+| Type                  | Searches the app's records, in every folder         |
+| ↑ / ↓                 | Moves through the results or the folder             |
+| Enter                 | Picks (or toggles, with `multiple`); opens a folder |
+| Backspace (empty box) | With `browse`: climbs to the folder above           |
+| Esc                   | Closes the popover or dialog                        |
 
 - The search box drives a grouped listbox; a refused row is `aria-disabled` and reads its reason.
+- A folder row reads "folder" after its name. Opening one announces it, and the breadcrumb is a
+  `nav` named "Folder path" whose crumbs are buttons; the open folder is the current page.
 - Loading, errors and "Load more" sit outside the listbox, in a status row.
 
 <StatesTested name="record-picker" />

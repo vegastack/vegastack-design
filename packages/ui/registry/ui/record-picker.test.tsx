@@ -6,6 +6,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import {
   RecordPicker,
   RecordPickerDialog,
+  type RecordPickerBrowse,
   type RecordPickerItem,
   type RecordPickerSearch,
 } from "./record-picker";
@@ -142,6 +143,8 @@ test("the dialog picks and closes", async () => {
         document.querySelector('[cmdk-item][aria-selected="true"]') !== null,
     )
     .toBe(true);
+  // The dialog moves focus into the search box as it opens; Enter goes wherever focus is.
+  await expect.element(screen.getByRole("combobox")).toHaveFocus();
   await userEvent.keyboard("{Enter}");
   expect(onPick).toHaveBeenCalledTimes(1);
   await expect.element(screen.getByRole("dialog")).not.toBeInTheDocument();
@@ -264,4 +267,164 @@ test("a superseded search's late answer leaves the current rows pickable", async
   await new Promise((r) => setTimeout(r, 50));
   await userEvent.click(screen.getByRole("option", { name: /Price list/ }));
   expect(onPick).toHaveBeenCalledWith(ALL[1]);
+});
+
+/* Browse ---------------------------------------------------------------------------------------- */
+
+const TREE: Record<string, RecordPickerItem[]> = {
+  "": [
+    { id: "f1", kind: "page", title: "Sales", folder: true },
+    { id: "1", kind: "page", title: "Pricing note" },
+  ],
+  f1: [
+    { id: "f2", kind: "page", title: "Contracts", folder: true },
+    { id: "2", kind: "table", title: "Price list" },
+  ],
+  f2: [],
+};
+const browse: RecordPickerBrowse = async (folder) => ({
+  items: TREE[folder?.id ?? ""] ?? [],
+});
+
+test("browse opens folders, the breadcrumb climbs back, and typing searches everything", async () => {
+  const onPick = vi.fn();
+  const asked = vi.fn(search);
+  const screen = await render(
+    <RecordPicker
+      kinds={KINDS}
+      search={asked}
+      browse={browse}
+      rootLabel="Library"
+      onPick={onPick}
+    />,
+  );
+  await userEvent.click(screen.getByRole("option", { name: /Sales/ }));
+  expect(onPick).not.toHaveBeenCalled();
+  await expect
+    .element(screen.getByRole("option", { name: /Price list/ }))
+    .toBeVisible();
+  await expectNoA11yViolations(screen.container);
+  const path = screen.getByRole("navigation", { name: "Folder path" });
+  await expect.poll(() => path.element().textContent).toBe("LibrarySales");
+  await userEvent.click(screen.getByRole("option", { name: /Contracts/ }));
+  await expect.element(screen.getByText("This folder is empty.")).toBeVisible();
+  // The crumb climbs to its folder.
+  await userEvent.click(screen.getByRole("button", { name: "Sales" }));
+  await expect
+    .element(screen.getByRole("option", { name: /Price list/ }))
+    .toBeVisible();
+  // Typing searches everything, not just the open folder.
+  await userEvent.type(screen.getByRole("combobox"), "pricing");
+  await expect
+    .element(screen.getByRole("option", { name: /Pricing note/ }))
+    .toBeVisible();
+  expect(asked).toHaveBeenCalled();
+  await userEvent.click(screen.getByRole("option", { name: /Pricing note/ }));
+  expect(onPick).toHaveBeenCalledWith(ALL[0]);
+});
+
+test("Backspace in the empty box climbs one folder", async () => {
+  const screen = await render(
+    <RecordPicker
+      kinds={KINDS}
+      search={search}
+      browse={browse}
+      onPick={() => {}}
+    />,
+  );
+  await userEvent.click(screen.getByRole("option", { name: /Sales/ }));
+  await expect
+    .element(screen.getByRole("option", { name: /Price list/ }))
+    .toBeVisible();
+  await userEvent.click(screen.getByRole("combobox"));
+  await userEvent.keyboard("{Backspace}");
+  await expect
+    .element(screen.getByRole("option", { name: /Pricing note/ }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("navigation", { name: "Folder path" }))
+    .not.toBeInTheDocument();
+});
+
+test("select all picks the rows on screen, never a folder", async () => {
+  function Multi() {
+    const [picked, setPicked] = React.useState<RecordPickerItem[]>([]);
+    return (
+      <>
+        <output data-testid="picked">
+          {picked.map((p) => p.title).join(",")}
+        </output>
+        <RecordPicker
+          kinds={KINDS}
+          search={search}
+          browse={browse}
+          kindFilter={false}
+          selectAll
+          multiple
+          value={picked}
+          onValueChange={setPicked}
+        />
+      </>
+    );
+  }
+  const screen = await render(<Multi />);
+  await expect
+    .element(screen.getByRole("option", { name: /Pricing note/ }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Pages" }))
+    .not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Select all" }));
+  await expect
+    .poll(() => screen.getByTestId("picked").element().textContent)
+    .toBe("Pricing note");
+  await expect
+    .element(screen.getByRole("button", { name: "Select all" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await userEvent.click(screen.getByRole("button", { name: "Select all" }));
+  await expect
+    .poll(() => screen.getByTestId("picked").element().textContent)
+    .toBe("");
+});
+
+test("an async confirm holds the dialog, and false keeps it open", async () => {
+  let settle: ((ok: boolean) => void) | undefined;
+  const onOpenChange = vi.fn();
+  const screen = await render(
+    <RecordPickerDialog
+      open
+      onOpenChange={onOpenChange}
+      title="Add from the archive"
+      kinds={KINDS}
+      search={search}
+      multiple
+      cancelLabel="Cancel"
+      confirmLabel={(count) => (count > 1 ? `Add ${count}` : "Add")}
+      onConfirm={() => new Promise<boolean>((resolve) => (settle = resolve))}
+    />,
+  );
+  // The modal's inert backdrop takes the pointer in this harness: click the elements directly.
+  const click = (el: { element: () => Element }) =>
+    (el.element() as HTMLElement).click();
+  const add = screen.getByRole("button", { name: "Add" });
+  await expect.element(add).toBeDisabled();
+  await expect
+    .element(screen.getByRole("option", { name: /Pricing note/ }))
+    .toBeVisible();
+  click(screen.getByRole("option", { name: /Pricing note/ }));
+  await expect
+    .element(screen.getByRole("button", { name: "Add" }))
+    .toBeEnabled();
+  click(screen.getByRole("option", { name: /Price list/ }));
+  const addTwo = screen.getByRole("button", { name: "Add 2" });
+  await expect.element(addTwo).toBeEnabled();
+  click(addTwo);
+  await expect.element(addTwo).toHaveAttribute("aria-busy", "true");
+  settle?.(false);
+  await expect.element(addTwo).not.toHaveAttribute("aria-busy", "true");
+  expect(onOpenChange).not.toHaveBeenCalled();
+  click(addTwo);
+  await expect.element(addTwo).toHaveAttribute("aria-busy", "true");
+  settle?.(true);
+  await expect.poll(() => onOpenChange.mock.calls.at(-1)?.[0]).toBe(false);
 });
