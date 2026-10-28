@@ -126,8 +126,8 @@ with an action such as "Manage access". The avatars overlap by 4px, so two initi
 `PersonHoverCardProvider` lets the host draw the card behind some people — an agent's state, last
 action and View agent, say — in every `PersonHoverCard` below it, including a comment's author and
 an activity's actor. Give the person an `id` and return a card for the ones you know; return `null`
-for the standard `PersonCard`. `card` runs only while a card is open, and its `close` shuts it
-before you navigate away.
+for the standard `PersonCard`. The element you return renders only while its card is open, and
+`close` shuts the card before you navigate away.
 
 ```tsx
 <PersonHoverCardProvider

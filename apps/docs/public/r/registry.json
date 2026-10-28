@@ -17470,7 +17470,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.25.95",
-        "integrity": "sha256-JT19YQVW2qFUmEJPycig7tYobuh/6kT2Jdpr9AvYdPk="
+        "integrity": "sha256-fdIRDcGFvmyGqhIWfdbpJxqViYUKoETF6/RY0zlgikA="
       }
     },
     {

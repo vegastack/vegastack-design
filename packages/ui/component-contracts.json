@@ -36698,6 +36698,15 @@
           }
         },
         {
+          "name": "PersonHoverCardProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider; renders no element and takes no ref."
+          }
+        },
+        {
           "name": "PersonCard",
           "kind": "component",
           "source": "packages/ui/registry/ui/person-hover-card.tsx",
@@ -36718,6 +36727,15 @@
         },
         {
           "name": "PersonHoverCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PersonHoverCardResolver",
           "kind": "interface",
           "source": "packages/ui/registry/ui/person-hover-card.tsx",
           "ref": {
@@ -36766,7 +36784,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["stack", "overflow", "hover-card", "team"],
+          "values": ["stack", "overflow", "hover-card", "team", "host-card"],
           "evidence": "packages/ui/registry/ui/person-hover-card.tsx + packages/ui/registry/ui/person-hover-card.test.tsx"
         },
         "accessibility": {
@@ -39920,6 +39938,15 @@
           }
         },
         {
+          "name": "AgentCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The hover card's body, a plain div with fixed children; it takes no ref."
+          }
+        },
+        {
           "name": "AgentState",
           "kind": "type",
           "source": "packages/ui/registry/ui/agent-panel.tsx",
@@ -39993,6 +40020,15 @@
         },
         {
           "name": "AgentHoverCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentCardProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/agent-panel.tsx",
           "ref": {
@@ -40089,6 +40125,7 @@
             "chip",
             "ring",
             "hover-card",
+            "last-action",
             "labels"
           ],
           "evidence": "packages/ui/registry/ui/agent-panel.tsx + packages/ui/registry/ui/agent-panel.test.tsx"
@@ -40233,7 +40270,7 @@
           ],
           "cssVariables": []
         },
-        "AgentHoverCard": {
+        "AgentCard": {
           "attributes": [
             {
               "name": "data-icon",
@@ -40241,11 +40278,16 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "agent-hover-card",
-                "agent-hover-card-avatar",
-                "agent-hover-card-name"
-              ]
+              "values": ["agent-hover-card", "agent-hover-card-last-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentHoverCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-hover-card-avatar", "agent-hover-card-name"]
             }
           ],
           "cssVariables": []

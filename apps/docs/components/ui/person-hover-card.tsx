@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.25.95 sha256-JT19YQVW2qFUmEJPycig7tYobuh/6kT2Jdpr9AvYdPk=
+// @vegastack person-hover-card@0.25.95 sha256-fdIRDcGFvmyGqhIWfdbpJxqViYUKoETF6/RY0zlgikA=
 
 "use client";
 
@@ -95,7 +95,8 @@ export function PersonCard({
 /**
  * What a `PersonHoverCardProvider` hands every `PersonHoverCard` below it: `card` returns the body
  * for a person the host knows more about — an agent's `AgentCard`, say — or `null` for the
- * standard `PersonCard`. `close` shuts the card (call it before navigating away).
+ * standard `PersonCard`. `close` shuts the card (call it before navigating away). Return an element
+ * (cheap to make): it renders only while the card is open.
  */
 export interface PersonHoverCardResolver {
   card: (person: Person, close: () => void) => React.ReactNode | null;
@@ -158,10 +159,8 @@ export function PersonHoverCard({
 }: PersonHoverCardProps) {
   const [open, setOpen] = React.useState(false);
   const resolver = React.useContext(PersonHoverCardContext);
-  // Only while open, so a long feed asks the host for nothing until someone hovers.
-  const custom = open
-    ? (resolver?.card(person, () => setOpen(false)) ?? null)
-    : null;
+  // Kept while the card closes, so its exit animation keeps the host's body and width.
+  const custom = resolver?.card(person, () => setOpen(false)) ?? null;
   return (
     <HoverCard open={open} onOpenChange={setOpen}>
       <HoverCardTrigger
