@@ -307,7 +307,7 @@ test("browse opens folders, the breadcrumb climbs back, and typing searches ever
   const path = screen.getByRole("navigation", { name: "Folder path" });
   await expect.poll(() => path.element().textContent).toBe("LibrarySales");
   await userEvent.click(screen.getByRole("option", { name: /Contracts/ }));
-  await expect.element(screen.getByText("This folder is empty.")).toBeVisible();
+  await expect.element(screen.getByText("This folder is empty")).toBeVisible();
   // The crumb climbs to its folder.
   await userEvent.click(screen.getByRole("button", { name: "Sales" }));
   await expect
@@ -420,6 +420,9 @@ test("an async confirm holds the dialog, and false keeps it open", async () => {
   await expect.element(addTwo).toBeEnabled();
   click(addTwo);
   await expect.element(addTwo).toHaveAttribute("aria-busy", "true");
+  // The picks are frozen while the confirm is pending.
+  click(screen.getByRole("option", { name: /Pricing note/ }));
+  await expect.element(addTwo).toHaveAttribute("aria-busy", "true");
   settle?.(false);
   await expect.element(addTwo).not.toHaveAttribute("aria-busy", "true");
   expect(onOpenChange).not.toHaveBeenCalled();
@@ -427,4 +430,23 @@ test("an async confirm holds the dialog, and false keeps it open", async () => {
   await expect.element(addTwo).toHaveAttribute("aria-busy", "true");
   settle?.(true);
   await expect.poll(() => onOpenChange.mock.calls.at(-1)?.[0]).toBe(false);
+});
+
+test("select all covers the recents on screen too", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <RecordPicker
+      kinds={KINDS}
+      search={async () => ({ items: [ALL[0]!] })}
+      recents={[ALL[0]!]}
+      selectAll
+      multiple
+      value={[]}
+      onValueChange={onValueChange}
+    />,
+  );
+  const all = screen.getByRole("button", { name: "Select all" });
+  await expect.element(all).toBeEnabled();
+  await userEvent.click(all);
+  expect(onValueChange).toHaveBeenCalledWith([ALL[0]]);
 });

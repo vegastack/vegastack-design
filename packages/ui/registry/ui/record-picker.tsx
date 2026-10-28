@@ -1,4 +1,4 @@
-// @vegastack record-picker@0.25.95 sha256-rFAfmojNb7kihsFPQbk6Zuut6Le7AikgJsAfmuWgNsA=
+// @vegastack record-picker@0.25.95 sha256-VwcVNkcbGHigNYHeLXD6zaxSzrLFSzdgfEJIrA9Qxg4=
 
 "use client";
 
@@ -76,6 +76,8 @@ export interface RecordPickerItem {
 export interface RecordPickerFolder {
   /** The folder's id, as its row carried it. */
   id: string;
+  /** The folder's kind, as its row carried it — ids are unique within a kind. */
+  kind: string;
   /** The folder's name, on the breadcrumb. */
   title: string;
 }
@@ -186,8 +188,8 @@ export interface RecordPickerProps {
   recentLabel?: string;
   /** @default "No results." */
   emptyLabel?: string;
-  /** With `browse`: an open folder with nothing in it. @default "This folder is empty." */
-  emptyFolderLabel?: string;
+  /** With `browse`: an open folder with nothing in it. @default "This folder is empty" */
+  emptyFolderMessage?: string;
   /** With `browse`: the breadcrumb's accessible name. @default "Folder path" */
   pathLabel?: string;
   /** With `browse`: read after a folder row's title. @default "folder" */
@@ -240,7 +242,7 @@ export function RecordPicker({
   allLabel = "All",
   recentLabel = "Recent",
   emptyLabel = "No results.",
-  emptyFolderLabel = "This folder is empty.",
+  emptyFolderMessage = "This folder is empty",
   pathLabel = "Folder path",
   folderLabel = "folder",
   openedLabel = (title) => `${title}, opened`,
@@ -268,8 +270,9 @@ export function RecordPicker({
     key: "",
     items: new WeakSet(),
   });
+  const folderKey = folder ? recordPickerKey(folder) : "";
   const keyOf = (query: string) =>
-    `${kind ?? ""}\u0000${folder?.id ?? ""}\u0000${query}`;
+    `${kind ?? ""}\u0000${folderKey}\u0000${query}`;
   const results = useAsyncSearch<RecordPickerItem>(
     async (query, context) => {
       const lister = browseRef.current;
@@ -285,7 +288,7 @@ export function RecordPicker({
       for (const item of page.items) produced.current.items.add(item);
       return page;
     },
-    { deps: [kind, folder?.id ?? null] },
+    { deps: [kind, folderKey] },
   );
   const picked = React.useMemo(
     () => new Set((value ?? []).map(recordPickerKey)),
@@ -336,7 +339,10 @@ export function RecordPicker({
     if (fromResults && !answersNow(item)) return;
     if (opens(item)) {
       // From a search, the trail starts again at the top: the result knows no path.
-      openFolder([...(typed ? [] : trail), { id: item.id, title: item.title }]);
+      openFolder([
+        ...(typed ? [] : trail),
+        { id: item.id, kind: item.kind, title: item.title },
+      ]);
       return;
     }
     if (!multiple) {
@@ -352,10 +358,11 @@ export function RecordPicker({
     );
   };
 
-  // "Select all" covers the rows on screen that answer what is shown now and can be picked.
+  // "Select all" covers the rows on screen that can be picked: the recents, and the results that
+  // answer what is shown now.
   const pickable = multiple
-    ? rows.filter(
-        (item) => !item.disabledReason && !opens(item) && answersNow(item),
+    ? [...recentRows, ...rows.filter(answersNow)].filter(
+        (item) => !item.disabledReason && !opens(item),
       )
     : [];
   const allPicked =
@@ -491,7 +498,7 @@ export function RecordPicker({
         >
           <BreadcrumbList className="gap-0.5 sm:gap-0.5">
             {[null, ...trail.slice(0, -1)].map((crumb, index) => (
-              <React.Fragment key={crumb?.id ?? "top"}>
+              <React.Fragment key={crumb ? recordPickerKey(crumb) : "top"}>
                 <BreadcrumbItem className="min-w-0">
                   <Button
                     type="button"
@@ -523,7 +530,7 @@ export function RecordPicker({
       <CommandList>
         {!results.loading && !results.error ? (
           <CommandEmpty>
-            {browsing && trail.length > 0 ? emptyFolderLabel : emptyLabel}
+            {browsing && trail.length > 0 ? emptyFolderMessage : emptyLabel}
           </CommandEmpty>
         ) : null}
         {recentRows.length > 0 ? (
@@ -648,18 +655,19 @@ export function RecordPickerDialog({
   React.useEffect(() => {
     if (open) setDraft([...(valueRef.current ?? [])]);
   }, [open]);
+  // While a confirm is pending the picks are frozen: what closes the dialog is what was sent.
+  const busyRef = React.useRef(false);
   const confirm = async () => {
-    if (busy) return;
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
     let outcome: void | boolean = undefined;
     try {
-      const pending = onConfirm?.(draft);
-      if (pending instanceof Promise) {
-        setBusy(true);
-        outcome = await pending;
-      } else outcome = pending;
+      outcome = await onConfirm?.(draft);
     } catch {
       outcome = false;
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
     if (outcome !== false) onOpenChange(false);
@@ -681,6 +689,7 @@ export function RecordPickerDialog({
         multiple={multiple}
         value={draft}
         onValueChange={(items) => {
+          if (busyRef.current) return;
           setDraft(items);
           onValueChange?.(items);
         }}

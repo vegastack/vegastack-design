@@ -17543,7 +17543,7 @@
         "whenToUse": "Linking, relating, attaching or inserting records of several kinds: a relation field, a mention target, a block source, a Link to… dialog, an Add from… dialog that browses folders.",
         "whenNotToUse": "A fixed option list (Select, SearchableSelect), people (PeoplePicker) or a place to move something (DestinationPicker).",
         "version": "0.25.95",
-        "integrity": "sha256-rFAfmojNb7kihsFPQbk6Zuut6Le7AikgJsAfmuWgNsA="
+        "integrity": "sha256-VwcVNkcbGHigNYHeLXD6zaxSzrLFSzdgfEJIrA9Qxg4="
       }
     },
     {
