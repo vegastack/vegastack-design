@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.25.95 sha256-m1yxGuKJtU0rkzWqJx9bRQD15NiIUP3LvACkAHL5bOg=
+// @vegastack person-hover-card@0.25.95 sha256-fdIRDcGFvmyGqhIWfdbpJxqViYUKoETF6/RY0zlgikA=
 
 "use client";
 
@@ -31,6 +31,7 @@ import {
  * an account (a free-text participant) shows initials and just the name. A team (`kind: "team"`)
  * stacks and lists the same way, drawn as its rounded-square team tile; an agent
  * (`kind: "agent"`) as its purple bot, named "Claude Code via Manoj" with the "Agent" label.
+ * `PersonHoverCardProvider` lets the host draw a richer card for some of them (an agent's).
  * ----------------------------------------------------------------------------------------------*/
 
 /** A person — re-exported from `person-avatar`, their home, for existing imports. */
@@ -91,6 +92,41 @@ export function PersonCard({
   );
 }
 
+/**
+ * What a `PersonHoverCardProvider` hands every `PersonHoverCard` below it: `card` returns the body
+ * for a person the host knows more about — an agent's `AgentCard`, say — or `null` for the
+ * standard `PersonCard`. `close` shuts the card (call it before navigating away). Return an element
+ * (cheap to make): it renders only while the card is open.
+ */
+export interface PersonHoverCardResolver {
+  card: (person: Person, close: () => void) => React.ReactNode | null;
+}
+
+const PersonHoverCardContext =
+  React.createContext<PersonHoverCardResolver | null>(null);
+
+/**
+ * `PersonHoverCardProvider` — lets the host draw the card behind some people's names and avatars
+ * (an agent's state and View agent) in every `PersonHoverCard` below it — the comments' authors
+ * and the activity feed's actors among them. Wrap the app (or one surface) once.
+ *
+ * @example
+ * <PersonHoverCardProvider value={{ card: (p) => (p.kind === "agent" ? <AgentCard agent={p} /> : null) }}>…</PersonHoverCardProvider>
+ */
+export function PersonHoverCardProvider({
+  value,
+  children,
+}: {
+  value: PersonHoverCardResolver;
+  children: React.ReactNode;
+}) {
+  return (
+    <PersonHoverCardContext.Provider value={value}>
+      {children}
+    </PersonHoverCardContext.Provider>
+  );
+}
+
 /** Props for `PersonHoverCard`. */
 export interface PersonHoverCardProps {
   /** The person. */
@@ -122,6 +158,9 @@ export function PersonHoverCard({
   className,
 }: PersonHoverCardProps) {
   const [open, setOpen] = React.useState(false);
+  const resolver = React.useContext(PersonHoverCardContext);
+  // Kept while the card closes, so its exit animation keeps the host's body and width.
+  const custom = resolver?.card(person, () => setOpen(false)) ?? null;
   return (
     <HoverCard open={open} onOpenChange={setOpen}>
       <HoverCardTrigger
@@ -155,8 +194,11 @@ export function PersonHoverCard({
       >
         {children}
       </HoverCardTrigger>
-      <HoverCardContent align="start" className="w-60 p-2">
-        <PersonCard person={person} />
+      <HoverCardContent
+        align="start"
+        className={custom ? "w-64 p-2.5" : "w-60 p-2"}
+      >
+        {custom ?? <PersonCard person={person} />}
       </HoverCardContent>
     </HoverCard>
   );

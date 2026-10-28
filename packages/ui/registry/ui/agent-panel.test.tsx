@@ -6,6 +6,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/stacking.css";
 import {
   AgentChip,
+  AgentCard,
   AgentHoverCard,
   AgentPanel,
   AgentSlot,
@@ -580,6 +581,30 @@ test("hover card: name, Agent, acting for, access, state and View agent", async 
   await expect.element(page.getByText("Working")).toBeVisible();
   await page.getByRole("button", { name: "View agent" }).click();
   expect(onViewAgent).toHaveBeenCalledTimes(1);
+});
+
+test("hover card: the last action under the state, and AgentCard alone", async () => {
+  const screen = await render(
+    <>
+      <AgentHoverCard
+        agent={agent}
+        state="question"
+        lastAction="Which price list — v2 or the client's?"
+      >
+        <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
+      </AgentHoverCard>
+      <AgentCard agent={{ name: "Codex" }} />
+    </>,
+  );
+  const bare = screen.container.querySelector("[data-slot=agent-hover-card]");
+  expect(bare!.textContent).not.toContain("Last action");
+  await screen
+    .getByRole("button", { name: "Claude Code via Priya, agent" })
+    .click();
+  const last = page.getByText("Which price list — v2 or the client's?");
+  await expect.element(last).toBeVisible();
+  await expect.element(page.getByText("Last action")).toBeVisible();
+  await expectNoA11yViolations(document.body);
 });
 
 test("section: closes when the work finishes and opens when it comes back", async () => {

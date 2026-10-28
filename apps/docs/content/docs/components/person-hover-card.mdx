@@ -121,6 +121,33 @@ with an action such as "Manage access". The avatars overlap by 4px, so two initi
   file="components/preview/person-hover-card.tsx"
 />
 
+### A host's card for some people
+
+`PersonHoverCardProvider` lets the host draw the card behind some people — an agent's state, last
+action and View agent, say — in every `PersonHoverCard` below it, including a comment's author and
+an activity's actor. Give the person an `id` and return a card for the ones you know; return `null`
+for the standard `PersonCard`. The element you return renders only while its card is open, and
+`close` shuts the card before you navigate away.
+
+```tsx
+<PersonHoverCardProvider
+  value={{
+    card: (person, close) =>
+      person.kind === "agent" && person.id ? (
+        <AgentCard
+          agent={person}
+          onViewAgent={() => {
+            close();
+            openAgent(person.id);
+          }}
+        />
+      ) : null,
+  }}
+>
+  {app}
+</PersonHoverCardProvider>
+```
+
 ## API Reference
 
 ### AvatarStack
