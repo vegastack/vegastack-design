@@ -8,7 +8,7 @@
   "files": [
     {
       "path": "packages/ui/registry/lib/disclosure-trigger.ts",
-      "content": "// @vegastack disclosure-trigger@0.25.96 sha256-njuzWWjXikqVTHFJS0yT5cUWqfWgJTAstIxr8+NiBjc=\n\n/**\n * disclosure-trigger — the ONE class recipe for a ghost `Button` that expands and collapses a\n * section in place (a collapsible header, a table group toggle), shared by `RecordAsideSection`,\n * `SectionToggle`, `AgentPanel`'s header and `ShareDialog`'s audience toggle.\n *\n * Upstream's ghost Button paints `aria-expanded:bg-muted` because, on a menu or popover trigger,\n * `aria-expanded` means \"my popup is open\". On a disclosure it means \"this section is expanded\" —\n * the resting state of most sections — so the grey would make every open section look pressed.\n * `disclosureTriggerClasses` clears that fill while the pointer is elsewhere and leaves hover and\n * press to the variant. Ink is the caller's: a trigger that rests on `text-muted-foreground`\n * restates it under `aria-expanded:` itself.\n *\n * Pass it in the Button's `className` (through `cn`). Every class is a literal so a consumer's\n * Tailwind scanner sees it.\n */\n\n/** Clears the ghost Button's popup-open fill on an expanded section; hover still shows. */\nexport const disclosureTriggerClasses =\n  \"aria-expanded:not-hover:bg-transparent\";\n",
+      "content": "// @vegastack disclosure-trigger@0.25.97 sha256-mkfkY3/2Ca/zjACEYtMsKr+4hkkhle8IHBwR2GxXcd8=\n\n/**\n * disclosure-trigger — the ONE class recipe for a ghost `Button` that expands and collapses a\n * section in place (a collapsible header, a table group toggle), shared by `RecordAsideSection`,\n * `SectionToggle`, `AgentPanel`'s header and `ShareDialog`'s audience toggle.\n *\n * Upstream's ghost Button paints `aria-expanded:bg-muted` because, on a menu or popover trigger,\n * `aria-expanded` means \"my popup is open\". On a disclosure it means \"this section is expanded\" —\n * the resting state of most sections — so the grey would make every open section look pressed.\n * `disclosureTriggerClasses` clears that fill while the pointer is elsewhere and leaves hover and\n * press to the variant. Ink is the caller's: a trigger that rests on `text-muted-foreground`\n * restates it under `aria-expanded:` itself.\n *\n * Pass it in the Button's `className` (through `cn`). Every class is a literal so a consumer's\n * Tailwind scanner sees it.\n */\n\n/** Clears the ghost Button's popup-open fill on an expanded section; hover still shows. */\nexport const disclosureTriggerClasses =\n  \"aria-expanded:not-hover:bg-transparent\";\n",
       "type": "registry:lib",
       "target": "@lib/disclosure-trigger.ts"
     }
@@ -16,8 +16,8 @@
   "meta": {
     "whenToUse": "A ghost Button that is a CollapsibleTrigger or otherwise toggles a section open in place — put disclosureTriggerClasses in its className.",
     "whenNotToUse": "A trigger that opens a popup (menu, popover, select) — there the aria-expanded grey is the right cue.",
-    "version": "0.25.96",
-    "integrity": "sha256-njuzWWjXikqVTHFJS0yT5cUWqfWgJTAstIxr8+NiBjc="
+    "version": "0.25.97",
+    "integrity": "sha256-mkfkY3/2Ca/zjACEYtMsKr+4hkkhle8IHBwR2GxXcd8="
   },
   "categories": [
     "data"

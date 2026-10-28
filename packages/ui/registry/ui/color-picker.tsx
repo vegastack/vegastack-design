@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.25.96 sha256-XLrnzo1r1FUPaFzD5jXxP4WoUSAGwQsYWBC2/RIwHiA=
+// @vegastack color-picker@0.25.97 sha256-LxiU2o/9fqOskWwOu96FuwjHPD+cGpTuLSMx6kqvHq4=
 
 "use client";
 
