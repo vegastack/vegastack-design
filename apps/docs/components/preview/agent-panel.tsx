@@ -334,7 +334,12 @@ export function agentPanelSlot(): ReactNode {
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span>Hover the agent:</span>
-          <AgentHoverCard agent={claude} state="working" onViewAgent={noop}>
+          <AgentHoverCard
+            agent={claude}
+            state="working"
+            lastAction="Reading the 3 linked pages…"
+            onViewAgent={noop}
+          >
             <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
           </AgentHoverCard>
           <AgentHoverCard

@@ -107,7 +107,10 @@ quick action. It opens unless the work is done or stopped.
 word never does — with the ghost "Delegate to an agent…" when empty and the muted reason when the
 viewer can't delegate. `AgentChip` is the same as a pill; `AgentStateBadge` the state as icon and
 word; `AgentStateRing` rings an agent's avatar amber while it needs you and red when it failed.
-Hover the agent for `AgentHoverCard`.
+Hover the agent for `AgentHoverCard`: who it is and who it acts for, its state, its `lastAction`
+(the latest progress line, clamped to two lines) and View agent. `AgentCard` is that card's body on
+its own — hand it to a `PersonHoverCardProvider` so the agent's name in comments and activity opens
+the same card.
 
 <ComponentPreview
   name="agentPanelSlot"
@@ -161,6 +164,13 @@ Hover the agent for `AgentHoverCard`.
 <ApiTable
   path="../../packages/ui/registry/ui/agent-panel.tsx"
   name="AgentHoverCardProps"
+/>
+
+### AgentCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-panel.tsx"
+  name="AgentCardProps"
 />
 
 ## Accessibility

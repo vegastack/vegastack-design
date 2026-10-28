@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.25.95 sha256-zSayoHV5Uxr7/lIQcNvYhetUVmBmfMsyNf/yc7hpp3U=
+// @vegastack agent-panel@0.25.95 sha256-OfHPH6k+eWU/oLoqORJ3egNRVy4ZCoZvqvddI54XJWs=
 
 "use client";
 
@@ -82,7 +82,8 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
  * - `AgentChip` — the same, as a pill in a peek's pill row or a phone's facts row.
  * - `AgentStateBadge` — the state as an icon and a word; `AgentStateRing` — the avatar ring for
  *   lists and boards (amber: needs you, red: failed).
- * - `AgentHoverCard` — the agent behind an avatar or a name: acting for, access, state, View agent.
+ * - `AgentHoverCard` — the agent behind an avatar or a name: acting for, access, state, last action,
+ *   View agent. `AgentCard` is its body, for a `PersonHoverCardProvider`.
  *
  * Presentational: the host owns the delegation and passes its state, data and callbacks. Which
  * actions show is decided by the callbacks passed, so a viewer who can't steer gets the words only.
@@ -554,6 +555,8 @@ export interface AgentHoverCardLabels {
   viewAgent: string;
   /** The avatar trigger's accessible name: "Claude Code via Priya, agent". */
   name: (agent: string, owner?: string | null) => string;
+  /** The heading over `lastAction`. */
+  lastAction: string;
 }
 
 const DEFAULT_HOVER_LABELS: AgentHoverCardLabels = {
@@ -562,7 +565,86 @@ const DEFAULT_HOVER_LABELS: AgentHoverCardLabels = {
   viewAgent: "View agent",
   name: (agent, owner) =>
     personAccessibleName({ name: agent, kind: "agent", via: owner }),
+  lastAction: "Last action",
 };
+
+/** Props for `AgentCard`. */
+export interface AgentCardProps {
+  /** The agent. */
+  agent: AgentPanelAgent;
+  /** Where its work on this record stands, shown under its access. @default undefined */
+  state?: AgentState;
+  /**
+   * What it did or said last, under the state — its latest progress line ("Reading the 3 linked
+   * pages…"), or why it stopped. Clamped to two lines. @default undefined
+   */
+  lastAction?: React.ReactNode;
+  /** Open the agent's page; the View agent link shows when set. @default undefined */
+  onViewAgent?: () => void;
+  /** Replace any of the strings (`AgentHoverCardLabels`). @default undefined */
+  labels?: Partial<AgentHoverCardLabels>;
+  /** Replace any state word (`AgentStateLabels`). @default undefined */
+  stateLabels?: Partial<AgentStateLabels>;
+  /** Classes for the card. @default undefined */
+  className?: string;
+}
+
+/**
+ * `AgentCard` — the body of `AgentHoverCard`: the bot and name with the "Agent" label, "Acting for
+ * Priya · Read & write", the state, the last action, and View agent. Hand it to a
+ * `PersonHoverCardProvider` so an agent's name in comments and activity opens the same card.
+ *
+ * @example
+ * <AgentCard agent={{ name: "Claude Code", via: "Priya" }} state="working" lastAction="Reading the 3 linked pages…" />
+ */
+export function AgentCard({
+  agent,
+  state,
+  lastAction,
+  onViewAgent,
+  labels: labelsProp,
+  stateLabels,
+  className,
+}: AgentCardProps) {
+  const labels = { ...DEFAULT_HOVER_LABELS, ...labelsProp };
+  return (
+    <div
+      data-slot="agent-hover-card"
+      className={cn("flex min-w-0 flex-col gap-2", className)}
+    >
+      <AgentIdentity agent={agent} labels={labels} />
+      {state && state !== "none" ? (
+        <AgentStateBadge
+          state={state}
+          stateLabels={stateLabels}
+          className="text-sm"
+        />
+      ) : null}
+      {lastAction != null && lastAction !== false && lastAction !== "" ? (
+        <div
+          data-slot="agent-hover-card-last-action"
+          className="flex min-w-0 flex-col text-xs"
+        >
+          <span className="text-muted-foreground">{labels.lastAction}</span>
+          <span className="line-clamp-2 wrap-anywhere text-foreground">
+            {lastAction}
+          </span>
+        </div>
+      ) : null}
+      {onViewAgent ? (
+        <Button
+          variant="link"
+          size="xs"
+          className="self-start px-0"
+          onClick={onViewAgent}
+        >
+          {labels.viewAgent}
+          <ChevronRight aria-hidden data-icon="inline-end" />
+        </Button>
+      ) : null}
+    </div>
+  );
+}
 
 /** Props for `AgentHoverCard`. */
 export interface AgentHoverCardProps {
@@ -570,6 +652,8 @@ export interface AgentHoverCardProps {
   agent: AgentPanelAgent;
   /** Where its work on this record stands, shown under its access. @default undefined */
   state?: AgentState;
+  /** What it did or said last, under the state (`AgentCard`'s `lastAction`). @default undefined */
+  lastAction?: React.ReactNode;
   /** The trigger — the agent's `PersonAvatar` (`trigger="avatar"`) or its name (`trigger="name"`). */
   children: React.ReactNode;
   /**
@@ -591,7 +675,8 @@ export interface AgentHoverCardProps {
 /**
  * `AgentHoverCard` — hover or focus an agent's avatar or name (tap it on touch) for who it is:
  * its bot and name with the "Agent" label, "Acting for Priya · Read & write", where its work on
- * this record stands, and View agent. `PersonHoverCard` for an agent, with the agent's facts.
+ * this record stands, what it did last, and View agent (`AgentCard`). `PersonHoverCard` for an
+ * agent, with the agent's facts.
  *
  * @example
  * <AgentHoverCard agent={{ name: "Claude Code", via: "Priya", access: "Read & write" }} state="working" onViewAgent={openAgent}>
@@ -601,6 +686,7 @@ export interface AgentHoverCardProps {
 export function AgentHoverCard({
   agent,
   state,
+  lastAction,
   children,
   trigger = "avatar",
   onViewAgent,
@@ -640,33 +726,21 @@ export function AgentHoverCard({
         {children}
       </HoverCardTrigger>
       <HoverCardContent align="start" className="w-64 p-2.5">
-        <div
-          data-slot="agent-hover-card"
-          className="flex min-w-0 flex-col gap-2"
-        >
-          <AgentIdentity agent={agent} labels={labels} />
-          {state && state !== "none" ? (
-            <AgentStateBadge
-              state={state}
-              stateLabels={stateLabels}
-              className="text-sm"
-            />
-          ) : null}
-          {onViewAgent ? (
-            <Button
-              variant="link"
-              size="xs"
-              className="self-start px-0"
-              onClick={() => {
-                setOpen(false);
-                onViewAgent();
-              }}
-            >
-              {labels.viewAgent}
-              <ChevronRight aria-hidden data-icon="inline-end" />
-            </Button>
-          ) : null}
-        </div>
+        <AgentCard
+          agent={agent}
+          state={state}
+          lastAction={lastAction}
+          labels={labels}
+          stateLabels={stateLabels}
+          onViewAgent={
+            onViewAgent
+              ? () => {
+                  setOpen(false);
+                  onViewAgent();
+                }
+              : undefined
+          }
+        />
       </HoverCardContent>
     </HoverCard>
   );

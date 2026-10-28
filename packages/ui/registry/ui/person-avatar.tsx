@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.25.95 sha256-1OWXudKOlBXiqdxej06dX2LPzg+v6adP3tSTbCKoBuU=
+// @vegastack person-avatar@0.25.95 sha256-1Sj9YBirj5Pz8IIw8N5CNBEGkQnEfhxJedbRCy5QPBE=
 
 "use client";
 
@@ -53,6 +53,11 @@ export function personInitials(name: string, email?: string | null): string {
 
 /** A person shown by `PersonAvatar`, `PersonCard`, `PersonHoverCard` and `AvatarStack`. */
 export interface Person {
+  /**
+   * Your stable id for them (a member's id, an agent's connection), never shown — what a
+   * `PersonHoverCardProvider` looks them up by. @default undefined
+   */
+  id?: string | null;
   /** The name shown, and the avatar's initials. */
   name: string;
   /** The muted line under the name, and the initials when there is no name; omit for someone without an account. @default undefined */
