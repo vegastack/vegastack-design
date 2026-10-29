@@ -88,16 +88,31 @@ const cases = [
     replace: "persist-credentials: true",
   },
   {
-    name: "macOS pnpm bootstrap returns to shared home",
+    name: "a release job returns to the Mac runner",
     file: "release.yml",
-    find: "          dest: ${{ runner.temp }}/setup-pnpm",
-    replace: "          dest: ~/setup-pnpm",
+    find: "    runs-on: [self-hosted, linux, vsk-runner]\n    timeout-minutes: 30",
+    replace:
+      "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    timeout-minutes: 30",
   },
   {
-    name: "macOS install drops the persistent per-agent store",
+    name: "a deploy job returns to the Mac runner",
+    file: "deploy.yml",
+    find: "    runs-on: [self-hosted, linux, vsk-runner]\n    timeout-minutes: 30",
+    replace:
+      "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    timeout-minutes: 30",
+  },
+  {
+    name: "release install drops the runner pnpm store volume",
     file: "release.yml",
-    find: 'pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"',
+    find: "pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store",
     replace: "pnpm install --frozen-lockfile --ignore-scripts",
+  },
+  {
+    name: "publish job leaves the pinned container",
+    file: "release.yml",
+    find: "      image: mcr.microsoft.com/playwright:v1.63.0-noble\n      volumes:\n        - /opt/vsk-runner/pnpm-store:/pnpm-store\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
+    replace:
+      "      image: node:24\n      volumes:\n        - /opt/vsk-runner/pnpm-store:/pnpm-store\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
   },
   {
     name: "manual full audit gains a PR trigger",
@@ -148,7 +163,7 @@ const cases = [
     file: "release.yml",
     find: "\n  publish:\n",
     replace:
-      "\n  dispatch-version-pr-quality:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    timeout-minutes: 5\n    steps:\n      - run: gh workflow run ci.yml\n\n  publish:\n",
+      "\n  dispatch-version-pr-quality:\n    runs-on: [self-hosted, linux, vsk-runner]\n    timeout-minutes: 5\n    steps:\n      - run: gh workflow run ci.yml\n\n  publish:\n",
   },
   {
     name: "Changesets loses the GitHub metadata token",

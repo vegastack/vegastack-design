@@ -150,7 +150,7 @@ and the index/manifest/signature/representative item to agree cryptographically.
 
 Every job is self-hosted and bounded by a timeout. Linux browser jobs use
 `[self-hosted, linux, vsk-runner]` plus the Playwright image pinned to the lockfile. Credential and
-publication jobs use the two runner agents on the one mac mini. No job uses GitHub-hosted capacity.
+publication jobs run on the Linux `vsk-runner` pool in the pinned Playwright container (29-10-2026: the Mac runners are not used; the workflow-security gate rejects any reference to them). No job uses GitHub-hosted capacity.
 
 OIDC exists only in `release.yml:publish` and `deploy.yml:build-sign-deploy`. Workflow permissions,
 runner classes, container placement, immutable action pins, frozen installs, non-persisted checkout

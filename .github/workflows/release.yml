@@ -23,8 +23,15 @@ concurrency:
 jobs:
   changes:
     name: Inspect release state
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
     outputs:
       target_sha: ${{ steps.detect.outputs.target_sha }}
       publish: ${{ steps.detect.outputs.publish }}
@@ -35,8 +42,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ inputs.expected_sha || github.sha }}
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - id: detect
         name: Bind to main and classify the release
         env:
@@ -59,8 +66,17 @@ jobs:
     name: Create or update Version Packages PR
     needs: changes
     if: needs.changes.outputs.has_version_bump == 'true'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        - /opt/vsk-runner/pnpm-store:/pnpm-store
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
     permissions:
       contents: write
       pull-requests: write
@@ -74,18 +90,30 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ needs.changes.outputs.target_sha }}
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Give Changesets its base branch
         env:
           TARGET_SHA: ${{ needs.changes.outputs.target_sha }}
         run: git branch -f main "$TARGET_SHA"
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-        env:
-          npm_config_cache: ${{ runner.temp }}/npm-cache
-        with:
-          dest: ${{ runner.temp }}/setup-pnpm
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
-      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install the pinned GitHub CLI
+        run: |
+          set -euo pipefail
+          GH_VERSION=2.103.3
+          case "$(uname -m)" in
+            x86_64) GH_ARCH=amd64; GH_SHA=4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d ;;
+            aarch64) GH_ARCH=arm64; GH_SHA=ee32df2323c8847f5fac6cb6b4b69ca75828e9329a8f22f677021f7b3306ce63 ;;
+            *) echo "::error::unsupported runner architecture $(uname -m)"; exit 1 ;;
+          esac
+          ARCHIVE="gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ARCHIVE" "https://github.com/cli/cli/releases/download/v${GH_VERSION}/$ARCHIVE"
+          echo "$GH_SHA  $RUNNER_TEMP/$ARCHIVE" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ARCHIVE" -C "$RUNNER_TEMP"
+          install -m 0755 "$RUNNER_TEMP/gh_${GH_VERSION}_linux_${GH_ARCH}/bin/gh" /usr/local/bin/gh
+          gh --version
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store
       - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           version: pnpm run version-packages
@@ -146,8 +174,17 @@ jobs:
     if: >-
       needs.changes.outputs.publish == 'true' &&
       needs.changes.outputs.has_version_bump == 'false'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        - /opt/vsk-runner/pnpm-store:/pnpm-store
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
     permissions:
       contents: read
       id-token: write
@@ -157,18 +194,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ needs.changes.outputs.target_sha }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-        env:
-          npm_config_cache: ${{ runner.temp }}/npm-cache
-        with:
-          dest: ${{ runner.temp }}/setup-pnpm
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
+      - name: Enable corepack
+        run: corepack enable
       - name: Pin npm to the reviewed OIDC-capable release
         run: npm install -g npm@11.16.0
-      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store
       - run: pnpm --filter @vegastack/design-tokens build
       - run: pnpm --filter @vegastack/design build
       - run: node tooling/verify-package-exports.mjs
@@ -211,12 +247,34 @@ jobs:
   dispatch-deploy:
     name: Dispatch public distribution deploy
     needs: [changes, publish]
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 5
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
     permissions:
       actions: write
       contents: read
     steps:
+      - name: Install the pinned GitHub CLI
+        run: |
+          set -euo pipefail
+          GH_VERSION=2.103.3
+          case "$(uname -m)" in
+            x86_64) GH_ARCH=amd64; GH_SHA=4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d ;;
+            aarch64) GH_ARCH=arm64; GH_SHA=ee32df2323c8847f5fac6cb6b4b69ca75828e9329a8f22f677021f7b3306ce63 ;;
+            *) echo "::error::unsupported runner architecture $(uname -m)"; exit 1 ;;
+          esac
+          ARCHIVE="gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ARCHIVE" "https://github.com/cli/cli/releases/download/v${GH_VERSION}/$ARCHIVE"
+          echo "$GH_SHA  $RUNNER_TEMP/$ARCHIVE" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$ARCHIVE" -C "$RUNNER_TEMP"
+          install -m 0755 "$RUNNER_TEMP/gh_${GH_VERSION}_linux_${GH_ARCH}/bin/gh" /usr/local/bin/gh
+          gh --version
       - name: Dispatch the exact release commit
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

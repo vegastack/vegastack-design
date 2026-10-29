@@ -14,28 +14,30 @@ import { ROOT } from "./lib/fs.mjs";
 
 const WORKFLOW_DIR = ".github/workflows";
 const REQUIRED = ["ci.yml", "deploy.yml", "full-suite.yml", "release.yml"];
-const MAC = "[self-hosted, vsk-runners-mac-mini]";
+const MAC_RUNNER_LABEL = "vsk-runners-mac-mini";
 const LINUX = "[self-hosted, linux, vsk-runner]";
 const EXPECTED_RUNNERS = {
   "ci.yml": { quality: LINUX },
   "full-suite.yml": { "full-component-suite": LINUX },
   "release.yml": {
-    changes: MAC,
-    "version-pr": MAC,
-    publish: MAC,
-    "dispatch-deploy": MAC,
+    changes: LINUX,
+    "version-pr": LINUX,
+    publish: LINUX,
+    "dispatch-deploy": LINUX,
   },
   "deploy.yml": {
     "distribution-proof": LINUX,
-    "build-sign-deploy": MAC,
-    "verify-public-boundary": MAC,
+    "build-sign-deploy": LINUX,
+    "verify-public-boundary": LINUX,
   },
 };
-const LINUX_JOBS = new Set([
-  "ci.yml:quality",
-  "full-suite.yml:full-component-suite",
-  "deploy.yml:distribution-proof",
-]);
+// Every job runs on the Linux pool inside the pinned container (operator, 29-10-2026): the Mac
+// runners are not used, so no workflow may name them.
+const LINUX_JOBS = new Set(
+  Object.entries(EXPECTED_RUNNERS).flatMap(([file, jobs]) =>
+    Object.keys(jobs).map((job) => `${file}:${job}`),
+  ),
+);
 const EXPECTED_PERMISSIONS = {
   "release.yml:version-pr": {
     contents: "write",
@@ -127,6 +129,12 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
     "publishing must remain token-free OIDC",
   );
 
+  for (const [name, source] of Object.entries(sources))
+    assert.ok(
+      !source.includes(MAC_RUNNER_LABEL),
+      `${name}: all DS workflows run on the Linux vsk-runner in the pinned container; the Mac runners are not used`,
+    );
+
   for (const [name, workflow] of Object.entries(parsed)) {
     assert.deepEqual(
       normalizePermissions(workflow.permissions),
@@ -188,11 +196,7 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
           `${key}: Linux container jobs require bash`,
         );
       } else {
-        assert.equal(
-          job.container,
-          undefined,
-          `${key}: macOS job cannot declare a container`,
-        );
+        assert.fail(`${key}: every job must run in the Linux container`);
       }
 
       for (const [index, step] of steps(job).entries()) {
@@ -233,26 +237,20 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
             `${label}: checkout credentials must not persist`,
           );
         }
-        if (expectedJobs[jobName] === MAC) {
-          if (/^pnpm\/action-setup@/.test(step.uses ?? ""))
-            assert.match(
-              step.with?.dest ?? "",
-              /\$\{\{\s*runner\.temp\s*\}\}/,
-              `${label}: macOS pnpm bootstrap must be per-job under runner.temp`,
-            );
-          if (typeof step.run === "string" && /\bpnpm install\b/.test(step.run))
-            assert.match(
-              step.run,
-              /--store-dir "\$RUNNER_WORKSPACE\/pnpm-store"/,
-              `${label}: macOS install must use the per-agent persistent store`,
-            );
-          if (/^actions\/setup-node@/.test(step.uses ?? ""))
-            assert.equal(
-              step.with?.cache,
-              undefined,
-              `${label}: setup-node cache is forbidden on the mac mini`,
-            );
-        }
+        if (/^pnpm\/action-setup@/.test(step.uses ?? ""))
+          assert.fail(`${label}: the container enables pnpm through corepack`);
+        if (typeof step.run === "string" && /\bpnpm install\b/.test(step.run))
+          assert.match(
+            step.run,
+            /--store-dir \/pnpm-store/,
+            `${label}: install must use the runner's pnpm store volume`,
+          );
+        if (/^actions\/setup-node@/.test(step.uses ?? ""))
+          assert.equal(
+            step.with?.cache,
+            undefined,
+            `${label}: setup-node cache is forbidden`,
+          );
       }
     }
   }
