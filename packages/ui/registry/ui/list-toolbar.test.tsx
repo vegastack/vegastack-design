@@ -438,3 +438,16 @@ test("search suggestion: Escape hides it, a second Escape clears the field", asy
   await expect.element(screen.getByTestId("query")).toHaveTextContent("");
   expect(onSelect).not.toHaveBeenCalled();
 });
+
+test("search suggestion: leaving the field forgets the reached row", async () => {
+  const onSelect = vi.fn();
+  const screen = await render(<SuggestionHarness onSelect={onSelect} />);
+  const field = screen.getByRole("combobox", { name: "Search tasks" });
+  await userEvent.click(field);
+  await userEvent.keyboard("show me open things{ArrowDown}");
+  await expect.element(field).toHaveAttribute("aria-activedescendant");
+  await userEvent.keyboard("{Tab}");
+  await userEvent.click(field);
+  await userEvent.keyboard("{Enter}");
+  expect(onSelect).not.toHaveBeenCalled();
+});

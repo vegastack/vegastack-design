@@ -1980,7 +1980,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.103",
-        "integrity": "sha256-i/n+v1kLcfW73dVyl1ncznEOja7bUa0zy6nEK2y+e9Q="
+        "integrity": "sha256-BX7mNOWEG0CJMaF06akDcz10ZOpxpQDNQmClc3yF5qM="
       }
     },
     {

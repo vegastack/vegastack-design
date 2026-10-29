@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.103 sha256-i/n+v1kLcfW73dVyl1ncznEOja7bUa0zy6nEK2y+e9Q=
+// @vegastack list-toolbar@0.25.103 sha256-BX7mNOWEG0CJMaF06akDcz10ZOpxpQDNQmClc3yF5qM=
 
 "use client";
 
@@ -1188,9 +1188,13 @@ export function ListToolbar({
       setSuggestionAnchor(field ? field.getBoundingClientRect() : null);
     };
     measure();
+    // The field moves with the window, a scroll, and the toolbar's own size (a resized pane).
+    const observer = new ResizeObserver(measure);
+    if (rootRef.current) observer.observe(rootRef.current);
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
+      observer.disconnect();
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
@@ -1236,7 +1240,11 @@ export function ListToolbar({
                   ? suggestionMenuOptionId(suggestionId, suggestionActive)
                   : undefined,
               onFocus: () => setSearchFocused(true),
-              onBlur: () => setSearchFocused(false),
+              onBlur: () => {
+                // Leaving the field forgets the reached row: Enter on return searches again.
+                setSearchFocused(false);
+                setSuggestionActive(-1);
+              },
               onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
                 if (!suggestionShown) return;
                 // An input method's keys pick its candidate, never the row.

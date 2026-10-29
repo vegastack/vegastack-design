@@ -9800,6 +9800,15 @@
           }
         },
         {
+          "name": "ListToolbarSearchSuggestion",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "ListToolbarFilter",
           "kind": "interface",
           "source": "packages/ui/registry/ui/list-toolbar.tsx",
@@ -9974,6 +9983,7 @@
         "@vegastack/popover",
         "@vegastack/search-input",
         "@vegastack/sheet",
+        "@vegastack/suggestion-menu",
         "@vegastack/toggle-group",
         "@vegastack/tooltip",
         "@vegastack/use-media-query",
