@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.104 sha256-F1qGmwLsd9ZzasJLAemtRMH++eyfAB64C9O3uNqhorI=
+// @vegastack sortable-list@0.25.104 sha256-Swuhbbe0Bh7/0iFueu84F3KkfQOYIj06Fr7fmUn0UuQ=
 
 "use client";
 
@@ -448,6 +448,8 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   // row there is no handle column either, so the rows' content starts at the list's edge.
   const movableCount = items.filter((item) => item.disabled !== true).length;
   const noHandles = handle === "auto" && movableCount < 2;
+  // A flush list with no rows: its footer stands alone (see the footer).
+  const loneFooter = flush && items.length === 0;
 
   return (
     <div
@@ -670,18 +672,27 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
       {footer != null && !grid ? (
         // The row recipe without the row: the same transparent border and padding, a handle-sized
         // gutter, and a gutter the width of the row's trailing control (× or ⋯) when rows have one.
+        // A flush list with no rows has no grid to line up with: the footer is its first row, the
+        // control at the list's edge with nothing above or beside it (a one-level GroupByPicker's
+        // "+ Group by" in a menu sits on the menu's inset like the rows around it).
         <div
           data-slot="sortable-list-footer"
           className={cn(
-            "mt-0.5 flex items-center gap-2 border border-transparent py-1",
-            flush ? "px-0" : "px-1",
+            "flex items-center gap-2",
+            loneFooter
+              ? null
+              : [
+                  "mt-0.5 border border-transparent py-1",
+                  flush ? "px-0" : "px-1",
+                ],
           )}
         >
-          {disabled || noHandles ? null : (
+          {disabled || noHandles || loneFooter ? null : (
             <span aria-hidden="true" className="size-7 shrink-0" />
           )}
           <div className="flex min-w-0 flex-1 items-center gap-2">{footer}</div>
           {disabled ||
+          loneFooter ||
           (onRemove === undefined &&
             getItemActions === undefined &&
             menuItems === undefined) ? null : (

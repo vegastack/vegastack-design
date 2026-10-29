@@ -2114,7 +2114,7 @@
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.25.104",
-        "integrity": "sha256-tXq11hhg0gKb9PZeWE1ce7gnteDrARTHqjt0McovxQ8="
+        "integrity": "sha256-+2tvPUDPUFauAcUKf1fR3QTZECsNhM1DvrLTaTim8Eo="
       }
     },
     {
@@ -18657,7 +18657,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.104",
-        "integrity": "sha256-F1qGmwLsd9ZzasJLAemtRMH++eyfAB64C9O3uNqhorI="
+        "integrity": "sha256-Swuhbbe0Bh7/0iFueu84F3KkfQOYIj06Fr7fmUn0UuQ="
       }
     },
     {

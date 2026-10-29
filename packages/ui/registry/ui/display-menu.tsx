@@ -1,4 +1,4 @@
-// @vegastack display-menu@0.25.104 sha256-tXq11hhg0gKb9PZeWE1ce7gnteDrARTHqjt0McovxQ8=
+// @vegastack display-menu@0.25.104 sha256-+2tvPUDPUFauAcUKf1fR3QTZECsNhM1DvrLTaTim8Eo=
 
 "use client";
 
@@ -430,7 +430,8 @@ export function DisplayMenu({
         role="group"
         aria-labelledby={groupById}
         data-slot="display-menu-group-by"
-        className="flex flex-col"
+        // Its heading keeps a step from the row above, as a section's heading does after a divider.
+        className="flex flex-col not-first:mt-1"
       >
         <DisplaySectionLabel id={groupById}>
           {labels.groupBy}
