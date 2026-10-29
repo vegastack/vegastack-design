@@ -1,4 +1,4 @@
-// @vegastack board-01@0.25.100 sha256-gvoNsqcyR+FqwnUhcQ0uiNWLcWouOMl36AKdbcf9T+Y=
+// @vegastack board-01@0.25.101 sha256-Wvvb7vxVcEYrHTHCCSChvEpm96wziTaDgJNdlDPfMBo=
 
 import { Plus } from "lucide-react";
 

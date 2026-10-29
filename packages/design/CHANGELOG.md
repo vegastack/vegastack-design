@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.49
+
+### Patch Changes
+
+- [#841](https://github.com/vegastack/vegastack-design/pull/841) [`5cef805`](https://github.com/vegastack/vegastack-design/commit/5cef8059101a8eeecd18d22a815cec16090271ae) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **InboxFilters**: the Unread toggle no longer sits on top of the last tab. The tabs were an unshrinkable pill list inside a `min-w-0` box, so with four tabs (For you · Updates · Snoozed · Archived) in the 384px Inbox sheet the list ran under the toggle and hid most of Archived. The row now wraps: the tabs keep their natural width and Unread drops under them, end-aligned, when both do not fit one line. The tabs use `TabsList overflow="menu"`, so they fold into one dropdown only when they alone do not fit.
+
 ## 0.8.48
 
 ### Patch Changes

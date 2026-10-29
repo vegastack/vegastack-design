@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.101] — October 29, 2026
+
+<!-- assembled from 1 changeset: e73686e1b5db -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.49`** (was `0.8.48`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.100 → 0.25.101.
+
+### 🐛 Fixed
+
+- **InboxFilters**: the Unread toggle no longer sits on top of the last tab. The tabs were an unshrinkable pill list inside a `min-w-0` box, so with four tabs (For you · Updates · Snoozed · Archived) in the 384px Inbox sheet the list ran under the toggle and hid most of Archived. The row now wraps: the tabs keep their natural width and Unread drops under them, end-aligned, when both do not fit one line. The tabs use `TabsList overflow="menu"`, so they fold into one dropdown only when they alone do not fit.
+  [`5cef805`](https://github.com/VegaStack/vegastack-design/commit/5cef805)
+
 ## [0.25.100] — October 29, 2026
 
 <!-- assembled from 1 changeset: fc3b97995d9d -->
