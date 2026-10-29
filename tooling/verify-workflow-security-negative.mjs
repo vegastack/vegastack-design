@@ -104,15 +104,36 @@ const cases = [
   {
     name: "release install drops the runner pnpm store volume",
     file: "release.yml",
-    find: "pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store",
+    find: 'pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_TEMP/pnpm-store"',
     replace: "pnpm install --frozen-lockfile --ignore-scripts",
+  },
+  {
+    name: "publish container becomes privileged",
+    file: "release.yml",
+    find: "      image: mcr.microsoft.com/playwright:v1.63.0-noble\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
+    replace:
+      "      image: mcr.microsoft.com/playwright:v1.63.0-noble\n      options: --privileged\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
+  },
+  {
+    name: "publish installs through the shared pnpm store",
+    file: "release.yml",
+    find: 'pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_TEMP/pnpm-store"',
+    replace:
+      "pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store",
+  },
+  {
+    name: "deploy mounts the shared pnpm store",
+    file: "deploy.yml",
+    find: "    timeout-minutes: 30\n    container:\n      image: mcr.microsoft.com/playwright:v1.63.0-noble\n",
+    replace:
+      "    timeout-minutes: 30\n    container:\n      image: mcr.microsoft.com/playwright:v1.63.0-noble\n      volumes:\n        - /opt/vsk-runner/pnpm-store:/pnpm-store\n",
   },
   {
     name: "publish job leaves the pinned container",
     file: "release.yml",
-    find: "      image: mcr.microsoft.com/playwright:v1.63.0-noble\n      volumes:\n        - /opt/vsk-runner/pnpm-store:/pnpm-store\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
+    find: "      image: mcr.microsoft.com/playwright:v1.63.0-noble\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
     replace:
-      "      image: node:24\n      volumes:\n        - /opt/vsk-runner/pnpm-store:/pnpm-store\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
+      "      image: node:24\n    defaults:\n      run:\n        shell: bash\n    env:\n      npm_config_cache: /tmp/npm-cache\n    permissions:\n      contents: read\n      id-token: write",
   },
   {
     name: "manual full audit gains a PR trigger",

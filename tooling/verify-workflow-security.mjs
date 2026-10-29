@@ -33,6 +33,14 @@ const EXPECTED_RUNNERS = {
 };
 // Every job runs on the Linux pool inside the pinned container (operator, 29-10-2026): the Mac
 // runners are not used, so no workflow may name them.
+// Only these proof jobs may mount the shared pnpm store. Credential-bearing jobs (version PR,
+// publish, deploy) install into a per-job store under RUNNER_TEMP so PR-authored code on the same
+// pool can never poison what a publish or deploy installs.
+const SHARED_STORE_JOBS = new Set([
+  "ci.yml:quality",
+  "full-suite.yml:full-component-suite",
+  "deploy.yml:distribution-proof",
+]);
 const LINUX_JOBS = new Set(
   Object.entries(EXPECTED_RUNNERS).flatMap(([file, jobs]) =>
     Object.keys(jobs).map((job) => `${file}:${job}`),
@@ -191,6 +199,22 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
           `${key}: Playwright image must match the root pin`,
         );
         assert.equal(
+          typeof job.container === "object" ? job.container.options : undefined,
+          undefined,
+          `${key}: container options (privileged, devices, extra mounts) are not allowed`,
+        );
+        const volumes =
+          typeof job.container === "object"
+            ? (job.container.volumes ?? [])
+            : [];
+        assert.deepEqual(
+          volumes,
+          SHARED_STORE_JOBS.has(key)
+            ? ["/opt/vsk-runner/pnpm-store:/pnpm-store"]
+            : [],
+          `${key}: only proof jobs may mount the shared pnpm store`,
+        );
+        assert.equal(
           job.defaults?.run?.shell,
           "bash",
           `${key}: Linux container jobs require bash`,
@@ -242,8 +266,10 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
         if (typeof step.run === "string" && /\bpnpm install\b/.test(step.run))
           assert.match(
             step.run,
-            /--store-dir \/pnpm-store/,
-            `${label}: install must use the runner's pnpm store volume`,
+            SHARED_STORE_JOBS.has(key)
+              ? /--store-dir \/pnpm-store/
+              : /--store-dir "\$RUNNER_TEMP\/pnpm-store"/,
+            `${label}: install store must match the job's trust class`,
           );
         if (/^actions\/setup-node@/.test(step.uses ?? ""))
           assert.equal(
