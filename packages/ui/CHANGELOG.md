@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.102
+
+### Patch Changes
+
+- [#843](https://github.com/vegastack/vegastack-design/pull/843) [`126da08`](https://github.com/vegastack/vegastack-design/commit/126da08846b7b70aaecb708005eb3378578760db) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **List toolbar fixes**: `DisplayMenu`'s Columns/Fields drill-in scrolls inside the menu (a 24-field table no longer runs off the screen). `ViewTabs` folded on a phone merges its `+` and the view's ⋯ into one ⋯, and `ListToolbar` now counts those buttons and keeps a folded tab dropdown at a readable width, so the view name no longer collapses to "All re…". `SortMenu` fields take `fixedDirection` (`"asc"`, `"desc"` or `"none"`) for a field the list sorts only one way: the direction shows beside the name and the direction group hides while it is chosen.
+
+- Updated dependencies [[`126da08`](https://github.com/vegastack/vegastack-design/commit/126da08846b7b70aaecb708005eb3378578760db)]:
+  - @vegastack/design@0.8.50
+
 ## 0.25.101
 
 ### Patch Changes

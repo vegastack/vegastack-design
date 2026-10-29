@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.102] — October 29, 2026
+
+<!-- assembled from 1 changeset: b5911a98ffad -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.50`** (was `0.8.49`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.101 → 0.25.102.
+
+### 🐛 Fixed
+
+- **List toolbar fixes**: `DisplayMenu`'s Columns/Fields drill-in scrolls inside the menu (a 24-field table no longer runs off the screen). `ViewTabs` folded on a phone merges its `+` and the view's ⋯ into one ⋯, and `ListToolbar` now counts those buttons and keeps a folded tab dropdown at a readable width, so the view name no longer collapses to "All re…". `SortMenu` fields take `fixedDirection` (`"asc"`, `"desc"` or `"none"`) for a field the list sorts only one way: the direction shows beside the name and the direction group hides while it is chosen.
+  [`126da08`](https://github.com/VegaStack/vegastack-design/commit/126da08)
+
 ## [0.25.101] — October 29, 2026
 
 <!-- assembled from 1 changeset: e73686e1b5db -->

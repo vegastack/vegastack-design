@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.102] — October 29, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.50`** (was `0.8.49`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.101 → 0.25.102.
+
+### 🐛 Fixed
+
+- **List toolbar fixes**: `DisplayMenu`'s Columns/Fields drill-in scrolls inside the menu (a 24-field table no longer runs off the screen). `ViewTabs` folded on a phone merges its `+` and the view's ⋯ into one ⋯, and `ListToolbar` now counts those buttons and keeps a folded tab dropdown at a readable width, so the view name no longer collapses to "All re…". `SortMenu` fields take `fixedDirection` (`"asc"`, `"desc"` or `"none"`) for a field the list sorts only one way: the direction shows beside the name and the direction group hides while it is chosen.
+  [`126da08`](https://github.com/VegaStack/vegastack-design/commit/126da08)
+
 ## [0.25.101] — October 29, 2026
 
 ### 📦 npm

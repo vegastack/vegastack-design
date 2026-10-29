@@ -1,4 +1,4 @@
-// @vegastack formula-input@0.25.101 sha256-Ep0PQM6ztcBHwdNvAr5KuvmSsMHjKfC8P6szPWC40xg=
+// @vegastack formula-input@0.25.102 sha256-nIGJjyEMNhrTZDtfX/fgyiDCeuKlGbRmVAox9S3V28U=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
