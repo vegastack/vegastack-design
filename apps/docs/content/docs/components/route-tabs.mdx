@@ -52,6 +52,12 @@ A clicked tab is current at once and carries a thin pending bar until the router
 the page below dims meanwhile — so a slow page never leaves the previous tab looking chosen with
 its old content (or its empty state) on screen.
 
+`overflow="menu"` folds the strip into one dropdown — the current tab, its count and ▾ — when it
+does not fit the room it is given, measured; the menu lists every tab, and picking one clicks that
+tab's own link, so the router, the pending bar and your `linkRender` behave as a tab click. Use it
+for settings sub-pages that would clip on a phone, and for scope tabs in a
+[`ListToolbar`](/docs/components/list-toolbar).
+
 ## Scope
 
 - Owns: the strip's look (Tabs' own recipes), the current-tab match (`href` or an `also` path),

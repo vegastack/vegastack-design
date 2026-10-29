@@ -1,0 +1,109 @@
+---
+title: Filter Row
+description: The chips under a ListToolbar — + Filter, dashed pinned facets, the other chips and Clear, plus a line saying what an AI filter run added.
+audience: public
+registry: filter-row
+status: stable
+since: 0.25.99
+a11y: named group; AI chips marked; polite AI note
+preview: filterRow
+---
+
+## Install
+
+<InstallSteps name="filter-row" />
+
+## Usage
+
+```tsx
+import { AddFilterMenu } from "@/components/ui/add-filter-menu";
+import { FilterBarFacet } from "@/components/ui/filter-bar";
+import { FilterRow } from "@/components/ui/filter-row";
+
+<ListToolbar
+  filterRow={
+    <FilterRow
+      addFilter={<AddFilterMenu fields={fields} onPick={addFilter} ai={ai} />}
+      facets={
+        <FilterBarFacet
+          label="Status"
+          multiple
+          items={statuses}
+          value={status}
+          onValueChange={setStatus}
+        />
+      }
+      chips={chips}
+      aiNote={note}
+      onClear={clearAll}
+    />
+  }
+/>;
+```
+
+The order never changes, so chips never jump:
+
+1. **`+ Filter`** (`addFilter`), pinned first — also on a phone, where the row scrolls.
+2. **Pinned facets** (`facets`), in the page's order. Unset, a facet is a dashed outline that reads
+   as an offer (`+ Due`); set, it is a solid chip. A facet with a custom editor is an `unset`
+   [`FilterChip`](/docs/components/filter-bar).
+3. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
+   A preset resolves to ordinary chips; there is no separate preset chip.
+4. **Clear**, at the far end, only while something is set.
+
+Chips made by an AI filter (`source: "ai"`) lead with ✦ until the filter is edited. After an AI run
+the host passes `aiNote`: one line under the row — "✦ 2 filters added by AI · Undo · Couldn't match
+“warehouse”" — until the next manual change or its ×. **Undo** removes exactly that run's chips.
+Unknown words are listed, never guessed.
+
+From an `@3xl` row the chips wrap; below it they are one sideways-scrolling line with an edge fade,
+`+ Filter` and Clear pinned at its two ends. The row counts what is applied (its chips plus its set
+facets) and tells the enclosing [`ListToolbar`](/docs/components/list-toolbar), whose Filter tool
+shows the count.
+
+## Examples
+
+<ComponentPreview name="filterRow" file="components/preview/filter-row.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="FilterRowProps"
+/>
+
+### Chip
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="FilterRowChip"
+/>
+
+### AI note
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="FilterRowAiNote"
+/>
+
+## Accessibility
+
+- The chips are a `group` named "Filters". Each chip's × is named "Clear" and the filter's label.
+- An AI chip's ✦ is labelled "Added by AI", so the mark is read with the chip.
+- The AI note is a polite `status`: it is announced once after a run. Undo and the dismiss × are
+  buttons.
+- Clear hands focus back to the row's first control once it unmounts.
+
+| Key                                 | Action                              |
+| ----------------------------------- | ----------------------------------- |
+| <kbd>Tab</kbd>                      | Move through + Filter, chips, Clear |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a chip's editor, remove, clear |
+
+<StatesTested name="filter-row" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the order fixed, show unset pinned facets as dashed offers, and remove exactly the AI's chips on Undo."
+  dont="Hide a default filter behind a count, add a separate preset chip type, or guess at words the AI could not match."
+/>

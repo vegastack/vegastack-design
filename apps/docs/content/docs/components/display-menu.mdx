@@ -1,0 +1,130 @@
+---
+title: Display Menu
+description: The toolbar's Display tool — layout and sort once folded in, row height, group by, columns, the Show switches and Reset, on one surface.
+audience: public
+registry: display-menu
+status: stable
+since: 0.25.99
+a11y: named tool with state; labelled switches and drill-ins
+preview: displayMenu
+---
+
+## Install
+
+<InstallSteps name="display-menu" />
+
+## Usage
+
+```tsx
+import { DisplayMenu } from "@/components/ui/display-menu";
+
+<ListToolbar
+  display={
+    <DisplayMenu
+      rowHeight={{
+        value: density,
+        options: [
+          { value: "compact", label: "Compact" },
+          { value: "comfortable", label: "Comfortable" },
+        ],
+        onValueChange: setDensity,
+      }}
+      columns={{ items: columns, onToggle: toggleColumn, onShowAll: showAll }}
+      toggles={[
+        {
+          id: "subtasks",
+          label: "Show subtasks",
+          checked: subtasks,
+          onCheckedChange: setSubtasks,
+        },
+        {
+          id: "closed",
+          label: "Show closed",
+          checked: closed,
+          onCheckedChange: setClosed,
+        },
+      ]}
+      isDefault={isDefault}
+      onReset={reset}
+    />
+  }
+/>;
+```
+
+Display says _how rows look_ and _which lifecycle states are included_. It is named Display, not
+View, so it is never confused with a table's saved views. Its sections appear only when filled,
+always in this order:
+
+1. **Layout** — once the toolbar has folded Layout in (or when you pass `layout`): labelled options.
+2. **Sort by** — once the toolbar has folded Sort in: one row with the order's summary that drills
+   into the same sort content.
+3. **Rows** — Row height (text-labelled options: "Compact · Comfortable", "Short · Medium · Tall"),
+   Group by (a `GroupByPicker`), and Columns or Fields ("5 of 7 ›", drilling into an eye per column,
+   reorderable when `onReorder` is set).
+4. **Show** — one switch per lifecycle state the page supports: Show subtasks, Show closed, Show
+   archived, Show disabled, Show empty groups. One rule everywhere: a state hidden by default is
+   included from here, never from a default filter chip.
+5. **Reset** — "Reset to default" (or `resetLabel`, "Reset to saved view" on a table), shown only
+   while `isDefault` is false. The tool carries a dot then too.
+
+It is one surface: no filled rows, no control tracks, no card inside it. Every row is 32px from the
+8px inset, sections divided by a hairline. A drill-in replaces the page in place with a ‹ back
+header; a reopen always starts on the main page. On a phone it is a bottom sheet.
+
+Actions on the view (Rename, Delete, Save view, Export) never live here: they go in the view tab's
+own ⋯ or the toolbar's [`ListToolbarMenu`](/docs/components/list-toolbar).
+
+## Examples
+
+### A table's display
+
+Group by with a `GroupByPicker`, three row heights, "Show empty groups" and "Reset to saved view".
+
+<ComponentPreview
+  name="displayMenuTable"
+  file="components/preview/display-menu.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/display-menu.tsx"
+  name="DisplayMenuProps"
+/>
+
+### Columns
+
+<ApiTable
+  path="../../packages/ui/registry/ui/display-menu.tsx"
+  name="DisplayMenuColumns"
+/>
+
+### Toggle
+
+<ApiTable
+  path="../../packages/ui/registry/ui/display-menu.tsx"
+  name="DisplayMenuToggle"
+/>
+
+## Accessibility
+
+- The tool is named "Display" ("Display, changed" with its dot) and opens a surface named Display.
+- Row height and Layout are groups of toggle buttons labelled by their row; each Show row is a
+  `switch` labelled by its text.
+- Drill-in rows are buttons that carry their summary; the drill-in's back button is named "Back".
+- Each column's eye is a toggle button ("Hide Due" / "Show Due") with `aria-pressed`.
+
+| Key                                 | Action                                    |
+| ----------------------------------- | ----------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the rows' controls           |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggle a switch, pick an option, drill in |
+| <kbd>Esc</kbd>                      | Close the surface                         |
+
+<StatesTested name="display-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="Put every 'Show …' inclusion switch here and pass isDefault so the tool's dot and Reset tell the truth."
+  dont="Hide lifecycle states behind a default filter chip, or put destructive view actions under Display."
+/>

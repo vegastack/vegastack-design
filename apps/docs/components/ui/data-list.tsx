@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.98 sha256-cFdn5EbDYj9ZHWTQO0ERVGo/T88Z1u4gLKPTOUF5wDU=
+// @vegastack data-list@0.25.98 sha256-1duOu+sZ9lrO1AF6ksj47zaPfQkqfu37fFSyHL4WCT8=
 
 "use client";
 
@@ -65,6 +65,14 @@ import {
   type BoardHiddenColumn,
 } from "@/components/ui/board";
 import { FilterBar } from "@/components/ui/filter-bar";
+import {
+  ListToolbar,
+  type ListToolbarProps,
+} from "@/components/ui/list-toolbar";
+import {
+  DisplayMenu,
+  type DisplayMenuProps,
+} from "@/components/ui/display-menu";
 import { MediaCard, RECORD_TITLE_CLASS } from "@/components/ui/media-card";
 import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -995,6 +1003,17 @@ export interface DataListNoResults {
    * @default "Clear filters"
    */
   clearLabel?: string;
+  /**
+   * Reopens the filters to change them (the `+ Filter` popover with an AI prompt restored). Omit for
+   * no button.
+   * @default undefined
+   */
+  onEditFilters?: () => void;
+  /**
+   * The edit button's label.
+   * @default "Edit filters"
+   */
+  editFiltersLabel?: string;
 }
 
 /**
@@ -1010,6 +1029,8 @@ export function NoResultsEmpty({
   description = "Nothing matches these filters. Try a different search or clear the filters.",
   onClear,
   clearLabel = "Clear filters",
+  onEditFilters,
+  editFiltersLabel = "Edit filters",
 }: DataListNoResults) {
   return (
     <Empty
@@ -1020,11 +1041,18 @@ export function NoResultsEmpty({
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
-      {onClear ? (
-        <EmptyContent>
-          <Button variant="outline" size="sm" onClick={onClear}>
-            {clearLabel}
-          </Button>
+      {onClear || onEditFilters ? (
+        <EmptyContent className="flex-row justify-center gap-2">
+          {onEditFilters ? (
+            <Button variant="outline" size="sm" onClick={onEditFilters}>
+              {editFiltersLabel}
+            </Button>
+          ) : null}
+          {onClear ? (
+            <Button variant="outline" size="sm" onClick={onClear}>
+              {clearLabel}
+            </Button>
+          ) : null}
         </EmptyContent>
       ) : null}
     </Empty>
@@ -2738,7 +2766,8 @@ export function DataList<T>({
           data-density={density}
           {...tableProps}
         >
-          <TableHeader>
+          {/* An empty list keeps its toolbar but drops the column header over nothing. */}
+          <TableHeader hidden={(!loading && data.length === 0) || undefined}>
             <TableRow>
               {selectable && (
                 <SelectAllHead
@@ -3211,9 +3240,53 @@ export function DataList<T>({
       />
     );
 
+  // A ListToolbar takes the views as its Layout tool and the density as Display's Row height,
+  // unless the host already set them; a FilterBar (deprecated) still takes the old toggles.
+  const listToolbar =
+    React.isValidElement<ListToolbarProps>(toolbar) &&
+    toolbar.type === ListToolbar
+      ? toolbar
+      : null;
+  const densityOptions = [
+    { value: "compact", label: "Compact" },
+    { value: "comfortable", label: "Comfortable" },
+  ] as const;
+  const rowHeight =
+    onDensityChange && activeView === "list"
+      ? {
+          value: density,
+          options: densityOptions,
+          onValueChange: (next: string) => {
+            if (next === "compact" || next === "comfortable")
+              onDensityChange(next);
+          },
+        }
+      : undefined;
+  const injectDisplay = (display: React.ReactNode): React.ReactNode => {
+    if (rowHeight == null) return display;
+    if (display == null) return <DisplayMenu rowHeight={rowHeight} />;
+    if (
+      React.isValidElement<DisplayMenuProps>(display) &&
+      display.type === DisplayMenu &&
+      display.props.rowHeight == null
+    )
+      return React.cloneElement(display, { rowHeight });
+    return display;
+  };
+  const toolbarWithLayout = listToolbar
+    ? React.cloneElement(listToolbar, {
+        layout:
+          listToolbar.props.layout ??
+          (onViewChange
+            ? { value: activeView, options: views, onValueChange: changeView }
+            : undefined),
+        display: injectDisplay(listToolbar.props.display),
+      })
+    : null;
   // The view toggle lands in the toolbar's FilterBar `view` slot, else beside the toolbar.
   const toolbarWithToggle =
-    viewToggle &&
+    toolbarWithLayout ??
+    (viewToggle &&
     React.isValidElement<{ view?: React.ReactNode }>(toolbar) &&
     toolbar.type === FilterBar &&
     toolbar.props.view == null ? (
@@ -3227,7 +3300,7 @@ export function DataList<T>({
       </div>
     ) : (
       toolbar
-    );
+    ));
 
   const selectionCount = selected.size;
   const selectionBar =

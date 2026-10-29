@@ -1528,7 +1528,9 @@
         "@vegastack/view-toggle",
         "@vegastack/use-drag-reorder",
         "@vegastack/checkbox",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/list-toolbar",
+        "@vegastack/display-menu"
       ],
       "files": [
         {
@@ -1689,7 +1691,8 @@
         "@vegastack/select",
         "@vegastack/tabs",
         "@vegastack/tooltip",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/use-overflow-fold"
       ],
       "files": [
         {
@@ -1726,6 +1729,178 @@
       "meta": {
         "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
         "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
+        "version": "0.25.98"
+      }
+    },
+    {
+      "name": "use-overflow-fold",
+      "type": "registry:hook",
+      "title": "useOverflowFold",
+      "description": "Measured fold — decide whether a row (tabs, saved views) fits the room it is given, and fold it into one control when it does not, with hysteresis so it never flickers.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-overflow-fold.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-overflow-fold.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A row that should become one dropdown when it does not fit its container — scope tabs, route tabs, saved views.",
+        "whenNotToUse": "Truncating one piece of text (useOverflow, TruncatedText) or a layout CSS container queries can express.",
+        "version": "0.25.98"
+      }
+    },
+    {
+      "name": "list-toolbar",
+      "type": "registry:ui",
+      "title": "List Toolbar",
+      "description": "The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/popover",
+        "@vegastack/search-input",
+        "@vegastack/sheet",
+        "@vegastack/toggle-group",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/page-layout"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/list-toolbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/list-toolbar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
+        "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
+        "version": "0.25.98"
+      }
+    },
+    {
+      "name": "filter-row",
+      "type": "registry:ui",
+      "title": "Filter Row",
+      "description": "The chips under a ListToolbar: + Filter, pinned facets (dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/filter-bar",
+        "@vegastack/list-toolbar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/filter-row.tsx",
+          "type": "registry:ui",
+          "target": "@ui/filter-row.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
+        "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
+        "version": "0.25.98"
+      }
+    },
+    {
+      "name": "add-filter-menu",
+      "type": "registry:ui",
+      "title": "Add Filter Menu",
+      "description": "+ Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/list-toolbar",
+        "@vegastack/panel-search",
+        "@vegastack/spinner"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/add-filter-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
+        "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
+        "version": "0.25.98"
+      }
+    },
+    {
+      "name": "sort-menu",
+      "type": "registry:ui",
+      "title": "Sort Menu",
+      "description": "The one-key sort: the fields, then the two directions worded by field type (Oldest first, A → Z, Low → high), with Reset while not at the page default.",
+      "categories": ["data"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/sort-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sort-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Sorting a list by one key from the ListToolbar's Sort tool.",
+        "whenNotToUse": "Several sort keys at once (SortBuilder), or a column header's own sort.",
+        "version": "0.25.98"
+      }
+    },
+    {
+      "name": "display-menu",
+      "type": "registry:ui",
+      "title": "Display Menu",
+      "description": "The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/list-toolbar",
+        "@vegastack/sortable-list",
+        "@vegastack/switch",
+        "@vegastack/toggle-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/display-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/display-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
+        "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.25.98"
       }
     },
@@ -14823,7 +14998,7 @@
         "@vegastack/design@^0.8.46",
         "@vegastack/design-tokens@^0.8.38"
       ],
-      "registryDependencies": ["@vegastack/input-group"],
+      "registryDependencies": ["@vegastack/input-group", "@vegastack/button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/search-input.tsx",
@@ -15346,7 +15521,11 @@
         "@vegastack/design@^0.8.46",
         "@vegastack/design-tokens@^0.8.38"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-overflow-fold"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/tabs.tsx",
@@ -18880,7 +19059,12 @@
         "@vegastack/design@^0.8.46",
         "@vegastack/design-tokens@^0.8.38"
       ],
-      "registryDependencies": ["@vegastack/tabs"],
+      "registryDependencies": [
+        "@vegastack/tabs",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-overflow-fold"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/route-tabs.tsx",

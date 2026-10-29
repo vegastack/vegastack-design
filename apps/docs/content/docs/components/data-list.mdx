@@ -39,6 +39,14 @@ are all fully typed against your data.
 
 <ComponentPreview name="dataList" file="components/preview/data-list.tsx" />
 
+**In a `ListToolbar`.** Pass a [`ListToolbar`](/docs/components/list-toolbar) as `toolbar` and
+DataList fills it: `views` with `onViewChange` become its Layout tool (icon buttons, no pill
+`ViewToggle`), and `onDensityChange` becomes Display's Row height (a `DisplayMenu` is added when the
+toolbar has none). A toolbar that sets its own `layout` or row height keeps them. An empty list keeps
+its toolbar but drops the column header; `noResults` takes `onEditFilters` for an "Edit filters"
+button beside "Clear filters". While rows are selected the list keeps a spacer the bulk bar's height,
+so the last row is never covered.
+
 ## Anatomy
 
 `DataList` is a single generic component composed on top of the design-system primitives — it renders a

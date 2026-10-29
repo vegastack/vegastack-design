@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.25.98 sha256-Zz93PTvprE4sk3zozBSOtzjPVt6aA1r7aeiGmKzxHm0=
+// @vegastack filter-bar-managed@0.25.98 sha256-byqgf+awnUTCwkCQhxsQ1I8ghDCbcnmvOMq3lKkFjaY=
 
 "use client";
 
@@ -1741,15 +1741,48 @@ export interface SortBuilderProps {
    */
   disabled?: boolean;
   /**
-   * Accessible name of the list.
+   * Accessible name of the list, and the header's title.
    * @default "Sort"
    */
   "aria-label"?: string;
+  /**
+   * Show the header row: the title, and "Clear" while any key is set. Off where the surface
+   * already has a title (a drill-in's header).
+   * @default true
+   */
+  header?: boolean;
+  /**
+   * The component's words.
+   * @default English
+   */
+  labels?: Partial<SortBuilderLabels>;
   /** Extra classes for the root.
    * @default undefined
    */
   className?: string;
 }
+
+/** The words `SortBuilder` shows. */
+export interface SortBuilderLabels {
+  /** The header's "remove every key" action. */
+  clear: string;
+  /** The append action. */
+  addSort: string;
+  /** The note that replaces the append action at `max`. */
+  limit: (max: number) => string;
+  /** The direction options. */
+  ascending: string;
+  /** The direction options. */
+  descending: string;
+}
+
+const SORT_BUILDER_LABELS: SortBuilderLabels = {
+  clear: "Clear",
+  addSort: "Add sort",
+  limit: (max) => `Up to ${max} sorts`,
+  ascending: "Ascending",
+  descending: "Descending",
+};
 
 /**
  * Row ids that stay with a ROW, not with the field it shows: changing a row's field keeps its id
@@ -1794,12 +1827,14 @@ function FieldSelect({
   onChange,
   disabled,
   label,
+  className,
 }: {
   fields: readonly { key: string; label: string }[];
   value: string;
   onChange: (key: string) => void;
   disabled?: boolean;
   label: string;
+  className?: string;
 }) {
   return (
     <Select
@@ -1810,7 +1845,11 @@ function FieldSelect({
       }}
       disabled={disabled}
     >
-      <SelectTrigger size="sm" aria-label={label} className="w-fit min-w-36">
+      <SelectTrigger
+        size="sm"
+        aria-label={label}
+        className={cn("w-fit min-w-36", className)}
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -1845,8 +1884,11 @@ export function SortBuilder({
   readOnly = false,
   disabled = false,
   "aria-label": ariaLabel = "Sort",
+  header = true,
+  labels: labelsProp,
   className,
 }: SortBuilderProps) {
+  const labels = { ...SORT_BUILDER_LABELS, ...labelsProp };
   const labelOf = (key: string) =>
     vocabulary.find((f) => f.key === key)?.label ?? key;
   const taken = value.map((entry) => entry.key);
@@ -1892,15 +1934,39 @@ export function SortBuilder({
     id: rows.ids[index]!,
     label: labelOf(entry.key),
   }));
+  const atMax = value.length >= max || free.length === 0;
   return (
     <div
       data-slot="sort-builder"
-      className={cn("flex min-w-0 flex-col gap-2", className)}
+      className={cn("flex min-w-0 flex-col gap-1", className)}
     >
+      {header ? (
+        <div
+          data-slot="sort-builder-header"
+          className="flex h-8 items-center justify-between gap-2 ps-2"
+        >
+          <span className="text-xs text-muted-foreground">{ariaLabel}</span>
+          {value.length > 0 && !disabled ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              data-slot="sort-builder-clear"
+              className="font-normal text-muted-foreground"
+              onClick={() => onChange([])}
+            >
+              {labels.clear}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+      {/* One surface: rows carry no fill or hover wash; the grip shows only once two keys can
+          move, and its column stays reserved so nothing shifts when a second key arrives. */}
       <SortableList
         aria-label={ariaLabel}
         items={items}
         disabled={disabled}
+        flush
+        handle="auto"
         onReorder={({ from, to }) => {
           const next = [...value];
           const [moved] = next.splice(from.index, 1);
@@ -1914,12 +1980,13 @@ export function SortBuilder({
         }}
         removeLabel={(label) => `Remove sort by ${label}`}
         renderItem={(item) => (
-          <span className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="flex min-w-0 items-center gap-2">
             <FieldSelect
               fields={remaining(vocabulary, taken, item.key)}
               value={item.key}
               disabled={disabled}
               label={`Sort field ${items.indexOf(item) + 1}`}
+              className="min-w-0 flex-1"
               onChange={(key) =>
                 onChange(
                   value.map((e) => (e.key === item.key ? { ...e, key } : e)),
@@ -1927,7 +1994,7 @@ export function SortBuilder({
               }
             />
             <Select
-              items={{ asc: "Ascending", desc: "Descending" }}
+              items={{ asc: labels.ascending, desc: labels.descending }}
               value={item.dir}
               onValueChange={(dir) =>
                 onChange(
@@ -1943,33 +2010,45 @@ export function SortBuilder({
               <SelectTrigger
                 size="sm"
                 aria-label={`${item.label} direction`}
-                className="w-fit min-w-32"
+                className="w-28 shrink-0"
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">Ascending</SelectItem>
-                <SelectItem value="desc">Descending</SelectItem>
+                <SelectItem value="asc">{labels.ascending}</SelectItem>
+                <SelectItem value="desc">{labels.descending}</SelectItem>
               </SelectContent>
             </Select>
           </span>
         )}
+        footer={
+          disabled ? null : atMax ? (
+            value.length >= max ? (
+              <span
+                data-slot="sort-builder-limit"
+                className="text-xs text-muted-foreground"
+              >
+                {labels.limit(max)}
+              </span>
+            ) : null
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-fit font-normal text-muted-foreground"
+              data-slot="sort-builder-add"
+              onClick={() => {
+                // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
+                // property read into render, which crashes once every field is used.
+                const next = free[0];
+                if (next) onChange([...value, { key: next.key, dir: "asc" }]);
+              }}
+            >
+              <Plus /> {labels.addSort}
+            </Button>
+          )
+        }
       />
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-fit"
-        data-slot="sort-builder-add"
-        disabled={disabled || value.length >= max || free.length === 0}
-        onClick={() => {
-          // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
-          // property read into render, which crashes once every field is used.
-          const next = free[0];
-          if (next) onChange([...value, { key: next.key, dir: "asc" }]);
-        }}
-      >
-        <Plus /> Add sort
-      </Button>
     </div>
   );
 }
@@ -2087,15 +2166,19 @@ export function GroupByPicker({
     id: rows.ids[index]!,
     label: labelOf(key),
   }));
+  const atMax = value.length >= max || free.length === 0;
   return (
     <div
       data-slot="group-by-picker"
-      className={cn("flex min-w-0 flex-col gap-2", className)}
+      className={cn("flex min-w-0 flex-col gap-1", className)}
     >
+      {/* The same row grid as SortBuilder: no fill, the grip only once two levels can move. */}
       <SortableList
         aria-label={ariaLabel}
         items={items}
         disabled={disabled}
+        flush
+        handle="auto"
         onReorder={({ from, to }) => {
           const next = [...value];
           const [moved] = next.splice(from.index, 1);
@@ -2114,27 +2197,31 @@ export function GroupByPicker({
             value={item.key}
             disabled={disabled}
             label={`Group level ${item.index + 1}`}
+            className="min-w-0 flex-1"
             onChange={(key) =>
               onChange(value.map((k, i) => (i === item.index ? key : k)))
             }
           />
         )}
+        footer={
+          disabled || atMax ? null : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-fit font-normal text-muted-foreground"
+              data-slot="group-by-picker-add"
+              onClick={() => {
+                // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
+                // property read into render, which crashes once every field is grouped.
+                const next = free[0];
+                if (next) onChange([...value, next.key]);
+              }}
+            >
+              <Plus /> {value.length === 0 ? labels.groupBy : labels.addLevel}
+            </Button>
+          )
+        }
       />
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-fit"
-        data-slot="group-by-picker-add"
-        disabled={disabled || value.length >= max || free.length === 0}
-        onClick={() => {
-          // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
-          // property read into render, which crashes once every field is grouped.
-          const next = free[0];
-          if (next) onChange([...value, next.key]);
-        }}
-      >
-        <Plus /> {value.length === 0 ? labels.groupBy : labels.addLevel}
-      </Button>
     </div>
   );
 }

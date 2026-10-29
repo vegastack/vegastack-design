@@ -1,0 +1,263 @@
+---
+title: List Toolbar
+description: The one header row of every list and table — tabs left; search, icon tools and the main button right — collapsing in a fixed, measured order.
+audience: public
+registry: list-toolbar
+status: stable
+since: 0.25.99
+a11y: named toolbar; tools named with state; / and F shortcuts
+preview: listToolbar
+---
+
+## Install
+
+<InstallSteps name="list-toolbar" />
+
+## Usage
+
+```tsx
+import { Plus } from "lucide-react";
+import { AddFilterMenu } from "@/components/ui/add-filter-menu";
+import { DisplayMenu } from "@/components/ui/display-menu";
+import { FilterRow } from "@/components/ui/filter-row";
+import {
+  ListToolbar,
+  ListToolbarAction,
+  ListToolbarMenu,
+} from "@/components/ui/list-toolbar";
+import { SortMenu } from "@/components/ui/sort-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+<ListToolbar
+  tabs={
+    <Tabs value={scope} onValueChange={setScope}>
+      <TabsList size="sm" overflow="menu" aria-label="Whose tasks">
+        <TabsTrigger value="mine">My tasks</TabsTrigger>
+        <TabsTrigger value="all">All</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  }
+  search={{
+    value: query,
+    onValueChange: setQuery,
+    placeholder: "Search tasks",
+  }}
+  filterRow={
+    <FilterRow
+      addFilter={<AddFilterMenu fields={fields} onPick={addFilter} ai={ai} />}
+      facets={facets}
+      chips={chips}
+      onClear={clearAll}
+    />
+  }
+  sort={{
+    content: (
+      <SortMenu
+        fields={sortFields}
+        value={sort}
+        defaultValue={defaultSort}
+        onValueChange={setSort}
+      />
+    ),
+    isDefault,
+    summary: sortSummary(sortFields, sort),
+  }}
+  layout={{
+    value: layout,
+    options: ["list", "board"],
+    onValueChange: setLayout,
+  }}
+  display={
+    <DisplayMenu
+      toggles={showToggles}
+      isDefault={displayDefault}
+      onReset={resetDisplay}
+    />
+  }
+  more={<ListToolbarMenu items={viewActions} />}
+  action={
+    <ListToolbarAction icon={<Plus />} label="New task" onClick={create} />
+  }
+/>;
+```
+
+Every list, table and settings table gets the same row under its title. The **left zone** holds the
+one thing that says _which set_: scope `Tabs`, `RouteTabs` or a table's `ViewTabs`. The **right
+zone** holds, in this order, a state button (`state`, a table's "Save view"), the edit group
+(`edit`, undo/redo, then a divider), the search, the tool cluster — **Filter · Sort · Layout ·
+Display · ⋯** — and the page's main button (`action`). Display and ⋯ sit at the far end, so a tool
+that hides (Sort on a board) never moves them.
+
+A tool renders only when the page passes something for it to do: no `sort` on a board, no `layout`
+where there is one layout, no ⋯ when `ListToolbarMenu` has no items. Nothing is ever shown disabled
+as a placeholder. Tools are 32px borderless icon buttons, 4px apart, muted until hovered or open,
+each with a tooltip and an accessible name that carries its state: Filter shows its count ("Filter,
+2 active"), Sort and Display show a 6px dot when they differ from the page's default.
+
+The filter row (`filterRow`, a [`FilterRow`](/docs/components/filter-row)) opens under the row from
+the Filter tool, 8px below it. It stays mounted while closed, so its facets keep reporting, and it
+tells the Filter tool how many filters are applied. Opened with nothing applied, its
+[`AddFilterMenu`](/docs/components/add-filter-menu) opens too, with focus in its input.
+`filter.storageKey` remembers the open state per page.
+
+The main button is a [`ListToolbarAction`](#api-reference): the one filled button on the row,
+labelled while the toolbar is wide ("+ New task") and an icon `+` with the label as its name and
+tooltip once the tabs have folded. Pass it as a menu trigger's `render` for "New ▾".
+
+## Scope
+
+| Behaviour                                          | Where it lives                              |
+| -------------------------------------------------- | ------------------------------------------- |
+| Which tools a page has, their values and defaults  | Host                                        |
+| Measuring the row and the collapse order           | `ListToolbar`                               |
+| Folding scope tabs into a dropdown                 | `TabsList overflow="menu"` (also RouteTabs) |
+| Sort and Layout inside Display once folded         | `ListToolbar` → `DisplayMenu` (context)     |
+| Undo/redo inside ⋯ once folded                     | `ListToolbar` → `ListToolbarMenu` (context) |
+| Filter counts                                      | `FilterRow` (or `filter.count`)             |
+| Turning a plain-language request into filters (AI) | Host — `AddFilterMenu ai.onSubmit`          |
+| Bottom sheets on a phone                           | `ListToolbarPopover`                        |
+
+## Anatomy
+
+<Anatomy name="list-toolbar" />
+
+## Examples
+
+### At five widths
+
+The toolbar measures its own width, not the viewport, and gives way one step at a time: the search
+shrinks to 144px, the tabs fold to a dropdown, Layout moves into Display (the search can go to
+96px), Sort moves into Display, the search becomes an icon, and a table's undo/redo move into ⋯.
+Filter, Display, ⋯ and the main button never go, and the row never wraps.
+
+<ComponentPreview
+  name="listToolbarWidths"
+  file="components/preview/list-toolbar.tsx"
+/>
+
+### A table with saved views
+
+`ViewTabs` on the left with a dot on a changed view, "Save view" as the `state` button, undo/redo
+as the `edit` group, a search that starts as an icon (`collapsible`), a multi-key `SortBuilder`
+showing its key count, and Fields in Display.
+
+<ComponentPreview
+  name="listToolbarTable"
+  file="components/preview/list-toolbar.tsx"
+/>
+
+### A settings table
+
+No tabs: the left zone stays empty and the tools sit right. No Display, so Sort never folds.
+
+<ComponentPreview
+  name="listToolbarSettings"
+  file="components/preview/list-toolbar.tsx"
+/>
+
+### Compact, inside a record tab
+
+`size="compact"` is the toolbar of a short list inside a record's tab: 28px tools, no shortcuts,
+and the main button may be a ghost "+ New task".
+
+<ComponentPreview
+  name="listToolbarCompact"
+  file="components/preview/list-toolbar.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarProps"
+/>
+
+### Search
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarSearch"
+/>
+
+### Filter
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarFilter"
+/>
+
+### Sort
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarSort"
+/>
+
+### Layout
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarLayout"
+/>
+
+### ListToolbarButton
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarButtonProps"
+/>
+
+### ListToolbarPopover
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarPopoverProps"
+/>
+
+### ListToolbarMenu
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarMenuProps"
+/>
+
+### Menu item
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarMenuItem"
+/>
+
+### ListToolbarAction
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarActionProps"
+/>
+
+## Accessibility
+
+- The row is a `toolbar` named by `aria-label` (default "List controls").
+- Every icon tool has an accessible name that carries its state ("Filter, 2 active", "Sort,
+  changed") and a tooltip with its name and shortcut on hover and focus.
+- Filter is a toggle for the row under it: `aria-expanded` and `aria-controls` point at the row.
+- Layout is a group of two or three toggle buttons named "List", "Board", "Grid".
+- Folded tabs are one menu button named after the tabs and the active tab ("Scope: My tasks"); the hidden tab list leaves
+  the tab order and the accessibility tree.
+- An icon-only main button keeps its label as its name and tooltip.
+
+| Key            | Action                                                            |
+| -------------- | ----------------------------------------------------------------- |
+| <kbd>/</kbd>   | Focus the search (opens a collapsed search)                       |
+| <kbd>F</kbd>   | Open or close the filter row (opens + Filter when nothing is set) |
+| <kbd>Tab</kbd> | Move through the tabs, the search, each tool and the main button  |
+| <kbd>Esc</kbd> | Close the open popover; on an empty collapsed search, fold it     |
+
+<StatesTested name="list-toolbar" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass a tool only when the page has something for it to do, keep the page's one create action in action, and let the toolbar fold Sort and Layout into Display."
+  dont="Add labelled text buttons beside the icons, show a disabled tool as a placeholder, or put a second main button in the page header."
+/>

@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "dade36a8f120d32a5d4befc32e165fd0faa5d6c361e6867bf8cbb17ddc325b8b",
+  "contractSha256": "3e7400f784de1cd5b6507faf44eadba936a5f800840ff3abb5f3a37ffe8181b3",
   "inventory": {
-    "expected": 778,
-    "actual": 778,
-    "unique": 778
+    "expected": 784,
+    "actual": 784,
+    "unique": 784
   },
   "classes": {
-    "components": 189,
+    "components": 194,
     "animatedIcons": 467,
-    "hooks": 17,
+    "hooks": 18,
     "blocks": 15,
     "chartBlocks": 68,
     "libs": 22
@@ -156,10 +156,11 @@
       ]
     },
     "Data display": {
-      "expected": 41,
-      "actual": 41,
+      "expected": 46,
+      "actual": 46,
       "members": [
         "activity-feed",
+        "add-filter-menu",
         "block-header",
         "board-card",
         "card",
@@ -173,11 +174,14 @@
         "data-list",
         "data-list-pager",
         "diff-view",
+        "display-menu",
         "entry-list",
         "file-card",
+        "filter-row",
         "icon-glyph",
         "inbox",
         "level-meter",
+        "list-toolbar",
         "load-more",
         "media-card",
         "member-list",
@@ -191,6 +195,7 @@
         "record-aside",
         "record-header",
         "record-list",
+        "sort-menu",
         "stat",
         "table",
         "thumbnail",
@@ -254,8 +259,8 @@
       ]
     },
     "Hooks": {
-      "expected": 16,
-      "actual": 17,
+      "expected": 17,
+      "actual": 18,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -270,6 +275,7 @@
         "use-modal-inert",
         "use-optimistic-action",
         "use-overflow",
+        "use-overflow-fold",
         "use-platform",
         "use-record-peek-row",
         "use-tabs-swipe",
@@ -839,7 +845,7 @@
       ]
     }
   },
-  "componentRoutes": 183,
+  "componentRoutes": 188,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

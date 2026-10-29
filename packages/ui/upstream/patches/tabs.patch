@@ -31,6 +31,13 @@
 #     a `MutationObserver` on `aria-selected` that moves only the list's own `scrollLeft`, never the
 #     page. The list's `ref` is merged with the internal one through `mergeRefs` from our npm layer,
 #     and `React` is imported for the hooks.
+#     LAY-14 widened (MK 2026-10-29, list-toolbar proposal T4 + §7): the axis gains `menu`. A
+#     `TabsList overflow="menu"` is measured by `useOverflowFold` against the room it is given and,
+#     when it does not fit, folds into one ghost dropdown (`TabsFoldList`): the trigger shows the
+#     active tab's own children and a ▾, the menu lists every tab as a radio item, and picking one
+#     clicks that tab in the list, which stays mounted out of flow and hidden so Base UI still owns
+#     the value and the list can still be measured. It imports `Button`, the dropdown menu and the
+#     hook, and `ChevronDown` from lucide.
 #   API-25: `TabsTrigger`'s class string moves verbatim into an exported `tabsTriggerVariants`
 #     recipe, beside upstream's own exported `tabsListVariants`, so route tabs (links in a `nav`)
 #     are drawn from the system's classes rather than a copy of them.
@@ -60,10 +67,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..124786c 100644
+index c3262d3..ec9bc10 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
-@@ -1,8 +1,9 @@
+@@ -1,8 +1,19 @@
 -"use client"
 +"use client";
  
@@ -73,11 +80,21 @@ index c3262d3..124786c 100644
 +import * as React from "react";
 +import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 +import { cva, type VariantProps } from "class-variance-authority";
++import { ChevronDown } from "lucide-react";
 +import { cn, mergeRefs } from "@vegastack/design";
++import { Button } from "@/components/ui/button";
++import {
++  DropdownMenu,
++  DropdownMenuContent,
++  DropdownMenuRadioGroup,
++  DropdownMenuRadioItem,
++  DropdownMenuTrigger,
++} from "@/components/ui/dropdown-menu";
++import { useOverflowFold } from "@/components/ui/use-overflow-fold";
  
  function Tabs({
    className,
-@@ -13,69 +14,179 @@ function Tabs({
+@@ -13,69 +24,317 @@ function Tabs({
      <TabsPrimitive.Root
        data-slot="tabs"
        data-orientation={orientation}
@@ -108,6 +125,7 @@ index c3262d3..124786c 100644
 +      },
 +      overflow: {
 +        visible: "",
++        menu: "",
 +        scroll:
 +          "relative not-data-vertical:max-w-full not-data-vertical:min-w-0 not-data-vertical:scroll-fade-x not-data-vertical:justify-start not-data-vertical:scrollbar-none not-data-vertical:overflow-x-auto not-data-vertical:overflow-y-hidden not-data-vertical:overscroll-x-contain not-data-vertical:[&>*]:after:bottom-[-4px]",
 +      },
@@ -164,6 +182,16 @@ index c3262d3..124786c 100644
 +  const [list, setList] = React.useState<HTMLDivElement | null>(null);
 +  const mergedRef = React.useMemo(() => mergeRefs(setList, ref), [ref]);
 +  useActiveTabInView(resolvedOverflow === "scroll" ? list : null);
++  if (resolvedOverflow === "menu")
++    return (
++      <TabsFoldList
++        className={className}
++        variant={variant}
++        size={size}
++        ref={ref}
++        {...props}
++      />
++    );
    return (
      <TabsPrimitive.List
        data-slot="tabs-list"
@@ -182,6 +210,133 @@ index c3262d3..124786c 100644
 +  );
  }
  
++/**
++ * LAY-14 `overflow="menu"` (widened MK 2026-10-29, list-toolbar T4): the list folds into one
++ * dropdown when it does not fit the room it is given — measured by `useOverflowFold`, not set by a
++ * breakpoint. Folded, the list stays mounted out of flow and hidden (so it is still measured and
++ * Base UI still owns the value), and the dropdown's trigger shows the active tab; picking an item
++ * activates that tab.
++ */
++function TabsFoldList({
++  className,
++  variant,
++  size,
++  ref,
++  children,
++  ...props
++}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
++  const { rootRef, contentRef, folded } = useOverflowFold<
++    HTMLDivElement,
++    HTMLDivElement
++  >();
++  const [list, setList] = React.useState<HTMLDivElement | null>(null);
++  const mergedRef = React.useMemo(
++    () => mergeRefs(setList, contentRef, ref),
++    [contentRef, ref],
++  );
++  // The triggers, read from the children: a menu item per tab, labelled as the tab is.
++  const tabs = React.Children.toArray(children).filter(
++    (child): child is React.ReactElement<TabsPrimitive.Tab.Props> =>
++      React.isValidElement(child) &&
++      (child.props as { value?: unknown }).value !== undefined,
++  );
++  // Which tab is selected, read back from the list (Base UI owns the value).
++  const [selected, setSelected] = React.useState(0);
++  React.useEffect(() => {
++    if (!list) return;
++    const read = () => {
++      const all = Array.from(list.querySelectorAll('[role="tab"]'));
++      const index = all.findIndex(
++        (tab) => tab.getAttribute("aria-selected") === "true",
++      );
++      setSelected(index < 0 ? 0 : index);
++    };
++    read();
++    const observer = new MutationObserver(read);
++    observer.observe(list, {
++      subtree: true,
++      attributes: true,
++      attributeFilter: ["aria-selected"],
++    });
++    return () => observer.disconnect();
++  }, [list]);
++  const active = tabs[selected];
++  return (
++    <div
++      ref={rootRef}
++      data-slot="tabs-fold"
++      data-folded={folded ? "" : undefined}
++      className="relative flex w-full min-w-0 items-center"
++    >
++      <TabsPrimitive.List
++        data-slot="tabs-list"
++        data-variant={variant}
++        data-size={size}
++        data-overflow="menu"
++        data-fold-content=""
++        aria-hidden={folded || undefined}
++        ref={mergedRef}
++        className={cn(
++          tabsListVariants({ variant, size, overflow: "menu" }),
++          folded &&
++            "pointer-events-none invisible absolute start-0 top-0 max-w-none",
++          className,
++        )}
++        {...props}
++      >
++        {children}
++      </TabsPrimitive.List>
++      {folded ? (
++        <DropdownMenu>
++          <DropdownMenuTrigger
++            render={
++              <Button
++                variant="ghost"
++                size={size === "sm" ? "sm" : "default"}
++                data-slot="tabs-fold-trigger"
++                data-fold-trigger=""
++                aria-label={
++                  props["aria-label"]
++                    ? `${props["aria-label"]}: ${list?.querySelectorAll('[role="tab"]')[selected]?.textContent ?? ""}`
++                    : undefined
++                }
++                className="h-8 max-w-full min-w-0 gap-1 px-2 text-sm font-medium [&_svg:not([class*='size-'])]:size-4"
++              >
++                <span className="flex min-w-0 items-center gap-1.5 overflow-hidden [&>svg]:shrink-0">
++                  {active?.props.children as React.ReactNode}
++                </span>
++                <ChevronDown aria-hidden className="text-muted-foreground" />
++              </Button>
++            }
++          />
++          <DropdownMenuContent align="start" className="min-w-48">
++            <DropdownMenuRadioGroup
++              value={String(selected)}
++              onValueChange={(value) => {
++                const tab =
++                  list?.querySelectorAll<HTMLElement>('[role="tab"]')[
++                    Number(value)
++                  ];
++                tab?.click();
++              }}
++            >
++              {tabs.map((tab, index) => (
++                <DropdownMenuRadioItem
++                  key={String(tab.props.value)}
++                  value={String(index)}
++                  disabled={tab.props.disabled}
++                >
++                  {tab.props.children as React.ReactNode}
++                </DropdownMenuRadioItem>
++              ))}
++            </DropdownMenuRadioGroup>
++          </DropdownMenuContent>
++        </DropdownMenu>
++      ) : null}
++    </div>
++  );
++}
++
 +const tabsTriggerVariants = cva([
 +  "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 +  "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",

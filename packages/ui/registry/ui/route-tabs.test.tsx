@@ -345,3 +345,35 @@ test("controlled pendingHref: a click requests through onPendingHrefChange; the 
     .toBeNull();
   expect(requests).toEqual(["/connections/policy", null]);
 });
+
+test("overflow=menu: a strip that does not fit folds to the current tab and a menu of links", async () => {
+  const sheetCss = await import("../../test/geometry.css?inline");
+  const sheet = document.createElement("style");
+  sheet.textContent = sheetCss.default;
+  document.head.append(sheet);
+  const onClick = vi.fn((event: React.MouseEvent) => event.preventDefault());
+  const screen = await render(
+    <div style={{ width: 120 }}>
+      <RouteTabs
+        label="Connections"
+        tabs={TABS}
+        currentHref="/connections"
+        overflow="menu"
+        linkRender={<a onClick={onClick} />}
+      />
+    </div>,
+  );
+  await expect
+    .poll(() =>
+      document
+        .querySelector('[data-slot="route-tabs"]')!
+        .hasAttribute("data-folded"),
+    )
+    .toBe(true);
+  await screen
+    .getByRole("button", { name: "Connections: Your connections" })
+    .click();
+  await screen.getByRole("menuitemradio", { name: /Everyone/ }).click();
+  expect(onClick).toHaveBeenCalled();
+  sheet.remove();
+});

@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 778,
-    "components": 189,
+    "totalRegistryItems": 784,
+    "components": 194,
     "animatedIcons": 467,
-    "hooks": 17,
+    "hooks": 18,
     "blocks": 15,
     "libs": 22,
     "chartBlocks": 68
@@ -25,11 +25,11 @@
     "Forms/editing": 42,
     "Navigation/layout": 26,
     "Overlays": 23,
-    "Data display": 41,
+    "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 12,
-    "Hooks": 16,
+    "Hooks": 17,
     "Block": 1,
     "Animated icons": 467
   },
@@ -198,7 +198,12 @@
       "record-header",
       "block-header",
       "recent-strip",
-      "version-compare"
+      "version-compare",
+      "list-toolbar",
+      "filter-row",
+      "add-filter-menu",
+      "sort-menu",
+      "display-menu"
     ],
     "Content/marketing": [
       "alert",
@@ -255,7 +260,8 @@
       "use-tabs-swipe",
       "use-view-transition",
       "use-optimistic-action",
-      "use-record-peek-row"
+      "use-record-peek-row",
+      "use-overflow-fold"
     ],
     "Block": ["board-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
@@ -747,6 +753,10 @@
         },
         "ActionBarButton": {
           "attributes": [
+            {
+              "name": "data-icon-only",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["action-bar-button"]
@@ -6173,9 +6183,9 @@
       "engines": [],
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": [
-        "@vegastack/block-toolbar",
+        "@vegastack/copy-button",
         "@vegastack/code-highlight",
-        "@vegastack/copy-button"
+        "@vegastack/block-toolbar"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.38",
@@ -8191,16 +8201,13 @@
       ],
       "docsSlug": "/docs/components/data-grid",
       "registryDependencies": [
-        "@vegastack/action-bar",
         "@vegastack/auto-save-input",
         "@vegastack/button",
-        "@vegastack/checkbox",
         "@vegastack/context-menu",
         "@vegastack/cursor-pager",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
-        "@vegastack/empty",
         "@vegastack/grid-clipboard",
         "@vegastack/load-more",
         "@vegastack/skeleton",
@@ -8208,7 +8215,10 @@
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
-        "@vegastack/use-grid-selection"
+        "@vegastack/use-grid-selection",
+        "@vegastack/checkbox",
+        "@vegastack/empty",
+        "@vegastack/action-bar"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -8685,7 +8695,9 @@
         "@vegastack/view-toggle",
         "@vegastack/use-drag-reorder",
         "@vegastack/checkbox",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/list-toolbar",
+        "@vegastack/display-menu"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.38",
@@ -9695,7 +9707,8 @@
         "@vegastack/select",
         "@vegastack/tabs",
         "@vegastack/tooltip",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/use-overflow-fold"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -9715,6 +9728,14 @@
       "dataAttributes": {
         "ViewTabs": {
           "attributes": [
+            {
+              "name": "data-fold-content",
+              "values": [""]
+            },
+            {
+              "name": "data-fold-trigger",
+              "values": [""]
+            },
             {
               "name": "data-narrow",
               "values": [""]
@@ -9883,6 +9904,963 @@
             {
               "name": "data-slot",
               "values": ["density-toggle"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "list-toolbar",
+      "registryType": "registry:ui",
+      "title": "List Toolbar",
+      "summary": "The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.",
+      "status": "stable",
+      "since": "0.25.99",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/list-toolbar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ListToolbar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "supported",
+            "rationale": "ref reaches the root div (data-slot=list-toolbar)."
+          }
+        },
+        {
+          "name": "ListToolbarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarSearch",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarFilter",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarSort",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarLayout",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarLayoutValue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarMenuItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "ListToolbarButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarPopover",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "ListToolbarPopoverProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "ListToolbarMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "ListToolbarActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useListToolbar",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes upstream controls; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 32px tool tier (28px compact on ListToolbar); no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "open", "changed", "folded"],
+          "evidence": "packages/ui/registry/ui/list-toolbar.tsx + packages/ui/registry/ui/list-toolbar.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/list-toolbar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/list-toolbar.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Measures its own width (ListToolbar) or wraps/scrolls by container query; bottom sheet below the tablet tier."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/list-toolbar",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/popover",
+        "@vegastack/search-input",
+        "@vegastack/sheet",
+        "@vegastack/toggle-group",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/page-layout"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/list-toolbar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "list-toolbar",
+      "dataAttributes": {
+        "ListToolbarButton": {
+          "attributes": [
+            {
+              "name": "data-dot",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["list-toolbar-count", "list-toolbar-dot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ListToolbarPopover": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "ListToolbarMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["list-toolbar-more"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ListToolbarAction": {
+          "attributes": [
+            {
+              "name": "data-labelled",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ListToolbar": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-level",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "list-toolbar",
+                "list-toolbar-action",
+                "list-toolbar-cluster",
+                "list-toolbar-edit",
+                "list-toolbar-filter",
+                "list-toolbar-filter-row",
+                "list-toolbar-layout",
+                "list-toolbar-row",
+                "list-toolbar-search",
+                "list-toolbar-sort",
+                "list-toolbar-sort-content",
+                "list-toolbar-state",
+                "list-toolbar-tabs",
+                "list-toolbar-tools"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["closed", "open"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "filter-row",
+      "registryType": "registry:ui",
+      "title": "Filter Row",
+      "summary": "The chips under a ListToolbar: + Filter, pinned facets (dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
+      "status": "stable",
+      "since": "0.25.99",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/filter-row.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FilterRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "FilterRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterRowChip",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterRowAiNote",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterRowLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes upstream controls; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 32px tool tier (28px compact on ListToolbar); no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "set", "ai"],
+          "evidence": "packages/ui/registry/ui/filter-row.tsx + packages/ui/registry/ui/filter-row.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/filter-row.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/filter-row.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Measures its own width (ListToolbar) or wraps/scrolls by container query; bottom sheet below the tablet tier."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/filter-row",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/filter-bar",
+        "@vegastack/list-toolbar"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/filter-row.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "filter-row",
+      "dataAttributes": {
+        "FilterRow": {
+          "attributes": [
+            {
+              "name": "data-filter-id",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "filter-row",
+                "filter-row-add",
+                "filter-row-ai-dismiss",
+                "filter-row-ai-note",
+                "filter-row-ai-undo",
+                "filter-row-ai-unmatched",
+                "filter-row-chips",
+                "filter-row-clear",
+                "filter-row-scroll"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "add-filter-menu",
+      "registryType": "registry:ui",
+      "title": "Add Filter Menu",
+      "summary": "+ Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.",
+      "status": "stable",
+      "since": "0.25.99",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/add-filter-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AddFilterMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "AddFilterMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AddFilterField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AddFilterAi",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AiFilterResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AddFilterMenuLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AiFilterInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "AiFilterInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes upstream controls; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 32px tool tier (28px compact on ListToolbar); no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "open", "pending", "error"],
+          "evidence": "packages/ui/registry/ui/add-filter-menu.tsx + packages/ui/registry/ui/add-filter-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/add-filter-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/add-filter-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Measures its own width (ListToolbar) or wraps/scrolls by container query; bottom sheet below the tablet tier."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/add-filter-menu",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/list-toolbar",
+        "@vegastack/panel-search",
+        "@vegastack/spinner"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/add-filter-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "add-filter-menu",
+      "dataAttributes": {
+        "AiFilterInput": {
+          "attributes": [
+            {
+              "name": "data-ai",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["ai-filter-input"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AddFilterMenu": {
+          "attributes": [
+            {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "add-filter-menu-advanced",
+                "add-filter-menu-ai",
+                "add-filter-menu-back",
+                "add-filter-menu-body",
+                "add-filter-menu-content",
+                "add-filter-menu-editor",
+                "add-filter-menu-field",
+                "add-filter-menu-list",
+                "add-filter-menu-message",
+                "add-filter-menu-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "sort-menu",
+      "registryType": "registry:ui",
+      "title": "Sort Menu",
+      "summary": "The one-key sort: the fields, then the two directions worded by field type (Oldest first, A → Z, Low → high), with Reset while not at the page default.",
+      "status": "stable",
+      "since": "0.25.99",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/sort-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SortMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "SortMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortMenuField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortMenuValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortMenuLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "sortSummary",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/sort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes upstream controls; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 32px tool tier (28px compact on ListToolbar); no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "changed"],
+          "evidence": "packages/ui/registry/ui/sort-menu.tsx + packages/ui/registry/ui/sort-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/sort-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/sort-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Measures its own width (ListToolbar) or wraps/scrolls by container query; bottom sheet below the tablet tier."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/sort-menu",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/sort-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "sort-menu",
+      "dataAttributes": {
+        "SortMenu": {
+          "attributes": [
+            {
+              "name": "data-default",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "sort-menu",
+                "sort-menu-direction",
+                "sort-menu-fields",
+                "sort-menu-header",
+                "sort-menu-reset"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "display-menu",
+      "registryType": "registry:ui",
+      "title": "Display Menu",
+      "summary": "The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.",
+      "status": "stable",
+      "since": "0.25.99",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/display-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DisplayMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "DisplayMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DisplayMenuRowHeight",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DisplayMenuColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DisplayMenuColumns",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DisplayMenuToggle",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DisplayMenuLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/display-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes upstream controls; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One 32px tool tier (28px compact on ListToolbar); no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "open", "changed", "folded"],
+          "evidence": "packages/ui/registry/ui/display-menu.tsx + packages/ui/registry/ui/display-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/display-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/display-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Measures its own width (ListToolbar) or wraps/scrolls by container query; bottom sheet below the tablet tier."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/display-menu",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/list-toolbar",
+        "@vegastack/sortable-list",
+        "@vegastack/switch",
+        "@vegastack/toggle-group"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/display-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "display-menu",
+      "dataAttributes": {
+        "DisplayMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "display-menu-columns",
+                "display-menu-content",
+                "display-menu-group-by",
+                "display-menu-layout",
+                "display-menu-reset",
+                "display-menu-row-height",
+                "display-menu-rows",
+                "display-menu-show",
+                "display-menu-sort",
+                "display-menu-trigger"
+              ]
             }
           ],
           "cssVariables": []
@@ -10564,7 +11542,6 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
-        "@vegastack/action-bar",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
@@ -10574,6 +11551,7 @@
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip",
+        "@vegastack/action-bar",
         "@vegastack/disclosure-trigger"
       ],
       "npmDependencies": [
@@ -12851,13 +13829,13 @@
         "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/date-picker",
-        "@vegastack/date-time",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/date-time"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.38",
@@ -14387,6 +15365,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "FilterFacetReport",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterFacetReporter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider; it renders no element of its own."
+          }
         }
       ],
       "variants": {
@@ -14477,7 +15473,15 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["filter-chip", "filter-chip-trigger"]
+              "values": ["filter-chip", "filter-chip-ai", "filter-chip-trigger"]
+            },
+            {
+              "name": "data-source",
+              "values": ["ai"]
+            },
+            {
+              "name": "data-state",
+              "values": ["unset"]
             }
           ],
           "cssVariables": []
@@ -14863,6 +15867,15 @@
             "status": "not-applicable",
             "rationale": "A value editor; it renders a composed control and takes no ref."
           }
+        },
+        {
+          "name": "SortBuilderLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -15015,7 +16028,13 @@
             },
             {
               "name": "data-slot",
-              "values": ["sort-builder", "sort-builder-add"]
+              "values": [
+                "sort-builder",
+                "sort-builder-add",
+                "sort-builder-clear",
+                "sort-builder-header",
+                "sort-builder-limit"
+              ]
             }
           ],
           "cssVariables": []
@@ -17954,20 +18973,20 @@
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
-        "@vegastack/alert",
-        "@vegastack/block-view",
-        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/embed-providers",
         "@vegastack/inline-chip",
+        "@vegastack/button",
         "@vegastack/popover",
-        "@vegastack/skeleton",
-        "@vegastack/task-inline",
-        "@vegastack/text-anchor",
+        "@vegastack/alert",
         "@vegastack/text-edit-grammar",
         "@vegastack/toast",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/text-anchor",
+        "@vegastack/embed-providers",
+        "@vegastack/block-view",
+        "@vegastack/task-inline",
+        "@vegastack/skeleton"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -23342,7 +24361,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/search-input",
-      "registryDependencies": ["@vegastack/input-group"],
+      "registryDependencies": ["@vegastack/input-group", "@vegastack/button"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.46",
@@ -23362,6 +24381,10 @@
       "dataAttributes": {
         "SearchInput": {
           "attributes": [
+            {
+              "name": "data-collapsible",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["search-input-clear"]
@@ -27017,7 +28040,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/tabs",
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-overflow-fold"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -28049,44 +29076,44 @@
       ],
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": [
-        "@vegastack/alert",
-        "@vegastack/avatar",
-        "@vegastack/block-toolbar",
-        "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/code-highlight",
         "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
-        "@vegastack/dropzone",
-        "@vegastack/embed-providers",
-        "@vegastack/emoji-data",
-        "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
-        "@vegastack/person-avatar",
         "@vegastack/popover",
-        "@vegastack/separator",
-        "@vegastack/sheet",
-        "@vegastack/suggestion-menu",
-        "@vegastack/tabs",
-        "@vegastack/task-inline",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
-        "@vegastack/text-edit-grammar",
-        "@vegastack/text-edit-markdown",
-        "@vegastack/text-edit-schema",
-        "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-announcer",
         "@vegastack/use-file-drop",
+        "@vegastack/code-highlight",
+        "@vegastack/alert",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/tabs",
+        "@vegastack/toast",
+        "@vegastack/suggestion-menu",
+        "@vegastack/text-edit-grammar",
+        "@vegastack/text-edit-schema",
+        "@vegastack/text-edit-markdown",
+        "@vegastack/avatar",
+        "@vegastack/embed-providers",
+        "@vegastack/sheet",
+        "@vegastack/separator",
+        "@vegastack/use-announcer",
+        "@vegastack/emoji-data",
+        "@vegastack/block-view",
+        "@vegastack/person-avatar",
+        "@vegastack/task-inline",
+        "@vegastack/block-toolbar",
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
@@ -30038,11 +31065,11 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
-        "@vegastack/panel-search",
-        "@vegastack/sheet",
         "@vegastack/skeleton",
         "@vegastack/use-announcer",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/panel-search",
+        "@vegastack/sheet"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.8.46",
@@ -30258,12 +31285,12 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
-        "@vegastack/block-toolbar",
         "@vegastack/button",
         "@vegastack/code-block",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/block-toolbar"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -33739,11 +34766,11 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/item",
-        "@vegastack/sheet",
         "@vegastack/skeleton",
-        "@vegastack/tabs",
-        "@vegastack/use-overflow"
+        "@vegastack/item",
+        "@vegastack/use-overflow",
+        "@vegastack/sheet",
+        "@vegastack/tabs"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -40790,7 +41817,12 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/route-tabs",
-      "registryDependencies": ["@vegastack/tabs"],
+      "registryDependencies": [
+        "@vegastack/tabs",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-overflow-fold"
+      ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.38",
         "@vegastack/design@^0.8.46"
@@ -40809,6 +41841,18 @@
         "RouteTabs": {
           "attributes": [
             {
+              "name": "data-fold-content",
+              "values": [""]
+            },
+            {
+              "name": "data-fold-trigger",
+              "values": [""]
+            },
+            {
+              "name": "data-folded",
+              "values": [""]
+            },
+            {
               "name": "data-orientation",
               "values": ["horizontal"]
             },
@@ -40822,7 +41866,12 @@
             },
             {
               "name": "data-slot",
-              "values": ["route-tabs", "route-tabs-pending", "tabs-list"]
+              "values": [
+                "route-tabs",
+                "route-tabs-fold-trigger",
+                "route-tabs-pending",
+                "tabs-list"
+              ]
             },
             {
               "name": "data-variant",
@@ -46544,6 +47593,107 @@
       "registryDependencies": [],
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/ui/use-overflow.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-overflow-fold",
+      "registryType": "registry:hook",
+      "title": "useOverflowFold",
+      "summary": "Measured fold — decide whether a row (tabs, saved views) fits the room it is given, and fold it into one control when it does not, with hysteresis so it never flickers.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-overflow-fold.ts"],
+      "publicSymbols": [
+        {
+          "name": "useOverflowFold",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-overflow-fold.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseOverflowFoldOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-overflow-fold.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseOverflowFoldResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-overflow-fold.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "measureFold",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-overflow-fold.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A measurement hook has no variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A measurement hook has no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "folded", "disabled"],
+          "evidence": "Returns false until measured, true once the content is wider than the root, and unfolds only past the hysteresis."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["overflow-and-scroll", "text-truncation-and-flex-shrink"],
+        "rationale": "One ResizeObserver watches the root and the content, so a resize, a sidebar and a count arriving all re-decide."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-overflow-fold.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",

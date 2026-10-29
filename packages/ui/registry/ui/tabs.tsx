@@ -1,11 +1,21 @@
-// @vegastack tabs@0.25.98 sha256-uHGQS4pLas+Qe9fQX3queQIQ2vZ8Zvb/UyzIGzGS0yg=
+// @vegastack tabs@0.25.98 sha256-kDV1xedYv47zxttgv8J1d5txskk8MCc3oK6IoAS3k54=
 
 "use client";
 
 import * as React from "react";
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva, type VariantProps } from "class-variance-authority";
+import { ChevronDown } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useOverflowFold } from "@/components/ui/use-overflow-fold";
 
 function Tabs({
   className,
@@ -40,6 +50,7 @@ const tabsListVariants = cva(
       },
       overflow: {
         visible: "",
+        menu: "",
         scroll:
           "relative not-data-vertical:max-w-full not-data-vertical:min-w-0 not-data-vertical:scroll-fade-x not-data-vertical:justify-start not-data-vertical:scrollbar-none not-data-vertical:overflow-x-auto not-data-vertical:overflow-y-hidden not-data-vertical:overscroll-x-contain not-data-vertical:[&>*]:after:bottom-[-4px]",
       },
@@ -94,6 +105,16 @@ function TabsList({
   const [list, setList] = React.useState<HTMLDivElement | null>(null);
   const mergedRef = React.useMemo(() => mergeRefs(setList, ref), [ref]);
   useActiveTabInView(resolvedOverflow === "scroll" ? list : null);
+  if (resolvedOverflow === "menu")
+    return (
+      <TabsFoldList
+        className={className}
+        variant={variant}
+        size={size}
+        ref={ref}
+        {...props}
+      />
+    );
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
@@ -107,6 +128,133 @@ function TabsList({
       )}
       {...props}
     />
+  );
+}
+
+/**
+ * LAY-14 `overflow="menu"` (widened MK 2026-10-29, list-toolbar T4): the list folds into one
+ * dropdown when it does not fit the room it is given — measured by `useOverflowFold`, not set by a
+ * breakpoint. Folded, the list stays mounted out of flow and hidden (so it is still measured and
+ * Base UI still owns the value), and the dropdown's trigger shows the active tab; picking an item
+ * activates that tab.
+ */
+function TabsFoldList({
+  className,
+  variant,
+  size,
+  ref,
+  children,
+  ...props
+}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
+  const { rootRef, contentRef, folded } = useOverflowFold<
+    HTMLDivElement,
+    HTMLDivElement
+  >();
+  const [list, setList] = React.useState<HTMLDivElement | null>(null);
+  const mergedRef = React.useMemo(
+    () => mergeRefs(setList, contentRef, ref),
+    [contentRef, ref],
+  );
+  // The triggers, read from the children: a menu item per tab, labelled as the tab is.
+  const tabs = React.Children.toArray(children).filter(
+    (child): child is React.ReactElement<TabsPrimitive.Tab.Props> =>
+      React.isValidElement(child) &&
+      (child.props as { value?: unknown }).value !== undefined,
+  );
+  // Which tab is selected, read back from the list (Base UI owns the value).
+  const [selected, setSelected] = React.useState(0);
+  React.useEffect(() => {
+    if (!list) return;
+    const read = () => {
+      const all = Array.from(list.querySelectorAll('[role="tab"]'));
+      const index = all.findIndex(
+        (tab) => tab.getAttribute("aria-selected") === "true",
+      );
+      setSelected(index < 0 ? 0 : index);
+    };
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(list, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-selected"],
+    });
+    return () => observer.disconnect();
+  }, [list]);
+  const active = tabs[selected];
+  return (
+    <div
+      ref={rootRef}
+      data-slot="tabs-fold"
+      data-folded={folded ? "" : undefined}
+      className="relative flex w-full min-w-0 items-center"
+    >
+      <TabsPrimitive.List
+        data-slot="tabs-list"
+        data-variant={variant}
+        data-size={size}
+        data-overflow="menu"
+        data-fold-content=""
+        aria-hidden={folded || undefined}
+        ref={mergedRef}
+        className={cn(
+          tabsListVariants({ variant, size, overflow: "menu" }),
+          folded &&
+            "pointer-events-none invisible absolute start-0 top-0 max-w-none",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </TabsPrimitive.List>
+      {folded ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size={size === "sm" ? "sm" : "default"}
+                data-slot="tabs-fold-trigger"
+                data-fold-trigger=""
+                aria-label={
+                  props["aria-label"]
+                    ? `${props["aria-label"]}: ${list?.querySelectorAll('[role="tab"]')[selected]?.textContent ?? ""}`
+                    : undefined
+                }
+                className="h-8 max-w-full min-w-0 gap-1 px-2 text-sm font-medium [&_svg:not([class*='size-'])]:size-4"
+              >
+                <span className="flex min-w-0 items-center gap-1.5 overflow-hidden [&>svg]:shrink-0">
+                  {active?.props.children as React.ReactNode}
+                </span>
+                <ChevronDown aria-hidden className="text-muted-foreground" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="start" className="min-w-48">
+            <DropdownMenuRadioGroup
+              value={String(selected)}
+              onValueChange={(value) => {
+                const tab =
+                  list?.querySelectorAll<HTMLElement>('[role="tab"]')[
+                    Number(value)
+                  ];
+                tab?.click();
+              }}
+            >
+              {tabs.map((tab, index) => (
+                <DropdownMenuRadioItem
+                  key={String(tab.props.value)}
+                  value={String(index)}
+                  disabled={tab.props.disabled}
+                >
+                  {tab.props.children as React.ReactNode}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
+    </div>
   );
 }
 

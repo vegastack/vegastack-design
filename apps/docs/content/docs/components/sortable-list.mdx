@@ -177,6 +177,11 @@ still works with a keyboard.
 
 ### Drag handle
 
+`handle="auto"` shows the grip only while two or more rows can move; with one row the handle's
+column stays reserved but empty, so a row's content never moves when a second row arrives (a
+one-key `SortBuilder`). With `flush`, rows carry no hover wash and no side padding — the shape a
+list takes inside a popover, where the popover is the one surface.
+
 Only the handle starts a pointer drag — the rest of the row stays free for text selection and the
 controls inside it. That holds even when the handle mounts after its row, such as a row that was
 disabled and becomes editable: the row's drag source is rebuilt around the handle as it is now.

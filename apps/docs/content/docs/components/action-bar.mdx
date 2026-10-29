@@ -44,6 +44,10 @@ toolbar builds its single tab stop from the items that register with it — a ba
 Pass `render` when an action needs a different shape (a destructive button, an icon-only
 `Button size="icon-sm"`, a menu trigger).
 
+**On a phone** (below 640px) the bar docks full width, 8px in from each edge, above the safe area,
+and an `ActionBarButton` whose children are an icon and a text label shows its icon alone — the text
+stays its accessible name — so the count, the actions, ⋯ and × fit one row.
+
 ## Scope
 
 | Behaviour              | Where it lives                                                                                                |

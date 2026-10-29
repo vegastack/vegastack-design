@@ -1,0 +1,134 @@
+---
+title: Add Filter Menu
+description: + Filter — one input that narrows the fields or sends a plain-language request to the page's AI filter; fields open their pickers in place.
+audience: public
+registry: add-filter-menu
+status: stable
+since: 0.25.99
+a11y: combobox of fields; polite status; sheet on a phone
+preview: addFilterMenuAi
+---
+
+## Install
+
+<InstallSteps name="add-filter-menu" />
+
+## Usage
+
+```tsx
+import { AddFilterMenu } from "@/components/ui/add-filter-menu";
+
+<AddFilterMenu
+  fields={[
+    {
+      key: "priority",
+      label: "Priority",
+      icon: <Flag />,
+      editor: (done) => <PriorityPicker onPick={done} />,
+    },
+    {
+      key: "assignee",
+      label: "Assignee",
+      icon: <UserRound />,
+      keywords: ["owner"],
+    },
+  ]}
+  onPick={addFilter}
+  ai={
+    aiAvailable
+      ? { onSubmit: (text) => applyAiFilter(listKey, text) }
+      : undefined
+  }
+  onAdvanced={openFilterBuilder}
+/>;
+```
+
+The popover opens on one input. **Typing narrows the field list** (by label and `keywords`); ↑ ↓
+pick a field and Enter opens it. A field with an `editor` drills into it in the same popover, with a
+‹ back header — never a second surface; a field without one calls `onPick` and closes (the host adds
+the chip, its editor open).
+
+**With `ai`**, the input's placeholder becomes "Describe what you want, or pick a field" and leads
+with ✦, and the first item is "✦ Filter with AI: “…”". Enter on it — or Enter with no field
+matching exactly — calls `ai.onSubmit(text)`. While it runs the input shows a spinner and the item
+reads "Working…". On success (`added > 0`) the popover closes and the page shows the chips and the
+[`FilterRow`](/docs/components/filter-row) note; with nothing added, or when `onSubmit` rejects (a
+model error, a daily limit), the popover says so and the field list stays usable. **Without `ai`**
+there is no ✦ anywhere and nothing else changes, so the feature hides cleanly. The design system
+holds no AI: `onSubmit` is the page's own.
+
+`onAdvanced` adds "Advanced filter…" at the foot, for a condition builder dialog. On a phone the
+popover is a bottom sheet with the input at its top.
+
+`AiFilterInput` is the input line on its own — a borderless field on the surface's hairline row, ✦
+or a magnifier, a spinner while pending — for a phone's filter sheet.
+
+## Anatomy
+
+<Anatomy name="add-filter-menu" />
+
+## Examples
+
+### Without AI
+
+<ComponentPreview
+  name="addFilterMenu"
+  file="components/preview/add-filter-menu.tsx"
+/>
+
+### The input line
+
+<ComponentPreview
+  name="aiFilterInput"
+  file="components/preview/add-filter-menu.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/add-filter-menu.tsx"
+  name="AddFilterMenuProps"
+/>
+
+### Field
+
+<ApiTable
+  path="../../packages/ui/registry/ui/add-filter-menu.tsx"
+  name="AddFilterField"
+/>
+
+### AI
+
+<ApiTable
+  path="../../packages/ui/registry/ui/add-filter-menu.tsx"
+  name="AddFilterAi"
+/>
+
+### AiFilterInput
+
+<ApiTable
+  path="../../packages/ui/registry/ui/add-filter-menu.tsx"
+  name="AiFilterInputProps"
+/>
+
+## Accessibility
+
+- The input is a `combobox` named "Filter" controlling a `listbox` of fields;
+  `aria-activedescendant` follows the arrow keys, so focus stays in the input.
+- The AI item and each field are `option`s; a field that drills in shows a chevron.
+- Results and errors appear in a polite `status`; the drill-in's back button is named "Back".
+
+| Key                       | Action                                           |
+| ------------------------- | ------------------------------------------------ |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Move through the AI item and the fields          |
+| <kbd>Enter</kbd>          | Run the AI request or open the highlighted field |
+| <kbd>Esc</kbd>            | Close the popover                                |
+
+<StatesTested name="add-filter-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass ai only where the AI module is on, and return what the AI added and the words it could not match."
+  dont="Show a disabled ✦ when AI is off, or apply AI results as anything but ordinary chips."
+/>

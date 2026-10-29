@@ -1310,10 +1310,11 @@ test("SortBuilder: add up to the max, change direction, reorder from the keyboar
     { key: "qty", dir: "desc" },
     { key: "name", dir: "asc" },
   ]);
-  // Three is the most.
+  // Three is the most: "Add sort" goes, a note says the limit.
   await expect
     .element(screen.getByRole("button", { name: "Add sort" }))
-    .toBeDisabled();
+    .not.toBeInTheDocument();
+  await expect.element(screen.getByText("Up to 3 sorts")).toBeVisible();
   await screen.getByRole("combobox", { name: "Due direction" }).click();
   await screen.getByRole("option", { name: "Descending" }).click();
   expect(onChange.mock.lastCall![0][0]).toEqual({ key: "due", dir: "desc" });
@@ -1363,7 +1364,7 @@ test("GroupByPicker: two levels at most, each field once; read-only chips", asyn
   );
   await expect
     .element(screen.getByRole("button", { name: "Add level" }))
-    .toBeDisabled();
+    .not.toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
   await screen.rerender(
     <GroupByPicker
@@ -1376,7 +1377,7 @@ test("GroupByPicker: two levels at most, each field once; read-only chips", asyn
   expect(screen.container.textContent).toContain("Owner");
 });
 
-test("SortBuilder and GroupByPicker: with every field already used, Add is disabled and nothing crashes", async () => {
+test("SortBuilder and GroupByPicker: with every field already used, Add is gone and nothing crashes", async () => {
   const one = SORT_FIELDS.slice(0, 1);
   const screen = await render(
     <>
@@ -1395,14 +1396,32 @@ test("SortBuilder and GroupByPicker: with every field already used, Add is disab
   );
   await expect
     .element(screen.getByRole("button", { name: "Add sort" }))
-    .toBeDisabled();
+    .not.toBeInTheDocument();
   await expect
     .element(screen.getByRole("button", { name: "Add level" }))
-    .toBeDisabled();
-  // No level set: the button reads "Group by".
+    .not.toBeInTheDocument();
   await expect
     .element(screen.getByRole("button", { name: "Group by" }))
-    .toBeDisabled();
+    .not.toBeInTheDocument();
+  // One key: no grip (nothing to reorder), its column kept so nothing shifts on the next key.
+  expect(
+    document.querySelectorAll('[data-slot="sortable-list-handle"]'),
+  ).toHaveLength(0);
+  expect(
+    document.querySelectorAll('[data-slot="sortable-list-handle-spacer"]')
+      .length,
+  ).toBeGreaterThan(0);
+});
+
+test("SortBuilder: a header with Clear while any key is set; rows carry no fill", async () => {
+  const onChange = vi.fn();
+  const screen = await render(<SortHarness onChange={onChange} />);
+  const row = document.querySelector<HTMLElement>(
+    '[data-slot="sort-builder"] [data-slot="sortable-list-item"]',
+  )!;
+  expect(getComputedStyle(row).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  await screen.getByRole("button", { name: "Clear" }).click();
+  expect(onChange).toHaveBeenLastCalledWith([]);
 });
 
 test("SortBuilder: changing a row's field keeps the row (its picker keeps focus); a disabled summary is inert", async () => {

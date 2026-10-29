@@ -1,0 +1,91 @@
+---
+title: Sort Menu
+description: The one-key sort — the fields, then the two directions worded by field type, with Reset while the order is not the page's default.
+audience: public
+registry: sort-menu
+status: stable
+since: 0.25.99
+a11y: two labelled radio groups; arrow keys move
+preview: sortMenu
+---
+
+## Install
+
+<InstallSteps name="sort-menu" />
+
+## Usage
+
+```tsx
+import { SortMenu, sortSummary } from "@/components/ui/sort-menu";
+
+<ListToolbar
+  sort={{
+    content: (
+      <SortMenu
+        fields={[
+          { key: "due", label: "Due date", type: "date" },
+          { key: "title", label: "Title" },
+        ]}
+        value={sort}
+        defaultValue={{ key: "due", direction: "asc" }}
+        onValueChange={setSort}
+      />
+    ),
+    isDefault: sort.key === "due" && sort.direction === "asc",
+    summary: sortSummary(fields, sort),
+  }}
+/>;
+```
+
+A list that sorts by one key shows exactly that: which field, then which direction, each a group of
+options with a check on the chosen one. There are no drag handles, selects or "Add sort" — an
+affordance a one-key list can never use is not shown. The directions read in the field's own words:
+dates "Oldest first / Newest first", text "A → Z / Z → A", numbers "Low → high / High → low", a
+fixed order (priority, status) "First to last / Last to first". "Reset" sits in the header while the
+order differs from `defaultValue`. A column header click writes the same value.
+
+`sortSummary(fields, value)` returns one line ("Due date, oldest first") for the Sort row Display
+shows once the toolbar has folded Sort into it.
+
+For several keys at once (a table), use `SortBuilder` from
+[`filter-bar-managed`](/docs/components/filter-bar-managed).
+
+## Examples
+
+### Fields of every type
+
+<ComponentPreview name="sortMenu" file="components/preview/sort-menu.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/sort-menu.tsx"
+  name="SortMenuProps"
+/>
+
+### Field
+
+<ApiTable
+  path="../../packages/ui/registry/ui/sort-menu.tsx"
+  name="SortMenuField"
+/>
+
+## Accessibility
+
+- The fields are a `radiogroup` labelled by its "Sort by" heading; the directions are a second
+  `radiogroup` named "Direction". The chosen option is `aria-checked`.
+- Each option is 32px tall from the surface's 8px inset.
+
+| Key                       | Action                        |
+| ------------------------- | ----------------------------- |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Move within a group and pick  |
+| <kbd>Tab</kbd>            | Move between Reset and groups |
+
+<StatesTested name="sort-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="Type every field so the directions read in its words, and pass the page's default so Reset and the toolbar's dot work."
+  dont="Use a SortBuilder with max one, or offer a field the list cannot sort by."
+/>

@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.25.98 sha256-ULW0ufTeVg92lafZT3haAghtpmvV5mJWLCBvTLbQSi4=
+// @vegastack action-bar@0.25.98 sha256-9gxuNFbsOHDtR1wDzwhOQJlTsKMp4CwIVR6Ih3PclIU=
 
 "use client";
 
@@ -240,6 +240,9 @@ export function ActionBar({
         measured
           ? "start-[calc(var(--action-bar-x)*1px)] -translate-x-1/2 rtl:translate-x-1/2"
           : "inset-x-0 mx-auto",
+        // A phone docks it full width (8px in from each edge) above the safe area; its actions go
+        // icon-only so the count, the actions and × fit one row.
+        "max-sm:start-2 max-sm:end-2 max-sm:mx-0 max-sm:w-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:rtl:translate-x-0",
         // The shared docked-control grammar (audit B8-11 / D11 amendment #7): 150ms in on
         // `ease-emphasized`, 100ms out on `ease-exit`, translate + fade and no scale. Only the
         // DISTANCE is stated here — the bar clears its own height plus the bottom gap and the
@@ -249,92 +252,94 @@ export function ActionBar({
       )}
       {...props}
     >
-      {status != null ? (
-        <div
-          data-slot="action-bar-status"
-          className="flex shrink-0 items-center text-xs whitespace-nowrap text-muted-foreground"
-        >
-          {status}
-        </div>
-      ) : null}
-      <Toolbar.Group
-        data-slot="action-bar-actions"
-        aria-busy={pending || undefined}
-        // `inert`, not just pointer-events: a bulk operation in flight must not
-        // be re-triggerable from the keyboard either.
-        inert={pending || undefined}
-        className={cn(
-          // On a phone the bar is capped at the screen width less its margins, and
-          // `secondaryActions` fold into a ⋯ menu so the primary ones fit. The actions never
-          // shrink into each other (a label under its own icon); an over-long set scrolls.
-          "flex min-w-0 items-center gap-1 overflow-x-auto *:shrink-0",
-          pending && "opacity-50 select-none",
-        )}
-      >
-        {children}
-        {secondaryActions?.length ? (
-          narrow ? (
-            <DropdownMenu>
-              {/* Base UI's pattern: the toolbar item renders the menu trigger. */}
-              <ActionBarButton
-                render={
-                  <DropdownMenuTrigger
-                    data-slot="action-bar-more"
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={moreLabel}
-                      />
-                    }
-                  />
-                }
-              >
-                <EllipsisIcon aria-hidden />
-              </ActionBarButton>
-              <DropdownMenuContent align="end" side="top">
-                {secondaryActions.map((action, index) => (
-                  <DropdownMenuItem
-                    key={action.key ?? secondaryKey(action, index)}
-                    variant={action.destructive ? "destructive" : "default"}
-                    disabled={action.disabled}
-                    onClick={action.onClick}
-                  >
-                    {action.icon}
-                    {action.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            secondaryActions.map((action, index) => (
-              <ActionBarButton
-                key={action.key ?? secondaryKey(action, index)}
-                disabled={action.disabled}
-                onClick={action.onClick}
-                render={
-                  <Button
-                    variant={action.destructive ? "destructive" : "ghost"}
-                    size="sm"
-                  />
-                }
-              >
-                {action.icon}
-                {action.label}
-              </ActionBarButton>
-            ))
-          )
+      <ActionBarDockedContext.Provider value={narrow}>
+        {status != null ? (
+          <div
+            data-slot="action-bar-status"
+            className="flex shrink-0 items-center text-xs whitespace-nowrap text-muted-foreground"
+          >
+            {status}
+          </div>
         ) : null}
-        {end}
-      </Toolbar.Group>
-      <span
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        {open ? resolvedAnnouncement : undefined}
-      </span>
+        <Toolbar.Group
+          data-slot="action-bar-actions"
+          aria-busy={pending || undefined}
+          // `inert`, not just pointer-events: a bulk operation in flight must not
+          // be re-triggerable from the keyboard either.
+          inert={pending || undefined}
+          className={cn(
+            // On a phone the bar is capped at the screen width less its margins, and
+            // `secondaryActions` fold into a ⋯ menu so the primary ones fit. The actions never
+            // shrink into each other (a label under its own icon); an over-long set scrolls.
+            "flex min-w-0 items-center gap-1 overflow-x-auto *:shrink-0",
+            pending && "opacity-50 select-none",
+          )}
+        >
+          {children}
+          {secondaryActions?.length ? (
+            narrow ? (
+              <DropdownMenu>
+                {/* Base UI's pattern: the toolbar item renders the menu trigger. */}
+                <ActionBarButton
+                  render={
+                    <DropdownMenuTrigger
+                      data-slot="action-bar-more"
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={moreLabel}
+                        />
+                      }
+                    />
+                  }
+                >
+                  <EllipsisIcon aria-hidden />
+                </ActionBarButton>
+                <DropdownMenuContent align="end" side="top">
+                  {secondaryActions.map((action, index) => (
+                    <DropdownMenuItem
+                      key={action.key ?? secondaryKey(action, index)}
+                      variant={action.destructive ? "destructive" : "default"}
+                      disabled={action.disabled}
+                      onClick={action.onClick}
+                    >
+                      {action.icon}
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              secondaryActions.map((action, index) => (
+                <ActionBarButton
+                  key={action.key ?? secondaryKey(action, index)}
+                  disabled={action.disabled}
+                  onClick={action.onClick}
+                  render={
+                    <Button
+                      variant={action.destructive ? "destructive" : "ghost"}
+                      size="sm"
+                    />
+                  }
+                >
+                  {action.icon}
+                  {action.label}
+                </ActionBarButton>
+              ))
+            )
+          ) : null}
+          {end}
+        </Toolbar.Group>
+        <span
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {open ? resolvedAnnouncement : undefined}
+        </span>
+      </ActionBarDockedContext.Provider>
     </Toolbar.Root>
   );
 }
@@ -365,15 +370,47 @@ export type ActionBarButtonProps = React.ComponentPropsWithRef<
  *   Archive
  * </ActionBarButton>
  */
-export function ActionBarButton({ render, ...props }: ActionBarButtonProps) {
+export function ActionBarButton({
+  render,
+  children,
+  ...props
+}: ActionBarButtonProps) {
+  const docked = React.useContext(ActionBarDockedContext);
+  // Docked on a phone, an icon + text action shows its icon alone; the text stays its name.
+  const parts = React.Children.toArray(children as React.ReactNode);
+  const iconOnly =
+    docked &&
+    parts.length > 1 &&
+    React.isValidElement(parts[0]) &&
+    parts.slice(1).every((part) => typeof part === "string");
   return (
     <Toolbar.Button
       data-slot="action-bar-button"
-      render={render ?? <Button variant="ghost" size="sm" />}
+      data-icon-only={iconOnly ? "" : undefined}
+      render={
+        render ??
+        (iconOnly ? (
+          <Button variant="ghost" size="icon-sm" />
+        ) : (
+          <Button variant="ghost" size="sm" />
+        ))
+      }
       {...props}
-    />
+    >
+      {iconOnly ? (
+        <>
+          {parts[0]}
+          <span className="sr-only">{parts.slice(1).join("")}</span>
+        </>
+      ) : (
+        (children as React.ReactNode)
+      )}
+    </Toolbar.Button>
   );
 }
+
+/** Whether the bar is docked full-width (a phone): its actions go icon-only. */
+const ActionBarDockedContext = React.createContext(false);
 
 /** Props accepted by `ActionBarSeparator`. */
 export type ActionBarSeparatorProps = React.ComponentPropsWithRef<

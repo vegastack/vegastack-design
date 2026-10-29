@@ -256,3 +256,21 @@ test("in a flex host, a collapsed row widens back to tabs; dropping the + re-mea
     expect(root().querySelector('[data-slot="view-tabs-create"]')).toBeNull(),
   );
 });
+
+test("a changed view carries a dot, read as part of its name", async () => {
+  const screen = await render(
+    <div style={{ width: 900 }}>
+      <ViewTabs
+        views={[{ ...VIEWS[1]!, dirty: true }, VIEWS[2]!]}
+        value="all"
+        onValueChange={() => {}}
+      />
+    </div>,
+  );
+  expect(
+    document.querySelector('[data-slot="view-tabs-dirty"]'),
+  ).not.toBeNull();
+  await expect
+    .element(screen.getByRole("tab", { name: /All requests.*changed/ }))
+    .toBeVisible();
+});

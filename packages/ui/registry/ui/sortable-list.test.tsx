@@ -741,3 +741,24 @@ test('handle="fine": the grip hides on a coarse pointer yet stays a keyboard han
       .className.includes("pointer-coarse:not-focus-visible:sr-only"),
   ).toBe(false);
 });
+
+test('handle="auto": no grip while fewer than two rows can move, its column kept', async () => {
+  const screen = await render(<Controlled handle="auto" initial={["Lead"]} />);
+  expect(
+    document.querySelector('[data-slot="sortable-list-handle"]'),
+  ).toBeNull();
+  expect(
+    document.querySelector('[data-slot="sortable-list-handle-spacer"]'),
+  ).not.toBeNull();
+  await screen.rerender(<Controlled handle="auto" initial={["Lead", "Won"]} />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test('handle="auto": two movable rows show the grip', async () => {
+  const screen = await render(
+    <Controlled handle="auto" initial={["Lead", "Won"]} />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Reorder Lead" }))
+    .toBeVisible();
+});

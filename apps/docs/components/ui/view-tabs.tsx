@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.98 sha256-GAD1BMXGrEP1AWlyK4E0Key6VAc7j18MabHgC4nCGQ0=
+// @vegastack view-tabs@0.25.98 sha256-YqMn9CflNgOI6kxozN3tkGR3eU4yr532wKYPk91b6uU=
 
 "use client";
 
@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useOverflow } from "@/components/ui/use-overflow";
+import { useOverflowFold } from "@/components/ui/use-overflow-fold";
 
 /* ---
 `ViewTabs` is the row of saved views over a table: the shared views first, a divider, then the
@@ -65,6 +66,12 @@ export interface ViewTabsView {
   kind: "grid" | "board";
   /** `shared` and `locked` views are everyone's; `personal` ones are the reader's alone. */
   scope: "shared" | "personal" | "locked";
+  /**
+   * The view's filters, sort or display differ from what is saved: a dot after its name (the
+   * toolbar's "Save view" state button saves it).
+   * @default false
+   */
+  dirty?: boolean;
 }
 
 /** The words `ViewTabs` shows. */
@@ -83,6 +90,8 @@ export interface ViewTabsLabels {
   board: string;
   /** Read after a locked view's name. */
   locked: string;
+  /** Read after a changed view's name. */
+  changed: string;
 }
 
 const DEFAULT_LABELS: ViewTabsLabels = {
@@ -93,6 +102,7 @@ const DEFAULT_LABELS: ViewTabsLabels = {
   grid: "Grid view",
   board: "Board view",
   locked: "locked",
+  changed: "changed",
 };
 
 /** Props accepted by `ViewTabs`. */
@@ -147,11 +157,14 @@ const KIND_ICON: Record<
 function ViewLabel({
   view,
   lockedLabel,
+  changedLabel = "changed",
   wrap = false,
   nameRef,
 }: {
   view: ViewTabsView;
   lockedLabel: string;
+  /** Read after a changed view's name. */
+  changedLabel?: string;
   /** Wrap a long name instead of cutting it (the select's list). */
   wrap?: boolean;
   /** The name's box, measured for truncation. */
@@ -168,6 +181,16 @@ function ViewLabel({
       >
         {view.name}
       </span>
+      {view.dirty ? (
+        <>
+          <span
+            aria-hidden
+            data-slot="view-tabs-dirty"
+            className="size-1.5 shrink-0 rounded-full bg-primary"
+          />
+          <span className="sr-only">, {changedLabel}</span>
+        </>
+      ) : null}
       {view.scope === "locked" ? (
         <>
           <Lock
@@ -196,9 +219,11 @@ function useCutName(name: string) {
 function ViewTab({
   view,
   lockedLabel,
+  changedLabel,
 }: {
   view: ViewTabsView;
   lockedLabel: string;
+  changedLabel: string;
 }) {
   const { cut, nameRef } = useCutName(view.name);
   return (
@@ -215,7 +240,12 @@ function ViewTab({
         }
         data-truncated={cut ? "" : undefined}
       >
-        <ViewLabel view={view} lockedLabel={lockedLabel} nameRef={nameRef} />
+        <ViewLabel
+          view={view}
+          lockedLabel={lockedLabel}
+          changedLabel={changedLabel}
+          nameRef={nameRef}
+        />
       </TooltipTrigger>
       <TooltipContent className="max-w-xs break-words">
         {view.name}
@@ -301,37 +331,35 @@ export function ViewTabs({
   // Tabs while they fit, else one select: the tab row's own width (it stays mounted, out of flow
   // and inert while collapsed, so it can still be measured) plus the trailing buttons, against the
   // root's width. Re-measured whenever either changes size.
-  const rootRef = React.useRef<HTMLDivElement>(null);
-  const listRef = React.useRef<HTMLDivElement>(null);
-  const [narrow, setNarrow] = React.useState(false);
-  const measure = React.useCallback(() => {
-    const root = rootRef.current;
-    const list = listRef.current;
-    if (!root || !list) return;
-    let trailing = 0;
-    for (const button of root.querySelectorAll<HTMLElement>(
-      ":scope > [data-slot=view-tabs-create], :scope > [data-slot=view-tabs-actions]",
-    ))
-      trailing += button.getBoundingClientRect().width + 4;
-    setNarrow(list.scrollWidth + trailing > root.clientWidth + 0.5);
-  }, []);
-  React.useLayoutEffect(() => {
-    measure();
-    const root = rootRef.current;
-    const list = listRef.current;
-    if (!root || !list || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(root);
-    observer.observe(list);
-    return () => observer.disconnect();
-  }, [measure, views.length, onCreate != null, actions != null]);
+  // Tabs while they fit, else one select: the tab row's own width (it stays mounted, out of flow
+  // and inert while collapsed, so it can still be measured) plus the trailing buttons, against the
+  // root's width — the shared `useOverflowFold`, as scope tabs and route tabs fold.
+  const fold = useOverflowFold<HTMLDivElement, HTMLDivElement>({
+    hysteresis: 0,
+    reserve: (root) => {
+      let trailing = 0;
+      for (const button of root.querySelectorAll<HTMLElement>(
+        ":scope > [data-slot=view-tabs-create], :scope > [data-slot=view-tabs-actions]",
+      ))
+        trailing += button.getBoundingClientRect().width + 4;
+      return trailing;
+    },
+    deps: [views.length, onCreate != null, actions != null],
+  });
+  const narrow = fold.folded;
   const mergedRef = React.useMemo(
-    () => (ref ? mergeRefs(rootRef, ref) : rootRef),
-    [ref],
+    () => mergeRefs(fold.rootRef, ref),
+    [fold.rootRef, ref],
   );
+  const listRef = fold.contentRef;
 
   const tab = (view: ViewTabsView) => (
-    <ViewTab key={view.id} view={view} lockedLabel={labels.locked} />
+    <ViewTab
+      key={view.id}
+      view={view}
+      lockedLabel={labels.locked}
+      changedLabel={labels.changed}
+    />
   );
 
   const createMenu = onCreate ? (
@@ -409,6 +437,7 @@ export function ViewTabs({
       >
         <TabsList
           ref={listRef}
+          data-fold-content=""
           variant="line"
           aria-label={ariaLabel}
           data-slot="view-tabs-list"
@@ -435,7 +464,11 @@ export function ViewTabs({
       </Tabs>
       {/* Narrow: one select with the same groups, its buttons right beside it. */}
       {narrow ? (
-        <div data-slot="view-tabs-narrow" className="min-w-0 flex-initial">
+        <div
+          data-slot="view-tabs-narrow"
+          data-fold-trigger=""
+          className="min-w-0 flex-initial"
+        >
           <Select
             value={value}
             onValueChange={(next) => {
@@ -452,7 +485,12 @@ export function ViewTabs({
                   <SelectLabel>{labels.shared}</SelectLabel>
                   {shared.map((view) => (
                     <SelectItem key={view.id} value={view.id}>
-                      <ViewLabel view={view} lockedLabel={labels.locked} wrap />
+                      <ViewLabel
+                        view={view}
+                        lockedLabel={labels.locked}
+                        changedLabel={labels.changed}
+                        wrap
+                      />
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -465,7 +503,12 @@ export function ViewTabs({
                   <SelectLabel>{labels.mine}</SelectLabel>
                   {personal.map((view) => (
                     <SelectItem key={view.id} value={view.id}>
-                      <ViewLabel view={view} lockedLabel={labels.locked} wrap />
+                      <ViewLabel
+                        view={view}
+                        lockedLabel={labels.locked}
+                        changedLabel={labels.changed}
+                        wrap
+                      />
                     </SelectItem>
                   ))}
                 </SelectGroup>
