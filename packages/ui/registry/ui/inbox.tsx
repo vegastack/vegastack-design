@@ -1,4 +1,4 @@
-// @vegastack inbox@0.25.100 sha256-e+dJrk2kV4OrKB6cqOeJ+cXnWITPwfLz2mLf50MWrvk=
+// @vegastack inbox@0.25.100 sha256-GoOzUC++T9A6N5JOYYgdKUbWIAJ3JOFYqIsZmkgd43A=
 
 "use client";
 
@@ -538,15 +538,22 @@ export function InboxFilters({
   return (
     <div
       data-slot="inbox-filters"
-      className={cn("flex min-w-0 items-center gap-2", className)}
+      // The tabs keep their natural width; when they and Unread do not fit one line (a 384px
+      // sheet with four tabs, a phone), Unread wraps under them, end-aligned. The tabs fold into a
+      // dropdown only when they alone do not fit the row.
+      className={cn(
+        "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5",
+        className,
+      )}
     >
       <Tabs
         value={value}
         onValueChange={(next) => onValueChange(String(next))}
-        className="min-w-0 flex-1"
+        className="max-w-full min-w-0 grow basis-auto"
       >
-        {/* The list pages' scope tabs: the pill list, so a triage queue reads as a list. */}
-        <TabsList aria-label={label}>
+        {/* The list pages' pill tabs, folding by measurement (`overflow="menu"`), so a triage queue
+            reads as a list. */}
+        <TabsList aria-label={label} overflow="menu">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -568,7 +575,7 @@ export function InboxFilters({
           data-slot="inbox-filters-unread"
           pressed={unreadOnly}
           onPressedChange={(pressed) => onUnreadOnlyChange(pressed)}
-          className="shrink-0"
+          className="ms-auto shrink-0"
         >
           {unreadLabel}
           {unreadCount ? " " : null}
