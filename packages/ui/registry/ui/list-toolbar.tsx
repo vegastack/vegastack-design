@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.98 sha256-DOeSiq2X2mbTMGFN30FkA5v/WxuuFjOT2ReCZW8WNTI=
+// @vegastack list-toolbar@0.25.98 sha256-VsJknd3ow+0P9N9HGDSGJk6o1OpSX8QCdsCJYY73afs=
 
 "use client";
 
@@ -883,7 +883,8 @@ export function ListToolbar({
     }
     // While an icon search is open (the tabs give it their room) the level never drops below the
     // icon step, so the field does not flip back mid-edit; a narrowing row still collapses further.
-    if (frozen.current) next = Math.max(next, 5);
+    // An always-collapsible search is an icon at every level, so it needs no floor.
+    if (frozen.current && !search?.collapsible) next = Math.max(next, 5);
     setLevel(next);
   }, [
     action,
