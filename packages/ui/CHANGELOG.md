@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.98
+
+### Patch Changes
+
+- [#833](https://github.com/vegastack/vegastack-design/pull/833) [`007d163`](https://github.com/vegastack/vegastack-design/commit/007d1632a0e41097d953bd39747c0f32047397ad) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **StatGroup** and **RecentStrip** cells are transparent with a border in both themes (they were `bg-card`: filled in dark, invisible on a white page in light; StatGroup now draws its dividers with borders instead of a `bg-border` grid). A **RecentStrip** card's hover is `bg-muted` and its icon tile turns `bg-background` on hover, so the tile no longer disappears into the hover fill (same pairing in **Inbox** item icons); the strip's scroll buttons keep a visible border and foreground chevron in dark.
+
+- Updated dependencies [[`007d163`](https://github.com/vegastack/vegastack-design/commit/007d1632a0e41097d953bd39747c0f32047397ad)]:
+  - @vegastack/design@0.8.46
+
 ## 0.25.97
 
 ### Patch Changes
