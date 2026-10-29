@@ -1,4 +1,4 @@
-// @vegastack inbox@0.25.97 sha256-j/HIenBxXBuIqvxw5YYpEKxNhxR00Mww0UBj5b1xwrs=
+// @vegastack inbox@0.25.97 sha256-xYhZjvXouT3Lww4f4NN6zuEUBWL2Sfb63iiDVNSyTTc=
 
 "use client";
 
@@ -1033,7 +1033,7 @@ export function InboxItem({
         ) : icon ? (
           <span
             className={cn(
-              "flex size-7 items-center justify-center rounded-md bg-muted [&_svg]:size-4",
+              "flex size-7 items-center justify-center rounded-md bg-muted group-hover/inbox-item:bg-background [&_svg]:size-4",
               destructive ? "text-destructive-text" : "text-muted-foreground",
             )}
           >
