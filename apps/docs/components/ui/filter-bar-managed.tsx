@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.25.103 sha256-ED2ZkUCdSrL6h2QR6THIp6AocoeClihQfJfCBviM/Ts=
+// @vegastack filter-bar-managed@0.25.103 sha256-aeXE/ksmwLRPNTxUwu3Kefo5lCuUL8EEJtT7eHuy4kg=
 
 "use client";
 
@@ -1938,7 +1938,7 @@ export function SortBuilder({
   return (
     <div
       data-slot="sort-builder"
-      className={cn("flex min-w-0 flex-col", className)}
+      className={cn("flex min-w-0 flex-col gap-1", className)}
     >
       {header ? (
         <div

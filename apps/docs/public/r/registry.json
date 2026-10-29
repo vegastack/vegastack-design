@@ -3160,7 +3160,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.25.103",
-        "integrity": "sha256-ED2ZkUCdSrL6h2QR6THIp6AocoeClihQfJfCBviM/Ts="
+        "integrity": "sha256-aeXE/ksmwLRPNTxUwu3Kefo5lCuUL8EEJtT7eHuy4kg="
       }
     },
     {
