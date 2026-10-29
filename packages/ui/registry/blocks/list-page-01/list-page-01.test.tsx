@@ -29,16 +29,18 @@ test("grid and list show the same records, and the view switch never empties", a
   expect(listNames).toHaveLength(8);
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
-  const grid = screen.getByRole("button", { name: "Grid", exact: true });
-  // The view switch is the toolbar's Layout tool, not the page header.
+  const grid = screen.getByRole("button", { name: "Grid view", exact: true });
+  // The view switch is the toolbar's one Layout button, not the page header.
   expect(
     grid.element().closest('[data-slot="list-toolbar-layout"]'),
   ).not.toBeNull();
   await grid.click();
   const gridNames = names('a[data-slot="media-card-link"]');
   expect(new Set(gridNames)).toEqual(new Set(listNames));
-  await grid.click();
-  await expect.element(grid).toHaveAttribute("aria-pressed", "true");
+  // It now offers the list back.
+  await expect
+    .element(screen.getByRole("button", { name: "List view", exact: true }))
+    .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 

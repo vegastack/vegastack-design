@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.103 sha256-78j+kujB7nqdI4cLYN6/YnO2+aM5YrBZu0V0/b39uSE=
+// @vegastack data-list@0.25.103 sha256-JFcNiGghzQlMGIHGgyi+Ek8E/M5/EGtKpMWAxWHvdYI=
 
 "use client";
 
@@ -1963,16 +1963,20 @@ export function DataList<T>({
 
   // The active sort's column may have been merged or hidden, taking its header
   // (arrow and `aria-sort`) with it. Say what the order is instead.
-  const sortSummary = activeSort
-    ? offscreenSortSummary([activeSort], allColumns, visibleColumns)
-    : null;
+  // An empty or no-results list has no columns to speak of: it never says some are hidden, or
+  // how its (absent) rows are ordered.
+  const sortSummary =
+    activeSort && data.length > 0
+      ? offscreenSortSummary([activeSort], allColumns, visibleColumns)
+      : null;
 
   const colSpan = visibleColumns.length + (selectable ? 1 : 0);
+  const columnsHidden = data.length > 0 && hiddenColumns.length > 0;
   const tableDescribedBy =
     [
       ariaDescribedBy,
       loading ? loadingStatusId : null,
-      hiddenColumns.length > 0 ? hiddenHintId : null,
+      columnsHidden ? hiddenHintId : null,
       sortSummary ? sortHintId : null,
     ]
       .filter(Boolean)
@@ -1997,12 +2001,12 @@ export function DataList<T>({
   // the root stack, so their appearing never moves the table in the tree (a
   // remount would drop focus inside it).
   const statusLines =
-    hiddenColumns.length > 0 || sortSummary ? (
+    columnsHidden || sortSummary ? (
       <div
         data-slot="data-list-status"
         className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"
       >
-        {hiddenColumns.length > 0 ? (
+        {columnsHidden ? (
           <p id={hiddenHintId} data-slot="data-list-hidden-hint">
             {hiddenColumns.length} column
             {hiddenColumns.length === 1 ? "" : "s"} hidden

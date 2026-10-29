@@ -67,8 +67,9 @@ always in this order:
 5. **Reset** — "Reset to default" (or `resetLabel`, "Reset to saved view" on a table), shown only
    while `isDefault` is false. The tool carries a dot then too.
 
-It is one surface: no filled rows, no control tracks, no card inside it. Every row is 32px from the
-8px inset, sections divided by a hairline. A drill-in replaces the page in place with a ‹ back
+It is one surface with the `DropdownMenu`'s rhythm: no filled rows, no control tracks, no card
+inside it; a 4px inset, 28px rows (32px around a segmented control) at the menu's 6px text inset,
+24px section labels, sections divided by an edge-to-edge hairline. A drill-in replaces the page in place with a ‹ back
 header; a reopen always starts on the main page. On a phone it is a bottom sheet.
 
 Actions on the view (Rename, Delete, Save view, Export) never live here: they go in the view tab's

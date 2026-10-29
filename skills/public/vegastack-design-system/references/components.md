@@ -103,7 +103,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Data
 
-- **`add-filter-menu`** — + Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.
+- **`add-filter-menu`** — + Filter: one input (“Filter by…”) that narrows the field list and, when the page passes an AI filter and the text reads as a phrase, offers “Filter with AI” first; fields drill into their value pickers in the same popover.
 - **`board-card`** — A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.
 - **`cursor-pager`** — Previous and Next for keyset (cursor) paging — a range label and two buttons, with no page numbers and no total.
 - **`data-grid`** — The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.
@@ -113,7 +113,7 @@ starts with `icon-` is a component and never an icon.
 - **`display-menu`** — The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`filter-row`** — The chips under a ListToolbar: + Filter, pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.
-- **`list-toolbar`** — The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.
+- **`list-toolbar`** — The one header row of every list and table: the search left, the icon tools (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above and the filter row under it. Measures its own width and collapses in a fixed order.
 - **`load-more`** — The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.
 - **`person-avatar`** — A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.

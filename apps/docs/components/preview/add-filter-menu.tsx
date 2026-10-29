@@ -1,11 +1,10 @@
 "use client";
 
-import * as React from "react";
 import type { ReactNode } from "react";
 import { CircleDot, Flag, UserRound } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
-import { AddFilterMenu, AiFilterInput } from "@/components/ui/add-filter-menu";
+import { AddFilterMenu } from "@/components/ui/add-filter-menu";
 
 const FIELDS = [
   { key: "status", label: "Status", icon: <CircleDot /> },
@@ -19,7 +18,7 @@ const FIELDS = [
           <Button
             key={value}
             variant="ghost"
-            className="h-8 justify-start px-2 font-normal"
+            className="h-7 justify-start rounded-md px-1.5 font-normal"
             onClick={done}
           >
             {value}
@@ -60,22 +59,6 @@ export function addFilterMenuAi(): ReactNode {
           },
         }}
       />
-    </Wrapper>
-  );
-}
-
-export function aiFilterInput(): ReactNode {
-  const [value, setValue] = React.useState("IP65 black downlights");
-  return (
-    <Wrapper>
-      <div className="w-80 rounded-lg border border-border bg-popover p-2 pt-2">
-        <AiFilterInput
-          aria-label="Describe what you want"
-          value={value}
-          onValueChange={setValue}
-          pending
-        />
-      </div>
     </Wrapper>
   );
 }

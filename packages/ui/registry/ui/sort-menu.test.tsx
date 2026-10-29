@@ -60,7 +60,7 @@ test("Reset shows only away from the default, and restores it", async () => {
   expect(onChange).toHaveBeenLastCalledWith({ key: "due", direction: "asc" });
 });
 
-test("no handles, selects or Add sort; rows are 32px", async () => {
+test("no handles, selects or Add sort; rows are the menu's 28px", async () => {
   await render(<Harness />);
   expect(
     document.querySelector('[data-slot="sortable-list-handle"]'),
@@ -69,7 +69,7 @@ test("no handles, selects or Add sort; rows are 32px", async () => {
   const option = document.querySelector<HTMLElement>(
     '[data-slot="sort-menu-option"]',
   )!;
-  expect(option.getBoundingClientRect().height).toBe(32);
+  expect(option.offsetHeight).toBe(28);
 });
 
 test("sortSummary words the order", () => {

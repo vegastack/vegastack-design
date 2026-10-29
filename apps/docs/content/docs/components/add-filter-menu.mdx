@@ -1,6 +1,6 @@
 ---
 title: Add Filter Menu
-description: + Filter — one input that narrows the fields or sends a plain-language request to the page's AI filter; fields open their pickers in place.
+description: + Filter — one "Filter by…" input that narrows the fields and, for a phrase, offers the page's AI filter; fields open their pickers in place.
 audience: public
 registry: add-filter-menu
 status: stable
@@ -43,14 +43,15 @@ import { AddFilterMenu } from "@/components/ui/add-filter-menu";
 />;
 ```
 
-The popover opens on one input. **Typing narrows the field list** (by label and `keywords`); ↑ ↓
+The popover opens on one input, "Filter by…", that takes a field name and plain language alike —
+the people dropdown's quiet filled field, no divider under it. **Typing narrows the field list** (by label and `keywords`); ↑ ↓
 pick a field and Enter opens it. A field with an `editor` drills into it in the same popover, with a
 ‹ back header — never a second surface; a field without one calls `onPick` and closes (the host adds
 the chip, its editor open).
 
-**With `ai`**, the input's placeholder becomes "Describe what you want, or pick a field" and leads
-with ✦, and the first item is "✦ Filter with AI: “…”". Enter on it — or Enter with no field
-matching exactly — calls `ai.onSubmit(text)`. While it runs the input shows a spinner and the item
+**With `ai`**, once the text reads as a phrase — two or more words, or a word no field matches —
+the first item is "✦ Filter with AI: “…”" and Enter on it calls `ai.onSubmit(text)` (an exact
+field name keeps the field highlighted instead). Nothing is sent while typing. While it runs the input shows a spinner and the item
 reads "Working…". On success (`added > 0`) the popover closes and the page shows the chips and the
 [`FilterRow`](/docs/components/filter-row) note; with nothing added, or when `onSubmit` rejects (a
 model error, a daily limit), the popover says so and the field list stays usable. **Without `ai`**
@@ -59,9 +60,6 @@ holds no AI: `onSubmit` is the page's own.
 
 `onAdvanced` adds "Advanced filter…" at the foot, for a condition builder dialog. On a phone the
 popover is a bottom sheet with the input at its top.
-
-`AiFilterInput` is the input line on its own — a borderless field on the surface's hairline row, ✦
-or a magnifier, a spinner while pending — for a phone's filter sheet.
 
 ## Anatomy
 
@@ -73,13 +71,6 @@ or a magnifier, a spinner while pending — for a phone's filter sheet.
 
 <ComponentPreview
   name="addFilterMenu"
-  file="components/preview/add-filter-menu.tsx"
-/>
-
-### The input line
-
-<ComponentPreview
-  name="aiFilterInput"
   file="components/preview/add-filter-menu.tsx"
 />
 
@@ -102,13 +93,6 @@ or a magnifier, a spinner while pending — for a phone's filter sheet.
 <ApiTable
   path="../../packages/ui/registry/ui/add-filter-menu.tsx"
   name="AddFilterAi"
-/>
-
-### AiFilterInput
-
-<ApiTable
-  path="../../packages/ui/registry/ui/add-filter-menu.tsx"
-  name="AiFilterInputProps"
 />
 
 ## Accessibility

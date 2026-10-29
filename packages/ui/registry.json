@@ -1730,7 +1730,7 @@
       "name": "list-toolbar",
       "type": "registry:ui",
       "title": "List Toolbar",
-      "description": "The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.",
+      "description": "The one header row of every list and table: the search left, the icon tools (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above and the filter row under it. Measures its own width and collapses in a fixed order.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -1744,7 +1744,6 @@
         "@vegastack/search-input",
         "@vegastack/sheet",
         "@vegastack/suggestion-menu",
-        "@vegastack/toggle-group",
         "@vegastack/tooltip",
         "@vegastack/use-media-query",
         "@vegastack/page-layout"
@@ -1757,7 +1756,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
+        "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.103"
       }
@@ -1800,7 +1799,7 @@
       "name": "add-filter-menu",
       "type": "registry:ui",
       "title": "Add Filter Menu",
-      "description": "+ Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.",
+      "description": "+ Filter: one input (“Filter by…”) that narrows the field list and, when the page passes an AI filter and the text reads as a phrase, offers “Filter with AI” first; fields drill into their value pickers in the same popover.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -1809,8 +1808,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/input-group",
         "@vegastack/list-toolbar",
-        "@vegastack/panel-search",
         "@vegastack/spinner"
       ],
       "files": [

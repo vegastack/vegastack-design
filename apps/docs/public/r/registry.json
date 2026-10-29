@@ -1729,7 +1729,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.103",
-        "integrity": "sha256-78j+kujB7nqdI4cLYN6/YnO2+aM5YrBZu0V0/b39uSE="
+        "integrity": "sha256-JFcNiGghzQlMGIHGgyi+Ek8E/M5/EGtKpMWAxWHvdYI="
       }
     },
     {
@@ -1948,7 +1948,7 @@
       "name": "list-toolbar",
       "type": "registry:ui",
       "title": "List Toolbar",
-      "description": "The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.",
+      "description": "The one header row of every list and table: the search left, the icon tools (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above and the filter row under it. Measures its own width and collapses in a fixed order.",
       "categories": [
         "data"
       ],
@@ -1964,7 +1964,6 @@
         "@vegastack/search-input",
         "@vegastack/sheet",
         "@vegastack/suggestion-menu",
-        "@vegastack/toggle-group",
         "@vegastack/tooltip",
         "@vegastack/use-media-query",
         "@vegastack/page-layout"
@@ -1977,10 +1976,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
+        "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.103",
-        "integrity": "sha256-BX7mNOWEG0CJMaF06akDcz10ZOpxpQDNQmClc3yF5qM="
+        "integrity": "sha256-9/LVNf38PPXUnUNdGdS0PlIPkGUaoKisTmEWQu0O7go="
       }
     },
     {
@@ -2017,14 +2016,14 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.25.103",
-        "integrity": "sha256-QJUTTG1fskXcsx8ocJ9B7FPQX+mbDJijnpDeKvjRi0o="
+        "integrity": "sha256-ATvep5J/AYowN/BG94JMT/5UVOeL2t7XfpxwdDVvV90="
       }
     },
     {
       "name": "add-filter-menu",
       "type": "registry:ui",
       "title": "Add Filter Menu",
-      "description": "+ Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.",
+      "description": "+ Filter: one input (“Filter by…”) that narrows the field list and, when the page passes an AI filter and the text reads as a phrase, offers “Filter with AI” first; fields drill into their value pickers in the same popover.",
       "categories": [
         "data"
       ],
@@ -2035,8 +2034,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/input-group",
         "@vegastack/list-toolbar",
-        "@vegastack/panel-search",
         "@vegastack/spinner"
       ],
       "files": [
@@ -2050,7 +2049,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.25.103",
-        "integrity": "sha256-+P9XONuXHXK8+1/lJCyhUqKa7nI3vIxomnR5wXXGM3M="
+        "integrity": "sha256-q3Vj1XSfHzELcbzZzC4NYkTmbBczrPWEptu2vWB2Lzw="
       }
     },
     {
@@ -2081,7 +2080,7 @@
         "whenToUse": "Sorting a list by one key from the ListToolbar's Sort tool.",
         "whenNotToUse": "Several sort keys at once (SortBuilder), or a column header's own sort.",
         "version": "0.25.103",
-        "integrity": "sha256-rfG9t3u8+G8791JDVdCxwFxG3K4qdSkloat2GC+g0Ow="
+        "integrity": "sha256-38rIarBon1DwXeeNVminQNjAQANM8tzirlV9LiYiwxg="
       }
     },
     {
@@ -2115,7 +2114,7 @@
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.25.103",
-        "integrity": "sha256-EaTH5IcmkHXPXg0jLGNbrZQ68UUIyGt0Ok5aSC9npS8="
+        "integrity": "sha256-f9eHmbf2wRVeyDVLV71tsG/cVqG3z9Msqd6LrBDj0vg="
       }
     },
     {
@@ -2998,7 +2997,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.25.103",
-        "integrity": "sha256-qcYaMSW38HOUNNi81wood4kjExHmHGLgHPf6pEg2tJk="
+        "integrity": "sha256-+J8JA3FDTshQmFfnrNjJRwUN7CXyeLi/h4cI2Hxe+VQ="
       }
     },
     {
@@ -19301,7 +19300,7 @@
         "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) — pass deselectable={false} so one item always stays pressed — or related toggle buttons such as formatting; wrap lets a long option set fall onto rows on a narrow screen.",
         "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.25.103",
-        "integrity": "sha256-3v5mksPovNdFYMOMzQ7vppdiSWY8J6TVnQVJV3DB5OA="
+        "integrity": "sha256-SwuMdSP2g4nH7Jqwll0QjD+nXFKi1Zy3xm4IQbZB/O4="
       }
     },
     {
@@ -22585,7 +22584,7 @@
         "whenToUse": "A page that lists one kind of record — customers, products, projects — copy it once and wire the filters, paging and routes to your API.",
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.25.103",
-        "integrity": "sha256-8/ptvOYJTH22jIBmVAMS+XpMdq7MfLvp+15Lg277nBo="
+        "integrity": "sha256-qrzG1fe5xVQ4KcGvXdExF2HcfNEZKJgGjQ3/jS3u5B8="
       }
     },
     {

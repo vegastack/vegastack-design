@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.103 sha256-BX7mNOWEG0CJMaF06akDcz10ZOpxpQDNQmClc3yF5qM=
+// @vegastack list-toolbar@0.25.103 sha256-9/LVNf38PPXUnUNdGdS0PlIPkGUaoKisTmEWQu0O7go=
 
 "use client";
 
@@ -38,7 +38,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
@@ -48,15 +47,16 @@ import { useMediaQuery } from "@/components/ui/use-media-query";
 import { layoutTierQuery } from "@/lib/page-layout";
 
 /* ---
-`ListToolbar` is the one header row of every list and table: scope tabs (or a table's saved views)
-on the left; on the right the search, then a tight cluster of borderless icon tools — Filter, Sort,
-Layout, Display, ⋯ — and the page's main button at the end. The filter row of chips opens under it
-from the Filter tool. A tool renders only when the page passes it something to do.
+`ListToolbar` is the one header row of every list and table: the search on the LEFT, and on the
+right a tight cluster of borderless icon tools — Filter, Sort, Layout, Display, ⋯. Scope tabs (or a
+table's saved views) sit in their own row ABOVE it, and the filter row of chips opens UNDER it from
+the Filter tool. A tool renders only when the page passes it something to do. The page's main
+button is not part of it: it lives at the right end of the app's top bar on every page type.
 
-The row never wraps. It measures its own width and gives way in a fixed order: the search shrinks,
-the tabs fold into a dropdown, Layout and then Sort move into Display, the search becomes an icon,
-and a table's undo/redo move into ⋯. Filter, Display, ⋯ and the main button never go. On a phone
-every tool's popover is a bottom sheet.
+The row never wraps. It measures its own width and gives way in a fixed order: the search
+shrinks, Layout and then Sort move into Display, the search becomes an icon, and a table's
+undo/redo move into ⋯. Filter, Display and ⋯ never go. On a phone every tool's popover is a bottom
+sheet.
 --- */
 
 /** A layout a list can switch to. */
@@ -206,7 +206,11 @@ export interface ListToolbarSort {
   label?: string;
 }
 
-/** The Layout tool: List | Board | Grid as icons. */
+/**
+ * The Layout tool: ONE icon button that switches the view — it shows the icon of the layout it
+ * switches to. With three layouts it steps through them in order; Display's Layout section (once
+ * Layout folds into it, or passed to `DisplayMenu`) picks any of them directly.
+ */
 export interface ListToolbarLayout<
   L extends ListToolbarLayoutValue = ListToolbarLayoutValue,
 > {
@@ -259,13 +263,14 @@ export interface ListToolbarProps extends Omit<
   "children"
 > {
   /**
-   * The left zone: scope `Tabs` (`TabsList size="sm" overflow="menu"`), `RouteTabs` (`overflow="menu"`)
-   * or a table's `ViewTabs`. At most one. Omitted, the tools sit right.
+   * The row ABOVE the toolbar: scope `Tabs` (`TabsList overflow="menu"`), `RouteTabs`
+   * (`overflow="menu"`) or a table's `ViewTabs`. At most one. It folds into a dropdown on its own
+   * when it does not fit.
    * @default undefined
    */
   tabs?: React.ReactNode;
   /**
-   * The search field, right of the tabs and before the tools.
+   * The search field, at the start (left) of the row.
    * @default undefined
    */
   search?: ListToolbarSearch;
@@ -300,7 +305,7 @@ export interface ListToolbarProps extends Omit<
    */
   more?: React.ReactNode;
   /**
-   * A state button before the edit group and the search ("Save view" on a changed table view).
+   * A state button before the edit group and the tools ("Save view" on a changed table view).
    * It leaves the row at the last collapse step, so keep its action in ⋯ too.
    * @default undefined
    */
@@ -311,12 +316,6 @@ export interface ListToolbarProps extends Omit<
    * @default undefined
    */
   edit?: readonly ListToolbarMenuItem[];
-  /**
-   * The page's main button, the last item of the row — a `ListToolbarAction`: filled, labelled
-   * on a wide toolbar, an icon on a narrow one.
-   * @default undefined
-   */
-  action?: React.ReactNode;
   /**
    * `compact` is the toolbar of a short list inside a record tab: 28px tools, no shortcuts.
    * @default "default"
@@ -350,8 +349,6 @@ interface ListToolbarContextValue {
   reportFilterCount: (count: number | null) => void;
   /** Bumped when the filter row opens with nothing applied: + Filter opens itself. */
   addFilterRequest: number;
-  /** Whether the toolbar's main button shows its label. */
-  actionLabelled: boolean;
 }
 
 const ListToolbarContext = React.createContext<ListToolbarContextValue | null>(
@@ -522,9 +519,10 @@ export interface ListToolbarPopoverProps {
 }
 
 /**
- * `ListToolbarPopover` — the one surface every toolbar tool opens: a popover with an 8px inset
- * and an 8px rhythm on a tablet or wider, a bottom sheet (titled) on a phone. One surface, no
- * fills inside it.
+ * `ListToolbarPopover` — the one surface every toolbar tool opens: on a tablet or wider a popover
+ * with the `DropdownMenu`'s own rhythm — a 4px inset, 28px rows at a 6px inset, 24px section
+ * labels, hairlines edge to edge — and a bottom sheet (titled) on a phone. One surface, no fills
+ * inside it.
  *
  * @example
  * <ListToolbarPopover title="Sort" trigger={<ListToolbarButton icon={<ArrowUpDown />} label="Sort" />}>
@@ -553,7 +551,7 @@ export function ListToolbarPopover({
           <SheetHeader>
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
-          <SheetBody className={cn("flex flex-col gap-2 pb-4", className)}>
+          <SheetBody className={cn("flex flex-col pb-4", className)}>
             {children}
           </SheetBody>
         </SheetContent>
@@ -567,7 +565,7 @@ export function ListToolbarPopover({
         size={size}
         aria-label={title}
         data-slot={dataSlot}
-        className={cn("max-w-[calc(100vw-2rem)] gap-2 p-2", className)}
+        className={cn("max-w-[calc(100vw-2rem)] gap-0 p-1", className)}
       >
         {children}
       </PopoverContent>
@@ -651,90 +649,25 @@ export function ListToolbarMenu({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * ListToolbarAction
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `ListToolbarAction`. */
-export interface ListToolbarActionProps extends Omit<
-  React.ComponentProps<typeof Button>,
-  "children" | "size"
-> {
-  /** The action's name ("New task"): the label on a wide toolbar, the tooltip and name on a narrow one. */
-  label: string;
-  /** The leading icon (a `+`). */
-  icon: React.ReactNode;
-  /**
-   * A trailing chevron: the button opens a menu ("New ▾").
-   * @default undefined
-   */
-  menuIndicator?: React.ReactNode;
-}
-
-/**
- * `ListToolbarAction` — the list page's main button, last in the `ListToolbar`: the one filled
- * button on the row, "+ New task" on a wide toolbar and an icon `+` (named, with a tooltip) on a
- * narrow one. Pass it as a menu trigger's `render` for a "New ▾".
- *
- * @example
- * <ListToolbar action={<ListToolbarAction icon={<Plus />} label="New task" onClick={create} />} />
- */
-export function ListToolbarAction({
-  label,
-  icon,
-  menuIndicator,
-  className,
-  ...props
-}: ListToolbarActionProps) {
-  const toolbar = React.useContext(ListToolbarContext);
-  const labelled = toolbar?.actionLabelled ?? true;
-  const compact = toolbar?.compact ?? false;
-  const button = (
-    <Button
-      size={
-        labelled ? (compact ? "sm" : "default") : compact ? "icon-sm" : "icon"
-      }
-      aria-label={labelled ? undefined : label}
-      data-labelled={labelled ? "" : undefined}
-      className={cn("shrink-0", className)}
-      {...props}
-    >
-      {icon}
-      {labelled ? label : null}
-      {labelled ? menuIndicator : null}
-    </Button>
-  );
-  if (labelled) return button;
-  return (
-    <Tooltip>
-      <TooltipTrigger render={button} />
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
-  );
-}
-
-/* ------------------------------------------------------------------------------------------------
  * ListToolbar
  * ----------------------------------------------------------------------------------------------*/
 
 /** Fixed metrics the collapse arithmetic uses (px). */
 const METRICS = {
-  zoneGap: 12,
-  searchGap: 8,
+  /** Between the search and the tools, and between the right zone's parts. */
+  gap: 8,
+  /** Between the icon tools. */
   toolGap: 4,
-  search: [240, 144, 144, 96, 96] as const,
-  foldedTabs: 136,
-  /** The room a folded tab dropdown is given at the least, so its name stays readable. */
-  minFoldedTabs: 112,
-  /** The least room a folded tab dropdown keeps (`min-w-18`). */
-  minTabs: 72,
+  /** The search's narrowest open width (`min-w-36`); it grows to 240px when there is room. */
+  search: 144,
 };
 
 /**
  * The collapse steps, in order. Each level keeps everything the previous one did.
- * 0 all out · 1 search 144 · 2 tabs folded · 3 layout → Display, search 96 · 4 sort → Display ·
- * 5 search → icon · 6 edit → ⋯.
+ * 0 all out (the search shrinks from 240px to 144px first) · 1 layout → Display ·
+ * 2 sort → Display · 3 search → icon · 4 edit and state → ⋯.
  */
-const MAX_LEVEL = 6;
+const MAX_LEVEL = 4;
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -745,22 +678,22 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 /**
- * `ListToolbar` — the one header row of every list and table. Tabs left; search, the icon tools
- * (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it when
- * Filter is open. One look at every width: it measures its own width (not the viewport) and gives
- * way in a fixed order — the search shrinks, the tabs fold to a dropdown, Layout then Sort move
- * into Display, the search becomes an icon, the edit tools move into ⋯. Filter, Display, ⋯ and
- * the main button always stay. Presentational: the host owns every value.
+ * `ListToolbar` — the one header row of every list and table. The search left; the icon tools
+ * (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above; the filter row
+ * under it when Filter is open. One look at every width: it measures its own width (not the
+ * viewport) and gives way in a fixed order — the search shrinks, Layout then Sort move into
+ * Display, the search becomes an icon, the edit tools move into ⋯. Filter, Display and ⋯ always
+ * stay. No main button: that sits at the right end of the app's top bar. Presentational: the host
+ * owns every value.
  *
  * @example
  * <ListToolbar
- *   tabs={<Tabs value={scope} onValueChange={setScope}><TabsList size="sm" overflow="menu">…</TabsList></Tabs>}
+ *   tabs={<Tabs value={scope} onValueChange={setScope}><TabsList overflow="menu">…</TabsList></Tabs>}
  *   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
  *   filterRow={<FilterRow addFilter={<AddFilterMenu fields={fields} onPick={add} />} chips={chips} onClear={clear} />}
  *   sort={{ content: <SortMenu fields={sortFields} value={sort} onValueChange={setSort} />, isDefault }}
  *   layout={{ value: layout, options: ["list", "board"], onValueChange: setLayout }}
  *   display={<DisplayMenu toggles={[showClosed]} />}
- *   action={<ListToolbarAction icon={<Plus />} label="New task" onClick={create} />}
  * />
  */
 export function ListToolbar({
@@ -774,7 +707,6 @@ export function ListToolbar({
   more,
   state,
   edit,
-  action,
   size = "default",
   shortcuts,
   className,
@@ -845,13 +777,12 @@ export function ListToolbar({
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const mergedRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
   const rowRef = React.useRef<HTMLDivElement | null>(null);
-  const tabsRef = React.useRef<HTMLDivElement | null>(null);
   const widths = React.useRef<Record<string, number>>({});
   const [level, setLevel] = React.useState(0);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const frozen = React.useRef(false);
   const hasDisplay = display != null;
-  const layoutCount = layout?.options.length ?? 0;
+  const hasLayout = layout != null && layout.options.length > 1;
   const editCount = edit?.length ?? 0;
 
   const measure = React.useCallback(() => {
@@ -864,95 +795,29 @@ export function ListToolbar({
       if (node && node.offsetWidth > 0) cache[slot] = node.offsetWidth;
       return cache[slot] ?? fallback;
     };
-    const tabsZone = tabsRef.current;
-    let tabsNatural = 0;
-    let tabsFolded = 0;
-    if (tabsZone) {
-      const content = tabsZone.querySelector<HTMLElement>(
-        "[data-fold-content]",
-      );
-      // Hidden while an open icon search takes its room: use the last width it showed.
-      const visible = tabsZone.offsetWidth > 0;
-      if (visible)
-        cache.tabsNatural = content
-          ? content.scrollWidth
-          : tabsZone.scrollWidth;
-      // Buttons the tab control keeps beside its tabs (ViewTabs' `+` and ⋯) take room either way;
-      // folded, ViewTabs merges them into one ⋯.
-      if (visible) {
-        let reserve = 0;
-        let one = 0;
-        for (const button of tabsZone.querySelectorAll<HTMLElement>(
-          "[data-fold-reserve]",
-        )) {
-          const width = button.offsetWidth + METRICS.toolGap;
-          one ||= width;
-          reserve += width * (button.hasAttribute("data-merged") ? 2 : 1);
-        }
-        cache.tabsReserve = reserve;
-        cache.tabsReserveFolded = one;
-      }
-      tabsNatural =
-        Math.max(METRICS.minTabs, cache.tabsNatural ?? 0) +
-        (cache.tabsReserve ?? 0);
-      const trigger = tabsZone.querySelector<HTMLElement>(
-        "[data-fold-trigger]",
-      );
-      // Read squeezed, the dropdown would keep the squeezed width; it keeps a readable name.
-      if (trigger && trigger.offsetWidth > 0)
-        cache.foldedTabs = Math.max(trigger.offsetWidth, METRICS.minFoldedTabs);
-      tabsFolded = Math.max(
-        METRICS.minTabs,
-        Math.min(
-          tabsNatural,
-          (cache.foldedTabs ?? METRICS.foldedTabs) +
-            (cache.tabsReserveFolded ?? 0),
-        ),
-      );
-    }
     const filterWidth = hasFilter ? read("list-toolbar-filter", icon) : 0;
     const stateWidth = state != null ? read("list-toolbar-state", 96) : 0;
     const editWidth =
       editCount > 0 ? editCount * icon + (editCount - 1) * METRICS.toolGap : 0;
-    // The action is labelled below level 3 and an icon from it: read the labelled width only
-    // while it shows its label, and count an icon once the level drops it.
-    const actionNode = row.querySelector<HTMLElement>(
-      '[data-slot="list-toolbar-action"]',
-    );
-    if (
-      actionNode?.querySelector("[data-labelled]") &&
-      actionNode.offsetWidth > 0
-    )
-      cache.actionLabelled = actionNode.offsetWidth;
-    const actionWidth = (lvl: number) =>
-      action == null ? 0 : lvl >= 3 ? icon : (cache.actionLabelled ?? 120);
     const need = (lvl: number) => {
       const tools: number[] = [];
       if (hasFilter) tools.push(filterWidth);
-      if (sort != null && !(lvl >= 4 && hasDisplay)) tools.push(icon);
-      if (layoutCount > 0 && !(lvl >= 3 && hasDisplay))
-        tools.push(layoutCount * icon + (layoutCount - 1) * METRICS.toolGap);
+      if (sort != null && !(lvl >= 2 && hasDisplay)) tools.push(icon);
+      if (hasLayout && !(lvl >= 1 && hasDisplay)) tools.push(icon);
       if (hasDisplay) tools.push(icon);
-      if (more != null || (editCount > 0 && lvl >= 6)) tools.push(icon);
-      let right =
+      if (more != null || (editCount > 0 && lvl >= 4)) tools.push(icon);
+      const parts = [
         tools.reduce((sum, w) => sum + w, 0) +
-        Math.max(0, tools.length - 1) * METRICS.toolGap;
-      const parts = [right];
+          Math.max(0, tools.length - 1) * METRICS.toolGap,
+      ];
       if (search != null)
-        parts.push(
-          search.collapsible || lvl >= 5
-            ? icon
-            : (METRICS.search[Math.min(lvl, 4)] ?? 96),
-        );
-      if (editCount > 0 && lvl < 6)
-        parts.push(editWidth + 1 + METRICS.searchGap);
-      if (stateWidth && lvl < 6) parts.push(stateWidth);
-      if (action != null) parts.push(actionWidth(lvl));
-      right =
+        parts.push(search.collapsible || lvl >= 3 ? icon : METRICS.search);
+      if (editCount > 0 && lvl < 4) parts.push(editWidth + 1 + METRICS.gap);
+      if (stateWidth && lvl < 4) parts.push(stateWidth);
+      return (
         parts.reduce((sum, w) => sum + w, 0) +
-        Math.max(0, parts.filter((w) => w > 0).length - 1) * METRICS.searchGap;
-      const left = tabsZone ? (lvl >= 2 ? tabsFolded : tabsNatural) : 0;
-      return left + (tabsZone ? METRICS.zoneGap : 0) + right;
+        Math.max(0, parts.filter((w) => w > 0).length - 1) * METRICS.gap
+      );
     };
     let next = MAX_LEVEL;
     for (let lvl = 0; lvl <= MAX_LEVEL; lvl++) {
@@ -961,18 +826,17 @@ export function ListToolbar({
         break;
       }
     }
-    // While an icon search is open (the tabs give it their room) the level never drops below the
-    // icon step, so the field does not flip back mid-edit; a narrowing row still collapses further.
-    // An always-collapsible search is an icon at every level, so it needs no floor.
-    if (frozen.current && !search?.collapsible) next = Math.max(next, 5);
+    // While an icon search is open the level never drops below the icon step, so the field does
+    // not flip back mid-edit; a narrowing row still collapses further. An always-collapsible
+    // search is an icon at every level, so it needs no floor.
+    if (frozen.current && !search?.collapsible) next = Math.max(next, 3);
     setLevel(next);
   }, [
-    action,
     editCount,
     hasDisplay,
     hasFilter,
+    hasLayout,
     icon,
-    layoutCount,
     more,
     search,
     sort,
@@ -984,26 +848,19 @@ export function ListToolbar({
     if (!row || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     observer.observe(row);
-    if (tabsRef.current) {
-      observer.observe(tabsRef.current);
-      const content = tabsRef.current.querySelector("[data-fold-content]");
-      if (content) observer.observe(content);
-    }
     return () => observer.disconnect();
-  }, [measure, tabs]);
+  }, [measure]);
 
   // Open while focused from the icon, or while it holds a query (a restored search included).
   const searchExpanded =
     search != null &&
-    (search.collapsible || level >= 5) &&
+    (search.collapsible || level >= 3) &&
     (searchOpen || search.value !== "");
   frozen.current = searchExpanded;
-  const foldLayout = hasDisplay && layout != null && level >= 3;
-  const foldSort = hasDisplay && sort != null && level >= 4;
-  const iconSearch = search != null && (search.collapsible || level >= 5);
-  const foldEdit = editCount > 0 && level >= 6;
-  // The action's label goes once the tabs have folded and the search is at its narrowest.
-  const actionLabelled = level < 3;
+  const foldLayout = hasDisplay && hasLayout && level >= 1;
+  const foldSort = hasDisplay && sort != null && level >= 2;
+  const iconSearch = search != null && (search.collapsible || level >= 3);
+  const foldEdit = editCount > 0 && level >= 4;
 
   /* --- Shortcuts --------------------------------------------------------------------------- */
   const shortcutsOn = shortcuts ?? !compact;
@@ -1064,7 +921,6 @@ export function ListToolbar({
       foldedEdit: foldEdit ? edit! : null,
       reportFilterCount,
       addFilterRequest,
-      actionLabelled,
     }),
     [
       compact,
@@ -1077,7 +933,6 @@ export function ListToolbar({
       edit,
       reportFilterCount,
       addFilterRequest,
-      actionLabelled,
     ],
   );
 
@@ -1117,45 +972,21 @@ export function ListToolbar({
       </ListToolbarPopover>
     ) : null;
 
+  // One button: it shows the layout it switches to (the next one, with three).
+  const nextLayout = hasLayout
+    ? layout!.options[
+        (layout!.options.indexOf(layout!.value) + 1) % layout!.options.length
+      ]!
+    : null;
   const layoutTool =
-    layout != null && !foldLayout ? (
-      <ToggleGroup
+    nextLayout != null && !foldLayout ? (
+      <ListToolbarButton
         data-slot="list-toolbar-layout"
-        aria-label="Layout"
-        spacing={1}
-        deselectable={false}
-        value={[layout.value]}
-        onValueChange={(next) => {
-          const value = next[0] as ListToolbarLayoutValue | undefined;
-          if (value && layout.options.includes(value))
-            layout.onValueChange(value);
-        }}
-        className="shrink-0"
-      >
-        {layout.options.map((option) => {
-          const name = layout.labels?.[option] ?? LAYOUT_META[option].label;
-          return (
-            <Tooltip key={option}>
-              <TooltipTrigger
-                render={
-                  <ToggleGroupItem
-                    value={option}
-                    aria-label={name}
-                    data-layout={option}
-                    className={cn(
-                      compact ? "size-7 min-w-7" : "size-8 min-w-8",
-                      "px-0 text-muted-foreground hover:bg-muted hover:text-foreground data-[state=on]:bg-muted data-[state=on]:text-foreground data-[state=on]:hover:bg-muted aria-pressed:bg-muted aria-pressed:hover:bg-muted",
-                    )}
-                  >
-                    {LAYOUT_META[option].icon}
-                  </ToggleGroupItem>
-                }
-              />
-              <TooltipContent>{name}</TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </ToggleGroup>
+        data-layout={nextLayout}
+        icon={LAYOUT_META[nextLayout].icon}
+        label={`${layout!.labels?.[nextLayout] ?? LAYOUT_META[nextLayout].label} view`}
+        onClick={() => layout!.onValueChange(nextLayout)}
+      />
     ) : null;
 
   /* --- Search suggestion ------------------------------------------------------------------- */
@@ -1268,16 +1099,9 @@ export function ListToolbar({
           : {})}
         className={cn(
           compact ? "h-7" : "h-8",
-          // Open from an icon, it takes the tabs' room in the row; the tools stay in view.
-          iconSearch
-            ? "w-auto min-w-24 flex-1"
-            : tabs != null
-              ? level === 0
-                ? "w-60 shrink-0"
-                : level < 3
-                  ? "w-36 shrink-0"
-                  : "w-24 shrink-0"
-              : "w-60 min-w-24 shrink",
+          // 240px when there is room, down to 144px; open from an icon, it takes the row's free
+          // room and the tools stay in view.
+          iconSearch ? "w-auto min-w-0 flex-1" : "w-60 min-w-36 shrink",
         )}
       />
     );
@@ -1329,45 +1153,32 @@ export function ListToolbar({
         )}
         {...props}
       >
+        {tabs != null ? (
+          <div
+            data-slot="list-toolbar-tabs"
+            // Its own row: the tab control (Tabs, RouteTabs, ViewTabs) fills it and folds into a
+            // dropdown by itself when it does not fit.
+            className="flex w-full min-w-0 items-center *:min-w-0 *:flex-1"
+          >
+            {tabs}
+          </div>
+        ) : null}
         <div
           ref={rowRef}
           role="toolbar"
           aria-label={ariaLabel}
           data-slot="list-toolbar-row"
           className={cn(
-            "relative flex w-full min-w-0 items-center gap-3",
+            "relative flex w-full min-w-0 items-center gap-2",
             compact ? "h-7" : "h-8",
           )}
         >
-          {tabs != null ? (
-            <div
-              ref={tabsRef}
-              data-slot="list-toolbar-tabs"
-              // Takes the room the right zone leaves; a folding tab row measures it.
-              // Its child (a Tabs root, RouteTabs, ViewTabs) fills it and may shrink below its
-              // tabs' natural width, so a folding row measures this zone and not its own content.
-              className={cn(
-                "flex min-w-18 flex-1 basis-0 items-center *:min-w-0 *:flex-1",
-                // The row's one height: a small pill tab list is lifted to the 32px tier, so its
-                // triggers keep a full pointer target.
-                "[&_[data-slot=tabs-list][data-size=sm]]:h-8",
-                // An open icon search takes this room while it is open.
-                searchExpanded && "hidden",
-              )}
-            >
-              {tabs}
-            </div>
-          ) : null}
+          {searchField}
           <div
             data-slot="list-toolbar-tools"
-            className={cn(
-              "flex min-w-0 items-center gap-2",
-              tabs == null || searchExpanded
-                ? "flex-1 justify-end"
-                : "shrink-0",
-            )}
+            className="ms-auto flex shrink-0 items-center gap-2"
           >
-            {state != null && level < 6 ? (
+            {state != null && level < 4 ? (
               <div
                 data-slot="list-toolbar-state"
                 className="flex shrink-0 items-center"
@@ -1376,7 +1187,6 @@ export function ListToolbar({
               </div>
             ) : null}
             {editTools}
-            {searchField}
             <div
               data-slot="list-toolbar-cluster"
               className="flex shrink-0 items-center gap-1"
@@ -1387,14 +1197,6 @@ export function ListToolbar({
               {display}
               {moreTool}
             </div>
-            {action != null ? (
-              <div
-                data-slot="list-toolbar-action"
-                className="flex shrink-0 items-center"
-              >
-                {action}
-              </div>
-            ) : null}
           </div>
         </div>
         {filterRowNode}

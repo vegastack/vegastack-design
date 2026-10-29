@@ -1,5 +1,5 @@
 # component: toggle-group
-# decisions: A11Y-20, API-23, DOC-2
+# decisions: A11Y-20, API-23, API-39, DOC-2
 # hunks:
 #   A11Y-20 (widened 2026-09-24): `orientation` is forwarded to the Base UI group as well as mirrored
 #     to `data-orientation`, so a vertical group's arrow keys are up and down. Upstream styles the
@@ -17,11 +17,18 @@
 #     each row's first and last item `data-row-start` / `data-row-end`, and the item gains three
 #     classes that give those their rounded ends and the outline variant's leading border. The
 #     root's `ref` is merged with the internal one through `mergeRefs` from our npm layer.
+#   API-39 (widened MK 2026-10-30, list-toolbar T12): a joined outline group (`spacing={0}`) draws
+#     every item's four borders and overlaps each neighbour by one pixel (`-ms-px`, `-mt-px` when
+#     vertical; the first item and a wrapped row's first item take none) instead of dropping the
+#     leading border, and a pressed item rises above its neighbours (`z-10`). Upstream's
+#     `border-s-0` left the pressed item's tinted `border-primary/30` on three sides and the
+#     neighbour's `border-input` on the fourth, so a selected segment lost its leading border and
+#     gained a trailing one at every position but the first.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle-group.tsx b/toggle-group.tsx
-index 1910ec8..907d004 100644
+index 1910ec8..6c5c92a 100644
 --- a/toggle-group.tsx
 +++ b/toggle-group.tsx
 @@ -1,24 +1,69 @@
@@ -178,11 +185,13 @@ index 1910ec8..907d004 100644
  
    return (
      <TogglePrimitive
-@@ -73,17 +145,18 @@ function ToggleGroupItem({
+@@ -72,18 +144,19 @@ function ToggleGroupItem({
+       data-size={context.size || size}
        data-spacing={context.spacing}
        className={cn(
-         "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",
-+        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-lg group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:border-s",
+-        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",
++        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:-ms-px group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:-mt-px group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:ms-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:mt-0 group-data-[spacing=0]/toggle-group:aria-pressed:z-10 group-data-[spacing=0]/toggle-group:data-[state=on]:z-10",
++        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-lg group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:ms-0",
          toggleVariants({
            variant: context.variant || variant,
            size: context.size || size,

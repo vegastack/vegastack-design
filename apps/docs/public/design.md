@@ -793,7 +793,9 @@ checkbox or a link shows where the keyboard is without any component restating i
 the exception: it takes NO fill (base.css excludes text inputs and textarea from the tint) and
 shows focus as a subtle darker border instead — below — with `outline-hidden` so forced colours can
 repaint it (FOC-3, FOC-8). The contenteditable document editor (TextEdit's default `document`
-variant, `data-focus-cue="caret"`) and Input's borderless `ghost` variant are caret-only.
+variant, `data-focus-cue="caret"`), Input's borderless `ghost` variant and a popup panel's
+PanelSearch field (its hairline is a divider in the default `border` colour, MK 2026-10-30) are
+caret-only.
 
 **A border never changes colour on focus or while active (FOC-14, MK 2026-09-26) — except text
 entry, which darkens its border subtly with an ease (MK 2026-09-27).** Every other control, and
@@ -801,7 +803,7 @@ every wrapper, keeps its resting `border-border`/`border-input` in every state �
 `focus-visible:`, `focus-within:`, `data-focused:` or `data-popup-open:` border change. Text entry —
 Input, Textarea, the Questionnaire answer, the InputOTP active slot, the bordered field groups that
 frame a text control (InputGroup and everything built on it: NumberField, ChipInput, Combobox,
-Command, the popup search rows; the combobox chips; the PanelSearch row) and TextEdit's `boxed`
+Command, the popup search rows; the combobox chips) and TextEdit's `boxed`
 variant (the comment composer) — shows focus as `border-ring/50` easing in over
 `duration-150 ease-out`, on the element that draws the border (the group, never the control inside
 it), and no background change at all. Invalid shows its destructive border in every state, focused

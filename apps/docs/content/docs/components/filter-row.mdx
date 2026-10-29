@@ -1,6 +1,6 @@
 ---
 title: Filter Row
-description: The chips under a ListToolbar — + Filter, dashed pinned facets, the other chips and Clear, plus a line saying what an AI filter run added.
+description: The chips under a ListToolbar — facets and chips in one scrolling line, + Filter and Clear at the right end, and a note on what an AI run added.
 audience: public
 registry: filter-row
 status: stable
@@ -42,23 +42,24 @@ import { FilterRow, ListFacet } from "@/components/ui/filter-row";
 
 The order never changes, so chips never jump:
 
-1. **`+ Filter`** (`addFilter`), pinned first — also on a phone, where the row scrolls.
-2. **Pinned facets** (`facets`), in the page's order. Unset, a facet is a dashed outline that reads
+1. **Pinned facets** (`facets`), in the page's order. Unset, a facet is a dashed outline that reads
    as an offer (`+ Due`); set, it is a solid chip. A facet with a custom editor is an `unset`
    `FilterChip` (below).
-3. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
+2. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
    A preset resolves to ordinary chips; there is no separate preset chip.
-4. **Clear**, at the far end, only while something is set.
+3. **`+ Filter`** (`addFilter`), at the right end — never scrolled away.
+4. **Clear**, right beside `+ Filter`, only while something is set.
 
 Chips made by an AI filter (`source: "ai"`) lead with ✦ until the filter is edited. After an AI run
 the host passes `aiNote`: one line under the row — "✦ 2 filters added by AI · Undo · Couldn't match
 “warehouse”" — until the next manual change or its ×. **Undo** removes exactly that run's chips.
 Unknown words are listed, never guessed.
 
-From an `@3xl` row the chips wrap; below it they are one sideways-scrolling line with an edge fade,
-`+ Filter` and Clear pinned at its two ends. The row counts what is applied (its chips plus its set
-facets) and tells the enclosing [`ListToolbar`](/docs/components/list-toolbar), whose Filter tool
-shows the count.
+The facets and chips are **one line at every width**: it scrolls sideways with an edge fade and
+never wraps to a second line. Every control on the row — facets, chips, `+ Filter`, Clear — is the
+toolbar's tool height: 32px, or 28px in a `size="compact"` toolbar. The row counts what is applied
+(its chips plus its set facets) and tells the enclosing
+[`ListToolbar`](/docs/components/list-toolbar), whose Filter tool shows the count.
 
 ## Anatomy
 
@@ -95,7 +96,7 @@ part, with the `data-slot` it renders (generated from the canonical source):
 ### ListFacet
 
 One filter on [`SearchableSelect`](/docs/components/searchable-select), in the row's one chip
-shape: compact (h-7), rounded-md, quiet type. Unset it reads just its label (_Status ▾_); set it is
+shape: the row's height (32px; 28px compact), rounded-md, quiet type. Unset it reads just its label (_Status ▾_); set it is
 tinted and reads _Status: Open_, then _Status: 2_ from two values (the values in the chip's tooltip
 and ticked in the popover), with a × named "Clear Status" in the chevron's fixed slot. Use short,
 sentence-case labels; never "Any" or "All statuses". The search box shows only when the list is

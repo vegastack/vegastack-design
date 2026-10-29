@@ -1,4 +1,4 @@
-// @vegastack display-menu@0.25.103 sha256-EaTH5IcmkHXPXg0jLGNbrZQ68UUIyGt0Ok5aSC9npS8=
+// @vegastack display-menu@0.25.103 sha256-f9eHmbf2wRVeyDVLV71tsG/cVqG3z9Msqd6LrBDj0vg=
 
 "use client";
 
@@ -191,7 +191,7 @@ export interface DisplayMenuProps {
   labels?: Partial<DisplayMenuLabels>;
 }
 
-/** A 32px row: text at the 8px inset, a control at the end. */
+/** A menu row: text at the menu's 6px inset, a control at the end (28px, 32px around a 28px control). */
 function DisplayRow({
   label,
   labelId,
@@ -207,7 +207,7 @@ function DisplayRow({
     <div
       data-slot="display-menu-row"
       className={cn(
-        "flex h-8 min-w-0 items-center justify-between gap-3 px-2 text-sm",
+        "flex min-h-7 min-w-0 items-center justify-between gap-3 px-1.5 py-0.5 text-sm",
         className,
       )}
     >
@@ -219,7 +219,7 @@ function DisplayRow({
   );
 }
 
-/** A section heading: muted, at the 8px inset. */
+/** A section heading: muted, at the menu's 6px inset (the `DropdownMenuLabel`'s box). */
 function DisplaySectionLabel({
   id,
   children,
@@ -231,7 +231,7 @@ function DisplaySectionLabel({
     <div
       id={id}
       data-slot="display-menu-label"
-      className="flex h-6 items-center px-2 text-xs text-muted-foreground"
+      className="flex h-6 items-center px-1.5 text-xs text-muted-foreground"
     >
       {children}
     </div>
@@ -243,7 +243,7 @@ function Divider() {
     <div
       aria-hidden
       data-slot="display-menu-divider"
-      className="-mx-2 my-1 h-px bg-border"
+      className="-mx-1 my-1 h-px bg-border"
     />
   );
 }
@@ -265,7 +265,7 @@ function DrillRow({
       variant="ghost"
       data-slot={dataSlot}
       onClick={onOpen}
-      className="h-8 w-full justify-between gap-3 px-2 font-normal"
+      className="h-7 w-full justify-between gap-3 rounded-md px-1.5 font-normal"
     >
       <span className="min-w-0 truncate">{label}</span>
       <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
@@ -291,7 +291,7 @@ function DrillHeader({
   return (
     <div
       data-slot="display-menu-drill-header"
-      className="flex h-8 items-center gap-1"
+      className="flex h-7 items-center gap-1"
     >
       <Button
         variant="ghost"
@@ -358,7 +358,7 @@ export function DisplayMenu({
         key="layout"
         role="group"
         aria-labelledby={layoutId}
-        className="flex flex-col gap-1"
+        className="flex flex-col"
       >
         <DisplaySectionLabel id={layoutId}>{labels.layout}</DisplaySectionLabel>
         <ToggleGroup
@@ -373,7 +373,7 @@ export function DisplayMenu({
             if (value && layout.options.includes(value))
               layout.onValueChange(value);
           }}
-          className="w-full px-2"
+          className="w-full px-1.5"
         >
           {layout.options.map((option) => (
             <ToggleGroupItem key={option} value={option} className="flex-1">
@@ -430,7 +430,7 @@ export function DisplayMenu({
         role="group"
         aria-labelledby={groupById}
         data-slot="display-menu-group-by"
-        className="flex flex-col gap-1"
+        className="flex flex-col"
       >
         <DisplaySectionLabel id={groupById}>
           {labels.groupBy}
@@ -450,11 +450,7 @@ export function DisplayMenu({
     );
   if (rows.length > 0)
     sections.push(
-      <div
-        key="rows"
-        data-slot="display-menu-rows"
-        className="flex flex-col gap-1"
-      >
+      <div key="rows" data-slot="display-menu-rows" className="flex flex-col">
         {rows}
       </div>,
     );
@@ -488,17 +484,14 @@ export function DisplayMenu({
       {showReset ? (
         <>
           {sections.length > 0 ? <Divider /> : null}
-          <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              data-slot="display-menu-reset"
-              className="font-normal text-muted-foreground"
-              onClick={onReset}
-            >
-              {resetLabel}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            data-slot="display-menu-reset"
+            className="h-7 w-full justify-start rounded-md px-1.5 font-normal"
+            onClick={onReset}
+          >
+            {resetLabel}
+          </Button>
         </>
       ) : null}
     </>
@@ -539,7 +532,7 @@ export function DisplayMenu({
         {/* A long table's fields scroll inside the menu instead of running off the screen. */}
         <div
           data-slot="display-menu-columns-list"
-          className="-me-2 max-h-72 min-h-0 overflow-y-auto overscroll-contain pe-2"
+          className="-me-1 max-h-72 min-h-0 overflow-y-auto overscroll-contain pe-1"
         >
           <ColumnsList columns={columns} />
         </div>
@@ -559,7 +552,6 @@ export function DisplayMenu({
         // Every opening starts on the main page.
         if (!next) setPage("main");
       }}
-      className="gap-1"
       trigger={
         <ListToolbarButton
           data-slot="display-menu-trigger"

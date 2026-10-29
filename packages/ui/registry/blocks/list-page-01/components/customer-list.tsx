@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.25.103 sha256-8/ptvOYJTH22jIBmVAMS+XpMdq7MfLvp+15Lg277nBo=
+// @vegastack list-page-01@0.25.103 sha256-qrzG1fe5xVQ4KcGvXdExF2HcfNEZKJgGjQ3/jS3u5B8=
 
 "use client";
 
@@ -94,7 +94,8 @@ const customerHref = (customer: Customer) => `/customers/${customer.id}`;
 /**
  * The customer list page: a `PageHeader` (title, create action, the Mine | Team scope tabs under
  * the title) over one `DataList` whose `ListToolbar` holds the search, the Filter tool and the
- * Grid | List Layout tool, and a `FilterRow` with the Status and Industry facets under it.
+ * Layout button (it shows, and switches to, the other view), and a `FilterRow` with the Status and
+ * Industry facets under it.
  * Both views show the same records grouped by industry — a table, or a grid of `MediaCard` links —
  * loaded on scroll. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
  * failed load (with "Try again").

@@ -21,7 +21,7 @@ const sheet = document.createElement("style");
 sheet.textContent = geometryCss;
 document.head.append(sheet);
 
-test("fixed order: + Filter, facets, chips, then Clear; AI chips carry ✦", async () => {
+test("fixed order: facets, chips, then + Filter and Clear at the end; AI chips carry ✦", async () => {
   const onClear = vi.fn();
   const chips: FilterRowChip[] = [
     { id: "status", label: "Status", value: "Open", onRemove: () => {} },
@@ -51,12 +51,18 @@ test("fixed order: + Filter, facets, chips, then Clear; AI chips carry ✦", asy
       (node.getAttribute("data-state") === "unset" ? ":unset" : ""),
   );
   expect(order).toEqual([
-    "filter-row-add",
     "filter-chip:unset",
     "filter-chip",
     "filter-chip",
+    "filter-row-add",
     "filter-row-clear",
   ]);
+  // One line that scrolls, never wraps.
+  const scroll = document.querySelector<HTMLElement>(
+    '[data-slot="filter-row-scroll"]',
+  )!;
+  expect(getComputedStyle(scroll).flexWrap).toBe("nowrap");
+  expect(getComputedStyle(scroll).overflowX).toBe("auto");
   await expect
     .element(screen.getByLabelText("Added by AI"))
     .toBeInTheDocument();

@@ -8,11 +8,11 @@ import { Plus, Redo2, Undo2 } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   ListToolbar,
-  ListToolbarAction,
   ListToolbarButton,
   ListToolbarMenu,
   type ListToolbarLayoutValue,
 } from "./list-toolbar";
+import { AddFilterMenu } from "./add-filter-menu";
 import { DisplayMenu } from "./display-menu";
 import { FilterRow } from "./filter-row";
 import { SortMenu } from "./sort-menu";
@@ -27,13 +27,7 @@ const SORT_FIELDS = [
   { key: "title", label: "Title" },
 ];
 
-function Harness({
-  width = 1120,
-  onAction = () => {},
-}: {
-  width?: number;
-  onAction?: () => void;
-}) {
+function Harness({ width = 1120 }: { width?: number }) {
   const [query, setQuery] = React.useState("");
   const [layout, setLayout] = React.useState<ListToolbarLayoutValue>("list");
   const [sort, setSort] = React.useState({
@@ -46,7 +40,7 @@ function Harness({
       <ListToolbar
         tabs={
           <Tabs defaultValue="mine">
-            <TabsList size="sm" overflow="menu" aria-label="Scope">
+            <TabsList overflow="menu" aria-label="Scope">
               <TabsTrigger value="mine">My tasks</TabsTrigger>
               <TabsTrigger value="created">Created by me</TabsTrigger>
               <TabsTrigger value="team">My team</TabsTrigger>
@@ -99,45 +93,65 @@ function Harness({
             ]}
           />
         }
-        action={
-          <ListToolbarAction
-            icon={<Plus />}
-            label="New task"
-            onClick={onAction}
-          />
-        }
       />
     </div>
   );
 }
 
-test("one row: tabs left; search, the icon tools and the main button right, every tool named", async () => {
-  const onAction = vi.fn();
-  const screen = await render(<Harness onAction={onAction} />);
+test("tabs in their own row above; the search left and the icon tools right, every tool named", async () => {
+  const screen = await render(<Harness />);
   await expect
     .element(screen.getByRole("toolbar", { name: "List controls" }))
     .toBeVisible();
   await expect
     .element(screen.getByRole("tab", { name: "My tasks" }))
     .toBeVisible();
-  await expect
-    .element(screen.getByRole("searchbox", { name: "Search tasks" }))
-    .toBeVisible();
+  const search = screen
+    .getByRole("searchbox", { name: "Search tasks" })
+    .element();
   for (const name of ["Filter", "Sort", "Display", "More"])
     await expect
       .element(screen.getByRole("button", { name, exact: true }))
       .toBeVisible();
-  await expect
-    .element(screen.getByRole("button", { name: "List" }))
-    .toBeVisible();
-  await screen.getByRole("button", { name: "New task" }).click();
-  expect(onAction).toHaveBeenCalled();
-  // One row, 32px tall, at every width it fits.
   const row = document.querySelector<HTMLElement>(
     '[data-slot="list-toolbar-row"]',
   )!;
-  expect(row.getBoundingClientRect().height).toBe(32);
+  const tabs = document.querySelector<HTMLElement>(
+    '[data-slot="list-toolbar-tabs"]',
+  )!;
+  // The tabs are not in the toolbar row; they sit above it.
+  expect(row.contains(tabs)).toBe(false);
+  expect(tabs.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    row.getBoundingClientRect().top,
+  );
+  // The search starts the row; the tools end it.
+  const rowBox = row.getBoundingClientRect();
+  expect(
+    search.closest('[data-slot="list-toolbar-search"]')!.getBoundingClientRect()
+      .left,
+  ).toBe(rowBox.left);
+  const more = document.querySelector<HTMLElement>(
+    '[data-slot="list-toolbar-more"]',
+  )!;
+  expect(Math.round(more.getBoundingClientRect().right)).toBe(
+    Math.round(rowBox.right),
+  );
+  // One row, 32px tall.
+  expect(rowBox.height).toBe(32);
   await expectNoA11yViolations(screen.container);
+});
+
+test("Layout is one button that shows, and switches to, the other layout", async () => {
+  const screen = await render(<Harness />);
+  const layout = screen.getByRole("button", { name: "Board view" });
+  await expect.element(layout).toBeVisible();
+  await layout.click();
+  await expect
+    .element(screen.getByRole("button", { name: "List view" }))
+    .toBeVisible();
+  expect(
+    document.querySelectorAll('[data-slot="list-toolbar-layout"]').length,
+  ).toBe(1);
 });
 
 test("the cluster is tight: 4px between icon tools, all 32px", async () => {
@@ -150,6 +164,35 @@ test("the cluster is tight: 4px between icon tools, all 32px", async () => {
     '[data-slot="list-toolbar-filter"]',
   )!;
   expect(filter.getBoundingClientRect().width).toBe(32);
+});
+
+test("the filter row's chips and + Filter are the toolbar's tool height", async () => {
+  await render(
+    <div style={{ width: 900 }}>
+      <ListToolbar
+        filter={{ defaultOpen: true }}
+        filterRow={
+          <FilterRow
+            addFilter={<AddFilterMenu fields={[{ key: "a", label: "A" }]} />}
+            chips={[
+              { id: "s", label: "Status", value: "Open", onRemove: () => {} },
+            ]}
+            onClear={() => {}}
+          />
+        }
+      />
+    </div>,
+  );
+  for (const slot of [
+    "list-toolbar-filter",
+    "filter-chip",
+    "add-filter-menu-trigger",
+    "filter-row-clear",
+  ])
+    expect(
+      document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!
+        .offsetHeight,
+    ).toBe(32);
 });
 
 test("Filter toggles the filter row and says its state", async () => {
@@ -182,8 +225,8 @@ test("Sort shows a dot once the order is not the default, and its name says so",
   ).not.toBeNull();
 });
 
-test("narrow: tabs fold to a dropdown, Layout and Sort move into Display, the action goes icon-only", async () => {
-  const screen = await render(<Harness width={358} />);
+test("narrow: tabs fold to a dropdown in their row, Layout and Sort move into Display", async () => {
+  const screen = await render(<Harness width={290} />);
   await expect
     .poll(() =>
       document
@@ -198,16 +241,6 @@ test("narrow: tabs fold to a dropdown, Layout and Sort move into Display, the ac
   expect(
     document.querySelector('[data-slot="list-toolbar-layout"]'),
   ).toBeNull();
-  // The main button keeps its name as an icon.
-  await expect
-    .element(screen.getByRole("button", { name: "New task" }))
-    .toBeVisible();
-  expect(
-    screen
-      .getByRole("button", { name: "New task" })
-      .element()
-      .hasAttribute("data-labelled"),
-  ).toBe(false);
   // The row never wraps.
   const row = document.querySelector<HTMLElement>(
     '[data-slot="list-toolbar-row"]',
@@ -296,8 +329,8 @@ test("/ focuses the search and F opens the filter row", async () => {
     .toHaveAttribute("aria-expanded", "true");
 });
 
-test("an open icon search takes the tabs' room; the tools stay in view", async () => {
-  const screen = await render(<Harness width={300} />);
+test("an open icon search takes the row's free room; the tools stay in view", async () => {
+  const screen = await render(<Harness width={180} />);
   await expect
     .poll(() =>
       document.querySelector('[data-slot="list-toolbar-search-toggle"]'),
@@ -308,9 +341,6 @@ test("an open icon search takes the tabs' room; the tools stay in view", async (
   await expect
     .element(screen.getByRole("button", { name: "Filter", exact: true }))
     .toBeVisible();
-  await expect
-    .element(screen.getByRole("button", { name: "New task" }))
-    .toBeVisible();
   const field = screen
     .getByRole("searchbox", { name: "Search tasks" })
     .element();
@@ -320,57 +350,6 @@ test("an open icon search takes the tabs' room; the tools stay in view", async (
   expect(field.getBoundingClientRect().right).toBeLessThanOrEqual(
     filter.getBoundingClientRect().left,
   );
-});
-
-test("a restored query at a narrow width opens the search in the tabs' room", async () => {
-  await render(
-    <div style={{ width: 300 }}>
-      <ListToolbar
-        tabs={
-          <Tabs defaultValue="a">
-            <TabsList size="sm" overflow="menu" aria-label="Scope">
-              <TabsTrigger value="a">My tasks</TabsTrigger>
-              <TabsTrigger value="b">Shared with me</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        }
-        search={{
-          value: "invoice",
-          onValueChange: () => {},
-          placeholder: "Search tasks",
-        }}
-        filter={{}}
-        display={
-          <DisplayMenu
-            toggles={[
-              {
-                id: "a",
-                label: "Show closed",
-                checked: false,
-                onCheckedChange: () => {},
-              },
-            ]}
-          />
-        }
-        more={
-          <ListToolbarMenu
-            items={[{ id: "x", label: "Export", onSelect: () => {} }]}
-          />
-        }
-        action={<ListToolbarAction icon={<Plus />} label="New task" />}
-      />
-    </div>,
-  );
-  await expect
-    .poll(
-      () =>
-        document.querySelector<HTMLElement>('[data-slot="list-toolbar-tabs"]')
-          ?.hidden ||
-        getComputedStyle(
-          document.querySelector('[data-slot="list-toolbar-tabs"]')!,
-        ).display === "none",
-    )
-    .toBe(true);
   const row = document.querySelector<HTMLElement>(
     '[data-slot="list-toolbar-row"]',
   )!;

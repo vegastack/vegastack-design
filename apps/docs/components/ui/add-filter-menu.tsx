@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.25.103 sha256-+P9XONuXHXK8+1/lJCyhUqKa7nI3vIxomnR5wXXGM3M=
+// @vegastack add-filter-menu@0.25.103 sha256-q3Vj1XSfHzELcbzZzC4NYkTmbBczrPWEptu2vWB2Lzw=
 
 "use client";
 
@@ -13,18 +13,23 @@ import {
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
   ListToolbarPopover,
   useListToolbar,
 } from "@/components/ui/list-toolbar";
-import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { Spinner } from "@/components/ui/spinner";
 
 /* ---
-`AddFilterMenu` is `+ Filter`, the first item of a `FilterRow`. Its popover opens on one input:
-"Describe what you want, or pick a field". Typing narrows the field list; when the page passes
-`ai`, the first item is "✦ Filter with AI: …", and Enter on it — or Enter with no field matching
-exactly — sends the text to the page's AI filter, whose result comes back as ordinary chips. Without
-`ai` there is no ✦ anywhere and nothing else changes, so the feature hides cleanly. Picking a field
+`AddFilterMenu` is `+ Filter`, at the end of a `FilterRow`. Its popover opens on one input,
+"Filter by…", that takes both a field name and plain language. Typing narrows the field list; when
+the page passes `ai` and the text reads as a phrase (two or more words, or a word no field
+matches), the first item is "✦ Filter with AI: “…”", and Enter on it sends the text to the page's
+AI filter, whose result comes back as ordinary chips. Nothing is sent while typing. Without `ai`
+there is no ✦ anywhere and nothing else changes, so the feature hides cleanly. Picking a field
 with an editor drills into it in the same popover (‹ back); a field without one goes to the host.
 The DS holds no AI: `ai.onSubmit` is the page's.
 --- */
@@ -68,18 +73,13 @@ export interface AiFilterResult {
 export interface AddFilterAi {
   /** Turn the request into filters. Reject (or throw) when the AI is unavailable or over its limit. */
   onSubmit: (text: string) => Promise<AiFilterResult> | AiFilterResult;
-  /**
-   * The input's placeholder while AI is on.
-   * @default "Describe what you want, or pick a field"
-   */
-  placeholder?: string;
 }
 
 /** The words `AddFilterMenu` shows. */
 export interface AddFilterMenuLabels {
   /** The trigger's text and the popover's name. */
   filter: string;
-  /** The input's placeholder with AI off. */
+  /** The input's placeholder. */
   placeholder: string;
   /** The fields group's heading. */
   fields: string;
@@ -115,103 +115,6 @@ const DEFAULT_LABELS: AddFilterMenuLabels = {
   back: "Back",
   advanced: "Advanced filter…",
 };
-
-/* ------------------------------------------------------------------------------------------------
- * AiFilterInput
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `AiFilterInput`. */
-export interface AiFilterInputProps extends Omit<
-  React.ComponentProps<typeof PanelSearchField>,
-  "value" | "onChange" | "onSubmit"
-> {
-  /** The text. */
-  value: string;
-  /** Called on every keystroke. */
-  onValueChange: (value: string) => void;
-  /**
-   * Called with the text on Enter (when the host does not handle Enter itself).
-   * @default undefined
-   */
-  onSubmit?: (text: string) => void;
-  /**
-   * Lead with ✦: the field also takes plain-language requests.
-   * @default true
-   */
-  ai?: boolean;
-  /**
-   * A request is running: a spinner at the end of the row.
-   * @default false
-   */
-  pending?: boolean;
-}
-
-/**
- * `AiFilterInput` — the input line of a filter surface: a borderless field on the popover's own
- * hairline row, led by ✦ when it takes plain-language requests (a magnifier otherwise), with a
- * spinner while a request runs. `AddFilterMenu` uses it, and so can a phone's filter sheet.
- *
- * @example
- * <AiFilterInput value={text} onValueChange={setText} onSubmit={run} pending={running} />
- */
-export function AiFilterInput({
-  value,
-  onValueChange,
-  onSubmit,
-  ai = true,
-  pending = false,
-  onKeyDown,
-  className,
-  ...props
-}: AiFilterInputProps) {
-  return (
-    <PanelSearch
-      data-slot="ai-filter-input"
-      data-ai={ai ? "" : undefined}
-      icon={
-        ai ? (
-          <Sparkles
-            aria-hidden
-            className="size-4 shrink-0 text-muted-foreground"
-          />
-        ) : (
-          <Search
-            aria-hidden
-            className="size-4 shrink-0 text-muted-foreground"
-          />
-        )
-      }
-      // The popover's own 8px inset is the row's; its hairline spans the surface.
-      className={cn("-mx-2 -mt-2 h-9 bg-transparent px-3", className)}
-    >
-      <PanelSearchField
-        className="[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-        value={value}
-        onChange={(event) => onValueChange(event.currentTarget.value)}
-        onKeyDown={(event) => {
-          onKeyDown?.(event);
-          if (
-            !event.defaultPrevented &&
-            event.key === "Enter" &&
-            !event.nativeEvent.isComposing &&
-            onSubmit != null &&
-            value.trim() !== ""
-          ) {
-            event.preventDefault();
-            onSubmit(value.trim());
-          }
-        }}
-        {...props}
-      />
-      {pending ? (
-        <Spinner
-          aria-hidden
-          className="size-4 shrink-0 text-muted-foreground"
-        />
-      ) : null}
-    </PanelSearch>
-  );
-}
 
 /* ------------------------------------------------------------------------------------------------
  * AddFilterMenu
@@ -259,14 +162,19 @@ export interface AddFilterMenuProps {
   labels?: Partial<AddFilterMenuLabels>;
 }
 
+/** Words in the text: runs of non-space characters. */
+const wordCount = (text: string) =>
+  text === "" ? 0 : text.split(/\s+/u).length;
+
 type Option =
   | { kind: "ai"; id: string }
   | { kind: "field"; id: string; field: AddFilterField };
 
 /**
- * `AddFilterMenu` — `+ Filter`: one input that both narrows the field list and, when the page
- * passes `ai`, sends a plain-language request ("✦ Filter with AI: …", or Enter with no exact field
- * match). Arrow keys pick a field; a field with an editor opens it in the same popover (‹ back).
+ * `AddFilterMenu` — `+ Filter`: one input ("Filter by…") that both narrows the field list and, when
+ * the page passes `ai` and the text reads as a phrase, offers "✦ Filter with AI: “…”" first —
+ * Enter on it sends the request. Arrow keys pick a field; a field with an editor opens it in the
+ * same popover (‹ back).
  * A pending spinner, then the popover closes on success (the page shows the chips and its
  * `FilterRow` note), or says what went wrong and keeps the fields usable. A bottom sheet on a phone.
  *
@@ -338,10 +246,11 @@ export function AddFilterMenu({
   const exact = matches.findIndex(
     (field) => field.label.toLowerCase() === needle,
   );
+  // A phrase goes to the AI: two or more words, or a word no field matches.
+  const offerAi =
+    ai != null && text !== "" && (wordCount(text) >= 2 || matches.length === 0);
   const options: Option[] = [
-    ...(ai != null && text !== ""
-      ? [{ kind: "ai", id: `${listId}-ai` } as const]
-      : []),
+    ...(offerAi ? [{ kind: "ai", id: `${listId}-ai` } as const] : []),
     ...matches.map((field) => ({
       kind: "field" as const,
       id: `${listId}-${field.key}`,
@@ -350,7 +259,7 @@ export function AddFilterMenu({
   ];
   // Typing points at the exact field if there is one, else at the AI item.
   React.useEffect(() => {
-    setActive(exact >= 0 ? exact + (ai != null && text !== "" ? 1 : 0) : 0);
+    setActive(exact >= 0 ? exact + (offerAi ? 1 : 0) : 0);
     setMessage(null);
   }, [query]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -418,7 +327,7 @@ export function AddFilterMenu({
       data-slot="add-filter-menu-editor"
       className="flex min-w-0 flex-col gap-1"
     >
-      <div className="flex h-8 items-center gap-1">
+      <div className="flex h-7 items-center gap-1">
         <Button
           variant="ghost"
           size="icon-sm"
@@ -437,45 +346,56 @@ export function AddFilterMenu({
         : drilled.editor}
     </div>
   ) : (
-    <div
-      data-slot="add-filter-menu-body"
-      className="flex min-w-0 flex-col gap-1"
-    >
-      <AiFilterInput
-        ref={inputRef}
-        ai={ai != null}
-        pending={pending}
-        value={query}
-        onValueChange={setQuery}
-        placeholder={
-          ai
-            ? (ai.placeholder ?? "Describe what you want, or pick a field")
-            : labels.placeholder
-        }
-        aria-label={labels.filter}
-        role="combobox"
-        aria-expanded
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-activedescendant={options[active]?.id}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            setActive((index) => Math.min(index + 1, options.length - 1));
-          } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            setActive((index) => Math.max(index - 1, 0));
-          } else if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-            event.preventDefault();
-            choose(options[active]);
-          }
-        }}
-      />
+    <div data-slot="add-filter-menu-body" className="flex min-w-0 flex-col">
+      {/* The people dropdown's input: a quiet filled field inside the menu's inset, no divider. */}
+      <InputGroup
+        data-slot="add-filter-menu-input"
+        className="mb-1 shrink-0 border-input/30 bg-input/30"
+      >
+        <InputGroupAddon align="inline-start" aria-hidden="true">
+          <Search />
+        </InputGroupAddon>
+        <InputGroupInput
+          ref={inputRef}
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.currentTarget.value)}
+          placeholder={labels.placeholder}
+          aria-label={labels.filter}
+          role="combobox"
+          aria-expanded
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={options[active]?.id}
+          className="[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setActive((index) => Math.min(index + 1, options.length - 1));
+            } else if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setActive((index) => Math.max(index - 1, 0));
+            } else if (
+              event.key === "Enter" &&
+              !event.nativeEvent.isComposing &&
+              event.keyCode !== 229
+            ) {
+              event.preventDefault();
+              choose(options[active]);
+            }
+          }}
+        />
+        {pending ? (
+          <InputGroupAddon align="inline-end" aria-hidden="true">
+            <Spinner />
+          </InputGroupAddon>
+        ) : null}
+      </InputGroup>
       {message != null ? (
         <p
           role="status"
           data-slot="add-filter-menu-message"
-          className="px-2 py-1 text-sm text-muted-foreground"
+          className="px-1.5 py-1 text-sm text-muted-foreground"
         >
           {message}
         </p>
@@ -499,7 +419,7 @@ export function AddFilterMenu({
               data-highlighted={index === active ? "" : undefined}
               onPointerMove={() => setActive(index)}
               onClick={() => choose(option)}
-              className="flex h-8 min-w-0 cursor-default items-center gap-2 rounded-md px-2 text-sm data-highlighted:bg-accent"
+              className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent"
             >
               <Sparkles
                 aria-hidden
@@ -519,7 +439,7 @@ export function AddFilterMenu({
               data-highlighted={index === active ? "" : undefined}
               onPointerMove={() => setActive(index)}
               onClick={() => choose(option)}
-              className="flex h-8 min-w-0 cursor-default items-center gap-2 rounded-md px-2 text-sm data-highlighted:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+              className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
             >
               {option.field.icon}
               <span className="min-w-0 flex-1 truncate">
@@ -532,18 +452,18 @@ export function AddFilterMenu({
           ),
         )}
         {options.length === 0 ? (
-          <p className="px-2 py-1.5 text-sm text-muted-foreground">
+          <p className="px-1.5 py-1 text-sm text-muted-foreground">
             {labels.noMatch}
           </p>
         ) : null}
       </div>
       {onAdvanced != null ? (
         <>
-          <div aria-hidden className="-mx-2 my-1 h-px bg-border" />
+          <div aria-hidden className="-mx-1 my-1 h-px bg-border" />
           <Button
             variant="ghost"
             data-slot="add-filter-menu-advanced"
-            className="h-8 w-full justify-start px-2 font-normal"
+            className="h-7 w-full justify-start rounded-md px-1.5 font-normal"
             onClick={() => {
               done();
               onAdvanced();
@@ -559,7 +479,7 @@ export function AddFilterMenu({
   return (
     <ListToolbarPopover
       title={labels.filter}
-      align="start"
+      align="end"
       size="md"
       open={open}
       onOpenChange={setOpen}
@@ -567,9 +487,10 @@ export function AddFilterMenu({
       trigger={
         <Button
           variant="ghost"
-          size="sm"
+          // The toolbar's tool height: 32px, 28px in a compact toolbar.
+          size={toolbar?.compact ? "sm" : "default"}
           data-slot="add-filter-menu-trigger"
-          className="font-normal text-muted-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
+          className="shrink-0 font-normal text-muted-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
         >
           <Plus aria-hidden />
           {labels.filter}
