@@ -48667,7 +48667,8 @@
         "@vegastack/page-header",
         "@vegastack/relative-time",
         "@vegastack/resizable",
-        "@vegastack/sheet"
+        "@vegastack/sheet",
+        "@vegastack/list-toolbar"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.8.38",

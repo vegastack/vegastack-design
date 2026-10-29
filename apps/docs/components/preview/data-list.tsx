@@ -199,6 +199,7 @@ export function dataListDensity(): ReactNode {
         getRowId={(p) => p.id}
         density={density}
         onDensityChange={setDensity}
+        toolbar={<ListToolbar aria-label="People view" />}
       />
     </Wrapper>
   );
@@ -1099,6 +1100,7 @@ export function dataListBoard(): ReactNode {
         onViewChange={setView}
         views={["list", "board"]}
         viewStorageKey="docs-data-list-board"
+        toolbar={<ListToolbar aria-label="Task view" />}
         boardHeight="24rem"
         onMove={(task, _from, to) =>
           setTasks((all) =>
@@ -1807,6 +1809,7 @@ export function dataListCompactLine(): ReactNode {
         getRowId={(p) => p.id}
         density={density}
         onDensityChange={setDensity}
+        toolbar={<ListToolbar aria-label="People view" />}
       />
     </Wrapper>
   );

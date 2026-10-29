@@ -1234,7 +1234,7 @@ with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, 
 2. **It is a new named region of an existing compound** → a part (a new flat export).
 3. **It is reused, configured through props and tracked for updates** → a component.
 4. **It is a page composition copied once that composes at least two components in a way no single
-   docs example shows** → a block. A block uses `PageHeader`, `FilterBar`, `DataList`, `Empty` and
+   docs example shows** → a block. A block uses `PageHeader`, `ListToolbar`, `DataList`, `Empty` and
    `ActionBar` wherever the page has that region, never an `href="#"`, container queries rather than
    viewport breakpoints for its own layout, `dvh` for viewport heights, and sentence case.
 5. **Otherwise** → a docs example on the owning component's page.

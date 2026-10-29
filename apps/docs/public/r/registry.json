@@ -22615,7 +22615,8 @@
         "@vegastack/page-header",
         "@vegastack/relative-time",
         "@vegastack/resizable",
-        "@vegastack/sheet"
+        "@vegastack/sheet",
+        "@vegastack/list-toolbar"
       ],
       "files": [
         {
@@ -22638,7 +22639,7 @@
         "whenToUse": "A page for a team's files and pages — folders in Shared and Private, uploads, a list or grid of a folder's contents, a viewer and moves; copy it once and wire it to your storage API.",
         "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (UploadDialog).",
         "version": "0.25.102",
-        "integrity": "sha256-Rj/zgLQDB2sWVz2u50gsOjt+Lkdv76e6aeUm5RWBORg="
+        "integrity": "sha256-KagTRpXyBC3nGfVITMPAEY9/2FBpGrPYy2trX6CBrYA="
       }
     },
     {

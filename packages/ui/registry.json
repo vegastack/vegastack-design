@@ -18462,7 +18462,8 @@
         "@vegastack/page-header",
         "@vegastack/relative-time",
         "@vegastack/resizable",
-        "@vegastack/sheet"
+        "@vegastack/sheet",
+        "@vegastack/list-toolbar"
       ],
       "files": [
         {

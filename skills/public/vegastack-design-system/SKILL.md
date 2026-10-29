@@ -151,7 +151,7 @@ A component's name undersells it. Before composing something by hand, check this
 - **A page** → `AppShell` › `AppShellContent` › `AppShellPage` (`size`: `prose` for forms and
   settings, `default` for lists and record pages, `full` for boards and canvases — picked per route
   from one `definePageWidths` map, never a `max-w-*` or padding class; see
-  <https://design.vegastack.com/docs/foundations/page-layout>) › `PageHeader` › `FilterBar` › `DataList` (or
+  <https://design.vegastack.com/docs/foundations/page-layout>) › `PageHeader` › `ListToolbar` (with its `FilterRow`) › `DataList` (or
   `DataGrid`) › the `Empty` tier that fits. The spacing between them is the page-rhythm recipe
   (<https://design.vegastack.com/docs/foundations/spacing#page-rhythm>).
 - **Inline editing** → `EditableCell` with `onSave` returning a promise: `variant="cell"` inside a
@@ -216,10 +216,10 @@ closest one rather than composing the page from nothing:
 
 - **`app-shell-01`** — the shell: landmarks, skip link, a rail with search, inbox count and a user
   menu.
-- **`list-page-01`** — one kind of record: a `DataList` with a `FilterBar` toolbar (search, facets,
-  Mine | Team scope, the list's own Grid | List toggle), grouped by industry, Load more and three
+- **`list-page-01`** — one kind of record: a `DataList` with a `ListToolbar` (search, a `FilterRow`
+  of facets, the Grid | List Layout tool), Mine | Team scope tabs, grouped by industry, Load more and three
   empty tiers.
-- **`board-01`** — a `DataList` board of `BoardCard`s under a `FilterBar`: a backlog that pages as it
+- **`board-01`** — a `DataList` board of `BoardCard`s under a `ListToolbar`: a backlog that pages as it
   scrolls, "+ Add task" per lane, a locked lane and a submenu in each card's ⋯.
 - **`settings-01`** — one settings page: grouped `SettingsRow` sections and a save bar.
 - **`settings-02`** — the settings hub: grids of linked tiles, grouped by area.
