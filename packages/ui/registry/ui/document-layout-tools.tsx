@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.25.98 sha256-aFJILet97dB8dCUCr0UFaaobRuN3zG1PwpguU6VP7BA=
+// @vegastack document-layout@0.25.98 sha256-5Pk6AqFttN1cRTPRS0o80tUZ6ScBqjwRwjMFFxr86VA=
 
 "use client";
 
@@ -190,13 +190,15 @@ export function DocumentLayoutJumpCue({
   return (
     <div
       data-slot="document-layout-jump-cue"
-      className="pointer-events-none sticky bottom-6 z-10 flex h-0 justify-center print:hidden"
+      // `items-end` sits the pill on the band's bottom edge, rising above it — not `-translate-y-full`
+      // on the Button, whose press nudge sets `translate-y` and would drop the pill by its height.
+      className="pointer-events-none sticky bottom-6 z-10 flex h-0 items-end justify-center print:hidden"
     >
       <Button
         variant="secondary"
         size="sm"
         className={cn(
-          "pointer-events-auto -translate-y-full rounded-full border border-border shadow-md",
+          "pointer-events-auto rounded-full border border-border shadow-md",
           className,
         )}
         {...props}

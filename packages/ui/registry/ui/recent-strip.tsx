@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.25.98 sha256-NDKCp3zy1p4ko3ljNsU7rGDeokioCdlsqm+jNJA+5Xo=
+// @vegastack recent-strip@0.25.98 sha256-NvN7Gd3FV1QbukWUS5ompzWOKcGyEU4c2su3KWZDQzg=
 
 "use client";
 
@@ -385,7 +385,9 @@ function RecentStripList({
         aria-hidden="true"
         aria-label={scrollBackLabel}
         onClick={() => scroll(-1)}
-        className="absolute start-0 top-1/2 hidden -translate-y-1/2 rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
+        // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
+        // and would replace the centring transform, dropping the arrow by half its height.
+        className="absolute inset-y-0 start-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
       >
         <ChevronLeft className="rtl:rotate-180" />
       </Button>
@@ -398,7 +400,7 @@ function RecentStripList({
         aria-hidden="true"
         aria-label={scrollForwardLabel}
         onClick={() => scroll(1)}
-        className="absolute end-0 top-1/2 hidden -translate-y-1/2 rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
+        className="absolute inset-y-0 end-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
       >
         <ChevronRight className="rtl:rotate-180" />
       </Button>
