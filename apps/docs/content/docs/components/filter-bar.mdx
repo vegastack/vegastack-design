@@ -15,6 +15,13 @@ preview: filterBar
 
 ## Usage
 
+> **Deprecated.** New lists use [`ListToolbar`](/docs/components/list-toolbar) with a
+> [`FilterRow`](/docs/components/filter-row), [`SortMenu`](/docs/components/sort-menu) and
+> [`DisplayMenu`](/docs/components/display-menu) — see [Lists and tables](/docs/foundations/list-toolbar).
+> `FilterBar` stays until apps have moved, then it is removed. `FilterChip`, the facets and
+> `DateRangeFilter` carry on in the filter row: an unset facet is now a dashed offer, and
+> `FilterChip` takes `ai` (a ✦ lead) and `unset` (a dashed `+ Label`).
+
 Disabled facets disable their Clear and Remove actions as well as the select.
 
 ```tsx

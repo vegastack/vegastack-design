@@ -3521,3 +3521,48 @@ test("D24: a sort set without onSortChange shows read-only — the glyph and ari
   expect(name.hasAttribute("aria-sort")).toBe(false);
   await expectNoA11yViolations(screen.container);
 });
+
+test("a ListToolbar toolbar takes the views as its Layout tool and the density as Display's row height", async () => {
+  const { ListToolbar } = await import("./list-toolbar");
+  function Harness() {
+    const [view, setView] = React.useState<"list" | "grid">("list");
+    const [density, setDensity] =
+      React.useState<DataListDensity>("comfortable");
+    return (
+      <DataList
+        aria-label="People"
+        columns={columns}
+        data={data}
+        getRowId={(row) => row.id}
+        toolbar={<ListToolbar />}
+        views={["list", "grid"]}
+        view={view}
+        onViewChange={(next) => setView(next as "list" | "grid")}
+        density={density}
+        onDensityChange={setDensity}
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  await expect
+    .element(screen.getByRole("button", { name: "Grid" }))
+    .toBeVisible();
+  // No pill ViewToggle beside it.
+  expect(document.querySelector('[data-slot="view-toggle"]')).toBeNull();
+  await screen.getByRole("button", { name: "Display" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Compact" }))
+    .toBeVisible();
+});
+
+test("an empty list drops its column header", async () => {
+  await render(
+    <DataList
+      aria-label="People"
+      columns={columns}
+      data={[]}
+      getRowId={(row: Row) => row.id}
+    />,
+  );
+  expect(document.querySelector("thead")?.hidden).toBe(true);
+});

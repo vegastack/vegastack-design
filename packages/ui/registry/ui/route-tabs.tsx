@@ -1,11 +1,20 @@
-// @vegastack route-tabs@0.25.99 sha256-O39sbZ82cdglSpyE3aNAYN6sbqukCchpMzHPrWpxByY=
+// @vegastack route-tabs@0.25.99 sha256-3JT1lQQbCN42t0ppL6Xd52LHmvT7B8MZiFBmkNpzQXQ=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 
+import { Check, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { tabsListVariants, tabsTriggerVariants } from "@/components/ui/tabs";
+import { useOverflowFold } from "@/components/ui/use-overflow-fold";
 
 /* ---
 `RouteTabs` are Tabs whose panels are pages: a named `nav` of links drawn as the
@@ -80,10 +89,11 @@ export interface RouteTabsProps extends Omit<
   linkRender?: React.ReactElement;
   /**
    * `scroll` lets a long strip scroll sideways, keeping the current tab in view; `visible` never
-   * clips.
+   * clips; `menu` folds the strip into one dropdown (the current tab and ▾) when it does not fit
+   * the room it is given, measured — the settings sub-pages at a phone width, a list's scope tabs.
    * @default "visible"
    */
-  overflow?: "scroll" | "visible";
+  overflow?: "scroll" | "visible" | "menu";
   /**
    * Formats a tab's count.
    * @default (n) => n.toLocaleString("en")
@@ -142,18 +152,18 @@ function linkElement(
     onClick?: React.MouseEventHandler<HTMLElement>;
   }>;
   const own = template.props.onClick;
-  return React.cloneElement(
-    template,
-    {
-      ...props,
-      className: cn(props.className, template.props.className),
-      onClick: (event: React.MouseEvent<HTMLElement>) => {
-        own?.(event);
-        props.onClick(event);
-      },
-    } as object,
-    children,
-  );
+  const merged = {
+    ...props,
+    className: cn(props.className, template.props.className),
+    onClick: (event: React.MouseEvent<HTMLElement>) => {
+      own?.(event);
+      props.onClick(event);
+    },
+  } as object;
+  // No children given (a menu item renders its own): keep the slot open for the renderer.
+  return children === undefined
+    ? React.cloneElement(template, merged)
+    : React.cloneElement(template, merged, children);
 }
 
 /**
@@ -184,6 +194,7 @@ export function RouteTabs({
   overflow = "visible",
   formatCount = (n) => n.toLocaleString("en"),
   className,
+  ref,
   ...props
 }: RouteTabsProps) {
   const store = React.useContext(RouteTabsPendingContext);
@@ -226,6 +237,20 @@ export function RouteTabs({
   };
 
   const strip = React.useRef<HTMLDivElement>(null);
+  const fold = useOverflowFold<HTMLElement, HTMLDivElement>({
+    disabled: overflow !== "menu",
+    deps: [tabs.map((t) => `${t.href}:${t.count ?? ""}`).join("|")],
+  });
+  const folded = fold.folded;
+  const stripRef = React.useMemo(
+    () => mergeRefs(strip, fold.contentRef),
+    [fold.contentRef],
+  );
+  const navRef = React.useMemo(
+    () => mergeRefs<HTMLElement>(fold.rootRef, ref),
+    [fold.rootRef, ref],
+  );
+  const currentTab = tabs.find((t) => t.href === current) ?? tabs[0];
   // Counts arrive after the first paint and widen the tabs: keep the current one in view then too.
   const layoutKey = tabs.map((t) => `${t.href}:${t.count ?? ""}`).join("|");
   React.useEffect(() => {
@@ -245,16 +270,32 @@ export function RouteTabs({
       data-slot="route-tabs"
       data-orientation="horizontal"
       data-pending={pending ? "" : undefined}
-      className={cn("group/tabs flex min-w-0", className)}
+      data-folded={folded ? "" : undefined}
+      ref={navRef}
+      className={cn(
+        "group/tabs flex min-w-0",
+        overflow === "menu" && "relative w-full items-center",
+        folded && "overflow-x-clip",
+        className,
+      )}
       {...props}
     >
       <div
-        ref={strip}
+        ref={stripRef}
         data-slot="tabs-list"
         data-orientation="horizontal"
         data-variant="default"
         data-overflow={overflow}
-        className={tabsListVariants({ variant: "default", overflow })}
+        data-fold-content={overflow === "menu" ? "" : undefined}
+        aria-hidden={folded || undefined}
+        className={cn(
+          tabsListVariants({
+            variant: "default",
+            overflow: overflow === "menu" ? "visible" : overflow,
+          }),
+          folded &&
+            "pointer-events-none invisible absolute start-0 top-0 max-w-none",
+        )}
       >
         {tabs.map((tab) => {
           const isCurrent = tab.href === current;
@@ -308,6 +349,71 @@ export function RouteTabs({
           );
         })}
       </div>
+      {folded && currentTab ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                data-slot="route-tabs-fold-trigger"
+                data-fold-trigger=""
+                aria-label={`${label}: ${typeof currentTab.label === "string" ? currentTab.label : ""}`}
+                className="h-8 max-w-full min-w-0 gap-1 px-2 text-sm font-medium"
+              >
+                <span className="min-w-0 truncate">{currentTab.label}</span>
+                {currentTab.count == null ? null : (
+                  <span className="text-muted-foreground tabular-nums">
+                    {formatCount(currentTab.count)}
+                  </span>
+                )}
+                <ChevronDown aria-hidden className="text-muted-foreground" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="start" className="min-w-48">
+            {tabs.map((tab) => (
+              <DropdownMenuItem
+                key={tab.href}
+                // A real link: modifier and middle clicks, the context menu and the router all
+                // behave as on a tab.
+                render={linkElement(
+                  linkRender,
+                  {
+                    href: tab.href,
+                    "aria-current": tab.href === current ? "page" : undefined,
+                    "aria-label": tab["aria-label"],
+                    className: "",
+                    onClick: (event) => {
+                      if (
+                        event.defaultPrevented ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey ||
+                        event.button !== 0 ||
+                        tab.href === current
+                      )
+                        return;
+                      request(tab.href === matched ? null : tab.href);
+                    },
+                  },
+                  undefined,
+                )}
+              >
+                <span className="min-w-0 flex-1 truncate">{tab.label}</span>
+                {tab.count == null ? null : (
+                  <span className="text-muted-foreground tabular-nums">
+                    {formatCount(tab.count)}
+                  </span>
+                )}
+                {tab.href === current ? (
+                  <Check aria-hidden className="text-muted-foreground" />
+                ) : null}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
     </nav>
   );
 }

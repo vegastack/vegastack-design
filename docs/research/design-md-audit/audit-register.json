@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "ca65b3ffc975a517ed36bf1d03be5f52977f179de0b5e5f8029afcd4a9179425",
+  "contractSha256": "c60d09ee215992f1fc59ef019d185e6e210584fc11fa76aabbe0d8129b069bd5",
   "expectedCounts": {
-    "totalRegistryItems": 778,
-    "components": 189,
+    "totalRegistryItems": 784,
+    "components": 194,
     "animatedIcons": 467,
-    "hooks": 17,
+    "hooks": 18,
     "blocks": 15,
     "libs": 22,
     "chartBlocks": 68
@@ -518,6 +518,61 @@
         "packages/ui/registry/ui/view-toggle.tsx"
       ],
       "docsSlug": "/docs/components/view-toggle",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "list-toolbar",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/list-toolbar.tsx"
+      ],
+      "docsSlug": "/docs/components/list-toolbar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "filter-row",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/filter-row.tsx"
+      ],
+      "docsSlug": "/docs/components/filter-row",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "add-filter-menu",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/add-filter-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/add-filter-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "sort-menu",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/sort-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/sort-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "display-menu",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/display-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/display-menu",
       "contractStatus": "reconciled"
     },
     {
@@ -7381,6 +7436,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-overflow.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-overflow-fold",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-overflow-fold.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

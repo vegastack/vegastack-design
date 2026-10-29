@@ -381,3 +381,30 @@ test("debounceMs defaults to TIMINGS.searchDebounceMs (DS-37)", async () => {
     vi.useRealTimers();
   }
 });
+
+test("collapsible: an icon until pressed, open while it holds a query, folds on Escape when empty", async () => {
+  const onExpandedChange = vi.fn();
+  function Harness() {
+    const [value, setValue] = React.useState("");
+    return (
+      <SearchInput
+        collapsible
+        aria-label="Search rows"
+        value={value}
+        onValueChange={setValue}
+        onExpandedChange={onExpandedChange}
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("button", { name: "Search rows" }).click();
+  const field = screen.getByRole("searchbox", { name: "Search rows" });
+  await expect.element(field).toHaveFocus();
+  expect(onExpandedChange).toHaveBeenLastCalledWith(true);
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByRole("button", { name: "Search rows" }))
+    .toHaveFocus();
+  expect(onExpandedChange).toHaveBeenLastCalledWith(false);
+  await expectNoA11yViolations(screen.container);
+});

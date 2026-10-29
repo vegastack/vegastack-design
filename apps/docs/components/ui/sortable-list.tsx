@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.99 sha256-3G/TmSneu4MB3dHzhVZEBxaLb+apb/+6ABRdZm6QyA8=
+// @vegastack sortable-list@0.25.99 sha256-XahZJ1Um19OjnMaCVCUTOREM285oDtjKwvjy8/jAnPo=
 
 "use client";
 
@@ -244,10 +244,12 @@ export interface SortableListProps<
    * on a touch screen there is no grip (it would sit over the content, a card's type icon) and a
    * long-press on the row or tile still lifts it. The handle stays in the tab order either way:
    * hidden visually on touch, it reappears while it has keyboard focus, so Space-to-move works
-   * with a keyboard on any device.
+   * with a keyboard on any device. `auto`: like `always`, but only while there is something to
+   * reorder — with fewer than two movable rows the handle's column is kept empty, so a row's
+   * content never moves when a second row arrives (a one-key `SortBuilder`).
    * @default "always"
    */
-  handle?: "always" | "fine";
+  handle?: "always" | "fine" | "auto";
   /**
    * Accessible name for the list.
    * @default "Sortable list"
@@ -441,6 +443,9 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
     [containerProps.ref],
   );
 
+  // `handle="auto"`: the grip shows only while two or more rows can move.
+  const movableCount = items.filter((item) => item.disabled !== true).length;
+
   return (
     <div
       ref={ref}
@@ -500,6 +505,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
             ? []
             : ((getItemActions ?? menuItems)?.(item) ?? []);
           const removable = onRemove !== undefined && !disabled && !locked;
+          const handleHidden = handle === "auto" && movableCount < 2;
           const touchEdge =
             touchDrag?.over?.id === item.id ? touchDrag.over.edge : undefined;
           const hasActions =
@@ -553,7 +559,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                     ),
               )}
             >
-              {disabled ? null : locked ? (
+              {disabled ? null : locked || handleHidden ? (
                 // Same footprint as the handle, so locked and movable rows align.
                 grid ? null : (
                   <span

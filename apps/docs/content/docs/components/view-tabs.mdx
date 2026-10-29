@@ -49,6 +49,11 @@ to tabs as soon as they fit. In a `FilterBar`'s `leading` slot they keep their t
 has room for them, with the facet row open or closed. For a list/grid layout switch over the same data, use
 [`ViewToggle`](/docs/components/view-toggle) instead.
 
+A view whose filters, sort or display differ from what is saved sets `dirty`: a dot after its name,
+read as "…, changed". In a [`ListToolbar`](/docs/components/list-toolbar) the toolbar's `state`
+slot holds the "Save view" button beside it, and the view's own actions stay in its tab ⋯ — never
+under Display. The fold is the shared `useOverflowFold`, the same measurement scope tabs use.
+
 ## Scope
 
 | Behaviour                                              | Where it lives                  |

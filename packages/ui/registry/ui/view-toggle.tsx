@@ -1,4 +1,4 @@
-// @vegastack view-toggle@0.25.99 sha256-XBhij2m/QeSQHhq3msPn3mqyWuExHqNzfOL28OfPX3c=
+// @vegastack view-toggle@0.25.99 sha256-ngW0So2ct/HSyw7H7vQtfBRCauqDLO5tIqxJxRV7p7g=
 
 "use client";
 
@@ -47,6 +47,9 @@ export interface ViewToggleProps<V extends ListView = ListView> {
  * `ViewToggle` — the Grid | List (| Board) switch for a list page, a default (pill) `Tabs` at
  * the bar's h-8 tier, whose labels hide on a phone. `DataList` mounts it in the `FilterBar`'s `view` slot for you when it
  * is given `onViewChange`.
+ *
+ * @deprecated Use `ListToolbar`'s `layout` (icon buttons) and `DisplayMenu`'s Layout section.
+ * Removed once apps have moved.
  *
  * @example
  * <ViewToggle value={view} onValueChange={setView} views={["list", "board"]} />
@@ -119,6 +122,8 @@ export interface DensityToggleProps {
  * `DensityToggle` — the Comfortable | Compact row-density switch for a table or list, the same
  * pill `Tabs` as `ViewToggle` with icon-only triggers (the label is the accessible name and the
  * tooltip-free `title`). `DataList` mounts it for you when given `onDensityChange`.
+ *
+ * @deprecated Use `DisplayMenu`'s `rowHeight`. Removed once apps have moved.
  *
  * @example
  * <DensityToggle value={density} onValueChange={setDensity} />

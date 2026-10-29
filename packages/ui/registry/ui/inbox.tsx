@@ -1,4 +1,4 @@
-// @vegastack inbox@0.25.99 sha256-vHKvdWdgzH7w9dQtAd/z62+3SolsgouF6CihKFCjIcs=
+// @vegastack inbox@0.25.99 sha256-TGLytlxX/ADLHbjOUprkO7tF+BStHjWxs62gmGi4IAg=
 
 "use client";
 
@@ -545,7 +545,8 @@ export function InboxFilters({
         onValueChange={(next) => onValueChange(String(next))}
         className="min-w-0 flex-1"
       >
-        <TabsList variant="line" aria-label={label}>
+        {/* The list pages' scope tabs: the pill list, so a triage queue reads as a list. */}
+        <TabsList aria-label={label}>
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -567,7 +568,7 @@ export function InboxFilters({
           data-slot="inbox-filters-unread"
           pressed={unreadOnly}
           onPressedChange={(pressed) => onUnreadOnlyChange(pressed)}
-          className="shrink-0 rounded-full"
+          className="shrink-0"
         >
           {unreadLabel}
           {unreadCount ? " " : null}

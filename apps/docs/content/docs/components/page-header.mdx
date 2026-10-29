@@ -170,13 +170,14 @@ the page sideways, and inside a clamp it breaks too, so the ellipsis still lands
 
 ### View tabs
 
-A list page's views — whose records it shows ("My tasks | Created by me | Team") — go in `tabs`, a
-default (pill) `Tabs` at its default size, on their own row directly under the title and above the
-list's toolbar. The layout switch (`ViewToggle`, "List | Board") is not a header part: it ends the
-`FilterBar`'s first row, in its `view` slot — search first (~320px), then the Filters
-toggle, then the view. The filter row under it stays hidden until the Filters toggle opens it. On a
-tablet the toggle and the view go icon-only; on a phone the search takes its own row and the
-icon-only toggle and view share the next one.
+On a **list page**, the scope tabs — whose records it shows ("My tasks | Created by me | Team") — do
+not go in `tabs`: they go in the [`ListToolbar`](/docs/components/list-toolbar)'s `tabs`, on the
+toolbar row (tabs left, tools right), where they fold to a dropdown when tight. A list page passes
+no `actions` either: its main button is the toolbar's `action`. The header keeps the title,
+description, meta and ⓘ (see [Lists and tables](/docs/foundations/list-toolbar)).
+
+`tabs` is for a **record page**'s content tabs and a settings page's sub-page route tabs
+(`RouteTabs overflow="menu"`, which folds on a phone instead of clipping).
 
 <ComponentPreview
   name="pageHeaderTabs"

@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.25.99 sha256-u0nKUCr67EubcjbOOCIbTGLB6Ijui/F86/+WB4alBa0=
+// @vegastack panel-search@0.25.99 sha256-ZdxV8yhzB+umTfEg3uYjXTzfFL+iizNNRcD3hlYAP7c=
 
 "use client";
 
@@ -33,6 +33,11 @@ import { cn } from "@vegastack/design";
 export interface PanelSearchProps extends React.ComponentProps<"div"> {
   /** The field — normally a `PanelSearchField`. */
   children: React.ReactNode;
+  /**
+   * The leading glyph — a ✦ where the row also takes a plain-language request (`AiFilterInput`).
+   * @default a Search icon
+   */
+  icon?: React.ReactNode;
 }
 
 /**
@@ -52,6 +57,7 @@ export interface PanelSearchProps extends React.ComponentProps<"div"> {
 export function PanelSearch({
   className,
   children,
+  icon,
   ...props
 }: PanelSearchProps) {
   return (
@@ -64,7 +70,9 @@ export function PanelSearch({
       )}
       {...props}
     >
-      <Search aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      {icon ?? (
+        <Search aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      )}
       {children}
     </div>
   );

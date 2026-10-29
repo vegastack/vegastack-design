@@ -53,6 +53,14 @@ at once on <kbd>Enter</kbd> and on clear. Send the query from it, so one word is
   file="components/preview/search-input.tsx"
 />
 
+### Collapsible
+
+`collapsible` folds the field to a Search icon button while it is empty and unfocused. Pressing the
+button opens the field with focus in it; it stays open while it holds a query and folds back once it
+is empty and focus leaves it, or on <kbd>Esc</kbd> (focus returns to the button).
+`onExpandedChange` reports both, so a toolbar can lay the open field over its neighbours — the
+`ListToolbar` does this as its search's last collapse step.
+
 ### Native form semantics
 
 Names, labels, descriptions, submission, and reset stay on the inner native search input. In

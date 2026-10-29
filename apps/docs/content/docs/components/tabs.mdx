@@ -170,6 +170,12 @@ scrollbar as `AttachmentGroup`. The selected tab is kept in view on mount and wh
 selection changes, and the keyboard's roving stop scrolls in as it moves. The pill track defaults to
 `"visible"`, upstream's behaviour; pass `overflow="scroll"` to opt it in.
 
+`overflow="menu"` folds the list instead: when the tabs do not fit the room they are given
+(measured, not a breakpoint) the list becomes one ghost dropdown — the active tab's own content and
+▾ — whose menu lists every tab; picking one selects it. The list stays mounted while folded, so the
+value stays Base UI's. It unfolds only with 24px to spare, so it never flickers. This is the scope
+tabs' mode in a [`ListToolbar`](/docs/components/list-toolbar), where scope tabs never scroll.
+
 <ComponentPreview name="tabsMany" file="components/preview/tabs.tsx" />
 
 ### Full width with swipe
@@ -359,7 +365,9 @@ Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
   `variant="line"`: a horizontal list scrolls inside itself with the `AttachmentGroup` edge fades,
   starts at the inline start, pulls the line indicator 1px up so the scroll box does not clip it, and
   keeps the selected tab in view when the selection changes. The scroll box applies to every list
-  that is not vertical, so a route list with no `data-orientation` scrolls too.
+  that is not vertical, so a route list with no `data-orientation` scrolls too. Widened (MK,
+  29-10-2026): `overflow="menu"` folds the list into one dropdown when it does not fit, measured by
+  `useOverflowFold`.
 - **API-25** — the trigger's class string is the exported `tabsTriggerVariants` recipe, beside
   upstream's `tabsListVariants`, so route tabs can be drawn from the system's own classes.
 - **FOC-1, FOC-6** — the four `focus-visible:` classes (`border-ring`, `ring-[3px]`,

@@ -875,6 +875,42 @@
       "family": "navigation",
       "source": "Regent product-cohesion W1-DS3 item 17 (UXS-01: the tablet rail reaches Spaces), approved by the operator 2026-10-27 (MK blanket approval D19)",
       "rationale": "Upstream ships no rail flyout. A row of our own composing upstream sidebar (SidebarMenuItem, SidebarMenuButton) and dropdown-menu unchanged; carries no patch."
+    },
+    "list-toolbar": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "rationale": "Upstream ships no list toolbar. One header row for every list and table — tabs, search, icon tools, the main button — with a measured collapse order; composes upstream button, popover, sheet, dropdown-menu, toggle-group and tooltip."
+    },
+    "filter-row": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "rationale": "Upstream ships no filter row. The chips under a ListToolbar in a fixed order, with the AI note line; composes FilterChip and the facet report channel."
+    },
+    "add-filter-menu": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "rationale": "Upstream ships no add-filter menu. `+ Filter` with one input that narrows fields or hands a plain-language request to the host; AiFilterInput is its input line. No AI code: the host owns the request."
+    },
+    "sort-menu": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "rationale": "Upstream ships no one-key sort menu. Two radio groups (field, direction) worded by field type; built on Base UI radio, no patch."
+    },
+    "display-menu": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "rationale": "Upstream ships no display menu. Layout, sort, rows and Show switches in one popover surface with drill-ins; composes upstream toggle-group, switch and our sortable-list."
+    },
+    "use-overflow-fold": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "rationale": "Upstream ships no fold hook. A measured fold-when-it-does-not-fit decision shared by Tabs (LAY-14 menu), RouteTabs, ViewTabs and ListToolbar."
     }
   }
 }

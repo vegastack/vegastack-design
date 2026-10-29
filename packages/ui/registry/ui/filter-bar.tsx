@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.25.99 sha256-aQmyIKMbRH20J4PxYMfWmXcrMe7brQuGXPgq25JgjnE=
+// @vegastack filter-bar@0.25.99 sha256-4zadZKwhIWFOxP8wbHXjmlBnmtKHLKXyByd7IYfPIDo=
 
 "use client";
 
@@ -8,8 +8,10 @@ import {
   ChevronDown,
   CirclePlus,
   ListFilter,
+  Plus,
   Search,
   Settings2,
+  Sparkles,
   X,
 } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
@@ -425,8 +427,11 @@ export interface FilterChipProps extends Omit<
    * @default undefined
    */
   icon?: React.ReactNode;
-  /** Invoked when the remove (`×`) control is activated. */
-  onRemove: () => void;
+  /**
+   * Invoked when the remove (`×`) control is activated. An `unset` chip has none.
+   * @default undefined
+   */
+  onRemove?: () => void;
   /**
    * Accessible name for the remove control. Defaults to `Clear <label>` when `label` is a
    * string.
@@ -454,6 +459,17 @@ export interface FilterChipProps extends Omit<
    * @default false
    */
   defaultEditorOpen?: boolean;
+  /**
+   * Made by an AI filter: a ✦ leads the chip until the filter is edited (the host clears it).
+   * @default false
+   */
+  ai?: boolean;
+  /**
+   * A pinned facet with no value yet: a dashed `+ Label` offer instead of a value, with no ×.
+   * Its `editor` opens from it.
+   * @default false
+   */
+  unset?: boolean;
 }
 
 /** The chip's "Label: value" text, shared by the plain chip and its editor trigger. */
@@ -502,6 +518,8 @@ export function FilterChip({
   editor,
   onEditorOpenChange,
   defaultEditorOpen = false,
+  ai = false,
+  unset = false,
   ...props
 }: FilterChipProps) {
   const computedRemoveLabel =
@@ -511,17 +529,32 @@ export function FilterChip({
   return (
     <Chip
       data-slot="filter-chip"
+      data-source={ai ? "ai" : undefined}
+      data-state={unset ? "unset" : undefined}
       size="sm"
-      active={active}
-      onRemove={onRemove}
+      active={unset ? false : active}
+      onRemove={unset ? undefined : onRemove}
       removeLabel={computedRemoveLabel}
-      // The FilterBar's one chip shape: compact (h-7), rounded-md, quiet type — set or unset.
+      // The FilterBar's one chip shape: compact (h-7), rounded-md, quiet type — set or unset. An
+      // unset pinned facet is the same box, dashed and clear: an offer, not a value.
       className={cn(
         "max-w-xs rounded-md text-sm font-normal [&_[data-slot=chip-remove]]:rounded-sm",
+        unset &&
+          "border border-dashed border-border bg-transparent text-muted-foreground hover:bg-muted",
         className,
       )}
       {...props}
     >
+      {ai ? (
+        <Sparkles
+          aria-label="Added by AI"
+          data-slot="filter-chip-ai"
+          className="size-3.5 shrink-0 text-muted-foreground"
+        />
+      ) : null}
+      {unset ? (
+        <Plus aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+      ) : null}
       {/* The icon + label stay muted in BOTH states so the label/value hierarchy
           (muted key, emphasized value) survives activation — the active state is
           carried by the chip's own fill, not by flattening the text tiers. */}
@@ -567,6 +600,35 @@ interface FilterBarContextValue {
 const FilterBarContext = React.createContext<FilterBarContextValue | null>(
   null,
 );
+
+/** What a filter row shares with the facets inside it (see `FilterFacetReporter`). */
+export interface FilterFacetReport {
+  /** A facet reports its label and whether it holds a value (`null` when it unmounts). */
+  report: (id: string, label: string, active: boolean | null) => void;
+}
+
+/**
+ * `FilterFacetReporter` — the channel through which `FilterBarFacet`, `FilterBarPeopleFacet` and
+ * `DateRangeFilter` tell the row they sit in whether they are set, so the row can count applied
+ * filters for Clear and the Filter tool without the host doing it. `FilterBar` and `FilterRow`
+ * provide it; a host never needs to.
+ *
+ * @example
+ * <FilterFacetReporter value={{ report }}>{facets}</FilterFacetReporter>
+ */
+export function FilterFacetReporter({
+  value,
+  children,
+}: {
+  value: FilterFacetReport;
+  children: React.ReactNode;
+}) {
+  return (
+    <FilterBarContext.Provider value={value}>
+      {children}
+    </FilterBarContext.Provider>
+  );
+}
 
 /**
  * One height tier for the whole bar: every control is h-8, the default size. A `ToggleGroup`, `TabsList` or
@@ -670,6 +732,9 @@ function ViewMenuSection({
  * chip row. Row 1 then reads `[Search] … [Filters (n)] [Sort] [View] [actions]`.
  *
  * Purely presentational: the host owns every value.
+ *
+ * @deprecated Use `ListToolbar` with a `FilterRow` (and `SortMenu`, `DisplayMenu`,
+ * `ListToolbarMenu`). `FilterBar` stays until apps have moved, then it is removed.
  *
  * @example
  * <FilterBar
@@ -1539,7 +1604,7 @@ export function FilterBarFacet<
             "h-7 w-auto max-w-64 rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border focus:border-border aria-expanded:border-border",
             hasValue
               ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
-              : "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
+              : "border-dashed bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
           )}
           contentClassName="min-w-56"
           data-slot="filter-bar-facet-select"
@@ -1721,7 +1786,7 @@ export function FilterBarPeopleFacet<
                   "h-7 w-auto max-w-64 justify-start rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
                     ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
-                    : "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
+                    : "border-dashed bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
                 )}
               />
             }
@@ -1982,7 +2047,7 @@ export function DateRangeFilter({
                 "h-7 max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
                 hasValue
                   ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+                  : "border-dashed text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
               )}
             />
           }

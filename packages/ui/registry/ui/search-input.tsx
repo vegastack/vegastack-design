@@ -1,4 +1,4 @@
-// @vegastack search-input@0.25.99 sha256-nodTyo0ajMsNNA5HDrgQfLYF5xQzVpxRdU7CcU4S/9A=
+// @vegastack search-input@0.25.99 sha256-MgHAeaDgtG0VSspNNOllbi2dg/zFSOHV4XdhOSDKHUk=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { mergeRefs, TIMINGS } from "@vegastack/design";
 
+import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -40,6 +41,20 @@ export interface SearchInputProps extends Omit<
   clearLabel?: string;
   /** Slot name applied to the InputGroup root. @default 'search-input' */
   "data-slot"?: string;
+  /**
+   * Fold to a Search icon button while empty and unfocused. Pressing the button opens the field
+   * with focus in it; the field stays open while it holds a query, and folds back once it is empty
+   * and focus leaves it, or on Escape (focus returns to the button). The button's name is the
+   * field's `aria-label` (or its `placeholder`).
+   * @default false
+   */
+  collapsible?: boolean;
+  /**
+   * Called when a `collapsible` field opens or folds — a toolbar lays the open field over its
+   * neighbours.
+   * @default undefined
+   */
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
 /**
@@ -71,6 +86,8 @@ function SearchInput({
   onKeyDown,
   ref,
   "data-slot": dataSlot = "search-input",
+  collapsible = false,
+  onExpandedChange,
   ...props
 }: SearchInputProps) {
   const controlled = value !== undefined;
@@ -80,7 +97,33 @@ function SearchInput({
   const currentValue = controlled ? value : uncontrolledValue;
   const canClear = currentValue.length > 0 && !disabled && !readOnly;
 
-  const setInputRef = React.useMemo(() => mergeRefs(setInput, ref), [ref]);
+  const inputNode = React.useRef<HTMLInputElement | null>(null);
+  const setInputRef = React.useMemo(
+    () => mergeRefs(setInput, inputNode, ref),
+    [ref],
+  );
+
+  // Collapsible: a Search button until pressed, then the field; open while it holds a query.
+  const [expandedState, setExpandedState] = React.useState(false);
+  const open = !collapsible || expandedState || currentValue !== "";
+  const toggleButton = React.useRef<HTMLButtonElement | null>(null);
+  const focusAfter = React.useRef<"field" | "button" | null>(null);
+  const expandedReport = React.useRef(onExpandedChange);
+  React.useLayoutEffect(() => {
+    expandedReport.current = onExpandedChange;
+  });
+  const reportedOpen = React.useRef(open);
+  React.useEffect(() => {
+    if (reportedOpen.current !== open) {
+      reportedOpen.current = open;
+      if (collapsible) expandedReport.current?.(open);
+    }
+    const target = focusAfter.current;
+    if (target == null) return;
+    focusAfter.current = null;
+    if (target === "field") inputNode.current?.focus();
+    else toggleButton.current?.focus();
+  }, [open, collapsible]);
 
   React.useEffect(() => {
     const form = input?.form;
@@ -151,8 +194,45 @@ function SearchInput({
     input?.focus();
   }, [canClear, commitNow, input, updateValue]);
 
+  if (!open)
+    return (
+      <Button
+        ref={toggleButton}
+        variant="ghost"
+        size="icon"
+        data-slot={`${dataSlot}-toggle`}
+        aria-label={props["aria-label"] ?? props.placeholder ?? "Search"}
+        disabled={disabled}
+        className="shrink-0 text-muted-foreground"
+        onClick={() => {
+          focusAfter.current = "field";
+          setExpandedState(true);
+        }}
+      >
+        <Search aria-hidden />
+      </Button>
+    );
+
   return (
-    <InputGroup className={className} data-slot={dataSlot}>
+    <InputGroup
+      className={className}
+      data-slot={dataSlot}
+      data-collapsible={collapsible ? "" : undefined}
+      onBlur={
+        collapsible
+          ? (event: React.FocusEvent<HTMLDivElement>) => {
+              // Focus moving between the field and its clear button keeps it open; leaving the
+              // group with the field empty folds it.
+              if (
+                event.relatedTarget instanceof Node &&
+                event.currentTarget.contains(event.relatedTarget)
+              )
+                return;
+              setExpandedState(false);
+            }
+          : undefined
+      }
+    >
       <InputGroupAddon align="inline-start" aria-hidden="true">
         <Search />
       </InputGroupAddon>
@@ -183,6 +263,16 @@ function SearchInput({
           if (!event.defaultPrevented && event.key === "Escape" && canClear) {
             event.preventDefault();
             clear();
+          } else if (
+            collapsible &&
+            !event.defaultPrevented &&
+            event.key === "Escape" &&
+            event.currentTarget.value === ""
+          ) {
+            // Escape on an empty collapsible field folds it, focus back on the button.
+            event.preventDefault();
+            focusAfter.current = "button";
+            setExpandedState(false);
           }
         }}
       />

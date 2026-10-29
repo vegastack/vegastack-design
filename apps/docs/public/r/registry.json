@@ -61,7 +61,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.25.99",
-        "integrity": "sha256-KQFUgxSKix1V/b419ng4550tJWEr+fUmmk9vDDJ5izE="
+        "integrity": "sha256-ljrA3wtRboO/r2KQ8S5qt7TrxoFU45a/wkwPv3U3+Ro="
       }
     },
     {
@@ -1716,7 +1716,9 @@
         "@vegastack/view-toggle",
         "@vegastack/use-drag-reorder",
         "@vegastack/checkbox",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/list-toolbar",
+        "@vegastack/display-menu"
       ],
       "files": [
         {
@@ -1729,7 +1731,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.99",
-        "integrity": "sha256-eArZb84iS2HJPf6kgGwTHl7TtlKtlGYzZQ8xWrcYmgk="
+        "integrity": "sha256-Lh/hfS3v2nZfjC3YGc4QirO9XEDeR2ADdu417AJTr9o="
       }
     },
     {
@@ -1903,7 +1905,8 @@
         "@vegastack/select",
         "@vegastack/tabs",
         "@vegastack/tooltip",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/use-overflow-fold"
       ],
       "files": [
         {
@@ -1916,7 +1919,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
         "version": "0.25.99",
-        "integrity": "sha256-yenFUZfGM/Wahrcv4ijG/2yvme/bvXpGKGxlsc5/ZIQ="
+        "integrity": "sha256-Cqa5ZoyVgs0MLPEpME9cORwrAS0cwwkJ2wEBuZVRKjY="
       }
     },
     {
@@ -1946,7 +1949,199 @@
         "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
         "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
         "version": "0.25.99",
-        "integrity": "sha256-XBhij2m/QeSQHhq3msPn3mqyWuExHqNzfOL28OfPX3c="
+        "integrity": "sha256-ngW0So2ct/HSyw7H7vQtfBRCauqDLO5tIqxJxRV7p7g="
+      }
+    },
+    {
+      "name": "use-overflow-fold",
+      "type": "registry:hook",
+      "title": "useOverflowFold",
+      "description": "Measured fold — decide whether a row (tabs, saved views) fits the room it is given, and fold it into one control when it does not, with hysteresis so it never flickers.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-overflow-fold.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-overflow-fold.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A row that should become one dropdown when it does not fit its container — scope tabs, route tabs, saved views.",
+        "whenNotToUse": "Truncating one piece of text (useOverflow, TruncatedText) or a layout CSS container queries can express.",
+        "version": "0.25.98",
+        "integrity": "sha256-EeWWibIMNsjWszNt3jL6EjpYMTsq4m4Wl7//FgPJikg="
+      }
+    },
+    {
+      "name": "list-toolbar",
+      "type": "registry:ui",
+      "title": "List Toolbar",
+      "description": "The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/popover",
+        "@vegastack/search-input",
+        "@vegastack/sheet",
+        "@vegastack/toggle-group",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/page-layout"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/list-toolbar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/list-toolbar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
+        "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
+        "version": "0.25.98",
+        "integrity": "sha256-VsJknd3ow+0P9N9HGDSGJk6o1OpSX8QCdsCJYY73afs="
+      }
+    },
+    {
+      "name": "filter-row",
+      "type": "registry:ui",
+      "title": "Filter Row",
+      "description": "The chips under a ListToolbar: + Filter, pinned facets (dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/filter-bar",
+        "@vegastack/list-toolbar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/filter-row.tsx",
+          "type": "registry:ui",
+          "target": "@ui/filter-row.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
+        "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
+        "version": "0.25.98",
+        "integrity": "sha256-G37SV2saUgNsGwNtKytMjjUeBlAQ73KSIUemKXEazBE="
+      }
+    },
+    {
+      "name": "add-filter-menu",
+      "type": "registry:ui",
+      "title": "Add Filter Menu",
+      "description": "+ Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/list-toolbar",
+        "@vegastack/panel-search",
+        "@vegastack/spinner"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/add-filter-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
+        "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
+        "version": "0.25.98",
+        "integrity": "sha256-IdN0zDKbveWdEqlHSHZngj64RxfEephVLr1lrc7Z1Sg="
+      }
+    },
+    {
+      "name": "sort-menu",
+      "type": "registry:ui",
+      "title": "Sort Menu",
+      "description": "The one-key sort: the fields, then the two directions worded by field type (Oldest first, A → Z, Low → high), with Reset while not at the page default.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/sort-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sort-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Sorting a list by one key from the ListToolbar's Sort tool.",
+        "whenNotToUse": "Several sort keys at once (SortBuilder), or a column header's own sort.",
+        "version": "0.25.98",
+        "integrity": "sha256-G3DiHmpFmA7/W63r2iAeUJw6WsFZI3iQIyOcq/E9+LE="
+      }
+    },
+    {
+      "name": "display-menu",
+      "type": "registry:ui",
+      "title": "Display Menu",
+      "description": "The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.46",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/list-toolbar",
+        "@vegastack/sortable-list",
+        "@vegastack/switch",
+        "@vegastack/toggle-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/display-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/display-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
+        "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
+        "version": "0.25.98",
+        "integrity": "sha256-OXfm5OzJncWDelLhUVrIk23+4eymCz13FYOATp8xxk0="
       }
     },
     {
@@ -2829,7 +3024,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.25.99",
-        "integrity": "sha256-u0nKUCr67EubcjbOOCIbTGLB6Ijui/F86/+WB4alBa0="
+        "integrity": "sha256-ZdxV8yhzB+umTfEg3uYjXTzfFL+iizNNRcD3hlYAP7c="
       }
     },
     {
@@ -2993,7 +3188,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.25.99",
-        "integrity": "sha256-aQmyIKMbRH20J4PxYMfWmXcrMe7brQuGXPgq25JgjnE="
+        "integrity": "sha256-4zadZKwhIWFOxP8wbHXjmlBnmtKHLKXyByd7IYfPIDo="
       }
     },
     {
@@ -3033,7 +3228,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.25.99",
-        "integrity": "sha256-6yzO+KZl5OrDoR+7Mp4yXwMPldOt3671RtzNb4Y/lfg="
+        "integrity": "sha256-426iFWFSgtrF3VZ0Rvwguk7zgSeC5vB4hbpr6QbTTAY="
       }
     },
     {
@@ -17196,7 +17391,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.25.99",
-        "integrity": "sha256-vHKvdWdgzH7w9dQtAd/z62+3SolsgouF6CihKFCjIcs="
+        "integrity": "sha256-TGLytlxX/ADLHbjOUprkO7tF+BStHjWxs62gmGi4IAg="
       }
     },
     {
@@ -18197,7 +18392,8 @@
         "@vegastack/design-tokens@^0.8.38"
       ],
       "registryDependencies": [
-        "@vegastack/input-group"
+        "@vegastack/input-group",
+        "@vegastack/button"
       ],
       "files": [
         {
@@ -18210,7 +18406,7 @@
         "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.25.99",
-        "integrity": "sha256-nodTyo0ajMsNNA5HDrgQfLYF5xQzVpxRdU7CcU4S/9A="
+        "integrity": "sha256-MgHAeaDgtG0VSspNNOllbi2dg/zFSOHV4XdhOSDKHUk="
       }
     },
     {
@@ -18529,7 +18725,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.99",
-        "integrity": "sha256-3G/TmSneu4MB3dHzhVZEBxaLb+apb/+6ABRdZm6QyA8="
+        "integrity": "sha256-XahZJ1Um19OjnMaCVCUTOREM285oDtjKwvjy8/jAnPo="
       }
     },
     {
@@ -18790,7 +18986,11 @@
         "@vegastack/design@^0.8.47",
         "@vegastack/design-tokens@^0.8.38"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-overflow-fold"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/tabs.tsx",
@@ -18802,7 +19002,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.25.99",
-        "integrity": "sha256-EeGy38RH3/fU5376qmjrbfIcHBsfkXQBzl4tdfcr7wI="
+        "integrity": "sha256-ei67R85FcUnWK6Cu0QjoiFcL6R94H7gyNkcANk/1QTs="
       }
     },
     {
@@ -23086,7 +23286,10 @@
         "@vegastack/design-tokens@^0.8.38"
       ],
       "registryDependencies": [
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-overflow-fold"
       ],
       "files": [
         {
@@ -23099,7 +23302,7 @@
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
         "version": "0.25.99",
-        "integrity": "sha256-O39sbZ82cdglSpyE3aNAYN6sbqukCchpMzHPrWpxByY="
+        "integrity": "sha256-3JT1lQQbCN42t0ppL6Xd52LHmvT7B8MZiFBmkNpzQXQ="
       }
     },
     {

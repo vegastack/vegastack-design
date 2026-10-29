@@ -661,3 +661,56 @@ test("A11Y-24: on a coarse pointer a trigger's hit area reaches 44px tall, never
     "group-data-[overflow=visible]/tabs-list:group-not-data-vertical/tabs:pointer-coarse:before:inset-x-0",
   );
 });
+
+test("LAY-14 menu: a list that does not fit folds into one dropdown, and the menu picks a tab", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  function Harness({ width }: { width: number }) {
+    return (
+      <div style={{ width }}>
+        <Tabs defaultValue="mine">
+          <TabsList size="sm" overflow="menu" aria-label="Scope">
+            <TabsTrigger value="mine">My tasks</TabsTrigger>
+            <>
+              <TabsTrigger value="created">Created by me</TabsTrigger>
+              <TabsTrigger value="shared">Shared with me</TabsTrigger>
+            </>
+            <TabsTrigger value="all">All</TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">Everything</TabsContent>
+        </Tabs>
+      </div>
+    );
+  }
+  const screen = await render(<Harness width={800} />);
+  expect(
+    document
+      .querySelector('[data-slot="tabs-fold"]')!
+      .hasAttribute("data-folded"),
+  ).toBe(false);
+  await expect
+    .element(screen.getByRole("tab", { name: "My tasks" }))
+    .toBeVisible();
+  await screen.rerender(<Harness width={140} />);
+  await expect
+    .poll(() =>
+      document
+        .querySelector('[data-slot="tabs-fold"]')!
+        .hasAttribute("data-folded"),
+    )
+    .toBe(true);
+  // Folded, the hidden list leaves the tab order and the accessibility tree.
+  await expect
+    .element(screen.getByRole("tab", { name: "My tasks" }))
+    .not.toBeInTheDocument();
+  await screen.getByRole("button", { name: "Scope: My tasks" }).click();
+  // Tabs inside a fragment are listed too.
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: "Shared with me" }))
+    .toBeVisible();
+  await screen.getByRole("menuitemradio", { name: "All" }).click();
+  await expect.element(screen.getByText("Everything")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});

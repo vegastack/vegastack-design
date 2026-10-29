@@ -1,0 +1,118 @@
+---
+title: Lists and tables
+description: The one header every list, table and settings table shares — its anatomy, where each option lives, and how it collapses from a desktop to a phone.
+audience: public
+---
+
+Every list gets the same two rows under its title: one **toolbar row** — the scope on the left;
+search, a tight cluster of icon tools and the page's main button on the right — and, only while
+Filters is open, the **filter row** of chips. The parts are
+[`ListToolbar`](/docs/components/list-toolbar), [`FilterRow`](/docs/components/filter-row),
+[`AddFilterMenu`](/docs/components/add-filter-menu), [`SortMenu`](/docs/components/sort-menu) and
+[`DisplayMenu`](/docs/components/display-menu).
+
+<ComponentPreview name="listToolbarWidths" />
+
+## Principles
+
+1. **One anatomy everywhere.** Every list has the same zones in the same order. A page leaves zones
+   out; it never re-orders them or adds its own. Only the collapse steps below change the row.
+2. **A control appears only when it applies.** Sort is absent on a board, Layout where there is one
+   layout, ⋯ when it would be empty, the whole toolbar where a list has no tools. Nothing is shown
+   disabled as a placeholder.
+3. **One place per concept.** Tabs say _which set_. Search matches text. Filter says _which rows_
+   (and the AI writes there). Sort says _what order_. Display says _how rows look_ and _which
+   lifecycle states are included_. ⋯ holds _actions on the view_. The main button is the toolbar's
+   last item. The same concept never has two controls: a column header's sort and the Sort tool
+   write one value; Display's Columns is the only column picker.
+4. **The collapse order is fixed and measured** on the toolbar's own width, not the viewport.
+5. **One main button per page**, the last item of the toolbar: filled, "+ New thing" while the
+   toolbar is wide, an icon `+` (named, with a tooltip) when narrow. A record page keeps its actions
+   in its header; a short list inside a record tab uses a compact toolbar.
+6. **State is visible without opening anything.** Filter shows a count; Sort and Display show a dot
+   when they differ from the page's default; a changed saved view shows a dot on its tab and a
+   "Save view" button. Nothing hides behind a lone count.
+7. **Icons, not labels, on tools; tooltips always.** Every tool has a tooltip with its name and
+   shortcut and an accessible name that includes its state. Text appears only on the main button,
+   "Save view", tabs, chips and the bulk bar.
+8. **A popover is one surface.** No filled rows, no control tracks, no card inside a card. A chosen
+   option is a check or a pressed toggle. Every row is 32px tall from the popover's 8px inset, on an
+   8px rhythm. On a phone every toolbar popover is a bottom sheet with the same content.
+
+## Anatomy
+
+```
+title (+ description)
+↕ 16
+[scope tabs | saved views] …… [Save view] [↶ ↷] │ [⌕ search]  ▽n ⇅• ☰|▥ ⚙• ⋯  [+ New]   ← ListToolbar (32)
+↕ 8
+[+ Filter] [pinned facets…] [chips…] [✦ chips…] ………………………………………………… Clear         ← FilterRow (open)
+✦ 2 filters added by AI · Undo · Couldn't match “warehouse”                            ← after an AI run
+↕ 12
+list · table · board · grid
+```
+
+- **Left zone:** scope `Tabs` (`TabsList size="sm" overflow="menu"`), `RouteTabs`
+  (`overflow="menu"`) or a table's `ViewTabs` — at most one. Empty when the page has no scope.
+- **Right zone, in order:** a state button ("Save view", only while a view is changed), the edit
+  group (undo, redo, a divider), the search, the tool cluster — Filter · Sort · Layout · Display ·
+  ⋯ — and the main button. The most stable tools sit at the far end, so a tool that hides never moves
+  them.
+- **Search** sits right, before the tools, on every page, tabs or not: one place for muscle memory.
+- **Sizes:** the row is 32px; tools are 32px borderless icon buttons 4px apart, 8px from the search;
+  the search is 240px, giving way to 144px. Icons: Filter `ListFilter`, Sort `ArrowUpDown`, List
+  `List`, Board `Columns3`, Grid `LayoutGrid`, Display `SlidersHorizontal`, More `Ellipsis`, AI
+  `Sparkles`.
+- **The toolbar touches its list.** Page content that is not the list (a "Recent" strip) sits above
+  the toolbar, never between it and the list. An empty list keeps its toolbar but drops its column
+  header.
+
+## Where each option lives
+
+| Option                                                      | Control                                                  |
+| ----------------------------------------------------------- | -------------------------------------------------------- |
+| Whose items / which kind (Mine · Team · All)                | Left-zone tabs                                           |
+| A table's saved views                                       | Left-zone `ViewTabs` (dot when changed)                  |
+| Attribute predicates (status, due, owner, space…)           | Filter — top facets pinned, the rest in + Filter         |
+| A plain-language request                                    | + Filter's input (✦), producing ordinary chips           |
+| An advanced condition set                                   | + Filter's foot → a builder dialog, one chip             |
+| Order                                                       | Sort — `SortMenu` for one key, `SortBuilder` for several |
+| List · Board · Grid                                         | Layout icons (→ Display › Layout when narrow)            |
+| Row height, group by, columns or fields                     | Display › Rows                                           |
+| Show archived · closed · disabled · subtasks · empty groups | Display › Show (one switch each)                         |
+| Save view, reset, copy link, export, import, empty trash    | ⋯ (`ListToolbarMenu`)                                    |
+| Rename, lock, delete a saved view                           | The view tab's own ⋯                                     |
+| Undo · redo (tables)                                        | The edit group (→ ⋯ on a phone)                          |
+| The page's create action                                    | The main button, last in the toolbar                     |
+
+A state hidden by default (closed, archived, disabled) is always a Display switch, never a default
+filter chip. A preset resolves to ordinary chips.
+
+## Responsive
+
+The toolbar measures the width it is given. Each step happens only if the previous was not enough:
+
+1. The search shrinks to 144px.
+2. The tabs fold into one dropdown — the active tab and ▾, every tab in the menu with its count.
+   Fold happens when the tabs do not fit and unfolds only with 24px to spare, so it never flickers.
+   Scope tabs never scroll sideways; only chips do.
+3. Layout moves into Display (the search may go to 96px).
+4. Sort moves into Display, as a "Sort by" row — only if the page has Display; otherwise it stays.
+5. The search becomes an icon that opens over the row.
+6. A table's undo and redo move into ⋯.
+
+Filter, Display, ⋯ and the main button never collapse. The main button drops its label once the
+tabs have folded.
+
+| Viewport            | Content ≈ | Tabs             | Search     | Sort / Layout | Filter row         | Popovers     |
+| ------------------- | --------- | ---------------- | ---------- | ------------- | ------------------ | ------------ |
+| Desktop 1440        | 1120px    | inline           | 240        | in the row    | wraps              | popover      |
+| Laptop 1280         | 960px     | inline           | 240        | in the row    | wraps              | popover      |
+| iPad landscape 1024 | 700px     | fold when needed | 240 → 144  | in the row    | wraps              | popover      |
+| iPad portrait 768   | 640px     | fold when needed | 144        | in the row    | one scrolling line | popover      |
+| Phone 390           | 358px     | folded           | 96 or icon | in Display    | one scrolling line | bottom sheet |
+
+**Bulk selection** does not change the toolbar: the header checkbox and the
+[`ActionBar`](/docs/components/action-bar)'s count are the selection state. On a phone the bar docks
+full width above the safe area with icon-only actions, and the list keeps a spacer the bar's height
+so its last row is never covered.
