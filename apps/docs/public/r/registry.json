@@ -2011,7 +2011,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.98",
-        "integrity": "sha256-0tIy+xG717HdjIrlKuMGiocO6ZnF2UGYOQZKIf28jSU="
+        "integrity": "sha256-HF4AXphti6AuHg0mmt8Sm0zPxP7To9LuJycDLOfciG8="
       }
     },
     {
@@ -2043,7 +2043,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.25.98",
-        "integrity": "sha256-yOSiPmJsCZXuImd92NI7NOqLzwQ3nlLK+P/Hobs87nw="
+        "integrity": "sha256-G37SV2saUgNsGwNtKytMjjUeBlAQ73KSIUemKXEazBE="
       }
     },
     {
@@ -2076,7 +2076,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.25.98",
-        "integrity": "sha256-DsZSYPmz8ISWCxnLiamyUn6OOcwyC9yibWEkTNs6MF4="
+        "integrity": "sha256-zMp6WkDC+yzEamLN2BMNEqKUbpYxc5AQLv9Ita+RU3s="
       }
     },
     {
@@ -17391,7 +17391,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.25.98",
-        "integrity": "sha256-0aXfqetQhunE0EhzHfD4R/2XV5zgsC8crr4ti4uLoi8="
+        "integrity": "sha256-/aUviNX+Luw+M15mRdgll/kSM95ilAxmiZocx2MJQ1Y="
       }
     },
     {
@@ -19002,7 +19002,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.25.98",
-        "integrity": "sha256-kDV1xedYv47zxttgv8J1d5txskk8MCc3oK6IoAS3k54="
+        "integrity": "sha256-lZWfR39mTZvhvL9j7JLgf6EkUOFyY6/dr1u97JD5k10="
       }
     },
     {
@@ -23302,7 +23302,7 @@
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
         "version": "0.25.98",
-        "integrity": "sha256-oWCQE8FiF6fo/y6ky0U9mKda0jdSpFsENw6CQrK34Ak="
+        "integrity": "sha256-wUCO7hV0CNHzWdbBH7n6NJR4n6pnEI259L6E4sOM2mQ="
       }
     },
     {

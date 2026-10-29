@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.98 sha256-0tIy+xG717HdjIrlKuMGiocO6ZnF2UGYOQZKIf28jSU=
+// @vegastack list-toolbar@0.25.98 sha256-HF4AXphti6AuHg0mmt8Sm0zPxP7To9LuJycDLOfciG8=
 
 "use client";
 
@@ -260,6 +260,7 @@ export interface ListToolbarProps extends Omit<
   more?: React.ReactNode;
   /**
    * A state button before the edit group and the search ("Save view" on a changed table view).
+   * It leaves the row at the last collapse step, so keep its action in ⋯ too.
    * @default undefined
    */
   state?: React.ReactNode;
@@ -681,6 +682,8 @@ const METRICS = {
   toolGap: 4,
   search: [240, 144, 144, 96, 96] as const,
   foldedTabs: 136,
+  /** The least room a folded tab dropdown keeps (`min-w-18`). */
+  minTabs: 72,
 };
 
 /**
@@ -788,6 +791,7 @@ export function ListToolbar({
   const widths = React.useRef<Record<string, number>>({});
   const [level, setLevel] = React.useState(0);
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const frozen = React.useRef(false);
   const hasDisplay = display != null;
   const layoutCount = layout?.options.length ?? 0;
   const editCount = edit?.length ?? 0;
@@ -815,9 +819,9 @@ export function ListToolbar({
       );
       if (trigger && trigger.offsetWidth > 0)
         cache.foldedTabs = trigger.offsetWidth;
-      tabsFolded = Math.min(
-        tabsNatural,
-        cache.foldedTabs ?? METRICS.foldedTabs,
+      tabsFolded = Math.max(
+        METRICS.minTabs,
+        Math.min(tabsNatural, cache.foldedTabs ?? METRICS.foldedTabs),
       );
     }
     const filterWidth = hasFilter ? read("list-toolbar-filter", icon) : 0;
@@ -856,7 +860,7 @@ export function ListToolbar({
         );
       if (editCount > 0 && lvl < 6)
         parts.push(editWidth + 1 + METRICS.searchGap);
-      if (stateWidth) parts.push(stateWidth);
+      if (stateWidth && lvl < 6) parts.push(stateWidth);
       if (action != null) parts.push(actionWidth(lvl));
       right =
         parts.reduce((sum, w) => sum + w, 0) +
@@ -864,6 +868,8 @@ export function ListToolbar({
       const left = tabsZone ? (lvl >= 2 ? tabsFolded : tabsNatural) : 0;
       return left + (tabsZone ? METRICS.zoneGap : 0) + right;
     };
+    // While an icon search is open the tabs give it their room: keep the level as it was.
+    if (frozen.current) return;
     let next = MAX_LEVEL;
     for (let lvl = 0; lvl <= MAX_LEVEL; lvl++) {
       if (need(lvl) <= available + 0.5) {
@@ -898,6 +904,8 @@ export function ListToolbar({
     return () => observer.disconnect();
   }, [measure, tabs]);
 
+  const searchExpanded =
+    searchOpen && search != null && (search.collapsible || level >= 5);
   const foldLayout = hasDisplay && layout != null && level >= 3;
   const foldSort = hasDisplay && sort != null && level >= 4;
   const iconSearch = search != null && (search.collapsible || level >= 5);
@@ -1069,12 +1077,15 @@ export function ListToolbar({
         placeholder={search.placeholder ?? "Search"}
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         collapsible={iconSearch}
-        onExpandedChange={setSearchOpen}
+        onExpandedChange={(expanded) => {
+          frozen.current = expanded && iconSearch;
+          setSearchOpen(expanded);
+        }}
         className={cn(
           compact ? "h-7" : "h-8",
-          // Open from an icon, it lays over the row's left part.
+          // Open from an icon, it takes the tabs' room in the row; the tools stay in view.
           iconSearch
-            ? "absolute inset-y-0 start-0 end-0 z-10 w-auto bg-background"
+            ? "w-auto min-w-24 flex-1"
             : tabs != null
               ? level === 0
                 ? "w-60 shrink-0"
@@ -1150,8 +1161,14 @@ export function ListToolbar({
               // Takes the room the right zone leaves; a folding tab row measures it.
               // Its child (a Tabs root, RouteTabs, ViewTabs) fills it and may shrink below its
               // tabs' natural width, so a folding row measures this zone and not its own content.
-              className="flex min-w-0 flex-1 basis-0 items-center *:min-w-0 *:flex-1"
-              inert={(iconSearch && searchOpen) || undefined}
+              className={cn(
+                "flex min-w-18 flex-1 basis-0 items-center *:min-w-0 *:flex-1",
+                // The row's one height: a small pill tab list is lifted to the 32px tier, so its
+                // triggers keep a full pointer target.
+                "[&_[data-slot=tabs-list][data-size=sm]]:h-8",
+                // An open icon search takes this room while it is open.
+                searchExpanded && "hidden",
+              )}
             >
               {tabs}
             </div>
@@ -1160,11 +1177,12 @@ export function ListToolbar({
             data-slot="list-toolbar-tools"
             className={cn(
               "flex min-w-0 items-center gap-2",
-              tabs == null ? "flex-1 justify-end" : "shrink-0",
-              iconSearch && "static",
+              tabs == null || searchExpanded
+                ? "flex-1 justify-end"
+                : "shrink-0",
             )}
           >
-            {state != null ? (
+            {state != null && level < 6 ? (
               <div
                 data-slot="list-toolbar-state"
                 className="flex shrink-0 items-center"

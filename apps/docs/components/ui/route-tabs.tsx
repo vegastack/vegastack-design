@@ -1,17 +1,16 @@
-// @vegastack route-tabs@0.25.98 sha256-oWCQE8FiF6fo/y6ky0U9mKda0jdSpFsENw6CQrK34Ak=
+// @vegastack route-tabs@0.25.98 sha256-wUCO7hV0CNHzWdbBH7n6NJR4n6pnEI259L6E4sOM2mQ=
 
 "use client";
 
 import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
 
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { tabsListVariants, tabsTriggerVariants } from "@/components/ui/tabs";
@@ -153,18 +152,18 @@ function linkElement(
     onClick?: React.MouseEventHandler<HTMLElement>;
   }>;
   const own = template.props.onClick;
-  return React.cloneElement(
-    template,
-    {
-      ...props,
-      className: cn(props.className, template.props.className),
-      onClick: (event: React.MouseEvent<HTMLElement>) => {
-        own?.(event);
-        props.onClick(event);
-      },
-    } as object,
-    children,
-  );
+  const merged = {
+    ...props,
+    className: cn(props.className, template.props.className),
+    onClick: (event: React.MouseEvent<HTMLElement>) => {
+      own?.(event);
+      props.onClick(event);
+    },
+  } as object;
+  // No children given (a menu item renders its own): keep the slot open for the renderer.
+  return children === undefined
+    ? React.cloneElement(template, merged)
+    : React.cloneElement(template, merged, children);
 }
 
 /**
@@ -276,6 +275,7 @@ export function RouteTabs({
       className={cn(
         "group/tabs flex min-w-0",
         overflow === "menu" && "relative w-full items-center",
+        folded && "overflow-x-clip",
         className,
       )}
       {...props}
@@ -371,29 +371,46 @@ export function RouteTabs({
             }
           />
           <DropdownMenuContent align="start" className="min-w-48">
-            <DropdownMenuRadioGroup
-              value={currentTab.href}
-              onValueChange={(href) => {
-                // The hidden strip's own link navigates, so the router, pending state and the
-                // host's link component all behave exactly as a tab click.
-                strip.current
-                  ?.querySelector<HTMLElement>(
-                    `[href="${CSS.escape(String(href))}"]`,
-                  )
-                  ?.click();
-              }}
-            >
-              {tabs.map((tab) => (
-                <DropdownMenuRadioItem key={tab.href} value={tab.href}>
-                  <span className="min-w-0 flex-1 truncate">{tab.label}</span>
-                  {tab.count == null ? null : (
-                    <span className="text-muted-foreground tabular-nums">
-                      {formatCount(tab.count)}
-                    </span>
-                  )}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
+            {tabs.map((tab) => (
+              <DropdownMenuItem
+                key={tab.href}
+                // A real link: modifier and middle clicks, the context menu and the router all
+                // behave as on a tab.
+                render={linkElement(
+                  linkRender,
+                  {
+                    href: tab.href,
+                    "aria-current": tab.href === current ? "page" : undefined,
+                    "aria-label": tab["aria-label"],
+                    className: "",
+                    onClick: (event) => {
+                      if (
+                        event.defaultPrevented ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey ||
+                        event.button !== 0 ||
+                        tab.href === current
+                      )
+                        return;
+                      request(tab.href === matched ? null : tab.href);
+                    },
+                  },
+                  undefined,
+                )}
+              >
+                <span className="min-w-0 flex-1 truncate">{tab.label}</span>
+                {tab.count == null ? null : (
+                  <span className="text-muted-foreground tabular-nums">
+                    {formatCount(tab.count)}
+                  </span>
+                )}
+                {tab.href === current ? (
+                  <Check aria-hidden className="text-muted-foreground" />
+                ) : null}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       ) : null}

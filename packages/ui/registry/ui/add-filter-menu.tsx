@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.25.98 sha256-DsZSYPmz8ISWCxnLiamyUn6OOcwyC9yibWEkTNs6MF4=
+// @vegastack add-filter-menu@0.25.98 sha256-zMp6WkDC+yzEamLN2BMNEqKUbpYxc5AQLv9Ita+RU3s=
 
 "use client";
 
@@ -247,6 +247,12 @@ export interface AddFilterMenuProps {
    */
   onOpenChange?: (open: boolean) => void;
   /**
+   * The text the input opens with — the last AI prompt when "Edit filters" reopens the menu from
+   * a list with no results. Each opening starts from it.
+   * @default ""
+   */
+  initialQuery?: string;
+  /**
    * The component's words.
    * @default English
    */
@@ -278,6 +284,7 @@ export function AddFilterMenu({
   onAdvanced,
   open: openProp,
   onOpenChange,
+  initialQuery = "",
   labels: labelsProp,
 }: AddFilterMenuProps) {
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
@@ -312,13 +319,13 @@ export function AddFilterMenu({
   // Every opening starts fresh, focus in the input.
   React.useEffect(() => {
     if (!open) return;
-    setQuery("");
+    setQuery(initialQuery);
     setPage(null);
     setMessage(null);
     setActive(0);
     const frame = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(frame);
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const text = query.trim();
   const needle = text.toLowerCase();
@@ -346,6 +353,22 @@ export function AddFilterMenu({
     setActive(exact >= 0 ? exact + (ai != null && text !== "" ? 1 : 0) : 0);
     setMessage(null);
   }, [query]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the highlighted option inside the list's own scroll box (never the page).
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const activeId = options[active]?.id;
+  React.useEffect(() => {
+    const list = listRef.current;
+    const option = activeId ? document.getElementById(activeId) : null;
+    if (!list || !option || !list.contains(option)) return;
+    if (option.offsetTop < list.scrollTop) list.scrollTop = option.offsetTop;
+    else if (
+      option.offsetTop + option.offsetHeight >
+      list.scrollTop + list.clientHeight
+    )
+      list.scrollTop =
+        option.offsetTop + option.offsetHeight - list.clientHeight;
+  }, [activeId]);
 
   const done = () => setOpen(false);
   const runAi = async (request: string) => {
@@ -458,10 +481,11 @@ export function AddFilterMenu({
       ) : null}
       <div
         id={listId}
+        ref={listRef}
         role="listbox"
         aria-label={labels.fields}
         data-slot="add-filter-menu-list"
-        className="flex max-h-72 min-w-0 flex-col overflow-y-auto overscroll-contain"
+        className="relative flex max-h-72 min-w-0 flex-col overflow-y-auto overscroll-contain"
       >
         {options.map((option, index) =>
           option.kind === "ai" ? (

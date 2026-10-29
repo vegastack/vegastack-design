@@ -120,3 +120,17 @@ test("AiFilterInput: ✦ lead, Enter submits the trimmed text, a spinner while p
     ),
   ).not.toBeNull();
 });
+
+test("initialQuery reopens on the last prompt (Edit filters)", async () => {
+  const screen = await render(
+    <AddFilterMenu
+      fields={FIELDS}
+      ai={{ onSubmit: () => ({ added: 1 }) }}
+      initialQuery="IP65 black"
+    />,
+  );
+  await screen.getByRole("button", { name: "Filter" }).click();
+  await expect
+    .element(screen.getByRole("combobox", { name: "Filter" }))
+    .toHaveValue("IP65 black");
+});

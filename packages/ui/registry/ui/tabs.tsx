@@ -1,4 +1,4 @@
-// @vegastack tabs@0.25.98 sha256-kDV1xedYv47zxttgv8J1d5txskk8MCc3oK6IoAS3k54=
+// @vegastack tabs@0.25.98 sha256-lZWfR39mTZvhvL9j7JLgf6EkUOFyY6/dr1u97JD5k10=
 
 "use client";
 
@@ -131,6 +131,27 @@ function TabsList({
   );
 }
 
+/** The tab triggers among a list's children, fragments included, in order. */
+function flattenTabs(
+  children: React.ReactNode,
+): React.ReactElement<TabsPrimitive.Tab.Props>[] {
+  const out: React.ReactElement<TabsPrimitive.Tab.Props>[] = [];
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement(child)) return;
+    if (child.type === React.Fragment) {
+      out.push(
+        ...flattenTabs(
+          (child.props as { children?: React.ReactNode }).children,
+        ),
+      );
+      return;
+    }
+    if ((child.props as { value?: unknown }).value !== undefined)
+      out.push(child as React.ReactElement<TabsPrimitive.Tab.Props>);
+  });
+  return out;
+}
+
 /**
  * LAY-14 `overflow="menu"` (widened MK 2026-10-29, list-toolbar T4): the list folds into one
  * dropdown when it does not fit the room it is given — measured by `useOverflowFold`, not set by a
@@ -156,11 +177,7 @@ function TabsFoldList({
     [contentRef, ref],
   );
   // The triggers, read from the children: a menu item per tab, labelled as the tab is.
-  const tabs = React.Children.toArray(children).filter(
-    (child): child is React.ReactElement<TabsPrimitive.Tab.Props> =>
-      React.isValidElement(child) &&
-      (child.props as { value?: unknown }).value !== undefined,
-  );
+  const tabs = flattenTabs(children);
   // Which tab is selected, read back from the list (Base UI owns the value).
   const [selected, setSelected] = React.useState(0);
   React.useEffect(() => {
@@ -174,8 +191,10 @@ function TabsFoldList({
     };
     read();
     const observer = new MutationObserver(read);
+    // Tabs added, removed or reordered re-read the selection too.
     observer.observe(list, {
       subtree: true,
+      childList: true,
       attributes: true,
       attributeFilter: ["aria-selected"],
     });
@@ -187,7 +206,12 @@ function TabsFoldList({
       ref={rootRef}
       data-slot="tabs-fold"
       data-folded={folded ? "" : undefined}
-      className="relative flex w-full min-w-0 items-center"
+      // Folded, the measuring list is wider than the room: clipped sideways so it never widens
+      // the page.
+      className={cn(
+        "relative flex w-full min-w-0 items-center",
+        folded && "overflow-x-clip",
+      )}
     >
       <TabsPrimitive.List
         data-slot="tabs-list"

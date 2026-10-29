@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.25.98 sha256-yOSiPmJsCZXuImd92NI7NOqLzwQ3nlLK+P/Hobs87nw=
+// @vegastack filter-row@0.25.98 sha256-G37SV2saUgNsGwNtKytMjjUeBlAQ73KSIUemKXEazBE=
 
 "use client";
 
@@ -289,7 +289,7 @@ export function FilterRow({
             variant="link"
             size="xs"
             data-slot="filter-row-ai-undo"
-            className="h-5 px-0 text-xs text-foreground"
+            className="h-6 px-0 text-xs text-foreground"
             onClick={aiNote.onUndo}
           >
             {labels.undo}
@@ -308,7 +308,7 @@ export function FilterRow({
               size="icon-xs"
               aria-label={labels.dismiss}
               data-slot="filter-row-ai-dismiss"
-              className="ms-auto size-5"
+              className="ms-auto size-6"
               onClick={aiNote.onDismiss}
             >
               <X aria-hidden />

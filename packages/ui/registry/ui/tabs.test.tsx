@@ -673,8 +673,10 @@ test("LAY-14 menu: a list that does not fit folds into one dropdown, and the men
         <Tabs defaultValue="mine">
           <TabsList size="sm" overflow="menu" aria-label="Scope">
             <TabsTrigger value="mine">My tasks</TabsTrigger>
-            <TabsTrigger value="created">Created by me</TabsTrigger>
-            <TabsTrigger value="shared">Shared with me</TabsTrigger>
+            <>
+              <TabsTrigger value="created">Created by me</TabsTrigger>
+              <TabsTrigger value="shared">Shared with me</TabsTrigger>
+            </>
             <TabsTrigger value="all">All</TabsTrigger>
           </TabsList>
           <TabsContent value="all">Everything</TabsContent>
@@ -704,6 +706,10 @@ test("LAY-14 menu: a list that does not fit folds into one dropdown, and the men
     .element(screen.getByRole("tab", { name: "My tasks" }))
     .not.toBeInTheDocument();
   await screen.getByRole("button", { name: "Scope: My tasks" }).click();
+  // Tabs inside a fragment are listed too.
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: "Shared with me" }))
+    .toBeVisible();
   await screen.getByRole("menuitemradio", { name: "All" }).click();
   await expect.element(screen.getByText("Everything")).toBeVisible();
   await expectNoA11yViolations(screen.container);

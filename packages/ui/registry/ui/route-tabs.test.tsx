@@ -373,7 +373,10 @@ test("overflow=menu: a strip that does not fit folds to the current tab and a me
   await screen
     .getByRole("button", { name: "Connections: Your connections" })
     .click();
-  await screen.getByRole("menuitemradio", { name: /Everyone/ }).click();
+  // Real links in the menu: href kept for new-tab and context-menu use.
+  const item = screen.getByRole("menuitem", { name: /Everyone/ });
+  expect(item.element().getAttribute("href")).toBe("/connections/everyone");
+  await item.click();
   expect(onClick).toHaveBeenCalled();
   sheet.remove();
 });

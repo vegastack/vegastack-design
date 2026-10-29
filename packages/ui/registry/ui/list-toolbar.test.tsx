@@ -295,3 +295,29 @@ test("/ focuses the search and F opens the filter row", async () => {
     .element(screen.getByRole("button", { name: "Filter", exact: true }))
     .toHaveAttribute("aria-expanded", "true");
 });
+
+test("an open icon search takes the tabs' room; the tools stay in view", async () => {
+  const screen = await render(<Harness width={300} />);
+  await expect
+    .poll(() =>
+      document.querySelector('[data-slot="list-toolbar-search-toggle"]'),
+    )
+    .not.toBeNull();
+  await screen.getByRole("button", { name: "Search tasks" }).click();
+  await userEvent.keyboard("abc");
+  await expect
+    .element(screen.getByRole("button", { name: "Filter", exact: true }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "New task" }))
+    .toBeVisible();
+  const field = screen
+    .getByRole("searchbox", { name: "Search tasks" })
+    .element();
+  const filter = document.querySelector<HTMLElement>(
+    '[data-slot="list-toolbar-filter"]',
+  )!;
+  expect(field.getBoundingClientRect().right).toBeLessThanOrEqual(
+    filter.getBoundingClientRect().left,
+  );
+});
