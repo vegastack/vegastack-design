@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.25.99 sha256-IdN0zDKbveWdEqlHSHZngj64RxfEephVLr1lrc7Z1Sg=
+// @vegastack add-filter-menu@0.25.100 sha256-+TqjcRnbuhv54R6wfouyHBX8kX66E/sdRMSJ6Xds4p0=
 
 "use client";
 
