@@ -23171,7 +23171,7 @@
         "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
         "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
         "version": "0.25.98",
-        "integrity": "sha256-NDKCp3zy1p4ko3ljNsU7rGDeokioCdlsqm+jNJA+5Xo="
+        "integrity": "sha256-NvN7Gd3FV1QbukWUS5ompzWOKcGyEU4c2su3KWZDQzg="
       }
     },
     {
