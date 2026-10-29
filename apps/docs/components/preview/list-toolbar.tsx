@@ -10,6 +10,7 @@ import {
   Plus,
   Redo2,
   RotateCcw,
+  Sparkles,
   Undo2,
   UserRound,
 } from "lucide-react";
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/filter-row";
 import {
   ListToolbar,
-  ListToolbarAction,
   ListToolbarMenu,
   type ListToolbarLayoutValue,
 } from "@/components/ui/list-toolbar";
@@ -61,7 +61,37 @@ const STATUSES: Opt[] = [
 ];
 const PRIORITIES = ["High", "Medium", "Low"];
 
-/** The whole pattern, fully wired: scope tabs, search, every tool, the filter row and the CTA. */
+/**
+ * The page around a toolbar: the app's top bar (breadcrumb, then the page's main button at its
+ * right end — never in the toolbar), the title, then the toolbar.
+ */
+function PageFrame({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      <div className="flex h-10 items-center justify-between gap-2 border-b border-border pb-2">
+        <span className="truncate text-sm text-muted-foreground">{title}</span>
+        {action ? (
+          <Button size="sm">
+            <Plus aria-hidden />
+            {action}
+          </Button>
+        ) : null}
+      </div>
+      <h2 className="m-0 text-xl font-semibold">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+/** The whole pattern, fully wired: scope tabs, search, every tool and the filter row. */
 function TasksToolbar({ width }: { width?: number }) {
   const [scope, setScope] = React.useState("mine");
   const [query, setQuery] = React.useState("");
@@ -109,7 +139,7 @@ function TasksToolbar({ width }: { width?: number }) {
       <ListToolbar
         tabs={
           <Tabs value={scope} onValueChange={(next) => setScope(String(next))}>
-            <TabsList size="sm" overflow="menu" aria-label="Whose tasks">
+            <TabsList overflow="menu" aria-label="Whose tasks">
               <TabsTrigger value="mine">My tasks</TabsTrigger>
               <TabsTrigger value="created">Created by me</TabsTrigger>
               <TabsTrigger value="team">My team</TabsTrigger>
@@ -122,6 +152,16 @@ function TasksToolbar({ width }: { width?: number }) {
           value: query,
           onValueChange: setQuery,
           placeholder: "Search tasks",
+          suggestion: {
+            label: "Filter with AI",
+            icon: <Sparkles />,
+            opensFilter: true,
+            onSelect: async () => {
+              await new Promise((resolve) => setTimeout(resolve, 600));
+              const id = addPriority("High", "ai");
+              setAiNote({ ids: [id], unmatched: [] });
+            },
+          },
         }}
         filter={{ defaultOpen: true }}
         filterRow={
@@ -139,7 +179,7 @@ function TasksToolbar({ width }: { width?: number }) {
                           <Button
                             key={value}
                             variant="ghost"
-                            className="h-8 justify-start px-2 font-normal"
+                            className="h-7 justify-start rounded-md px-1.5 font-normal"
                             onClick={() => {
                               addPriority(value);
                               done();
@@ -289,13 +329,6 @@ function TasksToolbar({ width }: { width?: number }) {
             ]}
           />
         }
-        action={
-          <ListToolbarAction
-            icon={<Plus />}
-            label="New task"
-            onClick={() => {}}
-          />
-        }
       />
     </div>
   );
@@ -304,7 +337,9 @@ function TasksToolbar({ width }: { width?: number }) {
 export function listToolbar(): ReactNode {
   return (
     <Wrapper className="block p-4">
-      <TasksToolbar />
+      <PageFrame title="Tasks" action="New task">
+        <TasksToolbar />
+      </PageFrame>
     </Wrapper>
   );
 }
@@ -346,140 +381,143 @@ export function listToolbarTable(): ReactNode {
   const [dirty, setDirty] = React.useState(true);
   return (
     <Wrapper className="block p-4">
-      <ListToolbar
-        tabs={
-          <ViewTabs
-            views={[
-              {
-                id: "all",
-                name: "All requests",
-                kind: "grid",
-                scope: "shared",
-                dirty,
-              },
-              {
-                id: "status",
-                name: "By status",
-                kind: "board",
-                scope: "locked",
-              },
-              {
-                id: "mine",
-                name: "My requests",
-                kind: "grid",
-                scope: "personal",
-              },
-            ]}
-            value={view}
-            onValueChange={setView}
-            onCreate={() => {}}
-          />
-        }
-        state={
-          dirty ? (
-            <Button variant="outline" size="sm" onClick={() => setDirty(false)}>
-              Save view
-            </Button>
-          ) : null
-        }
-        edit={[
-          {
-            id: "undo",
-            label: "Undo",
-            icon: <Undo2 />,
-            shortcut: "⌘Z",
-            onSelect: () => {},
-          },
-          {
-            id: "redo",
-            label: "Redo",
-            icon: <Redo2 />,
-            shortcut: "⇧⌘Z",
-            onSelect: () => {},
-            disabled: true,
-          },
-        ]}
-        search={{
-          value: "",
-          onValueChange: () => {},
-          placeholder: "Search rows",
-          collapsible: true,
-        }}
-        filter={{}}
-        filterRow={
-          <FilterRow
-            addFilter={
-              <AddFilterMenu
-                fields={[{ key: "owner", label: "Owner" }]}
-                onAdvanced={() => {}}
-              />
-            }
-          />
-        }
-        sort={{
-          variant: "multi",
-          count: sorts.length,
-          content: (
-            <SortBuilder
-              vocabulary={[
-                { key: "status", label: "Status" },
-                { key: "due", label: "Due" },
-                { key: "qty", label: "Qty" },
+      <PageFrame title="Requests" action="New row">
+        <ListToolbar
+          tabs={
+            <ViewTabs
+              views={[
+                {
+                  id: "all",
+                  name: "All requests",
+                  kind: "grid",
+                  scope: "shared",
+                  dirty,
+                },
+                {
+                  id: "status",
+                  name: "By status",
+                  kind: "board",
+                  scope: "locked",
+                },
+                {
+                  id: "mine",
+                  name: "My requests",
+                  kind: "grid",
+                  scope: "personal",
+                },
               ]}
-              value={sorts}
-              onChange={setSorts}
+              value={view}
+              onValueChange={setView}
+              onCreate={() => {}}
             />
-          ),
-        }}
-        display={
-          <DisplayMenu
-            columns={{
-              title: "Fields",
-              items: [
-                { id: "name", label: "Name", visible: true, locked: true },
-                { id: "customer", label: "Customer", visible: true },
-                { id: "qty", label: "Qty", visible: false },
-              ],
-              onToggle: () => {},
-            }}
-            toggles={[
-              {
-                id: "empty",
-                label: "Show empty groups",
-                checked: false,
-                onCheckedChange: () => {},
-              },
-            ]}
-            resetLabel="Reset to saved view"
-          />
-        }
-        more={
-          <ListToolbarMenu
-            items={[
-              {
-                id: "save",
-                label: "Save view",
-                onSelect: () => setDirty(false),
-              },
-              { id: "save-as", label: "Save as new view…", onSelect: () => {} },
-              "separator",
-              {
-                id: "export",
-                label: "Export CSV",
-                icon: <Download />,
-                onSelect: () => {},
-              },
-            ]}
-          />
-        }
-        action={
-          <ListToolbarAction
-            icon={<Plus />}
-            label="New row"
-            onClick={() => {}}
-          />
-        }
-      />
+          }
+          state={
+            dirty ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDirty(false)}
+              >
+                Save view
+              </Button>
+            ) : null
+          }
+          edit={[
+            {
+              id: "undo",
+              label: "Undo",
+              icon: <Undo2 />,
+              shortcut: "⌘Z",
+              onSelect: () => {},
+            },
+            {
+              id: "redo",
+              label: "Redo",
+              icon: <Redo2 />,
+              shortcut: "⇧⌘Z",
+              onSelect: () => {},
+              disabled: true,
+            },
+          ]}
+          search={{
+            value: "",
+            onValueChange: () => {},
+            placeholder: "Search rows",
+            collapsible: true,
+          }}
+          filter={{}}
+          filterRow={
+            <FilterRow
+              addFilter={
+                <AddFilterMenu
+                  fields={[{ key: "owner", label: "Owner" }]}
+                  onAdvanced={() => {}}
+                />
+              }
+            />
+          }
+          sort={{
+            variant: "multi",
+            count: sorts.length,
+            content: (
+              <SortBuilder
+                vocabulary={[
+                  { key: "status", label: "Status" },
+                  { key: "due", label: "Due" },
+                  { key: "qty", label: "Qty" },
+                ]}
+                value={sorts}
+                onChange={setSorts}
+              />
+            ),
+          }}
+          display={
+            <DisplayMenu
+              columns={{
+                title: "Fields",
+                items: [
+                  { id: "name", label: "Name", visible: true, locked: true },
+                  { id: "customer", label: "Customer", visible: true },
+                  { id: "qty", label: "Qty", visible: false },
+                ],
+                onToggle: () => {},
+              }}
+              toggles={[
+                {
+                  id: "empty",
+                  label: "Show empty groups",
+                  checked: false,
+                  onCheckedChange: () => {},
+                },
+              ]}
+              resetLabel="Reset to saved view"
+            />
+          }
+          more={
+            <ListToolbarMenu
+              items={[
+                {
+                  id: "save",
+                  label: "Save view",
+                  onSelect: () => setDirty(false),
+                },
+                {
+                  id: "save-as",
+                  label: "Save as new view…",
+                  onSelect: () => {},
+                },
+                "separator",
+                {
+                  id: "export",
+                  label: "Export CSV",
+                  icon: <Download />,
+                  onSelect: () => {},
+                },
+              ]}
+            />
+          }
+        />
+      </PageFrame>
     </Wrapper>
   );
 }
@@ -489,53 +527,74 @@ export function listToolbarSettings(): ReactNode {
   const [role, setRole] = React.useState<Opt[]>([]);
   return (
     <Wrapper className="block p-4">
-      <ListToolbar
-        search={{
-          value: query,
-          onValueChange: setQuery,
-          placeholder: "Search name or email",
-        }}
-        filterRow={
-          <FilterRow
-            facets={
-              <ListFacet<Opt, true>
-                label="Role"
-                multiple
-                items={[
-                  { id: "owner", name: "Owner" },
-                  { id: "member", name: "Member" },
-                ]}
-                value={role}
-                onValueChange={setRole}
-                {...optProps}
-              />
-            }
-            onClear={() => setRole([])}
-          />
-        }
-        action={
-          <ListToolbarAction
-            icon={<Plus />}
-            label="Invite member"
-            onClick={() => {}}
-          />
-        }
-      />
+      <PageFrame title="Members" action="Invite member">
+        <ListToolbar
+          search={{
+            value: query,
+            onValueChange: setQuery,
+            placeholder: "Search name or email",
+          }}
+          filterRow={
+            <FilterRow
+              facets={
+                <ListFacet<Opt, true>
+                  label="Role"
+                  multiple
+                  items={[
+                    { id: "owner", name: "Owner" },
+                    { id: "member", name: "Member" },
+                  ]}
+                  value={role}
+                  onValueChange={setRole}
+                  {...optProps}
+                />
+              }
+              onClear={() => setRole([])}
+            />
+          }
+        />
+      </PageFrame>
     </Wrapper>
   );
 }
 
 export function listToolbarCompact(): ReactNode {
+  const [query, setQuery] = React.useState("");
+  const [status, setStatus] = React.useState<Opt[]>([]);
   return (
     <Wrapper className="block p-4">
       <ListToolbar
         size="compact"
-        action={
-          <ListToolbarAction
-            icon={<Plus />}
-            label="New task"
-            variant="ghost"
-            onClick={() => {}}
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search tasks",
+        }}
+        filterRow={
+          <FilterRow
+            facets={
+              <ListFacet<Opt, true>
+                label="Status"
+                multiple
+                items={STATUSES}
+                value={status}
+                onValueChange={setStatus}
+                {...optProps}
+              />
+            }
+            onClear={() => setStatus([])}
+          />
+        }
+        more={
+          <ListToolbarMenu
+            items={[
+              {
+                id: "export",
+                label: "Export CSV",
+                icon: <Download />,
+                onSelect: () => {},
+              },
+            ]}
           />
         }
       />

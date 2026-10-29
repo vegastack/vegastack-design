@@ -669,14 +669,17 @@ const focusSignature = (control: Element): FocusSignature => ({
  * indicator. A `role="textbox"` contenteditable that declares `data-focus-cue="caret"` — TextEdit's
  * default `document` variant (MK 2026-09-26), a Notion-style editor that must rest looking exactly
  * like the `MarkdownView` it replaces — and Input's borderless `ghost` variant (a title typed
- * straight onto the page; MK 2026-09-28: no fill at rest, on hover or on focus). The
+ * straight onto the page; MK 2026-09-28: no fill at rest, on hover or on focus), and the
+ * PanelSearch field of a popup panel, whose hairline is a divider that keeps its colour (MK
+ * 2026-10-30). The
  * exemption is narrow on purpose: the contenteditable needs all three attributes, so a stray
  * `data-focus-cue` on a button or a plain div cannot opt out, and forced colours still restore the
  * outline (base.css FOC-7 covers `input:focus` and `[contenteditable="true"]:focus`).
  */
 const CARET_FOCUS_CUE =
   '[contenteditable="true"][role="textbox"][data-focus-cue="caret"],' +
-  '[data-slot="input"][data-variant="ghost"]';
+  '[data-slot="input"][data-variant="ghost"],' +
+  '[data-slot="panel-search-field"]';
 
 /**
  * Any native text control, whatever `data-slot` a composing component gives it (`auto-save-input`,
@@ -4127,8 +4130,9 @@ for (const dir of ["ltr", "rtl"] as const) {
         const style = getComputedStyle(item);
         const start = item.hasAttribute("data-row-start");
         const end = item.hasAttribute("data-row-end");
-        // Each row is its own joined segment: rounded at its two ends, square in between, and a
-        // leading border on its first item even though that item is not `:first-child`.
+        // Each row is its own joined segment: rounded at its two ends, square in between. Every
+        // item draws its four borders (API-39, T12) and overlaps its neighbour by a pixel, except a
+        // row's first item, which starts flush even though it is not `:first-child`.
         expect(
           parseFloat(style.borderStartStartRadius) > 0,
           `${item.textContent}: rounded start`,
@@ -4138,9 +4142,13 @@ for (const dir of ["ltr", "rtl"] as const) {
           `${item.textContent}: rounded end`,
         ).toBe(end);
         expect(
-          parseFloat(style.borderInlineStartWidth) > 0,
+          parseFloat(style.borderInlineStartWidth),
           `${item.textContent}: leading border`,
-        ).toBe(start);
+        ).toBe(1);
+        expect(
+          parseFloat(style.marginInlineStart),
+          `${item.textContent}: overlap`,
+        ).toBe(start ? 0 : -1);
       }
       // Rows do not touch: the joined borders of one row never double up on the next.
       const rows = [...tops].sort((a, b) => a - b);

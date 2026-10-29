@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.25.103 sha256-QJUTTG1fskXcsx8ocJ9B7FPQX+mbDJijnpDeKvjRi0o=
+// @vegastack filter-row@0.25.103 sha256-CvMUrp2ucSbUS0ug1Jsposx9p7SSr+agOWzo9A4BPaY=
 
 "use client";
 
@@ -27,12 +27,24 @@ import { formatDateRange } from "@/lib/date-time";
 
 /* ---
 `FilterRow` is the row of filters under a `ListToolbar`, opened by its Filter tool. Its order never
-changes, so chips never jump: `+ Filter` first, then the page's pinned facets (dashed while unset),
-then the other chips in the order they were added, and `Clear` at the far end while anything is
-set. Chips an AI filter made carry a ✦ until edited, and a line under the row says what the AI did
-— with Undo, and the words it could not match. On a wide row the chips wrap; on a narrow one they
-scroll sideways in one line, `+ Filter` and `Clear` pinned at its two ends.
+changes, so chips never jump: the page's pinned facets (dashed while unset), then the other chips
+in the order they were added — one line that scrolls sideways and never wraps — and at the right
+end `+ Filter`, with `Clear` beside it while anything is set. Every control on the row is the
+toolbar's tool height (32px; 28px in a compact toolbar). Chips an AI filter made carry a ✦ until
+edited, and a line under the row says what the AI did — with Undo, and the words it could not
+match.
 --- */
+
+/**
+ * Whether the facets and chips around stand in a `FilterRow` at the toolbar's 32px tool height.
+ * Outside one (a read-only summary, a builder) they keep the compact 28px chip tier.
+ */
+const FilterRowTallContext = React.createContext(false);
+
+/** The height class of a facet or chip: the row's tool height inside a `FilterRow`, else 28px. */
+function useChipHeight() {
+  return React.useContext(FilterRowTallContext) ? "h-8" : "h-7";
+}
 
 /** One applied filter, as a chip. */
 export interface FilterRowChip {
@@ -120,7 +132,7 @@ export interface FilterRowProps extends Omit<
   "children"
 > {
   /**
-   * `+ Filter` — an `AddFilterMenu`. Always first.
+   * `+ Filter` — an `AddFilterMenu`. At the right end, before `Clear`.
    * @default undefined
    */
   addFilter?: React.ReactNode;
@@ -159,10 +171,10 @@ export interface FilterRowProps extends Omit<
 }
 
 /**
- * `FilterRow` — the filter chips under a `ListToolbar`: `+ Filter`, the pinned facets, the other
- * chips, `Clear`; then, after an AI run, one line saying what it added, with Undo and the words it
- * could not match. Wraps on a wide row; scrolls sideways in one line on a narrow one. Counts what
- * is applied and reports it to the toolbar's Filter tool. Put it in `ListToolbar`'s `filterRow`.
+ * `FilterRow` — the filter chips under a `ListToolbar`: the pinned facets and the other chips in
+ * one sideways-scrolling line, then `+ Filter` and `Clear` at the right end; after an AI run, one
+ * line saying what it added, with Undo and the words it could not match. Counts what is applied
+ * and reports it to the toolbar's Filter tool. Put it in `ListToolbar`'s `filterRow`.
  *
  * @example
  * <FilterRow
@@ -224,19 +236,20 @@ export function FilterRow({
   const showClear = onClear != null && activeCount > 0;
   const clear = () => {
     onClear?.();
-    // Clear unmounts once nothing is set: hand focus to the row's first control.
-    rowRef.current
-      ?.querySelector<HTMLElement>("button:not([disabled])")
-      ?.focus();
+    // Clear unmounts once nothing is set, and so may the chips: hand focus to + Filter, which
+    // stays, else the row's first control.
+    const row = rowRef.current;
+    (
+      row?.querySelector<HTMLElement>(
+        '[data-slot="filter-row-add"] button:not([disabled])',
+      ) ?? row?.querySelector<HTMLElement>("button:not([disabled])")
+    )?.focus();
   };
 
   return (
     <div
       data-slot="filter-row"
-      className={cn(
-        "@container/filter-row flex w-full min-w-0 flex-col gap-1",
-        className,
-      )}
+      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
       {...props}
     >
       <div
@@ -244,8 +257,32 @@ export function FilterRow({
         role="group"
         aria-label={labels.filters}
         data-slot="filter-row-chips"
-        className="flex w-full min-w-0 items-start gap-1.5"
+        className="flex w-full min-w-0 items-center gap-1.5"
       >
+        <FilterRowTallContext.Provider value={!toolbar?.compact}>
+          <FilterFacetReporter value={reporter}>
+            <div
+              data-slot="filter-row-scroll"
+              // One line at every width: it scrolls sideways, never wraps.
+              className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
+            >
+              {facets}
+              {chips.map((chip) => (
+                <FilterChip
+                  key={chip.id}
+                  data-filter-id={chip.id}
+                  label={chip.label}
+                  value={chip.value}
+                  icon={chip.icon}
+                  ai={chip.source === "ai"}
+                  editor={chip.editor}
+                  defaultEditorOpen={chip.defaultEditorOpen}
+                  onRemove={chip.onRemove}
+                />
+              ))}
+            </div>
+          </FilterFacetReporter>
+        </FilterRowTallContext.Provider>
         {addFilter != null ? (
           <div
             data-slot="filter-row-add"
@@ -254,32 +291,10 @@ export function FilterRow({
             {addFilter}
           </div>
         ) : null}
-        <FilterFacetReporter value={reporter}>
-          <div
-            data-slot="filter-row-scroll"
-            // One sideways-scrolling line on a narrow row; wraps from @3xl.
-            className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none @3xl/filter-row:flex-wrap @3xl/filter-row:overflow-visible"
-          >
-            {facets}
-            {chips.map((chip) => (
-              <FilterChip
-                key={chip.id}
-                data-filter-id={chip.id}
-                label={chip.label}
-                value={chip.value}
-                icon={chip.icon}
-                ai={chip.source === "ai"}
-                editor={chip.editor}
-                defaultEditorOpen={chip.defaultEditorOpen}
-                onRemove={chip.onRemove}
-              />
-            ))}
-          </div>
-        </FilterFacetReporter>
         {showClear ? (
           <Button
             variant="ghost"
-            size="sm"
+            size={toolbar?.compact ? "sm" : "default"}
             data-slot="filter-row-clear"
             className="shrink-0 font-normal text-muted-foreground"
             onClick={clear}
@@ -488,9 +503,9 @@ function FilterChipText({
 
 /**
  * `FilterChip` — a single removable filter pill: a `label`, an optional `value`
- * after a colon, and a trailing `×` control that fires `onRemove`. The {@link Chip}
- * primitive in the filter row's one chip shape — compact (h-7), rounded-md, quiet type — the
- * same shape as a {@link ListFacet}. An applied filter is a selection, so it carries the
+ * after a colon, and a trailing `×` control that fires `onRemove`. The Chip
+ * primitive in the filter row's one chip shape — the toolbar's tool height inside a `FilterRow`
+ * (28px elsewhere), rounded-md, quiet type — the same shape as a `ListFacet`. An applied filter is a selection, so it carries the
  * tinted fill by default; pass `active={false}` for a plain presence chip.
  * Purely presentational; `FilterRow` renders one per applied filter.
  *
@@ -515,18 +530,19 @@ export function FilterChip({
   const computedRemoveLabel =
     removeLabel ??
     (typeof label === "string" ? `Clear ${label}` : "Clear filter");
+  const tall = React.useContext(FilterRowTallContext);
 
   return (
     <Chip
       data-slot="filter-chip"
       data-source={ai ? "ai" : undefined}
       data-state={unset ? "unset" : undefined}
-      size="sm"
+      size={tall ? "md" : "sm"}
       active={unset ? false : active}
       onRemove={unset ? undefined : onRemove}
       removeLabel={computedRemoveLabel}
-      // The filter row's one chip shape: compact (h-7), rounded-md, quiet type — set or unset. An
-      // unset pinned facet is the same box, dashed and clear: an offer, not a value.
+      // The filter row's one chip shape: the row's height, rounded-md, quiet type — set or unset.
+      // An unset pinned facet is the same box, dashed and clear: an offer, not a value.
       className={cn(
         "max-w-xs rounded-md text-sm font-normal [&_[data-slot=chip-remove]]:rounded-sm",
         unset &&
@@ -698,7 +714,7 @@ export type ListFacetProps<
   ListFacetOwnProps<Item>;
 
 /**
- * `ListFacet` — one filter on `SearchableSelect`, as a compact rounded-md chip (h-7). Unset,
+ * `ListFacet` — one filter on `SearchableSelect`, as a rounded-md chip at the row's height. Unset,
  * it is quiet and reads its label ("Status ▾"). Set, the same chip is tinted: "Status: Open", then
  * "Status: 2" from two values (the values on hover and ticked in the popover), with a × in the
  * chevron's fixed slot that clears it ("Clear Status"). Single or `multiple`, local or
@@ -750,6 +766,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   const hasValue = selectedKeys.size > 0;
 
   const row = React.useContext(FilterFacetContext);
+  const chipHeight = useChipHeight();
   const id = React.useId();
   React.useEffect(() => {
     row?.report(id, label, hasValue);
@@ -816,7 +833,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
               : select.items
           }
           variant="ghost"
-          // The filter row's compact chip tier (h-7).
+          // The compact select tier; the chip's height is the row's (below).
           size="sm"
           countLabel={countLabel}
           placeholder={label}
@@ -842,10 +859,11 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
           groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
           // The select's own chevron gives way to the facet's ▾ or ×.
           containerClassName="w-fit [&>svg]:hidden"
-          // ONE chip shape for unset and set (rounded-md, h-7, the same border box and the
-          // same 28px trailing reserve); a set chip is tinted, never reshaped.
+          // ONE chip shape for unset and set (rounded-md, the row's height, the same border box
+          // and the same 28px trailing reserve); a set chip is tinted, never reshaped.
           className={cn(
-            "h-7 w-auto max-w-64 rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border focus:border-border aria-expanded:border-border",
+            chipHeight,
+            "w-auto max-w-64 rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border focus:border-border aria-expanded:border-border",
             hasValue
               ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
               : "border-dashed bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
@@ -964,6 +982,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
   const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
 
   const row = React.useContext(FilterFacetContext);
+  const chipHeight = useChipHeight();
   const id = React.useId();
   React.useEffect(() => {
     row?.report(id, label, hasValue);
@@ -1025,7 +1044,8 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
                 data-slot="list-facet-select-trigger"
                 data-placeholder={hasValue ? undefined : ""}
                 className={cn(
-                  "h-7 w-auto max-w-64 justify-start rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
+                  chipHeight,
+                  "w-auto max-w-64 justify-start rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
                     ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
                     : "border-dashed bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
@@ -1235,6 +1255,7 @@ export function DateRangeFilter({
   const labels = { ...DATE_RANGE_PRESET_LABELS, ...presetLabels };
   const hasValue = value != null;
   const row = React.useContext(FilterFacetContext);
+  const chipHeight = useChipHeight();
   const id = React.useId();
   React.useEffect(() => {
     row?.report(id, label, hasValue);
@@ -1286,7 +1307,8 @@ export function DateRangeFilter({
               onPointerEnter={prefetchCalendar}
               onFocus={prefetchCalendar}
               className={cn(
-                "h-7 max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
+                chipHeight,
+                "max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
                 hasValue
                   ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent"
                   : "border-dashed text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",

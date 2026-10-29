@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.25.103 sha256-3v5mksPovNdFYMOMzQ7vppdiSWY8J6TVnQVJV3DB5OA=
+// @vegastack toggle-group@0.25.103 sha256-SwuMdSP2g4nH7Jqwll0QjD+nXFKi1Zy3xm4IQbZB/O4=
 
 "use client";
 
@@ -146,8 +146,8 @@ function ToggleGroupItem({
       data-size={context.size || size}
       data-spacing={context.spacing}
       className={cn(
-        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-s-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-s group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t",
-        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-lg group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:border-s",
+        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:-ms-px group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:-mt-px group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:ms-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:mt-0 group-data-[spacing=0]/toggle-group:aria-pressed:z-10 group-data-[spacing=0]/toggle-group:data-[state=on]:z-10",
+        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-lg group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:ms-0",
         toggleVariants({
           variant: context.variant || variant,
           size: context.size || size,

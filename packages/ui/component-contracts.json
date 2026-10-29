@@ -9765,7 +9765,7 @@
       "name": "list-toolbar",
       "registryType": "registry:ui",
       "title": "List Toolbar",
-      "summary": "The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.",
+      "summary": "The one header row of every list and table: the search left, the icon tools (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above and the filter row under it. Measures its own width and collapses in a fixed order.",
       "status": "stable",
       "since": "0.25.100",
       "family": "data",
@@ -9792,6 +9792,15 @@
         },
         {
           "name": "ListToolbarSearch",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListToolbarSearchSuggestion",
           "kind": "interface",
           "source": "packages/ui/registry/ui/list-toolbar.tsx",
           "ref": {
@@ -9899,24 +9908,6 @@
           }
         },
         {
-          "name": "ListToolbarAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/list-toolbar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a composed control; no single host element takes a ref."
-          }
-        },
-        {
-          "name": "ListToolbarActionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/list-toolbar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "useListToolbar",
           "kind": "hook",
           "source": "packages/ui/registry/ui/list-toolbar.tsx",
@@ -9974,7 +9965,7 @@
         "@vegastack/popover",
         "@vegastack/search-input",
         "@vegastack/sheet",
-        "@vegastack/toggle-group",
+        "@vegastack/suggestion-menu",
         "@vegastack/tooltip",
         "@vegastack/use-media-query",
         "@vegastack/page-layout"
@@ -10026,15 +10017,6 @@
           ],
           "cssVariables": []
         },
-        "ListToolbarAction": {
-          "attributes": [
-            {
-              "name": "data-labelled",
-              "values": [""]
-            }
-          ],
-          "cssVariables": []
-        },
         "ListToolbar": {
           "attributes": [
             {
@@ -10053,7 +10035,6 @@
               "name": "data-slot",
               "values": [
                 "list-toolbar",
-                "list-toolbar-action",
                 "list-toolbar-cluster",
                 "list-toolbar-edit",
                 "list-toolbar-filter",
@@ -10451,7 +10432,7 @@
       "name": "add-filter-menu",
       "registryType": "registry:ui",
       "title": "Add Filter Menu",
-      "summary": "+ Filter: one input that narrows the field list or, when the page passes an AI filter, sends a plain-language request; fields drill into their value pickers in the same popover. AiFilterInput is its input line.",
+      "summary": "+ Filter: one input (“Filter by…”) that narrows the field list and, when the page passes an AI filter and the text reads as a phrase, offers “Filter with AI” first; fields drill into their value pickers in the same popover.",
       "status": "stable",
       "since": "0.25.100",
       "family": "data",
@@ -10511,24 +10492,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "AiFilterInput",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a composed control; no single host element takes a ref."
-          }
-        },
-        {
-          "name": "AiFilterInputProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
         }
       ],
       "variants": {
@@ -10575,8 +10538,8 @@
       "docsSlug": "/docs/components/add-filter-menu",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/input-group",
         "@vegastack/list-toolbar",
-        "@vegastack/panel-search",
         "@vegastack/spinner"
       ],
       "npmDependencies": [
@@ -10595,19 +10558,6 @@
       },
       "previewModule": "add-filter-menu",
       "dataAttributes": {
-        "AiFilterInput": {
-          "attributes": [
-            {
-              "name": "data-ai",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["ai-filter-input"]
-            }
-          ],
-          "cssVariables": []
-        },
         "AddFilterMenu": {
           "attributes": [
             {
@@ -10624,6 +10574,7 @@
                 "add-filter-menu-content",
                 "add-filter-menu-editor",
                 "add-filter-menu-field",
+                "add-filter-menu-input",
                 "add-filter-menu-list",
                 "add-filter-menu-message",
                 "add-filter-menu-trigger"
@@ -30587,6 +30538,15 @@
             {
               "name": "data-slot",
               "values": ["panel-search"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PanelSearchField": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["panel-search-field"]
             }
           ],
           "cssVariables": []

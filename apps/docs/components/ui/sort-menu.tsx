@@ -1,4 +1,4 @@
-// @vegastack sort-menu@0.25.103 sha256-rfG9t3u8+G8791JDVdCxwFxG3K4qdSkloat2GC+g0Ow=
+// @vegastack sort-menu@0.25.103 sha256-38rIarBon1DwXeeNVminQNjAQANM8tzirlV9LiYiwxg=
 
 "use client";
 
@@ -135,7 +135,7 @@ function SortMenuOption({
     <RadioPrimitive.Root
       value={value}
       data-slot="sort-menu-option"
-      className="group/sort-option flex h-8 w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2 text-sm text-foreground outline-none hover:bg-accent data-disabled:opacity-50"
+      className="group/sort-option flex h-7 w-full cursor-pointer items-center justify-between gap-1.5 rounded-md px-1.5 text-sm text-foreground outline-none hover:bg-accent data-disabled:opacity-50"
     >
       <span className="min-w-0 truncate">
         {children}
@@ -202,11 +202,11 @@ export function SortMenu({
     <div
       data-slot="sort-menu"
       data-default={isDefault ? "" : undefined}
-      className={cn("flex min-w-0 flex-col gap-1", className)}
+      className={cn("flex min-w-0 flex-col", className)}
     >
       <div
         data-slot="sort-menu-header"
-        className="flex h-8 items-center justify-between gap-2 ps-2"
+        className="flex h-6 items-center justify-between gap-2 ps-1.5"
       >
         <span id={headingId} className="text-xs text-muted-foreground">
           {labels.sortBy}
@@ -214,7 +214,7 @@ export function SortMenu({
         {!isDefault && defaultValue ? (
           <Button
             variant="ghost"
-            size="sm"
+            size="xs"
             data-slot="sort-menu-reset"
             className="font-normal text-muted-foreground"
             onClick={() => onValueChange(defaultValue)}
@@ -246,7 +246,7 @@ export function SortMenu({
       </RadioGroupPrimitive>
       {fixed != null ? null : (
         <>
-          <div aria-hidden className="-mx-2 my-1 h-px bg-border" />
+          <div aria-hidden className="-mx-1 my-1 h-px bg-border" />
           <RadioGroupPrimitive
             aria-label={labels.direction}
             data-slot="sort-menu-direction"

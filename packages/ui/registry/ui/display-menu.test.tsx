@@ -5,6 +5,7 @@ import geometryCss from "../../test/geometry.css?inline";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DisplayMenu, type DisplayMenuColumn } from "./display-menu";
+import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
 const sheet = document.createElement("style");
 sheet.textContent = geometryCss;
@@ -105,4 +106,47 @@ test("nothing to show: no tool", async () => {
   expect(
     document.querySelector('[data-slot="display-menu-trigger"]'),
   ).toBeNull();
+});
+
+test("T12: a pressed segment of Display's joined outline control keeps its whole outline at every position (2 and 3 options)", async () => {
+  const cases = [
+    ["Compact", "Comfortable"],
+    ["Short", "Medium", "Tall"],
+  ].flatMap((options) => options.map((pressed) => ({ options, pressed })));
+  // The control Display's Row height renders: a joined outline `sm` group, one per pressed position.
+  const screen = await render(
+    <div className="flex flex-col gap-2">
+      {cases.map(({ options, pressed }) => (
+        <ToggleGroup
+          key={`${options.length}-${pressed}`}
+          aria-label="Row height"
+          variant="outline"
+          size="sm"
+          spacing={0}
+          value={[pressed]}
+        >
+          {options.map((label) => (
+            <ToggleGroupItem key={label} value={label}>
+              {label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      ))}
+    </div>,
+  );
+  const pressedItems = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="toggle-group-item"][aria-pressed="true"]',
+  );
+  expect(pressedItems.length).toBe(cases.length);
+  for (const item of pressedItems) {
+    const style = getComputedStyle(item);
+    // Four borders in one colour: the leading edge is its own, not the neighbour's.
+    expect(style.borderLeftWidth).toBe("1px");
+    expect(style.borderLeftColor).toBe(style.borderRightColor);
+    // Raised over its neighbours, which it overlaps by a pixel, so both its edges show.
+    const box = item.getBoundingClientRect();
+    const y = box.top + box.height / 2;
+    expect(document.elementFromPoint(box.left + 0.5, y)).toBe(item);
+    expect(document.elementFromPoint(box.right - 0.5, y)).toBe(item);
+  }
 });

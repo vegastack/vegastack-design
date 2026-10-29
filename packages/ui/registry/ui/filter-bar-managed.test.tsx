@@ -1403,14 +1403,13 @@ test("SortBuilder and GroupByPicker: with every field already used, Add is gone 
   await expect
     .element(screen.getByRole("button", { name: "Group by" }))
     .not.toBeInTheDocument();
-  // One key: no grip (nothing to reorder), its column kept so nothing shifts on the next key.
+  // One key: no grip (nothing to reorder) and no handle column, so the row starts at the inset.
   expect(
     document.querySelectorAll('[data-slot="sortable-list-handle"]'),
   ).toHaveLength(0);
   expect(
-    document.querySelectorAll('[data-slot="sortable-list-handle-spacer"]')
-      .length,
-  ).toBeGreaterThan(0);
+    document.querySelectorAll('[data-slot="sortable-list-handle-spacer"]'),
+  ).toHaveLength(0);
 });
 
 test("SortBuilder: a header with Clear while any key is set; rows carry no fill", async () => {

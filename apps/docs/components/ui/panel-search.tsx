@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.25.103 sha256-qcYaMSW38HOUNNi81wood4kjExHmHGLgHPf6pEg2tJk=
+// @vegastack panel-search@0.25.103 sha256-+J8JA3FDTshQmFfnrNjJRwUN7CXyeLi/h4cI2Hxe+VQ=
 
 "use client";
 
@@ -42,9 +42,9 @@ export interface PanelSearchProps extends React.ComponentProps<"div"> {
 
 /**
  * `PanelSearch` — the sticky search header inside a popup panel: leading glyph, the field, and a
- * hairline. The row is a field group (`data-field-group`), so while the field inside it holds
- * focus the row's hairline darkens subtly with an ease (text entry's border cue, FOC-3) and no fill
- * is painted — neither on the row nor on the field.
+ * hairline. The hairline is a divider, not a field border, so it keeps the default `border` colour
+ * in every state (MK 2026-10-30, list-toolbar T10): the field is caret-only, like a ghost Input,
+ * and no fill is painted — neither on the row nor on the field.
  *
  * @example
  * <PopoverContent>
@@ -65,7 +65,7 @@ export function PanelSearch({
       data-slot="panel-search"
       data-field-group=""
       className={cn(
-        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:border-ring/50",
+        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3",
         className,
       )}
       {...props}
@@ -83,8 +83,8 @@ export type PanelSearchFieldProps = React.ComponentProps<typeof BaseInput>;
 
 /**
  * `PanelSearchField` — the borderless `type="search"` field that fills a `PanelSearch` row. It
- * paints no box and no focus ring of its own: the row above owns both, which is the whole point
- * of OVL-11.
+ * paints no box and no focus ring of its own (the caret is the cue), which is the whole point of
+ * OVL-11.
  *
  * @example
  * <PanelSearchField placeholder="Search shortcuts" aria-label="Search shortcuts" />
@@ -95,6 +95,7 @@ export function PanelSearchField({
 }: PanelSearchFieldProps) {
   return (
     <BaseInput
+      data-slot="panel-search-field"
       type="search"
       className={cn(
         "h-full w-full min-w-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",

@@ -1,11 +1,10 @@
-import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 // Real layout: the toolbar and its tools measure and size themselves from the compiled classes.
 import geometryCss from "../../test/geometry.css?inline";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { AddFilterMenu, AiFilterInput } from "./add-filter-menu";
+import { AddFilterMenu } from "./add-filter-menu";
 
 const sheet = document.createElement("style");
 sheet.textContent = geometryCss;
@@ -29,11 +28,6 @@ test("without AI: one input narrows the fields; Enter picks; no ✦ anywhere", a
   await screen.getByRole("button", { name: "Filter" }).click();
   const input = screen.getByRole("combobox", { name: "Filter" });
   await expect.element(input).toHaveAttribute("placeholder", "Filter by…");
-  expect(
-    document
-      .querySelector('[data-slot="ai-filter-input"]')
-      ?.hasAttribute("data-ai"),
-  ).toBe(false);
   await userEvent.type(input, "own");
   await expect
     .element(screen.getByRole("option", { name: "Assignee" }))
@@ -94,31 +88,44 @@ test("with AI: the first item sends the text; success closes, a failure keeps th
     .toBeVisible();
 });
 
-test("AiFilterInput: ✦ lead, Enter submits the trimmed text, a spinner while pending", async () => {
-  const onSubmit = vi.fn();
-  function Harness() {
-    const [value, setValue] = React.useState("");
-    return (
-      <AiFilterInput
-        aria-label="Describe"
-        value={value}
-        onValueChange={setValue}
-        onSubmit={onSubmit}
-        pending
-      />
-    );
-  }
-  const screen = await render(<Harness />);
-  await userEvent.type(
-    screen.getByRole("searchbox", { name: "Describe" }),
-    " IP65 black {Enter}",
+test("with AI: a field name never offers AI; a phrase or an unmatched word does, first", async () => {
+  const screen = await render(
+    <AddFilterMenu fields={FIELDS} ai={{ onSubmit: () => ({ added: 1 }) }} />,
   );
-  expect(onSubmit).toHaveBeenCalledWith("IP65 black");
-  expect(
-    document.querySelector(
-      '[data-slot="ai-filter-input"] [data-slot="spinner"], [data-slot="ai-filter-input"] svg.animate-spin',
-    ),
-  ).not.toBeNull();
+  await screen.getByRole("button", { name: "Filter" }).click();
+  const input = screen.getByRole("combobox", { name: "Filter" });
+  // The one input reads "Filter by…" with AI on too.
+  await expect.element(input).toHaveAttribute("placeholder", "Filter by…");
+  await userEvent.type(input, "prio");
+  await expect
+    .element(screen.getByRole("option", { name: "Priority" }))
+    .toBeVisible();
+  expect(document.querySelector('[data-slot="add-filter-menu-ai"]')).toBeNull();
+  await userEvent.clear(input);
+  await userEvent.type(input, "overdue");
+  await expect
+    .poll(() => document.querySelector('[data-slot="add-filter-menu-ai"]'))
+    .not.toBeNull();
+  await userEvent.clear(input);
+  await userEvent.type(input, "status open");
+  const options = document.querySelectorAll('[role="option"]');
+  expect(options[0]?.getAttribute("data-slot")).toBe("add-filter-menu-ai");
+  expect(options[0]?.getAttribute("aria-selected")).toBe("true");
+});
+
+test("menu rhythm: the DropdownMenu's 4px inset and 28px rows", async () => {
+  await page.viewport(1024, 768);
+  const screen = await render(<AddFilterMenu fields={FIELDS} />);
+  await screen.getByRole("button", { name: "Filter" }).click();
+  const surface = document.querySelector<HTMLElement>(
+    '[data-slot="add-filter-menu-content"]',
+  )!;
+  expect(getComputedStyle(surface).paddingTop).toBe("4px");
+  const option = document.querySelector<HTMLElement>(
+    '[data-slot="add-filter-menu-field"]',
+  )!;
+  expect(option.offsetHeight).toBe(28);
+  expect(getComputedStyle(option).paddingLeft).toBe("6px");
 });
 
 test("initialQuery reopens on the last prompt (Edit filters)", async () => {

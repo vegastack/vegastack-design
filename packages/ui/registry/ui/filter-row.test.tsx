@@ -21,7 +21,7 @@ const sheet = document.createElement("style");
 sheet.textContent = geometryCss;
 document.head.append(sheet);
 
-test("fixed order: + Filter, facets, chips, then Clear; AI chips carry ✦", async () => {
+test("fixed order: facets, chips, then + Filter and Clear at the end; AI chips carry ✦", async () => {
   const onClear = vi.fn();
   const chips: FilterRowChip[] = [
     { id: "status", label: "Status", value: "Open", onRemove: () => {} },
@@ -51,18 +51,44 @@ test("fixed order: + Filter, facets, chips, then Clear; AI chips carry ✦", asy
       (node.getAttribute("data-state") === "unset" ? ":unset" : ""),
   );
   expect(order).toEqual([
-    "filter-row-add",
     "filter-chip:unset",
     "filter-chip",
     "filter-chip",
+    "filter-row-add",
     "filter-row-clear",
   ]);
+  // One line that scrolls, never wraps.
+  const scroll = document.querySelector<HTMLElement>(
+    '[data-slot="filter-row-scroll"]',
+  )!;
+  expect(getComputedStyle(scroll).flexWrap).toBe("nowrap");
+  expect(getComputedStyle(scroll).overflowX).toBe("auto");
   await expect
     .element(screen.getByLabelText("Added by AI"))
     .toBeInTheDocument();
   await screen.getByRole("button", { name: "Clear", exact: true }).click();
   expect(onClear).toHaveBeenCalled();
   await expectNoA11yViolations(screen.container);
+});
+
+test("Clear hands focus to + Filter when the chips it removes held the first place", async () => {
+  function Harness() {
+    const [chips, setChips] = React.useState<FilterRowChip[]>([
+      { id: "s", label: "Status", value: "Open", onRemove: () => {} },
+    ]);
+    return (
+      <FilterRow
+        addFilter={<button type="button">Add filter</button>}
+        chips={chips}
+        onClear={() => setChips([])}
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("button", { name: "Clear", exact: true }).click();
+  await expect
+    .poll(() => document.activeElement?.textContent)
+    .toBe("Add filter");
 });
 
 test("the AI note: count, Undo, unmatched words", async () => {

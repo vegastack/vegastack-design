@@ -277,7 +277,6 @@ const TEXT_ENTRY_FOCUS_BORDER_FILES = [
   "ui/textarea.tsx",
   "ui/input-group.tsx",
   "ui/combobox.tsx",
-  "ui/panel-search.tsx",
   "ui/questionnaire.tsx",
   "ui/text-edit.tsx",
   "ui/template-editor.tsx",

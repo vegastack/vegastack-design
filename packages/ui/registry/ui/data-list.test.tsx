@@ -1353,6 +1353,29 @@ test("the leading selection column is budgeted before the data columns", async (
   await expect.poll(headerTexts).toEqual(["Name"]);
 });
 
+test("T13: an empty or no-results list never says columns are hidden", async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="People"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role", minWidth: 10_000, mobile: "hidden" },
+          { key: "email", header: "Email", mobile: "hidden" },
+        ]}
+        data={[] as typeof wideData}
+        getRowId={(r) => r.id}
+        noResults={{ title: "No people match" }}
+      />
+    </div>,
+  );
+  await expect.element(screen.getByText("No people match")).toBeVisible();
+  expect(
+    screen.container.querySelector('[data-slot="data-list-hidden-hint"]'),
+  ).toBeNull();
+  expect(screen.container.textContent).not.toMatch(/hidden/);
+});
+
 test('`mobile: "hidden"` columns are dropped, counted, and describe the table', async () => {
   const screen = await render(
     <div style={{ width: "300px" }}>
@@ -3544,8 +3567,9 @@ test("a ListToolbar toolbar takes the views as its Layout tool and the density a
     );
   }
   const screen = await render(<Harness />);
+  // One Layout button: it shows, and switches to, the other view.
   await expect
-    .element(screen.getByRole("button", { name: "Grid" }))
+    .element(screen.getByRole("button", { name: "Grid view" }))
     .toBeVisible();
   await screen.getByRole("button", { name: "Display" }).click();
   await expect

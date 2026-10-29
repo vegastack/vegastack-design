@@ -55,23 +55,21 @@ test("OVL-11: the FIELD paints no box of its own — the row owns the one border
   expect(classes).not.toMatch(/(^|\s)rounded-/);
   expect(classes).toContain("bg-transparent");
   expect(classes).toContain("outline-none");
-  // FOC-1's outline must not appear here either: focus is shown by the ROW's hairline.
+  // FOC-1's outline must not appear here either: the caret is the cue (T10).
   expect(classes).not.toContain("ring");
 });
 
-test("FOC-3/FOC-14: focus inside the row darkens the row's hairline, and paints no fill", async () => {
+test("T10: the row's hairline is a divider — it keeps its colour while the field has focus", async () => {
   await render(<Row />);
   const row = document.querySelector('[data-slot="panel-search"]')!;
-  expect(row.hasAttribute("data-field-group")).toBe(true);
-  expect(row.className.match(/\S*focus\S*:border-\S+/g)).toEqual([
-    "has-[input:focus]:border-ring/50",
-  ]);
+  expect(row.className).not.toMatch(/focus\S*:border-/);
+  const rest = getComputedStyle(row).borderBottomColor;
 
   const field = page.getByRole("searchbox", { name: "Filter items" });
   await userEvent.click(field);
   expect(document.activeElement).toBe(field.element());
-  // Live proof the selector matches, not just that the class string is present.
   expect(row.matches(":focus-within")).toBe(true);
+  expect(getComputedStyle(row).borderBottomColor).toBe(rest);
 });
 
 test("the leading glyph is decorative and never joins the field's name", async () => {
