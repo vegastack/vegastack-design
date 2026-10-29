@@ -1,4 +1,4 @@
-// @vegastack record-picker@0.25.101 sha256-wROHo9DDnml3XC0XQzsigxuETxptMYnyqjBTxGqyouM=
+// @vegastack record-picker@0.25.102 sha256-B4REi7GB7c34i5SAexFWtPI1s/XyGaXIun4sPKyFxbY=
 
 "use client";
 
