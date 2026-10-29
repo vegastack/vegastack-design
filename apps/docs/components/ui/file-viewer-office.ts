@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.25.97 sha256-8LcmmosEd3IQvpfifdePNvN7VKQOZA0f9qH8FI1SZ9k=
+// @vegastack file-viewer@0.25.98 sha256-NnUHw/BW+Pjq0pmxURrGxDrfmfIkhLjbhZ5G1JGa3Yo=
 
 /* ---
 The Excel and Word readers behind `file-viewer`. The viewer imports this file dynamically, the

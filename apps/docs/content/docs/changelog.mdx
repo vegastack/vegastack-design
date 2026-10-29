@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.98] — October 29, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.46`** (was `0.8.45`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.97 → 0.25.98.
+
+### 🐛 Fixed
+
+- **StatGroup** and **RecentStrip** cells are transparent with a border in both themes (they were `bg-card`: filled in dark, invisible on a white page in light; StatGroup now draws its dividers with borders instead of a `bg-border` grid). A **RecentStrip** card's hover is `bg-muted` and its icon tile turns `bg-background` on hover, so the tile no longer disappears into the hover fill (same pairing in **Inbox** item icons); the strip's scroll buttons keep a visible border and foreground chevron in dark.
+  [`007d163`](https://github.com/VegaStack/vegastack-design/commit/007d163)
+
 ## [0.25.97] — October 28, 2026
 
 ### 🧩 New components

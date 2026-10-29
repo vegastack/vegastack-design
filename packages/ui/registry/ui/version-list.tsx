@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.97 sha256-tBLb8/hqVWv9DxUYpwKebZA/ezNYY7+dxSxcaohYGhw=
+// @vegastack version-list@0.25.98 sha256-dUbThKlQg46pt1/zz10i0ZkRmrUkQc0wO44X9S6mIa8=
 
 "use client";
 

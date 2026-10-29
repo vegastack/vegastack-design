@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.98] — October 29, 2026
+
+<!-- assembled from 1 changeset: 146b69e7291d -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.46`** (was `0.8.45`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.97 → 0.25.98.
+
+### 🐛 Fixed
+
+- **StatGroup** and **RecentStrip** cells are transparent with a border in both themes (they were `bg-card`: filled in dark, invisible on a white page in light; StatGroup now draws its dividers with borders instead of a `bg-border` grid). A **RecentStrip** card's hover is `bg-muted` and its icon tile turns `bg-background` on hover, so the tile no longer disappears into the hover fill (same pairing in **Inbox** item icons); the strip's scroll buttons keep a visible border and foreground chevron in dark.
+  [`007d163`](https://github.com/VegaStack/vegastack-design/commit/007d163)
+
 ## [0.25.97] — October 28, 2026
 
 <!-- assembled from 1 changeset: 61cebce6a4f4 -->
