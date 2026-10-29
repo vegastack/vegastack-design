@@ -418,6 +418,21 @@ test("search suggestion: Escape hides it, a second Escape clears the field", asy
   expect(onSelect).not.toHaveBeenCalled();
 });
 
+test("search suggestion: a dismissal ends with the next edit, even back to the same phrase", async () => {
+  const screen = await render(<SuggestionHarness onSelect={() => {}} />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Search tasks" }));
+  await userEvent.keyboard("show open tasks");
+  await expect.element(screen.getByRole("option")).toBeVisible();
+  await userEvent.keyboard("{Escape}");
+  expect(document.querySelector('[role="listbox"]')).toBeNull();
+  await userEvent.keyboard(" today");
+  await userEvent.keyboard("{Backspace>6/}");
+  await expect
+    .element(screen.getByTestId("query"))
+    .toHaveTextContent("show open tasks");
+  await expect.element(screen.getByRole("option")).toBeVisible();
+});
+
 test("search suggestion: leaving the field forgets the reached row", async () => {
   const onSelect = vi.fn();
   const screen = await render(<SuggestionHarness onSelect={onSelect} />);

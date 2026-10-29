@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.25.103 sha256-ATvep5J/AYowN/BG94JMT/5UVOeL2t7XfpxwdDVvV90=
+// @vegastack filter-row@0.25.103 sha256-CvMUrp2ucSbUS0ug1Jsposx9p7SSr+agOWzo9A4BPaY=
 
 "use client";
 
@@ -236,10 +236,14 @@ export function FilterRow({
   const showClear = onClear != null && activeCount > 0;
   const clear = () => {
     onClear?.();
-    // Clear unmounts once nothing is set: hand focus to the row's first control.
-    rowRef.current
-      ?.querySelector<HTMLElement>("button:not([disabled])")
-      ?.focus();
+    // Clear unmounts once nothing is set, and so may the chips: hand focus to + Filter, which
+    // stays, else the row's first control.
+    const row = rowRef.current;
+    (
+      row?.querySelector<HTMLElement>(
+        '[data-slot="filter-row-add"] button:not([disabled])',
+      ) ?? row?.querySelector<HTMLElement>("button:not([disabled])")
+    )?.focus();
   };
 
   return (

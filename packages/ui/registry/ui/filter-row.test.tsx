@@ -71,6 +71,26 @@ test("fixed order: facets, chips, then + Filter and Clear at the end; AI chips c
   await expectNoA11yViolations(screen.container);
 });
 
+test("Clear hands focus to + Filter when the chips it removes held the first place", async () => {
+  function Harness() {
+    const [chips, setChips] = React.useState<FilterRowChip[]>([
+      { id: "s", label: "Status", value: "Open", onRemove: () => {} },
+    ]);
+    return (
+      <FilterRow
+        addFilter={<button type="button">Add filter</button>}
+        chips={chips}
+        onClear={() => setChips([])}
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  await screen.getByRole("button", { name: "Clear", exact: true }).click();
+  await expect
+    .poll(() => document.activeElement?.textContent)
+    .toBe("Add filter");
+});
+
 test("the AI note: count, Undo, unmatched words", async () => {
   const onUndo = vi.fn();
   const screen = await render(

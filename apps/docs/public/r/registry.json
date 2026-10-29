@@ -1979,7 +1979,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.103",
-        "integrity": "sha256-9/LVNf38PPXUnUNdGdS0PlIPkGUaoKisTmEWQu0O7go="
+        "integrity": "sha256-7i7QQC1oeEfKj2b5Q4cMIgKXgRTEPSIqEjMLcGQ6vyE="
       }
     },
     {
@@ -2016,7 +2016,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.25.103",
-        "integrity": "sha256-ATvep5J/AYowN/BG94JMT/5UVOeL2t7XfpxwdDVvV90="
+        "integrity": "sha256-CvMUrp2ucSbUS0ug1Jsposx9p7SSr+agOWzo9A4BPaY="
       }
     },
     {

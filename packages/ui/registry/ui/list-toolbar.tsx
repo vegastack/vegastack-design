@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.103 sha256-9/LVNf38PPXUnUNdGdS0PlIPkGUaoKisTmEWQu0O7go=
+// @vegastack list-toolbar@0.25.103 sha256-7i7QQC1oeEfKj2b5Q4cMIgKXgRTEPSIqEjMLcGQ6vyE=
 
 "use client";
 
@@ -1006,6 +1006,10 @@ export function ListToolbar({
     wordCount(searchValue) >= (suggestion.minWords ?? 3);
   React.useEffect(() => {
     setSuggestionActive(-1);
+    // Any edit ends a dismissal, even one that comes back to the dismissed phrase.
+    setDismissedAt((dismissed) =>
+      dismissed === searchValue ? dismissed : null,
+    );
   }, [searchValue]);
   React.useLayoutEffect(() => {
     if (!suggesting) {
