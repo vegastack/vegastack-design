@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.25.97 sha256-Ip2I+VY4AfhA5DPtumhvT0uu8qs0XSGIlVBtyBAYBTU=
+// @vegastack recent-strip@0.25.97 sha256-R0YFqnWamE/tq8N1KYsYBhIyjFpkGMKHi8Vg7TqLFJI=
 
 "use client";
 
@@ -112,7 +112,7 @@ const STRIP_KEYS = new Set(["ArrowLeft", "ArrowRight", "Home", "End"]);
 
 /** Shared card/chip geometry: a chip on a narrow strip, a two-line card from 28rem of its width. */
 const ITEM_SHAPE =
-  "flex max-w-48 min-w-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 @max-md/recent-strip:h-8 @md/recent-strip:w-56 @md/recent-strip:max-w-none @md/recent-strip:gap-2.5 @md/recent-strip:rounded-lg @md/recent-strip:px-3 @md/recent-strip:py-2";
+  "flex max-w-48 min-w-0 items-center gap-1.5 rounded-full border border-border bg-transparent px-3 @max-md/recent-strip:h-8 @md/recent-strip:w-56 @md/recent-strip:max-w-none @md/recent-strip:gap-2.5 @md/recent-strip:rounded-lg @md/recent-strip:px-3 @md/recent-strip:py-2";
 
 /**
  * `RecentStrip` — one row of the records a person opened last, to jump back in: a horizontal strip
@@ -335,7 +335,7 @@ function RecentStripList({
                   "data-slot": "recent-strip-link",
                   className: cn(
                     ITEM_SHAPE,
-                    "text-foreground no-underline transition-colors hover:bg-accent hover:no-underline focus-visible:no-underline",
+                    "group/recent-item text-foreground no-underline transition-colors hover:bg-muted hover:no-underline focus-visible:no-underline",
                   ),
                   children: (
                     <>
@@ -343,7 +343,7 @@ function RecentStripList({
                         <span
                           data-slot="recent-strip-icon"
                           aria-hidden="true"
-                          className="flex shrink-0 items-center justify-center text-muted-foreground @md/recent-strip:size-8 @md/recent-strip:rounded-md @md/recent-strip:bg-muted [&_svg]:size-4 [&_svg]:shrink-0"
+                          className="flex shrink-0 items-center justify-center text-muted-foreground @md/recent-strip:size-8 @md/recent-strip:rounded-md @md/recent-strip:bg-muted @md/recent-strip:transition-colors @md/recent-strip:group-hover/recent-item:bg-background [&_svg]:size-4 [&_svg]:shrink-0"
                         >
                           {item.icon}
                         </span>
@@ -385,7 +385,7 @@ function RecentStripList({
         aria-hidden="true"
         aria-label={scrollBackLabel}
         onClick={() => scroll(-1)}
-        className="absolute start-0 top-1/2 hidden -translate-y-1/2 rounded-full bg-background pointer-fine:data-visible:inline-flex dark:bg-background dark:hover:bg-muted"
+        className="absolute start-0 top-1/2 hidden -translate-y-1/2 rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
       >
         <ChevronLeft className="rtl:rotate-180" />
       </Button>
@@ -398,7 +398,7 @@ function RecentStripList({
         aria-hidden="true"
         aria-label={scrollForwardLabel}
         onClick={() => scroll(1)}
-        className="absolute end-0 top-1/2 hidden -translate-y-1/2 rounded-full bg-background pointer-fine:data-visible:inline-flex dark:bg-background dark:hover:bg-muted"
+        className="absolute end-0 top-1/2 hidden -translate-y-1/2 rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
       >
         <ChevronRight className="rtl:rotate-180" />
       </Button>

@@ -1,4 +1,4 @@
-// @vegastack stat@0.25.97 sha256-V+Bj8Yhu+6QeDyehhBsGJzbeVvEIMcWYA6YiLoNpAIc=
+// @vegastack stat@0.25.97 sha256-axmUPiKhRHigoPWowIO0+lHMuLRr4rePN3Y/4bAwB/M=
 
 "use client";
 
@@ -270,7 +270,7 @@ export function StatGroup({
   )
     return null;
   const cellClass =
-    "flex min-w-0 flex-col justify-center bg-card px-3 py-2.5 text-start";
+    "-ms-px -mt-px flex min-w-0 flex-col justify-center border-s border-t border-border bg-transparent px-3 py-2.5 text-start";
   return (
     <div
       data-slot="stat-group"
@@ -279,7 +279,7 @@ export function StatGroup({
     >
       <div
         data-slot="stat-group-grid"
-        className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border @sm/stat-group:auto-cols-fr @sm/stat-group:grid-flow-col @sm/stat-group:grid-cols-none"
+        className="grid grid-cols-2 overflow-hidden rounded-lg border border-border @sm/stat-group:auto-cols-fr @sm/stat-group:grid-flow-col @sm/stat-group:grid-cols-none"
       >
         {items.map((item) => {
           const stat = (
