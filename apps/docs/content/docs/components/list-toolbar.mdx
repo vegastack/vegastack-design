@@ -146,6 +146,34 @@ showing its key count, and Fields in Display.
   file="components/preview/list-toolbar.tsx"
 />
 
+### A search that offers an action
+
+`search.suggestion` offers one action under the field once the query reads as a phrase (three
+words by default, `minWords`) — a page's plain-language filter. Nothing runs while typing: Enter
+still searches, and only ↓ then Enter, or a click, picks the row, which hands the query to
+`onSelect`. Escape hides the row until the query changes. With `opensFilter`, the filter row opens
+once `onSelect`'s promise settles (unless it resolves to `false`).
+
+```tsx
+<ListToolbar
+  search={{
+    value: query,
+    onValueChange: setQuery,
+    placeholder: "Search tasks",
+    suggestion: {
+      label: "Filter with AI",
+      icon: <Sparkles aria-hidden />,
+      opensFilter: true,
+      onSelect: async (phrase) => {
+        setQuery("");
+        return applyPhrase(phrase);
+      },
+    },
+  }}
+  filterRow={<FilterRow /* … */ />}
+/>
+```
+
 ### A settings table
 
 No tabs: the left zone stays empty and the tools sit right. No Display, so Sort never folds.
@@ -246,12 +274,13 @@ and the main button may be a ghost "+ New task".
   the tab order and the accessibility tree.
 - An icon-only main button keeps its label as its name and tooltip.
 
-| Key            | Action                                                            |
-| -------------- | ----------------------------------------------------------------- |
-| <kbd>/</kbd>   | Focus the search (opens a collapsed search)                       |
-| <kbd>F</kbd>   | Open or close the filter row (opens + Filter when nothing is set) |
-| <kbd>Tab</kbd> | Move through the tabs, the search, each tool and the main button  |
-| <kbd>Esc</kbd> | Close the open popover; on an empty collapsed search, fold it     |
+| Key                           | Action                                                              |
+| ----------------------------- | ------------------------------------------------------------------- |
+| <kbd>/</kbd>                  | Focus the search (opens a collapsed search)                         |
+| <kbd>F</kbd>                  | Open or close the filter row (opens + Filter when nothing is set)   |
+| <kbd>Tab</kbd>                | Move through the tabs, the search, each tool and the main button    |
+| <kbd>Esc</kbd>                | Close the open popover; on an empty collapsed search, fold it       |
+| <kbd>↓</kbd> <kbd>Enter</kbd> | In the search, reach and pick its suggestion (Enter alone searches) |
 
 <StatesTested name="list-toolbar" />
 

@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.103 sha256-ybJb9O7A0RvYfYtvmiHDKRMOCIdxV3Op2pR2Ioc1ztw=
+// @vegastack list-toolbar@0.25.103 sha256-i/n+v1kLcfW73dVyl1ncznEOja7bUa0zy6nEK2y+e9Q=
 
 "use client";
 
@@ -26,6 +26,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SearchInput } from "@/components/ui/search-input";
+import {
+  SuggestionMenu,
+  suggestionMenuOptionId,
+} from "@/components/ui/suggestion-menu";
 import {
   Sheet,
   SheetBody,
@@ -98,7 +102,44 @@ export interface ListToolbarSearch {
    * @default false
    */
   collapsible?: boolean;
+  /**
+   * One action offered under the field while the query reads as a phrase — a page's "Filter with
+   * AI". It shows once the query has `minWords` words, never runs while typing, and Enter alone
+   * still searches; ↓ then Enter, or a click, picks it.
+   * @default undefined
+   */
+  suggestion?: ListToolbarSearchSuggestion;
 }
+
+/** The action a toolbar search offers under its field (`ListToolbarSearch.suggestion`). */
+export interface ListToolbarSearchSuggestion {
+  /** The row's text. */
+  label: string;
+  /**
+   * The row's leading glyph.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
+  /**
+   * How many words the query needs before the row shows.
+   * @default 3
+   */
+  minWords?: number;
+  /**
+   * Picked, with the query as typed. Return a promise to open the filter row (`opensFilter`) once
+   * it settles; resolving to `false` keeps the row as it is.
+   */
+  onSelect: (value: string) => void | Promise<unknown>;
+  /**
+   * Open the filter row once `onSelect` settles — the action sets filters.
+   * @default false
+   */
+  opensFilter?: boolean;
+}
+
+/** Words in a query: runs of non-space characters. */
+const wordCount = (value: string) =>
+  value.trim() === "" ? 0 : value.trim().split(/\s+/u).length;
 
 /** The Filter tool: it opens and closes the filter row. */
 export interface ListToolbarFilter {
@@ -784,6 +825,21 @@ export function ListToolbar({
     filter?.onOpenChange?.(next);
   };
   const filterRowId = React.useId();
+  // Open the row without + Filter's focus request: what the search suggestion set is the content.
+  const revealFilterRow = () => {
+    if (openRef.current.filterOpen) return;
+    if (filter?.open === undefined) {
+      setOpenState(true);
+      if (storageKey != null) {
+        try {
+          window.sessionStorage.setItem(storageKey, "1");
+        } catch {
+          // See above.
+        }
+      }
+    }
+    filter?.onOpenChange?.(true);
+  };
 
   /* --- Measured collapse ------------------------------------------------------------------- */
   const rootRef = React.useRef<HTMLDivElement | null>(null);
@@ -1102,6 +1158,61 @@ export function ListToolbar({
       </ToggleGroup>
     ) : null;
 
+  /* --- Search suggestion ------------------------------------------------------------------- */
+  const suggestion = search?.suggestion;
+  const suggestionId = React.useId();
+  const [searchFocused, setSearchFocused] = React.useState(false);
+  // Escape hides the row until the query changes.
+  const [dismissedAt, setDismissedAt] = React.useState<string | null>(null);
+  const [suggestionActive, setSuggestionActive] = React.useState(-1);
+  const [suggestionAnchor, setSuggestionAnchor] =
+    React.useState<DOMRect | null>(null);
+  const searchValue = search?.value ?? "";
+  const suggesting =
+    suggestion != null &&
+    searchFocused &&
+    dismissedAt !== searchValue &&
+    wordCount(searchValue) >= (suggestion.minWords ?? 3);
+  React.useEffect(() => {
+    setSuggestionActive(-1);
+  }, [searchValue]);
+  React.useLayoutEffect(() => {
+    if (!suggesting) {
+      setSuggestionAnchor(null);
+      return;
+    }
+    const measure = () => {
+      const field = rootRef.current?.querySelector<HTMLElement>(
+        '[data-slot="list-toolbar-search"]',
+      );
+      setSuggestionAnchor(field ? field.getBoundingClientRect() : null);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [suggesting, level]);
+  const pickSuggestion = () => {
+    if (suggestion == null) return;
+    const value = searchValue;
+    setDismissedAt(value);
+    setSuggestionActive(-1);
+    const done = suggestion.onSelect(value);
+    if (!suggestion.opensFilter || !hasFilter) return;
+    if (done instanceof Promise)
+      void done.then(
+        (result) => {
+          if (result !== false) revealFilterRow();
+        },
+        () => {},
+      );
+    else revealFilterRow();
+  };
+  const suggestionShown = suggesting && suggestionAnchor != null;
+
   const searchField =
     search == null ? null : (
       <SearchInput
@@ -1114,6 +1225,39 @@ export function ListToolbar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         collapsible={iconSearch}
         onExpandedChange={setSearchOpen}
+        {...(suggestion != null
+          ? {
+              role: "combobox",
+              "aria-autocomplete": "list" as const,
+              "aria-expanded": suggestionShown,
+              "aria-controls": suggestionShown ? suggestionId : undefined,
+              "aria-activedescendant":
+                suggestionShown && suggestionActive >= 0
+                  ? suggestionMenuOptionId(suggestionId, suggestionActive)
+                  : undefined,
+              onFocus: () => setSearchFocused(true),
+              onBlur: () => setSearchFocused(false),
+              onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+                if (!suggestionShown) return;
+                // An input method's keys pick its candidate, never the row.
+                if (event.nativeEvent.isComposing || event.keyCode === 229)
+                  return;
+                if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                  event.preventDefault();
+                  setSuggestionActive(event.key === "ArrowDown" ? 0 : -1);
+                } else if (event.key === "Escape") {
+                  // Hides the row; a second Escape clears the field.
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setDismissedAt(searchValue);
+                } else if (event.key === "Enter" && suggestionActive >= 0) {
+                  // Enter with the row reached picks it; otherwise it searches as always.
+                  event.preventDefault();
+                  pickSuggestion();
+                }
+              },
+            }
+          : {})}
         className={cn(
           compact ? "h-7" : "h-8",
           // Open from an icon, it takes the tabs' room in the row; the tools stay in view.
@@ -1246,6 +1390,24 @@ export function ListToolbar({
           </div>
         </div>
         {filterRowNode}
+        {suggestion != null ? (
+          <SuggestionMenu
+            id={suggestionId}
+            aria-label={suggestion.label}
+            anchor={suggestionShown ? suggestionAnchor : null}
+            options={[
+              {
+                key: "suggestion",
+                label: suggestion.label,
+                icon: suggestion.icon,
+                shortcut: suggestionActive >= 0 ? "↵" : undefined,
+              },
+            ]}
+            activeIndex={suggestionActive}
+            onActiveIndexChange={setSuggestionActive}
+            onSelect={pickSuggestion}
+          />
+        ) : null}
       </div>
     </ListToolbarContext.Provider>
   );

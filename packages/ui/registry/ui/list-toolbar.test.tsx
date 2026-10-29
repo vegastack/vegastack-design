@@ -376,3 +376,65 @@ test("a restored query at a narrow width opens the search in the tabs' room", as
   )!;
   expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1);
 });
+
+function SuggestionHarness({
+  onSelect,
+}: {
+  onSelect: (value: string) => void;
+}) {
+  const [query, setQuery] = React.useState("");
+  return (
+    <div style={{ width: 900 }}>
+      <ListToolbar
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search tasks",
+          suggestion: { label: "Refine with words", onSelect },
+        }}
+      />
+      <output data-testid="query">{query}</output>
+    </div>
+  );
+}
+
+test("search suggestion: shows for a phrase, Enter still searches, ↓ Enter picks it", async () => {
+  const onSelect = vi.fn();
+  const screen = await render(<SuggestionHarness onSelect={onSelect} />);
+  const field = screen.getByRole("combobox", { name: "Search tasks" });
+  await userEvent.click(field);
+  await userEvent.keyboard("two words");
+  expect(document.querySelector('[role="listbox"]')).toBeNull();
+  await userEvent.keyboard(" and more");
+  await expect
+    .element(screen.getByRole("option", { name: "Refine with words" }))
+    .toBeVisible();
+  await expect.element(field).toHaveAttribute("aria-expanded", "true");
+  // Enter with the row not reached: a plain search, nothing picked.
+  await userEvent.keyboard("{Enter}");
+  expect(onSelect).not.toHaveBeenCalled();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.element(field).toHaveAttribute("aria-activedescendant");
+  await userEvent.keyboard("{Enter}");
+  expect(onSelect).toHaveBeenCalledWith("two words and more");
+  // Picked: the row hides until the query changes.
+  expect(document.querySelector('[role="listbox"]')).toBeNull();
+});
+
+test("search suggestion: Escape hides it, a second Escape clears the field", async () => {
+  const onSelect = vi.fn();
+  const screen = await render(<SuggestionHarness onSelect={onSelect} />);
+  const field = screen.getByRole("combobox", { name: "Search tasks" });
+  await userEvent.click(field);
+  await userEvent.keyboard("open tasks due today");
+  await expect.element(screen.getByRole("option")).toBeVisible();
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{Escape}");
+  expect(document.querySelector('[role="listbox"]')).toBeNull();
+  await expect
+    .element(screen.getByTestId("query"))
+    .toHaveTextContent("open tasks due today");
+  await userEvent.keyboard("{Escape}");
+  await expect.element(screen.getByTestId("query")).toHaveTextContent("");
+  expect(onSelect).not.toHaveBeenCalled();
+});
