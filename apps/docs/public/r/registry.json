@@ -3160,7 +3160,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.25.103",
-        "integrity": "sha256-XAGFqHofK+RlDX8G+60gmlqFptqKyNwU4MwTsKBYpHE="
+        "integrity": "sha256-ED2ZkUCdSrL6h2QR6THIp6AocoeClihQfJfCBviM/Ts="
       }
     },
     {
@@ -18657,7 +18657,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.103",
-        "integrity": "sha256-NEtO5RXGFKwlWPXQ+UsBsmvaboBWmjb3TY0fNms+bDg="
+        "integrity": "sha256-2lSdlpMDWEI55CAnVTVVgmUjVNXwi1ad5L0cF/TCF1Y="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.25.103 sha256-XAGFqHofK+RlDX8G+60gmlqFptqKyNwU4MwTsKBYpHE=
+// @vegastack filter-bar-managed@0.25.103 sha256-ED2ZkUCdSrL6h2QR6THIp6AocoeClihQfJfCBviM/Ts=
 
 "use client";
 
@@ -1938,18 +1938,18 @@ export function SortBuilder({
   return (
     <div
       data-slot="sort-builder"
-      className={cn("flex min-w-0 flex-col gap-1", className)}
+      className={cn("flex min-w-0 flex-col", className)}
     >
       {header ? (
         <div
           data-slot="sort-builder-header"
-          className="flex h-8 items-center justify-between gap-2 ps-2"
+          className="flex h-6 items-center justify-between gap-2 ps-1.5"
         >
           <span className="text-xs text-muted-foreground">{ariaLabel}</span>
           {value.length > 0 && !disabled ? (
             <Button
               variant="ghost"
-              size="sm"
+              size="xs"
               data-slot="sort-builder-clear"
               className="font-normal text-muted-foreground"
               onClick={() => onChange([])}
@@ -1959,8 +1959,8 @@ export function SortBuilder({
           ) : null}
         </div>
       ) : null}
-      {/* One surface: rows carry no fill or hover wash; the grip shows only once two keys can
-          move, and its column stays reserved so nothing shifts when a second key arrives. */}
+      {/* One surface: rows carry no fill or hover wash; the grip (and its column) shows only once
+          two keys can move, so one key starts at the menu's inset. */}
       <SortableList
         aria-label={ariaLabel}
         items={items}
@@ -2035,7 +2035,7 @@ export function SortBuilder({
             <Button
               variant="ghost"
               size="sm"
-              className="w-fit font-normal text-muted-foreground"
+              className="w-fit px-1.5 font-normal text-muted-foreground"
               data-slot="sort-builder-add"
               onClick={() => {
                 // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
@@ -2208,7 +2208,7 @@ export function GroupByPicker({
             <Button
               variant="ghost"
               size="sm"
-              className="w-fit font-normal text-muted-foreground"
+              className="w-fit px-1.5 font-normal text-muted-foreground"
               data-slot="group-by-picker-add"
               onClick={() => {
                 // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded

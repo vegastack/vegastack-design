@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.103 sha256-NEtO5RXGFKwlWPXQ+UsBsmvaboBWmjb3TY0fNms+bDg=
+// @vegastack sortable-list@0.25.103 sha256-2lSdlpMDWEI55CAnVTVVgmUjVNXwi1ad5L0cF/TCF1Y=
 
 "use client";
 
@@ -245,8 +245,9 @@ export interface SortableListProps<
    * long-press on the row or tile still lifts it. The handle stays in the tab order either way:
    * hidden visually on touch, it reappears while it has keyboard focus, so Space-to-move works
    * with a keyboard on any device. `auto`: like `always`, but only while there is something to
-   * reorder — with fewer than two movable rows the handle's column is kept empty, so a row's
-   * content never moves when a second row arrives (a one-key `SortBuilder`).
+   * reorder — with fewer than two movable rows there is no handle column at all, so a one-key
+   * `SortBuilder` or a one-level `GroupByPicker` starts at the menu's inset like every other row
+   * (MK 2026-10-30, list-toolbar T15); the column appears with the second movable row.
    * @default "always"
    */
   handle?: "always" | "fine" | "auto";
@@ -443,8 +444,10 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
     [containerProps.ref],
   );
 
-  // `handle="auto"`: the grip shows only while two or more rows can move.
+  // `handle="auto"`: the grip shows only while two or more rows can move. With no grip on any
+  // row there is no handle column either, so the rows' content starts at the list's edge.
   const movableCount = items.filter((item) => item.disabled !== true).length;
+  const noHandles = handle === "auto" && movableCount < 2;
 
   return (
     <div
@@ -505,7 +508,6 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
             ? []
             : ((getItemActions ?? menuItems)?.(item) ?? []);
           const removable = onRemove !== undefined && !disabled && !locked;
-          const handleHidden = handle === "auto" && movableCount < 2;
           const touchEdge =
             touchDrag?.over?.id === item.id ? touchDrag.over.edge : undefined;
           const hasActions =
@@ -559,7 +561,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                     ),
               )}
             >
-              {disabled ? null : locked || handleHidden ? (
+              {disabled || noHandles ? null : locked ? (
                 // Same footprint as the handle, so locked and movable rows align.
                 grid ? null : (
                   <span
@@ -675,7 +677,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
             flush ? "px-0" : "px-1",
           )}
         >
-          {disabled ? null : (
+          {disabled || noHandles ? null : (
             <span aria-hidden="true" className="size-7 shrink-0" />
           )}
           <div className="flex min-w-0 flex-1 items-center gap-2">{footer}</div>

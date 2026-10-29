@@ -742,14 +742,14 @@ test('handle="fine": the grip hides on a coarse pointer yet stays a keyboard han
   ).toBe(false);
 });
 
-test('handle="auto": no grip while fewer than two rows can move, its column kept', async () => {
+test('handle="auto": no grip and no handle column while fewer than two rows can move', async () => {
   const screen = await render(<Controlled handle="auto" initial={["Lead"]} />);
   expect(
     document.querySelector('[data-slot="sortable-list-handle"]'),
   ).toBeNull();
   expect(
     document.querySelector('[data-slot="sortable-list-handle-spacer"]'),
-  ).not.toBeNull();
+  ).toBeNull();
   await screen.rerender(<Controlled handle="auto" initial={["Lead", "Won"]} />);
   await expectNoA11yViolations(screen.container);
 });
