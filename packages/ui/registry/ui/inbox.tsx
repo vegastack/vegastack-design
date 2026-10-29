@@ -1,4 +1,4 @@
-// @vegastack inbox@0.25.100 sha256-GoOzUC++T9A6N5JOYYgdKUbWIAJ3JOFYqIsZmkgd43A=
+// @vegastack inbox@0.25.100 sha256-HHU6Ez05f2qFv7mJe4FgSo7OdS8i1KZg9L2/bmbMgFQ=
 
 "use client";
 
@@ -540,7 +540,8 @@ export function InboxFilters({
       data-slot="inbox-filters"
       // The tabs keep their natural width; when they and Unread do not fit one line (a 384px
       // sheet with four tabs, a phone), Unread wraps under them, end-aligned. The tabs fold into a
-      // dropdown only when they alone do not fit the row.
+      // dropdown only when they alone do not fit the row; folded, they still take the whole row, so
+      // the room they measure is the row and they unfold as soon as it fits them again.
       className={cn(
         "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5",
         className,
@@ -549,7 +550,7 @@ export function InboxFilters({
       <Tabs
         value={value}
         onValueChange={(next) => onValueChange(String(next))}
-        className="max-w-full min-w-0 grow basis-auto"
+        className="max-w-full min-w-0 grow basis-auto has-data-folded:basis-full"
       >
         {/* The list pages' pill tabs, folding by measurement (`overflow="menu"`), so a triage queue
             reads as a list. */}
