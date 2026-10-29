@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.105
+
+### Patch Changes
+
+- [#850](https://github.com/vegastack/vegastack-design/pull/850) [`451329b`](https://github.com/vegastack/vegastack-design/commit/451329be2c30c07d5ebd45aec9aa3ad6b2a3de10) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Display's Group by spacing**: a `flush` `SortableList` with no rows draws its footer as the list's first row — no top margin, padding, border or gutters — so an empty `GroupByPicker`'s "+ Group by" sits on the menu's inset under its heading like the rows around it. `DisplayMenu`'s Group by heading keeps a 4px step from the row above it.
+
+- Updated dependencies [[`451329b`](https://github.com/vegastack/vegastack-design/commit/451329be2c30c07d5ebd45aec9aa3ad6b2a3de10)]:
+  - @vegastack/design@0.8.53
+
 ## 0.25.104
 
 ### Patch Changes

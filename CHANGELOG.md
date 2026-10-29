@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.105] — October 29, 2026
+
+<!-- assembled from 1 changeset: 4161afd067c0 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.53`** (was `0.8.52`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.104 → 0.25.105.
+
+### 🐛 Fixed
+
+- **Display's Group by spacing**: a `flush` `SortableList` with no rows draws its footer as the list's first row — no top margin, padding, border or gutters — so an empty `GroupByPicker`'s "+ Group by" sits on the menu's inset under its heading like the rows around it. `DisplayMenu`'s Group by heading keeps a 4px step from the row above it.
+  [`451329b`](https://github.com/VegaStack/vegastack-design/commit/451329b)
+
 ## [0.25.104] — October 29, 2026
 
 <!-- assembled from 3 changesets: ea58a9913a38 -->

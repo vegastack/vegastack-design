@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.104 sha256-lAXdkvRbH0KHNNxslFASQE01AucWRvWh/EzaIDyHZKE=
+// @vegastack text-edit-markdown@0.25.105 sha256-fli/vYvUd7i2pbTArdqTZMPhNdhMASxE5xxqWa6DXYE=
 
 import { Mark, type AnyExtension, type JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
