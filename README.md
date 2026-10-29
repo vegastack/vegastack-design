@@ -38,7 +38,7 @@ skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy
                    every job is self-hosted: Linux runs affected browser/distribution proof;
-                   the mac mini owns credential-bearing publish/deploy work
+                   Linux runners own credential-bearing publish/deploy work too
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
