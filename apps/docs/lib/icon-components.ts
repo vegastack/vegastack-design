@@ -1,4 +1,4 @@
-// @vegastack icon-components@0.25.103 sha256-/js8wPXGoePgY97+Q0X1d8J/01f6WYFHjUWvAwxrZ/c=
+// @vegastack icon-components@0.25.104 sha256-jTM8s/4dK1bmUKHQvAmip4z+K2IWXK9LuUSf/5cTJdQ=
 
 import {
   BriefcaseBusiness,

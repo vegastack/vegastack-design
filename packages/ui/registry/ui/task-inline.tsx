@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.25.103 sha256-Rs9vzDj22v/wVSjFg2rfIymq2Fa1+RxRjlVshQb+pj8=
+// @vegastack task-inline@0.25.104 sha256-DDtL2PotNRp4JjI636lr5+/tPWt3wokCCEKHx8x7gC0=
 
 "use client";
 

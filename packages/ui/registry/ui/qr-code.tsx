@@ -1,4 +1,4 @@
-// @vegastack qr-code@0.25.103 sha256-QtVJ2x+tWnh/hKayomH35pj3THzAGc/E7rr9GHx04og=
+// @vegastack qr-code@0.25.104 sha256-uQ8/vEUAtXDgNOvsDQE7lhhjCnozEt/XVjAJIgrnj7I=
 
 import * as React from "react";
 import { encode } from "uqr";
