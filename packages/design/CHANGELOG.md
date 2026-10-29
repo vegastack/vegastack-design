@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.51
+
+### Patch Changes
+
+- [#845](https://github.com/vegastack/vegastack-design/pull/845) [`8a67a7e`](https://github.com/vegastack/vegastack-design/commit/8a67a7effec1e77a34aaf3c2cc3e955b6e565579) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 **List toolbar release 2 — `FilterBar`, `ViewToggle` and `DensityToggle` are removed**, with no compatibility aliases: a list's toolbar is `ListToolbar` with a `FilterRow` (its Filter tool), the Layout tool (`ListToolbar.layout`) and a `DisplayMenu` (row height). The `filter-bar` and `view-toggle` registry items are gone. The facet pieces move into `filter-row`, renamed: `FilterBarFacet` → `ListFacet` (`FilterBarFacetProps` → `ListFacetProps`, `FilterBarFacetOwnProps` → `ListFacetOwnProps`), `FilterBarPeopleFacet` → `PeopleFacet` (`FilterBarPeopleFacetProps` → `PeopleFacetProps`), `FilterBarFilter` → `ListFilter`; `FilterChip`, `FilterChipProps`, `FilterFacetReporter`, `FilterFacetReport`, `DateRangeFilter` (+ `DateRangeFilterProps`, `DateRangeFilterValue`, `DateRangeFilterPreset`) and `dateRangeForPreset` keep their names — import them all from `@/components/ui/filter-row`. A facet's `data-slot` is now `list-facet*` (was `filter-bar-facet*`). `ListView` → `DataListView` and `Density` → `DataListDensity` (from `data-list`). **DataList** no longer mounts a view or density switch: `onViewChange` / `onDensityChange` fill a `ListToolbar` toolbar's Layout tool and Display row height; any other toolbar renders as it is. Blocks `list-page-01` and `board-01` compose `ListToolbar` + `FilterRow` + `ListFacet`. [docs](https://design.vegastack.com/docs/components/filter-row)
+
 ## 0.8.50
 
 ### Patch Changes

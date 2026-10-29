@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.103] — October 29, 2026
+
+<!-- assembled from 1 changeset: 4effddd9b7b9 -->
+
+### 🗑 Removed / renamed
+
+- **List toolbar release 2 — `FilterBar`, `ViewToggle` and `DensityToggle` are removed**, with no compatibility aliases: a list's toolbar is `ListToolbar` with a `FilterRow` (its Filter tool), the Layout tool (`ListToolbar.layout`) and a `DisplayMenu` (row height). The `filter-bar` and `view-toggle` registry items are gone. The facet pieces move into `filter-row`, renamed: `FilterBarFacet` → `ListFacet` (`FilterBarFacetProps` → `ListFacetProps`, `FilterBarFacetOwnProps` → `ListFacetOwnProps`), `FilterBarPeopleFacet` → `PeopleFacet` (`FilterBarPeopleFacetProps` → `PeopleFacetProps`), `FilterBarFilter` → `ListFilter`; `FilterChip`, `FilterChipProps`, `FilterFacetReporter`, `FilterFacetReport`, `DateRangeFilter` (+ `DateRangeFilterProps`, `DateRangeFilterValue`, `DateRangeFilterPreset`) and `dateRangeForPreset` keep their names — import them all from `@/components/ui/filter-row`. A facet's `data-slot` is now `list-facet*` (was `filter-bar-facet*`). `ListView` → `DataListView` and `Density` → `DataListDensity` (from `data-list`). **DataList** no longer mounts a view or density switch: `onViewChange` / `onDensityChange` fill a `ListToolbar` toolbar's Layout tool and Display row height; any other toolbar renders as it is. Blocks `list-page-01` and `board-01` compose `ListToolbar` + `FilterRow` + `ListFacet`. [docs](https://design.vegastack.com/docs/components/filter-row) ·
+  [`8a67a7e`](https://github.com/VegaStack/vegastack-design/commit/8a67a7e)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.51`** (was `0.8.50`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.102 → 0.25.103.
+
 ## [0.25.102] — October 29, 2026
 
 <!-- assembled from 1 changeset: b5911a98ffad -->
