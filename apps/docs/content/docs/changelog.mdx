@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.100] — October 29, 2026
+
+### 🧩 New components
+
+- **List toolbar** (release 1 of the list and table toolbar redesign): one header row for every list and table. **ListToolbar** (new) — tabs left; search, a tight cluster of 32px borderless icon tools (Filter · Sort · Layout · Display · ⋯, 4px apart, tooltips, counts and dots, names that carry state) and the page's main button (`action`, a `ListToolbarAction`: filled, labelled on a wide toolbar, an icon `+` on a narrow one) right; the filter row under it. It measures its own width and collapses in a fixed order — search 240 → 144, tabs fold to a dropdown, Layout then Sort move into Display, search becomes an icon, undo/redo move into ⋯ — and never wraps; every toolbar popover is a bottom sheet on a phone (`ListToolbarPopover`); `/` focuses search and `F` opens the filter row. Also `ListToolbarButton`, `ListToolbarMenu` (⋯, renders nothing when empty) and `useListToolbar`. **FilterRow** (new): `+ Filter`, pinned facets, chips, Clear in a fixed order, wrapping from `@3xl` and one scrolling line below it, with an AI note line (count · Undo · words it could not match); it reports its count to the Filter tool. **AddFilterMenu** + **AiFilterInput** (new): one input that narrows the fields or, when the page passes `ai.onSubmit`, sends a plain-language request (no AI code in the DS; no ✦ without `ai`); fields drill into their pickers in the same popover. **SortMenu** (new): the one-key sort as two radio groups, directions worded by field type, Reset away from the default; `sortSummary()`. **DisplayMenu** (new): Layout and Sort once folded in, row height, group by, a Columns/Fields drill-in with eye toggles and reorder, Show switches, Reset — one surface, no fills. **useOverflowFold** (new hook). Changed: **Tabs** `TabsList overflow="menu"` folds into one dropdown when it does not fit (LAY-14 widened); **RouteTabs** `overflow="menu"`; **ViewTabs** folds through `useOverflowFold` and takes `dirty` per view (a dot); **SortBuilder** rows carry no fill or hover wash, the grip shows only from two keys, "Add sort" sits on the field column and is replaced by "Up to N sorts" at `max`, a header with Clear (`header`, `labels`); **GroupByPicker** the same row grid; **SortableList** `handle="auto"`; **FilterChip** `ai` and `unset`, and unset facets are dashed; **SearchInput** `collapsible` and `onExpandedChange`; **DataList** fills a `ListToolbar` toolbar's Layout and Display row height, drops the column header when empty, `noResults.onEditFilters`; **ActionBar** docks full width with icon-only actions on a phone; **PanelSearch** `icon`; **InboxFilters** use the small pill tabs. **Deprecated** (removed in release 2): `FilterBar`, `ViewToggle`, `DensityToggle`. [docs](/docs/foundations/list-toolbar) ·
+  [`4825a99`](https://github.com/VegaStack/vegastack-design/commit/4825a99)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.48`** (was `0.8.47`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.99 → 0.25.100.
+
 ## [0.25.99] — October 29, 2026
 
 ### 📦 npm
