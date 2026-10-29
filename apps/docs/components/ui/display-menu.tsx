@@ -1,4 +1,4 @@
-// @vegastack display-menu@0.25.101 sha256-d5BIExY89DDr6bwAoSkqw6gKK4I8IUQW6BM8liMa07U=
+// @vegastack display-menu@0.25.101 sha256-PvBNd9YbaTNn/zioStquadtsoGQOMfne9eTy6BOTPNg=
 
 "use client";
 
@@ -32,7 +32,8 @@ included. Its sections appear only when filled, always in this order — Layout,
 toolbar has folded them in), Rows (row height, group by, columns), Show (Show archived, Show
 closed, Show subtasks…), and Reset. It is one surface: no filled rows and no control tracks inside
 it, every row 32px tall from the same 8px inset. Columns drill in within the same surface, and
-reorder where the page supports it. On a phone it is a bottom sheet.
+reorder where the page supports it; a long list (a table's 24 fields) scrolls inside the menu. On a
+phone it is a bottom sheet.
 --- */
 
 const LAYOUT_META: Record<
@@ -535,7 +536,13 @@ export function DisplayMenu({
             ) : undefined
           }
         />
-        <ColumnsList columns={columns} />
+        {/* A long table's fields scroll inside the menu instead of running off the screen. */}
+        <div
+          data-slot="display-menu-columns-list"
+          className="-me-2 max-h-72 min-h-0 overflow-y-auto overscroll-contain pe-2"
+        >
+          <ColumnsList columns={columns} />
+        </div>
       </>
     );
 

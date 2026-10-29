@@ -80,3 +80,52 @@ test("sortSummary words the order", () => {
     "Quantity, high → low",
   );
 });
+
+test("a one-way field shows its direction beside its name and no direction group", async () => {
+  const onChange = vi.fn();
+  function OneWay() {
+    const [value, setValue] = React.useState<SortMenuValue>({
+      key: "due",
+      direction: "asc",
+    });
+    return (
+      <SortMenu
+        fields={[
+          ...FIELDS,
+          {
+            key: "updated",
+            label: "Last updated",
+            type: "date",
+            fixedDirection: "desc",
+          },
+          { key: "custom", label: "Custom order", fixedDirection: "none" },
+        ]}
+        value={value}
+        onValueChange={(next) => {
+          setValue(next);
+          onChange(next);
+        }}
+      />
+    );
+  }
+  const screen = await render(<OneWay />);
+  await screen.getByRole("radio", { name: /Last updated/ }).click();
+  expect(onChange).toHaveBeenLastCalledWith({
+    key: "updated",
+    direction: "desc",
+  });
+  await expect
+    .element(screen.getByRole("radio", { name: "Last updated Newest first" }))
+    .toBeChecked();
+  expect(
+    document.querySelector('[data-slot="sort-menu-direction"]'),
+  ).toBeNull();
+  await screen.getByRole("radio", { name: "Custom order" }).click();
+  expect(
+    sortSummary(
+      [{ key: "custom", label: "Custom order", fixedDirection: "none" }],
+      { key: "custom", direction: "desc" },
+    ),
+  ).toBe("Custom order");
+  await expectNoA11yViolations(screen.container);
+});

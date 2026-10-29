@@ -102,6 +102,31 @@ test("the narrow row is one select with the same groups", async () => {
   expect(onValueChange).toHaveBeenCalledWith("mine");
 });
 
+test("folded, the + and the view's ⋯ become one ⋯ menu", async () => {
+  const onCreate = vi.fn();
+  const screen = await render(
+    <div style={{ width: 200 }}>
+      <ViewTabs
+        views={VIEWS}
+        value="all"
+        onValueChange={() => {}}
+        onCreate={onCreate}
+        getViewActions={() => <DropdownMenuItem>Rename</DropdownMenuItem>}
+      />
+    </div>,
+  );
+  await expect
+    .element(screen.getByRole("combobox", { name: "Views" }))
+    .toBeVisible();
+  expect(document.querySelector('[data-slot="view-tabs-create"]')).toBeNull();
+  await screen.getByRole("button", { name: "All requests options" }).click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Rename" }))
+    .toBeVisible();
+  await screen.getByRole("menuitem", { name: "Board view" }).click();
+  expect(onCreate).toHaveBeenCalledWith("board");
+});
+
 test("a cut view name shows in full in a tooltip, and the tab and the select read the whole name", async () => {
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;

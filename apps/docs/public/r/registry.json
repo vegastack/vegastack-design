@@ -1919,7 +1919,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
         "version": "0.25.101",
-        "integrity": "sha256-BEm/4fh+C4bjvYD//HKECpBZ04wvILW1UqYx5Kiszw0="
+        "integrity": "sha256-MlfGzAAOT7vhCLSD9M0aJCSU3fwqLJs7PVCdC2OzBt8="
       }
     },
     {
@@ -2011,7 +2011,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.101",
-        "integrity": "sha256-OzotKCVPDQ/dAezXHYKPx4tlrVp94+QdhBrqLI0r4lM="
+        "integrity": "sha256-AzMEssHvDRe5iX/YHilUeg0GWF4w+ZExZf7nKfqxCjg="
       }
     },
     {
@@ -2107,7 +2107,7 @@
         "whenToUse": "Sorting a list by one key from the ListToolbar's Sort tool.",
         "whenNotToUse": "Several sort keys at once (SortBuilder), or a column header's own sort.",
         "version": "0.25.101",
-        "integrity": "sha256-rDGcHS6hCOfysx6H95ZQBemCBWFB92tKvEVFU8U0450="
+        "integrity": "sha256-JT4NrrbaTJi9tg7iXTRGfujcc9g+z/Y2l53f6hsHJNo="
       }
     },
     {
@@ -2141,7 +2141,7 @@
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.25.101",
-        "integrity": "sha256-d5BIExY89DDr6bwAoSkqw6gKK4I8IUQW6BM8liMa07U="
+        "integrity": "sha256-PvBNd9YbaTNn/zioStquadtsoGQOMfne9eTy6BOTPNg="
       }
     },
     {
