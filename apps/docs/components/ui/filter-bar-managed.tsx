@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.25.102 sha256-fpC/aiajyDIbVI9S+uFWW+cRgc0qQAGa8DM3rAc8S+U=
+// @vegastack filter-bar-managed@0.25.102 sha256-o88HgInF49nb4SX4AkM3gdWHCzQENFHWNxeWp/maqxQ=
 
 "use client";
 
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import { DatePicker } from "@/components/ui/date-picker";
-import { FilterChip } from "@/components/ui/filter-bar";
+import { FilterChip } from "@/components/ui/filter-row";
 import {
   PeoplePicker,
   type PeoplePickerOption,
@@ -33,8 +33,8 @@ import {
 } from "@/components/ui/select";
 
 /* ---
-`FilterBuilder` (the `filter-bar-managed` item) is the stateful sibling `FilterBar`'s
-docs promised: nested and/or groups with a configurable depth cap, condition rows whose
+`FilterBuilder` (the `filter-bar-managed` item) is the condition builder a list's
+advanced filters open: nested and/or groups with a configurable depth cap, condition rows whose
 operator set and value editor are chosen by field type, add/remove at any level, and a
 read-only chip summary rendered through the real `FilterChip`.
 

@@ -17,8 +17,11 @@ import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 import { AddFilterMenu } from "@/components/ui/add-filter-menu";
 import { DisplayMenu } from "@/components/ui/display-menu";
-import { FilterBarFacet } from "@/components/ui/filter-bar";
-import { FilterRow, type FilterRowChip } from "@/components/ui/filter-row";
+import {
+  FilterRow,
+  ListFacet,
+  type FilterRowChip,
+} from "@/components/ui/filter-row";
 import {
   ListToolbar,
   ListToolbarAction,
@@ -170,7 +173,7 @@ function TasksToolbar({ width }: { width?: number }) {
               />
             }
             facets={
-              <FilterBarFacet<Opt, true>
+              <ListFacet<Opt, true>
                 label="Status"
                 multiple
                 items={STATUSES}
@@ -495,7 +498,7 @@ export function listToolbarSettings(): ReactNode {
         filterRow={
           <FilterRow
             facets={
-              <FilterBarFacet<Opt, true>
+              <ListFacet<Opt, true>
                 label="Role"
                 multiple
                 items={[

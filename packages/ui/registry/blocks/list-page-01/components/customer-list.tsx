@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.25.102 sha256-RSVAWC2A4DI+t7XVJJoS1PPZkPfzcSSCF6/lmKpETac=
+// @vegastack list-page-01@0.25.102 sha256-3H1O/CWu3Euo9GMxkDCSPsHnJiXd7n0xMGinuvqs+SU=
 
 "use client";
 
@@ -20,11 +20,11 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
+import { FilterRow, ListFacet } from "@/components/ui/filter-row";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ViewToggle } from "@/components/ui/view-toggle";
 
 import {
   CURRENT_USER,
@@ -93,9 +93,8 @@ const customerHref = (customer: Customer) => `/customers/${customer.id}`;
 
 /**
  * The customer list page: a `PageHeader` (title, create action, the Mine | Team scope tabs under
- * the title) over one `DataList` whose `FilterBar` toolbar holds the search, the Filters toggle and
- * the Grid | List `ViewToggle` at the end of its first row, and the Status and Industry facets on
- * the filter row the toggle shows.
+ * the title) over one `DataList` whose `ListToolbar` holds the search, the Filter tool and the
+ * Grid | List Layout tool, and a `FilterRow` with the Status and Industry facets under it.
  * Both views show the same records grouped by industry — a table, or a grid of `MediaCard` links —
  * loaded on scroll. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
  * failed load (with "Try again").
@@ -123,7 +122,7 @@ export function CustomerList({
   );
   const [pages, setPages] = React.useState(1);
   const [loadingMore, setLoadingMore] = React.useState(false);
-  const searchRef = React.useRef<HTMLInputElement>(null);
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
 
   const inScope = customers.filter(
     (c) => scope === "team" || c.owner === CURRENT_USER,
@@ -147,7 +146,7 @@ export function CustomerList({
     setIndustryFilter(null);
     setPages(1);
     // The button that called this unmounts; keep focus in the filters.
-    searchRef.current?.focus();
+    toolbarRef.current?.querySelector<HTMLInputElement>("input")?.focus();
   }
 
   // Stand-in for fetching the next page.
@@ -245,7 +244,8 @@ export function CustomerList({
   }
 
   const toolbar = (
-    <FilterBar
+    <ListToolbar
+      ref={toolbarRef}
       aria-label="Customer filters"
       search={{
         value: query,
@@ -257,50 +257,51 @@ export function CustomerList({
         placeholder: "Search customers…",
         "aria-label": "Search customers",
       }}
-      searchInputProps={{ ref: searchRef }}
-      facets={
-        <>
-          <FilterBarFacet<{ id: Status; name: Status }>
-            label="Status"
-            items={STATUSES.map((st) => ({ id: st, name: st }))}
-            value={
-              statusFilter ? { id: statusFilter, name: statusFilter } : null
-            }
-            onValueChange={(item) => {
-              setStatusFilter(item ? item.id : null);
-              setPages(1);
-            }}
-            itemToKey={(item) => item.id}
-            itemToStringLabel={(item) => item.name}
-            searchLabel="Search statuses"
-          />
-          <FilterBarFacet<{ id: Industry; name: Industry }>
-            label="Industry"
-            items={INDUSTRIES.map((ind) => ({ id: ind, name: ind }))}
-            value={
-              industryFilter
-                ? { id: industryFilter, name: industryFilter }
-                : null
-            }
-            onValueChange={(item) => {
-              setIndustryFilter(item ? item.id : null);
-              setPages(1);
-            }}
-            itemToKey={(item) => item.id}
-            itemToStringLabel={(item) => item.name}
-            searchLabel="Search industries"
-          />
-        </>
-      }
-      onClear={clearFilters}
-      filtersOpenStorageKey="list-page-01:filters-open"
-      view={
-        <ViewToggle
-          value={view}
-          onValueChange={setView}
-          views={["grid", "list"]}
+      filter={{ storageKey: "list-page-01:filters-open" }}
+      filterRow={
+        <FilterRow
+          onClear={clearFilters}
+          facets={
+            <>
+              <ListFacet<{ id: Status; name: Status }>
+                label="Status"
+                items={STATUSES.map((st) => ({ id: st, name: st }))}
+                value={
+                  statusFilter ? { id: statusFilter, name: statusFilter } : null
+                }
+                onValueChange={(item) => {
+                  setStatusFilter(item ? item.id : null);
+                  setPages(1);
+                }}
+                itemToKey={(item) => item.id}
+                itemToStringLabel={(item) => item.name}
+                searchLabel="Search statuses"
+              />
+              <ListFacet<{ id: Industry; name: Industry }>
+                label="Industry"
+                items={INDUSTRIES.map((ind) => ({ id: ind, name: ind }))}
+                value={
+                  industryFilter
+                    ? { id: industryFilter, name: industryFilter }
+                    : null
+                }
+                onValueChange={(item) => {
+                  setIndustryFilter(item ? item.id : null);
+                  setPages(1);
+                }}
+                itemToKey={(item) => item.id}
+                itemToStringLabel={(item) => item.name}
+                searchLabel="Search industries"
+              />
+            </>
+          }
         />
       }
+      layout={{
+        value: view,
+        options: ["grid", "list"],
+        onValueChange: (next) => setView(next as View),
+      }}
     />
   );
 

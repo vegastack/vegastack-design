@@ -62,9 +62,9 @@ the grey pill track — the two are the whole variant set.
 ### Views and scope
 
 Views of one list — _My tasks | Team tasks_ — are **Tabs**: the default (segmented) variant, not
-`line`, at the compact `size="sm"` (h-7), with optional leading icons. This is what a `FilterBar`'s
-`scope` slot takes. A **layout** switch (List | Board) is not a view of different rows, so it is an
-`ViewToggle`, which composes default Tabs.
+`line`, at the compact `size="sm"` (h-7), with optional leading icons. This is what a
+`ListToolbar`'s `tabs` slot takes. A **layout** switch (List | Board) is not a view of different
+rows, so it is the `ListToolbar`'s Layout tool.
 
 ```tsx
 <Tabs value={scope} onValueChange={setScope}>
@@ -350,7 +350,7 @@ above is what they are for.
 
 <DoDont
   do="Use Tabs for two to about seven peer views of the same subject (including scope/views like My tasks | Team tasks), and give each trigger a short noun label."
-  dont="Use raw Tabs instead of ViewToggle for a List/Board layout switch, or as a wizard or for a sequence that must be completed in order, and do not put a form's submit inside one tab and its errors in another."
+  dont="Use Tabs for a List/Board layout switch (that is ListToolbar's Layout tool), or as a wizard or for a sequence that must be completed in order, and do not put a form's submit inside one tab and its errors in another."
 />
 
 ## Deviations

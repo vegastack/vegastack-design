@@ -83,7 +83,7 @@ reach for them first, and depart only where a surface has a reason.
     <PageHeader title="Tasks" actions={<Button>New task</Button>} />
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
-        <FilterBar filters={filters} search={search} />
+        <ListToolbar search={search} filterRow={<FilterRow chips={chips} />} />
         <DataList columns={columns} data={tasks} getRowId={(t) => t.id} />
       </section>
       <section className="flex flex-col gap-3">

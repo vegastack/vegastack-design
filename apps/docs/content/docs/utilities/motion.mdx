@@ -34,9 +34,12 @@ morph a shared `view-transition-name`.
 
 ```tsx
 const { start } = useViewTransition();
-<ViewToggle
-  value={view}
-  onValueChange={(next) => start(() => setView(next))}
+<ListToolbar
+  layout={{
+    value: view,
+    options: ["list", "grid"],
+    onValueChange: (next) => start(() => setView(next)),
+  }}
 />;
 ```
 

@@ -26,7 +26,8 @@ import {
   type RowAction,
   type SortState,
 } from "@/components/ui/data-list";
-import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
+import { FilterRow, ListFacet } from "@/components/ui/filter-row";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { ActionBarButton } from "@/components/ui/action-bar";
 import {
   Breadcrumb,
@@ -198,6 +199,7 @@ export function dataListDensity(): ReactNode {
         getRowId={(p) => p.id}
         density={density}
         onDensityChange={setDensity}
+        toolbar={<ListToolbar aria-label="People view" />}
       />
     </Wrapper>
   );
@@ -987,8 +989,8 @@ export function dataListGridCustomCard(): ReactNode {
   );
 }
 
-/** The view toggle, in the FilterBar's view slot, remembered for the session. */
-export function dataListViewToggle(): ReactNode {
+/** The Layout tool, filled into the ListToolbar by `onViewChange`, remembered for the session. */
+export function dataListLayout(): ReactNode {
   const [view, setView] = React.useState<DataListView>("grid");
   const [q, setQ] = React.useState("");
   const [section, setSection] = React.useState<DataListSection | null>(null);
@@ -1004,7 +1006,7 @@ export function dataListViewToggle(): ReactNode {
         data={rows}
         view={view}
         onViewChange={setView}
-        viewStorageKey="docs-data-list-view-toggle"
+        viewStorageKey="docs-data-list-layout"
         sections={SECTIONS}
         getRowSection={(f) => f.category}
         noResults={
@@ -1018,24 +1020,28 @@ export function dataListViewToggle(): ReactNode {
             : undefined
         }
         toolbar={
-          <FilterBar
+          <ListToolbar
             aria-label="Family filters"
             search={{
               value: q,
               onValueChange: setQ,
               placeholder: "Search families",
             }}
-            facets={
-              <FilterBarFacet<DataListSection>
-                label="Category"
-                items={SECTIONS}
-                value={section}
-                onValueChange={setSection}
-                itemToKey={(s) => s.id}
-                itemToStringLabel={(s) => String(s.label)}
+            filterRow={
+              <FilterRow
+                facets={
+                  <ListFacet<DataListSection>
+                    label="Category"
+                    items={SECTIONS}
+                    value={section}
+                    onValueChange={setSection}
+                    itemToKey={(s) => s.id}
+                    itemToStringLabel={(s) => String(s.label)}
+                  />
+                }
+                onClear={() => setSection(null)}
               />
             }
-            onClear={() => setSection(null)}
           />
         }
       />
@@ -1094,6 +1100,7 @@ export function dataListBoard(): ReactNode {
         onViewChange={setView}
         views={["list", "board"]}
         viewStorageKey="docs-data-list-board"
+        toolbar={<ListToolbar aria-label="Task view" />}
         boardHeight="24rem"
         onMove={(task, _from, to) =>
           setTasks((all) =>
@@ -1193,7 +1200,7 @@ export function dataListNoResults(): ReactNode {
         getRowId={(p) => p.id}
         noResults={q ? { onClear: () => setQ("") } : undefined}
         toolbar={
-          <FilterBar
+          <ListToolbar
             aria-label="People filters"
             search={{
               value: q,
@@ -1802,6 +1809,7 @@ export function dataListCompactLine(): ReactNode {
         getRowId={(p) => p.id}
         density={density}
         onDensityChange={setDensity}
+        toolbar={<ListToolbar aria-label="People view" />}
       />
     </Wrapper>
   );

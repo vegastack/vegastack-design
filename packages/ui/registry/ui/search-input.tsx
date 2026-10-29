@@ -1,4 +1,4 @@
-// @vegastack search-input@0.25.102 sha256-zlph+uT5+VVxeVY1LQQp4CXNbTiz0AfB+qZ49guI2XI=
+// @vegastack search-input@0.25.102 sha256-4IdJaHdQ98RiYWNwMFheIMiRIoVM+Uk9KH90tIXVlVE=
 
 "use client";
 
@@ -279,7 +279,7 @@ function SearchInput({
       {canClear ? (
         // Upstream's inline-end addon pulls a button toward the edge with `me-[-0.3rem]`, so the
         // addon's box ends ~4px OUTSIDE the group: a SearchInput filling a narrow container (a
-        // FilterBar at 320px) overflowed it by exactly that much. Zero the margin and take the
+        // toolbar at 320px) overflowed it by exactly that much. Zero the margin and take the
         // same distance out of the padding (`pe-2` − 0.3rem ≈ `pe-1`), so the clear button sits
         // where it did and the box stays inside — `number-field`'s stepper slot does the same.
         <InputGroupAddon align="inline-end" className="pe-1 has-[>button]:me-0">

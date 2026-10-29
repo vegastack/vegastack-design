@@ -258,7 +258,7 @@ contract, `renderItem` and `renderValue` are ignored and a development build log
 
 `itemToAvatar` returns the option's `Person` (`name`, `image`, `hue`): each row then leads with its
 `PersonAvatar` — the photo, else the initials on the person's hue — and so does a single selection
-on the trigger. `FilterBarFacet` takes the same prop for a people filter.
+on the trigger. `ListFacet` takes the same prop for a people filter.
 
 <ComponentPreview
   name="searchableSelectPeople"
@@ -269,11 +269,11 @@ on the trigger. `FilterBarFacet` takes the same prop for a people filter.
 
 `itemToBadge` puts a small muted outline badge right after a person's name — "Inactive" for
 someone who has left the workspace but still owns records you can filter by. List active people
-first. `FilterBarFacet` takes the same prop; outside a picker (a `DropdownMenuItem`, a list of your
+first. `ListFacet` takes the same prop; outside a picker (a `DropdownMenuItem`, a list of your
 own) use `<PersonOption badge="Inactive" />` directly.
 
 ```tsx
-<FilterBarFacet
+<ListFacet
   label="Recorded by"
   items={recorders}
   value={recorder}

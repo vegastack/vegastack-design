@@ -578,10 +578,10 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 42,
+  "Forms/editing": 41,
   "Navigation/layout": 26,
   Overlays: 23,
-  "Data display": 46,
+  "Data display": 45,
   "Content/marketing": 15,
   "AI/chat": 12,
   // Not a browse group: components other components install, with no page of their own. See
@@ -650,7 +650,6 @@ const expectedComponentWaveMembers = {
     "field-cell",
     "field",
     "field-grid",
-    "filter-bar",
     "filter-bar-managed",
     "input-group",
     "input-otp",
@@ -769,7 +768,6 @@ const expectedComponentWaveMembers = {
     "table",
     "thumbnail",
     "timeline",
-    "view-toggle",
     "list-toolbar",
     "filter-row",
     "add-filter-menu",

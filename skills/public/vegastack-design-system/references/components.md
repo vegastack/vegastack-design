@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**194 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 22 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `disclosure-trigger`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 784 registry items in total.
+**192 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 22 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `disclosure-trigger`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 782 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -111,9 +111,8 @@ starts with `icon-` is a component and never an icon.
 - **`data-list-pager`** — A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.
 - **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
 - **`display-menu`** — The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.
-- **`filter-bar`** — The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
-- **`filter-row`** — The chips under a ListToolbar: + Filter, pinned facets (dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.
+- **`filter-row`** — The chips under a ListToolbar: + Filter, pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.
 - **`list-toolbar`** — The one header row of every list and table: tabs left; search, the icon tools (Filter · Sort · Layout · Display · ⋯) and the main button right; the filter row under it. Measures its own width and collapses in a fixed order.
 - **`load-more`** — The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.
@@ -127,7 +126,6 @@ starts with `icon-` is a component and never an icon.
 - **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.
 - **`thumbnail`** — A small rounded, cover-fit image, 32 or 48px, with a fallback for records that have no image.
 - **`view-tabs`** — A table's saved views as a tab row: shared views, a divider, then the reader's own; a lock on locked views; a + menu for a grid or board view, shared or personal; the open view's actions; one Select below a narrow container.
-- **`view-toggle`** — The Grid | List | Board icon switch for a list page, labels hidden on a phone.
 
 ## Overlay
 
@@ -170,7 +168,7 @@ starts with `icon-` is a component and never an icon.
 - **`sidebar-menu-flyout`** — A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.
 - **`stepper`** — A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.
 - **`table-of-contents`** — The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.
-- **`tabs`** — Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.
+- **`tabs`** — Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs for scope (My tasks | Team tasks); a list's List/Board/Grid switch is ListToolbar's Layout tool. The one component that keeps a focus ring.
 
 ## Feedback
 

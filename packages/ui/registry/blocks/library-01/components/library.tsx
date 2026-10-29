@@ -1,4 +1,4 @@
-// @vegastack library-01@0.25.102 sha256-Rj/zgLQDB2sWVz2u50gsOjt+Lkdv76e6aeUm5RWBORg=
+// @vegastack library-01@0.25.102 sha256-KagTRpXyBC3nGfVITMPAEY9/2FBpGrPYy2trX6CBrYA=
 
 "use client";
 
@@ -76,6 +76,7 @@ import {
 } from "@/components/ui/resizable";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { FileTypeIcon, formatBytes } from "@/lib/file-kind";
 
 import {
@@ -423,6 +424,7 @@ export function Library({
         data={contents}
         view={view}
         onViewChange={(next) => setView(next as "list" | "grid")}
+        toolbar={<ListToolbar aria-label="Library view" />}
         getRowId={(item) => item.id}
         getRowLabel={(item) => item.name}
         onRowClick={open}

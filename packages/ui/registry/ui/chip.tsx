@@ -1,4 +1,4 @@
-// @vegastack chip@0.25.102 sha256-lcTOmYdSC65j1LBSwV72sQBCdT5gpJmCbtFwKKKxSMk=
+// @vegastack chip@0.25.102 sha256-ILd2KgwhQKrQNTjQo+2kJq4zCJQJsv4eTnjou4TPzu4=
 
 "use client";
 
@@ -71,7 +71,7 @@ const ACTIVE_NEUTRAL = "border-border bg-accent text-foreground";
 
 /**
  * Two tiers only. `sm` (28px) is the INLINE tag tier — Tag, ChipInput's chips, Combobox's selected
- * values; `md` (32px) is the standalone control tier — FilterBar's applied filters, which sit in a
+ * values; `md` (32px) is the standalone control tier — a toolbar's applied filters, which sit in a
  * row of 32px controls and must line up with them.
  *
  * The end padding is asymmetric on purpose: the remove control is a real 24×24 box (WCAG 2.5.8),

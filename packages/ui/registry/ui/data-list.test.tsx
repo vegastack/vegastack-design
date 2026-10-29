@@ -3547,8 +3547,6 @@ test("a ListToolbar toolbar takes the views as its Layout tool and the density a
   await expect
     .element(screen.getByRole("button", { name: "Grid" }))
     .toBeVisible();
-  // No pill ViewToggle beside it.
-  expect(document.querySelector('[data-slot="view-toggle"]')).toBeNull();
   await screen.getByRole("button", { name: "Display" }).click();
   await expect
     .element(screen.getByRole("button", { name: "Compact" }))

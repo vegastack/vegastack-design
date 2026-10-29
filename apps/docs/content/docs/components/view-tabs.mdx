@@ -47,9 +47,8 @@ tab in view. When the tabs don't fit the room they are given (measured, not a fi
 the row becomes one `Select` with the same two groups and goes back to tabs as soon as they fit.
 Folded, the `+` and the view's ⋯ become one ⋯ beside the select (the view's actions, then **Grid
 view** and **Board view**), so a phone keeps room to read the view's name; in a `ListToolbar` the
-folded select is never squeezed below a readable width. In a `FilterBar`'s `leading` slot they keep their tabs while the bar
-has room for them, with the facet row open or closed. For a list/grid layout switch over the same data, use
-[`ViewToggle`](/docs/components/view-toggle) instead.
+folded select is never squeezed below a readable width. For a list/grid layout switch over the
+same data, use the `ListToolbar`'s Layout tool instead.
 
 A view whose filters, sort or display differ from what is saved sets `dirty`: a dot after its name,
 read as "…, changed". In a [`ListToolbar`](/docs/components/list-toolbar) the toolbar's `state`
@@ -107,5 +106,5 @@ under Display. The fold is the shared `useOverflowFold`, the same measurement sc
 
 <DoDont
   do="Keep a view's personal changes in the host and offer Save for everyone where the reader may change shared views."
-  dont="Use ViewTabs to switch a list between rows and cards — that is ViewToggle."
+  dont="Use ViewTabs to switch a list between rows and cards — that is ListToolbar's Layout tool."
 />

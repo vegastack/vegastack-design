@@ -197,17 +197,11 @@ description, meta and ⓘ (see [Lists and tables](/docs/foundations/list-toolbar
     </Tabs>
   }
 />
-<FilterBar
+<ListToolbar
   aria-label="Task toolbar"
   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
-  facets={facets}
-  view={
-    <ViewToggle
-      value={view}
-      onValueChange={setView}
-      views={["list", "board"]}
-    />
-  }
+  filterRow={<FilterRow facets={facets} />}
+  layout={{ value: view, options: ["list", "board"], onValueChange: setView }}
 />
 ```
 
