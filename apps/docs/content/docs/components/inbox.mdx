@@ -141,7 +141,9 @@ ends the list on "You’re all caught up".
 `tabs` replaces For you · Updates · Archived with your own — each `{ value, label, count? }` — and
 `onValueChange` receives the tab's `value`. Unread is a separate toggle (`unreadOnly`,
 `onUnreadOnlyChange`, `unreadCount`), so it filters any tab; it shows only when
-`onUnreadOnlyChange` is set. Filtering the rows stays with the app.
+`onUnreadOnlyChange` is set. Filtering the rows stays with the app. When the tabs and the toggle
+do not fit one line (four tabs in the 384px sheet, a phone), the toggle wraps under the tabs,
+end-aligned; the tabs fold into one dropdown only when they alone do not fit the row.
 
 ```tsx
 <InboxFilters
