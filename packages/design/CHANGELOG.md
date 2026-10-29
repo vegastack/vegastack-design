@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.47
+
+### Patch Changes
+
+- [#838](https://github.com/vegastack/vegastack-design/pull/838) [`0561c7e`](https://github.com/vegastack/vegastack-design/commit/0561c7e47547fe5641a9520116ebca1dfa3dcef8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **RecentStrip**'s ‹ › scroll buttons and the **DocumentLayoutJumpCue** pill no longer jump down when pressed. Both positioned their Button with a y-translate (`-translate-y-1/2`, `-translate-y-full`), and Button's press nudge (`active:translate-y-px`) sets the same `translate` property, so a press replaced the positioning and dropped the control by half (or all) of its height. The strip's buttons now centre with `inset-y-0 my-auto` (the idiom DatePicker, SearchableSelect and Carousel already use) and the jump cue's band aligns the pill with `items-end`; no other registry Button positions itself with a y-translate.
+
 ## 0.8.46
 
 ### Patch Changes
