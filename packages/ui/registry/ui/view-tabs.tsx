@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.102 sha256-8xMtftuPZ+/AXajBmTMacqnwQzs1aLQkPKuBKWtADUs=
+// @vegastack view-tabs@0.25.102 sha256-0jFEZhQgEnTP03D+LnlW7t7xhjdv06WdLbvhzczjupY=
 
 "use client";
 
@@ -42,7 +42,7 @@ become one ⋯ menu, so the select keeps room for the name), and goes back to ta
 again. The root is not a size container, so a host can size it to its tabs.
 
 It is built on `Tabs variant="line"`, which already scrolls and keeps the active tab in view. It
-is NOT `ViewToggle`: there "Grid" means a card grid, here it means a table.
+is NOT the `ListToolbar` Layout tool: there "Grid" means a card grid, here it means a table.
 
 Deliberately NOT done here:
 - No persistence, no "View changed · Save for everyone" logic: the host owns views (G7).

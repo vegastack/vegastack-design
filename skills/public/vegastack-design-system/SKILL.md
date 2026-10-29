@@ -80,7 +80,7 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   for it before composing `combobox` by hand); **`combobox`** directly only for free text,
   suggestions or multi-select chips.
 - **One view-switch rule.** Form choices use `radio-group`; toolbar scope switches use default
-  `Tabs`, and Grid | List | Board uses `ViewToggle` (which composes Tabs). `ToggleGroup` is for
+  `Tabs`, and Grid | List | Board is the `ListToolbar`'s Layout tool. `ToggleGroup` is for
   pressed action/value choices. URL navigation uses links and the route-tabs recipe.
 
 - **Empty is tiered** — nothing yet, no matches ("Clear filters"), couldn't load (`role="alert"`,
@@ -88,13 +88,14 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   (<https://design.vegastack.com/docs/foundations/empty-states>); never leave a region blank.
   `Empty` always shows an icon (`icon`, `Inbox` by default). In a `DataList`, use `emptyState` for
   "nothing yet" and `noResults={{ onClear }}` for "no matches" (SearchX, "No matches", "Clear
-  filters" wired to the FilterBar's `onClear`) — never hand-roll empty markup.
-- **List toolbars are one recipe** — `FilterBar`: search (~320px) left; right, the Filters (n)
-  toggle, then views as `Tabs` (default variant, `TabsList size="sm"`, optional leading icons), then
-  the layout switch (`ViewToggle`), furthest right. Filters are `FilterBarFacet` /
-  `DateRangeFilter` chips (compact, rounded-md, tinted when set) on the toggled row; people facets
-  take `itemToSecondaryLabel={(p) => p.email}`. Toolbar switches use default Tabs — never a ToggleGroup or line
-  Tabs: `Tabs` for scope, `ViewToggle` (default Tabs, icons) for Grid | List | Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
+  filters" wired to the FilterRow's `onClear`) — never hand-roll empty markup.
+- **List toolbars are one recipe** — `ListToolbar`: scope `Tabs` (`TabsList size="sm"
+overflow="menu"`) left; the search, then the tools — Filter (n), Sort (`SortMenu`), Layout
+  (List | Board | Grid icons), Display (`DisplayMenu`: row height, columns, group) and ⋯ — right;
+  it measures itself and folds tools into Display and ⋯ when tight. The Filter tool opens a
+  `FilterRow`: `+ Filter` (`AddFilterMenu`), the pinned `ListFacet` / `PeopleFacet` /
+  `DateRangeFilter` chips (compact, rounded-md, dashed while unset, tinted when set), the other
+  chips, Clear; people facets take `itemToSecondaryLabel={(p) => p.email}`. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
@@ -129,7 +130,7 @@ A component's name undersells it. Before composing something by hand, check this
 | `DataList` paging and rows                             | `loadMore` for keyset paging, `getRowHref` for rows that are links, `rowProps` for `data-*` and a `highlighted` new row, `sections` + `getRowSection` for collapsible groups, and `rowActionsColumn` for a per-row menu.                                                                                                                                                                         |
 | `LoadMore` · `useAsyncSearch`                          | The Load more footer of a keyset list (keeps its width while loading, "Try again", an end caption) · the server-search engine: debounce, dropped stale responses, cursor paging.                                                                                                                                                                                                                 |
 | `SortableList`                                         | `layout="grid"` reorders tiles as well as rows.                                                                                                                                                                                                                                                                                                                                                  |
-| `FilterBar` / `FilterBuilder`                          | `FilterBar` is a flat chip row with search, and `FilterBarFacet` is a "Status: Open" facet on `SearchableSelect` (single or `multiple`, local or `remote`); `FilterBuilder` (the `filter-bar-managed` item) edits a nested and/or tree over your field vocabulary. All controlled.                                                                                                               |
+| `FilterRow` / `FilterBuilder`                          | `FilterRow` is the chip row a `ListToolbar`'s Filter tool opens, and `ListFacet` is a "Status: Open" facet on `SearchableSelect` (single or `multiple`, local or `remote`); `FilterBuilder` (the `filter-bar-managed` item) edits a nested and/or tree over your field vocabulary. All controlled.                                                                                               |
 | `Stat`                                                 | `StatDelta` for change, `StatEmpty` for nothing to report.                                                                                                                                                                                                                                                                                                                                       |
 | `PropertyList` · `DataList` · `SettingsRow`            | A record's facts · many records · one setting with its control.                                                                                                                                                                                                                                                                                                                                  |
 | `ActionBar`                                            | The docked bar for bulk selection ("5 selected"), unsaved changes and batch progress.                                                                                                                                                                                                                                                                                                            |
@@ -182,7 +183,7 @@ A component's name undersells it. Before composing something by hand, check this
   default `Tabs` stretched full width (`TabsList className="w-full"`) with `useTabsSwipe` on the
   panels, and no cards around the panels.
 - **A list page with a grid, list or board view** → one `DataList` with `view` + `onViewChange`
-  (it mounts `ViewToggle` in the `FilterBar` `view` slot and remembers the view for the session) and
+  (it fills a `ListToolbar` toolbar's Layout tool and remembers the view for the session) and
   `views` for the ones the page allows. The grid renders a `MediaCard` per row (whole card is the
   link, ⋯ on hover/focus/touch) with `sections` as headings; `view="board"` makes `sections` Board
   lanes with `onMove` and a per-section `loading` / `loadMore` / `emptyState`. Record images are a

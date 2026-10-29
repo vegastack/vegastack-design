@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a1c5e3fa80b560e2390f806a8637bcce036f5e7d27329a855d2c2a650b11b90f",
+  "contractSha256": "9044fe208fe59680bee487f4b90390c5f4f2ac2b53733b940cbd916bad3eb994",
   "expectedCounts": {
-    "totalRegistryItems": 784,
-    "components": 194,
+    "totalRegistryItems": 782,
+    "components": 192,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -510,17 +510,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "view-toggle",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/view-toggle.tsx"
-      ],
-      "docsSlug": "/docs/components/view-toggle",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "list-toolbar",
       "inventoryClass": "component",
       "wave": "Data display",
@@ -738,17 +727,6 @@
         "packages/ui/registry/ui/field-grid.tsx"
       ],
       "docsSlug": "/docs/components/field-grid",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "filter-bar",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/filter-bar.tsx"
-      ],
-      "docsSlug": "/docs/components/filter-bar",
       "contractStatus": "reconciled"
     },
     {

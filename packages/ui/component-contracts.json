@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 784,
-    "components": 194,
+    "totalRegistryItems": 782,
+    "components": 192,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -22,10 +22,10 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 42,
+    "Forms/editing": 41,
     "Navigation/layout": 26,
     "Overlays": 23,
-    "Data display": 46,
+    "Data display": 45,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 12,
@@ -76,7 +76,6 @@
       "field-cell",
       "field",
       "field-grid",
-      "filter-bar",
       "filter-bar-managed",
       "input-group",
       "input-otp",
@@ -189,7 +188,6 @@
       "timeline",
       "version-list",
       "view-tabs",
-      "view-toggle",
       "icon-glyph",
       "level-meter",
       "mermaid-block",
@@ -8687,12 +8685,10 @@
         "@vegastack/button",
         "@vegastack/empty",
         "@vegastack/board",
-        "@vegastack/filter-bar",
         "@vegastack/media-card",
         "@vegastack/board-card",
         "@vegastack/skeleton",
         "@vegastack/thumbnail",
-        "@vegastack/view-toggle",
         "@vegastack/use-drag-reorder",
         "@vegastack/checkbox",
         "@vegastack/action-bar",
@@ -9766,159 +9762,6 @@
       }
     },
     {
-      "name": "view-toggle",
-      "registryType": "registry:ui",
-      "title": "View Toggle",
-      "summary": "The Grid | List | Board icon switch for a list page, labels hidden on a phone.",
-      "status": "stable",
-      "since": "0.23.10",
-      "family": "data",
-      "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/view-toggle.tsx"],
-      "publicSymbols": [
-        {
-          "name": "ViewToggle",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/view-toggle.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "ViewToggle takes no ref; it renders a ToggleGroup."
-          }
-        },
-        {
-          "name": "ViewToggleProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/view-toggle.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ListView",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/view-toggle.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "Density",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/view-toggle.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DensityToggle",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/view-toggle.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "ViewToggle takes no ref; it renders a ToggleGroup."
-          }
-        },
-        {
-          "name": "DensityToggleProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/view-toggle.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "ToggleGroup outline variant; no local axis."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "ToggleGroup outline variant; no local axis."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["grid", "list", "board"],
-          "evidence": "packages/ui/registry/ui/view-toggle.tsx + packages/ui/registry/ui/view-toggle.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["labeled", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/ui/view-toggle.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover"],
-          "evidence": "packages/ui/registry/ui/view-toggle.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "Fixed-size media and truncating text; nothing grows past its container."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/view-toggle",
-      "registryDependencies": ["@vegastack/tabs"],
-      "npmDependencies": [
-        "@vegastack/design@^0.8.50",
-        "@vegastack/design-tokens@^0.8.38",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/view-toggle.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "view-toggle",
-      "dataAttributes": {
-        "ViewToggle": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["view-toggle"]
-            },
-            {
-              "name": "data-view",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "DensityToggle": {
-          "attributes": [
-            {
-              "name": "data-density",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["density-toggle"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "list-toolbar",
       "registryType": "registry:ui",
       "title": "List Toolbar",
@@ -10238,7 +10081,7 @@
       "name": "filter-row",
       "registryType": "registry:ui",
       "title": "Filter Row",
-      "summary": "The chips under a ListToolbar: + Filter, pinned facets (dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
+      "summary": "The chips under a ListToolbar: + Filter, pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
       "status": "stable",
       "since": "0.25.100",
       "family": "data",
@@ -10289,6 +10132,142 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DateRangeFilter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by DateRangeFilter in packages/ui/registry/ui/filter-row.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "DateRangeFilterPreset",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DateRangeFilterProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DateRangeFilterValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "dateRangeForPreset",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "ListFacet",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "ListFacetOwnProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListFacetProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListFilter",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/filter-row.tsx."
+          }
+        },
+        {
+          "name": "FilterChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeopleFacet",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "PeopleFacetProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterFacetReport",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterFacetReporter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider; it renders no element of its own."
+          }
         }
       ],
       "variants": {
@@ -10304,7 +10283,15 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["default", "set", "ai"],
+          "values": [
+            "default",
+            "set",
+            "ai",
+            "active",
+            "disabled",
+            "facet",
+            "editing"
+          ],
           "evidence": "packages/ui/registry/ui/filter-row.tsx + packages/ui/registry/ui/filter-row.test.tsx"
         },
         "accessibility": {
@@ -10335,8 +10322,13 @@
       "docsSlug": "/docs/components/filter-row",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/filter-bar",
-        "@vegastack/list-toolbar"
+        "@vegastack/calendar",
+        "@vegastack/chip",
+        "@vegastack/date-time",
+        "@vegastack/list-toolbar",
+        "@vegastack/people-picker",
+        "@vegastack/popover",
+        "@vegastack/searchable-select"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -10373,6 +10365,82 @@
                 "filter-row-clear",
                 "filter-row-scroll"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FilterChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["filter-chip", "filter-chip-ai", "filter-chip-trigger"]
+            },
+            {
+              "name": "data-source",
+              "values": ["ai"]
+            },
+            {
+              "name": "data-state",
+              "values": ["unset"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ListFacet": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "list-facet",
+                "list-facet-clear",
+                "list-facet-remove",
+                "list-facet-select"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["set", "unset"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeopleFacet": {
+          "attributes": [
+            {
+              "name": "data-placeholder",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "list-facet",
+                "list-facet-clear",
+                "list-facet-remove",
+                "list-facet-select-trigger"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["set", "unset"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DateRangeFilter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "date-range-filter",
+                "date-range-filter-clear",
+                "date-range-filter-content",
+                "date-range-filter-presets",
+                "date-range-filter-trigger"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["set", "unset"]
             }
           ],
           "cssVariables": []
@@ -15210,392 +15278,6 @@
       }
     },
     {
-      "name": "filter-bar",
-      "registryType": "registry:ui",
-      "title": "Filter Bar",
-      "summary": "The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "data",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/filter-bar.tsx"],
-      "publicSymbols": [
-        {
-          "name": "DateRangeFilter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by DateRangeFilter in packages/ui/registry/ui/filter-bar.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "DateRangeFilterPreset",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DateRangeFilterProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DateRangeFilterValue",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "dateRangeForPreset",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "FilterBar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/filter-bar.tsx."
-          }
-        },
-        {
-          "name": "FilterBarAddOption",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterBarFacet",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a composed part and takes no ref."
-          }
-        },
-        {
-          "name": "FilterBarFacetOwnProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterBarFacetProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterBarFilter",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterBarProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterBarSearch",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterChip",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/filter-bar.tsx."
-          }
-        },
-        {
-          "name": "FilterChipProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterBarPeopleFacet",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a composed part and takes no ref."
-          }
-        },
-        {
-          "name": "FilterBarPeopleFacetProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterFacetReport",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FilterFacetReporter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/filter-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A context provider; it renders no element of its own."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "active",
-            "disabled",
-            "empty",
-            "selected",
-            "search-start",
-            "facet",
-            "editing"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "active", "empty"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/filter-bar",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/calendar",
-        "@vegastack/chip",
-        "@vegastack/date-time",
-        "@vegastack/dropdown-menu",
-        "@vegastack/page-layout",
-        "@vegastack/people-picker",
-        "@vegastack/popover",
-        "@vegastack/search-input",
-        "@vegastack/searchable-select",
-        "@vegastack/sheet",
-        "@vegastack/use-media-query"
-      ],
-      "npmDependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.8.50",
-        "@vegastack/design-tokens@^0.8.38"
-      ],
-      "testFiles": ["packages/ui/registry/ui/filter-bar.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "filter-bar",
-      "dataAttributes": {
-        "FilterChip": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["filter-chip", "filter-chip-ai", "filter-chip-trigger"]
-            },
-            {
-              "name": "data-source",
-              "values": ["ai"]
-            },
-            {
-              "name": "data-state",
-              "values": ["unset"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FilterBar": {
-          "attributes": [
-            {
-              "name": "data-filter-id",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "filter-bar",
-                "filter-bar-actions",
-                "filter-bar-add",
-                "filter-bar-clear",
-                "filter-bar-controls",
-                "filter-bar-filter-builder",
-                "filter-bar-filters",
-                "filter-bar-filters-toggle",
-                "filter-bar-leading",
-                "filter-bar-primary",
-                "filter-bar-scope",
-                "filter-bar-search",
-                "filter-bar-search-toggle",
-                "filter-bar-sort",
-                "filter-bar-sort-content",
-                "filter-bar-trailing",
-                "filter-bar-view",
-                "filter-bar-view-actions",
-                "filter-bar-view-content",
-                "filter-bar-view-menu",
-                "filter-bar-view-sheet"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["closed", "open"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FilterBarFacet": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "filter-bar-facet",
-                "filter-bar-facet-clear",
-                "filter-bar-facet-remove",
-                "filter-bar-facet-select"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["set", "unset"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FilterBarPeopleFacet": {
-          "attributes": [
-            {
-              "name": "data-placeholder",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "filter-bar-facet",
-                "filter-bar-facet-clear",
-                "filter-bar-facet-remove",
-                "filter-bar-facet-select-trigger"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["set", "unset"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DateRangeFilter": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "date-range-filter",
-                "date-range-filter-clear",
-                "date-range-filter-content",
-                "date-range-filter-presets",
-                "date-range-filter-trigger"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["set", "unset"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "filter-bar-managed",
       "registryType": "registry:ui",
       "title": "Filter Builder",
@@ -15945,7 +15627,7 @@
         "@vegastack/button",
         "@vegastack/date-picker",
         "@vegastack/date-time",
-        "@vegastack/filter-bar",
+        "@vegastack/filter-row",
         "@vegastack/input",
         "@vegastack/number-field",
         "@vegastack/people-picker",
@@ -27924,7 +27606,7 @@
       "name": "tabs",
       "registryType": "registry:ui",
       "title": "Tabs",
-      "summary": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
+      "summary": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs for scope (My tasks | Team tasks); a list's List/Board/Grid switch is ListToolbar's Layout tool. The one component that keeps a focus ring.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -48206,7 +47888,7 @@
       "name": "board-01",
       "registryType": "registry:block",
       "title": "Board 01",
-      "summary": "A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, a paged Backlog, cards that link to each task with their own menu, and a No matches state.",
+      "summary": "A board page — a PageHeader over a ListToolbar and Board, with lanes named by their count, a paged Backlog, cards that link to each task with their own menu, and a No matches state.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -48281,9 +47963,9 @@
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/data-table-parts",
-        "@vegastack/dropdown-menu",
-        "@vegastack/filter-bar",
-        "@vegastack/page-header"
+        "@vegastack/page-header",
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -48683,7 +48365,7 @@
       "name": "list-page-01",
       "registryType": "registry:block",
       "title": "List Page 01",
-      "summary": "A list page — FilterBar search, a Status facet and Mine | Team over the same records as a table or a grid of linked tiles, with Load more and three empty tiers.",
+      "summary": "A list page — ListToolbar search, Status and Industry facets and Mine | Team over the same records as a table or a grid of linked tiles, with Load more and three empty tiers.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -48812,11 +48494,11 @@
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/empty",
-        "@vegastack/filter-bar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
         "@vegastack/tabs",
-        "@vegastack/view-toggle"
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -52534,8 +52216,8 @@
         }
       ],
       "registryDependencies": [
-        "@vegastack/embed-providers",
-        "@vegastack/text-edit-grammar"
+        "@vegastack/text-edit-grammar",
+        "@vegastack/embed-providers"
       ],
       "docsSlug": "/docs/guides/components",
       "states": {
@@ -52699,9 +52381,9 @@
         }
       ],
       "registryDependencies": [
+        "@vegastack/text-edit-schema",
         "@vegastack/text-anchor-doc",
-        "@vegastack/text-edit-grammar",
-        "@vegastack/text-edit-schema"
+        "@vegastack/text-edit-grammar"
       ],
       "docsSlug": "/docs/guides/components",
       "states": {

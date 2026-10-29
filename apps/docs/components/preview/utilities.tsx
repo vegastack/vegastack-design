@@ -5,7 +5,7 @@ import { Wrapper } from "./wrapper";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { useViewTransition } from "@/components/ui/use-view-transition";
 import { useOptimisticAction } from "@/components/ui/use-optimistic-action";
 import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
@@ -273,13 +273,17 @@ export function motionStagger(): ReactNode {
 
 function ViewTransitionDemo(): ReactNode {
   const { start } = useViewTransition();
-  const [view, setView] = useState<ListView>("list");
+  const [view, setView] = useState<"list" | "grid">("list");
   return (
     <div className="flex w-full max-w-sm flex-col gap-3">
-      <ViewToggle
-        value={view}
-        onValueChange={(next) => void start(() => setView(next))}
-        views={["list", "grid"]}
+      <ListToolbar
+        aria-label="Demo layout"
+        layout={{
+          value: view,
+          options: ["list", "grid"],
+          onValueChange: (next) =>
+            void start(() => setView(next as "list" | "grid")),
+        }}
       />
       <div
         className={

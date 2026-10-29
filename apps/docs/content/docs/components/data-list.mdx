@@ -40,9 +40,8 @@ are all fully typed against your data.
 <ComponentPreview name="dataList" file="components/preview/data-list.tsx" />
 
 **In a `ListToolbar`.** Pass a [`ListToolbar`](/docs/components/list-toolbar) as `toolbar` and
-DataList fills it: `views` with `onViewChange` become its Layout tool (icon buttons, no pill
-`ViewToggle`), and `onDensityChange` becomes Display's Row height (a `DisplayMenu` is added when the
-toolbar has none). A toolbar that sets its own `layout` or row height keeps them. An empty list keeps
+DataList fills it: `views` with `onViewChange` become its Layout tool (icon buttons), and
+`onDensityChange` becomes Display's Row height (a `DisplayMenu` is added when the toolbar has none). A toolbar that sets its own `layout` or row height keeps them. An empty list keeps
 its toolbar but drops the column header; `noResults` takes `onEditFilters` for an "Edit filters"
 button beside "Clear filters". While rows are selected the list keeps a spacer the bulk bar's height,
 so the last row is never covered.
@@ -356,7 +355,7 @@ const columns: DataListColumn<Person>[] = [
 ### Density
 
 `density` sets the list's row height on one scale shared with `DataGrid`: `comfortable` rows are at
-least 40px, `compact` rows 32px. `onDensityChange` mounts a `DensityToggle` beside the view switch.
+least 40px, `compact` rows 32px. `onDensityChange` adds Row height to a `ListToolbar` toolbar's Display menu.
 **Compact is one line per row.** Merged values join the primary value's line instead of stacking
 under it (the `line` layout, whatever `mergedLayout` says), a plain primary value clamps to one
 line, and a thumbnail steps down to 24px. A custom `render` reads the density from its third
@@ -391,7 +390,7 @@ render: (task) => (
   (prefer `empty`). `DataListEmptyState` is the same state outside a DataList.
 - **`noResults`** — the list is empty _because of_ a search or filter. `true` shows the standard
   one: a SearchX icon, "No matches", a short description; pass `{ onClear }` to add a "Clear
-  filters" button wired to the `FilterBar`'s `onClear` (`title`, `description` and `clearLabel`
+  filters" button wired to the `FilterRow`'s `onClear` (`title`, `description` and `clearLabel`
   relabel it). `NoResultsEmpty` is the same state for a Board or a card grid.
 
 ```tsx
@@ -716,27 +715,32 @@ title) and `timestamp` slots, or anything else.
   file="components/preview/data-list.tsx"
 />
 
-### View toggle
+### Layout
 
-`onViewChange` mounts a [`ViewToggle`](/docs/components/view-toggle). When the `toolbar` is a
-`FilterBar` it lands in the bar's `view` slot — the end of its first row, after the search and the
-Filters toggle, icon-only on a tablet or phone; otherwise it sits at the end of the toolbar row.
-Never put it in the `PageHeader`: the header's `tabs` hold the scope ("My | Team") only.
-`views` sets which views it offers, in order (default Grid | List). Like every toolbar switch it is the default (pill) `Tabs`. The chosen view is remembered
-for the browser session under `viewStorageKey` (default: the path plus the list's `aria-label`).
-`defaultView` is the page's first view before the user picks one — `"board"` for a task list,
-`"grid"` for a catalogue — and the remembered choice wins after that.
+`onViewChange` gives a [`ListToolbar`](/docs/components/list-toolbar) toolbar its Layout tool —
+icon buttons at the end of the toolbar row, folded into Display on a narrow one — unless the
+toolbar sets its own `layout`. Never put it in the `PageHeader`: the header's `tabs` hold the scope
+("My | Team") only. `views` sets which layouts it offers, in order (default Grid | List). The
+chosen view is remembered for the browser session under `viewStorageKey` (default: the path plus
+the list's `aria-label`). `defaultView` is the page's first view before the user picks one —
+`"board"` for a task list, `"grid"` for a catalogue — and the remembered choice wins after that.
+Any other toolbar renders as it is, with no switch added.
 
 ```tsx
 <DataList
   view={view}
   onViewChange={setView}
-  toolbar={<FilterBar search={search} facets={facets} onClear={clearAll} />}
+  toolbar={
+    <ListToolbar
+      search={search}
+      filterRow={<FilterRow facets={facets} onClear={clearAll} />}
+    />
+  }
 />
 ```
 
 <ComponentPreview
-  name="dataListViewToggle"
+  name="dataListLayout"
   file="components/preview/data-list.tsx"
 />
 

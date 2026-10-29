@@ -1,4 +1,4 @@
-// @vegastack page-header@0.25.102 sha256-fi7gcwfERcUuLN6j1fWD739Hju5kreE6OqavzvLuMWA=
+// @vegastack page-header@0.25.102 sha256-4E9IH6zKpH+T1/xi1HvhFmrNKOcAmAyXRdAXlaQv2do=
 
 "use client";
 
@@ -138,8 +138,8 @@ export interface PageHeaderProps extends Omit<
    * The page's scope tabs, on their own row directly under the title — a default (pill) `Tabs`
    * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
    * Tabs that change content in place belong here, above the list's toolbar, not inside it.
-   * How the records are laid out (a `ViewToggle`, "List | Board") is not a tab: it sits at the
-   * end of the `FilterBar`'s first row, in its `view` slot.
+   * How the records are laid out ("List | Board") is not a tab: it is the `ListToolbar`'s Layout
+   * tool.
 
    * @default undefined
    */
@@ -223,7 +223,7 @@ function FavoriteStar({
  * />
  *
  * @example
- * // A list page: scope tabs under the title (the layout switch goes in the FilterBar's `view`)
+ * // A list page: scope tabs under the title (the layout switch is the ListToolbar's `layout`)
  * <PageHeader
  *   title="Tasks"
  *   actions={<Button>New task</Button>}

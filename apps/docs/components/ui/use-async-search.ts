@@ -1,4 +1,4 @@
-// @vegastack use-async-search@0.25.102 sha256-uPdXsiAtxL4kaRkp6AistCZtRR22RjQg0UlJllEdNoM=
+// @vegastack use-async-search@0.25.102 sha256-tZFt688W8Cd1jmPfokPy3l+GrV7r/sCtJyWRA0Q0CrQ=
 
 "use client";
 
@@ -8,7 +8,7 @@ import type { LoadMoreState } from "@/components/ui/load-more";
 
 /* ---
 `useAsyncSearch` is the server-search state machine behind a searched,
-keyset-paged list: SearchableSelect's `remote` mode, a FilterBar facet whose
+keyset-paged list: SearchableSelect's `remote` mode, a ListFacet whose
 options come from the server, a picker dialog. It owns the four things every
 hand-rolled copy gets wrong:
 

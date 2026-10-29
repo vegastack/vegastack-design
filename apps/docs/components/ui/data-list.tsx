@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.102 sha256-tv6jOAUxDXIBKg84Gy8noiPJliBT6/hsSvor+BWWeHg=
+// @vegastack data-list@0.25.102 sha256-Cm3RqAvi6mNW5oN2wR+02YVvP85KAH5CLQWpXWiNHGA=
 
 "use client";
 
@@ -64,7 +64,6 @@ import {
   type BoardColumn,
   type BoardHiddenColumn,
 } from "@/components/ui/board";
-import { FilterBar } from "@/components/ui/filter-bar";
 import {
   ListToolbar,
   type ListToolbarProps,
@@ -77,12 +76,6 @@ import { MediaCard, RECORD_TITLE_CLASS } from "@/components/ui/media-card";
 import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "@/components/ui/thumbnail";
-import {
-  DensityToggle,
-  ViewToggle,
-  type Density,
-  type ListView,
-} from "@/components/ui/view-toggle";
 import {
   useDragInto,
   type DragIntoFileEntry,
@@ -103,10 +96,10 @@ export type {
 };
 
 /** How a `DataList` lays its rows out: a table, a card grid, or board lanes. */
-export type DataListView = ListView;
+export type DataListView = "list" | "grid" | "board";
 
 /** A row density `DataList` can show its table in. */
-export type DataListDensity = Density;
+export type DataListDensity = "comfortable" | "compact";
 
 /** The active sort — which column and which direction. */
 export interface SortState {
@@ -608,9 +601,10 @@ export interface DataListProps<T> extends Omit<
    */
   getRowLabel?: (row: T) => string;
   /**
-   * Slot rendered above the table — where the host drops its own search input,
-   * filter bar, or bulk actions. Renders nothing when omitted (per the G7 split,
-   * the search/filter *logic* lives in the host; this is just the mount point).
+   * Slot rendered above the table — a `ListToolbar` (it then takes the Layout tool and Row
+   * height from `onViewChange` and `onDensityChange`), or any toolbar of the host's own.
+   * Renders nothing when omitted (per the G7 split, the search/filter *logic* lives in the host;
+   * this is just the mount point).
 
    * @default undefined
    */
@@ -710,7 +704,7 @@ export interface DataListProps<T> extends Omit<
    * The "no matches for these filters" state, used instead of `emptyState` while `data` is empty
    * because of a search or filter. `true` shows the standard one (a SearchX icon, "No matches", a
    * short description); pass an object to relabel it and wire "Clear filters" to the
-   * `FilterBar`'s `onClear`.
+   * `FilterRow`'s `onClear`.
    * @default undefined
    */
   noResults?: boolean | DataListNoResults;
@@ -770,9 +764,9 @@ export interface DataListProps<T> extends Omit<
    */
   density?: DataListDensity;
   /**
-   * Called with the density the user picks. Setting it mounts a `DensityToggle` beside the view
-   * toggle (or alone, in the toolbar's `FilterBar` `view` slot). Controlled: store the choice and
-   * pass it back as `density`.
+   * Called with the density the user picks. Setting it adds a Row height choice to the toolbar's
+   * `DisplayMenu` (or mounts one) when `toolbar` is a `ListToolbar`. Controlled: store the choice
+   * and pass it back as `density`.
    * @default undefined
    */
   onDensityChange?: (density: DataListDensity) => void;
@@ -782,14 +776,13 @@ export interface DataListProps<T> extends Omit<
    */
   defaultView?: DataListView;
   /**
-   * Called with the view the user picks. Setting it mounts a `ViewToggle` — in the toolbar's
-   * `FilterBar` `view` slot when the toolbar is a `FilterBar` — and the chosen view is
-   * remembered for the browser session.
+   * Called with the view the user picks. Setting it gives a `ListToolbar` toolbar its Layout tool
+   * (unless the host set `layout`), and the chosen view is remembered for the browser session.
    * @default undefined
    */
   onViewChange?: (view: DataListView) => void;
   /**
-   * The views the toggle offers, in order.
+   * The views the Layout tool offers, in order.
    * @default ["grid", "list"]
    */
   views?: readonly DataListView[];
@@ -994,7 +987,7 @@ export interface DataListNoResults {
    */
   description?: React.ReactNode;
   /**
-   * Clears the search and filters — pass the `FilterBar`'s `onClear`. Omit for no button.
+   * Clears the search and filters — pass the `FilterRow`'s `onClear`. Omit for no button.
    * @default undefined
    */
   onClear?: () => void;
@@ -1778,23 +1771,6 @@ export function DataList<T>({
     },
     [commitView, storageKeyFor],
   );
-  const listViewToggle = onViewChange ? (
-    <ViewToggle value={activeView} onValueChange={changeView} views={views} />
-  ) : null;
-  // The density switch only means something in the table, so it leaves with the list view.
-  const densityToggle =
-    onDensityChange && activeView === "list" ? (
-      <DensityToggle value={density} onValueChange={onDensityChange} />
-    ) : null;
-  const viewToggle =
-    listViewToggle && densityToggle ? (
-      <div className="flex items-center gap-2">
-        {densityToggle}
-        {listViewToggle}
-      </div>
-    ) : (
-      (listViewToggle ?? densityToggle)
-    );
 
   const rowIds = React.useMemo(
     () => data.map((row, i) => getRowId(row, i)),
@@ -3241,7 +3217,7 @@ export function DataList<T>({
     );
 
   // A ListToolbar takes the views as its Layout tool and the density as Display's Row height,
-  // unless the host already set them; a FilterBar (deprecated) still takes the old toggles.
+  // unless the host already set them. Any other toolbar renders as it is.
   const listToolbar =
     React.isValidElement<ListToolbarProps>(toolbar) &&
     toolbar.type === ListToolbar
@@ -3283,24 +3259,7 @@ export function DataList<T>({
         display: injectDisplay(listToolbar.props.display),
       })
     : null;
-  // The view toggle lands in the toolbar's FilterBar `view` slot, else beside the toolbar.
-  const toolbarWithToggle =
-    toolbarWithLayout ??
-    (viewToggle &&
-    React.isValidElement<{ view?: React.ReactNode }>(toolbar) &&
-    toolbar.type === FilterBar &&
-    toolbar.props.view == null ? (
-      React.cloneElement(toolbar, { view: viewToggle })
-    ) : viewToggle ? (
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        {toolbar != null ? (
-          <div className="min-w-0 flex-1">{toolbar}</div>
-        ) : null}
-        <div className="ms-auto">{viewToggle}</div>
-      </div>
-    ) : (
-      toolbar
-    ));
+  const toolbarNode = toolbarWithLayout ?? toolbar;
 
   const selectionCount = selected.size;
   const selectionBar =
@@ -3331,8 +3290,8 @@ export function DataList<T>({
       onPointerMove={tracksCursor ? followPointer : undefined}
       className="@container/data-list flex w-full min-w-0 flex-col gap-3"
     >
-      {toolbarWithToggle != null ? (
-        <div data-slot="data-list-toolbar">{toolbarWithToggle}</div>
+      {toolbarNode != null ? (
+        <div data-slot="data-list-toolbar">{toolbarNode}</div>
       ) : null}
       {activeView === "grid"
         ? renderGrid()

@@ -17,15 +17,14 @@ preview: filterRow
 
 ```tsx
 import { AddFilterMenu } from "@/components/ui/add-filter-menu";
-import { FilterBarFacet } from "@/components/ui/filter-bar";
-import { FilterRow } from "@/components/ui/filter-row";
+import { FilterRow, ListFacet } from "@/components/ui/filter-row";
 
 <ListToolbar
   filterRow={
     <FilterRow
       addFilter={<AddFilterMenu fields={fields} onPick={addFilter} ai={ai} />}
       facets={
-        <FilterBarFacet
+        <ListFacet
           label="Status"
           multiple
           items={statuses}
@@ -46,7 +45,7 @@ The order never changes, so chips never jump:
 1. **`+ Filter`** (`addFilter`), pinned first — also on a phone, where the row scrolls.
 2. **Pinned facets** (`facets`), in the page's order. Unset, a facet is a dashed outline that reads
    as an offer (`+ Due`); set, it is a solid chip. A facet with a custom editor is an `unset`
-   [`FilterChip`](/docs/components/filter-bar).
+   `FilterChip` (below).
 3. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
    A preset resolves to ordinary chips; there is no separate preset chip.
 4. **Clear**, at the far end, only while something is set.
@@ -60,6 +59,13 @@ From an `@3xl` row the chips wrap; below it they are one sideways-scrolling line
 `+ Filter` and Clear pinned at its two ends. The row counts what is applied (its chips plus its set
 facets) and tells the enclosing [`ListToolbar`](/docs/components/list-toolbar), whose Filter tool
 shows the count.
+
+## Anatomy
+
+`Filter Row` is a compound component: the row, and the facet chips that sit in it. Every exported
+part, with the `data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="filter-row" />
 
 ## Examples
 
@@ -86,6 +92,77 @@ shows the count.
   name="FilterRowAiNote"
 />
 
+### ListFacet
+
+One filter on [`SearchableSelect`](/docs/components/searchable-select), in the row's one chip
+shape: compact (h-7), rounded-md, quiet type. Unset it reads just its label (_Status ▾_); set it is
+tinted and reads _Status: Open_, then _Status: 2_ from two values (the values in the chip's tooltip
+and ticked in the popover), with a × named "Clear Status" in the chevron's fixed slot. Use short,
+sentence-case labels; never "Any" or "All statuses". The search box shows only when the list is
+worth searching (more than 7 options, or a `remote` list); `searchable` forces it on or off.
+
+It passes `SearchableSelect`'s props through (minus the trigger face it owns: `renderItem`,
+`renderValue`, `renderTriggerValue`, `placeholder`, `variant`, `size`, `aria-label`, `groupBy`
+and `groupOrder`) — `multiple`, `remote` with `useAsyncSearch`, `leadingItems`,
+`itemToDescription` — and adds `pinSelected` (the chosen options first, under "Selected") and
+`removable` with `onRemove`. The tick matches by `itemToKey`, so options from a server search tick
+as static ones do. For people, pass `itemToSecondaryLabel={(p) => p.email}` (and `itemToAvatar`):
+each option is one `PersonOption` ([the person contract](/docs/components/searchable-select#people)).
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="ListFacetOwnProps"
+/>
+
+### PeopleFacet
+
+A people filter: the facet chip ("Assignee", "Assignee: Asha Rao", "Assignee: 2") over the one
+people picker ([`PeoplePickerContent`](/docs/components/people-picker)), so a filter lists people
+exactly as every other picker does. `leadingOptions` adds rows such as "Unassigned".
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="PeopleFacetProps"
+/>
+
+### DateRangeFilter
+
+A date-range chip in the same shape as a facet. Presets: Today · Yesterday · Last 7 days · Last 30
+days · This month · Last month · Custom range (a two-month calendar with Apply). Set, it reads the
+preset ("Due: Last 7 days") or the dates from the date-time helpers ("Due: Sep 1–25"). Pass `now`
+in the same calendar-date convention as the range endpoints; it drives both the presets and the
+calendar's Today highlight. `dateRangeForPreset(preset, now)` returns the `{ from, to }` a preset
+covers, for the query. The calendar loads lazily — fetched when the chip is hovered, focused or
+opened — so a filter row never puts the calendar engine in the page's first bundle.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="DateRangeFilterProps"
+/>
+
+### FilterChip
+
+The removable "Label: value" pill `FilterRow` draws for each of its `chips` — the
+[`Chip`](/docs/components/chip) primitive in the row's chip shape — exported for a custom row.
+Give it an `editor` and its label and value become a button (`filter-chip-trigger`) that opens the
+editor in a popover; <kbd>Escape</kbd> closes it and returns focus to the chip, and the × stays its
+own 24px target. `unset` draws a pinned facet with no value yet as a dashed `+ Label` offer.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="FilterChipProps"
+/>
+
+### ListFilter
+
+A descriptive applied-filter model (`id`, `label`, `value`, `icon`, `editor`, `onRemove`) for hosts
+that keep their filters as data and map them to `chips`.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-row.tsx"
+  name="ListFilter"
+/>
+
 ## Accessibility
 
 - The chips are a `group` named "Filters". Each chip's × is named "Clear" and the filter's label.
@@ -93,6 +170,9 @@ shows the count.
 - The AI note is a polite `status`: it is announced once after a run. Undo and the dismiss × are
   buttons.
 - Clear hands focus back to the row's first control once it unmounts.
+- A `ListFacet`, `PeopleFacet` or `DateRangeFilter` is a button named by what it reads ("Status",
+  "Status: Open"); its × is named "Clear" and the label, and <kbd>Escape</kbd> closes its popover
+  and returns focus to it.
 
 | Key                                 | Action                              |
 | ----------------------------------- | ----------------------------------- |

@@ -1,4 +1,4 @@
-// @vegastack use-view-transition@0.25.102 sha256-H1dN9Rsk8RJn37O6+GHGCmrnGtoqoy7G22wHkxNGijY=
+// @vegastack use-view-transition@0.25.102 sha256-Ql4K69ow1geiddmF2MIuPsHBFCLr3Q9ArVxCe6IKm9I=
 
 "use client";
 
@@ -122,7 +122,7 @@ export interface UseViewTransitionResult {
  *
  * @example
  * const { start } = useViewTransition();
- * <ViewToggle value={view} onValueChange={(next) => start(() => setView(next))} />
+ * <ListToolbar layout={{ value: view, options: ["list", "grid"], onValueChange: (next) => start(() => setView(next)) }} />
  */
 export function useViewTransition(
   options: ViewTransitionOptions = {},

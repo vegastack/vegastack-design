@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.102 sha256-qHZ8Wr6cYgZX3Fp72O0+yEhDidt1MkD536+skNiUrjY=
+// @vegastack searchable-select@0.25.102 sha256-Bch1+1qnXa7+RN34A4WTfIjti5LGSp2mJIoxw2v8rdU=
 
 "use client";
 
@@ -190,7 +190,7 @@ export interface SearchableSelectProps<
   retryLabel?: string;
   /**
    * Replaces the trigger's text for every state, empty included — for a trigger that reads
-   * "Status: Open" (FilterBarFacet). It also becomes the trigger's fallback accessible name.
+   * "Status: Open" (ListFacet). It also becomes the trigger's fallback accessible name.
    * @default undefined
    */
   renderTriggerValue?: (selected: Item[]) => string;
@@ -1060,7 +1060,7 @@ export function PersonBadge({ badge }: { badge?: React.ReactNode }) {
 /**
  * `PersonOption` — the standard person row wherever people are listed (pickers, menus, submenus
  * such as "Assign ›"): an avatar (`PersonAvatar`), then the name on the first line and a smaller muted email on
- * the second — stacked, never inline. `SearchableSelect` and `FilterBarFacet` draw it for you,
+ * the second — stacked, never inline. `SearchableSelect` and `ListFacet` draw it for you,
  * once, from `itemToSecondaryLabel` and `itemToAvatar` — never return it from their `renderItem`.
  * Use it directly in a `DropdownMenuItem` or a list of your own. Give the popup that lists people at least `min-w-72` (a `RowActionItem`
  * `submenu` and a `SearchableSelect` with `itemToSecondaryLabel` do this themselves).

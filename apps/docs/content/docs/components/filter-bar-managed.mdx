@@ -42,8 +42,8 @@ const [tree, setTree] = useState<
 <FilterBuilder vocabulary={VOCABULARY} value={tree} onValueChange={setTree} />;
 ```
 
-This is the stateful sibling [`FilterBar`](/docs/components/filter-bar)'s docs
-promised. **The grammar is host-injected**: the component owns the tree shape
+This is the condition builder a list's advanced filters open, beside the
+[`FilterRow`](/docs/components/filter-row). **The grammar is host-injected**: the component owns the tree shape
 (`FilterNode` — nested and/or groups and condition rows) and its editing
 surface; your app supplies the `vocabulary` (which fields exist, which
 operators each accepts, which editor type renders the value) and the `editors`
@@ -72,7 +72,7 @@ value with, exported so a host can register or reuse them.
 
 ### Chip summary
 
-`readOnly` collapses the builder to a flat [`FilterChip`](/docs/components/filter-bar)
+`readOnly` collapses the builder to a flat [`FilterChip`](/docs/components/filter-row#filterchip)
 row (the and/or grouping is not visualised in the summary — reopen the builder
 to see structure). Chips stay removable — removing one prunes that condition
 from the tree — unless the builder is also `disabled`, which makes the summary

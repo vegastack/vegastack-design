@@ -212,11 +212,6 @@
       "family": "internal",
       "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 — approved by MK 2026-09-27"
     },
-    "filter-bar": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "extras.md"
-    },
     "filter-bar-managed": {
       "disposition": "keep",
       "family": "data",
@@ -665,12 +660,6 @@
       "disposition": "keep",
       "family": "media",
       "source": "extras.md"
-    },
-    "view-toggle": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
-      "rationale": "Upstream ships no view switch. It is a fixed composition of upstream toggle-group, shared by DataList and consumers; no patch."
     },
     "share-dialog": {
       "disposition": "keep",

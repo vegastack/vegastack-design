@@ -6,10 +6,11 @@ import { Wrapper } from "./wrapper";
 import { AddFilterMenu } from "@/components/ui/add-filter-menu";
 import {
   DateRangeFilter,
-  FilterBarFacet,
+  FilterRow,
+  ListFacet,
   type DateRangeFilterValue,
-} from "@/components/ui/filter-bar";
-import { FilterRow, type FilterRowChip } from "@/components/ui/filter-row";
+  type FilterRowChip,
+} from "@/components/ui/filter-row";
 
 type Opt = { id: string; name: string };
 const optProps = {
@@ -55,7 +56,7 @@ export function filterRow(): ReactNode {
         }
         facets={
           <>
-            <FilterBarFacet<Opt, true>
+            <ListFacet<Opt, true>
               label="Status"
               multiple
               items={[

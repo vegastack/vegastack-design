@@ -1,24 +1,14 @@
-// @vegastack board-01@0.25.102 sha256-k4hx245/fzSAv32xr3ygsDjvdXms+RtBZP0eg6yxpzk=
+// @vegastack board-01@0.25.102 sha256-/SjtrMdNJ/lZ0fkj3Mo6rzQSSM2lyYO9ZATDsjEGprs=
 
 "use client";
 
 import * as React from "react";
-import { UserRound } from "lucide-react";
 
 import type { BoardCardPriority } from "@/components/ui/board-card";
 import type { RowAction } from "@/components/ui/data-table-parts";
-import { Button } from "@/components/ui/button";
 import { DataList, type DataListSection } from "@/components/ui/data-list";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FilterBar, type FilterBarFilter } from "@/components/ui/filter-bar";
+import { FilterRow, ListFacet } from "@/components/ui/filter-row";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 
 type Status = "backlog" | "in-progress" | "review" | "shipped";
 
@@ -138,8 +128,8 @@ const nameOf = (initials: string) =>
 const DAY = 86_400_000;
 
 /**
- * The board and its filters: one `DataList` in its board view, with a `FilterBar` toolbar (search
- * plus an Assignee filter). Its sections are the lanes — named with their count ("In progress, 2
+ * The board and its filters: one `DataList` in its board view, with a `ListToolbar` (search, and
+ * a `FilterRow` with an Assignee facet). Its sections are the lanes — named with their count ("In progress, 2
  * tasks") — and each task is a `BoardCard`: its due chip, priority and assignee, a link to the task
  * and an Open / Change status / Archive menu. The Backlog pages as it scrolls, each lane has
  * "+ Add task" (the create form opens with that status), and Shipped refuses cards. When the
@@ -160,7 +150,7 @@ export function BoardView() {
   const [backlogMore, setBacklogMore] = React.useState(BACKLOG_NEXT_PAGE);
   const [loadingMore, setLoadingMore] = React.useState(false);
   const [adding, setAdding] = React.useState<string | null>(null);
-  const searchRef = React.useRef<HTMLInputElement>(null);
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
 
   // Stand-in for a paged fetch: append the Backlog's next page after a short wait.
   function loadMoreBacklog() {
@@ -235,23 +225,13 @@ export function BoardView() {
     },
   ];
 
-  const filters: FilterBarFilter[] = assignee
-    ? [
-        {
-          id: "assignee",
-          label: "Assignee",
-          value: nameOf(assignee),
-          icon: <UserRound />,
-          onRemove: () => setAssignee(null),
-        },
-      ]
-    : [];
+  const assigneeItem = ASSIGNEES.find((person) => person.initials === assignee);
 
   function clearFilters() {
     setQuery("");
     setAssignee(null);
     // The button that called this unmounts; keep focus in the filters.
-    searchRef.current?.focus();
+    toolbarRef.current?.querySelector<HTMLInputElement>("input")?.focus();
   }
 
   return (
@@ -286,7 +266,8 @@ export function BoardView() {
         ) : null
       }
       toolbar={
-        <FilterBar
+        <ListToolbar
+          ref={toolbarRef}
           aria-label="Task filters"
           search={{
             value: query,
@@ -294,40 +275,22 @@ export function BoardView() {
             placeholder: "Search tasks…",
             "aria-label": "Search tasks",
           }}
-          searchInputProps={{ ref: searchRef }}
-          filters={filters}
-          addFilterMenu={
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="outline" />}>
-                <UserRound />
-                Assignee
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Assignee</DropdownMenuLabel>
-                  <DropdownMenuRadioGroup
-                    value={assignee ?? ""}
-                    onValueChange={(value) => setAssignee(value || null)}
-                  >
-                    {ASSIGNEES.map((person) => (
-                      <DropdownMenuRadioItem
-                        key={person.initials}
-                        value={person.initials}
-                      >
-                        {person.name}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          }
-          trailing={
-            filtering ? (
-              <Button variant="ghost" onClick={clearFilters}>
-                Clear filters
-              </Button>
-            ) : null
+          filterRow={
+            <FilterRow
+              onClear={clearFilters}
+              facets={
+                <ListFacet<(typeof ASSIGNEES)[number]>
+                  label="Assignee"
+                  items={ASSIGNEES}
+                  value={assigneeItem ?? null}
+                  onValueChange={(person) =>
+                    setAssignee(person ? person.initials : null)
+                  }
+                  itemToKey={(person) => person.initials}
+                  itemToStringLabel={(person) => person.name}
+                />
+              }
+            />
           }
         />
       }

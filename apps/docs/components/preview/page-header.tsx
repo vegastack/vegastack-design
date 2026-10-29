@@ -3,7 +3,8 @@
 import { useState, type ComponentProps, type ReactNode } from "react";
 import { MoreVertical } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/page-header` (dogfoods the registry) → auto-scanned.
-import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
+import { FilterRow, ListFacet } from "@/components/ui/filter-row";
+import { ListToolbar } from "@/components/ui/list-toolbar";
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ViewToggle } from "@/components/ui/view-toggle";
 import { Wrapper } from "./wrapper";
 
 export function pageHeader(): ReactNode {
@@ -241,31 +241,33 @@ export function pageHeaderTabs(): ReactNode {
           </Tabs>
         }
       />
-      {/* The layout switch is the toolbar's, not the header's: it ends the FilterBar's first row. */}
-      <FilterBar
+      {/* The layout switch is the toolbar's Layout tool, not the header's. */}
+      <ListToolbar
         aria-label="Task toolbar"
         search={{
           value: query,
           onValueChange: setQuery,
           placeholder: "Search tasks",
         }}
-        facets={
-          <FilterBarFacet<{ id: string }>
-            label="Status"
-            items={[{ id: "Open" }, { id: "Done" }]}
-            value={null}
-            onValueChange={() => {}}
-            itemToKey={(o) => o.id}
-            itemToStringLabel={(o) => o.id}
+        filterRow={
+          <FilterRow
+            facets={
+              <ListFacet<{ id: string }>
+                label="Status"
+                items={[{ id: "Open" }, { id: "Done" }]}
+                value={null}
+                onValueChange={() => {}}
+                itemToKey={(o) => o.id}
+                itemToStringLabel={(o) => o.id}
+              />
+            }
           />
         }
-        view={
-          <ViewToggle
-            value={view}
-            onValueChange={setView}
-            views={["list", "board"]}
-          />
-        }
+        layout={{
+          value: view,
+          options: ["list", "board"],
+          onValueChange: (next) => setView(next as "list" | "board"),
+        }}
       />
     </Wrapper>
   );

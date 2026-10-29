@@ -1290,7 +1290,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.25.102",
-        "integrity": "sha256-lcTOmYdSC65j1LBSwV72sQBCdT5gpJmCbtFwKKKxSMk="
+        "integrity": "sha256-ILd2KgwhQKrQNTjQo+2kJq4zCJQJsv4eTnjou4TPzu4="
       }
     },
     {
@@ -1708,12 +1708,10 @@
         "@vegastack/button",
         "@vegastack/empty",
         "@vegastack/board",
-        "@vegastack/filter-bar",
         "@vegastack/media-card",
         "@vegastack/board-card",
         "@vegastack/skeleton",
         "@vegastack/thumbnail",
-        "@vegastack/view-toggle",
         "@vegastack/use-drag-reorder",
         "@vegastack/checkbox",
         "@vegastack/action-bar",
@@ -1731,7 +1729,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.102",
-        "integrity": "sha256-tv6jOAUxDXIBKg84Gy8noiPJliBT6/hsSvor+BWWeHg="
+        "integrity": "sha256-Cm3RqAvi6mNW5oN2wR+02YVvP85KAH5CLQWpXWiNHGA="
       }
     },
     {
@@ -1917,39 +1915,9 @@
       ],
       "meta": {
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
-        "whenNotToUse": "A layout switch between a list and a card grid of the same data (ViewToggle), or page sections (Tabs).",
+        "whenNotToUse": "A layout switch between a list and a card grid of the same data (ListToolbar's Layout tool), or page sections (Tabs).",
         "version": "0.25.102",
-        "integrity": "sha256-8xMtftuPZ+/AXajBmTMacqnwQzs1aLQkPKuBKWtADUs="
-      }
-    },
-    {
-      "name": "view-toggle",
-      "type": "registry:ui",
-      "title": "View Toggle",
-      "description": "The Grid | List | Board icon switch for a list page, labels hidden on a phone.",
-      "categories": [
-        "data"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.8.50",
-        "@vegastack/design-tokens@^0.8.38",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/tabs"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/view-toggle.tsx",
-          "type": "registry:ui",
-          "target": "@ui/view-toggle.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
-        "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
-        "version": "0.25.102",
-        "integrity": "sha256-JnH5xw1pc9j3iM1EO/xrjSit+XQRMVkPBvEAIzXvCWc="
+        "integrity": "sha256-0jFEZhQgEnTP03D+LnlW7t7xhjdv06WdLbvhzczjupY="
       }
     },
     {
@@ -2018,7 +1986,7 @@
       "name": "filter-row",
       "type": "registry:ui",
       "title": "Filter Row",
-      "description": "The chips under a ListToolbar: + Filter, pinned facets (dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
+      "description": "The chips under a ListToolbar: + Filter, pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
       "categories": [
         "data"
       ],
@@ -2029,8 +1997,13 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/filter-bar",
-        "@vegastack/list-toolbar"
+        "@vegastack/calendar",
+        "@vegastack/chip",
+        "@vegastack/date-time",
+        "@vegastack/list-toolbar",
+        "@vegastack/people-picker",
+        "@vegastack/popover",
+        "@vegastack/searchable-select"
       ],
       "files": [
         {
@@ -2043,7 +2016,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.25.102",
-        "integrity": "sha256-09maLW5cOIxRkL6/BcZgylnig1pmFKGE3DLGHlJar0g="
+        "integrity": "sha256-UxWZ68v5sXFJUvG1fpW8LI8wiNoi5GY0XUEIDchHKHo="
       }
     },
     {
@@ -3151,47 +3124,6 @@
       }
     },
     {
-      "name": "filter-bar",
-      "type": "registry:ui",
-      "title": "Filter Bar",
-      "description": "The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.",
-      "categories": [
-        "data"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.8.50",
-        "@vegastack/design-tokens@^0.8.38"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/calendar",
-        "@vegastack/chip",
-        "@vegastack/date-time",
-        "@vegastack/dropdown-menu",
-        "@vegastack/page-layout",
-        "@vegastack/people-picker",
-        "@vegastack/popover",
-        "@vegastack/search-input",
-        "@vegastack/searchable-select",
-        "@vegastack/sheet",
-        "@vegastack/use-media-query"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/filter-bar.tsx",
-          "type": "registry:ui",
-          "target": "@ui/filter-bar.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
-        "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
-        "version": "0.25.102",
-        "integrity": "sha256-m4qXhoX3AQ3YgE8+UZFcESzRE4RmRVoB6TuRF3rLUnE="
-      }
-    },
-    {
       "name": "filter-bar-managed",
       "type": "registry:ui",
       "title": "Filter Builder",
@@ -3208,7 +3140,7 @@
         "@vegastack/button",
         "@vegastack/date-picker",
         "@vegastack/date-time",
-        "@vegastack/filter-bar",
+        "@vegastack/filter-row",
         "@vegastack/input",
         "@vegastack/number-field",
         "@vegastack/people-picker",
@@ -3228,7 +3160,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.25.102",
-        "integrity": "sha256-fpC/aiajyDIbVI9S+uFWW+cRgc0qQAGa8DM3rAc8S+U="
+        "integrity": "sha256-o88HgInF49nb4SX4AkM3gdWHCzQENFHWNxeWp/maqxQ="
       }
     },
     {
@@ -17486,7 +17418,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.25.102",
-        "integrity": "sha256-fi7gcwfERcUuLN6j1fWD739Hju5kreE6OqavzvLuMWA="
+        "integrity": "sha256-4E9IH6zKpH+T1/xi1HvhFmrNKOcAmAyXRdAXlaQv2do="
       }
     },
     {
@@ -18345,7 +18277,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.102",
-        "integrity": "sha256-qHZ8Wr6cYgZX3Fp72O0+yEhDidt1MkD536+skNiUrjY="
+        "integrity": "sha256-Bch1+1qnXa7+RN34A4WTfIjti5LGSp2mJIoxw2v8rdU="
       }
     },
     {
@@ -18406,7 +18338,7 @@
         "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.25.102",
-        "integrity": "sha256-zlph+uT5+VVxeVY1LQQp4CXNbTiz0AfB+qZ49guI2XI="
+        "integrity": "sha256-4IdJaHdQ98RiYWNwMFheIMiRIoVM+Uk9KH90tIXVlVE="
       }
     },
     {
@@ -18976,7 +18908,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
+      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs for scope (My tasks | Team tasks); a list's List/Board/Grid switch is ListToolbar's Layout tool. The one component that keeps a focus ring.",
       "categories": [
         "navigation"
       ],
@@ -19002,7 +18934,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.25.102",
-        "integrity": "sha256-vagWFomXFT7EPDqkJLm3lr/VNeWWjTkJ4lZ6trLhGcg="
+        "integrity": "sha256-VwgV29vpjggRiC8Ik0bMmNlLfMlH3oS0OEdBTKoyBbE="
       }
     },
     {
@@ -19536,7 +19468,7 @@
         "whenToUse": "Server-side search over a list that pages by cursor: a remote SearchableSelect, a searched facet, a picker dialog, a searched DataList — debounce, races, paging and retry in one hook.",
         "whenNotToUse": "Filtering items already in memory (pass them to the component and let it filter); a one-shot fetch with no query (use your data library directly).",
         "version": "0.25.102",
-        "integrity": "sha256-uPdXsiAtxL4kaRkp6AistCZtRR22RjQg0UlJllEdNoM="
+        "integrity": "sha256-tZFt688W8Cd1jmPfokPy3l+GrV7r/sCtJyWRA0Q0CrQ="
       }
     },
     {
@@ -19904,7 +19836,7 @@
       "name": "board-01",
       "type": "registry:block",
       "title": "Board 01",
-      "description": "A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, a paged Backlog, cards that link to each task with their own menu, and a No matches state.",
+      "description": "A board page — a PageHeader over a ListToolbar and Board, with lanes named by their count, a paged Backlog, cards that link to each task with their own menu, and a No matches state.",
       "categories": [
         "board",
         "data"
@@ -19919,9 +19851,9 @@
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/data-table-parts",
-        "@vegastack/dropdown-menu",
-        "@vegastack/filter-bar",
-        "@vegastack/page-header"
+        "@vegastack/page-header",
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar"
       ],
       "files": [
         {
@@ -19939,7 +19871,7 @@
         "whenToUse": "A tasks or pipeline page laid out as lanes — copy it once and wire the filters, card links and moves to your data.",
         "whenNotToUse": "A list with many columns of data — use a DataList page instead.",
         "version": "0.25.102",
-        "integrity": "sha256-k4hx245/fzSAv32xr3ygsDjvdXms+RtBZP0eg6yxpzk="
+        "integrity": "sha256-/SjtrMdNJ/lZ0fkj3Mo6rzQSSM2lyYO9ZATDsjEGprs="
       }
     },
     {
@@ -22610,7 +22542,7 @@
       "name": "list-page-01",
       "type": "registry:block",
       "title": "List Page 01",
-      "description": "A list page — FilterBar search, a Status facet and Mine | Team over the same records as a table or a grid of linked tiles, with Load more and three empty tiers.",
+      "description": "A list page — ListToolbar search, Status and Industry facets and Mine | Team over the same records as a table or a grid of linked tiles, with Load more and three empty tiers.",
       "categories": [
         "data",
         "lists"
@@ -22625,11 +22557,11 @@
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/empty",
-        "@vegastack/filter-bar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
         "@vegastack/tabs",
-        "@vegastack/view-toggle"
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar"
       ],
       "files": [
         {
@@ -22652,7 +22584,7 @@
         "whenToUse": "A page that lists one kind of record — customers, products, projects — copy it once and wire the filters, paging and routes to your API.",
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.25.102",
-        "integrity": "sha256-RSVAWC2A4DI+t7XVJJoS1PPZkPfzcSSCF6/lmKpETac="
+        "integrity": "sha256-3H1O/CWu3Euo9GMxkDCSPsHnJiXd7n0xMGinuvqs+SU="
       }
     },
     {
@@ -22802,9 +22734,9 @@
       ],
       "meta": {
         "whenToUse": "App-wide search behind ⌘K and the sidebar's Search row — copy it once and pass your search call.",
-        "whenNotToUse": "Filtering one list in place — use FilterBar's search.",
+        "whenNotToUse": "Filtering one list in place — use ListToolbar's search.",
         "version": "0.25.102",
-        "integrity": "sha256-KB0M6aQJdBFkb23T96q2Yi2HlovrIKp9DPy5HNURETU="
+        "integrity": "sha256-d+QhP9Z+w/11z/36WPcq9o/GOIDbEseafq90XZhTG7g="
       }
     },
     {
@@ -23036,7 +22968,7 @@
         "whenToUse": "An in-page state change should cross-fade or morph instead of jumping — switching a view, reordering, opening a detail pane.",
         "whenNotToUse": "A component's own enter/exit (use Base UI's lifecycle styles or the motion-* utilities), or anything that must animate in every browser.",
         "version": "0.25.102",
-        "integrity": "sha256-H1dN9Rsk8RJn37O6+GHGCmrnGtoqoy7G22wHkxNGijY="
+        "integrity": "sha256-Ql4K69ow1geiddmF2MIuPsHBFCLr3Q9ArVxCe6IKm9I="
       }
     },
     {
@@ -23336,9 +23268,9 @@
       ],
       "meta": {
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
-        "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (FilterBar's search).",
+        "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
         "version": "0.25.102",
-        "integrity": "sha256-Nlji5lF2XQBND/fXGGzAv8gYb/uw+ITF0LYTR4S/LoI="
+        "integrity": "sha256-mPw9ozrwxjI833Tqg7qVIqPbzfltKl8Ymm7pT+pW3ak="
       }
     },
     {

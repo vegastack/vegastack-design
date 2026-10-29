@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a1c5e3fa80b560e2390f806a8637bcce036f5e7d27329a855d2c2a650b11b90f",
+  "contractSha256": "9044fe208fe59680bee487f4b90390c5f4f2ac2b53733b940cbd916bad3eb994",
   "inventory": {
-    "expected": 784,
-    "actual": 784,
-    "unique": 784
+    "expected": 782,
+    "actual": 782,
+    "unique": 782
   },
   "classes": {
-    "components": 194,
+    "components": 192,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -47,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 42,
-      "actual": 42,
+      "expected": 41,
+      "actual": 41,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -68,7 +68,6 @@
         "field-grid",
         "field-type-link-step",
         "field-type-picker",
-        "filter-bar",
         "filter-bar-managed",
         "formula-input",
         "input-group",
@@ -156,8 +155,8 @@
       ]
     },
     "Data display": {
-      "expected": 46,
-      "actual": 46,
+      "expected": 45,
+      "actual": 45,
       "members": [
         "activity-feed",
         "add-filter-menu",
@@ -203,8 +202,7 @@
         "value-change",
         "version-compare",
         "version-list",
-        "view-tabs",
-        "view-toggle"
+        "view-tabs"
       ]
     },
     "Content/marketing": {
@@ -845,7 +843,7 @@
       ]
     }
   },
-  "componentRoutes": 188,
+  "componentRoutes": 186,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

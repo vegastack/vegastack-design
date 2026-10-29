@@ -3,9 +3,18 @@ import { render } from "vitest-browser-react";
 // Real layout: the toolbar and its tools measure and size themselves from the compiled classes.
 import geometryCss from "../../test/geometry.css?inline";
 import { expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { FilterRow, type FilterRowChip } from "./filter-row";
-import { FilterChip } from "./filter-bar";
+import type { PeoplePickerOption } from "./people-picker";
+import {
+  DateRangeFilter,
+  FilterChip,
+  FilterRow,
+  ListFacet,
+  PeopleFacet,
+  type FilterRowChip,
+} from "./filter-row";
 import { ListToolbar } from "./list-toolbar";
 
 const sheet = document.createElement("style");
@@ -87,5 +96,451 @@ test("tells the toolbar's Filter tool how many are applied", async () => {
   );
   await expect
     .element(screen.getByRole("button", { name: "Filter, 2 active" }))
+    .toBeInTheDocument();
+});
+
+test("FilterChip computes a remove label from a string label", async () => {
+  const onRemove = vi.fn();
+  const screen = await render(
+    <FilterChip label="Status" value="Open" onRemove={onRemove} />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Clear Status" }))
+    .toBeInTheDocument();
+  await screen.getByRole("button", { name: "Clear Status" }).click();
+  expect(onRemove).toHaveBeenCalledOnce();
+});
+
+test("FilterChip forwards ref to the root element", async () => {
+  // The root is the Chip primitive's <span>, not a <div>: a chip is an inline object that sits
+  // in a wrapping row of chips, and Chip renders a span.
+  const ref = React.createRef<HTMLSpanElement>();
+  await render(
+    <FilterChip ref={ref} label="Status" value="Open" onRemove={() => {}} />,
+  );
+  expect(ref.current).toBeInstanceOf(HTMLSpanElement);
+  expect(ref.current?.dataset.slot).toBe("filter-chip");
+});
+
+test("active chip keeps the muted label / emphasized value hierarchy", async () => {
+  // Regression: the active state used to paint BOTH label and value `text-foreground`,
+  // erasing the label/value hierarchy inactive chips have. The label (and icon) stay
+  // muted in both states; only the value carries the emphasis.
+  const screen = await render(
+    <FilterChip
+      label="Status"
+      value="In Progress"
+      icon={<Flag aria-hidden />}
+      active
+      onRemove={() => {}}
+    />,
+  );
+  const label = screen.getByText("Status").element() as HTMLElement;
+  expect(label.className).toContain("text-muted-foreground");
+  const icon = screen.container.querySelector('[data-slot="filter-chip"] svg')!
+    .parentElement as HTMLElement;
+  expect(icon.className).toContain("text-muted-foreground");
+  const value = screen.getByText("In Progress").element() as HTMLElement;
+  expect(value.className).not.toContain("text-muted-foreground");
+  // The hierarchy is carried by INK — muted key, foreground value — on the compact chip's quiet
+  // regular weight.
+  expect(value.className).not.toContain("font-medium");
+  const chip = value.closest('[data-slot="filter-chip"]') as HTMLElement;
+  expect(chip.className).toContain("text-sm font-normal");
+});
+
+test("chip value truncates within max-w-xs — the value span carries min-w-0 alongside its shrink-0 label sibling", async () => {
+  // Regression for audit 12 §b3: a flex child with `truncate` but no `min-w-0` keeps its
+  // content-based intrinsic min-width, so a long value pushes the chip past its own `max-w-xs`
+  // cap instead of truncating inside it. `min-w-0` lets it actually shrink to the cap.
+  const screen = await render(
+    <FilterChip
+      label="Status"
+      value="A very long filter value that should truncate instead of overflowing the chip"
+      onRemove={() => {}}
+    />,
+  );
+  const valueEl = screen.getByText(
+    "A very long filter value that should truncate instead of overflowing the chip",
+  );
+  expect((valueEl.element() as HTMLElement).className).toContain("min-w-0");
+  expect((valueEl.element() as HTMLElement).className).toContain("truncate");
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement (the chip's remove `×`).
+ *
+ * Unlike checkbox/radio/slider/switch, this target does NOT use a `::before` pseudo-element — see
+ * the comment on `ChipRemove` in chip.tsx: native `<button>` elements clip overflowing generated
+ * content to their own border box once nested a couple of levels deep (a genuine Chromium
+ * behavior, verified by hand — identical CSS on a `<span>` at the same depth is NOT clipped), so a
+ * pseudo would compute correctly via getComputedStyle but never actually be hit-testable. The
+ * shared `ChipRemove` is instead a real 24x24 `Button size="icon-xs"`. That means this suite doesn't
+ * need the getComputedStyle(el, '::before') trick at all — the real box IS the hit area, so a plain
+ * mirror of `width`/`height` is enough for a REAL getBoundingClientRect() + elementFromPoint()
+ * measurement (the literal mirror pins the 24px box whatever stylesheet the file mounts).
+ * ------------------------------------------------------------------------------------------- */
+
+function injectFilterChipRemoveHitAreaMirror(): () => void {
+  const style = document.createElement("style");
+  style.textContent = `
+    body { margin: 24px; }
+    [data-slot="filter-chip"] { display: inline-flex; align-items: center; }
+    [data-slot="chip-remove"] { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 24px; height: 24px; }
+  `;
+  document.head.appendChild(style);
+  return () => document.head.removeChild(style);
+}
+
+test("the shared remove control's real border-box is >= 24x24", async () => {
+  const cleanup = injectFilterChipRemoveHitAreaMirror();
+  try {
+    const screen = await render(
+      <FilterChip label="Status" value="Open" onRemove={() => {}} />,
+    );
+    const el = screen
+      .getByRole("button", { name: "Clear Status" })
+      .element() as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    expect(rect.width).toBeGreaterThanOrEqual(24);
+    expect(rect.height).toBeGreaterThanOrEqual(24);
+  } finally {
+    cleanup();
+  }
+});
+
+test("a point 1px inside the real 24px box still hits and fires onRemove", async () => {
+  const cleanup = injectFilterChipRemoveHitAreaMirror();
+  try {
+    const onRemove = vi.fn();
+    const screen = await render(
+      <FilterChip label="Status" value="Open" onRemove={onRemove} />,
+    );
+    const el = screen
+      .getByRole("button", { name: "Clear Status" })
+      .element() as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    // 1px inside the top-left corner of the real 24px box.
+    const x = rect.left + 1;
+    const y = rect.top + 1;
+    const hit = document.elementFromPoint(x, y);
+    expect(hit).toBe(el);
+    (hit as HTMLElement).click();
+    expect(onRemove).toHaveBeenCalledOnce();
+  } finally {
+    cleanup();
+  }
+});
+
+interface Status {
+  id: string;
+  name: string;
+}
+const STATUSES: Status[] = [
+  { id: "open", name: "Open" },
+  { id: "prog", name: "In progress" },
+  { id: "done", name: "Done" },
+];
+
+test.each([
+  [[], "Status"],
+  [[STATUSES[0]!], "Status: Open"],
+  [[STATUSES[0]!, STATUSES[1]!], "Status: 2"],
+  [STATUSES, "Status: 3"],
+])("a facet trigger reads the selection (DS-35) %#", async (value, text) => {
+  const screen = await render(
+    <ListFacet<Status, true>
+      label="Status"
+      multiple
+      items={STATUSES}
+      value={value}
+      onValueChange={() => {}}
+      itemToKey={(s) => s.id}
+      itemToStringLabel={(s) => s.name}
+      searchLabel="Search statuses"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("combobox", { name: text }))
+    .toHaveTextContent(text);
+});
+
+test("a facet hides its search box for 7 or fewer options unless `searchable` says otherwise", async () => {
+  const many = Array.from({ length: 8 }, (_, i) => ({
+    id: `s${i}`,
+    name: `Status ${i}`,
+  }));
+  const props = {
+    label: "Status",
+    value: null,
+    onValueChange: () => {},
+    itemToKey: (s: Status) => s.id,
+    itemToStringLabel: (s: Status) => s.name,
+  };
+  const few = await render(<ListFacet<Status> {...props} items={STATUSES} />);
+  await few.getByRole("combobox", { name: "Status" }).click();
+  expect(document.querySelector('[aria-label="Search status"]')).toBeNull();
+  await few.unmount();
+  const forced = await render(
+    <ListFacet<Status> {...props} items={STATUSES} searchable />,
+  );
+  await forced.getByRole("combobox", { name: "Status" }).click();
+  expect(document.querySelector('[aria-label="Search status"]')).not.toBeNull();
+  await forced.unmount();
+  const long = await render(<ListFacet<Status> {...props} items={many} />);
+  await long.getByRole("combobox", { name: "Status" }).click();
+  expect(document.querySelector('[aria-label="Search status"]')).not.toBeNull();
+});
+
+test("a facet toggles values, pins the selected ones and can be removed (DS-35)", async () => {
+  const onRemove = vi.fn();
+  function Host() {
+    const [value, setValue] = React.useState<Status[]>([STATUSES[2]!]);
+    return (
+      <ListFacet<Status, true>
+        label="Status"
+        multiple
+        pinSelected
+        removable
+        onRemove={onRemove}
+        items={STATUSES}
+        value={value}
+        onValueChange={setValue}
+        itemToKey={(s) => s.id}
+        itemToStringLabel={(s) => s.name}
+        isItemEqualToValue={(a, b) => a.id === b.id}
+        searchLabel="Search statuses"
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  await screen.getByRole("combobox", { name: "Status: Done" }).click();
+  const options = [...document.querySelectorAll('[role="option"]')].map(
+    (o) => o.textContent,
+  );
+  expect(options[0]).toBe("Done");
+  await expect
+    .element(screen.getByRole("group", { name: "Selected" }))
+    .toBeInTheDocument();
+  await screen.getByRole("option", { name: "Open" }).click();
+  await expect
+    .element(screen.getByRole("option", { name: "Open" }))
+    .toHaveAttribute("aria-selected", "true");
+  // Toggling does not move rows under the pointer; the split is re-taken on the next open.
+  expect(
+    [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent),
+  ).toEqual(options);
+  await userEvent.keyboard("{Escape}");
+  // A set, removable facet: its × clears the value and removes the facet.
+  await screen.getByRole("button", { name: "Clear Status" }).click();
+  expect(onRemove).toHaveBeenCalledOnce();
+  await expect
+    .element(screen.getByRole("combobox", { name: "Status" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a leading item outside the selection keeps the pinned group first (DS-35)", async () => {
+  const screen = await render(
+    <ListFacet<Status, true>
+      label="Status"
+      multiple
+      pinSelected
+      leadingItems={[STATUSES[0]!]}
+      items={STATUSES}
+      value={[STATUSES[2]!]}
+      onValueChange={() => {}}
+      itemToKey={(s) => s.id}
+      itemToStringLabel={(s) => s.name}
+      searchLabel="Search statuses"
+    />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect
+    .poll(() =>
+      [...document.querySelectorAll('[role="group"][aria-labelledby]')].map(
+        (g) =>
+          document.getElementById(g.getAttribute("aria-labelledby")!)
+            ?.textContent,
+      ),
+    )
+    .toEqual(["Selected", "More"]);
+});
+
+test("the custom date range calendar highlights the caller's explicit today", async () => {
+  const now = new Date(2026, 0, 12, 12);
+  const screen = await render(
+    <DateRangeFilter
+      label="Created"
+      now={now}
+      value={{
+        from: new Date(2026, 0, 10),
+        to: new Date(2026, 0, 11),
+        preset: "custom",
+      }}
+      onValueChange={() => {}}
+    />,
+  );
+  (
+    screen.container.querySelector(
+      '[data-slot="date-range-filter-trigger"]',
+    ) as HTMLButtonElement
+  ).click();
+  await expect
+    .poll(() =>
+      document
+        .querySelector(
+          '[data-slot="date-range-filter-content"] [data-today="true"]',
+        )
+        ?.getAttribute("data-day"),
+    )
+    .toBe("2026-01-12");
+});
+
+test("PeopleFacet: the people picker under a facet chip", async () => {
+  const people: PeoplePickerOption[] = [
+    { id: "u1", name: "Asha Rao", email: "asha@acme.com" },
+    { id: "u2", name: "Dev Menon", email: "dev@acme.com" },
+  ];
+  function Harness() {
+    const [value, setValue] = React.useState<typeof people>([]);
+    return (
+      <PeopleFacet
+        label="Assignee"
+        multiple
+        value={value}
+        onValueChange={setValue}
+        options={people}
+        viewerId="u2"
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  const chip = () =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="list-facet-select-trigger"]',
+    )!;
+  chip().click();
+  await page.getByRole("option", { name: /Dev Menon/ }).click();
+  await page.getByRole("option", { name: /Asha Rao/ }).click();
+  await vi.waitFor(() => expect(chip().textContent).toContain("Assignee: 2"));
+  await userEvent.keyboard("{Escape}");
+  await page.getByRole("button", { name: "Clear Assignee" }).click();
+  await vi.waitFor(() => expect(chip().textContent).toBe("Assignee"));
+});
+
+test("a chip reads label: value, with the colon (DS-36)", async () => {
+  const screen = await render(
+    <FilterRow
+      chips={[
+        {
+          id: "status",
+          label: "Status",
+          value: "In Progress",
+          onRemove: () => {},
+        },
+        { id: "archived", label: "Archived", onRemove: () => {} },
+      ]}
+    />,
+  );
+  const chips = screen.container.querySelectorAll('[data-slot="filter-chip"]');
+  expect(chips[0]!.textContent).toContain("Status: In Progress");
+  // A presence chip has no value, so no colon.
+  expect(chips[1]!.textContent).not.toContain(":");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inactive chip", async () => {
+  const screen = await render(
+    <FilterChip
+      label="Status"
+      value="In Progress"
+      active={false}
+      onRemove={() => {}}
+    />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a chip with an editor opens it in place and returns focus on Escape (DS-36)", async () => {
+  const onEditorOpenChange = vi.fn();
+  const screen = await render(
+    <FilterChip
+      label="Status"
+      value="Open"
+      onRemove={() => {}}
+      editor={<p>Status editor</p>}
+      onEditorOpenChange={onEditorOpenChange}
+    />,
+  );
+  const trigger = screen.getByRole("button", { name: "Status: Open" });
+  await expect
+    .element(trigger)
+    .toHaveAttribute("data-slot", "filter-chip-trigger");
+  // The remove control stays its own target.
+  await expect
+    .element(screen.getByRole("button", { name: "Clear Status" }))
+    .toBeInTheDocument();
+  await trigger.click();
+  await expect.element(screen.getByText("Status editor")).toBeInTheDocument();
+  expect(onEditorOpenChange).toHaveBeenLastCalledWith(true);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.activeElement).toBe(trigger.element());
+  expect(onEditorOpenChange).toHaveBeenLastCalledWith(false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a chip without an editor stays non-interactive (DS-36)", async () => {
+  const screen = await render(
+    <FilterChip label="Status" value="Open" onRemove={() => {}} />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-chip-trigger"]'),
+  ).toBeNull();
+});
+
+test("a chip added with defaultEditorOpen opens its editor on mount (DS-36)", async () => {
+  const screen = await render(
+    <FilterRow
+      chips={[
+        {
+          id: "status",
+          label: "Status",
+          value: "Open",
+          editor: <p>Status editor</p>,
+          defaultEditorOpen: true,
+          onRemove: () => {},
+        },
+      ]}
+    />,
+  );
+  await expect.element(screen.getByText("Status editor")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Status: Open" }))
+    .toHaveAttribute("aria-expanded", "true");
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByText("Status editor"))
+    .not.toBeInTheDocument();
+});
+
+test("a set facet counts toward the row's Clear", async () => {
+  const screen = await render(
+    <FilterRow
+      onClear={() => {}}
+      facets={
+        <ListFacet<Status>
+          label="Owner"
+          items={STATUSES}
+          value={STATUSES[0]!}
+          onValueChange={() => {}}
+          itemToKey={(s) => s.id}
+          itemToStringLabel={(s) => s.name}
+        />
+      }
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Clear", exact: true }))
     .toBeInTheDocument();
 });
