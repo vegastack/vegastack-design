@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.99] — October 29, 2026
+
+<!-- assembled from 1 changeset: fcdc619fba34 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.47`** (was `0.8.46`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.98 → 0.25.99.
+
+### 🐛 Fixed
+
+- **RecentStrip**'s ‹ › scroll buttons and the **DocumentLayoutJumpCue** pill no longer jump down when pressed. Both positioned their Button with a y-translate (`-translate-y-1/2`, `-translate-y-full`), and Button's press nudge (`active:translate-y-px`) sets the same `translate` property, so a press replaced the positioning and dropped the control by half (or all) of its height. The strip's buttons now centre with `inset-y-0 my-auto` (the idiom DatePicker, SearchableSelect and Carousel already use) and the jump cue's band aligns the pill with `items-end`; no other registry Button positions itself with a y-translate.
+  [`0561c7e`](https://github.com/VegaStack/vegastack-design/commit/0561c7e)
+
 ## [0.25.98] — October 29, 2026
 
 <!-- assembled from 1 changeset: 146b69e7291d -->
