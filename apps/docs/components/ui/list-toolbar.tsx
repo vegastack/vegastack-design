@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.98 sha256-HF4AXphti6AuHg0mmt8Sm0zPxP7To9LuJycDLOfciG8=
+// @vegastack list-toolbar@0.25.98 sha256-DOeSiq2X2mbTMGFN30FkA5v/WxuuFjOT2ReCZW8WNTI=
 
 "use client";
 
@@ -813,7 +813,13 @@ export function ListToolbar({
       const content = tabsZone.querySelector<HTMLElement>(
         "[data-fold-content]",
       );
-      tabsNatural = content ? content.scrollWidth : tabsZone.scrollWidth;
+      // Hidden while an open icon search takes its room: use the last width it showed.
+      const visible = tabsZone.offsetWidth > 0;
+      if (visible)
+        cache.tabsNatural = content
+          ? content.scrollWidth
+          : tabsZone.scrollWidth;
+      tabsNatural = Math.max(METRICS.minTabs, cache.tabsNatural ?? 0);
       const trigger = tabsZone.querySelector<HTMLElement>(
         "[data-fold-trigger]",
       );
@@ -868,8 +874,6 @@ export function ListToolbar({
       const left = tabsZone ? (lvl >= 2 ? tabsFolded : tabsNatural) : 0;
       return left + (tabsZone ? METRICS.zoneGap : 0) + right;
     };
-    // While an icon search is open the tabs give it their room: keep the level as it was.
-    if (frozen.current) return;
     let next = MAX_LEVEL;
     for (let lvl = 0; lvl <= MAX_LEVEL; lvl++) {
       if (need(lvl) <= available + 0.5) {
@@ -877,6 +881,9 @@ export function ListToolbar({
         break;
       }
     }
+    // While an icon search is open (the tabs give it their room) the level never drops below the
+    // icon step, so the field does not flip back mid-edit; a narrowing row still collapses further.
+    if (frozen.current) next = Math.max(next, 5);
     setLevel(next);
   }, [
     action,
@@ -904,8 +911,12 @@ export function ListToolbar({
     return () => observer.disconnect();
   }, [measure, tabs]);
 
+  // Open while focused from the icon, or while it holds a query (a restored search included).
   const searchExpanded =
-    searchOpen && search != null && (search.collapsible || level >= 5);
+    search != null &&
+    (search.collapsible || level >= 5) &&
+    (searchOpen || search.value !== "");
+  frozen.current = searchExpanded;
   const foldLayout = hasDisplay && layout != null && level >= 3;
   const foldSort = hasDisplay && sort != null && level >= 4;
   const iconSearch = search != null && (search.collapsible || level >= 5);
@@ -1077,10 +1088,7 @@ export function ListToolbar({
         placeholder={search.placeholder ?? "Search"}
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         collapsible={iconSearch}
-        onExpandedChange={(expanded) => {
-          frozen.current = expanded && iconSearch;
-          setSearchOpen(expanded);
-        }}
+        onExpandedChange={setSearchOpen}
         className={cn(
           compact ? "h-7" : "h-8",
           // Open from an icon, it takes the tabs' room in the row; the tools stay in view.

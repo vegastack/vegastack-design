@@ -321,3 +321,58 @@ test("an open icon search takes the tabs' room; the tools stay in view", async (
     filter.getBoundingClientRect().left,
   );
 });
+
+test("a restored query at a narrow width opens the search in the tabs' room", async () => {
+  await render(
+    <div style={{ width: 300 }}>
+      <ListToolbar
+        tabs={
+          <Tabs defaultValue="a">
+            <TabsList size="sm" overflow="menu" aria-label="Scope">
+              <TabsTrigger value="a">My tasks</TabsTrigger>
+              <TabsTrigger value="b">Shared with me</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+        search={{
+          value: "invoice",
+          onValueChange: () => {},
+          placeholder: "Search tasks",
+        }}
+        filter={{}}
+        display={
+          <DisplayMenu
+            toggles={[
+              {
+                id: "a",
+                label: "Show closed",
+                checked: false,
+                onCheckedChange: () => {},
+              },
+            ]}
+          />
+        }
+        more={
+          <ListToolbarMenu
+            items={[{ id: "x", label: "Export", onSelect: () => {} }]}
+          />
+        }
+        action={<ListToolbarAction icon={<Plus />} label="New task" />}
+      />
+    </div>,
+  );
+  await expect
+    .poll(
+      () =>
+        document.querySelector<HTMLElement>('[data-slot="list-toolbar-tabs"]')
+          ?.hidden ||
+        getComputedStyle(
+          document.querySelector('[data-slot="list-toolbar-tabs"]')!,
+        ).display === "none",
+    )
+    .toBe(true);
+  const row = document.querySelector<HTMLElement>(
+    '[data-slot="list-toolbar-row"]',
+  )!;
+  expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1);
+});

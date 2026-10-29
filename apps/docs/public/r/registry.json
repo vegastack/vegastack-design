@@ -2011,7 +2011,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs, search, filter, sort, layout, display options, view actions and the page's main button in one row.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.25.98",
-        "integrity": "sha256-HF4AXphti6AuHg0mmt8Sm0zPxP7To9LuJycDLOfciG8="
+        "integrity": "sha256-DOeSiq2X2mbTMGFN30FkA5v/WxuuFjOT2ReCZW8WNTI="
       }
     },
     {
@@ -2076,7 +2076,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.25.98",
-        "integrity": "sha256-zMp6WkDC+yzEamLN2BMNEqKUbpYxc5AQLv9Ita+RU3s="
+        "integrity": "sha256-IdN0zDKbveWdEqlHSHZngj64RxfEephVLr1lrc7Z1Sg="
       }
     },
     {

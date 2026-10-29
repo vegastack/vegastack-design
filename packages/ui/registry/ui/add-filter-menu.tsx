@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.25.98 sha256-zMp6WkDC+yzEamLN2BMNEqKUbpYxc5AQLv9Ita+RU3s=
+// @vegastack add-filter-menu@0.25.98 sha256-IdN0zDKbveWdEqlHSHZngj64RxfEephVLr1lrc7Z1Sg=
 
 "use client";
 
@@ -368,7 +368,8 @@ export function AddFilterMenu({
     )
       list.scrollTop =
         option.offsetTop + option.offsetHeight - list.clientHeight;
-  }, [activeId]);
+    // Back from a field's editor remounts the list at the top: reveal the option again.
+  }, [activeId, page]);
 
   const done = () => setOpen(false);
   const runAi = async (request: string) => {
