@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.25.101 sha256-BEm/4fh+C4bjvYD//HKECpBZ04wvILW1UqYx5Kiszw0=
+// @vegastack view-tabs@0.25.101 sha256-MlfGzAAOT7vhCLSD9M0aJCSU3fwqLJs7PVCdC2OzBt8=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -36,8 +37,9 @@ import { useOverflowFold } from "@/components/ui/use-overflow-fold";
 reader's own ("Mine"). A view is a grid or a board, and shared, personal or locked; the
 component shows the kind's icon and a lock on a locked view, and offers a `+` menu to create a
 grid or a board. When the tabs don't fit the room they are given — measured, not a fixed
-breakpoint — the row becomes one `Select` with the same two groups, and goes back to tabs as soon as
-they fit again. The root is not a size container, so a host can size it to its tabs.
+breakpoint — the row becomes one `Select` with the same two groups (its `+` and the view's ⋯
+become one ⋯ menu, so the select keeps room for the name), and goes back to tabs as soon as they fit
+again. The root is not a size container, so a host can size it to its tabs.
 
 It is built on `Tabs variant="line"`, which already scrolls and keeps the active tab in view. It
 is NOT `ViewToggle`: there "Grid" means a card grid, here it means a table.
@@ -330,9 +332,6 @@ export function ViewTabs({
 
   // Tabs while they fit, else one select: the tab row's own width (it stays mounted, out of flow
   // and inert while collapsed, so it can still be measured) plus the trailing buttons, against the
-  // root's width. Re-measured whenever either changes size.
-  // Tabs while they fit, else one select: the tab row's own width (it stays mounted, out of flow
-  // and inert while collapsed, so it can still be measured) plus the trailing buttons, against the
   // root's width — the shared `useOverflowFold`, as scope tabs and route tabs fold.
   const fold = useOverflowFold<HTMLDivElement, HTMLDivElement>({
     hysteresis: 0,
@@ -341,7 +340,10 @@ export function ViewTabs({
       for (const button of root.querySelectorAll<HTMLElement>(
         ":scope > [data-slot=view-tabs-create], :scope > [data-slot=view-tabs-actions]",
       ))
-        trailing += button.getBoundingClientRect().width + 4;
+        // A merged ⋯ (folded) stands for both buttons, so the room to unfold stays the same.
+        trailing +=
+          (button.getBoundingClientRect().width + 4) *
+          (button.hasAttribute("data-merged") ? 2 : 1);
       return trailing;
     },
     deps: [views.length, onCreate != null, actions != null],
@@ -362,30 +364,40 @@ export function ViewTabs({
     />
   );
 
-  const createMenu = onCreate ? (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={labels.create}
-            data-slot="view-tabs-create"
-          >
-            <Plus />
-          </Button>
-        }
-      />
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={() => onCreate("grid")}>
-          <Table2 /> {labels.grid}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onCreate("board")}>
-          <Kanban /> {labels.board}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+  const createItems = onCreate ? (
+    <>
+      <DropdownMenuItem onClick={() => onCreate("grid")}>
+        <Table2 /> {labels.grid}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => onCreate("board")}>
+        <Kanban /> {labels.board}
+      </DropdownMenuItem>
+    </>
   ) : null;
+
+  // Folded, the `+` and the view's ⋯ become one ⋯ menu (the view's actions, then "New …"), so the
+  // select keeps the room to read the view's name on a phone.
+  const merged = narrow && createItems != null && actions != null && active;
+
+  const createMenu =
+    createItems != null && !merged ? (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={labels.create}
+              data-slot="view-tabs-create"
+              data-fold-reserve=""
+            >
+              <Plus />
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="start">{createItems}</DropdownMenuContent>
+      </DropdownMenu>
+    ) : null;
 
   const actionsMenu =
     actions != null && active ? (
@@ -397,12 +409,22 @@ export function ViewTabs({
               size="icon-sm"
               aria-label={labels.actions(active.name)}
               data-slot="view-tabs-actions"
+              data-fold-reserve=""
+              data-merged={merged ? "" : undefined}
             >
               <Ellipsis />
             </Button>
           }
         />
-        <DropdownMenuContent align="start">{actions}</DropdownMenuContent>
+        <DropdownMenuContent align="start">
+          {actions}
+          {merged ? (
+            <>
+              <DropdownMenuSeparator />
+              {createItems}
+            </>
+          ) : null}
+        </DropdownMenuContent>
       </DropdownMenu>
     ) : null;
 

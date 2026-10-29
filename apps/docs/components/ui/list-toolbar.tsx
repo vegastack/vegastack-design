@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.25.101 sha256-OzotKCVPDQ/dAezXHYKPx4tlrVp94+QdhBrqLI0r4lM=
+// @vegastack list-toolbar@0.25.101 sha256-AzMEssHvDRe5iX/YHilUeg0GWF4w+ZExZf7nKfqxCjg=
 
 "use client";
 
@@ -682,6 +682,8 @@ const METRICS = {
   toolGap: 4,
   search: [240, 144, 144, 96, 96] as const,
   foldedTabs: 136,
+  /** The room a folded tab dropdown is given at the least, so its name stays readable. */
+  minFoldedTabs: 112,
   /** The least room a folded tab dropdown keeps (`min-w-18`). */
   minTabs: 72,
 };
@@ -819,15 +821,37 @@ export function ListToolbar({
         cache.tabsNatural = content
           ? content.scrollWidth
           : tabsZone.scrollWidth;
-      tabsNatural = Math.max(METRICS.minTabs, cache.tabsNatural ?? 0);
+      // Buttons the tab control keeps beside its tabs (ViewTabs' `+` and ⋯) take room either way;
+      // folded, ViewTabs merges them into one ⋯.
+      if (visible) {
+        let reserve = 0;
+        let one = 0;
+        for (const button of tabsZone.querySelectorAll<HTMLElement>(
+          "[data-fold-reserve]",
+        )) {
+          const width = button.offsetWidth + METRICS.toolGap;
+          one ||= width;
+          reserve += width * (button.hasAttribute("data-merged") ? 2 : 1);
+        }
+        cache.tabsReserve = reserve;
+        cache.tabsReserveFolded = one;
+      }
+      tabsNatural =
+        Math.max(METRICS.minTabs, cache.tabsNatural ?? 0) +
+        (cache.tabsReserve ?? 0);
       const trigger = tabsZone.querySelector<HTMLElement>(
         "[data-fold-trigger]",
       );
+      // Read squeezed, the dropdown would keep the squeezed width; it keeps a readable name.
       if (trigger && trigger.offsetWidth > 0)
-        cache.foldedTabs = trigger.offsetWidth;
+        cache.foldedTabs = Math.max(trigger.offsetWidth, METRICS.minFoldedTabs);
       tabsFolded = Math.max(
         METRICS.minTabs,
-        Math.min(tabsNatural, cache.foldedTabs ?? METRICS.foldedTabs),
+        Math.min(
+          tabsNatural,
+          (cache.foldedTabs ?? METRICS.foldedTabs) +
+            (cache.tabsReserveFolded ?? 0),
+        ),
       );
     }
     const filterWidth = hasFilter ? read("list-toolbar-filter", icon) : 0;

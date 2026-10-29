@@ -9733,7 +9733,15 @@
               "values": [""]
             },
             {
+              "name": "data-fold-reserve",
+              "values": [""]
+            },
+            {
               "name": "data-fold-trigger",
+              "values": [""]
+            },
+            {
+              "name": "data-merged",
               "values": [""]
             },
             {
@@ -10851,6 +10859,7 @@
               "name": "data-slot",
               "values": [
                 "display-menu-columns",
+                "display-menu-columns-list",
                 "display-menu-content",
                 "display-menu-group-by",
                 "display-menu-layout",

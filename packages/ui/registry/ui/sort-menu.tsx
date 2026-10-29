@@ -1,4 +1,4 @@
-// @vegastack sort-menu@0.25.101 sha256-rDGcHS6hCOfysx6H95ZQBemCBWFB92tKvEVFU8U0450=
+// @vegastack sort-menu@0.25.101 sha256-JT4NrrbaTJi9tg7iXTRGfujcc9g+z/Y2l53f6hsHJNo=
 
 "use client";
 
@@ -14,8 +14,10 @@ import { Button } from "@/components/ui/button";
 options with a check on the chosen one. It has no handles, no selects and no "Add sort": a list
 that sorts by one key never shows an affordance it cannot use. The direction reads in the field's
 own words — dates "Oldest first / Newest first", text "A → Z / Z → A", numbers "Low → high /
-High → low". "Reset" shows only when the order is not the page's default. A table that sorts by
-several keys uses `SortBuilder` instead.
+High → low". A field the list can sort only one way (`fixedDirection`) shows that way beside its
+name and no direction group while it is chosen; a manual order ("Custom order", `"none"`) shows
+neither. "Reset" shows only when the order is not the page's default. A table that sorts by several
+keys uses `SortBuilder` instead.
 --- */
 
 /** A field a list can sort by. */
@@ -29,6 +31,13 @@ export interface SortMenuField {
    * @default "text"
    */
   type?: "date" | "text" | "number" | "enum";
+  /**
+   * The one way this field sorts, when the list cannot sort it both ways: its direction shows
+   * beside the name and the direction group hides while it is chosen. `"none"` is a manual order
+   * (no direction to show at all).
+   * @default undefined (both ways)
+   */
+  fixedDirection?: "asc" | "desc" | "none";
 }
 
 /** A one-key order. */
@@ -104,17 +113,22 @@ export function sortSummary(
 ): string {
   const field = fields.find((f) => f.key === value.key);
   if (!field) return value.key;
+  if (field.fixedDirection === "none") return field.label;
   const words = labels[field.type ?? "text"];
-  const direction = words[value.direction === "asc" ? 0 : 1];
+  const direction =
+    words[(field.fixedDirection ?? value.direction) === "asc" ? 0 : 1];
   return `${field.label}, ${direction.charAt(0).toLowerCase()}${direction.slice(1)}`;
 }
 
 /** One option row: the label, and a check when chosen. */
 function SortMenuOption({
   value,
+  hint,
   children,
 }: {
   value: string;
+  /** Muted words after the label (a one-way field's direction). */
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -123,7 +137,18 @@ function SortMenuOption({
       data-slot="sort-menu-option"
       className="group/sort-option flex h-8 w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2 text-sm text-foreground outline-none hover:bg-accent data-disabled:opacity-50"
     >
-      <span className="min-w-0 truncate">{children}</span>
+      <span className="min-w-0 truncate">
+        {children}
+        {hint ? " " : null}
+        {hint ? (
+          <span
+            data-slot="sort-menu-hint"
+            className="ms-1 text-muted-foreground"
+          >
+            {hint}
+          </span>
+        ) : null}
+      </span>
       <RadioPrimitive.Indicator
         data-slot="sort-menu-check"
         className="flex size-4 shrink-0 items-center justify-center"
@@ -164,10 +189,15 @@ export function SortMenu({
   const headingId = React.useId();
   const field = fields.find((f) => f.key === value.key);
   const [asc, desc] = labels.directions[field?.type ?? "text"];
+  const fixed = field?.fixedDirection;
   const isDefault =
     defaultValue == null ||
     (defaultValue.key === value.key &&
-      defaultValue.direction === value.direction);
+      (fixed != null || defaultValue.direction === value.direction));
+  const hintOf = (f: SortMenuField) =>
+    f.fixedDirection === "asc" || f.fixedDirection === "desc"
+      ? labels.directions[f.type ?? "text"][f.fixedDirection === "asc" ? 0 : 1]
+      : undefined;
   return (
     <div
       data-slot="sort-menu"
@@ -198,31 +228,40 @@ export function SortMenu({
         data-slot="sort-menu-fields"
         value={value.key}
         onValueChange={(key) => {
-          if (typeof key === "string" && key !== value.key)
-            onValueChange({ key, direction: value.direction });
+          if (typeof key !== "string" || key === value.key) return;
+          const next = fields.find((f) => f.key === key)?.fixedDirection;
+          onValueChange({
+            key,
+            direction:
+              next === "asc" || next === "desc" ? next : value.direction,
+          });
         }}
         className="flex flex-col"
       >
         {fields.map((f) => (
-          <SortMenuOption key={f.key} value={f.key}>
+          <SortMenuOption key={f.key} value={f.key} hint={hintOf(f)}>
             {f.label}
           </SortMenuOption>
         ))}
       </RadioGroupPrimitive>
-      <div aria-hidden className="-mx-2 my-1 h-px bg-border" />
-      <RadioGroupPrimitive
-        aria-label={labels.direction}
-        data-slot="sort-menu-direction"
-        value={value.direction}
-        onValueChange={(direction) => {
-          if (direction === "asc" || direction === "desc")
-            onValueChange({ key: value.key, direction });
-        }}
-        className="flex flex-col"
-      >
-        <SortMenuOption value="asc">{asc}</SortMenuOption>
-        <SortMenuOption value="desc">{desc}</SortMenuOption>
-      </RadioGroupPrimitive>
+      {fixed != null ? null : (
+        <>
+          <div aria-hidden className="-mx-2 my-1 h-px bg-border" />
+          <RadioGroupPrimitive
+            aria-label={labels.direction}
+            data-slot="sort-menu-direction"
+            value={value.direction}
+            onValueChange={(direction) => {
+              if (direction === "asc" || direction === "desc")
+                onValueChange({ key: value.key, direction });
+            }}
+            className="flex flex-col"
+          >
+            <SortMenuOption value="asc">{asc}</SortMenuOption>
+            <SortMenuOption value="desc">{desc}</SortMenuOption>
+          </RadioGroupPrimitive>
+        </>
+      )}
     </div>
   );
 }

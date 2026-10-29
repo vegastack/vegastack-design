@@ -44,8 +44,10 @@ whole name to a screen reader. The narrow select's list wraps a long name instea
 
 It is built on [`Tabs`](/docs/components/tabs) `variant="line"`, which scrolls and keeps the active
 tab in view. When the tabs don't fit the room they are given (measured, not a fixed breakpoint)
-the row becomes one `Select` with the same two groups, its `+` and ⋯ right beside it, and goes back
-to tabs as soon as they fit. In a `FilterBar`'s `leading` slot they keep their tabs while the bar
+the row becomes one `Select` with the same two groups and goes back to tabs as soon as they fit.
+Folded, the `+` and the view's ⋯ become one ⋯ beside the select (the view's actions, then **Grid
+view** and **Board view**), so a phone keeps room to read the view's name; in a `ListToolbar` the
+folded select is never squeezed below a readable width. In a `FilterBar`'s `leading` slot they keep their tabs while the bar
 has room for them, with the facet row open or closed. For a list/grid layout switch over the same data, use
 [`ViewToggle`](/docs/components/view-toggle) instead.
 

@@ -44,6 +44,11 @@ dates "Oldest first / Newest first", text "A → Z / Z → A", numbers "Low → 
 fixed order (priority, status) "First to last / Last to first". "Reset" sits in the header while the
 order differs from `defaultValue`. A column header click writes the same value.
 
+A field the list can sort only one way sets `fixedDirection`: its direction shows in muted words
+beside its name ("Last updated Newest first"), picking it sets that direction, and the direction
+group hides while it is chosen, so the menu never offers an order the server cannot give.
+`fixedDirection: "none"` is a manual order ("Custom order"): no direction words at all.
+
 `sortSummary(fields, value)` returns one line ("Due date, oldest first") for the Sort row Display
 shows once the toolbar has folded Sort into it.
 
