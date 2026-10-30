@@ -651,3 +651,30 @@ test("no a11y violations — open with a body and a footer", async () => {
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });
+
+test("a dialog opened inside another dialog draws its own backdrop (OVL-23)", async () => {
+  const screen = await render(
+    <Dialog defaultOpen>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Outer</DialogTitle>
+          <DialogDescription>The first dialog.</DialogDescription>
+        </DialogHeader>
+        <Dialog defaultOpen>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Inner</DialogTitle>
+              <DialogDescription>The nested dialog.</DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </DialogContent>
+    </Dialog>,
+  );
+  await expect
+    .element(screen.getByRole("dialog", { name: "Inner" }))
+    .toBeInTheDocument();
+  expect(
+    document.querySelectorAll('[data-slot="dialog-overlay"]'),
+  ).toHaveLength(2);
+});

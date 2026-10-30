@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.26.0 sha256-s9oA3lmL8Qf0Fh2YBLB1gw+DgKyCLcVTBdHcU1g7470=
+// @vegastack alert-dialog@0.26.0 sha256-qE0qjRXRjDFAiEZsRZmNbg1CNDFCOA7S1kStYiqm+sI=
 
 "use client";
 
@@ -39,6 +39,7 @@ function AlertDialogOverlay({
 }: AlertDialogPrimitive.Backdrop.Props) {
   return (
     <AlertDialogPrimitive.Backdrop
+      forceRender
       data-slot="alert-dialog-overlay"
       className={cn(
         "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",

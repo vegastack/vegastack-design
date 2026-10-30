@@ -1,6 +1,8 @@
 # component: dialog
-# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, TYP-19
+# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, TYP-19, OVL-23
 # hunks:
+#   OVL-23 (operator D31, 2026-10-30): the backdrop sets `forceRender`, so a modal opened from
+#     inside another dialog or sheet dims and blurs too; Base UI skips a nested backdrop otherwise.
 #   FOC-13: `DialogContent` passes `initialFocus` (overridable), which picks the first field or
 #     control in the content and never the close ×, else the popup itself, so opening a dialog does
 #     not land focus on the × (MK, 2026-09-25). The popup ref is merged with a local one for it.
@@ -52,7 +54,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..34c8c9a 100644
+index 0b42f3f..eefcc14 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -109,7 +111,11 @@ index 0b42f3f..34c8c9a 100644
  }
  
  function DialogOverlay({
-@@ -32,29 +47,68 @@ function DialogOverlay({
+@@ -29,32 +44,72 @@ function DialogOverlay({
+ }: DialogPrimitive.Backdrop.Props) {
+   return (
+     <DialogPrimitive.Backdrop
++      forceRender
        data-slot="dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -183,7 +189,7 @@ index 0b42f3f..34c8c9a 100644
          )}
          {...props}
        >
-@@ -65,19 +119,18 @@ function DialogContent({
+@@ -65,19 +120,18 @@ function DialogContent({
              render={
                <Button
                  variant="ghost"
@@ -207,7 +213,7 @@ index 0b42f3f..34c8c9a 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,34 +140,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,34 +141,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -261,7 +267,7 @@ index 0b42f3f..34c8c9a 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -122,12 +187,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -122,12 +188,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
      <DialogPrimitive.Title
        data-slot="dialog-title"
        className={cn(
@@ -277,7 +283,7 @@ index 0b42f3f..34c8c9a 100644
  }
  
  function DialogDescription({
-@@ -139,15 +204,16 @@ function DialogDescription({
+@@ -139,15 +205,16 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -296,7 +302,7 @@ index 0b42f3f..34c8c9a 100644
    DialogClose,
    DialogContent,
    DialogDescription,
-@@ -157,4 +223,4 @@ export {
+@@ -157,4 +224,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,

@@ -422,17 +422,25 @@ test("a facet hides its search box for 7 or fewer options unless `searchable` sa
   };
   const few = await render(<ListFacet<Status> {...props} items={STATUSES} />);
   await few.getByRole("combobox", { name: "Status" }).click();
+  // The popup is open (its options are in) before asserting it has no search box.
+  await expect
+    .poll(() => document.querySelector('[role="option"]'))
+    .not.toBeNull();
   expect(document.querySelector('[aria-label="Search status"]')).toBeNull();
   await few.unmount();
   const forced = await render(
     <ListFacet<Status> {...props} items={STATUSES} searchable />,
   );
   await forced.getByRole("combobox", { name: "Status" }).click();
-  expect(document.querySelector('[aria-label="Search status"]')).not.toBeNull();
+  await expect
+    .poll(() => document.querySelector('[aria-label="Search status"]'))
+    .not.toBeNull();
   await forced.unmount();
   const long = await render(<ListFacet<Status> {...props} items={many} />);
   await long.getByRole("combobox", { name: "Status" }).click();
-  expect(document.querySelector('[aria-label="Search status"]')).not.toBeNull();
+  await expect
+    .poll(() => document.querySelector('[aria-label="Search status"]'))
+    .not.toBeNull();
 });
 
 test("a facet toggles values, pins the selected ones and can be removed (DS-35)", async () => {

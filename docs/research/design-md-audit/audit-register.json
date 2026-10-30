@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e92eae0ef1cc272741ef034503eef6585b954ba4be4e978411dcd8dfa7cbf507",
+  "contractSha256": "89c820d8daee80338b857e9ee7dc1b6503b13632bdd7f9e696a3488ef454c895",
   "expectedCounts": {
-    "totalRegistryItems": 785,
-    "components": 195,
+    "totalRegistryItems": 786,
+    "components": 196,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -1471,6 +1471,17 @@
         "packages/ui/registry/ui/tool-call-chip.tsx"
       ],
       "docsSlug": "/docs/components/tool-call-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "cited-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/cited-list.tsx"
+      ],
+      "docsSlug": "/docs/components/cited-list",
       "contractStatus": "reconciled"
     },
     {
