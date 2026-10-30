@@ -30015,7 +30015,7 @@
       "title": "Cited List",
       "summary": "An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.",
       "status": "stable",
-      "since": "0.26.0",
+      "since": "0.26.1",
       "family": "chat",
       "wave": "AI/chat",
       "sourceFiles": ["packages/ui/registry/ui/cited-list.tsx"],
