@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.8] — October 30, 2026
+
+<!-- assembled from 1 changeset: 40f18318a084 -->
+
+### 🧩 New components
+
+- **FilterRow marks AI-set facets by label** (`filter-row`): `aiFacets` lists the pinned facets the last AI filter run set — each leads with the ✦ until the member changes it, which `onAiFacetEdit` reports — so a list passes the run's labels once instead of wiring every facet.
+  [`32b5272`](https://github.com/VegaStack/vegastack-design/commit/32b5272)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.7`** (was `0.9.6`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.7 → 0.26.8.
+
 ## [0.26.7] — October 30, 2026
 
 <!-- assembled from 3 changesets: b12c5f880c92 -->

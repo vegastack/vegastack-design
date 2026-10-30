@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.9.7
+
+### Patch Changes
+
+- [#872](https://github.com/vegastack/vegastack-design/pull/872) [`32b5272`](https://github.com/vegastack/vegastack-design/commit/32b5272ccec4c6ca5b209ec0df084cc4ab41eade) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **FilterRow marks AI-set facets by label** (`filter-row`): `aiFacets` lists the pinned facets the last AI filter run set — each leads with the ✦ until the member changes it, which `onAiFacetEdit` reports — so a list passes the run's labels once instead of wiring every facet.
+
 ## 0.9.6
 
 ### Patch Changes

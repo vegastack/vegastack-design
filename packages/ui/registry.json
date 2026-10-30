@@ -1879,7 +1879,7 @@
       "meta": {
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
-        "version": "0.26.7"
+        "version": "0.26.8"
       }
     },
     {
