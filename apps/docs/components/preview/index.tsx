@@ -80,6 +80,7 @@ export * from "./inbox";
 export * from "./notification-bell";
 export * from "./markdown-view";
 export * from "./inline-chip";
+export * from "./cited-list";
 export * from "./provider";
 export * from "./toast";
 export * from "./command";

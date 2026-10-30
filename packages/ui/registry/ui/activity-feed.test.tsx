@@ -55,6 +55,26 @@ test("the header shows the count, the filter and the order toggle, and reports c
   expect(onFilterChange).toHaveBeenCalledWith("comments");
 });
 
+test("actions sit in the header before the filter menu", async () => {
+  const screen = await render(
+    <ActivityFeed
+      filter="all"
+      onFilterChange={() => {}}
+      actions={<button type="button">Summarize</button>}
+    >
+      <ActivityFeedList />
+    </ActivityFeed>,
+  );
+  const action = screen.getByRole("button", { name: "Summarize" }).element();
+  const filter = screen.container.querySelector(
+    "[data-slot=activity-feed-filter]",
+  )!;
+  expect(action.parentElement).toBe(filter.parentElement);
+  expect(
+    action.compareDocumentPosition(filter) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
 test("an event shows its actor, value and time; icon='avatar' draws the actor", async () => {
   const screen = await render(
     <>

@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.26.0 sha256-L19pF8GJtMfKaUwOXXr2SV0dnVg8jzKwTgbi8khrwuY=
+// @vegastack activity-feed@0.26.0 sha256-2wQM0cRnoEl6hM+Yh0m6gbLIMz5KI94kFSTzHtfvypw=
 
 "use client";
 
@@ -130,6 +130,12 @@ export interface ActivityFeedProps extends Omit<
   loadingMoreLabel?: string;
   /** Retry action copy. @default "Retry loading earlier" */
   retryMoreLabel?: string;
+  /**
+   * Extra header controls (an "Ask about this" button, a menu), placed before the filter menu in
+   * the header's trailing cluster.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
 }
 
 /**
@@ -156,6 +162,7 @@ export function ActivityFeed({
   paginationKey,
   loadingMoreLabel = "Loading earlier…",
   retryMoreLabel = "Retry loading earlier",
+  actions,
   ref,
   className,
   children,
@@ -432,6 +439,7 @@ export function ActivityFeed({
           ) : null}
         </h2>
         <div className="-me-2 ms-auto flex items-center gap-1">
+          {actions}
           {onFilterChange ? (
             <Select
               value={filter}

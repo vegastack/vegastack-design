@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "cited-list",
+  "title": "Cited List",
+  "description": "An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render (a router link, a play-from-here button).",
+  "dependencies": [
+    "@base-ui/react@^1.6.0",
+    "@vegastack/design@^0.8.53",
+    "@vegastack/design-tokens@^0.8.38"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/cited-list.tsx",
+      "content": "// @vegastack cited-list@0.26.0 sha256-76sMnOtIwvItTj+bsVWcMt8Cusu9O8oW+AunsyYa7lY=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { mergeProps } from \"@base-ui/react/merge-props\";\nimport { useRender } from \"@base-ui/react/use-render\";\nimport { cn } from \"@vegastack/design\";\n\n/* ------------------------------------------------------------------------------------------------\n * CitedList — an answer as numbered points, each point a sentence followed by the sources it\n * rests on. The citations follow the sentence after a real space (never glued to its last word)\n * and stay together as one wrapping group. A Citation is a small muted chip: an inline-block cut\n * with an ellipsis, `overflow: clip` so it keeps the text's own baseline, an optional 1em icon\n * nudged down by `-0.125em`. It is a link by default and takes Base UI's `render` prop, so a host\n * can render a router link or a button (a \"play from here\" control) with the same look.\n * ----------------------------------------------------------------------------------------------*/\n\n/** Props for `CitedList`. */\nexport type CitedListProps = React.ComponentPropsWithRef<\"ol\">;\n\n/**\n * `CitedList` — a numbered list of cited points.\n *\n * @example\n * <CitedList>\n *   <CitedListItem citations={<Citation href=\"/source/1\">Source 1</Citation>}>\n *     The launch moved to May.\n *   </CitedListItem>\n * </CitedList>\n */\nexport function CitedList({ className, ...props }: CitedListProps) {\n  return (\n    <ol\n      data-slot=\"cited-list\"\n      className={cn(\n        \"flex list-decimal flex-col gap-1.5 ps-5 text-sm leading-relaxed tabular-nums marker:text-muted-foreground\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\n/** Props for `CitedListItem`. */\nexport interface CitedListItemProps extends React.ComponentPropsWithRef<\"li\"> {\n  /** The sources this point rests on, usually `Citation`s, shown after the text. @default undefined */\n  citations?: React.ReactNode;\n}\n\n/**\n * `CitedListItem` — one point: its sentence (which may hold links), then its citations.\n *\n * @example\n * <CitedListItem citations={<Citation href=\"/source/1\">Source 1</Citation>}>\n *   The launch moved to May.\n * </CitedListItem>\n */\nexport function CitedListItem({\n  citations,\n  className,\n  children,\n  ...props\n}: CitedListItemProps) {\n  const hasCitations =\n    citations !== undefined && citations !== null && citations !== false;\n  return (\n    <li\n      data-slot=\"cited-list-item\"\n      className={cn(\"ps-1\", className)}\n      {...props}\n    >\n      {children}\n      {hasCitations ? (\n        <>\n          {\" \"}\n          <span\n            data-slot=\"cited-list-citations\"\n            className=\"ms-1 inline-flex flex-wrap gap-x-1 gap-y-2 align-baseline\"\n          >\n            {citations}\n          </span>\n        </>\n      ) : null}\n    </li>\n  );\n}\n\n/** Props for `Citation`. */\nexport interface CitationProps extends useRender.ComponentProps<\"a\"> {\n  /** A leading glyph, drawn at 1em on the label's baseline. @default undefined */\n  icon?: React.ReactNode;\n}\n\n/**\n * `Citation` — a small muted link chip naming one source. An `<a>` by default; pass `render` for a\n * router link or a `<button>`.\n *\n * @example\n * <Citation href=\"/notes/12\" icon={<FileText />}>Kickoff notes</Citation>\n * <Citation render={<button type=\"button\" onClick={play} />}>12:04</Citation>\n */\nexport function Citation({\n  icon,\n  className,\n  children,\n  render,\n  ...props\n}: CitationProps) {\n  return useRender({\n    defaultTagName: \"a\",\n    props: mergeProps<\"a\">(\n      {\n        className: cn(\n          \"relative inline-block max-w-56 overflow-x-clip text-ellipsis whitespace-nowrap rounded-sm bg-muted px-1.5 align-baseline text-xs leading-5 text-muted-foreground no-underline transition-colors hover:bg-accent hover:text-foreground before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']\",\n          className,\n        ),\n        children: (\n          <>\n            {icon ? (\n              <span\n                data-slot=\"citation-icon\"\n                aria-hidden\n                className=\"me-1 inline-block size-[1em] shrink-0 align-[-0.125em] [&>svg]:size-full\"\n              >\n                {icon}\n              </span>\n            ) : null}\n            {children}\n          </>\n        ),\n      },\n      props,\n    ),\n    render,\n    state: {\n      slot: \"citation\",\n    },\n  });\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/cited-list.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "An AI or search answer whose points each cite where they came from: a summary, an Ask answer, a list of findings.",
+    "whenNotToUse": "A mention or file link inside running text (InlineChip), a tool invocation in a transcript (ToolCallChip), or a plain numbered list with no sources.",
+    "version": "0.25.105",
+    "integrity": "sha256-76sMnOtIwvItTj+bsVWcMt8Cusu9O8oW+AunsyYa7lY="
+  },
+  "categories": [
+    "chat"
+  ],
+  "type": "registry:ui"
+}

@@ -191,6 +191,7 @@
     "bubble",
     "attachment",
     "tool-call-chip",
+    "cited-list",
     "approval-card",
     "agent-edit-banner",
     "agent-panel",

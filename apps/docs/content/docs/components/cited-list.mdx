@@ -1,0 +1,93 @@
+---
+title: Cited List
+description: An answer as numbered points, each a sentence followed by its sources as small muted chips.
+audience: public
+registry: cited-list
+status: stable
+since: 0.26.0
+a11y: ordered list; each citation a link or the element you render
+preview: citedList
+---
+
+## Install
+
+<InstallSteps name="cited-list" />
+
+## Usage
+
+```tsx
+import { Citation, CitedList, CitedListItem } from "@/components/ui/cited-list";
+
+<CitedList>
+  <CitedListItem
+    citations={<Citation href="/notes/12">Kickoff notes</Citation>}
+  >
+    The launch moved to 14 May.
+  </CitedListItem>
+</CitedList>;
+```
+
+<ComponentPreview name="citedList" file="components/preview/cited-list.tsx" />
+
+## Anatomy
+
+<Anatomy name="cited-list" />
+
+## Examples
+
+### Citations as buttons
+
+`Citation` is a link by default. Pass `render` to draw it as another element — a router link, or a
+button that plays a recording from the cited moment. Give an icon-led chip whose label is a bare
+value (a time) an `aria-label` that says what it does.
+
+<ComponentPreview
+  name="citedListButtons"
+  file="components/preview/cited-list.tsx"
+/>
+
+```tsx
+<Citation
+  icon={<Play />}
+  aria-label="Play from 04:12"
+  render={<button type="button" onClick={play} />}
+>
+  04:12
+</Citation>
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/cited-list.tsx"
+  name="CitedListItemProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/cited-list.tsx"
+  name="CitationProps"
+/>
+
+`CitedList` takes the props of an `ol`.
+
+## Accessibility
+
+- The list is an `ol`, so a screen reader announces each point's number and the count.
+- The citations come after the sentence with a space before them, so the sentence reads whole
+  before its sources. The icon is hidden; the label (or `aria-label`) names the chip.
+- A long label is cut with an ellipsis; pass `title` when the full name matters.
+
+| Key                                 | Action                    |
+| ----------------------------------- | ------------------------- |
+| <kbd>Tab</kbd>                      | Move to the next citation |
+| <kbd>Enter</kbd>                    | Open the cited source     |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Press a citation `button` |
+
+<StatesTested name="cited-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Cite each point with the sources it rests on, and render a citation as the app's router link or a play button through render."
+  dont="Glue a citation to the sentence's last word, or draw a local source pill in app code."
+/>

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 785,
-    "components": 195,
+    "totalRegistryItems": 786,
+    "components": 196,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 12,
+    "AI/chat": 13,
     "Hooks": 17,
     "Block": 1,
     "Animated icons": 467
@@ -243,7 +243,8 @@
       "approval-card",
       "agent-edit-banner",
       "agent-panel",
-      "delegate-popover"
+      "delegate-popover",
+      "cited-list"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -30002,6 +30003,169 @@
             {
               "name": "data-slot",
               "values": ["tool-call-chip", "tool-call-chip-meta"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "cited-list",
+      "registryType": "registry:ui",
+      "title": "Cited List",
+      "summary": "An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.",
+      "status": "stable",
+      "since": "0.26.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/cited-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CitedList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/cited-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Spread onto the list."
+          }
+        },
+        {
+          "name": "CitedListProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/cited-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CitedListItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/cited-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Spread onto the list item."
+          }
+        },
+        {
+          "name": "CitedListItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/cited-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Citation",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/cited-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "a",
+            "rationale": "useRender's ref, on the anchor or the rendered element."
+          }
+        },
+        {
+          "name": "CitationProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/cited-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fixed small text; the chip's icon is 1em."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "with-citations",
+            "no-citations",
+            "rendered-as-button"
+          ],
+          "evidence": "packages/ui/registry/ui/cited-list.tsx + packages/ui/registry/ui/cited-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/cited-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "truncated"],
+          "evidence": "packages/ui/registry/ui/cited-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["truncation"],
+        "rationale": "Citations wrap as a group after the sentence; a long label is cut with an ellipsis at 14rem."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-transition"],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "The chip's hover colour transition is collapsed by the global reduced-motion reset.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/cited-list",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/cited-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "cited-list",
+      "dataAttributes": {
+        "CitedList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["cited-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CitedListItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["cited-list-citations", "cited-list-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Citation": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["citation-icon"]
             }
           ],
           "cssVariables": []

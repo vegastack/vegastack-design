@@ -26,6 +26,8 @@ import {
   CommentThread,
   type CommentThreadData,
 } from "@/components/ui/comments";
+import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { PriorityIcon } from "@/components/ui/priority-icon";
 import { StatusIcon } from "@/components/ui/status-icon";
 
@@ -255,10 +257,12 @@ function TaskHistory({
   initialFilter = "all",
   loading = false,
   empty = false,
+  actions,
 }: {
   initialFilter?: ActivityFilter;
   loading?: boolean;
   empty?: boolean;
+  actions?: ReactNode;
 }) {
   const [filter, setFilter] = React.useState<ActivityFilter>(initialFilter);
   const [order, setOrder] = React.useState<ActivityOrder>("oldest");
@@ -283,6 +287,7 @@ function TaskHistory({
       onFilterChange={setFilter}
       order={order}
       onOrderChange={setOrder}
+      actions={actions}
     >
       {loading ? (
         <ActivityFeedSkeleton />
@@ -350,6 +355,22 @@ export function activityFeedActivity(): ReactNode {
   return (
     <Demo>
       <TaskHistory initialFilter="activity" />
+    </Demo>
+  );
+}
+
+/** `actions`: an extra header control, placed before the filter menu. */
+export function activityFeedActions(): ReactNode {
+  return (
+    <Demo>
+      <TaskHistory
+        actions={
+          <Button variant="ghost" size="sm" className="text-muted-foreground">
+            <Sparkles aria-hidden />
+            Summarize
+          </Button>
+        }
+      />
     </Demo>
   );
 }

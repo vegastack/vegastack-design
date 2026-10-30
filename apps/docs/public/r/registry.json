@@ -392,7 +392,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.26.0",
-        "integrity": "sha256-L19pF8GJtMfKaUwOXXr2SV0dnVg8jzKwTgbi8khrwuY="
+        "integrity": "sha256-2wQM0cRnoEl6hM+Yh0m6gbLIMz5KI94kFSTzHtfvypw="
       }
     },
     {
@@ -19430,6 +19430,33 @@
       "registryDependencies": [
         "@vegastack/badge"
       ]
+    },
+    {
+      "name": "cited-list",
+      "type": "registry:ui",
+      "title": "Cited List",
+      "description": "An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render (a router link, a play-from-here button).",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/cited-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/cited-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An AI or search answer whose points each cite where they came from: a summary, an Ask answer, a list of findings.",
+        "whenNotToUse": "A mention or file link inside running text (InlineChip), a tool invocation in a transcript (ToolCallChip), or a plain numbered list with no sources.",
+        "version": "0.25.105",
+        "integrity": "sha256-76sMnOtIwvItTj+bsVWcMt8Cusu9O8oW+AunsyYa7lY="
+      }
     },
     {
       "name": "tooltip",

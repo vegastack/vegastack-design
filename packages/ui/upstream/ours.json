@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 134,
+    "total": 135,
     "fromExtras": 46
   },
   "items": {
@@ -918,6 +918,12 @@
       "family": "form",
       "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) — approved by MK 2026-10-30",
       "rationale": "Upstream has no option editor. A list of rows over our color-picker, input and button; holds no state."
+    },
+    "cited-list": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "Operator request 2026-10-30 (Regent: cited AI answers — numbered points with source chips) — operator approval 2026-10-30",
+      "rationale": "Upstream ships no cited-answer list. A numbered list whose items carry a trailing group of small muted source chips; the chip owns its root through useRender so a host can render a router link or a button; no patch."
     }
   }
 }
