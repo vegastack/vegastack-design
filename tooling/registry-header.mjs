@@ -6,7 +6,8 @@
 //   (c) the docs copy-in                       (apps/docs/components/ui/<name>.tsx, from files[].target),
 //       re-synced byte-for-byte from the source so it inherits the SAME header.
 //
-// <version> is @vegastack/ui's package.json version. <sha> is the item's meta.integrity (the
+// <version> is the ITEM's meta.version — the release in which its content last changed (30-10-2026;
+// it used to be @vegastack/ui's version, which restamped every file on every release). <sha> is the item's meta.integrity (the
 // SAME sha256-… already stamped by registry-stamp.mjs). itemHash() strips the header before
 // hashing, so the embedded sha == meta.integrity stays self-consistent and re-running
 // `registry:build` is IDEMPOTENT (stable hashes → stable headers → zero diff).
@@ -141,7 +142,7 @@ for (const f of readdirSync(dir).filter(
     const stamped = applyProvenanceHeader(
       file.content,
       item.name,
-      version,
+      item.meta?.version ?? version,
       integrity,
     );
     if (stamped !== file.content) {
@@ -158,7 +159,7 @@ for (const f of readdirSync(dir).filter(
         const srcStamped = applyProvenanceHeader(
           srcRaw,
           item.name,
-          version,
+          item.meta?.version ?? version,
           integrity,
         );
         if (srcStamped !== srcRaw) {

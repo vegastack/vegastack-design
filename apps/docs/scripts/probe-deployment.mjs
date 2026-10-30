@@ -23,6 +23,13 @@ const expectedRegistryVersion = JSON.parse(
     "utf8",
   ),
 ).version;
+// Items carry their own version: the release in which their content last changed (30-10-2026).
+const expectedStepperVersion = JSON.parse(
+  readFileSync(
+    new URL("../../../packages/ui/registry.json", import.meta.url),
+    "utf8",
+  ),
+).items.find((entry) => entry.name === "stepper")?.meta?.version;
 
 assert.ok(clientId, "CF_ACCESS_CLIENT_ID must be set");
 assert.ok(clientSecret, "CF_ACCESS_CLIENT_SECRET must be set");
@@ -572,8 +579,8 @@ const computedIntegrity = itemHash(item);
 assert.equal(item.name, "stepper");
 assert.equal(
   item.meta?.version,
-  expectedRegistryVersion,
-  `stepper version does not match deployed tree (${expectedRegistryVersion})`,
+  expectedStepperVersion,
+  `stepper version does not match deployed tree (${expectedStepperVersion})`,
 );
 assert.equal(
   item.meta?.integrity,

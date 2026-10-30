@@ -15,10 +15,32 @@
  * "simplify" this back into an enumeration.
  */
 
-/** `@vegastack/design` must not match `@vegastack/design-tokens@…`, hence the exact `name@` test. */
-function rewriteRange(dependency, publicDependencies) {
+/** Does caret range `^a.b.c` admit version `x.y.z` (npm's caret rules for 0.x included)? */
+export function caretAdmits(range, version) {
+  const r = /^\^(\d+)\.(\d+)\.(\d+)$/.exec(range);
+  const v = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
+  if (!r || !v) return false;
+  const [a, b, c] = r.slice(1).map(Number);
+  const [x, y, z] = v.slice(1).map(Number);
+  const atLeast = x > a || (x === a && (y > b || (y === b && z >= c)));
+  if (!atLeast) return false;
+  if (a > 0) return x === a;
+  if (b > 0) return x === 0 && y === b;
+  return x === 0 && y === 0 && z === c;
+}
+
+/**
+ * `@vegastack/design` must not match `@vegastack/design-tokens@…`, hence the exact `name@` test.
+ * A range that already admits the version being published is LEFT ALONE (30-10-2026): `^0.9.1`
+ * installs 0.9.2 already, and rewriting it would change every dependent item — and so its version,
+ * header and integrity — on every patch release. Only a bump the range excludes (a 0.x minor) moves it.
+ */
+export function rewriteRange(dependency, publicDependencies) {
   for (const { name, range } of publicDependencies) {
     if (dependency === name || dependency.startsWith(`${name}@`)) {
+      const current = dependency.slice(name.length + 1);
+      if (current && caretAdmits(current, range.replace(/^\^/, "")))
+        return dependency;
       return `${name}@${range}`;
     }
   }
