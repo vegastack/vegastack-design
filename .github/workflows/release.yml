@@ -226,3 +226,51 @@ jobs:
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+
+  # The apps pull a release as soon as it is live (operator, 31-10-2026): the Regent web app's
+  # "Design-system pull" workflow opens or updates its `pnpm ds:pull` PR on this dispatch, with a
+  # schedule there as the fallback. Its token comes from the `vegastack-ds-pull` App (installed on
+  # the app repos only, not here): variable DS_PULL_APP_ID and secret DS_PULL_APP_PRIVATE_KEY in
+  # the `release` environment. Unconfigured or failing, it never fails the release.
+  notify-apps:
+    name: Tell the apps a release is live
+    needs: [version, deploy]
+    if: needs.deploy.result == 'success'
+    runs-on: [self-hosted, linux, vsk-runner]
+    timeout-minutes: 5
+    environment: release
+    permissions: {}
+    continue-on-error: true
+    steps:
+      - name: Configured?
+        id: configured
+        env:
+          APP_ID: ${{ vars.DS_PULL_APP_ID }}
+          HAS_KEY: ${{ secrets.DS_PULL_APP_PRIVATE_KEY != '' }}
+        run: |
+          if [ -n "$APP_ID" ] && [ "$HAS_KEY" = true ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else
+            echo "::notice::DS_PULL_APP_ID / DS_PULL_APP_PRIVATE_KEY are not set in the release environment; the apps' scheduled pull picks this release up"
+          fi
+      - name: Mint the dispatch token
+        id: app-token
+        if: steps.configured.outputs.ok == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.DS_PULL_APP_ID }}
+          private-key: ${{ secrets.DS_PULL_APP_PRIVATE_KEY }}
+          owner: vegastack
+          repositories: engg-clients-regent-ai-platform-web-app-v2
+          permission-contents: write
+      - name: Dispatch ds-release
+        if: steps.configured.outputs.ok == 'true'
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+          SHA: ${{ needs.version.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          for repo in vegastack/engg-clients-regent-ai-platform-web-app-v2; do
+            curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$repo/dispatches" \
+              -d "{\"event_type\":\"ds-release\",\"client_payload\":{\"release_sha\":\"$SHA\"}}"
+            echo "ds-release → $repo"
+          done
