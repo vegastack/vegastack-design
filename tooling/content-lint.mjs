@@ -48,7 +48,7 @@ const VISUAL_EXT = /\.(md|mdx|ts|tsx|mts|cts|js|mjs|cjs|jsx)$/;
 const SKIPPED_DESCRIBE_RE = /\b(?:test\.|it\.)?describe\.skip\s*\(/g;
 // Committed screenshots were removed on 2026-07-25: captures are local, before/after, and never
 // stored. Guidance that still tells an author to commit or regenerate a baseline sends them to a
-// workflow that no longer exists — and `tooling/verify-workflow-security.mjs` will reject it.
+// workflow that no longer exists — and `tooling/verify-workflows.mjs` will reject it.
 // `--update-snapshots` is deliberately NOT matched: no lane in this repository writes a persistent
 // baseline any more, so there is nothing for it to silently overwrite.
 const COMMITTED_BASELINE_RE =

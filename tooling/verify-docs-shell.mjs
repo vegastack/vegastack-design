@@ -11,7 +11,7 @@
 //   docs chrome obeys the design system it documents, and nothing else measures a COMPUTED style on
 //   the built site. So they are re-implemented here with the `playwright` LIBRARY — already in the
 //   lockfile as vitest's browser provider for `@vegastack/ui`, pinned to the same version, so the
-//   lockfile still resolves exactly one `playwright` and `verify-workflow-security.mjs` can keep
+//   lockfile still resolves exactly one `playwright` and `verify-workflows.mjs` can keep
 //   deriving the container tag from it — plus `node:assert`. One runner, one dependency, no config.
 //
 //   It is a DISTRIBUTION check (`pnpm verify:distribution`), not part of affected PR verification,

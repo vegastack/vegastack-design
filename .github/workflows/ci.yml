@@ -51,6 +51,18 @@ jobs:
       - name: Static proof for generated Version Packages output
         if: github.event.pull_request.head.ref == 'changeset-release/main'
         run: pnpm verify:static
+      - name: Lint workflows when they change
+        if: github.event.pull_request.head.ref != 'changeset-release/main'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -qE '^(\.github/|tooling/(verify-workflows|trusted-tool)\.mjs$|pnpm-lock\.yaml$)'; then
+            node tooling/verify-workflows.mjs
+          else
+            node tooling/verify-workflows.mjs --policy
+          fi
       - name: Require an applicable changeset
         if: github.event.pull_request.head.ref != 'changeset-release/main'
         run: pnpm exec changeset status --since=origin/main
@@ -66,6 +78,3 @@ jobs:
             git status --short
             exit 1
           }
-      - name: Report unexpected native browser crashes
-        if: always()
-        run: node tooling/report-native-crashes.mjs

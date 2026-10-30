@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Manual-only complete component suite. Automatic workflows are forbidden from invoking this
-// command by verify-workflow-security.mjs; workflow_dispatch/full-suite.yml is its one CI caller.
+// command by verify-workflows.mjs; workflow_dispatch/full-suite.yml is its one CI caller.
 
 import { spawnSync } from "node:child_process";
 

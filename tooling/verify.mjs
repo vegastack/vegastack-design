@@ -108,6 +108,13 @@ const MODES = {
         "--verify-registry",
       ],
     },
+    {
+      // Moved here from the deploy workflow (30-10-2026): the real `shadcn add` proof runs on the
+      // pull request that can break it, and only then (registry shape, CLI, consume tooling, the
+      // public packages or the lockfile).
+      name: "real registry consume (when affected)",
+      argv: ["node", "tooling/consume-if-affected.mjs", ...forwarded],
+    },
   ],
   distribution: DISTRIBUTION_STEPS,
 };

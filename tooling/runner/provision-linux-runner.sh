@@ -21,7 +21,7 @@
 #
 # THE PLAYWRIGHT IMAGE TAG IS NEVER HARDCODED HERE.
 #   The `playwright` version in pnpm-lock.yaml is the single authority, and
-#   tooling/verify-workflow-security.mjs pins the workflow's container image to it. A second literal
+#   tooling/verify-workflows.mjs pins the workflow's container image to it. A second literal
 #   in this script would drift on the next bump: the box would pre-pull an image the workflow no
 #   longer uses, and the first CI run after the bump would pay the full pull it was meant to avoid.
 #   So the tag is DERIVED — from pnpm-lock.yaml when this script runs inside a checkout, otherwise
