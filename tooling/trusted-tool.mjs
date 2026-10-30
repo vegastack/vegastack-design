@@ -93,6 +93,8 @@ renameSync(join(staging, name), binary);
 rmSync(staging, { recursive: true, force: true });
 if (process.env.GITHUB_PATH)
   appendFileSync(process.env.GITHUB_PATH, `${dir}\n`);
-console.log(
+console.error(
   `✓ trusted-tool: ${name} ${tool.version} (sha256 verified) at ${binary}`,
 );
+// stdout carries only the verified binary's path, for callers that execute it directly.
+console.log(binary);
