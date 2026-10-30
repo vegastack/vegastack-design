@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.26.3 sha256-gM9xU/dMpkixLrd9+7d7Q0ef1VyUU5jDykTq+oAYc6s=
+// @vegastack add-filter-menu@0.26.3 sha256-x5tEiXNcZFlhy4pRmdl8s6HT0BtkKEVeBmq78yxwSGo=
 
 "use client";
 
@@ -477,7 +477,9 @@ export function AddFilterMenu({
               </div>
             ),
           )}
-          {options.length === 0 ? (
+          {/* "No field matches" answers a search; with nothing typed and only the advanced page
+              left (every field already a facet), the menu just offers that page. */}
+          {options.length === 0 && (text !== "" || advanced == null) ? (
             <p className="px-1.5 py-1 text-sm text-muted-foreground">
               {labels.noMatch}
             </p>
@@ -485,11 +487,13 @@ export function AddFilterMenu({
         </div>
         {advanced != null ? (
           <>
-            <div
-              aria-hidden
-              data-slot="add-filter-menu-divider"
-              className="-mx-1 my-1 h-px bg-border"
-            />
+            {options.length > 0 || text !== "" ? (
+              <div
+                aria-hidden
+                data-slot="add-filter-menu-divider"
+                className="-mx-1 my-1 h-px bg-border"
+              />
+            ) : null}
             <Button
               variant="ghost"
               data-slot="add-filter-menu-advanced"

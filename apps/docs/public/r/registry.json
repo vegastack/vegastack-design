@@ -2147,7 +2147,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.26.3",
-        "integrity": "sha256-gM9xU/dMpkixLrd9+7d7Q0ef1VyUU5jDykTq+oAYc6s="
+        "integrity": "sha256-x5tEiXNcZFlhy4pRmdl8s6HT0BtkKEVeBmq78yxwSGo="
       }
     },
     {
