@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.1 sha256-NTzslQY/lZ47BQBLxK8YlHXUzE8Kv0ez3e+f1F3hsIQ=
+// @vegastack filter-row@0.26.1 sha256-FLSey35EuXWjzkAbg8zLGs7kEmz4jbkJjnP1g+sw6W4=
 
 "use client";
 
@@ -595,7 +595,7 @@ export function FilterChip({
       className={cn(
         "max-w-xs rounded-md text-sm font-normal [&_[data-slot=chip-remove]]:rounded-sm",
         unset &&
-          "border border-dashed border-border bg-transparent text-muted-foreground hover:bg-muted",
+          "border border-dashed border-border bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted has-aria-expanded:border-transparent has-aria-expanded:bg-muted",
         className,
       )}
       {...props}
@@ -915,7 +915,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
             "w-auto max-w-64 rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border focus:border-border aria-expanded:border-border",
             hasValue
               ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
-              : "border-dashed bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
+              : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
           )}
           contentClassName="min-w-56"
           data-slot="list-facet-select"
@@ -1097,7 +1097,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
                   "w-auto max-w-64 justify-start rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
                     ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
-                    : "border-dashed bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
+                    : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
                 )}
               />
             }
@@ -1193,6 +1193,12 @@ export interface DateRangeFilterValue {
    * @default undefined
    */
   preset?: DateRangeFilterPreset;
+  /**
+   * A name the chip reads instead of a custom range's dates — a relative range the host keeps
+   * as one token ("Last 2 days", "Next 3 weeks", "Overdue this week"). Ignored for a preset.
+   * @default undefined
+   */
+  label?: string;
 }
 
 /** Props accepted by `DateRangeFilter`. */
@@ -1445,7 +1451,7 @@ export function DateRangeFilter({
     ? null
     : !isCustom
       ? labels[value.preset!]
-      : (datesText ?? labels.custom);
+      : (value.label ?? datesText ?? labels.custom);
 
   const openChange = (next: boolean) => {
     setOpen(next);
@@ -1482,7 +1488,7 @@ export function DateRangeFilter({
                 "max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
                 hasValue
                   ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent"
-                  : "border-dashed text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+                  : "border-dashed text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground",
               )}
             />
           }

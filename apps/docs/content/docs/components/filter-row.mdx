@@ -62,7 +62,8 @@ const onAiApplied = useAiFilterApplied();
 The order never changes, so chips never jump:
 
 1. **Pinned facets** (`facets`), in the page's order. Unset, a facet is a dashed outline that reads
-   as an offer (`+ Due`); set, it is a solid chip. A facet with a custom editor is an `unset`
+   as an offer (`+ Due`); hovered or open, its fill reaches the chip's edge and replaces the dashed
+   line (never a fill inside the dashes); set, it is a solid chip. A facet with a custom editor is an `unset`
    `FilterChip` (below).
 2. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
    A preset resolves to ordinary chips; there is no separate preset chip.
@@ -156,7 +157,8 @@ days · Last 30 days · This month · Last month · No date — and "Custom rang
 calendar (two months, one on a phone) with Apply in the same popover. The default set looks back
 (Today · Yesterday · Last 7 days · Last 30 days · This month · Last month · Custom range); a due date
 passes `["overdue", "today", "thisWeek", "next7", "thisMonth", "none", "custom"]`. Set, it reads the
-preset ("Due: This week") or the dates ("Due: Sep 1–25"). A value's `from` or `to` is `null` when
+preset ("Due: This week") or the dates ("Due: Sep 1–25"); a custom value with a `label` reads that
+instead, for a relative range the host keeps as one token ("Due: Last 2 days"). A value's `from` or `to` is `null` when
 the range is open on that side ("Overdue" has no first day; "No date" has neither). Pass `now` in
 the same calendar-date convention as the range endpoints; it drives both the presets and the
 calendar's Today highlight. `dateRangeForPreset(preset, now, weekStartsOn)` returns the
