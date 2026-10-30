@@ -142,7 +142,11 @@ The app's drift check flags this until the real release is pulled.
 
 ## 7. Pull a release into an app
 
-In the Regent web app, once the deploy is green:
+In the Regent web app this is automatic: once the deploy is green, the release workflow's
+`notify-apps` job sends `ds-release` to the app, whose **Design-system pull** workflow opens (or
+updates) one PR, `chore(ds): pull design system <version>`, from the `vegastack-ds-pull` App; a
+three-hourly schedule there catches a missed dispatch. Review and merge it like any PR; it never
+merges itself. By hand, once the deploy is green:
 
 ```bash
 pnpm ds:pull --dry-run    # what would change

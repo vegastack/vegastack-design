@@ -241,6 +241,11 @@ jobs:
     environment: release
     permissions: {}
     continue-on-error: true
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Configured?
         id: configured
@@ -266,11 +271,17 @@ jobs:
         env:
           TOKEN: ${{ steps.app-token.outputs.token }}
           SHA: ${{ needs.version.outputs.release_sha }}
+        # Node, not curl: the house container is the Playwright image.
         run: |
-          set -euo pipefail
-          for repo in vegastack/engg-clients-regent-ai-platform-web-app-v2; do
-            curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$repo/dispatches" \
-              -d "{\"event_type\":\"ds-release\",\"client_payload\":{\"release_sha\":\"$SHA\"}}"
-            echo "ds-release → $repo"
-          done
+          node --input-type=module -e '
+            const repos = ["vegastack/engg-clients-regent-ai-platform-web-app-v2"];
+            for (const repo of repos) {
+              const res = await fetch(`https://api.github.com/repos/${repo}/dispatches`, {
+                method: "POST",
+                headers: { authorization: `Bearer ${process.env.TOKEN}`, accept: "application/vnd.github+json" },
+                body: JSON.stringify({ event_type: "ds-release", client_payload: { release_sha: process.env.SHA } }),
+              });
+              if (!res.ok) throw new Error(`${repo}: dispatch answered ${res.status}`);
+              console.log(`ds-release → ${repo}`);
+            }
+          '
