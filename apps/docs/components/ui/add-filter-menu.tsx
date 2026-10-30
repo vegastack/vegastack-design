@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.26.0 sha256-QGpP+NZ/npx5fr6uYwEKyyrXCi29FZYLv0AAzSaXeMw=
+// @vegastack add-filter-menu@0.26.0 sha256-ULOLchGuLD+Nuf91kaG/Wvdv4SOCVI+Hy2PkuYyXVEQ=
 
 "use client";
 
@@ -359,7 +359,17 @@ export function AddFilterMenu({
           backLabel={labels.back}
           onBack={() => setPage(null)}
         />
-        {drilledContent}
+        {page === ADVANCED ? (
+          // A long condition builder scrolls inside the popover, never past the viewport.
+          <div
+            data-slot="add-filter-menu-advanced-body"
+            className="max-h-[min(28rem,60dvh)] min-h-0 overflow-y-auto overscroll-contain"
+          >
+            {drilledContent}
+          </div>
+        ) : (
+          drilledContent
+        )}
       </div>
     ) : (
       <div data-slot="add-filter-menu-body" className="flex min-w-0 flex-col">

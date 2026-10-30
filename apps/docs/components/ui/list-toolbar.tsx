@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.26.0 sha256-G3KEkoh0cvB0QY7DOgYN4CzbHs07Vmc4zqpuNzXMhL8=
+// @vegastack list-toolbar@0.26.0 sha256-GwLpKD4EQzA6JpHIglmd7hEBrMFdq8L2m0jx22vlPSw=
 
 "use client";
 
@@ -545,7 +545,11 @@ export function ListToolbarPopover({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetTrigger render={trigger} />
         <SheetContent side="bottom" data-slot={dataSlot} className="gap-0">
-          <SheetHeader data-slot="list-toolbar-sheet-header" className="pb-2">
+          <SheetHeader
+            data-slot="list-toolbar-sheet-header"
+            // Its own slot loses SheetContent's header guard: keep clear of the corner ×.
+            className="pe-12 pb-2"
+          >
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
           {/* 10px + a row's 6px inset puts every row's text on the title's 16px edge; hairlines

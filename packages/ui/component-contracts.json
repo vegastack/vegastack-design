@@ -10650,6 +10650,7 @@
               "name": "data-slot",
               "values": [
                 "add-filter-menu-advanced",
+                "add-filter-menu-advanced-body",
                 "add-filter-menu-advanced-page",
                 "add-filter-menu-ai",
                 "add-filter-menu-body",

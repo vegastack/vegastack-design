@@ -698,3 +698,17 @@ test("a set facet counts toward the row's Clear", async () => {
     .element(screen.getByRole("button", { name: "Clear", exact: true }))
     .toBeInTheDocument();
 });
+
+test("an open-ended custom range reads its one bound", async () => {
+  const screen = await render(
+    <DateRangeFilter
+      label="Due"
+      now={new Date(2026, 9, 30)}
+      value={{ from: null, to: new Date(2026, 9, 29), preset: "custom" }}
+      onValueChange={() => {}}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: /^Due: Until / }))
+    .toBeInTheDocument();
+});

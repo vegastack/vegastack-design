@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.0 sha256-/DYKoUuvE1I/kDEhrxLo98OucMViZHSyPuiKIIWjGX4=
+// @vegastack filter-row@0.26.0 sha256-i/v/CdjqN4miYbFGKsDCGM3V5TuWvHHiNfq4S1uuiI4=
 
 "use client";
 
@@ -168,6 +168,7 @@ export function FilterRow({
   activeCount: activeCountProp,
   labels: labelsProp,
   className,
+  ref,
   ...props
 }: FilterRowProps) {
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
@@ -207,6 +208,7 @@ export function FilterRow({
   React.useEffect(() => () => reportCount?.(null), [reportCount]);
 
   const rowRef = React.useRef<HTMLDivElement>(null);
+  const mergedRef = React.useMemo(() => mergeRefs(rowRef, ref), [ref]);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const showClear = onClear != null && activeCount > 0;
   const clear = () => {
@@ -265,7 +267,7 @@ export function FilterRow({
 
   return (
     <div
-      ref={rowRef}
+      ref={mergedRef}
       role="group"
       aria-label={labels.filters}
       data-slot="filter-row"
@@ -1248,6 +1250,16 @@ export interface DateRangeFilterProps {
    */
   backLabel?: string;
   /**
+   * Leads a range with only a first day ("From Nov 3").
+   * @default "From"
+   */
+  fromLabel?: string;
+  /**
+   * Leads a range with only a last day ("Until Oct 29").
+   * @default "Until"
+   */
+  untilLabel?: string;
+  /**
    * Disable the filter.
    * @default false
    */
@@ -1388,6 +1400,8 @@ export function DateRangeFilter({
   clearLabel = `Clear ${label}`,
   applyLabel = "Apply",
   backLabel = "Back",
+  fromLabel = "From",
+  untilLabel = "Until",
   disabled = false,
 }: DateRangeFilterProps) {
   const labels = { ...DATE_RANGE_PRESET_LABELS, ...presetLabels };
@@ -1410,15 +1424,23 @@ export function DateRangeFilter({
 
   const isCustom =
     value != null && (!value.preset || value.preset === "custom");
-  const datesText =
-    value?.from && value.to
+  const day = (date: Date) =>
+    formatDateRange(date, date, { withTime: false, timeZone, locale, now });
+  // An open-ended custom range reads its one bound ("Until Oct 29", "From Nov 3").
+  const datesText = !value
+    ? null
+    : value.from && value.to
       ? formatDateRange(value.from, value.to, {
           withTime: false,
           timeZone,
           locale,
           now,
         })
-      : null;
+      : value.to
+        ? `${untilLabel} ${day(value.to)}`
+        : value.from
+          ? `${fromLabel} ${day(value.from)}`
+          : null;
   const valueText = !value
     ? null
     : !isCustom
@@ -1431,8 +1453,8 @@ export function DateRangeFilter({
       prefetchCalendar();
       setCustom(false);
       setDraft(
-        value?.from
-          ? { from: value.from, to: value.to ?? undefined }
+        value?.from || value?.to
+          ? { from: value.from ?? undefined, to: value.to ?? undefined }
           : undefined,
       );
     }

@@ -251,14 +251,17 @@ function TasksToolbar({ width }: { width?: number }) {
                     lastAiChip.current = id;
                     return { added: 1, unmatched };
                   },
-                  onApplied: (result) =>
+                  onApplied: (result) => {
+                    // This run's chip, captured now: a later run's Undo never removes it.
+                    const id = lastAiChip.current;
                     onAiApplied({
                       count: result.added,
                       unmatched: result.unmatched,
                       onUndo: () => {
-                        if (lastAiChip.current) removeChip(lastAiChip.current);
+                        if (id) removeChip(id);
                       },
-                    }),
+                    });
+                  },
                 }}
               />
             }

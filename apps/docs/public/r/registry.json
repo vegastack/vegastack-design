@@ -2074,7 +2074,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.26.0",
-        "integrity": "sha256-G3KEkoh0cvB0QY7DOgYN4CzbHs07Vmc4zqpuNzXMhL8="
+        "integrity": "sha256-GwLpKD4EQzA6JpHIglmd7hEBrMFdq8L2m0jx22vlPSw="
       }
     },
     {
@@ -2114,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.26.0",
-        "integrity": "sha256-/DYKoUuvE1I/kDEhrxLo98OucMViZHSyPuiKIIWjGX4="
+        "integrity": "sha256-i/v/CdjqN4miYbFGKsDCGM3V5TuWvHHiNfq4S1uuiI4="
       }
     },
     {
@@ -2147,7 +2147,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.26.0",
-        "integrity": "sha256-QGpP+NZ/npx5fr6uYwEKyyrXCi29FZYLv0AAzSaXeMw="
+        "integrity": "sha256-ULOLchGuLD+Nuf91kaG/Wvdv4SOCVI+Hy2PkuYyXVEQ="
       }
     },
     {
