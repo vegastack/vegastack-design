@@ -20,6 +20,13 @@ permissions:
 
 env:
   SITE_VISIBILITY: public
+  # The LAN runners' link to npm drops connections under load (30-10-2026): fewer parallel
+  # downloads, more and longer retries, so an install survives a bad minute instead of failing.
+  npm_config_network_concurrency: "8"
+  npm_config_fetch_retries: "6"
+  npm_config_fetch_retry_mintimeout: "10000"
+  npm_config_fetch_retry_maxtimeout: "120000"
+  npm_config_fetch_timeout: "300000"
 
 concurrency:
   group: production-release
@@ -155,7 +162,9 @@ jobs:
         run: corepack enable
       - name: Pin the OIDC-capable npm (>= 11.5)
         run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages]
-      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
+      # Only what building the two public packages needs (the root's build tools and their
+      # dependency closure): about half the monorepo's packages.
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted --filter design --filter "@vegastack/design..."
       - name: Build the public packages
         run: |
           set -euo pipefail
