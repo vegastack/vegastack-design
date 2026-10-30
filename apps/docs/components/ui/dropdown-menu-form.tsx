@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu-form@0.26.4 sha256-ZOJ4LG4449ym+vAE5WZXx5w/JOK+hoEST7bwg3lk6hI=
+// @vegastack dropdown-menu-form@0.26.4 sha256-BTNUTM96fvPmiUkWdZOFhdaf2ZEbsJTMHyAga+qjeDo=
 
 "use client";
 
@@ -21,6 +21,9 @@ The parts a menu needs to hold a small form — a settings flyout that opens fro
 - `DropdownMenuAtPoint` — a menu that opens beside a point, where no trigger exists.
 - `DropdownMenuInput` and `stopMenuTyping` — typing in a field inside a menu without the menu's
   arrow-key and type-ahead handling taking the keys.
+- `DropdownMenuIdentity` — who or what the menu is about, at its top: an avatar or logo, a name and
+  a quieter line (an account menu's person and email). It gives the menu its 224px minimum width.
+- `DropdownMenuNote` — a quiet centred line at the foot of a menu (a credit, a version).
 --- */
 
 /** Where a menu opens: viewport pixels. */
@@ -200,5 +203,121 @@ export function DropdownMenuAtPoint({
         {children}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+/** Props accepted by `DropdownMenuIdentity`. */
+export interface DropdownMenuIdentityProps extends Omit<
+  React.ComponentProps<"div">,
+  "title" | "children"
+> {
+  /** The avatar or logo. @default undefined */
+  media?: React.ReactNode;
+  /** The name — truncated, with its full text as a tooltip when it is a string. */
+  title: React.ReactNode;
+  /** A quieter line under the name (an email, a role). @default undefined */
+  description?: React.ReactNode;
+}
+
+/**
+ * `DropdownMenuIdentity` — the header row of a menu about one person or thing: `media`, then the
+ * `title` over a quieter `description`, both truncated, read as plain text (not an item). Put it
+ * first in the menu; it sets the menu's minimum width (224px) so names have room.
+ *
+ * @example
+ * <DropdownMenuIdentity media={<Avatar />} title="Neha Kapoor" description="neha@example.com" />
+ */
+export function DropdownMenuIdentity({
+  media,
+  title,
+  description,
+  className,
+  ...props
+}: DropdownMenuIdentityProps) {
+  return (
+    // A `group` is one of the children a `menu` may hold; plain text there is not.
+    <div
+      role="group"
+      data-slot="dropdown-menu-identity"
+      className={cn(
+        "flex min-w-52 items-center gap-2 px-1.5 py-1 text-sm text-foreground",
+        className,
+      )}
+      {...props}
+    >
+      {media}
+      <span className="grid min-w-0 flex-1 text-start leading-tight">
+        <span
+          title={typeof title === "string" ? title : undefined}
+          className="truncate font-medium"
+        >
+          {title}
+        </span>
+        {description != null ? (
+          <span
+            title={typeof description === "string" ? description : undefined}
+            className="truncate text-xs text-muted-foreground"
+          >
+            {description}
+          </span>
+        ) : null}
+      </span>
+    </div>
+  );
+}
+
+/** Props accepted by `DropdownMenuNote`. */
+export interface DropdownMenuNoteProps extends React.ComponentProps<"div"> {
+  /**
+   * A link at the end of the line ("VegaStack" in a credit): a muted, unstyled link that is a
+   * `menuitem`, the only interactive child a menu may hold. Opens in a new tab.
+   * @default undefined
+   */
+  link?: { href: string; label: string };
+}
+
+/**
+ * `DropdownMenuNote` — a quiet, centred line at the foot of a menu: a credit or a version. Its
+ * text is not an item; an optional `link` ends it.
+ *
+ * @example
+ * <DropdownMenuNote link={{ href: "https://vegastack.com", label: "VegaStack" }}>
+ *   Designed and developed by
+ * </DropdownMenuNote>
+ */
+export function DropdownMenuNote({
+  link,
+  className,
+  children,
+  ...props
+}: DropdownMenuNoteProps) {
+  return (
+    // A `group`, which a `menu` may hold (bare text or a plain link may not).
+    <div
+      role="group"
+      data-slot="dropdown-menu-note"
+      className={cn(
+        "px-1.5 py-1 text-center text-xs leading-snug text-muted-foreground",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      {link ? (
+        <>
+          {" "}
+          <a
+            role="menuitem"
+            href={link.href}
+            target="_blank"
+            rel="noopener"
+            data-slot="dropdown-menu-note-link"
+            className="text-muted-foreground no-underline hover:text-foreground"
+          >
+            {link.label}
+          </a>
+        </>
+      ) : null}
+    </div>
   );
 }

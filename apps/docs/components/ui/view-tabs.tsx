@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.26.4 sha256-RkgpnciSD8XOPN3tLrw4DP4lt161tIvnDofXiS2xsPM=
+// @vegastack view-tabs@0.26.4 sha256-uWN9DzRTxTRepp4EA8oKGhzcwxqmtaXZ7w2coudgBmY=
 
 "use client";
 
@@ -441,7 +441,8 @@ export function ViewTabs({
         "relative flex w-full min-w-0 items-center gap-1",
         // Collapsed, the measuring tab row is wider than the room: clipped sideways, it never
         // widens the page (vertically the select's focus and popup stay unclipped).
-        narrow && "overflow-x-clip",
+        // Folded, it keeps the pill row's 32px, so the toolbar below stays 12px away (T27).
+        narrow && "h-8 overflow-x-clip",
         className,
       )}
     >

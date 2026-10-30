@@ -6,7 +6,9 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { DropdownMenu, DropdownMenuContent } from "./dropdown-menu";
 import {
   DropdownMenuAtPoint,
+  DropdownMenuIdentity,
   DropdownMenuInput,
+  DropdownMenuNote,
   DropdownMenuSwitchItem,
   stopMenuTyping,
 } from "./dropdown-menu-form";
@@ -106,4 +108,35 @@ test("DropdownMenuAtPoint opens at the point, stays there while closing, and rep
       .querySelector<HTMLElement>('[data-slot="dropdown-menu-point"]')!
       .style.getPropertyValue("--anchor-x"),
   ).toBe("120px");
+});
+
+test("DropdownMenuIdentity and DropdownMenuNote: a header with name and line, a quiet foot", async () => {
+  const screen = await render(
+    <DropdownMenu open>
+      <DropdownMenuContent>
+        <DropdownMenuIdentity
+          media={<span data-testid="avatar">NK</span>}
+          title="Neha Kapoor"
+          description="neha@example.com"
+        />
+        <DropdownMenuNote
+          link={{ href: "https://example.com", label: "VegaStack" }}
+        >
+          Made by
+        </DropdownMenuNote>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  );
+  const identity = document.querySelector(
+    '[data-slot="dropdown-menu-identity"]',
+  )!;
+  expect(identity.textContent).toContain("Neha Kapoor");
+  expect(identity.querySelector('[title="neha@example.com"]')).not.toBeNull();
+  await expect.element(screen.getByTestId("avatar")).toBeInTheDocument();
+  expect(
+    document.querySelector(
+      '[data-slot="dropdown-menu-note-link"][role="menuitem"]',
+    ),
+  ).not.toBeNull();
+  await expectNoA11yViolations(document.body);
 });

@@ -50,6 +50,11 @@ import {
   to hang from (a "+" at the end of a header, a context click).
 - `stopMenuTyping(event)` is the same guard for a field that is not an `Input` (a textarea, a number
   field).
+- `DropdownMenuIdentity` heads a menu about one person or thing (an account menu): `media`, the
+  `title` and a quieter `description`, truncated, and the menu's 224px minimum width — so the app
+  never sizes the menu itself.
+- `DropdownMenuNote` is a quiet centred line at the foot of a menu (a credit, a version); its text
+  is not an item; an optional `link` (a muted `menuitem` link) ends it.
 
 ## Anatomy
 
@@ -85,6 +90,20 @@ import {
 <ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
   name="DropdownMenuAtPointProps"
+/>
+
+### DropdownMenuIdentity
+
+<ApiTable
+  path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
+  name="DropdownMenuIdentityProps"
+/>
+
+### DropdownMenuNote
+
+<ApiTable
+  path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
+  name="DropdownMenuNoteProps"
 />
 
 ## Accessibility

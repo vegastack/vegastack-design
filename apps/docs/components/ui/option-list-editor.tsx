@@ -1,4 +1,4 @@
-// @vegastack option-list-editor@0.26.4 sha256-3ZRq80KDt1r7Rb/0mkZ7vbdqewdTmu4Cnr+QeHxm3Co=
+// @vegastack option-list-editor@0.26.4 sha256-Vpc2V8vfdBF8nHraaG5jwRtlnF7JAuPrLf4+oW1eNPk=
 
 "use client";
 
@@ -77,7 +77,7 @@ export interface OptionListEditorProps {
   maxLength?: number;
   /**
    * The editor sits inside a menu: typing in a name stays the field's own (the menu's arrow-key
-   * and type-ahead handling does not see it).
+   * and type-ahead handling does not see it), and it brings its own 280px width.
    * @default false
    */
   inMenu?: boolean;
@@ -122,7 +122,8 @@ export function OptionListEditor({
   return (
     <div
       data-slot="option-list-editor"
-      className={cn("flex flex-col gap-2", className)}
+      // In a menu it brings its own width (a sub-menu otherwise shrinks to the inputs' minimum).
+      className={cn("flex flex-col gap-2", inMenu && "w-70", className)}
     >
       <ul className="flex flex-col gap-2">
         {list.map((option, index) => {

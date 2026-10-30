@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.4 sha256-CB32eG2/rnubk75sHhuoVQZ/usbHR3H6gcfnhMkrpNM=
+// @vegastack filter-row@0.26.4 sha256-d5NNvGURllrL8WSfUml5mgiqiRVtKpm9GXOmRqtHShk=
 
 "use client";
 
@@ -680,6 +680,25 @@ export function FilterFacetReporter({
   );
 }
 
+/**
+ * The ✦ an AI filter leaves on a facet it set — the same mark as an AI `FilterChip`. `inline` sits
+ * in the trigger's own row; otherwise it overlays the trigger's start (`ListFacet`, whose trigger
+ * text is a string).
+ */
+function FacetAiMark({ inline = false }: { inline?: boolean }) {
+  return (
+    <Sparkles
+      aria-label="Added by AI"
+      data-slot="filter-facet-ai"
+      className={cn(
+        "size-3.5 shrink-0 text-muted-foreground",
+        !inline &&
+          "pointer-events-none absolute start-2 top-1/2 -translate-y-1/2",
+      )}
+    />
+  );
+}
+
 /* ------------------------------------------------------------------------------------------------
  * ListFacet
  * ----------------------------------------------------------------------------------------------*/
@@ -691,6 +710,12 @@ export interface ListFacetOwnProps<Item> {
    * a set one reads "{label}: {value}".
    */
   label: string;
+  /**
+   * Set by an AI filter: a ✦ leads the facet until the member changes it (the host clears it),
+   * as on an added `FilterChip`.
+   * @default false
+   */
+  ai?: boolean;
   /**
    * Renders one option. Not used with the person contract (`itemToSecondaryLabel` /
    * `itemToAvatar`), which draws avatar, name and email once; passing both warns in development.
@@ -787,6 +812,7 @@ export type ListFacetProps<
  */
 export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   label,
+  ai = false,
   renderItem,
   removable = false,
   onRemove,
@@ -858,6 +884,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
     <span
       data-slot="list-facet"
       data-state={hasValue ? "set" : "unset"}
+      data-source={ai ? "ai" : undefined}
       title={
         selectedList.length > 1
           ? selectedList.map(itemToStringLabel).join(", ")
@@ -916,10 +943,12 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
             hasValue
               ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
               : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
+            ai && "ps-7",
           )}
           contentClassName="min-w-56"
           data-slot="list-facet-select"
         />
+        {ai ? <FacetAiMark /> : null}
         {hasValue ? (
           // The × holds the chevron's exact box (24px, `end-0.5`), so nothing shifts when a
           // value is set; its 24px box is the whole hit area.
@@ -994,6 +1023,12 @@ export interface PeopleFacetProps<
   countLabel?: (n: number) => string;
   /** Disable the facet. @default false */
   disabled?: boolean;
+  /**
+   * Set by an AI filter: a ✦ leads the facet until the member changes it (the host clears it),
+   * as on an added `FilterChip`.
+   * @default false
+   */
+  ai?: boolean;
 }
 
 /**
@@ -1017,6 +1052,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
   clearLabel = `Clear ${label}`,
   countLabel,
   disabled = false,
+  ai = false,
   searchPlaceholder = `Search ${label.toLowerCase()}`,
   ...list
 }: PeopleFacetProps<Multiple>) {
@@ -1069,6 +1105,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
     <span
       data-slot="list-facet"
       data-state={hasValue ? "set" : "unset"}
+      data-source={ai ? "ai" : undefined}
       title={
         chosen.length > 1 ? chosen.map((o) => o.name).join(", ") : undefined
       }
@@ -1102,6 +1139,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
               />
             }
           >
+            {ai ? <FacetAiMark inline /> : null}
             <span className="min-w-0 truncate">{text}</span>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-72 gap-0 p-0">
@@ -1270,6 +1308,12 @@ export interface DateRangeFilterProps {
    * @default false
    */
   disabled?: boolean;
+  /**
+   * Set by an AI filter: a ✦ leads the facet until the member changes it (the host clears it),
+   * as on an added `FilterChip`.
+   * @default false
+   */
+  ai?: boolean;
 }
 
 const DATE_RANGE_PRESET_LABELS: Record<DateRangeFilterPreset, string> = {
@@ -1409,6 +1453,7 @@ export function DateRangeFilter({
   fromLabel = "From",
   untilLabel = "Until",
   disabled = false,
+  ai = false,
 }: DateRangeFilterProps) {
   const labels = { ...DATE_RANGE_PRESET_LABELS, ...presetLabels };
   const hasValue = value != null;
@@ -1470,6 +1515,7 @@ export function DateRangeFilter({
     <span
       data-slot="date-range-filter"
       data-state={hasValue ? "set" : "unset"}
+      data-source={ai ? "ai" : undefined}
       className="relative inline-flex min-w-0 shrink-0"
     >
       <Popover open={open} onOpenChange={openChange}>
@@ -1493,6 +1539,7 @@ export function DateRangeFilter({
             />
           }
         >
+          {ai ? <FacetAiMark inline /> : null}
           <span className="min-w-0 truncate">
             {valueText ? `${label}: ${valueText}` : label}
           </span>

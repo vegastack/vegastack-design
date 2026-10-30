@@ -1712,7 +1712,7 @@
         "whenToUse": "A menu that carries an input, a setting switch, or opens where the pointer was (a column header's field menu).",
         "whenNotToUse": "A form of several fields (a Popover or a Dialog with Field).",
         "version": "0.26.4",
-        "integrity": "sha256-ZOJ4LG4449ym+vAE5WZXx5w/JOK+hoEST7bwg3lk6hI="
+        "integrity": "sha256-BTNUTM96fvPmiUkWdZOFhdaf2ZEbsJTMHyAga+qjeDo="
       }
     },
     {
@@ -1746,7 +1746,7 @@
         "whenToUse": "Defining the options of a single- or multiple-choice field, in a panel or in a menu.",
         "whenNotToUse": "Choosing among existing options (SearchableSelect, ChipInput).",
         "version": "0.26.4",
-        "integrity": "sha256-3ZRq80KDt1r7Rb/0mkZ7vbdqewdTmu4Cnr+QeHxm3Co="
+        "integrity": "sha256-Vpc2V8vfdBF8nHraaG5jwRtlnF7JAuPrLf4+oW1eNPk="
       }
     },
     {
@@ -2012,7 +2012,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ListToolbar's Layout tool), or page sections (Tabs).",
         "version": "0.26.4",
-        "integrity": "sha256-RkgpnciSD8XOPN3tLrw4DP4lt161tIvnDofXiS2xsPM="
+        "integrity": "sha256-uWN9DzRTxTRepp4EA8oKGhzcwxqmtaXZ7w2coudgBmY="
       }
     },
     {
@@ -2114,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.26.4",
-        "integrity": "sha256-CB32eG2/rnubk75sHhuoVQZ/usbHR3H6gcfnhMkrpNM="
+        "integrity": "sha256-d5NNvGURllrL8WSfUml5mgiqiRVtKpm9GXOmRqtHShk="
       }
     },
     {
