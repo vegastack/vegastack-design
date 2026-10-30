@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.7 sha256-Pzkq/FBvrf7f4L8rXe6o68lEUH4HnmUG4ULCfY6wt/Y=
+// @vegastack filter-row@0.26.7 sha256-L4+J9FHGsYWXlfaqFUkCbvRTqXQem+5TopGWEJ+4bD8=
 
 "use client";
 
@@ -102,6 +102,8 @@ export interface FilterRowLabels {
   clear: string;
 }
 
+const NO_AI_FACETS: readonly string[] = [];
+
 const DEFAULT_LABELS: FilterRowLabels = {
   filters: "Filters",
   clear: "Clear",
@@ -144,6 +146,17 @@ export interface FilterRowProps extends Omit<
    * @default English
    */
   labels?: Partial<FilterRowLabels>;
+  /**
+   * The labels of the pinned facets the last AI filter run set: each leads with a ✦ (as an AI chip
+   * does) until the member changes it.
+   * @default []
+   */
+  aiFacets?: readonly string[];
+  /**
+   * Called with a facet's label when the member changes one in `aiFacets` — clear its ✦ there.
+   * @default undefined
+   */
+  onAiFacetEdit?: (label: string) => void;
 }
 
 /**
@@ -167,10 +180,16 @@ export function FilterRow({
   onClear,
   activeCount: activeCountProp,
   labels: labelsProp,
+  aiFacets = NO_AI_FACETS,
+  onAiFacetEdit,
   className,
   ref,
   ...props
 }: FilterRowProps) {
+  const aiValue = React.useMemo(
+    () => ({ facets: aiFacets, onFacetEdit: onAiFacetEdit }),
+    [aiFacets, onAiFacetEdit],
+  );
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const toolbar = useListToolbar();
 
@@ -275,49 +294,51 @@ export function FilterRow({
       {...props}
     >
       <FilterRowTallContext.Provider value={!toolbar?.compact}>
-        <FilterFacetReporter value={reporter}>
-          <div
-            ref={scrollRef}
-            data-slot="filter-row-scroll"
-            // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
-            // at its end, right after the last chip.
-            className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
-          >
-            {facets}
-            {chips.map((chip) => (
-              <FilterChip
-                key={chip.id}
-                data-filter-id={chip.id}
-                label={chip.label}
-                value={chip.value}
-                icon={chip.icon}
-                ai={chip.source === "ai"}
-                editor={chip.editor}
-                defaultEditorOpen={chip.defaultEditorOpen}
-                onRemove={chip.onRemove}
-              />
-            ))}
-            {addFilter != null ? (
-              <div
-                data-slot="filter-row-add"
-                className="flex shrink-0 items-center"
-              >
-                {addFilter}
-              </div>
-            ) : null}
-            {showClear ? (
-              <Button
-                variant="ghost"
-                size={toolbar?.compact ? "sm" : "default"}
-                data-slot="filter-row-clear"
-                className="shrink-0 font-normal text-muted-foreground"
-                onClick={clear}
-              >
-                {labels.clear}
-              </Button>
-            ) : null}
-          </div>
-        </FilterFacetReporter>
+        <FilterRowAiContext.Provider value={aiValue}>
+          <FilterFacetReporter value={reporter}>
+            <div
+              ref={scrollRef}
+              data-slot="filter-row-scroll"
+              // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
+              // at its end, right after the last chip.
+              className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
+            >
+              {facets}
+              {chips.map((chip) => (
+                <FilterChip
+                  key={chip.id}
+                  data-filter-id={chip.id}
+                  label={chip.label}
+                  value={chip.value}
+                  icon={chip.icon}
+                  ai={chip.source === "ai"}
+                  editor={chip.editor}
+                  defaultEditorOpen={chip.defaultEditorOpen}
+                  onRemove={chip.onRemove}
+                />
+              ))}
+              {addFilter != null ? (
+                <div
+                  data-slot="filter-row-add"
+                  className="flex shrink-0 items-center"
+                >
+                  {addFilter}
+                </div>
+              ) : null}
+              {showClear ? (
+                <Button
+                  variant="ghost"
+                  size={toolbar?.compact ? "sm" : "default"}
+                  data-slot="filter-row-clear"
+                  className="shrink-0 font-normal text-muted-foreground"
+                  onClick={clear}
+                >
+                  {labels.clear}
+                </Button>
+              ) : null}
+            </div>
+          </FilterFacetReporter>
+        </FilterRowAiContext.Provider>
       </FilterRowTallContext.Provider>
     </div>
   );
@@ -680,6 +701,31 @@ export function FilterFacetReporter({
   );
 }
 
+/** Which pinned facets the last AI filter run set, and how the row hears a member change one. */
+interface FilterRowAiValue {
+  facets: readonly string[];
+  onFacetEdit?: (label: string) => void;
+}
+const FilterRowAiContext = React.createContext<FilterRowAiValue | null>(null);
+
+/**
+ * A facet's AI state: `ai` from its own prop or from the row's `aiFacets` (by label), and the
+ * change handler wrapped so a member's change tells the row (`onFacetEdit`) — the ✦ then goes.
+ */
+function useFacetAi<A extends unknown[]>(
+  label: string,
+  aiProp: boolean,
+  onValueChange: ((...args: A) => void) | undefined,
+) {
+  const row = React.useContext(FilterRowAiContext);
+  const ai = aiProp || (row?.facets.includes(label) ?? false);
+  const change = (...args: A) => {
+    if (ai) row?.onFacetEdit?.(label);
+    onValueChange?.(...args);
+  };
+  return { ai, change };
+}
+
 /**
  * The ✦ an AI filter leaves on a facet it set — the same mark as an AI `FilterChip`. `inline` sits
  * in the trigger's own row; otherwise it overlays the trigger's start (`ListFacet`, whose trigger
@@ -812,7 +858,7 @@ export type ListFacetProps<
  */
 export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   label,
-  ai = false,
+  ai: aiProp = false,
   renderItem,
   removable = false,
   onRemove,
@@ -831,7 +877,12 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   ref,
   ...select
 }: ListFacetProps<Item, Multiple>) {
-  const { itemToStringLabel, itemToKey, onOpenChange, onValueChange } = select;
+  const { itemToStringLabel, itemToKey, onOpenChange } = select;
+  const { ai, change: onValueChange } = useFacetAi(
+    label,
+    aiProp,
+    select.onValueChange,
+  );
   const current = select.value as Item | Item[] | null | undefined;
   const selectedKeys = new Set(
     (Array.isArray(current) ? current : current ? [current] : []).map(
@@ -895,6 +946,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
       <span className="relative inline-flex min-w-0">
         <SearchableSelect<Item, Multiple>
           {...select}
+          onValueChange={onValueChange}
           ref={triggerRef}
           onOpenChange={(open) => {
             if (open) setPinnedKeys(selectedKeys);
@@ -1044,7 +1096,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
   label,
   multiple,
   value,
-  onValueChange,
+  onValueChange: onValueChangeProp,
   onOpenChange,
   removable = false,
   onRemove,
@@ -1052,10 +1104,15 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
   clearLabel = `Clear ${label}`,
   countLabel,
   disabled = false,
-  ai = false,
+  ai: aiProp = false,
   searchPlaceholder = `Search ${label.toLowerCase()}`,
   ...list
 }: PeopleFacetProps<Multiple>) {
+  const { ai, change: onValueChange } = useFacetAi(
+    label,
+    aiProp,
+    onValueChangeProp,
+  );
   const chosen: PeoplePickerOption[] = Array.isArray(value)
     ? value
     : value
@@ -1440,7 +1497,7 @@ function DateRangeOption({
 export function DateRangeFilter({
   label,
   value,
-  onValueChange,
+  onValueChange: onValueChangeProp,
   presets = DEFAULT_DATE_RANGE_PRESETS,
   presetLabels,
   now,
@@ -1453,8 +1510,13 @@ export function DateRangeFilter({
   fromLabel = "From",
   untilLabel = "Until",
   disabled = false,
-  ai = false,
+  ai: aiProp = false,
 }: DateRangeFilterProps) {
+  const { ai, change: onValueChange } = useFacetAi(
+    label,
+    aiProp,
+    onValueChangeProp,
+  );
   const labels = { ...DATE_RANGE_PRESET_LABELS, ...presetLabels };
   const hasValue = value != null;
   const row = React.useContext(FilterFacetContext);
