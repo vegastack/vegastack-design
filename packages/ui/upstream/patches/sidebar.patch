@@ -1,6 +1,10 @@
 # component: sidebar
-# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, LAY-13, LAY-16, OVL-16, VOI-1
+# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, INT-15, LAY-13, LAY-16, OVL-16, VOI-1
 # hunks:
+#   INT-15: in icon mode `SidebarGroupLabel` (faded and pulled up by `-mt-8`) takes
+#     `pointer-events-none`, so it never swallows a click on the item it overlaps; the rail's
+#     count pill and dot (`sidebar-menu-badge-rail`) take the header count's `bg-primary` /
+#     `text-primary-foreground` instead of the `sidebar-primary` accent (operator, 2026-10-30).
 #   API-33: `SidebarMenuAction showOnHover` writes `data-show-on-hover` explicitly (Base UI's
 #     state attribute is the lower-cased `data-showonhover`, which no selector matched — the
 #     30-09-2026 overlap), and `SidebarMenuBadge` yields its slot to it: from `md` up on a fine
@@ -93,7 +97,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..429516c 100644
+index cbcc413..2798585 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,224 @@
@@ -649,7 +653,7 @@ index cbcc413..429516c 100644
          className: cn(
 -          "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
 -          className
-+          "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 [&>svg]:size-4 [&>svg]:shrink-0",
++          "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 [&>svg]:size-4 [&>svg]:shrink-0",
 +          className,
          ),
        },
@@ -832,7 +836,7 @@ index cbcc413..429516c 100644
 +          data-badge-size={short ? "pill" : "dot"}
 +          aria-hidden="true"
 +          className={cn(
-+            "pointer-events-none absolute hidden items-center justify-center rounded-full bg-sidebar-primary text-xs font-medium text-sidebar-primary-foreground tabular-nums select-none group-data-[collapsible=icon]:flex",
++            "pointer-events-none absolute hidden items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground tabular-nums select-none group-data-[collapsible=icon]:flex",
 +            // Anchored to the 32px icon button at the item's start, inside the rail's clip.
 +            short
 +              ? "top-0 start-4 h-4 min-w-4 px-1 leading-4"

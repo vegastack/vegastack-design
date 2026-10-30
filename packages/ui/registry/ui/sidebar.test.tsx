@@ -1209,6 +1209,50 @@ test("group-data-[collapsible=icon] hides what icon mode cannot show (Styling)",
   expect(getComputedStyle(always!).display).toBe("flex");
 });
 
+test("icon mode: every icon takes its own click — a group label never covers the item above (INT-15)", async () => {
+  const onWork = vi.fn();
+  const screen = await render(
+    <SidebarProvider defaultOpen={false}>
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Home">
+                  <Home />
+                  <span>Home</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Work</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Inbox" onClick={onWork}>
+                  <Inbox />
+                  <span>Inbox</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>,
+  );
+  const label = slot(screen.container, "sidebar-group-label") as HTMLElement;
+  expect(getComputedStyle(label).pointerEvents).toBe("none");
+  // Every button's centre hits that button, nothing laid over it.
+  for (const button of allSlots(screen.container, "sidebar-menu-button")) {
+    const box = button!.getBoundingClientRect();
+    const hit = document.elementFromPoint(
+      box.left + box.width / 2,
+      box.top + box.height / 2,
+    );
+    expect(button!.contains(hit)).toBe(true);
+  }
+});
+
 /**
  * Upstream's Styling section documents `peer-data-[active=true]/menu-button:opacity-100` for
  * pinning a hover-revealed action on the active row. That literal does not work on this build, for
