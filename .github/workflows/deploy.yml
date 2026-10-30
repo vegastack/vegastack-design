@@ -183,7 +183,7 @@ jobs:
         run: node tooling/trusted-tool.mjs cosign
       - name: Enable corepack
         run: corepack enable
-      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store-trusted
+      - run: tooling/runner/pnpm-install.sh --frozen-lockfile --store-dir /pnpm-store-trusted
       - name: Reuse the docs build cache (Turbopack, twoslash types) across deploys
         run: mkdir -p apps/docs/.next && ln -sfn /docs-cache apps/docs/.next/cache
       # Workspace packages + docs static export, with the docs' metadata, export and emitted-CSS
