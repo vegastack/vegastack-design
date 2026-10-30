@@ -1460,7 +1460,8 @@
         "@vegastack/use-grid-selection",
         "@vegastack/checkbox",
         "@vegastack/empty",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/floating-cell-editor"
       ],
       "files": [
         {
@@ -1472,6 +1473,89 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
+        "version": "0.25.105"
+      }
+    },
+    {
+      "name": "floating-cell-editor",
+      "type": "registry:ui",
+      "title": "Floating Cell Editor",
+      "description": "A cell's editor that opens over the cell instead of inside it — anchored at the cell's rect, a little wider and taller than it, with a lock layer that takes presses and scroll behind it while pinch-zoom still passes.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": ["@vegastack/popover"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/floating-cell-editor.tsx",
+          "type": "registry:ui",
+          "target": "@ui/floating-cell-editor.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An editor too big for its cell (a long text, a picker, a date) that should open over the cell and keep the cell's own face visible; DataGrid uses it for `editing=\"floating\"`.",
+        "whenNotToUse": "A pop-up that is not tied to a cell (Popover), or an editor that fits the cell (EditableCell inline).",
+        "version": "0.25.105"
+      }
+    },
+    {
+      "name": "dropdown-menu-form",
+      "type": "registry:ui",
+      "title": "Dropdown Menu Form",
+      "description": "The parts a DropdownMenu needs to hold a small form — a text input that keeps its keys, a switch row with a hint, and a menu that opens at a point instead of under a trigger.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/input",
+        "@vegastack/switch"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "type": "registry:ui",
+          "target": "@ui/dropdown-menu-form.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A menu that carries an input, a setting switch, or opens where the pointer was (a column header's field menu).",
+        "whenNotToUse": "A form of several fields (a Popover or a Dialog with Field).",
+        "version": "0.25.105"
+      }
+    },
+    {
+      "name": "option-list-editor",
+      "type": "registry:ui",
+      "title": "Option List Editor",
+      "description": "Edits a choice field's options as rows — a hue, a name, remove, and add — holding no state of its own, with a change per keystroke and a commit when an edit is done.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chip",
+        "@vegastack/color-picker",
+        "@vegastack/dropdown-menu-form",
+        "@vegastack/input"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/option-list-editor.tsx",
+          "type": "registry:ui",
+          "target": "@ui/option-list-editor.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Defining the options of a single- or multiple-choice field, in a panel or in a menu.",
+        "whenNotToUse": "Choosing among existing options (SearchableSelect, ChipInput).",
         "version": "0.25.105"
       }
     },
@@ -2587,6 +2671,7 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/text-edit-grammar",
+        "@vegastack/textarea",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",

@@ -193,6 +193,23 @@ at exactly the width every other list has, while the grid beside it fills.
   file="components/preview/app-shell.tsx"
 />
 
+### Bleed
+
+`AppShellBleed` is a region of the page that reaches the page's side edges and bottom, past the page
+gutter: a grid under the `PageHeader` whose scroll bars should rest at the edge of the page's
+region instead of floating inside the gutter. It owns the three negative margins, so no wrapper
+carries a gutter class of its own. Put it directly inside the page, after the header; `active={false}`
+keeps the gutter (a grid that lays out as cards on a phone).
+
+```tsx
+<AppShellPage size="full">
+  <PageHeader title="Schedule" />
+  <AppShellBleed>
+    <DataGrid fill … />
+  </AppShellBleed>
+</AppShellPage>
+```
+
 ### Header tools by width
 
 `AppShellHeader` is an inline-size container named `app-shell-header`, so tools in it compact by
@@ -487,6 +504,13 @@ Each entry of `actions` and `menu` is an `AppShellHeaderAction`:
 <ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellPageProps"
+/>
+
+### AppShellBleed
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellBleedProps"
 />
 
 ### AppShellSection

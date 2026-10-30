@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9bc284b559c833807547ab257b7e58906db8b30ccd4a8ca98c2d8f94d2a5749c",
+  "contractSha256": "5b427c39e1fd1ba54fe4cce2c23c2f6c9d5d927e73b2fd75ac55a9e4dcaba76c",
   "expectedCounts": {
-    "totalRegistryItems": 782,
-    "components": 192,
+    "totalRegistryItems": 785,
+    "components": 195,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -2136,6 +2136,39 @@
         "packages/ui/registry/ui/sidebar-menu-flyout.tsx"
       ],
       "docsSlug": "/docs/components/sidebar-menu-flyout",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "floating-cell-editor",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/floating-cell-editor.tsx"
+      ],
+      "docsSlug": "/docs/components/floating-cell-editor",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "dropdown-menu-form",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/dropdown-menu-form.tsx"
+      ],
+      "docsSlug": "/docs/components/dropdown-menu-form",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "option-list-editor",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/option-list-editor.tsx"
+      ],
+      "docsSlug": "/docs/components/option-list-editor",
       "contractStatus": "reconciled"
     },
     {

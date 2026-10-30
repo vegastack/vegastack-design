@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.105 sha256-NP2THf79bxEYWju+GAaNOTU/2NRxNNWCuNAnadrq180=
+// @vegastack data-grid@0.25.105 sha256-k8E6s2bSm6iHbzbdTKSxmHPwDuJ+QuANSQbW4J+wKGk=
 
 "use client";
 
@@ -92,6 +92,10 @@ import {
   type LoadMoreProps,
   type LoadMoreState,
 } from "@/components/ui/load-more";
+import {
+  FloatingCellEditor,
+  type FloatingCellEditorSize,
+} from "@/components/ui/floating-cell-editor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnnouncerScope, useAnnouncer } from "@/components/ui/use-announcer";
 import {
@@ -260,6 +264,20 @@ export type DataGridEditor<T> =
           row: T;
         },
       ) => React.ReactNode;
+      /**
+       * With the grid's `editing="floating"`: how this editor floats over its cell.
+       * @default undefined — `{ size: "cell" }`, the editor saves when focus leaves it
+       */
+      floating?: {
+        /** How wide it is at least (`floatingCellEditorSize` maps a field type to one). */
+        size?: FloatingCellEditorSize;
+        /**
+         * A press outside cancels the edit — for an editor that saves when something is chosen
+         * (a picker, a file list). Leave it off for one that saves a typed draft when focus
+         * leaves it.
+         */
+        dismissOnPress?: boolean;
+      };
     };
 
 /** A column definition. */
@@ -291,6 +309,13 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * @default undefined
    */
   accessor?: (row: T) => unknown;
+  /**
+   * Where the header's content sits, apart from the values: a numeric column's figures and
+   * footer stay end-aligned while its header starts at the start, so every header leads the same
+   * way — icon, name, sort arrow, menu chevron, in that order from the start.
+   * @default undefined — the column's `align`
+   */
+  headerAlign?: "start" | "center" | "end";
   /**
    * Header click sorts by this column; shift-click adds it as a secondary key.
    * @default false
@@ -690,6 +715,52 @@ export interface DataGridProps<T> {
    */
   maxHeight?: string;
   /**
+   * Fill the room below the grid: the viewport is as tall as the distance from its top edge to the
+   * bottom of its nearest vertically scrolling ancestor (less anything the grid draws under it),
+   * so its scroll bar rests at the bottom of the window even when the rows are few. It follows
+   * the window, the scroller, and anything above the grid that comes, goes or resizes (a banner,
+   * a wrapped toolbar). At least 240px. A `maxHeight` of its own wins over it. Pair it with
+   * `AppShellBleed` for a grid that reaches the page's edges.
+   * @default false
+   */
+  fill?: boolean;
+  /**
+   * How an editing cell appears. `inline` — the editor replaces the cell's content. `floating` —
+   * the cell keeps drawing its resting display and a `custom` editor opens over it
+   * (`FloatingCellEditor`): anchored at the cell, reaching 2px past it, at least as tall as the
+   * cell and as wide as the column's `editable.floating.size`, with the page locked behind it (a
+   * press outside closes it; pinch-zoom still works). The built-in `text`, `number`, `date` and
+   * `select` editors stay inline.
+   * @default "inline"
+   */
+  editing?: "inline" | "floating";
+  /**
+   * An empty band after the last row (and the load-more row), so the last rows can scroll clear of
+   * anything floating at the bottom of the viewport. `true` is 180px; a number sets the pixels.
+   * Needs a bounded viewport (`maxHeight` or `fill`).
+   * @default false
+   */
+  endSpacer?: boolean | number;
+  /**
+   * A 1px line at the end of every column, including the frozen ones — a frozen cell's own border
+   * would hide under its sticky background once the grid scrolls, so those draw the line over it
+   * — and under the last frozen column's header, the only header with one.
+   * @default false
+   */
+  columnDividers?: boolean;
+  /**
+   * Fill the cell being edited with the `accent` tint, so an editor floating over it (or an
+   * inline one) reads as the cell's own.
+   * @default false
+   */
+  editingTint?: boolean;
+  /**
+   * `start` — every column's header starts at the start, whatever its `align` (a column's own
+   * `headerAlign` still wins). The values and the summary row stay where `align` puts them.
+   * @default "column" — each column's `headerAlign`, else its `align`
+   */
+  headerAlign?: "column" | "start";
+  /**
    * The TRUE row count, header (and summary) rows included, when only some rows are loaded
    * (`aria-rowcount`). Omit to count the rendered rows (or `-1` while more load).
    * @default undefined
@@ -1040,6 +1111,10 @@ interface PlacedColumn<T> {
   dataIndex: number;
   /** Every body cell's class string, computed once. */
   cellClass: string;
+  /** `columnDividers`: the last frozen column's header draws the frozen divider. */
+  dividers: boolean;
+  /** `editing="floating"`: a `custom` editor floats over the cell. */
+  floating: boolean;
 }
 
 /** The column window every row renders against — one memoised object. */
@@ -1175,6 +1250,79 @@ const FROZEN_CELL_CLASS =
 // cell's own shadow is painted outside its box, where the clip does not reach.
 const FROZEN_EDGE_CLASS =
   "in-data-scrolled-x:shadow-[6px_0_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)] rtl:in-data-scrolled-x:shadow-[-6px_0_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]";
+
+/** `columnDividers`: a column's end line. */
+const DIVIDER_CLASS = "border-e border-border";
+/**
+ * `columnDividers` on a frozen cell (and the last frozen header): a 1px line laid over the sticky
+ * background, since the cell's own border would hide under it once the grid scrolls.
+ */
+const FROZEN_DIVIDER_CLASS =
+  "after:absolute after:inset-y-0 after:end-0 after:w-px after:bg-border after:content-['']";
+/** `editingTint`: the cell being edited. */
+const EDITING_TINT_CLASS = "data-editing:bg-accent";
+/** `endSpacer={true}`: the band after the last row. */
+const END_SPACER_PX = 180;
+/** `fill`: the least room a grid is given, however little the window leaves it. */
+const FILL_MIN_HEIGHT = 240;
+/** `fill`, before the grid is measured (a server render): a viewport that is never zero. */
+const FILL_FALLBACK_HEIGHT = "calc(100dvh - 16rem)";
+
+/** The nearest ancestor that scrolls vertically (the page's main region), or `null`. */
+function scrollParent(node: HTMLElement): HTMLElement | null {
+  for (let el = node.parentElement; el; el = el.parentElement)
+    if (/(auto|scroll)/.test(getComputedStyle(el).overflowY)) return el;
+  return null;
+}
+
+/**
+ * The height, in pixels, a grid's viewport has to fill so its scroll bar rests at the bottom of
+ * its scroll region: from the viewport's top edge to the bottom of the nearest scrolling ancestor
+ * (the window when none), less what the grid draws under the viewport. Measured inside the scroll
+ * region's content, so scrolling the page never changes it; it follows the window, the scroller and
+ * whatever sits above the grid. `null` until measured, or when `enabled` is false.
+ */
+function useFillHeight(
+  viewport: HTMLElement | null,
+  root: HTMLElement | null,
+  enabled: boolean,
+): number | null {
+  const [height, setHeight] = React.useState<number | null>(null);
+  React.useLayoutEffect(() => {
+    if (!viewport || !root || !enabled) return;
+    const scroller = scrollParent(viewport);
+    const measure = () => {
+      const top = viewport.getBoundingClientRect().top;
+      const below =
+        root.getBoundingClientRect().bottom -
+        viewport.getBoundingClientRect().bottom;
+      const room = scroller
+        ? scroller.clientHeight -
+          (top - scroller.getBoundingClientRect().top + scroller.scrollTop)
+        : window.innerHeight - (top + window.scrollY);
+      setHeight(Math.max(FILL_MIN_HEIGHT, Math.round(room - below)));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (scroller) observer.observe(scroller);
+    observer.observe(root);
+    // What sits above the grid, through the wrappers that draw no box of their own: its column
+    // grows or shrinks when a banner comes or goes.
+    let anchor: Element = root;
+    while (
+      anchor.parentElement &&
+      getComputedStyle(anchor.parentElement).display === "contents"
+    )
+      anchor = anchor.parentElement;
+    if (anchor.parentElement) observer.observe(anchor.parentElement);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [viewport, root, enabled]);
+  return enabled ? height : null;
+}
 
 function stickyStyle(
   offset: number | undefined,
@@ -1335,6 +1483,34 @@ function GridCellImpl<T>({
           <span className="min-w-0 truncate">{shown}</span>
         )
     : undefined;
+  // Floating editing: the cell keeps its resting display and the `custom` editor opens over it.
+  const floating =
+    placed.floating && editable?.type === "custom"
+      ? (editable.floating ?? {})
+      : null;
+  const shownEditor: EditableCellEditor | undefined =
+    floating && editor?.type === "custom"
+      ? {
+          type: "custom",
+          render: (props) => (
+            <FloatingCellEditor
+              size={floating.size}
+              onDismiss={floating.dismissOnPress ? props.cancel : undefined}
+              face={
+                <EditableCellRest
+                  value={persisted}
+                  label={placed.label}
+                  emptyText={untitledLabel ?? ""}
+                  renderValue={renderValue}
+                  onStartEditing={() => {}}
+                />
+              }
+            >
+              {editor.render(props)}
+            </FloatingCellEditor>
+          ),
+        }
+      : editor;
   // A `custom` editor's cell rests as `EditableCellRest` (no state machine, no effects): the
   // grid mounts dozens per scroll tick. It becomes the full `EditableCell` when it edits or the
   // host reports a save status, and stays one while mounted, so a save in flight keeps its
@@ -1399,7 +1575,7 @@ function GridCellImpl<T>({
     <EditableCell
       value={persisted}
       label={placed.label}
-      editor={editor}
+      editor={shownEditor ?? editor}
       renderValue={renderValue}
       emptyText={untitledLabel ?? ""}
       focusMode="managed"
@@ -1525,11 +1701,13 @@ function GridCellImpl<T>({
       ) : null}
       {remote ? <RemoteCue remote={remote} /> : null}
       {fillHandle ? (
-        // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area.
+        // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area. Under a frozen
+        // cell (`sticky z-10`): a cell scrolled beneath a frozen column must not draw its handle
+        // over it.
         <span
           aria-hidden
           data-slot="data-grid-fill-handle"
-          className="absolute end-0 bottom-0 z-10 size-2 cursor-ns-resize touch-none rounded-[1px] bg-info before:absolute before:-inset-2 before:content-['']"
+          className="absolute end-0 bottom-0 z-1 size-2 cursor-ns-resize touch-none rounded-[1px] bg-info before:absolute before:-inset-2 before:content-['']"
           onPointerDown={(event) => {
             event.stopPropagation();
             event.preventDefault();
@@ -1804,7 +1982,8 @@ function GridHeadCellImpl<T>({
   const api = useGridApi();
   const { column, key } = p;
   const sortable = column.sortable === true && !sortLocked;
-  const align = columnAlign(column);
+  // The header's own alignment: the values' (`align`) unless the column leads its header apart.
+  const align = column.headerAlign ?? columnAlign(column);
   const [menuArmed, setMenuArmed] = React.useState(false);
   const menuLive = menuArmed || menuOpen || tabStop;
   // Synchronously, so the real trigger is in place before the press that follows.
@@ -1983,6 +2162,7 @@ function GridHeadCellImpl<T>({
               headerCellClass({ ...column, align }, { fill: p.primary }),
               (sortable || column.headerMenu) && "group/sort-head px-0.5",
             ),
+        p.dividers && p.edge && FROZEN_DIVIDER_CLASS,
         "focus-visible:-outline-offset-2",
       )}
       style={stickyStyle(p.offset)}
@@ -2952,6 +3132,12 @@ export function DataGrid<T>({
   pagedMode,
   virtualize: virtualizeProp = false,
   maxHeight: maxHeightProp,
+  fill = false,
+  endSpacer = false,
+  columnDividers = false,
+  editingTint = false,
+  editing: editingMode = "inline",
+  headerAlign: gridHeaderAlign = "column",
   ariaRowCount,
   ariaColCount,
   ariaRowIndexOffset = 0,
@@ -2991,7 +3177,6 @@ export function DataGrid<T>({
   // choice to its block header; a read-only grid drops every write path at the door.
   const columnPicker = columnPickerProp ?? !embedded;
   const virtualize = virtualizeProp && !embedded;
-  const maxHeight = embedded ? undefined : maxHeightProp;
   const headerTrailing = readOnly ? undefined : headerTrailingProp;
   const onCellCommit = readOnly ? undefined : onCellCommitProp;
   const onCellsCommit = readOnly ? undefined : onCellsCommitProp;
@@ -3008,11 +3193,13 @@ export function DataGrid<T>({
         let next = column;
         if (next.numeric && next.align === undefined)
           next = { ...next, align: "end" as const };
+        if (gridHeaderAlign === "start" && next.headerAlign === undefined)
+          next = { ...next, headerAlign: "start" as const };
         if (readOnly && (next.editable != null || next.parse != null))
           next = { ...next, editable: undefined, parse: undefined };
         return next;
       }),
-    [declaredColumns, readOnly],
+    [declaredColumns, readOnly, gridHeaderAlign],
   );
   // ---- controlled-optional state (the shared house idiom) ------------------
   const [activeSort, commitSort] = useControlledState<DataGridSort[]>(
@@ -3035,8 +3222,9 @@ export function DataGrid<T>({
   // ---- the root: the selection bar centres over it, and its width picks the phone layout ----
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const [measureRoot, rootWidth] = useContainerWidth();
+  const [root, setRootState] = React.useState<HTMLElement | null>(null);
   const setRoot = React.useMemo(
-    () => mergeRefs(ref, rootRef, measureRoot),
+    () => mergeRefs(ref, rootRef, measureRoot, setRootState),
     [ref, measureRoot],
   );
   const cardMode =
@@ -3054,6 +3242,23 @@ export function DataGrid<T>({
     },
     [measureRef],
   );
+
+  // `fill` is a `maxHeight` the grid measures; the host's own wins, and an embedded block sizes to
+  // its rows.
+  const filledHeight = useFillHeight(
+    viewport,
+    root,
+    fill && !embedded && maxHeightProp == null,
+  );
+  const maxHeight = embedded
+    ? undefined
+    : (maxHeightProp ??
+      (fill
+        ? filledHeight != null
+          ? `${filledHeight}px`
+          : FILL_FALLBACK_HEIGHT
+        : undefined));
+  const endSpacerPx = endSpacer === true ? END_SPACER_PX : endSpacer || 0;
 
   // ---- columns: order, layout, widths ---------------------------------------
   const ordered = React.useMemo(() => {
@@ -3145,6 +3350,8 @@ export function DataGrid<T>({
         primary,
         ariaColIndex,
         dataIndex: index,
+        dividers: columnDividers,
+        floating: editingMode === "floating",
         cellClass: fixed
           ? cn(
               CELL_BASE_CLASS,
@@ -3158,6 +3365,8 @@ export function DataGrid<T>({
               column.numeric && "tabular-nums",
               frozen && FROZEN_CELL_CLASS,
               "focus-visible:-outline-offset-2",
+              columnDividers && (frozen ? FROZEN_DIVIDER_CLASS : DIVIDER_CLASS),
+              editingTint && EDITING_TINT_CLASS,
             )
           : cn(
               CELL_BASE_CLASS,
@@ -3165,6 +3374,8 @@ export function DataGrid<T>({
               // The roving cell lives inside the scroll viewport, which clips its overflow — an
               // outward focus outline would be cut off, so it is pulled inside (SP-03).
               "focus-visible:-outline-offset-2",
+              columnDividers && (frozen ? FROZEN_DIVIDER_CLASS : DIVIDER_CLASS),
+              editingTint && EDITING_TINT_CLASS,
             ),
       });
       if (frozen) offset += width;
@@ -3179,7 +3390,17 @@ export function DataGrid<T>({
       };
     }
     return out;
-  }, [visibleColumns, ordered, widthOverrides, fixed, selectable, rowHeight]);
+  }, [
+    visibleColumns,
+    ordered,
+    widthOverrides,
+    fixed,
+    selectable,
+    rowHeight,
+    columnDividers,
+    editingTint,
+    editingMode,
+  ]);
 
   const frozenPlaced = React.useMemo(
     () => placed.filter((p) => p.offset != null),
@@ -5094,6 +5315,10 @@ export function DataGrid<T>({
       // the page (vertical pans still reach it).
       "relative overflow-auto overscroll-x-contain",
       maxHeight != null && "max-h-[calc(var(--data-grid-max-height))]",
+      // Filling: as tall as the room, however few the rows.
+      fill && maxHeight != null && "min-h-[calc(var(--data-grid-max-height))]",
+      endSpacerPx > 0 &&
+        "after:block after:h-(--data-grid-end-spacer) after:content-['']",
     ),
     // Native focus scrolling keeps the focused cell clear of the sticky header, the summary row
     // and the frozen columns.
@@ -5128,8 +5353,12 @@ export function DataGrid<T>({
         )}
         // Viewport height flows through a custom property (contract-clean).
         style={
-          maxHeight
-            ? ({ ["--data-grid-max-height"]: maxHeight } as React.CSSProperties)
+          maxHeight || endSpacerPx > 0
+            ? ({
+                ["--data-grid-max-height"]: maxHeight,
+                ["--data-grid-end-spacer"]:
+                  endSpacerPx > 0 ? `${endSpacerPx}px` : undefined,
+              } as React.CSSProperties)
             : undefined
         }
       >

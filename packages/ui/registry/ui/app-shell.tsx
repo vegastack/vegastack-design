@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.25.105 sha256-j5ZA8Jy2r1L09+0A6rcX6B0f6InuspKfOV7+PCoXiP8=
+// @vegastack app-shell@0.25.105 sha256-fEHVRTxbFMsAi3bcxWI36XUuPP4RAivCSHNDmeCYQBw=
 
 "use client";
 
@@ -1032,6 +1032,50 @@ export function AppShellPage({
       data-slot="app-shell-page"
       data-size={width}
       className={cn(appShellPageVariants({ size: width }), className)}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `AppShellBleed`. */
+export interface AppShellBleedProps extends React.ComponentProps<"div"> {
+  /**
+   * Whether the content reaches the page's edges. Off, it keeps the page gutter (a grid that
+   * lays out as cards on a phone has no scroll bars to rest at the edge).
+   * @default true
+   */
+  active?: boolean;
+}
+
+/**
+ * `AppShellBleed` — a region of an `AppShellPage` that reaches the page's side edges and its
+ * bottom, past the page gutter: a grid or canvas under the `PageHeader` whose scroll bars should
+ * rest at the edge of the page's region instead of floating inside the gutter. It owns the three
+ * negative margins, so no wrapper carries a gutter class of its own. Put it directly inside the
+ * page, after the header; pair a `DataGrid` in it with `fill`.
+ *
+ * @example
+ * <AppShellPage size="full">
+ *   <PageHeader title="Schedule" />
+ *   <AppShellBleed>
+ *     <DataGrid fill columns={columns} data={rows} getRowId={(r) => r.id} />
+ *   </AppShellBleed>
+ * </AppShellPage>
+ */
+export function AppShellBleed({
+  active = true,
+  className,
+  ...props
+}: AppShellBleedProps) {
+  return (
+    <div
+      data-slot="app-shell-bleed"
+      data-active={active ? "true" : "false"}
+      className={cn(
+        "flex min-h-0 min-w-0 flex-col",
+        active && "-mx-(--page-gutter) -mb-(--page-gutter)",
+        className,
+      )}
       {...props}
     />
   );

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9bc284b559c833807547ab257b7e58906db8b30ccd4a8ca98c2d8f94d2a5749c",
+  "contractSha256": "5b427c39e1fd1ba54fe4cce2c23c2f6c9d5d927e73b2fd75ac55a9e4dcaba76c",
   "inventory": {
-    "expected": 782,
-    "actual": 782,
-    "unique": 782
+    "expected": 785,
+    "actual": 785,
+    "unique": 785
   },
   "classes": {
-    "components": 192,
+    "components": 195,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -47,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 41,
-      "actual": 41,
+      "expected": 42,
+      "actual": 42,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -74,6 +74,7 @@
         "input-otp",
         "native-select",
         "number-field",
+        "option-list-editor",
         "password-input",
         "people-picker",
         "record-chip",
@@ -126,8 +127,8 @@
       ]
     },
     "Overlays": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 24,
+      "actual": 24,
       "members": [
         "access-chip",
         "action-bar",
@@ -137,6 +138,7 @@
         "dialog",
         "drawer",
         "dropdown-menu",
+        "dropdown-menu-form",
         "emoji-picker",
         "file-viewer",
         "hover-card",
@@ -155,8 +157,8 @@
       ]
     },
     "Data display": {
-      "expected": 45,
-      "actual": 45,
+      "expected": 46,
+      "actual": 46,
       "members": [
         "activity-feed",
         "add-filter-menu",
@@ -177,6 +179,7 @@
         "entry-list",
         "file-card",
         "filter-row",
+        "floating-cell-editor",
         "icon-glyph",
         "inbox",
         "level-meter",
@@ -843,7 +846,7 @@
       ]
     }
   },
-  "componentRoutes": 186,
+  "componentRoutes": 189,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

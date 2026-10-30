@@ -578,10 +578,10 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 41,
+  "Forms/editing": 42,
   "Navigation/layout": 26,
-  Overlays: 23,
-  "Data display": 45,
+  Overlays: 24,
+  "Data display": 46,
   "Content/marketing": 15,
   "AI/chat": 12,
   // Not a browse group: components other components install, with no page of their own. See
@@ -676,6 +676,7 @@ const expectedComponentWaveMembers = {
     "destination-picker",
     "field-type-picker",
     "field-type-link-step",
+    "option-list-editor",
   ],
   "Navigation/layout": [
     "accordion",
@@ -729,6 +730,7 @@ const expectedComponentWaveMembers = {
     "shortcut-overlay",
     "toast",
     "tooltip",
+    "dropdown-menu-form",
   ],
   "Data display": [
     "activity-feed",
@@ -776,6 +778,7 @@ const expectedComponentWaveMembers = {
     "level-meter",
     "mermaid-block",
     "qr-code",
+    "floating-cell-editor",
   ],
   "Content/marketing": [
     "alert",

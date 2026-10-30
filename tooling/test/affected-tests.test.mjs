@@ -92,6 +92,8 @@ describe("affected component closure", () => {
       "field-cell",
       "file-card",
       "file-viewer",
+      // floating-cell-editor's preview edits a text value in a FieldCellEditor.
+      "floating-cell-editor",
       // inline-chip's preview renders mentions through a MarkdownView.
       "inline-chip",
       "issue-detail-01",

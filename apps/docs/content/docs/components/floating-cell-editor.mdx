@@ -1,0 +1,93 @@
+---
+title: Floating Cell Editor
+description: A grid cell's editor that opens over the cell instead of inside it, with the cell's own face still showing and the page locked behind.
+audience: public
+registry: floating-cell-editor
+status: stable
+since: 0.25.106
+a11y: the editor owns focus; Escape and a press outside close it
+preview: floatingCellEditor
+---
+
+## Install
+
+<InstallSteps name="floating-cell-editor" />
+
+## Usage
+
+```tsx
+import { FloatingCellEditor } from "@/components/ui/floating-cell-editor";
+
+<td>
+  <FloatingCellEditor
+    face={<FieldCellDisplay variant="cell" type="text" value={value} />}
+    size="text"
+  >
+    <FieldCellEditor
+      variant="cell"
+      type="text"
+      label="Name"
+      value={value}
+      onCommit={save}
+      onCancel={close}
+    />
+  </FloatingCellEditor>
+</td>;
+```
+
+An editor that fits its cell stays inline. One that needs more room — a long text, a picker, a date —
+opens over the cell instead: anchored at the cell's rectangle, reaching 2px past it on every side, at
+least as tall as the cell and as wide as `size` says (never over 480px). The cell keeps drawing its
+resting `face` underneath, so the grid does not jump.
+
+A `DataGrid` with `editing="floating"` does this for its `custom` editors; use the component alone
+for an editor that lives outside a grid's slots (a file dialog opened from a cell).
+
+## Scope
+
+- It anchors to the nearest `data-slot="data-grid-cell"`, `td` or `role="gridcell"` around it, and
+  follows that cell when the window resizes.
+- A full-window layer takes presses and scroll behind the editor. Pinch-zoom always passes
+  (ctrl+wheel, two-finger touch, panning while zoomed in), and a press within 350ms of opening is
+  ignored so the click that opened it cannot close it.
+- It does not commit or cancel: the editor inside does. `onDismiss` is for an editor that has no
+  commit of its own on leaving (a picker that saves when something is chosen).
+
+## Examples
+
+### Over a cell
+
+<ComponentPreview
+  name="floatingCellEditor"
+  file="components/preview/floating-cell-editor.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/floating-cell-editor.tsx"
+  name="FloatingCellEditorProps"
+/>
+
+`floatingCellEditorSize(type)` maps a `FieldType` to a `size`: text-like types and people `text`, long text,
+date-time and file types `wide`, choices, dates and links `picker`, everything else `cell`.
+
+## Accessibility
+
+- The editor takes its own focus; the surface is not a dialog and adds no role, so the cell's
+  `gridcell` reads as before.
+- The lock layer is `aria-hidden` and has no focus stop.
+
+| Key            | Action                                 |
+| -------------- | -------------------------------------- |
+| <kbd>Esc</kbd> | Closes through the editor's own cancel |
+| <kbd>Tab</kbd> | Leaves through the editor's own commit |
+
+<StatesTested name="floating-cell-editor" />
+
+## Do / Don't
+
+<DoDont
+  do="Put it inside the cell it edits and let the editor inside commit and cancel itself."
+  dont="Use it for a pop-up that is not tied to a cell; that is a Popover."
+/>

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 782,
-    "components": 192,
+    "totalRegistryItems": 785,
+    "components": 195,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -22,10 +22,10 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 41,
+    "Forms/editing": 42,
     "Navigation/layout": 26,
-    "Overlays": 23,
-    "Data display": 45,
+    "Overlays": 24,
+    "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 12,
@@ -101,7 +101,8 @@
       "record-picker",
       "destination-picker",
       "field-type-picker",
-      "field-type-link-step"
+      "field-type-link-step",
+      "option-list-editor"
     ],
     "Navigation/layout": [
       "accordion",
@@ -154,7 +155,8 @@
       "icon-picker",
       "info-hint",
       "record-peek",
-      "command-search"
+      "command-search",
+      "dropdown-menu-form"
     ],
     "Data display": [
       "activity-feed",
@@ -201,7 +203,8 @@
       "filter-row",
       "add-filter-menu",
       "sort-menu",
-      "display-menu"
+      "display-menu",
+      "floating-cell-editor"
     ],
     "Content/marketing": [
       "alert",
@@ -1494,6 +1497,25 @@
           }
         },
         {
+          "name": "AppShellBleed",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellBleedProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "AppShellContent",
           "kind": "component",
           "source": "packages/ui/registry/ui/app-shell.tsx",
@@ -1973,6 +1995,19 @@
             {
               "name": "data-slot",
               "values": ["app-shell-page"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellBleed": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": ["false", "true"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["app-shell-bleed"]
             }
           ],
           "cssVariables": []
@@ -8216,7 +8251,8 @@
         "@vegastack/use-grid-selection",
         "@vegastack/checkbox",
         "@vegastack/empty",
-        "@vegastack/action-bar"
+        "@vegastack/action-bar",
+        "@vegastack/floating-cell-editor"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -14123,6 +14159,42 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "FIELD_TYPE_LABELS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "FIELD_TYPE_ICONS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "FieldTypeIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders its control or display; it forwards no ref."
+          }
+        },
+        {
+          "name": "FieldTypeIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -14212,6 +14284,7 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/text-edit-grammar",
+        "@vegastack/textarea",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
@@ -14233,6 +14306,19 @@
       },
       "previewModule": "field-cell",
       "dataAttributes": {
+        "FieldTypeIcon": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-type-icon"]
+            },
+            {
+              "name": "data-type",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
         "FieldChoiceBadge": {
           "attributes": [
             {
@@ -14250,6 +14336,10 @@
             },
             {
               "name": "data-type",
+              "values": []
+            },
+            {
+              "name": "data-variant",
               "values": []
             }
           ],
@@ -14272,6 +14362,10 @@
             },
             {
               "name": "data-type",
+              "values": []
+            },
+            {
+              "name": "data-variant",
               "values": []
             }
           ],
@@ -43080,6 +43174,431 @@
                 "sidebar-menu-flyout-label",
                 "sidebar-menu-flyout-trigger"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "floating-cell-editor",
+      "registryType": "registry:ui",
+      "title": "Floating Cell Editor",
+      "summary": "A grid cell's editor that opens over the cell instead of inside it — anchored at the cell's rect with a lock layer behind it.",
+      "status": "stable",
+      "since": "0.25.106",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/floating-cell-editor.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FloatingCellEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/floating-cell-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a portalled surface anchored to its cell; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "FloatingCellEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-cell-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FloatingCellEditorSize",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-cell-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "floatingCellEditorSize",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/floating-cell-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes upstream popover; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One surface; its width is chosen by the size prop (cell, text, wide, picker)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "open"],
+          "evidence": "packages/ui/registry/ui/floating-cell-editor.tsx + packages/ui/registry/ui/floating-cell-editor.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/floating-cell-editor.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/display-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Anchors to the cell's rectangle and follows it on window resize; width clamps to 480px."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/floating-cell-editor",
+      "registryDependencies": ["@vegastack/popover"],
+      "npmDependencies": [
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/floating-cell-editor.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "floating-cell-editor",
+      "dataAttributes": {
+        "FloatingCellEditor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["floating-cell-editor-face"]
+            }
+          ],
+          "cssVariables": [
+            "--anchor-height",
+            "--anchor-left",
+            "--anchor-top",
+            "--anchor-width",
+            "--editor-min-height",
+            "--editor-width"
+          ]
+        }
+      }
+    },
+    {
+      "name": "dropdown-menu-form",
+      "registryType": "registry:ui",
+      "title": "Dropdown Menu Form",
+      "summary": "The parts a DropdownMenu needs to hold a small form — a text input that keeps its keys, a switch row with a hint, and a menu that opens at a point.",
+      "status": "stable",
+      "since": "0.25.106",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/dropdown-menu-form.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DropdownMenuInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Spreads its props, ref included, onto the Input."
+          }
+        },
+        {
+          "name": "DropdownMenuInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DropdownMenuSwitchItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Spreads its props, ref included, onto the checkbox item."
+          }
+        },
+        {
+          "name": "DropdownMenuSwitchItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DropdownMenuAtPoint",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a menu and an invisible trigger; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "DropdownMenuAtPointProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DropdownMenuPoint",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "stopMenuTyping",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes dropdown-menu, input and switch; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Menu-row tier of dropdown-menu; no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "open", "checked"],
+          "evidence": "packages/ui/registry/ui/dropdown-menu-form.tsx + packages/ui/registry/ui/dropdown-menu-form.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/dropdown-menu-form.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/display-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "Inherits dropdown-menu's positioning."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/dropdown-menu-form",
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/input",
+        "@vegastack/switch"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/dropdown-menu-form.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "dropdown-menu-form",
+      "dataAttributes": {
+        "DropdownMenuInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-input"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSwitchItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-switch-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuAtPoint": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-point"]
+            }
+          ],
+          "cssVariables": ["--anchor-x", "--anchor-y"]
+        }
+      }
+    },
+    {
+      "name": "option-list-editor",
+      "registryType": "registry:ui",
+      "title": "Option List Editor",
+      "summary": "Edits a choice field's options as rows — a hue, a name, remove, and add — holding no state of its own.",
+      "status": "stable",
+      "since": "0.25.106",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/option-list-editor.tsx"],
+      "publicSymbols": [
+        {
+          "name": "OptionListEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/option-list-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a list of rows; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "OptionListEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/option-list-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "OptionListEditorOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/option-list-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "OptionListEditorLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/option-list-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes color-picker, input and button; no local variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One row height from input; no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "empty", "focused"],
+          "evidence": "packages/ui/registry/ui/option-list-editor.tsx + packages/ui/registry/ui/option-list-editor.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/option-list-editor.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/display-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "Rows are single lines that shrink with the container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/option-list-editor",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chip",
+        "@vegastack/color-picker",
+        "@vegastack/dropdown-menu-form",
+        "@vegastack/input"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.53",
+        "@vegastack/design-tokens@^0.8.38"
+      ],
+      "testFiles": ["packages/ui/registry/ui/option-list-editor.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "option-list-editor",
+      "dataAttributes": {
+        "OptionListEditor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["option-list-editor", "option-list-editor-row"]
             }
           ],
           "cssVariables": []
