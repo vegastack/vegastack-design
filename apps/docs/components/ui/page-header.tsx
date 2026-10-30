@@ -1,4 +1,4 @@
-// @vegastack page-header@0.26.3 sha256-c7hl4ed+srqOkBAkN7p1iEugc2e6aiVMXm7PNGHRx6w=
+// @vegastack page-header@0.26.3 sha256-kre7IcankZ8xCx37rqJHU5ZeBXk47+kXqpfM+Wo+5lk=
 
 "use client";
 
@@ -135,7 +135,8 @@ export interface PageHeaderProps extends Omit<
    */
   favorite?: PageHeaderFavorite;
   /**
-   * The page's scope tabs, on their own row directly under the title — a default (pill) `Tabs`
+   * The page's scope tabs, on their own row 24px under the title (12px above what follows, the
+   * `ListToolbar` tabs rhythm) — a default (pill) `Tabs`
    * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
    * Tabs that change content in place belong here, above the list's toolbar, not inside it.
    * How the records are laid out ("List | Board") is not a tab: it is the `ListToolbar`'s Layout
@@ -369,7 +370,9 @@ export function PageHeader({
       {tabs != null ? (
         <div
           data-slot="page-header-tabs"
-          className="flex flex-wrap items-center gap-2"
+          // The list page rhythm (ListToolbar's tabs row): 24px under the title block, and 12px
+          // from the tabs to what follows — the page's 24px gap less 12px.
+          className="mt-4 -mb-3 flex flex-wrap items-center gap-2"
         >
           {tabs}
         </div>
