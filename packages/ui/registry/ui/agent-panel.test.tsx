@@ -604,6 +604,13 @@ test("hover card: the last action under the state, and AgentCard alone", async (
   const last = page.getByText("Which price list — v2 or the client's?");
   await expect.element(last).toBeVisible();
   await expect.element(page.getByText("Last action")).toBeVisible();
+  // Let the hover card finish fading in: mid-animation its text reads at partial opacity, which
+  // axe's contrast check reported under the full suite's load.
+  await vi.waitFor(() =>
+    expect(
+      document.getAnimations().filter((a) => a.playState === "running"),
+    ).toHaveLength(0),
+  );
   await expectNoA11yViolations(document.body);
 });
 

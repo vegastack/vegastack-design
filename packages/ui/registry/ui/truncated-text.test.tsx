@@ -284,6 +284,26 @@ test("the IconText hit area appears exactly when the row becomes a control", asy
  * (no mouse/trackpad) for the duration of the callback. Mirrors the house pattern in
  * `message-scroller.test.tsx` (mock + spy, restored in `finally`).
  */
+async function withHoverDevice(run: () => Promise<void>) {
+  const matchMediaSpy = vi
+    .spyOn(window, "matchMedia")
+    .mockImplementation((query: string) => ({
+      matches: query === "(hover: hover)",
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }));
+  try {
+    await run();
+  } finally {
+    matchMediaSpy.mockRestore();
+  }
+}
+
 async function withNoHoverDevice(run: () => Promise<void>) {
   const matchMediaSpy = vi
     .spyOn(window, "matchMedia")
@@ -384,21 +404,23 @@ test("on a no-hover device, blur re-clamps an expanded disclosure", async () => 
 });
 
 test("on a hover-capable device, overflowing text keeps the Tooltip-only behavior (no touch disclosure attributes)", async () => {
-  // Default environment (no matchMedia mock) resolves `(hover: none)` to false in the real
-  // browser this suite runs in (Playwright desktop Chromium), so no mock is needed here.
-  const long =
-    "A very long piece of text that will certainly overflow its tiny container";
-  const screen = await render(
-    <Subject data-testid="subject" style={CLIP}>
-      {long}
-    </Subject>,
-  );
-  // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
-  // two elements and Playwright's strict mode throws.
-  const el = screen.getByTestId("subject");
-  await expect.element(el).toHaveAttribute("tabindex", "0");
-  await expect.element(el).not.toHaveAttribute("role");
-  await expect.element(el).not.toHaveAttribute("aria-expanded");
+  // Pinned, not assumed: the nightly suite's container Chromium reports `(hover: none)`, so the
+  // real environment cannot stand in for a hover-capable device.
+  await withHoverDevice(async () => {
+    const long =
+      "A very long piece of text that will certainly overflow its tiny container";
+    const screen = await render(
+      <Subject data-testid="subject" style={CLIP}>
+        {long}
+      </Subject>,
+    );
+    // By slot, NOT by text: the open tooltip repeats the same string, so a text locator resolves
+    // two elements and Playwright's strict mode throws.
+    const el = screen.getByTestId("subject");
+    await expect.element(el).toHaveAttribute("tabindex", "0");
+    await expect.element(el).not.toHaveAttribute("role");
+    await expect.element(el).not.toHaveAttribute("aria-expanded");
+  });
 });
 
 test("on a no-hover device, overflowing IconText row becomes a tap-to-toggle disclosure", async () => {
