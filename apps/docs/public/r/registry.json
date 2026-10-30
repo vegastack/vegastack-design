@@ -2114,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.26.1",
-        "integrity": "sha256-FLSey35EuXWjzkAbg8zLGs7kEmz4jbkJjnP1g+sw6W4="
+        "integrity": "sha256-NQ0wWfvOLKIc777kWpRAz+hcrkAAyZ+bEVqbXvtyKmM="
       }
     },
     {

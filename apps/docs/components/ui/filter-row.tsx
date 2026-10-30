@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.1 sha256-FLSey35EuXWjzkAbg8zLGs7kEmz4jbkJjnP1g+sw6W4=
+// @vegastack filter-row@0.26.1 sha256-NQ0wWfvOLKIc777kWpRAz+hcrkAAyZ+bEVqbXvtyKmM=
 
 "use client";
 
@@ -912,7 +912,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
           // and the same 28px trailing reserve); a set chip is tinted, never reshaped.
           className={cn(
             chipHeight,
-            "w-auto max-w-64 rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border focus:border-border aria-expanded:border-border",
+            "w-auto max-w-64 rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
             hasValue
               ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
               : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
@@ -1094,7 +1094,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
                 data-placeholder={hasValue ? undefined : ""}
                 className={cn(
                   chipHeight,
-                  "w-auto max-w-64 justify-start rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
+                  "w-auto max-w-64 justify-start rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
                     ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
                     : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
@@ -1485,7 +1485,7 @@ export function DateRangeFilter({
               onFocus={prefetchCalendar}
               className={cn(
                 chipHeight,
-                "max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
+                "max-w-64 justify-start rounded-md border border-border bg-clip-border ps-2 pe-7 text-sm font-normal",
                 hasValue
                   ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent"
                   : "border-dashed text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground",
