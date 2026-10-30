@@ -1,2 +1,2 @@
-# Conventional-commit prefix, matching CLAUDE.md § Commit Message Format.
+# Conventional-commit prefix, as AGENTS.md requires.
 node tooling/verify-commit-message.mjs "$1"

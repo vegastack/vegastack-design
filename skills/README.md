@@ -15,7 +15,7 @@ skills/
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | [`component`](internal/component/SKILL.md) | Adding a new component/hook/block, or changing an existing one                                      |
 | [`review`](internal/review/SKILL.md)       | Reviewing or auditing this repo — gates, rule triage, adversarial hunting, visual review discipline |
-| [`ship`](internal/ship/SKILL.md)           | Preparing a release. **MK-gated at every outward step**                                             |
+| [`ship`](internal/ship/SKILL.md)           | Releasing: merge, watch the automatic release, recover, hand off to apps                            |
 
 ## Public — downstream consumers
 

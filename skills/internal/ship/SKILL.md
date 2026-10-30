@@ -1,160 +1,23 @@
 ---
 name: ship
-description: Release VegaStack Design end to end from one explicit ship instruction — affected change-PR proof, generated Version Packages PR proof, exact-SHA merges, npm OIDC publish, public registry/docs deploy, production verification, and bounded corrective retries.
+description: Release VegaStack Design — merge a reviewed green PR, watch the automatic release (npm OIDC publish, signed registry and docs deploy, production probe), recover a failed stage, and hand the release to consuming apps. Use when asked to ship, release, publish, deploy, or write a changeset.
 ---
 
 # Ship VegaStack Design
 
-Operator clarification, 3 October 2026: a go-dark/autonomous mandate covers owned feature commits and pushes, and reviewed develop merges only where develop exists. It never authorizes a main merge, push or fast-forward. Explicit main approval must cover the named change; the generated Version Packages main merge also needs approval unless that operator instruction explicitly includes it. Public publication/deployment must be explicitly included in the release instruction. Never create or bypass a develop branch merely to avoid main approval.
+The procedure is [`docs/RUNBOOK.md`](../../../docs/RUNBOOK.md); follow §§ 3–9 there and do not restate it
+here. This skill only adds the release checklist:
 
-One explicit **ship it** from MK, including the named main merges and outward release, authorizes the current reviewed change through completion: commit,
-push, change PR, exact-SHA squash merge, generated Version Packages PR, its exact-SHA squash merge,
-npm publication, public registry/docs deployment, and production verification. Do not stop for
-another approval between those steps.
+1. The PR carries a changeset for every public package whose source changed, with one section marker
+   ([references/changelog-format.md](references/changelog-format.md)).
+2. UI changes were inspected in light/dark, narrow/wide, with their states
+   ([references/visual-review.md](references/visual-review.md)).
+3. CI is green and the review (Codex per policy) is resolved; merge the PR.
+4. Watch `release.yml` and the deploy to a terminal state (`gh run watch`); a successful dispatch is not
+   completion.
+5. Read back `npm view @vegastack/design version`, `npm view @vegastack/design-tokens version` and the deploy
+   probe; report the merged SHA, versions and probe result.
+6. Tell the consuming app to pull (`pnpm ds:pull` in Regent web).
 
-The authorization also covers at most three surgical corrective iterations. It never authorizes a
-change to secrets, Cloudflare Access, authentication policy, workflow permissions, runner trust, a
-sanctioned dependency exception, destructive data, or version reversal. Stop immediately if recovery
-needs one of those.
-
-Never publish manually. npm publication remains CI-only and token-free through OIDC trusted
-publishing. A release creates no git tag and no GitHub release.
-
-## 1. Prepare the change
-
-Confirm the branch contains the complete source change and the correct changeset. Component changes
-still regenerate their committed distribution surfaces:
-
-```bash
-pnpm registry:build
-pnpm design:derived        # only when the component contract changed
-pnpm check:affected        # optional fast feedback; PR CI is authoritative
-git status --short
-```
-
-For UI changes, start the docs app and inspect only the affected preview modules in light and dark,
-at 320px and a wide viewport, including applicable hover, pressed, focus, disabled, loading, empty,
-error, and success states. Temporary captures are allowed for agent judgment but are never committed.
-State exactly what was inspected. The detailed protocol is
-[references/visual-review.md](references/visual-review.md).
-
-Each user-visible package change carries a changeset. Its body starts with exactly one section marker:
-`🧩` new components, `🔧` changed components, `🗑` removed/renamed, `🛠` CLI/tooling, `📦` npm,
-`📚` docs, `🐛` fixed, or `⚠️` breaking. Do not edit `/CHANGELOG.md`; release assembly owns it.
-Formatting details live in [references/changelog-format.md](references/changelog-format.md).
-
-**The changeset set is a claim about which packages changed, and no gate checks it.** Diff the
-branch against the packages, not the other way round — a changeset can describe a fix perfectly and
-still not bump the package that carries it:
-
-```bash
-# packages with changed source                      # packages the changesets bump
-git diff --name-only main...HEAD -- \
-  packages/design packages/design-tokens \
-  | cut -d/ -f2 | sort -u | sed 's|^|@vegastack/|'
-grep -h '^"@vegastack' .changeset/*.md | cut -d'"' -f2 | sort -u
-```
-
-Every public package with changed source must appear on the second list. On 2026-09-22 it did not:
-`packages/design/src/prose.ts` — a public export — and the `skills/` tree that ships inside that
-package both changed, four changesets named only `ui` and `design-tokens`, and `@vegastack/design`
-would have been published at neither the fix nor the refreshed agent skills. The description was
-there; only the bump was missing, which is exactly what reading the changesets cannot catch.
-
-Before pushing, preview the release batch:
-
-```bash
-node tooling/changelog-assemble.mjs --dry-run
-node tooling/changelog-assemble.mjs --check
-node tooling/changelog-lint.mjs
-```
-
-## 2. PR proof and merge
-
-Commit and push the branch, open a PR, and wait for the required **PR quality** check. That one Linux
-job executes full repository static verification once, then Chromium tests for changed registry
-items, their transitive reverse dependents, owned cross-cutting suites, and their geometry fixtures.
-The complete component suite is not part of ordinary CI.
-
-Read the affected plan in the log. A missing owner, unclassified path, empty geometry selection,
-generated drift, or unexpected affected closure is a failed gate, not a waiver candidate.
-
-When the check passes, re-read the PR head SHA and squash-merge with that exact SHA. The `main`
-ruleset requires PR quality, invalidates stale checks, enforces linear history, blocks force pushes,
-and has no bypass actor. `pnpm ruleset:check` verifies the external rule before shipping.
-
-## 3. Release, publish, and deploy
-
-The merged change's `main` push starts the release coordinator. When pending changesets exist it:
-
-1. Assembles and versions every pending changeset as one batch on `changeset-release/main`.
-2. Creates or updates the generated Version Packages PR through the GitHub API.
-3. Leaves GitHub's bot-created `pull_request` run in `action_required`. Find the run for the exact PR
-   head and approve it with `gh api --method POST repos/VegaStack/vegastack-design/actions/runs/<id>/approve`.
-   Proceed only if the explicit release instruction included this action and the generated Version Packages main merge.
-4. The resulting native `PR quality` run performs full static proof plus the positive release-output
-   scope guard in place of the ordinary
-   affected-browser and changeset requirements. Runtime behavior was already tested on the source
-   PRs; the generated branch may change only release metadata and provenance.
-
-Wait for the Version PR's required check, inspect its generated diff, re-read its head SHA, and
-squash-merge that exact SHA. This main merge requires explicit operator coverage; do not infer it from go-dark or feature/develop authorization.
-
-The Version PR merge starts the coordinator again with no pending changesets. It builds and verifies
-only the two public npm packages, publishes versions missing from npm with OIDC and
-`--no-provenance`, then dispatches `deploy.yml` for the exact merge commit. Use the manual
-`expected_sha` dispatch only to resume an interrupted run at the current main tip.
-
-Deployment runs public distribution proof, not component regression: registry build/idempotency,
-real `shadcn add` consume, public docs export/metadata/links/emitted CSS, focused docs-shell browser
-contracts, Sigstore signing, Cloudflare upload, and the canonical production boundary probe.
-
-Poll both workflows until terminal. Do not use a successful dispatch as evidence of completion.
-
-## 4. Verify the outcome
-
-Read back the npm versions and production state:
-
-```bash
-npm view @vegastack/design version
-npm view @vegastack/design-tokens version
-```
-
-Report the merged change SHA, Version PR number and merge SHA, package versions, deployed registry
-version, and the production-boundary result. A registry-only release publishes no npm package — both
-public versions read back unchanged, which is the expected outcome, not a failure.
-
-## 5. Bounded recovery
-
-Transient network, runner, npm, registry, and deployment operations may retry their failed stage up
-to three times. These retries do not consume a corrective iteration.
-
-For a real code or configuration defect:
-
-1. Diagnose and reproduce the root cause.
-2. Create a surgical correction branch from current `main`.
-3. Add the appropriate changeset.
-4. Run affected PR CI, exact-SHA merge, then let the Version PR coordinator continue the release.
-5. Count that source-changing release as one of at most three corrective iterations.
-
-If some npm packages are already live, never overwrite or unpublish them. Resume unpublished packages
-at their existing version when the bytes are unchanged; otherwise issue a new patch release. Prefer a
-corrective release to rollback.
-
-After three unsuccessful corrective iterations, stop and report exact live npm versions, deployed
-commit, failing stage, every attempted correction, and the recommended recovery.
-
-## 6. Manual full audit
-
-The complete suite is a rare audit or diagnostic, never part of ordinary shipping:
-
-```bash
-gh workflow run full-suite.yml \
-  --repo VegaStack/vegastack-design \
-  --ref main \
-  -f commit_sha=<sha> \
-  -f engines=chromium       # or all
-```
-
-`all` runs Chromium, WebKit, and Firefox sequentially on Linux with WebKit required. Its result does
-not replace the PR quality check and is not required for a release.
+Never publish by hand: npm publication is CI-only, token-free OIDC. Recovery and its three-strike stop are in
+RUNBOOK § 9.

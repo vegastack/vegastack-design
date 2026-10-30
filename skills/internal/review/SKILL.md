@@ -251,19 +251,15 @@ Reviewing the contract gate:
 
 - Fix the cause, not the symptom. If the same class of bug can recur elsewhere, fix the class — a
   lint rule, a generator, a type — not the one instance.
-- Record any judgment call in
-  [`docs/ledger/operator-review.md`](../../../docs/ledger/operator-review.md): options, choice, why.
+- Put the finding, its root cause and the fix in the PR description. Only an MK judgement call goes to
+  [`docs/ledger/operator-review.md`](../../../docs/ledger/operator-review.md).
 - Re-run the gates after every fix. A fix that breaks a gate is a new finding.
 
 ## 10. Record the round
 
-Append-only, never rewrite history:
-
-- [`docs/ledger/codex-rounds.md`](../../../docs/ledger/codex-rounds.md) — date, scope, verdict
-  (`clean` / `needs-attention (N high · M medium)`), every finding with its resolution, and explicit
-  confirmation of which prior-round findings stayed fixed.
-- [`docs/ledger/bugs.md`](../../../docs/ledger/bugs.md) — symptom, root cause, systemic fix. Write
-  the root cause so the CLASS is recognizable next time, not just the instance.
+In the PR (or the issue it closes): scope, verdict (`clean` / `needs-attention (N high · M medium)`),
+each finding with its resolution, and which prior findings stayed fixed. Do not append to the historical
+ledgers in `docs/ledger/`.
 
 ## 11. Loop
 
