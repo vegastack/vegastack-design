@@ -156,8 +156,7 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    four ways and watches the failure clear again; `parity` matches failure TEXT rather than "something
    failed"), `verify-affected-tests --self-test` (selection and geometry wiring),
    `verify-docs-shell --self-test` (mutates the built export and requires
-   its own contracts to fail), `verify-workflow-security-negative.mjs` (proves a move back onto a
-   hosted runner, or a dropped container, is rejected in both directions),
+   its own contracts to fail), `verify-workflows.mjs` (actionlint + zizmor + the runner/container/OIDC house rules),
    `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` (negative
    fixtures for the AST passes and for tampered `meta.integrity`), and `changeset-lint` (rejects a
    changeset body with no marker, two markers, or no text, with no grandfather list). The geometry

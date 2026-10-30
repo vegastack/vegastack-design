@@ -77,9 +77,11 @@ A merge to `main` starts `release.yml`:
    `action_required` run). Merge it when it is green.
 2. That merge publishes the missing npm versions through OIDC (no token), then dispatches `deploy.yml`
    for the exact commit.
-3. Deploy builds the docs and registry, signs the integrity manifest, uploads to Cloudflare, and probes
-   production: `/r/*` must reject anonymous requests and accept the service token; everything else must be
-   public.
+3. Deploy is one job (`deploy.yml`, about 8–10 min): build the registry and the docs once, sign the
+   integrity manifest with cosign (a pinned binary cached on the runner), upload to Cloudflare, then probe
+   production. `/r/*` must reject anonymous requests and accept the service token; everything else must be
+   public. The real `shadcn add` consume proof is not repeated here. It runs on the pull request whenever
+   the registry shape, the CLI or the public packages change.
 
 Watch it through with `gh run watch`. Verify with `npm view @vegastack/design version` and the deploy run's
 probe step. A registry-only release publishes no npm package, and that is expected. There are no git tags
@@ -117,9 +119,16 @@ components, refreshes the vendored skills and runs the strict drift check. Open 
 ## 10. Runners and caches
 
 Every job runs self-hosted on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with the Regent
-app). It runs inside `mcr.microsoft.com/playwright:v<lockfile version>-noble`, with the pnpm store mounted
-from `/opt/vsk-runner/pnpm-store`. To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.
-`pnpm run clean` reports reclaimable build output locally.
+app) inside `mcr.microsoft.com/playwright:v<lockfile version>-noble`. There are two kinds of cache volume:
+
+- `/opt/vsk-runner/pnpm-store`: used by pull-request and full-suite jobs.
+- `/opt/vsk-runner/pnpm-store-trusted` and `/opt/vsk-runner/trusted-tools`: mounted **only** by
+  `release.yml` and `deploy.yml`, so code from a pull request can never write into what a credentialed job
+  installs. Tool binaries are pinned and SHA-256-checked on every use (`tooling/trusted-tool.mjs`).
+
+`tooling/verify-workflows.mjs` (actionlint + zizmor + house rules) runs on any PR that changes
+`.github/**`. To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`. `pnpm run clean`
+reports reclaimable build output locally.
 
 ## 11. Glossary
 

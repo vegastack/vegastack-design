@@ -176,6 +176,9 @@ jobs:
     timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        # Trusted store: mounted only by release and deploy, never by a job that runs PR code.
+        - /opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted
     defaults:
       run:
         shell: bash
@@ -199,11 +202,11 @@ jobs:
       - name: Enable corepack
         run: corepack enable
       - name: Pin npm to the reviewed OIDC-capable release
-        run: npm install -g npm@11.16.0
-      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_TEMP/pnpm-store"
+        run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages] — OIDC publish needs npm >= 11.5
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
+      # Exports are proven on the pull request (design:verify); publishing only builds what it ships.
       - run: pnpm --filter @vegastack/design-tokens build
       - run: pnpm --filter @vegastack/design build
-      - run: node tooling/verify-package-exports.mjs
       - name: Reject publish-time lifecycle code
         run: |
           node --input-type=module <<'NODE'

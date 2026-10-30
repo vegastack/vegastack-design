@@ -1,5 +1,9 @@
 name: Deploy public docs and signed registry
 
+# One job (30-10-2026): build once, sign, upload, probe. It replaces three jobs that built the docs
+# twice and installed cosign twice. Component regression and the real `shadcn add` consume proof
+# belong to pull requests, which own them; this workflow proves only the artifact it ships.
+
 on:
   workflow_dispatch:
     inputs:
@@ -19,50 +23,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  distribution-proof:
-    name: Verify public distribution
-    runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 20
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-      volumes:
-        - /opt/vsk-runner/pnpm-store:/pnpm-store
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ inputs.expected_sha }}
-      - name: Trust the checkout inside the container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Require the exact public release commit
-        env:
-          EXPECTED_SHA: ${{ inputs.expected_sha }}
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          git fetch origin main
-          git merge-base --is-ancestor "$EXPECTED_SHA" origin/main || {
-            echo "::error title=Untrusted deploy commit::$EXPECTED_SHA is not in main history"
-            exit 1
-          }
-      - name: Enable corepack
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
-      # Public export, registry integrity, real consume and focused docs-shell browser contracts.
-      # No complete component suite runs in a deploy workflow.
-      - run: pnpm verify:distribution
-
-  build-sign-deploy:
-    name: Build, sign, and deploy exact artifact
-    needs: distribution-proof
+  deploy:
+    name: Build, sign, deploy and probe
     runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        # Trusted caches: mounted only by the release and deploy workflows, never by a job that runs
+        # pull-request code, so nothing PR-authored can write into what a credentialed job installs.
+        - /opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted
+        - /opt/vsk-runner/trusted-tools:/trusted-tools
     defaults:
       run:
         shell: bash
@@ -82,10 +53,19 @@ jobs:
       - name: Require the exact public release commit
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
-        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          git fetch origin main
+          git merge-base --is-ancestor "$EXPECTED_SHA" origin/main || {
+            echo "::error title=Untrusted deploy commit::$EXPECTED_SHA is not in main history"
+            exit 1
+          }
+      - name: Install cosign (pinned, checksum-verified, cached)
+        run: node tooling/trusted-tool.mjs cosign
       - name: Enable corepack
         run: corepack enable
-      - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_TEMP/pnpm-store"
+      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store-trusted
       - run: pnpm registry:build
       - name: Require registry build idempotency
         run: |
@@ -94,8 +74,15 @@ jobs:
             git status --short
             exit 1
           }
-      - run: node tooling/verify-registry-integrity-negative.mjs
+      # Workspace packages + docs static export, with the docs' metadata, export and emitted-CSS
+      # contracts (they run inside the docs `build` script).
       - run: pnpm build
+      - name: Public export links and docs-shell contracts
+        run: |
+          set -euo pipefail
+          pnpm -F @vegastack/docs lint:links
+          node tooling/verify-docs-shell.mjs
+          node tooling/verify-docs-shell.mjs --self-test
       - name: Assert the unsigned public artifact is complete
         run: |
           set -euo pipefail
@@ -106,7 +93,6 @@ jobs:
             echo "::error title=Asset over 25MiB::$BIG"
             exit 1
           fi
-      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - name: Sign and verify the exported integrity manifest
         env:
           SIGNER_REPOSITORY: ${{ github.repository }}
@@ -115,38 +101,14 @@ jobs:
           set -euo pipefail
           MANIFEST=apps/docs/out/r/integrity-manifest.json
           BUNDLE=apps/docs/out/r/integrity-manifest.sigstore
-          IDENTITY="https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}"
           cosign sign-blob --yes --bundle "$BUNDLE" "$MANIFEST"
-          COMMON=(
-            --bundle "$BUNDLE"
-            --certificate-oidc-issuer https://token.actions.githubusercontent.com
-            --certificate-github-workflow-repository "$SIGNER_REPOSITORY"
-            --certificate-github-workflow-ref "$SIGNER_REF"
-          )
-          cosign verify-blob "${COMMON[@]}" --certificate-identity "$IDENTITY" "$MANIFEST"
-          cp "$MANIFEST" "$RUNNER_TEMP/tampered-manifest.json"
-          printf '\n' >> "$RUNNER_TEMP/tampered-manifest.json"
-          if cosign verify-blob "${COMMON[@]}" --certificate-identity "$IDENTITY" "$RUNNER_TEMP/tampered-manifest.json"; then
-            echo "::error::Tampered manifest unexpectedly verified"
-            exit 1
-          fi
-          WRONG="https://github.com/${SIGNER_REPOSITORY}/.github/workflows/release.yml@${SIGNER_REF}"
-          if cosign verify-blob "${COMMON[@]}" --certificate-identity "$WRONG" "$MANIFEST"; then
-            echo "::error::Wrong signer identity unexpectedly verified"
-            exit 1
-          fi
-      - name: Reverify the exact artifact before deployment
-        env:
-          SIGNER_REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
           cosign verify-blob \
-            --bundle apps/docs/out/r/integrity-manifest.sigstore \
-            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@refs/heads/main" \
+            --bundle "$BUNDLE" \
+            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com \
             --certificate-github-workflow-repository "$SIGNER_REPOSITORY" \
-            --certificate-github-workflow-ref refs/heads/main \
-            apps/docs/out/r/integrity-manifest.json
+            --certificate-github-workflow-ref "$SIGNER_REF" \
+            "$MANIFEST"
       - name: Deploy to Cloudflare Workers Static Assets
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
         with:
@@ -155,30 +117,6 @@ jobs:
           workingDirectory: apps/docs
           wranglerVersion: 4.129.1
           command: deploy
-
-  verify-public-boundary:
-    name: Verify production boundary
-    needs: build-sign-deploy
-    runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 15
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-    defaults:
-      run:
-        shell: bash
-    env:
-      npm_config_cache: /tmp/npm-cache
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ inputs.expected_sha }}
-      - name: Trust the checkout inside the container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - name: Verify public, internal, and protected registry routes
         env:
           DOCS_URL: ${{ vars.DOCS_URL }}
