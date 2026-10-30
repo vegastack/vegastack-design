@@ -82,7 +82,7 @@ test("an `also` path marks its tab current", async () => {
   );
 });
 
-test("a click marks the tab current at once with a pending bar, until currentHref moves", async () => {
+test("a click marks the tab current at once, with no bar under it, until currentHref moves", async () => {
   const onPendingHrefChange = vi.fn();
   function Host() {
     const [path, setPath] = React.useState("/connections");
@@ -115,9 +115,8 @@ test("a click marks the tab current at once with a pending bar, until currentHre
     .toBe("page");
   const policy = link("/connections/policy");
   expect(policy.hasAttribute("data-pending")).toBe(true);
-  expect(
-    policy.querySelector('[data-slot="route-tabs-pending"]'),
-  ).not.toBeNull();
+  // T25: nothing flashes under the text while the page loads.
+  expect(policy.querySelector('[data-slot="route-tabs-pending"]')).toBeNull();
   expect(link("/connections").getAttribute("aria-current")).toBeNull();
   const nav = screen.getByRole("navigation", { name: "Connections" });
   await expect.element(nav).toHaveAttribute("aria-busy", "true");
@@ -155,7 +154,7 @@ test("modified clicks and a click on the current tab start nothing", async () =>
   expect(link("/connections").getAttribute("aria-current")).toBe("page");
 });
 
-test("a controlled pendingHref drives the bar and the current tab", async () => {
+test("a controlled pendingHref drives the current tab", async () => {
   await render(
     <RouteTabs
       label="Connections"

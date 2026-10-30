@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.26.0 sha256-XHvP5XR3EvZDg4BdQ4eoIi6pl0Y1xADFQMNtvOu3KeA=
+// @vegastack filter-bar-managed@0.26.0 sha256-oM/wu58FVcMQMswGQkyK3DJfXDN7XsTkn1bGE9o3JNo=
 
 "use client";
 
@@ -1845,10 +1845,16 @@ function FieldSelect({
       }}
       disabled={disabled}
     >
+      {/* A menu row, not a boxed field: the menus' 28px row type, a chevron at the end. */}
       <SelectTrigger
         size="sm"
+        variant="ghost"
         aria-label={label}
-        className={cn("w-fit min-w-36", className)}
+        data-slot="field-select"
+        className={cn(
+          "h-7 w-fit min-w-36 rounded-md px-1.5 text-sm font-normal hover:border-transparent hover:bg-accent dark:hover:bg-accent",
+          className,
+        )}
       >
         <SelectValue />
       </SelectTrigger>
@@ -2009,8 +2015,9 @@ export function SortBuilder({
             >
               <SelectTrigger
                 size="sm"
+                variant="ghost"
                 aria-label={`${item.label} direction`}
-                className="w-28 shrink-0"
+                className="h-7 w-28 shrink-0 rounded-md px-1.5 text-sm font-normal text-muted-foreground hover:border-transparent hover:bg-accent dark:hover:bg-accent"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -2026,7 +2033,7 @@ export function SortBuilder({
             value.length >= max ? (
               <span
                 data-slot="sort-builder-limit"
-                className="text-xs text-muted-foreground"
+                className="flex h-7 items-center px-1.5 text-sm text-muted-foreground"
               >
                 {labels.limit(max)}
               </span>
@@ -2035,7 +2042,7 @@ export function SortBuilder({
             <Button
               variant="ghost"
               size="sm"
-              className="w-fit px-1.5 font-normal text-muted-foreground"
+              className="h-7 w-full justify-start px-1.5 text-sm font-normal text-muted-foreground"
               data-slot="sort-builder-add"
               onClick={() => {
                 // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded
@@ -2208,7 +2215,7 @@ export function GroupByPicker({
             <Button
               variant="ghost"
               size="sm"
-              className="w-fit px-1.5 font-normal text-muted-foreground"
+              className="h-7 w-full justify-start px-1.5 text-sm font-normal text-muted-foreground"
               data-slot="group-by-picker-add"
               onClick={() => {
                 // Guarded, not `free[0]!.key`: the React Compiler hoists an unguarded

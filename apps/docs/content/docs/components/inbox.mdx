@@ -1,6 +1,6 @@
 ---
 title: Inbox
-description: The notification Inbox — For you · Updates · Archived tabs, an Unread toggle, rows grouped per record, inline Allow / Decline and J / K triage.
+description: The notification Inbox — For you · Updates · Archived tabs, rows grouped per record, inline Allow / Decline and J / K triage.
 audience: public
 registry: inbox
 status: stable
@@ -28,15 +28,7 @@ import {
 <Inbox
   onClose={close}
   actions={<InboxMarkAllRead onClick={markAllRead} />}
-  filters={
-    <InboxFilters
-      value={tab}
-      onValueChange={setTab}
-      unreadOnly={unreadOnly}
-      onUnreadOnlyChange={setUnreadOnly}
-      unreadCount={3}
-    />
-  }
+  filters={<InboxFilters value={tab} onValueChange={setTab} />}
   activeId={peekId}
   onActiveChange={setPeekId}
   onOpen={setPeekId}
@@ -87,7 +79,7 @@ list toolbar's Filter tool, since a triage sheet has a single boolean filter.
   — or, with `onLoadMore`, the infinite-scroll end. `activeId` / `onActiveChange` / `onOpen` drive
   triage.
 - `InboxFilters` — tabs (For you · Updates · Archived unless you pass `tabs`, each with an optional
-  count) and, at the end, an Unread toggle that filters whichever tab is open.
+  count). No Unread toggle: unread rows read as unread in every tab.
 - `InboxGroup` — a label that sticks within the scroll area, with no divider above or below it
   (16px above, except on the first group; 6px below), over a list it names. `InboxList` is the ungrouped list.
 - `InboxItem` — one row. Title 14px regular — foreground when unread, muted once read — with the actor and
@@ -107,7 +99,8 @@ One row per record: give it the record's `icon`, its latest event as `meta`, eve
 `actors` (three avatars, then "+n") and how many events it stands for as `count`. Pass the `events`
 themselves and the count becomes a disclosure that lists them under the row. A request carries
 `status`: `pending` shows its inline Allow / Decline (`actions`), `answered` replaces them with the
-`answeredLabel` line ("Granted by Sanjay · 5d"). The ⋯ `menu` holds the host's items — Archive,
+`answeredLabel` line. Row actions are never primary: the first (the main one) is secondary, the
+rest outline — primary is for the page's top-bar button and a dialog's confirm ("Granted by Sanjay · 5d"). The ⋯ `menu` holds the host's items — Archive,
 Mark unread, Unwatch, Mute this type. Give each row a `value`, then J / K (or ↓ / ↑) walk the rows:
 the active row gets a start bar, focus follows and `onActiveChange` reports it; Enter or a click calls
 `onOpen` without navigating, so the host's peek opens beside the Inbox.
@@ -136,14 +129,12 @@ ends the list on "You’re all caught up".
   file="components/preview/inbox.tsx"
 />
 
-### Tabs and the Unread toggle
+### Tabs
 
 `tabs` replaces For you · Updates · Archived with your own — each `{ value, label, count? }` — and
-`onValueChange` receives the tab's `value`. Unread is a separate toggle (`unreadOnly`,
-`onUnreadOnlyChange`, `unreadCount`), so it filters any tab; it shows only when
-`onUnreadOnlyChange` is set. Filtering the rows stays with the app. When the tabs and the toggle
-do not fit one line (four tabs in the 384px sheet, a phone), the toggle wraps under the tabs,
-end-aligned; the tabs fold into one dropdown only when they alone do not fit the row.
+`onValueChange` receives the tab's `value`. There is no Unread toggle: an unread row reads as
+unread in every tab (the dot and the tint), and Mark all read clears them. The tabs fold into one
+dropdown only when they do not fit the row.
 
 ```tsx
 <InboxFilters
@@ -154,9 +145,6 @@ end-aligned; the tabs fold into one dropdown only when they alone do not fit the
     { value: "mentions", label: "Mentions", count: 2 },
     { value: "updates", label: "Updates" },
   ]}
-  unreadOnly={unreadOnly}
-  onUnreadOnlyChange={setUnreadOnly}
-  unreadCount={3}
 />
 ```
 

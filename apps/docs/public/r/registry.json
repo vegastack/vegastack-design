@@ -1824,7 +1824,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.26.0",
-        "integrity": "sha256-4lggo6NLQ3kZuQ2VGh0prup+fsRkUw45RTWHikTPxYA="
+        "integrity": "sha256-nESjZfbSYMeckhqlPvPW1sHp+VkhyT287o0oOahRAAs="
       }
     },
     {
@@ -2012,7 +2012,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ListToolbar's Layout tool), or page sections (Tabs).",
         "version": "0.26.0",
-        "integrity": "sha256-w5x+RWEAvqjZ8pNd+q4r66Dakm4SsY4e1IhHGKGO0+4="
+        "integrity": "sha256-hKSY3Z+g6xPcQUei6BQEHL/xmLnQNGFhwI2OgGXeMK0="
       }
     },
     {
@@ -2074,7 +2074,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.26.0",
-        "integrity": "sha256-e/3y3XMUzsc5Xja9j6jbh3MAxxb7LHlE87XPqebKyN0="
+        "integrity": "sha256-G3KEkoh0cvB0QY7DOgYN4CzbHs07Vmc4zqpuNzXMhL8="
       }
     },
     {
@@ -2098,7 +2098,10 @@
         "@vegastack/list-toolbar",
         "@vegastack/people-picker",
         "@vegastack/popover",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/toast",
+        "@vegastack/use-media-query",
+        "@vegastack/page-layout"
       ],
       "files": [
         {
@@ -2111,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.26.0",
-        "integrity": "sha256-sX3EvGkmWpbt5puiauM2np841WCBQIskhaBwU3Zkmlo="
+        "integrity": "sha256-/DYKoUuvE1I/kDEhrxLo98OucMViZHSyPuiKIIWjGX4="
       }
     },
     {
@@ -2144,7 +2147,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.26.0",
-        "integrity": "sha256-xf1Kxu0svX4K5qvsroTivumvKdlQ+kSCIF0spjG8yMo="
+        "integrity": "sha256-QGpP+NZ/npx5fr6uYwEKyyrXCi29FZYLv0AAzSaXeMw="
       }
     },
     {
@@ -2175,7 +2178,7 @@
         "whenToUse": "Sorting a list by one key from the ListToolbar's Sort tool.",
         "whenNotToUse": "Several sort keys at once (SortBuilder), or a column header's own sort.",
         "version": "0.26.0",
-        "integrity": "sha256-12tnhT0yTeGNfQYYavVyQZ0A+J8hIvCy28N0dNBduvM="
+        "integrity": "sha256-SBXBTC/PLYYniEwoOUkU+0ccmfKgQPIdciL9hMu8Y3k="
       }
     },
     {
@@ -2209,7 +2212,7 @@
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.26.0",
-        "integrity": "sha256-ScNdZyRCGkg5//F0JktKQL/7pFZyeOEA1tEkQGzRC2w="
+        "integrity": "sha256-1x2KdsqxdfUK9WAAJuKHn8K5VlaOgubnlBmBSPEmopI="
       }
     },
     {
@@ -3256,7 +3259,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.26.0",
-        "integrity": "sha256-XHvP5XR3EvZDg4BdQ4eoIi6pl0Y1xADFQMNtvOu3KeA="
+        "integrity": "sha256-oM/wu58FVcMQMswGQkyK3DJfXDN7XsTkn1bGE9o3JNo="
       }
     },
     {
@@ -16465,7 +16468,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.26.0",
-        "integrity": "sha256-5Zsj99Mr972c8mZlvNi514a0+FWM7YTmB3Rn+FcKZDE="
+        "integrity": "sha256-zPNRtGM7KKqbQv4ytFT3srjIyhtpAKlZcHhKcHnK1v8="
       }
     },
     {
@@ -17389,7 +17392,7 @@
       "name": "inbox",
       "type": "registry:ui",
       "title": "Inbox",
-      "description": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs with an Unread toggle, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
+      "description": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "categories": [
         "notifications"
       ],
@@ -17405,7 +17408,6 @@
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tabs",
-        "@vegastack/toggle",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -17419,7 +17421,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.26.0",
-        "integrity": "sha256-0vv6WduDTi4uK9VhKqwsI9xCsj0/0xkp6jMOvjvaCgU="
+        "integrity": "sha256-7fiNGCpEd30IYeYvrwt+xlDLqjbUbN6JSqTmKcmMuGQ="
       }
     },
     {
@@ -22784,7 +22786,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.26.0",
-        "integrity": "sha256-MaDOSpWXw/8OPlOk1NToX3dNJQLXasVzxz/4JTJ1NbY="
+        "integrity": "sha256-yvNnLL5bFycH7txEdypJXoGcMQqxQLksDyD+5LNlWJA="
       }
     },
     {
@@ -23150,7 +23152,7 @@
         "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.26.0",
-        "integrity": "sha256-bGxOcwttZd17/uvxzNE1Sh5RZu23fXbV3BxwnB32wso="
+        "integrity": "sha256-zPUcC2Ui8m19zbRLk6JQQeJNsPz9aPbuQOfRmGZmv6M="
       }
     },
     {
@@ -23331,7 +23333,7 @@
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
         "version": "0.26.0",
-        "integrity": "sha256-kehfGNcU9nfOk9IdP/vEg4rhF3sQwcSk0i1x/RmRJz8="
+        "integrity": "sha256-Gnc3EW7qzXKcw3G4HVvhXcWJPpC1qhoVQbmk93u6PPQ="
       }
     },
     {

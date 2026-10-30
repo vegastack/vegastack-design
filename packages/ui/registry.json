@@ -1864,7 +1864,10 @@
         "@vegastack/list-toolbar",
         "@vegastack/people-picker",
         "@vegastack/popover",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/toast",
+        "@vegastack/use-media-query",
+        "@vegastack/page-layout"
       ],
       "files": [
         {
@@ -14115,7 +14118,7 @@
       "name": "inbox",
       "type": "registry:ui",
       "title": "Inbox",
-      "description": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs with an Unread toggle, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
+      "description": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "categories": ["notifications"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -14129,7 +14132,6 @@
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tabs",
-        "@vegastack/toggle",
         "@vegastack/tooltip"
       ],
       "files": [

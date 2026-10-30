@@ -811,11 +811,11 @@ squeezed by an earlier column that took its room. The rest are kept left to righ
 budgets fit, and once one column overflows every column after it overflows too, so a narrow late
 column never survives a wide earlier one.
 
-| `mobile`    | When the column no longer fits                                                                           |
-| ----------- | -------------------------------------------------------------------------------------------------------- |
-| `"merge"`   | **Default.** Stacks under the primary (first) column's value, with its header as a screen-reader prefix. |
-| `"visible"` | Never hides — the column is essential; if the columns still do not fit, the table is strained (below).   |
-| `"hidden"`  | Drops the column; "N columns hidden" appears under the table, and the table is described by that line.   |
+| `mobile`    | When the column no longer fits                                                                            |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| `"merge"`   | **Default.** Stacks under the primary (first) column's value, with its header as a screen-reader prefix.  |
+| `"visible"` | Never hides — the column is essential; if the columns still do not fit, the table is strained (below).    |
+| `"hidden"`  | Drops the column; the table is described by a screen-reader-only "N columns hidden" line (nothing shows). |
 
 ```tsx
 const columns: DataListColumn<Person>[] = [

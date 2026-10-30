@@ -141,3 +141,48 @@ test("initialQuery reopens on the last prompt (Edit filters)", async () => {
     .element(screen.getByRole("combobox", { name: "Filter" }))
     .toHaveValue("IP65 black");
 });
+
+test("Advanced filter drills into the page's builder inside the same, wider popover — no dialog", async () => {
+  await page.viewport(1024, 768);
+  const screen = await render(
+    <AddFilterMenu fields={FIELDS} advanced={<div>Condition builder</div>} />,
+  );
+  await screen.getByRole("button", { name: "Filter" }).click();
+  await screen.getByRole("button", { name: "Advanced filter" }).click();
+  await expect.element(screen.getByText("Condition builder")).toBeVisible();
+  expect(
+    document.querySelector('[role="dialog"][data-slot="dialog-content"]'),
+  ).toBeNull();
+  const surface = document.querySelector<HTMLElement>(
+    '[data-slot="add-filter-menu-content"]',
+  )!;
+  await expect.poll(() => surface.offsetWidth).toBeGreaterThan(400);
+  await screen.getByRole("button", { name: "Back" }).click();
+  await expect
+    .element(screen.getByRole("option", { name: "Status" }))
+    .toBeVisible();
+});
+
+test("ai.onApplied fires after a run that added filters, once the popover has closed", async () => {
+  const onApplied = vi.fn();
+  const screen = await render(
+    <AddFilterMenu
+      fields={FIELDS}
+      ai={{
+        onSubmit: async () => ({ added: 2, unmatched: ["warehouse"] }),
+        onApplied,
+      }}
+    />,
+  );
+  await screen.getByRole("button", { name: "Filter" }).click();
+  await userEvent.type(
+    screen.getByRole("combobox", { name: "Filter" }),
+    "high priority warehouse",
+  );
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => onApplied.mock.calls.length).toBe(1);
+  expect(onApplied).toHaveBeenCalledWith(
+    { added: 2, unmatched: ["warehouse"] },
+    "high priority warehouse",
+  );
+});

@@ -1,6 +1,6 @@
 ---
 title: Route Tabs
-description: Tabs whose panels are pages — a named nav of links drawn as pill tabs, one URL per tab, current at once on click with a pending bar while the page loads.
+description: Tabs whose panels are pages — a named nav of links drawn as pill tabs, one URL per tab, current at once on click while the page loads.
 audience: public
 registry: route-tabs
 status: stable
@@ -48,20 +48,20 @@ export function ConnectionsFrame({ children }: { children: React.ReactNode }) {
 
 When each tab is its own URL, the tabs are navigation, not a `Tabs` widget: a `nav` of links that
 look like the pill tabs. Put them in the section's layout so a switch swaps only the page below.
-A clicked tab is current at once and carries a thin pending bar until the router's path moves, and
+A clicked tab is current at once and is marked pending — with no bar or line under it — until the router's path moves, and
 the page below dims meanwhile — so a slow page never leaves the previous tab looking chosen with
 its old content (or its empty state) on screen.
 
 `overflow="menu"` folds the strip into one dropdown — the current tab, its count and ▾ — when it
 does not fit the room it is given, measured; the menu lists every tab, and picking one clicks that
-tab's own link, so the router, the pending bar and your `linkRender` behave as a tab click. Use it
+tab's own link, so the router, the pending state and your `linkRender` behave as a tab click. Use it
 for settings sub-pages that would clip on a phone, and for scope tabs in a
 [`ListToolbar`](/docs/components/list-toolbar).
 
 ## Scope
 
 - Owns: the strip's look (Tabs' own recipes), the current-tab match (`href` or an `also` path),
-  the optimistic current tab and its pending bar, counts, the sideways scroll that keeps the
+  the optimistic current tab, counts, the sideways scroll that keeps the
   current tab in view, and the dimmed panel.
 - Does not own: routing — links render through `linkRender`, the host passes `currentHref` (and,
   if it knows better, `pendingHref`).
@@ -76,7 +76,7 @@ for settings sub-pages that would clip on a phone, and for scope tabs in a
 
 ### Page tabs
 
-Choose a tab: it is current at once, the pending bar runs under it, and the page below dims until
+Choose a tab: it is current at once, and the page below dims until
 the new page arrives (the demo waits 1.2s). A count follows the label in the muted ink; an `also`
 path — a record's own page under the tab — keeps the tab current.
 
@@ -121,7 +121,7 @@ Holds the loading tab for the `RouteTabs` and `RouteTabsPanel` below it; it take
 - The strip is a `nav` landmark named by `label`; the current tab's link carries
   `aria-current="page"`, and a tab's own `aria-label` replaces its visible name when that is not
   enough ("Tasks, 3 open").
-- While a page loads, the nav and the panel are `aria-busy`; the pending bar is decorative.
+- While a page loads, the nav and the panel are `aria-busy`.
 - Modified clicks (⌘, Ctrl, Shift, Alt) open the link as the browser would and start nothing.
 
 | Key              | Action                       |

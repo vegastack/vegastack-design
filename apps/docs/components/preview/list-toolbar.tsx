@@ -21,6 +21,7 @@ import { DisplayMenu } from "@/components/ui/display-menu";
 import {
   FilterRow,
   ListFacet,
+  useAiFilterApplied,
   type FilterRowChip,
 } from "@/components/ui/filter-row";
 import {
@@ -29,7 +30,10 @@ import {
   type ListToolbarLayoutValue,
 } from "@/components/ui/list-toolbar";
 import {
+  FilterBuilder,
   SortBuilder,
+  type FilterField,
+  type FilterNode,
   type SortBuilderEntry,
 } from "@/components/ui/filter-bar-managed";
 import {
@@ -91,6 +95,46 @@ function PageFrame({
   );
 }
 
+type AdvancedGroup = Extract<FilterNode<string>, { type: "group" }>;
+const ADVANCED_FIELDS: FilterField<string>[] = [
+  {
+    key: "stage",
+    label: "Stage",
+    type: "text",
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-not", label: "is not" },
+    ],
+  },
+  {
+    key: "owner",
+    label: "Owner",
+    type: "text",
+    operators: [
+      { value: "is", label: "is" },
+      { value: "is-empty", label: "is empty", requiresValue: false },
+    ],
+  },
+];
+
+/** "Advanced filter": the condition builder, drilled into inside + Filter's popover. */
+function AdvancedFilter() {
+  const [tree, setTree] = React.useState<AdvancedGroup>({
+    type: "group",
+    op: "and",
+    children: [
+      { type: "condition", field: "stage", operator: "is", value: "Qualified" },
+    ],
+  });
+  return (
+    <FilterBuilder<string>
+      vocabulary={ADVANCED_FIELDS}
+      value={tree}
+      onValueChange={setTree}
+    />
+  );
+}
+
 /** The whole pattern, fully wired: scope tabs, search, every tool and the filter row. */
 function TasksToolbar({ width }: { width?: number }) {
   const [scope, setScope] = React.useState("mine");
@@ -99,10 +143,8 @@ function TasksToolbar({ width }: { width?: number }) {
     { id: "doing", name: "In progress" },
   ]);
   const [chips, setChips] = React.useState<FilterRowChip[]>([]);
-  const [aiNote, setAiNote] = React.useState<{
-    ids: string[];
-    unmatched: string[];
-  } | null>(null);
+  const onAiApplied = useAiFilterApplied();
+  const lastAiChip = React.useRef<string | null>(null);
   const [sort, setSort] = React.useState<SortMenuValue>(DEFAULT_SORT);
   const [layout, setLayout] = React.useState<ListToolbarLayoutValue>("list");
   const [height, setHeight] = React.useState("comfortable");
@@ -159,7 +201,7 @@ function TasksToolbar({ width }: { width?: number }) {
             onSelect: async () => {
               await new Promise((resolve) => setTimeout(resolve, 600));
               const id = addPriority("High", "ai");
-              setAiNote({ ids: [id], unmatched: [] });
+              onAiApplied({ count: 1, onUndo: () => removeChip(id) });
             },
           },
         }}
@@ -206,9 +248,17 @@ function TasksToolbar({ width }: { width?: number }) {
                     const unmatched = text.toLowerCase().includes("warehouse")
                       ? ["warehouse"]
                       : [];
-                    setAiNote({ ids: [id], unmatched });
+                    lastAiChip.current = id;
                     return { added: 1, unmatched };
                   },
+                  onApplied: (result) =>
+                    onAiApplied({
+                      count: result.added,
+                      unmatched: result.unmatched,
+                      onUndo: () => {
+                        if (lastAiChip.current) removeChip(lastAiChip.current);
+                      },
+                    }),
                 }}
               />
             }
@@ -223,25 +273,9 @@ function TasksToolbar({ width }: { width?: number }) {
               />
             }
             chips={chips}
-            aiNote={
-              aiNote
-                ? {
-                    count: aiNote.ids.length,
-                    unmatched: aiNote.unmatched,
-                    onUndo: () => {
-                      setChips((all) =>
-                        all.filter((chip) => !aiNote.ids.includes(chip.id)),
-                      );
-                      setAiNote(null);
-                    },
-                    onDismiss: () => setAiNote(null),
-                  }
-                : undefined
-            }
             onClear={() => {
               setStatus([]);
               setChips([]);
-              setAiNote(null);
             }}
           />
         }
@@ -443,7 +477,6 @@ export function listToolbarTable(): ReactNode {
             value: "",
             onValueChange: () => {},
             placeholder: "Search rows",
-            collapsible: true,
           }}
           filter={{}}
           filterRow={
@@ -451,7 +484,7 @@ export function listToolbarTable(): ReactNode {
               addFilter={
                 <AddFilterMenu
                   fields={[{ key: "owner", label: "Owner" }]}
-                  onAdvanced={() => {}}
+                  advanced={<AdvancedFilter />}
                 />
               }
             />

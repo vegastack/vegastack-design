@@ -1,4 +1,4 @@
-// @vegastack sort-menu@0.26.0 sha256-12tnhT0yTeGNfQYYavVyQZ0A+J8hIvCy28N0dNBduvM=
+// @vegastack sort-menu@0.26.0 sha256-SBXBTC/PLYYniEwoOUkU+0ccmfKgQPIdciL9hMu8Y3k=
 
 "use client";
 
@@ -246,7 +246,11 @@ export function SortMenu({
       </RadioGroupPrimitive>
       {fixed != null ? null : (
         <>
-          <div aria-hidden className="-mx-1 my-1 h-px bg-border" />
+          <div
+            aria-hidden
+            data-slot="sort-menu-divider"
+            className="-mx-1 my-1 h-px bg-border"
+          />
           <RadioGroupPrimitive
             aria-label={labels.direction}
             data-slot="sort-menu-direction"

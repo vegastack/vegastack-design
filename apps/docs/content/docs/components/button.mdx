@@ -150,6 +150,19 @@ its accessible name survives (A11Y-12).
   dont="Render an anchor through Button — role=button overrides the link role."
 />
 
+### Row and inline actions
+
+The filled `default` (primary) button is for the page's one main action — the button at the end of
+the app's top bar — and a dialog's confirm. An action that sits on a row, a card or an inline
+block (an Inbox item's "Catch me up" or "Download", an approval's Approve, a list row's quick
+action) is never primary: its main action takes `secondary`, and every further action `outline`.
+A screen with twenty rows then has one filled button, not twenty.
+
+<DoDont
+  do="Give a row's main action variant='secondary' and the rest variant='outline'."
+  dont="Fill a row, card or inline action with the default (primary) variant."
+/>
+
 ## Deviations
 
 Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:

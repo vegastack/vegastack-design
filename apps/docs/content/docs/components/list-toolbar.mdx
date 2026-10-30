@@ -122,7 +122,7 @@ page's other actions stay in the top bar's ⋯.
 ### At five widths
 
 The toolbar measures its own width, not the viewport, and gives way one step at a time: the search
-shrinks from 240px to 144px, Layout moves into Display, Sort moves into Display, the search becomes
+shrinks from 320px to 144px, Layout moves into Display, Sort moves into Display, the search becomes
 an icon, and a table's undo/redo (and its state button) move into ⋯. Filter, Display and ⋯ never
 go, and the row never wraps. The tab row above folds to a dropdown on its own.
 
@@ -134,7 +134,7 @@ go, and the row never wraps. The tab row above folds to a dropdown on its own.
 ### A table with saved views
 
 `ViewTabs` in the row above with a dot on a changed view, "Save view" as the `state` button,
-undo/redo as the `edit` group, a search that starts as an icon (`collapsible`), a multi-key `SortBuilder`
+undo/redo as the `edit` group, the same full search as every list, a multi-key `SortBuilder`
 showing its key count, and Fields in Display.
 
 <ComponentPreview
@@ -234,10 +234,35 @@ and no shortcuts.
 
 ### ListToolbarPopover
 
+The one surface every toolbar tool and menu opens — Filter, Sort, Display, + Filter. On a tablet or
+wider it is a popover with the dropdown menu's rhythm: a 4px inset, 28px rows at a 6px inset, 24px
+section labels, hairlines edge to edge, one type (14px, regular) for every row and value. On a phone
+it is a bottom sheet with the same rows: the title at the 16px edge, every row's text on that edge,
+8px from the title to the first row. Sort, group and the advanced filter all happen inside it — never
+in a dialog.
+
 <ApiTable
   path="../../packages/ui/registry/ui/list-toolbar.tsx"
   name="ListToolbarPopoverProps"
 />
+
+### ListToolbarDrillHeader
+
+The head of a page drilled into inside a toolbar surface — Display › Sort, Display › Columns,
+
+- Filter › a field or Advanced filter, a date filter's Custom range: one 28px row whose ‹ sits on the
+  rows' inset, the title beside it.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/list-toolbar.tsx"
+  name="ListToolbarDrillHeaderProps"
+/>
+
+### Page rhythm
+
+Page header → tabs: the page container's 24px gap (`AppShellPage`). Tabs → toolbar row: 12px.
+Toolbar row → filter row: 8px. Every list page gets this from `ListToolbar` itself, so a page never
+adds its own margins around the toolbar.
 
 ### ListToolbarMenu
 

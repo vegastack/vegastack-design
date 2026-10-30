@@ -1,15 +1,9 @@
-// @vegastack add-filter-menu@0.26.0 sha256-xf1Kxu0svX4K5qvsroTivumvKdlQ+kSCIF0spjG8yMo=
+// @vegastack add-filter-menu@0.26.0 sha256-QGpP+NZ/npx5fr6uYwEKyyrXCi29FZYLv0AAzSaXeMw=
 
 "use client";
 
 import * as React from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Search,
-  Sparkles,
-} from "lucide-react";
+import { ChevronRight, Plus, Search, Sparkles } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +12,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import {
+  ListToolbarDrillHeader,
   ListToolbarPopover,
   useListToolbar,
 } from "@/components/ui/list-toolbar";
@@ -31,7 +26,10 @@ matches), the first item is "✦ Filter with AI: “…”", and Enter on it sen
 AI filter, whose result comes back as ordinary chips. Nothing is sent while typing. Without `ai`
 there is no ✦ anywhere and nothing else changes, so the feature hides cleanly. Picking a field
 with an editor drills into it in the same popover (‹ back); a field without one goes to the host.
-The DS holds no AI: `ai.onSubmit` is the page's.
+"Advanced filter" drills into the page's condition builder in the same popover, which widens for
+it — never a dialog. The DS holds no AI: `ai.onSubmit` is the page's, and after a run that added
+filters the popover closes and `ai.onApplied` fires, where the page toasts with Undo
+(`useAiFilterApplied`).
 --- */
 
 /** A field + Filter offers. */
@@ -73,6 +71,12 @@ export interface AiFilterResult {
 export interface AddFilterAi {
   /** Turn the request into filters. Reject (or throw) when the AI is unavailable or over its limit. */
   onSubmit: (text: string) => Promise<AiFilterResult> | AiFilterResult;
+  /**
+   * After a run that added filters, once the popover has closed: say what it did (a toast with
+   * Undo — `useAiFilterApplied`).
+   * @default undefined
+   */
+  onApplied?: (result: AiFilterResult, text: string) => void;
 }
 
 /** The words `AddFilterMenu` shows. */
@@ -97,7 +101,7 @@ export interface AddFilterMenuLabels {
   unmatched: (terms: readonly string[]) => string;
   /** The drill-in's back button. */
   back: string;
-  /** The advanced filter entry. */
+  /** The advanced filter entry, and its page's title. */
   advanced: string;
 }
 
@@ -113,7 +117,7 @@ const DEFAULT_LABELS: AddFilterMenuLabels = {
   unmatched: (terms) =>
     `Couldn't match ${terms.map((term) => `“${term}”`).join(", ")}.`,
   back: "Back",
-  advanced: "Advanced filter…",
+  advanced: "Advanced filter",
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -135,10 +139,11 @@ export interface AddFilterMenuProps {
    */
   ai?: AddFilterAi;
   /**
-   * "Advanced filter…" at the foot (a condition builder dialog).
+   * "Advanced filter" at the foot: the page's condition builder (a `FilterBuilder`), drilled into
+   * inside the same popover, which widens for it. A function gets `done`, which closes the popover.
    * @default undefined
    */
-  onAdvanced?: () => void;
+  advanced?: React.ReactNode | ((done: () => void) => React.ReactNode);
   /**
    * Whether the popover is open (controlled).
    * @default undefined
@@ -162,6 +167,9 @@ export interface AddFilterMenuProps {
   labels?: Partial<AddFilterMenuLabels>;
 }
 
+/** The advanced filter page's key — never a field key. */
+const ADVANCED = "\u0000advanced";
+
 /** Words in the text: runs of non-space characters. */
 const wordCount = (text: string) =>
   text === "" ? 0 : text.split(/\s+/u).length;
@@ -175,8 +183,9 @@ type Option =
  * the page passes `ai` and the text reads as a phrase, offers "✦ Filter with AI: “…”" first —
  * Enter on it sends the request. Arrow keys pick a field; a field with an editor opens it in the
  * same popover (‹ back).
- * A pending spinner, then the popover closes on success (the page shows the chips and its
- * `FilterRow` note), or says what went wrong and keeps the fields usable. A bottom sheet on a phone.
+ * A pending spinner, then the popover closes on success (the page shows the chips; `ai.onApplied`
+ * toasts with Undo), or says what went wrong and keeps the fields usable. "Advanced filter" opens the
+ * page's condition builder in the same, wider popover. A bottom sheet on a phone.
  *
  * @example
  * <AddFilterMenu
@@ -189,7 +198,7 @@ export function AddFilterMenu({
   fields,
   onPick,
   ai,
-  onAdvanced,
+  advanced,
   open: openProp,
   onOpenChange,
   initialQuery = "",
@@ -289,6 +298,7 @@ export function AddFilterMenu({
       const result = await ai.onSubmit(request);
       if (result.added > 0) {
         done();
+        ai.onApplied?.(result, request);
         return;
       }
       setMessage(
@@ -320,167 +330,175 @@ export function AddFilterMenu({
   };
 
   const drilled =
-    page != null ? fields.find((field) => field.key === page) : undefined;
-
-  const body = drilled ? (
-    <div
-      data-slot="add-filter-menu-editor"
-      className="flex min-w-0 flex-col gap-1"
-    >
-      <div className="flex h-7 items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={labels.back}
-          data-slot="add-filter-menu-back"
-          onClick={() => setPage(null)}
-        >
-          <ChevronLeft aria-hidden />
-        </Button>
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">
-          {drilled.label}
-        </span>
-      </div>
-      {typeof drilled.editor === "function"
+    page != null && page !== ADVANCED
+      ? fields.find((field) => field.key === page)
+      : undefined;
+  const drilledTitle =
+    page === ADVANCED ? labels.advanced : (drilled?.label ?? null);
+  const drilledContent =
+    page === ADVANCED
+      ? typeof advanced === "function"
+        ? advanced(done)
+        : advanced
+      : typeof drilled?.editor === "function"
         ? drilled.editor(done)
-        : drilled.editor}
-    </div>
-  ) : (
-    <div data-slot="add-filter-menu-body" className="flex min-w-0 flex-col">
-      {/* The people dropdown's input: a quiet filled field inside the menu's inset, no divider. */}
-      <InputGroup
-        data-slot="add-filter-menu-input"
-        className="mb-1 shrink-0 border-input/30 bg-input/30"
-      >
-        <InputGroupAddon align="inline-start" aria-hidden="true">
-          <Search />
-        </InputGroupAddon>
-        <InputGroupInput
-          ref={inputRef}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.currentTarget.value)}
-          placeholder={labels.placeholder}
-          aria-label={labels.filter}
-          role="combobox"
-          aria-expanded
-          aria-controls={listId}
-          aria-autocomplete="list"
-          aria-activedescendant={options[active]?.id}
-          className="[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-          onKeyDown={(event) => {
-            if (event.key === "ArrowDown") {
-              event.preventDefault();
-              setActive((index) => Math.min(index + 1, options.length - 1));
-            } else if (event.key === "ArrowUp") {
-              event.preventDefault();
-              setActive((index) => Math.max(index - 1, 0));
-            } else if (
-              event.key === "Enter" &&
-              !event.nativeEvent.isComposing &&
-              event.keyCode !== 229
-            ) {
-              event.preventDefault();
-              choose(options[active]);
-            }
-          }}
-        />
-        {pending ? (
-          <InputGroupAddon align="inline-end" aria-hidden="true">
-            <Spinner />
-          </InputGroupAddon>
-        ) : null}
-      </InputGroup>
-      {message != null ? (
-        <p
-          role="status"
-          data-slot="add-filter-menu-message"
-          className="px-1.5 py-1 text-sm text-muted-foreground"
-        >
-          {message}
-        </p>
-      ) : null}
+        : drilled?.editor;
+
+  const body =
+    drilledTitle != null ? (
       <div
-        id={listId}
-        ref={listRef}
-        role="listbox"
-        aria-label={labels.fields}
-        data-slot="add-filter-menu-list"
-        className="relative flex max-h-72 min-w-0 flex-col overflow-y-auto overscroll-contain"
+        data-slot={
+          page === ADVANCED
+            ? "add-filter-menu-advanced-page"
+            : "add-filter-menu-editor"
+        }
+        className="flex min-w-0 flex-col gap-1"
       >
-        {options.map((option, index) =>
-          option.kind === "ai" ? (
-            <div
-              key={option.id}
-              id={option.id}
-              role="option"
-              aria-selected={index === active}
-              data-slot="add-filter-menu-ai"
-              data-highlighted={index === active ? "" : undefined}
-              onPointerMove={() => setActive(index)}
-              onClick={() => choose(option)}
-              className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent"
-            >
-              <Sparkles
-                aria-hidden
-                className="size-4 shrink-0 text-muted-foreground"
-              />
-              <span className="min-w-0 truncate">
-                {pending ? labels.working : labels.withAi(text)}
-              </span>
-            </div>
-          ) : (
-            <div
-              key={option.id}
-              id={option.id}
-              role="option"
-              aria-selected={index === active}
-              data-slot="add-filter-menu-field"
-              data-highlighted={index === active ? "" : undefined}
-              onPointerMove={() => setActive(index)}
-              onClick={() => choose(option)}
-              className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
-            >
-              {option.field.icon}
-              <span className="min-w-0 flex-1 truncate">
-                {option.field.label}
-              </span>
-              {option.field.editor != null ? (
-                <ChevronRight aria-hidden />
-              ) : null}
-            </div>
-          ),
-        )}
-        {options.length === 0 ? (
-          <p className="px-1.5 py-1 text-sm text-muted-foreground">
-            {labels.noMatch}
+        <ListToolbarDrillHeader
+          title={drilledTitle}
+          backLabel={labels.back}
+          onBack={() => setPage(null)}
+        />
+        {drilledContent}
+      </div>
+    ) : (
+      <div data-slot="add-filter-menu-body" className="flex min-w-0 flex-col">
+        {/* The people dropdown's input: a quiet filled field inside the menu's inset, no divider. */}
+        <InputGroup
+          data-slot="add-filter-menu-input"
+          className="mb-1 shrink-0 border-input/30 bg-input/30"
+        >
+          <InputGroupAddon align="inline-start" aria-hidden="true">
+            <Search />
+          </InputGroupAddon>
+          <InputGroupInput
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.currentTarget.value)}
+            placeholder={labels.placeholder}
+            aria-label={labels.filter}
+            role="combobox"
+            aria-expanded
+            aria-controls={listId}
+            aria-autocomplete="list"
+            aria-activedescendant={options[active]?.id}
+            className="[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            onKeyDown={(event) => {
+              if (event.key === "ArrowDown") {
+                event.preventDefault();
+                setActive((index) => Math.min(index + 1, options.length - 1));
+              } else if (event.key === "ArrowUp") {
+                event.preventDefault();
+                setActive((index) => Math.max(index - 1, 0));
+              } else if (
+                event.key === "Enter" &&
+                !event.nativeEvent.isComposing &&
+                event.keyCode !== 229
+              ) {
+                event.preventDefault();
+                choose(options[active]);
+              }
+            }}
+          />
+          {pending ? (
+            <InputGroupAddon align="inline-end" aria-hidden="true">
+              <Spinner />
+            </InputGroupAddon>
+          ) : null}
+        </InputGroup>
+        {message != null ? (
+          <p
+            role="status"
+            data-slot="add-filter-menu-message"
+            className="px-1.5 py-1 text-sm text-muted-foreground"
+          >
+            {message}
           </p>
         ) : null}
+        <div
+          id={listId}
+          ref={listRef}
+          role="listbox"
+          aria-label={labels.fields}
+          data-slot="add-filter-menu-list"
+          className="relative flex max-h-72 min-w-0 flex-col overflow-y-auto overscroll-contain"
+        >
+          {options.map((option, index) =>
+            option.kind === "ai" ? (
+              <div
+                key={option.id}
+                id={option.id}
+                role="option"
+                aria-selected={index === active}
+                data-slot="add-filter-menu-ai"
+                data-highlighted={index === active ? "" : undefined}
+                onPointerMove={() => setActive(index)}
+                onClick={() => choose(option)}
+                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent"
+              >
+                <Sparkles
+                  aria-hidden
+                  className="size-4 shrink-0 text-muted-foreground"
+                />
+                <span className="min-w-0 truncate">
+                  {pending ? labels.working : labels.withAi(text)}
+                </span>
+              </div>
+            ) : (
+              <div
+                key={option.id}
+                id={option.id}
+                role="option"
+                aria-selected={index === active}
+                data-slot="add-filter-menu-field"
+                data-highlighted={index === active ? "" : undefined}
+                onPointerMove={() => setActive(index)}
+                onClick={() => choose(option)}
+                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+              >
+                {option.field.icon}
+                <span className="min-w-0 flex-1 truncate">
+                  {option.field.label}
+                </span>
+                {option.field.editor != null ? (
+                  <ChevronRight aria-hidden />
+                ) : null}
+              </div>
+            ),
+          )}
+          {options.length === 0 ? (
+            <p className="px-1.5 py-1 text-sm text-muted-foreground">
+              {labels.noMatch}
+            </p>
+          ) : null}
+        </div>
+        {advanced != null ? (
+          <>
+            <div
+              aria-hidden
+              data-slot="add-filter-menu-divider"
+              className="-mx-1 my-1 h-px bg-border"
+            />
+            <Button
+              variant="ghost"
+              data-slot="add-filter-menu-advanced"
+              className="h-7 w-full min-w-0 justify-between gap-1.5 rounded-md px-1.5 text-sm font-normal [&_svg]:text-muted-foreground"
+              onClick={() => setPage(ADVANCED)}
+            >
+              <span className="min-w-0 truncate">{labels.advanced}</span>
+              <ChevronRight aria-hidden />
+            </Button>
+          </>
+        ) : null}
       </div>
-      {onAdvanced != null ? (
-        <>
-          <div aria-hidden className="-mx-1 my-1 h-px bg-border" />
-          <Button
-            variant="ghost"
-            data-slot="add-filter-menu-advanced"
-            className="h-7 w-full justify-start rounded-md px-1.5 font-normal"
-            onClick={() => {
-              done();
-              onAdvanced();
-            }}
-          >
-            {labels.advanced}
-          </Button>
-        </>
-      ) : null}
-    </div>
-  );
+    );
 
   return (
     <ListToolbarPopover
       title={labels.filter}
       align="end"
-      size="md"
+      size={page === ADVANCED ? "lg" : "md"}
       open={open}
       onOpenChange={setOpen}
       data-slot="add-filter-menu-content"

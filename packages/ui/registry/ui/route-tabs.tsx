@@ -1,4 +1,4 @@
-// @vegastack route-tabs@0.26.0 sha256-kehfGNcU9nfOk9IdP/vEg4rhF3sQwcSk0i1x/RmRJz8=
+// @vegastack route-tabs@0.26.0 sha256-Gnc3EW7qzXKcw3G4HVvhXcWJPpC1qhoVQbmk93u6PPQ=
 
 "use client";
 
@@ -23,9 +23,9 @@ only the page below them.
 
 The router stays the app's. The current tab comes from `currentHref` (the pathname),
 links render through `linkRender` (your router's `Link`), and nothing here imports a
-framework. A clicked tab shows as current at once and carries a pending bar until
-`currentHref` moves, so a slow page never leaves the previous tab looking chosen; the
-previous page dims through `RouteTabsPanel` (wrap both in `RouteTabsProvider`, or pass
+framework. A clicked tab shows as current at once (marked `data-pending`, with no bar or line of
+its own) until `currentHref` moves, so a slow page never leaves the previous tab looking chosen;
+the previous page dims through `RouteTabsPanel` (wrap both in `RouteTabsProvider`, or pass
 `pending` yourself).
 --- */
 
@@ -168,8 +168,8 @@ function linkElement(
 
 /**
  * `RouteTabs` — page tabs: a named `nav` of links drawn as the default pill tabs, the current one
- * marked `aria-current="page"`. A clicked tab is current at once and shows a pending bar until the
- * page arrives (`currentHref` changes); with `overflow="scroll"` the strip scrolls sideways and
+ * marked `aria-current="page"`. A clicked tab is current at once — nothing flashes under it — until
+ * the page arrives (`currentHref` changes); with `overflow="scroll"` the strip scrolls sideways and
  * keeps the current tab in view, counts arriving late included.
  *
  * @example
@@ -334,15 +334,6 @@ export function RouteTabs({
                       {formatCount(tab.count)}
                     </span>
                   )}
-                  {isPending ? (
-                    <span
-                      aria-hidden
-                      data-slot="route-tabs-pending"
-                      className="pointer-events-none absolute inset-x-1.5 bottom-0.5 h-0.5 overflow-hidden rounded-full"
-                    >
-                      <span className="absolute inset-y-0 w-1/3 rounded-full bg-primary motion-indeterminate" />
-                    </span>
-                  ) : null}
                 </>,
               )}
             </React.Fragment>
