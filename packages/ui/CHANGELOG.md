@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.26.3
+
+### Patch Changes
+
+- [#863](https://github.com/vegastack/vegastack-design/pull/863) [`928adf8`](https://github.com/vegastack/vegastack-design/commit/928adf8b73e2cbf852af1ed0c321c6938b9605bc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The `vegastack-consume` skill updates a component with the full verify → overwrite → verify flow and lockfile-pinned `pnpm exec shadcn`; the internal Runbook page documents the release flow.
+
+- Updated dependencies [[`928adf8`](https://github.com/vegastack/vegastack-design/commit/928adf8b73e2cbf852af1ed0c321c6938b9605bc)]:
+  - @vegastack/design@0.9.3
+
 ## 0.26.2
 
 ### Patch Changes

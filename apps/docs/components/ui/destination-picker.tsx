@@ -1,4 +1,4 @@
-// @vegastack destination-picker@0.26.2 sha256-v8HVw449bgNyIUlWejtXj7tvji6nhZt0ZWVE25IxW1g=
+// @vegastack destination-picker@0.26.3 sha256-5uVdOsZ6M0I+zt8c+NYL3K2X6lMO7XK861gkNGiVffU=
 
 "use client";
 

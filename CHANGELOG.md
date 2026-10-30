@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.3] — October 30, 2026
+
+<!-- assembled from 1 changeset: 305e79ea179d -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.3`** (was `0.9.2`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.2 → 0.26.3.
+
+### 📚 Docs
+
+- The `vegastack-consume` skill updates a component with the full verify → overwrite → verify flow and lockfile-pinned `pnpm exec shadcn`; the internal Runbook page documents the release flow.
+  [`928adf8`](https://github.com/VegaStack/vegastack-design/commit/928adf8)
+
 ## [0.26.2] — October 30, 2026
 
 <!-- assembled from 3 changesets: ab76dac5cb99 -->
