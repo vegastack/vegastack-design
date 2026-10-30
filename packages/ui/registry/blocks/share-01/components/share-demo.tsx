@@ -1,4 +1,4 @@
-// @vegastack share-01@0.26.0 sha256-LVwpXGILas82M1pUiYnQnvtp//LT/dDhi4hA8beokQ4=
+// @vegastack share-01@0.26.1 sha256-EKne2FAmv2J7tFM6a/xyh9D4rlA7KV5L2jAWQtZkSSI=
 
 "use client";
 
