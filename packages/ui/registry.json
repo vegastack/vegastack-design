@@ -1525,7 +1525,7 @@
       "meta": {
         "whenToUse": "A menu that carries an input, a setting switch, or opens where the pointer was (a column header's field menu).",
         "whenNotToUse": "A form of several fields (a Popover or a Dialog with Field).",
-        "version": "0.26.4"
+        "version": "0.26.7"
       }
     },
     {
@@ -1556,7 +1556,7 @@
       "meta": {
         "whenToUse": "Defining the options of a single- or multiple-choice field, in a panel or in a menu.",
         "whenNotToUse": "Choosing among existing options (SearchableSelect, ChipInput).",
-        "version": "0.26.4"
+        "version": "0.26.7"
       }
     },
     {
@@ -1786,7 +1786,7 @@
       "meta": {
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ListToolbar's Layout tool), or page sections (Tabs).",
-        "version": "0.26.4"
+        "version": "0.26.7"
       }
     },
     {
@@ -1879,7 +1879,7 @@
       "meta": {
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
-        "version": "0.26.4"
+        "version": "0.26.7"
       }
     },
     {

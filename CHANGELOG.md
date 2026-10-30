@@ -9,6 +9,27 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.7] — October 30, 2026
+
+<!-- assembled from 3 changesets: b12c5f880c92 -->
+
+### 🧩 New components
+
+- **AI-set facets carry the ✦** (`filter-row`): `ListFacet`, `PeopleFacet` and `DateRangeFilter` take `ai` and lead with the same ✦ as an AI `FilterChip` until the member changes them.
+  [`063812d`](https://github.com/VegaStack/vegastack-design/commit/063812d)
+- **Menu identity header and note** (`dropdown-menu-form`): `DropdownMenuIdentity` (avatar, name, a quieter line, and the menu's 224px minimum width) and `DropdownMenuNote` (a quiet centred foot line with an optional menuitem link), so an account menu needs no app-side sizing or type.
+  [`063812d`](https://github.com/VegaStack/vegastack-design/commit/063812d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.6`** (was `0.9.5`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.6 → 0.26.7.
+
+### 🐛 Fixed
+
+- **Folded view tabs and menu editors size themselves** (`view-tabs`, `option-list-editor`): folded `ViewTabs` keep the pill row's 32px so the toolbar stays 12px below on a phone; an `inMenu` `OptionListEditor` brings its own 280px width.
+  [`063812d`](https://github.com/VegaStack/vegastack-design/commit/063812d)
+
 ## [0.26.6] — October 30, 2026
 
 <!-- assembled from 1 changeset: 7d4e872e8f9f -->

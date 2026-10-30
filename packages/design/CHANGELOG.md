@@ -1,5 +1,15 @@
 # @vegastack/design
 
+## 0.9.6
+
+### Patch Changes
+
+- [#871](https://github.com/vegastack/vegastack-design/pull/871) [`063812d`](https://github.com/vegastack/vegastack-design/commit/063812df693f5ce2db64d5cffdf7bb073cbf9afa) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **AI-set facets carry the ✦** (`filter-row`): `ListFacet`, `PeopleFacet` and `DateRangeFilter` take `ai` and lead with the same ✦ as an AI `FilterChip` until the member changes them.
+
+- [#871](https://github.com/vegastack/vegastack-design/pull/871) [`063812d`](https://github.com/vegastack/vegastack-design/commit/063812df693f5ce2db64d5cffdf7bb073cbf9afa) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **Menu identity header and note** (`dropdown-menu-form`): `DropdownMenuIdentity` (avatar, name, a quieter line, and the menu's 224px minimum width) and `DropdownMenuNote` (a quiet centred foot line with an optional menuitem link), so an account menu needs no app-side sizing or type.
+
+- [#871](https://github.com/vegastack/vegastack-design/pull/871) [`063812d`](https://github.com/vegastack/vegastack-design/commit/063812df693f5ce2db64d5cffdf7bb073cbf9afa) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Folded view tabs and menu editors size themselves** (`view-tabs`, `option-list-editor`): folded `ViewTabs` keep the pill row's 32px so the toolbar stays 12px below on a phone; an `inMenu` `OptionListEditor` brings its own 280px width.
+
 ## 0.9.5
 
 ### Patch Changes
