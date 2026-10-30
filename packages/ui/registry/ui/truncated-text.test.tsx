@@ -280,9 +280,8 @@ test("the IconText hit area appears exactly when the row becomes a control", asy
 // touch devices need a tap-driven fallback) -----------------------------------------------
 
 /**
- * Mock `window.matchMedia` so `(hover: none)` matches — simulating a touch-only device
- * (no mouse/trackpad) for the duration of the callback. Mirrors the house pattern in
- * `message-scroller.test.tsx` (mock + spy, restored in `finally`).
+ * Mock `window.matchMedia` so `(hover: hover)` matches — a mouse or trackpad device — for the
+ * duration of the callback, whatever the test browser reports.
  */
 async function withHoverDevice(run: () => Promise<void>) {
   const matchMediaSpy = vi
@@ -304,6 +303,11 @@ async function withHoverDevice(run: () => Promise<void>) {
   }
 }
 
+/**
+ * Mock `window.matchMedia` so `(hover: none)` matches — simulating a touch-only device
+ * (no mouse/trackpad) for the duration of the callback. Mirrors the house pattern in
+ * `message-scroller.test.tsx` (mock + spy, restored in `finally`).
+ */
 async function withNoHoverDevice(run: () => Promise<void>) {
   const matchMediaSpy = vi
     .spyOn(window, "matchMedia")
