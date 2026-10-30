@@ -10,6 +10,25 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.26.0] — October 30, 2026
+
+### 🧩 New components
+
+- **New: `FloatingCellEditor`, `DropdownMenuInput` / `DropdownMenuSwitchItem` / `DropdownMenuAtPoint` (item `dropdown-menu-form`), `OptionListEditor`.** `FloatingCellEditor` opens a grid cell's editor over the cell, with the page locked behind it and pinch-zoom still passing; `DataGrid` takes `editing="floating"` to use it for its `custom` editors. The dropdown-menu form parts hold a small form in a menu: an input that keeps its keys, a switch row with a hint, and a menu that opens at a point. `OptionListEditor` edits a choice field's options as rows (hue, name, remove, add). `FieldTypeIcon`, `FIELD_TYPE_ICONS` and `FIELD_TYPE_LABELS` in `field-cell` give every field type one icon and one name. Additive — nothing changes until a consumer opts in.
+  [`55d70fb`](https://github.com/VegaStack/vegastack-design/commit/55d70fb)
+
+### 🔧 Changed components
+
+- **Grid cell editors that sit on the cell** (`field-cell`, `data-grid`): with `FieldCellEditor variant="cell"`, long text edits in place on the cell's own surface instead of a second popover that missed the cell; a person is the chosen people as removable chips over the people list, which leaves them out; a date and a date-time's date take the inline picker (`FieldInput` takes `variant="cell"` for it). `DataGrid`'s fill handle now sits under frozen cells, so it no longer draws over a frozen column when the grid scrolls sideways.
+  [`55d70fb`](https://github.com/VegaStack/vegastack-design/commit/55d70fb)
+- **Grid cells without app-side hacks** (`field-cell`, `data-grid`, `app-shell`; additive — nothing changes until a consumer opts in): `FieldCellDisplay` and `FieldCellEditor` take `variant="cell"` — the display is plain (no digit grouping except currency, links without scheme, dates clipped on one line, every person named) and the editor is borderless, with a growing one-paragraph text box and a number typed as written (decimal mark of the reader, no steppers, arrows step by 1). `DataGrid` takes `fill` (viewport height to the bottom of its scroller, ≥240px), `endSpacer`, `columnDividers` (frozen columns too), `editingTint`, and `headerAlign` (grid-wide or per column) so a numeric column's header can lead while its values stay end-aligned. New `AppShellBleed` lets a grid reach the page's edges without a gutter wrapper.
+  [`55d70fb`](https://github.com/VegaStack/vegastack-design/commit/55d70fb)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.0`** (was `0.8.53`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.105 → 0.26.0.
+
 ## [0.25.105] — October 29, 2026
 
 ### 📦 npm
