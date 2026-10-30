@@ -71,7 +71,7 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
 - `page-header-description` — the muted description under the title. Omitted when no `description`.
 - `page-header-meta` — the muted metadata row under the description, a `<div>` that can hold controls. Omitted when no `meta`.
 - `page-header-actions` — the right-aligned slot holding `actions` then `secondaryMenu`. Omitted when both are empty.
-- `page-header-tabs` — the row directly under the title holding `tabs`. Omitted when empty.
+- `page-header-tabs` — the row holding `tabs`, 24px under the title and, when it ends a header placed directly in an `AppShellPage`, 12px above the page below (the same rhythm as a `ListToolbar`'s tabs row, so every page reads title → tabs → content alike). Omitted when empty.
 
 ## Examples
 

@@ -2147,7 +2147,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.26.3",
-        "integrity": "sha256-gM9xU/dMpkixLrd9+7d7Q0ef1VyUU5jDykTq+oAYc6s="
+        "integrity": "sha256-x5tEiXNcZFlhy4pRmdl8s6HT0BtkKEVeBmq78yxwSGo="
       }
     },
     {
@@ -17516,7 +17516,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.26.3",
-        "integrity": "sha256-c7hl4ed+srqOkBAkN7p1iEugc2e6aiVMXm7PNGHRx6w="
+        "integrity": "sha256-yQN3DTcwvni6ZNM4MQqdP6evTCPBbSi/CllGJGF9a4c="
       }
     },
     {
