@@ -242,6 +242,7 @@
     "API-35": ["select"],
     "API-36": ["attachment", "badge", "popover", "sheet", "skeleton"],
     "OVL-22": ["sheet"],
+    "OVL-23": ["alert-dialog", "dialog"],
     "API-39": ["toggle", "toggle-group"],
     "API-40": ["textarea"],
     "A11Y-25": ["calendar"],

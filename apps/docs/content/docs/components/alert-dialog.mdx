@@ -188,6 +188,8 @@ The root takes no `modal` prop: Base UI's AlertDialog omits it, so an alert dial
 
 Upstream's file plus `packages/ui/upstream/patches/alert-dialog.patch`. Every hunk:
 
+- **OVL-23** — `AlertDialogOverlay` sets Base UI's `forceRender`, so an alert dialog opened from
+  inside a dialog or a sheet dims and blurs the page too. Operator decision D31 (Regent), 2026-10-30.
 - **OVL-13** — `AlertDialogPortal` reads `useInternalThemeScope()` and wraps its children in a
   `display: contents` element carrying that class — the same host shape `dialog` uses.
 - **A11Y-9** — `AlertDialogContent` mirrors Base UI's `data-base-ui-inert` markers onto native

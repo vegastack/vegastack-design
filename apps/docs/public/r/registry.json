@@ -120,7 +120,7 @@
         "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
         "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.26.0",
-        "integrity": "sha256-s9oA3lmL8Qf0Fh2YBLB1gw+DgKyCLcVTBdHcU1g7470="
+        "integrity": "sha256-qE0qjRXRjDFAiEZsRZmNbg1CNDFCOA7S1kStYiqm+sI="
       }
     },
     {
@@ -2320,7 +2320,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.26.0",
-        "integrity": "sha256-4IK7+CxNg4PfCML5soi+vf0oBkvLzPtFlowTTJs3kdg="
+        "integrity": "sha256-831DYDA+LhhMioOb7237/KYcxeRcFu0j40sLRPldaU8="
       }
     },
     {

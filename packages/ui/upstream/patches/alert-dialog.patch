@@ -1,6 +1,8 @@
 # component: alert-dialog
-# decisions: A11Y-9, BRD-1, DOC-1, DOC-2, OVL-13, OVL-18, LAY-17
+# decisions: A11Y-9, BRD-1, DOC-1, DOC-2, OVL-13, OVL-18, LAY-17, OVL-23
 # hunks:
+#   OVL-23 (operator D31, 2026-10-30): the backdrop sets `forceRender`, so a modal opened from
+#     inside another dialog or sheet dims and blurs too; Base UI skips a nested backdrop otherwise.
 #   OVL-13: `AlertDialogPortal` reads `useInternalThemeScope()` and wraps its children in a
 #     `display: contents` element carrying that class — the same host shape `dialog` uses.
 #   A11Y-9: `AlertDialogContent` mirrors Base UI's `data-base-ui-inert` markers onto native
@@ -26,7 +28,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/alert-dialog.tsx b/alert-dialog.tsx
-index a3d2ec0..34e3a03 100644
+index a3d2ec0..d86bf19 100644
 --- a/alert-dialog.tsx
 +++ b/alert-dialog.tsx
 @@ -1,25 +1,34 @@
@@ -74,7 +76,11 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogOverlay({
-@@ -31,34 +40,38 @@ function AlertDialogOverlay({
+@@ -28,37 +37,42 @@ function AlertDialogOverlay({
+ }: AlertDialogPrimitive.Backdrop.Props) {
+   return (
+     <AlertDialogPrimitive.Backdrop
++      forceRender
        data-slot="alert-dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -119,7 +125,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogHeader({
-@@ -69,12 +82,12 @@ function AlertDialogHeader({
+@@ -69,12 +83,12 @@ function AlertDialogHeader({
      <div
        data-slot="alert-dialog-header"
        className={cn(
@@ -135,7 +141,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogFooter({
-@@ -85,12 +98,12 @@ function AlertDialogFooter({
+@@ -85,12 +99,12 @@ function AlertDialogFooter({
      <div
        data-slot="alert-dialog-footer"
        className={cn(
@@ -151,7 +157,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogMedia({
-@@ -102,11 +115,11 @@ function AlertDialogMedia({
+@@ -102,11 +116,11 @@ function AlertDialogMedia({
        data-slot="alert-dialog-media"
        className={cn(
          "mb-2 inline-flex size-10 items-center justify-center rounded-md bg-muted sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-6",
@@ -165,7 +171,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogTitle({
-@@ -118,11 +131,11 @@ function AlertDialogTitle({
+@@ -118,11 +132,11 @@ function AlertDialogTitle({
        data-slot="alert-dialog-title"
        className={cn(
          "font-heading text-base font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
@@ -179,7 +185,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogDescription({
-@@ -134,11 +147,11 @@ function AlertDialogDescription({
+@@ -134,11 +148,11 @@ function AlertDialogDescription({
        data-slot="alert-dialog-description"
        className={cn(
          "text-sm text-balance text-muted-foreground md:text-pretty *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -193,7 +199,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  function AlertDialogAction({
-@@ -151,12 +164,12 @@ function AlertDialogAction({
+@@ -151,12 +165,12 @@ function AlertDialogAction({
        className={cn(className)}
        {...props}
      />
@@ -208,7 +214,7 @@ index a3d2ec0..34e3a03 100644
    size = "default",
    ...props
  }: AlertDialogPrimitive.Close.Props &
-@@ -168,7 +181,7 @@ function AlertDialogCancel({
+@@ -168,7 +182,7 @@ function AlertDialogCancel({
        render={<Button variant={variant} size={size} />}
        {...props}
      />
@@ -217,7 +223,7 @@ index a3d2ec0..34e3a03 100644
  }
  
  export {
-@@ -184,4 +197,4 @@ export {
+@@ -184,4 +198,4 @@ export {
    AlertDialogPortal,
    AlertDialogTitle,
    AlertDialogTrigger,

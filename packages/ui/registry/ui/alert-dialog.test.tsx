@@ -393,3 +393,30 @@ test("no a11y violations — open, small, with media", async () => {
   await expect.element(screen.getByRole("alertdialog")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });
+
+test("an alert dialog opened inside another draws its own backdrop (OVL-23)", async () => {
+  const screen = await render(
+    <AlertDialog defaultOpen>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Outer</AlertDialogTitle>
+          <AlertDialogDescription>The first alert.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialog defaultOpen>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Inner</AlertDialogTitle>
+              <AlertDialogDescription>The nested alert.</AlertDialogDescription>
+            </AlertDialogHeader>
+          </AlertDialogContent>
+        </AlertDialog>
+      </AlertDialogContent>
+    </AlertDialog>,
+  );
+  await expect
+    .element(screen.getByRole("alertdialog", { name: "Inner" }))
+    .toBeInTheDocument();
+  expect(
+    document.querySelectorAll('[data-slot="alert-dialog-overlay"]'),
+  ).toHaveLength(2);
+});
