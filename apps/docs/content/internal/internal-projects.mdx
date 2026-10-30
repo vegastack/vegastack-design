@@ -35,9 +35,13 @@ nothing until the application explicitly reviews and pulls it:
 
 ```bash
 pnpm exec vegastack-design check-updates
-pnpm dlx shadcn@latest add @vegastack/<name> --diff
-pnpm dlx shadcn@latest add @vegastack/<name> --overwrite
+pnpm exec shadcn add @vegastack/<name> --diff
+pnpm exec shadcn add @vegastack/<name> --overwrite
 ```
+
+Use the lockfile-pinned binaries (`pnpm exec`), never `pnpm dlx …@latest`, while registry credentials
+are loaded. When and how a release reaches an app is in the [Runbook](/internal/runbook) (Regent web
+pulls with `pnpm ds:pull`).
 
 This channel carries component markup, behavior fixes, and API changes. A breaking API
 change surfaces in the consuming application's typecheck after the pull. Blocks such
@@ -80,8 +84,9 @@ the component referencing a CSS variable absent from the installed token package
 
 The trusted origin is an independent guardrail: `check-updates` refuses to attach
 credentials to a different origin and rejects redirects. Do not source that value from
-checkout-local dotenv files. The drift gate converts upstream registry changes into a
-reviewed CI failure. Use the public
+checkout-local dotenv files. Make the drift gate strict where drift is the change's own doing
+(a PR that touches registry-owned files, a staging or production deploy) and a warning elsewhere,
+so a fresh design-system release never turns unrelated work red. Use the public
 [Production checklist](/docs/guides/production-checklist) before shipping.
 
 ## Deployment

@@ -1,18 +1,44 @@
 # Runbook — vegastack-design
 
-The one procedure for everyone working on this repo: humans, Codex and Claude Code. Rules live in
-`AGENTS.md`; the reasons behind them live in `docs/decisions.md`. If a workflow or script disagrees with this
-file, the script is right: fix this file in the same PR.
+This is the one procedure for everyone working on this repo: humans, Codex and Claude Code. It is also published,
+generated from this file, as the internal docs page `design.vegastack.com/internal/runbook`; edit this file,
+never the page. Rules live in [`AGENTS.md`](https://github.com/vegastack/vegastack-design/blob/main/AGENTS.md)
+and the reasons behind them in [`docs/decisions.md`](https://github.com/vegastack/vegastack-design/blob/main/docs/decisions.md).
+If a workflow or script disagrees with this file, the script is right: fix this file in the same PR.
+
+## The flow
+
+```mermaid
+flowchart TD
+  accTitle: Design-system change to a deployed app
+  pr["PR with changeset"] --> ci["PR quality CI<br/>(affected only)"]
+  ci -->|green + review| merge["Squash-merge to main"]
+  merge --> rel["release.yml<br/>version commit by release App"]
+  rel --> npm["npm publish (OIDC)"]
+  rel --> dep["deploy.yml<br/>registry + docs, signed, probed"]
+  dep --> pull["App: pnpm ds:pull<br/>(own PR)"]
+  pull --> appci["App CI + merge to develop"]
+  appci --> appdeploy["App deploy<br/>(app runbook)"]
+```
+
+| Step                   | Who                        | Command or trigger                                                         | Typical time   |
+| ---------------------- | -------------------------- | -------------------------------------------------------------------------- | -------------- |
+| Change                 | you                        | edit, then `pnpm gen` (the pre-commit hook runs it), then `pnpm changeset` | —              |
+| PR CI                  | automatic                  | `PR quality`, i.e. `pnpm verify:affected`                                  | 3–10 min       |
+| Review                 | Codex (Claude as fallback) | `codex exec -s read-only … < /dev/null`                                    | —              |
+| Merge                  | you                        | `gh pr merge <n> --squash --match-head-commit <sha>`                       | —              |
+| Version + publish      | automatic                  | `release.yml` on the push to `main`                                        | 2–5 min        |
+| Registry + docs deploy | automatic                  | `deploy.yml`, called by `release.yml`                                      | 8–10 min       |
+| Pull into an app       | you, in the app            | `pnpm ds:pull` → its own PR                                                | 1 min + app CI |
 
 ## 1. Who may do what
 
-- A reviewed PR with green CI merges into `main` without asking (operator, 8 October 2026). The merge
-  releases: npm publish, then the registry and docs deploy.
+- A reviewed PR with green CI merges into `main` without asking (operator, 8 October 2026). **The merge is
+  the release.**
 - Stop and ask MK before you touch any of these: secrets, Cloudflare Access or auth policy, workflow
   permissions, runner trust, destructive data, version reversal, a new sanctioned dependency, a new
-  decision-register row, or a shadcn CLI bump (`AGENTS.md` § Authorization).
-- Reviews use Codex (`codex exec … < /dev/null`). If Codex is unavailable, use a Claude subagent and say so.
-- Never `git stash`. Work in a worktree (`git worktree add ../.worktrees/<name> -b <branch> origin/main`).
+  decision-register row, or a shadcn CLI bump.
+- Never `git stash`. Work in a worktree: `git worktree add ../.worktrees/<name> -b <branch> origin/main`.
 
 ## 2. Setup
 
@@ -26,72 +52,66 @@ Registry credentials (`CF_ACCESS_CLIENT_ID`/`_SECRET`) are needed only to consum
 ## 3. Change a component
 
 1. Load the `component` skill. Its first question is whether upstream shadcn ships the component.
-2. Edit the canonical source `packages/ui/registry/ui/<name>.tsx`. For an upstream component the change
-   is a patch hunk that names an **ours** decision ID; author it with `pnpm upstream:diff <name>`.
-3. Update the component's test, its MDX page (`apps/docs/content/docs/components/<name>.mdx`) and
-   `component-contracts.json` if its public surface changed.
-4. Run `pnpm gen` (every generator, ~5 s; the pre-commit hook runs it too). It also writes the
-   contract fields the source determines: exports, dependencies, data attributes and wave rosters.
-5. Write a changeset with `pnpm changeset`. Bump every public package whose source changed, and open the
-   body with one section marker: `🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`. Wrap any `<word>` in backticks.
-6. Check locally, optionally with `pnpm check:component <name>` or `pnpm check:affected`. CI is the
+2. Edit the canonical source `packages/ui/registry/ui/<name>.tsx`. For an upstream component the change is
+   a patch hunk that names an **ours** decision ID; author it with `pnpm upstream:diff <name>`.
+3. Update the component's test and its MDX page (`apps/docs/content/docs/components/<name>.mdx`).
+4. Run `pnpm gen` (~5 s). It runs every generator and also writes the contract fields the source determines
+   (exports, dependencies, data attributes, wave rosters). The pre-commit hook runs it when you stage an
    authority.
-7. Open a PR. Commit messages use a conventional prefix (`feat(ui):`, `fix(ui):`, `chore(ci):`, `docs:`).
+5. Run `pnpm changeset`. Bump every public package whose source changed, and open the body with one section
+   marker (`🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`). Wrap any `<word>` in backticks. A change that releases nothing still
+   needs an empty changeset (`---\n---`) with a one-line body.
+6. Optional local check: `pnpm check:component <name>` or `pnpm check:affected`. CI is the authority.
+7. Open the PR. Commit subjects use a conventional prefix (`feat(ui):`, `fix(ui):`, `chore(ci):`, `docs:`)
+   and stay under 100 characters.
 
 For UI changes, look at the affected previews in light and dark, at 320px and wide, with their states.
-Temporary captures are fine; never commit screenshots.
+Never commit screenshots.
 
-## 4. What CI runs and how to read a red run
+## 4. What CI runs
 
-`PR quality` (`.github/workflows/ci.yml`) is one job in the pinned Playwright container on the Linux
-`vsk-runner` pool. It runs `pnpm verify:affected --base <base> --head <head>`, which works in stages,
-each printing `finished in Ns`:
+`PR quality` (`ci.yml`) is one job on the Linux `vsk-runner` pool, in the pinned Playwright container. It runs
+`pnpm verify:affected`, which prints each stage with its time:
 
-| Stage             | What it proves                                                                                            |
-| ----------------- | --------------------------------------------------------------------------------------------------------- |
-| typecheck         | every workspace typechecks                                                                                |
-| lint              | formatting, skills, changesets, upstream parity (`upstream:check`), tooling tests, package and docs lints |
-| design invariants | generated surfaces are current, contracts reconcile, tokens, RSC safety, registry integrity               |
-| affected Chromium | tests for changed items, their reverse dependents, and owned geometry fixtures                            |
+| Stage                 | Proves                                                                                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| typecheck             | every workspace typechecks                                                                                |
+| lint                  | formatting, skills, changesets, upstream parity (`upstream:check`), tooling tests, package and docs lints |
+| design invariants     | `gen --check` (no stale generated file), contracts, tokens, RSC safety, registry integrity                |
+| affected Chromium     | tests for the changed items, their reverse dependents and their geometry fixtures                         |
+| real registry consume | the real `shadcn add` round-trip, only when the registry shape, CLI or public packages change             |
 
-A red run names its stage and the failing script.
+After that it runs the workflow lint (`tooling/verify-workflows.mjs`: actionlint, zizmor and house rules,
+fully only when `.github/**` changes), the changeset requirement, and a clean-tree check. The whole
+component suite runs only on demand (§ 8).
 
-- **"stale", "out of sync" or "run pnpm gen"** means a generated file is behind its authority. Run
-  `pnpm gen` and commit what it writes. The pre-commit hook does this for you when you stage an
-  authority (registry source, contracts, public skills, `design.md`, tokens, `CHANGELOG.md`).
-- A failing test that passes locally is a candidate flake. Rerun it once, and record it in the PR if the
-  rerun passes.
-- The complete component suite is manual: `gh workflow run full-suite.yml -f commit_sha=<sha> -f engines=chromium|all`.
+## 5. Release (automatic)
 
-## 5. Review
+On every push to `main`, `release.yml`:
 
-Load the `review` skill. Verify every finding by running it, fix the root cause, and re-run the gates.
-Record findings in the PR. Only MK's judgement calls go to `docs/ledger/operator-review.md`.
+1. If changesets are pending, runs `pnpm run version-packages` and commits
+   `chore(release): registry x.y.z [skip ci]`. It pushes that commit to `main` as the
+   [`vegastack-design-release`](https://github.com/organizations/vegastack/settings/apps/vegastack-design-release)
+   GitHub App. The App is the [`main` ruleset](https://github.com/vegastack/vegastack-design/settings/rules/23470280)'s
+   only bypass actor, and its token is minted per run with `contents: write` only. If `main` moved
+   meanwhile, the push is rejected and the newer run releases.
+2. Publishes the npm versions that are missing, through OIDC (no token):
+   [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) and
+   [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens).
+3. Calls `deploy.yml` for the release commit. That is one job: build the registry and docs once, sign the
+   integrity manifest with cosign, upload to Cloudflare, then probe production. `/r/*` must reject anonymous
+   requests and accept the service token; everything else must be public.
 
-## 6. Release
+A merge without changesets releases nothing. There are no git tags and no GitHub releases. There are no
+GitHub Environments either; the secrets are repository secrets.
 
-A merge to `main` is the release. `release.yml` runs on the push:
+Watch it in [Actions](https://github.com/vegastack/vegastack-design/actions): the
+[Release](https://github.com/vegastack/vegastack-design/actions/workflows/release.yml) run, then its deploy
+job. Done means `npm view @vegastack/design version` shows the new version and the deploy's probe step is green.
 
-1. With pending changesets it runs `pnpm run version-packages` and commits
-   `chore(release): registry x.y.z [skip ci]` straight to `main`. It pushes as the
-   `vegastack-design-release` GitHub App, which is the `main` ruleset's only bypass actor and is minted
-   per run with `contents: write` only. There is no Version Packages PR. If `main` moved meanwhile, the
-   push is rejected and the newer run releases.
-2. It publishes the npm versions that are missing, through OIDC (no token), then calls `deploy.yml`
-   for the version commit.
-3. Deploy is one job (`deploy.yml`, about 8–10 min): build the registry and the docs once, sign the
-   integrity manifest with cosign (a pinned binary cached on the runner), upload to Cloudflare, then probe
-   production. `/r/*` must reject anonymous requests and accept the service token; everything else must be
-   public. The real `shadcn add` consume proof is not repeated here. It runs on the pull request whenever
-   the registry shape, the CLI or the public packages change.
+## 6. Use an unreleased change in an app
 
-Watch it through with `gh run watch`. Verify with `npm view @vegastack/design version` and the deploy run's
-probe step. A registry-only release publishes no npm package, and that is expected. There are no git tags
-and no GitHub releases.
-
-## 7. Use an unreleased change in an app
-
-On the same machine:
+Same machine, nothing committed:
 
 ```bash
 # design-system worktree
@@ -100,42 +120,58 @@ pnpm registry:build && pnpm -F @vegastack/docs registry:serve        # serves pu
 pnpm exec shadcn add http://localhost:4000/<name>.json --overwrite
 ```
 
-Never commit this into the app. The app's drift check flags it until the real release is pulled.
+The app's drift check flags this until the real release is pulled.
 
-## 8. Pull a release into an app
+## 7. Pull a release into an app
 
-In the Regent web app, run `pnpm ds:pull`. It bumps the packages, overwrites the stale registry
-components, refreshes the vendored skills and runs the strict drift check. Open the result as its own PR,
-`chore(ds): pull design system <version>`, right after the deploy goes green.
+In the Regent web app, once the deploy is green:
 
-## 9. Recovery
+```bash
+pnpm ds:pull --dry-run    # what would change
+pnpm ds:pull              # bump packages, overwrite non-current components, refresh skills, strict drift check
+```
 
-- **Transient failure** (network, runner, npm, Cloudflare): `gh workflow run release.yml` resumes at the
-  current `main` tip. It publishes only the missing versions and redeploys. To redeploy one commit, run
-  `gh workflow run deploy.yml -f expected_sha=<main sha>`.
-- **Real defect after publish:** patch forward with a fix PR and a new patch release. Never unpublish
-  and never overwrite a version.
-- If three corrective releases do not fix it, stop and report the live npm versions, the deployed commit,
-  the failing stage and what you tried.
+Commit the result as its own PR, `chore(ds): pull design system <version>`, then follow the app's
+[deploy runbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/docs/deploy-runbook.md).
+Other apps use `pnpm exec vegastack-design check-updates` and `pnpm exec shadcn add @vegastack/<name> --overwrite`.
 
-## 10. Runners and caches
+## 8. When something fails
 
-Every job runs self-hosted on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with the Regent
-app) inside `mcr.microsoft.com/playwright:v<lockfile version>-noble`. There are two kinds of cache volume:
+| Symptom                                                            | Next action                                                                                                              |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| CI says "stale", "out of sync" or "run pnpm gen"                   | `pnpm gen`, commit, push                                                                                                 |
+| CI: "Some packages have been changed but no changesets were found" | `pnpm changeset` (or an empty one for tooling-only work)                                                                 |
+| A browser test fails in CI but passes locally                      | Rerun once. If it passes, note the flake in the PR; if not, fix it                                                       |
+| `verify-workflows` fails                                           | Read the house rule it names; never widen the allowlist without MK                                                       |
+| Release: push rejected                                             | Nothing to do; the newer `main` run releases                                                                             |
+| Release: publish failed (npm, network)                             | `gh workflow run release.yml` resumes at the `main` tip; it publishes only missing versions, then redeploys              |
+| Deploy failed                                                      | `gh workflow run deploy.yml -f expected_sha=<main sha>`                                                                  |
+| Probe: `/r/*` answers anonymously                                  | Stop. Restore the Access policy first ([Registry operations](https://design.vegastack.com/internal/registry-operations)) |
+| Real defect after publish                                          | Patch forward with a fix PR. Never unpublish or overwrite a version. After three failed fixes, stop and report           |
+| Full regression wanted                                             | `gh workflow run full-suite.yml -f commit_sha=<sha> -f engines=chromium` (or `all`)                                      |
 
-- `/opt/vsk-runner/pnpm-store`: used by pull-request and full-suite jobs.
-- `/opt/vsk-runner/pnpm-store-trusted` and `/opt/vsk-runner/trusted-tools`: mounted **only** by
-  `release.yml` and `deploy.yml`, so code from a pull request can never write into what a credentialed job
-  installs. Tool binaries are pinned and SHA-256-checked on every use (`tooling/trusted-tool.mjs`).
+## 9. Runners and caches
 
-`tooling/verify-workflows.mjs` (actionlint + zizmor + house rules) runs on any PR that changes
-`.github/**`. To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`. `pnpm run clean`
-reports reclaimable build output locally.
+Every job runs on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with the Regent app) inside
+`mcr.microsoft.com/playwright:v<lockfile version>-noble`. There are two kinds of cache volume:
 
-## 11. Glossary
+- `/opt/vsk-runner/pnpm-store`: used by pull-request jobs.
+- `/opt/vsk-runner/pnpm-store-trusted` and `/opt/vsk-runner/trusted-tools`: mounted only by `release.yml`
+  and `deploy.yml`, so pull-request code never writes into what a credentialed job installs. Tool binaries
+  are pinned and SHA-256-checked on every use (`tooling/trusted-tool.mjs`).
 
-- **upstream:check** — vendor integrity, byte parity of patches, exception discipline, variant coverage.
-- **decision register** — `packages/ui/upstream/decisions.json`; each patch hunk names an **ours** ID.
-- **contracts** — `packages/ui/component-contracts.json`: inventory, ownership, public surface.
-- **affected** — the changed items plus their transitive reverse dependents, from
-  `tooling/affected-tests.mjs`.
+To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.
+
+## 10. Links
+
+- Workflows: [ci](https://github.com/vegastack/vegastack-design/actions/workflows/ci.yml) ·
+  [release](https://github.com/vegastack/vegastack-design/actions/workflows/release.yml) ·
+  [deploy](https://github.com/vegastack/vegastack-design/actions/workflows/deploy.yml) ·
+  [full suite](https://github.com/vegastack/vegastack-design/actions/workflows/full-suite.yml)
+- Secrets and variables: [repository settings](https://github.com/vegastack/vegastack-design/settings/secrets/actions):
+  `RELEASE_APP_ID` (variable), `RELEASE_APP_PRIVATE_KEY`, `CF_API_TOKEN`, `CF_ACCOUNT_ID`,
+  `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
+- Live: [docs](https://design.vegastack.com) · registry `https://design.vegastack.com/r/<name>.json` (service
+  token) · [changelog](https://design.vegastack.com/docs/changelog)
+- Consumer side: [Regent dev handbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/.vegastack/dev.md)
+  (Design section) · [Regent deploy runbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/docs/deploy-runbook.md)

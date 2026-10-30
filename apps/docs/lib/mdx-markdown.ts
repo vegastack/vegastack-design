@@ -236,6 +236,22 @@ export const stringifyMdxForAgents: Stringify = (
       );
     case "RegistryInstallCallout":
       return REGISTRY_NOTICE_MARKDOWN;
+    case "Mermaid": {
+      // `source={…}` arrives as the expression's source text: a quoted string literal (prettier may
+      // re-quote it with single quotes), whose escapes JSON can read once the quotes are normalised.
+      const raw = (attributeValue(element, "source") ?? "").trim();
+      const quote = raw[0];
+      const source =
+        (quote === '"' || quote === "'") && raw.endsWith(quote)
+          ? (JSON.parse(
+              `"${raw
+                .slice(1, -1)
+                .replace(/\\'/g, "'")
+                .replace(/(^|[^\\])"/g, '$1\\"')}"`,
+            ) as string)
+          : raw;
+      return "```mermaid\n" + source + "\n```";
+    }
     default:
       // Unreachable: `kind === "rendered"` means the manifest lists this name in
       // RENDERED_ELEMENTS, and `verify-docs-export.mjs`'s manifest-coverage check proves every
