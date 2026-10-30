@@ -91,6 +91,9 @@ const {
 
 // Hard caps so the run can NEVER hang — every subprocess gets these.
 const SUBPROCESS_TIMEOUT_MS = 60_000;
+// Steps that install public npm deps (a heavy graph such as text-edit pulls dozens of packages):
+// long enough for a cold LAN cache to fetch them over the uplink once.
+const INSTALL_TIMEOUT_MS = 120_000;
 const KILL = "SIGKILL";
 
 // Declared @vegastack/* deps across registry items — these must be installable locally for the
@@ -584,8 +587,9 @@ function proveRealShadcnAdd(
   );
   writeFileSync(join(consumerRoot, "next.config.mjs"), "export default {};\n");
   // .npmrc → @vegastack scope resolves from our LOCAL npm registry (the publish-gate solver).
-  // Public deps go through the LAN npm cache while it works; `npmFallback()` drops it for the rest
-  // of the run the first time a step fails through it.
+  // Public deps go through the LAN npm cache. A step that fails through it is retried once against
+  // npmjs with the cache off for that retry only: a cold cache that times out on one heavy graph
+  // (it pulls each tarball over the shared uplink once) is warm for the next.
   const writeNpmrc = (cache) =>
     writeFileSync(
       join(consumerRoot, ".npmrc"),
@@ -599,11 +603,14 @@ function proveRealShadcnAdd(
     const r = run();
     if (r.ok || !npmCache.url) return r;
     warn(
-      `${step} failed through the LAN npm cache ${npmCache.url}; retrying against registry.npmjs.org for the rest of the run`,
+      `${step} failed through the LAN npm cache ${npmCache.url}; retrying it against registry.npmjs.org`,
     );
-    npmCache.url = undefined;
     writeNpmrc(undefined);
-    return run();
+    try {
+      return run();
+    } finally {
+      writeNpmrc(npmCache.url);
+    }
   };
   // shadcn reads its own style/colour JSON from REGISTRY_URL: the vendored mirror in the sidecar.
   const shadcnEnv = {
@@ -676,7 +683,7 @@ function proveRealShadcnAdd(
   const inst = npmFallback("pnpm install", () =>
     runCapped("pnpm", ["install"], {
       cwd: consumerRoot,
-      timeout: 60_000,
+      timeout: INSTALL_TIMEOUT_MS,
     }),
   );
   if (!inst.ok) {
@@ -697,7 +704,7 @@ function proveRealShadcnAdd(
       runCappedWithNetworkRetry(
         shadcnBin,
         ["add", `@vegastack/${name}`, "--yes", "--cwd", consumerRoot],
-        { timeout: 60_000, env: shadcnEnv },
+        { timeout: INSTALL_TIMEOUT_MS, env: shadcnEnv },
       ),
     );
     if (!r.ok) {
