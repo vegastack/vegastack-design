@@ -69,8 +69,9 @@ const contentKey = (item) => {
   delete meta.version;
   return itemHash({ ...item, meta });
 };
+// The last commit that changed the package's VERSION (a feature commit may touch the file too).
 const previousRelease = execSync(
-  "git log -1 --format=%H HEAD -- packages/ui/package.json",
+  `git log -1 --format=%H -G'"version":' HEAD -- packages/ui/package.json`,
   { cwd: repoRoot, encoding: "utf8" },
 ).trim();
 function previousItem(name) {

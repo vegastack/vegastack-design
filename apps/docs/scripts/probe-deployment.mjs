@@ -560,6 +560,19 @@ assertContentType(
 );
 const manifestText = await manifestResponse.text();
 const manifest = JSON.parse(manifestText);
+// Bind the probe to THIS deployment: the live manifest (every item's integrity) must equal the one
+// this commit built. With item-scoped versions an unchanged item looks the same in two releases, so
+// checking one item alone could pass against a stale deployment.
+assert.deepEqual(
+  manifest,
+  JSON.parse(
+    readFileSync(
+      new URL("../public/r/integrity-manifest.json", import.meta.url),
+      "utf8",
+    ),
+  ),
+  "live integrity manifest differs from the one this commit built (stale or partial deployment)",
+);
 
 const itemResponse = await requestUntil(
   "/r/stepper.json",
