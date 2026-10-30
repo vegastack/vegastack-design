@@ -9,6 +9,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import type { PeoplePickerOption } from "./people-picker";
 import {
   DateRangeFilter,
+  type DateRangeFilterValue,
   dateRangeForPreset,
   FilterChip,
   FilterRow,

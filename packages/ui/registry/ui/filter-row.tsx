@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.7 sha256-L4+J9FHGsYWXlfaqFUkCbvRTqXQem+5TopGWEJ+4bD8=
+// @vegastack filter-row@0.26.7 sha256-9N35oXNzeFHEGstIYNmPDP2VSaX50i7IL9LK9MFdNhw=
 
 "use client";
 
@@ -719,9 +719,15 @@ function useFacetAi<A extends unknown[]>(
 ) {
   const row = React.useContext(FilterRowAiContext);
   const ai = aiProp || (row?.facets.includes(label) ?? false);
+  // Read at call time: an async change (a created option) must see the row as it is then.
+  const latest = React.useRef({ ai, row, onValueChange });
+  React.useEffect(() => {
+    latest.current = { ai, row, onValueChange };
+  });
   const change = (...args: A) => {
-    if (ai) row?.onFacetEdit?.(label);
-    onValueChange?.(...args);
+    const now = latest.current;
+    if (now.ai) now.row?.onFacetEdit?.(label);
+    now.onValueChange?.(...args);
   };
   return { ai, change };
 }
