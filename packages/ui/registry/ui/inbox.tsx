@@ -1,4 +1,4 @@
-// @vegastack inbox@0.26.0 sha256-0vv6WduDTi4uK9VhKqwsI9xCsj0/0xkp6jMOvjvaCgU=
+// @vegastack inbox@0.26.0 sha256-7fiNGCpEd30IYeYvrwt+xlDLqjbUbN6JSqTmKcmMuGQ=
 
 "use client";
 
@@ -25,7 +25,6 @@ import {
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -161,7 +160,7 @@ export interface InboxProps extends Omit<
  *
  * @example
  * <Inbox actions={<InboxHeaderAction label="Mark all read" icon={<CheckCheck />} onClick={markAll} />}
- *   filters={<InboxFilters value={tab} onValueChange={setTab} unreadOnly={unread} onUnreadOnlyChange={setUnread} />}
+ *   filters={<InboxFilters value={tab} onValueChange={setTab} />}
  *   activeId={peekId} onActiveChange={setPeekId} onOpen={setPeekId}>
  *   <InboxGroup label="Today">{rows}</InboxGroup>
  * </Inbox>
@@ -483,26 +482,6 @@ export interface InboxFiltersProps {
    */
   tabs?: readonly InboxTab[];
   /**
-   * Show unread rows only — the Unread toggle's pressed state, independent of the tab.
-   * @default false
-   */
-  unreadOnly?: boolean;
-  /**
-   * Called from the Unread toggle; the toggle shows only when this is set.
-   * @default undefined
-   */
-  onUnreadOnlyChange?: (unreadOnly: boolean) => void;
-  /**
-   * The unread count on the toggle; 0 hides it.
-   * @default 0
-   */
-  unreadCount?: number;
-  /**
-   * The toggle's label.
-   * @default "Unread"
-   */
-  unreadLabel?: string;
-  /**
    * The tab list's accessible name.
    * @default "Show"
    */
@@ -512,45 +491,30 @@ export interface InboxFiltersProps {
 }
 
 /**
- * The row under the Inbox title: tabs (For you · Updates · Archived by default, each with an
- * optional count) and, at the end, an Unread toggle that filters whichever tab is open.
+ * The row under the Inbox title: the tabs (For you · Updates · Archived by default, each with an
+ * optional count). Unread rows read as unread in every tab (dot and tint); there is no Unread
+ * toggle.
  *
  * @example
- * <InboxFilters
- *   value={tab}
- *   onValueChange={setTab}
- *   unreadOnly={unreadOnly}
- *   onUnreadOnlyChange={setUnreadOnly}
- *   unreadCount={3}
- * />
+ * <InboxFilters value={tab} onValueChange={setTab} />
  */
 export function InboxFilters({
   value,
   onValueChange,
   tabs = INBOX_TABS,
-  unreadOnly = false,
-  onUnreadOnlyChange,
-  unreadCount = 0,
-  unreadLabel = "Unread",
   label = "Show",
   className,
 }: InboxFiltersProps) {
   return (
     <div
       data-slot="inbox-filters"
-      // The tabs keep their natural width; when they and Unread do not fit one line (a 384px
-      // sheet with four tabs, a phone), Unread wraps under them, end-aligned. The tabs fold into a
-      // dropdown only when they alone do not fit the row; folded, they still take the whole row, so
-      // the room they measure is the row and they unfold as soon as it fits them again.
-      className={cn(
-        "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5",
-        className,
-      )}
+      // The tabs fold into a dropdown only when they do not fit the row.
+      className={cn("flex min-w-0 items-center", className)}
     >
       <Tabs
         value={value}
         onValueChange={(next) => onValueChange(String(next))}
-        className="max-w-full min-w-0 grow basis-auto has-data-folded:basis-full"
+        className="max-w-full min-w-0 grow"
       >
         {/* The list pages' pill tabs, folding by measurement (`overflow="menu"`), so a triage queue
             reads as a list. */}
@@ -569,20 +533,6 @@ export function InboxFilters({
           ))}
         </TabsList>
       </Tabs>
-      {onUnreadOnlyChange ? (
-        <Toggle
-          variant="outline"
-          size="sm"
-          data-slot="inbox-filters-unread"
-          pressed={unreadOnly}
-          onPressedChange={(pressed) => onUnreadOnlyChange(pressed)}
-          className="ms-auto shrink-0"
-        >
-          {unreadLabel}
-          {unreadCount ? " " : null}
-          <FilterCount count={unreadCount} />
-        </Toggle>
-      ) : null}
     </div>
   );
 }
@@ -682,7 +632,9 @@ export interface InboxItemAction {
   /** Runs the action. */
   onClick: () => void;
   /**
-   * `primary` fills the chip; use it for the first action only.
+   * `primary` marks the row's main action, drawn `secondary`; every other action is `outline`.
+   * A row action is never the filled primary button — that is the page's top-bar action and a
+   * dialog's confirm.
    * @default "default"
    */
   variant?: "default" | "primary";
@@ -1192,9 +1144,11 @@ export function InboxItem({
               <Button
                 key={action.label}
                 size="sm"
+                // Row actions are never filled: the main one (`primary`) is secondary, the rest
+                // outline. The filled button is the page's top-bar action and a dialog's confirm.
                 variant={
                   action.variant === "primary" && i === 0
-                    ? "default"
+                    ? "secondary"
                     : "outline"
                 }
                 loading={action.state === "loading"}

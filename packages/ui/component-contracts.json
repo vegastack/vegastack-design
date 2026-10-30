@@ -9908,6 +9908,24 @@
           }
         },
         {
+          "name": "ListToolbarDrillHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed header row; no single host element takes a ref."
+          }
+        },
+        {
+          "name": "ListToolbarDrillHeaderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/list-toolbar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "ListToolbarPopover",
           "kind": "component",
           "source": "packages/ui/registry/ui/list-toolbar.tsx",
@@ -10039,7 +10057,16 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": []
+              "values": ["list-toolbar-sheet-body", "list-toolbar-sheet-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ListToolbarDrillHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["list-toolbar-drill-back", "list-toolbar-drill-header"]
             }
           ],
           "cssVariables": []
@@ -10098,7 +10125,7 @@
       "name": "filter-row",
       "registryType": "registry:ui",
       "title": "Filter Row",
-      "summary": "The chips under a ListToolbar: + Filter, pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.",
+      "summary": "The chips under a ListToolbar: pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, then + Filter and Clear, in one sideways-scrolling line that brings an opened chip into view; useAiFilterApplied toasts what an AI filter run added, with Undo.",
       "status": "stable",
       "since": "0.25.100",
       "family": "data",
@@ -10133,7 +10160,25 @@
           }
         },
         {
-          "name": "FilterRowAiNote",
+          "name": "useAiFilterApplied",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "AiFilterApplied",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AiFilterAppliedLabels",
           "kind": "interface",
           "source": "packages/ui/registry/ui/filter-row.tsx",
           "ref": {
@@ -10343,9 +10388,12 @@
         "@vegastack/chip",
         "@vegastack/date-time",
         "@vegastack/list-toolbar",
+        "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/toast",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -10374,11 +10422,6 @@
               "values": [
                 "filter-row",
                 "filter-row-add",
-                "filter-row-ai-dismiss",
-                "filter-row-ai-note",
-                "filter-row-ai-undo",
-                "filter-row-ai-unmatched",
-                "filter-row-chips",
                 "filter-row-clear",
                 "filter-row-scroll"
               ]
@@ -10449,8 +10492,11 @@
               "name": "data-slot",
               "values": [
                 "date-range-filter",
+                "date-range-filter-apply",
                 "date-range-filter-clear",
                 "date-range-filter-content",
+                "date-range-filter-custom",
+                "date-range-filter-custom-row",
                 "date-range-filter-presets",
                 "date-range-filter-trigger"
               ]
@@ -10604,10 +10650,12 @@
               "name": "data-slot",
               "values": [
                 "add-filter-menu-advanced",
+                "add-filter-menu-advanced-body",
+                "add-filter-menu-advanced-page",
                 "add-filter-menu-ai",
-                "add-filter-menu-back",
                 "add-filter-menu-body",
                 "add-filter-menu-content",
+                "add-filter-menu-divider",
                 "add-filter-menu-editor",
                 "add-filter-menu-field",
                 "add-filter-menu-input",
@@ -10758,6 +10806,7 @@
               "values": [
                 "sort-menu",
                 "sort-menu-direction",
+                "sort-menu-divider",
                 "sort-menu-fields",
                 "sort-menu-header",
                 "sort-menu-reset"
@@ -20777,7 +20826,7 @@
       "name": "inbox",
       "registryType": "registry:ui",
       "title": "Inbox",
-      "summary": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs with an Unread toggle, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage with an active row driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
+      "summary": "The notification Inbox: frame with header actions, For you · Updates · Archived tabs, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage with an active row driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "status": "stable",
       "since": "0.23.4",
       "family": "media",
@@ -21094,7 +21143,6 @@
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tabs",
-        "@vegastack/toggle",
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
@@ -21126,11 +21174,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "inbox-filters",
-                "inbox-filters-tab",
-                "inbox-filters-unread"
-              ]
+              "values": ["inbox-filters", "inbox-filters-tab"]
             }
           ],
           "cssVariables": []
@@ -41417,7 +41461,7 @@
       "name": "route-tabs",
       "registryType": "registry:ui",
       "title": "Route Tabs",
-      "summary": "Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab and a pending bar while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.",
+      "summary": "Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.",
       "status": "stable",
       "since": "0.25.89",
       "family": "navigation",
@@ -41551,13 +41595,10 @@
       },
       "motion": {
         "status": "observed",
-        "mechanisms": [
-          "motion-indeterminate (the pending bar's sweeping segment)",
-          "transition-opacity (the dimmed stale panel)"
-        ],
+        "mechanisms": ["transition-opacity (the dimmed stale panel)"],
         "reducedMotion": {
           "status": "covered",
-          "rationale": "The global reduced-motion reset in base.css collapses motion-indeterminate to its resting segment and the opacity transition to its end state."
+          "rationale": "The global reduced-motion reset in base.css collapses the opacity transition to its end state."
         }
       },
       "engines": [],
@@ -41611,12 +41652,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "route-tabs",
-                "route-tabs-fold-trigger",
-                "route-tabs-pending",
-                "tabs-list"
-              ]
+              "values": ["route-tabs", "route-tabs-fold-trigger", "tabs-list"]
             },
             {
               "name": "data-variant",
@@ -41810,13 +41846,10 @@
       },
       "motion": {
         "status": "observed",
-        "mechanisms": [
-          "motion-indeterminate (the pending bar's sweeping segment)",
-          "transition-opacity (the dimmed stale panel)"
-        ],
+        "mechanisms": ["transition-opacity (the dimmed stale panel)"],
         "reducedMotion": {
           "status": "covered",
-          "rationale": "The global reduced-motion reset in base.css collapses motion-indeterminate to its resting segment and the opacity transition to its end state."
+          "rationale": "The global reduced-motion reset in base.css collapses the opacity transition to its end state."
         }
       },
       "engines": [],

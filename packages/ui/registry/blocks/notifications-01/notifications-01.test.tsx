@@ -1,7 +1,7 @@
 /**
  * `notifications-01.test.tsx` — the block's browser contract: the rail row and the bell carry the
- * unread count in their names; the sheet's rows are links; "Mark all read" is announced once and
- * leaves Unread "all caught up"; the For you and Updates tabs split the rows; focus returns to the trigger on close; the error and loading
+ * unread count in their names; the sheet's rows are links; "Mark all read" is announced once (and
+ * there is no Unread toggle); the For you and Updates tabs split the rows; focus returns to the trigger on close; the error and loading
  * states render; axe-clean. Compiled contrast is in `test/contrast.browser.test.tsx`.
  */
 
@@ -56,15 +56,10 @@ test("the triggers carry the count, rows are links, and mark-all announces once"
   await expect
     .element(sheet.getByRole("status"))
     .toHaveTextContent("Marked all read");
-  (
-    sheet.getByRole("button", { name: "Unread" }).element() as HTMLElement
-  ).click();
-  await expect
-    .element(sheet.getByText("You’re all caught up").first())
-    .toBeInTheDocument();
-  (
-    sheet.getByRole("button", { name: "Unread" }).element() as HTMLElement
-  ).click();
+  // T31: no Unread toggle; the tabs alone split the rows.
+  expect(
+    document.querySelector('[data-slot="inbox-filters"] button[aria-pressed]'),
+  ).toBeNull();
   await expect
     .element(sheet.getByRole("link", { name: /Raj Patel assigned you/ }))
     .toBeInTheDocument();

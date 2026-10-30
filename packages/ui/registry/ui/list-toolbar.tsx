@@ -1,10 +1,11 @@
-// @vegastack list-toolbar@0.26.0 sha256-e/3y3XMUzsc5Xja9j6jbh3MAxxb7LHlE87XPqebKyN0=
+// @vegastack list-toolbar@0.26.0 sha256-GwLpKD4EQzA6JpHIglmd7hEBrMFdq8L2m0jx22vlPSw=
 
 "use client";
 
 import * as React from "react";
 import {
   ArrowUpDown,
+  ChevronLeft,
   Columns3,
   Ellipsis,
   LayoutGrid,
@@ -97,11 +98,6 @@ export interface ListToolbarSearch {
    * @default 300
    */
   debounceMs?: number;
-  /**
-   * Start as an icon at every width (a table, where the grid's own header is the focus).
-   * @default false
-   */
-  collapsible?: boolean;
   /**
    * One action offered under the field while the query reads as a phrase — a page's "Filter with
    * AI". It shows once the query has `minWords` words, never runs while typing, and Enter alone
@@ -487,10 +483,10 @@ export interface ListToolbarPopoverProps {
   /** The body. */
   children: React.ReactNode;
   /**
-   * `default` (288px) or `md` (320px).
+   * `default` (288px), `md` (320px), or `lg` (576px — a condition builder) on a tablet or wider.
    * @default "default"
    */
-  size?: "default" | "md";
+  size?: "default" | "md" | "lg";
   /**
    * The popover's alignment to its trigger.
    * @default "end"
@@ -521,8 +517,9 @@ export interface ListToolbarPopoverProps {
 /**
  * `ListToolbarPopover` — the one surface every toolbar tool opens: on a tablet or wider a popover
  * with the `DropdownMenu`'s own rhythm — a 4px inset, 28px rows at a 6px inset, 24px section
- * labels, hairlines edge to edge — and a bottom sheet (titled) on a phone. One surface, no fills
- * inside it.
+ * labels, hairlines edge to edge — and on a phone a bottom sheet with the same rows: the title
+ * at 16px, the rows' text on the title's edge, an 8px step from the title to the first row (no
+ * empty band). One surface, no fills inside it.
  *
  * @example
  * <ListToolbarPopover title="Sort" trigger={<ListToolbarButton icon={<ArrowUpDown />} label="Sort" />}>
@@ -547,11 +544,23 @@ export function ListToolbarPopover({
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetTrigger render={trigger} />
-        <SheetContent side="bottom" data-slot={dataSlot}>
-          <SheetHeader>
+        <SheetContent side="bottom" data-slot={dataSlot} className="gap-0">
+          <SheetHeader
+            data-slot="list-toolbar-sheet-header"
+            // Its own slot loses SheetContent's header guard: keep clear of the corner ×.
+            className="pe-12 pb-2"
+          >
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
-          <SheetBody className={cn("flex flex-col pb-4", className)}>
+          {/* 10px + a row's 6px inset puts every row's text on the title's 16px edge; hairlines
+              reach the sheet's edges as they reach the popover's. */}
+          <SheetBody
+            data-slot="list-toolbar-sheet-body"
+            className={cn(
+              "flex flex-col px-2.5 pb-4 [&_[data-slot$=-divider]]:-mx-2.5",
+              className,
+            )}
+          >
             {children}
           </SheetBody>
         </SheetContent>
@@ -562,14 +571,70 @@ export function ListToolbarPopover({
       <PopoverTrigger render={trigger} />
       <PopoverContent
         align={align}
-        size={size}
+        size={size === "lg" ? "default" : size}
         aria-label={title}
         data-slot={dataSlot}
-        className={cn("max-w-[calc(100vw-2rem)] gap-0 p-1", className)}
+        className={cn(
+          "max-w-[calc(100vw-2rem)] gap-0 p-1",
+          size === "lg" && "w-144",
+          className,
+        )}
       >
         {children}
       </PopoverContent>
     </Popover>
+  );
+}
+
+/** Props accepted by `ListToolbarDrillHeader`. */
+export interface ListToolbarDrillHeaderProps {
+  /** The drilled-in page's name ("Sort", "Columns", "Custom range"). */
+  title: string;
+  /** Back to the surface's first page. */
+  onBack: () => void;
+  /**
+   * The back control's accessible name.
+   * @default "Back"
+   */
+  backLabel?: string;
+  /**
+   * An action at the end ("Show all").
+   * @default undefined
+   */
+  action?: React.ReactNode;
+}
+
+/**
+ * `ListToolbarDrillHeader` — the head of a page drilled into inside a toolbar surface (Display ›
+ * Sort, + Filter › a field, a date filter's custom range): one 28px row whose ‹ sits on the rows'
+ * 6px inset, the title beside it in the rows' type, an optional action at the end.
+ *
+ * @example
+ * <ListToolbarDrillHeader title="Columns" onBack={() => setPage("main")} />
+ */
+export function ListToolbarDrillHeader({
+  title,
+  onBack,
+  backLabel = "Back",
+  action,
+}: ListToolbarDrillHeaderProps) {
+  return (
+    <div
+      data-slot="list-toolbar-drill-header"
+      className="flex h-7 min-w-0 items-center gap-1"
+    >
+      <Button
+        variant="ghost"
+        aria-label={backLabel}
+        data-slot="list-toolbar-drill-back"
+        onClick={onBack}
+        className="h-7 min-w-0 flex-1 justify-start gap-1.5 rounded-md px-1.5 text-sm font-medium [&_svg]:text-muted-foreground"
+      >
+        <ChevronLeft aria-hidden />
+        <span className="min-w-0 truncate">{title}</span>
+      </Button>
+      {action}
+    </div>
   );
 }
 
@@ -658,13 +723,13 @@ const METRICS = {
   gap: 8,
   /** Between the icon tools. */
   toolGap: 4,
-  /** The search's narrowest open width (`min-w-36`); it grows to 240px when there is room. */
+  /** The search's narrowest open width (`min-w-36`); it grows to 320px when there is room. */
   search: 144,
 };
 
 /**
  * The collapse steps, in order. Each level keeps everything the previous one did.
- * 0 all out (the search shrinks from 240px to 144px first) · 1 layout → Display ·
+ * 0 all out (the search shrinks from 320px to 144px first) · 1 layout → Display ·
  * 2 sort → Display · 3 search → icon · 4 edit and state → ⋯.
  */
 const MAX_LEVEL = 4;
@@ -810,8 +875,7 @@ export function ListToolbar({
         tools.reduce((sum, w) => sum + w, 0) +
           Math.max(0, tools.length - 1) * METRICS.toolGap,
       ];
-      if (search != null)
-        parts.push(search.collapsible || lvl >= 3 ? icon : METRICS.search);
+      if (search != null) parts.push(lvl >= 3 ? icon : METRICS.search);
       if (editCount > 0 && lvl < 4) parts.push(editWidth + 1 + METRICS.gap);
       if (stateWidth && lvl < 4) parts.push(stateWidth);
       return (
@@ -827,9 +891,8 @@ export function ListToolbar({
       }
     }
     // While an icon search is open the level never drops below the icon step, so the field does
-    // not flip back mid-edit; a narrowing row still collapses further. An always-collapsible
-    // search is an icon at every level, so it needs no floor.
-    if (frozen.current && !search?.collapsible) next = Math.max(next, 3);
+    // not flip back mid-edit; a narrowing row still collapses further.
+    if (frozen.current) next = Math.max(next, 3);
     setLevel(next);
   }, [
     editCount,
@@ -853,13 +916,11 @@ export function ListToolbar({
 
   // Open while focused from the icon, or while it holds a query (a restored search included).
   const searchExpanded =
-    search != null &&
-    (search.collapsible || level >= 3) &&
-    (searchOpen || search.value !== "");
+    search != null && level >= 3 && (searchOpen || search.value !== "");
   frozen.current = searchExpanded;
   const foldLayout = hasDisplay && hasLayout && level >= 1;
   const foldSort = hasDisplay && sort != null && level >= 2;
-  const iconSearch = search != null && (search.collapsible || level >= 3);
+  const iconSearch = search != null && level >= 3;
   const foldEdit = editCount > 0 && level >= 4;
 
   /* --- Shortcuts --------------------------------------------------------------------------- */
@@ -1103,9 +1164,9 @@ export function ListToolbar({
           : {})}
         className={cn(
           compact ? "h-7" : "h-8",
-          // 240px when there is room, down to 144px; open from an icon, it takes the row's free
+          // 320px when there is room, down to 144px; open from an icon, it takes the row's free
           // room and the tools stay in view.
-          iconSearch ? "w-auto min-w-0 flex-1" : "w-60 min-w-36 shrink",
+          iconSearch ? "w-auto min-w-0 flex-1" : "w-80 min-w-36 shrink",
         )}
       />
     );
@@ -1161,8 +1222,9 @@ export function ListToolbar({
           <div
             data-slot="list-toolbar-tabs"
             // Its own row: the tab control (Tabs, RouteTabs, ViewTabs) fills it and folds into a
-            // dropdown by itself when it does not fit.
-            className="flex w-full min-w-0 items-center *:min-w-0 *:flex-1"
+            // dropdown by itself when it does not fit. The page rhythm: 12px from the tabs (their
+            // line indicator) to the toolbar row, 8px from the toolbar row to the filter row.
+            className="flex w-full min-w-0 items-center pb-1 *:min-w-0 *:flex-1"
           >
             {tabs}
           </div>

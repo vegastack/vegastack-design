@@ -49,13 +49,12 @@ const rowMenu = (
 );
 
 /**
- * The full panel: For you · Updates · Archived with the Unread toggle, a record's updates grouped
+ * The full panel: For you · Updates · Archived, a record's updates grouped
  * into one row, a pending access request with Allow / Decline, an answered one, and J / K walking
  * the rows (the active row is the one a peek would show).
  */
 export function inbox(): ReactNode {
   const [tab, setTab] = useState("for-you");
-  const [unreadOnly, setUnreadOnly] = useState(false);
   const [read, setRead] = useState<Record<string, boolean>>({});
   const [active, setActive] = useState<string | null>("task-39");
   const [request, setRequest] = useState<"pending" | "answered">("pending");
@@ -89,9 +88,6 @@ export function inbox(): ReactNode {
               { value: "updates", label: "Updates" },
               { value: "archived", label: "Archived" },
             ]}
-            unreadOnly={unreadOnly}
-            onUnreadOnlyChange={setUnreadOnly}
-            unreadCount={unreadCount}
           />
         }
         activeId={active}
@@ -319,14 +315,7 @@ export function inboxEmpty(): ReactNode {
   return (
     <Frame>
       <Inbox
-        filters={
-          <InboxFilters
-            value="for-you"
-            onValueChange={() => {}}
-            unreadOnly
-            onUnreadOnlyChange={() => {}}
-          />
-        }
+        filters={<InboxFilters value="for-you" onValueChange={() => {}} />}
       >
         <InboxEmpty description="New assignments and meeting updates show up here." />
       </Inbox>
@@ -347,10 +336,9 @@ export function inboxLoading(): ReactNode {
   );
 }
 
-/** App-defined tabs with counts, and the Unread toggle beside them. */
+/** App-defined tabs with counts. */
 export function inboxFilters(): ReactNode {
   const [tab, setTab] = useState("mentions");
-  const [unreadOnly, setUnreadOnly] = useState(true);
   return (
     <div className="w-full max-w-sm">
       <InboxFilters
@@ -361,9 +349,6 @@ export function inboxFilters(): ReactNode {
           { value: "mentions", label: "Mentions", count: 2 },
           { value: "updates", label: "Updates" },
         ]}
-        unreadOnly={unreadOnly}
-        onUnreadOnlyChange={setUnreadOnly}
-        unreadCount={3}
       />
     </div>
   );

@@ -1,11 +1,11 @@
 ---
 title: Filter Row
-description: The chips under a ListToolbar — facets and chips in one scrolling line, + Filter and Clear at the right end, and a note on what an AI run added.
+description: The chips under a ListToolbar — facets, chips, + Filter and Clear in one scrolling line that brings an opened chip into view, and the one date filter.
 audience: public
 registry: filter-row
 status: stable
 since: 0.25.100
-a11y: named group; AI chips marked; polite AI note
+a11y: named group; AI chips marked; AI result in a toast
 preview: filterRow
 ---
 
@@ -17,12 +17,32 @@ preview: filterRow
 
 ```tsx
 import { AddFilterMenu } from "@/components/ui/add-filter-menu";
-import { FilterRow, ListFacet } from "@/components/ui/filter-row";
+import {
+  FilterRow,
+  ListFacet,
+  useAiFilterApplied,
+} from "@/components/ui/filter-row";
+
+const onAiApplied = useAiFilterApplied();
 
 <ListToolbar
   filterRow={
     <FilterRow
-      addFilter={<AddFilterMenu fields={fields} onPick={addFilter} ai={ai} />}
+      addFilter={
+        <AddFilterMenu
+          fields={fields}
+          onPick={addFilter}
+          ai={{
+            onSubmit: runAiFilter,
+            onApplied: (result) =>
+              onAiApplied({
+                count: result.added,
+                unmatched: result.unmatched,
+                onUndo: undoAi,
+              }),
+          }}
+        />
+      }
       facets={
         <ListFacet
           label="Status"
@@ -33,7 +53,6 @@ import { FilterRow, ListFacet } from "@/components/ui/filter-row";
         />
       }
       chips={chips}
-      aiNote={note}
       onClear={clearAll}
     />
   }
@@ -47,16 +66,18 @@ The order never changes, so chips never jump:
    `FilterChip` (below).
 2. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
    A preset resolves to ordinary chips; there is no separate preset chip.
-3. **`+ Filter`** (`addFilter`), at the right end — never scrolled away.
+3. **`+ Filter`** (`addFilter`), right after the last chip, inside the scrolling line.
 4. **Clear**, right beside `+ Filter`, only while something is set.
 
-Chips made by an AI filter (`source: "ai"`) lead with ✦ until the filter is edited. After an AI run
-the host passes `aiNote`: one line under the row — "✦ 2 filters added by AI · Undo · Couldn't match
-“warehouse”" — until the next manual change or its ×. **Undo** removes exactly that run's chips.
-Unknown words are listed, never guessed.
+Chips made by an AI filter (`source: "ai"`) lead with ✦ until the filter is edited. What a run did
+is a toast, never a line under the row: `useAiFilterApplied()` returns `onAiApplied`, which shows
+"2 filters added by AI" (and "Couldn't match “warehouse”") with **Undo**, which removes exactly that
+run's chips. Call it from `AddFilterMenu`'s `ai.onApplied` and after the toolbar search's
+suggestion. Unknown words are listed, never guessed.
 
-The facets and chips are **one line at every width**: it scrolls sideways with an edge fade and
-never wraps to a second line. Every control on the row — facets, chips, `+ Filter`, Clear — is the
+The facets, chips, `+ Filter` and Clear are **one line at every width**: it scrolls sideways with an
+edge fade and never wraps to a second line. When a chip's picker opens (or a chip takes focus), the
+line scrolls that chip into view — only the row moves, never the page. Every control on the row — facets, chips, `+ Filter`, Clear — is the
 toolbar's tool height: 32px, or 28px in a `size="compact"` toolbar. The row counts what is applied
 (its chips plus its set facets) and tells the enclosing
 [`ListToolbar`](/docs/components/list-toolbar), whose Filter tool shows the count.
@@ -86,11 +107,11 @@ part, with the `data-slot` it renders (generated from the canonical source):
   name="FilterRowChip"
 />
 
-### AI note
+### useAiFilterApplied
 
 <ApiTable
   path="../../packages/ui/registry/ui/filter-row.tsx"
-  name="FilterRowAiNote"
+  name="AiFilterApplied"
 />
 
 ### ListFacet
@@ -128,12 +149,19 @@ exactly as every other picker does. `leadingOptions` adds rows such as "Unassign
 
 ### DateRangeFilter
 
-A date-range chip in the same shape as a facet. Presets: Today · Yesterday · Last 7 days · Last 30
-days · This month · Last month · Custom range (a two-month calendar with Apply). Set, it reads the
-preset ("Due: Last 7 days") or the dates from the date-time helpers ("Due: Sep 1–25"). Pass `now`
-in the same calendar-date convention as the range endpoints; it drives both the presets and the
-calendar's Today highlight. `dateRangeForPreset(preset, now)` returns the `{ from, to }` a preset
-covers, for the query. The calendar loads lazily — fetched when the chip is hovered, focused or
+**The** date filter: every date facet on every list is one, so dates behave the same everywhere. A
+chip in the same shape as a facet; its popover lists the page's `presets` as the menus' 28px rows —
+Overdue · Today · Yesterday · Tomorrow · This week · Last week · Next week · Last 7 days · Next 7
+days · Last 30 days · This month · Last month · No date — and "Custom range", which drills into a
+calendar (two months, one on a phone) with Apply in the same popover. The default set looks back
+(Today · Yesterday · Last 7 days · Last 30 days · This month · Last month · Custom range); a due date
+passes `["overdue", "today", "thisWeek", "next7", "thisMonth", "none", "custom"]`. Set, it reads the
+preset ("Due: This week") or the dates ("Due: Sep 1–25"). A value's `from` or `to` is `null` when
+the range is open on that side ("Overdue" has no first day; "No date" has neither). Pass `now` in
+the same calendar-date convention as the range endpoints; it drives both the presets and the
+calendar's Today highlight. `dateRangeForPreset(preset, now, weekStartsOn)` returns the
+`{ from, to }` a preset covers, for the query (weeks start on Monday unless `weekStartsOn` says
+otherwise). The calendar loads lazily — fetched when the chip is hovered, focused or
 opened — so a filter row never puts the calendar engine in the page's first bundle.
 
 <ApiTable
@@ -168,8 +196,7 @@ that keep their filters as data and map them to `chips`.
 
 - The chips are a `group` named "Filters". Each chip's × is named "Clear" and the filter's label.
 - An AI chip's ✦ is labelled "Added by AI", so the mark is read with the chip.
-- The AI note is a polite `status`: it is announced once after a run. Undo and the dismiss × are
-  buttons.
+- What an AI run did is a toast (announced by the toaster's live region) with an Undo button.
 - Clear hands focus back to the row's first control once it unmounts.
 - A `ListFacet`, `PeopleFacet` or `DateRangeFilter` is a button named by what it reads ("Status",
   "Status: Open"); its × is named "Clear" and the label, and <kbd>Escape</kbd> closes its popover

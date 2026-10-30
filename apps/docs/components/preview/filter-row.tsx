@@ -44,7 +44,6 @@ export function filterRow(): ReactNode {
       onRemove: () => remove("finish"),
     },
   ]);
-  const [note, setNote] = React.useState(true);
   function remove(id: string) {
     setChips((all) => all.filter((chip) => chip.id !== id));
   }
@@ -68,31 +67,26 @@ export function filterRow(): ReactNode {
               {...optProps}
             />
             <DateRangeFilter
-              label="Updated"
+              label="Due"
+              presets={[
+                "overdue",
+                "today",
+                "thisWeek",
+                "next7",
+                "thisMonth",
+                "none",
+                "custom",
+              ]}
               value={due}
               onValueChange={setDue}
             />
           </>
         }
         chips={chips}
-        aiNote={
-          note
-            ? {
-                count: 2,
-                unmatched: ["warehouse"],
-                onUndo: () => {
-                  setChips((all) => all.filter((chip) => chip.source !== "ai"));
-                  setNote(false);
-                },
-                onDismiss: () => setNote(false),
-              }
-            : undefined
-        }
         onClear={() => {
           setStatus([]);
           setDue(null);
           setChips([]);
-          setNote(false);
         }}
       />
     </Wrapper>

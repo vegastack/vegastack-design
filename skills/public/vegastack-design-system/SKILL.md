@@ -377,6 +377,8 @@ contract.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
 - Put `truncate` on an inner span, with `min-w-0` on the flex container.
 - Let the parent decide a form control's width — every control is `w-full`.
+- Give a row's, card's or inline block's actions `secondary` (the main one) and `outline` (the
+  rest); the filled primary `Button` is only the page's top-bar action and a dialog's confirm.
 - Set numbers — counts, dates, amounts, quantities — in the regular font with `tabular-nums`, and
   right-align a numeric column. `font-mono` is for code and identifiers (`SYS-1042`) only.
 - Title a page with `PageHeader` (`font-heading text-2xl font-semibold`); a section heading is

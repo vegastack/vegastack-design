@@ -1,9 +1,16 @@
-// @vegastack filter-row@0.26.0 sha256-sX3EvGkmWpbt5puiauM2np841WCBQIskhaBwU3Zkmlo=
+// @vegastack filter-row@0.26.0 sha256-i/v/CdjqN4miYbFGKsDCGM3V5TuWvHHiNfq4S1uuiI4=
 
 "use client";
 
 import * as React from "react";
-import { ChevronDown, Plus, Search, Sparkles, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -22,17 +29,23 @@ import {
   type PeoplePickerOption,
   type PeoplePickerValue,
 } from "@/components/ui/people-picker";
-import { useListToolbar } from "@/components/ui/list-toolbar";
+import {
+  ListToolbarDrillHeader,
+  useListToolbar,
+} from "@/components/ui/list-toolbar";
+import { toast } from "@/components/ui/toast";
+import { useMediaQuery } from "@/components/ui/use-media-query";
 import { formatDateRange } from "@/lib/date-time";
+import { layoutTierQuery } from "@/lib/page-layout";
 
 /* ---
 `FilterRow` is the row of filters under a `ListToolbar`, opened by its Filter tool. Its order never
 changes, so chips never jump: the page's pinned facets (dashed while unset), then the other chips
-in the order they were added — one line that scrolls sideways and never wraps — and at the right
-end `+ Filter`, with `Clear` beside it while anything is set. Every control on the row is the
-toolbar's tool height (32px; 28px in a compact toolbar). Chips an AI filter made carry a ✦ until
-edited, and a line under the row says what the AI did — with Undo, and the words it could not
-match.
+in the order they were added, then `+ Filter` and `Clear` (while anything is set) right after the
+last chip — all on one line that scrolls sideways and never wraps; opening a chip's picker scrolls
+that chip into view. Every control on the row is the toolbar's tool height (32px; 28px in a compact
+toolbar). Chips an AI filter made carry a ✦ until edited; what the AI did is a toast with Undo
+(`useAiFilterApplied`), never a line under the row.
 --- */
 
 /**
@@ -81,49 +94,17 @@ export interface FilterRowChip {
   onRemove: () => void;
 }
 
-/** What an AI filter run did, for the line under the row. */
-export interface FilterRowAiNote {
-  /** How many filters it added. */
-  count: number;
-  /**
-   * The words it could not turn into a filter — listed, never guessed.
-   * @default []
-   */
-  unmatched?: readonly string[];
-  /** Remove exactly the filters that run added. */
-  onUndo: () => void;
-  /**
-   * Hide the line (the next manual change does it too — the host decides).
-   * @default undefined
-   */
-  onDismiss?: () => void;
-}
-
 /** The words `FilterRow` shows. */
 export interface FilterRowLabels {
   /** The row's accessible name. */
   filters: string;
   /** The clear-everything action. */
   clear: string;
-  /** "2 filters added by AI". */
-  aiAdded: (count: number) => string;
-  /** The AI note's undo action. */
-  undo: string;
-  /** "Couldn't match “warehouse”". */
-  unmatched: (terms: readonly string[]) => string;
-  /** The AI note's dismiss button. */
-  dismiss: string;
 }
 
 const DEFAULT_LABELS: FilterRowLabels = {
   filters: "Filters",
   clear: "Clear",
-  aiAdded: (count) =>
-    `${count} ${count === 1 ? "filter" : "filters"} added by AI`,
-  undo: "Undo",
-  unmatched: (terms) =>
-    `Couldn't match ${terms.map((term) => `“${term}”`).join(", ")}`,
-  dismiss: "Dismiss",
 };
 
 /** Props accepted by `FilterRow`. */
@@ -132,7 +113,7 @@ export interface FilterRowProps extends Omit<
   "children"
 > {
   /**
-   * `+ Filter` — an `AddFilterMenu`. At the right end, before `Clear`.
+   * `+ Filter` — an `AddFilterMenu`. Right after the last chip, before `Clear`.
    * @default undefined
    */
   addFilter?: React.ReactNode;
@@ -147,11 +128,6 @@ export interface FilterRowProps extends Omit<
    * @default []
    */
   chips?: readonly FilterRowChip[];
-  /**
-   * The line under the row after an AI filter run.
-   * @default undefined
-   */
-  aiNote?: FilterRowAiNote;
   /**
    * Clear every filter; `Clear` shows while anything is set.
    * @default undefined
@@ -171,17 +147,16 @@ export interface FilterRowProps extends Omit<
 }
 
 /**
- * `FilterRow` — the filter chips under a `ListToolbar`: the pinned facets and the other chips in
- * one sideways-scrolling line, then `+ Filter` and `Clear` at the right end; after an AI run, one
- * line saying what it added, with Undo and the words it could not match. Counts what is applied
- * and reports it to the toolbar's Filter tool. Put it in `ListToolbar`'s `filterRow`.
+ * `FilterRow` — the filter chips under a `ListToolbar`: the pinned facets, the other chips, then
+ * `+ Filter` and `Clear` right after the last chip, in one sideways-scrolling line. Opening a
+ * chip's picker scrolls the chip into view. Counts what is applied and reports it to the toolbar's
+ * Filter tool. Put it in `ListToolbar`'s `filterRow`.
  *
  * @example
  * <FilterRow
  *   addFilter={<AddFilterMenu fields={fields} onPick={addFilter} ai={ai} />}
  *   facets={<ListFacet label="Status" items={statuses} value={status} onValueChange={setStatus} />}
  *   chips={chips}
- *   aiNote={note}
  *   onClear={clearAll}
  * />
  */
@@ -189,11 +164,11 @@ export function FilterRow({
   addFilter,
   facets,
   chips = [],
-  aiNote,
   onClear,
   activeCount: activeCountProp,
   labels: labelsProp,
   className,
+  ref,
   ...props
 }: FilterRowProps) {
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
@@ -233,6 +208,8 @@ export function FilterRow({
   React.useEffect(() => () => reportCount?.(null), [reportCount]);
 
   const rowRef = React.useRef<HTMLDivElement>(null);
+  const mergedRef = React.useMemo(() => mergeRefs(rowRef, ref), [ref]);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
   const showClear = onClear != null && activeCount > 0;
   const clear = () => {
     onClear?.();
@@ -246,105 +223,177 @@ export function FilterRow({
     )?.focus();
   };
 
+  // A chip whose picker opens (or that takes focus) scrolls into view inside the row — only the
+  // row's own `scrollLeft` moves, never the page.
+  React.useEffect(() => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const reveal = (target: Element | null) => {
+      const node = target?.closest<HTMLElement>(
+        '[data-slot="list-facet"], [data-slot="date-range-filter"], [data-slot="filter-chip"], [data-slot="filter-row-add"], [data-slot="filter-row-clear"]',
+      );
+      if (!node || !scroller.contains(node)) return;
+      const box = scroller.getBoundingClientRect();
+      const rect = node.getBoundingClientRect();
+      // Keep a little of the neighbour in view, past the scroll fade.
+      const inset = 24;
+      if (rect.left < box.left + inset)
+        scroller.scrollLeft -= box.left + inset - rect.left;
+      else if (rect.right > box.right - inset)
+        scroller.scrollLeft += rect.right - (box.right - inset);
+    };
+    const onFocus = (event: FocusEvent) => reveal(event.target as Element);
+    const observer =
+      typeof MutationObserver === "undefined"
+        ? null
+        : new MutationObserver((records) => {
+            for (const record of records) {
+              const target = record.target as Element;
+              if (target.getAttribute("aria-expanded") === "true")
+                reveal(target);
+            }
+          });
+    scroller.addEventListener("focusin", onFocus);
+    observer?.observe(scroller, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-expanded"],
+    });
+    return () => {
+      scroller.removeEventListener("focusin", onFocus);
+      observer?.disconnect();
+    };
+  }, []);
+
   return (
     <div
+      ref={mergedRef}
+      role="group"
+      aria-label={labels.filters}
       data-slot="filter-row"
-      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+      className={cn("flex w-full min-w-0 items-center", className)}
       {...props}
     >
-      <div
-        ref={rowRef}
-        role="group"
-        aria-label={labels.filters}
-        data-slot="filter-row-chips"
-        className="flex w-full min-w-0 items-center gap-1.5"
-      >
-        <FilterRowTallContext.Provider value={!toolbar?.compact}>
-          <FilterFacetReporter value={reporter}>
-            <div
-              data-slot="filter-row-scroll"
-              // One line at every width: it scrolls sideways, never wraps.
-              className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
-            >
-              {facets}
-              {chips.map((chip) => (
-                <FilterChip
-                  key={chip.id}
-                  data-filter-id={chip.id}
-                  label={chip.label}
-                  value={chip.value}
-                  icon={chip.icon}
-                  ai={chip.source === "ai"}
-                  editor={chip.editor}
-                  defaultEditorOpen={chip.defaultEditorOpen}
-                  onRemove={chip.onRemove}
-                />
-              ))}
-            </div>
-          </FilterFacetReporter>
-        </FilterRowTallContext.Provider>
-        {addFilter != null ? (
+      <FilterRowTallContext.Provider value={!toolbar?.compact}>
+        <FilterFacetReporter value={reporter}>
           <div
-            data-slot="filter-row-add"
-            className="flex shrink-0 items-center"
+            ref={scrollRef}
+            data-slot="filter-row-scroll"
+            // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
+            // at its end, right after the last chip.
+            className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
           >
-            {addFilter}
+            {facets}
+            {chips.map((chip) => (
+              <FilterChip
+                key={chip.id}
+                data-filter-id={chip.id}
+                label={chip.label}
+                value={chip.value}
+                icon={chip.icon}
+                ai={chip.source === "ai"}
+                editor={chip.editor}
+                defaultEditorOpen={chip.defaultEditorOpen}
+                onRemove={chip.onRemove}
+              />
+            ))}
+            {addFilter != null ? (
+              <div
+                data-slot="filter-row-add"
+                className="flex shrink-0 items-center"
+              >
+                {addFilter}
+              </div>
+            ) : null}
+            {showClear ? (
+              <Button
+                variant="ghost"
+                size={toolbar?.compact ? "sm" : "default"}
+                data-slot="filter-row-clear"
+                className="shrink-0 font-normal text-muted-foreground"
+                onClick={clear}
+              >
+                {labels.clear}
+              </Button>
+            ) : null}
           </div>
-        ) : null}
-        {showClear ? (
-          <Button
-            variant="ghost"
-            size={toolbar?.compact ? "sm" : "default"}
-            data-slot="filter-row-clear"
-            className="shrink-0 font-normal text-muted-foreground"
-            onClick={clear}
-          >
-            {labels.clear}
-          </Button>
-        ) : null}
-      </div>
-      {aiNote != null ? (
-        <div
-          role="status"
-          data-slot="filter-row-ai-note"
-          className="flex min-h-5 min-w-0 flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground"
-        >
-          <Sparkles aria-hidden className="size-3.5 shrink-0" />
-          <span>{labels.aiAdded(aiNote.count)}</span>
-          <span aria-hidden>·</span>
-          <Button
-            variant="link"
-            size="xs"
-            data-slot="filter-row-ai-undo"
-            className="h-6 px-0 text-xs text-foreground"
-            onClick={aiNote.onUndo}
-          >
-            {labels.undo}
-          </Button>
-          {aiNote.unmatched && aiNote.unmatched.length > 0 ? (
-            <>
-              <span aria-hidden>·</span>
-              <span data-slot="filter-row-ai-unmatched">
-                {labels.unmatched(aiNote.unmatched)}
-              </span>
-            </>
-          ) : null}
-          {aiNote.onDismiss ? (
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={labels.dismiss}
-              data-slot="filter-row-ai-dismiss"
-              className="ms-auto size-6"
-              onClick={aiNote.onDismiss}
-            >
-              <X aria-hidden />
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
+        </FilterFacetReporter>
+      </FilterRowTallContext.Provider>
     </div>
   );
+}
+
+/** What an AI filter run did, for the toast `useAiFilterApplied` shows. */
+export interface AiFilterApplied {
+  /** How many filters it added. */
+  count: number;
+  /**
+   * The words it could not turn into a filter — listed, never guessed.
+   * @default []
+   */
+  unmatched?: readonly string[];
+  /** Remove exactly the filters that run added. */
+  onUndo: () => void;
+}
+
+/** The words the AI filter toast shows. */
+export interface AiFilterAppliedLabels {
+  /** "2 filters added by AI". */
+  added: (count: number) => string;
+  /** The undo action. */
+  undo: string;
+  /** "Couldn't match “warehouse”". */
+  unmatched: (terms: readonly string[]) => string;
+  /**
+   * A line under the toast's title — the app's AI disclaimer ("Generated by AI · can make
+   * mistakes"). Shown after the unmatched words, if any.
+   */
+  note?: string;
+}
+
+const AI_APPLIED_LABELS: AiFilterAppliedLabels = {
+  added: (count) =>
+    `${count} ${count === 1 ? "filter" : "filters"} added by AI`,
+  undo: "Undo",
+  unmatched: (terms) =>
+    `Couldn't match ${terms.map((term) => `“${term}”`).join(", ")}`,
+};
+
+/**
+ * `useAiFilterApplied` — the one way a list says what its AI filter did: returns `onAiApplied`,
+ * which shows a toast ("2 filters added by AI", the words it could not match) with Undo. The chips
+ * keep their ✦; nothing is drawn under the filter row. `labels.note` adds the app's AI disclaimer
+ * as the toast's last line. Call it once an `AddFilterMenu` AI run (or
+ * the toolbar search's suggestion) has added its chips.
+ *
+ * @example
+ * const onAiApplied = useAiFilterApplied();
+ * onAiApplied({ count: 2, unmatched: ["warehouse"], onUndo: undoAi });
+ */
+export function useAiFilterApplied(
+  labels?: Partial<AiFilterAppliedLabels>,
+): (applied: AiFilterApplied) => void {
+  const text = { ...AI_APPLIED_LABELS, ...labels };
+  return (applied) => {
+    const lines = [
+      applied.unmatched && applied.unmatched.length > 0
+        ? text.unmatched(applied.unmatched)
+        : null,
+      text.note ?? null,
+    ].filter((line): line is string => line != null);
+    toast.add({
+      title: text.added(applied.count),
+      description:
+        lines.length === 0 ? undefined : (
+          <span data-slot="ai-filter-toast-lines" className="flex flex-col">
+            {lines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </span>
+        ),
+      data: { actions: [{ label: text.undo, onClick: applied.onUndo }] },
+    });
+  };
 }
 
 /**
@@ -1113,20 +1162,31 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
 
 /** The built-in presets of a {@link DateRangeFilter}, plus `"custom"` (the calendar). */
 export type DateRangeFilterPreset =
+  | "overdue"
   | "today"
   | "yesterday"
+  | "tomorrow"
+  | "thisWeek"
+  | "lastWeek"
+  | "nextWeek"
   | "last7"
+  | "next7"
   | "last30"
   | "thisMonth"
   | "lastMonth"
+  | "none"
   | "custom";
 
-/** A {@link DateRangeFilter} value: whole days, `from` and `to` inclusive. */
+/**
+ * A {@link DateRangeFilter} value: whole days, `from` and `to` inclusive. A bound is `null` when
+ * the range is open on that side ("Overdue" has no first day); both are `null` for `"none"`
+ * (items with no date).
+ */
 export interface DateRangeFilterValue {
-  /** The first day (local midnight). */
-  from: Date;
-  /** The last day, inclusive (local midnight). */
-  to: Date;
+  /** The first day (local midnight), or `null` for no lower bound. */
+  from: Date | null;
+  /** The last day, inclusive (local midnight), or `null` for no upper bound. */
+  to: Date | null;
   /**
    * The preset it came from; the chip reads the preset's name ("Last 7 days") while it is set,
    * and the dates ("Sep 1–25") for `"custom"` or when omitted.
@@ -1144,13 +1204,14 @@ export interface DateRangeFilterProps {
   /** Called with the new range, or `null` when cleared. */
   onValueChange: (value: DateRangeFilterValue | null) => void;
   /**
-   * Which presets to offer, in order. `"custom"` opens the calendar.
+   * Which presets to offer, in order. `"custom"` opens the calendar; `"none"` is "No date".
+   * A due date usually takes `["overdue", "today", "thisWeek", "next7", "thisMonth", "none", "custom"]`.
    * @default ["today", "yesterday", "last7", "last30", "thisMonth", "lastMonth", "custom"]
    */
   presets?: DateRangeFilterPreset[];
   /**
    * Relabel presets — for another language.
-   * @default English ("Today", "Yesterday", "Last 7 days", …, "Custom range")
+   * @default English ("Overdue", "Today", "This week", "Next 7 days", …, "No date", "Custom range")
    */
   presetLabels?: Partial<Record<DateRangeFilterPreset, string>>;
   /**
@@ -1158,6 +1219,11 @@ export interface DateRangeFilterProps {
    * @default new Date()
    */
   now?: Date;
+  /**
+   * The first day of a week for "This week", "Last week" and "Next week" (0 Sunday … 6 Saturday).
+   * @default 1
+   */
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /**
    * The zone the range label's days are written in (the date-time helpers' `timeZone`).
    * @default the runtime's zone
@@ -1174,6 +1240,26 @@ export interface DateRangeFilterProps {
    */
   clearLabel?: string;
   /**
+   * The custom range's Apply button.
+   * @default "Apply"
+   */
+  applyLabel?: string;
+  /**
+   * The custom range's back button.
+   * @default "Back"
+   */
+  backLabel?: string;
+  /**
+   * Leads a range with only a first day ("From Nov 3").
+   * @default "From"
+   */
+  fromLabel?: string;
+  /**
+   * Leads a range with only a last day ("Until Oct 29").
+   * @default "Until"
+   */
+  untilLabel?: string;
+  /**
    * Disable the filter.
    * @default false
    */
@@ -1181,12 +1267,19 @@ export interface DateRangeFilterProps {
 }
 
 const DATE_RANGE_PRESET_LABELS: Record<DateRangeFilterPreset, string> = {
+  overdue: "Overdue",
   today: "Today",
   yesterday: "Yesterday",
+  tomorrow: "Tomorrow",
+  thisWeek: "This week",
+  lastWeek: "Last week",
+  nextWeek: "Next week",
   last7: "Last 7 days",
+  next7: "Next 7 days",
   last30: "Last 30 days",
   thisMonth: "This month",
   lastMonth: "Last month",
+  none: "No date",
   custom: "Custom range",
 };
 
@@ -1202,43 +1295,97 @@ const DEFAULT_DATE_RANGE_PRESETS: DateRangeFilterPreset[] = [
 
 /**
  * The `{ from, to }` a preset covers on the day `now` falls on — whole local days, inclusive.
+ * "Overdue" is every day before today (`from: null`); "No date" is `{ from: null, to: null }`.
  *
  * @example
  * dateRangeForPreset("last7") // the last 7 days, today included
+ * dateRangeForPreset("thisWeek", now, 0) // Sunday to Saturday
  */
 export function dateRangeForPreset(
   preset: Exclude<DateRangeFilterPreset, "custom">,
   now: Date = new Date(),
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1,
 ): DateRangeFilterValue {
-  const day = (offset: number, base = now) =>
-    new Date(base.getFullYear(), base.getMonth(), base.getDate() + offset);
+  const day = (offset: number) =>
+    new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
   const y = now.getFullYear();
   const m = now.getMonth();
+  const weekStart = -((now.getDay() - weekStartsOn + 7) % 7);
   switch (preset) {
+    case "overdue":
+      return { from: null, to: day(-1), preset };
     case "today":
       return { from: day(0), to: day(0), preset };
     case "yesterday":
       return { from: day(-1), to: day(-1), preset };
+    case "tomorrow":
+      return { from: day(1), to: day(1), preset };
+    case "thisWeek":
+      return { from: day(weekStart), to: day(weekStart + 6), preset };
+    case "lastWeek":
+      return { from: day(weekStart - 7), to: day(weekStart - 1), preset };
+    case "nextWeek":
+      return { from: day(weekStart + 7), to: day(weekStart + 13), preset };
     case "last7":
       return { from: day(-6), to: day(0), preset };
+    case "next7":
+      return { from: day(0), to: day(6), preset };
     case "last30":
       return { from: day(-29), to: day(0), preset };
     case "thisMonth":
       return { from: new Date(y, m, 1), to: new Date(y, m + 1, 0), preset };
     case "lastMonth":
       return { from: new Date(y, m - 1, 1), to: new Date(y, m, 0), preset };
+    case "none":
+      return { from: null, to: null, preset };
   }
 }
 
+/** One option row of a date filter: the menus' 28px row, a tick at the end when chosen. */
+function DateRangeOption({
+  selected,
+  onSelect,
+  children,
+  trailing,
+  "data-slot": dataSlot = "date-range-filter-preset",
+}: {
+  selected: boolean;
+  onSelect: () => void;
+  children: React.ReactNode;
+  trailing?: React.ReactNode;
+  "data-slot"?: string;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      aria-pressed={trailing == null ? selected : undefined}
+      data-slot={dataSlot}
+      onClick={onSelect}
+      className="h-7 w-full min-w-0 justify-between gap-1.5 rounded-md px-1.5 text-sm font-normal"
+    >
+      <span className="min-w-0 truncate">{children}</span>
+      {trailing ??
+        (selected ? <Check aria-hidden className="size-4 shrink-0" /> : null)}
+    </Button>
+  );
+}
+
 /**
- * `DateRangeFilter` — a date-range chip for a `FilterRow`, in the same compact rounded-md shape as
- * `ListFacet`. Unset it reads its label ("Due date ▾"); set it is tinted and reads the preset
- * ("Due date: Last 7 days") or the dates ("Due date: Sep 1–25", from the date-time helpers), with
- * a × in the chevron's fixed slot. Its popover lists Today · Yesterday · Last 7 days · Last 30
- * days · This month · Last month · Custom range, the last opening a two-month calendar.
+ * `DateRangeFilter` — THE date filter: every date facet in a `FilterRow` is one, in the same
+ * rounded-md chip as `ListFacet`. Unset it reads its label ("Due ▾"); set it is tinted and reads
+ * the preset ("Due: This week") or the dates ("Due: Sep 1–25"), with a × in the chevron's fixed
+ * slot. Its popover lists the page's presets as the menus' 28px rows — Overdue, Today, This week,
+ * Next 7 days, This month, No date, Last 30 days… — and "Custom range", which drills into a
+ * calendar (two months; one on a phone) in the same popover. Presets are computed from `now`, so
+ * "This week" is always this week.
  *
  * @example
- * <DateRangeFilter label="Created" value={created} onValueChange={setCreated} />
+ * <DateRangeFilter
+ *   label="Due"
+ *   presets={["overdue", "today", "thisWeek", "next7", "thisMonth", "none", "custom"]}
+ *   value={due}
+ *   onValueChange={setDue}
+ * />
  */
 export function DateRangeFilter({
   label,
@@ -1247,15 +1394,21 @@ export function DateRangeFilter({
   presets = DEFAULT_DATE_RANGE_PRESETS,
   presetLabels,
   now,
+  weekStartsOn = 1,
   timeZone,
   locale,
   clearLabel = `Clear ${label}`,
+  applyLabel = "Apply",
+  backLabel = "Back",
+  fromLabel = "From",
+  untilLabel = "Until",
   disabled = false,
 }: DateRangeFilterProps) {
   const labels = { ...DATE_RANGE_PRESET_LABELS, ...presetLabels };
   const hasValue = value != null;
   const row = React.useContext(FilterFacetContext);
   const chipHeight = useChipHeight();
+  const phone = useMediaQuery(layoutTierQuery(undefined, "tablet"));
   const id = React.useId();
   React.useEffect(() => {
     row?.report(id, label, hasValue);
@@ -1269,23 +1422,41 @@ export function DateRangeFilter({
   >(undefined);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
-  const valueText = !value
+  const isCustom =
+    value != null && (!value.preset || value.preset === "custom");
+  const day = (date: Date) =>
+    formatDateRange(date, date, { withTime: false, timeZone, locale, now });
+  // An open-ended custom range reads its one bound ("Until Oct 29", "From Nov 3").
+  const datesText = !value
     ? null
-    : value.preset && value.preset !== "custom"
-      ? labels[value.preset]
-      : formatDateRange(value.from, value.to, {
+    : value.from && value.to
+      ? formatDateRange(value.from, value.to, {
           withTime: false,
           timeZone,
           locale,
           now,
-        });
+        })
+      : value.to
+        ? `${untilLabel} ${day(value.to)}`
+        : value.from
+          ? `${fromLabel} ${day(value.from)}`
+          : null;
+  const valueText = !value
+    ? null
+    : !isCustom
+      ? labels[value.preset!]
+      : (datesText ?? labels.custom);
 
   const openChange = (next: boolean) => {
     setOpen(next);
     if (next) {
       prefetchCalendar();
-      setCustom(value?.preset === "custom" || (value != null && !value.preset));
-      setDraft(value ? { from: value.from, to: value.to } : undefined);
+      setCustom(false);
+      setDraft(
+        value?.from || value?.to
+          ? { from: value.from ?? undefined, to: value.to ?? undefined }
+          : undefined,
+      );
     }
   };
 
@@ -1323,33 +1494,33 @@ export function DateRangeFilter({
         <PopoverContent
           align="start"
           data-slot="date-range-filter-content"
-          className="w-auto gap-0 p-0"
+          className={cn("gap-0 p-1", custom ? "w-auto" : "w-56")}
         >
           {custom ? (
-            <div className="flex flex-col">
+            <div data-slot="date-range-filter-custom" className="flex flex-col">
+              <ListToolbarDrillHeader
+                title={labels.custom}
+                backLabel={backLabel}
+                onBack={() => setCustom(false)}
+              />
               <React.Suspense fallback={null}>
                 <Calendar
                   mode="range"
-                  numberOfMonths={2}
+                  numberOfMonths={phone ? 1 : 2}
                   className="bg-transparent"
                   selected={draft}
                   onSelect={setDraft}
                   defaultMonth={draft?.from ?? now}
                   today={now}
+                  weekStartsOn={weekStartsOn}
                   autoFocus
                 />
               </React.Suspense>
-              <div className="flex items-center justify-end gap-1.5 border-t border-border p-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setCustom(false)}
-                >
-                  Back
-                </Button>
+              <div className="-mx-1 mt-1 flex items-center justify-end border-t border-border px-1 pt-1">
                 <Button
                   size="sm"
                   disabled={!draft?.from}
+                  data-slot="date-range-filter-apply"
                   onClick={() => {
                     if (!draft?.from) return;
                     onValueChange({
@@ -1360,7 +1531,7 @@ export function DateRangeFilter({
                     setOpen(false);
                   }}
                 >
-                  Apply
+                  {applyLabel}
                 </Button>
               </div>
             </div>
@@ -1369,27 +1540,41 @@ export function DateRangeFilter({
               role="group"
               aria-label={label}
               data-slot="date-range-filter-presets"
-              className="flex min-w-44 flex-col p-1"
+              className="flex flex-col"
             >
-              {presets.map((preset) => (
-                <Button
-                  key={preset}
-                  variant="ghost"
-                  size="sm"
-                  aria-pressed={value?.preset === preset}
-                  className="justify-start font-normal aria-pressed:bg-accent"
-                  onClick={() => {
-                    if (preset === "custom") {
-                      setCustom(true);
-                      return;
+              {presets.map((preset) =>
+                preset === "custom" ? (
+                  <DateRangeOption
+                    key={preset}
+                    data-slot="date-range-filter-custom-row"
+                    selected={isCustom}
+                    onSelect={() => setCustom(true)}
+                    trailing={
+                      <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                        {isCustom && datesText ? (
+                          <span className="min-w-0 truncate">{datesText}</span>
+                        ) : null}
+                        <ChevronRight aria-hidden className="size-4 shrink-0" />
+                      </span>
                     }
-                    onValueChange(dateRangeForPreset(preset, now));
-                    setOpen(false);
-                  }}
-                >
-                  {labels[preset]}
-                </Button>
-              ))}
+                  >
+                    {labels.custom}
+                  </DateRangeOption>
+                ) : (
+                  <DateRangeOption
+                    key={preset}
+                    selected={value?.preset === preset}
+                    onSelect={() => {
+                      onValueChange(
+                        dateRangeForPreset(preset, now, weekStartsOn),
+                      );
+                      setOpen(false);
+                    }}
+                  >
+                    {labels[preset]}
+                  </DateRangeOption>
+                ),
+              )}
             </div>
           )}
         </PopoverContent>

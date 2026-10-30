@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.26.0 sha256-w5x+RWEAvqjZ8pNd+q4r66Dakm4SsY4e1IhHGKGO0+4=
+// @vegastack view-tabs@0.26.0 sha256-hKSY3Z+g6xPcQUei6BQEHL/xmLnQNGFhwI2OgGXeMK0=
 
 "use client";
 
@@ -41,7 +41,8 @@ breakpoint — the row becomes one `Select` with the same two groups (its `+` an
 become one ⋯ menu, so the select keeps room for the name), and goes back to tabs as soon as they fit
 again. The root is not a size container, so a host can size it to its tabs.
 
-It is built on `Tabs variant="line"`, which already scrolls and keeps the active tab in view. It
+It is built on the same pill `Tabs` as every page's scope tabs (same height, same look), and folds
+into its select instead of scrolling. It
 is NOT the `ListToolbar` Layout tool: there "Grid" means a card grid, here it means a table.
 
 Deliberately NOT done here:
@@ -460,7 +461,6 @@ export function ViewTabs({
         <TabsList
           ref={listRef}
           data-fold-content=""
-          variant="line"
           aria-label={ariaLabel}
           data-slot="view-tabs-list"
         >

@@ -14,16 +14,7 @@ import {
 test("groups are named lists, rows are links, and the read toggle is reachable", async () => {
   const onToggleRead = vi.fn();
   const screen = await render(
-    <Inbox
-      filters={
-        <InboxFilters
-          value="for-you"
-          onValueChange={() => {}}
-          onUnreadOnlyChange={() => {}}
-          unreadCount={1}
-        />
-      }
-    >
+    <Inbox filters={<InboxFilters value="for-you" onValueChange={() => {}} />}>
       <InboxGroup label="Today">
         <InboxItem
           unread
@@ -90,17 +81,10 @@ test("the error state offers Try again", async () => {
   expect(onRetry).toHaveBeenCalledOnce();
 });
 
-test("InboxFilters: For you · Updates · Archived tabs and a separate Unread toggle", async () => {
+test("InboxFilters: For you · Updates · Archived tabs, and no Unread toggle (T31)", async () => {
   const onValueChange = vi.fn();
-  const onUnreadOnlyChange = vi.fn();
   const screen = await render(
-    <InboxFilters
-      value="for-you"
-      onValueChange={onValueChange}
-      unreadOnly={false}
-      onUnreadOnlyChange={onUnreadOnlyChange}
-      unreadCount={3}
-    />,
+    <InboxFilters value="for-you" onValueChange={onValueChange} />,
   );
   const tabs = screen.getByRole("tablist", { name: "Show" });
   const names = Array.from(
@@ -113,14 +97,13 @@ test("InboxFilters: For you · Updates · Archived tabs and a separate Unread to
     .toHaveAttribute("aria-selected", "true");
   await tabs.getByRole("tab", { name: "Archived" }).click();
   expect(onValueChange).toHaveBeenCalledWith("archived");
-  const toggle = screen.getByRole("button", { name: "Unread 3" });
-  await expect.element(toggle).toHaveAttribute("aria-pressed", "false");
-  await toggle.click();
-  expect(onUnreadOnlyChange).toHaveBeenCalledWith(true);
+  expect(
+    screen.container.querySelectorAll("button[aria-pressed]"),
+  ).toHaveLength(0);
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });
 
-test("InboxFilters: app tabs carry counts; no Unread toggle without its handler", async () => {
+test("InboxFilters: app tabs carry counts", async () => {
   const screen = await render(
     <InboxFilters
       value="mentions"
@@ -134,9 +117,6 @@ test("InboxFilters: app tabs carry counts; no Unread toggle without its handler"
   await expect
     .element(screen.getByRole("tab", { name: "Mentions 2" }))
     .toHaveAttribute("aria-selected", "true");
-  expect(
-    screen.container.querySelector('[data-slot="inbox-filters-unread"]'),
-  ).toBeNull();
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });
 
@@ -231,6 +211,13 @@ test("a pending request shows Allow / Decline; an answered one its line instead"
     screen.container.querySelectorAll('[data-slot="inbox-item"]'),
   );
   expect(pending).toHaveAttribute("data-status", "pending");
+  // T32: a row's main action (`primary`) is secondary and the rest outline — never filled.
+  expect(
+    screen.getByRole("button", { name: "Allow" }).element(),
+  ).toHaveAttribute("data-variant", "secondary");
+  expect(
+    screen.getByRole("button", { name: "Decline" }).element(),
+  ).toHaveAttribute("data-variant", "outline");
   await screen.getByRole("button", { name: "Allow" }).click();
   expect(onAllow).toHaveBeenCalledOnce();
   expect(answered!.querySelector("button")).toBeNull();

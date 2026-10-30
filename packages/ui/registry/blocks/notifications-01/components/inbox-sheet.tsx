@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.26.0 sha256-MaDOSpWXw/8OPlOk1NToX3dNJQLXasVzxz/4JTJ1NbY=
+// @vegastack notifications-01@0.26.0 sha256-yvNnLL5bFycH7txEdypJXoGcMQqxQLksDyD+5LNlWJA=
 
 "use client";
 
@@ -164,7 +164,7 @@ function Row({
 
 /**
  * The Inbox: a side `Sheet` holding the `Inbox` panel — "Mark all read" and a ⋯ menu in the
- * header, For you · Updates · Archived tabs with an Unread toggle, rows grouped by day (Today,
+ * header, For you · Updates · Archived tabs, rows grouped by day (Today,
  * Yesterday, This week, Last week, Earlier), each row one link with an avatar or icon, an unread
  * tint, a rich title, a grouped row's actors and expandable updates, the time over its read toggle
  * and ⋯, and optional action chips; J / K walk the rows. The list pages 15 rows
@@ -192,7 +192,6 @@ export function InboxSheet({
   now,
 }: InboxSheetProps) {
   const [tab, setTab] = React.useState("for-you");
-  const [unreadOnly, setUnreadOnly] = React.useState(false);
   const { announce, Announcer } = useAnnouncer();
 
   const unread = notifications.filter((n) => n.unread).length;
@@ -201,9 +200,7 @@ export function InboxSheet({
     tab === "archived"
       ? !!n.archived
       : !n.archived && (tab === "for-you") === !!n.actor;
-  const visible = notifications.filter(
-    (n) => inTab(n) && (!unreadOnly || n.unread),
-  );
+  const visible = notifications.filter(inTab);
 
   let body: React.ReactNode;
   if (loading) {
@@ -217,19 +214,18 @@ export function InboxSheet({
       />
     );
   } else if (visible.length === 0) {
-    body = unreadOnly ? (
-      <InboxEmpty title="You’re all caught up" />
-    ) : tab === "archived" ? (
-      <InboxEmpty
-        title="Nothing archived"
-        description="Archive a notification from its ⋯ menu to keep it here."
-      />
-    ) : (
-      <InboxEmpty
-        title="No notifications"
-        description="Assignments and meeting updates show up here."
-      />
-    );
+    body =
+      tab === "archived" ? (
+        <InboxEmpty
+          title="Nothing archived"
+          description="Archive a notification from its ⋯ menu to keep it here."
+        />
+      ) : (
+        <InboxEmpty
+          title="No notifications"
+          description="Assignments and meeting updates show up here."
+        />
+      );
   } else {
     const days = groupByDay(visible, (n) => n.at, { now });
     body = (
@@ -283,15 +279,7 @@ export function InboxSheet({
               </InboxMenuAction>
             </>
           }
-          filters={
-            <InboxFilters
-              value={tab}
-              onValueChange={setTab}
-              unreadOnly={unreadOnly}
-              onUnreadOnlyChange={setUnreadOnly}
-              unreadCount={unread}
-            />
-          }
+          filters={<InboxFilters value={tab} onValueChange={setTab} />}
         >
           {body}
         </Inbox>

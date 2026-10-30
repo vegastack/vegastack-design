@@ -39,7 +39,9 @@ import { AddFilterMenu } from "@/components/ui/add-filter-menu";
       ? { onSubmit: (text) => applyAiFilter(listKey, text) }
       : undefined
   }
-  onAdvanced={openFilterBuilder}
+  advanced={
+    <FilterBuilder vocabulary={fields} value={tree} onValueChange={setTree} />
+  }
 />;
 ```
 
@@ -58,8 +60,10 @@ model error, a daily limit), the popover says so and the field list stays usable
 there is no ✦ anywhere and nothing else changes, so the feature hides cleanly. The design system
 holds no AI: `onSubmit` is the page's own.
 
-`onAdvanced` adds "Advanced filter…" at the foot, for a condition builder dialog. On a phone the
-popover is a bottom sheet with the input at its top.
+`advanced` adds "Advanced filter" at the foot: the page's condition builder (a `FilterBuilder`),
+drilled into inside the same popover, which widens for it (576px) — never a dialog. After an AI run
+that added filters, the popover closes and `ai.onApplied(result, text)` fires: toast it with
+`useAiFilterApplied` (Undo). On a phone the popover is a bottom sheet with the input at its top.
 
 ## Anatomy
 

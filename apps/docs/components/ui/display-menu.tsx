@@ -1,10 +1,9 @@
-// @vegastack display-menu@0.26.0 sha256-ScNdZyRCGkg5//F0JktKQL/7pFZyeOEA1tEkQGzRC2w=
+// @vegastack display-menu@0.26.0 sha256-1x2KdsqxdfUK9WAAJuKHn8K5VlaOgubnlBmBSPEmopI=
 
 "use client";
 
 import * as React from "react";
 import {
-  ChevronLeft,
   ChevronRight,
   Columns3,
   Eye,
@@ -17,6 +16,7 @@ import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   ListToolbarButton,
+  ListToolbarDrillHeader,
   ListToolbarPopover,
   useListToolbar,
   type ListToolbarLayout,
@@ -31,7 +31,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 included. Its sections appear only when filled, always in this order — Layout, Sort by (once the
 toolbar has folded them in), Rows (row height, group by, columns), Show (Show archived, Show
 closed, Show subtasks…), and Reset. It is one surface: no filled rows and no control tracks inside
-it, every row 32px tall from the same 8px inset. Columns drill in within the same surface, and
+it, every row 28px tall (32px around a segmented control) at the same 6px inset. Columns drill in within the same surface, and
 reorder where the page supports it; a long list (a table's 24 fields) scrolls inside the menu. On a
 phone it is a bottom sheet.
 --- */
@@ -276,40 +276,6 @@ function DrillRow({
   );
 }
 
-/** The header of a drill-in: back, the title, an optional action at the end. */
-function DrillHeader({
-  title,
-  backLabel,
-  onBack,
-  action,
-}: {
-  title: string;
-  backLabel: string;
-  onBack: () => void;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div
-      data-slot="display-menu-drill-header"
-      className="flex h-7 items-center gap-1"
-    >
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        aria-label={backLabel}
-        data-slot="display-menu-back"
-        onClick={onBack}
-      >
-        <ChevronLeft aria-hidden />
-      </Button>
-      <span className="min-w-0 flex-1 truncate text-sm font-medium">
-        {title}
-      </span>
-      {action}
-    </div>
-  );
-}
-
 /**
  * `DisplayMenu` — the toolbar's Display tool (sliders icon): Layout and Sort once the toolbar has
  * folded them in, then Rows (row height, group by, a Columns drill-in), the "Show …" switches, and
@@ -502,7 +468,7 @@ export function DisplayMenu({
   if (page === "sort" && sort != null)
     body = (
       <>
-        <DrillHeader
+        <ListToolbarDrillHeader
           title={sort.label ?? "Sort"}
           backLabel={labels.back}
           onBack={() => setPage("main")}
@@ -513,7 +479,7 @@ export function DisplayMenu({
   if (page === "columns" && columns != null)
     body = (
       <>
-        <DrillHeader
+        <ListToolbarDrillHeader
           title={columnsTitle}
           backLabel={labels.back}
           onBack={() => setPage("main")}
@@ -521,8 +487,8 @@ export function DisplayMenu({
             columns.onShowAll && shown < columns.items.length ? (
               <Button
                 variant="ghost"
-                size="sm"
-                className="font-normal text-muted-foreground"
+                size="xs"
+                className="h-7 px-1.5 text-sm font-normal text-muted-foreground"
                 onClick={columns.onShowAll}
               >
                 {labels.showAll}

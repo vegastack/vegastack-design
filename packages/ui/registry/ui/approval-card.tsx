@@ -1,4 +1,4 @@
-// @vegastack approval-card@0.26.0 sha256-bGxOcwttZd17/uvxzNE1Sh5RZu23fXbV3BxwnB32wso=
+// @vegastack approval-card@0.26.0 sha256-zPUcC2Ui8m19zbRLk6JQQeJNsPz9aPbuQOfRmGZmv6M=
 
 "use client";
 
@@ -354,7 +354,9 @@ export function ApprovalCard({
               </Button>
             ) : null}
             {onApprove ? (
+              // A card's main action is secondary, never primary (row and inline actions).
               <Button
+                variant="secondary"
                 aria-describedby={titleId}
                 loading={approving}
                 disabled={busy === "decline"}

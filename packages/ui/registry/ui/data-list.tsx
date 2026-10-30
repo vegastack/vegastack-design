@@ -1,4 +1,4 @@
-// @vegastack data-list@0.26.0 sha256-4lggo6NLQ3kZuQ2VGh0prup+fsRkUw45RTWHikTPxYA=
+// @vegastack data-list@0.26.0 sha256-nESjZfbSYMeckhqlPvPW1sHp+VkhyT287o0oOahRAAs=
 
 "use client";
 
@@ -2000,14 +2000,23 @@ export function DataList<T>({
   // technology hears them with the table. They render AFTER the table inside
   // the root stack, so their appearing never moves the table in the tree (a
   // remount would drop focus inside it).
+  // Hidden columns are said to assistive technology only (T13): on screen the dropped columns'
+  // values already sit under each row's title, and a visible count read as noise.
   const statusLines =
     columnsHidden || sortSummary ? (
       <div
         data-slot="data-list-status"
-        className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"
+        className={cn(
+          "flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground",
+          !sortSummary && "sr-only",
+        )}
       >
         {columnsHidden ? (
-          <p id={hiddenHintId} data-slot="data-list-hidden-hint">
+          <p
+            id={hiddenHintId}
+            data-slot="data-list-hidden-hint"
+            className="sr-only"
+          >
             {hiddenColumns.length} column
             {hiddenColumns.length === 1 ? "" : "s"} hidden
           </p>

@@ -42,8 +42,8 @@ items (rename, duplicate, delete) in a ⋯ menu after the tabs. A long name ends
 it is cut, the full name shows in a tooltip on hover and keyboard focus, and the tab still reads the
 whole name to a screen reader. The narrow select's list wraps a long name instead.
 
-It is built on [`Tabs`](/docs/components/tabs) `variant="line"`, which scrolls and keeps the active
-tab in view. When the tabs don't fit the room they are given (measured, not a fixed breakpoint)
+It is built on the same pill [`Tabs`](/docs/components/tabs) as every page's scope tabs — the same
+height, look and selected state — so a table's views read like any other page's tabs. When the tabs don't fit the room they are given (measured, not a fixed breakpoint)
 the row becomes one `Select` with the same two groups and goes back to tabs as soon as they fit.
 Folded, the `+` and the view's ⋯ become one ⋯ beside the select (the view's actions, then **Grid
 view** and **Board view**), so a phone keeps room to read the view's name; in a `ListToolbar` the

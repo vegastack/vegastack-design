@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.26.0 sha256-5Zsj99Mr972c8mZlvNi514a0+FWM7YTmB3Rn+FcKZDE=
+// @vegastack file-viewer@0.26.0 sha256-zPNRtGM7KKqbQv4ytFT3srjIyhtpAKlZcHhKcHnK1v8=
 
 "use client";
 
@@ -1956,7 +1956,8 @@ export function FileViewer({
       <DialogPortal>
         <DialogPrimitive.Backdrop
           data-slot="file-viewer-backdrop"
-          className="fixed inset-0 z-50 bg-black/10 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
+          // The one modal backdrop: dim + blur, as Dialog, AlertDialog, Sheet and Drawer draw it.
+          className="fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
         />
         <DialogPrimitive.Popup
           ref={popupRef}
