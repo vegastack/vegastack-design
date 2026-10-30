@@ -14,6 +14,7 @@ import {
   AppShellHeaderMobileAction,
   AppShellHeaderShow,
   AppShellHeaderSlot,
+  AppShellBleed,
   AppShellPage,
   AppShellProgress,
   AppShellSection,
@@ -1179,4 +1180,26 @@ test("railSeparators is opt-in and rules groups apart in the collapsed rail only
   expect(nav.className).toContain(
     "group-data-[collapsible=icon]:[&_[data-slot=sidebar-group]+[data-slot=sidebar-group]]:before:bg-sidebar-border",
   );
+});
+
+test("AppShellBleed reaches the page's edges past the gutter, and keeps it when inactive", async () => {
+  const screen = await render(
+    <AppShellPage>
+      <AppShellBleed>Grid</AppShellBleed>
+    </AppShellPage>,
+  );
+  const bleed = screen.container.querySelector(
+    '[data-slot="app-shell-bleed"]',
+  )!;
+  expect(bleed.getAttribute("data-active")).toBe("true");
+  expect(bleed.className).toContain("-mx-(--page-gutter)");
+  expect(bleed.className).toContain("-mb-(--page-gutter)");
+  await screen.rerender(
+    <AppShellPage>
+      <AppShellBleed active={false}>Grid</AppShellBleed>
+    </AppShellPage>,
+  );
+  const kept = screen.container.querySelector('[data-slot="app-shell-bleed"]')!;
+  expect(kept.getAttribute("data-active")).toBe("false");
+  expect(kept.className).not.toContain("-mx-(--page-gutter)");
 });

@@ -1494,6 +1494,25 @@
           }
         },
         {
+          "name": "AppShellBleed",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
+          }
+        },
+        {
+          "name": "AppShellBleedProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "AppShellContent",
           "kind": "component",
           "source": "packages/ui/registry/ui/app-shell.tsx",
@@ -1973,6 +1992,19 @@
             {
               "name": "data-slot",
               "values": ["app-shell-page"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellBleed": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": ["false", "true"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["app-shell-bleed"]
             }
           ],
           "cssVariables": []
@@ -14212,6 +14244,7 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/text-edit-grammar",
+        "@vegastack/textarea",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
@@ -14251,6 +14284,10 @@
             {
               "name": "data-type",
               "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -14272,6 +14309,10 @@
             },
             {
               "name": "data-type",
+              "values": []
+            },
+            {
+              "name": "data-variant",
               "values": []
             }
           ],

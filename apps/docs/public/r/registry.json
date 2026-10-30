@@ -215,7 +215,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.25.105",
-        "integrity": "sha256-j5ZA8Jy2r1L09+0A6rcX6B0f6InuspKfOV7+PCoXiP8="
+        "integrity": "sha256-fEHVRTxbFMsAi3bcxWI36XUuPP4RAivCSHNDmeCYQBw="
       }
     },
     {
@@ -1651,7 +1651,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.105",
-        "integrity": "sha256-NP2THf79bxEYWju+GAaNOTU/2NRxNNWCuNAnadrq180="
+        "integrity": "sha256-MJv8LUyrZlv3WXiAg3/pSiLWBPD0wXvv9UJ3JbneWkU="
       }
     },
     {
@@ -2917,6 +2917,7 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/text-edit-grammar",
+        "@vegastack/textarea",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
@@ -2934,7 +2935,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.25.105",
-        "integrity": "sha256-rAku1E3lbEOn1ZXVw1z3g6F7vtwUgAg7MRaBukAZU9Q="
+        "integrity": "sha256-eHuJJU3cIssdPaWRQhmrba+nsKdNlmYAFZqt2LTu10Q="
       }
     },
     {

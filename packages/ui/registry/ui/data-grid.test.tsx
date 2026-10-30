@@ -3707,6 +3707,147 @@ test("POL-01/13: hover is a faint wash, the open row carries the edge, and froze
   );
 });
 
+test("headerAlign starts a numeric column's header apart from its values; the grid-wide option leads every header", async () => {
+  const headLead = (label: string) => {
+    const head = Array.from(
+      document.querySelectorAll('[data-slot="data-grid-head"]'),
+    ).find((th) => th.textContent?.includes(label))!;
+    return head.querySelector("div")!.className;
+  };
+  const rendered = () =>
+    document.querySelectorAll('[data-slot="data-grid-cell"]').length;
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  await expect.poll(rendered).toBeGreaterThan(0);
+  // By default an end-aligned column's header is end-aligned with its values.
+  expect(headLead("Amount")).toContain("justify-end");
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({ headerAlign: "start" })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  expect(headLead("Amount")).not.toContain("justify-end");
+  // The values stay where `align` puts them.
+  const cell = document.querySelectorAll('[data-slot="data-grid-cell"]')[2]!;
+  expect(cell.className).toContain("text-end");
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      headerAlign="start"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  expect(headLead("Amount")).not.toContain("justify-end");
+});
+
+test("columnDividers rules every column's end, editingTint tints the edited cell, endSpacer sizes the band after the rows", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const cellClass = () =>
+    document.querySelectorAll('[data-slot="data-grid-cell"]')[0]!.className;
+  await expect
+    .poll(
+      () => document.querySelectorAll('[data-slot="data-grid-cell"]').length,
+    )
+    .toBeGreaterThan(0);
+  expect(cellClass()).not.toContain("border-e");
+  expect(cellClass()).not.toContain("data-editing:bg-accent");
+  const root = () =>
+    screen.container.querySelector('[data-slot="data-grid"]') as HTMLElement;
+  expect(root().style.getPropertyValue("--data-grid-end-spacer")).toBe("");
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      maxHeight="20rem"
+      columnDividers
+      editingTint
+      endSpacer
+    />,
+  );
+  expect(cellClass()).toContain("border-e");
+  expect(cellClass()).toContain("data-editing:bg-accent");
+  expect(root().style.getPropertyValue("--data-grid-end-spacer")).toBe("180px");
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      maxHeight="20rem"
+      endSpacer={64}
+    />,
+  );
+  expect(root().style.getPropertyValue("--data-grid-end-spacer")).toBe("64px");
+});
+
+test("fill measures the room to the bottom of the nearest scroller and follows it", async () => {
+  const screen = await render(
+    <div
+      data-testid="scroller"
+      style={{ height: 600, overflowY: "auto", position: "relative" }}
+    >
+      <div style={{ height: 100 }} />
+      <DataGrid
+        aria-label="Deals"
+        columnPicker={false}
+        fill
+        columns={columns()}
+        data={DEALS}
+        getRowId={(d) => d.id}
+      />
+    </div>,
+  );
+  const root = () =>
+    screen.container.querySelector('[data-slot="data-grid"]') as HTMLElement;
+  const height = () =>
+    Number.parseInt(
+      root().style.getPropertyValue("--data-grid-max-height"),
+      10,
+    );
+  // 600 less the 100 above the grid, less whatever the grid draws under its viewport.
+  await expect.poll(height).toBeGreaterThan(400);
+  expect(height()).toBeLessThanOrEqual(500);
+  const scroller = screen.getByTestId("scroller").element() as HTMLElement;
+  scroller.style.height = "400px";
+  await expect.poll(height).toBeLessThanOrEqual(300);
+  // Never under the floor, however little room is left.
+  scroller.style.height = "150px";
+  await expect.poll(height).toBe(240);
+  // A host's own maxHeight wins.
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columnPicker={false}
+      fill
+      maxHeight="30rem"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  expect(root().style.getPropertyValue("--data-grid-max-height")).toBe("30rem");
+});
+
 test("POL-14: an empty primary value reads Untitled, muted; a card leaves out empty fields", async () => {
   const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 5 }];
   const grid = await render(

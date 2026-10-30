@@ -313,6 +313,31 @@ the way <kbd>Enter</kbd> and <kbd>Tab</kbd> do.
   file="components/preview/data-grid.tsx"
 />
 
+### Filling the page
+
+`fill` makes the viewport as tall as the room from its top edge to the bottom of its nearest
+scrolling ancestor, so the grid's scroll bar rests at the bottom of the window even when the rows
+are few; it follows the window and anything above the grid that comes, goes or resizes, and is
+never under 240px. A `maxHeight` of its own wins. Inside an `AppShellPage`, wrap the grid in
+[`AppShellBleed`](/docs/components/app-shell) so it reaches the page's side edges and bottom.
+`endSpacer` leaves a band (180px, or the pixels given) after the last row so the last rows scroll
+clear of anything floating at the bottom, `columnDividers` rules every column's end (the frozen
+columns too, drawn over their sticky background) and `editingTint` fills the cell being edited with
+the `accent` tint.
+
+```tsx
+<AppShellPage size="full">
+  <PageHeader title="Schedule" />
+  <AppShellBleed>
+    <DataGrid fill endSpacer columnDividers editingTint headerAlign="start" … />
+  </AppShellBleed>
+</AppShellPage>
+```
+
+`headerAlign="start"` (or a column's own `headerAlign`) starts a numeric column's header at the
+start — icon, name, sort arrow, menu chevron in that order — while its values and its summary stay
+end-aligned.
+
 ### Keyboard-continuous load-more
 
 The next page loads as the grid's end nears the edge of its scroll viewport, and

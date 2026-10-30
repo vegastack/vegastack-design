@@ -2587,6 +2587,7 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/text-edit-grammar",
+        "@vegastack/textarea",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",

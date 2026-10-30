@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.105 sha256-rAku1E3lbEOn1ZXVw1z3g6F7vtwUgAg7MRaBukAZU9Q=
+// @vegastack field-cell@0.25.105 sha256-eHuJJU3cIssdPaWRQhmrba+nsKdNlmYAFZqt2LTu10Q=
 
 "use client";
 
@@ -48,6 +48,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import {
   TruncatedText,
@@ -315,7 +316,12 @@ function choiceFace(option: FieldChoiceOption) {
 }
 
 /** Number formatting per type, in the reader's locale. */
-function formatNumber(type: FieldType, value: number, config: FieldConfig) {
+function formatNumber(
+  type: FieldType,
+  value: number,
+  config: FieldConfig,
+  plain = false,
+) {
   const digits =
     config.decimals == null
       ? {}
@@ -329,7 +335,19 @@ function formatNumber(type: FieldType, value: number, config: FieldConfig) {
       : type === "percent"
         ? { style: "percent", maximumFractionDigits: 2, ...digits }
         : digits;
-  return new Intl.NumberFormat(undefined, options).format(value);
+  // Plain: only a currency groups its digits, so a year reads 2026 and not 2,026.
+  return new Intl.NumberFormat(
+    undefined,
+    plain && type !== "currency" ? { ...options, useGrouping: false } : options,
+  ).format(value);
+}
+
+/** A link as a grid cell shows it: no scheme, and no trailing slash on a bare host. */
+function plainLink(value: string): string {
+  return value
+    .trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/\/$/, "");
 }
 
 /** A URL value as a link target, or `null` when it is not http(s). */
@@ -503,6 +521,15 @@ export interface FieldCellDisplayProps {
    * @default undefined — by type
    */
   align?: "start" | "end";
+  /**
+   * `cell` — the value as a grid cell shows it: one clipped line that never grows its cell. A
+   * number or percent is plain (no digit grouping; only a currency groups), a link shows without
+   * its scheme and without a trailing slash on a bare host, a date or date-time is clipped on one
+   * line instead of ending in an ellipsis, and a person is always their avatar and name (every
+   * person, not avatars and "+N").
+   * @default "default"
+   */
+  variant?: "default" | "cell";
   /** Extra classes for the root. @default undefined */
   className?: string;
 }
@@ -526,9 +553,11 @@ export function FieldCellDisplay({
   onToggle,
   label,
   align,
+  variant = "default",
   className,
 }: FieldCellDisplayProps) {
   const timeZone = useTimeZone();
+  const cell = variant === "cell";
   // Inside a grid the cell is the tab stop (`TruncationFocusProvider focusable={false}`); a
   // standalone display's checkbox and links are reachable themselves.
   const tabIndex = useTruncationFocusable() ? undefined : -1;
@@ -536,6 +565,7 @@ export function FieldCellDisplay({
     <span
       data-slot="field-cell-display"
       data-type={type}
+      data-variant={variant}
       className={cn(
         "flex min-w-0 items-center gap-1",
         extra,
@@ -593,7 +623,7 @@ export function FieldCellDisplay({
       }
       return root(
         <TruncatedText className="tabular-nums">
-          {formatNumber(type, value, config)}
+          {formatNumber(type, value, config, cell)}
         </TruncatedText>,
         "justify-end",
       );
@@ -608,23 +638,24 @@ export function FieldCellDisplay({
           )
         : empty;
     case "date":
-      return typeof value === "string" && value
-        ? root(
-            <TruncatedText className="tabular-nums">
-              {formatCalendarDate(value)}
-            </TruncatedText>,
-          )
-        : empty;
     case "datetime":
     case "created_at":
-    case "updated_at":
-      return typeof value === "string" && value
-        ? root(
-            <TruncatedText className="tabular-nums">
-              {formatDateTime(value, { timeZone })}
-            </TruncatedText>,
-          )
-        : empty;
+    case "updated_at": {
+      if (typeof value !== "string" || !value) return empty;
+      const text =
+        type === "date"
+          ? formatCalendarDate(value)
+          : formatDateTime(value, { timeZone });
+      return root(
+        cell ? (
+          <span className="min-w-0 overflow-hidden text-clip whitespace-nowrap tabular-nums">
+            {text}
+          </span>
+        ) : (
+          <TruncatedText className="tabular-nums">{text}</TruncatedText>
+        ),
+      );
+    }
     case "single_choice":
     case "multi_choice": {
       const chosen = chosenOptions(value, config);
@@ -666,6 +697,20 @@ export function FieldCellDisplay({
         Array.isArray(value) ? value : value ? [value] : []
       ) as FieldPerson[];
       if (people.length === 0) return empty;
+      if (cell)
+        return root(
+          <span className="flex min-w-0 items-center gap-3 overflow-hidden whitespace-nowrap">
+            {people.map((person) => (
+              <span
+                key={person.id}
+                className="flex shrink-0 items-center gap-1.5"
+              >
+                <PersonAvatar person={person} size="sm" />
+                {person.name}
+              </span>
+            ))}
+          </span>,
+        );
       if (people.length === 1)
         return root(
           <>
@@ -775,10 +820,12 @@ export function FieldCellDisplay({
             tabIndex={tabIndex}
             className="min-h-6 min-w-0 truncate leading-6 text-primary underline-offset-2 hover:underline"
           >
-            {value}
+            {cell && type === "url" ? plainLink(value) : value}
           </a>
         ) : (
-          <TruncatedText>{value}</TruncatedText>
+          <TruncatedText>
+            {cell && type === "url" ? plainLink(value) : value}
+          </TruncatedText>
         ),
       );
     }
@@ -1442,6 +1489,17 @@ export interface FieldCellEditorProps {
    * @default undefined
    */
   seed?: string;
+  /**
+   * `cell` — the editor of a floating grid cell, which is the box itself: no border, fill or
+   * shadow of its own (an invalid draft turns its text destructive, and a number's steppers go).
+   * A `text` field is one wrapping box that grows to `max-h-60` then scrolls, its newlines typed
+   * or pasted becoming spaces. A `number` field is typed as written: the reader's decimal mark, no
+   * digit grouping, no steppers, ArrowUp and ArrowDown step by 1, and "-", "." and "1." are drafts
+   * on the way to a value (a draft that never becomes one cancels on blur). Every other type is the
+   * default editor, only borderless.
+   * @default "default"
+   */
+  variant?: "default" | "cell";
 }
 
 /** Text-like types edit a draft and commit on Enter or when focus leaves the editor. */
@@ -1483,6 +1541,121 @@ const SEARCHED_TYPES: ReadonlySet<FieldType> = new Set([
   "person",
   "link",
 ]);
+
+/** Strips the box the DS draws around an input and a number field: the cell editor's host is it. */
+const CELL_BARE =
+  "[&_[data-slot=input]]:border-0 [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:shadow-none dark:[&_[data-slot=input]]:bg-transparent " +
+  "[&_[data-slot=input-group]]:border-0 [&_[data-slot=input-group]]:bg-transparent [&_[data-slot=input-group]]:shadow-none dark:[&_[data-slot=input-group]]:bg-transparent " +
+  "[&_[data-slot=input]]:aria-invalid:text-destructive [&_[data-slot=input-group-control]]:aria-invalid:text-destructive " +
+  "[&_[data-slot=input-group-addon]:has([data-slot^=number-field-])]:hidden";
+
+/** The decimal mark of the reader's locale: a number is typed as they write it. */
+function decimalMark(): string {
+  return (
+    new Intl.NumberFormat()
+      .formatToParts(1.1)
+      .find((part) => part.type === "decimal")?.value ?? "."
+  );
+}
+
+/** A number as its draft: the shortest text that reads back as it, in the reader's decimal mark. */
+function numberDraft(value: FieldValue): string {
+  return typeof value === "number"
+    ? String(value).replace(".", decimalMark())
+    : "";
+}
+
+/** A number draft's value: `null` when empty, `undefined` while it is not (yet) a number ("-"). */
+function readNumberDraft(draft: string): number | null | undefined {
+  if (draft === "") return null;
+  const number = Number(draft.replace(decimalMark(), "."));
+  return Number.isFinite(number) ? number : undefined;
+}
+
+/** Puts the caret after the text, as a cell editor opened on a value or a typed key does. */
+function caretToEnd(node: HTMLInputElement | HTMLTextAreaElement | null) {
+  if (!node) return;
+  node.focus();
+  node.setSelectionRange(node.value.length, node.value.length);
+}
+
+/** A `cell` text editor: a wrapping box that grows with its text, one paragraph. */
+function CellTextBox({
+  value,
+  maxLength,
+  placeholder,
+  invalid,
+  onChange,
+  ...a11y
+}: {
+  value: string;
+  maxLength?: number;
+  placeholder?: string;
+  invalid: boolean;
+  onChange: (next: string) => void;
+  "aria-label": string;
+}) {
+  const field = React.useRef<HTMLTextAreaElement>(null);
+  React.useEffect(() => caretToEnd(field.current), []);
+  return (
+    <Textarea
+      {...a11y}
+      ref={field}
+      variant="ghost"
+      rows={1}
+      maxLength={maxLength}
+      placeholder={placeholder}
+      aria-invalid={invalid || undefined}
+      value={value}
+      className="block max-h-60 min-h-8 w-full overflow-y-auto px-2.5 py-1.5 leading-5"
+      onChange={(event) => onChange(event.target.value.replace(/\r?\n/g, " "))}
+    />
+  );
+}
+
+/** A `cell` number editor: the number as typed, no grouping and no steppers. */
+function CellNumberInput({
+  value,
+  invalid,
+  onChange,
+  ...a11y
+}: {
+  value: string;
+  invalid: boolean;
+  onChange: (next: string) => void;
+  "aria-label": string;
+}) {
+  const field = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => caretToEnd(field.current), []);
+  const mark = decimalMark();
+  return (
+    <Input
+      {...a11y}
+      ref={field}
+      inputMode="decimal"
+      autoComplete="off"
+      aria-invalid={invalid || undefined}
+      value={value}
+      className="h-8 w-full px-2.5 tabular-nums"
+      onChange={(event) => {
+        // What may be typed on the way to a number: "-", "." and "1." are steps, not values. The
+        // other mark ("." in a comma locale) is typed as the reader's own.
+        const next = event.target.value.trim().replace(/[.,]/, mark);
+        if (/^-?\d*[.,]?\d*$/.test(next)) onChange(next);
+      }}
+      onKeyDown={(event) => {
+        // The arrow keys step the value by one, as a number field's always have.
+        if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+        event.preventDefault();
+        event.stopPropagation();
+        const places = value.split(mark)[1]?.length ?? 0;
+        const next =
+          (readNumberDraft(value) ?? 0) + (event.key === "ArrowUp" ? 1 : -1);
+        onChange(next.toFixed(places).replace(".", mark));
+      }}
+    />
+  );
+}
 
 /**
  * Replace a field's text the way typing would: through the native setter and an `input` event, so
@@ -1643,7 +1816,12 @@ export function FieldCellEditor({
   onCancel,
   label,
   seed,
+  variant = "default",
 }: FieldCellEditorProps) {
+  const cell = variant === "cell";
+  // A cell's text and number are edited as text: a number's draft is what was typed.
+  const cellText = cell && type === "text";
+  const cellNumber = cell && type === "number";
   // A date opened by typing edits the typed text (a field, not the calendar), committed as the
   // day it names.
   const typedDate = type === "date" && Boolean(seed);
@@ -1652,9 +1830,11 @@ export function FieldCellEditor({
   const [draft, setDraft] = React.useState<FieldValue>(() =>
     seed && type === "long_text"
       ? markdownLiteral(seed)
-      : seed && typedDate
+      : seed && (typedDate || cellText || cellNumber)
         ? seed
-        : value,
+        : cellNumber
+          ? numberDraft(value)
+          : value,
   );
   const done = React.useRef(false);
   // The draft as of the last change, for a commit scheduled outside a render (a list closing).
@@ -1730,6 +1910,8 @@ export function FieldCellEditor({
         stopKeeping();
       };
     }
+    // A cell's text and number focus themselves, caret after the text (the seed is their draft).
+    if (cellText || cellNumber) return;
     const scope = root.current;
     // A control's own hidden form input (a picker's, `aria-hidden`, out of the tab order) is
     // never the one to focus: keys typed there go nowhere.
@@ -1762,11 +1944,22 @@ export function FieldCellEditor({
   const pickMove = React.useRef<EditableCellMove | undefined>(undefined);
   const typedText = typedDate && typeof draft === "string" ? draft.trim() : "";
   const typedDay = typedText ? parseTypedDay(typedText, timeZone) : undefined;
+  const typedNumber =
+    cellNumber && typeof draft === "string" ? readNumberDraft(draft) : null;
   const valid = typedDate
     ? typedText === "" || typedDay !== undefined
-    : typeof draft !== "string" || isValidFieldText(type, draft);
-  // What a drafted editor commits: a typed date commits the day it names (empty clears it).
-  const out: FieldValue = typedDate ? (typedDay ?? null) : draft;
+    : cellNumber
+      ? typedNumber !== undefined
+      : typeof draft !== "string" || isValidFieldText(type, draft);
+  // What a drafted editor commits: a typed date commits the day it names (empty clears it), a
+  // cell's number the number typed, a cell's text nothing when it is empty.
+  const out: FieldValue = typedDate
+    ? (typedDay ?? null)
+    : cellNumber
+      ? (typedNumber ?? null)
+      : cellText
+        ? draft || null
+        : draft;
 
   if (type === "long_text") {
     const text = typeof draft === "string" ? draft : "";
@@ -1832,7 +2025,8 @@ export function FieldCellEditor({
       ref={root}
       data-slot="field-cell-editor"
       data-type={type}
-      className="flex min-w-0 flex-1 items-center"
+      data-variant={variant}
+      className={cn("flex min-w-0 flex-1 items-center", cell && CELL_BARE)}
       onKeyDownCapture={(event) => {
         // IME composition never commits, chooses or moves: the key stops here, before any control
         // inside (a picker's highlighted option) sees it.
@@ -1928,6 +2122,22 @@ export function FieldCellEditor({
               pending.then(later, later);
             }, 0);
           }}
+        />
+      ) : cellText ? (
+        <CellTextBox
+          aria-label={label}
+          value={typeof draft === "string" ? draft : ""}
+          maxLength={config.maxLength ?? 10_000}
+          placeholder={config.placeholder}
+          invalid={!valid}
+          onChange={setDraft}
+        />
+      ) : cellNumber ? (
+        <CellNumberInput
+          aria-label={label}
+          value={typeof draft === "string" ? draft : ""}
+          invalid={!valid}
+          onChange={setDraft}
         />
       ) : typedDate ? (
         <Input

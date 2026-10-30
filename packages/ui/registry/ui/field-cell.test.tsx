@@ -1897,3 +1897,166 @@ test("FieldProperty: an editable long text at rest reads as the grid's display â
     ).not.toBeNull(),
   );
 });
+
+test('FieldCellDisplay variant="cell": plain numbers, bare links, clipped dates, every person named', async () => {
+  const screen = await render(
+    <FieldCellDisplay type="number" value={12345.5} variant="cell" />,
+  );
+  const text = () => screen.container.textContent ?? "";
+  expect(text()).not.toContain(",");
+  expect(text()).toContain("12345.5");
+  await screen.rerender(
+    <FieldCellDisplay
+      type="currency"
+      value={12345.5}
+      config={{ currency: "USD" }}
+      variant="cell"
+    />,
+  );
+  // Only a currency groups its digits.
+  expect(text()).toContain(",");
+  await screen.rerender(
+    <FieldCellDisplay type="percent" value={0.125} variant="cell" />,
+  );
+  expect(text()).toContain("12.5%");
+  await screen.rerender(
+    <FieldCellDisplay type="url" value="https://example.com/" variant="cell" />,
+  );
+  expect(text()).toBe("example.com");
+  expect(screen.container.querySelector("a")?.getAttribute("href")).toBe(
+    "https://example.com/",
+  );
+  await screen.rerender(
+    <FieldCellDisplay
+      type="person"
+      value={[
+        { id: "u1", name: "Ada Lovelace" },
+        { id: "u2", name: "Grace Hopper" },
+        { id: "u3", name: "Edsger Dijkstra" },
+        { id: "u4", name: "Alan Turing" },
+      ]}
+      variant="cell"
+    />,
+  );
+  for (const name of ["Ada", "Grace", "Edsger", "Alan"])
+    expect(text()).toContain(name);
+  expect(
+    screen.container
+      .querySelector('[data-slot="field-cell-display"]')
+      ?.getAttribute("data-variant"),
+  ).toBe("cell");
+  // The default variant is untouched: a number groups, a link keeps its scheme.
+  await screen.rerender(<FieldCellDisplay type="number" value={12345.5} />);
+  expect(text()).toContain(",");
+});
+
+test('FieldCellEditor variant="cell": text is one wrapping paragraph that commits null when emptied', async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="text"
+      label="Name"
+      value="Acme"
+      variant="cell"
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  const field = screen.getByRole("textbox", { name: "Name" });
+  expect(field.element().tagName).toBe("TEXTAREA");
+  await expect.element(field).toHaveFocus();
+  // The caret is after the value; a typed Enter commits and moves down (never a second line).
+  // Newlines (a paste) become spaces; Shift+Enter commits and moves up, never a second line.
+  await field.fill("Acme and\nSons");
+  expect((field.element() as HTMLTextAreaElement).value).toBe("Acme and Sons");
+  await userEvent.keyboard("{Shift>}{Enter}{/Shift}");
+  expect(onCommit).toHaveBeenCalledWith("Acme and Sons", "up");
+
+  const emptied = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="empty"
+      type="text"
+      label="Name"
+      value="Acme"
+      variant="cell"
+      onCommit={emptied}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("{Backspace>4/}{Tab}");
+  expect(emptied).toHaveBeenCalledWith(null, "right");
+
+  // Type-to-edit: the key that opened the editor replaces the value.
+  const seeded = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="seed"
+      type="text"
+      label="Name"
+      value="Acme"
+      seed="Z"
+      variant="cell"
+      onCommit={seeded}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("ed{Enter}");
+  expect(seeded).toHaveBeenCalledWith("Zed", "down");
+});
+
+test('FieldCellEditor variant="cell": a number is typed as written, steps by 1, and cancels on an unreadable draft', async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="number"
+      label="Qty"
+      value={2026}
+      variant="cell"
+      onCommit={onCommit}
+      onCancel={onCancel}
+    />,
+  );
+  const field = screen.getByRole("textbox", { name: "Qty" });
+  await expect.element(field).toHaveFocus();
+  // No digit grouping, no steppers.
+  expect((field.element() as HTMLInputElement).value).toBe("2026");
+  expect(screen.container.querySelector('[data-slot^="number-field-"]')).toBe(
+    null,
+  );
+  await userEvent.keyboard("{ArrowUp}{ArrowUp}{ArrowDown}");
+  expect((field.element() as HTMLInputElement).value).toBe("2027");
+  // Letters are not typable; "1." is a step on the way to a number and commits as 1.
+  await field.fill("");
+  await userEvent.keyboard("x1.");
+  expect((field.element() as HTMLInputElement).value).toBe("1.");
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenCalledWith(1, "down");
+
+  // "-" never becomes a number: Enter commits nothing, leaving cancels.
+  const stuck = vi.fn();
+  const left = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="dash"
+      type="number"
+      label="Qty"
+      value={null}
+      seed="-"
+      variant="cell"
+      onCommit={stuck}
+      onCancel={left}
+    />,
+  );
+  await userEvent.keyboard("{Enter}");
+  expect(stuck).not.toHaveBeenCalled();
+  expect(
+    screen.container
+      .querySelector('[aria-label="Qty"]')
+      ?.getAttribute("aria-invalid"),
+  ).toBe("true");
+  await userEvent.click(document.body);
+  expect(left).toHaveBeenCalledTimes(1);
+  expect(stuck).not.toHaveBeenCalled();
+});
