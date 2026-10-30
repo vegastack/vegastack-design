@@ -69,9 +69,25 @@ const sha256 = (path) =>
 
 mkdirSync(dir, { recursive: true });
 if (!existsSync(download) || sha256(download) !== tool.sha256) {
-  const response = await fetch(tool.url, { redirect: "follow" });
-  if (!response.ok) throw new Error(`${tool.url}: HTTP ${response.status}`);
-  const bytes = Buffer.from(await response.arrayBuffer());
+  // The runners' uplink drops connections under load: retry with backoff before failing the job.
+  let bytes;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const response = await fetch(tool.url, {
+        redirect: "follow",
+        signal: AbortSignal.timeout(120_000),
+      });
+      if (!response.ok) throw new Error(`${tool.url}: HTTP ${response.status}`);
+      bytes = Buffer.from(await response.arrayBuffer());
+      break;
+    } catch (error) {
+      if (attempt >= 5) throw error;
+      console.error(
+        `trusted-tool: ${name} download failed (${error.message}); retry ${attempt}/4`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, attempt * 10_000));
+    }
+  }
   const actual = createHash("sha256").update(bytes).digest("hex");
   if (actual !== tool.sha256)
     throw new Error(`${name}: checksum mismatch (${actual} != ${tool.sha256})`);
