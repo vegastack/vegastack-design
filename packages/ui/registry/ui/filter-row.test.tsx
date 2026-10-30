@@ -9,6 +9,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import type { PeoplePickerOption } from "./people-picker";
 import {
   DateRangeFilter,
+  type DateRangeFilterValue,
   dateRangeForPreset,
   FilterChip,
   FilterRow,
@@ -753,4 +754,37 @@ test("a facet an AI filter set leads with the ✦", async () => {
   const root = document.querySelector('[data-slot="date-range-filter"]')!;
   expect(root.getAttribute("data-source")).toBe("ai");
   expect(root.querySelector('[data-slot="filter-facet-ai"]')).not.toBeNull();
+});
+
+test("FilterRow aiFacets marks those facets ✦ and reports a member's change", async () => {
+  const onAiFacetEdit = vi.fn();
+  function Row() {
+    const [due, setDue] = React.useState<DateRangeFilterValue | null>({
+      from: null,
+      to: new Date(2026, 9, 29),
+      preset: "overdue",
+    });
+    return (
+      <FilterRow
+        aiFacets={["Due"]}
+        onAiFacetEdit={onAiFacetEdit}
+        facets={
+          <DateRangeFilter
+            label="Due"
+            now={new Date(2026, 9, 30)}
+            value={due}
+            onValueChange={setDue}
+          />
+        }
+      />
+    );
+  }
+  const screen = await render(<Row />);
+  expect(
+    document.querySelector(
+      '[data-slot="date-range-filter"] [data-slot="filter-facet-ai"]',
+    ),
+  ).not.toBeNull();
+  await screen.getByRole("button", { name: "Clear Due" }).click();
+  expect(onAiFacetEdit).toHaveBeenCalledWith("Due");
 });
