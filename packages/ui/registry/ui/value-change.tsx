@@ -1,4 +1,4 @@
-// @vegastack value-change@0.26.1 sha256-1h0Swib9IlJNQ5cn5xgkV0qY8RfIJeuHdojoKmv2YJ0=
+// @vegastack value-change@0.26.2 sha256-Y9KD0++RrZbC/DLvuV3EjKrMf51IduSnVQk5mpDpiGM=
 
 import * as React from "react";
 import { ArrowRight } from "lucide-react";
