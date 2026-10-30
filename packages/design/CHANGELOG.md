@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.9.4
+
+### Patch Changes
+
+- [#866](https://github.com/vegastack/vegastack-design/pull/866) [`50e16e6`](https://github.com/vegastack/vegastack-design/commit/50e16e68be9df496709567f5a836fc796fb22526) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **+ Filter with every field already a facet** (`add-filter-menu`): with nothing typed and no field left to add, the menu offers just "Advanced filter" instead of "No field matches" above it.
+
+- [#866](https://github.com/vegastack/vegastack-design/pull/866) [`50e16e6`](https://github.com/vegastack/vegastack-design/commit/50e16e68be9df496709567f5a836fc796fb22526) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Page header tabs keep the list page rhythm** (`page-header`): the `tabs` row sits 24px under the title and, in an `AppShellPage`, 12px above the page below — the same title → tabs → toolbar spacing as a `ListToolbar`'s tabs row — instead of 8px under the title and 24px above the page below. No prop change.
+
 ## 0.9.3
 
 ### Patch Changes

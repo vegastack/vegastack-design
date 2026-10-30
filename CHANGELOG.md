@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.4] — October 30, 2026
+
+<!-- assembled from 2 changesets: d662d653d356 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.4`** (was `0.9.3`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.3 → 0.26.4.
+
+### 🐛 Fixed
+
+- **+ Filter with every field already a facet** (`add-filter-menu`): with nothing typed and no field left to add, the menu offers just "Advanced filter" instead of "No field matches" above it.
+  [`50e16e6`](https://github.com/VegaStack/vegastack-design/commit/50e16e6)
+- **Page header tabs keep the list page rhythm** (`page-header`): the `tabs` row sits 24px under the title and, in an `AppShellPage`, 12px above the page below — the same title → tabs → toolbar spacing as a `ListToolbar`'s tabs row — instead of 8px under the title and 24px above the page below. No prop change.
+  [`50e16e6`](https://github.com/VegaStack/vegastack-design/commit/50e16e6)
+
 ## [0.26.3] — October 30, 2026
 
 <!-- assembled from 1 changeset: 305e79ea179d -->
