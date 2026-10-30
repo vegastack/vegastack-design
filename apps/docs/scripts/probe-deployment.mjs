@@ -357,145 +357,153 @@ async function expectRetired(pathname) {
   console.log(`✓ ${pathname} is retired (${response.status})`);
 }
 
-await expectText("/", "text/html", (html) =>
-  assertPublicHtml(html, {
-    pathname: "/",
-    canonical: "https://design.vegastack.com",
-    image: "https://design.vegastack.com/og/home/image.png",
-    type: "website",
-  }),
-);
-
-for (const pathname of [
-  "/docs",
-  "/docs/guides/registry-auth",
-  "/docs/components/button",
-]) {
-  await expectText(pathname, "text/html", (html) =>
+// `PROBE_SCOPE=registry` checks only /r/* (run right after the registry Worker deploys, before the
+// docs site has been rebuilt); the default checks the whole public/private boundary.
+if (process.env.PROBE_SCOPE !== "registry") {
+  await expectText("/", "text/html", (html) =>
     assertPublicHtml(html, {
-      pathname,
-      canonical: `https://design.vegastack.com${pathname}`,
-      image: `https://design.vegastack.com/og${pathname}/image.png`,
-      type: "article",
+      pathname: "/",
+      canonical: "https://design.vegastack.com",
+      image: "https://design.vegastack.com/og/home/image.png",
+      type: "website",
     }),
   );
-}
 
-// The design contract, published for agents to fetch directly. It is a static `public/` asset, so
-// nothing but the `_headers` rule gives it a Content-Type — assert the served type, not just a 200,
-// or a lost header rule would silently start serving the doctrine as octet-stream/plain.
-await expectText(
-  "/design.md",
-  "text/markdown",
-  (markdown, response) => {
-    assert.match(
-      markdown,
-      /^# /m,
-      "/design.md: expected the design contract heading",
+  for (const pathname of [
+    "/docs",
+    "/docs/guides/registry-auth",
+    "/docs/components/button",
+  ]) {
+    await expectText(pathname, "text/html", (html) =>
+      assertPublicHtml(html, {
+        pathname,
+        canonical: `https://design.vegastack.com${pathname}`,
+        image: `https://design.vegastack.com/og${pathname}/image.png`,
+        type: "article",
+      }),
     );
-    assert.ok(
-      markdown.length > 10_000,
-      "/design.md: contract is implausibly short — truncated?",
-    );
-    assertRobotsHeader(response, "/design.md");
-    assert.equal(
-      response.headers.get("access-control-allow-origin"),
-      "*",
-      "/design.md must be cross-origin readable — agents fetch it from other origins",
-    );
-  },
-  { utf8: true },
-);
+  }
 
-await expectText(
-  "/docs.md",
-  "text/markdown",
-  (markdown, response) => {
-    assert.match(markdown, /^# .+ \(\/docs\)/m);
-    assertRobotsHeader(response, "/docs.md");
-  },
-  { utf8: true },
-);
-await expectText(
-  "/docs/components/button.md",
-  "text/markdown",
-  (markdown, response) => {
-    assert.match(markdown, /^# Button \(\/docs\/components\/button\)/m);
-    assertRobotsHeader(response, "/docs/components/button.md");
-  },
-  { utf8: true },
-);
-
-await expectPng("/og/home/image.png");
-await expectPng("/og/docs/components/button/image.png");
-
-for (const pathname of ["/llms.txt", "/llms-full.txt"]) {
+  // The design contract, published for agents to fetch directly. It is a static `public/` asset, so
+  // nothing but the `_headers` rule gives it a Content-Type — assert the served type, not just a 200,
+  // or a lost header rule would silently start serving the doctrine as octet-stream/plain.
   await expectText(
-    pathname,
-    "text/plain",
-    (body, response) => {
-      assert.doesNotMatch(
-        body,
-        /\/internal\//,
-        `${pathname}: internal URL leaked`,
+    "/design.md",
+    "text/markdown",
+    (markdown, response) => {
+      assert.match(
+        markdown,
+        /^# /m,
+        "/design.md: expected the design contract heading",
       );
       assert.ok(
-        !body.includes(RETIRED_PUBLIC_ROUTE),
-        `${pathname}: retired public route leaked`,
+        markdown.length > 10_000,
+        "/design.md: contract is implausibly short — truncated?",
       );
-      assert.match(
-        body,
-        /\/docs\/components\/button/,
-        `${pathname}: public corpus missing`,
+      assertRobotsHeader(response, "/design.md");
+      assert.equal(
+        response.headers.get("access-control-allow-origin"),
+        "*",
+        "/design.md must be cross-origin readable — agents fetch it from other origins",
       );
-      assertRobotsHeader(response, pathname);
     },
     { utf8: true },
   );
+
+  await expectText(
+    "/docs.md",
+    "text/markdown",
+    (markdown, response) => {
+      assert.match(markdown, /^# .+ \(\/docs\)/m);
+      assertRobotsHeader(response, "/docs.md");
+    },
+    { utf8: true },
+  );
+  await expectText(
+    "/docs/components/button.md",
+    "text/markdown",
+    (markdown, response) => {
+      assert.match(markdown, /^# Button \(\/docs\/components\/button\)/m);
+      assertRobotsHeader(response, "/docs/components/button.md");
+    },
+    { utf8: true },
+  );
+
+  await expectPng("/og/home/image.png");
+  await expectPng("/og/docs/components/button/image.png");
+
+  for (const pathname of ["/llms.txt", "/llms-full.txt"]) {
+    await expectText(
+      pathname,
+      "text/plain",
+      (body, response) => {
+        assert.doesNotMatch(
+          body,
+          /\/internal\//,
+          `${pathname}: internal URL leaked`,
+        );
+        assert.ok(
+          !body.includes(RETIRED_PUBLIC_ROUTE),
+          `${pathname}: retired public route leaked`,
+        );
+        assert.match(
+          body,
+          /\/docs\/components\/button/,
+          `${pathname}: public corpus missing`,
+        );
+        assertRobotsHeader(response, pathname);
+      },
+      { utf8: true },
+    );
+  }
+
+  await expectText("/api/search", "application/json", (body, response) => {
+    JSON.parse(body);
+    assert.doesNotMatch(
+      body,
+      /\/internal\//,
+      "/api/search: internal URL leaked",
+    );
+    assert.ok(
+      !body.includes(RETIRED_PUBLIC_ROUTE),
+      "/api/search: retired public route leaked",
+    );
+    assert.match(
+      body,
+      /\/docs\/components\/button/,
+      "/api/search: public corpus missing",
+    );
+    assertRobotsHeader(response, "/api/search");
+  });
+
+  await expectText("/sitemap.xml", "application/xml", (body) => {
+    assert.match(
+      body,
+      /<loc>https:\/\/design\.vegastack\.com\/docs\/components\/button<\/loc>/,
+    );
+    assert.doesNotMatch(
+      body,
+      /\/internal\//,
+      "/sitemap.xml: internal URL leaked",
+    );
+    assert.ok(
+      !body.includes(RETIRED_PUBLIC_ROUTE),
+      "/sitemap.xml: retired public route leaked",
+    );
+  });
+
+  for (const pathname of [
+    ...internalArtifactPaths("/internal/runbook"),
+    ...internalArtifactPaths("/internal/internal-projects"),
+    ...internalArtifactPaths("/internal/registry-operations"),
+  ]) {
+    await expectPublicNoindex(pathname);
+  }
+
+  for (const pathname of retiredPageArtifactPaths()) {
+    await expectRetired(pathname);
+  }
 }
-
-await expectText("/api/search", "application/json", (body, response) => {
-  JSON.parse(body);
-  assert.doesNotMatch(body, /\/internal\//, "/api/search: internal URL leaked");
-  assert.ok(
-    !body.includes(RETIRED_PUBLIC_ROUTE),
-    "/api/search: retired public route leaked",
-  );
-  assert.match(
-    body,
-    /\/docs\/components\/button/,
-    "/api/search: public corpus missing",
-  );
-  assertRobotsHeader(response, "/api/search");
-});
-
-await expectText("/sitemap.xml", "application/xml", (body) => {
-  assert.match(
-    body,
-    /<loc>https:\/\/design\.vegastack\.com\/docs\/components\/button<\/loc>/,
-  );
-  assert.doesNotMatch(
-    body,
-    /\/internal\//,
-    "/sitemap.xml: internal URL leaked",
-  );
-  assert.ok(
-    !body.includes(RETIRED_PUBLIC_ROUTE),
-    "/sitemap.xml: retired public route leaked",
-  );
-});
-
-for (const pathname of [
-  ...internalArtifactPaths("/internal/internal-projects"),
-  ...internalArtifactPaths("/internal/registry-operations"),
-]) {
-  await expectPublicNoindex(pathname);
-}
-
-for (const pathname of retiredPageArtifactPaths()) {
-  await expectRetired(pathname);
-}
-
 const registryPaths = [
   "/r/registry.json",
   "/r/integrity-manifest.json",

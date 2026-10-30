@@ -1,6 +1,7 @@
 node_modules/
 dist/
 out/
+dist-registry/
 .next/
 .turbo/
 .open-next/

@@ -66,10 +66,11 @@ ${getPublicSkills()
 `;
 }
 
-export function GET() {
+export async function GET() {
   return new Response(
     [
-      llms(source).index(),
+      // `index()` is async since fumadocs-core 16.16.
+      await llms(source).index(),
       DESIGN_CONTRACT,
       registryRoster(),
       skillRoster(),

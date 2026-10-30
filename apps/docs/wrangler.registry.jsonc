@@ -1,0 +1,20 @@
+{
+  // The private registry (`/r/*`) as its own Worker (30-10-2026). A zone route takes precedence over
+  // the docs Worker's custom domain on the same hostname, so `design.vegastack.com/r/*` is served from
+  // here and the docs site from `wrangler.jsonc`. Cloudflare Access protects the PATH (`/r/*`), so
+  // the service-token boundary does not depend on which Worker answers. Deployed by deploy.yml right
+  // after a release, without waiting for the docs build: the registry is live in about a minute.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vegastack-design-registry",
+  "compatibility_date": "2026-06-01",
+  // NEVER serve from workers.dev or preview URLs: they would bypass the Access application.
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    { "pattern": "design.vegastack.com/r/*", "zone_name": "vegastack.com" },
+  ],
+  "assets": {
+    // Staged by tooling/stage-registry.mjs: `r/` (items, index, signed manifest) plus `_headers`.
+    "directory": "./dist-registry",
+  },
+}

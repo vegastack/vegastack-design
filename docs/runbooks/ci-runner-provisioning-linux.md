@@ -211,12 +211,12 @@ changes) requires, for every job:
   in `pnpm-lock.yaml`, with no `options` and no service containers;
 - only allowlisted volumes: the PR caches (`/opt/vsk-runner/pnpm-store`, `/opt/vsk-runner/turbo-cache`)
   in `ci.yml`/`full-suite.yml`, and the trusted caches (`/opt/vsk-runner/pnpm-store-trusted`,
-  `/opt/vsk-runner/trusted-tools`) only in `release.yml`/`deploy.yml`;
+  `/opt/vsk-runner/trusted-tools`, `/opt/vsk-runner/docs-cache-trusted`) only in `release.yml`/`deploy.yml`;
 - `id-token: write` only in `release.yml` publish/deploy and `deploy.yml`; the fork guard on every
   `ci.yml` job; no `pull_request_target`; no `NPM_TOKEN`.
 
 A PR that edits a workflow runs its own edited copy, so these rules protect `main`, not the PR run
 itself. The fork guard and the repository setting under **Fork pull requests** above are what keep
 outside code off the boxes. Create the four cache directories once per box:
-`sudo mkdir -p /opt/vsk-runner/{pnpm-store,pnpm-store-trusted,trusted-tools,turbo-cache}` (Docker creates
+`sudo mkdir -p /opt/vsk-runner/{pnpm-store,pnpm-store-trusted,trusted-tools,docs-cache-trusted,turbo-cache}` (Docker creates
 missing ones as root, which works but is untidy).
