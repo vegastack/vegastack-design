@@ -1,4 +1,4 @@
-// @vegastack page-header@0.26.3 sha256-kre7IcankZ8xCx37rqJHU5ZeBXk47+kXqpfM+Wo+5lk=
+// @vegastack page-header@0.26.3 sha256-yQN3DTcwvni6ZNM4MQqdP6evTCPBbSi/CllGJGF9a4c=
 
 "use client";
 
@@ -135,8 +135,8 @@ export interface PageHeaderProps extends Omit<
    */
   favorite?: PageHeaderFavorite;
   /**
-   * The page's scope tabs, on their own row 24px under the title (12px above what follows, the
-   * `ListToolbar` tabs rhythm) — a default (pill) `Tabs`
+   * The page's scope tabs, on their own row 24px under the title (12px above the page below in an
+   * `AppShellPage`: the `ListToolbar` tabs rhythm) — a default (pill) `Tabs`
    * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
    * Tabs that change content in place belong here, above the list's toolbar, not inside it.
    * How the records are laid out ("List | Board") is not a tab: it is the `ListToolbar`'s Layout
@@ -283,7 +283,14 @@ export function PageHeader({
   return (
     <header
       data-slot="page-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn(
+        "flex flex-col gap-2",
+        // Directly in an AppShellPage with the tabs last, the page below sits 12px under the tabs
+        // (its 24px gap less 12px) — the ListToolbar tabs rhythm. Anywhere else, spacing is the
+        // host's and nothing overlaps.
+        "[[data-slot=app-shell-page]>&]:has-[>[data-slot=page-header-tabs]:last-child]:-mb-3",
+        className,
+      )}
       {...props}
     >
       {breadcrumb ? (
@@ -370,9 +377,8 @@ export function PageHeader({
       {tabs != null ? (
         <div
           data-slot="page-header-tabs"
-          // The list page rhythm (ListToolbar's tabs row): 24px under the title block, and 12px
-          // from the tabs to what follows — the page's 24px gap less 12px.
-          className="mt-4 -mb-3 flex flex-wrap items-center gap-2"
+          // The list page rhythm (ListToolbar's tabs row): 24px under the title block.
+          className="mt-4 flex flex-wrap items-center gap-2"
         >
           {tabs}
         </div>
