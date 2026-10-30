@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.26.9
+
+### Patch Changes
+
+- [#873](https://github.com/vegastack/vegastack-design/pull/873) [`f6dd313`](https://github.com/vegastack/vegastack-design/commit/f6dd3134d3304e0aa9ddd528e5ba13e57cf084a9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 **Docs site on Fumadocs 16.17**: the agent export (each page's `.md`, `llms.txt`, `llms-full.txt`) now renders MDX components through Fumadocs' `output: "function"` markdown API instead of the removed `stringify` hook; the exported content is unchanged. The real `shadcn add` consume proof installs public npm deps through the runner LAN cache (npmjs fallback) and reads shadcn's own registry JSON from the pinned `vendor/shadcn` snapshot instead of ui.shadcn.com.
+
 ## 0.26.8
 
 ### Patch Changes

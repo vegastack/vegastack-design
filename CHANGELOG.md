@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.9] — October 30, 2026
+
+<!-- assembled from 1 changeset: a4dc1404db70 -->
+
+### 🛠 CLI & tooling
+
+- **Docs site on Fumadocs 16.17**: the agent export (each page's `.md`, `llms.txt`, `llms-full.txt`) now renders MDX components through Fumadocs' `output: "function"` markdown API instead of the removed `stringify` hook; the exported content is unchanged. The real `shadcn add` consume proof installs public npm deps through the runner LAN cache (npmjs fallback) and reads shadcn's own registry JSON from the pinned `vendor/shadcn` snapshot instead of ui.shadcn.com.
+  [`f6dd313`](https://github.com/VegaStack/vegastack-design/commit/f6dd313)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.26.8 → 0.26.9.
+
 ## [0.26.8] — October 30, 2026
 
 <!-- assembled from 1 changeset: 40f18318a084 -->

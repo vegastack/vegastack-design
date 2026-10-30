@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.26.9] — October 30, 2026
+
+### 🛠 CLI & tooling
+
+- **Docs site on Fumadocs 16.17**: the agent export (each page's `.md`, `llms.txt`, `llms-full.txt`) now renders MDX components through Fumadocs' `output: "function"` markdown API instead of the removed `stringify` hook; the exported content is unchanged. The real `shadcn add` consume proof installs public npm deps through the runner LAN cache (npmjs fallback) and reads shadcn's own registry JSON from the pinned `vendor/shadcn` snapshot instead of ui.shadcn.com.
+  [`f6dd313`](https://github.com/VegaStack/vegastack-design/commit/f6dd313)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.26.8 → 0.26.9.
+
 ## [0.26.8] — October 30, 2026
 
 ### 🧩 New components
