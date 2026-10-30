@@ -1,4 +1,4 @@
-// @vegastack page-header@0.26.4 sha256-5DdDW5uR8y05cbUIUqFkOvlymR3JiA6a0j5yqqcIDFA=
+// @vegastack page-header@0.26.4 sha256-0/bF9JyaH+6CK2r9uSuqruWkpVSnlBK5inTDdFaiCmA=
 
 "use client";
 
@@ -285,10 +285,11 @@ export function PageHeader({
       data-slot="page-header"
       className={cn(
         "flex flex-col gap-2",
-        // Directly in an AppShellPage with the tabs last, the page below sits 12px under the tabs
-        // (its 24px gap less 12px) — the ListToolbar tabs rhythm. Anywhere else, spacing is the
-        // host's and nothing overlaps.
+        // Directly in an AppShellPage or a SettingsLayoutContent (both 24px columns) with the tabs
+        // last, the page below sits 12px under the tabs (the 24px gap less 12px) — the
+        // ListToolbar tabs rhythm. Anywhere else, spacing is the host's and nothing overlaps.
         "[[data-slot=app-shell-page]>&]:has-[>[data-slot=page-header-tabs]:last-child]:-mb-3",
+        "[[data-slot=settings-layout-content]>&]:has-[>[data-slot=page-header-tabs]:last-child]:-mb-3",
         className,
       )}
       {...props}
