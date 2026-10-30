@@ -739,3 +739,18 @@ test("a labelled custom range reads its label, not its dates", async () => {
     .element(screen.getByRole("button", { name: "Due: Last 2 days" }))
     .toBeInTheDocument();
 });
+
+test("a facet an AI filter set leads with the ✦", async () => {
+  await render(
+    <DateRangeFilter
+      label="Due"
+      ai
+      now={new Date(2026, 9, 30)}
+      value={{ from: null, to: new Date(2026, 9, 29), preset: "overdue" }}
+      onValueChange={() => {}}
+    />,
+  );
+  const root = document.querySelector('[data-slot="date-range-filter"]')!;
+  expect(root.getAttribute("data-source")).toBe("ai");
+  expect(root.querySelector('[data-slot="filter-facet-ai"]')).not.toBeNull();
+});

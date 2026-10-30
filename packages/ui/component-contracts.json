@@ -10476,6 +10476,10 @@
               ]
             },
             {
+              "name": "data-source",
+              "values": ["ai"]
+            },
+            {
               "name": "data-state",
               "values": ["set", "unset"]
             }
@@ -10498,6 +10502,10 @@
               ]
             },
             {
+              "name": "data-source",
+              "values": ["ai"]
+            },
+            {
               "name": "data-state",
               "values": ["set", "unset"]
             }
@@ -10518,6 +10526,10 @@
                 "date-range-filter-presets",
                 "date-range-filter-trigger"
               ]
+            },
+            {
+              "name": "data-source",
+              "values": ["ai"]
             },
             {
               "name": "data-state",
@@ -43602,6 +43614,44 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "DropdownMenuIdentity",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Spreads its props, ref included, onto the DropdownMenuLabel."
+          }
+        },
+        {
+          "name": "DropdownMenuIdentityProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DropdownMenuNote",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Spreads its props, ref included, onto the DropdownMenuLabel."
+          }
+        },
+        {
+          "name": "DropdownMenuNoteProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -43692,6 +43742,24 @@
             }
           ],
           "cssVariables": ["--anchor-x", "--anchor-y"]
+        },
+        "DropdownMenuIdentity": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-identity"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuNote": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-note"]
+            }
+          ],
+          "cssVariables": []
         }
       }
     },
