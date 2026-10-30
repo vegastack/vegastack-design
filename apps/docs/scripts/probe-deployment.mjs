@@ -23,6 +23,13 @@ const expectedRegistryVersion = JSON.parse(
     "utf8",
   ),
 ).version;
+// Items carry their own version: the release in which their content last changed (30-10-2026).
+const expectedStepperVersion = JSON.parse(
+  readFileSync(
+    new URL("../../../packages/ui/registry.json", import.meta.url),
+    "utf8",
+  ),
+).items.find((entry) => entry.name === "stepper")?.meta?.version;
 
 assert.ok(clientId, "CF_ACCESS_CLIENT_ID must be set");
 assert.ok(clientSecret, "CF_ACCESS_CLIENT_SECRET must be set");
@@ -553,6 +560,19 @@ assertContentType(
 );
 const manifestText = await manifestResponse.text();
 const manifest = JSON.parse(manifestText);
+// Bind the probe to THIS deployment: the live manifest (every item's integrity) must equal the one
+// this commit built. With item-scoped versions an unchanged item looks the same in two releases, so
+// checking one item alone could pass against a stale deployment.
+assert.deepEqual(
+  manifest,
+  JSON.parse(
+    readFileSync(
+      new URL("../public/r/integrity-manifest.json", import.meta.url),
+      "utf8",
+    ),
+  ),
+  "live integrity manifest differs from the one this commit built (stale or partial deployment)",
+);
 
 const itemResponse = await requestUntil(
   "/r/stepper.json",
@@ -572,8 +592,8 @@ const computedIntegrity = itemHash(item);
 assert.equal(item.name, "stepper");
 assert.equal(
   item.meta?.version,
-  expectedRegistryVersion,
-  `stepper version does not match deployed tree (${expectedRegistryVersion})`,
+  expectedStepperVersion,
+  `stepper version does not match deployed tree (${expectedStepperVersion})`,
 );
 assert.equal(
   item.meta?.integrity,

@@ -104,7 +104,7 @@ if (unexpectedOutputs.length)
   );
 
 // Validate one piece of content's header against the expected item identity.
-function check(label, content, name, integrity) {
+function check(label, content, name, integrity, itemVersion) {
   const provenanceLines = content.match(/^\/\/ @vegastack \S+@\S+.*$/gm) ?? [];
   if (!content.startsWith("// @vegastack ")) {
     problems.push(`${label}: provenance header must be line 1`);
@@ -117,15 +117,15 @@ function check(label, content, name, integrity) {
   const hdr = readProvenanceHeader(content);
   if (!hdr) {
     problems.push(
-      `${label}: missing provenance header (expected "// @vegastack ${name}@${version} ${integrity}")`,
+      `${label}: missing provenance header (expected "// @vegastack ${name}@${itemVersion} ${integrity}")`,
     );
     return;
   }
   if (hdr.name !== name)
     problems.push(`${label}: header name "${hdr.name}" ≠ item name "${name}"`);
-  if (hdr.version !== version)
+  if (hdr.version !== itemVersion)
     problems.push(
-      `${label}: header version "${hdr.version}" ≠ @vegastack/ui version "${version}"`,
+      `${label}: header version "${hdr.version}" ≠ item meta.version "${itemVersion}"`,
     );
   if (hdr.integrity !== integrity) {
     problems.push(
@@ -162,6 +162,7 @@ for (const f of outputFilenames) {
       file.content,
       item.name,
       integrity,
+      item.meta?.version,
     );
     // (b) registry SOURCE file
     if (file.path) {
@@ -173,6 +174,7 @@ for (const f of outputFilenames) {
             readFileSync(assertExistingPathInside(repoRoot, srcPath), "utf8"),
             item.name,
             integrity,
+            item.meta?.version,
           );
         else
           problems.push(
@@ -193,6 +195,7 @@ for (const f of outputFilenames) {
           readFileSync(assertExistingPathInside(docsRoot, copyPath), "utf8"),
           item.name,
           integrity,
+          item.meta?.version,
         );
       else
         problems.push(

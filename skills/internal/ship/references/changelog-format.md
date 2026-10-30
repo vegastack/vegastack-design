@@ -19,8 +19,8 @@ The comment under the heading is the assembler's provenance line, and it is what
 no-op. A heading WITHOUT it is a hand-written entry, which `changelog-assemble` refuses rather than
 merging into. `sync-changelog` strips it from the docs page (MDX has no HTML comments).
 
-- Version = the design-system (registry) version — `@vegastack/ui`'s version, which every
-  registry item carries as `meta.version`.
+- Version = the design-system (registry) version — `@vegastack/ui`'s version. An item's own
+  `meta.version` is the release in which its content last changed, so it can be older.
 - Em dash (`—`), friendly date (`Month D, YYYY`). Entries in descending version order.
 
 ## Sections (fixed vocabulary — use only these, only when non-empty, in this order)

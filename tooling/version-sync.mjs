@@ -17,10 +17,14 @@
 // Wired into release.yml as part of the changesets `version` command.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
+import { itemHash } from "./registry-hash.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { rewriteContractDependencyRanges } from "./lib/contract-dependency-ranges.mjs";
+import {
+  rewriteContractDependencyRanges,
+  rewriteRange,
+} from "./lib/contract-dependency-ranges.mjs";
 import { releasedVersions, stampPendingSince } from "./lib/pending-since.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -53,29 +57,71 @@ const PUBLIC_DEPENDENCIES = ["design", "design-tokens"].map((directory) => {
   return { name: manifest.name, range: `^${manifest.version}` };
 });
 
-// 1+2. sync every item's meta.version in the canonical registry manifest
+// 1+2. ITEM-SCOPED versions (30-10-2026): an item's meta.version is the release in which its content
+// last changed. Compare each built item with the same item at the previous release (the commit that
+// last moved packages/ui/package.json); only a changed or new item takes this release's version.
+// It used to take the global version every time, which restamped ~2,300 files per release, changed
+// every item's integrity, and so told consumers every component had an update.
 const registryPath = join(repoRoot, "packages/ui/registry.json");
 const registry = JSON.parse(readFileSync(registryPath, "utf8"));
+const contentKey = (item) => {
+  const meta = { ...(item.meta ?? {}) };
+  delete meta.version;
+  return itemHash({ ...item, meta });
+};
+// The last commit that changed the package's VERSION (a feature commit may touch the file too).
+const previousRelease = execSync(
+  `git log -1 --format=%H -G'"version":' HEAD -- packages/ui/package.json`,
+  { cwd: repoRoot, encoding: "utf8" },
+).trim();
+function previousItem(name) {
+  if (!previousRelease) return null;
+  try {
+    return JSON.parse(
+      execSync(`git show ${previousRelease}:apps/docs/public/r/${name}.json`, {
+        cwd: repoRoot,
+        encoding: "utf8",
+        maxBuffer: 1 << 26,
+        stdio: ["ignore", "pipe", "ignore"],
+      }),
+    );
+  } catch {
+    return null; // new since the previous release
+  }
+}
+const outDirBuilt = join(repoRoot, "apps/docs/public/r");
 let updated = 0;
 let rangesUpdated = 0;
 for (const item of registry.items ?? []) {
   item.meta ??= {};
-  if (item.meta.version !== version) {
-    item.meta.version = version;
-    updated++;
+  const before = previousItem(item.name);
+  let built = null;
+  try {
+    built = JSON.parse(
+      readFileSync(join(outDirBuilt, `${item.name}.json`), "utf8"),
+    );
+  } catch {
+    built = null;
   }
-  // Keep each item's npm dependency ranges pointing at the versions actually being published.
+  // Keep each item's npm dependency ranges admitting the versions actually being published.
   if (Array.isArray(item.dependencies)) {
     item.dependencies = item.dependencies.map((dependency) => {
-      for (const { name, range } of PUBLIC_DEPENDENCIES) {
-        if (dependency === name || dependency.startsWith(`${name}@`)) {
-          const next = `${name}@${range}`;
-          if (next !== dependency) rangesUpdated++;
-          return next;
-        }
-      }
-      return dependency;
+      const next = rewriteRange(dependency, PUBLIC_DEPENDENCIES);
+      if (next !== dependency) rangesUpdated++;
+      return next;
     });
+  }
+  // Version AFTER the range rewrite, so an item whose dependency range moved counts as changed.
+  const comparable = built && { ...built, dependencies: item.dependencies };
+  const unchanged =
+    before &&
+    comparable &&
+    before.meta?.version &&
+    contentKey(before) === contentKey(comparable);
+  const next = unchanged ? before.meta.version : version;
+  if (item.meta.version !== next) {
+    item.meta.version = next;
+    updated++;
   }
 }
 if (updated > 0 || rangesUpdated > 0) {
@@ -98,7 +144,7 @@ if (updated > 0 || rangesUpdated > 0) {
   );
 }
 console.log(
-  `✓ version-sync: ${updated} item meta.version field(s) → ${version}; ` +
+  `✓ version-sync: ${updated} changed item(s) → ${version}; ` +
     `${rangesUpdated} npm dependency range(s) → ${PUBLIC_DEPENDENCIES.map((d) => `${d.name}@${d.range}`).join(", ")}`,
 );
 
@@ -166,9 +212,11 @@ for (const f of readdirSync(outDir).filter(
 )) {
   const item = JSON.parse(readFileSync(join(outDir, f), "utf8"));
   checked++;
-  if (item.meta?.version !== version) {
+  const expected = registry.items.find((i) => i.name === item.name)?.meta
+    ?.version;
+  if (item.meta?.version !== expected) {
     problems.push(
-      `${f}: meta.version "${item.meta?.version}" ≠ package version "${version}"`,
+      `${f}: meta.version "${item.meta?.version}" ≠ registry.json "${expected}"`,
     );
   }
 }
@@ -179,5 +227,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `✓ version-sync: ${checked} built item(s) verified at v${version} (meta.version = package = headers)`,
+  `✓ version-sync: ${checked} built item(s) verified (meta.version = registry.json = headers); ${updated} moved to v${version}`,
 );

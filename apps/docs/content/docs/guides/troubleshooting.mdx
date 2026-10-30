@@ -231,8 +231,9 @@ filename against the registry index and compare content — no header needed.
 
 ### `check-updates` says `up to date` but the registry version number is higher
 
-Not a bug. Status is by **content hash**, not version: the global version bumped
-but that component's bytes didn't change. Nothing to pull.
+Not a bug. Each component carries its own version, the release in which its content last changed.
+A newer design-system release that did not touch that component leaves it as it is, so there is
+nothing to pull.
 
 ### `? <name> — not in registry (renamed/removed)`
 
