@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.26.6
+
+### Patch Changes
+
+- [#870](https://github.com/vegastack/vegastack-design/pull/870) [`6728ed2`](https://github.com/vegastack/vegastack-design/commit/6728ed2f524c86cb59c0eab86521c44006f80221) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Settings page tabs keep the list page rhythm** (`page-header`): a header with `tabs` placed directly in a `SettingsLayoutContent` sits 12px above the settings below, as it already does in an `AppShellPage`.
+
+- Updated dependencies [[`6728ed2`](https://github.com/vegastack/vegastack-design/commit/6728ed2f524c86cb59c0eab86521c44006f80221)]:
+  - @vegastack/design@0.9.5
+
 ## 0.26.5
 
 ### Patch Changes

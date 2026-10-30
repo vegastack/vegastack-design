@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.6] — October 30, 2026
+
+<!-- assembled from 1 changeset: 7d4e872e8f9f -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.5`** (was `0.9.4`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.5 → 0.26.6.
+
+### 🐛 Fixed
+
+- **Settings page tabs keep the list page rhythm** (`page-header`): a header with `tabs` placed directly in a `SettingsLayoutContent` sits 12px above the settings below, as it already does in an `AppShellPage`.
+  [`6728ed2`](https://github.com/VegaStack/vegastack-design/commit/6728ed2)
+
 ## [0.26.5] — October 30, 2026
 
 <!-- assembled from 1 changeset: 3d87b2aaaf08 -->
