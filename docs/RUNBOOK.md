@@ -15,21 +15,23 @@ flowchart TD
   ci -->|green + review| merge["Squash-merge to main"]
   merge --> rel["release.yml<br/>version commit by release App"]
   rel --> npm["npm publish (OIDC)"]
-  rel --> dep["deploy.yml<br/>registry + docs, signed, probed"]
-  dep --> pull["App: pnpm ds:pull<br/>(own PR)"]
+  rel --> reg["deploy.yml: registry Worker<br/>/r/* signed, probed (~2 min)"]
+  reg --> docs["deploy.yml: docs Worker<br/>site built, probed"]
+  reg --> pull["App: pnpm ds:pull<br/>(own PR)"]
   pull --> appci["App CI + merge to develop"]
   appci --> appdeploy["App deploy<br/>(app runbook)"]
 ```
 
-| Step                   | Who                        | Command or trigger                                                         | Typical time   |
-| ---------------------- | -------------------------- | -------------------------------------------------------------------------- | -------------- |
-| Change                 | you                        | edit, then `pnpm gen` (the pre-commit hook runs it), then `pnpm changeset` | —              |
-| PR CI                  | automatic                  | `PR quality`, i.e. `pnpm verify:affected`                                  | 3–10 min       |
-| Review                 | Codex (Claude as fallback) | see § 4a                                                                   | —              |
-| Merge                  | you                        | `gh pr merge <n> --squash --match-head-commit <sha>`                       | —              |
-| Version + publish      | automatic                  | `release.yml` on the push to `main`                                        | 2–5 min        |
-| Registry + docs deploy | automatic                  | `deploy.yml`, called by `release.yml`                                      | 8–10 min       |
-| Pull into an app       | you, in the app            | `pnpm ds:pull` → its own PR                                                | 1 min + app CI |
+| Step              | Who                        | Command or trigger                                                         | Typical time   |
+| ----------------- | -------------------------- | -------------------------------------------------------------------------- | -------------- |
+| Change            | you                        | edit, then `pnpm gen` (the pre-commit hook runs it), then `pnpm changeset` | —              |
+| PR CI             | automatic                  | `PR quality`, i.e. `pnpm verify:affected`                                  | 3–10 min       |
+| Review            | Codex (Claude as fallback) | see § 4a                                                                   | —              |
+| Merge             | you                        | `gh pr merge <n> --squash --match-head-commit <sha>`                       | —              |
+| Version + publish | automatic                  | `release.yml` on the push to `main`                                        | 2–5 min        |
+| Registry deploy   | automatic                  | `deploy.yml` job `registry`, called by `release.yml`                       | ~2 min         |
+| Docs deploy       | automatic                  | `deploy.yml` job `docs`, after the registry                                | ~6–8 min       |
+| Pull into an app  | you, in the app            | `pnpm ds:pull` → its own PR                                                | 1 min + app CI |
 
 ## 1. Who may do what
 
@@ -117,16 +119,25 @@ On every push to `main`, `release.yml` runs three jobs:
    [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) and
    [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens).
 3. **deploy** calls `deploy.yml` for the release commit whenever something was versioned or published.
-   That is one job: build the registry and docs once, sign the integrity manifest with cosign, upload to
-   Cloudflare, then probe production. `/r/*` must reject anonymous requests and accept the service token;
-   everything else must be public.
+   It has two jobs:
+   - **registry**: `registry:build`, sign the integrity manifest with cosign, deploy the
+     `vegastack-design-registry` Worker (`apps/docs/wrangler.registry.jsonc`, route
+     `design.vegastack.com/r/*`), then probe `/r/*`. Anonymous requests must be rejected, the service
+     token accepted, and the signature valid. Apps can pull as soon as this job is green.
+   - **docs**: build the static site once (Turbopack and twoslash caches persist on the runner), deploy
+     the `vegastack-design-docs` Worker (custom domain `design.vegastack.com`, everything except `/r/*`),
+     then probe the whole boundary. Every non-registry route must be public, and `/internal/*` must be
+     unlisted and `noindex`.
+
+   Cloudflare Access protects the **path** `/r/*`, so the auth boundary is the same whichever Worker
+   answers; the zone route takes precedence over the docs Worker's custom domain.
 
 A merge without a bumping changeset releases nothing. There are no git tags and no GitHub releases.
 
 Watch it in [Actions](https://github.com/vegastack/vegastack-design/actions): the
 [Release](https://github.com/vegastack/vegastack-design/actions/workflows/release.yml) run, then its deploy
-job. Done means the deploy's probe step is green: it checks the live registry against `packages/ui`'s
-version at the release commit. In addition, `npm view @vegastack/design version` and
+jobs. Done means both deploy probes are green: they check the live registry items against
+`packages/ui/registry.json` at the release commit. In addition, `npm view @vegastack/design version` and
 `npm view @vegastack/design-tokens version` must equal those packages' versions at that commit. A
 registry-only release leaves both unchanged.
 
@@ -145,7 +156,7 @@ The app's drift check flags this until the real release is pulled.
 
 ## 7. Pull a release into an app
 
-In the Regent web app, once the deploy is green:
+In the Regent web app, once the deploy's `registry` job is green:
 
 ```bash
 pnpm ds:pull --dry-run    # what would change
@@ -177,8 +188,8 @@ Every job runs on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with
 `mcr.microsoft.com/playwright:v<lockfile version>-noble`. There are two kinds of cache volume:
 
 - `/opt/vsk-runner/pnpm-store`: used by pull-request jobs.
-- `/opt/vsk-runner/pnpm-store-trusted` and `/opt/vsk-runner/trusted-tools`: mounted only by `release.yml`
-  and `deploy.yml`, so pull-request code never writes into what a credentialed job installs. Tool binaries
+- `/opt/vsk-runner/pnpm-store-trusted`, `/opt/vsk-runner/trusted-tools` and `/opt/vsk-runner/docs-cache-trusted`:
+  mounted only by `release.yml` and `deploy.yml`, so pull-request code never writes into what a credentialed job installs. Tool binaries
   are pinned and SHA-256-checked on every use (`tooling/trusted-tool.mjs`).
 
 To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.

@@ -3,6 +3,7 @@ import lastModified from "fumadocs-mdx/plugins/last-modified";
 import { z } from "zod";
 import { metaSchema } from "fumadocs-core/source/schema";
 import { transformerTwoslash } from "fumadocs-twoslash";
+import { createFileSystemTypesCache } from "fumadocs-twoslash/cache-fs";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
 import { stringifyMdxForAgents } from "./lib/mdx-markdown";
 import { PAGE_STATUSES } from "./lib/shared";
@@ -84,7 +85,9 @@ export default defineConfig({
       langs: ["js", "jsx", "ts", "tsx", "css", "bash"],
       transformers: [
         ...(rehypeCodeDefaultOptions.transformers ?? []),
-        transformerTwoslash(),
+        // Cache twoslash type results on disk (.next/cache), so an unchanged code block is not
+        // re-typechecked on every build.
+        transformerTwoslash({ typesCache: createFileSystemTypesCache() }),
       ],
     },
   },

@@ -1,8 +1,10 @@
 name: Deploy public docs and signed registry
 
-# One job (30-10-2026): build once, sign, upload, probe. It replaces three jobs that built the docs
-# twice and installed cosign twice. Component regression and the real `shadcn add` consume proof
-# belong to pull requests, which own them; this workflow proves only the artifact it ships.
+# Two jobs (30-10-2026). `registry` ships /r/* first, on its own Worker (apps/docs/wrangler.registry.jsonc):
+# registry:build, sign the integrity manifest, deploy, probe /r/*. Apps can pull about a minute after
+# the release. `docs` then builds the static site once, deploys it and probes the whole boundary.
+# Component regression and the real `shadcn add` consume proof belong to pull requests; this workflow
+# proves only the artifacts it ships.
 
 on:
   # Called by release.yml after every version; dispatch redeploys a given main commit by hand.
@@ -43,13 +45,13 @@ env:
   pnpm_config_fetch_timeout: "300000"
 
 jobs:
-  deploy:
-    name: Build, sign, deploy and probe
+  registry:
+    name: Registry — sign, deploy, probe
     concurrency:
-      group: production-docs
+      group: production-registry
       cancel-in-progress: false
+    timeout-minutes: 15
     runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       volumes:
@@ -97,6 +99,93 @@ jobs:
             git status --short
             exit 1
           }
+      - name: Stage the registry assets
+        run: node tooling/stage-registry.mjs
+      - name: Sign and verify the integrity manifest
+        env:
+          SIGNER_REPOSITORY: ${{ github.repository }}
+          SIGNER_REF: refs/heads/main
+        run: |
+          set -euo pipefail
+          MANIFEST=apps/docs/dist-registry/r/integrity-manifest.json
+          BUNDLE=apps/docs/dist-registry/r/integrity-manifest.sigstore
+          test -f "$MANIFEST"
+          test ! -e "$BUNDLE"
+          cosign sign-blob --yes --bundle "$BUNDLE" "$MANIFEST"
+          cosign verify-blob \
+            --bundle "$BUNDLE" \
+            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-github-workflow-repository "$SIGNER_REPOSITORY" \
+            --certificate-github-workflow-ref "$SIGNER_REF" \
+            "$MANIFEST"
+      - name: Deploy the registry Worker
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: apps/docs
+          wranglerVersion: 4.129.1
+          command: deploy --config wrangler.registry.jsonc
+      - name: Probe /r/* (service token accepted, anonymous rejected, signature valid)
+        env:
+          DOCS_URL: ${{ vars.DOCS_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          SIGNER_REPOSITORY: ${{ github.repository }}
+          SIGNER_REF: refs/heads/main
+          PROBE_SCOPE: registry
+        run: node apps/docs/scripts/probe-deployment.mjs
+
+  docs:
+    name: Docs — build, deploy, probe
+    needs: registry
+    concurrency:
+      group: production-docs
+      cancel-in-progress: false
+    timeout-minutes: 25
+    runs-on: [self-hosted, linux, vsk-runner]
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        # Trusted caches: mounted only by the release and deploy workflows, never by a job that runs
+        # pull-request code, so nothing PR-authored can write into what a credentialed job installs.
+        - /opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted
+        - /opt/vsk-runner/trusted-tools:/trusted-tools
+        - /opt/vsk-runner/docs-cache-trusted:/docs-cache
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ inputs.expected_sha }}
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Require the exact public release commit
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          git fetch origin main
+          git merge-base --is-ancestor "$EXPECTED_SHA" origin/main || {
+            echo "::error title=Untrusted deploy commit::$EXPECTED_SHA is not in main history"
+            exit 1
+          }
+      - name: Install cosign (pinned, checksum-verified, cached)
+        run: node tooling/trusted-tool.mjs cosign
+      - name: Enable corepack
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store-trusted
+      - name: Reuse the docs build cache (Turbopack, twoslash types) across deploys
+        run: mkdir -p apps/docs/.next && ln -sfn /docs-cache apps/docs/.next/cache
       # Workspace packages + docs static export, with the docs' metadata, export and emitted-CSS
       # contracts (they run inside the docs `build` script).
       - run: pnpm build
@@ -106,33 +195,16 @@ jobs:
           pnpm -F @vegastack/docs lint:links
           node tooling/verify-docs-shell.mjs
           node tooling/verify-docs-shell.mjs --self-test
-      - name: Assert the unsigned public artifact is complete
+      - name: Drop /r from the docs artifact (the registry Worker serves it) and bound asset size
         run: |
           set -euo pipefail
-          test -f apps/docs/out/r/integrity-manifest.json
-          test ! -e apps/docs/out/r/integrity-manifest.sigstore
+          rm -rf apps/docs/out/r
           BIG=$(find apps/docs/out -type f -size +24M | head -20)
           if [ -n "$BIG" ]; then
             echo "::error title=Asset over 25MiB::$BIG"
             exit 1
           fi
-      - name: Sign and verify the exported integrity manifest
-        env:
-          SIGNER_REPOSITORY: ${{ github.repository }}
-          SIGNER_REF: refs/heads/main
-        run: |
-          set -euo pipefail
-          MANIFEST=apps/docs/out/r/integrity-manifest.json
-          BUNDLE=apps/docs/out/r/integrity-manifest.sigstore
-          cosign sign-blob --yes --bundle "$BUNDLE" "$MANIFEST"
-          cosign verify-blob \
-            --bundle "$BUNDLE" \
-            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}" \
-            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-            --certificate-github-workflow-repository "$SIGNER_REPOSITORY" \
-            --certificate-github-workflow-ref "$SIGNER_REF" \
-            "$MANIFEST"
-      - name: Deploy to Cloudflare Workers Static Assets
+      - name: Deploy the docs Worker
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -140,7 +212,7 @@ jobs:
           workingDirectory: apps/docs
           wranglerVersion: 4.129.1
           command: deploy
-      - name: Verify public, internal, and protected registry routes
+      - name: Probe the whole public/private boundary
         env:
           DOCS_URL: ${{ vars.DOCS_URL }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}

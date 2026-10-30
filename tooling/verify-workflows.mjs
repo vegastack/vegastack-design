@@ -21,7 +21,7 @@ const RUNNER = ["self-hosted", "linux", "vsk-runner"];
 const OIDC_JOBS = new Set([
   "release.yml:publish",
   "release.yml:deploy",
-  "deploy.yml:deploy",
+  "deploy.yml:registry",
 ]);
 /**
  * The only container volumes a job may mount. No parent directory, no Docker socket, no other host
@@ -34,6 +34,7 @@ const PR_VOLUMES = [
 const TRUSTED_VOLUMES = [
   "/opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted",
   "/opt/vsk-runner/trusted-tools:/trusted-tools",
+  "/opt/vsk-runner/docs-cache-trusted:/docs-cache",
 ];
 const ALLOWED_VOLUMES = {
   "ci.yml": PR_VOLUMES,
