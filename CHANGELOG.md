@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.5] — October 30, 2026
+
+<!-- assembled from 1 changeset: 3d87b2aaaf08 -->
+
+### 🛠 CLI & tooling
+
+- Registry items carry their own version: the release in which their content last changed. A release now restamps only the items that changed, so `check-updates` reports only real updates.
+  [`4edd4ef`](https://github.com/VegaStack/vegastack-design/commit/4edd4ef)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.26.4 → 0.26.5.
+
 ## [0.26.4] — October 30, 2026
 
 <!-- assembled from 2 changesets: d662d653d356 -->

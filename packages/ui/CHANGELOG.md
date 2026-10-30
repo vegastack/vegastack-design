@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.26.5
+
+### Patch Changes
+
+- [#864](https://github.com/vegastack/vegastack-design/pull/864) [`4edd4ef`](https://github.com/vegastack/vegastack-design/commit/4edd4ef447a24fe51a6894370f4b3e345a506884) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 Registry items carry their own version: the release in which their content last changed. A release now restamps only the items that changed, so `check-updates` reports only real updates.
+
 ## 0.26.4
 
 ### Patch Changes
