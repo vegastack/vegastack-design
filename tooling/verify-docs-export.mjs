@@ -6,11 +6,10 @@
  * when any page still carries what an agent cannot use:
  *
  *   1. a JSX tag (`<Capitalised …>`) outside a code fence or inline code — an MDX component the
- *      compile-time stringifier (`apps/docs/lib/mdx-markdown.ts`) did not render;
+ *      agent-export renderer (`apps/docs/lib/markdown-export.ts`) did not render;
  *   1b. a NAMESPACED tag (`<story.WithControl />`) or a custom element (`<api-table />`) — neither
  *      starts with a capital, so the rule above cannot see them;
- *   2. an unresolved `\0…\0` placeholder — a runtime renderer missing in
- *      `apps/docs/lib/markdown-export.ts`;
+ *   2. a stray `\0` (a fumadocs placeholder marker that was never resolved);
  *   3. an empty API table — a `| Prop |` header with no rows;
  *   4. a component page whose `## API Reference` section carries NEITHER a prop table NOR the
  *      "adds no props of its own" sentence. Rejecting a malformed table is not enough: the defect
@@ -21,15 +20,14 @@
  * `<Button>`; the raw `grep -c "<[A-Z]"` from the audit therefore never reaches zero and is not
  * the measure — this scan is.
  *
- * It also enforces two SOURCE-level invariants:
+ * It also enforces a SOURCE-level invariant:
  *
  *   - the Explorer policy (DD-3): a component page never carries BOTH a curated `<…Playground />`
  *     and the Story `<story.WithControl />`, and an Explorer always renders inside `<StoryExplorer>`.
  *     Carrying NEITHER is permitted — the Playground row of the canon applies "where curated"
  *     (DD-2/3 is a permission, not a requirement), and 59 of the 110 pages have neither today.
- *   - manifest coverage: every name in `RENDERED_ELEMENTS` (`apps/docs/lib/mdx-manifest.ts`) has a
- *     matching `case` in `stringifyMdxForAgents`, so the manifest cannot promise a rendering that
- *     the stringifier answers with a thrown error.
+ *   - manifest coverage lives at module load in `apps/docs/lib/markdown-export.ts` (every name the
+ *     manifest classifies has exactly one markdown form) and in `pnpm verify:mdx-manifest`.
  *
  *   node tooling/verify-docs-export.mjs              # verify apps/docs/out
  *   node tooling/verify-docs-export.mjs --self-test  # prove every check fails on a bad fixture
@@ -175,38 +173,6 @@ export function apiSectionProblems(markdown) {
 }
 
 /**
- * Manifest coverage: every `RENDERED_ELEMENTS` name in `apps/docs/lib/mdx-manifest.ts` must have a
- * `case "<Name>":` in `stringifyMdxForAgents`. Read textually because the manifest is TypeScript
- * and this gate is Node — a second hand-written list would be the drift it is meant to prevent.
- */
-export function manifestCoverageProblems(manifestSource, stringifierSource) {
-  const block =
-    /export const RENDERED_ELEMENTS = new Set\(\[([\s\S]*?)\]\);/.exec(
-      manifestSource,
-    );
-  if (!block) {
-    return [
-      "lib/mdx-manifest.ts: RENDERED_ELEMENTS is not a `new Set([...])` literal this gate can read",
-    ];
-  }
-  const declared = [...block[1].matchAll(/"([A-Z][\w.]*)"/g)].map((m) => m[1]);
-  if (declared.length === 0) {
-    return ["lib/mdx-manifest.ts: RENDERED_ELEMENTS is empty"];
-  }
-  const cases = new Set(
-    [...stringifierSource.matchAll(/^\s{4}case "([A-Z][\w.]*)":/gm)].map(
-      (m) => m[1],
-    ),
-  );
-  return declared
-    .filter((name) => !cases.has(name))
-    .map(
-      (name) =>
-        `lib/mdx-manifest.ts lists ${name} in RENDERED_ELEMENTS, but lib/mdx-markdown.ts has no \`case "${name}":\` — the element would throw at build time instead of rendering`,
-    );
-}
-
-/**
  * The DD-3 Explorer policy for ONE page source. Neither is allowed; both never is. Since Do1-b
  * this also covers canon row 6's PLACEMENT: whichever of the two a page carries lives under the
  * page's `## Playground` heading, so the section a reader (or an agent reading the markdown
@@ -267,20 +233,6 @@ function explorerPolicyProblems() {
     );
   }
   return problems;
-}
-
-function sourceCoverageProblems() {
-  const manifest = join(root, "apps/docs/lib/mdx-manifest.ts");
-  const stringifier = join(root, "apps/docs/lib/mdx-markdown.ts");
-  if (!existsSync(manifest) || !existsSync(stringifier)) {
-    return [
-      "apps/docs/lib/mdx-manifest.ts or lib/mdx-markdown.ts is missing — the agent export has no manifest",
-    ];
-  }
-  return manifestCoverageProblems(
-    readFileSync(manifest, "utf8"),
-    readFileSync(stringifier, "utf8"),
-  );
 }
 
 function selfTest() {
@@ -398,34 +350,6 @@ function selfTest() {
     }
   }
 
-  // Manifest coverage, both directions.
-  const manifest =
-    'export const RENDERED_ELEMENTS = new Set([\n  "Callout",\n  "DoDont",\n]);\n';
-  if (
-    manifestCoverageProblems(
-      manifest,
-      '    case "Callout":\n    case "DoDont":\n',
-    ).length > 0
-  ) {
-    console.error(
-      "✗ verify-docs-export self-test: a covered manifest was rejected",
-    );
-    process.exit(1);
-  }
-  if (
-    manifestCoverageProblems(manifest, '    case "Callout":\n').length === 0
-  ) {
-    console.error(
-      "✗ verify-docs-export self-test: a manifest name with no stringifier case was NOT rejected",
-    );
-    process.exit(1);
-  }
-  if (manifestCoverageProblems("const OTHER = 1;", "").length === 0) {
-    console.error(
-      "✗ verify-docs-export self-test: an unreadable RENDERED_ELEMENTS was NOT rejected",
-    );
-    process.exit(1);
-  }
   const clean =
     "# Page\n\n```tsx\n<Button>Save</Button>\n```\n\nInline `<Kbd>` is code.\n\n" +
     // An indented fence inside a list item is still code (filter-bar.mdx).
@@ -436,7 +360,7 @@ function selfTest() {
     process.exit(1);
   }
   console.log(
-    "✓ verify-docs-export self-test: JSX (capitalised, namespaced, custom-element), placeholder, empty-table and inline-JSX fixtures rejected; missing/empty/prose-only API sections rejected and table, prettier-aligned table, no-own-props and subsection forms accepted; both-playground-and-Explorer, unwrapped-Explorer and out-of-section playground/Explorer rejected while neither is accepted; an uncovered manifest name rejected; clean fixture (fenced, inline and indented-fence code) accepted",
+    "✓ verify-docs-export self-test: JSX (capitalised, namespaced, custom-element), placeholder, empty-table and inline-JSX fixtures rejected; missing/empty/prose-only API sections rejected and table, prettier-aligned table, no-own-props and subsection forms accepted; both-playground-and-Explorer, unwrapped-Explorer and out-of-section playground/Explorer rejected while neither is accepted; clean fixture (fenced, inline and indented-fence code) accepted",
   );
 }
 
@@ -474,7 +398,6 @@ if (args.includes("--self-test")) {
     );
   }
   failures.push(...explorerPolicyProblems());
-  failures.push(...sourceCoverageProblems());
   if (failures.length > 0) {
     console.error(`✗ verify-docs-export: ${failures.length} problem(s)`);
     for (const failure of failures.slice(0, 60))
@@ -483,6 +406,6 @@ if (args.includes("--self-test")) {
     process.exit(1);
   }
   console.log(
-    `✓ verify-docs-export: ${files.length} markdown files agent-clean (no JSX — capitalised, namespaced or custom-element — outside code, no placeholders, no empty API tables); ${apiPagesChecked} component pages document their API; Explorer policy holds; the MDX manifest and the stringifier agree`,
+    `✓ verify-docs-export: ${files.length} markdown files agent-clean (no JSX — capitalised, namespaced or custom-element — outside code, no placeholders, no empty API tables); ${apiPagesChecked} component pages document their API; Explorer policy holds`,
   );
 }

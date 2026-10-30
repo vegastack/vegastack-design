@@ -5,11 +5,10 @@
  *   - `components/mdx.tsx` — the React map. It validates its own repo-owned keys against
  *     `MDX_COMPONENT_NAMES` at module load, so a component added to the map without a manifest
  *     entry (or removed from the map while the manifest still lists it) fails the build.
- *   - `lib/mdx-markdown.ts` — the compile-time stringifier for the agent export. It classifies
- *     through `classifyMdxElement()` and THROWS on anything unclassified.
- *   - `lib/markdown-export.ts` — the runtime placeholder renderer. It validates every placeholder
- *     name against `RUNTIME_PLACEHOLDERS` before handing the text to fumadocs, whose
- *     `renderPlaceholder` silently substitutes `children` for a name it has no renderer for.
+ *   - `lib/mdx-markdown.ts` — the compile-time filter for the agent export. It classifies every
+ *     element through `classifyMdxElement()` and THROWS on anything unclassified.
+ *   - `lib/markdown-export.ts` — the markdown form of every classified element, checked against
+ *     this manifest at module load; any other name throws when rendered.
  *
  * **Why a manifest rather than a fallback.** Before this file the stringifier ended in
  * `default: return children || " "`. A component the map knows and the stringifier does not —
@@ -20,7 +19,7 @@
  * structural wrappers, where children ARE the content.
  */
 
-/** Elements resolved at build time because they read the file system or run the type generator. */
+/** Elements whose markdown reads the file system or runs the type generator. */
 export const RUNTIME_PLACEHOLDERS = new Set([
   "ComponentPreview",
   "ApiTable",
@@ -91,9 +90,8 @@ export const PLAYGROUND_COMPONENTS = new Set([
 export const STORY_EXPLORER_ELEMENT = "story.WithControl";
 
 /**
- * Elements the stringifier renders with a dedicated branch. Each name here MUST have a `case` in
- * `stringifyMdxForAgents`; `verify-docs-export.mjs`'s `manifestCoverageProblems()` proves the two
- * agree, in both directions, from the two files' own source.
+ * Elements rendered from their attributes and children. Each name here has its markdown form in
+ * `lib/markdown-export.ts`, checked at module load.
  */
 export const RENDERED_ELEMENTS = new Set([
   "Callout",
@@ -323,7 +321,7 @@ export function unknownElementError(name: string, where: string) {
     `Unknown MDX element <${name}> reached ${where}. Every element name must be classified in ` +
       `apps/docs/lib/mdx-manifest.ts — add it to RUNTIME_PLACEHOLDERS (with a renderer in ` +
       `lib/markdown-export.ts), BROWSER_ONLY_NOTES, PLAYGROUND_COMPONENTS, RENDERED_ELEMENTS ` +
-      `(with a case in lib/mdx-markdown.ts), or STRUCTURAL_WRAPPERS. A component the agent export ` +
+      `(with its markdown form in lib/markdown-export.ts), or STRUCTURAL_WRAPPERS. A component the agent export ` +
       `does not know is a section agents silently never see.`,
   );
 }
@@ -353,52 +351,5 @@ export function assertMdxMapMatchesManifest(ownKeys: readonly string[]) {
   throw new Error(
     `apps/docs/lib/mdx-manifest.ts and apps/docs/components/mdx.tsx disagree — ${parts.join("; ")}. ` +
       `An unlisted component renders for humans and vanishes from the agent export.`,
-  );
-}
-
-/**
- * Every placeholder name in a processed markdown string, in document order, including the nested
- * ones `renderPlaceholder` recurses into: a placeholder's `children` are JSON-encoded, so the outer
- * scan cannot see them and an unrenderable nested name would degrade just as silently.
- */
-export function placeholderNames(processed: string): (string | null)[] {
-  const names: (string | null)[] = [];
-  for (const match of processed.matchAll(/\0(.+?)\0/gs)) {
-    let data: { name?: unknown; children?: unknown };
-    try {
-      data = JSON.parse(match[1]) as { name?: unknown; children?: unknown };
-    } catch {
-      // `renderPlaceholder` swallows a parse failure and re-emits the raw `\0…\0` match, which
-      // would then reach the built `.md` as residue. Surface it as an unnamed placeholder.
-      names.push(null);
-      continue;
-    }
-    names.push(typeof data.name === "string" ? data.name : null);
-    if (typeof data.children === "string") {
-      names.push(...placeholderNames(data.children));
-    }
-  }
-  return names;
-}
-
-/**
- * Validate before rendering. `renderPlaceholder` (fumadocs-core 16.11.5) substitutes `data.children`
- * for any name it has no renderer for and re-emits the raw match when the JSON does not parse — in
- * both cases the section vanishes or corrupts with no residue a gate could find. So the names are
- * checked here, against the same manifest the stringifier classifies with.
- */
-export function assertKnownPlaceholders(
-  processed: string,
-  knownNames: ReadonlySet<string>,
-) {
-  const unknown = placeholderNames(processed).filter(
-    (name) => name === null || !knownNames.has(name),
-  );
-  if (unknown.length === 0) return;
-  const labels = [...new Set(unknown.map((name) => name ?? "<unparseable>"))];
-  throw new Error(
-    `Agent markdown carries ${unknown.length} placeholder(s) no renderer resolves: ${labels.join(", ")}. ` +
-      `fumadocs' renderPlaceholder would silently emit their children instead — add the renderer in ` +
-      `lib/markdown-export.ts and the name to RUNTIME_PLACEHOLDERS in lib/mdx-manifest.ts.`,
   );
 }

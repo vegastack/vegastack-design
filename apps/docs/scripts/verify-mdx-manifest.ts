@@ -2,24 +2,24 @@
  * verify-mdx-manifest — the negative self-tests for the agent-export manifest (DS-01).
  *
  * The gate in `tooling/verify-docs-export.mjs` reads the BUILT markdown, so it can only see a
- * defect that leaves an artefact behind. The three failures fixed here leave none:
+ * defect that leaves an artefact behind. These failures leave none, so each must THROW:
  *
- *   1. an MDX component the stringifier does not know rendered to a single space;
- *   2. a placeholder whose runtime renderer is missing rendered to its bare children;
- *   3. a component registered in the MDX map but absent from the manifest did both.
- *
- * Each must now THROW. These assertions prove it by execution, on the real modules, rather than by
- * reading the code — and they are the reason the manifest is not just documentation.
+ *   1. an MDX element the manifest does not classify reaching the compile-time filter;
+ *   2. an element name with no markdown form reaching the runtime renderer (fumadocs would
+ *      serialise it as JSX text);
+ *   3. a component registered in the MDX map but absent from the manifest, or the reverse;
+ *   4. a manifest name without a markdown form, or a markdown form for an unlisted name.
  *
  *   pnpm --filter @vegastack/docs verify:mdx-manifest
  */
-import { stringifyMdxForAgents } from "../lib/mdx-markdown";
+import { filterMdxElementForAgents } from "../lib/mdx-markdown";
 import {
-  RUNTIME_PLACEHOLDERS,
-  assertKnownPlaceholders,
+  agentMarkdownComponents,
+  agentMarkdownCoverageProblems,
+} from "../lib/markdown-export";
+import {
   assertMdxMapMatchesManifest,
   classifyMdxElement,
-  placeholderNames,
 } from "../lib/mdx-manifest";
 
 let failures = 0;
@@ -46,7 +46,7 @@ function expectThrows(label: string, run: () => unknown) {
   });
 }
 
-/** A minimal mdast JSX element, shaped as `remarkLLMs` hands one to the stringifier. */
+/** A minimal mdast JSX element, shaped as `remarkLLMs` hands one to the filter. */
 function jsxElement(name: string) {
   return {
     type: "mdxJsxFlowElement",
@@ -56,25 +56,57 @@ function jsxElement(name: string) {
   } as never;
 }
 
-const state = {
-  containerFlow: () => "",
-  containerPhrasing: () => "",
-} as never;
-
 console.log("verify-mdx-manifest:");
 
-expectThrows(
-  "an unknown MDX component throws in the stringifier instead of rendering a space",
-  () =>
-    stringifyMdxForAgents(
-      jsxElement("BrandNewWidget"),
-      undefined as never,
-      state,
-      {} as never,
-      // `ctx` — the fifth parameter of fumadocs' `stringify`; unused by this stringifier.
-      undefined as never,
-    ),
+expectThrows("an unknown MDX element throws in the compile-time filter", () =>
+  filterMdxElementForAgents(jsxElement("BrandNewWidget")),
 );
+
+expectThrows(
+  "an unknown custom element throws in the compile-time filter",
+  () => filterMdxElementForAgents(jsxElement("api-table")),
+);
+
+check(
+  "the filter keeps components, unwraps HTML and drops the Story explorer",
+  () => {
+    const expected: [string, unknown][] = [
+      ["Callout", true],
+      ["ComponentPreview", true],
+      ["kbd", "children-only"],
+      ["story.WithControl", false],
+    ];
+    for (const [name, value] of expected) {
+      const actual = filterMdxElementForAgents(jsxElement(name));
+      if (actual !== value) {
+        throw new Error(
+          `${name} filtered as ${String(actual)}, expected ${String(value)}`,
+        );
+      }
+    }
+  },
+);
+
+expectThrows("an unknown name throws in the runtime renderer", () =>
+  Reflect.get(agentMarkdownComponents, "BrandNewWidget"),
+);
+
+check("every manifest name has exactly one markdown form", () => {
+  const problems = agentMarkdownCoverageProblems();
+  if (problems.length > 0) throw new Error(problems.join("; "));
+});
+
+check("a missing or unlisted markdown form is reported", () => {
+  if (agentMarkdownCoverageProblems([]).length === 0)
+    throw new Error("an empty map was accepted");
+  if (
+    !agentMarkdownCoverageProblems([
+      ...Object.keys(agentMarkdownComponents),
+      "BrandNewWidget",
+    ]).some((problem) => problem.includes("BrandNewWidget"))
+  )
+    throw new Error("an unlisted markdown form was accepted");
+});
 
 check("an unknown name is unclassified", () => {
   if (classifyMdxElement("BrandNewWidget") !== undefined) {
@@ -103,48 +135,6 @@ check("the known kinds still classify", () => {
   }
 });
 
-expectThrows(
-  "a placeholder with no renderer throws instead of degrading to its children",
-  () =>
-    assertKnownPlaceholders(
-      `\0${JSON.stringify({ name: "BrandNewWidget", attributes: {}, children: "body" })}\0`,
-      new Set(RUNTIME_PLACEHOLDERS),
-    ),
-);
-
-expectThrows(
-  "an unparseable placeholder throws instead of re-emitting its raw match",
-  () => assertKnownPlaceholders("\0not json\0", new Set(RUNTIME_PLACEHOLDERS)),
-);
-
-expectThrows("a NESTED unrenderable placeholder throws too", () =>
-  assertKnownPlaceholders(
-    `\0${JSON.stringify({
-      name: "ComponentPreview",
-      attributes: {},
-      children: `\0${JSON.stringify({ name: "Nope", attributes: {}, children: "" })}\0`,
-    })}\0`,
-    new Set(RUNTIME_PLACEHOLDERS),
-  ),
-);
-
-check("a known placeholder is accepted, nested ones included", () => {
-  assertKnownPlaceholders(
-    `\0${JSON.stringify({
-      name: "ApiTable",
-      attributes: { path: "x", name: "Y" },
-      children: `\0${JSON.stringify({ name: "Anatomy", attributes: {}, children: "" })}\0`,
-    })}\0`,
-    new Set(RUNTIME_PLACEHOLDERS),
-  );
-  const names = placeholderNames(
-    `\0${JSON.stringify({ name: "ApiTable", attributes: {}, children: "" })}\0`,
-  );
-  if (names.length !== 1 || names[0] !== "ApiTable") {
-    throw new Error(`placeholderNames returned ${JSON.stringify(names)}`);
-  }
-});
-
 expectThrows("a map key absent from the manifest throws", () =>
   assertMdxMapMatchesManifest(["BrandNewWidget"]),
 );
@@ -158,5 +148,5 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  "✓ verify-mdx-manifest: unknown components, unrenderable placeholders (nested included) and map/manifest drift all fail closed",
+  "✓ verify-mdx-manifest: unknown elements (compile time and runtime), missing markdown forms and map/manifest drift all fail closed",
 );

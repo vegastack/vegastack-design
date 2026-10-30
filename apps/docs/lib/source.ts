@@ -1,7 +1,7 @@
 import { docs, internalDocs } from "collections/server";
 import { loader } from "fumadocs-core/source";
 import { docsRoute, internalRoute } from "./shared";
-import { renderAgentMarkdown } from "./markdown-export";
+import { agentMarkdownComponents } from "./markdown-export";
 
 export const source = loader({
   baseUrl: docsRoute,
@@ -61,6 +61,8 @@ export async function getLLMText(page: MarkdownPage) {
   ]
     .filter(Boolean)
     .join("\n\n");
-  const processed = await page.data.getText("processed");
-  return `${header}\n\n${await renderAgentMarkdown(processed)}`;
+  const body = await page.data.getText("processed", {
+    components: agentMarkdownComponents,
+  });
+  return `${header}\n\n${body}\n`;
 }
