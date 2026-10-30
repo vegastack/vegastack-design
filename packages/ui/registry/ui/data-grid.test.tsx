@@ -3848,6 +3848,76 @@ test("fill measures the room to the bottom of the nearest scroller and follows i
   expect(root().style.getPropertyValue("--data-grid-max-height")).toBe("30rem");
 });
 
+test('editing="floating" keeps the cell\'s display and floats a custom editor over it, locked; a dismissing editor cancels on a press outside', async () => {
+  const cancelled = vi.fn();
+  const grid = (editing: "inline" | "floating", dismissOnPress = false) => (
+    <DataGrid
+      aria-label="Deals"
+      editing={editing}
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        {
+          key: "stage",
+          header: "Stage",
+          minWidth: 10,
+          render: (row) => <span data-testid="stage-tag">{row.stage} tag</span>,
+          editable: {
+            type: "custom",
+            floating: { size: "text", dismissOnPress },
+            render: ({ row, cancel }) => (
+              <button
+                type="button"
+                onClick={() => {
+                  cancelled();
+                  cancel();
+                }}
+              >
+                Editing {row.name}
+              </button>
+            ),
+          },
+        },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />
+  );
+  const open = async () => {
+    const firstCell = document.querySelector(
+      '[data-slot="data-grid-cell"]',
+    ) as HTMLElement;
+    firstCell.focus();
+    await userEvent.keyboard("{ArrowRight}{Enter}");
+  };
+  const lock = () =>
+    document.querySelector('[data-slot="floating-cell-editor-lock"]');
+  // Inline (the default): no lock, the editor replaces the cell's content.
+  const screen = await render(grid("inline"));
+  await expect
+    .poll(
+      () => document.querySelectorAll('[data-slot="data-grid-cell"]').length,
+    )
+    .toBeGreaterThan(0);
+  await open();
+  await expect.element(screen.getByText("Editing Acme")).toBeVisible();
+  expect(lock()).toBeNull();
+  await userEvent.keyboard("{Escape}");
+  // Floating: the display stays, the editor opens over it with the page locked behind.
+  await screen.rerender(grid("floating", true));
+  await open();
+  await expect.element(screen.getByText("Editing Acme")).toBeVisible();
+  expect(lock()).not.toBeNull();
+  expect(screen.getByTestId("stage-tag").first().element().textContent).toBe(
+    "Open tag",
+  );
+  // A press on the lock outside the settle window cancels (this editor has no commit on leaving).
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  lock()!.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+  expect(cancelled).not.toHaveBeenCalled();
+  await expect.poll(lock).toBeNull();
+});
+
 test("POL-14: an empty primary value reads Untitled, muted; a card leaves out empty fields", async () => {
   const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 5 }];
   const grid = await render(

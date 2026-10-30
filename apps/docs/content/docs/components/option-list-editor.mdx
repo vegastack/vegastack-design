@@ -1,0 +1,76 @@
+---
+title: Option List Editor
+description: Edits a choice field's options as rows — a hue, a name, remove, and add — holding no state of its own.
+audience: public
+registry: option-list-editor
+status: stable
+since: 0.25.106
+a11y: every control is labelled by its option; Enter commits
+preview: optionListEditor
+---
+
+## Install
+
+<InstallSteps name="option-list-editor" />
+
+## Usage
+
+```tsx
+import { OptionListEditor } from "@/components/ui/option-list-editor";
+
+<OptionListEditor options={options} onChange={setOptions} onCommit={save} />;
+```
+
+The options are the host's: the editor draws them and reports edits. `onChange` follows every
+keystroke, so the host can show the list as it is typed. `onCommit` says an edit is done — a name
+left or confirmed with Enter, a hue picked, an option removed — which is when a host saves. An added
+option is not committed until it is named.
+
+Inside a menu, pass `inMenu` so typing in a name stays the field's own.
+
+## Scope
+
+- No validation: duplicate or empty names are the host's to refuse.
+- No reordering: an option's place in the list is its order, and the host decides how to move it.
+
+## Examples
+
+### Edit and save
+
+<ComponentPreview
+  name="optionListEditor"
+  file="components/preview/option-list-editor.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/option-list-editor.tsx"
+  name="OptionListEditorProps"
+/>
+
+### Option
+
+<ApiTable
+  path="../../packages/ui/registry/ui/option-list-editor.tsx"
+  name="OptionListEditorOption"
+/>
+
+## Accessibility
+
+- Each name field, hue picker and remove button carries a label that names its option; the words
+  come from `labels` and can be translated.
+
+| Key              | Action                                      |
+| ---------------- | ------------------------------------------- |
+| <kbd>Enter</kbd> | In a name: commit it (never submits a form) |
+| <kbd>Tab</kbd>   | Move between name, hue and remove           |
+
+<StatesTested name="option-list-editor" />
+
+## Do / Don't
+
+<DoDont
+  do="Save on onCommit and show the list from onChange."
+  dont="Save on every onChange; a half-typed name is not an option yet."
+/>

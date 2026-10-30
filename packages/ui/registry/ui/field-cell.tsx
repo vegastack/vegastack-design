@@ -1,10 +1,33 @@
-// @vegastack field-cell@0.25.105 sha256-eHuJJU3cIssdPaWRQhmrba+nsKdNlmYAFZqt2LTu10Q=
+// @vegastack field-cell@0.25.105 sha256-Yvk/YYa4jNXdN9+Bok0hda2zimQvq+aGvVSVgOqax5g=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import { Pencil } from "lucide-react";
+import {
+  AtSign,
+  Calculator,
+  Calendar,
+  CalendarClock,
+  CircleDot,
+  CircleUser,
+  Clock,
+  DollarSign,
+  Globe,
+  Hash,
+  Link2,
+  ListChecks,
+  Paperclip,
+  Pencil,
+  Percent,
+  Phone,
+  SquareCheck,
+  Text,
+  TextQuote,
+  UserPen,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -116,6 +139,81 @@ export type FieldType =
   | "updated_at"
   | "created_by"
   | "updated_by";
+
+/** Plain words for each field type ("Date and time"), for menus, headers and messages. */
+export const FIELD_TYPE_LABELS: Readonly<Record<FieldType, string>> = {
+  text: "Text",
+  long_text: "Long text",
+  number: "Number",
+  currency: "Currency",
+  percent: "Percent",
+  date: "Date",
+  datetime: "Date and time",
+  single_choice: "Single choice",
+  multi_choice: "Multiple choice",
+  checkbox: "Checkbox",
+  person: "Person",
+  link: "Link",
+  file: "File",
+  url: "URL",
+  email: "Email",
+  phone: "Phone",
+  calculated: "Calculated",
+  autonumber: "Auto-number",
+  created_at: "Created",
+  updated_at: "Updated",
+  created_by: "Created by",
+  updated_by: "Updated by",
+};
+
+/** Each field type's glyph (a lucide icon): a column header's leading icon, a type picker's. */
+export const FIELD_TYPE_ICONS: Readonly<Record<FieldType, LucideIcon>> = {
+  text: Text,
+  long_text: TextQuote,
+  number: Hash,
+  currency: DollarSign,
+  percent: Percent,
+  date: Calendar,
+  datetime: CalendarClock,
+  single_choice: CircleDot,
+  multi_choice: ListChecks,
+  checkbox: SquareCheck,
+  person: UserRound,
+  link: Link2,
+  file: Paperclip,
+  url: Globe,
+  email: AtSign,
+  phone: Phone,
+  calculated: Calculator,
+  autonumber: Hash,
+  created_at: Clock,
+  updated_at: Clock,
+  created_by: CircleUser,
+  updated_by: UserPen,
+};
+
+/** Props accepted by `FieldTypeIcon`. */
+export interface FieldTypeIconProps extends Omit<
+  React.ComponentProps<LucideIcon>,
+  "ref"
+> {
+  /** The field's type. */
+  type: FieldType;
+}
+
+/**
+ * `FieldTypeIcon` — a field type's glyph, decorative beside the field's name or the type's label
+ * (`FIELD_TYPE_LABELS`). Sized by its slot (a header's icon, a picker row's).
+ *
+ * @example
+ * <FieldTypeIcon type="currency" />
+ */
+export function FieldTypeIcon({ type, ...props }: FieldTypeIconProps) {
+  const Icon = FIELD_TYPE_ICONS[type];
+  return (
+    <Icon aria-hidden data-slot="field-type-icon" data-type={type} {...props} />
+  );
+}
 
 /** One option of a choice field. */
 export interface FieldChoiceOption {

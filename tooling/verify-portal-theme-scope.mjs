@@ -99,6 +99,10 @@ const EXPECTED_HOSTS = new Map([
   // leave the reader's selection where it is, so no Base UI popup fits — a `position: fixed`
   // toolbar portaled to `<body>`, carrying `useInternalThemeScope()` on its own root.
   ["packages/ui/registry/ui/markdown-view-client.tsx", ["createPortal"]],
+  // FloatingCellEditor's lock layer (Regent Tables grid): an invisible `position: fixed` surface
+  // portaled to `<body>` so a transformed or clipped grid row cannot shrink it to the row; it
+  // paints nothing, and carries `useInternalThemeScope()` on its own root like the toolbar above.
+  ["packages/ui/registry/ui/floating-cell-editor.tsx", ["createPortal"]],
 ]);
 
 function walk(dir, out = []) {

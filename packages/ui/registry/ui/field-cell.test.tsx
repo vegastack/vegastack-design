@@ -9,8 +9,11 @@ import { TimeZoneProvider } from "./relative-time";
 import { PropertyList } from "./property-list";
 import {
   FieldCellDisplay,
+  FIELD_TYPE_ICONS,
+  FIELD_TYPE_LABELS,
   FieldCellEditor,
   FieldInput,
+  FieldTypeIcon,
   FieldProperty,
   isValidFieldText,
   type FieldConfig,
@@ -2059,4 +2062,20 @@ test('FieldCellEditor variant="cell": a number is typed as written, steps by 1, 
   await userEvent.click(document.body);
   expect(left).toHaveBeenCalledTimes(1);
   expect(stuck).not.toHaveBeenCalled();
+});
+
+test("every field type has a label and an icon, and FieldTypeIcon draws it decoratively", async () => {
+  const types = Object.keys(FIELD_TYPE_LABELS) as FieldType[];
+  expect(types.length).toBe(22);
+  for (const type of types) {
+    expect(FIELD_TYPE_LABELS[type]).not.toBe("");
+    expect(FIELD_TYPE_ICONS[type]).toBeTruthy();
+  }
+  expect(FIELD_TYPE_LABELS.datetime).toBe("Date and time");
+  const screen = await render(
+    <FieldTypeIcon type="currency" className="size-4" />,
+  );
+  const icon = screen.container.querySelector('[data-slot="field-type-icon"]')!;
+  expect(icon.getAttribute("data-type")).toBe("currency");
+  expect(icon.getAttribute("aria-hidden")).toBe("true");
 });

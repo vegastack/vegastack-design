@@ -313,6 +313,41 @@ the way <kbd>Enter</kbd> and <kbd>Tab</kbd> do.
   file="components/preview/data-grid.tsx"
 />
 
+### Floating editors
+
+`editing="floating"` opens a `custom` editor over its cell instead of inside it: the cell keeps
+drawing its resting face, and the editor — anchored at the cell, reaching 2px past it, at least as
+tall as the cell — floats on a [`FloatingCellEditor`](/docs/components/floating-cell-editor) with
+the page locked behind it. The column's `editable.floating` sets the editor's `size` (text-like
+types `text`, dates `wide`, pickers `picker`) and `dismissOnPress`, for an editor that saves when
+something is chosen and so needs a press outside to close it. The built-in text, number, date and
+select editors stay inline.
+
+```tsx
+<DataGrid
+  editing="floating"
+  columns={[
+    {
+      id: "notes",
+      editable: {
+        type: "custom",
+        floating: { size: "text" },
+        render: ({ value, commit, cancel }) => (
+          <FieldCellEditor
+            variant="cell"
+            type="text"
+            label="Notes"
+            value={value}
+            onCommit={commit}
+            onCancel={cancel}
+          />
+        ),
+      },
+    },
+  ]}
+/>
+```
+
 ### Filling the page
 
 `fill` makes the viewport as tall as the room from its top edge to the bottom of its nearest

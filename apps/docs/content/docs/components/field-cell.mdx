@@ -158,6 +158,16 @@ cancels when focus leaves). The commit keys are the grid's, as above.
 <FieldCellEditor variant="cell" type="number" label="Quantity" value={2026} onCommit={…} onCancel={…} />
 ```
 
+### Type icon and labels
+
+`FieldTypeIcon` draws the icon of a field type, and `FIELD_TYPE_LABELS` and `FIELD_TYPE_ICONS` are the
+words and icons for every `FieldType`, so a column header, a type picker and a field menu show a type the
+same way. The icon is decorative (`aria-hidden`); the label is what a screen reader reads.
+
+```tsx
+<FieldTypeIcon type="multi_choice" /> {FIELD_TYPE_LABELS.multi_choice}
+```
+
 ### Property rows
 
 `FieldProperty` is one field as a record's property row, inside a `PropertyList` — a row peek, a

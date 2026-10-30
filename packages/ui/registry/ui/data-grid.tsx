@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.105 sha256-MJv8LUyrZlv3WXiAg3/pSiLWBPD0wXvv9UJ3JbneWkU=
+// @vegastack data-grid@0.25.105 sha256-JiYF8I2VCDjiAwQIvC0JYe41vhUI/j3+OP9loI1qCfM=
 
 "use client";
 
@@ -92,6 +92,10 @@ import {
   type LoadMoreProps,
   type LoadMoreState,
 } from "@/components/ui/load-more";
+import {
+  FloatingCellEditor,
+  type FloatingCellEditorSize,
+} from "@/components/ui/floating-cell-editor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnnouncerScope, useAnnouncer } from "@/components/ui/use-announcer";
 import {
@@ -260,6 +264,20 @@ export type DataGridEditor<T> =
           row: T;
         },
       ) => React.ReactNode;
+      /**
+       * With the grid's `editing="floating"`: how this editor floats over its cell.
+       * @default undefined — `{ size: "cell" }`, the editor saves when focus leaves it
+       */
+      floating?: {
+        /** How wide it is at least (`floatingCellEditorSize` maps a field type to one). */
+        size?: FloatingCellEditorSize;
+        /**
+         * A press outside cancels the edit — for an editor that saves when something is chosen
+         * (a picker, a file list). Leave it off for one that saves a typed draft when focus
+         * leaves it.
+         */
+        dismissOnPress?: boolean;
+      };
     };
 
 /** A column definition. */
@@ -707,6 +725,16 @@ export interface DataGridProps<T> {
    */
   fill?: boolean;
   /**
+   * How an editing cell appears. `inline` — the editor replaces the cell's content. `floating` —
+   * the cell keeps drawing its resting display and a `custom` editor opens over it
+   * (`FloatingCellEditor`): anchored at the cell, reaching 2px past it, at least as tall as the
+   * cell and as wide as the column's `editable.floating.size`, with the page locked behind it (a
+   * press outside closes it; pinch-zoom still works). The built-in `text`, `number`, `date` and
+   * `select` editors stay inline.
+   * @default "inline"
+   */
+  editing?: "inline" | "floating";
+  /**
    * An empty band after the last row (and the load-more row), so the last rows can scroll clear of
    * anything floating at the bottom of the viewport. `true` is 180px; a number sets the pixels.
    * Needs a bounded viewport (`maxHeight` or `fill`).
@@ -1085,6 +1113,8 @@ interface PlacedColumn<T> {
   cellClass: string;
   /** `columnDividers`: the last frozen column's header draws the frozen divider. */
   dividers: boolean;
+  /** `editing="floating"`: a `custom` editor floats over the cell. */
+  floating: boolean;
 }
 
 /** The column window every row renders against — one memoised object. */
@@ -1453,6 +1483,34 @@ function GridCellImpl<T>({
           <span className="min-w-0 truncate">{shown}</span>
         )
     : undefined;
+  // Floating editing: the cell keeps its resting display and the `custom` editor opens over it.
+  const floating =
+    placed.floating && editable?.type === "custom"
+      ? (editable.floating ?? {})
+      : null;
+  const shownEditor: EditableCellEditor | undefined =
+    floating && editor?.type === "custom"
+      ? {
+          type: "custom",
+          render: (props) => (
+            <FloatingCellEditor
+              size={floating.size}
+              onDismiss={floating.dismissOnPress ? props.cancel : undefined}
+              face={
+                <EditableCellRest
+                  value={persisted}
+                  label={placed.label}
+                  emptyText={untitledLabel ?? ""}
+                  renderValue={renderValue}
+                  onStartEditing={() => {}}
+                />
+              }
+            >
+              {editor.render(props)}
+            </FloatingCellEditor>
+          ),
+        }
+      : editor;
   // A `custom` editor's cell rests as `EditableCellRest` (no state machine, no effects): the
   // grid mounts dozens per scroll tick. It becomes the full `EditableCell` when it edits or the
   // host reports a save status, and stays one while mounted, so a save in flight keeps its
@@ -1517,7 +1575,7 @@ function GridCellImpl<T>({
     <EditableCell
       value={persisted}
       label={placed.label}
-      editor={editor}
+      editor={shownEditor ?? editor}
       renderValue={renderValue}
       emptyText={untitledLabel ?? ""}
       focusMode="managed"
@@ -3076,6 +3134,7 @@ export function DataGrid<T>({
   endSpacer = false,
   columnDividers = false,
   editingTint = false,
+  editing: editingMode = "inline",
   headerAlign: gridHeaderAlign = "column",
   ariaRowCount,
   ariaColCount,
@@ -3290,6 +3349,7 @@ export function DataGrid<T>({
         ariaColIndex,
         dataIndex: index,
         dividers: columnDividers,
+        floating: editingMode === "floating",
         cellClass: fixed
           ? cn(
               CELL_BASE_CLASS,
@@ -3337,6 +3397,7 @@ export function DataGrid<T>({
     rowHeight,
     columnDividers,
     editingTint,
+    editingMode,
   ]);
 
   const frozenPlaced = React.useMemo(

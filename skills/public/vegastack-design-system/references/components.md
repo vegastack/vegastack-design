@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**192 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 22 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `disclosure-trigger`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 782 registry items in total.
+**195 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 22 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `disclosure-trigger`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 785 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -41,6 +41,7 @@ starts with `icon-` is a component and never an icon.
 - **`label`** — A styled native label for form controls.
 - **`native-select`** — The platform <select>, tokenized — the OS picker on mobile, with option groups.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.
+- **`option-list-editor`** — Edits a choice field's options as rows — a hue, a name, remove, and add — holding no state of its own.
 - **`password-input`** — A password field with a show/hide toggle, composed from InputGroup, forwarding native input props and the ref to the inner input.
 - **`people-picker`** — The one picker for people and teams — a field (single or multiple), a popover body for a host trigger, or a dropdown submenu — with avatar rows, "(you)", team sizes, skeleton loading, footer actions and active people only.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
@@ -113,6 +114,7 @@ starts with `icon-` is a component and never an icon.
 - **`display-menu`** — The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`filter-row`** — The chips under a ListToolbar: + Filter, pinned facets (ListFacet, PeopleFacet, DateRangeFilter — dashed while unset), the other chips, Clear — and after an AI filter run, one line with what it added, Undo and what it could not match.
+- **`floating-cell-editor`** — A grid cell's editor that opens over the cell instead of inside it — anchored at the cell's rect with a lock layer behind it.
 - **`list-toolbar`** — The one header row of every list and table: the search left, the icon tools (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above and the filter row under it. Measures its own width and collapses in a fixed order.
 - **`load-more`** — The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.
@@ -136,6 +138,7 @@ starts with `icon-` is a component and never an icon.
 - **`dialog`** — A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.
 - **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
 - **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
+- **`dropdown-menu-form`** — The parts a DropdownMenu needs to hold a small form — a text input that keeps its keys, a switch row with a hint, and a menu that opens at a point.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
 - **`icon-picker`** — Modes offered by the generic identity picker.
 - **`info-hint`** — A small muted info button that opens one sentence of explanation and an optional new-tab link in a popover; keyboard and touch accessible, named by its label.

@@ -1,0 +1,109 @@
+---
+title: Dropdown Menu Form
+description: The parts a dropdown menu needs to hold a small form — a text input that keeps its keys, a switch row with a hint, and a menu that opens at a point.
+audience: public
+registry: dropdown-menu-form
+status: stable
+since: 0.25.106
+a11y: the switch row is one checkbox item; typing stays put
+preview: dropdownMenuForm
+---
+
+## Install
+
+<InstallSteps name="dropdown-menu-form" />
+
+## Usage
+
+```tsx
+import {
+  DropdownMenuAtPoint,
+  DropdownMenuInput,
+  DropdownMenuSwitchItem,
+} from "@/components/ui/dropdown-menu-form";
+
+<DropdownMenuAtPoint point={point} onClose={() => setPoint(null)}>
+  <DropdownMenuInput
+    passArrows
+    aria-label="Name"
+    value={name}
+    onChange={(event) => setName(event.target.value)}
+  />
+  <DropdownMenuSwitchItem
+    label="Required"
+    hint="A row can't be saved without it."
+    checked={required}
+    onCheckedChange={setRequired}
+  />
+</DropdownMenuAtPoint>;
+```
+
+`DropdownMenu` is the upstream menu and stays as it is; these parts compose it.
+
+- `DropdownMenuInput` is an `Input` whose keys stay its own: typing, arrows, Home and End do not
+  reach the menu's arrow-key and type-ahead handling. Escape and Tab still do. With `passArrows`,
+  ArrowUp and ArrowDown also pass, so a name field at the top of a menu can hand the keyboard to the
+  rows below it.
+- `DropdownMenuSwitchItem` is a checkbox item drawn as a switch row: a click anywhere on the row
+  toggles, it keeps a menu item's focus and keys, and an optional `hint` sits under the label.
+- `DropdownMenuAtPoint` opens a menu beside a point in the viewport, for a request that has no trigger
+  to hang from (a "+" at the end of a header, a context click).
+- `stopMenuTyping(event)` is the same guard for a field that is not an `Input` (a textarea, a number
+  field).
+
+## Anatomy
+
+<Anatomy name="dropdown-menu-form" />
+
+## Examples
+
+### A field's menu
+
+<ComponentPreview
+  name="dropdownMenuForm"
+  file="components/preview/dropdown-menu-form.tsx"
+/>
+
+## API Reference
+
+### DropdownMenuInput
+
+<ApiTable
+  path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
+  name="DropdownMenuInputProps"
+/>
+
+### DropdownMenuSwitchItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
+  name="DropdownMenuSwitchItemProps"
+/>
+
+### DropdownMenuAtPoint
+
+<ApiTable
+  path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
+  name="DropdownMenuAtPointProps"
+/>
+
+## Accessibility
+
+- The switch row is one `menuitemcheckbox`; the switch inside it is decorative (inert and hidden
+  from assistive tech), so the state is read once.
+- The point trigger is invisible, `aria-hidden` and not a focus stop.
+
+| Key                       | Action                                                                |
+| ------------------------- | --------------------------------------------------------------------- |
+| <kbd>↑</kbd> <kbd>↓</kbd> | In the input: move the caret (or, with `passArrows`, leave the field) |
+| <kbd>Space</kbd>          | On a switch row: toggle                                               |
+| <kbd>Esc</kbd>            | Close the menu                                                        |
+
+<StatesTested name="dropdown-menu-form" />
+
+## Do / Don't
+
+<DoDont
+  do="Use DropdownMenuInput for any text field inside a menu so typing never moves the highlight."
+  dont="Build a form of several fields in a menu; use a Popover or a Dialog with Field."
+/>
