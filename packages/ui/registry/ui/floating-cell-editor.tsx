@@ -1,4 +1,4 @@
-// @vegastack floating-cell-editor@0.25.105 sha256-b1yLqWZr4IsvVLXeR+e2/teV7VeHtBp7Nixkdl2yjmI=
+// @vegastack floating-cell-editor@0.25.105 sha256-SItKjJH60ZuXpmc3fS5hEhD5ghKvm7QC/lJtER2wybs=
 
 "use client";
 
@@ -27,7 +27,7 @@ Deliberately NOT done here:
 
 /**
  * How wide the floating editor is at least. `cell` is the cell's own width; `text` suits text,
- * links and e-mail (280px); `wide` a date-time or a file list (340px); `picker` a picker's trigger
+ * links, e-mail and people (280px); `wide` long text, a date-time or a file list (340px); `picker` a picker's trigger
  * that shows a name or a date (184px). Never wider than `maxWidth`.
  */
 export type FloatingCellEditorSize = "cell" | "text" | "wide" | "picker";
@@ -47,8 +47,9 @@ const BLEED = 2;
 const SETTLE_MS = 350;
 
 /**
- * The size a `FieldType` ("text", "datetime", "person"…) edits at: text-like types grow, a
- * date-time and files are wide, pickers keep to their trigger, anything else is the cell's width.
+ * The size a `FieldType` ("text", "datetime", "person"…) edits at: text-like types and people
+ * grow, long text, a date-time and files are wide, pickers keep to their trigger, anything else is
+ * the cell's width.
  */
 export function floatingCellEditorSize(type: string): FloatingCellEditorSize {
   switch (type) {
@@ -56,14 +57,15 @@ export function floatingCellEditorSize(type: string): FloatingCellEditorSize {
     case "url":
     case "email":
     case "phone":
+    case "person":
       return "text";
+    case "long_text":
     case "datetime":
     case "file":
       return "wide";
     case "date":
     case "single_choice":
     case "multi_choice":
-    case "person":
     case "link":
       return "picker";
     default:

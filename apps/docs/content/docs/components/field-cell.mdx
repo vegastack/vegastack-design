@@ -153,6 +153,14 @@ written — the reader's decimal mark, no grouping, no steppers, <kbd>↑</kbd> 
 step by 1, and "-", "." and "1." are drafts on the way to a value (one that never becomes a number
 cancels when focus leaves). The commit keys are the grid's, as above.
 
+Long text edits where the floating editor is, on its own surface (no second popover from it), and
+grows to 15rem before it scrolls. A person is the chosen people as removable chips over the
+`PeoplePicker` list, which leaves them out; a multiple field toggles with the editor open and
+commits when focus leaves it, a single field commits on the pick. A date, and a date-time's date,
+take the picker's inline (`ghost`) tier, so the date and the time read as one field on the surface.
+Give the floating editor `floatingCellEditorSize(type)` and leave its `onDismiss` unset for these:
+a press outside moves focus away, and that commits.
+
 ```tsx
 <FieldCellDisplay variant="cell" type="url" value="https://example.com/" />
 <FieldCellEditor variant="cell" type="number" label="Quantity" value={2026} onCommit={…} onCancel={…} />

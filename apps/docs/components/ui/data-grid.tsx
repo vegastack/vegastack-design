@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.105 sha256-JiYF8I2VCDjiAwQIvC0JYe41vhUI/j3+OP9loI1qCfM=
+// @vegastack data-grid@0.25.105 sha256-k8E6s2bSm6iHbzbdTKSxmHPwDuJ+QuANSQbW4J+wKGk=
 
 "use client";
 
@@ -1701,11 +1701,13 @@ function GridCellImpl<T>({
       ) : null}
       {remote ? <RemoteCue remote={remote} /> : null}
       {fillHandle ? (
-        // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area.
+        // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area. Under a frozen
+        // cell (`sticky z-10`): a cell scrolled beneath a frozen column must not draw its handle
+        // over it.
         <span
           aria-hidden
           data-slot="data-grid-fill-handle"
-          className="absolute end-0 bottom-0 z-10 size-2 cursor-ns-resize touch-none rounded-[1px] bg-info before:absolute before:-inset-2 before:content-['']"
+          className="absolute end-0 bottom-0 z-1 size-2 cursor-ns-resize touch-none rounded-[1px] bg-info before:absolute before:-inset-2 before:content-['']"
           onPointerDown={(event) => {
             event.stopPropagation();
             event.preventDefault();

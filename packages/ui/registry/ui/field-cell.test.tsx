@@ -17,6 +17,7 @@ import {
   FieldProperty,
   isValidFieldText,
   type FieldConfig,
+  type FieldPerson,
   type FieldType,
   type FieldValue,
 } from "./field-cell";
@@ -2078,4 +2079,103 @@ test("every field type has a label and an icon, and FieldTypeIcon draws it decor
   const icon = screen.container.querySelector('[data-slot="field-type-icon"]')!;
   expect(icon.getAttribute("data-type")).toBe("currency");
   expect(icon.getAttribute("aria-hidden")).toBe("true");
+});
+
+test("FieldCellEditor variant=cell: long text edits in place — no popover — and Escape cancels", async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      variant="cell"
+      type="long_text"
+      label="Notes"
+      value="First line"
+      onCommit={onCommit}
+      onCancel={onCancel}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Notes" }))
+    .toBeInTheDocument();
+  expect(document.querySelector('[data-slot="popover-content"]')).toBeNull();
+  await userEvent.keyboard("{Escape}");
+  expect(onCancel).toHaveBeenCalledTimes(1);
+  expect(onCommit).not.toHaveBeenCalled();
+});
+
+const PEOPLE: FieldPerson[] = [
+  { id: "p1", name: "Mav Sales" },
+  { id: "p2", name: "Ananya Rao" },
+  { id: "p3", name: "Farhan Qureshi" },
+];
+
+test("FieldCellEditor variant=cell: people are chips over a list that leaves them out; leaving the editor commits", async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  const screen = await render(
+    <div>
+      <FieldCellEditor
+        variant="cell"
+        type="person"
+        label="Owners"
+        value={[PEOPLE[0]!]}
+        config={{ multiple: true, people: PEOPLE }}
+        onCommit={onCommit}
+        onCancel={onCancel}
+      />
+      <button type="button">Elsewhere</button>
+    </div>,
+  );
+  const chosen = screen.getByRole("list", { name: "Owners, chosen" });
+  await expect.element(chosen).toBeInTheDocument();
+  // The chosen person is a chip, not a row of the list.
+  await expect
+    .element(screen.getByRole("option", { name: /Mav Sales/ }))
+    .not.toBeInTheDocument();
+  await screen.getByRole("option", { name: /Ananya Rao/ }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Remove Ananya Rao" }))
+    .toBeInTheDocument();
+  // The pick did not end the edit; leaving does, with both people.
+  expect(onCommit).not.toHaveBeenCalled();
+  await screen.getByRole("button", { name: "Elsewhere" }).click();
+  await expect.poll(() => onCommit.mock.calls.length).toBe(1);
+  expect(
+    (onCommit.mock.calls[0]![0] as FieldPerson[]).map((person) => person.id),
+  ).toEqual(["p1", "p2"]);
+  expect(onCancel).not.toHaveBeenCalled();
+});
+
+test("FieldCellEditor variant=cell: a single person's pick commits at once; a date takes the inline picker", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      variant="cell"
+      type="person"
+      label="Owner"
+      value={null}
+      config={{ people: PEOPLE }}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await screen.getByRole("option", { name: /Farhan Qureshi/ }).click();
+  expect(onCommit).toHaveBeenCalledTimes(1);
+  expect((onCommit.mock.calls[0]![0] as FieldPerson).id).toBe("p3");
+  await screen.rerender(
+    <FieldCellEditor
+      key="datetime"
+      variant="cell"
+      type="datetime"
+      label="Due"
+      value="2026-10-30T09:00:00.000Z"
+      onCommit={() => {}}
+      onCancel={() => {}}
+    />,
+  );
+  expect(
+    screen.container.querySelector(
+      '[data-slot="field-datetime-editor"] [data-variant="ghost"]',
+    ),
+  ).not.toBeNull();
 });

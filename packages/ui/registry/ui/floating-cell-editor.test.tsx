@@ -68,7 +68,9 @@ test("width follows the size — text 280, wide 340, picker 184, never past 480 
   expect(floatingCellEditorSize("text")).toBe("text");
   expect(floatingCellEditorSize("datetime")).toBe("wide");
   expect(floatingCellEditorSize("file")).toBe("wide");
-  expect(floatingCellEditorSize("person")).toBe("picker");
+  expect(floatingCellEditorSize("person")).toBe("text");
+  expect(floatingCellEditorSize("long_text")).toBe("wide");
+  expect(floatingCellEditorSize("single_choice")).toBe("picker");
   expect(floatingCellEditorSize("number")).toBe("cell");
 });
 

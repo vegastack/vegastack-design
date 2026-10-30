@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.25.105 sha256-Yvk/YYa4jNXdN9+Bok0hda2zimQvq+aGvVSVgOqax5g=
+// @vegastack field-cell@0.25.105 sha256-PkQi/MP2M605bWin9o/D+vUxGUzaRKW/iaBW1G6oc5g=
 
 "use client";
 
@@ -41,10 +41,11 @@ import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import {
   PeoplePicker,
+  PeoplePickerContent,
   type PeoplePickerOption,
   type PeoplePickerSearch,
 } from "@/components/ui/people-picker";
-import { PersonAvatar } from "@/components/ui/person-avatar";
+import { PersonAvatar, personDisplayName } from "@/components/ui/person-avatar";
 import {
   PropertyLabel,
   PropertyRow,
@@ -83,7 +84,7 @@ import {
   useAsyncSearch,
   type AsyncSearchLoader,
 } from "@/components/ui/use-async-search";
-import type { ChipHue } from "@/components/ui/chip";
+import { Chip, type ChipHue } from "@/components/ui/chip";
 import {
   formatCalendarDate,
   formatDateTime,
@@ -965,6 +966,13 @@ export interface FieldInputProps {
   defaultSearch?: string;
   /** Extra classes for the control. @default undefined */
   className?: string;
+  /**
+   * `cell` — the control sits inside a surface that already is its box (a floating cell editor):
+   * a date and a date-time's date take the picker's inline (`ghost`) tier instead of a bordered
+   * field. Every other type is as it is.
+   * @default "default"
+   */
+  variant?: "default" | "cell";
 }
 
 /** A record search for a link field: async, paged, the host's order (recents first). */
@@ -1106,6 +1114,7 @@ function DateTimeEditor({
   id,
   invalid,
   describedBy,
+  inline,
 }: {
   value: string | null;
   onChange: (value: string | null) => void;
@@ -1114,6 +1123,8 @@ function DateTimeEditor({
   id?: string;
   invalid?: boolean;
   describedBy?: string;
+  /** The editor sits in a surface that is its box: the date takes its inline (ghost) tier. */
+  inline?: boolean;
 }) {
   const timeZone = useTimeZone();
   const current = value ? zonedParts(value, timeZone) : null;
@@ -1130,6 +1141,7 @@ function DateTimeEditor({
       <DatePicker
         id={id}
         size="sm"
+        variant={inline ? "ghost" : "outline"}
         aria-label="Date"
         className="w-auto min-w-0 flex-1 basis-32"
         aria-invalid={invalid || undefined}
@@ -1178,6 +1190,7 @@ export function FieldInput({
   autoFocus = false,
   defaultSearch,
   className,
+  variant = "default",
 }: FieldInputProps) {
   const a11y = {
     id,
@@ -1279,6 +1292,7 @@ export function FieldInput({
         <DatePicker
           {...a11y}
           size="sm"
+          variant={variant === "cell" ? "ghost" : "outline"}
           clearable
           className={className}
           value={
@@ -1295,6 +1309,7 @@ export function FieldInput({
           invalid={invalid}
           describedBy={describedBy}
           disabled={disabled}
+          inline={variant === "cell"}
           value={typeof value === "string" ? value : null}
           onChange={onChange}
         />
@@ -1557,6 +1572,113 @@ function sameChoices(a: FieldValue, b: FieldValue) {
   return ids(a) === ids(b);
 }
 
+/**
+ * A person cell's editor (`FieldCellEditor variant="cell"`): the people chosen as removable chips
+ * over the `PeoplePicker` list, which leaves them out — one place to see who is chosen, one list
+ * of who is left. A multiple field toggles with the editor open and commits when focus leaves it;
+ * a single field's pick replaces the chip and commits.
+ */
+function PersonCellEditor({
+  multiple,
+  value,
+  config,
+  label,
+  defaultSearch,
+  onChange,
+  onClose,
+}: {
+  multiple: boolean;
+  value: FieldValue;
+  config: FieldConfig;
+  label: string;
+  defaultSearch?: string;
+  onChange: (value: FieldValue) => void;
+  /** Focus left the editor. */
+  onClose: () => void;
+}) {
+  const initial = Array.isArray(value)
+    ? (value as FieldPerson[])
+    : value && typeof value === "object"
+      ? [value as FieldPerson]
+      : [];
+  const [chosen, setChosen] = React.useState<FieldPerson[]>(initial);
+  const host = React.useRef<HTMLSpanElement>(null);
+  const search = () =>
+    host.current?.querySelector<HTMLInputElement>("input") ?? null;
+  React.useEffect(() => {
+    const field = search();
+    field?.focus();
+    field?.setSelectionRange(field.value.length, field.value.length);
+  }, []);
+  const set = (next: FieldPerson[]) => {
+    setChosen(next);
+    onChange(multiple ? next : (next[0] ?? null));
+  };
+  return (
+    <span
+      ref={host}
+      data-slot="field-person-editor"
+      tabIndex={-1}
+      className="flex w-full min-w-0 flex-col outline-hidden"
+      onBlur={(event) => {
+        const scope = event.currentTarget;
+        if (scope.contains(event.relatedTarget as Node | null)) return;
+        // After the event that moved focus: a chip's remove button that just unmounted, or a press
+        // inside the list, leaves it in the editor.
+        setTimeout(() => {
+          if (!scope.contains(document.activeElement)) onClose();
+        }, 0);
+      }}
+    >
+      {chosen.length > 0 ? (
+        <span
+          role="list"
+          aria-label={`${label}, chosen`}
+          className="flex flex-wrap gap-1 border-b p-1.5"
+        >
+          {chosen.map((person) => (
+            <Chip
+              key={person.id}
+              role="listitem"
+              removeLabel={`Remove ${personDisplayName(person)}`}
+              onRemove={() => {
+                // Focus stays in the editor as the chip goes.
+                search()?.focus();
+                set(chosen.filter((other) => other.id !== person.id));
+              }}
+            >
+              <PersonAvatar person={person} size="sm" />
+              <span className="min-w-0 truncate">
+                {personDisplayName(person)}
+              </span>
+            </Chip>
+          ))}
+        </span>
+      ) : null}
+      <PeoplePickerContent
+        search={config.searchPeople}
+        options={config.people?.map((person) => ({ ...person }))}
+        exclude={chosen.map((person) => person.id)}
+        defaultSearch={defaultSearch}
+        onSelect={({ id, name, email, image }) => {
+          const person = { id, name, email, image };
+          set(multiple ? [...chosen, person] : [person]);
+        }}
+      />
+    </span>
+  );
+}
+
+/** Whether two person values name the same people, in any order. */
+function samePeople(a: FieldValue, b: FieldValue) {
+  const ids = (v: FieldValue) =>
+    (Array.isArray(v) ? (v as FieldPerson[]) : v ? [v as FieldPerson] : [])
+      .map((person) => person.id)
+      .sort()
+      .join("\u0000");
+  return ids(a) === ids(b);
+}
+
 /** Props accepted by `FieldCellEditor`. */
 export interface FieldCellEditorProps {
   /** The field's type. */
@@ -1593,7 +1715,10 @@ export interface FieldCellEditorProps {
    * A `text` field is one wrapping box that grows to `max-h-60` then scrolls, its newlines typed
    * or pasted becoming spaces. A `number` field is typed as written: the reader's decimal mark, no
    * digit grouping, no steppers, ArrowUp and ArrowDown step by 1, and "-", "." and "1." are drafts
-   * on the way to a value (a draft that never becomes one cancels on blur). Every other type is the
+   * on the way to a value (a draft that never becomes one cancels on blur). `long_text` edits in
+   * place on the cell's own surface (no popover from it) and grows to 15rem before it scrolls. A
+   * `person` is the chosen people as removable chips over the people list, which leaves them out.
+   * A `date` and a date-time's date take the inline (`ghost`) date picker. Every other type is the
    * default editor, only borderless.
    * @default "default"
    */
@@ -1920,6 +2045,10 @@ export function FieldCellEditor({
   // A cell's text and number are edited as text: a number's draft is what was typed.
   const cellText = cell && type === "text";
   const cellNumber = cell && type === "number";
+  // A cell's long text edits where the floating editor is: its own surface, not a popover from it.
+  const cellLong = cell && type === "long_text";
+  // A cell's people are chips over the picker's list, searched at once.
+  const cellPerson = cell && type === "person";
   // A date opened by typing edits the typed text (a field, not the calendar), committed as the
   // day it names.
   const typedDate = type === "date" && Boolean(seed);
@@ -1965,6 +2094,8 @@ export function FieldCellEditor({
     // A choice's list is open from the first render, its search field focused: no trigger press,
     // whose click the just-opened list could take for a press outside it and close.
     if (type === "single_choice" || type === "multi_choice") return;
+    // A cell's long text and people edit in place and focus themselves.
+    if (cellLong || cellPerson) return;
     // Long text edits in a popover outside the cell: its editor takes the caret, however the
     // editor was opened (Enter, F2, a click).
     if (type === "long_text") {
@@ -2058,6 +2189,33 @@ export function FieldCellEditor({
       : cellText
         ? draft || null
         : draft;
+
+  if (cellLong)
+    return (
+      <span
+        ref={root}
+        data-slot="field-cell-editor"
+        data-type={type}
+        data-variant={variant}
+        className="block min-w-0 flex-1"
+        onKeyDownCapture={(event) => {
+          // IME composition never commits or cancels: the key stays with the editor.
+          if (event.nativeEvent.isComposing || event.keyCode === 229)
+            event.stopPropagation();
+        }}
+      >
+        <LongTextPropertyEditor
+          label={label}
+          value={value}
+          seed={seed}
+          config={config}
+          maxHeight="15rem"
+          className="px-2.5 py-1.5"
+          onCommit={(next) => commit(next)}
+          onCancel={cancel}
+        />
+      </span>
+    );
 
   if (type === "long_text") {
     const text = typeof draft === "string" ? draft : "";
@@ -2221,6 +2379,24 @@ export function FieldCellEditor({
             }, 0);
           }}
         />
+      ) : cellPerson ? (
+        <PersonCellEditor
+          multiple={config.multiple === true}
+          value={draft}
+          config={config}
+          label={label}
+          defaultSearch={seed || undefined}
+          onChange={(next) => {
+            setDraft(next);
+            latest.current = next;
+            // A single person's pick is the commit.
+            if (!config.multiple) commit(next);
+          }}
+          onClose={() => {
+            if (!samePeople(latest.current, value)) commit(latest.current);
+            else cancel();
+          }}
+        />
       ) : cellText ? (
         <CellTextBox
           aria-label={label}
@@ -2257,6 +2433,7 @@ export function FieldCellEditor({
           aria-label={label}
           invalid={!valid}
           defaultSearch={seed && SEARCHED_TYPES.has(type) ? seed : undefined}
+          variant={variant}
           className="w-full"
           onChange={(next) => {
             setDraft(next);
@@ -2634,6 +2811,8 @@ function LongTextPropertyEditor({
   value,
   seed,
   config,
+  maxHeight,
+  className,
   onCommit,
   onCancel,
 }: {
@@ -2641,6 +2820,9 @@ function LongTextPropertyEditor({
   value: FieldValue;
   seed?: string;
   config: FieldConfig;
+  /** The most the editor grows before it scrolls. */
+  maxHeight?: string;
+  className?: string;
   onCommit: (value: FieldValue) => void;
   onCancel: () => void;
 }) {
@@ -2662,7 +2844,7 @@ function LongTextPropertyEditor({
   return (
     <div
       data-slot="field-property-long-text"
-      className="w-full min-w-0"
+      className={cn("w-full min-w-0", className)}
       onBlur={(event) => {
         const wrapper = event.currentTarget;
         if (wrapper.contains(event.relatedTarget as Node | null)) return;
@@ -2693,6 +2875,7 @@ function LongTextPropertyEditor({
         }}
         escapeBehavior="revert"
         handleRef={handle}
+        maxHeight={maxHeight}
         placeholder={config.placeholder}
         mentions={config.mentions}
         mentionHref={config.mentionHref}
