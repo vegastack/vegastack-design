@@ -82,6 +82,7 @@ jobs:
           set -euo pipefail
           pnpm -F @vegastack/docs lint:links
           node tooling/verify-docs-shell.mjs
+          node tooling/verify-docs-shell.mjs --self-test
       - name: Assert the unsigned public artifact is complete
         run: |
           set -euo pipefail

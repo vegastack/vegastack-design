@@ -20,7 +20,7 @@ if (diff.status !== 0) {
   process.exit(1);
 }
 const AFFECTS_CONSUME =
-  /^(packages\/ui\/registry\.json|packages\/design\/(bin|src)\/|packages\/design\/package\.json|packages\/design-tokens\/|tooling\/(verify-shadcn-consume|registry-[a-z-]+|consume-if-affected)\.mjs|apps\/docs\/components\.json|pnpm-lock\.yaml|package\.json)/;
+  /^(packages\/ui\/registry\.json|packages\/design\/(bin|src)\/|packages\/design\/(package\.json|tsup\.config\.ts)|packages\/design-tokens\/|tooling\/(verify-shadcn-consume|verify-registry-deps|registry-[a-z-]+|consume-if-affected)\.mjs|apps\/docs\/components\.json|pnpm-lock\.yaml|package\.json)/;
 const hits = diff.stdout
   .split("\n")
   .filter((file) => AFFECTS_CONSUME.test(file));

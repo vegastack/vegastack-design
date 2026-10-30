@@ -19,8 +19,21 @@ const DIR = join(ROOT, ".github/workflows");
 const RUNNER = ["self-hosted", "linux", "vsk-runner"];
 /** Jobs allowed to mint an OIDC token (npm trusted publishing; Sigstore signing). */
 const OIDC_JOBS = new Set(["release.yml:publish", "deploy.yml:deploy"]);
-/** Workflows allowed to mount the trusted caches; none of them runs pull-request code. */
-const TRUSTED_WORKFLOWS = new Set(["release.yml", "deploy.yml"]);
+/**
+ * The only container volumes a job may mount. No parent directory, no Docker socket, no other host
+ * path; the trusted caches only in workflows that never run pull-request code.
+ */
+const PR_VOLUMES = ["/opt/vsk-runner/pnpm-store:/pnpm-store"];
+const TRUSTED_VOLUMES = [
+  "/opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted",
+  "/opt/vsk-runner/trusted-tools:/trusted-tools",
+];
+const ALLOWED_VOLUMES = {
+  "ci.yml": PR_VOLUMES,
+  "full-suite.yml": PR_VOLUMES,
+  "release.yml": TRUSTED_VOLUMES,
+  "deploy.yml": TRUSTED_VOLUMES,
+};
 
 function policy() {
   const lock = parseYaml(readFileSync(join(ROOT, "pnpm-lock.yaml"), "utf8"));
@@ -69,11 +82,17 @@ function policy() {
         !oidc || OIDC_JOBS.has(label),
         `${label}: id-token: write is reserved for ${[...OIDC_JOBS].join(", ")}`,
       );
-      const volumes = (job.container?.volumes ?? []).join(" ");
+      const allowed = ALLOWED_VOLUMES[file] ?? [];
+      for (const volume of job.container?.volumes ?? [])
+        check(
+          allowed.includes(volume),
+          `${label}: volume ${volume} is not allowed (allowed: ${allowed.join(", ") || "none"})`,
+        );
       check(
-        !/trusted/.test(volumes) || TRUSTED_WORKFLOWS.has(file),
-        `${label}: trusted caches are mounted only by ${[...TRUSTED_WORKFLOWS].join(", ")}`,
+        !job.container?.options,
+        `${label}: container options are not allowed`,
       );
+      check(!job.services, `${label}: service containers are not allowed`);
     }
     if (file === "ci.yml") {
       for (const [id, job] of Object.entries(workflow.jobs ?? {}))
@@ -96,15 +115,18 @@ function policy() {
 
 function tool(name) {
   if (process.platform === "linux" && process.arch === "x64") {
-    execFileSync(
+    // Execute exactly the path the installer verified, never a directory scan.
+    return execFileSync(
       process.execPath,
       [join(ROOT, "tooling/trusted-tool.mjs"), name],
-      { stdio: "inherit" },
-    );
-    const base = process.env.RUNNER_TEMP ?? "/tmp";
-    return readdirSync(base)
-      .filter((d) => d.startsWith(`${name}-`))
-      .map((d) => join(base, d, name))[0];
+      {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "inherit"],
+      },
+    )
+      .trim()
+      .split("\n")
+      .at(-1);
   }
   return name; // a developer machine: brew install actionlint zizmor
 }
