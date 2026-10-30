@@ -1,5 +1,17 @@
 # @vegastack/design
 
+## 0.9.0
+
+### Minor Changes
+
+- [#852](https://github.com/vegastack/vegastack-design/pull/852) [`55d70fb`](https://github.com/vegastack/vegastack-design/commit/55d70fbd4916b54a31f1e9eafd61a1de5aaefbe2) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🧩 **New: `FloatingCellEditor`, `DropdownMenuInput` / `DropdownMenuSwitchItem` / `DropdownMenuAtPoint` (item `dropdown-menu-form`), `OptionListEditor`.** `FloatingCellEditor` opens a grid cell's editor over the cell, with the page locked behind it and pinch-zoom still passing; `DataGrid` takes `editing="floating"` to use it for its `custom` editors. The dropdown-menu form parts hold a small form in a menu: an input that keeps its keys, a switch row with a hint, and a menu that opens at a point. `OptionListEditor` edits a choice field's options as rows (hue, name, remove, add). `FieldTypeIcon`, `FIELD_TYPE_ICONS` and `FIELD_TYPE_LABELS` in `field-cell` give every field type one icon and one name. Additive — nothing changes until a consumer opts in.
+
+### Patch Changes
+
+- [#852](https://github.com/vegastack/vegastack-design/pull/852) [`55d70fb`](https://github.com/vegastack/vegastack-design/commit/55d70fbd4916b54a31f1e9eafd61a1de5aaefbe2) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🔧 **Grid cell editors that sit on the cell** (`field-cell`, `data-grid`): with `FieldCellEditor variant="cell"`, long text edits in place on the cell's own surface instead of a second popover that missed the cell; a person is the chosen people as removable chips over the people list, which leaves them out; a date and a date-time's date take the inline picker (`FieldInput` takes `variant="cell"` for it). `DataGrid`'s fill handle now sits under frozen cells, so it no longer draws over a frozen column when the grid scrolls sideways.
+
+- [#852](https://github.com/vegastack/vegastack-design/pull/852) [`55d70fb`](https://github.com/vegastack/vegastack-design/commit/55d70fbd4916b54a31f1e9eafd61a1de5aaefbe2) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🔧 **Grid cells without app-side hacks** (`field-cell`, `data-grid`, `app-shell`; additive — nothing changes until a consumer opts in): `FieldCellDisplay` and `FieldCellEditor` take `variant="cell"` — the display is plain (no digit grouping except currency, links without scheme, dates clipped on one line, every person named) and the editor is borderless, with a growing one-paragraph text box and a number typed as written (decimal mark of the reader, no steppers, arrows step by 1). `DataGrid` takes `fill` (viewport height to the bottom of its scroller, ≥240px), `endSpacer`, `columnDividers` (frozen columns too), `editingTint`, and `headerAlign` (grid-wide or per column) so a numeric column's header can lead while its values stay end-aligned. New `AppShellBleed` lets a grid reach the page's edges without a gutter wrapper.
+
 ## 0.8.53
 
 ### Patch Changes
