@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.26.1 sha256-QpmY7Tp+tEKvXbJlKd4jeMGSgg2XaT3sC9nrjdfFWxo=
+// @vegastack sidebar@0.26.1 sha256-tBCIAx/qHnhZBgo3GcL06Ch1zTGxP+Hco8nCsxyCiX0=
 
 "use client";
 
@@ -521,7 +521,7 @@ function SidebarGroupLabel({
     props: mergeProps<"div">(
       {
         className: cn(
-          "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 [&>svg]:size-4 [&>svg]:shrink-0",
+          "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 [&>svg]:size-4 [&>svg]:shrink-0",
           className,
         ),
       },
@@ -704,7 +704,7 @@ function SidebarMenuButton({
           data-badge-size={short ? "pill" : "dot"}
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute hidden items-center justify-center rounded-full bg-sidebar-primary text-xs font-medium text-sidebar-primary-foreground tabular-nums select-none group-data-[collapsible=icon]:flex",
+            "pointer-events-none absolute hidden items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground tabular-nums select-none group-data-[collapsible=icon]:flex",
             // Anchored to the 32px icon button at the item's start, inside the rail's clip.
             short
               ? "top-0 start-4 h-4 min-w-4 px-1 leading-4"
