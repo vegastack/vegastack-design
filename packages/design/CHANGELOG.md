@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.9.2
+
+### Patch Changes
+
+- [#862](https://github.com/vegastack/vegastack-design/pull/862) [`0a51593`](https://github.com/vegastack/vegastack-design/commit/0a51593e811901f8628170fe071f5f45f456b862) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Filter chips: hover and open fill the whole chip** (`filter-row`): an unset `ListFacet`, `PeopleFacet`, `DateRangeFilter` or `unset` `FilterChip` drops its dashed line while hovered or open, so the fill reaches the chip's edge like a chip with a value instead of sitting inside the dashes. `DateRangeFilterValue` takes an optional `label` the chip reads in place of a custom range's dates ("Due: Last 2 days"), for relative ranges a host keeps as one token.
+
+- [#857](https://github.com/vegastack/vegastack-design/pull/857) [`45a8890`](https://github.com/vegastack/vegastack-design/commit/45a88905091260792a32c27c81cdc0f9563e3953) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Collapsed sidebar: every icon clickable, neutral counts** (`sidebar`, INT-15): in icon mode a `SidebarGroupLabel` (faded and pulled up over the item above it) no longer takes the click meant for that item, so every rail icon opens and shows its tooltip; the rail's count pill and dot use the app header's count ink (`bg-primary` / `text-primary-foreground`) in both themes instead of the blue `sidebar-primary` accent.
+
 ## 0.9.1
 
 ### Patch Changes

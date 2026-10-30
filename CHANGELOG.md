@@ -9,6 +9,27 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.2] — October 30, 2026
+
+<!-- assembled from 3 changesets: ab76dac5cb99 -->
+
+### 🛠 CLI & tooling
+
+- `pnpm gen` runs every generator; the component contract writes the fields its source determines (exports, dependencies, data attributes, wave rosters).
+  [`b06d1ed`](https://github.com/VegaStack/vegastack-design/commit/b06d1ed)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.2`** (was `0.9.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.1 → 0.26.2.
+
+### 🐛 Fixed
+
+- **Filter chips: hover and open fill the whole chip** (`filter-row`): an unset `ListFacet`, `PeopleFacet`, `DateRangeFilter` or `unset` `FilterChip` drops its dashed line while hovered or open, so the fill reaches the chip's edge like a chip with a value instead of sitting inside the dashes. `DateRangeFilterValue` takes an optional `label` the chip reads in place of a custom range's dates ("Due: Last 2 days"), for relative ranges a host keeps as one token.
+  [`0a51593`](https://github.com/VegaStack/vegastack-design/commit/0a51593)
+- **Collapsed sidebar: every icon clickable, neutral counts** (`sidebar`, INT-15): in icon mode a `SidebarGroupLabel` (faded and pulled up over the item above it) no longer takes the click meant for that item, so every rail icon opens and shows its tooltip; the rail's count pill and dot use the app header's count ink (`bg-primary` / `text-primary-foreground`) in both themes instead of the blue `sidebar-primary` accent.
+  [`45a8890`](https://github.com/VegaStack/vegastack-design/commit/45a8890)
+
 ## [0.26.1] — October 30, 2026
 
 <!-- assembled from 3 changesets: 5d1f59bd9fb6 -->

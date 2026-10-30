@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.26.1 sha256-fyWeXXk0Vc+bFMCA8rJOvbBLTmd0dTwO7jHRQG0/WNg=
+// @vegastack email-kit@0.26.2 sha256-VjNnCa9QAGFMnuOopcuWkAeliPiQzV21bv0eRjo/AdI=
 
 import { Fragment } from "react";
 import type { ReactNode } from "react";
