@@ -24,6 +24,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       volumes:
         - /opt/vsk-runner/pnpm-store:/pnpm-store
+        # Turbo and prettier caches persist across PR runs (PR-only; credentialed jobs never mount it).
+        - /opt/vsk-runner/turbo-cache:/turbo-cache
     defaults:
       run:
         shell: bash
@@ -46,6 +48,10 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          TURBO_CACHE_DIR: /turbo-cache/turbo
+          PRETTIER_CACHE: /turbo-cache/prettier/.prettier-cache
+          # Tooling tests related to the change only; the nightly full suite runs them all.
+          VITEST_CHANGED: ${{ github.event.pull_request.base.sha }}
         run: pnpm verify:affected --base "$BASE_SHA" --head "$HEAD_SHA"
       - name: Lint workflows when they change
         env:

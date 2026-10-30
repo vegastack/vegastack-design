@@ -27,7 +27,10 @@ const OIDC_JOBS = new Set([
  * The only container volumes a job may mount. No parent directory, no Docker socket, no other host
  * path; the trusted caches only in workflows that never run pull-request code.
  */
-const PR_VOLUMES = ["/opt/vsk-runner/pnpm-store:/pnpm-store"];
+const PR_VOLUMES = [
+  "/opt/vsk-runner/pnpm-store:/pnpm-store",
+  "/opt/vsk-runner/turbo-cache:/turbo-cache",
+];
 const TRUSTED_VOLUMES = [
   "/opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted",
   "/opt/vsk-runner/trusted-tools:/trusted-tools",

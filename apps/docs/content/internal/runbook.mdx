@@ -84,23 +84,26 @@ component suite runs only on demand (§ 8).
 
 ## 5. Release (automatic)
 
-On every push to `main`, `release.yml`:
+On every push to `main`, `release.yml` runs three jobs:
 
-1. If changesets are pending, runs `pnpm run version-packages` and commits
+1. **version** (environment [`release`](https://github.com/vegastack/vegastack-design/settings/environments),
+   main only): if a pending changeset bumps a package, it runs `pnpm run version-packages`, checks the result
+   with `tooling/verify-release-commit.mjs` (release outputs only), and commits
    `chore(release): registry x.y.z [skip ci]`. It pushes that commit to `main` as the
    [`vegastack-design-release`](https://github.com/organizations/vegastack/settings/apps/vegastack-design-release)
-   GitHub App. The App is the [`main` ruleset](https://github.com/vegastack/vegastack-design/settings/rules/23470280)'s
-   only bypass actor, and its token is minted per run with `contents: write` only. If `main` moved
-   meanwhile, the push is rejected and the newer run releases.
-2. Publishes the npm versions that are missing, through OIDC (no token):
+   GitHub App, the [`main` ruleset](https://github.com/vegastack/vegastack-design/settings/rules/23470280)'s
+   only bypass actor; the token is minted per run with `contents: write` only. If `main` moved meanwhile,
+   the push is rejected and the newer run releases. An empty changeset (`---\n---`) bumps nothing and
+   waits for the next real release.
+2. **publish** (OIDC, no token): publishes whatever npm versions are missing:
    [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) and
    [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens).
-3. Calls `deploy.yml` for the release commit. That is one job: build the registry and docs once, sign the
-   integrity manifest with cosign, upload to Cloudflare, then probe production. `/r/*` must reject anonymous
-   requests and accept the service token; everything else must be public.
+3. **deploy** calls `deploy.yml` for the release commit whenever something was versioned or published.
+   That is one job: build the registry and docs once, sign the integrity manifest with cosign, upload to
+   Cloudflare, then probe production. `/r/*` must reject anonymous requests and accept the service token;
+   everything else must be public.
 
-A merge without changesets releases nothing. There are no git tags and no GitHub releases. There are no
-GitHub Environments either; the secrets are repository secrets.
+A merge without a bumping changeset releases nothing. There are no git tags and no GitHub releases.
 
 Watch it in [Actions](https://github.com/vegastack/vegastack-design/actions): the
 [Release](https://github.com/vegastack/vegastack-design/actions/workflows/release.yml) run, then its deploy
@@ -166,7 +169,7 @@ To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.
   [deploy](https://github.com/vegastack/vegastack-design/actions/workflows/deploy.yml) ·
   [full suite](https://github.com/vegastack/vegastack-design/actions/workflows/full-suite.yml)
 - Secrets and variables: [repository settings](https://github.com/vegastack/vegastack-design/settings/secrets/actions):
-  `RELEASE_APP_ID` (variable), `RELEASE_APP_PRIVATE_KEY`, `CF_API_TOKEN`, `CF_ACCOUNT_ID`,
+  `RELEASE_APP_ID` (variable), `RELEASE_APP_PRIVATE_KEY` (environment `release` only), `CF_API_TOKEN`, `CF_ACCOUNT_ID`,
   `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
 - Live: [docs](https://design.vegastack.com) · registry `https://design.vegastack.com/r/<name>.json` (service
   token) · [changelog](https://design.vegastack.com/docs/changelog)

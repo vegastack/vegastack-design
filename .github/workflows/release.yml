@@ -1,10 +1,14 @@
 name: Release
 
-# A merge to main IS the release (operator, 30-10-2026). With pending changesets this workflow cuts
-# the version commit itself, pushes it to main as the `vegastack-design-release` GitHub App (the
-# ruleset's only bypass actor), publishes the missing npm versions with OIDC, and deploys the
-# registry and docs. There is no Version Packages PR. `workflow_dispatch` resumes a failed run at the
-# current main tip: every step is idempotent (npm versions that exist are skipped).
+# A merge to main IS the release (operator, 30-10-2026). Three jobs, so the bypass token and the npm
+# OIDC authority never share one:
+#   version  (environment `release`, main only) — with a pending version bump, cut the version commit,
+#            bound it (verify-release-commit), and push it to main as the `vegastack-design-release`
+#            GitHub App, the ruleset's only bypass actor.
+#   publish  (OIDC) — publish whatever npm versions are missing at the release commit.
+#   deploy   — deploy.yml for the release commit, whenever something was versioned or published.
+# There is no Version Packages PR. `workflow_dispatch` resumes at the current main tip; every step is
+# idempotent (existing npm versions are skipped).
 
 on:
   push:
@@ -22,10 +26,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Version and publish
+  version:
+    name: Cut the version commit
     runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 30
+    timeout-minutes: 20
+    # The App key lives only in this environment, which deploys from main alone.
+    environment: release
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       volumes:
@@ -38,10 +44,10 @@ jobs:
       npm_config_cache: /tmp/npm-cache
     permissions:
       contents: read
-      id-token: write
     outputs:
-      release_sha: ${{ steps.version.outputs.release_sha }}
-      deploy: ${{ steps.version.outputs.deploy }}
+      stale: ${{ steps.tip.outputs.stale }}
+      bumped: ${{ steps.plan.outputs.bumped }}
+      release_sha: ${{ steps.push.outputs.release_sha || steps.tip.outputs.sha }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -57,6 +63,7 @@ jobs:
           PUSHED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           # A newer push has its own queued run; this one has nothing left to do.
           if [ "$EVENT" = push ] && [ "$(git rev-parse HEAD)" != "$PUSHED_SHA" ]; then
             echo "::notice::main moved past $PUSHED_SHA; the newer run releases"
@@ -64,57 +71,46 @@ jobs:
           else
             echo "stale=false" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        if: steps.tip.outputs.stale == 'false'
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
       - name: Enable corepack
         if: steps.tip.outputs.stale == 'false'
         run: corepack enable
-      - name: Pin the OIDC-capable npm (>= 11.5)
-        if: steps.tip.outputs.stale == 'false'
-        run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages]
       - if: steps.tip.outputs.stale == 'false'
         run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
-      - name: Cut the version commit
-        id: version
+      - name: Does a pending changeset bump a package?
+        id: plan
         if: steps.tip.outputs.stale == 'false'
+        run: |
+          set -euo pipefail
+          # Empty (`---\n---`) changesets bump nothing: they wait for the next real release.
+          pnpm exec changeset status --output "$RUNNER_TEMP/plan.json"
+          BUMPED=$(node -e "const p=require(process.argv[1]);console.log((p.releases||[]).some(r=>r.type!=='none'))" "$RUNNER_TEMP/plan.json")
+          echo "bumped=$BUMPED" >> "$GITHUB_OUTPUT"
+          echo "pending version bump: $BUMPED"
+      - name: Version and bound the release commit
+        if: steps.plan.outputs.bumped == 'true'
         env:
-          EVENT: ${{ github.event_name }}
           # @changesets/changelog-github reads PR and author links (read-only API).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          PENDING=false
-          for file in .changeset/*.md; do
-            [ "$file" != .changeset/README.md ] && [ -e "$file" ] && PENDING=true
-          done
-          if [ "$PENDING" = true ]; then
-            pnpm run version-packages
-            git config user.name "vegastack-design-release[bot]"
-            git config user.email "5543586+vegastack-design-release[bot]@users.noreply.github.com"
-            git add -A
-            VERSION=$(node -p "require('./packages/ui/package.json').version")
-            git commit -q -m "chore(release): registry ${VERSION} [skip ci]"
-            echo "deploy=true" >> "$GITHUB_OUTPUT"
-            echo "pending=true" >> "$GITHUB_OUTPUT"
-          else
-            # Nothing pending: a manual resume still redeploys the current tip.
-            if [ "$EVENT" = workflow_dispatch ]; then echo "deploy=true" >> "$GITHUB_OUTPUT"; else echo "deploy=false" >> "$GITHUB_OUTPUT"; fi
-            echo "pending=false" >> "$GITHUB_OUTPUT"
-          fi
-          echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          pnpm run version-packages
+          git add -A
+          node tooling/verify-release-commit.mjs
+          git config user.name "vegastack-design-release[bot]"
+          git config user.email "5543586+vegastack-design-release[bot]@users.noreply.github.com"
+          VERSION=$(node -p "require('./packages/ui/package.json').version")
+          git commit -q -m "chore(release): registry ${VERSION} [skip ci]"
       - name: Mint the release App token
         id: app-token
-        if: steps.version.outputs.pending == 'true'
+        if: steps.plan.outputs.bumped == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           permission-contents: write
       - name: Push the version commit to main
-        if: steps.version.outputs.pending == 'true'
+        id: push
+        if: steps.plan.outputs.bumped == 'true'
         env:
           TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ github.repository }}
@@ -122,14 +118,50 @@ jobs:
           set -euo pipefail
           # Fast-forward only: if main moved, the push is rejected and the newer run releases.
           git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/main
+          echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish missing npm versions
+    needs: version
+    if: needs.version.outputs.stale == 'false'
+    runs-on: [self-hosted, linux, vsk-runner]
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        - /opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ needs.version.outputs.release_sha }}
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Enable corepack
+        run: corepack enable
+      - name: Pin the OIDC-capable npm (>= 11.5)
+        run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages]
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
       - name: Build the public packages
-        if: steps.tip.outputs.stale == 'false'
         run: |
           set -euo pipefail
           pnpm --filter @vegastack/design-tokens build
           pnpm --filter @vegastack/design build
       - name: Reject publish-time lifecycle code
-        if: steps.tip.outputs.stale == 'false'
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync } from 'node:fs';
@@ -142,9 +174,10 @@ jobs:
           }
           NODE
       - name: Publish missing versions (OIDC, no token)
-        if: steps.tip.outputs.stale == 'false'
+        id: publish
         run: |
           set -euo pipefail
+          PUBLISHED=false
           for dir in design-tokens design; do
             cd "$GITHUB_WORKSPACE/packages/$dir"
             NAME=$(node -p "require('./package.json').name")
@@ -155,23 +188,29 @@ jobs:
                 break
               fi
               if npm publish --access public --no-provenance; then
+                PUBLISHED=true
                 break
               fi
               test "$attempt" -lt 3 || exit 1
               sleep $((attempt * 10))
             done
           done
+          echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
 
   deploy:
     name: Deploy registry and docs
-    needs: publish
-    if: needs.publish.outputs.deploy == 'true'
+    needs: [version, publish]
+    # Deploy whatever was versioned or published (a resumed run included), or on a manual resume.
+    if: >-
+      needs.version.outputs.bumped == 'true' ||
+      needs.publish.outputs.published == 'true' ||
+      github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       id-token: write
     uses: ./.github/workflows/deploy.yml # zizmor: ignore[self-repository]
     with:
-      expected_sha: ${{ needs.publish.outputs.release_sha }}
+      expected_sha: ${{ needs.version.outputs.release_sha }}
     secrets:
       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
