@@ -10,12 +10,15 @@
 # sha512 integrity, so the cache cannot change what is installed. pnpm 11 reads `pnpm_config_*`
 # (not `npm_config_*`) from the environment. If the cache is down, or the install through it fails
 # (a cold cache answers 404 when its own uplink fetch fails), the same install runs against npmjs.
+# The cache attempt is time-boxed (LAN_NPM_CACHE_BUDGET seconds, default 300) with short pnpm
+# timeouts, so a stalled cache still leaves the job time to fall back before its own timeout.
 # Runbook: docs/RUNBOOK.md § 9.
 set -euo pipefail
 cache="${LAN_NPM_CACHE:-http://192.168.88.76:4873/}"
 if node -e 'fetch(process.argv[1] + "-/ping", { signal: AbortSignal.timeout(2000) }).then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))' "$cache"; then
   echo "npm: installing through the LAN cache $cache"
-  if pnpm_config_registry="$cache" pnpm install "$@"; then exit 0; fi
+  if pnpm_config_registry="$cache" pnpm_config_fetch_retries=2 pnpm_config_fetch_timeout=60000 \
+    timeout -k 10 "${LAN_NPM_CACHE_BUDGET:-300}" pnpm install "$@"; then exit 0; fi
   echo "::warning title=LAN npm cache::install through $cache failed; retrying against registry.npmjs.org"
 else
   echo "npm: LAN cache $cache did not answer; using registry.npmjs.org"
