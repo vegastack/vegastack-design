@@ -88,6 +88,7 @@ authority, and CI fails only if it would still change the tree.
 | `packages/ui/component-contracts.json` | `pnpm design:derived`                  | matrix, skill roster, README inventory, page `status`/`since`    |
 | `.changeset/*.md`                      | release (`changelog-assemble`)         | `/CHANGELOG.md` and the docs changelog page                      |
 | `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**`                                      |
+| `docs/RUNBOOK.md`                      | `node tooling/sync-runbook-page.mjs`   | `apps/docs/content/internal/runbook.mdx`                         |
 | `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                         |
 
 ## Task router

@@ -1,6 +1,6 @@
 # vegastack-design — docs
 
-VegaStack's design-system records, release runbooks, research, and ledgers.
+VegaStack's design-system procedure (`RUNBOOK.md`), decisions, and historical records.
 
 ## Start with current authority
 
@@ -10,13 +10,8 @@ VegaStack's design-system records, release runbooks, research, and ledgers.
 - [`RUNBOOK.md`](RUNBOOK.md) — the one procedure: change, CI, review, release, deploy, recovery, app pull.
 - [`decisions.md`](decisions.md) — locked decisions, sanctioned dependencies, build rules (rationale).
 - [`../skills/README.md`](../skills/README.md) — current maintainer and consumer skill map.
-- [`plans/2026-07-28-public-site-private-registry-boundary.md`](plans/2026-07-28-public-site-private-registry-boundary.md)
-  — current production boundary: every non-registry route is public and only `/r/*` is private.
-- [`plans/2026-09-18-shadcn-reset/`](plans/2026-09-18-shadcn-reset/) — the shadcn reset, which
-  rebuilt the system on shadcn `base-nova`. Its `decisions.md` is the authority for why anything
-  differs from upstream; the machine copy a gate reads is
-  `packages/ui/upstream/decisions.json`. Every record below it that predates 2026-09-18 describes
-  the fork the reset deleted.
+- `packages/ui/upstream/decisions.json` — the decision register (why anything differs from upstream);
+  its rationale is in the historical [`plans/2026-09-18-shadcn-reset/`](plans/2026-09-18-shadcn-reset/).
 - [`MIGRATING-SHADCN-RESET.md`](MIGRATING-SHADCN-RESET.md) — the consumer-facing break: every
   retired component and its replacement, the deleted tokens, and the removed `@vegastack/design`
   exports. There is no compatibility layer.
@@ -40,7 +35,7 @@ could otherwise be mistaken for live authority.
 - [`audits/`](audits/) — dated audit evidence.
 - [`research/`](research/README.md) — durable source research; confirm version-sensitive claims
   against the installed dependency and its official documentation.
-- [`ledger/`](ledger/) — append-only implementation, bug, review, and operator-judgment history.
+- [`ledger/`](ledger/) — historical implementation, bug and review records (closed; findings now live in PRs).
 
 ## Current status
 

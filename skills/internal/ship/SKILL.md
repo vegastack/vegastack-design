@@ -5,10 +5,11 @@ description: Release VegaStack Design — merge a reviewed green PR, which relea
 
 # Ship VegaStack Design
 
-The procedure is [`docs/RUNBOOK.md`](../../../docs/RUNBOOK.md); follow §§ 3–9 there and do not restate it
+The procedure is [`docs/RUNBOOK.md`](../../../docs/RUNBOOK.md); follow §§ 3–8 there and do not restate it
 here. This skill only adds the release checklist:
 
-1. The PR carries a changeset for every public package whose source changed, with one section marker
+1. The PR carries a changeset that bumps `@vegastack/ui` (the registry version; a release without it is
+   refused) and every public package whose source changed, with one section marker
    ([references/changelog-format.md](references/changelog-format.md)).
 2. UI changes were inspected in light/dark, narrow/wide, with their states
    ([references/visual-review.md](references/visual-review.md)).
@@ -20,4 +21,4 @@ here. This skill only adds the release checklist:
 6. Tell the consuming app to pull (`pnpm ds:pull` in Regent web).
 
 Never publish by hand: npm publication is CI-only, token-free OIDC. Recovery and its three-strike stop are in
-RUNBOOK § 9.
+RUNBOOK § 8.

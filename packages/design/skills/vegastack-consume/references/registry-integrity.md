@@ -56,7 +56,7 @@ just drift in the copied files.
 ## Step 2 — copy-in
 
 ```bash
-pnpm dlx shadcn@latest add @vegastack/button
+pnpm exec shadcn add @vegastack/button
 ```
 
 The registry item content carries a provenance header (`// @vegastack <name>@<ver> sha256-…`), but
@@ -125,8 +125,8 @@ real leading-comment and configured-alias transforms.
 edits. It refuses to attach credentials to any origin other than `VEGASTACK_TRUSTED_REGISTRY_ORIGIN`
 (default `https://design.vegastack.com`) and never follows registry redirects.
 
-Per stale component: `shadcn add @vegastack/<name> --diff` to review, then `--overwrite` to apply,
-then re-run the post-write verification above.
+Per stale component: `pnpm exec shadcn add @vegastack/<name> --diff` to review, then repeat the full
+flow with a fresh payload: pre-write `verify --save`, `--overwrite`, post-write verification.
 
 Status is computed by hash, so a component correctly reads `up to date` when the registry's global
 version bumped but that component's content did not change.

@@ -181,8 +181,9 @@ Copy-in means no automatic updates.
 pnpm exec vegastack-design check-updates    # ⬆ update · ≈ drift · ✓ up to date
 ```
 
-Then per stale component: `shadcn add @vegastack/<name> --diff` to review, `--overwrite` to apply,
-and re-run the step-3 post-write verification. Details and CI wiring:
+Then per stale component: `pnpm exec shadcn add @vegastack/<name> --diff` to review, and apply it with
+the full step 1 → 3 flow again (a fresh pre-write `verify --save`, the `--overwrite` copy-in, the
+post-write verification against that new payload). An old saved payload no longer matches. Details and CI wiring:
 [references/registry-integrity.md](references/registry-integrity.md).
 
 Add the Renovate preset `github>VegaStack/renovate-config` so additive token bumps arrive as PRs.

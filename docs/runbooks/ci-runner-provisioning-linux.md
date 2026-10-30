@@ -4,11 +4,9 @@
 runner for `VegaStack/vegastack-design`, able to run browser lanes inside the pinned Playwright
 container. Budget ~10 minutes, most of it `apt` and the container pull.
 
-**Why a second runner class.** The mac mini cannot launch a browser — its Actions runner has no
-per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up …
-Unknown service name (1102)` (AGENTS.md § Locked decisions). A Linux box can start a container, and
-the pinned `mcr.microsoft.com/playwright` image already contains the browsers. That is the only
-reason these boxes exist; they are not general-purpose capacity.
+**Why Linux only.** Every DS job runs on this pool inside the pinned Playwright container (the Mac
+runners were retired on 29-10-2026). The image already contains the browsers, so any enrolled box is
+interchangeable.
 
 The script and the runbook are the whole contract: **one committed script, re-runnable, no
 hand-typed steps on the box.**
@@ -61,8 +59,8 @@ On **your machine** (the one minting the token): `gh` authenticated with **admin
   `apps/docs/scripts/probe-deployment.mjs` fails fast on an anonymous 200 and asserts against it. So
   an enrolled box does **not** produce a false pass: it **fails the deploy loudly**, for a reason
   that is not a defect. That is fail-safe, and it is still why the prohibition stands — a runner that
-  blocks every deploy on its own network posture is useless. Today the probe runs on the mac mini; the
-  same rule applies to any runner that might host it.
+  blocks every deploy on its own network posture is useless. The probe runs in the deploy job on this pool, so the
+  rule applies to every box.
 - **Not a machine holding production credentials** beyond what the workflows inject. Self-hosted
   runners execute repository code; treat the box as compromised-if-the-repo-is.
 - **Not a shared developer workstation.** The runner service runs continuously and the work
@@ -75,8 +73,7 @@ This repository is **public**, and the LAN boxes carry a pnpm store that survive
 
 1. **In code, and gated.** Every job on `[self-hosted, linux, vsk-runner]` carries
    `if: github.event.pull_request.head.repo.full_name == github.repository`.
-   `tooling/verify-workflow-security.mjs` requires it on every job in `LINUX_JOBS`, and the negative
-   harness proves its removal is rejected.
+   `tooling/verify-workflows.mjs` requires it on every `ci.yml` job.
 2. **In repo settings, by MK.** Set **Settings → Actions → General → Fork pull request workflows from
    outside collaborators** to **"Require approval for all outside collaborators"**. Agents cannot
    change repository settings, so this half is a manual, one-time action and is **not** asserted by
@@ -93,9 +90,8 @@ env equivalent of `--token`). There is no `--token` flag any more; passing one i
 explanatory error.
 
 **The Playwright image tag is never typed, on either machine.** `pnpm-lock.yaml` is its only
-authority — `tooling/verify-workflow-security.mjs` pins the workflow's `container.image` to the
-`playwright` version resolved there, and refuses a literal tag anywhere under `tooling/runner/` or
-`docs/runbooks/`. Read it out of the repo you are standing in and hand it to the box:
+authority — `tooling/verify-workflows.mjs` pins every job's `container.image` to the `playwright`
+version resolved there. Read it out of the repo you are standing in and hand it to the box:
 
 ```bash
 # 0. The tag, derived. Every occurrence is read and they must agree (a pnpm lockfile names the
@@ -207,25 +203,20 @@ hand if the box is being retired.
 
 ## Where this is enforced
 
-`tooling/verify-workflow-security.mjs` parses every workflow with the `yaml` package — structurally,
-not by regex over text, because a flow-style job slipped past line-based discovery entirely — and
-treats the Linux runners as a second allowlisted runner class. The allowlist is `ci.yml:quality`,
-`full-suite.yml:full-component-suite`, and `deploy.yml:distribution-proof`. For each job the gate
-requires:
+`tooling/verify-workflows.mjs` (run in PR CI; fully, with actionlint and zizmor, whenever `.github/**`
+changes) requires, for every job:
 
-- `runs-on: [self-hosted, linux, vsk-runner]`, and no other job may use that label;
-- a `container:` — **required**, not merely permitted — whose image equals
-  `mcr.microsoft.com/playwright:v<version>-noble` for the `playwright` version resolved in
-  `pnpm-lock.yaml`;
-- `defaults.run.shell: bash`, because the container's default shell is `sh`;
-- the exact affected, manual-full, or distribution command owned by that boundary; automatic
-  workflows are forbidden from invoking the complete component suite.
+- `runs-on: [self-hosted, linux, vsk-runner]` and no Mac label;
+- `container.image` equal to `mcr.microsoft.com/playwright:v<version>-noble` for the `playwright` version
+  in `pnpm-lock.yaml`, with no `options` and no service containers;
+- only allowlisted volumes: the PR caches (`/opt/vsk-runner/pnpm-store`, `/opt/vsk-runner/turbo-cache`)
+  in `ci.yml`/`full-suite.yml`, and the trusted caches (`/opt/vsk-runner/pnpm-store-trusted`,
+  `/opt/vsk-runner/trusted-tools`) only in `release.yml`/`deploy.yml`;
+- `id-token: write` only in `release.yml` publish/deploy and `deploy.yml`; the fork guard on every
+  `ci.yml` job; no `pull_request_target`; no `NPM_TOKEN`.
 
-Separately, the fork guard
-`if: github.event.pull_request.head.repo.full_name == github.repository` is required, **exactly**, on
-the pull-request quality job. Release, deploy, and full audit are explicit dispatches bound to exact
-commit SHAs and cannot carry a fork-authored ref.
-
-`tooling/verify-workflow-security-negative.mjs` proves each of those rejections by mutation, including
-the flow-style job the pre-fix gate accepted. Containers remain banned outright on the mac-mini jobs.
-The one thing no gate can assert is the repository setting under **Fork pull requests** above.
+A PR that edits a workflow runs its own edited copy, so these rules protect `main`, not the PR run
+itself. The fork guard and the repository setting under **Fork pull requests** above are what keep
+outside code off the boxes. Create the four cache directories once per box:
+`sudo mkdir -p /opt/vsk-runner/{pnpm-store,pnpm-store-trusted,trusted-tools,turbo-cache}` (Docker creates
+missing ones as root, which works but is untidy).

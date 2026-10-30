@@ -25,7 +25,7 @@ flowchart TD
 | ---------------------- | -------------------------- | -------------------------------------------------------------------------- | -------------- |
 | Change                 | you                        | edit, then `pnpm gen` (the pre-commit hook runs it), then `pnpm changeset` | —              |
 | PR CI                  | automatic                  | `PR quality`, i.e. `pnpm verify:affected`                                  | 3–10 min       |
-| Review                 | Codex (Claude as fallback) | `codex exec -s read-only … < /dev/null`                                    | —              |
+| Review                 | Codex (Claude as fallback) | see § 4a                                                                   | —              |
 | Merge                  | you                        | `gh pr merge <n> --squash --match-head-commit <sha>`                       | —              |
 | Version + publish      | automatic                  | `release.yml` on the push to `main`                                        | 2–5 min        |
 | Registry + docs deploy | automatic                  | `deploy.yml`, called by `release.yml`                                      | 8–10 min       |
@@ -58,9 +58,12 @@ Registry credentials (`CF_ACCESS_CLIENT_ID`/`_SECRET`) are needed only to consum
 4. Run `pnpm gen` (~5 s). It runs every generator and also writes the contract fields the source determines
    (exports, dependencies, data attributes, wave rosters). The pre-commit hook runs it when you stage an
    authority.
-5. Run `pnpm changeset`. Bump every public package whose source changed, and open the body with one section
-   marker (`🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`). Wrap any `<word>` in backticks. A change that releases nothing still
-   needs an empty changeset (`---\n---`) with a one-line body.
+5. Run `pnpm changeset`. Bump **`@vegastack/ui`** for anything that should release (it is the registry
+   version, and a release without it is refused), plus every public package whose source changed
+   (`@vegastack/design`, `@vegastack/design-tokens`; their shipped `skills/` count). Open the body with
+   one section marker (`🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`) and wrap any `<word>` in backticks. Work that should not
+   release (tooling, CI, repo docs) takes an empty changeset (`---` / `---` and a one-line body). It
+   waits and ships its note with the next real release.
 6. Optional local check: `pnpm check:component <name>` or `pnpm check:affected`. CI is the authority.
 7. Open the PR. Commit subjects use a conventional prefix (`feat(ui):`, `fix(ui):`, `chore(ci):`, `docs:`)
    and stay under 100 characters.
@@ -84,6 +87,18 @@ Never commit screenshots.
 After that it runs the workflow lint (`tooling/verify-workflows.mjs`: actionlint, zizmor and house rules,
 fully only when `.github/**` changes), the changeset requirement, and a clean-tree check. The whole
 component suite runs only on demand (§ 8).
+
+## 4a. Review
+
+Every PR gets one independent review. Codex is the default:
+
+```bash
+codex exec -s read-only "Review this branch against origin/main for correctness and security; report high/medium/low with file:line and a fix" < /dev/null
+```
+
+Close stdin (`< /dev/null`) or the command waits forever. If Codex is unavailable, run the `review` skill in
+a Claude subagent and say so in the PR. Verify every finding against the source, then put the findings and
+their resolutions in the PR description.
 
 ## 5. Release (automatic)
 
@@ -110,7 +125,10 @@ A merge without a bumping changeset releases nothing. There are no git tags and 
 
 Watch it in [Actions](https://github.com/vegastack/vegastack-design/actions): the
 [Release](https://github.com/vegastack/vegastack-design/actions/workflows/release.yml) run, then its deploy
-job. Done means `npm view @vegastack/design version` shows the new version and the deploy's probe step is green.
+job. Done means the deploy's probe step is green: it checks the live registry against `packages/ui`'s
+version at the release commit. In addition, `npm view @vegastack/design version` and
+`npm view @vegastack/design-tokens version` must equal those packages' versions at that commit. A
+registry-only release leaves both unchanged.
 
 ## 6. Use an unreleased change in an app
 
@@ -140,18 +158,18 @@ Other apps use `pnpm exec vegastack-design check-updates` and `pnpm exec shadcn 
 
 ## 8. When something fails
 
-| Symptom                                                            | Next action                                                                                                              |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| CI says "stale", "out of sync" or "run pnpm gen"                   | `pnpm gen`, commit, push                                                                                                 |
-| CI: "Some packages have been changed but no changesets were found" | `pnpm changeset` (or an empty one for tooling-only work)                                                                 |
-| A browser test fails in CI but passes locally                      | Rerun once. If it passes, note the flake in the PR; if not, fix it                                                       |
-| `verify-workflows` fails                                           | Read the house rule it names; never widen the allowlist without MK                                                       |
-| Release: push rejected                                             | Nothing to do; the newer `main` run releases                                                                             |
-| Release: publish failed (npm, network)                             | `gh workflow run release.yml` resumes at the `main` tip; it publishes only missing versions, then redeploys              |
-| Deploy failed                                                      | `gh workflow run deploy.yml -f expected_sha=<main sha>`                                                                  |
-| Probe: `/r/*` answers anonymously                                  | Stop. Restore the Access policy first ([Registry operations](https://design.vegastack.com/internal/registry-operations)) |
-| Real defect after publish                                          | Patch forward with a fix PR. Never unpublish or overwrite a version. After three failed fixes, stop and report           |
-| Full regression wanted                                             | `gh workflow run full-suite.yml -f commit_sha=<sha> -f engines=chromium` (or `all`)                                      |
+| Symptom                                                            | Next action                                                                                                                                                                     |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CI says "stale", "out of sync" or "run pnpm gen"                   | `pnpm gen`, commit, push                                                                                                                                                        |
+| CI: "Some packages have been changed but no changesets were found" | `pnpm changeset` (or an empty one for tooling-only work)                                                                                                                        |
+| A browser test fails in CI but passes locally                      | Rerun once. If it passes, note the flake in the PR; if not, fix it                                                                                                              |
+| `verify-workflows` fails                                           | Read the house rule it names; never widen the allowlist without MK                                                                                                              |
+| Release: push rejected                                             | Nothing to do; the newer `main` run releases                                                                                                                                    |
+| Release: publish failed (npm, network)                             | `gh workflow run release.yml` resumes at the `main` tip; it publishes only missing versions, then redeploys                                                                     |
+| Deploy failed                                                      | `gh workflow run deploy.yml -f expected_sha=<release sha>`, where the release sha is the `chore(release)` commit (`git log -1 --grep "chore(release)" --format=%H origin/main`) |
+| Probe: `/r/*` answers anonymously                                  | Stop. Restore the Access policy first ([Registry operations](https://design.vegastack.com/internal/registry-operations))                                                        |
+| Real defect after publish                                          | Patch forward with a fix PR. Never unpublish or overwrite a version. After three failed fixes, stop and report                                                                  |
+| Full regression wanted                                             | `gh workflow run full-suite.yml -f commit_sha=<sha> -f engines=chromium` (or `all`)                                                                                             |
 
 ## 9. Runners and caches
 
@@ -172,7 +190,7 @@ To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.
   [deploy](https://github.com/vegastack/vegastack-design/actions/workflows/deploy.yml) ·
   [full suite](https://github.com/vegastack/vegastack-design/actions/workflows/full-suite.yml)
 - Secrets and variables: [repository settings](https://github.com/vegastack/vegastack-design/settings/secrets/actions):
-  `RELEASE_APP_ID` (variable), `RELEASE_APP_PRIVATE_KEY` (environment `release` only), `CF_API_TOKEN`, `CF_ACCOUNT_ID`,
+  `RELEASE_APP_ID` and `DOCS_URL` = `https://design.vegastack.com` (variables), `RELEASE_APP_PRIVATE_KEY` (environment `release` only), `CF_API_TOKEN`, `CF_ACCOUNT_ID`,
   `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
 - Live: [docs](https://design.vegastack.com) · registry `https://design.vegastack.com/r/<name>.json` (service
   token) · [changelog](https://design.vegastack.com/docs/changelog)

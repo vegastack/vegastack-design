@@ -21,8 +21,7 @@ Reference implementations — read the source, not a description of it. Upstream
 `packages/ui/registry/ui/button.tsx` with `packages/ui/upstream/patches/button.patch` beside it (six
 decision IDs, one hunk each). Ours: `date-picker.tsx` (a keeper that composes upstream's `calendar`,
 `popover` and `button`), `animated-number.tsx` (a client hook-driven primitive with a documented
-mechanism choice). The per-file checklist is
-[`docs/ledger/authoring-guide.md`](../../../docs/ledger/authoring-guide.md).
+mechanism choice). The per-file rules are the sections below and `design-lint`.
 
 **What is authoritative, in order:** `vendor/shadcn/4.21.0/` and the `tooling/upstream/*` gates (they
 decide what a shared component may contain) → existing component source and `tooling/design-lint.mjs`
@@ -36,7 +35,7 @@ MK; never invent a row, and never re-open a settled one because the code is awkw
 invented `A11Y-14` and `A11Y-15` during the reset; both were reverted and the numbers are permanently
 burned.
 
-**`design.md` is living, and a direction change owes it an update — in the wave PR, not this one.**
+**`design.md` is living, and a direction change owes it an update — in this same PR.**
 `pnpm design:sync:check` gates only the derived surfaces and cannot tell you the prose went stale, so
 that judgment is yours and skipping it is how the doctrine rots.
 
@@ -358,10 +357,8 @@ decision tree in [references/conventions.md](references/conventions.md).
 **Four artefacts per PR: the source, its test, its MDX page, and a changeset.** Everything else in
 this list travels WITH one of those four — the preview and barrel entry belong to the page, the
 registry item and the contract record belong to the source — and none of them is a separate errand.
-What does NOT belong in a component PR: `design.md`, the skills and their mirror, the ledgers, and
-`AGENTS.md`. Those move once per wave or release, in a PR that touches nothing else, so that a
-component change is never blocked on doctrine prose and doctrine is never edited eight times a week
-by eight branches.
+When the change moves doctrine or instructions, the same PR updates `design.md`, the affected skill
+(and its mirror, via `pnpm gen`) or `AGENTS.md`/`docs/RUNBOOK.md`. Never leave them for a later PR.
 
 **A BLOCK carries the same four, in a different shape** (Batch 8 of the shadcn reset,
 2026-09-18). A block is a copy-once PAGE with no prop surface, so: its source is
@@ -478,13 +475,12 @@ pnpm upstream:check                            # vendor integrity + byte parity 
 pnpm upstream:diff <name>                      # (re)generate a patch; refuses a header with no IDs
 pnpm check:component <name>                    # explicit component + reverse dependents
 pnpm check:affected                            # derive from staged, unstaged, and untracked work
-pnpm registry:build                            # after any canonical edit: validate → hash → stamp → verify-deps
-pnpm design:derived                            # after any contract-record edit; commit what it changes
+pnpm gen                                       # after any edit: every generator (~5 s); the pre-commit hook runs it too
 pnpm -F @vegastack/docs dev                    # targeted light/dark + narrow/wide agent review
 ```
 
-The required PR job runs `verify:static` once, then `verify:affected --base <sha> --head <sha>` in
-Chromium. `component-contracts.json` supplies source, test, preview and dependency ownership;
+The required PR job runs `verify:affected --base <sha> --head <sha>` (static proof once, then affected
+Chromium; `docs/RUNBOOK.md` § 4). `component-contracts.json` supplies source, test, preview and dependency ownership;
 `verify-registry-deps` reconciles dependency declarations against real imports. An unknown path,
 stale owner, empty fixture selection, or generated-file drift fails rather than selecting nothing.
 
@@ -495,5 +491,5 @@ stale owner, empty fixture selection, or generated-file drift fails rather than 
    `pnpm --filter @vegastack/ui exec vitest run test/geometry.browser.test.tsx -t <fixture>`.
 2. Agent visual review is targeted and temporary: inspect the affected previews in light/dark and
    narrow/wide, exercising applicable states. Never commit captures.
-3. The complete suite is manual-only: `pnpm test:full --engines chromium|all`. It is for rare audits
-   and diagnosis, not a normal PR or release requirement.
+3. The complete suite runs nightly on `main` (`full-suite.yml`) and on demand with
+   `pnpm test:full --engines chromium|all`. It is not a PR or release requirement.

@@ -38,7 +38,7 @@ if (staged.status !== 0) {
 // `pnpm gen` and stage exactly the files it changed that were clean before, so a commit never
 // carries a stale generated file (the most common red CI run before this hook did it).
 const GEN_INPUTS =
-  /^(packages\/ui\/(registry\/|registry\.json|component-contracts\.json|upstream\/)|skills\/public\/|design\.md$|packages\/design-tokens\/src\/|CHANGELOG\.md$)/;
+  /^(packages\/ui\/(registry\/|registry\.json|component-contracts\.json|upstream\/)|skills\/public\/|design\.md$|docs\/RUNBOOK\.md$|packages\/design-tokens\/src\/|CHANGELOG\.md$)/;
 const stagedNames = staged.stdout
   .split("\n")
   .map((line) => line.trim())
