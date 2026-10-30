@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "3a8a3caa98abe2084b9b18b38605e0d144990b647eb36bb4c4cf1e1826624604",
+  "contractSha256": "d81a29e7a628b5febd1af23c15cd34b72ec80150de3cde26122d7ee01067fba0",
   "inventory": {
     "expected": 786,
     "actual": 786,
@@ -261,7 +261,7 @@
       ]
     },
     "Hooks": {
-      "expected": 17,
+      "expected": 18,
       "actual": 18,
       "members": [
         "use-animation-replay",
@@ -285,7 +285,7 @@
       ]
     },
     "Block": {
-      "expected": 1,
+      "expected": 15,
       "actual": 83,
       "members": [
         "app-shell-01",

@@ -79,6 +79,9 @@ Claude subagent review instead; never skip the review.
 
 ## Generated surfaces
 
+`pnpm gen` runs every generator below in order (about 5 s); the pre-commit hook runs it when you stage an
+authority, and CI fails only if it would still change the tree.
+
 | Authority                              | Regenerate with                        | Output                                                           |
 | -------------------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
 | `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in `apps/docs/components/ui/*`, `apps/docs/public/r/*` |

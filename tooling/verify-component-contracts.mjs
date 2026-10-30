@@ -38,7 +38,72 @@ const contracts = readJson(contractsPath);
 const problems = [];
 // `--write-data-attributes` regenerates every component's `dataAttributes` field from source
 // and rewrites the contract (prettier-formatted); the default mode verifies the field matches.
-const writeDataAttributes = process.argv.includes("--write-data-attributes");
+// `--write` (alias `--write-data-attributes`) rewrites every field the source already determines:
+// dataAttributes, sourceFiles, public symbol names, registry/npm dependencies and wave rosters.
+// `pnpm gen` runs it; the check mode then only fails on what a human must decide.
+const writeDataAttributes =
+  process.argv.includes("--write") ||
+  process.argv.includes("--write-data-attributes");
+
+/** The symbol kind a new export gets when `--write` adds it; review it in the diff. */
+function inferSymbolKind(name, sourcePaths) {
+  const text = sourcePaths
+    .filter((path) => /\.tsx?$/.test(path) && existsSync(join(root, path)))
+    .map((path) => readFileSync(join(root, path), "utf8"))
+    .join("\n");
+  const decl = (kw) =>
+    new RegExp(`export\\s+(?:declare\\s+)?${kw}\\s+${name}\\b`).test(text);
+  if (decl("interface")) return "interface";
+  if (decl("type")) return "type";
+  if (/^use[A-Z]/.test(name)) return "hook";
+  if (/Variants$/.test(name)) return "variant-builder";
+  if (/^[A-Z]/.test(name))
+    return decl("const") ? "component-constant" : "component";
+  if (decl("const")) return "constant";
+  return "function";
+}
+
+/** Bring a component record's source-derived fields in line with the registry item and source. */
+function writeDerivedFields(record, item) {
+  const keepOrder = (current, next) => [
+    ...(current ?? []).filter((value) => next.includes(value)),
+    ...next.filter((value) => !(current ?? []).includes(value)),
+  ];
+  record.registryDependencies = keepOrder(
+    record.registryDependencies,
+    item.registryDependencies ?? [],
+  );
+  record.npmDependencies = keepOrder(
+    record.npmDependencies,
+    item.dependencies ?? [],
+  );
+  record.sourceFiles = keepOrder(record.sourceFiles, registryFilePaths(item));
+  const names = sourceExports(record.sourceFiles);
+  const existing = new Map(
+    (record.publicSymbols ?? []).map((s) => [s.name, s]),
+  );
+  const order = [
+    ...(record.publicSymbols ?? [])
+      .map((symbol) => symbol.name)
+      .filter((name) => names.includes(name)),
+  ];
+  for (const name of names) if (!order.includes(name)) order.push(name);
+  record.publicSymbols = order.map(
+    (name) =>
+      existing.get(name) ?? {
+        name,
+        kind: inferSymbolKind(name, record.sourceFiles),
+        source:
+          record.sourceFiles.find((path) => /\.tsx?$/.test(path)) ??
+          record.sourceFiles[0],
+        ref: {
+          status: "not-applicable",
+          rationale:
+            "Added by pnpm gen; set a target if this part forwards a ref.",
+        },
+      },
+  );
+}
 
 function fail(message) {
   problems.push(message);
@@ -418,6 +483,7 @@ function validateRichRecord(record, item, label) {
     `${label}: record must be an object`,
   );
   if (!record || typeof record !== "object") return;
+  if (writeDataAttributes && item) writeDerivedFields(record, item);
   assert(
     record.registryType === item.type,
     `${label}: registryType must be ${item.type}`,
@@ -576,18 +642,54 @@ assert(
   "unexpected inventory kind",
 );
 
-const expectedWaves = {
-  "Core controls": 24,
-  "Forms/editing": 42,
-  "Navigation/layout": 26,
-  Overlays: 24,
-  "Data display": 46,
-  "Content/marketing": 15,
-  "AI/chat": 13,
+// Wave membership is DERIVED from each record's `wave` field (30-10-2026). The rosters used to be
+// typed three times — here, in the contract's `expectedWaveMembers`, and its `expectedWaveCounts` —
+// so adding a component meant editing the gate. `pnpm gen` (`--write`) rewrites the contract's copy.
+const WAVE_NAMES = [
+  "Core controls",
+  "Forms/editing",
+  "Navigation/layout",
+  "Overlays",
+  "Data display",
+  "Content/marketing",
+  "AI/chat",
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
-  "Shared internals": 6,
+  "Shared internals",
+];
+/** Names in `wave`, keeping the contract's existing order (it is the display order) and appending new ones. */
+const membersOf = (records, wave) => {
+  const names = (records ?? [])
+    .filter((record) => record.wave === wave)
+    .map((record) => record.name);
+  const current = contracts.expectedWaveMembers?.[wave];
+  const kept = Array.isArray(current)
+    ? current.filter((name) => names.includes(name))
+    : [];
+  return [...kept, ...names.filter((name) => !kept.includes(name))];
 };
+const expectedComponentWaveMembers = Object.fromEntries(
+  WAVE_NAMES.map((wave) => [wave, membersOf(contracts.components, wave)]),
+);
+const expectedWaves = Object.fromEntries(
+  WAVE_NAMES.map((wave) => [wave, expectedComponentWaveMembers[wave].length]),
+);
+const derivedHookMembers = membersOf(contracts.hooks, "Hooks");
+const derivedBlockMembers = membersOf(contracts.blocks, "Block");
+if (writeDataAttributes) {
+  contracts.expectedWaveMembers = {
+    ...contracts.expectedWaveMembers,
+    ...expectedComponentWaveMembers,
+    Hooks: derivedHookMembers,
+    Block: derivedBlockMembers,
+  };
+  contracts.expectedWaveCounts = {
+    ...contracts.expectedWaveCounts,
+    ...expectedWaves,
+    Hooks: derivedHookMembers.length,
+    Block: derivedBlockMembers.length,
+  };
+}
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
 // hard failure rather than a silent skip.
@@ -607,230 +709,15 @@ const homeWaves = Object.keys(expectedWaves).filter(
   (wave) => HOME_WAVE_TITLES[wave] !== undefined,
 );
 
-const expectedComponentWaveMembers = {
-  "Core controls": [
-    "animated-number",
-    "avatar",
-    "badge",
-    "button",
-    "button-group",
-    "checkbox",
-    "copy-button",
-    "input",
-    "kbd",
-    "label",
-    "notification-bell",
-    "priority-icon",
-    "progress",
-    "radio-group",
-    "relative-time",
-    "separator",
-    "skeleton",
-    "slider",
-    "spinner",
-    "status-icon",
-    "switch",
-    "textarea",
-    "toggle",
-    "toggle-group",
-  ],
-  "Forms/editing": [
-    "auto-save-input",
-    "block-toolbar",
-    "avatar-picker",
-    "calendar",
-    "chip-input",
-    "choice-card",
-    "color-picker",
-    "combobox",
-    "country-select",
-    "date-picker",
-    "dropzone",
-    "editable-cell",
-    "field-cell",
-    "field",
-    "field-grid",
-    "filter-bar-managed",
-    "input-group",
-    "input-otp",
-    "native-select",
-    "number-field",
-    "password-input",
-    "people-picker",
-    "record-chip",
-    "region-select",
-    "search-input",
-    "searchable-select",
-    "select",
-    "settings-row",
-    "sortable-list",
-    "space-picker",
-    "tag-group",
-    "task-inline",
-    "template-editor",
-    "formula-input",
-    "text-edit",
-    "upload-dialog",
-    "upload-panel",
-    "record-picker",
-    "destination-picker",
-    "field-type-picker",
-    "field-type-link-step",
-    "option-list-editor",
-  ],
-  "Navigation/layout": [
-    "accordion",
-    "app-shell",
-    "aspect-ratio",
-    "board",
-    "breadcrumb",
-    "breadcrumb-cascade",
-    "collapsible",
-    "command",
-    "direction",
-    "document-layout",
-    "folder-tree",
-    "help-menu",
-    "menubar",
-    "multi-step-form",
-    "navigation-menu",
-    "pagination",
-    "record-layout",
-    "resizable",
-    "route-tabs",
-    "scroll-area",
-    "settings-layout",
-    "sidebar",
-    "sidebar-menu-flyout",
-    "stepper",
-    "table-of-contents",
-    "tabs",
-  ],
-  Overlays: [
-    "access-chip",
-    "action-bar",
-    "alert-dialog",
-    "command-search",
-    "context-menu",
-    "dialog",
-    "drawer",
-    "dropdown-menu",
-    "emoji-picker",
-    "icon-picker",
-    "info-hint",
-    "file-viewer",
-    "hover-card",
-    "permission-menu",
-    "popover",
-    "provider",
-    "record-peek",
-    "responsive-dialog",
-    "sheet",
-    "share-dialog",
-    "shortcut-overlay",
-    "toast",
-    "tooltip",
-    "dropdown-menu-form",
-  ],
-  "Data display": [
-    "activity-feed",
-    "board-card",
-    "card",
-    "comments",
-    "cursor-pager",
-    "comment-margin",
-    "version-list",
-    "version-compare",
-    "view-tabs",
-    "diff-view",
-    "carousel",
-    "chart",
-    "chip",
-    "data-grid",
-    "data-list",
-    "data-list-pager",
-    "inbox",
-    "load-more",
-    "media-card",
-    "member-list",
-    "block-header",
-    "recent-strip",
-    "meta-line",
-    "entry-list",
-    "file-card",
-    "value-change",
-    "person-hover-card",
-    "property-list",
-    "reactions",
-    "record-aside",
-    "record-header",
-    "record-list",
-    "icon-glyph",
-    "stat",
-    "table",
-    "thumbnail",
-    "timeline",
-    "list-toolbar",
-    "filter-row",
-    "add-filter-menu",
-    "sort-menu",
-    "display-menu",
-    "level-meter",
-    "mermaid-block",
-    "qr-code",
-    "floating-cell-editor",
-  ],
-  "Content/marketing": [
-    "alert",
-    "announcement-banner",
-    "audio-player",
-    "code-block",
-    "empty",
-    "image",
-    "inline-chip",
-    "item",
-    "markdown-view",
-    "media-player-controls",
-    "page-header",
-    "status-line",
-    "terminal",
-    "truncated-text",
-    "video-player",
-  ],
-  "Shared internals": [
-    "data-table-parts",
-    "panel-search",
-    "person-avatar",
-    "picker-panel",
-    "suggestion-menu",
-    "block-view",
-  ],
-  "AI/chat": [
-    "agent-edit-banner",
-    "agent-panel",
-    "approval-card",
-    "attachment",
-    "bubble",
-    "cited-list",
-    "delegate-popover",
-    "marker",
-    "message",
-    "message-scroller",
-    "questionnaire",
-    "tool-call-chip",
-    "transcript",
-  ],
-};
-
 for (const [wave, count] of Object.entries(expectedWaves)) {
   assert(
     contracts.expectedWaveCounts?.[wave] === count,
-    `expectedWaveCounts[${wave}] must be ${count}`,
+    `expectedWaveCounts[${wave}] must be ${count} (run pnpm gen)`,
   );
   sameStrings(
     contracts.expectedWaveMembers?.[wave] ?? [],
     expectedComponentWaveMembers[wave],
-    `expectedWaveMembers[${wave}]`,
+    `expectedWaveMembers[${wave}] (run pnpm gen)`,
   );
 }
 
@@ -1183,33 +1070,13 @@ for (const [wave, count] of Object.entries(expectedWaves)) {
 }
 sameStrings(
   contracts.expectedWaveMembers?.Hooks ?? [],
-  [
-    "use-animation-replay",
-    "use-announcer",
-    "use-async-search",
-    "use-drag-reorder",
-    "use-inline-edit",
-    "use-file-drop",
-    "use-list-nav",
-    "use-media-query",
-    "use-modal-inert",
-    "use-mobile",
-    "use-overflow",
-    "use-overflow-fold",
-    "use-platform",
-    "use-record-peek-row",
-    "use-tabs-swipe",
-    "use-view-transition",
-    "use-optimistic-action",
-  ],
-  "Hooks membership",
+  derivedHookMembers,
+  "Hooks membership (run pnpm gen)",
 );
 sameStrings(
   contracts.expectedWaveMembers?.Block ?? [],
-  // DS-78 (2026-09-24) removed upstream's dashboard block; `board-01` is the canary now: an ours block that
-  // composes an engine-backed component.
-  ["board-01"],
-  "Block membership",
+  derivedBlockMembers,
+  "Block membership (run pnpm gen)",
 );
 assert(
   contracts.expectedWaveMembers?.["Animated icons"] ===
@@ -1217,12 +1084,9 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 17,
-  "expectedWaveCounts.Hooks must be 17",
-);
-assert(
-  contracts.expectedWaveCounts?.Block === 1,
-  "expectedWaveCounts.Block must be 1",
+  contracts.expectedWaveCounts?.Hooks === derivedHookMembers.length &&
+    contracts.expectedWaveCounts?.Block === derivedBlockMembers.length,
+  "expectedWaveCounts for Hooks/Block are stale (run pnpm gen)",
 );
 // DERIVED, like `expectedCounts.animatedIcons` above: the count comes off `packages/ui/registry.json`,
 // which is a different file from the `component-contracts.json` value being checked, so this
@@ -1440,6 +1304,27 @@ for (const member of chartBlocks) {
     `${label} does not map to a registry block`,
   );
   if (!item) continue;
+  if (writeDataAttributes) {
+    const exported = sourceExports([member.sourceFile]);
+    member.publicSymbols = [
+      ...(member.publicSymbols ?? []).filter((name) => exported.includes(name)),
+      ...exported.filter(
+        (name) => !(member.publicSymbols ?? []).includes(name),
+      ),
+    ];
+    const keep = (current, next) => [
+      ...(current ?? []).filter((value) => next.includes(value)),
+      ...next.filter((value) => !(current ?? []).includes(value)),
+    ];
+    member.registryDependencies = keep(
+      member.registryDependencies,
+      item.registryDependencies ?? [],
+    );
+    member.npmDependencies = keep(
+      member.npmDependencies,
+      item.dependencies ?? [],
+    );
+  }
   sameStrings(
     [member.sourceFile],
     registryFilePaths(item),
@@ -1809,7 +1694,7 @@ if (writeDataAttributes) {
   });
   writeFileSync(join(root, contractsPath), formatted);
   console.log(
-    `✓ verify-component-contracts: wrote dataAttributes for ${components.length} components — run pnpm design:derived next`,
+    `✓ verify-component-contracts: wrote the derived fields for ${components.length} components`,
   );
   process.exit(0);
 }
