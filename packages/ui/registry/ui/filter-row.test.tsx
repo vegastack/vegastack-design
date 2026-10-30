@@ -720,3 +720,22 @@ test("an open-ended custom range reads its one bound", async () => {
     .element(screen.getByRole("button", { name: /^Due: Until / }))
     .toBeInTheDocument();
 });
+
+test("a labelled custom range reads its label, not its dates", async () => {
+  const screen = await render(
+    <DateRangeFilter
+      label="Due"
+      now={new Date(2026, 9, 30)}
+      value={{
+        from: new Date(2026, 9, 29),
+        to: new Date(2026, 9, 30),
+        preset: "custom",
+        label: "Last 2 days",
+      }}
+      onValueChange={() => {}}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Due: Last 2 days" }))
+    .toBeInTheDocument();
+});
