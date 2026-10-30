@@ -53,8 +53,8 @@ import {
 - `DropdownMenuIdentity` heads a menu about one person or thing (an account menu): `media`, the
   `title` and a quieter `description`, truncated, and the menu's 224px minimum width — so the app
   never sizes the menu itself.
-- `DropdownMenuNote` is a quiet centred line at the foot of a menu (a credit, a version); not an
-  item.
+- `DropdownMenuNote` is a quiet centred line at the foot of a menu (a credit, a version); its text
+  is not an item; an optional `link` (a muted `menuitem` link) ends it.
 
 ## Anatomy
 
@@ -101,7 +101,10 @@ import {
 
 ### DropdownMenuNote
 
-`DropdownMenuLabel`'s props.
+<ApiTable
+  path="../../packages/ui/registry/ui/dropdown-menu-form.tsx"
+  name="DropdownMenuNoteProps"
+/>
 
 ## Accessibility
 

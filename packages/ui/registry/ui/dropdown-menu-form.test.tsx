@@ -3,11 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-} from "./dropdown-menu";
+import { DropdownMenu, DropdownMenuContent } from "./dropdown-menu";
 import {
   DropdownMenuAtPoint,
   DropdownMenuIdentity,
@@ -118,18 +114,16 @@ test("DropdownMenuIdentity and DropdownMenuNote: a header with name and line, a 
   const screen = await render(
     <DropdownMenu open>
       <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuIdentity
-            media={<span data-testid="avatar">NK</span>}
-            title="Neha Kapoor"
-            description="neha@example.com"
-          />
-        </DropdownMenuGroup>
-        <DropdownMenuGroup>
-          <DropdownMenuNote>
-            Made by <a href="https://example.com">VegaStack</a>
-          </DropdownMenuNote>
-        </DropdownMenuGroup>
+        <DropdownMenuIdentity
+          media={<span data-testid="avatar">NK</span>}
+          title="Neha Kapoor"
+          description="neha@example.com"
+        />
+        <DropdownMenuNote
+          link={{ href: "https://example.com", label: "VegaStack" }}
+        >
+          Made by
+        </DropdownMenuNote>
       </DropdownMenuContent>
     </DropdownMenu>,
   );
@@ -140,7 +134,9 @@ test("DropdownMenuIdentity and DropdownMenuNote: a header with name and line, a 
   expect(identity.querySelector('[title="neha@example.com"]')).not.toBeNull();
   await expect.element(screen.getByTestId("avatar")).toBeInTheDocument();
   expect(
-    document.querySelector('[data-slot="dropdown-menu-note"] a'),
+    document.querySelector(
+      '[data-slot="dropdown-menu-note-link"][role="menuitem"]',
+    ),
   ).not.toBeNull();
   await expectNoA11yViolations(document.body);
 });

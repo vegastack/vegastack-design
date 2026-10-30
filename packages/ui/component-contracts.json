@@ -43622,7 +43622,7 @@
           "ref": {
             "status": "observed",
             "target": "element",
-            "rationale": "Spreads its props, ref included, onto the DropdownMenuLabel."
+            "rationale": "Spreads its props, ref included, onto its root div."
           }
         },
         {
@@ -43641,12 +43641,12 @@
           "ref": {
             "status": "observed",
             "target": "element",
-            "rationale": "Spreads its props, ref included, onto the DropdownMenuLabel."
+            "rationale": "Spreads its props, ref included, onto its root div."
           }
         },
         {
           "name": "DropdownMenuNoteProps",
-          "kind": "type",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/dropdown-menu-form.tsx",
           "ref": {
             "status": "not-applicable",
@@ -43756,7 +43756,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["dropdown-menu-note"]
+              "values": ["dropdown-menu-note", "dropdown-menu-note-link"]
             }
           ],
           "cssVariables": []

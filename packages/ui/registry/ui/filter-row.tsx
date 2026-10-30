@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.4 sha256-2uv/BqJDIH8YHq1zdPTbLvRyO2X+NN/1eGLtW2L0KVk=
+// @vegastack filter-row@0.26.4 sha256-d5NNvGURllrL8WSfUml5mgiqiRVtKpm9GXOmRqtHShk=
 
 "use client";
 
@@ -1022,13 +1022,13 @@ export interface PeopleFacetProps<
   /** The chip's count for several people. @default (n) => String(n) */
   countLabel?: (n: number) => string;
   /** Disable the facet. @default false */
+  disabled?: boolean;
   /**
    * Set by an AI filter: a ✦ leads the facet until the member changes it (the host clears it),
    * as on an added `FilterChip`.
    * @default false
    */
   ai?: boolean;
-  disabled?: boolean;
 }
 
 /**
@@ -1307,13 +1307,13 @@ export interface DateRangeFilterProps {
    * Disable the filter.
    * @default false
    */
+  disabled?: boolean;
   /**
    * Set by an AI filter: a ✦ leads the facet until the member changes it (the host clears it),
    * as on an added `FilterChip`.
    * @default false
    */
   ai?: boolean;
-  disabled?: boolean;
 }
 
 const DATE_RANGE_PRESET_LABELS: Record<DateRangeFilterPreset, string> = {

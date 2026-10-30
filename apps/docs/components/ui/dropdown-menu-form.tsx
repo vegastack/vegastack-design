@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu-form@0.26.4 sha256-LJL4LDK1+aOKTlr+x3u8AeO/hvH00jT6UDp4NeNgQ3E=
+// @vegastack dropdown-menu-form@0.26.4 sha256-BTNUTM96fvPmiUkWdZOFhdaf2ZEbsJTMHyAga+qjeDo=
 
 "use client";
 
@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -209,7 +208,7 @@ export function DropdownMenuAtPoint({
 
 /** Props accepted by `DropdownMenuIdentity`. */
 export interface DropdownMenuIdentityProps extends Omit<
-  React.ComponentProps<typeof DropdownMenuLabel>,
+  React.ComponentProps<"div">,
   "title" | "children"
 > {
   /** The avatar or logo. @default undefined */
@@ -222,13 +221,11 @@ export interface DropdownMenuIdentityProps extends Omit<
 
 /**
  * `DropdownMenuIdentity` — the header row of a menu about one person or thing: `media`, then the
- * `title` over a quieter `description`, both truncated. Put it first in a `DropdownMenuGroup`; it
- * sets the menu's minimum width (224px) so names have room.
+ * `title` over a quieter `description`, both truncated, read as plain text (not an item). Put it
+ * first in the menu; it sets the menu's minimum width (224px) so names have room.
  *
  * @example
- * <DropdownMenuGroup>
- *   <DropdownMenuIdentity media={<Avatar />} title="Neha Kapoor" description="neha@example.com" />
- * </DropdownMenuGroup>
+ * <DropdownMenuIdentity media={<Avatar />} title="Neha Kapoor" description="neha@example.com" />
  */
 export function DropdownMenuIdentity({
   media,
@@ -238,10 +235,12 @@ export function DropdownMenuIdentity({
   ...props
 }: DropdownMenuIdentityProps) {
   return (
-    <DropdownMenuLabel
+    // A `group` is one of the children a `menu` may hold; plain text there is not.
+    <div
+      role="group"
       data-slot="dropdown-menu-identity"
       className={cn(
-        "flex min-w-52 items-center gap-2 text-sm font-normal text-foreground",
+        "flex min-w-52 items-center gap-2 px-1.5 py-1 text-sm text-foreground",
         className,
       )}
       {...props}
@@ -263,34 +262,62 @@ export function DropdownMenuIdentity({
           </span>
         ) : null}
       </span>
-    </DropdownMenuLabel>
+    </div>
   );
 }
 
 /** Props accepted by `DropdownMenuNote`. */
-export type DropdownMenuNoteProps = React.ComponentProps<
-  typeof DropdownMenuLabel
->;
+export interface DropdownMenuNoteProps extends React.ComponentProps<"div"> {
+  /**
+   * A link at the end of the line ("VegaStack" in a credit): a muted, unstyled link that is a
+   * `menuitem`, the only interactive child a menu may hold. Opens in a new tab.
+   * @default undefined
+   */
+  link?: { href: string; label: string };
+}
 
 /**
- * `DropdownMenuNote` — a quiet, centred line at the foot of a menu: a credit or a version. Not an
- * item; links inside it keep the muted ink.
+ * `DropdownMenuNote` — a quiet, centred line at the foot of a menu: a credit or a version. Its
+ * text is not an item; an optional `link` ends it.
  *
  * @example
- * <DropdownMenuNote>Designed and developed by <a href="https://vegastack.com">VegaStack</a></DropdownMenuNote>
+ * <DropdownMenuNote link={{ href: "https://vegastack.com", label: "VegaStack" }}>
+ *   Designed and developed by
+ * </DropdownMenuNote>
  */
 export function DropdownMenuNote({
+  link,
   className,
+  children,
   ...props
 }: DropdownMenuNoteProps) {
   return (
-    <DropdownMenuLabel
+    // A `group`, which a `menu` may hold (bare text or a plain link may not).
+    <div
+      role="group"
       data-slot="dropdown-menu-note"
       className={cn(
-        "text-center leading-snug font-normal [&_a]:text-muted-foreground [&_a]:no-underline",
+        "px-1.5 py-1 text-center text-xs leading-snug text-muted-foreground",
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {link ? (
+        <>
+          {" "}
+          <a
+            role="menuitem"
+            href={link.href}
+            target="_blank"
+            rel="noopener"
+            data-slot="dropdown-menu-note-link"
+            className="text-muted-foreground no-underline hover:text-foreground"
+          >
+            {link.label}
+          </a>
+        </>
+      ) : null}
+    </div>
   );
 }

@@ -1712,7 +1712,7 @@
         "whenToUse": "A menu that carries an input, a setting switch, or opens where the pointer was (a column header's field menu).",
         "whenNotToUse": "A form of several fields (a Popover or a Dialog with Field).",
         "version": "0.26.4",
-        "integrity": "sha256-LJL4LDK1+aOKTlr+x3u8AeO/hvH00jT6UDp4NeNgQ3E="
+        "integrity": "sha256-BTNUTM96fvPmiUkWdZOFhdaf2ZEbsJTMHyAga+qjeDo="
       }
     },
     {
@@ -2114,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.26.4",
-        "integrity": "sha256-2uv/BqJDIH8YHq1zdPTbLvRyO2X+NN/1eGLtW2L0KVk="
+        "integrity": "sha256-d5NNvGURllrL8WSfUml5mgiqiRVtKpm9GXOmRqtHShk="
       }
     },
     {
