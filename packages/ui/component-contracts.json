@@ -29,8 +29,8 @@
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 13,
-    "Hooks": 17,
-    "Block": 1,
+    "Hooks": 18,
+    "Block": 15,
     "Animated icons": 467
   },
   "expectedWaveMembers": {
@@ -263,9 +263,26 @@
       "use-view-transition",
       "use-optimistic-action",
       "use-record-peek-row",
-      "use-overflow-fold"
+      "use-overflow-fold",
+      "use-grid-selection"
     ],
-    "Block": ["board-01"],
+    "Block": [
+      "board-01",
+      "app-shell-01",
+      "issue-detail-01",
+      "page-editor-01",
+      "command-search-01",
+      "list-page-01",
+      "library-01",
+      "login-01",
+      "notifications-01",
+      "review-split-01",
+      "settings-01",
+      "settings-02",
+      "status-pages-01",
+      "email-kit",
+      "share-01"
+    ],
     "Animated icons": "packages/ui/animated-icon-sources.json"
   },
   "affectedTestPolicy": {

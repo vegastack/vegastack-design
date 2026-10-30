@@ -30,7 +30,8 @@ Registry credentials (`CF_ACCESS_CLIENT_ID`/`_SECRET`) are needed only to consum
    is a patch hunk that names an **ours** decision ID; author it with `pnpm upstream:diff <name>`.
 3. Update the component's test, its MDX page (`apps/docs/content/docs/components/<name>.mdx`) and
    `component-contracts.json` if its public surface changed.
-4. Regenerate what you touched: `pnpm registry:build`, and `pnpm design:derived` if the contract changed.
+4. Run `pnpm gen` (every generator, ~5 s; the pre-commit hook runs it too). It also writes the
+   contract fields the source determines: exports, dependencies, data attributes and wave rosters.
 5. Write a changeset with `pnpm changeset`. Bump every public package whose source changed, and open the
    body with one section marker: `🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`. Wrap any `<word>` in backticks.
 6. Check locally, optionally with `pnpm check:component <name>` or `pnpm check:affected`. CI is the
@@ -55,8 +56,9 @@ each printing `finished in Ns`:
 
 A red run names its stage and the failing script.
 
-- **"stale" or "out of sync" means a generator was not run.** Run the generator from the
-  `AGENTS.md` § Generated surfaces table and commit the result.
+- **"stale", "out of sync" or "run pnpm gen"** means a generated file is behind its authority. Run
+  `pnpm gen` and commit what it writes. The pre-commit hook does this for you when you stage an
+  authority (registry source, contracts, public skills, `design.md`, tokens, `CHANGELOG.md`).
 - A failing test that passes locally is a candidate flake. Rerun it once, and record it in the PR if the
   rerun passes.
 - The complete component suite is manual: `gh workflow run full-suite.yml -f commit_sha=<sha> -f engines=chromium|all`.

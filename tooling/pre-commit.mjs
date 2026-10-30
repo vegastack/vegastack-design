@@ -34,6 +34,38 @@ if (staged.status !== 0) {
   process.exit(1);
 }
 
+// GENERATED SURFACES (30-10-2026): when the staged set touches an authority a generator reads, run
+// `pnpm gen` and stage exactly the files it changed that were clean before, so a commit never
+// carries a stale generated file (the most common red CI run before this hook did it).
+const GEN_INPUTS =
+  /^(packages\/ui\/(registry\/|registry\.json|component-contracts\.json|upstream\/)|skills\/public\/|design\.md$|packages\/design-tokens\/src\/|CHANGELOG\.md$)/;
+const stagedNames = staged.stdout
+  .split("\n")
+  .map((line) => line.trim())
+  .filter(Boolean);
+if (stagedNames.some((file) => GEN_INPUTS.test(file))) {
+  const dirty = () =>
+    new Set(
+      spawnSync("git", ["status", "--porcelain"], {
+        cwd: ROOT,
+        encoding: "utf8",
+      })
+        .stdout.split("\n")
+        .filter(Boolean)
+        .map((line) => line.slice(3)),
+    );
+  const before = dirty();
+  const gen = run("node", ["tooling/gen.mjs"]);
+  if (gen !== 0) process.exit(gen);
+  const written = [...dirty()].filter((file) => !before.has(file));
+  if (written.length > 0) {
+    run("git", ["add", "--", ...written]);
+    console.log(
+      `pre-commit: pnpm gen updated and staged ${written.length} file(s)`,
+    );
+  }
+}
+
 // SYMLINKS ARE EXCLUDED. `.claude/skills/*` and `.agents/skills/*` are symlinks into
 // `skills/{internal,public}/`; prettier follows them and formats — or reports on — the TARGET,
 // which is both a surprise and, for a `--check`, a failure attributed to the wrong file. A path that
