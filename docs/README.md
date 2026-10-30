@@ -7,7 +7,8 @@ VegaStack's design-system records, release runbooks, research, and ledgers.
 - [`../AGENTS.md`](../AGENTS.md) — current architecture, rules, truth hierarchy, commands, and task
   router.
 - [`../design.md`](../design.md) — current design doctrine, kept synchronized by a build gate.
-- [`RELEASING.md`](RELEASING.md) — current release and deployment reference.
+- [`RUNBOOK.md`](RUNBOOK.md) — the one procedure: change, CI, review, release, deploy, recovery, app pull.
+- [`decisions.md`](decisions.md) — locked decisions, sanctioned dependencies, build rules (rationale).
 - [`../skills/README.md`](../skills/README.md) — current maintainer and consumer skill map.
 - [`plans/2026-07-28-public-site-private-registry-boundary.md`](plans/2026-07-28-public-site-private-registry-boundary.md)
   — current production boundary: every non-registry route is public and only `/r/*` is private.

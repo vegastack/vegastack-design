@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Enforce the commit-message shape CLAUDE.md § Commit Message Format already requires.
+// Enforce the commit-message shape conventional-commit shape AGENTS.md requires.
 //
 // Deliberately narrow: it checks the SUBJECT LINE only — a conventional-commit type, a scope if
 // present, a non-empty description, no trailing period, and a length that survives `git log --oneline`
@@ -77,7 +77,7 @@ if (problems.length > 0) {
   console.error(`verify-commit-message: rejected\n\n  ${subject}\n`);
   for (const problem of problems) console.error(`  ✗ ${problem}`);
   console.error(
-    `\nExpected shape (CLAUDE.md § Commit Message Format):\n` +
+    `\nExpected shape (AGENTS.md, last section):\n` +
       `  <type>: <concise summary of WHAT and WHY>\n` +
       `  types: ${TYPES.join(", ")}\n`,
   );

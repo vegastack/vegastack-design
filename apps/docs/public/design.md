@@ -729,7 +729,7 @@ Three things this document deliberately does **not** contain:
 
 - **A component catalogue.** A component's live contract is its docs page, which mirrors upstream's
   own section list and closes with a `## Deviations` list of the decision IDs its patch implements.
-- **Counts.** `packages/ui/component-contracts.json` is the machine authority; AGENTS.md § Numbers is
+- **Counts.** `packages/ui/component-contracts.json` is the machine authority; README § Inventory is
   generated from it.
 - **Values.** They are in the frontmatter, and in `packages/design-tokens/dist/theme.css`.
 
@@ -1253,7 +1253,7 @@ Rules that survive the reset, because they are ours and not upstream's:
 - **One engine, one file.** A sanctioned outside engine is imported by exactly one registry item, so
   swapping it touches one file; everything a user sees or reaches — tokens, chrome, focus order,
   keyboard model, announcements — stays ours. The list is closed and each entry is a named MK
-  decision (AGENTS.md § Sanctioned dependency exceptions). An engine that starts rendering, owning
+  decision (`docs/decisions.md` § Sanctioned dependency exceptions). An engine that starts rendering, owning
   focus, or spreading past its one file has outgrown its sanction, and the decision is reopened rather
   than stretched.
 - **A shared internal is not a catalogue entry.** `data-table-parts` and `panel-search` are installed
@@ -1399,5 +1399,5 @@ every compiled-CSS test lane imports exactly what production imports.
 > `docs/MIGRATING-SHADCN-RESET.md`. The pre-reset v2 fork is history: read
 > `docs/ledger/`, `docs/audits/` and `docs/plans/` for **why** something was once decided, never as
 > evidence of what is true now. v1, the pre-overhaul grey/`action`+`agent` system, is preserved at
-> `design-v1.md`. Append-only normative `VS-*` rule IDs and external-source dispositions live in
+> `docs/archive/design-v1.md`. Append-only normative `VS-*` rule IDs and external-source dispositions live in
 > `docs/research/design-md-audit/unified-reference.md`.

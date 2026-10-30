@@ -455,7 +455,7 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
    states, motion, engines, or test files) the component's record in
    [`packages/ui/component-contracts.json`](../../../packages/ui/component-contracts.json), then run
    `pnpm design:derived`. It refreshes the committed prose surfaces (the component matrix, the
-   public skill roster, the audit register, AGENTS.md § Numbers, README § Inventory) — commit those
+   public skill roster, the audit register, README § Inventory) — commit those
    — and it writes the two **untracked build outputs**,
    `apps/docs/lib/home-component-catalog.generated.ts` and
    `apps/docs/components/animated-icon-gallery.generated.tsx` (`tooling/lib/derived-build-outputs.mjs`

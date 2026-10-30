@@ -87,12 +87,9 @@ optional feedback. The pre-commit hook remains only staged design-lint plus Pret
 
 ## Releasing
 
-Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
-affected PR proof → exact-SHA merge → generated Version Packages PR proof and merge → **npm OIDC
-publish** → automatic public registry/docs deploy → production verification.
-
-A go-dark mandate permits feature work, not main updates. Main approval and outward-release scope must be explicit; a `ship it` that includes those steps covers the named chain. Full
-reference: [docs/RELEASING.md](docs/RELEASING.md).
+A reviewed, green PR merged into `main` releases automatically: **npm OIDC publish**, then the signed
+registry and docs deploy, then a production probe. The procedure, recovery and app hand-off are in
+[docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ## Verification culture
 
@@ -110,7 +107,7 @@ public distribution artifact only. The complete component suite is manual-only w
 engines. Nothing is attested or repeated on `main`.
 
 No CI lane commits screenshots. The shipping agent may create temporary affected-page captures for
-light/dark and narrow/wide judgment. See AGENTS.md § Verification — owned boundaries.
+light/dark and narrow/wide judgment. See docs/RUNBOOK.md § 4.
 
-Counts are generated from `packages/ui/component-contracts.json` — see AGENTS.md § Numbers rather
-than trusting a number written down here.
+Counts are generated from `packages/ui/component-contracts.json` (README § Inventory) — never trust a
+number written down by hand.
