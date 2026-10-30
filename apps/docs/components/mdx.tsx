@@ -54,8 +54,8 @@ import { TruncatedTextPlayground } from "@/components/truncated-text-playground"
 
 /**
  * Names fumadocs supplies through its own spreads. Everything else in the map below is repo-owned
- * and MUST be classified in `lib/mdx-manifest.ts`, which the agent-export stringifier and the
- * runtime placeholder renderer read — a component that renders for humans and is unknown to the
+ * and MUST be classified in `lib/mdx-manifest.ts`, which the agent-export filter and markdown
+ * renderer read — a component that renders for humans and is unknown to the
  * manifest is a section agents silently never see.
  */
 const INHERITED_MDX_KEYS = new Set([

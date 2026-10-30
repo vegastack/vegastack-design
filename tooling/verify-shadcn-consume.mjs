@@ -62,6 +62,21 @@ const shippedVerifier = join(
 const docsNodeModules = join(repoRoot, "apps/docs/node_modules");
 const tscBin = join(repoRoot, "node_modules/.bin/tsc");
 const shadcnBin = join(docsNodeModules, ".bin/shadcn");
+// The shadcn CLI's own registry JSON (the base colour it reads from ui.shadcn.com on every `add`)
+// comes from the pristine pinned upstream snapshot `tooling/upstream/pull.mjs` already vendors and
+// hashes for the pinned CLI, so the proof never reaches the internet for it. The sidecar serves
+// that directory at REGISTRY_URL; a request for a file not vendored there FAILS the run.
+const shadcnMirrorDir = join(
+  repoRoot,
+  "vendor/shadcn",
+  JSON.parse(readFileSync(join(docsNodeModules, "shadcn/package.json"), "utf8"))
+    .version,
+);
+// The runner LAN's read-only npm pull-through cache (docs/RUNBOOK.md § 9), the same one
+// `tooling/runner/pnpm-install.sh` installs through. The scratch consumers' public npm deps
+// (`pnpm install`, and the `pnpm add` shadcn runs) go through it when it answers; a step that fails
+// through it is retried once against registry.npmjs.org. Tarballs are still integrity-checked.
+const LAN_NPM_CACHE = process.env.LAN_NPM_CACHE ?? "http://192.168.88.76:4873/";
 
 // Import the SHIPPED verifier's canonical logic directly — the SAME functions the bin uses, so
 // the simulated path verifies "the same way" the shipped verifier does, in-process.
@@ -76,6 +91,9 @@ const {
 
 // Hard caps so the run can NEVER hang — every subprocess gets these.
 const SUBPROCESS_TIMEOUT_MS = 60_000;
+// Steps that install public npm deps (a heavy graph such as text-edit pulls dozens of packages):
+// long enough for a cold LAN cache to fetch them over the uplink once.
+const INSTALL_TIMEOUT_MS = 120_000;
 const KILL = "SIGKILL";
 
 // Declared @vegastack/* deps across registry items — these must be installable locally for the
@@ -187,6 +205,7 @@ const log = (m) => console.log(m);
 const ok = (m) => console.log(`  ✓ ${m}`);
 const info = (m) => console.log(`  • ${m}`);
 const fail = (m) => console.error(`  ✗ ${m}`);
+const warn = (m) => console.warn(`  ! ${m}`);
 
 function readItem(name) {
   const p = join(registryDir, `${name}.json`);
@@ -257,9 +276,9 @@ function externalFamilySetCover(itemNames) {
   return selected;
 }
 
-// A transient network failure (the CLI fetches ui.shadcn.com's colour and style JSON) is not a
-// registry defect: a runner container's resolver intermittently answers EAI_AGAIN. Retry such a
-// failure twice after a short pause; any other failure is returned on the first attempt.
+// A transient network failure (the `pnpm add` shadcn runs for public npm deps) is not a registry
+// defect: a runner container's resolver intermittently answers EAI_AGAIN. Retry such a failure
+// twice after a short pause; any other failure is returned on the first attempt.
 const TRANSIENT_NETWORK =
   /\b(EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNRESET|ECONNREFUSED)\b|socket hang up|fetch failed/;
 function runCappedWithNetworkRetry(cmd, cmdArgs, opts = {}, attempts = 3) {
@@ -324,6 +343,7 @@ import { join, extname } from 'node:path';
 const registryDir = process.argv[2];
 const tarballDir = process.argv[3];
 const repoRoot = process.argv[4];
+const mirrorDir = process.argv[5];
 
 // Build the npm-registry package map from the packed tarballs in tarballDir.
 const pkgs = {};
@@ -387,22 +407,42 @@ const npmServer = createServer((req, res) => {
   res.writeHead(404).end('not found');
 });
 
+// shadcn's own registry (REGISTRY_URL): vendored JSON only. A miss is reported on stderr as
+// MIRROR-MISS and answered 404, which fails the run.
+const mirrorServer = createServer((req, res) => {
+  const path = new URL(req.url, 'http://localhost').pathname.replace(/^\\/r\\//, '/');
+  const filePath = join(mirrorDir, path);
+  if (filePath.startsWith(mirrorDir + '/') && extname(filePath) === '.json' && existsSync(filePath)) {
+    res.writeHead(200, { 'content-type': 'application/json' }).end(readFileSync(filePath));
+    return;
+  }
+  console.error('MIRROR-MISS ' + path);
+  res.writeHead(404).end('not vendored');
+});
+
 let up = 0;
-const announce = () => { if (++up === 2) console.log('PORTS ' + componentServer.address().port + ' ' + npmServer.address().port); };
+const announce = () => { if (++up === 3) console.log('PORTS ' + componentServer.address().port + ' ' + npmServer.address().port + ' ' + mirrorServer.address().port); };
 componentServer.listen(0, '127.0.0.1', announce);
 npmServer.listen(0, '127.0.0.1', announce);
+mirrorServer.listen(0, '127.0.0.1', announce);
 `;
 
-// Start the sidecar; resolve once it prints its two ports. Returns { child, componentPort, npmPort }.
+// Start the sidecar; resolve once it prints its three ports.
+// Returns { child, componentPort, npmPort, mirrorPort, mirrorMisses }.
 function startSidecar(scratchRoot, tarballDir) {
   const sidecarPath = join(scratchRoot, "registry-sidecar.mjs");
   writeFileSync(sidecarPath, SIDECAR_SRC);
   return new Promise((resolveServer, reject) => {
     const child = spawn(
       "node",
-      [sidecarPath, registryDir, tarballDir, repoRoot],
+      [sidecarPath, registryDir, tarballDir, repoRoot, shadcnMirrorDir],
       { stdio: ["ignore", "pipe", "pipe"] },
     );
+    const mirrorMisses = new Set();
+    child.stderr.on("data", (d) => {
+      for (const m of d.toString().matchAll(/MIRROR-MISS (\S+)/g))
+        mirrorMisses.add(m[1]);
+    });
     let buf = "";
     const timer = setTimeout(() => {
       child.kill("SIGKILL");
@@ -410,13 +450,15 @@ function startSidecar(scratchRoot, tarballDir) {
     }, 10_000);
     child.stdout.on("data", (d) => {
       buf += d.toString();
-      const m = /PORTS (\d+) (\d+)/.exec(buf);
+      const m = /PORTS (\d+) (\d+) (\d+)/.exec(buf);
       if (m) {
         clearTimeout(timer);
         resolveServer({
           child,
           componentPort: Number(m[1]),
           npmPort: Number(m[2]),
+          mirrorPort: Number(m[3]),
+          mirrorMisses,
         });
       }
     });
@@ -501,6 +543,8 @@ function proveRealShadcnAdd(
   scratchRoot,
   componentPort,
   npmPort,
+  mirrorPort,
+  npmCache,
 ) {
   const problems = [];
   const consumerRoot = join(
@@ -543,10 +587,36 @@ function proveRealShadcnAdd(
   );
   writeFileSync(join(consumerRoot, "next.config.mjs"), "export default {};\n");
   // .npmrc → @vegastack scope resolves from our LOCAL npm registry (the publish-gate solver).
-  writeFileSync(
-    join(consumerRoot, ".npmrc"),
-    `@vegastack:registry=http://127.0.0.1:${npmPort}/\n`,
-  );
+  // Public deps go through the LAN npm cache. A step that fails through it is retried once against
+  // npmjs with the cache off for that retry only: a cold cache that times out on one heavy graph
+  // (it pulls each tarball over the shared uplink once) is warm for the next.
+  const writeNpmrc = (cache) =>
+    writeFileSync(
+      join(consumerRoot, ".npmrc"),
+      `@vegastack:registry=http://127.0.0.1:${npmPort}/\n` +
+        (cache
+          ? `registry=${cache}\nfetch-retries=2\nfetch-timeout=30000\n`
+          : ""),
+    );
+  writeNpmrc(npmCache.url);
+  const npmFallback = (step, run) => {
+    const r = run();
+    if (r.ok || !npmCache.url) return r;
+    warn(
+      `${step} failed through the LAN npm cache ${npmCache.url}; retrying it against registry.npmjs.org`,
+    );
+    writeNpmrc(undefined);
+    try {
+      return run();
+    } finally {
+      writeNpmrc(npmCache.url);
+    }
+  };
+  // shadcn reads its own style/colour JSON from REGISTRY_URL: the vendored mirror in the sidecar.
+  const shadcnEnv = {
+    ...process.env,
+    REGISTRY_URL: `http://127.0.0.1:${mirrorPort}/r`,
+  };
   // tsconfig + global.css shadcn requires; components.json registries → served component registry.
   writeFileSync(
     join(consumerRoot, "tsconfig.json"),
@@ -610,10 +680,12 @@ function proveRealShadcnAdd(
   );
 
   // Install @types up front (offline from the pnpm content-addressable store).
-  const inst = runCapped("pnpm", ["install"], {
-    cwd: consumerRoot,
-    timeout: 60_000,
-  });
+  const inst = npmFallback("pnpm install", () =>
+    runCapped("pnpm", ["install"], {
+      cwd: consumerRoot,
+      timeout: INSTALL_TIMEOUT_MS,
+    }),
+  );
   if (!inst.ok) {
     problems.push(`real-shadcn: pre-install of @types failed\n${inst.out}`);
     return { installed: [], problems };
@@ -628,10 +700,12 @@ function proveRealShadcnAdd(
         join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.ui)),
       ),
     );
-    const r = runCappedWithNetworkRetry(
-      shadcnBin,
-      ["add", `@vegastack/${name}`, "--yes", "--cwd", consumerRoot],
-      { timeout: 60_000 },
+    const r = npmFallback(`shadcn add @vegastack/${name}`, () =>
+      runCappedWithNetworkRetry(
+        shadcnBin,
+        ["add", `@vegastack/${name}`, "--yes", "--cwd", consumerRoot],
+        { timeout: INSTALL_TIMEOUT_MS, env: shadcnEnv },
+      ),
     );
     if (!r.ok) {
       problems.push(
@@ -871,6 +945,23 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
   };
 }
 
+function relativeToRepo(path) {
+  return path.slice(repoRoot.length + 1);
+}
+
+/** The LAN npm cache URL when it answers its ping within 2 s, else undefined. */
+async function lanNpmCache() {
+  if (process.env.LAN_NPM_CACHE === "") return undefined;
+  try {
+    const r = await fetch(`${LAN_NPM_CACHE}-/ping`, {
+      signal: AbortSignal.timeout(2000),
+    });
+    return r.ok ? LAN_NPM_CACHE : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function main() {
   log("verify-shadcn-consume — local end-to-end consumability proof\n");
   log(`registry source : ${registryDir}`);
@@ -909,6 +1000,15 @@ async function main() {
     sidecar = await startSidecar(scratchRoot, tarballDir);
     const componentPort = sidecar.componentPort;
     const npmPort = sidecar.npmPort;
+    const npmCache = { url: await lanNpmCache() };
+    info(
+      npmCache.url
+        ? `public npm deps through the LAN cache ${npmCache.url} (npmjs fallback)`
+        : `LAN npm cache ${LAN_NPM_CACHE} did not answer; public npm deps from registry.npmjs.org`,
+    );
+    info(
+      `shadcn's own registry served from ${relativeToRepo(shadcnMirrorDir)} (REGISTRY_URL → :${sidecar.mirrorPort})`,
+    );
     ok(
       `sidecar registry process up — component registry on :${componentPort}  ·  local npm registry on :${npmPort}`,
     );
@@ -937,6 +1037,8 @@ async function main() {
         scratchRoot,
         componentPort,
         npmPort,
+        sidecar.mirrorPort,
+        npmCache,
       );
       realResults.push({ layout: layout.name, representative, ...realResult });
       for (const g of realResult.installed) {
@@ -954,6 +1056,12 @@ async function main() {
         );
       }
       allProblems.push(...realResult.problems);
+    }
+    if (sidecar.mirrorMisses.size > 0) {
+      allProblems.push(
+        `shadcn CLI requested file(s) not vendored in ${relativeToRepo(shadcnMirrorDir)}: ` +
+          `${[...sidecar.mirrorMisses].join(", ")} — add it to the snapshot in tooling/upstream/pull.mjs and re-run \`pnpm upstream:pull\``,
+      );
     }
     log("");
 

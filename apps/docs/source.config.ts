@@ -5,7 +5,11 @@ import { metaSchema } from "fumadocs-core/source/schema";
 import { transformerTwoslash } from "fumadocs-twoslash";
 import { createFileSystemTypesCache } from "fumadocs-twoslash/cache-fs";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
-import { stringifyMdxForAgents } from "./lib/mdx-markdown";
+import { remarkNpm } from "fumadocs-core/mdx-plugins";
+import {
+  filterMdxElementForAgents,
+  remarkAgentNpmFences,
+} from "./lib/mdx-markdown";
 import { PAGE_STATUSES } from "./lib/shared";
 
 /**
@@ -52,11 +56,15 @@ const docFrontmatterSchema = z.object({
 });
 
 /**
- * Agent export (DS-01): the processed markdown behind `getText("processed")`, the per-page `.md`
- * route and `llms-full.txt`. `stringifyMdxForAgents` renders every MDX component to markdown at
- * compile time or leaves a placeholder for `lib/markdown-export.ts` to resolve at build time.
+ * Agent export (DS-01): `getText("processed", { components })` behind the per-page `.md` route and
+ * `llms-full.txt`. `output: "function"` keeps MDX components as JSX; `lib/markdown-export.ts`
+ * supplies their markdown form, and `filterMdxElementForAgents` fails the compile on any element
+ * the manifest does not classify.
  */
-const includeProcessedMarkdown = { stringify: stringifyMdxForAgents };
+const includeProcessedMarkdown = {
+  output: "function",
+  filterElement: filterMdxElementForAgents,
+} as const;
 
 export const docs = defineDocs({
   dir: "content/docs",
@@ -76,10 +84,27 @@ export const internalDocs = defineDocs({
   meta: { schema: metaSchema },
 });
 
+const agentNpmFences = remarkAgentNpmFences();
+
 export default defineConfig({
   // Git-derived `lastModified` on every doc — rendered as DocsPage's `lastUpdate` stamp.
   plugins: [lastModified()],
   mdxOptions: {
+    // Around fumadocs' own remark-npm: the agent export shows an ```npm fence as its pnpm command.
+    remarkPlugins: (plugins) => {
+      const index = plugins.findIndex(
+        (plugin) => Array.isArray(plugin) && plugin[0] === remarkNpm,
+      );
+      if (index === -1)
+        throw new Error("source.config.ts: remark-npm is not in the preset");
+      return [
+        ...plugins.slice(0, index),
+        agentNpmFences.before,
+        plugins[index],
+        agentNpmFences.after,
+        ...plugins.slice(index + 1),
+      ];
+    },
     rehypeCodeOptions: {
       themes: { light: "github-light", dark: "github-dark" },
       langs: ["js", "jsx", "ts", "tsx", "css", "bash"],

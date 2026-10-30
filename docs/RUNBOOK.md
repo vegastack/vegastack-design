@@ -205,6 +205,10 @@ there with `ECONNRESET` / `EAI_AGAIN`. The findings are in the Regent app repo a
 - **How workflows use it.** Every workflow install goes through `tooling/runner/pnpm-install.sh`. The
   script uses the cache only for that one command and falls back to npmjs when the cache is down or the
   install fails. Publish never sees the cache. No runner-wide registry default is set.
+  The real `shadcn add` consume proof (`tooling/verify-shadcn-consume.mjs`) does the same for its scratch
+  consumers' public npm deps, and serves the shadcn CLI's own registry JSON (`colors/neutral.json`) from the
+  pinned `vendor/shadcn/<cli version>/` snapshot rather than ui.shadcn.com. A file the CLI asks for that the
+  snapshot lacks fails the proof; add it to `tooling/upstream/pull.mjs`.
   - Health check: `curl http://192.168.88.76:4873/-/ping`.
   - Restart: `docker restart npm-cache` on node-06.
   - Remove: `docker rm -f npm-cache`. Jobs fall back to npmjs on their own.
