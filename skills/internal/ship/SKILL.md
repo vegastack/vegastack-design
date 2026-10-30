@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Release VegaStack Design — merge a reviewed green PR, watch the automatic release (npm OIDC publish, signed registry and docs deploy, production probe), recover a failed stage, and hand the release to consuming apps. Use when asked to ship, release, publish, deploy, or write a changeset.
+description: Release VegaStack Design — merge a reviewed green PR, which releases by itself (version commit, npm OIDC publish, signed registry and docs deploy, production probe), recover a failed stage, and hand the release to consuming apps. Use when asked to ship, release, publish, deploy, or write a changeset.
 ---
 
 # Ship VegaStack Design

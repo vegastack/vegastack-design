@@ -18,7 +18,11 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DIR = join(ROOT, ".github/workflows");
 const RUNNER = ["self-hosted", "linux", "vsk-runner"];
 /** Jobs allowed to mint an OIDC token (npm trusted publishing; Sigstore signing). */
-const OIDC_JOBS = new Set(["release.yml:publish", "deploy.yml:deploy"]);
+const OIDC_JOBS = new Set([
+  "release.yml:publish",
+  "release.yml:deploy",
+  "deploy.yml:deploy",
+]);
 /**
  * The only container volumes a job may mount. No parent directory, no Docker socket, no other host
  * path; the trusted caches only in workflows that never run pull-request code.
@@ -65,6 +69,18 @@ function policy() {
     );
     for (const [id, job] of Object.entries(workflow.jobs ?? {})) {
       const label = `${file}:${id}`;
+      if (job.uses) {
+        // A reusable-workflow call: the called workflow's own jobs are checked where they live.
+        check(
+          /^\.\/\.github\/workflows\//.test(job.uses),
+          `${label}: only local reusable workflows`,
+        );
+        check(
+          job.permissions?.["id-token"] !== "write" || OIDC_JOBS.has(label),
+          `${label}: id-token: write is reserved`,
+        );
+        continue;
+      }
       check(
         JSON.stringify(job["runs-on"]) === JSON.stringify(RUNNER),
         `${label}: runs-on must be ${JSON.stringify(RUNNER)}`,

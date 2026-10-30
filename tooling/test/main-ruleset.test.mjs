@@ -6,10 +6,12 @@ import {
   expectedMainRuleset,
 } from "../main-ruleset.mjs";
 
-it("pins PR-only main, the affected check, linear history and no bypass", () => {
+it("pins PR-only main, the affected check, linear history and only the release App bypass", () => {
   const expected = expectedMainRuleset();
   expect(expected.conditions.ref_name.include).toEqual(["refs/heads/main"]);
-  expect(expected.bypass_actors).toEqual([]);
+  expect(expected.bypass_actors).toEqual([
+    { actor_id: 5543586, actor_type: "Integration", bypass_mode: "always" },
+  ]);
   expect(expected.rules.map((rule) => rule.type)).toEqual([
     "deletion",
     "non_fast_forward",
@@ -39,9 +41,10 @@ it("ignores API response metadata but rejects policy drift", () => {
   expect(() => assertMainRuleset(response)).toThrow();
 });
 
-it("rejects any bypass actor", () => {
+it("rejects any other bypass actor", () => {
   const response = expectedMainRuleset();
   response.bypass_actors = [
+    ...response.bypass_actors,
     { actor_id: 5, actor_type: "RepositoryRole", bypass_mode: "always" },
   ];
   expect(() => assertMainRuleset(response)).toThrow();

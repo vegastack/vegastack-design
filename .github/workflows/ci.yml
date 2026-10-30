@@ -43,16 +43,11 @@ jobs:
           pnpm -v
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
       - name: Static proof plus affected Chromium tests
-        if: github.event.pull_request.head.ref != 'changeset-release/main'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: pnpm verify:affected --base "$BASE_SHA" --head "$HEAD_SHA"
-      - name: Static proof for generated Version Packages output
-        if: github.event.pull_request.head.ref == 'changeset-release/main'
-        run: pnpm verify:static
       - name: Lint workflows when they change
-        if: github.event.pull_request.head.ref != 'changeset-release/main'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -64,13 +59,7 @@ jobs:
             node tooling/verify-workflows.mjs --policy
           fi
       - name: Require an applicable changeset
-        if: github.event.pull_request.head.ref != 'changeset-release/main'
         run: pnpm exec changeset status --since=origin/main
-      - name: Restrict generated Version Packages output
-        if: github.event.pull_request.head.ref == 'changeset-release/main'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: node tooling/verify-release-output-scope.mjs --base "$BASE_SHA"
       - name: Require generators to leave the checkout unchanged
         run: |
           set -euo pipefail

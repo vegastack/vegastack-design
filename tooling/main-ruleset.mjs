@@ -12,13 +12,24 @@ import { fileURLToPath } from "node:url";
 
 export const RULESET_NAME = "VegaStack main";
 export const GITHUB_ACTIONS_INTEGRATION_ID = 15368;
+/**
+ * The `vegastack-design-release` GitHub App (operator, 30-10-2026): the ONLY bypass actor. It
+ * pushes the generated `chore(release)` version commit from release.yml; nothing else holds it.
+ */
+export const RELEASE_APP_ID = 5543586;
 
 export function expectedMainRuleset() {
   return {
     name: RULESET_NAME,
     target: "branch",
     enforcement: "active",
-    bypass_actors: [],
+    bypass_actors: [
+      {
+        actor_id: RELEASE_APP_ID,
+        actor_type: "Integration",
+        bypass_mode: "always",
+      },
+    ],
     conditions: {
       ref_name: { include: ["refs/heads/main"], exclude: [] },
     },
@@ -47,7 +58,8 @@ export function expectedMainRuleset() {
               integration_id: GITHUB_ACTIONS_INTEGRATION_ID,
             },
           ],
-          strict_required_status_checks_policy: true,
+          // Off (operator Q4, 30-10-2026): a release commit no longer forces every open PR to rebase.
+          strict_required_status_checks_policy: false,
         },
       },
     ],
@@ -70,7 +82,13 @@ export function comparableRuleset(actual) {
     name: actual.name,
     target: actual.target,
     enforcement: actual.enforcement,
-    bypass_actors: actual.bypass_actors ?? [],
+    bypass_actors: (actual.bypass_actors ?? []).map(
+      ({ actor_id, actor_type, bypass_mode }) => ({
+        actor_id,
+        actor_type,
+        bypass_mode,
+      }),
+    ),
     conditions: actual.conditions,
     rules: (actual.rules ?? []).map((rule) => {
       const expectedRule = expected.rules.find(

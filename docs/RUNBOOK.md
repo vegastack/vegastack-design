@@ -70,13 +70,15 @@ Record findings in the PR. Only MK's judgement calls go to `docs/ledger/operator
 
 ## 6. Release
 
-A merge to `main` starts `release.yml`:
+A merge to `main` is the release. `release.yml` runs on the push:
 
-1. With pending changesets, Changesets opens or updates the **Version Packages** PR
-   (`changeset-release/main`). Its CI does not start on its own: close and reopen the PR (or approve its
-   `action_required` run). Merge it when it is green.
-2. That merge publishes the missing npm versions through OIDC (no token), then dispatches `deploy.yml`
-   for the exact commit.
+1. With pending changesets it runs `pnpm run version-packages` and commits
+   `chore(release): registry x.y.z [skip ci]` straight to `main`. It pushes as the
+   `vegastack-design-release` GitHub App, which is the `main` ruleset's only bypass actor and is minted
+   per run with `contents: write` only. There is no Version Packages PR. If `main` moved meanwhile, the
+   push is rejected and the newer run releases.
+2. It publishes the npm versions that are missing, through OIDC (no token), then calls `deploy.yml`
+   for the version commit.
 3. Deploy is one job (`deploy.yml`, about 8–10 min): build the registry and the docs once, sign the
    integrity manifest with cosign (a pinned binary cached on the runner), upload to Cloudflare, then probe
    production. `/r/*` must reject anonymous requests and accept the service token; everything else must be
@@ -108,8 +110,8 @@ components, refreshes the vendored skills and runs the strict drift check. Open 
 
 ## 9. Recovery
 
-- **Transient failure** (network, runner, npm, Cloudflare): rerun the failed job. Publishing skips
-  versions that already exist. Rerun a deploy with
+- **Transient failure** (network, runner, npm, Cloudflare): `gh workflow run release.yml` resumes at the
+  current `main` tip. It publishes only the missing versions and redeploys. To redeploy one commit, run
   `gh workflow run deploy.yml -f expected_sha=<main sha>`.
 - **Real defect after publish:** patch forward with a fix PR and a new patch release. Never unpublish
   and never overwrite a version.
