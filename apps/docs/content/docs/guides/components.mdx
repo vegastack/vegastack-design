@@ -190,8 +190,9 @@ pnpm exec vegastack-design check-updates
 Status is by **content**, not version numbers: headered files compare their
 integrity hash; headerless files (the normal real-CLI case) compare
 alias-normalized bytes against the live item. Either way a component reads
-`up to date` when the registry's global version bumped but that component's
-content didn't change — you only re-pull what actually moved. The `≈ differs`
+`up to date` when a newer design-system release did not touch that component —
+each item's version is the release in which its content last changed, so you only
+re-pull what actually moved. The `≈ differs`
 status means the bytes diverged — an upstream update _or_ your local edits;
 `add --diff` shows which.
 

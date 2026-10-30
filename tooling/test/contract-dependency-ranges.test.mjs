@@ -126,3 +126,28 @@ describe("rewriteContractDependencyRanges", () => {
     expect(stale).toEqual([]);
   });
 });
+
+describe("rewriteRange keeps a range that already admits the release", () => {
+  it("leaves ^0.9.1 for 0.9.2, moves it for a 0.x minor, and rewrites a bare name", async () => {
+    const { rewriteRange, caretAdmits } =
+      await import("../lib/contract-dependency-ranges.mjs");
+    const patch = [{ name: "@vegastack/design", range: "^0.9.2" }];
+    expect(rewriteRange("@vegastack/design@^0.9.1", patch)).toBe(
+      "@vegastack/design@^0.9.1",
+    );
+    const minor = [{ name: "@vegastack/design", range: "^0.10.0" }];
+    expect(rewriteRange("@vegastack/design@^0.9.1", minor)).toBe(
+      "@vegastack/design@^0.10.0",
+    );
+    expect(rewriteRange("@vegastack/design", patch)).toBe(
+      "@vegastack/design@^0.9.2",
+    );
+    expect(rewriteRange("@vegastack/design-tokens@^0.8.1", patch)).toBe(
+      "@vegastack/design-tokens@^0.8.1",
+    );
+    expect(caretAdmits("^1.2.3", "1.9.0")).toBe(true);
+    expect(caretAdmits("^1.2.3", "2.0.0")).toBe(false);
+    expect(caretAdmits("^0.0.3", "0.0.4")).toBe(false);
+    expect(caretAdmits("^0.9.2", "0.9.1")).toBe(false);
+  });
+});
