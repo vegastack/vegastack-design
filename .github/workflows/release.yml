@@ -22,11 +22,12 @@ env:
   SITE_VISIBILITY: public
   # The LAN runners' link to npm drops connections under load (30-10-2026): fewer parallel
   # downloads, more and longer retries, so an install survives a bad minute instead of failing.
-  npm_config_network_concurrency: "8"
-  npm_config_fetch_retries: "6"
-  npm_config_fetch_retry_mintimeout: "10000"
-  npm_config_fetch_retry_maxtimeout: "120000"
-  npm_config_fetch_timeout: "300000"
+  # pnpm 11 reads only `pnpm_config_*` from the environment; `npm_config_*` is ignored.
+  pnpm_config_network_concurrency: "8"
+  pnpm_config_fetch_retries: "6"
+  pnpm_config_fetch_retry_mintimeout: "10000"
+  pnpm_config_fetch_retry_maxtimeout: "120000"
+  pnpm_config_fetch_timeout: "300000"
 
 concurrency:
   group: production-release
@@ -82,7 +83,7 @@ jobs:
         if: steps.tip.outputs.stale == 'false'
         run: corepack enable
       - if: steps.tip.outputs.stale == 'false'
-        run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
+        run: tooling/runner/pnpm-install.sh --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
       - name: Does a pending changeset bump a package?
         id: plan
         if: steps.tip.outputs.stale == 'false'
@@ -164,7 +165,7 @@ jobs:
         run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages]
       # Only what building the two public packages needs (the root's build tools and their
       # dependency closure): about half the monorepo's packages.
-      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted --filter design --filter "@vegastack/design..."
+      - run: tooling/runner/pnpm-install.sh --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted --filter design --filter "@vegastack/design..."
       - name: Build the public packages
         run: |
           set -euo pipefail

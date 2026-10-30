@@ -183,6 +183,28 @@ Every job runs on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with
 
 To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.
 
+**Runner network (30-10-2026).** The hosts share a ~22 Mbit/s uplink, and a cold install used to die
+there with `ECONNRESET` / `EAI_AGAIN`. The findings are in the Regent app repo at
+`.vegastack/plans/ds-workflow/30-runner-network.md`. Three things are now in place:
+
+- **LAN npm cache.** Verdaccio 6.11.1 runs on node-06 as the Docker container `npm-cache`, at
+  `http://192.168.88.76:4873/`. It uses the host network and pins `registry.npmjs.org` in its `/etc/hosts`.
+  Config is in `/opt/npm-cache/conf/config.yaml` and data in `/opt/npm-cache/storage`. It is read-only:
+  `publish: $nobody`, no users, no tokens. `@vegastack/*` metadata is refreshed after 30 s.
+- **How workflows use it.** Every workflow install goes through `tooling/runner/pnpm-install.sh`. The
+  script uses the cache only for that one command and falls back to npmjs when the cache is down or the
+  install fails. Publish never sees the cache. No runner-wide registry default is set.
+  - Health check: `curl http://192.168.88.76:4873/-/ping`.
+  - Restart: `docker restart npm-cache` on node-06.
+  - Remove: `docker rm -f npm-cache`. Jobs fall back to npmjs on their own.
+  - If npm's IP changes, recreate the container with the new `--add-host registry.npmjs.org:<ip>`.
+- **DNS.** On node-01/05/06/07/08, `/etc/resolv.conf.head` lists 1.1.1.1, then 8.8.8.8. dhcpcd appends
+  the router as the backup. To undo on a host:
+  `sudo cp /etc/resolv.conf.head.bak-20261030 /etc/resolv.conf.head && sudo dhcpcd -n`. On node-05 and
+  node-07, which had no head file before, the undo is `sudo rm /etc/resolv.conf.head && sudo dhcpcd -n`.
+- **pnpm network settings.** They are workflow-level `pnpm_config_*` variables. pnpm 11 ignores
+  `npm_config_*`.
+
 ## 10. Links
 
 - Workflows: [ci](https://github.com/vegastack/vegastack-design/actions/workflows/ci.yml) ·
