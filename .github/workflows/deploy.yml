@@ -5,6 +5,22 @@ name: Deploy public docs and signed registry
 # belong to pull requests, which own them; this workflow proves only the artifact it ships.
 
 on:
+  # Called by release.yml after every version; dispatch redeploys a given main commit by hand.
+  workflow_call:
+    inputs:
+      expected_sha:
+        description: Exact release commit to deploy
+        required: true
+        type: string
+    secrets:
+      CF_API_TOKEN:
+        required: true
+      CF_ACCOUNT_ID:
+        required: true
+      CF_ACCESS_CLIENT_ID:
+        required: true
+      CF_ACCESS_CLIENT_SECRET:
+        required: true
   workflow_dispatch:
     inputs:
       expected_sha:
@@ -18,13 +34,12 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
-concurrency:
-  group: production-docs
-  cancel-in-progress: false
-
 jobs:
   deploy:
     name: Build, sign, deploy and probe
+    concurrency:
+      group: production-docs
+      cancel-in-progress: false
     runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 30
     container:

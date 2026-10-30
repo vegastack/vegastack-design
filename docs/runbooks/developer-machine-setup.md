@@ -46,8 +46,9 @@ pnpm install
 
 This also runs `husky`, which installs the git hooks. Two hooks, both cheap:
 
-- **`pre-commit`** — `tooling/design-lint.mjs` over the registry plus `prettier --check` on the
-  staged set. ~4 s, never a browser.
+- **`pre-commit`** — `tooling/design-lint.mjs` over the registry, `pnpm gen` when the staged set
+  touches a generator's authority (it stages what it writes), and `prettier --check` on the staged set.
+  A few seconds, never a browser.
 - **`commit-msg`** — the conventional-commit prefix.
 
 There is no `pre-push` hook. A local affected run is convenience, not a gate.
@@ -92,7 +93,8 @@ pnpm clean                     # dry-run report of reclaimable local scratch
 node tooling/workspace-clean.mjs --weekly   # actually reclaim it
 ```
 
-Deploy runs `verify:distribution`; ordinary component tests have already run once on the PR.
+Deploy runs the artifact checks inline (`docs/RUNBOOK.md` § 5); `verify:distribution` reproduces them
+locally. Component tests run once on the PR and nightly.
 
 ## Troubleshooting
 

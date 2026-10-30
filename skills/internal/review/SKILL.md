@@ -45,14 +45,13 @@ node tooling/design-lint.mjs --token-css apps/docs/app               # docs app 
 pnpm upstream:check                              # vendor integrity + byte parity + variant coverage
 pnpm upstream:selftest                           # prove all four upstream gates can still fail
 pnpm verify                                      # full static + working-tree affected Chromium tests
-pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
-pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
+pnpm gen && git status --porcelain              # every generated surface current; clean tree after
 ```
 
 Read the affected list, not just the exit code. Confirm every changed item, transitive reverse
 dependent, owned cross-cutting suite, and preview fixture is present. An unknown path must fail.
-`pnpm verify:distribution` is the public artifact proof used by deploy; use it only when reviewing
-distribution. The complete component suite is manual-only through `pnpm test:full`.
+`pnpm verify:distribution` reproduces the public artifact proof locally (deploy runs its checks inline;
+`docs/RUNBOOK.md` § 5). The complete component suite runs nightly and through `pnpm test:full`.
 
 Any error is a finding. **A gate that passes while its subject is broken is a `high` finding about
 the gate.**
@@ -250,8 +249,8 @@ Reviewing the contract gate:
 
 - Fix the cause, not the symptom. If the same class of bug can recur elsewhere, fix the class — a
   lint rule, a generator, a type — not the one instance.
-- Put the finding, its root cause and the fix in the PR description. Only an MK judgement call goes to
-  [`docs/ledger/operator-review.md`](../../../docs/ledger/operator-review.md).
+- Put the finding, its root cause and the fix in the PR description. `docs/ledger/` is historical;
+  nothing is appended there.
 - Re-run the gates after every fix. A fix that breaks a gate is a new finding.
 
 ## 10. Record the round
@@ -266,7 +265,7 @@ Repeat until a complete review round returns **0 high · 0 medium** with no prio
 finds nothing is only credible if the previous round found something and the scope did not shrink —
 if both rounds are empty, widen the scope or change the attack angle rather than declaring victory.
 
-For a genuinely independent read, delegate a round to Codex via the `codex:rescue` skill and treat
-its findings the same way: verify each against source before accepting it. Cross-model rounds have
+For a genuinely independent read, run a Codex round (`docs/RUNBOOK.md` § 4a) and treat its findings
+the same way: verify each against source before accepting it. Cross-model rounds have
 surfaced findings same-model rounds missed, and have also produced confident false positives — §7
 applies to delegated findings too.

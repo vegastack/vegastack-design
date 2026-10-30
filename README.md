@@ -57,13 +57,14 @@ Components exist in three synced places; **edit ONLY the canonical source**
 (`packages/ui/registry/ui/<name>.tsx`) then run:
 
 ```bash
-pnpm run registry:build   # regenerates docs copy-in + item JSON, re-stamps integrity
+pnpm gen   # every generator: docs copy-in, item JSON, contract fields, mirrors (~5 s; the pre-commit hook runs it too)
 ```
 
 Never hand-edit `apps/docs/components/ui/*` or `apps/docs/public/r/*`. Same discipline for the
 changelog, one step further back: a PR writes a **changeset**, `pnpm run version-packages` assembles
 the `/CHANGELOG.md` entry from the pending changesets at version time, and `sync-changelog.mjs`
-regenerates the docs page (CI fails on drift). Nobody hand-edits `/CHANGELOG.md` between releases.
+regenerates the docs page (CI fails on drift). Nobody hand-edits `/CHANGELOG.md` between releases. The
+whole procedure is [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ## Everyday commands
 
@@ -78,12 +79,13 @@ pnpm verify                    # full static + working-tree affected Chromium pr
 pnpm verify:distribution       # public export/registry proof, no component regression
 pnpm test:full --engines all   # rare manual complete audit
 pnpm run clean                 # report only; `pnpm run clean --after-run|--weekly` reclaims
-pnpm registry:build            # after any canonical component edit
+pnpm gen                       # after any edit: every generator
 ```
 
 PR CI runs full static proof once, then uses the exact base/head range to select changed components,
-transitive reverse dependents, cross-cutting contracts and preview fixtures. Local checks are
-optional feedback. The pre-commit hook remains only staged design-lint plus Prettier.
+transitive reverse dependents, cross-cutting contracts and preview fixtures; the full suite runs
+nightly. Local checks are optional feedback. The pre-commit hook runs design-lint, `pnpm gen` when an
+authority is staged, and Prettier on the staged set.
 
 ## Releasing
 

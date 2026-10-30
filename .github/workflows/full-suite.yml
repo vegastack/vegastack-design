@@ -1,11 +1,17 @@
-name: Manual full component audit
+name: Full suite
+
+# The safety net that lets PR CI run only affected checks (30-10-2026): nightly on main, and on demand
+# for any commit. Everything, uncached: static proof, every component test, every tooling test, the
+# real registry consume. A red nightly is fixed like any other bug.
 
 on:
+  schedule:
+    - cron: "30 21 * * *" # 03:00 IST
   workflow_dispatch:
     inputs:
       commit_sha:
         description: Exact commit SHA to audit
-        required: true
+        required: false
         type: string
       engines:
         description: Browser coverage
@@ -23,13 +29,13 @@ env:
   SITE_VISIBILITY: public
 
 concurrency:
-  group: full-component-audit-${{ inputs.commit_sha }}-${{ inputs.engines }}
+  group: full-suite-${{ inputs.commit_sha || github.sha }}-${{ inputs.engines || 'chromium' }}
   cancel-in-progress: false
 
 jobs:
   full-component-suite:
     runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 45
+    timeout-minutes: 90
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       volumes:
@@ -42,10 +48,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ inputs.commit_sha }}
+          ref: ${{ inputs.commit_sha || github.sha }}
       - name: Require the exact requested commit
         env:
-          EXPECTED_SHA: ${{ inputs.commit_sha }}
+          EXPECTED_SHA: ${{ inputs.commit_sha || github.sha }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
@@ -54,7 +60,13 @@ jobs:
       - name: Enable corepack
         run: corepack enable
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
-      - name: Run the manual component audit
+      - name: Static proof, uncached (every self-test and tooling test)
         env:
-          AUDIT_ENGINES: ${{ inputs.engines }}
+          TURBO_FORCE: "true"
+        run: pnpm verify:static
+      - name: Every component test
+        env:
+          AUDIT_ENGINES: ${{ inputs.engines || 'chromium' }}
         run: pnpm test:full --engines "$AUDIT_ENGINES"
+      - name: Real registry consume
+        run: pnpm registry:verify-consume

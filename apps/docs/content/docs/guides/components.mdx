@@ -173,8 +173,8 @@ drift gate red until you scope it out: `check-updates --fail-on-update --filter 
 
 ## Updating — pulled, never pushed
 
-The authenticated internal runbook documents how registry pulls relate to npm bumps, including the
-two-speed propagation model and token-ordering trap for VegaStack-owned applications.
+VegaStack-owned applications have an unlisted internal guide to how registry pulls relate to npm bumps,
+including the two-speed propagation model and the token-ordering trap.
 
 ```bash
 pnpm exec vegastack-design check-updates
@@ -198,8 +198,8 @@ status means the bytes diverged — an upstream update _or_ your local edits;
 Per component, review then take:
 
 ```bash
-pnpm dlx shadcn@latest add @vegastack/button --diff       # see exactly what changed
-pnpm dlx shadcn@latest add @vegastack/button --overwrite  # take it
+pnpm exec shadcn add @vegastack/button --diff       # see exactly what changed
+pnpm exec shadcn add @vegastack/button --overwrite  # take it
 ```
 
 `--overwrite` replaces the file — if you customized it, `git diff` afterwards and

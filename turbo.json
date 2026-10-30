@@ -46,6 +46,12 @@
     // clean checkout therefore failed with `ENOENT … dist/theme.css`, and only passed today because
     // the root `lint` script happens to run `design:verify` (which builds tokens) first. A task must
     // declare the inputs it reads; ordering by luck is not a dependency.
+    // `@vegastack/design#lint` runs verify-preset-source, which compiles the preset against
+    // `@vegastack/ui`'s dist — a sibling, not an upstream, so `^build` never built it (a race that
+    // failed fresh worktrees whenever lint beat ui#build).
+    "@vegastack/design#lint": {
+      "dependsOn": ["^build", "@vegastack/ui#build", "prepare:content"]
+    },
     "@vegastack/design-tokens#lint": {
       "dependsOn": ["^build", "build", "prepare:content"]
     },

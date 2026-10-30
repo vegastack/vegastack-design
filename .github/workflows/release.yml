@@ -1,14 +1,19 @@
 name: Release
 
+# A merge to main IS the release (operator, 30-10-2026). Three jobs, so the bypass token and the npm
+# OIDC authority never share one:
+#   version  (environment `release`, main only) — with a pending version bump, cut the version commit,
+#            bound it (verify-release-commit), and push it to main as the `vegastack-design-release`
+#            GitHub App, the ruleset's only bypass actor.
+#   publish  (OIDC) — publish whatever npm versions are missing at the release commit.
+#   deploy   — deploy.yml for the release commit, whenever something was versioned or published.
+# There is no Version Packages PR. `workflow_dispatch` resumes at the current main tip; every step is
+# idempotent (existing npm versions are skipped).
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      expected_sha:
-        description: Exact main commit to resume
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -21,159 +26,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  changes:
-    name: Inspect release state
-    runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 10
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-    defaults:
-      run:
-        shell: bash
-    env:
-      npm_config_cache: /tmp/npm-cache
-    outputs:
-      target_sha: ${{ steps.detect.outputs.target_sha }}
-      publish: ${{ steps.detect.outputs.publish }}
-      has_version_bump: ${{ steps.detect.outputs.has_version_bump }}
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ inputs.expected_sha || github.sha }}
-      - name: Trust the checkout inside the container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - id: detect
-        name: Bind to main and classify the release
-        env:
-          REQUESTED_SHA: ${{ inputs.expected_sha || github.sha }}
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$REQUESTED_SHA"
-          git fetch origin main
-          test "$(git rev-parse origin/main)" = "$REQUESTED_SHA" || {
-            echo "::error title=Stale release run::main moved after $REQUESTED_SHA"
-            exit 1
-          }
-          node tooling/release-detect.mjs \
-            --before "${REQUESTED_SHA}~1" \
-            --after "$REQUESTED_SHA" \
-            --check-npm
-          echo "target_sha=$REQUESTED_SHA" >> "$GITHUB_OUTPUT"
-
-  version-pr:
-    name: Create or update Version Packages PR
-    needs: changes
-    if: needs.changes.outputs.has_version_bump == 'true'
+  version:
+    name: Cut the version commit
     runs-on: [self-hosted, linux, vsk-runner]
     timeout-minutes: 20
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-    defaults:
-      run:
-        shell: bash
-    env:
-      npm_config_cache: /tmp/npm-cache
-    permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      base_sha: ${{ needs.changes.outputs.target_sha }}
-      head_sha: ${{ steps.version-pr.outputs.head_sha }}
-      pr_number: ${{ steps.version-pr.outputs.pr_number }}
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ needs.changes.outputs.target_sha }}
-      - name: Trust the checkout inside the container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Give Changesets its base branch
-        env:
-          TARGET_SHA: ${{ needs.changes.outputs.target_sha }}
-        run: git branch -f main "$TARGET_SHA"
-      - name: Enable corepack
-        run: corepack enable
-      - name: Install the pinned GitHub CLI
-        run: |
-          set -euo pipefail
-          GH_VERSION=2.103.3
-          case "$(uname -m)" in
-            x86_64) GH_ARCH=amd64; GH_SHA=4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d ;;
-            aarch64) GH_ARCH=arm64; GH_SHA=ee32df2323c8847f5fac6cb6b4b69ca75828e9329a8f22f677021f7b3306ce63 ;;
-            *) echo "::error::unsupported runner architecture $(uname -m)"; exit 1 ;;
-          esac
-          ARCHIVE="gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz"
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ARCHIVE" "https://github.com/cli/cli/releases/download/v${GH_VERSION}/$ARCHIVE"
-          echo "$GH_SHA  $RUNNER_TEMP/$ARCHIVE" | sha256sum -c -
-          tar -xzf "$RUNNER_TEMP/$ARCHIVE" -C "$RUNNER_TEMP"
-          install -m 0755 "$RUNNER_TEMP/gh_${GH_VERSION}_linux_${GH_ARCH}/bin/gh" /usr/local/bin/gh
-          gh --version
-      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_TEMP/pnpm-store"
-      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
-        with:
-          version: pnpm run version-packages
-          commitMode: git-cli
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - id: version-pr
-        name: Resolve the exact generated PR head
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TARGET_SHA: ${{ needs.changes.outputs.target_sha }}
-          VERSION_BRANCH: changeset-release/main
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3; do
-            PR_NUMBER=$(gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --base main \
-              --head "$VERSION_BRANCH" \
-              --state open \
-              --json number \
-              --jq '.[0].number // empty')
-            [ -n "$PR_NUMBER" ] && break
-            test "$attempt" -lt 3 || {
-              echo "::error::Changesets did not leave an open Version Packages PR"
-              exit 1
-            }
-            sleep $((attempt * 2))
-          done
-          # REST, not `gh pr view`. Its GraphQL path served a stale headRefOid for MINUTES on run
-          # 35763347504 — the branch ref was already at 49486dab0 while the PR still reported
-          # 6a359a602 — and the comparison below had no retry, so a correct Version PR was left
-          # behind a red run. REST answered correctly and immediately throughout that incident, so
-          # the endpoint change is the fix; the retry is a cushion for a SHORTER disagreement, not
-          # a cure for a minutes-long one. The comparison itself is unchanged and still fails if
-          # the two genuinely disagree — that is the exact-SHA protection boundary.
-          # `|| true` so a transient API failure RETRIES instead of killing the job at the
-          # command substitution: under `set -e` a failing `gh api` aborts the step before the
-          # loop can do anything, with no message. Empty reads simply never compare equal, so
-          # they fall through to the same bounded retry and the same final error.
-          for attempt in 1 2 3 4 5; do
-            HEAD_SHA=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq .head.sha || true)
-            BRANCH_SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$VERSION_BRANCH" --jq .object.sha || true)
-            [ -n "$HEAD_SHA" ] && [ "$HEAD_SHA" = "$BRANCH_SHA" ] && break
-            test "$attempt" -lt 5 || {
-              echo "::error::Version PR head '$HEAD_SHA' never matched $VERSION_BRANCH at '$BRANCH_SHA'"
-              exit 1
-            }
-            sleep $((attempt * 3))
-          done
-          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
-          echo "Version Packages PR #$PR_NUMBER: $TARGET_SHA..$HEAD_SHA"
-
-  publish:
-    name: Publish public packages
-    needs: changes
-    if: >-
-      needs.changes.outputs.publish == 'true' &&
-      needs.changes.outputs.has_version_bump == 'false'
-    runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 30
+    # The App key lives only in this environment, which deploys from main alone.
+    environment: release
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       volumes:
@@ -186,13 +44,107 @@ jobs:
       npm_config_cache: /tmp/npm-cache
     permissions:
       contents: read
-      id-token: write
+    outputs:
+      stale: ${{ steps.tip.outputs.stale }}
+      bumped: ${{ steps.plan.outputs.bumped }}
+      release_sha: ${{ steps.push.outputs.release_sha || steps.tip.outputs.sha }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ needs.changes.outputs.target_sha }}
+          ref: main
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Only the current main tip releases
+        id: tip
+        env:
+          EVENT: ${{ github.event_name }}
+          PUSHED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          # A newer push has its own queued run; this one has nothing left to do.
+          if [ "$EVENT" = push ] && [ "$(git rev-parse HEAD)" != "$PUSHED_SHA" ]; then
+            echo "::notice::main moved past $PUSHED_SHA; the newer run releases"
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "stale=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Enable corepack
+        if: steps.tip.outputs.stale == 'false'
+        run: corepack enable
+      - if: steps.tip.outputs.stale == 'false'
+        run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
+      - name: Does a pending changeset bump a package?
+        id: plan
+        if: steps.tip.outputs.stale == 'false'
+        run: |
+          set -euo pipefail
+          # Empty (`---\n---`) changesets bump nothing: they wait for the next real release.
+          pnpm exec changeset status --output "$RUNNER_TEMP/plan.json"
+          BUMPED=$(node -e "const p=require(process.argv[1]);console.log((p.releases||[]).some(r=>r.type!=='none'))" "$RUNNER_TEMP/plan.json")
+          echo "bumped=$BUMPED" >> "$GITHUB_OUTPUT"
+          echo "pending version bump: $BUMPED"
+      - name: Version and bound the release commit
+        if: steps.plan.outputs.bumped == 'true'
+        env:
+          # @changesets/changelog-github reads PR and author links (read-only API).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          pnpm run version-packages
+          git add -A
+          node tooling/verify-release-commit.mjs
+          git config user.name "vegastack-design-release[bot]"
+          git config user.email "5543586+vegastack-design-release[bot]@users.noreply.github.com"
+          VERSION=$(node -p "require('./packages/ui/package.json').version")
+          git commit -q -m "chore(release): registry ${VERSION} [skip ci]"
+      - name: Mint the release App token
+        id: app-token
+        if: steps.plan.outputs.bumped == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+      - name: Push the version commit to main
+        id: push
+        if: steps.plan.outputs.bumped == 'true'
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Fast-forward only: if main moved, the push is rejected and the newer run releases.
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/main
+          echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish missing npm versions
+    needs: version
+    if: needs.version.outputs.stale == 'false'
+    runs-on: [self-hosted, linux, vsk-runner]
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      volumes:
+        - /opt/vsk-runner/pnpm-store-trusted:/pnpm-store-trusted
+    defaults:
+      run:
+        shell: bash
+    env:
+      npm_config_cache: /tmp/npm-cache
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ needs.version.outputs.release_sha }}
       - name: Trust the checkout inside the container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -201,12 +153,14 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Enable corepack
         run: corepack enable
-      - name: Pin npm to the reviewed OIDC-capable release
-        run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages] — OIDC publish needs npm >= 11.5
+      - name: Pin the OIDC-capable npm (>= 11.5)
+        run: npm install -g npm@11.16.0 # zizmor: ignore[adhoc-packages]
       - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store-trusted
-      # Exports are proven on the pull request (design:verify); publishing only builds what it ships.
-      - run: pnpm --filter @vegastack/design-tokens build
-      - run: pnpm --filter @vegastack/design build
+      - name: Build the public packages
+        run: |
+          set -euo pipefail
+          pnpm --filter @vegastack/design-tokens build
+          pnpm --filter @vegastack/design build
       - name: Reject publish-time lifecycle code
         run: |
           node --input-type=module <<'NODE'
@@ -219,77 +173,46 @@ jobs:
             }
           }
           NODE
-      - name: Publish missing versions with three bounded attempts
+      - name: Publish missing versions (OIDC, no token)
+        id: publish
         run: |
           set -euo pipefail
+          PUBLISHED=false
           for dir in design-tokens design; do
             cd "$GITHUB_WORKSPACE/packages/$dir"
             NAME=$(node -p "require('./package.json').name")
             VERSION=$(node -p "require('./package.json').version")
             for attempt in 1 2 3; do
               if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
-                echo "$NAME@$VERSION is already published"
+                echo "$NAME@$VERSION is published"
                 break
               fi
               if npm publish --access public --no-provenance; then
-                break
-              fi
-              if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
-                echo "$NAME@$VERSION became visible after the publish response failed"
+                PUBLISHED=true
                 break
               fi
               test "$attempt" -lt 3 || exit 1
               sleep $((attempt * 10))
             done
           done
+          echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
 
-  dispatch-deploy:
-    name: Dispatch public distribution deploy
-    needs: [changes, publish]
-    runs-on: [self-hosted, linux, vsk-runner]
-    timeout-minutes: 5
-    container:
-      image: mcr.microsoft.com/playwright:v1.63.0-noble
-    defaults:
-      run:
-        shell: bash
-    env:
-      npm_config_cache: /tmp/npm-cache
+  deploy:
+    name: Deploy registry and docs
+    needs: [version, publish]
+    # Deploy whatever was versioned or published (a resumed run included), or on a manual resume.
+    if: >-
+      needs.version.outputs.bumped == 'true' ||
+      needs.publish.outputs.published == 'true' ||
+      github.event_name == 'workflow_dispatch'
     permissions:
-      actions: write
       contents: read
-    steps:
-      - name: Install the pinned GitHub CLI
-        run: |
-          set -euo pipefail
-          GH_VERSION=2.103.3
-          case "$(uname -m)" in
-            x86_64) GH_ARCH=amd64; GH_SHA=4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d ;;
-            aarch64) GH_ARCH=arm64; GH_SHA=ee32df2323c8847f5fac6cb6b4b69ca75828e9329a8f22f677021f7b3306ce63 ;;
-            *) echo "::error::unsupported runner architecture $(uname -m)"; exit 1 ;;
-          esac
-          ARCHIVE="gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz"
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$ARCHIVE" "https://github.com/cli/cli/releases/download/v${GH_VERSION}/$ARCHIVE"
-          echo "$GH_SHA  $RUNNER_TEMP/$ARCHIVE" | sha256sum -c -
-          tar -xzf "$RUNNER_TEMP/$ARCHIVE" -C "$RUNNER_TEMP"
-          install -m 0755 "$RUNNER_TEMP/gh_${GH_VERSION}_linux_${GH_ARCH}/bin/gh" /usr/local/bin/gh
-          gh --version
-      - name: Dispatch the exact release commit
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_SHA: ${{ needs.changes.outputs.target_sha }}
-        run: |
-          set -euo pipefail
-          BEFORE=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --limit 20 --json databaseId --jq '.[].databaseId')
-          for attempt in 1 2 3; do
-            if gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main -f expected_sha="$RELEASE_SHA"; then
-              exit 0
-            fi
-            RUN_ID=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --limit 20 --json databaseId,headSha --jq ".[] | select(.headSha == \"$RELEASE_SHA\") | .databaseId" | head -1)
-            if [ -n "$RUN_ID" ] && ! grep -qx "$RUN_ID" <<<"$BEFORE"; then
-              echo "deploy run $RUN_ID exists despite the dispatch error"
-              exit 0
-            fi
-            test "$attempt" -lt 3 || exit 1
-            sleep $((attempt * 10))
-          done
+      id-token: write
+    uses: ./.github/workflows/deploy.yml # zizmor: ignore[self-repository]
+    with:
+      expected_sha: ${{ needs.version.outputs.release_sha }}
+    secrets:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+      CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}

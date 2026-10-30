@@ -26,6 +26,7 @@ import {
   FocusRingSpecimen,
 } from "@/components/foundations";
 import { RegistryInstallCallout } from "@/components/registry-install-callout";
+import { MermaidBlock } from "@/components/ui/mermaid-block";
 import { AnimatedNumberPlayground } from "@/components/animated-number-playground";
 import { AttachmentPlayground } from "@/components/attachment-playground";
 import { CheckboxPlayground } from "@/components/checkbox-playground";
@@ -82,6 +83,10 @@ export function getMDXComponents(components?: MDXComponents) {
     ComponentPreview,
     StoryExplorer,
     RegistryInstallCallout,
+    // A diagram in a docs page (the runbook's flow), drawn by the design system's own MermaidBlock.
+    Mermaid: ({ source }: { source: string }) => (
+      <MermaidBlock source={source} />
+    ),
     DoDont,
     ColorPalette,
     TypeScale,

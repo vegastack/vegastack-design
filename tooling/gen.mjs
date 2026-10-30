@@ -23,6 +23,7 @@ const steps = [
   ["email tokens", ["node", "tooling/generate-email-tokens.mjs"]],
   ["toaster mirror", ["node", "tooling/sync-toaster-mirror.mjs"]],
   ["docs changelog", ["node", "tooling/sync-changelog.mjs"]],
+  ["runbook page", ["node", "tooling/sync-runbook-page.mjs"]],
 ];
 
 const status = () =>

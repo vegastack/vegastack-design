@@ -97,6 +97,7 @@ export const STORY_EXPLORER_ELEMENT = "story.WithControl";
  */
 export const RENDERED_ELEMENTS = new Set([
   "Callout",
+  "Mermaid",
   "Steps",
   "Tabs",
   "Files",
@@ -277,6 +278,7 @@ export const MDX_COMPONENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(BROWSER_ONLY_NOTES),
   ...PLAYGROUND_COMPONENTS,
   "DoDont",
+  "Mermaid",
   "RegistryInstallCallout",
   "StoryExplorer",
   // Re-registered from fumadocs' own modules so a page can use them without importing.

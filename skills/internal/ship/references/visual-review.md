@@ -44,17 +44,18 @@ assertion in this repository can see all of that. The shipping agent must look.
 4. Describe what changed, route by route, and classify each: **intended** (consistent with the
    changeset), **unintended**, or **uncertain**.
 5. Record the list — route, what changed, verdict, one-line reasoning — in the ship report.
-6. Under an explicit `ship it`, continue automatically when every route is intended. Treat an
+6. Continue when every route is intended (a reviewed, green PR merges under the standing authorization,
+   `docs/RUNBOOK.md` § 1). Treat an
    unintended or uncertain result as a defect and enter the bounded corrective loop. Never report
    "looks fine" for a route you did not open.
 
 ## Division of labour
 
-| Stage          | Who                    | Why                                        |
-| -------------- | ---------------------- | ------------------------------------------ |
-| Detection      | the geometry contracts | Deterministic, blocking, in CI             |
-| Interpretation | the developer's agent  | Opens the routes, judges intended vs not   |
-| Decision       | the shipping agent     | Bounded by the explicit ship authorization |
+| Stage          | Who                    | Why                                      |
+| -------------- | ---------------------- | ---------------------------------------- |
+| Detection      | the geometry contracts | Deterministic, blocking, in CI           |
+| Interpretation | the developer's agent  | Opens the routes, judges intended vs not |
+| Decision       | the shipping agent     | Bounded by RUNBOOK § 1's authorization   |
 
 ## The cost, stated plainly
 
