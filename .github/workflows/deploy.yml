@@ -44,12 +44,15 @@ env:
   pnpm_config_fetch_retry_maxtimeout: "120000"
   pnpm_config_fetch_timeout: "300000"
 
+# One lock for the whole run (registry then docs), shared by release-called and dispatched runs, so a
+# second deploy can never replace the registry between another run's registry and docs jobs.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
   registry:
     name: Registry — sign, deploy, probe
-    concurrency:
-      group: production-registry
-      cancel-in-progress: false
     timeout-minutes: 15
     runs-on: [self-hosted, linux, vsk-runner]
     container:
@@ -140,9 +143,6 @@ jobs:
   docs:
     name: Docs — build, deploy, probe
     needs: registry
-    concurrency:
-      group: production-docs
-      cancel-in-progress: false
     timeout-minutes: 25
     runs-on: [self-hosted, linux, vsk-runner]
     container:
