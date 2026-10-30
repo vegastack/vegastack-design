@@ -57,14 +57,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ inputs.commit_sha || github.sha }}
+      # Before any git command: in the container the checkout belongs to another uid, so git
+      # refuses it ("dubious ownership") until it is trusted.
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Require the exact requested commit
         env:
           EXPECTED_SHA: ${{ inputs.commit_sha || github.sha }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-      - name: Trust the checkout inside the container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Enable corepack
         run: corepack enable
       - run: tooling/runner/pnpm-install.sh --frozen-lockfile --store-dir /pnpm-store
