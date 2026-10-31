@@ -661,7 +661,7 @@ test("no a11y violations — a labelled group of link and button rows", async ()
   await expectNoA11yViolations(screen.container);
 });
 
-test("API-37: ItemGroup variant=flush has no gap and bleeds into the card padding", async () => {
+test("API-37 + LAY-20: ItemGroup variant=flush bleeds 8px into the card padding with a 1px gap", async () => {
   const screen = await render(
     <ItemGroup variant="flush" aria-label="Rows">
       <Item>
@@ -676,7 +676,7 @@ test("API-37: ItemGroup variant=flush has no gap and bleeds into the card paddin
   )!;
   expect(group.dataset.variant).toBe("flush");
   const tokens = group.className.split(/\s+/);
-  for (const t of ["-mx-3", "w-auto", "gap-0"]) expect(tokens).toContain(t);
+  for (const t of ["-mx-2", "w-auto", "gap-px"]) expect(tokens).toContain(t);
   expect(tokens).not.toContain("gap-4");
   await expectNoA11yViolations(screen.container);
 });
