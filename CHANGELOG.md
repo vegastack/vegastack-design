@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.11] — October 31, 2026
+
+<!-- assembled from 1 changeset: e137d4b897e0 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.9`** (was `0.9.8`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.10 → 0.26.11.
+
+### 🐛 Fixed
+
+- **A large rail row centres safely** (`sidebar` LAY-19): `SidebarMenuButton size="lg"` centres with `justify-center-safe`, so a row whose content overflows the collapsed rail (an avatar beside a name) keeps its avatar at the start instead of being pushed off the edge.
+  [`2479f53`](https://github.com/VegaStack/vegastack-design/commit/2479f53)
+
 ## [0.26.10] — October 31, 2026
 
 <!-- assembled from 3 changesets: 82e775cff155 -->

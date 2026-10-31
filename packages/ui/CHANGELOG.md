@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.26.11
+
+### Patch Changes
+
+- [#877](https://github.com/vegastack/vegastack-design/pull/877) [`2479f53`](https://github.com/vegastack/vegastack-design/commit/2479f53c16a02e967f3fed26ed4628f0bb1c9d96) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **A large rail row centres safely** (`sidebar` LAY-19): `SidebarMenuButton size="lg"` centres with `justify-center-safe`, so a row whose content overflows the collapsed rail (an avatar beside a name) keeps its avatar at the start instead of being pushed off the edge.
+
+- Updated dependencies [[`2479f53`](https://github.com/vegastack/vegastack-design/commit/2479f53c16a02e967f3fed26ed4628f0bb1c9d96)]:
+  - @vegastack/design@0.9.9
+
 ## 0.26.10
 
 ### Patch Changes
