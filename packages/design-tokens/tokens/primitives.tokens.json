@@ -56,10 +56,10 @@
         "$type": "color",
         "$value": {
           "colorSpace": "oklch",
-          "components": [0.539, 0, 0],
+          "components": [0.5, 0, 0],
           "alpha": 1
         },
-        "$description": "Secondary text ink. shadcn ships 0.556, which measures 4.34:1 on `muted` (0.97) — below the AA floor A11Y-1 gates. 0.539 measures 4.66:1 there and 5.08:1 on the page. The extra headroom over the 4.5 threshold is deliberate: axe measures the 8-bit sRGB round-trip (#717171 on #f5f5f5), which reads ~0.04 lower than the OKLCH computation, so a token that clears 4.51 in the token gate still fails the rendered lane. This is the one core-neutral deviation from upstream."
+        "$description": "Secondary text ink. shadcn ships 0.556, which measures 4.34:1 on `muted` (0.97) — below the AA floor A11Y-1 gates. 0.50 (COL-24, 2026-10-31; was 0.539) keeps secondary text at AA on every interaction state it sits on, not only on rest grounds: 5.05:1 on a selected row (`--state-selected`, 8% foreground), 4.83:1 on a pressed row (10%), 4.64:1 on a selected row over `muted`, 5.50:1 on `muted` and 6.00:1 on the page. The headroom over 4.5 is deliberate: axe measures the 8-bit sRGB round-trip, which reads ~0.04 lower than the OKLCH computation. This is the one core-neutral deviation from upstream."
       },
       "800": {
         "$type": "color",

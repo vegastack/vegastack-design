@@ -1,4 +1,4 @@
-// @vegastack cited-list@0.26.4 sha256-DS1CxzxnCEP7elJrImwbqgrClUcsNzjKGFgkpfKBlbQ=
+// @vegastack cited-list@0.26.4 sha256-Oy7hg3FxaPCjHJqttHoiX345e2qvBMMXHv3w1lDtcEQ=
 
 "use client";
 
@@ -112,7 +112,7 @@ export function Citation({
     props: mergeProps<"a">(
       {
         className: cn(
-          "relative inline-block max-w-56 overflow-x-clip text-ellipsis whitespace-nowrap rounded-sm bg-muted px-1.5 align-baseline text-xs leading-5 text-muted-foreground no-underline transition-colors hover:bg-accent hover:text-foreground before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
+          "relative inline-block max-w-56 overflow-x-clip text-ellipsis whitespace-nowrap rounded-sm bg-muted px-1.5 align-baseline text-xs leading-5 text-muted-foreground no-underline transition-colors state-layer hover:text-foreground before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
           className,
         ),
         children: (

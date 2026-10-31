@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.26.4 sha256-HUJdeohqpvZGhHQaswWkV4qZzfy8gFOOaofggdtX6XY=
+// @vegastack data-grid@0.26.4 sha256-KmSSAZgFIx0tcLabuPgHuuCmLiemVwLI/a0omdie0oY=
 
 "use client";
 
@@ -1244,7 +1244,7 @@ const HEAD_BASE_CLASS =
  * selected wash): a row both open and ticked is open, pinned cells included.
  */
 const FROZEN_CELL_CLASS =
-  "sticky z-10 bg-background group-hover/row:bg-[color-mix(in_oklab,var(--color-muted)_30%,var(--color-background))] group-data-[selected]/row:bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-background))] [[data-peek-active][data-peek-active]>&]:bg-accent";
+  "sticky z-10 bg-background group-hover/row:layer-hover group-data-[selected]/row:layer-selected [[data-peek-active][data-peek-active]>&]:layer-selected";
 /** The frozen edge's shadow, shown while the viewport is scrolled sideways (`data-scrolled-x`). */
 // A box shadow, not a pseudo-element: body cells clip their overflow (one line, truncated), and a
 // cell's own shadow is painted outside its box, where the clip does not reach.
@@ -1260,7 +1260,7 @@ const DIVIDER_CLASS = "border-e border-border";
 const FROZEN_DIVIDER_CLASS =
   "after:absolute after:inset-y-0 after:end-0 after:w-px after:bg-border after:content-['']";
 /** `editingTint`: the cell being edited. */
-const EDITING_TINT_CLASS = "data-editing:bg-accent";
+const EDITING_TINT_CLASS = "data-editing:bg-state-selected";
 /** `endSpacer={true}`: the band after the last row. */
 const END_SPACER_PX = 180;
 /** `fill`: the least room a grid is given, however little the window leaves it. */
@@ -2843,7 +2843,7 @@ function GridCards<T>({
             data-row-id={id}
             data-selected={selected.has(id) ? "" : undefined}
             data-peek-active={activeRowId === id ? "" : undefined}
-            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-[selected]:bg-muted/50 data-peek-active:bg-accent"
+            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-[selected]:layer-selected data-peek-active:layer-selected"
           >
             {onOpen ? (
               <Button
@@ -5106,7 +5106,10 @@ export function DataGrid<T>({
       data-slot="data-grid-summary"
       className="sticky bottom-0 z-20 border-t bg-background"
     >
-      <TableRow aria-rowindex={footerRowIndex} className="hover:bg-transparent">
+      <TableRow
+        aria-rowindex={footerRowIndex}
+        className="hover:not-focus-visible:bg-none"
+      >
         {selectable ? (
           <TableCell
             aria-colindex={1}

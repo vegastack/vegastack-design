@@ -434,12 +434,12 @@ test("FOC-1: the trigger does not suppress the outline base.css owns", async () 
   await userEvent.click(screen.getByText("File"));
   // The popup mounts after the click settles; a loaded runner can take longer than one tick.
   await expect.poll(() => slot("content")).not.toBeNull();
-  // The two item parts KEEP `outline-hidden`: they replace the outline with `focus:bg-accent`,
+  // The two item parts KEEP `outline-hidden`: they replace the outline with `focus:bg-state-hover`,
   // which is the sanctioned substitute affordance. This holds that exemption to the parts it was
   // written for rather than letting it spread back to the trigger.
   for (const row of [...slots("checkbox-item"), ...slots("radio-item")]) {
     expect(row.className).toContain("outline-hidden");
-    expect(row.className).toContain("focus:bg-accent");
+    expect(row.className).toContain("focus:bg-state-hover");
   }
 });
 

@@ -104,9 +104,8 @@ test("overflow chip IS a chip — one pill that is its own 28px pointer target",
   expect(overflow.className).toContain("min-w-7");
   expect(overflow.className).toContain("rounded-full");
   expect(overflow.querySelector("span")).toBeNull();
-  // The one interactive chip carries a hover wash. No pressed state is asserted: INT-4 is decided
-  // as **shadcn**, so a hover no longer owes one.
-  expect(overflow.className).toContain("hover:bg-accent");
+  // The one interactive chip carries the shared state layer: hover and press (COL-24, INT-4).
+  expect(overflow.className).toContain("state-layer");
   expect(overflow.className).toContain("hover:text-foreground");
 });
 

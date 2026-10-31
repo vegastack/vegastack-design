@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.26.4 sha256-WU97yAI7FUzcQ0Wj/zO07zDsjj+TTyjwPX4z4v5as90=
+// @vegastack table-of-contents@0.26.4 sha256-JotHUURe42jXFhFXSxdDcSHb2yunzrSlt8RNafsfaJo=
 
 "use client";
 
@@ -802,12 +802,12 @@ function TableOfContentsNav({
 const LIST_LINK =
   "group/table-of-contents-link relative -ms-px flex min-h-7 items-center rounded-e-md py-1 ps-[calc(--spacing(3)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] hover:text-foreground data-active:font-medium data-active:text-foreground data-active:before:opacity-100";
 const PANEL_LINK =
-  "relative flex min-h-7 items-center rounded-md py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:text-foreground data-active:font-medium data-active:text-foreground before:absolute before:inset-y-1.5 before:start-0.5 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] data-active:before:opacity-100";
+  "relative flex min-h-7 items-center rounded-md py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors state-layer hover:text-foreground focus-visible:text-foreground data-active:font-medium data-active:text-foreground before:absolute before:inset-y-1.5 before:start-0.5 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] data-active:before:opacity-100";
 // The rail: a column of 10px rows, each holding one dash — 18 headings are 180px tall. A ghost
 // `Button` reshaped into the column (base.css paints its focus cue); on touch its hit area
 // reaches 44px wide.
 const RAIL_TRIGGER =
-  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:bg-transparent active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0 dark:hover:bg-transparent";
+  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:not-focus-visible:bg-none active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0";
 // The panel floats over the page beside the rail, from its top corner (its frame places it);
 // closed, it is transparent and inert. Long outlines scroll inside it.
 const RAIL_PANEL =

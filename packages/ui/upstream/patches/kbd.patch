@@ -1,24 +1,26 @@
 # component: kbd
-# decisions: DOC-2
+# decisions: DOC-2, OVL-24
 # hunks:
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
+#   OVL-24: Kbd keeps its one recipe inside a tooltip — the inverted-tooltip overrides are gone.
 diff --git a/kbd.tsx b/kbd.tsx
-index 2c12278..2f8ad69 100644
+index 2c12278..d40c397 100644
 --- a/kbd.tsx
 +++ b/kbd.tsx
-@@ -1,4 +1,4 @@
+@@ -1,16 +1,16 @@
 -import { cn } from "cn"
 +import { cn } from "@vegastack/design";
  
  function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
    return (
-@@ -6,11 +6,11 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
+     <kbd
        data-slot="kbd"
        className={cn(
-         "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3",
+-        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3",
 -        className
++        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none [&_svg:not([class*='size-'])]:size-3",
 +        className,
        )}
        {...props}

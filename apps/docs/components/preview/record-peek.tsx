@@ -50,7 +50,7 @@ function TaskRow({
       render={<button type="button" />}
       {...peek}
       data-row-id={task.id}
-      className="data-peek-active:bg-accent"
+      className="data-peek-active:bg-state-selected"
       onClick={(event) => onOpen(task.id, event.currentTarget as HTMLElement)}
     >
       <ItemContent>

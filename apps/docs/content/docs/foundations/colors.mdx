@@ -19,7 +19,7 @@ pressed chrome the way upstream writes it.
 | `--background` | the page                                                          |
 | `--card`       | card, popover, sheet, dialog (`--popover` carries the same value) |
 | `--muted`      | a well, a track, a skeleton, the rest fill of a filled control    |
-| `--accent`     | hover, and a highlighted menu or list row                         |
+| `--accent`     | an accent well (kept as its own role; hover is the state layer)   |
 | `--sidebar`    | the rail, which is its own surface rather than an alias           |
 
 **In light, `--card` is the page colour** — `oklch(1 0 0)`, the same white as `--background`, so a
@@ -31,9 +31,24 @@ floating surface is `--card` plus a Tailwind shadow step — see
 roles on purpose: a consumer can retune a hover without moving every well, which an alias would make
 impossible.
 
-Hover and pressed are written in plain Tailwind at the call site — `hover:bg-accent`,
-`hover:bg-muted`, `hover:bg-primary/80`, `bg-destructive/10 hover:bg-destructive/20`. There is no
-shared recipe to import, and a hover with no pressed step is upstream's own behaviour.
+## Interaction states
+
+Every hover, press, selected, open and highlighted fill is a **translucent foreground layer** over
+whatever is underneath, never an opaque colour, so the step reads the same on the page, a card, a
+popover, the sidebar and a muted well, in both themes (COL-24, operator 2026-10-31):
+
+| State                             | Token (light / dark)                                        | Use                                                                         |
+| --------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Hover                             | `--state-hover` (5% / 4% foreground)                        | `state-layer` — the one utility; it also gives the press                    |
+| Pressed                           | `--state-pressed` (10% / 9%)                                | `state-layer`, on `:active`                                                 |
+| Selected · current · open         | `--state-selected` (8% / 7%), weight 500 on the current row | `bg-state-selected`, or `layer-selected` over a filled part                 |
+| Highlighted (menu or list cursor) | `--state-hover`                                             | `data-highlighted:bg-state-hover`                                           |
+| Keyboard focus                    | `--state-focus` (info hue, 18% / 24%)                       | painted by base.css; `layer-focus` when a filled part shows a child's focus |
+| Inner tile                        | `--state-tile` (6% / 7%)                                    | `bg-state-tile` — it composes with the row, so it stays one step above it   |
+
+A rest fill never carries state, and an inner tile never swaps its fill when its row is hovered.
+Solid fills keep stepping their own colour (`hover:bg-primary/80 active:bg-primary/70`,
+`bg-destructive/10 hover:bg-destructive/20`).
 
 ## The hairline
 

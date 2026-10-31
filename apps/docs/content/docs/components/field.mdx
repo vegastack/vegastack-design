@@ -322,3 +322,7 @@ Upstream's file plus `packages/ui/upstream/patches/field.patch`. Every hunk:
   invalid state from the Field. Outside a `Field` each part renders upstream's plain element.
   `FieldTitle` takes its own `field-title` slot, so the Base UI label is the one `field-label`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

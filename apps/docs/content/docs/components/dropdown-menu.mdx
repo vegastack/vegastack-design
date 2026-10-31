@@ -314,3 +314,7 @@ min-w-32`; `DropdownMenuSubContent`'s `w-auto` becomes `w-max`. A menu is as wid
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of
   their own.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

@@ -1,4 +1,4 @@
-// @vegastack input@0.26.4 sha256-FoJTNVOa5HkNROyz+GK5kbQcDwXVpwXvKchvpgMI8As=
+// @vegastack input@0.26.4 sha256-slSFCKRdOtDVS6FGN1tOLiTWIP2EXm1IZQLP6PPe6mw=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -6,12 +6,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 const inputVariants = cva(
-  "w-full min-w-0 transition-[color,background-color,border-color] duration-150 ease-out outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+  "w-full min-w-0 transition-[color,background-color,border-color,box-shadow] duration-150 ease-out outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/50 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "rounded-lg border border-input bg-transparent hover:not-read-only:border-input-hover focus:not-aria-invalid:not-read-only:not-[[type=file]]:border-ring/50 focus:not-aria-invalid:not-read-only:not-[[type=file]]:field-halo focus:aria-invalid:field-halo-destructive read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         // A borderless, transparent field for a big title (Linear's issue title). No box and no fill
         // in any state — rest, hover, focus (text entry takes no tint, FOC-3): the text cursor marks
         // it editable and the caret is the focus cue. An invalid title turns its placeholder

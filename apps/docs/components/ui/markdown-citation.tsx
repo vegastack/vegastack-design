@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.26.4 sha256-vEaAO6UaUYRmmA7WG7mePK24PR/ArpFBdVSf9KDOdvA=
+// @vegastack markdown-view@0.26.4 sha256-zilaALTFMydRezFmaxZ46A9kpAdTbIPJC3uX4Q90kKA=
 
 "use client";
 
@@ -39,7 +39,7 @@ const LONG_PRESS_MS = 450;
 // is `base.css`'s own background tint — no ring (FOC-13). The `after:` box grows the hit area to
 // 24px without moving the text (WCAG 2.5.8).
 const MARKER =
-  "h-4 min-w-4 rounded-sm bg-muted px-1 align-baseline text-xs leading-none font-medium text-muted-foreground tabular-nums no-underline hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground after:absolute after:-inset-1.5";
+  "h-4 min-w-4 rounded-sm bg-muted px-1 align-baseline text-xs leading-none font-medium text-muted-foreground tabular-nums no-underline state-layer hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground after:absolute after:-inset-1.5";
 
 /**
  * `MarkdownCitationMarker` — the superscript citation `MarkdownView` renders for a `[[n]]` marker

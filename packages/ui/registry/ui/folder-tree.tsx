@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.26.4 sha256-Xr5wJm4FmdXAuN9L2nBoVG6dJwjlcMJmtmk6W1rTXI8=
+// @vegastack folder-tree@0.26.4 sha256-qN/TRoW/oyQtg85Q0rODOHTjgptDggiMnhaGL8+RY6Y=
 
 "use client";
 
@@ -828,7 +828,7 @@ function FolderTree({
                   aria-controls={open ? listId : undefined}
                   data-slot="folder-tree-toggle"
                   onClick={() => setExpanded(node.id, !open)}
-                  className="text-muted-foreground hover:bg-transparent aria-expanded:bg-transparent"
+                  className="text-muted-foreground hover:not-focus-visible:bg-none aria-expanded:bg-transparent"
                 >
                   <ChevronRightIcon className="transition-transform duration-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100" />
                 </Button>
@@ -1031,7 +1031,7 @@ function FolderTree({
                         aria-controls={open ? listId : undefined}
                         data-slot="folder-tree-section-toggle"
                         onClick={() => setSectionOpen(section.id, !open)}
-                        className="me-auto text-muted-foreground opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 hover:bg-transparent aria-expanded:bg-transparent pointer-coarse:opacity-100"
+                        className="me-auto text-muted-foreground opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 hover:not-focus-visible:bg-none aria-expanded:bg-transparent pointer-coarse:opacity-100"
                       >
                         <ChevronRightIcon className="size-3 transition-transform duration-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100" />
                       </Button>
@@ -1086,7 +1086,7 @@ function FolderTree({
 }
 
 const rowClasses =
-  "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-md ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground hover:bg-accent/60 data-active:bg-accent data-active:font-medium data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
+  "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-md ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground state-layer data-active:bg-state-selected data-active:font-medium data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
 
 const actionsClasses =
   "flex shrink-0 items-center opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-active/folder-tree-row:opacity-100 pointer-coarse:opacity-100";

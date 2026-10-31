@@ -118,6 +118,91 @@
   --breakpoint-wide: 90rem;
 }
 
+/* COL-24 + INT-4 (ours, operator 2026-10-31) — THE interaction state layer. Every clickable surface
+   (row, menu item, tab, ghost/outline/secondary button, chip, sidebar item) takes `state-layer`
+   instead of an opaque `hover:bg-muted`/`hover:bg-accent`: hover lays `--state-hover` (the
+   foreground at 5% light / 4% dark) over whatever fill is already there, and a press lays
+   `--state-pressed` (10% / 9%). Because it is a translucent background IMAGE, the step reads the
+   same on page, card, popover, sidebar, muted and on a filled button, and an inner tile drawn with
+   `--state-tile` stays one step above its row in every state. Selected/current/open is the
+   component's own `bg-state-selected` (8% / 7%) as a background COLOUR, and it HOLDS through hover:
+   a selected, current, peeked, pressed-toggle or open part takes no hover layer, so the pointer never
+   moves "current" and secondary text keeps AA on it. The keyboard focus tint (base.css,
+   `--state-focus`) replaces the hover layer while focused. A disabled control takes no layer. The
+   conditions sit in `:where()`, so the utility weighs one class and a component's own
+   `hover:not-focus-visible:bg-none` (an opt-out) still wins. */
+@utility state-layer {
+  /* Through Tailwind's own `hover` variant (`@media (hover: hover)` by default), so a project or test
+     lane that redefines `hover` gets the same rule here as on every `hover:` utility. */
+  @variant hover {
+    &:where(
+      :not(
+        :focus-visible,
+        :disabled,
+        [aria-disabled="true"],
+        [data-disabled],
+        [data-active],
+        [aria-current="page"],
+        [aria-current="true"],
+        [aria-selected="true"],
+        [data-state="selected"],
+        [data-peek-active],
+        [aria-pressed="true"],
+        [data-state="on"],
+        [aria-expanded="true"]
+      )
+    ) {
+      background-image: linear-gradient(var(--state-hover), var(--state-hover));
+    }
+  }
+  &:where(:active:not(:disabled, [aria-disabled="true"], [data-disabled])) {
+    background-image: linear-gradient(
+      var(--state-pressed),
+      var(--state-pressed)
+    );
+  }
+}
+
+/* COL-24: the hover step as a plain layer, for an opaque part that repaints its row's state on
+   the row's behalf (a sticky DataGrid cell under `group-hover/row:`). Everything else takes
+   `state-layer`. */
+@utility layer-hover {
+  background-image: linear-gradient(var(--state-hover), var(--state-hover));
+}
+
+/* COL-24: the selected/open step as a LAYER, for a part whose rest fill must survive it (an open
+   outline or secondary Button keeps its own fill under the step). A part with no rest fill uses
+   `bg-state-selected` instead. */
+@utility layer-selected {
+  background-image: linear-gradient(
+    var(--state-selected),
+    var(--state-selected)
+  );
+}
+
+/* FOC-15: the keyboard focus tint as a layer, for a filled part that shows the focus of a control
+   inside it (a card whose link has focus) — base.css paints it on the focused element itself. */
+@utility layer-focus {
+  background-image: linear-gradient(var(--state-focus), var(--state-focus));
+}
+
+/* FOC-16 (ours, operator 2026-10-31) — text entry's focus glow: a 3px soft halo outside the
+   `ring/50` focus border, written once here and applied as `focus:field-halo` (or
+   `has-[input:focus]:field-halo` on a field group) by text-entry components only. An invalid field
+   takes the destructive halo instead. A control INSIDE a field group never paints its own halo —
+   the group that draws the border draws the one halo. The one sanctioned glow in the system. */
+@utility field-halo {
+  &:not(:where([data-field-group] *, [data-slot="input-group"] *)) {
+    box-shadow: 0 0 0 3px var(--input-halo);
+  }
+}
+@utility field-halo-destructive {
+  &:not(:where([data-field-group] *, [data-slot="input-group"] *)) {
+    box-shadow: 0 0 0 3px
+      color-mix(in oklab, var(--destructive) 20%, transparent);
+  }
+}
+
 /* Upstream's one scrollbar utility, which `sidebar` and `command` reach for. */
 @utility no-scrollbar {
   -ms-overflow-style: none;

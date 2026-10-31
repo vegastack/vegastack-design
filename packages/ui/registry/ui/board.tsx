@@ -1,4 +1,4 @@
-// @vegastack board@0.26.4 sha256-Y87tRCj6VFA3WDnOc/P39/45QI1aAjl8sBxcQi31OcE=
+// @vegastack board@0.26.4 sha256-lkwhA19cEpCiFcnAJZiLGckhga5rquz/ykY2zjYHflw=
 
 "use client";
 
@@ -1445,7 +1445,7 @@ export function Board<T>({
         {...(canDrag ? pointerDrag.getSourceProps(id) : {})}
         className={cn(
           cardClasses,
-          "hover:bg-accent/50 has-[[data-slot=board-card-surface]:focus-visible]:bg-accent data-peek-active:bg-accent",
+          "state-layer has-[[data-slot=board-card-surface]:focus-visible]:layer-focus data-peek-active:layer-selected",
           canDrag && "cursor-grab touch-manipulation",
           "data-drag-pending:animate-pulse",
           "data-lifted:z-10 data-lifted:bg-card data-lifted:shadow-lg motion-safe:data-lifted:rotate-1",
@@ -1601,7 +1601,7 @@ export function Board<T>({
                 onClick={() => setCollapsed(column.id, false)}
                 // `relative`: the sr-only child is absolutely positioned and must not resolve against
                 // the page, where its static x would widen the page's scroll area.
-                className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-xl border border-dashed border-border px-1 py-3 hover:bg-muted data-drop-over:bg-accent"
+                className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-xl border border-dashed border-border px-1 py-3 state-layer data-drop-over:bg-state-selected"
               >
                 <PanelLeftOpen
                   aria-hidden="true"
@@ -1734,7 +1734,7 @@ export function Board<T>({
         data-compact={compact ? "" : undefined}
         className={cn(
           // A subtle top-down fade marks the lane; drop-over swaps it for a solid accent wash.
-          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent transition-colors data-drop-over:bg-accent/60 data-drop-over:bg-none",
+          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent transition-colors data-drop-over:bg-state-selected data-drop-over:bg-none",
           "max-md:basis-full max-md:snap-start max-md:snap-always",
           // A compact empty lane is as tall as its header and drop target, even on a fill board.
           fill && !compact ? "h-full" : "self-start",
@@ -1992,7 +1992,7 @@ export function Board<T>({
               aria-current={activeLane === index ? "true" : undefined}
               data-active={activeLane === index ? "" : undefined}
               onClick={() => showLane(index)}
-              className="shrink-0 text-muted-foreground data-active:bg-accent data-active:text-foreground"
+              className="shrink-0 text-muted-foreground data-active:bg-state-selected data-active:text-foreground"
             >
               {laneLabel(column)}
               <span
@@ -2106,7 +2106,7 @@ export function Board<T>({
                   data-drop-over={
                     drag?.over?.container === column.id ? "" : undefined
                   }
-                  className="justify-start font-normal data-drop-over:bg-accent"
+                  className="justify-start font-normal data-drop-over:bg-state-selected"
                   onClick={() => revealLane(column.id)}
                 >
                   {column.icon}

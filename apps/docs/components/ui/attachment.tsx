@@ -1,4 +1,4 @@
-// @vegastack attachment@0.26.4 sha256-xLIvlaGaD/7MfrT4weonkYpoXmv+DpfEWflczPTDnPo=
+// @vegastack attachment@0.26.4 sha256-97XlKMglk0BuzUSe8QGk099FFvT4IKvO26ASgdff4ng=
 
 "use client";
 
@@ -132,7 +132,7 @@ const attachmentVariants = cva(
   // card wearing a ring on behalf of the invisible `AttachmentTrigger` inside it, which upstream
   // silences with `outline-none`. This system has one focus affordance and it belongs on the
   // control that has focus, so the ring is gone and the trigger paints `base.css`'s outline.
-  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors has-[>a,>button]:hover:bg-muted/50 data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
+  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors has-[>a,>button]:state-layer data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
   {
     variants: {
       size: {

@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.26.4 sha256-wfZl9tkQWMUnr/r4jyR6qsz+wvOTWX/amN9I/cuo9m0=
+// @vegastack add-filter-menu@0.26.4 sha256-d3s7bxcuR6hqvB5M+CFLYGzuzE/c/VtBu4oUWmqFhDY=
 
 "use client";
 
@@ -445,7 +445,7 @@ export function AddFilterMenu({
                 data-highlighted={index === active ? "" : undefined}
                 onPointerMove={() => setActive(index)}
                 onClick={() => choose(option)}
-                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent"
+                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-state-hover"
               >
                 <Sparkles
                   aria-hidden
@@ -465,7 +465,7 @@ export function AddFilterMenu({
                 data-highlighted={index === active ? "" : undefined}
                 onPointerMove={() => setActive(index)}
                 onClick={() => choose(option)}
-                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-state-hover [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
               >
                 {option.field.icon}
                 <span className="min-w-0 flex-1 truncate">
@@ -522,7 +522,7 @@ export function AddFilterMenu({
           // The toolbar's tool height: 32px, 28px in a compact toolbar.
           size={toolbar?.compact ? "sm" : "default"}
           data-slot="add-filter-menu-trigger"
-          className="shrink-0 font-normal text-muted-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
+          className="shrink-0 font-normal text-muted-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground"
         >
           <Plus aria-hidden />
           {labels.filter}

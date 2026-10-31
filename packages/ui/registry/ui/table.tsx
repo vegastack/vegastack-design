@@ -1,4 +1,4 @@
-// @vegastack table@0.26.4 sha256-+xtzpCkr5p9m3zP1zYray84E4JA/0J+RwzGCLURULoE=
+// @vegastack table@0.26.4 sha256-g3s8w0tPiCtn0oG2jJcWSx+KGpnibhgHp0xXELGQ/S4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -56,7 +56,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b transition-colors state-layer has-aria-expanded:bg-state-selected data-[state=selected]:bg-state-selected",
         className,
       )}
       {...props}

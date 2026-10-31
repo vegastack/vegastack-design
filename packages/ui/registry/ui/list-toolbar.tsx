@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.26.4 sha256-kfKG+ZDfZZYERS1f9M7DEvKi3eYuk9hGDbrEJUfUFwA=
+// @vegastack list-toolbar@0.26.4 sha256-mz+9rSnwWfVTWhf6UrKmPinTrRzlWX2jnsPLQ0BlsPY=
 
 "use client";
 
@@ -434,7 +434,7 @@ export function ListToolbarButton({
             aria-label={name}
             data-dot={dot && !counted ? "" : undefined}
             className={cn(
-              "relative shrink-0 text-muted-foreground hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground data-popup-open:bg-muted data-popup-open:text-foreground",
+              "relative shrink-0 text-muted-foreground hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground",
               counted && "w-auto gap-1 px-2",
               className,
             )}

@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.26.4 sha256-fO8fmKH8TDJ9ZyCDFR0LOUr5ksqrpKKYjaVoRb3H3+g=
+// @vegastack recent-strip@0.26.4 sha256-J2pX+HtKV1aasiqRTUbkH1N1QRGNtkLryt/gkZzdjIE=
 
 "use client";
 
@@ -214,7 +214,7 @@ export function RecentStrip({
                 <CollapsibleTrigger
                   data-slot="recent-strip-toggle"
                   id={headingId}
-                  className="-ms-1 inline-flex h-7 min-w-0 items-center gap-1 rounded-md px-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0"
+                  className="-ms-1 inline-flex h-7 min-w-0 items-center gap-1 rounded-md px-1 text-sm font-medium text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0"
                 >
                   <span className="truncate">{label}</span>
                   <ChevronDown
@@ -335,7 +335,7 @@ function RecentStripList({
                   "data-slot": "recent-strip-link",
                   className: cn(
                     ITEM_SHAPE,
-                    "group/recent-item text-foreground no-underline transition-colors hover:bg-muted hover:no-underline focus-visible:no-underline",
+                    "group/recent-item text-foreground no-underline transition-colors state-layer hover:no-underline focus-visible:no-underline",
                   ),
                   children: (
                     <>
@@ -343,7 +343,7 @@ function RecentStripList({
                         <span
                           data-slot="recent-strip-icon"
                           aria-hidden="true"
-                          className="flex shrink-0 items-center justify-center text-muted-foreground @md/recent-strip:size-8 @md/recent-strip:rounded-md @md/recent-strip:bg-muted @md/recent-strip:transition-colors @md/recent-strip:group-hover/recent-item:bg-background [&_svg]:size-4 [&_svg]:shrink-0"
+                          className="flex shrink-0 items-center justify-center text-muted-foreground @md/recent-strip:size-8 @md/recent-strip:rounded-md @md/recent-strip:bg-state-tile [&_svg]:size-4 [&_svg]:shrink-0"
                         >
                           {item.icon}
                         </span>
@@ -387,7 +387,7 @@ function RecentStripList({
         onClick={() => scroll(-1)}
         // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
         // and would replace the centring transform, dropping the arrow by half its height.
-        className="absolute inset-y-0 start-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
+        className="absolute inset-y-0 start-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background"
       >
         <ChevronLeft className="rtl:rotate-180" />
       </Button>
@@ -400,7 +400,7 @@ function RecentStripList({
         aria-hidden="true"
         aria-label={scrollForwardLabel}
         onClick={() => scroll(1)}
-        className="absolute inset-y-0 end-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background dark:hover:bg-muted"
+        className="absolute inset-y-0 end-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background"
       >
         <ChevronRight className="rtl:rotate-180" />
       </Button>

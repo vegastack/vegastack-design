@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.26.4 sha256-7QhUi0JQ48Sw8gcwtn01/UjZpEL09I0m2vsImuPqudc=
+// @vegastack data-table-parts@0.26.4 sha256-yTZIwEyMUa7bPfctyout3M+ZBwVv5TUoPe8sfJ0t7vo=
 
 "use client";
 
@@ -380,7 +380,7 @@ export function mergedValueClass(column: DataTableColumnLayout): string {
  * authoritative selection cue.
  */
 export const SELECTED_ROW_CLASS =
-  "bg-muted/50 hover:bg-muted/50 active:bg-muted/50";
+  "bg-state-selected hover:not-focus-visible:bg-none";
 
 /**
  * The ONE list density scale (RS-15), shared by `DataList` and `DataGrid` so a list and a grid
@@ -401,27 +401,27 @@ export const LIST_ROW_HEIGHT_CLASS = {
  * The ONE row-state ladder, shared by `DataList` and `DataGrid` so a list and a grid answer the
  * same way (Regent POL-01):
  *
- * - hover — `ROW_HOVER_CLASS`, a faint `muted`/30 wash and nothing else;
- * - selected (ticked) — `SELECTED_ROW_CLASS`, the stronger `muted`/50 wash, held through hover;
- * - open (`activeRowId`) — `PEEK_ACTIVE_ROW_CLASS`, the `accent` wash plus the 2px `foreground`
+ * - hover — `ROW_HOVER_CLASS`, the `state-layer` hover/press steps (COL-24) and nothing else;
+ * - selected (ticked) — `SELECTED_ROW_CLASS`, the `state-selected` wash, held through hover (the
+ *   hover layer stands down on it, so secondary text keeps AA);
+ * - open (`activeRowId`) — `PEEK_ACTIVE_ROW_CLASS`, the `state-selected` wash plus the 2px `foreground`
  *   start edge. The edge belongs to the open row (and to keyboard focus or the keyboard cursor,
  *   which point at the row the next Enter opens); the pointer never draws it.
  */
-export const ROW_HOVER_CLASS = "hover:bg-muted/30";
+export const ROW_HOVER_CLASS = "state-layer";
 
 /**
  * The row whose record is open beside the list or grid (a peek, `activeRowId`): it carries
- * `data-peek-active`, the `accent` wash held through hover so the open row never flickers under
- * the pointer, and the 2px start edge, painted as the first cell's background layer (a table row
+ * `data-peek-active`, the `state-selected` wash (the pointer's hover step stacks on it), and the 2px start edge, painted as the first cell's background layer (a table row
  * can't hold a positioned `::before`). A selected row's own wash (`SELECTED_ROW_CLASS`) is applied
  * after it, so the checkbox's state still reads; the edge stays.
  */
 export const PEEK_ACTIVE_ROW_CLASS =
-  "data-peek-active:bg-accent data-peek-active:hover:bg-accent [&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-peek-active]>:first-child]:bg-no-repeat [&[data-peek-active]>:first-child]:bg-size-[2px_100%] [&[data-peek-active]>:first-child]:bg-left rtl:[&[data-peek-active]>:first-child]:bg-right";
+  "data-peek-active:bg-state-selected [&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-peek-active]>:first-child]:bg-no-repeat [&[data-peek-active]>:first-child]:bg-size-[2px_100%] [&[data-peek-active]>:first-child]:bg-left rtl:[&[data-peek-active]>:first-child]:bg-right";
 
-/** The card whose record is open beside a card grid: the same `accent` wash, with no edge. */
-export const PEEK_ACTIVE_CARD_CLASS =
-  "data-peek-active:bg-accent data-peek-active:hover:bg-accent";
+/** The card whose record is open beside a card grid: the same selected step as a layer over the
+ * card's own fill, with no edge. */
+export const PEEK_ACTIVE_CARD_CLASS = "data-peek-active:layer-selected";
 
 /** What a row-open callback (`onRowOpen`) receives beside the row id. */
 export interface RowOpenDetails {
@@ -1251,7 +1251,7 @@ export function EmptyRow({
     </Empty>
   );
   return (
-    <TableRow data-slot={slot} className="hover:bg-transparent">
+    <TableRow data-slot={slot} className="hover:not-focus-visible:bg-none">
       {/* `p-2`: a custom empty node never touches the header row above it. */}
       <TableCell colSpan={colSpan} className="min-w-0 p-2">
         {viewportWidth != null ? (
@@ -1833,7 +1833,7 @@ export function SectionRow({ id, colSpan, ...toggle }: SectionRowProps) {
     <TableRow
       data-slot="section-row"
       data-section={id}
-      className="bg-muted hover:bg-muted active:bg-muted"
+      className="bg-muted state-layer"
     >
       <TableHead scope="rowgroup" colSpan={colSpan} className="h-auto py-1">
         <SectionToggle {...toggle} />

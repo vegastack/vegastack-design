@@ -127,8 +127,8 @@ test("rows read exactly like ComboboxItem's, apart from the check-indicator gutt
     .filter((token) => token !== "pe-1.5")
     .sort();
   expect(ours).toEqual(combobox);
-  // The highlight is ComboboxItem's accent pair, never the muted ground.
-  expect(SUGGESTION_MENU_ROW).toContain("data-highlighted:bg-accent");
+  // The highlight is ComboboxItem's, the shared hover step (COL-24).
+  expect(SUGGESTION_MENU_ROW).toContain("data-highlighted:bg-state-hover");
   expect(SUGGESTION_MENU_ROW).toContain(
     "data-highlighted:text-accent-foreground",
   );

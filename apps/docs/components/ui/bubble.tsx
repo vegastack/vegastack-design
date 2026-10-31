@@ -1,4 +1,4 @@
-// @vegastack bubble@0.26.4 sha256-KfAnAzK3P6H1m4SQLASBQG8b8ATj5qSq+RwvlbR3+CM=
+// @vegastack bubble@0.26.4 sha256-QGCA01Fu+kc5szF4zAPr+Yhqi0P5029aE+dlIfcygpw=
 
 "use client";
 
@@ -26,15 +26,15 @@ const bubbleVariants = cva(
         default:
           "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80",
         secondary:
-          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]",
+          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a)]:state-layer",
         muted:
-          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)]",
+          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a)]:state-layer",
         tinted:
           "*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)] *:data-[slot=bubble-content]:text-foreground dark:*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.3_calc(c*0.4)_h)] [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.88_calc(c*0.5)_h)] dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.35_calc(c*0.5)_h)]",
         outline:
-          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30",
+          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
         ghost:
-          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50",
+          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
         // A11Y-13: upstream writes `text-destructive` here, which on its own `/10` tint measures
         // 3.987:1 in light — under the AA floor A11Y-1 enforces as a fail-closed gate. The family's
         // `-text` ink is the one A11Y-13 adds for exactly this pair, and it reads 6.966:1 on the

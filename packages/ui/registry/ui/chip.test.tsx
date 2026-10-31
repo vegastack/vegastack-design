@@ -109,8 +109,8 @@ test("the remove control is a round ghost icon Button with the shared hover/pres
   expect(remove.dataset.slot).toBe("chip-remove");
   expect(remove.className).toContain("rounded-full");
   // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
-  // Since Batch 2 of the shadcn reset that recipe is upstream's own `hover:bg-muted`.
-  expect(remove.className).toContain("hover:bg-muted");
+  // Since COL-24 that recipe is the shared `state-layer` (hover and press).
+  expect(remove.className).toContain("state-layer");
 });
 
 /* ---------------------------------------------------------------------------------------------

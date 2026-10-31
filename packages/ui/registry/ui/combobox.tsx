@@ -1,4 +1,4 @@
-// @vegastack combobox@0.26.4 sha256-86kqRldfTXrQ/MtZw3rkrQzjOBgyzGpMYXDRLTjDdnM=
+// @vegastack combobox@0.26.4 sha256-S1fM66TkaxyLBR1u3gHH++fLaFUGztca5ypGaVwyozY=
 
 "use client";
 
@@ -264,7 +264,7 @@ function ComboboxItem({
         data-slot="combobox-item"
         aria-describedby={description.id || undefined}
         className={cn(
-          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
+          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-state-hover data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}
@@ -375,7 +375,7 @@ function ComboboxChips({
       data-slot="combobox-chips"
       data-field-group=""
       className={cn(
-        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:not-has-aria-invalid:border-ring/50 has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
+        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color,box-shadow] duration-150 ease-out hover:border-input-hover has-[input:focus]:not-has-aria-invalid:border-ring/50 has-[input:focus]:not-has-aria-invalid:field-halo has-[input:focus]:has-aria-invalid:field-halo-destructive has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
         className,
       )}
       {...props}

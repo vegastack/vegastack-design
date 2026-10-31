@@ -1,4 +1,4 @@
-// @vegastack stat@0.26.4 sha256-yNbjl96d4gxScK35n15pt4p1TddpLuPlJaiUqlSuUG4=
+// @vegastack stat@0.26.4 sha256-YU8sOuOiWNF/ElvUPLgSpVsJvfisYg/JDAtURcC3n3o=
 
 "use client";
 
@@ -324,7 +324,7 @@ export function StatGroup({
               "aria-busy": item.value === undefined ? true : undefined,
               className: cn(
                 cellClass,
-                "transition-colors hover:bg-muted",
+                "transition-colors state-layer",
                 template.props.className,
               ),
             } as object,

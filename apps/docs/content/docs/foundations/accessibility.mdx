@@ -25,9 +25,12 @@ component — there is nothing extra to wire up.
 for keyboard users, owned by `base.css` and never restated by a component:
 
 - **Everything focusable** — buttons, chips, rows, menu items, toggles, cards, links, checkboxes,
-  switches — shows a subtle **background tint** on `:focus-visible`: `accent` at 50%, laid over the
-  control's own fill as a background image, so it reads on a primary button as well as a ghost one.
-  It appears only on keyboard focus, never on a mouse click.
+  switches — shows a **background tint** on `:focus-visible`: `--state-focus`, a soft info-hue wash
+  (18% light / 24% dark), laid over the control's own fill as a background image and replacing the
+  hover layer, so it reads on a primary button as well as a ghost one and never looks like
+  "selected". It measures 1.28–1.54:1 against the ground — a tint cannot reach 3:1, and the system
+  draws no ring by decision (FOC-13, FOC-15). It appears only on keyboard focus, never on a mouse
+  click.
 - **Text entry** — `Input`, `Textarea`, the OTP slots, questionnaire answers, and the bordered field
   groups that frame a text field (`InputGroup`, `NumberField`, `ChipInput`, `ComboboxChips`, the
   panel search row, the Command input and the popup search rows) — takes **no background change at

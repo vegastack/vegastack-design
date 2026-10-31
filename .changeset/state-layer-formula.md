@@ -1,0 +1,7 @@
+---
+"@vegastack/ui": minor
+"@vegastack/design-tokens": minor
+"@vegastack/design": minor
+---
+
+🧩 One interaction state formula (COL-24, INT-4, FOC-15, FOC-16, OVL-24, LAY-20; operator, Regent, 2026-10-31). Hover, press, selected/current, open and highlighted fills are translucent foreground layers — new tokens `--state-hover` (5% / 4%), `--state-selected` (8% / 7%), `--state-pressed` (10% / 9%) and `--state-tile` (6% / 7%), applied through the new `state-layer` utility (plus `layer-selected`, `layer-hover`, `layer-focus`) — so the step reads the same on page, card, popover, sidebar and muted in both themes (dark hover drops from +0.124 to +0.04 lightness on the page). Every component's opaque `hover:bg-muted`/`bg-accent`/`bg-sidebar-accent` recipe is replaced, every clickable surface gets a pressed step, selected never equals hover, and inner tiles (Inbox, RecentStrip) use `bg-state-tile` and never turn dark on hover. Keyboard focus is a soft info-hue tint (`--state-focus`, no ring). Text entry shows a darker border on hover, a `ring/50` border with a soft `field-halo` on focus, and a faint `readonly` fill when read-only. Tooltips sit on the Popover surface with no arrow, and Kbd keeps one recipe inside them. `ItemGroup variant="flush"` and the Inbox list inset their rows 8px from the container edge. Light `muted-foreground` darkens to 0.50 so secondary text holds AA on a selected or pressed row. A new `design-lint` rule, `opaque-state-fill`, keeps the old recipes out.

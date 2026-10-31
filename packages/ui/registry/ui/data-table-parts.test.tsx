@@ -442,9 +442,9 @@ test("offscreenSortSummary states a sort only once its column has left the heade
   ).toBe("Sorted by Name, ascending, then amount, ascending");
 });
 
-test("SELECTED_ROW_CLASS is the half-muted wash in every state, never the badge-coloured accent", () => {
+test("SELECTED_ROW_CLASS is the selected step, held through hover (COL-24)", () => {
   expect(SELECTED_ROW_CLASS).toBe(
-    "bg-muted/50 hover:bg-muted/50 active:bg-muted/50",
+    "bg-state-selected hover:not-focus-visible:bg-none",
   );
 });
 

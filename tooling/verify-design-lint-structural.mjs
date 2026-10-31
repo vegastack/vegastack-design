@@ -104,6 +104,8 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="text-4xl tracking-tight">TYP-15: the ramp owns heading tracking; a local utility silently wins through var(--tw-tracking)</div>
     <div className="text-[13px]">TYP-18: an arbitrary size receives neither half of the ramp</div>
     <div className="uppercase">TYP-7: no uppercase transform; it also rewrites token names</div>
+    <div className="hover:bg-muted">COL-24: an opaque hover fill; the state-layer utility owns hover</div>
+    <div className="[&>a:hover]:bg-muted">COL-24: the same opaque hover behind an arbitrary selector</div>
     <svg viewBox="0 0 16 16"><path d="M0 0" /></svg>
   </>;
 }
@@ -567,6 +569,7 @@ export function NamedByItsOwnChildren() {
     "raw-tracking",
     "arbitrary-text-size",
     "uppercase-transform",
+    "opaque-state-fill",
   ];
   const missing = requiredIds.filter(
     (id) => !invalid.output.includes(`[${id}]`),
@@ -610,7 +613,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className="text-4xl font-semibold" />{/* an upstream size step and a heavy weight are still upstream's (TYP-4/TYP-8 = shadcn). text-4xl now carries the ramp's own leading and -0.05em tracking, which is exactly why a LOCAL tracking utility beside it is rejected (TYP-15) */}
     <div className="tracking-widest" />{/* the ONE sanctioned tracking: the keyboard-shortcut hint idiom, a role the ramp does not cover */}
     <div className="z-50 cursor-default" />{/* upstream's z band and its menu-item cursor (OVL-2/INT-10) */}
-    <div className="bg-card hover:bg-muted" />{/* a hover with no pressed rung is upstream's norm (INT-4 = shadcn) */}
+    <div className="bg-card state-layer" />{/* the one hover/press mechanism (COL-24, INT-4) */}
     <div className="outline-2 outline-offset-1 outline-ring" />{/* the KEPT forced-colours affordance: an outline, never a ring */}
     <div className="sr-only focus:not-sr-only focus:border focus:border-border aria-invalid:border-destructive border-t-2" />{/* a width, the resting border colour and an unconditional invalid border are not a focus border change (FOC-14) */}
     <div className="translate-x-1 motion-reduce:transform-none" />{/* suppresses the END STATE, which base.css does not */}

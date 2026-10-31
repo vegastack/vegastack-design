@@ -467,10 +467,13 @@ test("a facet toggles values, pins the selected ones and can be removed (DS-35)"
   }
   const screen = await render(<Host />);
   await screen.getByRole("combobox", { name: "Status: Done" }).click();
+  // The popup mounts after the click settles; a loaded runner can take longer than one tick.
+  await expect
+    .poll(() => document.querySelector('[role="option"]')?.textContent)
+    .toBe("Done");
   const options = [...document.querySelectorAll('[role="option"]')].map(
     (o) => o.textContent,
   );
-  expect(options[0]).toBe("Done");
   await expect
     .element(screen.getByRole("group", { name: "Selected" }))
     .toBeInTheDocument();

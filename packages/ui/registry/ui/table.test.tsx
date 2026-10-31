@@ -230,9 +230,11 @@ test("a selected row is marked by data attribute, not by colour alone (Data Tabl
   const selected = at(rows, 0);
   expect(selected.getAttribute("data-state")).toBe("selected");
   expect(at(rows, 1).getAttribute("data-state")).toBeNull();
-  // COL-8 resolves as shadcn: the selected fill is `bg-muted`, not a pressed rung.
-  expect(selected.className).toContain("data-[state=selected]:bg-muted");
-  expect(selected.className).toContain("hover:bg-muted/50");
+  // COL-24: the selected fill is the selected step, and hover/press are the shared state layer.
+  expect(selected.className).toContain(
+    "data-[state=selected]:bg-state-selected",
+  );
+  expect(selected.className).toContain("state-layer");
 });
 
 test("RTL: the head and the cells align on the logical axis (RTL)", async () => {
@@ -278,8 +280,8 @@ test("LAY-6/COL-6/COL-8 resolve as shadcn: cells do not wrap and the head keeps 
   expect(head.className).toContain("text-foreground");
   expect(head.className).toContain("whitespace-nowrap");
   expect(cell.className).toContain("whitespace-nowrap");
-  expect(row.className).toContain("hover:bg-muted/50");
-  expect(row.className).toContain("data-[state=selected]:bg-muted");
+  expect(row.className).toContain("state-layer");
+  expect(row.className).toContain("data-[state=selected]:bg-state-selected");
   // No wrap variable, and no scroll-region chrome of our own: the container is upstream's.
   expect(screen.container.innerHTML).not.toContain("--table-cell-min-width");
   expect(

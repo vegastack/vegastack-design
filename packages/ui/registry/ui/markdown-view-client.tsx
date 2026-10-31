@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.26.4 sha256-vEaAO6UaUYRmmA7WG7mePK24PR/ArpFBdVSf9KDOdvA=
+// @vegastack markdown-view@0.26.4 sha256-zilaALTFMydRezFmaxZ46A9kpAdTbIPJC3uX4Q90kKA=
 
 "use client";
 
@@ -1494,7 +1494,7 @@ export function MarkdownBookmark({
       // A link of its own, never editable text: an editable anchor does not navigate.
       contentEditable={false}
       className={cn(
-        "my-2 flex w-full max-w-full min-w-0 items-center gap-3 rounded-lg border border-border bg-card p-3 text-card-foreground transition-colors hover:bg-accent/50",
+        "my-2 flex w-full max-w-full min-w-0 items-center gap-3 rounded-lg border border-border bg-card p-3 text-card-foreground transition-colors state-layer",
         className,
       )}
       {...props}

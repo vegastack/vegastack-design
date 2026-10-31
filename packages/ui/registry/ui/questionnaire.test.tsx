@@ -711,6 +711,8 @@ test("FOC-14: the CHOICE CARD's tint is the affordance for its invisible input; 
     card.getBoundingClientRect().height - 2.5,
   );
 
+  // The pointer may rest over the card from an earlier test; its hover layer is not the rest.
+  await userEvent.unhover(card);
   const thaw = freezeTransitions();
   try {
     const rest = getComputedStyle(card);

@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.26.4 sha256-8z5Sa29naAA9Q2jvy4nqGRI7ICtBnW3Nx0Nj92AuL7k=
+// @vegastack questionnaire@0.26.4 sha256-m1/N3H+sIGwjOZmlbdZWpTaOvdqb3Q8pRlFg2MctMWU=
 
 "use client";
 
@@ -115,7 +115,7 @@ function QuestionnaireChoice({
         // itself, as a gradient image over its fill exactly as base.css lays it, so it still reads over
         // the hover and checked fills (the shape `input-otp`'s active slot uses). An invalid choice keeps its
         // destructive border in every state.
-        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none hover:bg-muted/50 has-[>input:focus-visible]:bg-linear-to-b has-[>input:focus-visible]:from-accent/50 has-[>input:focus-visible]:to-accent/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted",
+        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none state-layer has-[>input:focus-visible]:layer-focus data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-state-selected",
         // FRM-4: `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
         // hoverable and a Tooltip can explain why it cannot be picked. The engine keeps the
         // input's own `disabled`, so nothing becomes answerable.

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.26.4 sha256-vEaAO6UaUYRmmA7WG7mePK24PR/ArpFBdVSf9KDOdvA=
+// @vegastack markdown-view@0.26.4 sha256-zilaALTFMydRezFmaxZ46A9kpAdTbIPJC3uX4Q90kKA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -212,7 +212,7 @@ export const CALLOUT_STYLE: Record<
     icon: MessageSquareWarning,
     label: "Important",
     iconClassName: "text-foreground",
-    washClassName: "hover:bg-muted aria-expanded:bg-muted",
+    washClassName: "state-layer aria-expanded:bg-state-selected",
   },
   warning: {
     variant: "warning",
@@ -273,7 +273,7 @@ export const markdownExtrasClassName = cn(
   // An image block (`markdown-figure`): the editor's image box, 8 from its neighbours.
   "[&_[data-slot=markdown-figure]]:my-2",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
-  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
+  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-state-hover [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
 
 /** A video block: full width up to its natural size, rounded like an image. */

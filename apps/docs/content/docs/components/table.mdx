@@ -158,11 +158,15 @@ explicit `text-right` on a numeric column stays where it is named.
 
 Upstream's file plus `packages/ui/upstream/patches/table.patch`. Every hunk:
 
-- **NO STYLING HUNK** — every row this component could have argued with resolves as **shadcn** and
-  therefore ships verbatim: LAY-6 (cells stay `whitespace-nowrap`, the head stays `h-10`
+- **One styling hunk, COL-24** (below); before it, every row this component could have argued
+  with resolved as **shadcn** and shipped verbatim: LAY-6 (cells stay `whitespace-nowrap`, the head stays `h-10`
   `font-medium text-foreground` with no wrap variable), COL-6 (the row hover is upstream's own
   `hover:bg-muted/50`) and COL-8 (a selected row is `data-[state=selected]:bg-muted`, not a pressed
   rung). The container is upstream's `data-slot="table-container"` div.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

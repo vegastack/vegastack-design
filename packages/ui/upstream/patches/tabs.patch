@@ -1,5 +1,5 @@
 # component: tabs
-# decisions: A11Y-20, API-5, API-25, API-29, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, LAY-14, A11Y-24
+# decisions: A11Y-20, API-5, API-25, API-29, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, LAY-14, A11Y-24, COL-24, INT-4
 # hunks:
 #   A11Y-24 (widened MK 2026-10-26, Regent product-cohesion W1-DS2): on a coarse pointer a
 #     horizontal trigger's invisible `before:` hit area reaches 44px tall (`-inset-y-2`,
@@ -66,8 +66,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..607b5f4 100644
+index c3262d3..041377c 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
 @@ -1,8 +1,19 @@
@@ -362,7 +366,7 @@ index c3262d3..607b5f4 100644
 +}
 +
 +const tabsTriggerVariants = cva([
-+  "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++  "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start not-data-active:state-layer hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 +  "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
 +  "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
 +  "group-data-[size=sm]/tabs-list:px-2 group-data-[size=sm]/tabs-list:[&_svg:not([class*='size-'])]:size-3.5",

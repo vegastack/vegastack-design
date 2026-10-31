@@ -188,6 +188,78 @@
     "$value": "{color.white}",
     "$description": "Theme-invariant ink drawn on `scrim`: the icon (and pencil) colour of every tile-overlay control. Not overridden in dark on purpose."
   },
+  "state-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.05
+    },
+    "$description": "COL-24 (ours, operator 2026-10-31): the ONE hover fill — the foreground at a low alpha, laid over whatever is underneath (page, card, popover, sidebar, muted, a filled button), so the step reads the same on every ground: ΔL ≈ 0.035–0.045 in both themes. Read it through the `state-layer` utility or `bg-state-hover`; never an opaque `muted`/`accent` hover."
+  },
+  "state-selected": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.08
+    },
+    "$description": "COL-24: selected / current / open fill (a row that is the current page, an open menu trigger, a chosen option). One step above hover; pairs with weight 500. A selected row holds its fill through hover (the state-layer stands down on it), so secondary text keeps AA."
+  },
+  "state-pressed": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.1
+    },
+    "$description": "COL-24 + INT-4: the pressed (pointer-down) fill, one step above selected. Applied by `state-layer` on `:active`."
+  },
+  "state-tile": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.06
+    },
+    "$description": "COL-24: inner tiles (an icon tile in a row, a count chip) — translucent, so a tile stays one step above its row in every row state and never inverts on hover."
+  },
+  "state-focus": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.55, 0.19, 256],
+      "alpha": 0.18
+    },
+    "$description": "FOC-15 (ours, operator 2026-10-31): the keyboard focus cue — a soft info-hue tint, the one cue distinguishable by hue from the neutral hover/selected/pressed fills (no ring, FOC-13). Painted by base.css as a background image over any fill; it replaces the hover layer while focused."
+  },
+  "input-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.22
+    },
+    "$description": "FOC-16 (ours, operator 2026-10-31): text entry's hover border — a visible step above `input` at rest."
+  },
+  "input-halo": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.08
+    },
+    "$description": "FOC-16: text entry's focus glow — a 3px soft halo outside the `ring/50` focus border (the one sanctioned glow; text entry only)."
+  },
+  "readonly": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.03
+    },
+    "$description": "FOC-16: a read-only field's faint fill (with a transparent border), so read-only never looks editable."
+  },
   "chart-1": {
     "$type": "color",
     "$value": {

@@ -258,9 +258,13 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
     .toBe("1");
   expect(offset()).toEqual(before);
   expect(row("assignee").getBoundingClientRect().height).toBe(rowBefore);
-  expect(getComputedStyle(trigger).backgroundColor).not.toBe(
-    "rgba(0, 0, 0, 0)",
-  );
+  // COL-24: the hover is the state layer, a background image over the transparent fill.
+  await expect
+    .poll(async () => {
+      await userEvent.hover(trigger);
+      return getComputedStyle(trigger).backgroundImage;
+    })
+    .not.toBe("none");
 });
 
 test("ghost-chip-open: the ▾ stays visible while the menu is open", async () => {

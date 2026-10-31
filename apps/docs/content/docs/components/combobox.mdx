@@ -357,3 +357,10 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
 - **API-38** — `ComboboxContent` takes `loading`, `error` and `onRetry`: a status row after the list
   — a spinner, or the failure with Try again — so an async list never shows an empty popup.
   MK, 2026-10-26.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.
+- **FOC-16** — text entry shows hover as a darker `input-hover` border, focus as the `ring/50`
+  border with a 3px `field-halo` glow (a destructive halo when invalid), and read-only as a faint
+  `readonly` fill on a transparent border. Operator, Regent, 2026-10-31.

@@ -1,5 +1,5 @@
 # component: navigation-menu
-# decisions: API-16, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, OVL-13
+# decisions: API-16, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, OVL-13, COL-24, INT-4
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:ring-3 focus-visible:ring-ring/50
 #     focus-visible:outline-1` goes from `navigationMenuTriggerStyle` and from
@@ -22,8 +22,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/navigation-menu.tsx b/navigation-menu.tsx
-index cef1d5f..9180222 100644
+index cef1d5f..98e5798 100644
 --- a/navigation-menu.tsx
 +++ b/navigation-menu.tsx
 @@ -1,7 +1,10 @@
@@ -83,7 +87,7 @@ index cef1d5f..9180222 100644
  const navigationMenuTriggerStyle = cva(
 -  "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted"
 -)
-+  "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all hover:bg-muted focus:bg-muted disabled:opacity-50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted",
++  "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all state-layer disabled:opacity-50 data-popup-open:bg-state-selected data-open:bg-state-selected",
 +);
  
  function NavigationMenuTrigger({
@@ -155,7 +159,7 @@ index cef1d5f..9180222 100644
        className={cn(
 -        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4",
 -        className
-+        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground focus:**:[svg:not([data-icon-tone])]:text-foreground data-active:**:[svg:not([data-icon-tone])]:text-foreground",
++        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all state-layer in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-state-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground focus:**:[svg:not([data-icon-tone])]:text-foreground data-active:**:[svg:not([data-icon-tone])]:text-foreground",
 +        className,
        )}
        {...props}

@@ -71,19 +71,16 @@ test("the chip is a label, never the control (Button)", async () => {
   expect(clicks).toBe(1);
 });
 
-test("the chip inverts from the tooltip surface rather than from a variant (Tooltip)", async () => {
+test("OVL-24: the chip keeps its one recipe inside a tooltip, which is a popover surface (Tooltip)", async () => {
   const screen = await render(
     <div data-slot="tooltip-content">
       Save Changes <Kbd>S</Kbd>
     </div>,
   );
   const key = screen.getByText("S");
-  await expect
-    .element(key)
-    .toHaveClass("in-data-[slot=tooltip-content]:bg-background/20");
-  await expect
-    .element(key)
-    .toHaveClass("in-data-[slot=tooltip-content]:text-background");
+  await expect.element(key).toHaveClass("bg-muted");
+  await expect.element(key).toHaveClass("text-muted-foreground");
+  expect(key.element().className).not.toContain("tooltip-content");
 });
 
 test("the chip sits inside a field addon without claiming its clicks (Input Group)", async () => {

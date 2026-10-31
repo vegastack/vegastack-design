@@ -93,6 +93,6 @@ test("the interactive form carries both hover and pressed steps", async () => {
     />,
   );
   const chip = screen.getByTestId("chip").element() as HTMLElement;
-  expect(chip.className).toContain("[&:is(button)]:hover:bg-muted");
-  expect(chip.className).toContain("[&:is(button)]:active:bg-muted");
+  // COL-24 + INT-4: both steps come from the shared state layer.
+  expect(chip.className).toContain("[&:is(button)]:state-layer");
 });

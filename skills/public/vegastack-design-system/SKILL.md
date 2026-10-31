@@ -243,7 +243,7 @@ on shadcn's `neutral` base. Always use the utility, never a raw value.
 | Role     | Utilities                                                                                                                                                                                                           |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Surface  | `bg-background` (page) · `bg-card` · `bg-popover` · `bg-sidebar`                                                                                                                                                    |
-| Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover)                                                                               |
+| Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `state-layer` (hover + press)                                                                     |
 | Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                                                                                                             |
 | Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)                                                                                   |
 | Border   | `border-border` · `border-input` — there are no rings; focus is a global background tint (Tabs included)                                                                                                            |
@@ -255,23 +255,31 @@ on shadcn's `neutral` base. Always use the utility, never a raw value.
 | Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out                                                                                                                    |
 | Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class                                                                                                                          |
 
-**Hover and pressed are written, not imported.** A component owns its own interaction chrome, the
-way shadcn writes it:
+**Interaction states are one formula (COL-24).** Hover, press, selected, open and highlighted are
+translucent foreground layers, so they read the same on any surface in both themes. Never write an
+opaque `hover:bg-muted`/`hover:bg-accent` (lint rejects it):
 
 ```tsx
-// A transparent control on a known surface.
-<button className="rounded-md px-2 hover:bg-accent hover:text-accent-foreground" />;
+// Any clickable surface — a row, a chip, a ghost control: hover AND press from one utility.
+<button className="rounded-md px-2 state-layer" />;
 
-// A solid.
-<button className="bg-primary text-primary-foreground hover:bg-primary/80" />;
+// Selected / current / open: the selected step (weight 500 on a current row). Over a filled
+// part (a card, an outline button) use the layer form so the fill survives.
+<a className="state-layer data-active:bg-state-selected data-active:font-medium" />;
+<div className="bg-card state-layer data-selected:layer-selected" />;
 
-// A tinted status control. The ink on a tint is `-text`, never the fill.
+// A tile inside a row: translucent, so it stays one step above the row in every state.
+<span className="size-7 rounded-md bg-state-tile" />;
+
+// A solid steps its own fill; a status tint keeps its `-text` ink.
+<button className="bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/70" />;
 <button className="bg-destructive/10 text-destructive-text hover:bg-destructive/20" />;
 ```
 
-A pressed step is optional. `surfaceInteractive`, `fillInteractive`, `fieldControl`,
-`fieldControlGroup` and `selectedChipVariants` were **deleted** from `@vegastack/design` with no
-alias; if you are upgrading, replace each with the literal it expanded to.
+Keyboard focus is base.css's soft info-hue tint (`--state-focus`), never restated. Text entry
+already shows hover (darker border), focus (`ring/50` border + `field-halo`) and read-only
+(`readonly` fill) in the DS components. A list of rows inside a card is `ItemGroup variant="flush"`
+(fills sit 8px inside the card); never hand-write `-mx-*` for it.
 
 **Rendered rich text comes from a recipe.** Anything the system did not author element by element —
 markdown, a contenteditable, CMS copy — wears one class on its root:

@@ -1,4 +1,4 @@
-// @vegastack comments@0.26.4 sha256-YbmEh8+DRgXsy5nL7MxiuJMrvEKH4Hvbn5/v9IdJCr4=
+// @vegastack comments@0.26.4 sha256-KB2Uhlazq9ud0LobflOqCGp0ovvsfX/Ffp9bVgiOuqc=
 
 "use client";
 
@@ -426,7 +426,7 @@ export function CommentItem({
         // 16px in from the card's sides, 12px above and below. An agent's comment has a violet
         // bar at its start, a question an amber one — on this row only, never on its replies.
         className={cn(
-          "group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-accent",
+          "group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-state-hover",
           (agent || question) &&
             "relative before:absolute before:inset-y-2 before:start-0 before:w-0.5 before:rounded-full",
           question ? "before:bg-warning" : agent && "before:bg-tag-purple",
@@ -794,7 +794,7 @@ export function CommentMedia({
             file={item.file}
             state={item.state ?? "done"}
             data-slot="comment-media-item"
-            className="max-w-full overflow-hidden rounded-lg border-border bg-transparent p-0 has-[>a,>button]:hover:bg-transparent"
+            className="max-w-full overflow-hidden rounded-lg border-border bg-transparent p-0 has-[>a,>button]:hover:not-focus-visible:bg-none"
           >
             <img
               src={item.src}
@@ -1431,7 +1431,7 @@ export function CommentComposer({
             setOpened(true);
             setOpenedHere(true);
           }}
-          className="w-full justify-start gap-2 px-0 font-normal text-muted-foreground hover:bg-transparent hover:text-foreground dark:hover:bg-transparent"
+          className="w-full justify-start gap-2 px-0 font-normal text-muted-foreground hover:not-focus-visible:bg-none hover:text-foreground"
         >
           <MessageSquarePlus aria-hidden />
           {placeholder ?? "Add a comment…"}

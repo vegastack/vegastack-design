@@ -533,3 +533,9 @@ aria-invalid:ring-destructive/20` becomes `aria-invalid:border-destructive` with
   `questionnaire.test.tsx`.
 - **DOC-1, DOC-2** — `cn` is imported from `@vegastack/design`, and the rest of the diff is
   prettier's reflow plus the `registry-stamp.mjs` provenance header the three-copy model needs.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.
+- **FOC-15** — the choice card shows its radio's keyboard focus with the `layer-focus` tint, the
+  same info-hue cue base.css paints. Operator, Regent, 2026-10-31.

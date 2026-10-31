@@ -201,10 +201,7 @@ figure > [class~="absolute"]:has(> button) + .fd-scroll-container {
       [type="file"]
     )
   ) {
-    background-image: linear-gradient(
-      color-mix(in oklch, var(--accent) 50%, transparent),
-      color-mix(in oklch, var(--accent) 50%, transparent)
-    );
+    background-image: linear-gradient(var(--state-focus), var(--state-focus));
   }
 }
 

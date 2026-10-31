@@ -177,7 +177,7 @@ label an `id` and the group `aria-labelledby` yourself.
 
 `highlighted` flashes a row the user just created or changed: the accent wash eases in and the row
 is marked `data-highlighted`. Clear the flag after a moment to return it to rest — never hand-write
-`data-highlighted:bg-accent`. (`DataList` rows take the same state through `highlightedIds` or
+`data-highlighted:bg-state-selected`. (`DataList` rows take the same state through `highlightedIds` or
 `rowProps`.)
 
 ```tsx
@@ -242,7 +242,7 @@ is marked `data-highlighted`. Clear the flag after a moment to return it to rest
 
 Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
 
-- **API-29** — `Item` takes `highlighted`: `data-highlighted` and the `bg-accent` wash eased in
+- **API-29** — `Item` takes `highlighted`: `data-highlighted` and the `bg-state-selected` wash eased in
   over `duration-slow`, the "just changed" flash.
 - **A11Y-7** — `ItemGroup` licenses `role="listitem"` on the items inside it, through context, and
   hides the separator's rule from assistive tech. `role="list"` admits only `listitem` children, so
@@ -263,3 +263,10 @@ Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
   Truncation goes on an inner span instead.
 - **API-37** — `ItemGroup` takes `variant` (`default` · `flush`): `flush` lays rows with no gap and
   bleeds them into the enclosing card's padding. MK, 2026-10-26.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.
+- **LAY-20** — a `flush` ItemGroup bleeds `-mx-2` with a 1px gap and its rows pad `px-2` on
+  `rounded-md`, so a row's hover fill stops 8px inside the card while its text stays on the card's
+  content edge. Operator, Regent, 2026-10-31.

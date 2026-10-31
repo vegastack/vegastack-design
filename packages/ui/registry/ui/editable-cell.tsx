@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.26.4 sha256-MMSvjDRL4CnhZHQ3sZNRExV8M869Yi3tWmb3jgd2j3M=
+// @vegastack editable-cell@0.26.4 sha256-qhtoOcuuIe0vepjcMD30IQZUNhTNqJ2o5cZGCC7OKGA=
 
 "use client";
 
@@ -68,7 +68,7 @@ Deliberately NOT done here:
  * record's properties all read as the same editable value. Keyboard focus keeps the system ring.
  */
 const INLINE_EDIT_TINT =
-  "border-transparent shadow-none hover:border-transparent hover:bg-muted aria-expanded:border-transparent aria-expanded:bg-muted data-popup-open:bg-muted dark:border-transparent dark:bg-transparent dark:hover:bg-muted/50";
+  "border-transparent shadow-none hover:border-transparent state-layer aria-expanded:border-transparent aria-expanded:bg-state-selected dark:border-transparent dark:bg-transparent";
 
 /** Props for `InlineEditTrigger`. */
 export interface InlineEditTriggerProps extends Omit<

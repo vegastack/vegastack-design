@@ -1,5 +1,5 @@
 # component: combobox
-# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, API-34, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-38
+# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, API-34, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-38, COL-24, INT-4, FOC-16
 # hunks:
 #   API-38 (MK 2026-10-26, Regent product-cohesion W1-DS2): `ComboboxContent` takes `loading`, `error`,
 #     `onRetry` and their labels: a `combobox-status` row (`role="status"`) after the list — a spinner
@@ -89,8 +89,15 @@
 #     tint — and shows focus as a subtle darker border that eases in: `has-[input:focus]:not-has-aria-invalid:border-ring/50` on the chips field,
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
+#   FOC-16: text entry shows hover as `border-input-hover`, focus as the `ring/50` border plus the
+#     `field-halo` glow (`field-halo-destructive` when invalid), and read-only as the `readonly`
+#     fill on a transparent border.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..b9231cc 100644
+index 39e776a..9341c60 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,29 @@
@@ -372,7 +379,7 @@ index 39e776a..b9231cc 100644
 +        data-slot="combobox-item"
 +        aria-describedby={description.id || undefined}
 +        className={cn(
-+          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-state-hover data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +          className,
 +        )}
 +        {...props}
@@ -485,7 +492,7 @@ index 39e776a..b9231cc 100644
        className={cn(
 -        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
 -        className
-+        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:not-has-aria-invalid:border-ring/50 has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
++        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color,box-shadow] duration-150 ease-out hover:border-input-hover has-[input:focus]:not-has-aria-invalid:border-ring/50 has-[input:focus]:not-has-aria-invalid:field-halo has-[input:focus]:has-aria-invalid:field-halo-destructive has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
 +        className,
        )}
        {...props}

@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.26.4 sha256-CLZzDc0piM2qXgSkJAQLlgWfRbgIJX9wKcFzqJxY+rA=
+// @vegastack activity-feed@0.26.4 sha256-RCPj00g+/D25fvglIV+rSomhhZE8JPw6+VC9YaRrdN4=
 
 "use client";
 
@@ -529,7 +529,7 @@ export function ActivityFeedItem({
       data-slot="activity-feed-item"
       data-kind={kind}
       className={cn(
-        "min-w-0 scroll-mt-24 rounded-lg transition-colors data-focused:bg-accent/60",
+        "min-w-0 scroll-mt-24 rounded-lg transition-colors data-focused:bg-state-selected",
         // 4px between events; 12px around a thread or a divider (the larger gap wins).
         kind === "event" ? "py-0.5" : "py-1.5 [&+[data-kind=event]]:mt-1",
         className,

@@ -111,8 +111,12 @@ Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
   accepts no `opacity`, which would leave the label painted at full strength under the spinner.
   This is why `toggle` depends on the `spinner` registry item.
 - **API-39** — a pressed toggle is filled, so pressed never reads as hover: `aria-pressed` and
-  `data-[state=on]` take `bg-primary/10` (upstream's `bg-muted` is also its hover fill), hovering a
-  pressed toggle deepens it to `bg-primary/15`, and the `outline` variant's pressed border is
+  `data-[state=on]` take `bg-state-selected` (COL-24; was `bg-primary/10`), hovering a pressed
+  toggle holds its fill through hover, and the `outline` variant's pressed border is
   `border-primary/30`. The ink stays `text-foreground`, icons included. An unpressed toggle keeps
-  upstream's transparent fill and `hover:bg-muted`. ToggleGroup items inherit it.
+  upstream's transparent fill and the `state-layer` hover. ToggleGroup items inherit it.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

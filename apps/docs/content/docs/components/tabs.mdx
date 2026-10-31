@@ -387,3 +387,7 @@ Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
   needs; no decision of its own.
 - **A11Y-24** — a trigger's invisible hit area reaches 44px tall on a coarse pointer, never wider, so
   neighbouring tabs never overlap. Widened by MK, 2026-10-26.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.
