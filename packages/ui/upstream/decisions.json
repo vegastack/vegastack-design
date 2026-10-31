@@ -2,8 +2,8 @@
   "_source": "docs/plans/2026-09-18-shadcn-reset/decisions.md (168 rows decided by MK 2026-09-17/18 and every later row added by MK on the date the register header gives it; `counts` below is the machine total; OVL-10 and BRD-1 are the two rows whose resolution changed. IDs A11Y-14 and A11Y-15 are permanently unused.)",
   "_note": "GENERATED from the prose register, which is tracked in git. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
-    "total": 236,
-    "ours": 128,
+    "total": 238,
+    "ours": 130,
     "shadcn": 108
   },
   "decisions": {
@@ -120,6 +120,8 @@
     "LAY-15": "ours",
     "LAY-16": "ours",
     "LAY-17": "ours",
+    "LAY-18": "ours",
+    "LAY-19": "ours",
     "A11Y-1": "ours",
     "A11Y-2": "ours",
     "A11Y-3": "ours",

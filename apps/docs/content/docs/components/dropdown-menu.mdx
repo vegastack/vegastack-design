@@ -278,6 +278,10 @@ re-applies the theme scope.
 
 Upstream's file plus `packages/ui/upstream/patches/dropdown-menu.patch`. Every hunk:
 
+- **LAY-18** — `DropdownMenuItem`, `DropdownMenuSubTrigger`, `DropdownMenuCheckboxItem` and
+  `DropdownMenuRadioItem` take `min-w-0`, so a row in a grid or narrow column can shrink: wrap a
+  long label in `<span className="min-w-0 truncate">` and it truncates instead of widening the
+  menu (MK, 2026-10-31; a deliberate deviation).
 - **OVL-13** — two hosts, because upstream has two. `DropdownMenuContent` opens its own
   `Menu.Portal`, so it reads `useInternalThemeScope()` and attaches it to the Positioner inside
   it; the exported pass-through `DropdownMenuPortal` wraps its children in a `display: contents`
