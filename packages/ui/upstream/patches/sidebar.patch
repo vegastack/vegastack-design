@@ -1,6 +1,10 @@
 # component: sidebar
-# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, INT-15, LAY-13, LAY-16, OVL-16, VOI-1
+# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, INT-15, LAY-13, LAY-16, LAY-19, OVL-16, VOI-1
 # hunks:
+#   LAY-19: `SidebarMenuButton size="lg"` adds `group-data-[collapsible=icon]:justify-center`
+#     beside upstream's `p-0!`, so smaller content (a 24px avatar) sits centred in the 32px rail
+#     button while a `size-8` tile still fills it (MK as the Regent operator, 2026-10-31: a
+#     deliberate deviation, keep it on every shadcn refresh).
 #   INT-15: in icon mode `SidebarGroupLabel` (faded and pulled up by `-mt-8`) takes
 #     `pointer-events-none`, so it never swallows a click on the item it overlaps; the rail's
 #     count pill and dot (`sidebar-menu-badge-rail`) take the header count's `bg-primary` /
@@ -97,7 +101,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..2798585 100644
+index cbcc413..ee1ed0c 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,224 @@
@@ -743,7 +747,15 @@ index cbcc413..2798585 100644
    {
      variants: {
        variant: {
-@@ -493,8 +620,8 @@ const sidebarMenuButtonVariants = cva(
+@@ -486,15 +613,15 @@ const sidebarMenuButtonVariants = cva(
+       size: {
+         default: "h-8 text-sm",
+         sm: "h-7 text-xs",
+-        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
++        lg: "h-12 text-sm group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!",
+       },
+     },
+     defaultVariants: {
        variant: "default",
        size: "default",
      },
