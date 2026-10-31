@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.26.10 sha256-vGgkz0EvRFLf5fWKH3PcpthPWrRB5uQYpO49N3+JBKY=
+// @vegastack sidebar@0.26.10 sha256-A3shNFwGcLy22b7zYX1eFGgGBFVwlTbDB9Q2zSB2o98=
 
 "use client";
 
@@ -615,7 +615,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:justify-center-safe group-data-[collapsible=icon]:p-0!",
       },
     },
     defaultVariants: {
