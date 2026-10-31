@@ -3352,7 +3352,7 @@ test("on a board, getRowOrder walks only the lanes shown; a grid card takes the 
   );
   const card =
     screen.container.querySelector<HTMLElement>("[data-peek-active]")!;
-  expect(card.className).toContain("data-peek-active:bg-accent");
+  expect(card.className).toContain("data-peek-active:layer-selected");
 });
 
 test("an untouched row menu opens from the keyboard on its first (↓, Enter) or last (↑) item", async () => {

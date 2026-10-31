@@ -160,23 +160,30 @@ that catch bugs nobody can see in review.
     `columnCellClass` when a column declares `mono`, which is correct, since not every column holds
     figures.
 
-13. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
+13. **`opaque-state-fill`** (COL-24 + INT-4, **new 2026-10-31**, operator) — an opaque neutral
+    hover (`hover:bg-muted`, `hover:bg-accent`, `hover:bg-sidebar-accent`, `hover:bg-secondary`,
+    any alpha of them) or a tile that swaps to `group-hover/…:bg-background` on its row's hover. A
+    hover is the `state-layer` utility — a translucent foreground layer over any rest fill, with its
+    pressed step — because an opaque hover reads 0 on a muted ground and four times stronger on the
+    dark page than in light, and the swapped tile turned black in dark. A translucent
+    `hover:bg-background/15` over a coloured banner is not this rule's business.
+14. **`inline-svg-icon`** — a raw `<svg …>` JSX element used as an icon. The allowlist is ONE file:
     `empty.tsx`, which draws upstream's decorative backdrop — a non-icon graphic primitive. Two
     entries left rather than being carried: the lucide-animated mirrors, now data modules over one
     factory with no JSX at all (`tooling/verify-animated-icons.mjs` asserts that directly), and
     `progress-indicator`, whose determinate ring went with the component when Batch 7a of the shadcn
     reset retired it. (ICO-3.)
-14. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
+15. **`render-contract`** — `Omit<…, 'render'>` in a registry component's props type, stripping Base
     UI's polymorphic `render` prop. There is NO allowlisted exemption: `split-button.tsx` was the one
     entry, and Batch 7a of the shadcn reset retired it, so the rule now fails closed for every file.
     "Purely presentational, no single root" (Card/PageHeader/Empty/SettingsRow)
     is a valid reason to have NO `render` prop at all, which is different from stripping one via
     `Omit` — do not accept the former as justification for the latter. (API-15.)
-15. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
+16. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
     import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This
     applies to generated animated icons too — normalize at the generator, never by hand-editing a
     generated file. (API-15.)
-16. **`raw-interactive-html`** (AST) — canonical registry components may not render native
+17. **`raw-interactive-html`** (AST) — canonical registry components may not render native
     `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
     concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in both
     directions: adding or removing a reviewed native control requires re-audit. (API-15.) Batch 6 of
@@ -184,38 +191,38 @@ that catch bugs nobody can see in review.
     through `useRender({ defaultTagName: "button" })` and writes no `<button>` JSX, so the
     `/attachment.tsx` entry dropped to zero and was DELETED rather than carried at `{}` — an
     exemption that can no longer be reached is one that should not exist.
-17. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
+18. **`presentational-client-boundary`** (AST-assisted, file-scoped) — a canonical component with
     `'use client'` must contain a concrete client requirement: a Base UI/approved engine dependency, a
     React hook/context, an event binding, or a browser API. Pure presentational wrappers stay
     server-safe. (API-16.)
-18. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
+19. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
     `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
     that could supply one. Upstream's Button HAS `icon`, `icon-xs`, `icon-sm` and `icon-lg` sizes
     (API-4 is decided as **shadcn**, and Batch 7a retired `IconButton`), so this rule is now the ONE
     accessible-name check for every icon-only button in the system — there is no longer a wrapper
     enforcing it at the type level.
-19. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
+20. **`hand-rolled-ref-merge`** (AST) — the same identifier tested with `typeof x === "function"` AND
     assigned through `x.current = …` in one file. That pair is a ref fan-out and nothing else. Under
     React 19 ref-as-prop, "I need the node and must also forward it" is the normal case, so the
     pattern reappears constantly; `mergeRefs` from `@vegastack/design` is the one implementation
     (wrap the call in `useMemo` — it is not memoized).
-20. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
+21. **`flex-truncate-conflict`** — `flex`/`inline-flex` co-located with `truncate`/`line-clamp-*` in
     one class literal on the same element. `.flex` always wins the display conflict (verified in the
     compiled cascade), silently defeating the ellipsis. Correct pattern: `flex min-w-0` on the
     container, `truncate` on an inner span. (LAY-11.)
-21. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
+22. **`restated-motion-reduce`** — `motion-reduce:transition-none`, `motion-reduce:animate-none`,
     `motion-reduce:duration-0` or `motion-reduce:transition-duration-*`. base.css already collapses
     animation and transition duration to 0.01ms under `prefers-reduced-motion`. Scoped on purpose:
     `motion-reduce:transform-none` and other END-STATE suppressions are NOT restatements — they
     remove the displacement itself, which the global reset does not — and stay legal. (MOT-5.)
-22. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
+23. **`class-whitespace`** — a leading, trailing or doubled space inside a class string. Invisible in
     review, survives every merge, and defeats grep (`"a  b"` does not match `/a b/`, which is how
     audit sweeps undercounted). Applies to plain string literals only: a template's spans are joined
     with a synthetic space by the parser, and a multi-line literal is prose, not a class string.
-23. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
+24. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
-24. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
+25. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
     space, so JavaScript welds them into one word and the utility on BOTH sides of the seam is
     destroyed (`"…p-0.5" + "bg-muted …"` ships `p-0.5bg-muted`, which Tailwind never emits and the
     browser silently drops). **AST-only, and it has to be**: every other rule reads one literal at a

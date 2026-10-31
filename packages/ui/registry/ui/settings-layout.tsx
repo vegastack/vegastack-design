@@ -1,4 +1,4 @@
-// @vegastack settings-layout@0.26.4 sha256-weRMn2IWSbqxmxM2MVAur/HsqWfH/XhfWOtS7kgZ+F8=
+// @vegastack settings-layout@0.26.4 sha256-Bv5e1NBUnJG0Izn8XEtjgexonHx1iPaL6oQmHMdx7oA=
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -190,7 +190,7 @@ export function SettingsNav({
                       "data-active": active ? "" : undefined,
                       "aria-current": active ? "page" : undefined,
                       className:
-                        "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-sm text-foreground transition-colors duration-100 hover:bg-accent data-active:bg-accent data-active:font-medium @xs/settings-nav:h-11",
+                        "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-sm text-foreground transition-colors duration-100 state-layer data-active:bg-state-selected data-active:font-medium @xs/settings-nav:h-11",
                       children: (
                         <>
                           <span className="min-w-0 flex-1 truncate">
@@ -315,7 +315,7 @@ export function SettingsLayout({
                 href: backHref,
                 "data-slot": "settings-layout-back",
                 className:
-                  "-ms-2 inline-flex h-8 w-fit items-center gap-1 rounded-md pe-2 ps-1 text-sm text-muted-foreground transition-colors duration-100 hover:bg-accent hover:text-foreground @2xl/settings-layout:hidden",
+                  "-ms-2 inline-flex h-8 w-fit items-center gap-1 rounded-md pe-2 ps-1 text-sm text-muted-foreground transition-colors duration-100 state-layer hover:text-foreground @2xl/settings-layout:hidden",
                 children: (
                   <>
                     <ChevronLeft

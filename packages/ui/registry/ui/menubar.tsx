@@ -1,4 +1,4 @@
-// @vegastack menubar@0.26.4 sha256-QhYDRlfBpSglr52S3vroult9+hWN+mdq61PcaW5x8NU=
+// @vegastack menubar@0.26.4 sha256-A7KsdVgvL03IQUMgHaGTcNGsPJi9awqvah3Rw383sjY=
 
 "use client";
 
@@ -66,7 +66,7 @@ function MenubarTrigger({
     <DropdownMenuTrigger
       data-slot="menubar-trigger"
       className={cn(
-        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium select-none hover:bg-muted aria-expanded:bg-muted",
+        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
         className,
       )}
       {...props}
@@ -108,7 +108,7 @@ function MenubarItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive! [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
+        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive! [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
         className,
       )}
       {...props}
@@ -133,7 +133,7 @@ function MenubarCheckboxItem({
         aria-describedby={description.id || undefined}
         data-inset={inset}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         checked={checked}
@@ -172,7 +172,7 @@ function MenubarRadioItem({
         aria-describedby={description.id || undefined}
         data-inset={inset}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}
@@ -255,7 +255,7 @@ function MenubarSubTrigger({
       data-slot="menubar-sub-trigger"
       data-inset={inset}
       className={cn(
-        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
+        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground data-inset:ps-7 data-open:bg-state-selected data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
         className,
       )}
       {...props}

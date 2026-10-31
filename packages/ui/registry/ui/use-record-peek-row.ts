@@ -1,4 +1,4 @@
-// @vegastack use-record-peek-row@0.26.4 sha256-R+7HwYCEk8c8VgGvCHM7uaK7dElS7+3zB6iYtKyf5lg=
+// @vegastack use-record-peek-row@0.26.4 sha256-p8IdzDvKHoanVt6Re9t/NTsta+73cVrtH67yfvP6nL8=
 
 "use client";
 
@@ -16,13 +16,13 @@ export interface RecordPeekRowProps<T extends HTMLElement> {
  * `useRecordPeekRow` — the open-row contract between a list and `RecordPeek`, for a list the
  * system's own lists don't cover (`DataList`, `DataGrid` and `Board` take `activeRowId` and do this
  * themselves). The row whose `id` equals `activeId` gets `data-peek-active=""` — style it the way
- * the system's lists do, `data-peek-active:bg-accent` — and scrolls into view (`block: "nearest"`)
+ * the system's lists do, `data-peek-active:bg-state-selected` — and scrolls into view (`block: "nearest"`)
  * whenever it becomes the open one, so walking the peek with ↑/↓ keeps the row in sight.
  *
  * @example
  * function Row({ task, peekId }: { task: Task; peekId: string | null }) {
  *   const peek = useRecordPeekRow<HTMLDivElement>(task.id, peekId);
- *   return <Item {...peek} className="data-peek-active:bg-accent">{task.title}</Item>;
+ *   return <Item {...peek} className="data-peek-active:bg-state-selected">{task.title}</Item>;
  * }
  */
 export function useRecordPeekRow<T extends HTMLElement = HTMLElement>(

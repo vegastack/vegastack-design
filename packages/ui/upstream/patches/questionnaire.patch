@@ -1,5 +1,5 @@
 # component: questionnaire
-# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-13, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18, FOC-14
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-13, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18, FOC-14, COL-24, INT-4, FOC-15
 # hunks:
 #   TYP-18: the shortcut badge's `text-[0.625rem]` (10px) becomes `text-xs` (12px). An
 #     arbitrary value receives neither half of the type ramp, and 10px is below every tier
@@ -51,8 +51,14 @@
 #     tint — and shows focus as a subtle darker border that eases in: `focus:not-aria-invalid:border-ring/50` on the answer field (the choice card keeps the tint: it is not text entry),
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
+#   FOC-15: the choice card shows its radio's keyboard focus with the `layer-focus` tint
+#     (`--state-focus`), the same cue base.css paints.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..b9773a8 100644
+index 701ac1c..942cd8f 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
 @@ -1,11 +1,11 @@
@@ -161,7 +167,7 @@ index 701ac1c..b9773a8 100644
 +        // itself, as a gradient image over its fill exactly as base.css lays it, so it still reads over
 +        // the hover and checked fills (the shape `input-otp`'s active slot uses). An invalid choice keeps its
 +        // destructive border in every state.
-+        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none hover:bg-muted/50 has-[>input:focus-visible]:bg-linear-to-b has-[>input:focus-visible]:from-accent/50 has-[>input:focus-visible]:to-accent/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted",
++        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none state-layer has-[>input:focus-visible]:layer-focus data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-state-selected",
 +        // FRM-4: `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
 +        // hoverable and a Tooltip can explain why it cannot be picked. The engine keeps the
 +        // input's own `disabled`, so nothing becomes answerable.

@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.26.4 sha256-sDwRV/tU96NLT9uLaaZba9NI0vMpdLNPeUAlzv7rg8o=
+// @vegastack upload-panel@0.26.4 sha256-l/YOPShx2HdZar1dPs52aP1HxLp3s5S14K6edoDwuNs=
 
 "use client";
 
@@ -282,7 +282,7 @@ const percentOf = (
 };
 
 /** A disclosure chevron keeps the ghost rest state while open (the variant tints a menu trigger). */
-const DISCLOSURE = "aria-expanded:bg-transparent aria-expanded:hover:bg-muted";
+const DISCLOSURE = "aria-expanded:bg-transparent aria-expanded:state-layer";
 
 /** The stem's last few characters stay beside the extension when a long name truncates. */
 const KEPT_STEM = 4;

@@ -52,7 +52,7 @@ test("FRM-13: the steppers flank the field, and each is upstream's Button", asyn
   for (const stepper of [dec, inc]) {
     expect(stepper.tagName).toBe("BUTTON");
     // The ghost recipe is upstream Button's, reaching this element through `InputGroupButton`.
-    expect(stepper.className).toContain("hover:bg-muted");
+    expect(stepper.className).toContain("state-layer");
     expect(stepper.className).toContain("group/button");
   }
 });

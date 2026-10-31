@@ -1,4 +1,4 @@
-// @vegastack kbd@0.26.4 sha256-T69Jj/Wn/TvBrBIh9BH+0juW78+esMdiZ0yydK57Qi0=
+// @vegastack kbd@0.26.4 sha256-5/oNxSNpqhPUIvEzq4ClcQe+QdIyfUnw242fguYeHlU=
 
 import { cn } from "@vegastack/design";
 
@@ -7,7 +7,7 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
     <kbd
       data-slot="kbd"
       className={cn(
-        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3",
+        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none [&_svg:not([class*='size-'])]:size-3",
         className,
       )}
       {...props}

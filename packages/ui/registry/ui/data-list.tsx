@@ -1,4 +1,4 @@
-// @vegastack data-list@0.26.4 sha256-Ydt9CxkraUW4O+2DxasyYQRiFXFnzNdXyqo8NATaIsg=
+// @vegastack data-list@0.26.4 sha256-w4iWL0loyvPlslluSwYUxvaa1TomlbYON8SqnTFQgho=
 
 "use client";
 
@@ -1210,7 +1210,7 @@ const DROP_EDGE_ROW_CLASS =
  * the first cell — a tint, not a ring or an outline (FOC-13).
  */
 const FOCUS_ROW_CLASS =
-  "has-[:focus-visible]:bg-muted/50 [&:has(:focus-visible)>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&:has(:focus-visible)>:first-child]:bg-no-repeat [&:has(:focus-visible)>:first-child]:bg-size-[2px_100%] [&:has(:focus-visible)>:first-child]:bg-left rtl:[&:has(:focus-visible)>:first-child]:bg-right";
+  "has-[:focus-visible]:bg-state-focus [&:has(:focus-visible)>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&:has(:focus-visible)>:first-child]:bg-no-repeat [&:has(:focus-visible)>:first-child]:bg-size-[2px_100%] [&:has(:focus-visible)>:first-child]:bg-left rtl:[&:has(:focus-visible)>:first-child]:bg-right";
 
 /**
  * The keyboard cursor's row (`keyboardNavigation` / `cursorId`): the same cue as keyboard focus,
@@ -1221,7 +1221,7 @@ const FOCUS_ROW_CLASS =
  * row, whose edge this is too (`PEEK_ACTIVE_ROW_CLASS`).
  */
 const CURSOR_ROW_CLASS =
-  "data-[cursor=key]:bg-muted/50 [&[data-cursor=key]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-cursor=key]>:first-child]:bg-no-repeat [&[data-cursor=key]>:first-child]:bg-size-[2px_100%] [&[data-cursor=key]>:first-child]:bg-left rtl:[&[data-cursor=key]>:first-child]:bg-right";
+  "data-[cursor=key]:bg-state-focus [&[data-cursor=key]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-cursor=key]>:first-child]:bg-no-repeat [&[data-cursor=key]>:first-child]:bg-size-[2px_100%] [&[data-cursor=key]>:first-child]:bg-left rtl:[&[data-cursor=key]>:first-child]:bg-right";
 
 /** Lists with `keyboardNavigation` on, in mount order: only the last one answers the keys. */
 const keyboardLists: object[] = [];
@@ -3015,8 +3015,7 @@ export function DataList<T>({
             className={cn(
               "group/data-list-card relative min-w-0 rounded-lg",
               // A selected card keeps the list's selected wash over its own surface.
-              isSelected &&
-                "*:data-[slot=media-card]:bg-muted/50 *:data-[slot=media-card]:hover:bg-muted/50",
+              isSelected && "*:data-[slot=media-card]:layer-selected",
               // Drag into — the list rows' vocabulary, laid over the card so any `renderCard`
               // shows it.
               drag &&

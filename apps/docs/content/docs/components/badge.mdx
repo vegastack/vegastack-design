@@ -169,3 +169,7 @@ Upstream's file plus `packages/ui/upstream/patches/badge.patch`. Every hunk:
   hit area and drops `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.
 - **API-25** — `BadgeVariant`, the variant union derived from `badgeVariants`, is exported so a
   status map is typed against the system's own variants.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.26.4 sha256-vEaAO6UaUYRmmA7WG7mePK24PR/ArpFBdVSf9KDOdvA=
+// @vegastack markdown-view@0.26.4 sha256-dkoeJIaneIIt5Y6QtUx15lhqsH5JnYTQd7SGh3u86Xg=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -212,7 +212,7 @@ export const CALLOUT_STYLE: Record<
     icon: MessageSquareWarning,
     label: "Important",
     iconClassName: "text-foreground",
-    washClassName: "hover:bg-muted aria-expanded:bg-muted",
+    washClassName: "state-layer aria-expanded:bg-state-selected",
   },
   warning: {
     variant: "warning",

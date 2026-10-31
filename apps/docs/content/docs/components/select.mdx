@@ -250,3 +250,7 @@ focus-visible:ring-3 focus-visible:ring-ring/50` is removed outright, `outline-n
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **API-38** — `SelectContent` takes `loading`, `error` and `onRetry`: a status row after the list —
   a spinner, or the failure with Try again. MK, 2026-10-26.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

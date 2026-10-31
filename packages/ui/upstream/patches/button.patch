@@ -1,5 +1,5 @@
 # component: button
-# decisions: A11Y-12, A11Y-13, API-5, API-29, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, A11Y-24
+# decisions: A11Y-12, A11Y-13, API-5, API-29, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, A11Y-24, COL-24, INT-4
 # hunks:
 #   API-29: the root writes `data-variant`, so a tinted container (a status Alert) can give its
 #     non-primary buttons a variant-aware hover without touching the primary one (MK, 2026-09-25).
@@ -30,11 +30,15 @@
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/button.tsx b/button.tsx
-index 1efb940..c0c82d9 100644
+index 1efb940..1e40262 100644
 --- a/button.tsx
 +++ b/button.tsx
-@@ -1,57 +1,93 @@
+@@ -1,57 +1,94 @@
 -import { Button as ButtonPrimitive } from "@base-ui/react/button"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
@@ -50,18 +54,21 @@ index 1efb940..c0c82d9 100644
    {
      variants: {
        variant: {
-         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
++        default:
++          "bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/70",
          outline:
 -          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
-+          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
++          "state-layer border-border bg-background hover:text-foreground aria-expanded:layer-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30",
          secondary:
-           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
++          "state-layer bg-secondary text-secondary-foreground aria-expanded:layer-selected aria-expanded:text-secondary-foreground",
          ghost:
 -          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
-+          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:hover:bg-muted/50",
++          "state-layer hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground",
          destructive:
 -          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-+          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
++          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 active:bg-destructive/25 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:active:bg-destructive/35",
          link: "text-primary underline-offset-4 hover:underline",
        },
        size: {

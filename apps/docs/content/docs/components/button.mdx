@@ -184,3 +184,7 @@ Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:
   `default`/`icon`, 5px on `lg`/`icon-lg`); nothing moves visually. Beside a sibling control (a
   button, link or field) that side stays flush, so neighbouring areas never overlap. MK, 2026-10-14.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

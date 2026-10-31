@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.26.4 sha256-MA7fdBp6E/lskkUxD78wOj+8T9HCBnjTYcuqOJxXI3I=
+// @vegastack person-hover-card@0.26.4 sha256-g/nyCE9UaWObyhO8xayb2hl8XI7o95qXlz7HYdB3Q08=
 
 "use client";
 
@@ -173,7 +173,7 @@ export function PersonHoverCard({
                 // A name in a sentence (a button computes `inline` as `inline-block`): a target in
                 // a block of text, sized by its line (WCAG 2.2 §2.5.8's inline exception). Where
                 // a flex row blockifies it, the host pads it to 24px.
-                "inline min-w-0 cursor-default rounded-sm text-start font-medium text-foreground focus-visible:bg-accent",
+                "inline min-w-0 cursor-default rounded-sm text-start font-medium text-foreground",
                 className,
               )}
               onClick={() => setOpen((o) => !o)}

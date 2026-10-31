@@ -1,4 +1,4 @@
-// @vegastack reactions@0.26.4 sha256-XWGHlUlYVT7DO4uIy3/kgeQTlAN5R97jn4+lv6Zd4A8=
+// @vegastack reactions@0.26.4 sha256-PM27cOalLBYoUWbI6hPMSlyGnINO/5h+TRdWhzSEz1M=
 
 "use client";
 
@@ -166,7 +166,7 @@ function ReactionPill({
             }`}
             onClick={() => void toggle()}
             className={cn(
-              "rounded-full border-border bg-transparent tabular-nums shadow-none hover:bg-muted/60 dark:border-border dark:bg-transparent dark:hover:bg-muted/40",
+              "rounded-full border-border bg-transparent tabular-nums shadow-none state-layer dark:border-border dark:bg-transparent",
               "data-[reacted]:border-primary/25 data-[reacted]:bg-primary/8 data-[reacted]:hover:bg-primary/12 dark:data-[reacted]:border-primary/30 dark:data-[reacted]:bg-primary/12 dark:data-[reacted]:hover:bg-primary/16",
             )}
           />

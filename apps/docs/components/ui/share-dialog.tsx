@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.26.4 sha256-BcpAulf4W6bF2SoxutmNDXMowmLqGs3oQNOel23yoGE=
+// @vegastack share-dialog@0.26.4 sha256-5AO+/X7ozO77CBj0hOJRgS60iP+mNj0e+MYK6eZsZ5U=
 
 "use client";
 
@@ -781,7 +781,7 @@ export function ShareDialog({
                   variant="ghost"
                   size="sm"
                   aria-label={labels.generalHeading}
-                  className="-ms-1.5 w-auto max-w-full gap-2 border-0 py-0 ps-1.5 pe-1.5 text-sm hover:bg-muted aria-expanded:bg-muted focus-visible:bg-muted data-[size=sm]:h-6 data-[size=sm]:rounded-md dark:hover:bg-muted/50 dark:aria-expanded:bg-muted/50 [&>svg]:-ms-1 [&>svg]:size-3.5 [&>svg]:opacity-0 [&>svg]:transition-opacity hover:[&>svg]:opacity-100 focus-visible:[&>svg]:opacity-100 aria-expanded:[&>svg]:opacity-100"
+                  className="-ms-1.5 w-auto max-w-full gap-2 border-0 py-0 ps-1.5 pe-1.5 text-sm state-layer aria-expanded:bg-state-selected data-[size=sm]:h-6 data-[size=sm]:rounded-md [&>svg]:-ms-1 [&>svg]:size-3.5 [&>svg]:opacity-0 [&>svg]:transition-opacity hover:[&>svg]:opacity-100 focus-visible:[&>svg]:opacity-100 aria-expanded:[&>svg]:opacity-100"
                 >
                   <SelectValue />
                 </SelectTrigger>

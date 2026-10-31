@@ -31,7 +31,7 @@ test("defaults to ghost / icon-sm", async () => {
   // nor `data-size`; the resolved recipe is the assertion.
   const screen = await render(<CopyButton value="hello" />);
   const btn = screen.getByRole("button", { name: "Copy" });
-  await expect.element(btn).toHaveClass("hover:bg-muted");
+  await expect.element(btn).toHaveClass("state-layer");
   await expect.element(btn).toHaveClass("size-7");
 });
 

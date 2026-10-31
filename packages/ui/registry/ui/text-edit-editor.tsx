@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.26.4 sha256-hbLNYz2NqODUeEup/2BTQTuHkYH5NgjA3qK6Z8DQQus=
+// @vegastack text-edit@0.26.4 sha256-weC2oGScg+epUdaTncjFe1zpO5sOrQtCb5qwlCApPtE=
 
 "use client";
 
@@ -4579,7 +4579,7 @@ function toggleView(runtime: ToggleRuntime) {
           onClick={flip}
           // Notion's triangle: ▶ closed, turning 90° to ▼ open.
           // An open toggle is not a pressed button: no fill while open, only on hover.
-          className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground hover:aria-expanded:bg-muted hover:aria-expanded:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
+          className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground hover:aria-expanded:bg-state-selected hover:aria-expanded:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
         >
           <Play aria-hidden data-icon-tone="" className="size-3 fill-current" />
         </Button>
@@ -6801,7 +6801,7 @@ function PasteMenu({
                   size="xs"
                   aria-pressed={choice === current}
                   onClick={() => onPick(choice)}
-                  className="aria-pressed:bg-accent aria-pressed:text-accent-foreground"
+                  className="aria-pressed:bg-state-selected aria-pressed:text-accent-foreground"
                 />
               }
             >
@@ -7240,7 +7240,7 @@ function TurnIntoPanel({
               type.run(editor);
               onClose();
             }}
-            className="justify-start gap-2 px-2 font-normal aria-checked:font-medium focus:bg-muted"
+            className="justify-start gap-2 px-2 font-normal aria-checked:font-medium focus:bg-state-hover"
           >
             <Icon />
             {type.label}
@@ -7637,13 +7637,13 @@ function startDrag(
 }
 
 const GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing data-popup-open:bg-muted data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm text-muted-foreground/70 state-layer hover:text-foreground active:cursor-grabbing data-popup-open:bg-state-selected data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
 /** A row or column grip: a small pill on the table's inner edge, over the cell padding. */
 const LINE_GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing data-popup-open:bg-muted data-popup-open:text-foreground [&_svg]:size-3";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm border border-border bg-background text-muted-foreground state-layer hover:text-foreground active:cursor-grabbing data-popup-open:layer-selected data-popup-open:text-foreground [&_svg]:size-3";
 /** Notion's "+" bars below and beside a table. */
 const ADD_BAR =
-  "fixed z-50 size-auto min-w-0 rounded-sm bg-muted/50 text-muted-foreground/70 hover:bg-muted hover:text-foreground [&_svg]:size-3";
+  "fixed z-50 size-auto min-w-0 rounded-sm bg-muted/50 text-muted-foreground/70 state-layer hover:text-foreground [&_svg]:size-3";
 // The drop line's ink is the shared reorder token (`drag-item`, info blue), the same as
 // SortableList's: a 2px rounded line.
 const DROP_LINE = cn(

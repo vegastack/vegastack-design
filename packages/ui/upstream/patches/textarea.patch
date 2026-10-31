@@ -1,5 +1,5 @@
 # component: textarea
-# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FOC-14, API-40
+# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FOC-14, API-40, FOC-16
 # hunks:
 #   FOC-1, FOC-3, FOC-6, FOC-8: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70` — the
@@ -30,8 +30,11 @@
 #     the form (Shift+Enter and IME composition untouched — `isComposing` or `keyCode` 229, the
 #     composition-ending Enter); a ghost textarea grows with its text by
 #     a measured height where the browser lacks `field-sizing: content`.
+#   FOC-16: text entry shows hover as `border-input-hover`, focus as the `ring/50` border plus the
+#     `field-halo` glow (`field-halo-destructive` when invalid), and read-only as the `readonly`
+#     fill on a transparent border.
 diff --git a/textarea.tsx b/textarea.tsx
-index 5141de7..ef7c084 100644
+index 5141de7..10783e7 100644
 --- a/textarea.tsx
 +++ b/textarea.tsx
 @@ -1,17 +1,125 @@
@@ -46,12 +49,12 @@ index 5141de7..ef7c084 100644
 +import { cn, mergeRefs } from "@vegastack/design";
 +
 +const textareaVariants = cva(
-+  "flex field-sizing-content w-full transition-[color,background-color,border-color] duration-150 ease-out outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
++  "flex field-sizing-content w-full transition-[color,background-color,border-color,box-shadow] duration-150 ease-out outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
 +  {
 +    variants: {
 +      variant: {
 +        default:
-+          "min-h-16 rounded-lg border border-input bg-transparent px-2.5 py-2 focus:not-aria-invalid:border-ring/50 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
++          "min-h-16 rounded-lg border border-input bg-transparent px-2.5 py-2 hover:border-input-hover focus:not-aria-invalid:border-ring/50 focus:not-aria-invalid:not-read-only:field-halo focus:aria-invalid:field-halo-destructive read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
 +        // A borderless, transparent field that grows with its text: a title typed straight onto
 +        // the page that may wrap (a task's title). No box and no fill in any state; the caret is
 +        // the focus cue. An invalid title turns its placeholder destructive.

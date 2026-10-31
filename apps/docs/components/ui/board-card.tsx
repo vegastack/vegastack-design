@@ -1,4 +1,4 @@
-// @vegastack board-card@0.26.4 sha256-vd8bjn0+jiGqAGKR2Zi66QjkS649VFWQLC6YVS0ONzg=
+// @vegastack board-card@0.26.4 sha256-SU93tXd8Bksyr7j+4q+NgkkLD2TOrkDv8w9JxaGubLk=
 
 "use client";
 
@@ -349,7 +349,7 @@ export function BoardCard({
       className={cn(
         "group/board-card relative flex min-w-0 flex-col gap-2 text-start text-card-foreground",
         surface &&
-          "rounded-lg border border-border bg-card p-3 shadow-xs transition-colors hover:bg-accent/50 has-[[data-slot=board-card-link]:focus-visible]:bg-accent/50",
+          "rounded-lg border border-border bg-card p-3 shadow-xs transition-colors state-layer has-[[data-slot=board-card-link]:focus-visible]:layer-focus",
         className,
       )}
       {...props}

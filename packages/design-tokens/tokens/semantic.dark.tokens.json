@@ -151,6 +151,70 @@
       "alpha": 1
     }
   },
+  "state-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.04
+    }
+  },
+  "state-selected": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.07
+    }
+  },
+  "state-pressed": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.09
+    }
+  },
+  "state-tile": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.07
+    }
+  },
+  "state-focus": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.72, 0.15, 256],
+      "alpha": 0.24
+    }
+  },
+  "input-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.25
+    }
+  },
+  "input-halo": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.1
+    }
+  },
+  "readonly": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.03
+    }
+  },
   "chart-1": {
     "$type": "color",
     "$value": {

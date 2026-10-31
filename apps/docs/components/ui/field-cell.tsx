@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.26.4 sha256-XIG4Ds7lZa446WGTKPNDBb/HRiAbFjkQnjubD6qJ+gc=
+// @vegastack field-cell@0.26.4 sha256-A6rnvenhA97U0OAuCxqs6qcPcb3FrxYylYZsLKaI7FU=
 
 "use client";
 
@@ -1528,7 +1528,7 @@ function ChoiceCellEditor({
         variant="ghost"
         data-slot="field-cell-choice-trigger"
         // No wash, no press nudge: the cell is what is being edited, not a button on it.
-        className="h-auto min-h-9 w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent dark:hover:bg-transparent"
+        className="h-auto min-h-9 w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:bg-none active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent"
       >
         {chosen.slice(0, CHOICES_SHOWN).map((option) => (
           <FieldChoiceBadge key={option.id} hue={option.hue}>
@@ -3099,7 +3099,7 @@ export function FieldProperty({
           // A conflict note takes its own line under the value, in a flex (inline) value too.
           "flex-wrap",
           // The quiet hover wash on an editable value, as a ghost picker in a task's properties.
-          "[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:transition-colors [&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:hover:bg-muted dark:[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:hover:bg-muted/50",
+          "[&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:transition-colors [&>[data-slot=editable-cell]_[data-slot=editable-cell-display]]:state-layer",
           // While editing, the cell editor (or long text's in-place editor) takes the value's full
           // width, and its box — a 32px field, a 36px choice picker — hangs over the line and past
           // the column's start by its padding and border (as a select trigger's does), so its text

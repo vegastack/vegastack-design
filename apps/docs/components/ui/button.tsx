@@ -1,4 +1,4 @@
-// @vegastack button@0.26.4 sha256-JtEy4Y6fmKsFC+y97Gov2s43Ap/SdootsZ6wARoXoss=
+// @vegastack button@0.26.4 sha256-FHwqYO7T8cXFBjDT904xBWJK6nQPOwoJlrdX2F5SVqQ=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -11,15 +11,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/70",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "state-layer border-border bg-background hover:text-foreground aria-expanded:layer-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "state-layer bg-secondary text-secondary-foreground aria-expanded:layer-selected aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:hover:bg-muted/50",
+          "state-layer hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground",
         destructive:
-          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30",
+          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 active:bg-destructive/25 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:active:bg-destructive/35",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

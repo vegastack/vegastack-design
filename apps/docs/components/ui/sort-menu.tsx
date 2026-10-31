@@ -1,4 +1,4 @@
-// @vegastack sort-menu@0.26.4 sha256-DwFx3DyrzU+HEUtHxFkfyOal9lWq809XPWFOmlrvO+4=
+// @vegastack sort-menu@0.26.4 sha256-vA3smzhA6ZeIZjWLCogBPwcdevz30s/a1lHzjcZ5nss=
 
 "use client";
 
@@ -135,7 +135,7 @@ function SortMenuOption({
     <RadioPrimitive.Root
       value={value}
       data-slot="sort-menu-option"
-      className="group/sort-option flex h-7 w-full cursor-pointer items-center justify-between gap-1.5 rounded-md px-1.5 text-sm text-foreground outline-none hover:bg-accent data-disabled:opacity-50"
+      className="group/sort-option flex h-7 w-full cursor-pointer items-center justify-between gap-1.5 rounded-md px-1.5 text-sm text-foreground outline-none state-layer data-disabled:opacity-50"
     >
       <span className="min-w-0 truncate">
         {children}

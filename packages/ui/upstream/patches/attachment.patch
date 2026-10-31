@@ -1,5 +1,5 @@
 # component: attachment
-# decisions: A11Y-2, A11Y-13, API-16, API-28, DOC-1, DOC-2, FOC-1, FOC-6, API-36
+# decisions: A11Y-2, A11Y-13, API-16, API-28, DOC-1, DOC-2, FOC-1, FOC-6, API-36, COL-24, INT-4
 # hunks:
 #   API-36: `AttachmentSkeletons` (placeholder file rows) and tabular figures in
 #     `AttachmentDescription`.
@@ -75,8 +75,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..6cf0052 100644
+index f8ca4a8..7a24bbb 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
 @@ -1,13 +1,136 @@
@@ -219,7 +223,7 @@ index f8ca4a8..6cf0052 100644
 +  // card wearing a ring on behalf of the invisible `AttachmentTrigger` inside it, which upstream
 +  // silences with `outline-none`. This system has one focus affordance and it belongs on the
 +  // control that has focus, so the ring is gone and the trigger paints `base.css`'s outline.
-+  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors has-[>a,>button]:hover:bg-muted/50 data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
++  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors has-[>a,>button]:state-layer data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
    {
      variants: {
        size: {

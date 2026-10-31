@@ -1,4 +1,4 @@
-// @vegastack item@0.26.4 sha256-kxRlwZiecyGkYUHFaSqPK0AKoVcMwBoAiyvFlDNWG1o=
+// @vegastack item@0.26.4 sha256-w79XOGkI80bONpeQqOi0e9hO5zHgs2sBRAEftUTo2Mo=
 
 "use client";
 
@@ -28,8 +28,9 @@ function ItemGroup({
   ...props
 }: React.ComponentProps<"div"> & {
   /**
-   * `flush` (API-37): rows with no gap between them, bled into the enclosing card's padding so
-   * a row's text lines up with the card's own content — a list of rows inside a card.
+   * `flush` (API-37, LAY-20): rows bled 8px into the enclosing card's padding (`-mx-2`, each row
+   * `px-2`), so a row's text lines up with the card's own content while its hover fill stops 8px
+   * short of the card's hairline; a 1px gap keeps adjacent fills apart — a list of rows inside a card.
    * @default "default"
    */
   variant?: "default" | "flush";
@@ -66,7 +67,7 @@ function ItemGroup({
       className={cn(
         "group/item-group flex flex-col",
         variant === "flush"
-          ? "-mx-3 w-auto gap-0"
+          ? "-mx-2 w-auto gap-px"
           : "w-full gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
         className,
       )}
@@ -99,7 +100,7 @@ function ItemSeparator({
 }
 
 const itemVariants = cva(
-  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:hover:bg-muted",
+  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:state-layer group-data-[variant=flush]/item-group:rounded-md",
   {
     variants: {
       variant: {
@@ -108,9 +109,10 @@ const itemVariants = cva(
         muted: "border-transparent bg-muted/50",
       },
       size: {
-        default: "gap-2.5 px-3 py-2.5",
-        sm: "gap-2.5 px-3 py-2.5",
-        xs: "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
+        default:
+          "gap-2.5 px-3 py-2.5 group-data-[variant=flush]/item-group:px-2",
+        sm: "gap-2.5 px-3 py-2.5 group-data-[variant=flush]/item-group:px-2",
+        xs: "gap-2 px-2.5 py-2 group-data-[variant=flush]/item-group:px-2 in-data-[slot=dropdown-menu-content]:p-0",
       },
     },
     defaultVariants: {
@@ -148,9 +150,9 @@ function Item({
         ...({ "data-highlighted": highlighted ? "" : undefined } as object),
         className: cn(
           itemVariants({ variant, size }),
-          // API-29: the "just changed" flash — the accent wash, eased in; clear the flag after a
+          // API-29: the "just changed" flash — the selected wash, eased in; clear the flag after a
           // moment to return the row to rest.
-          highlighted && "bg-accent duration-slow",
+          highlighted && "bg-state-selected duration-slow",
           className,
         ),
         children: control ? (

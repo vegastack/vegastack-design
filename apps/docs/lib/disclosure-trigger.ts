@@ -1,11 +1,11 @@
-// @vegastack disclosure-trigger@0.26.4 sha256-AkqvrylS6Clw8M4/oNI0GdYIKmGHBPR8eEdMUrhKJvg=
+// @vegastack disclosure-trigger@0.26.4 sha256-fRNPqDUU43K1XBEIup2G0oiIEwgTiMrvkPCoz+U1QSE=
 
 /**
  * disclosure-trigger — the ONE class recipe for a ghost `Button` that expands and collapses a
  * section in place (a collapsible header, a table group toggle), shared by `RecordAsideSection`,
  * `SectionToggle`, `AgentPanel`'s header and `ShareDialog`'s audience toggle.
  *
- * Upstream's ghost Button paints `aria-expanded:bg-muted` because, on a menu or popover trigger,
+ * Upstream's ghost Button paints `aria-expanded:bg-state-selected` because, on a menu or popover trigger,
  * `aria-expanded` means "my popup is open". On a disclosure it means "this section is expanded" —
  * the resting state of most sections — so the grey would make every open section look pressed.
  * `disclosureTriggerClasses` clears that fill while the pointer is elsewhere and leaves hover and

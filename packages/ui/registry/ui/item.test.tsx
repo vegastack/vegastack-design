@@ -326,7 +326,7 @@ test("Link: render turns the item into an anchor that keeps its recipe", async (
   const link = screen.getByRole("link", { name: "Visit our documentation" });
   await expect.element(link).toHaveAttribute("href", "#docs");
   await expect.element(link).toHaveAttribute("data-slot", "item");
-  expect(link.element().className).toContain("[a]:hover:bg-muted");
+  expect(link.element().className).toContain("[a]:state-layer");
 });
 
 test("Dropdown: the xs tier drops its padding inside a dropdown menu content", async () => {

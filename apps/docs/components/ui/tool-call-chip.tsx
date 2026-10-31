@@ -1,4 +1,4 @@
-// @vegastack tool-call-chip@0.26.4 sha256-RMX3ZbimLXxsqDr2lox+DskWWGd2Ycmbj33LpXkqNTY=
+// @vegastack tool-call-chip@0.26.4 sha256-uhb79u6h827z68kyU95Qn4X1eWShTcg620DO6XYuZfE=
 
 "use client";
 
@@ -72,7 +72,7 @@ export function ToolCallChip({
         "max-w-full min-w-0",
         // Interactive composition (render={<button/>}): upstream's outline badge paints a hover
         // for anchors only, so the button form gets the same two steps explicitly.
-        "[&:is(button)]:hover:bg-muted [&:is(button)]:hover:text-muted-foreground [&:is(button)]:active:bg-muted",
+        "[&:is(button)]:state-layer [&:is(button)]:hover:text-muted-foreground",
         className,
       )}
       {...props}

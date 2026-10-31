@@ -1,11 +1,11 @@
 # component: item
-# decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11, API-37
+# decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11, API-37, COL-24, INT-4, LAY-20
 # hunks:
 #   API-37 (MK 2026-10-26, Regent product-cohesion W1-DS2): `ItemGroup` takes `variant`
 #     (`default` · `flush`, as `data-variant`); `flush` lays the rows with no gap and bleeds them
-#     into the enclosing card's padding (`-mx-3 w-auto gap-0`).
+#     into the enclosing card's padding (`-mx-3 w-auto gap-0`; LAY-20 below moves it to `-mx-2 gap-px`).
 #   API-29: `Item` takes `highlighted` — the "just changed" flash: `data-highlighted` and the
-#     `bg-accent` wash eased in over `duration-slow` (MK, 2026-09-25).
+#     `bg-state-selected` wash eased in (was `bg-accent`, COL-24) over `duration-slow` (MK, 2026-09-25).
 #   A11Y-7: `ItemGroup` licenses `role="listitem"` on the `Item`s inside it through context, and
 #           hides the separator's rule. `role="list"` admits only `listitem` children, so upstream's
 #           own composition is a CRITICAL `aria-required-children` violation as shipped.
@@ -36,11 +36,17 @@
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
+#   LAY-20: a `flush` ItemGroup bleeds `-mx-2` with `gap-px`, and its rows pad `px-2` on
+#     `rounded-md`, so a row's fill stops 8px inside the card.
 diff --git a/item.tsx b/item.tsx
-index edb2ea3..9f2f416 100644
+index edb2ea3..48392d8 100644
 --- a/item.tsx
 +++ b/item.tsx
-@@ -1,23 +1,80 @@
+@@ -1,23 +1,81 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
@@ -75,8 +81,9 @@ index edb2ea3..9f2f416 100644
 +  ...props
 +}: React.ComponentProps<"div"> & {
 +  /**
-+   * `flush` (API-37): rows with no gap between them, bled into the enclosing card's padding so
-+   * a row's text lines up with the card's own content — a list of rows inside a card.
++   * `flush` (API-37, LAY-20): rows bled 8px into the enclosing card's padding (`-mx-2`, each row
++   * `px-2`), so a row's text lines up with the card's own content while its hover fill stops 8px
++   * short of the card's hairline; a 1px gap keeps adjacent fills apart — a list of rows inside a card.
 +   * @default "default"
 +   */
 +  variant?: "default" | "flush";
@@ -116,7 +123,7 @@ index edb2ea3..9f2f416 100644
 -        className
 +        "group/item-group flex flex-col",
 +        variant === "flush"
-+          ? "-mx-3 w-auto gap-0"
++          ? "-mx-2 w-auto gap-px"
 +          : "w-full gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2",
 +        className,
        )}
@@ -132,7 +139,7 @@ index edb2ea3..9f2f416 100644
  }
  
  function ItemSeparator({
-@@ -28,14 +85,19 @@ function ItemSeparator({
+@@ -28,14 +86,19 @@ function ItemSeparator({
      <Separator
        data-slot="item-separator"
        orientation="horizontal"
@@ -150,11 +157,24 @@ index edb2ea3..9f2f416 100644
  
  const itemVariants = cva(
 -  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors [a]:hover:bg-muted",
-+  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:hover:bg-muted",
++  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:state-layer group-data-[variant=flush]/item-group:rounded-md",
    {
      variants: {
        variant: {
-@@ -53,23 +115,51 @@ const itemVariants = cva(
+@@ -44,32 +107,61 @@ const itemVariants = cva(
+         muted: "border-transparent bg-muted/50",
+       },
+       size: {
+-        default: "gap-2.5 px-3 py-2.5",
+-        sm: "gap-2.5 px-3 py-2.5",
+-        xs: "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
++        default:
++          "gap-2.5 px-3 py-2.5 group-data-[variant=flush]/item-group:px-2",
++        sm: "gap-2.5 px-3 py-2.5 group-data-[variant=flush]/item-group:px-2",
++        xs: "gap-2 px-2.5 py-2 group-data-[variant=flush]/item-group:px-2 in-data-[slot=dropdown-menu-content]:p-0",
+       },
+     },
+     defaultVariants: {
        variant: "default",
        size: "default",
      },
@@ -194,9 +214,9 @@ index edb2ea3..9f2f416 100644
 +        ...({ "data-highlighted": highlighted ? "" : undefined } as object),
 +        className: cn(
 +          itemVariants({ variant, size }),
-+          // API-29: the "just changed" flash — the accent wash, eased in; clear the flag after a
++          // API-29: the "just changed" flash — the selected wash, eased in; clear the flag after a
 +          // moment to return the row to rest.
-+          highlighted && "bg-accent duration-slow",
++          highlighted && "bg-state-selected duration-slow",
 +          className,
 +        ),
 +        children: control ? (
@@ -212,7 +232,7 @@ index edb2ea3..9f2f416 100644
      ),
      render,
      state: {
-@@ -77,11 +167,18 @@ function Item({
+@@ -77,11 +169,18 @@ function Item({
        variant,
        size,
      },
@@ -233,7 +253,7 @@ index edb2ea3..9f2f416 100644
    {
      variants: {
        variant: {
-@@ -94,8 +191,8 @@ const itemMediaVariants = cva(
+@@ -94,8 +193,8 @@ const itemMediaVariants = cva(
      defaultVariants: {
        variant: "default",
      },
@@ -244,7 +264,7 @@ index edb2ea3..9f2f416 100644
  
  function ItemMedia({
    className,
-@@ -109,7 +206,7 @@ function ItemMedia({
+@@ -109,7 +208,7 @@ function ItemMedia({
        className={cn(itemMediaVariants({ variant, className }))}
        {...props}
      />
@@ -253,7 +273,7 @@ index edb2ea3..9f2f416 100644
  }
  
  function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -118,11 +215,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -118,11 +217,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-content"
        className={cn(
          "flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
@@ -267,7 +287,7 @@ index edb2ea3..9f2f416 100644
  }
  
  function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -130,25 +227,69 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
+@@ -130,25 +229,69 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
      <div
        data-slot="item-title"
        className={cn(
@@ -343,7 +363,7 @@ index edb2ea3..9f2f416 100644
  }
  
  function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
-@@ -158,7 +299,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
+@@ -158,7 +301,7 @@ function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex items-center gap-2", className)}
        {...props}
      />
@@ -352,7 +372,7 @@ index edb2ea3..9f2f416 100644
  }
  
  function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -167,11 +308,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -167,11 +310,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-header"
        className={cn(
          "flex basis-full items-center justify-between gap-2",
@@ -366,7 +386,7 @@ index edb2ea3..9f2f416 100644
  }
  
  function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -180,11 +321,39 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -180,11 +323,39 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="item-footer"
        className={cn(
          "flex basis-full items-center justify-between gap-2",
@@ -408,7 +428,7 @@ index edb2ea3..9f2f416 100644
  }
  
  export {
-@@ -193,9 +362,12 @@ export {
+@@ -193,9 +364,12 @@ export {
    ItemContent,
    ItemActions,
    ItemGroup,

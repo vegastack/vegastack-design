@@ -3688,9 +3688,9 @@ test("POL-01/13: hover is a faint wash, the open row carries the edge, and froze
       `[data-slot="data-grid-row"][data-row-id="${id}"]`,
     )!;
   await expect.poll(() => row("d1")).not.toBeNull();
-  // Hover is the faint step; a ticked row holds the stronger one through hover.
-  expect(row("d3").className.split(/\s+/)).toContain("hover:bg-muted/30");
-  expect(row("d1").className.split(/\s+/)).toContain("hover:bg-muted/50");
+  // Hover is the shared state layer; a ticked row holds the selected step, hover stacking on it.
+  expect(row("d3").className.split(/\s+/)).toContain("state-layer");
+  expect(row("d1").className.split(/\s+/)).toContain("bg-state-selected");
   expect(row("d2").className).toContain(
     "[&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))]",
   );

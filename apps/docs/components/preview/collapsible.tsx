@@ -238,7 +238,7 @@ function renderFileTreeItem(fileItem: FileTreeItem): ReactNode {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground"
+              className="w-full justify-start transition-none hover:text-accent-foreground"
             />
           }
         >

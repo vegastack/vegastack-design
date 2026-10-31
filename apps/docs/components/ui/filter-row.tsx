@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.8 sha256-tH+SlVQXGZ46a0iM5mnvHJKOYx/pcqK4wj5WoXVNMQw=
+// @vegastack filter-row@0.26.8 sha256-kIGaAg+abNmnM4+ocQltaurmUUW5ArhVgWVqY/fXbDA=
 
 "use client";
 
@@ -616,7 +616,7 @@ export function FilterChip({
       className={cn(
         "max-w-xs rounded-md text-sm font-normal [&_[data-slot=chip-remove]]:rounded-sm",
         unset &&
-          "border border-dashed border-border bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted has-aria-expanded:border-transparent has-aria-expanded:bg-muted",
+          "border border-dashed border-border bg-transparent text-muted-foreground hover:border-transparent state-layer has-aria-expanded:border-transparent has-aria-expanded:bg-state-selected",
         className,
       )}
       {...props}
@@ -644,7 +644,7 @@ export function FilterChip({
         >
           <PopoverTrigger
             data-slot="filter-chip-trigger"
-            className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-sm px-1 py-0.5 text-start hover:bg-foreground/5"
+            className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-sm px-1 py-0.5 text-start state-layer"
           >
             <FilterChipText label={label} value={value} />
           </PopoverTrigger>
@@ -999,8 +999,8 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
             chipHeight,
             "w-auto max-w-64 rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
             hasValue
-              ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
-              : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
+              ? "bg-accent text-foreground state-layer aria-expanded:bg-state-selected dark:bg-accent"
+              : "border-dashed bg-transparent text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:aria-expanded:border-transparent",
             ai && "ps-7",
           )}
           contentClassName="min-w-56"
@@ -1015,7 +1015,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
             size="icon-xs"
             aria-label={clearLabel}
             data-slot="list-facet-clear"
-            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
+            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground state-layer hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
             disabled={select.disabled}
             onClick={() => {
               if (!select.disabled) clear();
@@ -1196,8 +1196,8 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
                   chipHeight,
                   "w-auto max-w-64 justify-start rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
-                    ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
-                    : "border-dashed bg-transparent text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:hover:bg-muted dark:aria-expanded:border-transparent dark:aria-expanded:bg-muted",
+                    ? "bg-accent text-foreground state-layer aria-expanded:bg-state-selected dark:bg-accent"
+                    : "border-dashed bg-transparent text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:aria-expanded:border-transparent",
                 )}
               />
             }
@@ -1221,7 +1221,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
             size="icon-xs"
             aria-label={clearLabel}
             data-slot="list-facet-clear"
-            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
+            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground state-layer hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
             disabled={disabled}
             onClick={() => {
               if (!disabled) clear();
@@ -1601,8 +1601,8 @@ export function DateRangeFilter({
                 chipHeight,
                 "max-w-64 justify-start rounded-md border border-border bg-clip-border ps-2 pe-7 text-sm font-normal",
                 hasValue
-                  ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent"
-                  : "border-dashed text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground",
+                  ? "bg-accent text-foreground state-layer aria-expanded:bg-state-selected"
+                  : "border-dashed text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground",
               )}
             />
           }
@@ -1707,7 +1707,7 @@ export function DateRangeFilter({
           aria-label={clearLabel}
           disabled={disabled}
           data-slot="date-range-filter-clear"
-          className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
+          className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground state-layer hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             triggerRef.current?.focus();
             onValueChange(null);

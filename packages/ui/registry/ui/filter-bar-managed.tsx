@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.26.4 sha256-uwOv8/lh2FuQLwPxed1Ybnf2bqO0tql5iAXiXKH7NPw=
+// @vegastack filter-bar-managed@0.26.4 sha256-afsF7zP81UnabW1DtCA/VW2Vnlc4tgeCd4ulbJfBpQw=
 
 "use client";
 
@@ -1852,7 +1852,7 @@ function FieldSelect({
         aria-label={label}
         data-slot="field-select"
         className={cn(
-          "h-7 w-fit min-w-36 rounded-md px-1.5 text-sm font-normal hover:border-transparent hover:bg-accent dark:hover:bg-accent",
+          "h-7 w-fit min-w-36 rounded-md px-1.5 text-sm font-normal hover:border-transparent state-layer",
           className,
         )}
       >
@@ -2017,7 +2017,7 @@ export function SortBuilder({
                 size="sm"
                 variant="ghost"
                 aria-label={`${item.label} direction`}
-                className="h-7 w-28 shrink-0 rounded-md px-1.5 text-sm font-normal text-muted-foreground hover:border-transparent hover:bg-accent dark:hover:bg-accent"
+                className="h-7 w-28 shrink-0 rounded-md px-1.5 text-sm font-normal text-muted-foreground hover:border-transparent state-layer"
               >
                 <SelectValue />
               </SelectTrigger>

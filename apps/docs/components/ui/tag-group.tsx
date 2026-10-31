@@ -1,4 +1,4 @@
-// @vegastack tag-group@0.26.4 sha256-rptMoptXHjnkMPbvt61CBPYfWWzsGIywwqS6T5+CVMw=
+// @vegastack tag-group@0.26.4 sha256-8+tOGKqBdF7d9GkUyuSTeABbg041rg6/Y1RY6GueYTk=
 
 "use client";
 
@@ -178,7 +178,7 @@ export function TagGroup({
             }}
             className={cn(
               "min-w-7 justify-center text-muted-foreground select-none hover:text-foreground",
-              "hover:bg-accent",
+              "state-layer",
             )}
           >
             +{hiddenCount}

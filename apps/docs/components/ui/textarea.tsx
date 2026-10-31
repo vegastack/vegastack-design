@@ -1,4 +1,4 @@
-// @vegastack textarea@0.26.4 sha256-Xp3YEm/lC+NnFrvh6AuYK0fMhg4e/GnGFvmEHanRhz0=
+// @vegastack textarea@0.26.4 sha256-8/66CI83hcjgKzKG3i3EYRtsF0McyCpf1tPDzFNmltY=
 
 "use client";
 
@@ -8,12 +8,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn, mergeRefs } from "@vegastack/design";
 
 const textareaVariants = cva(
-  "flex field-sizing-content w-full transition-[color,background-color,border-color] duration-150 ease-out outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+  "flex field-sizing-content w-full transition-[color,background-color,border-color,box-shadow] duration-150 ease-out outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "min-h-16 rounded-lg border border-input bg-transparent px-2.5 py-2 focus:not-aria-invalid:border-ring/50 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "min-h-16 rounded-lg border border-input bg-transparent px-2.5 py-2 hover:border-input-hover focus:not-aria-invalid:border-ring/50 focus:not-aria-invalid:not-read-only:field-halo focus:aria-invalid:field-halo-destructive read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         // A borderless, transparent field that grows with its text: a title typed straight onto
         // the page that may wrap (a task's title). No box and no fill in any state; the caret is
         // the focus cue. An invalid title turns its placeholder destructive.

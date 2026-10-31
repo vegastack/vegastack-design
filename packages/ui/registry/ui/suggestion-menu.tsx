@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.26.4 sha256-kqA0czCz7wTBtqSwKWBZjyQDVIRe3GfDufaAWq/L9pI=
+// @vegastack suggestion-menu@0.26.4 sha256-YuX280V4DZMlYEyZ+iAPoje35ERGpWLK2IyjoMKyQLM=
 
 "use client";
 
@@ -190,7 +190,7 @@ const SURFACE =
  * <div role="option" data-highlighted="" className={SUGGESTION_MENU_ROW}>Power</div>
  */
 export const SUGGESTION_MENU_ROW =
-  "relative flex w-full items-center gap-2 rounded-md py-1 pe-1.5 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground";
+  "relative flex w-full items-center gap-2 rounded-md py-1 pe-1.5 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-state-hover data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground";
 
 /** `ComboboxLabel`'s group heading. */
 const GROUP_LABEL = "px-2 py-1.5 text-xs text-muted-foreground";

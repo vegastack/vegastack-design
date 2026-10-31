@@ -234,6 +234,17 @@ const RULES = [
     re: /(?:^|[\s:"'])uppercase\b/g,
     msg: "`uppercase` text transform (TYP-7 = shadcn; design.md § Voice & content is sentence case for everything). It also REWRITES its content, which turned token names like `--text-lg` into `--TEXT-LG`. If a string is uppercase, write it that way in the string",
   },
+  // COL-24 + INT-4 (ours, operator 2026-10-31) — one interaction state formula. A hover is the
+  // `state-layer` utility (a translucent foreground layer over any rest fill, with its pressed step),
+  // never an opaque neutral colour: `hover:bg-muted` and friends read 0 on a muted ground and four
+  // times stronger on the dark page than in light, which is what the operator saw. And an inner tile
+  // never swaps its fill on its row's hover (`group-hover/…:bg-background` turned it black in dark):
+  // tiles are `bg-state-tile`, which composes with the row.
+  {
+    id: "opaque-state-fill",
+    re: /(?<![\w-])(?:[^\s"'`{}]*:)?(?:hover|group-hover\/[\w-]+):bg-(?:(?:muted|accent|sidebar-accent|secondary)(?:\/\d+)?|background)(?=[\s"'`]|$)/g,
+    msg: "opaque state fill (COL-24): a hover is the `state-layer` utility (translucent `--state-hover`/`--state-pressed` over any fill), not `hover:bg-muted`/`bg-accent`/`bg-sidebar-accent`/`bg-secondary`; an inner tile is `bg-state-tile` and never swaps its fill on the row's hover",
+  },
   // TYP-18 — no arbitrary font size.
   //
   // An arbitrary value bypasses the `--text-*` namespace entirely, so it can never receive the
@@ -296,7 +307,6 @@ const NO_SURFACE_RING_MSG = RULES.find(
 const UPSTREAM_IMPORTANT =
   "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
-  ["/ui/tooltip.tsx", { count: 4, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/command.tsx", { count: 7, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/sidebar.tsx", { count: 3, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/menubar.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],

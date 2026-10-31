@@ -432,3 +432,7 @@ Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

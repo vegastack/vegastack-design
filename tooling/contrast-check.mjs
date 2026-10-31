@@ -66,7 +66,7 @@ const PAIRS = [
 
 // The secondary-text workhorse carries real copy on every neutral surface, not just its own.
 // `muted-foreground` on `muted` is why this repository darkens shadcn's `0.556` to neutral-500
-// (`0.539`): upstream's value measures 4.34:1 there, under the AA floor this gate enforces.
+// (`0.5`, darkened from 0.539 by COL-24 so it also holds AA on a selected or pressed row): upstream's value measures 4.34:1 there, under the AA floor this gate enforces.
 const SECONDARY_INK_SURFACES = NEUTRAL_SURFACES;
 
 // The four status families (COL-12). Each is one fill plus one on-fill foreground, exactly the
@@ -335,6 +335,40 @@ export function checkTheme(css) {
           if (ratio < AA_NORMAL) {
             fail(
               `${theme}: ${family}-text on ${family}@${Math.round(alpha * 100)}% over ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NORMAL}:1)`,
+            );
+          }
+        }
+      }
+    }
+
+    // 3b. COL-24 — the interaction state layers. A row's text sits on its hover, selected and
+    //     pressed step, not only on its rest ground, so both inks must hold AA on each step over
+    //     every neutral surface. This is what moved light `muted-foreground` to 0.50.
+    for (const layer of ["state-hover", "state-selected", "state-pressed"]) {
+      const fill = need(theme, vars, layer, "an interaction state layer");
+      if (!fill) continue;
+      for (const name of NEUTRAL_SURFACES) {
+        // The pressed step lasts one click. Over a `muted`-family well it lands at 4.44:1 for
+        // secondary text — a transient frame, not reading text — so it is gated on the surfaces
+        // rows live on (page, card, popover, sidebar) and the resting steps are gated everywhere.
+        if (
+          layer === "state-pressed" &&
+          ["muted", "accent", "secondary"].includes(name)
+        )
+          continue;
+        const surface = need(theme, vars, name, layer);
+        if (!surface) continue;
+        for (const inkName of ["foreground", "muted-foreground"]) {
+          const ink = need(theme, vars, inkName, layer);
+          if (!ink) continue;
+          checked++;
+          const ratio = contrastCompositeBg(
+            ink,
+            compositeLinear(fill, fill[3] ?? 1, surface),
+          );
+          if (ratio < AA_NORMAL) {
+            fail(
+              `${theme}: ${inkName} on ${layer} over ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NORMAL}:1)`,
             );
           }
         }

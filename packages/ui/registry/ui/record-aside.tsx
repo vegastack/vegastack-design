@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.26.4 sha256-fYFsMlcIZ1sCWPQzDRv2SRoLSRKuoQw3Ba9+1k+tH6I=
+// @vegastack record-aside@0.26.4 sha256-iBtVwFomGzziAyITpydnv4DcmM7Rg/Re19MTYk0hELI=
 
 "use client";
 
@@ -309,7 +309,7 @@ export function ActionListItem({ className, ...props }: ActionListItemProps) {
       size="xs"
       data-slot="action-list-item"
       className={cn(
-        "flex-nowrap items-start rounded-none px-(--card-spacing) no-underline hover:bg-muted/50",
+        "flex-nowrap items-start rounded-none px-(--card-spacing) no-underline state-layer",
         className,
       )}
       {...props}
@@ -510,7 +510,7 @@ export function ActionListSkeleton({ rows = 3 }: ActionListSkeletonProps) {
   return (
     <ActionList aria-hidden data-slot="action-list-skeleton">
       {Array.from({ length: rows }, (_, i) => (
-        <ActionListItem key={i} className="hover:bg-transparent">
+        <ActionListItem key={i} className="hover:bg-none">
           <Skeleton className="size-4 rounded-full" />
           {/* Each bar sits in its text line's height (a 20px title, a 16px meta line), so the
               two keep the row's height and a gap between them. */}

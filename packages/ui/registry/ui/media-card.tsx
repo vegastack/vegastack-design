@@ -1,4 +1,4 @@
-// @vegastack media-card@0.26.4 sha256-V6muJ2cBI26WBrfUYz4uUURtawU0aqi+wPM0YBfB7WY=
+// @vegastack media-card@0.26.4 sha256-jywTR7BjS46z8QpMEAStvmZnfsU2NirZ43Yrny60qfg=
 
 "use client";
 
@@ -107,7 +107,7 @@ export const RECORD_TITLE_CLASS = "font-medium";
  * matches. A card with media pads `p-2 pe-3`.
  */
 export const RECORD_CARD_SURFACE_CLASS =
-  "rounded-lg border border-border bg-card transition-colors hover:bg-accent/50";
+  "rounded-lg border border-border bg-card transition-colors state-layer";
 
 function CardLink({
   href,
@@ -240,7 +240,7 @@ export function MediaCard({
         surface &&
           cn(
             RECORD_CARD_SURFACE_CLASS,
-            "has-[[data-slot=media-card-link]:focus-visible]:bg-accent/50",
+            "has-[[data-slot=media-card-link]:focus-visible]:layer-focus",
           ),
         lg ? "flex-col overflow-hidden" : "items-center gap-3",
         surface && !lg && (hasMedia ? "p-2 pe-3" : "px-3 py-2.5"),

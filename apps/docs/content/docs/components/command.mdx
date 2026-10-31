@@ -292,3 +292,7 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   padding, and the footer re-appends itself after ranking moves an ungrouped result below it.
   `Command` vetoes cmdk's highlight-first landing on an action unless a navigation key or the
   pointer moved there (MK, 2026-10-07).
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

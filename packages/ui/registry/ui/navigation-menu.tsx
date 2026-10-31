@@ -1,4 +1,4 @@
-// @vegastack navigation-menu@0.26.4 sha256-g5VGfGTkThWAj5zxJ6FHJL35qN7H0BYc1GcfmNDPo88=
+// @vegastack navigation-menu@0.26.4 sha256-VPOjyWJuSjCasGCxQO6eAASwbIE3RiUyjvTIxCUkbBA=
 
 "use client";
 
@@ -60,7 +60,7 @@ function NavigationMenuItem({
 }
 
 const navigationMenuTriggerStyle = cva(
-  "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all hover:bg-muted focus:bg-muted disabled:opacity-50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted",
+  "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all state-layer disabled:opacity-50 data-popup-open:bg-state-selected data-open:bg-state-selected",
 );
 
 function NavigationMenuTrigger({
@@ -139,7 +139,7 @@ function NavigationMenuLink({
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
-        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground focus:**:[svg:not([data-icon-tone])]:text-foreground data-active:**:[svg:not([data-icon-tone])]:text-foreground",
+        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all state-layer in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-state-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground focus:**:[svg:not([data-icon-tone])]:text-foreground data-active:**:[svg:not([data-icon-tone])]:text-foreground",
         className,
       )}
       {...props}

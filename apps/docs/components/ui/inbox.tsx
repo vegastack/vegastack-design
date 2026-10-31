@@ -1,4 +1,4 @@
-// @vegastack inbox@0.26.4 sha256-5CNtO0XUWa14c4D5zJLmXXBIcGh6FfyHEzp4YoeB2vc=
+// @vegastack inbox@0.26.4 sha256-4hVp8e0cVow9bsgTLCAAttdR1arqb9NNMS6jJwZlLww=
 
 "use client";
 
@@ -564,7 +564,7 @@ export function InboxList({
       role="list"
       aria-label={label}
       data-slot="inbox-list"
-      className={cn("divide-y", className)}
+      className={cn("flex flex-col gap-px px-2", className)}
       {...props}
     />
   );
@@ -601,7 +601,7 @@ export function InboxGroup({
       <ul
         role="list"
         aria-labelledby={id}
-        className={cn("divide-y", className)}
+        className={cn("flex flex-col gap-px px-2", className)}
         {...props}
       >
         {children}
@@ -908,7 +908,7 @@ export function InboxItem({
         aria-current={active ? "true" : undefined}
         onClick={open}
         className={cn(
-          "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 dark:hover:bg-transparent pointer-coarse:after:inset-0",
+          "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:bg-none active:not-aria-[haspopup]:translate-y-0 pointer-coarse:after:inset-0",
           linkClass,
         )}
       >
@@ -952,9 +952,11 @@ export function InboxItem({
       tabIndex={tracked && !href && !inbox.open ? -1 : undefined}
       aria-current={active && !href && !inbox.open ? "true" : undefined}
       className={cn(
-        "group/inbox-item relative flex scroll-mt-10 gap-3 px-4 py-3 transition-colors hover:bg-muted/60 data-unread:bg-accent/40 data-unread:hover:bg-accent/60",
-        // The active row (the one the peek shows): a 2px start bar over the accent tint.
-        "data-active:bg-accent data-active:before:absolute data-active:before:inset-y-0 data-active:before:start-0 data-active:before:w-0.5 data-active:before:bg-primary data-active:hover:bg-accent",
+        // LAY-20: the row sits 8px inside the pane (the list's `px-2`) on `rounded-md`, so its fill never
+        // runs to the pane edge; unread is the dot and the title's ink, never a fill (COL-24).
+        "group/inbox-item relative flex scroll-mt-10 gap-3 rounded-md px-3 py-3 transition-colors state-layer",
+        // The active row (the one the peek shows): the selected step and a 2px start bar.
+        "data-active:bg-state-selected data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
         tracked && !href && inbox.open && "cursor-pointer",
         className,
       )}
@@ -981,7 +983,7 @@ export function InboxItem({
         <span
           data-slot="inbox-item-unread"
           aria-hidden
-          className="absolute start-1.5 top-7 size-1.5 -translate-y-1/2 rounded-full bg-info"
+          className="absolute start-1 top-7 size-1.5 -translate-y-1/2 rounded-full bg-info"
         />
       ) : null}
       <div className="relative shrink-0 pt-0.5" aria-hidden>
@@ -994,7 +996,7 @@ export function InboxItem({
         ) : icon ? (
           <span
             className={cn(
-              "flex size-7 items-center justify-center rounded-md bg-muted group-hover/inbox-item:bg-background [&_svg]:size-4",
+              "flex size-7 items-center justify-center rounded-md bg-state-tile [&_svg]:size-4",
               destructive ? "text-destructive-text" : "text-muted-foreground",
             )}
           >
@@ -1335,9 +1337,9 @@ export function InboxSkeleton({
   label = "Loading notifications",
 }: InboxSkeletonProps) {
   return (
-    <div role="status" aria-label={label} className="divide-y">
+    <div role="status" aria-label={label} className="flex flex-col gap-px px-2">
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex gap-3 px-4 py-3">
+        <div key={i} className="flex gap-3 px-3 py-3">
           <Skeleton className="size-7 shrink-0 rounded-full" />
           <div className="flex flex-1 flex-col gap-2 pt-0.5">
             <Skeleton className="h-3.5 w-4/5" />

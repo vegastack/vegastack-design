@@ -1,4 +1,4 @@
-// @vegastack field@0.26.4 sha256-jqzrPqn2re0ttwYwgQt0COSD1pcFdlKmxpwq621voAc=
+// @vegastack field@0.26.4 sha256-3x3GiO6sPUN5evyQ7DYgOG7GJJw0Eyvl+hrUXSoV2hU=
 
 "use client";
 
@@ -155,7 +155,7 @@ function FieldLabel({
     <Root
       data-slot="field-label"
       className={cn(
-        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-muted/50 *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
+        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-state-selected has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:state-layer *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20",
         "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
         className,
       )}

@@ -943,3 +943,7 @@ Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
   (18rem) whatever width the Sheet gives a side sheet, and the scrim beside it stays tappable.
 - **VOI-1** — "Toggle Sidebar" becomes "Toggle sidebar" on `SidebarTrigger` and `SidebarRail`, and
   both take `triggerLabel` to override it.
+- **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
+  foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
+  reads the same on every surface in both themes; selected, open and highlighted fills are `bg-
+state-selected` / `bg-state-hover`. Operator, Regent, 2026-10-31.

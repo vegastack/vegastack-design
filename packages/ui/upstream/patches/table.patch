@@ -1,7 +1,7 @@
 # component: table
-# decisions: API-16, DOC-1, DOC-2
+# decisions: API-16, DOC-1, DOC-2, COL-24, INT-4
 # hunks:
-#   NO STYLING HUNK. Every row this component could have argued with resolves as **shadcn** and
+#   One styling hunk, COL-24 (below); before it there was none. Every other row this component could have argued with resolves as **shadcn** and
 #     therefore ships verbatim: LAY-6 (cells stay `whitespace-nowrap`, the head stays `h-10`
 #     `font-medium text-foreground` with no `--table-cell-min-width` wrap), COL-6 (the row hover is
 #     upstream's own `hover:bg-muted/50`) and COL-8 (a selected row is `data-[state=selected]:bg-muted`,
@@ -15,8 +15,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/table.tsx b/table.tsx
-index b3cb1fb..6621d73 100644
+index b3cb1fb..58d3608 100644
 --- a/table.tsx
 +++ b/table.tsx
 @@ -1,7 +1,5 @@
@@ -70,11 +74,13 @@ index b3cb1fb..6621d73 100644
  }
  
  function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
-@@ -57,11 +55,11 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+@@ -56,12 +54,12 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+     <tr
        data-slot="table-row"
        className={cn(
-         "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
 -        className
++        "border-b transition-colors state-layer has-aria-expanded:bg-state-selected data-[state=selected]:bg-state-selected",
 +        className,
        )}
        {...props}

@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.26.4 sha256-nZvhL4c+cF/3X91mkiyi7BmIBnYHD5vfP1J7K5rWpBc=
+// @vegastack task-inline@0.26.4 sha256-RBC1RtgJ8noodzyivJHqCO6kgdkn0/n/7ODWtDi6QW0=
 
 "use client";
 
@@ -277,7 +277,7 @@ export function TaskInline({
           contentEditable={false}
           title={openLabel}
           className={cn(
-            "ms-1.5 rounded-sm align-middle text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            "ms-1.5 rounded-sm align-middle text-muted-foreground state-layer hover:text-accent-foreground",
             // Visually hidden — still a tab stop — until the task is hovered or holds focus: out of
             // the way of the line below when the line wraps, and never a stray target on touch.
             "sr-only group-focus-within/task-inline:not-sr-only group-hover/task-inline:not-sr-only focus-visible:not-sr-only",

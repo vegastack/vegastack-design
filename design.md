@@ -18,16 +18,16 @@ generated:
       sha256: "5c77cb2d1492730e770c77af7ce142768b9e4f806e66a7fc8cb95a1c26ccca19"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
-      bytes: 2974
-      sha256: "b1200c778288683d702c27cc4b713aefc6afc075790a16adac428fdc64499748"
+      bytes: 3105
+      sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 21017
-      sha256: "ef5951fc6153dfc62138e89c73e1e4f431aef7a0530aeacc84e27e83f23ed3f2"
+      bytes: 23910
+      sha256: "a3b793647f21b78298b8f0a467fba02d5780266a487db7d27eab1a27428eb235"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 11753
-      sha256: "f1eb708aaa2057df30b601b3e156dcf8c5899f257205de0af3cdf1d60ca91588"
+      bytes: 12972
+      sha256: "1c0a6d2e53503956d961114d75681335ccb90c636ff9777da5355f9b99253d39"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -150,6 +150,14 @@ themes:
     input:
       type: "color"
       value: "oklch(0.922 0 0)"
+    input-halo:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.08)"
+      description: "FOC-16: text entry's focus glow — a 3px soft halo outside the `ring/50` focus border (the one sanctioned glow; text entry only)."
+    input-hover:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.22)"
+      description: "FOC-16 (ours, operator 2026-10-31): text entry's hover border — a visible step above `input` at rest."
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -180,7 +188,7 @@ themes:
       value: "oklch(0.97 0 0)"
     muted-foreground:
       type: "color"
-      value: "oklch(0.539 0 0)"
+      value: "oklch(0.5 0 0)"
     popover:
       type: "color"
       value: "oklch(1 0 0)"
@@ -197,6 +205,10 @@ themes:
       type: "dimension"
       value: "0.625rem"
       description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
+    readonly:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.03)"
+      description: "FOC-16: a read-only field's faint fill (with a transparent border), so read-only never looks editable."
     ring:
       type: "color"
       value: "oklch(0.205 0 0)"
@@ -239,6 +251,26 @@ themes:
     sidebar-ring:
       type: "color"
       value: "oklch(0.205 0 0)"
+    state-focus:
+      type: "color"
+      value: "oklch(0.55 0.19 256 / 0.18)"
+      description: "FOC-15 (ours, operator 2026-10-31): the keyboard focus cue — a soft info-hue tint, the one cue distinguishable by hue from the neutral hover/selected/pressed fills (no ring, FOC-13). Painted by base.css as a background image over any fill; it replaces the hover layer while focused."
+    state-hover:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.05)"
+      description: "COL-24 (ours, operator 2026-10-31): the ONE hover fill — the foreground at a low alpha, laid over whatever is underneath (page, card, popover, sidebar, muted, a filled button), so the step reads the same on every ground: ΔL ≈ 0.035–0.045 in both themes. Read it through the `state-layer` utility or `bg-state-hover`; never an opaque `muted`/`accent` hover."
+    state-pressed:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.1)"
+      description: "COL-24 + INT-4: the pressed (pointer-down) fill, one step above selected. Applied by `state-layer` on `:active`."
+    state-selected:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.08)"
+      description: "COL-24: selected / current / open fill (a row that is the current page, an open menu trigger, a chosen option). One step above hover; pairs with weight 500. Hovering a selected row stacks the hover layer on it, one step further."
+    state-tile:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.06)"
+      description: "COL-24: inner tiles (an icon tile in a row, a count chip) — translucent, so a tile stays one step above its row in every row state and never inverts on hover."
     success:
       type: "color"
       value: "oklch(0.53 0.15 150)"
@@ -457,6 +489,12 @@ themes:
     input:
       type: "color"
       value: "oklch(1 0 0 / 0.15)"
+    input-halo:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.1)"
+    input-hover:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.25)"
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -504,6 +542,9 @@ themes:
       type: "dimension"
       value: "0.625rem"
       description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
+    readonly:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.03)"
     ring:
       type: "color"
       value: "oklch(0.922 0 0)"
@@ -547,6 +588,21 @@ themes:
     sidebar-ring:
       type: "color"
       value: "oklch(0.922 0 0)"
+    state-focus:
+      type: "color"
+      value: "oklch(0.72 0.15 256 / 0.24)"
+    state-hover:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.04)"
+    state-pressed:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.09)"
+    state-selected:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.07)"
+    state-tile:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.07)"
     success:
       type: "color"
       value: "oklch(0.72 0.17 150)"
@@ -775,8 +831,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 238 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 130 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 243 rows, 107 resolved as
+**shadcn** (upstream ships unchanged) and 136 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -786,8 +842,11 @@ group into six themes.
 `FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12 · FOC-13 · FOC-14`
 
 **The foundation rule (FOC-13, MK 2026-09-25): nothing draws a focus ring, Tabs included.** `base.css`
-owns the one focus cue: `:focus-visible { outline: none }`, plus a subtle background TINT —
-`accent` at 50%, laid as a background image over whatever fill the control already has — on every
+owns the one focus cue: `:focus-visible { outline: none }`, plus a background TINT —
+`--state-focus`, a soft info-hue wash (FOC-15, operator 2026-10-31: `info` at 18% light / 24% dark,
+the one cue that differs by hue from the neutral hover/selected/pressed layers, 1.28–1.54:1 against
+the ground — no tint reaches 3:1, and that is recorded rather than hidden), laid as a background image
+over whatever fill the control already has, replacing the hover layer while focused — on every
 focusable element (tab triggers and panels included), so a button, a chip, a row, a menu item, a toggle, a
 checkbox or a link shows where the keyboard is without any component restating it. Text entry is
 the exception: it takes NO fill (base.css excludes text inputs and textarea from the tint) and
@@ -844,7 +903,9 @@ renders at 16px at least, so iOS Safari never zooms on focus; desktop keeps 14px
 
 Note what is **not** here, because it used to be: there is no disabled-cursor rule (INT-2 is
 shadcn), no press translate of our own (INT-3 is shadcn — upstream's own `translate-y-px` ships),
-and **no mandatory pressed step** (INT-4 is shadcn). A hover with no `active:` rung is legal now.
+and — since 2026-10-31 — **a pressed step on every control again** (INT-4 flipped to ours with COL-24):
+the `state-layer` utility gives every clickable surface its hover and its press, so a hover with no
+press is the one thing a component can no longer forget.
 
 ### 3. Accessibility beyond upstream
 
@@ -1138,11 +1199,30 @@ Using the fill itself as text on its own tint measures 3.98–4.35:1, which is a
 (A11Y-13).
 
 **There is no surface ladder.** The surfaces are `background` → `card` (= `popover` = `sidebar`) →
-`muted` (well, track, skeleton) → `accent` (hover). `muted`, `accent` and `secondary` share one value
-in this base and all three are kept, so name the one whose **role** you mean and a consumer can
-retune one without moving the others. Hover and pressed values are written per component, the way
-upstream writes them; `surfaceInteractive`, `fillInteractive`, `fieldControl`, `fieldControlGroup`
-and `selectedChipVariants` were deleted from `@vegastack/design` with no alias.
+`muted` (well, track, skeleton). `muted`, `accent` and `secondary` share one value in this base and
+all three are kept, so name the one whose **role** you mean and a consumer can retune one without
+moving the others.
+
+**Interaction states are one formula, not a colour (COL-24, INT-4, FOC-15, FOC-16; operator
+2026-10-31).** Every hover, press, selected/current, open and highlighted fill is a TRANSLUCENT
+foreground layer over whatever is underneath, so the step reads the same on page, card, popover,
+sidebar and muted, in both themes:
+
+| state                              | token (light / dark)                                                                                                                                                | how a part gets it                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                                                | `state-layer` (a background image over any rest fill)                                        |
+| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                                        | `state-layer`, on `:active`                                                                  |
+| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                                        | `bg-state-selected`, or `layer-selected` over a filled part; hover stacks one step on it     |
+| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                                     | `data-highlighted:bg-state-hover`                                                            |
+| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                                               | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
+| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                                            | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
+| text entry                         | `input` → `--input-hover` border on hover → `ring/50` border + 3px `--input-halo` (`field-halo`) on focus; `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
+
+A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
+fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep
+their 4px, and table rows stay full-bleed. `surfaceInteractive`, `fillInteractive`,
+`fieldControl`, `fieldControlGroup` and `selectedChipVariants` stay deleted: the utility lives in the
+token CSS, so a consumer gets it with the preset.
 
 **Overriding a token** is one runtime variable in a consumer's global CSS — `:root { --primary: … }`
 — and every component repaints in both themes. Never override a `--color-*` variable: that is the

@@ -135,7 +135,7 @@ test("surface draws 12px padding, a border and a hover tint; surface={false} dra
   );
   expect(own!.className).toContain("p-3");
   expect(own!.className).toContain("border-border");
-  expect(own!.className).toContain("hover:bg-accent/50");
+  expect(own!.className).toContain("state-layer");
   expect(bare!.className).not.toContain("border-border");
 });
 

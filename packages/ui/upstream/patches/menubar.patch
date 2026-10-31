@@ -1,5 +1,5 @@
 # component: menubar
-# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13
+# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13, COL-24, INT-4
 # hunks:
 #   FOC-1: `outline-hidden` is dropped from `MenubarTrigger`. A trigger is a real focusable
 #     control (`role="menuitem"`, in the bar's roving tab order), and upstream's class suppressed
@@ -33,8 +33,12 @@
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..231920a 100644
+index de8698e..849e9ee 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,9 @@
@@ -107,7 +111,7 @@ index de8698e..231920a 100644
        className={cn(
 -        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium outline-hidden select-none hover:bg-muted aria-expanded:bg-muted",
 -        className
-+        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium select-none hover:bg-muted aria-expanded:bg-muted",
++        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
 +        className,
        )}
        {...props}
@@ -139,7 +143,7 @@ index de8698e..231920a 100644
        className={cn(
 -        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive!",
 -        className
-+        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive! [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive! [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +        className,
        )}
        {...props}
@@ -183,7 +187,7 @@ index de8698e..231920a 100644
 +        aria-describedby={description.id || undefined}
 +        data-inset={inset}
 +        className={cn(
-+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +          className,
 +        )}
 +        checked={checked}
@@ -241,7 +245,7 @@ index de8698e..231920a 100644
 +        aria-describedby={description.id || undefined}
 +        data-inset={inset}
 +        className={cn(
-+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +          className,
 +        )}
 +        {...props}
@@ -325,7 +329,7 @@ index de8698e..231920a 100644
        className={cn(
 -        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4",
 -        className
-+        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground data-inset:ps-7 data-open:bg-state-selected data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +        className,
        )}
        {...props}

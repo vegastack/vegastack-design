@@ -1,5 +1,5 @@
 # component: field
-# decisions: A11Y-13, A11Y-8, API-26, COL-12, DOC-1, DOC-2, FOC-1, FOC-12, FOC-3, FOC-6
+# decisions: A11Y-13, A11Y-8, API-26, COL-12, DOC-1, DOC-2, FOC-1, FOC-12, FOC-3, FOC-6, COL-24, INT-4
 # hunks:
 #   FOC-1, FOC-3, FOC-6, FOC-12: the choice card's
 #     `has-[>[data-slot=field]]:has-[:focus-visible]:border-ring` plus `ring-3 ring-ring/50` is
@@ -32,8 +32,12 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
+#     `--state-hover` / `--state-pressed` over any fill) instead of opaque
+#     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
+#     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..d22b742 100644
+index 8bb6199..90c2270 100644
 --- a/field.tsx
 +++ b/field.tsx
 @@ -1,11 +1,46 @@
@@ -201,7 +205,7 @@ index 8bb6199..d22b742 100644
        data-slot="field-label"
        className={cn(
 -        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-muted/50 has-[>[data-slot=field]]:has-[:focus-visible]:border-ring has-[>[data-slot=field]]:has-[:focus-visible]:ring-3 has-[>[data-slot=field]]:has-[:focus-visible]:ring-ring/50 *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
-+        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-muted/50 *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
++        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-state-selected has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:state-layer *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20",
          "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
 -        className
 +        className,

@@ -1,4 +1,4 @@
-// @vegastack select@0.26.4 sha256-FsNoePGscrNCJXAI+GH5f19oBe2euSKidlsB5YZuuDU=
+// @vegastack select@0.26.4 sha256-T8+iTMoJVor4jJDfcF4Srr0PSXR8C6ix+hvpKBcaB6M=
 
 "use client";
 
@@ -22,13 +22,13 @@ const Select = SelectPrimitive.Root;
 // `ghost` is the inline tier — content width, no border at rest and the border on hover; focus
 // and an open popup never change it (FOC-14). A variant, so a consumer width or border class still wins.
 const selectTriggerVariants = cva(
-  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 state-layer dark:bg-input/30 dark:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         outline: "w-full",
         ghost:
-          "w-fit border-transparent hover:border-input dark:bg-transparent dark:hover:bg-input/50",
+          "w-fit border-transparent hover:border-input dark:bg-transparent",
       },
       // API-35: `wrap` shows the whole value — the trigger grows a line at a time from its fixed
       // height, and a long unbroken word breaks rather than overflow.
@@ -233,7 +233,7 @@ function SelectItem({
         data-slot="select-item"
         aria-describedby={description.id || undefined}
         className={cn(
-          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
+          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}

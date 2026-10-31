@@ -66,8 +66,10 @@
   }
 
   /* FOC-1 + FOC-13 + FOC-14 — the SINGLE focus affordance in the system, and it is NOT a ring.
-     No focus ring anywhere, Tabs included (MK 2026-09-25). A keyboard user sees a subtle background
-     TINT — `accent` at 50%, laid over whatever fill the control already has as a background IMAGE,
+     No focus ring anywhere, Tabs included (MK 2026-09-25). A keyboard user sees a background TINT —
+     `--state-focus`, a soft info-hue wash (FOC-15, operator 2026-10-31: the one cue that differs by HUE
+     from the neutral hover/selected/pressed layers, so focus never reads as "selected"), laid over
+     whatever fill the control already has as a background IMAGE,
      so a primary button, a chip, a row, a tab and a menu item all show it without any component
      restating it. A border never changes colour on focus or while a control is active (MK
      2026-09-26) — with ONE exception, text entry (MK 2026-09-27).
@@ -106,10 +108,7 @@
     ),
     [tabindex="-1"]:not([data-slot="combobox-chip"])
   ) {
-    background-image: linear-gradient(
-      color-mix(in oklch, var(--accent) 50%, transparent),
-      color-mix(in oklch, var(--accent) 50%, transparent)
-    );
+    background-image: linear-gradient(var(--state-focus), var(--state-focus));
   }
 
   /* INT-1 — the hand cursor. shadcn's `--pointer` flag writes

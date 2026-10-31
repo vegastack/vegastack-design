@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.26.4 sha256-ZjDMcFEeQa1FYpTQVikmZcu5t0sEOMC96VUm2GE0bjc=
+// @vegastack sortable-list@0.26.4 sha256-f2CjRQQUXzF0VuAMqqBkevgwdNYnxCCkShoKfaCNIwk=
 
 "use client";
 
@@ -557,7 +557,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         ? // Flush: the content runs edge to edge; no wash, no padding kept for one.
                           "flex-nowrap gap-2 px-0 py-1"
                         : // DataList's row: compact padding, a subtle wash on hover.
-                          "flex-nowrap gap-2 px-1 py-1 hover:bg-muted/50",
+                          "flex-nowrap gap-2 px-1 py-1 state-layer",
                       // Start: the handle and actions keep to the first line of a tall row.
                       align === "start" && "items-start",
                     ),
