@@ -2834,8 +2834,8 @@
       "meta": {
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
-        "version": "0.26.4",
-        "integrity": "sha256-JcSfSm0Wx4vGzef7Z9k6Hqlzm4rNsS8wRyFEWF6DpOE="
+        "version": "0.26.10",
+        "integrity": "sha256-1ccr7i/GuhH/54yduP0TM5r3nl9PrGg4VqEtKt+r+q4="
       }
     },
     {
@@ -18663,8 +18663,8 @@
       "meta": {
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
-        "version": "0.26.4",
-        "integrity": "sha256-X2GtjslmUdZazDrOiCe4V64zVjrKupQOZIN4riE47oA="
+        "version": "0.26.10",
+        "integrity": "sha256-vGgkz0EvRFLf5fWKH3PcpthPWrRB5uQYpO49N3+JBKY="
       }
     },
     {

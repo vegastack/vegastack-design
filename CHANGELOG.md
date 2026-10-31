@@ -9,6 +9,27 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.26.10] — October 31, 2026
+
+<!-- assembled from 3 changesets: 82e775cff155 -->
+
+### 🛠 CLI & tooling
+
+- Full suite: the hover-capable TruncatedText test pins its device instead of trusting the container browser, and the agent hover-card a11y check waits for the card to finish fading in.
+  [`bef77b8`](https://github.com/VegaStack/vegastack-design/commit/bef77b8)
+- Nightly full suite: trust the container checkout before the commit check runs `git` (it failed on "dubious ownership").
+  [`a4a51ce`](https://github.com/VegaStack/vegastack-design/commit/a4a51ce)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.9.8`** (was `0.9.7`).
+- The design-system registry (`@vegastack/ui`) bumps 0.26.9 → 0.26.10.
+
+### 🐛 Fixed
+
+- **Menu rows shrink; large rail rows centre** (`dropdown-menu` LAY-18, `sidebar` LAY-19): menu items, sub-triggers and checkbox/radio items take `min-w-0`, so a row in a grid or narrow column truncates its label; `SidebarMenuButton size="lg"` centres its content in the collapsed rail, so a 24px avatar sits centred. Two deliberate deviations from shadcn (MK, 31-10-2026), recorded in the register so a shadcn refresh keeps them.
+  [`74dbf88`](https://github.com/VegaStack/vegastack-design/commit/74dbf88)
+
 ## [0.26.9] — October 30, 2026
 
 <!-- assembled from 1 changeset: a4dc1404db70 -->

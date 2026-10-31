@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.9.8
+
+### Patch Changes
+
+- [#876](https://github.com/vegastack/vegastack-design/pull/876) [`74dbf88`](https://github.com/vegastack/vegastack-design/commit/74dbf88ad653f805ac12d2155078f245a8e63b9a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Menu rows shrink; large rail rows centre** (`dropdown-menu` LAY-18, `sidebar` LAY-19): menu items, sub-triggers and checkbox/radio items take `min-w-0`, so a row in a grid or narrow column truncates its label; `SidebarMenuButton size="lg"` centres its content in the collapsed rail, so a 24px avatar sits centred. Two deliberate deviations from shadcn (MK, 31-10-2026), recorded in the register so a shadcn refresh keeps them.
+
 ## 0.9.7
 
 ### Patch Changes
