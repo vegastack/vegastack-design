@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.26.8 sha256-kIGaAg+abNmnM4+ocQltaurmUUW5ArhVgWVqY/fXbDA=
+// @vegastack filter-row@0.26.8 sha256-ZcusDcU91K2dpvUl1pBghXxYNQp1fQ8OEnPV1BnCWso=
 
 "use client";
 
@@ -999,7 +999,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
             chipHeight,
             "w-auto max-w-64 rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
             hasValue
-              ? "bg-accent text-foreground state-layer aria-expanded:bg-state-selected dark:bg-accent"
+              ? "bg-accent text-foreground state-layer aria-expanded:layer-selected dark:bg-accent"
               : "border-dashed bg-transparent text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:aria-expanded:border-transparent",
             ai && "ps-7",
           )}
@@ -1196,7 +1196,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
                   chipHeight,
                   "w-auto max-w-64 justify-start rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
-                    ? "bg-accent text-foreground state-layer aria-expanded:bg-state-selected dark:bg-accent"
+                    ? "bg-accent text-foreground state-layer aria-expanded:layer-selected dark:bg-accent"
                     : "border-dashed bg-transparent text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:aria-expanded:border-transparent",
                 )}
               />
@@ -1601,7 +1601,7 @@ export function DateRangeFilter({
                 chipHeight,
                 "max-w-64 justify-start rounded-md border border-border bg-clip-border ps-2 pe-7 text-sm font-normal",
                 hasValue
-                  ? "bg-accent text-foreground state-layer aria-expanded:bg-state-selected"
+                  ? "bg-accent text-foreground state-layer aria-expanded:layer-selected"
                   : "border-dashed text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground",
               )}
             />

@@ -1,4 +1,4 @@
-// @vegastack input@0.26.4 sha256-D5y7YvBE/lV33+n46FGTjeM/nlckUTfYw0rKmu5GWgs=
+// @vegastack input@0.26.4 sha256-slSFCKRdOtDVS6FGN1tOLiTWIP2EXm1IZQLP6PPe6mw=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -11,7 +11,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-lg border border-input bg-transparent hover:border-input-hover focus:not-aria-invalid:not-[[type=file]]:border-ring/50 focus:not-aria-invalid:not-read-only:not-[[type=file]]:field-halo focus:aria-invalid:field-halo-destructive read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "rounded-lg border border-input bg-transparent hover:not-read-only:border-input-hover focus:not-aria-invalid:not-read-only:not-[[type=file]]:border-ring/50 focus:not-aria-invalid:not-read-only:not-[[type=file]]:field-halo focus:aria-invalid:field-halo-destructive read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         // A borderless, transparent field for a big title (Linear's issue title). No box and no fill
         // in any state — rest, hover, focus (text entry takes no tint, FOC-3): the text cursor marks
         // it editable and the caret is the focus cue. An invalid title turns its placeholder

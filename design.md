@@ -14,16 +14,16 @@ generated:
       sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3145
-      sha256: "5c77cb2d1492730e770c77af7ce142768b9e4f806e66a7fc8cb95a1c26ccca19"
+      bytes: 3281
+      sha256: "f098539b7c81c230f843ee55967d5a78e2b1a3b9a97dd4296e4bb3552c757e38"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 3105
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 23910
-      sha256: "a3b793647f21b78298b8f0a467fba02d5780266a487db7d27eab1a27428eb235"
+      bytes: 23947
+      sha256: "2890306297f56e47bd44f5502a4c58fb4319f7697a3fa360c7e11217c1a06cb7"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 12972
@@ -266,7 +266,7 @@ themes:
     state-selected:
       type: "color"
       value: "oklch(0.145 0 0 / 0.08)"
-      description: "COL-24: selected / current / open fill (a row that is the current page, an open menu trigger, a chosen option). One step above hover; pairs with weight 500. Hovering a selected row stacks the hover layer on it, one step further."
+      description: "COL-24: selected / current / open fill (a row that is the current page, an open menu trigger, a chosen option). One step above hover; pairs with weight 500. A selected row holds its fill through hover (the state-layer stands down on it), so secondary text keeps AA."
     state-tile:
       type: "color"
       value: "oklch(0.145 0 0 / 0.06)"
@@ -720,7 +720,8 @@ recipes:
   button-secondary:
     background: "{secondary}"
     foreground: "{secondary-foreground}"
-    hover: "color-mix(in oklch, {secondary}, {foreground} 5%)"
+    hover: "{state-hover} layer"
+    pressed: "{state-pressed} layer"
     radius: "{radius}"
     typography: "text-sm/500"
   button-destructive:
@@ -733,7 +734,9 @@ recipes:
     background: "transparent"
     foreground: "{foreground}"
     border: "{input}"
-    focusBorder: "{ring}"
+    hoverBorder: "{input-hover}"
+    focusBorder: "{ring}/50 + 3px {input-halo} halo"
+    readOnly: "{readonly}, transparent border"
     radius: "{radius}"
     typography: "text-sm"
   card:
@@ -750,8 +753,8 @@ recipes:
     shadow: "shadow-md"
   menu-item:
     foreground: "{foreground}"
-    hover: "{accent}"
-    selected: "{accent}"
+    hover: "{state-hover}"
+    selected: "{state-selected}"
     radius: "{radius}"
     typography: "text-sm"
 ---
@@ -1212,7 +1215,7 @@ sidebar and muted, in both themes:
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | hover                              | `--state-hover` (5% / 4% foreground)                                                                                                                                | `state-layer` (a background image over any rest fill)                                        |
 | pressed                            | `--state-pressed` (10% / 9%)                                                                                                                                        | `state-layer`, on `:active`                                                                  |
-| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                                        | `bg-state-selected`, or `layer-selected` over a filled part; hover stacks one step on it     |
+| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                                        | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
 | highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                                     | `data-highlighted:bg-state-hover`                                                            |
 | keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                                               | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
 | inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                                            | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |

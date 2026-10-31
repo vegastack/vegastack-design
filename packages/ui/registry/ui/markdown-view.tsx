@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.26.4 sha256-dkoeJIaneIIt5Y6QtUx15lhqsH5JnYTQd7SGh3u86Xg=
+// @vegastack markdown-view@0.26.4 sha256-zilaALTFMydRezFmaxZ46A9kpAdTbIPJC3uX4Q90kKA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -273,7 +273,7 @@ export const markdownExtrasClassName = cn(
   // An image block (`markdown-figure`): the editor's image box, 8 from its neighbours.
   "[&_[data-slot=markdown-figure]]:my-2",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
-  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
+  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-state-hover [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
 
 /** A video block: full width up to its natural size, rounded like an image. */

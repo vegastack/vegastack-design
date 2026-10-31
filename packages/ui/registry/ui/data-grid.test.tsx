@@ -3699,11 +3699,13 @@ test("POL-01/13: hover is a faint wash, the open row carries the edge, and froze
   const frozen = row("d1").querySelector<HTMLElement>(
     '[data-slot="data-grid-cell"]',
   )!;
-  expect(frozen.className).toContain("group-data-[selected]/row:bg-");
+  expect(frozen.className).toContain(
+    "group-data-[selected]/row:layer-selected",
+  );
   expect(frozen.className).not.toContain("group-data-selected/row:");
   // Open outranks selected on a pinned cell as on the row (a doubled attribute selector).
   expect(frozen.className).toContain(
-    "[[data-peek-active][data-peek-active]>&]:bg-accent",
+    "[[data-peek-active][data-peek-active]>&]:layer-selected",
   );
 });
 
@@ -3785,7 +3787,7 @@ test("columnDividers rules every column's end, editingTint tints the edited cell
     />,
   );
   expect(cellClass()).toContain("border-e");
-  expect(cellClass()).toContain("data-editing:bg-accent");
+  expect(cellClass()).toContain("data-editing:bg-state-selected");
   expect(root().style.getPropertyValue("--data-grid-end-spacer")).toBe("180px");
   await screen.rerender(
     <DataGrid

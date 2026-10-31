@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.26.4 sha256-OxA60KYZLJXW7ku19rDzZjhEw7u3dVb9+qPXzFqmFxI=
+// @vegastack data-table-parts@0.26.4 sha256-yTZIwEyMUa7bPfctyout3M+ZBwVv5TUoPe8sfJ0t7vo=
 
 "use client";
 
@@ -379,7 +379,8 @@ export function mergedValueClass(column: DataTableColumnLayout): string {
  * at 5% and drops muted text under AA by 8%). The checkbox remains the
  * authoritative selection cue.
  */
-export const SELECTED_ROW_CLASS = "bg-state-selected state-layer";
+export const SELECTED_ROW_CLASS =
+  "bg-state-selected hover:not-focus-visible:bg-none";
 
 /**
  * The ONE list density scale (RS-15), shared by `DataList` and `DataGrid` so a list and a grid
@@ -401,8 +402,8 @@ export const LIST_ROW_HEIGHT_CLASS = {
  * same way (Regent POL-01):
  *
  * - hover — `ROW_HOVER_CLASS`, the `state-layer` hover/press steps (COL-24) and nothing else;
- * - selected (ticked) — `SELECTED_ROW_CLASS`, the `state-selected` wash, with the hover step
- *   stacking on it;
+ * - selected (ticked) — `SELECTED_ROW_CLASS`, the `state-selected` wash, held through hover (the
+ *   hover layer stands down on it, so secondary text keeps AA);
  * - open (`activeRowId`) — `PEEK_ACTIVE_ROW_CLASS`, the `state-selected` wash plus the 2px `foreground`
  *   start edge. The edge belongs to the open row (and to keyboard focus or the keyboard cursor,
  *   which point at the row the next Enter opens); the pointer never draws it.
@@ -1250,7 +1251,7 @@ export function EmptyRow({
     </Empty>
   );
   return (
-    <TableRow data-slot={slot} className="hover:bg-none">
+    <TableRow data-slot={slot} className="hover:not-focus-visible:bg-none">
       {/* `p-2`: a custom empty node never touches the header row above it. */}
       <TableCell colSpan={colSpan} className="min-w-0 p-2">
         {viewportWidth != null ? (

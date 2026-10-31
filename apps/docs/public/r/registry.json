@@ -278,7 +278,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.26.4",
-        "integrity": "sha256-VOQyQXAivI4hiaE/+y4GGEYwaci76A4yWCzWR8RxCLY="
+        "integrity": "sha256-nCsh7pXgkNjO+yF6NqYdmc2Rw2YRr/pZonP6szoswLY="
       }
     },
     {
@@ -356,7 +356,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.26.4",
-        "integrity": "sha256-+4z/NqK0M1krlenV6aYVjwMH+3OERbQ3GbOOAjbKfAg="
+        "integrity": "sha256-KB2Uhlazq9ud0LobflOqCGp0ovvsfX/Ffp9bVgiOuqc="
       }
     },
     {
@@ -849,7 +849,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.26.4",
-        "integrity": "sha256-HGpNNYy4468cgvo8dVp1zqn3Vw0n9W5ytVZY6X2WXTo="
+        "integrity": "sha256-eDicXqL8ggT8gOYaJWoab0p3JFKAAWnPkUzaE7BHVlo="
       }
     },
     {
@@ -1050,7 +1050,7 @@
         "whenToUse": "The speech surface inside a Message - sent/received styling, reactions, interactive bubbles.",
         "whenNotToUse": "Non-conversational callouts - use Alert or Card.",
         "version": "0.26.4",
-        "integrity": "sha256-KfAnAzK3P6H1m4SQLASBQG8b8ATj5qSq+RwvlbR3+CM="
+        "integrity": "sha256-QGCA01Fu+kc5szF4zAPr+Yhqi0P5029aE+dlIfcygpw="
       }
     },
     {
@@ -1652,7 +1652,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.26.4",
-        "integrity": "sha256-HfAGLC0F81ELcSLAlynCcVgIFvlf+0bne9lzFZAD06s="
+        "integrity": "sha256-KmSSAZgFIx0tcLabuPgHuuCmLiemVwLI/a0omdie0oY="
       }
     },
     {
@@ -1824,7 +1824,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.26.4",
-        "integrity": "sha256-w4iWL0loyvPlslluSwYUxvaa1TomlbYON8SqnTFQgho="
+        "integrity": "sha256-oiyQpemZ/ssRzl6hB+iFlF3/kxr/V5Ev4DwPDMQBzqg="
       }
     },
     {
@@ -2114,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.26.8",
-        "integrity": "sha256-kIGaAg+abNmnM4+ocQltaurmUUW5ArhVgWVqY/fXbDA="
+        "integrity": "sha256-ZcusDcU91K2dpvUl1pBghXxYNQp1fQ8OEnPV1BnCWso="
       }
     },
     {
@@ -2252,7 +2252,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.26.4",
-        "integrity": "sha256-OxA60KYZLJXW7ku19rDzZjhEw7u3dVb9+qPXzFqmFxI="
+        "integrity": "sha256-yTZIwEyMUa7bPfctyout3M+ZBwVv5TUoPe8sfJ0t7vo="
       }
     },
     {
@@ -3033,7 +3033,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.26.4",
-        "integrity": "sha256-A6rnvenhA97U0OAuCxqs6qcPcb3FrxYylYZsLKaI7FU="
+        "integrity": "sha256-aZY6ri3+p3vMk+sLmMVDUY/lndUjvkO7cQVxagXCVas="
       }
     },
     {
@@ -16504,7 +16504,7 @@
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
         "version": "0.26.4",
-        "integrity": "sha256-f3TD2+uBvIIC7VcH5XS2PFJGvlgc8C6vUtYT/xVvMtM="
+        "integrity": "sha256-qN/TRoW/oyQtg85Q0rODOHTjgptDggiMnhaGL8+RY6Y="
       }
     },
     {
@@ -16537,7 +16537,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.26.4",
-        "integrity": "sha256-Dleqof8w7q76XPtOjZD00AF5KA2gesLK14UGyyVsqRk="
+        "integrity": "sha256-JotHUURe42jXFhFXSxdDcSHb2yunzrSlt8RNafsfaJo="
       }
     },
     {
@@ -16593,7 +16593,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.26.4",
-        "integrity": "sha256-D5y7YvBE/lV33+n46FGTjeM/nlckUTfYw0rKmu5GWgs="
+        "integrity": "sha256-slSFCKRdOtDVS6FGN1tOLiTWIP2EXm1IZQLP6PPe6mw="
       }
     },
     {
@@ -16828,7 +16828,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.26.4",
-        "integrity": "sha256-dkoeJIaneIIt5Y6QtUx15lhqsH5JnYTQd7SGh3u86Xg="
+        "integrity": "sha256-zilaALTFMydRezFmaxZ46A9kpAdTbIPJC3uX4Q90kKA="
       }
     },
     {
@@ -17271,7 +17271,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.26.4",
-        "integrity": "sha256-axsPVsX9bWBlenOVj+bvccx0kBnIUFI2WBs0WToH5NA="
+        "integrity": "sha256-wSph+ouoN7d4O7+cB7xz0+yAsB2C2PJc92/itkuXIDk="
       }
     },
     {
@@ -17421,7 +17421,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.26.4",
-        "integrity": "sha256-4hVp8e0cVow9bsgTLCAAttdR1arqb9NNMS6jJwZlLww="
+        "integrity": "sha256-kjmfCXtveI53izNrkraidYdIvQQCCfr3S6Sac4Z/9gU="
       }
     },
     {
@@ -18125,7 +18125,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.26.4",
-        "integrity": "sha256-iBtVwFomGzziAyITpydnv4DcmM7Rg/Re19MTYk0hELI="
+        "integrity": "sha256-VT0+hbG9xFt3B2t9ocHYyMTgDGnfH+3wJRkqKRTK5Oc="
       }
     },
     {
@@ -19276,7 +19276,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.26.4",
-        "integrity": "sha256-8/66CI83hcjgKzKG3i3EYRtsF0McyCpf1tPDzFNmltY="
+        "integrity": "sha256-0NE8Am0sNhm9R39aF8cCujAcAeuTRa9SHVdhOn51YPw="
       }
     },
     {

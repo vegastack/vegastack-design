@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.26.4 sha256-Dleqof8w7q76XPtOjZD00AF5KA2gesLK14UGyyVsqRk=
+// @vegastack table-of-contents@0.26.4 sha256-JotHUURe42jXFhFXSxdDcSHb2yunzrSlt8RNafsfaJo=
 
 "use client";
 
@@ -807,7 +807,7 @@ const PANEL_LINK =
 // `Button` reshaped into the column (base.css paints its focus cue); on touch its hit area
 // reaches 44px wide.
 const RAIL_TRIGGER =
-  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:bg-none active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0";
+  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:not-focus-visible:bg-none active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0";
 // The panel floats over the page beside the rail, from its top corner (its frame places it);
 // closed, it is transparent and inert. Long outlines scroll inside it.
 const RAIL_PANEL =

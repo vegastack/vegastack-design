@@ -24,7 +24,7 @@
 #   API-39: a pressed toggle is filled so pressed never reads as hover — `aria-pressed:` /
 #     `data-[state=on]:` take `bg-primary/10` (upstream's `bg-muted` is the hover fill), a pressed
 #     toggle under the pointer deepens to `bg-primary/15`, and the `outline` variant's pressed border
-#     is `border-primary/30`. Unpressed keeps upstream's transparent fill. COL-24 (2026-10-31) moves the pressed fill to `bg-state-selected` with the hover layer stacking on it.
+#     is `border-primary/30`. Unpressed keeps upstream's transparent fill. COL-24 (2026-10-31) moves the pressed fill to `bg-state-selected` held through hover.
 #     ToggleGroup items take it through `toggleVariants`; a joined outline group's borders carry
 #     their own API-39 hunk in `toggle-group`.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).

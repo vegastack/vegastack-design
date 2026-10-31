@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.26.4 sha256-iBtVwFomGzziAyITpydnv4DcmM7Rg/Re19MTYk0hELI=
+// @vegastack record-aside@0.26.4 sha256-VT0+hbG9xFt3B2t9ocHYyMTgDGnfH+3wJRkqKRTK5Oc=
 
 "use client";
 
@@ -510,7 +510,7 @@ export function ActionListSkeleton({ rows = 3 }: ActionListSkeletonProps) {
   return (
     <ActionList aria-hidden data-slot="action-list-skeleton">
       {Array.from({ length: rows }, (_, i) => (
-        <ActionListItem key={i} className="hover:bg-none">
+        <ActionListItem key={i} className="hover:not-focus-visible:bg-none">
           <Skeleton className="size-4 rounded-full" />
           {/* Each bar sits in its text line's height (a 20px title, a 16px meta line), so the
               two keep the row's height and a gap between them. */}

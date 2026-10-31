@@ -442,8 +442,10 @@ test("offscreenSortSummary states a sort only once its column has left the heade
   ).toBe("Sorted by Name, ascending, then amount, ascending");
 });
 
-test("SELECTED_ROW_CLASS is the selected step with the state layer on it (COL-24)", () => {
-  expect(SELECTED_ROW_CLASS).toBe("bg-state-selected state-layer");
+test("SELECTED_ROW_CLASS is the selected step, held through hover (COL-24)", () => {
+  expect(SELECTED_ROW_CLASS).toBe(
+    "bg-state-selected hover:not-focus-visible:bg-none",
+  );
 });
 
 /* ------------------------------------------------------------------ sort */

@@ -22,9 +22,9 @@ test("public destructive and secondary recipes match canonical button classes", 
   expect(variants.destructive.split(" ")).toContain(
     `text-${recipe.foreground.slice(1, -1)}`,
   );
-  const hover = designMdConfig.recipes["button-secondary"].hover
-    .replace(/\{([^}]+)\}/g, "var(--$1)")
-    .replace(/,\s*/g, ",")
-    .replaceAll(" ", "_");
-  expect(variants.secondary.split(" ")).toContain(`hover:bg-[${hover}]`);
+  // COL-24: the secondary hover is the shared state layer, not a per-variant colour-mix.
+  expect(designMdConfig.recipes["button-secondary"].hover).toBe(
+    "{state-hover} layer",
+  );
+  expect(variants.secondary.split(" ")).toContain("state-layer");
 });

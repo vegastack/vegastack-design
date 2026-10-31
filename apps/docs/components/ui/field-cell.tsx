@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.26.4 sha256-A6rnvenhA97U0OAuCxqs6qcPcb3FrxYylYZsLKaI7FU=
+// @vegastack field-cell@0.26.4 sha256-aZY6ri3+p3vMk+sLmMVDUY/lndUjvkO7cQVxagXCVas=
 
 "use client";
 
@@ -1528,7 +1528,7 @@ function ChoiceCellEditor({
         variant="ghost"
         data-slot="field-cell-choice-trigger"
         // No wash, no press nudge: the cell is what is being edited, not a button on it.
-        className="h-auto min-h-9 w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:bg-none active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent"
+        className="h-auto min-h-9 w-full min-w-0 shrink justify-start gap-1 px-2.5 py-1.5 text-start font-normal hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0 aria-expanded:bg-transparent"
       >
         {chosen.slice(0, CHOICES_SHOWN).map((option) => (
           <FieldChoiceBadge key={option.id} hue={option.hue}>

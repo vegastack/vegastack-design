@@ -105,6 +105,7 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="text-[13px]">TYP-18: an arbitrary size receives neither half of the ramp</div>
     <div className="uppercase">TYP-7: no uppercase transform; it also rewrites token names</div>
     <div className="hover:bg-muted">COL-24: an opaque hover fill; the state-layer utility owns hover</div>
+    <div className="[&>a:hover]:bg-muted">COL-24: the same opaque hover behind an arbitrary selector</div>
     <svg viewBox="0 0 16 16"><path d="M0 0" /></svg>
   </>;
 }

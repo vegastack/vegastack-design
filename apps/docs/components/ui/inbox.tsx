@@ -1,4 +1,4 @@
-// @vegastack inbox@0.26.4 sha256-4hVp8e0cVow9bsgTLCAAttdR1arqb9NNMS6jJwZlLww=
+// @vegastack inbox@0.26.4 sha256-kjmfCXtveI53izNrkraidYdIvQQCCfr3S6Sac4Z/9gU=
 
 "use client";
 
@@ -908,7 +908,7 @@ export function InboxItem({
         aria-current={active ? "true" : undefined}
         onClick={open}
         className={cn(
-          "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:bg-none active:not-aria-[haspopup]:translate-y-0 pointer-coarse:after:inset-0",
+          "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0 pointer-coarse:after:inset-0",
           linkClass,
         )}
       >

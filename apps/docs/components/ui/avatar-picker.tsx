@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.26.4 sha256-HGpNNYy4468cgvo8dVp1zqn3Vw0n9W5ytVZY6X2WXTo=
+// @vegastack avatar-picker@0.26.4 sha256-eDicXqL8ggT8gOYaJWoab0p3JFKAAWnPkUzaE7BHVlo=
 
 "use client";
 
@@ -127,7 +127,7 @@ const TRIGGER: Record<
 
 /** The circle-as-a-button chrome: no box, no press nudge, opaque while disabled. */
 const CIRCLE_BUTTON =
-  "relative h-auto shrink-0 cursor-pointer rounded-full p-0 hover:bg-none active:not-aria-[haspopup]:translate-y-0 data-disabled:not-data-loading:opacity-100";
+  "relative h-auto shrink-0 cursor-pointer rounded-full p-0 hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0 data-disabled:not-data-loading:opacity-100";
 
 const FORMAT_NAMES: Record<string, string> = {
   jpeg: "JPEG",

@@ -1,4 +1,4 @@
-// @vegastack comments@0.26.4 sha256-+4z/NqK0M1krlenV6aYVjwMH+3OERbQ3GbOOAjbKfAg=
+// @vegastack comments@0.26.4 sha256-KB2Uhlazq9ud0LobflOqCGp0ovvsfX/Ffp9bVgiOuqc=
 
 "use client";
 
@@ -794,7 +794,7 @@ export function CommentMedia({
             file={item.file}
             state={item.state ?? "done"}
             data-slot="comment-media-item"
-            className="max-w-full overflow-hidden rounded-lg border-border bg-transparent p-0 has-[>a,>button]:hover:bg-none"
+            className="max-w-full overflow-hidden rounded-lg border-border bg-transparent p-0 has-[>a,>button]:hover:not-focus-visible:bg-none"
           >
             <img
               src={item.src}
@@ -1431,7 +1431,7 @@ export function CommentComposer({
             setOpened(true);
             setOpenedHere(true);
           }}
-          className="w-full justify-start gap-2 px-0 font-normal text-muted-foreground hover:bg-none hover:text-foreground"
+          className="w-full justify-start gap-2 px-0 font-normal text-muted-foreground hover:not-focus-visible:bg-none hover:text-foreground"
         >
           <MessageSquarePlus aria-hidden />
           {placeholder ?? "Add a comment…"}

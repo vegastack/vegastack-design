@@ -653,7 +653,7 @@ test("header renders a full-width row above the items; flush drops the row wash 
   const row = document.querySelector<HTMLElement>(
     '[data-slot="sortable-list-item"]',
   )!;
-  expect(row.className).not.toContain("state-layer");
+  expect(row.className.split(/\s+/)).not.toContain("state-layer");
   expect(row.className).toContain("px-0");
 });
 

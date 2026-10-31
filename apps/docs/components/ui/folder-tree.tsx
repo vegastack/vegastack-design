@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.26.4 sha256-f3TD2+uBvIIC7VcH5XS2PFJGvlgc8C6vUtYT/xVvMtM=
+// @vegastack folder-tree@0.26.4 sha256-qN/TRoW/oyQtg85Q0rODOHTjgptDggiMnhaGL8+RY6Y=
 
 "use client";
 
@@ -828,7 +828,7 @@ function FolderTree({
                   aria-controls={open ? listId : undefined}
                   data-slot="folder-tree-toggle"
                   onClick={() => setExpanded(node.id, !open)}
-                  className="text-muted-foreground hover:bg-none aria-expanded:bg-transparent"
+                  className="text-muted-foreground hover:not-focus-visible:bg-none aria-expanded:bg-transparent"
                 >
                   <ChevronRightIcon className="transition-transform duration-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100" />
                 </Button>
@@ -1031,7 +1031,7 @@ function FolderTree({
                         aria-controls={open ? listId : undefined}
                         data-slot="folder-tree-section-toggle"
                         onClick={() => setSectionOpen(section.id, !open)}
-                        className="me-auto text-muted-foreground opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 hover:bg-none aria-expanded:bg-transparent pointer-coarse:opacity-100"
+                        className="me-auto text-muted-foreground opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 hover:not-focus-visible:bg-none aria-expanded:bg-transparent pointer-coarse:opacity-100"
                       >
                         <ChevronRightIcon className="size-3 transition-transform duration-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100" />
                       </Button>

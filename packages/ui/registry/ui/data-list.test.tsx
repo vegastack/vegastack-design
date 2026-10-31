@@ -1309,8 +1309,8 @@ test("rowProps: data-* passthrough and a highlighted row", async () => {
     true,
     false,
   ]);
-  expect(rows[1]!.classList.contains("bg-accent")).toBe(true);
-  expect(rows[0]!.classList.contains("bg-accent")).toBe(false);
+  expect(rows[1]!.classList.contains("bg-state-selected")).toBe(true);
+  expect(rows[0]!.classList.contains("bg-state-selected")).toBe(false);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -1569,8 +1569,8 @@ test("a selected row takes the half-muted wash, not the badge-coloured accent", 
   const row = screen.container.querySelector<HTMLElement>(
     '[data-slot="data-list-row"][data-selected]',
   )!;
-  expect(row.className).toContain("bg-muted/50");
-  // Only the open row (`data-peek-active`) takes the accent; a selected one never does.
+  expect(row.className).toContain("bg-state-selected");
+  // Only the open row (`data-peek-active`) takes the peek edge; a selected one is the wash alone.
   expect(row.className.split(/\s+/)).not.toContain("bg-accent");
 });
 

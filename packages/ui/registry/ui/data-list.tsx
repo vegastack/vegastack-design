@@ -1,4 +1,4 @@
-// @vegastack data-list@0.26.4 sha256-w4iWL0loyvPlslluSwYUxvaa1TomlbYON8SqnTFQgho=
+// @vegastack data-list@0.26.4 sha256-oiyQpemZ/ssRzl6hB+iFlF3/kxr/V5Ev4DwPDMQBzqg=
 
 "use client";
 
@@ -2077,7 +2077,7 @@ export function DataList<T>({
             "cursor-pointer [&_a]:no-underline [&_a:focus-visible]:no-underline [&_a:hover]:no-underline",
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
           // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
-          highlighted && "bg-accent duration-slow",
+          highlighted && "bg-state-selected duration-slow",
           // Keyboard focus anywhere in the row (FOC-13: a background tint, never a ring): the row
           // takes the hover wash — the strongest fill muted text keeps AA on — and its first cell
           // paints a 2px `foreground` edge as a background layer, the part that clears 3:1.

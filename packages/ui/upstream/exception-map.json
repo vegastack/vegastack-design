@@ -272,7 +272,8 @@
       "sidebar",
       "table",
       "tabs",
-      "toggle"
+      "toggle",
+      "bubble"
     ],
     "INT-4": [
       "attachment",
@@ -290,7 +291,8 @@
       "sidebar",
       "table",
       "tabs",
-      "toggle"
+      "toggle",
+      "bubble"
     ],
     "FOC-16": ["combobox", "input", "input-group", "textarea"],
     "OVL-24": ["kbd", "tooltip"],

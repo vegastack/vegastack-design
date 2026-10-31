@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.26.4 sha256-HfAGLC0F81ELcSLAlynCcVgIFvlf+0bne9lzFZAD06s=
+// @vegastack data-grid@0.26.4 sha256-KmSSAZgFIx0tcLabuPgHuuCmLiemVwLI/a0omdie0oY=
 
 "use client";
 
@@ -5106,7 +5106,10 @@ export function DataGrid<T>({
       data-slot="data-grid-summary"
       className="sticky bottom-0 z-20 border-t bg-background"
     >
-      <TableRow aria-rowindex={footerRowIndex} className="hover:bg-none">
+      <TableRow
+        aria-rowindex={footerRowIndex}
+        className="hover:not-focus-visible:bg-none"
+      >
         {selectable ? (
           <TableCell
             aria-colindex={1}

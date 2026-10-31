@@ -204,7 +204,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.08
     },
-    "$description": "COL-24: selected / current / open fill (a row that is the current page, an open menu trigger, a chosen option). One step above hover; pairs with weight 500. Hovering a selected row stacks the hover layer on it, one step further."
+    "$description": "COL-24: selected / current / open fill (a row that is the current page, an open menu trigger, a chosen option). One step above hover; pairs with weight 500. A selected row holds its fill through hover (the state-layer stands down on it), so secondary text keeps AA."
   },
   "state-pressed": {
     "$type": "color",

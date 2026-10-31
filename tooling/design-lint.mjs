@@ -242,7 +242,7 @@ const RULES = [
   // tiles are `bg-state-tile`, which composes with the row.
   {
     id: "opaque-state-fill",
-    re: /(?<![\w-])(?:[^\s"'`{}]*:)?(?:hover|group-hover\/[\w-]+):bg-(?:(?:muted|accent|sidebar-accent|secondary)(?:\/\d+)?|background)(?=[\s"'`]|$)/g,
+    re: /(?<![\w-])(?:[^\s"'`{}]*:)?(?:hover|group-hover\/[\w-]+|\[[^\s"'`{}]*:hover[^\s"'`{}]*\]):bg-(?:(?:muted|accent|sidebar-accent|secondary)(?:\/\d+)?|background|\[color-mix\(in_oklch,var\(--(?:secondary|muted|accent)\)[^\]]*\])(?=[\s"'`]|$)/g,
     msg: "opaque state fill (COL-24): a hover is the `state-layer` utility (translucent `--state-hover`/`--state-pressed` over any fill), not `hover:bg-muted`/`bg-accent`/`bg-sidebar-accent`/`bg-secondary`; an inner tile is `bg-state-tile` and never swaps its fill on the row's hover",
   },
   // TYP-18 — no arbitrary font size.
