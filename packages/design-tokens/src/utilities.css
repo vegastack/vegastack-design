@@ -132,9 +132,11 @@
    conditions sit in `:where()`, so the utility weighs one class and a component's own
    `hover:not-focus-visible:bg-none` (an opt-out) still wins. */
 @utility state-layer {
-  @media (hover: hover) {
+  /* Through Tailwind's own `hover` variant (`@media (hover: hover)` by default), so a project or test
+     lane that redefines `hover` gets the same rule here as on every `hover:` utility. */
+  @variant hover {
     &:where(
-      :hover:not(
+      :not(
         :focus-visible,
         :disabled,
         [aria-disabled="true"],
