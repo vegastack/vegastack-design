@@ -880,9 +880,9 @@ everything its underlying element or component accepts.
 Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
 
 - **LAY-19** — `SidebarMenuButton size="lg"` centres its content in the collapsed rail
-  (`justify-center` beside upstream's `p-0!`): a 24px avatar sits centred in the 32px button and a
-  `size-8` tile still fills it; anything else in the row must hide in the rail
-  (`group-data-[collapsible=icon]:hidden`) to stay out of the centring (MK, 2026-10-31; a deliberate
+  (`justify-center-safe` beside upstream's `p-0!`): a 24px avatar sits centred in the 32px button and a
+  `size-8` tile still fills it; a row whose content overflows the rail (an avatar beside a name) stays
+  at the start, as upstream draws it (MK, 2026-10-31; a deliberate
   deviation).
 - **API-33** — `SidebarMenuAction showOnHover` writes `data-show-on-hover` and `SidebarMenuBadge`
   yields its slot to it; `SidebarGroupAction` takes the same `showOnHover` (03-10-2026), hidden from
