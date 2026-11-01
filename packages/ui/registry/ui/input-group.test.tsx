@@ -284,6 +284,21 @@ test("FOC-16: a focused group draws no ring or glow, valid or invalid", async ()
   }
 });
 
+test("FOC-16: hovering an invalid group keeps its destructive border", async () => {
+  const screen = await render(
+    <InputGroup>
+      <InputGroupInput aria-label="Filter" aria-invalid />
+    </InputGroup>,
+  );
+  const group = screen.container.querySelector(
+    '[data-slot="input-group"]',
+  ) as HTMLElement;
+  const rest = getComputedStyle(group).borderTopColor;
+  await userEvent.hover(group);
+  await new Promise((resolve) => setTimeout(resolve, 400)); // past the 150ms border ease
+  expect(getComputedStyle(group).borderTopColor).toBe(rest);
+});
+
 test("FOC-14: the invalid border holds while the group holds focus", async () => {
   const screen = await render(
     <InputGroup>

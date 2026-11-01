@@ -118,6 +118,28 @@ test("FOC-16: a focused field draws no ring or glow, valid or invalid", async ()
   }
 });
 
+test("FOC-16: hovering an invalid field keeps its destructive border", async () => {
+  const screen = await render(
+    <div>
+      <Input aria-label="Email" />
+      <Input aria-label="Phone" aria-invalid />
+    </div>,
+  );
+  const valid = screen
+    .getByRole("textbox", { name: "Email" })
+    .element() as HTMLElement;
+  const invalid = screen
+    .getByRole("textbox", { name: "Phone" })
+    .element() as HTMLElement;
+  const rest = getComputedStyle(invalid).borderTopColor;
+  await userEvent.hover(invalid);
+  await new Promise((resolve) => setTimeout(resolve, 400)); // past the 150ms border ease
+  expect(getComputedStyle(invalid).borderTopColor).toBe(rest);
+  expect(valid.className).toContain(
+    "hover:not-read-only:not-aria-invalid:border-input-hover",
+  );
+});
+
 test("FOC-14: the invalid border holds while the control is focused", async () => {
   const screen = await render(<Input aria-label="Email" aria-invalid />);
   const classes = await classesOf(
