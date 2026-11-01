@@ -14730,7 +14730,7 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.27.0"
+        "version": "0.28.0"
       }
     },
     {

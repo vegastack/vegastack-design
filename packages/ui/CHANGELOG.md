@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.28.0
+
+### Minor Changes
+
+- [#879](https://github.com/vegastack/vegastack-design/pull/879) [`73fb6a7`](https://github.com/vegastack/vegastack-design/commit/73fb6a70e9815c5ee4d420b6e5bddfddbd9d8115) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `PersonAvatar` gains `kind: "workspace"`: a rounded-square tile with the workspace's logo shown whole (`object-contain` on the plain background, never cropped into a circle), else its initials on its hue. Use it for workspace switchers and headers.
+
 ## 0.27.0
 
 ### Minor Changes

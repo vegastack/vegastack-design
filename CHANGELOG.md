@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.28.0] — November 1, 2026
+
+<!-- assembled from 1 changeset: 8b21cbaf1df7 -->
+
+### 🧩 New components
+
+- `PersonAvatar` gains `kind: "workspace"`: a rounded-square tile with the workspace's logo shown whole (`object-contain` on the plain background, never cropped into a circle), else its initials on its hue. Use it for workspace switchers and headers.
+  [`73fb6a7`](https://github.com/VegaStack/vegastack-design/commit/73fb6a7)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.27.0 → 0.28.0.
+
 ## [0.27.0] — October 31, 2026
 
 <!-- assembled from 1 changeset: 3be0ac2ffdaa -->
