@@ -184,13 +184,11 @@ opened — so a filter row never puts the calendar engine in the page's first bu
 
 The "Label: value" pill `FilterRow` draws for each of its `chips` — the
 [`Chip`](/docs/components/chip) primitive in the row's chip shape. Give it an `editor` and its
-label and value become a button (`filter-chip-trigger`) that opens the editor in a popover;
-
-<kbd>Escape</kbd> closes it and returns focus to the chip. In a `FilterRow` the
-chip has no ×: the row puts the chip's Clear option ("Clear Meeting", calling
-its `onRemove`) at the foot of that popover. Standalone (a read-only summary),
-`onRemove` still draws the × as its own 24px target. `unset` draws a pinned
-facet with no value yet as a dashed `+ Label` offer.
+label and value become a button (`filter-chip-trigger`) that opens the editor in a popover, and
+Escape closes it and returns focus to the chip. Inside a `FilterRow` (one of its `chips`, or in
+`facets`) the chip has no ×: its `onRemove` becomes the Clear option ("Clear Meeting") at the foot
+of that popover. Standalone (a read-only summary), `onRemove` still draws the × as its own 24px
+target. `unset` draws a pinned facet with no value yet as a dashed `+ Label` offer.
 
 <ApiTable
   path="../../packages/ui/registry/ui/filter-row.tsx"
