@@ -98,6 +98,10 @@ muted placeholder and carries `data-placeholder`.
 `clearable` swaps the chevron for a clear control while a value is set. It reports `null`, which is
 the same code path every other selection uses.
 
+`clearOption` puts the clear inside the list instead: while a value is set, the unsearched list ends
+with a `clearLabel` option, reached like any other (arrows, Enter), which reports `null` (`[]` with
+`multiple`). Filter facets use it, so a chip never carries a ×.
+
 <ComponentPreview
   name="searchableSelectClearable"
   file="components/preview/searchable-select.tsx"

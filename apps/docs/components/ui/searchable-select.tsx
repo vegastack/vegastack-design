@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.27.0 sha256-MMcF8JA2ibf+bL72iR31pabSAhDJxkqbTrrXzvs+GUI=
+// @vegastack searchable-select@0.27.0 sha256-Z77wJ4n+9jffeuQNhvvHmMJIBXDjoXawXqEEg7eLrwk=
 
 "use client";
 
@@ -273,10 +273,17 @@ export interface SearchableSelectProps<
    * @default false
    */
   clearable?: boolean;
-  /** Accessible name for the clear control.
+  /** Accessible name for the clear control, and the text of the clear option.
    * @default 'Clear selection'
    */
   clearLabel?: string;
+  /**
+   * Ends the list with a clear option (`clearLabel`) while a value is set, reached like any option
+   * (arrows, Enter); choosing it reports `null` (`[]` with `multiple`). The in-list alternative to
+   * `clearable`'s control on the trigger — a filter facet clears from its own dropdown.
+   * @default false
+   */
+  clearOption?: boolean;
   /** Disable the control entirely.
    * @default false
    */
@@ -386,6 +393,20 @@ const CREATE_ROW = Symbol("searchable-select-create");
 const isCreateRow = (item: unknown): item is CreateRow =>
   typeof item === "object" && item !== null && CREATE_ROW in item;
 
+/** The clear option's stand-in item (`clearOption`): never an `Item`, never selected. */
+interface ClearRow {
+  readonly [CLEAR_ROW]: true;
+}
+const CLEAR_ROW = Symbol("searchable-select-clear");
+const CLEAR_ROW_ITEM: ClearRow = { [CLEAR_ROW]: true };
+const isClearRow = (item: unknown): item is ClearRow =>
+  typeof item === "object" && item !== null && CLEAR_ROW in item;
+
+/** A row the list adds after the options: the add row or the clear option. */
+type ActionRow = CreateRow | ClearRow;
+const isActionRow = (item: unknown): item is ActionRow =>
+  isCreateRow(item) || isClearRow(item);
+
 /** Skeleton rows the height of real options: one line, or two with a secondary label. */
 function OptionSkeletons({
   count,
@@ -488,6 +509,7 @@ export function SearchableSelect<
   createLabel = (query) => `Add “${query}”`,
   clearable = false,
   clearLabel = "Clear selection",
+  clearOption = false,
   disabled = false,
   id,
   name,
@@ -591,28 +613,46 @@ export function SearchableSelect<
         : null,
     [onCreateOption, created, allItems, itemToStringLabel],
   );
+  const clearRow = clearOption && hasValue ? CLEAR_ROW_ITEM : null;
   const listed = React.useMemo(() => {
-    if (!createRow) return grouped ?? allItems;
+    const rows: ActionRow[] = [
+      ...(createRow ? [createRow] : []),
+      ...(clearRow ? [clearRow] : []),
+    ];
+    if (rows.length === 0) return grouped ?? allItems;
     return grouped
-      ? [...grouped, { value: "", items: [createRow] }]
-      : [...allItems, createRow];
-  }, [createRow, grouped, allItems]);
+      ? [...grouped, { value: "", items: rows }]
+      : [...allItems, ...rows];
+  }, [createRow, clearRow, grouped, allItems]);
+  // Base UI's own matcher (`Intl.Collator`: case- and accent-insensitive), kept when the list
+  // needs its own filter for the rows it adds.
+  const match = BaseCombobox.useFilter();
   const filter = React.useMemo(() => {
     if (remote) return null;
-    if (leadingKeys.size === 0 && !itemToSecondaryLabel && !createRow)
+    if (
+      leadingKeys.size === 0 &&
+      !itemToSecondaryLabel &&
+      !createRow &&
+      !clearRow
+    )
       return undefined;
-    return (item: Item | CreateRow, query: string) => {
+    return (item: Item | ActionRow, query: string) => {
       if (isCreateRow(item)) return true;
-      const q = query.trim().toLowerCase();
+      // The clear option sits under the unsearched list; a search shows only what matches.
+      if (isClearRow(item)) return query.trim() === "";
+      const q = query.trim();
       return (
         leadingKeys.has(itemToKey(item)) ||
-        itemToStringLabel(item).toLowerCase().includes(q) ||
-        (itemToSecondaryLabel?.(item) ?? "").toLowerCase().includes(q)
+        match.contains(item, q, itemToStringLabel) ||
+        (itemToSecondaryLabel != null &&
+          match.contains(item, q, (i) => itemToSecondaryLabel(i) ?? ""))
       );
     };
   }, [
+    match,
     remote,
     createRow,
+    clearRow,
     leadingKeys,
     itemToKey,
     itemToStringLabel,
@@ -620,8 +660,8 @@ export function SearchableSelect<
   ]);
   // Match by key, so a fresh object from a new fetch still reads as selected.
   const isEqual = React.useCallback(
-    (a: Item | CreateRow, b: Item | CreateRow) =>
-      isCreateRow(a) || isCreateRow(b)
+    (a: Item | ActionRow, b: Item | ActionRow) =>
+      isActionRow(a) || isActionRow(b)
         ? a === b
         : isItemEqualToValue
           ? isItemEqualToValue(a, b)
@@ -660,6 +700,22 @@ export function SearchableSelect<
       {createLabel(row[CREATE_ROW])}
     </ComboboxItem>
   );
+  const renderClearRow = () => (
+    <ComboboxItem
+      key="searchable-select-clear"
+      value={CLEAR_ROW_ITEM}
+      data-slot={`${slot}-clear-option`}
+      className="text-muted-foreground"
+    >
+      {clearLabel}
+    </ComboboxItem>
+  );
+  const renderRow = (item: Item | ActionRow) =>
+    isCreateRow(item)
+      ? renderCreateRow(item)
+      : isClearRow(item)
+        ? renderClearRow()
+        : renderOption(item);
 
   const renderOption = (item: Item) => {
     const reason = itemToDisabledReason?.(item);
@@ -746,9 +802,18 @@ export function SearchableSelect<
         multiple={isMultiple}
         value={value}
         onValueChange={(
-          next: Item | CreateRow | (Item | CreateRow)[] | null,
+          next: Item | ActionRow | (Item | ActionRow)[] | null,
         ) => {
-          const row = (Array.isArray(next) ? next : [next]).find(isCreateRow);
+          const picked = Array.isArray(next) ? next : [next];
+          if (picked.some(isClearRow)) {
+            // A clear supersedes an option still on its way (`onCreateOption`).
+            createdRef.current++;
+            onValueChange?.(
+              (isMultiple ? [] : null) as SearchableSelectValue<Item, Multiple>,
+            );
+            return;
+          }
+          const row = picked.find(isCreateRow);
           if (row) {
             create(row[CREATE_ROW]);
             return;
@@ -766,8 +831,12 @@ export function SearchableSelect<
             : undefined
         }
         isItemEqualToValue={isEqual}
-        itemToStringLabel={(item: Item | CreateRow) =>
-          isCreateRow(item) ? item[CREATE_ROW] : itemToStringLabel(item)
+        itemToStringLabel={(item: Item | ActionRow) =>
+          isCreateRow(item)
+            ? item[CREATE_ROW]
+            : isClearRow(item)
+              ? clearLabel
+              : itemToStringLabel(item)
         }
         open={open}
         defaultOpen={defaultSearch ? true : undefined}
@@ -778,8 +847,8 @@ export function SearchableSelect<
         name={name}
         required={required}
         // A form posts the item's key, not "[object Object]".
-        itemToStringValue={(item: Item | CreateRow) =>
-          isCreateRow(item) ? "" : itemToKey(item)
+        itemToStringValue={(item: Item | ActionRow) =>
+          isActionRow(item) ? "" : itemToKey(item)
         }
       >
         {renderTrigger ? (
@@ -901,27 +970,18 @@ export function SearchableSelect<
           <ComboboxList className="p-1">
             <ComboboxCollection>
               {grouped
-                ? (group: { value: string; items: (Item | CreateRow)[] }) => (
+                ? (group: { value: string; items: (Item | ActionRow)[] }) => (
                     <ComboboxGroup
-                      key={group.value || "searchable-select-create"}
+                      key={group.value || "searchable-select-actions"}
                       items={group.items}
                     >
                       {group.value ? (
                         <ComboboxLabel>{group.value}</ComboboxLabel>
                       ) : null}
-                      <ComboboxCollection>
-                        {(item: Item | CreateRow) =>
-                          isCreateRow(item)
-                            ? renderCreateRow(item)
-                            : renderOption(item)
-                        }
-                      </ComboboxCollection>
+                      <ComboboxCollection>{renderRow}</ComboboxCollection>
                     </ComboboxGroup>
                   )
-                : (item: Item | CreateRow) =>
-                    isCreateRow(item)
-                      ? renderCreateRow(item)
-                      : renderOption(item)}
+                : renderRow}
             </ComboboxCollection>
             {/* Infinite paging: a sentinel after the last option, inside the scrolling list, loads
                 the next page as it nears the panel's edge, with skeleton options while it does. */}

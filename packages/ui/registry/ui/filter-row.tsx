@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.27.0 sha256-nWsOUAfkqg1Q8eWuObL9/nMuA9vW2Zr3zR/EWz0yAXs=
+// @vegastack filter-row@0.27.0 sha256-ewZ6Vh8OMCYuq+oat6EKg0S1TGD36G0IMan669m6hDI=
 
 "use client";
 
@@ -41,11 +41,15 @@ import { layoutTierQuery } from "@/lib/page-layout";
 /* ---
 `FilterRow` is the row of filters under a `ListToolbar`, opened by its Filter tool. Its order never
 changes, so chips never jump: the page's pinned facets (dashed while unset), then the other chips
-in the order they were added, then `+ Filter` and `Clear` (while anything is set) right after the
-last chip — all on one line that scrolls sideways and never wraps; opening a chip's picker scrolls
-that chip into view. Every control on the row is the toolbar's tool height (32px; 28px in a compact
-toolbar). Chips an AI filter made carry a ✦ until edited; what the AI did is a toast with Undo
-(`useAiFilterApplied`), never a line under the row.
+in the order they were added, then `+ Filter` and `Clear` (while any filter differs from the
+list's defaults) right after the last chip — all on one line that scrolls sideways and never wraps;
+opening a chip's picker scrolls that chip into view. Nothing on the row opens by itself — not when
+the row opens, not when a filter is added: the member clicks a chip to choose its values. Chips
+carry no ×: a filter is cleared from its own dropdown (deselect its values, or its Clear option),
+and an empty chip reads as unset. `Clear` matches `+ Filter` exactly and clears every filter back
+to the defaults, then closes the row. Every control on the row is the toolbar's tool height (32px;
+28px in a compact toolbar). Chips an AI filter made carry a ✦ until edited; what the AI did is a
+toast with Undo (`useAiFilterApplied`), never a line under the row.
 --- */
 
 /**
@@ -53,6 +57,12 @@ toolbar). Chips an AI filter made carry a ✦ until edited; what the AI did is a
  * Outside one (a read-only summary, a builder) they keep the compact 28px chip tier.
  */
 const FilterRowTallContext = React.createContext(false);
+
+/**
+ * Inside a `FilterRow`: a `FilterChip` draws no ×; its `onRemove` becomes the Clear option at the
+ * foot of its dropdown.
+ */
+const InFilterRowContext = React.createContext(false);
 
 /** The height class of a facet or chip: the row's tool height inside a `FilterRow`, else 28px. */
 function useChipHeight() {
@@ -81,16 +91,11 @@ export interface FilterRowChip {
    */
   source?: "ai" | "user";
   /**
-   * The editor that opens from the chip (a value picker).
+   * The editor that opens from the chip (a value picker), above the chip's Clear option.
    * @default undefined
    */
   editor?: React.ReactNode;
-  /**
-   * Open the editor as the chip mounts — a filter just picked from + Filter.
-   * @default false
-   */
-  defaultEditorOpen?: boolean;
-  /** Remove the filter. */
+  /** Clear the filter — the Clear option at the foot of the chip's dropdown (chips have no ×). */
   onRemove: () => void;
 }
 
@@ -131,13 +136,16 @@ export interface FilterRowProps extends Omit<
    */
   chips?: readonly FilterRowChip[];
   /**
-   * Clear every filter; `Clear` shows while anything is set.
+   * Clear every filter back to the list's defaults. `Clear` (styled exactly as `+ Filter`, right
+   * after it) shows while `activeCount` is above 0; choosing it calls this, then closes the
+   * enclosing `ListToolbar`'s filter row.
    * @default undefined
    */
   onClear?: () => void;
   /**
-   * The number of filters applied. Omitted, the row counts its chips and its set facets (and
-   * tells the enclosing `ListToolbar`, whose Filter tool shows it).
+   * The number of filters that differ from the list's defaults. Omitted, the row counts its chips
+   * and its set facets (and tells the enclosing `ListToolbar`, whose Filter tool shows it). A list
+   * whose defaults set a facet passes its own count, so `Clear` hides at the defaults.
    * @default undefined
    */
   activeCount?: number;
@@ -232,8 +240,12 @@ export function FilterRow({
   const showClear = onClear != null && activeCount > 0;
   const clear = () => {
     onClear?.();
-    // Clear unmounts once nothing is set, and so may the chips: hand focus to + Filter, which
-    // stays, else the row's first control.
+    // Then the row closes, focus back on the toolbar's Filter tool. Outside a toolbar the row
+    // stays: Clear unmounts once nothing is set, so hand focus to + Filter, else the first control.
+    if (toolbar) {
+      toolbar.closeFilterRow();
+      return;
+    }
     const row = rowRef.current;
     (
       row?.querySelector<HTMLElement>(
@@ -293,53 +305,56 @@ export function FilterRow({
       className={cn("flex w-full min-w-0 items-center", className)}
       {...props}
     >
-      <FilterRowTallContext.Provider value={!toolbar?.compact}>
-        <FilterRowAiContext.Provider value={aiValue}>
-          <FilterFacetReporter value={reporter}>
-            <div
-              ref={scrollRef}
-              data-slot="filter-row-scroll"
-              // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
-              // at its end, right after the last chip.
-              className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
-            >
-              {facets}
-              {chips.map((chip) => (
-                <FilterChip
-                  key={chip.id}
-                  data-filter-id={chip.id}
-                  label={chip.label}
-                  value={chip.value}
-                  icon={chip.icon}
-                  ai={chip.source === "ai"}
-                  editor={chip.editor}
-                  defaultEditorOpen={chip.defaultEditorOpen}
-                  onRemove={chip.onRemove}
-                />
-              ))}
-              {addFilter != null ? (
-                <div
-                  data-slot="filter-row-add"
-                  className="flex shrink-0 items-center"
-                >
-                  {addFilter}
-                </div>
-              ) : null}
-              {showClear ? (
-                <Button
-                  variant="ghost"
-                  size={toolbar?.compact ? "sm" : "default"}
-                  data-slot="filter-row-clear"
-                  className="shrink-0 font-normal text-muted-foreground"
-                  onClick={clear}
-                >
-                  {labels.clear}
-                </Button>
-              ) : null}
-            </div>
-          </FilterFacetReporter>
-        </FilterRowAiContext.Provider>
-      </FilterRowTallContext.Provider>
+      <InFilterRowContext.Provider value>
+        <FilterRowTallContext.Provider value={!toolbar?.compact}>
+          <FilterRowAiContext.Provider value={aiValue}>
+            <FilterFacetReporter value={reporter}>
+              <div
+                ref={scrollRef}
+                data-slot="filter-row-scroll"
+                // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
+                // at its end, right after the last chip.
+                className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
+              >
+                {facets}
+                {chips.map((chip) => (
+                  <FilterChip
+                    key={chip.id}
+                    data-filter-id={chip.id}
+                    label={chip.label}
+                    value={chip.value}
+                    icon={chip.icon}
+                    ai={chip.source === "ai"}
+                    editor={chip.editor}
+                    onRemove={chip.onRemove}
+                  />
+                ))}
+                {addFilter != null ? (
+                  <div
+                    data-slot="filter-row-add"
+                    className="flex shrink-0 items-center"
+                  >
+                    {addFilter}
+                  </div>
+                ) : null}
+                {showClear ? (
+                  // The twin of + Filter's trigger: same variant, size, type and icon spacing.
+                  <Button
+                    variant="ghost"
+                    size={toolbar?.compact ? "sm" : "default"}
+                    data-slot="filter-row-clear"
+                    className="shrink-0 font-normal text-muted-foreground"
+                    onClick={clear}
+                  >
+                    <X aria-hidden />
+                    {labels.clear}
+                  </Button>
+                ) : null}
+              </div>
+            </FilterFacetReporter>
+          </FilterRowAiContext.Provider>
+        </FilterRowTallContext.Provider>
+      </InFilterRowContext.Provider>
     </div>
   );
 }
@@ -530,11 +545,6 @@ export interface FilterChipProps extends Omit<
    */
   onEditorOpenChange?: (open: boolean) => void;
   /**
-   * Open the editor when the chip mounts — a filter just added from "More".
-   * @default false
-   */
-  defaultEditorOpen?: boolean;
-  /**
    * Made by an AI filter: a ✦ leads the chip until the filter is edited (the host clears it).
    * @default false
    */
@@ -592,7 +602,6 @@ export function FilterChip({
   active = true,
   editor,
   onEditorOpenChange,
-  defaultEditorOpen = false,
   ai = false,
   unset = false,
   ...props
@@ -601,6 +610,19 @@ export function FilterChip({
     removeLabel ??
     (typeof label === "string" ? `Clear ${label}` : "Clear filter");
   const tall = React.useContext(FilterRowTallContext);
+  // In a filter row a chip has no ×: clearing it is the last option of its dropdown.
+  const inRow = React.useContext(InFilterRowContext);
+  const menu =
+    inRow && !unset && onRemove != null ? (
+      <>
+        {editor}
+        <FilterClearOption divided={editor != null} onSelect={onRemove}>
+          {computedRemoveLabel}
+        </FilterClearOption>
+      </>
+    ) : (
+      editor
+    );
 
   return (
     <Chip
@@ -609,7 +631,7 @@ export function FilterChip({
       data-state={unset ? "unset" : undefined}
       size={tall ? "md" : "sm"}
       active={unset ? false : active}
-      onRemove={unset ? undefined : onRemove}
+      onRemove={unset || inRow ? undefined : onRemove}
       removeLabel={computedRemoveLabel}
       // The filter row's one chip shape: the row's height, rounded-md, quiet type — set or unset.
       // An unset pinned facet is the same box, dashed and clear: an offer, not a value.
@@ -637,11 +659,8 @@ export function FilterChip({
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
-      {editor != null ? (
-        <Popover
-          defaultOpen={defaultEditorOpen}
-          onOpenChange={(open) => onEditorOpenChange?.(open)}
-        >
+      {menu != null ? (
+        <Popover onOpenChange={(open) => onEditorOpenChange?.(open)}>
           <PopoverTrigger
             data-slot="filter-chip-trigger"
             className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-sm px-1 py-0.5 text-start state-layer"
@@ -649,13 +668,48 @@ export function FilterChip({
             <FilterChipText label={label} value={value} />
           </PopoverTrigger>
           <PopoverContent align="start" className="w-auto min-w-56">
-            {editor}
+            {menu}
           </PopoverContent>
         </Popover>
       ) : (
         <FilterChipText label={label} value={value} />
       )}
     </Chip>
+  );
+}
+
+/**
+ * A filter's own Clear option, at the foot of its dropdown — the menus' 28px row, muted, under a
+ * divider when options sit above it. Filter chips carry no ×; this is how one filter is cleared.
+ */
+function FilterClearOption({
+  onSelect,
+  divided = true,
+  className,
+  children,
+}: {
+  onSelect: () => void;
+  divided?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col",
+        divided && "border-t border-border pt-1",
+        className,
+      )}
+    >
+      <Button
+        variant="ghost"
+        data-slot="filter-clear-option"
+        onClick={onSelect}
+        className="h-7 w-full min-w-0 justify-start rounded-md px-1.5 text-sm font-normal text-muted-foreground"
+      >
+        <span className="min-w-0 truncate">{children}</span>
+      </Button>
+    </div>
   );
 }
 
@@ -775,22 +829,6 @@ export interface ListFacetOwnProps<Item> {
    */
   renderItem?: (item: Item) => React.ReactNode;
   /**
-   * A secondary facet added from "More": clearing it also calls `onRemove`, and while it is unset
-   * a remove control sits beside it.
-   * @default false
-   */
-  removable?: boolean;
-  /**
-   * Called when a `removable` facet is removed or cleared.
-   * @default undefined
-   */
-  onRemove?: () => void;
-  /**
-   * Accessible name of the remove control beside an unset `removable` facet.
-   * @default `Remove ${label} filter`
-   */
-  removeLabel?: string;
-  /**
    * List the selected options first, under "Selected", above the rest under "More".
    * @default false
    */
@@ -836,16 +874,18 @@ export type ListFacetProps<
   | "aria-label"
   | "groupBy"
   | "groupOrder"
+  | "clearable"
+  | "clearOption"
 > &
   ListFacetOwnProps<Item>;
 
 /**
  * `ListFacet` — one filter on `SearchableSelect`, as a rounded-md chip at the row's height. Unset,
  * it is quiet and reads its label ("Status ▾"). Set, the same chip is tinted: "Status: Open", then
- * "Status: 2" from two values (the values on hover and ticked in the popover), with a × in the
- * chevron's fixed slot that clears it ("Clear Status"). Single or `multiple`, local or
- * server-searched (`remote` + `useAsyncSearch`; the tick matches by `itemToKey`), optionally pinned
- * and removable. For people, pass `itemToSecondaryLabel={(p) => p.email}`: each option reads the
+ * "Status: 2" from two values (the values on hover and ticked in the popover), still with its ▾ —
+ * no ×: the dropdown clears it (untick the values, or its "Clear Status" option under the list).
+ * Single or `multiple`, local or server-searched (`remote` + `useAsyncSearch`; the tick matches by
+ * `itemToKey`), optionally pinned. For people, pass `itemToSecondaryLabel={(p) => p.email}`: each option reads the
  * name plus a smaller muted email, and search matches both; add `itemToAvatar` to lead each option
  * with the person's `PersonAvatar`. Put it in a
  * `FilterRow`'s `facets` slot.
@@ -866,15 +906,11 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   label,
   ai: aiProp = false,
   renderItem,
-  removable = false,
-  onRemove,
-  removeLabel = `Remove ${label} filter`,
   pinSelected = false,
   selectedGroupLabel = "Selected",
   moreGroupLabel = "More",
   anyLabel: _anyLabel,
   countLabel,
-  clearable: _clearable,
   clearLabel = `Clear ${label}`,
   searchable,
   searchPlaceholder = `Search ${label.toLowerCase()}`,
@@ -905,9 +941,6 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   }, [row, id, label, hasValue]);
   React.useEffect(() => () => row?.report(id, label, null), [row, id, label]);
 
-  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
-  const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
-
   // The pinned split is taken when the list opens, so toggling a row does not move it between
   // "Selected" and "More" under the pointer; the next open re-pins.
   const [pinnedKeys, setPinnedKeys] = React.useState(selectedKeys);
@@ -926,17 +959,6 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
       ? [current]
       : [];
 
-  const clear = () => {
-    // The × unmounts with the value; hand focus to the trigger first (DS-22).
-    trigger?.focus();
-    onValueChange?.(
-      (select.multiple ? [] : null) as Parameters<
-        NonNullable<typeof onValueChange>
-      >[0],
-    );
-    if (removable) onRemove?.();
-  };
-
   return (
     <span
       data-slot="list-facet"
@@ -953,7 +975,9 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
         <SearchableSelect<Item, Multiple>
           {...select}
           onValueChange={onValueChange}
-          ref={triggerRef}
+          ref={ref}
+          clearOption
+          clearLabel={clearLabel}
           onOpenChange={(open) => {
             if (open) setPinnedKeys(selectedKeys);
             onOpenChange?.(open);
@@ -991,7 +1015,7 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
           }
           // A leading item outside the selection must not put "More" above "Selected".
           groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
-          // The select's own chevron gives way to the facet's ▾ or ×.
+          // The select's own chevron gives way to the facet's ▾.
           containerClassName="w-fit [&>svg]:hidden"
           // ONE chip shape for unset and set (rounded-md, the row's height, the same border box
           // and the same 28px trailing reserve); a set chip is tinted, never reshaped.
@@ -1007,46 +1031,20 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
           data-slot="list-facet-select"
         />
         {ai ? <FacetAiMark /> : null}
-        {hasValue ? (
-          // The × holds the chevron's exact box (24px, `end-0.5`), so nothing shifts when a
-          // value is set; its 24px box is the whole hit area.
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label={clearLabel}
-            data-slot="list-facet-clear"
-            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground state-layer hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
-            disabled={select.disabled}
-            onClick={() => {
-              if (!select.disabled) clear();
-            }}
-          >
-            <X aria-hidden className="size-3.5" />
-          </Button>
-        ) : (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
-          >
-            <ChevronDown className="size-3.5" />
-          </span>
-        )}
+        <FacetChevron />
       </span>
-      {removable && !hasValue ? (
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label={removeLabel}
-          data-slot="list-facet-remove"
-          className="active:not-aria-[haspopup]:translate-y-0"
-          disabled={select.disabled}
-          onClick={() => {
-            if (!select.disabled) onRemove?.();
-          }}
-        >
-          <X aria-hidden />
-        </Button>
-      ) : null}
+    </span>
+  );
+}
+
+/** A facet's ▾, set or unset, in the trailing 24px slot the chip reserves (`pe-7`). */
+function FacetChevron() {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
+    >
+      <ChevronDown className="size-3.5" />
     </span>
   );
 }
@@ -1069,13 +1067,7 @@ export interface PeopleFacetProps<
   onValueChange: (value: PeoplePickerValue<Multiple>) => void;
   /** Called when the popover opens or closes — start a remote search on the first open. @default undefined */
   onOpenChange?: (open: boolean) => void;
-  /** A secondary facet added from "More": clearing it also calls `onRemove`. @default false */
-  removable?: boolean;
-  /** Called when a `removable` facet is removed or cleared. @default undefined */
-  onRemove?: () => void;
-  /** The remove control's accessible name. @default `Remove ${label} filter` */
-  removeLabel?: string;
-  /** The clear control's accessible name. @default `Clear ${label}` */
+  /** The text of the Clear option at the foot of the list, shown while set. @default `Clear ${label}` */
   clearLabel?: string;
   /** The chip's count for several people. @default (n) => String(n) */
   countLabel?: (n: number) => string;
@@ -1094,6 +1086,7 @@ export interface PeopleFacetProps<
  * "Assignee: Asha Rao", "Assignee: 2") over the one people picker (`PeoplePickerContent`), so a
  * filter lists people exactly as every other picker does — avatar, name, email, "(you)", only
  * active people, skeleton rows while loading. `leadingOptions` adds rows such as "Unassigned".
+ * No ×: while set, the picker's footer ends with "Clear Assignee".
  *
  * @example
  * <PeopleFacet label="Assignee" multiple value={assignees} onValueChange={setAssignees} search={searchMembers} />
@@ -1104,9 +1097,6 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
   value,
   onValueChange: onValueChangeProp,
   onOpenChange,
-  removable = false,
-  onRemove,
-  removeLabel = `Remove ${label} filter`,
   clearLabel = `Clear ${label}`,
   countLabel,
   disabled = false,
@@ -1127,7 +1117,6 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
   const hasValue = chosen.length > 0;
   const [open, setOpen] = React.useState(false);
   const [pinned, setPinned] = React.useState<PeoplePickerOption[]>([]);
-  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
 
   const row = React.useContext(FilterFacetContext);
   const chipHeight = useChipHeight();
@@ -1159,9 +1148,9 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
     onValueChange((same ? null : option) as PeoplePickerValue<Multiple>);
   };
   const clear = () => {
-    trigger?.focus();
+    setOpen(false);
+    onOpenChange?.(false);
     onValueChange((multiple ? [] : null) as PeoplePickerValue<Multiple>);
-    if (removable) onRemove?.();
   };
 
   return (
@@ -1187,7 +1176,6 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
             disabled={disabled}
             render={
               <Button
-                ref={setTrigger}
                 variant="outline"
                 size="sm"
                 data-slot="list-facet-select-trigger"
@@ -1212,47 +1200,17 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
               pinned={multiple ? pinned : []}
               selected={chosen.map((o) => o.id)}
               onSelect={pick}
+              actions={[
+                ...(list.actions ?? []),
+                ...(hasValue && !disabled
+                  ? [{ label: clearLabel, onSelect: clear }]
+                  : []),
+              ]}
             />
           </PopoverContent>
         </Popover>
-        {hasValue ? (
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label={clearLabel}
-            data-slot="list-facet-clear"
-            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground state-layer hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
-            disabled={disabled}
-            onClick={() => {
-              if (!disabled) clear();
-            }}
-          >
-            <X aria-hidden className="size-3.5" />
-          </Button>
-        ) : (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
-          >
-            <ChevronDown className="size-3.5" />
-          </span>
-        )}
+        <FacetChevron />
       </span>
-      {removable && !hasValue ? (
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label={removeLabel}
-          data-slot="list-facet-remove"
-          className="active:not-aria-[haspopup]:translate-y-0"
-          disabled={disabled}
-          onClick={() => {
-            if (!disabled) onRemove?.();
-          }}
-        >
-          <X aria-hidden />
-        </Button>
-      ) : null}
     </span>
   );
 }
@@ -1342,7 +1300,7 @@ export interface DateRangeFilterProps {
    */
   locale?: string;
   /**
-   * Accessible name of the clear control.
+   * The text of the Clear option at the foot of the presets, shown while set.
    * @default `Clear ${label}`
    */
   clearLabel?: string;
@@ -1486,8 +1444,8 @@ function DateRangeOption({
 /**
  * `DateRangeFilter` — THE date filter: every date facet in a `FilterRow` is one, in the same
  * rounded-md chip as `ListFacet`. Unset it reads its label ("Due ▾"); set it is tinted and reads
- * the preset ("Due: This week") or the dates ("Due: Sep 1–25"), with a × in the chevron's fixed
- * slot. Its popover lists the page's presets as the menus' 28px rows — Overdue, Today, This week,
+ * the preset ("Due: This week") or the dates ("Due: Sep 1–25"), keeping its ▾ (no ×: while set,
+ * the presets end with "Clear Due"). Its popover lists the page's presets as the menus' 28px rows — Overdue, Today, This week,
  * Next 7 days, This month, No date, Last 30 days… — and "Custom range", which drills into a
  * calendar (two months; one on a phone) in the same popover. Presets are computed from `now`, so
  * "This week" is always this week.
@@ -1696,33 +1654,22 @@ export function DateRangeFilter({
                   </DateRangeOption>
                 ),
               )}
+              {hasValue && !disabled ? (
+                <FilterClearOption
+                  className="-mx-1 mt-1 px-1"
+                  onSelect={() => {
+                    onValueChange(null);
+                    setOpen(false);
+                  }}
+                >
+                  {clearLabel}
+                </FilterClearOption>
+              ) : null}
             </div>
           )}
         </PopoverContent>
       </Popover>
-      {hasValue ? (
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label={clearLabel}
-          disabled={disabled}
-          data-slot="date-range-filter-clear"
-          className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground state-layer hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
-          onClick={() => {
-            triggerRef.current?.focus();
-            onValueChange(null);
-          }}
-        >
-          <X aria-hidden className="size-3.5" />
-        </Button>
-      ) : (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
-        >
-          <ChevronDown className="size-3.5" />
-        </span>
-      )}
+      <FacetChevron />
     </span>
   );
 }

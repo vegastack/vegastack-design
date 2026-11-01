@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.27.0 sha256-eU6XRluGNfVn1iBlGa/WKj24ctQxT/gHHSsmV+w9lYc=
+// @vegastack add-filter-menu@0.27.0 sha256-fabSARUm7gOaV+p4N4GjQ5YN3j31N/ay3D+2ix15ong=
 
 "use client";
 
@@ -129,7 +129,8 @@ export interface AddFilterMenuProps {
   /** The fields that can filter, in the order offered. */
   fields: readonly AddFilterField[];
   /**
-   * Called when a field without an `editor` is picked: add its chip (with its editor open).
+   * Called when a field without an `editor` is picked: add its chip, closed — the member opens it
+   * to choose values. Nothing opens by itself.
    * @default undefined
    */
   onPick?: (key: string) => void;
@@ -222,16 +223,6 @@ export function AddFilterMenu({
   const [message, setMessage] = React.useState<string | null>(null);
   const listId = React.useId();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-  // The toolbar opened the filter row with nothing applied: open, focus in the input.
-  const request = toolbar?.addFilterRequest ?? 0;
-  const seen = React.useRef(request);
-  React.useEffect(() => {
-    if (request !== seen.current) {
-      seen.current = request;
-      setOpen(true);
-    }
-  }, [request, setOpen]);
 
   // Every opening starts fresh, focus in the input.
   React.useEffect(() => {
