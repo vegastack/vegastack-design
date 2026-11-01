@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.29.0] — November 1, 2026
+
+<!-- assembled from 1 changeset: 621a761a4f68 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.28.0 → 0.29.0.
+
+### ⚠️ Breaking
+
+- `FilterRow`: nothing opens by itself and chips carry no ×. Opening the toolbar's filter row focuses its first control instead of opening `+ Filter`; a filter added from `+ Filter` mounts closed (`FilterRowChip.defaultEditorOpen` and `FilterChip.defaultEditorOpen` are removed). `ListFacet`, `PeopleFacet` and `DateRangeFilter` lose their × and their `removable` / `onRemove` / `removeLabel` props; each clears from its own dropdown ("Clear Status" at the foot of the list, while set), and a row chip's popover ends with its Clear option. `Clear` now matches `+ Filter` exactly (with an icon), shows while a filter differs from the defaults (`activeCount`), and closes the toolbar's filter row (new `closeFilterRow` on the toolbar context). `SearchableSelect` gains `clearOption`, an in-list clear row.
+  [`cb01718`](https://github.com/VegaStack/vegastack-design/commit/cb01718)
+
 ## [0.28.0] — November 1, 2026
 
 <!-- assembled from 1 changeset: 8b21cbaf1df7 -->
