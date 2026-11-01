@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.27.0 sha256-EN2T1CxxfxM3QBWNOdX37qJ3JwTV0P6L3jl/mbWzubQ=
+// @vegastack person-avatar@0.27.0 sha256-nyEOP8dLCfCD5+gqf5I3hYV7cIahHX1zpVt59encNT8=
 
 "use client";
 
@@ -20,6 +20,8 @@ import {
  * rule in `personInitials`, exported here for anything else that shows a person's initials.
  * A team (`kind: "team"`) is drawn as a rounded-square tile with the team icon on its hue — never
  * initials — so a team reads as a group wherever people and teams are listed together.
+ * A workspace (`kind: "workspace"`) is a rounded-square tile too: its logo contained whole on a
+ * plain tile (a company logo is never cropped into a circle), else its initials on its hue.
  * An agent (`kind: "agent"`) — an AI assistant working for a member — is a bot on the purple tag
  * hue, and `PersonName` writes its name as "Claude Code via Manoj" with the purple "Agent" label,
  * so an agent reads the same in every avatar, stack, picker, feed and comment.
@@ -69,8 +71,9 @@ export interface Person {
   /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
   badge?: React.ReactNode;
   /**
-   * A person, a team of people (a rounded-square tile with the team icon on its hue), or an agent
-   * working for a member (a bot on the purple tag hue, named with `via` and an "Agent" label).
+   * A person, a team of people (a rounded-square tile with the team icon on its hue), a workspace
+   * (a rounded-square tile with its whole logo, else its initials), or an agent working for a member
+   * (a bot on the purple tag hue, named with `via` and an "Agent" label).
    * @default "person"
    */
   kind?: PersonKind;
@@ -78,8 +81,8 @@ export interface Person {
   via?: string | null;
 }
 
-/** What a `Person` is: a person, a team of people, or an agent working for a member. */
-export type PersonKind = "person" | "team" | "agent";
+/** What a `Person` is: a person, a team of people, a workspace, or an agent working for a member. */
+export type PersonKind = "person" | "team" | "workspace" | "agent";
 
 /**
  * `personDisplayName` — a person's name as plain text: an agent reads "Claude Code (via Manoj)",
@@ -122,7 +125,7 @@ export interface PersonAvatarProps extends Omit<
   person: Pick<Person, "name" | "email" | "image" | "hue" | "kind">;
   /** Avatar size. @default "sm" */
   size?: "sm" | "default" | "lg";
-  /** Draw a person, a team or an agent; overrides `person.kind`. @default person.kind ?? "person" */
+  /** Draw a person, a team, a workspace or an agent; overrides `person.kind`. @default person.kind ?? "person" */
   kind?: PersonKind;
 }
 
@@ -136,12 +139,15 @@ export interface PersonAvatarProps extends Omit<
  * initials.) The initials stay underneath until the photo has loaded, and come back if it fails.
  *
  * A team (`kind="team"`, or `person.kind`) is a rounded-square tile with the `UsersRound` icon on
- * its hue, and no photo or initials. An agent (`kind="agent"`) is the `Bot` icon on the purple tag
+ * its hue, and no photo or initials. A workspace (`kind="workspace"`) is the same rounded square
+ * with its logo scaled to fit whole (`object-contain`) on the plain background, else its initials
+ * on its hue — for workspace switchers and headers. An agent (`kind="agent"`) is the `Bot` icon on the purple tag
  * hue whatever its `hue`; with a photo it keeps a purple bot badge at the corner, so an agent never
  * passes for a person.
  *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
  * @example <PersonAvatar person={{ name: "Sales", kind: "team", hue: "green" }} />
+ * @example <PersonAvatar person={{ name: "Acme Lighting", kind: "workspace", image: logoUrl }} />
  * @example <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
  */
 export function PersonAvatar({
@@ -154,6 +160,7 @@ export function PersonAvatar({
   const resolvedKind = kind ?? person.kind ?? "person";
   const team = resolvedKind === "team";
   const agent = resolvedKind === "agent";
+  const workspace = resolvedKind === "workspace";
   const src = team ? undefined : person.image || undefined;
   // Keyed by `src`, so a new photo starts over: a failure or a load of the old one never sticks.
   const [loaded, setLoaded] = React.useState<string | null>(null);
@@ -193,8 +200,8 @@ export function PersonAvatar({
   return (
     <Avatar
       size={size}
-      data-kind={agent ? "agent" : undefined}
-      className={className}
+      data-kind={agent ? "agent" : workspace ? "workspace" : undefined}
+      className={cn(workspace && "rounded-md after:rounded-md", className)}
       {...props}
     >
       {imageLoaded ? null : agent ? (
@@ -205,7 +212,10 @@ export function PersonAvatar({
           />
         </AvatarFallback>
       ) : (
-        <AvatarFallback hue={person.hue ?? undefined}>
+        <AvatarFallback
+          hue={person.hue ?? undefined}
+          className={workspace ? "rounded-md" : undefined}
+        >
           {personInitials(person.name, person.email)}
         </AvatarFallback>
       )}
@@ -219,7 +229,13 @@ export function PersonAvatar({
           onLoad={() => setLoaded(src)}
           onError={() => setFailed(src)}
           // Over the initials (the root is `relative` and sized), so nothing shifts when it lands.
-          className="absolute inset-0 aspect-square size-full rounded-full object-cover"
+          className={cn(
+            "absolute inset-0 aspect-square size-full",
+            // A workspace's logo is shown whole on a plain tile; a photo fills the circle.
+            workspace
+              ? "rounded-md bg-background object-contain p-px"
+              : "rounded-full object-cover",
+          )}
         />
       ) : null}
       {agent && showImage ? (

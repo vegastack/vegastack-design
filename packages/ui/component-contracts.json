@@ -38050,7 +38050,7 @@
           "attributes": [
             {
               "name": "data-kind",
-              "values": ["agent", "team"]
+              "values": ["agent", "team", "workspace"]
             },
             {
               "name": "data-slot",
