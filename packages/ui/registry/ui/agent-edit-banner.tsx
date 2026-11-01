@@ -1,4 +1,4 @@
-// @vegastack agent-edit-banner@0.27.0 sha256-u8NIKvHUnNWuC0hMWactIIbTWSZwqWZmWJTwvzAE17w=
+// @vegastack agent-edit-banner@0.29.1 sha256-zeSoW0QQAO35QgtZTd4n4zkUkZsIJE1utxIe2DVUEYc=
 
 "use client";
 

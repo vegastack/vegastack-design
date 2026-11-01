@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.11.0
+
+### Minor Changes
+
+- [#880](https://github.com/vegastack/vegastack-design/pull/880) [`dd4697a`](https://github.com/vegastack/vegastack-design/commit/dd4697af3c24894cb755d25625c1049d17d38504) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 Text fields no longer draw a focus ring (FOC-16 amended; Regent operator, 2026-11-01). `Input`, `Textarea`, `InputGroup` and the `Combobox` chips field show focus as the `ring/50` border alone, and an invalid field keeps only its destructive border. The `field-halo` and `field-halo-destructive` utilities and the `--input-halo` token are removed; re-pull those components and drop any direct use.
+
 ## 0.10.0
 
 ### Minor Changes

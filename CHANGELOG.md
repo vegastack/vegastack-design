@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.29.1] — November 1, 2026
+
+<!-- assembled from 1 changeset: 4686ea0a581b -->
+
+### 🗑 Removed / renamed
+
+- Text fields no longer draw a focus ring (FOC-16 amended; Regent operator, 2026-11-01). `Input`, `Textarea`, `InputGroup` and the `Combobox` chips field show focus as the `ring/50` border alone, and an invalid field keeps only its destructive border. The `field-halo` and `field-halo-destructive` utilities and the `--input-halo` token are removed; re-pull those components and drop any direct use.
+  [`dd4697a`](https://github.com/VegaStack/vegastack-design/commit/dd4697a)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.11.0`** (was `0.10.0`).
+- **`@vegastack/design-tokens`** → **`0.11.0`** (was `0.10.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.29.0 → 0.29.1.
+
 ## [0.29.0] — November 1, 2026
 
 <!-- assembled from 1 changeset: 621a761a4f68 -->
