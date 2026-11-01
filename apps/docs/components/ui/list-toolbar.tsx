@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.27.0 sha256-WqNbaGdRJzMkQZFt6PC/GjfIJXFsij2cEEkgv3h/YHc=
+// @vegastack list-toolbar@0.27.0 sha256-4pIrdiTAFQoXnYTb750rif9Av95UUQ3pf1AAvo6m8tA=
 
 "use client";
 
@@ -343,8 +343,8 @@ interface ListToolbarContextValue {
   foldedEdit: readonly ListToolbarMenuItem[] | null;
   /** A FilterRow reports how many filters are applied. */
   reportFilterCount: (count: number | null) => void;
-  /** Bumped when the filter row opens with nothing applied: + Filter opens itself. */
-  addFilterRequest: number;
+  /** Close the filter row and hand focus back to the Filter tool — `FilterRow`'s Clear. */
+  closeFilterRow: () => void;
 }
 
 const ListToolbarContext = React.createContext<ListToolbarContextValue | null>(
@@ -805,7 +805,8 @@ export function ListToolbar({
       // Storage can be unavailable; the row just isn't remembered.
     }
   }, [filter?.open, storageKey]);
-  const [addFilterRequest, setAddFilterRequest] = React.useState(0);
+  // Opening the row moves focus into it (its first control), never into an open popover.
+  const [focusRowRequest, setFocusRowRequest] = React.useState(0);
   const setFilterOpen = (next: boolean) => {
     if (filter?.open === undefined) {
       setOpenState(next);
@@ -817,11 +818,23 @@ export function ListToolbar({
         }
       }
     }
-    // Opened with nothing applied: + Filter opens with focus in its input.
-    if (next && filterCount === 0) setAddFilterRequest((n) => n + 1);
+    if (next) setFocusRowRequest((n) => n + 1);
     filter?.onOpenChange?.(next);
   };
   const filterRowId = React.useId();
+  React.useEffect(() => {
+    if (focusRowRequest === 0) return;
+    // After the row has unhidden: focus its first control. Nothing opens by itself.
+    const frame = requestAnimationFrame(() => {
+      document
+        .getElementById(filterRowId)
+        ?.querySelector<HTMLElement>(
+          "button:not([disabled]), input:not([disabled])",
+        )
+        ?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focusRowRequest, filterRowId]);
   // Open the row without + Filter's focus request: what the search suggestion set is the content.
   const revealFilterRow = () => {
     if (openRef.current.filterOpen) return;
@@ -973,6 +986,14 @@ export function ListToolbar({
     return () => document.removeEventListener("keydown", onKey);
   }, [shortcutsOn, search]);
 
+  // Stable across renders: reads the live open state through `openRef`.
+  const closeFilterRow = React.useCallback(() => {
+    if (openRef.current.filterOpen) openRef.current.setFilterOpen(false);
+    rootRef.current
+      ?.querySelector<HTMLElement>('[data-slot="list-toolbar-filter"]')
+      ?.focus();
+  }, []);
+
   const context = React.useMemo<ListToolbarContextValue>(
     () => ({
       compact,
@@ -981,7 +1002,7 @@ export function ListToolbar({
       foldedLayout: foldLayout ? layout! : null,
       foldedEdit: foldEdit ? edit! : null,
       reportFilterCount,
-      addFilterRequest,
+      closeFilterRow,
     }),
     [
       compact,
@@ -993,7 +1014,7 @@ export function ListToolbar({
       foldEdit,
       edit,
       reportFilterCount,
-      addFilterRequest,
+      closeFilterRow,
     ],
   );
 

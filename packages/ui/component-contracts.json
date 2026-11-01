@@ -10468,12 +10468,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "list-facet",
-                "list-facet-clear",
-                "list-facet-remove",
-                "list-facet-select"
-              ]
+              "values": ["list-facet", "list-facet-select"]
             },
             {
               "name": "data-source",
@@ -10494,12 +10489,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "list-facet",
-                "list-facet-clear",
-                "list-facet-remove",
-                "list-facet-select-trigger"
-              ]
+              "values": ["list-facet", "list-facet-select-trigger"]
             },
             {
               "name": "data-source",
@@ -10519,7 +10509,6 @@
               "values": [
                 "date-range-filter",
                 "date-range-filter-apply",
-                "date-range-filter-clear",
                 "date-range-filter-content",
                 "date-range-filter-custom",
                 "date-range-filter-custom-row",

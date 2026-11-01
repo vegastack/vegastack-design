@@ -90,8 +90,8 @@ with three layouts it steps through them, and Display's Layout section picks any
 
 The filter row (`filterRow`, a [`FilterRow`](/docs/components/filter-row)) opens under the row from
 the Filter tool, 8px below it. It stays mounted while closed, so its facets keep reporting, and it
-tells the Filter tool how many filters are applied. Opened with nothing applied, its
-[`AddFilterMenu`](/docs/components/add-filter-menu) opens too, with focus in its input.
+tells the Filter tool how many filters are applied. Opening it shows the row and moves focus to
+its first control; no picker or menu opens by itself. Its Clear closes it again.
 `filter.storageKey` remembers the open state per page.
 
 **The page's main button is never in the toolbar.** It sits at the right end of the app's top bar,

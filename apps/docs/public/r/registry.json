@@ -2074,7 +2074,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.27.0",
-        "integrity": "sha256-WqNbaGdRJzMkQZFt6PC/GjfIJXFsij2cEEkgv3h/YHc="
+        "integrity": "sha256-4pIrdiTAFQoXnYTb750rif9Av95UUQ3pf1AAvo6m8tA="
       }
     },
     {
@@ -2114,7 +2114,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.27.0",
-        "integrity": "sha256-nWsOUAfkqg1Q8eWuObL9/nMuA9vW2Zr3zR/EWz0yAXs="
+        "integrity": "sha256-plsGxrOqE6uEStuH4aSW81hvZO07dw2RBI/udLPOcqc="
       }
     },
     {
@@ -2147,7 +2147,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.27.0",
-        "integrity": "sha256-eU6XRluGNfVn1iBlGa/WKj24ctQxT/gHHSsmV+w9lYc="
+        "integrity": "sha256-fabSARUm7gOaV+p4N4GjQ5YN3j31N/ay3D+2ix15ong="
       }
     },
     {
@@ -18375,7 +18375,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.27.0",
-        "integrity": "sha256-MMcF8JA2ibf+bL72iR31pabSAhDJxkqbTrrXzvs+GUI="
+        "integrity": "sha256-6lC7EL+MgVeFOcxXIyL3B055Ivx3qoU0+48v2QQ5PJQ="
       }
     },
     {

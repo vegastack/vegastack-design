@@ -68,7 +68,15 @@ The order never changes, so chips never jump:
 2. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
    A preset resolves to ordinary chips; there is no separate preset chip.
 3. **`+ Filter`** (`addFilter`), right after the last chip, inside the scrolling line.
-4. **Clear**, right beside `+ Filter`, only while something is set.
+4. **Clear**, right beside `+ Filter` and styled exactly like it (ghost, the tool height, a leading
+   icon), only while a filter differs from the list's defaults. It clears every filter back to the
+   defaults and closes the toolbar's filter row.
+
+Nothing on the row opens by itself: opening the row moves focus to its first control, and a filter
+added from `+ Filter` appears as a closed chip — the member clicks it to choose values. **Chips
+carry no ×.** One filter is cleared from its own dropdown: untick its values, or choose its
+**Clear** option at the foot of the list ("Clear Status"), shown while it is set. An empty chip
+reads as unset.
 
 Chips made by an AI filter (`source: "ai"`) lead with ✦ until the filter is edited. What a run did
 is a toast, never a line under the row: `useAiFilterApplied()` returns `onAiApplied`, which shows
@@ -120,15 +128,16 @@ part, with the `data-slot` it renders (generated from the canonical source):
 One filter on [`SearchableSelect`](/docs/components/searchable-select), in the row's one chip
 shape: the row's height (32px; 28px compact), rounded-md, quiet type. Unset it reads just its label (_Status ▾_); set it is
 tinted and reads _Status: Open_, then _Status: 2_ from two values (the values in the chip's tooltip
-and ticked in the popover), with a × named "Clear Status" in the chevron's fixed slot. Use short,
+and ticked in the popover), keeping its ▾ — no ×: its list ends with "Clear Status" while set. Use short,
 sentence-case labels; never "Any" or "All statuses". The search box shows only when the list is
 worth searching (more than 7 options, or a `remote` list); `searchable` forces it on or off.
 
 It passes `SearchableSelect`'s props through (minus the trigger face it owns: `renderItem`,
-`renderValue`, `renderTriggerValue`, `placeholder`, `variant`, `size`, `aria-label`, `groupBy`
-and `groupOrder`) — `multiple`, `remote` with `useAsyncSearch`, `leadingItems`,
-`itemToDescription` — and adds `pinSelected` (the chosen options first, under "Selected") and
-`removable` with `onRemove`. The tick matches by `itemToKey`, so options from a server search tick
+`renderValue`, `renderTriggerValue`, `placeholder`, `variant`, `size`, `aria-label`, `groupBy`,
+`groupOrder`, `clearable` and `clearOption`) — `multiple`, `remote` with `useAsyncSearch`,
+`leadingItems`, `itemToDescription` — and adds `pinSelected` (the chosen options first, under
+"Selected"). A filter the page adds from `+ Filter` is an ordinary facet the page shows while it is
+added; it stays (unset) until the row's Clear. The tick matches by `itemToKey`, so options from a server search tick
 as static ones do. For people, pass `itemToSecondaryLabel={(p) => p.email}` (and `itemToAvatar`):
 each option is one `PersonOption` ([the person contract](/docs/components/searchable-select#people)).
 
@@ -173,11 +182,15 @@ opened — so a filter row never puts the calendar engine in the page's first bu
 
 ### FilterChip
 
-The removable "Label: value" pill `FilterRow` draws for each of its `chips` — the
-[`Chip`](/docs/components/chip) primitive in the row's chip shape — exported for a custom row.
-Give it an `editor` and its label and value become a button (`filter-chip-trigger`) that opens the
-editor in a popover; <kbd>Escape</kbd> closes it and returns focus to the chip, and the × stays its
-own 24px target. `unset` draws a pinned facet with no value yet as a dashed `+ Label` offer.
+The "Label: value" pill `FilterRow` draws for each of its `chips` — the
+[`Chip`](/docs/components/chip) primitive in the row's chip shape. Give it an `editor` and its
+label and value become a button (`filter-chip-trigger`) that opens the editor in a popover;
+
+<kbd>Escape</kbd> closes it and returns focus to the chip. In a `FilterRow` the
+chip has no ×: the row puts the chip's Clear option ("Clear Meeting", calling
+its `onRemove`) at the foot of that popover. Standalone (a read-only summary),
+`onRemove` still draws the × as its own 24px target. `unset` draws a pinned
+facet with no value yet as a dashed `+ Label` offer.
 
 <ApiTable
   path="../../packages/ui/registry/ui/filter-row.tsx"
@@ -196,18 +209,20 @@ that keep their filters as data and map them to `chips`.
 
 ## Accessibility
 
-- The chips are a `group` named "Filters". Each chip's × is named "Clear" and the filter's label.
+- The chips are a `group` named "Filters". No chip has a ×; each one's dropdown ends with a Clear
+  option named "Clear" and the filter's label.
 - An AI chip's ✦ is labelled "Added by AI", so the mark is read with the chip.
 - What an AI run did is a toast (announced by the toaster's live region) with an Undo button.
-- Clear hands focus back to the row's first control once it unmounts.
+- Opening the row from the toolbar moves focus to its first control; no popover opens.
+- Clear closes the row and hands focus back to the toolbar's Filter tool (outside a toolbar, to
+  `+ Filter`).
 - A `ListFacet`, `PeopleFacet` or `DateRangeFilter` is a button named by what it reads ("Status",
-  "Status: Open"); its × is named "Clear" and the label, and <kbd>Escape</kbd> closes its popover
-  and returns focus to it.
+  "Status: Open"); <kbd>Escape</kbd> closes its popover and returns focus to it.
 
 | Key                                 | Action                              |
 | ----------------------------------- | ----------------------------------- |
 | <kbd>Tab</kbd>                      | Move through + Filter, chips, Clear |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a chip's editor, remove, clear |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a chip's dropdown, clear all   |
 
 <StatesTested name="filter-row" />
 

@@ -444,8 +444,7 @@ test("a facet hides its search box for 7 or fewer options unless `searchable` sa
     .not.toBeNull();
 });
 
-test("a facet toggles values, pins the selected ones and can be removed (DS-35)", async () => {
-  const onRemove = vi.fn();
+test("a facet toggles values, pins the selected ones and clears from its own dropdown (DS-35)", async () => {
   function Host() {
     const [value, setValue] = React.useState<Status[]>([STATUSES[2]!]);
     return (
@@ -453,8 +452,6 @@ test("a facet toggles values, pins the selected ones and can be removed (DS-35)"
         label="Status"
         multiple
         pinSelected
-        removable
-        onRemove={onRemove}
         items={STATUSES}
         value={value}
         onValueChange={setValue}
@@ -485,13 +482,24 @@ test("a facet toggles values, pins the selected ones and can be removed (DS-35)"
   expect(
     [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent),
   ).toEqual(options);
+  // The last option is the facet's own Clear; the chip has no ×.
+  expect(options.at(-1)).toBe("Clear Status");
+  expect(
+    screen.container.querySelector(
+      '[data-slot="list-facet-clear"], [data-slot="list-facet-remove"]',
+    ),
+  ).toBeNull();
+  await screen.getByRole("option", { name: "Clear Status" }).click();
   await userEvent.keyboard("{Escape}");
-  // A set, removable facet: its × clears the value and removes the facet.
-  await screen.getByRole("button", { name: "Clear Status" }).click();
-  expect(onRemove).toHaveBeenCalledOnce();
+  // Cleared, the chip reads as unset.
   await expect
     .element(screen.getByRole("combobox", { name: "Status" }))
     .toBeInTheDocument();
+  expect(
+    document
+      .querySelector('[data-slot="list-facet"]')
+      ?.getAttribute("data-state"),
+  ).toBe("unset");
   await expectNoA11yViolations(screen.container);
 });
 
@@ -590,8 +598,11 @@ test("PeopleFacet: the people picker under a facet chip", async () => {
   await page.getByRole("option", { name: /Dev Menon/ }).click();
   await page.getByRole("option", { name: /Asha Rao/ }).click();
   await vi.waitFor(() => expect(chip().textContent).toContain("Assignee: 2"));
-  await userEvent.keyboard("{Escape}");
-  await page.getByRole("button", { name: "Clear Assignee" }).click();
+  // No × on the chip: the picker's footer clears it.
+  expect(
+    screen.container.querySelector('[data-slot="list-facet-clear"]'),
+  ).toBeNull();
+  await page.getByRole("option", { name: "Clear Assignee" }).click();
   await vi.waitFor(() => expect(chip().textContent).toBe("Assignee"));
 });
 
@@ -665,7 +676,8 @@ test("a chip without an editor stays non-interactive (DS-36)", async () => {
   ).toBeNull();
 });
 
-test("a chip added with defaultEditorOpen opens its editor on mount (DS-36)", async () => {
+test("a row chip mounts closed, has no ×, and clears from its own dropdown (DS-36)", async () => {
+  const onRemove = vi.fn();
   const screen = await render(
     <FilterRow
       chips={[
@@ -674,20 +686,79 @@ test("a chip added with defaultEditorOpen opens its editor on mount (DS-36)", as
           label: "Status",
           value: "Open",
           editor: <p>Status editor</p>,
-          defaultEditorOpen: true,
-          onRemove: () => {},
+          onRemove,
         },
       ]}
     />,
   );
-  await expect.element(screen.getByText("Status editor")).toBeVisible();
+  // Nothing opens by itself.
   await expect
     .element(screen.getByRole("button", { name: "Status: Open" }))
-    .toHaveAttribute("aria-expanded", "true");
-  await userEvent.keyboard("{Escape}");
+    .toHaveAttribute("aria-expanded", "false");
+  expect(
+    screen.container.querySelector('[data-slot="chip-remove"]'),
+  ).toBeNull();
+  await screen.getByRole("button", { name: "Status: Open" }).click();
+  await expect.element(screen.getByText("Status editor")).toBeVisible();
+  await page.getByRole("button", { name: "Clear Status" }).click();
+  expect(onRemove).toHaveBeenCalledOnce();
+});
+
+test("opening the toolbar's filter row opens nothing; Clear clears and closes the row", async () => {
+  const onClear = vi.fn();
+  function Harness() {
+    const [status, setStatus] = React.useState<Status | null>(STATUSES[0]!);
+    return (
+      <ListToolbar
+        aria-label="Controls"
+        filterRow={
+          <FilterRow
+            addFilter={<button type="button">More</button>}
+            onClear={() => {
+              onClear();
+              setStatus(null);
+            }}
+            facets={
+              <ListFacet<Status>
+                label="Status"
+                items={STATUSES}
+                value={status}
+                onValueChange={setStatus}
+                itemToKey={(s) => s.id}
+                itemToStringLabel={(s) => s.name}
+              />
+            }
+          />
+        }
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  const filterTool = screen.getByRole("button", { name: /^Filter/ });
+  await filterTool.click();
+  const row = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="list-toolbar-filter-row"]',
+    )!;
+  await vi.waitFor(() => expect(row().hidden).toBe(false));
+  // Focus moves into the row; no popover or menu opens.
+  await vi.waitFor(() =>
+    expect(row().contains(document.activeElement)).toBe(true),
+  );
+  expect(
+    document.querySelector('[role="listbox"], [role="dialog"]'),
+  ).toBeNull();
+  // Clear: the twin of + Filter, icon included.
+  const clear = document.querySelector<HTMLElement>(
+    '[data-slot="filter-row-clear"]',
+  )!;
+  expect(clear.querySelector("svg")).not.toBeNull();
+  clear.click();
+  expect(onClear).toHaveBeenCalledOnce();
+  await vi.waitFor(() => expect(row().hidden).toBe(true));
   await expect
-    .element(screen.getByText("Status editor"))
-    .not.toBeInTheDocument();
+    .element(screen.getByRole("button", { name: /^Filter/ }))
+    .toHaveAttribute("aria-expanded", "false");
 });
 
 test("a set facet counts toward the row's Clear", async () => {
@@ -788,6 +859,11 @@ test("FilterRow aiFacets marks those facets ✦ and reports a member's change", 
       '[data-slot="date-range-filter"] [data-slot="filter-facet-ai"]',
     ),
   ).not.toBeNull();
-  await screen.getByRole("button", { name: "Clear Due" }).click();
+  // No × on the chip: its presets end with Clear.
+  expect(
+    document.querySelector('[data-slot="date-range-filter-clear"]'),
+  ).toBeNull();
+  await screen.getByRole("button", { name: /Due: Overdue/ }).click();
+  await page.getByRole("button", { name: "Clear Due" }).click();
   expect(onAiFacetEdit).toHaveBeenCalledWith("Due");
 });
