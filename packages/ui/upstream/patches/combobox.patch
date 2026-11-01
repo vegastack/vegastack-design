@@ -93,11 +93,11 @@
 #     `--state-hover` / `--state-pressed` over any fill) instead of opaque
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
-#   FOC-16: text entry shows hover as `border-input-hover`, focus as the `ring/50` border plus the
-#     `field-halo` glow (`field-halo-destructive` when invalid), and read-only as the `readonly`
+#   FOC-16: text entry shows hover as `border-input-hover`, focus as the `ring/50` border alone
+#     (no ring or glow; invalid keeps only its destructive border), and read-only as the `readonly`
 #     fill on a transparent border.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..9341c60 100644
+index 39e776a..7000cf5 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,29 @@
@@ -492,7 +492,7 @@ index 39e776a..9341c60 100644
        className={cn(
 -        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
 -        className
-+        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color,box-shadow] duration-150 ease-out hover:border-input-hover has-[input:focus]:not-has-aria-invalid:border-ring/50 has-[input:focus]:not-has-aria-invalid:field-halo has-[input:focus]:has-aria-invalid:field-halo-destructive has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
++        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color] duration-150 ease-out hover:border-input-hover has-[input:focus]:not-has-aria-invalid:border-ring/50 has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
 +        className,
        )}
        {...props}

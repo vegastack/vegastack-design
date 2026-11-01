@@ -277,7 +277,7 @@ opaque `hover:bg-muted`/`hover:bg-accent` (lint rejects it):
 ```
 
 Keyboard focus is base.css's soft info-hue tint (`--state-focus`), never restated. Text entry
-already shows hover (darker border), focus (`ring/50` border + `field-halo`) and read-only
+already shows hover (darker border), focus (`ring/50` border, no ring or glow) and read-only
 (`readonly` fill) in the DS components. A list of rows inside a card is `ItemGroup variant="flush"`
 (fills sit 8px inside the card); never hand-write `-mx-*` for it.
 

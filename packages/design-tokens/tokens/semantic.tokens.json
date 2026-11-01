@@ -242,15 +242,6 @@
     },
     "$description": "FOC-16 (ours, operator 2026-10-31): text entry's hover border — a visible step above `input` at rest."
   },
-  "input-halo": {
-    "$type": "color",
-    "$value": {
-      "colorSpace": "oklch",
-      "components": [0.145, 0, 0],
-      "alpha": 0.08
-    },
-    "$description": "FOC-16: text entry's focus glow — a 3px soft halo outside the `ring/50` focus border (the one sanctioned glow; text entry only)."
-  },
   "readonly": {
     "$type": "color",
     "$value": {

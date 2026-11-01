@@ -14,20 +14,20 @@ generated:
       sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3281
-      sha256: "f098539b7c81c230f843ee55967d5a78e2b1a3b9a97dd4296e4bb3552c757e38"
+      bytes: 3257
+      sha256: "01d9a03201611bacc7cd5f0394801410422b2685f76ac9ff2347576463169930"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 3105
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 23947
-      sha256: "2890306297f56e47bd44f5502a4c58fb4319f7697a3fa360c7e11217c1a06cb7"
+      bytes: 23642
+      sha256: "e0ecf99965d90b574cf948779e90023de25f44cb881df1a65ba1e981c97b79c8"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 12972
-      sha256: "1c0a6d2e53503956d961114d75681335ccb90c636ff9777da5355f9b99253d39"
+      bytes: 12822
+      sha256: "6dbcee6e6b27f7ab1efb94f88a166894822a6b607c10637821fa5dafaeda64d6"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -150,10 +150,6 @@ themes:
     input:
       type: "color"
       value: "oklch(0.922 0 0)"
-    input-halo:
-      type: "color"
-      value: "oklch(0.145 0 0 / 0.08)"
-      description: "FOC-16: text entry's focus glow — a 3px soft halo outside the `ring/50` focus border (the one sanctioned glow; text entry only)."
     input-hover:
       type: "color"
       value: "oklch(0.145 0 0 / 0.22)"
@@ -489,9 +485,6 @@ themes:
     input:
       type: "color"
       value: "oklch(1 0 0 / 0.15)"
-    input-halo:
-      type: "color"
-      value: "oklch(0.985 0 0 / 0.1)"
     input-hover:
       type: "color"
       value: "oklch(0.985 0 0 / 0.25)"
@@ -735,7 +728,7 @@ recipes:
     foreground: "{foreground}"
     border: "{input}"
     hoverBorder: "{input-hover}"
-    focusBorder: "{ring}/50 + 3px {input-halo} halo"
+    focusBorder: "{ring}/50"
     readOnly: "{readonly}, transparent border"
     radius: "{radius}"
     typography: "text-sm"
@@ -1211,15 +1204,15 @@ moving the others.
 foreground layer over whatever is underneath, so the step reads the same on page, card, popover,
 sidebar and muted, in both themes:
 
-| state                              | token (light / dark)                                                                                                                                                | how a part gets it                                                                           |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                                                | `state-layer` (a background image over any rest fill)                                        |
-| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                                        | `state-layer`, on `:active`                                                                  |
-| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                                        | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
-| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                                     | `data-highlighted:bg-state-hover`                                                            |
-| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                                               | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
-| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                                            | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
-| text entry                         | `input` → `--input-hover` border on hover → `ring/50` border + 3px `--input-halo` (`field-halo`) on focus; `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
+| state                              | token (light / dark)                                                                                                                              | how a part gets it                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                              | `state-layer` (a background image over any rest fill)                                        |
+| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                      | `state-layer`, on `:active`                                                                  |
+| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                      | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
+| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                   | `data-highlighted:bg-state-hover`                                                            |
+| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                             | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
+| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                          | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
+| text entry                         | `input` → `--input-hover` border on hover → `ring/50` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
 
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep

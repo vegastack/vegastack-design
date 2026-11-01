@@ -186,23 +186,6 @@
   background-image: linear-gradient(var(--state-focus), var(--state-focus));
 }
 
-/* FOC-16 (ours, operator 2026-10-31) — text entry's focus glow: a 3px soft halo outside the
-   `ring/50` focus border, written once here and applied as `focus:field-halo` (or
-   `has-[input:focus]:field-halo` on a field group) by text-entry components only. An invalid field
-   takes the destructive halo instead. A control INSIDE a field group never paints its own halo —
-   the group that draws the border draws the one halo. The one sanctioned glow in the system. */
-@utility field-halo {
-  &:not(:where([data-field-group] *, [data-slot="input-group"] *)) {
-    box-shadow: 0 0 0 3px var(--input-halo);
-  }
-}
-@utility field-halo-destructive {
-  &:not(:where([data-field-group] *, [data-slot="input-group"] *)) {
-    box-shadow: 0 0 0 3px
-      color-mix(in oklab, var(--destructive) 20%, transparent);
-  }
-}
-
 /* Upstream's one scrollbar utility, which `sidebar` and `command` reach for. */
 @utility no-scrollbar {
   -ms-overflow-style: none;
