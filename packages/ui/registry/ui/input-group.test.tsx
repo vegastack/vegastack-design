@@ -1,3 +1,4 @@
+import "../../test/geometry.css"; // compiled Tailwind + token theme
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
@@ -21,6 +22,16 @@ import {
 } from "./dropdown-menu";
 import { Kbd } from "./kbd";
 import { Spinner } from "./spinner";
+
+/** True when a computed box-shadow paints nothing: `none`, or only Tailwind's transparent layers. */
+function paintsNoShadow(value: string) {
+  return (
+    value === "none" ||
+    value
+      .split(/,\s*(?![^()]*\))/)
+      .every((layer) => layer.startsWith("rgba(0, 0, 0, 0)"))
+  );
+}
 
 /** Upstream's four addon alignments. */
 const ALIGNS = [
@@ -279,8 +290,8 @@ test("FOC-16: a focused group draws no ring or glow, valid or invalid", async ()
     input.focus();
     const group = input.closest('[data-slot="input-group"]') as HTMLElement;
     expect(group.className).not.toContain("halo");
-    expect(getComputedStyle(group).boxShadow).toBe("none");
-    expect(getComputedStyle(input).boxShadow).toBe("none");
+    expect(paintsNoShadow(getComputedStyle(group).boxShadow)).toBe(true);
+    expect(paintsNoShadow(getComputedStyle(input).boxShadow)).toBe(true);
   }
 });
 
@@ -294,6 +305,9 @@ test("FOC-16: hovering an invalid group keeps its destructive border", async () 
     '[data-slot="input-group"]',
   ) as HTMLElement;
   const rest = getComputedStyle(group).borderTopColor;
+  expect(rest).not.toBe(
+    getComputedStyle(group.ownerDocument.body).borderTopColor,
+  );
   await userEvent.hover(group);
   await new Promise((resolve) => setTimeout(resolve, 400)); // past the 150ms border ease
   expect(getComputedStyle(group).borderTopColor).toBe(rest);
