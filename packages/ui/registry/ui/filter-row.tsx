@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.27.0 sha256-plsGxrOqE6uEStuH4aSW81hvZO07dw2RBI/udLPOcqc=
+// @vegastack filter-row@0.27.0 sha256-ewZ6Vh8OMCYuq+oat6EKg0S1TGD36G0IMan669m6hDI=
 
 "use client";
 
@@ -58,6 +58,12 @@ toast with Undo (`useAiFilterApplied`), never a line under the row.
  */
 const FilterRowTallContext = React.createContext(false);
 
+/**
+ * Inside a `FilterRow`: a `FilterChip` draws no ×; its `onRemove` becomes the Clear option at the
+ * foot of its dropdown.
+ */
+const InFilterRowContext = React.createContext(false);
+
 /** The height class of a facet or chip: the row's tool height inside a `FilterRow`, else 28px. */
 function useChipHeight() {
   return React.useContext(FilterRowTallContext) ? "h-8" : "h-7";
@@ -99,8 +105,6 @@ export interface FilterRowLabels {
   filters: string;
   /** The clear-everything action. */
   clear: string;
-  /** A chip's own clear option ("Clear Meeting"). */
-  clearFilter: (label: string) => string;
 }
 
 const NO_AI_FACETS: readonly string[] = [];
@@ -108,7 +112,6 @@ const NO_AI_FACETS: readonly string[] = [];
 const DEFAULT_LABELS: FilterRowLabels = {
   filters: "Filters",
   clear: "Clear",
-  clearFilter: (label) => `Clear ${label}`,
 };
 
 /** Props accepted by `FilterRow`. */
@@ -302,67 +305,56 @@ export function FilterRow({
       className={cn("flex w-full min-w-0 items-center", className)}
       {...props}
     >
-      <FilterRowTallContext.Provider value={!toolbar?.compact}>
-        <FilterRowAiContext.Provider value={aiValue}>
-          <FilterFacetReporter value={reporter}>
-            <div
-              ref={scrollRef}
-              data-slot="filter-row-scroll"
-              // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
-              // at its end, right after the last chip.
-              className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
-            >
-              {facets}
-              {chips.map((chip) => (
-                <FilterChip
-                  key={chip.id}
-                  data-filter-id={chip.id}
-                  label={chip.label}
-                  value={chip.value}
-                  icon={chip.icon}
-                  ai={chip.source === "ai"}
-                  editor={
-                    <>
-                      {chip.editor}
-                      <FilterClearOption
-                        divided={chip.editor != null}
-                        onSelect={chip.onRemove}
-                      >
-                        {labels.clearFilter(
-                          typeof chip.label === "string"
-                            ? chip.label
-                            : "filter",
-                        )}
-                      </FilterClearOption>
-                    </>
-                  }
-                />
-              ))}
-              {addFilter != null ? (
-                <div
-                  data-slot="filter-row-add"
-                  className="flex shrink-0 items-center"
-                >
-                  {addFilter}
-                </div>
-              ) : null}
-              {showClear ? (
-                // The twin of + Filter's trigger: same variant, size, type and icon spacing.
-                <Button
-                  variant="ghost"
-                  size={toolbar?.compact ? "sm" : "default"}
-                  data-slot="filter-row-clear"
-                  className="shrink-0 font-normal text-muted-foreground"
-                  onClick={clear}
-                >
-                  <X aria-hidden />
-                  {labels.clear}
-                </Button>
-              ) : null}
-            </div>
-          </FilterFacetReporter>
-        </FilterRowAiContext.Provider>
-      </FilterRowTallContext.Provider>
+      <InFilterRowContext.Provider value>
+        <FilterRowTallContext.Provider value={!toolbar?.compact}>
+          <FilterRowAiContext.Provider value={aiValue}>
+            <FilterFacetReporter value={reporter}>
+              <div
+                ref={scrollRef}
+                data-slot="filter-row-scroll"
+                // One line at every width: it scrolls sideways, never wraps. + Filter and Clear ride
+                // at its end, right after the last chip.
+                className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
+              >
+                {facets}
+                {chips.map((chip) => (
+                  <FilterChip
+                    key={chip.id}
+                    data-filter-id={chip.id}
+                    label={chip.label}
+                    value={chip.value}
+                    icon={chip.icon}
+                    ai={chip.source === "ai"}
+                    editor={chip.editor}
+                    onRemove={chip.onRemove}
+                  />
+                ))}
+                {addFilter != null ? (
+                  <div
+                    data-slot="filter-row-add"
+                    className="flex shrink-0 items-center"
+                  >
+                    {addFilter}
+                  </div>
+                ) : null}
+                {showClear ? (
+                  // The twin of + Filter's trigger: same variant, size, type and icon spacing.
+                  <Button
+                    variant="ghost"
+                    size={toolbar?.compact ? "sm" : "default"}
+                    data-slot="filter-row-clear"
+                    className="shrink-0 font-normal text-muted-foreground"
+                    onClick={clear}
+                  >
+                    <X aria-hidden />
+                    {labels.clear}
+                  </Button>
+                ) : null}
+              </div>
+            </FilterFacetReporter>
+          </FilterRowAiContext.Provider>
+        </FilterRowTallContext.Provider>
+      </InFilterRowContext.Provider>
     </div>
   );
 }
@@ -618,6 +610,19 @@ export function FilterChip({
     removeLabel ??
     (typeof label === "string" ? `Clear ${label}` : "Clear filter");
   const tall = React.useContext(FilterRowTallContext);
+  // In a filter row a chip has no ×: clearing it is the last option of its dropdown.
+  const inRow = React.useContext(InFilterRowContext);
+  const menu =
+    inRow && !unset && onRemove != null ? (
+      <>
+        {editor}
+        <FilterClearOption divided={editor != null} onSelect={onRemove}>
+          {computedRemoveLabel}
+        </FilterClearOption>
+      </>
+    ) : (
+      editor
+    );
 
   return (
     <Chip
@@ -626,7 +631,7 @@ export function FilterChip({
       data-state={unset ? "unset" : undefined}
       size={tall ? "md" : "sm"}
       active={unset ? false : active}
-      onRemove={unset ? undefined : onRemove}
+      onRemove={unset || inRow ? undefined : onRemove}
       removeLabel={computedRemoveLabel}
       // The filter row's one chip shape: the row's height, rounded-md, quiet type — set or unset.
       // An unset pinned facet is the same box, dashed and clear: an offer, not a value.
@@ -654,7 +659,7 @@ export function FilterChip({
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
-      {editor != null ? (
+      {menu != null ? (
         <Popover onOpenChange={(open) => onEditorOpenChange?.(open)}>
           <PopoverTrigger
             data-slot="filter-chip-trigger"
@@ -663,7 +668,7 @@ export function FilterChip({
             <FilterChipText label={label} value={value} />
           </PopoverTrigger>
           <PopoverContent align="start" className="w-auto min-w-56">
-            {editor}
+            {menu}
           </PopoverContent>
         </Popover>
       ) : (

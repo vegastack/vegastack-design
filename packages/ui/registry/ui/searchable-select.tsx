@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.27.0 sha256-6lC7EL+MgVeFOcxXIyL3B055Ivx3qoU0+48v2QQ5PJQ=
+// @vegastack searchable-select@0.27.0 sha256-Z77wJ4n+9jffeuQNhvvHmMJIBXDjoXawXqEEg7eLrwk=
 
 "use client";
 
@@ -624,6 +624,9 @@ export function SearchableSelect<
       ? [...grouped, { value: "", items: rows }]
       : [...allItems, ...rows];
   }, [createRow, clearRow, grouped, allItems]);
+  // Base UI's own matcher (`Intl.Collator`: case- and accent-insensitive), kept when the list
+  // needs its own filter for the rows it adds.
+  const match = BaseCombobox.useFilter();
   const filter = React.useMemo(() => {
     if (remote) return null;
     if (
@@ -637,14 +640,16 @@ export function SearchableSelect<
       if (isCreateRow(item)) return true;
       // The clear option sits under the unsearched list; a search shows only what matches.
       if (isClearRow(item)) return query.trim() === "";
-      const q = query.trim().toLowerCase();
+      const q = query.trim();
       return (
         leadingKeys.has(itemToKey(item)) ||
-        itemToStringLabel(item).toLowerCase().includes(q) ||
-        (itemToSecondaryLabel?.(item) ?? "").toLowerCase().includes(q)
+        match.contains(item, q, itemToStringLabel) ||
+        (itemToSecondaryLabel != null &&
+          match.contains(item, q, (i) => itemToSecondaryLabel(i) ?? ""))
       );
     };
   }, [
+    match,
     remote,
     createRow,
     clearRow,
