@@ -1473,7 +1473,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.27.0",
-        "integrity": "sha256-Kqsn1HEWEPeyV+mTXLeD/VXauWddH+GLjLILYNMfTDE="
+        "integrity": "sha256-fOSRQNe00ofNETU1PIztKjgfjCKlO0algQBiBeyqEfo="
       }
     },
     {
@@ -16593,7 +16593,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.27.0",
-        "integrity": "sha256-UV5nauYeksPyvgp0sFBbTyIvwEN8FKa+f7rCNQBPNW0="
+        "integrity": "sha256-m77BySu83BdeNHgVd3TR/LRx1+av/6VYdAMTm2BgpeQ="
       }
     },
     {
@@ -16625,7 +16625,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.27.0",
-        "integrity": "sha256-itup250BR5s7bvUXvQsUJ+TCX7lAUZhkXUIWVzpL2sY="
+        "integrity": "sha256-mw4mBN9tl8pFZPKboftanCHwjbX8E34nWSi3GaR906E="
       }
     },
     {
@@ -19276,7 +19276,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.27.0",
-        "integrity": "sha256-p4M7a4MUiZZX4weHPrBgU6jAj8P3T19AS2Nrtkl4A7U="
+        "integrity": "sha256-8f1+jdZaobrn2gGaghYA7hmkrZUsAc3D1FMY9vGOKlY="
       }
     },
     {

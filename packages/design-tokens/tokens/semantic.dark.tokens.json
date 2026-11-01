@@ -199,14 +199,6 @@
       "alpha": 0.25
     }
   },
-  "input-halo": {
-    "$type": "color",
-    "$value": {
-      "colorSpace": "oklch",
-      "components": [0.985, 0, 0],
-      "alpha": 0.1
-    }
-  },
   "readonly": {
     "$type": "color",
     "$value": {

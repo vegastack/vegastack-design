@@ -100,6 +100,24 @@ test("FOC-3/FOC-14: focus darkens the border subtly with an ease, with outline-h
   expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
+test("FOC-16: a focused field draws no ring or glow, valid or invalid", async () => {
+  const screen = await render(
+    <div>
+      <Input aria-label="Email" />
+      <Input aria-label="Phone" aria-invalid />
+    </div>,
+  );
+  for (const name of ["Email", "Phone"]) {
+    const input = screen
+      .getByRole("textbox", { name })
+      .element() as HTMLElement;
+    input.focus();
+    expect(document.activeElement).toBe(input);
+    expect(input.className).not.toContain("halo");
+    expect(getComputedStyle(input).boxShadow).toBe("none");
+  }
+});
+
 test("FOC-14: the invalid border holds while the control is focused", async () => {
   const screen = await render(<Input aria-label="Email" aria-invalid />);
   const classes = await classesOf(

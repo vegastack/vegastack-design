@@ -261,6 +261,29 @@ test("FOC-3/FOC-14: the GROUP is a field group and darkens its border subtly whi
   expect(groupClasses(screen)).toContain("ease-out");
 });
 
+test("FOC-16: a focused group draws no ring or glow, valid or invalid", async () => {
+  const screen = await render(
+    <div>
+      <InputGroup>
+        <InputGroupInput aria-label="Search" />
+      </InputGroup>
+      <InputGroup>
+        <InputGroupInput aria-label="Filter" aria-invalid />
+      </InputGroup>
+    </div>,
+  );
+  for (const name of ["Search", "Filter"]) {
+    const input = screen
+      .getByRole("textbox", { name })
+      .element() as HTMLElement;
+    input.focus();
+    const group = input.closest('[data-slot="input-group"]') as HTMLElement;
+    expect(group.className).not.toContain("halo");
+    expect(getComputedStyle(group).boxShadow).toBe("none");
+    expect(getComputedStyle(input).boxShadow).toBe("none");
+  }
+});
+
 test("FOC-14: the invalid border holds while the group holds focus", async () => {
   const screen = await render(
     <InputGroup>
