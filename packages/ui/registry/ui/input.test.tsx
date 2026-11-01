@@ -1,3 +1,4 @@
+import "../../test/geometry.css"; // compiled Tailwind + token theme
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
@@ -6,6 +7,16 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import { Input } from "./input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+
+/** True when a computed box-shadow paints nothing: `none`, or only Tailwind's transparent layers. */
+function paintsNoShadow(value: string) {
+  return (
+    value === "none" ||
+    value
+      .split(/,\s*(?![^()]*\))/)
+      .every((layer) => layer.startsWith("rgba(0, 0, 0, 0)"))
+  );
+}
 
 /** The chrome string the component renders, read off a mounted element. */
 async function classesOf(element: HTMLElement) {
@@ -114,8 +125,32 @@ test("FOC-16: a focused field draws no ring or glow, valid or invalid", async ()
     input.focus();
     expect(document.activeElement).toBe(input);
     expect(input.className).not.toContain("halo");
-    expect(getComputedStyle(input).boxShadow).toBe("none");
+    expect(paintsNoShadow(getComputedStyle(input).boxShadow)).toBe(true);
   }
+});
+
+test("FOC-16: hovering an invalid field keeps its destructive border", async () => {
+  const screen = await render(
+    <div>
+      <Input aria-label="Email" />
+      <Input aria-label="Phone" aria-invalid />
+    </div>,
+  );
+  const valid = screen
+    .getByRole("textbox", { name: "Email" })
+    .element() as HTMLElement;
+  const invalid = screen
+    .getByRole("textbox", { name: "Phone" })
+    .element() as HTMLElement;
+  const rest = getComputedStyle(invalid).borderTopColor;
+  // The styles are loaded: the invalid border differs from a valid field's at rest.
+  expect(rest).not.toBe(getComputedStyle(valid).borderTopColor);
+  await userEvent.hover(invalid);
+  await new Promise((resolve) => setTimeout(resolve, 400)); // past the 150ms border ease
+  expect(getComputedStyle(invalid).borderTopColor).toBe(rest);
+  expect(valid.className).toContain(
+    "hover:not-read-only:not-aria-invalid:border-input-hover",
+  );
 });
 
 test("FOC-14: the invalid border holds while the control is focused", async () => {

@@ -16593,7 +16593,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.29.1",
-        "integrity": "sha256-mFI6tYtfao1idrFquyyawD2hkU0f5qGBABcOOvpiIX0="
+        "integrity": "sha256-SfOCV1CHfF9cDAFOE8CGfphLqtbzLqc5CuhxCMQZ2SI="
       }
     },
     {
@@ -19276,7 +19276,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.29.1",
-        "integrity": "sha256-h6FwLasrA0FwxMyqmGjLC/WH511ZV7p1CAUYqK/Cd2U="
+        "integrity": "sha256-EsOh5QinpdSU9wCQhVCILdNpqrqYfv+qjtOGEn5iqa0="
       }
     },
     {

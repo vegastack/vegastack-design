@@ -107,6 +107,26 @@ test("FOC-3/FOC-14: focus darkens the border subtly with an ease, with outline-h
   expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
+test("FOC-16: hovering an invalid textarea keeps its destructive border", async () => {
+  const screen = await render(
+    <div>
+      <Textarea aria-label="Notes" />
+      <Textarea aria-label="Reason" aria-invalid />
+    </div>,
+  );
+  const valid = screen
+    .getByRole("textbox", { name: "Notes" })
+    .element() as HTMLElement;
+  const invalid = screen
+    .getByRole("textbox", { name: "Reason" })
+    .element() as HTMLElement;
+  const rest = getComputedStyle(invalid).borderTopColor;
+  expect(rest).not.toBe(getComputedStyle(valid).borderTopColor);
+  await userEvent.hover(invalid);
+  await new Promise((resolve) => setTimeout(resolve, 400)); // past the 150ms border ease
+  expect(getComputedStyle(invalid).borderTopColor).toBe(rest);
+});
+
 test("FOC-14: the invalid border holds while the control is focused", async () => {
   const screen = await render(<Textarea aria-label="Message" aria-invalid />);
   expect(classesOf(screen)).toContain("aria-invalid:border-destructive");
