@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.29.2
+
+### Patch Changes
+
+- [#882](https://github.com/vegastack/vegastack-design/pull/882) [`e89046c`](https://github.com/vegastack/vegastack-design/commit/e89046c05b1975f7f594727344781e884d61104e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 An invalid `Input` or `Textarea` keeps its destructive border while hovered (FOC-16), instead of swapping it for the grey `input-hover` border under the pointer. `InputGroup` and the `Combobox` chips field already held it; a test now pins that.
+
 ## 0.29.1
 
 ### Patch Changes

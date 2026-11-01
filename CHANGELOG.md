@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.29.2] — November 1, 2026
+
+<!-- assembled from 1 changeset: ca365f876af9 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.29.1 → 0.29.2.
+
+### 🐛 Fixed
+
+- An invalid `Input` or `Textarea` keeps its destructive border while hovered (FOC-16), instead of swapping it for the grey `input-hover` border under the pointer. `InputGroup` and the `Combobox` chips field already held it; a test now pins that.
+  [`e89046c`](https://github.com/VegaStack/vegastack-design/commit/e89046c)
+
 ## [0.29.1] — November 1, 2026
 
 <!-- assembled from 1 changeset: 4686ea0a581b -->
