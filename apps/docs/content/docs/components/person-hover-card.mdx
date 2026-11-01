@@ -94,6 +94,10 @@ team icon on its hue — never initials or a photo — and `AvatarStack`, its ho
 list show teams beside people the same way. Use the muted line (`email`) for something like
 "8 members".
 
+A workspace (`kind: "workspace"`) is a rounded-square tile too: its logo is shown whole
+(`object-contain` on the plain background), so a wide company logo is never cropped into a circle,
+and without a logo its initials sit on its hue. Use it for workspace switchers and headers.
+
 <ComponentPreview
   name="personHoverCardTeam"
   file="components/preview/person-hover-card.tsx"

@@ -61,6 +61,34 @@ test("a team is a rounded-square tile with the team icon on its hue, never initi
   await expectNoA11yViolations(screen.container);
 });
 
+test("a workspace is a rounded-square tile: its whole logo, else its initials on its hue", async () => {
+  const screen = await render(
+    <div className="flex gap-2">
+      <PersonAvatar
+        person={{ name: "Acme Lighting", kind: "workspace", hue: "orange" }}
+      />
+      <PersonAvatar
+        person={{
+          name: "Acme",
+          image: "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+        }}
+        kind="workspace"
+      />
+    </div>,
+  );
+  const tiles = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="avatar"][data-kind="workspace"]',
+  );
+  expect(tiles).toHaveLength(2);
+  expect(tiles[0]!.className).toContain("rounded-md");
+  expect(fallback(tiles[0]!).textContent).toBe("AL");
+  expect(fallback(tiles[0]!).className).toContain("rounded-md");
+  const logo = tiles[1]!.querySelector<HTMLImageElement>("img")!;
+  expect(logo.className).toContain("object-contain");
+  expect(logo.className).not.toContain("rounded-full");
+  await expectNoA11yViolations(screen.container);
+});
+
 const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
 
 test("an agent is a bot on the purple tag hue, whatever its own hue", async () => {
