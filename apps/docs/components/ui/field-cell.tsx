@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.29.3 sha256-mglxq5k5+0h4aEAOdioxSy7c5chLKCeUfX4hqWYbpyA=
+// @vegastack field-cell@0.29.3 sha256-EjdzsvPZKc2+rHGA0LnH4gTqu5tSTu8GoViPbgztwhs=
 
 "use client";
 
@@ -1308,8 +1308,9 @@ export function FieldInput({
           id={id}
           aria-invalid={invalid || over || undefined}
           aria-describedby={
-            [describedBy, over ? limitId : null].filter(Boolean).join(" ") ||
-            undefined
+            [describedBy, config.maxLength !== undefined ? limitId : null]
+              .filter(Boolean)
+              .join(" ") || undefined
           }
           disabled={disabled}
           placeholder={config.placeholder}
@@ -2174,6 +2175,7 @@ export function FieldCellEditor({
   }, []);
   const root = React.useRef<HTMLSpanElement | null>(null);
   const longText = React.useRef<TextEditHandle | null>(null);
+  const longTextLimitId = React.useId();
   const commit = (next: FieldValue, move?: EditableCellMove) => {
     if (done.current) return;
     done.current = true;
@@ -2376,6 +2378,9 @@ export function FieldCellEditor({
             value={text}
             onValueChange={setDraft}
             aria-invalid={longTextOver(text, config) !== null || undefined}
+            aria-describedby={
+              config.maxLength !== undefined ? longTextLimitId : undefined
+            }
             onSubmit={(next) => {
               if (longTextOver(next, config) === null) commit(next || null);
             }}
@@ -2386,7 +2391,7 @@ export function FieldCellEditor({
             mentionImage={config.mentionImage}
             minHeight="6rem"
           />
-          <LongTextLimit text={text} config={config} />
+          <LongTextLimit id={longTextLimitId} text={text} config={config} />
         </PopoverContent>
       </Popover>
     );
@@ -3002,6 +3007,7 @@ function LongTextPropertyEditor({
   const draft = React.useRef(start);
   // The text as typed, for the limit's count and message.
   const [shown, setShown] = React.useState(start);
+  const limitId = React.useId();
   React.useEffect(() => {
     handle.current?.focus("end");
   }, []);
@@ -3046,6 +3052,7 @@ function LongTextPropertyEditor({
           setShown(next);
         }}
         aria-invalid={longTextOver(shown, config) !== null || undefined}
+        aria-describedby={config.maxLength !== undefined ? limitId : undefined}
         escapeBehavior="revert"
         handleRef={handle}
         maxHeight={maxHeight}
@@ -3060,7 +3067,7 @@ function LongTextPropertyEditor({
           onCancel();
         }}
       />
-      <LongTextLimit text={shown} config={config} />
+      <LongTextLimit id={limitId} text={shown} config={config} />
     </div>
   );
 }

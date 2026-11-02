@@ -929,3 +929,23 @@ test('emptyText: an empty value shows it at rest ("" shows nothing), and the pla
   ).click();
   await expect.element(screen.getByRole("textbox")).toBeInTheDocument();
 });
+
+test("text maxLength: a value already past the limit never commits; the field stays open and invalid", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <EditableCell
+      value="Far too long a title"
+      label="Page title"
+      editor={{ type: "text", maxLength: 10 }}
+      onCommit={onCommit}
+    />,
+  );
+  await screen.getByRole("button", { name: "Edit Page title" }).click();
+  const field = screen.getByRole("textbox", { name: "Page title" });
+  await userEvent.keyboard("{End}!{Enter}");
+  expect(onCommit).not.toHaveBeenCalled();
+  await expect.element(field).toHaveAttribute("aria-invalid", "true");
+  await userEvent.clear(field);
+  await userEvent.type(field, "Short{Enter}");
+  expect(onCommit).toHaveBeenCalledWith("Short");
+});

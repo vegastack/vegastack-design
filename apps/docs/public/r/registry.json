@@ -357,7 +357,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.29.1",
-        "integrity": "sha256-8RXyImLxy3fFr/7g7KByuFaakYtPnu3CQviGu2SNC0E="
+        "integrity": "sha256-U7qjRgHShUbfzJ2gqGh6NhUnp9bd5gWxbC3ymSHJSUs="
       }
     },
     {
@@ -1322,7 +1322,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.29.1",
-        "integrity": "sha256-TeOr9QyOdWxdiedv4DkHlQdxdKW2DW44MSxldBe1/Lk="
+        "integrity": "sha256-/OWQys7ytWt2oL+n52OS4Nk2o968FLcI5mBsCtbOj2w="
       }
     },
     {
@@ -2148,7 +2148,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.29.1",
-        "integrity": "sha256-tIdDNfYDpN43e/19ZRYJrsGIevGX9mHOrawEbaYz0+k="
+        "integrity": "sha256-iIyC15dHWSBHw8ZJp4s+qH4t4SKOwV+4DkQKtU7m/wI="
       }
     },
     {
@@ -2979,7 +2979,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.29.1",
-        "integrity": "sha256-x8Eo42pvO8xN5MK+oDJG3+bA3efGCw2JX/PQqiVXxWA="
+        "integrity": "sha256-0Dt/wuRC63TpJUayZ2fxf/tUzQDbO35t8C8CcH28BNs="
       }
     },
     {
@@ -3035,7 +3035,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.29.3",
-        "integrity": "sha256-mglxq5k5+0h4aEAOdioxSy7c5chLKCeUfX4hqWYbpyA="
+        "integrity": "sha256-EjdzsvPZKc2+rHGA0LnH4gTqu5tSTu8GoViPbgztwhs="
       }
     },
     {
@@ -17023,7 +17023,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.29.1",
-        "integrity": "sha256-LihPdGV2fv4BLdV8TYJEC61zLEYOuIN8OpbmTHTtpZo="
+        "integrity": "sha256-o8OnH+vR2LaO7VwStgADLtJxG1KkwpliMtCluyVUwZo="
       }
     },
     {
@@ -20182,7 +20182,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members — MemberList.",
         "version": "0.29.1",
-        "integrity": "sha256-CDF+FKBojcsU2yqQ8U7Ka28FQE11Nh5p5xSLwHXi1zo="
+        "integrity": "sha256-RSIg0mSqAtakxCeVo3IBK+q5RSKr0dEQCH3i9YYQsLQ="
       }
     },
     {
@@ -23260,7 +23260,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.29.1",
-        "integrity": "sha256-l617uRzgjKoDmiJKhwhLlrhl9Qkz6Om6TqQJhcq8eLg="
+        "integrity": "sha256-4kMNNFSyU0ABh3P2jgrtskPNTHkqG/Lg88hd3u1A3Vc="
       }
     },
     {

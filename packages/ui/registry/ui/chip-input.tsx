@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.29.1 sha256-TeOr9QyOdWxdiedv4DkHlQdxdKW2DW44MSxldBe1/Lk=
+// @vegastack chip-input@0.29.1 sha256-/OWQys7ytWt2oL+n52OS4Nk2o968FLcI5mBsCtbOj2w=
 
 "use client";
 
@@ -261,7 +261,8 @@ export function ChipInput({
         const chip = normalize(raw);
         if (chip.length === 0) continue;
         if (maxLength !== undefined && chip.length > maxLength) {
-          tooLong.push(chip);
+          // The entry as typed, never its normalised form: retrying it normalises it once.
+          tooLong.push(raw.trim());
           continue;
         }
         if (!allowDuplicates && next.includes(chip)) {
@@ -340,13 +341,39 @@ export function ChipInput({
     [chips, commitValue, setAnnouncement],
   );
 
+  /**
+   * Entries too long to add, back in the input as typed, joined by the separator the text used
+   * (so committing again splits them the same way).
+   */
+  const rejoin = React.useCallback(
+    (text: string, entries: string[]) => {
+      // A fresh, stateless copy: a caller's /g or /y would make `exec` and `test` stateful.
+      const pattern = new RegExp(
+        splitOn.source,
+        splitOn.flags.replace(/[gy]/g, ""),
+      );
+      const first = pattern.exec(text)?.[0];
+      // A line break can't stay in a one-line input: a comma, or a space, where they split too.
+      const separator =
+        first !== undefined && first.trim() !== ""
+          ? `${first.trim()} `
+          : pattern.test(",")
+            ? ", "
+            : " ";
+      return entries.join(separator);
+    },
+    [splitOn],
+  );
+
   const commitDraft = React.useCallback(() => {
     if (draft.trim().length === 0) return;
-    const { clear, tooLong } = addEntries(draft.split(splitOn));
-    // An entry too long to add stays in the input to be shortened.
-    if (tooLong.length > 0) setDraft(tooLong.join(", "));
-    else if (clear) setDraft("");
-  }, [draft, addEntries, splitOn]);
+    const parts = draft.split(splitOn);
+    const { clear, tooLong } = addEntries(parts);
+    // An entry too long to add stays in the input to be shortened — a lone one exactly as typed.
+    if (tooLong.length > 0) {
+      if (parts.length > 1) setDraft(rejoin(draft, tooLong));
+    } else if (clear) setDraft("");
+  }, [draft, addEntries, splitOn, rejoin]);
 
   return (
     // The column that puts the refusal line UNDER the box wherever the field sits (a Field,
@@ -428,9 +455,12 @@ export function ChipInput({
             const { tooLong } = addEntries(parts);
             // A pasted entry too long to add lands in the input instead of being dropped.
             if (tooLong.length > 0)
-              setDraft((current) =>
-                [current.trim(), ...tooLong].filter(Boolean).join(", "),
-              );
+              setDraft((current) => {
+                const back = rejoin(text, tooLong);
+                return current.trim()
+                  ? rejoin(text, [current.trim(), back])
+                  : back;
+              });
           }}
         />
         {/* DS-21: the form value — one hidden input per chip under `name`. */}

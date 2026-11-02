@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.29.1 sha256-x8Eo42pvO8xN5MK+oDJG3+bA3efGCw2JX/PQqiVXxWA=
+// @vegastack editable-cell@0.29.1 sha256-0Dt/wuRC63TpJUayZ2fxf/tUzQDbO35t8C8CcH28BNs=
 
 "use client";
 
@@ -184,7 +184,8 @@ export type EditableCellEditor =
       placeholder?: string;
       /**
        * The most characters the value may hold (the field's `maxlength`). Typing stops there, a
-       * paste keeps what fits and says so, and a quiet `n/max` count shows from 90% of it.
+       * paste keeps what fits and says so, and a quiet `n/max` count shows from 90% of it. A value
+       * already past it (seeded, or the limit lowered) never commits: the field stays open, invalid.
        */
       maxLength?: number;
     }
@@ -1199,7 +1200,11 @@ export function EditableCell({
                 }
                 return true;
               }
-            : undefined
+            : editor.type === "text" && editor.maxLength !== undefined
+              ? // A value already past the limit (seeded, or the limit lowered) never commits:
+                // the field stays open, invalid, with its count.
+                (draft) => draft.length <= editor.maxLength!
+              : undefined
         }
         onInvalid={
           number

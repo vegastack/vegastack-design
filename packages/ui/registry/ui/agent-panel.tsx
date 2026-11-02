@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.29.1 sha256-l617uRzgjKoDmiJKhwhLlrhl9Qkz6Om6TqQJhcq8eLg=
+// @vegastack agent-panel@0.29.1 sha256-4kMNNFSyU0ABh3P2jgrtskPNTHkqG/Lg88hd3u1A3Vc=
 
 "use client";
 
@@ -1345,6 +1345,8 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
   const counterId = React.useId();
   const max = p.instructionsMaxLength;
   const nearLimit = max !== undefined && draft.length >= max * 0.8;
+  // Past the limit (instructions saved before it, or a lowered limit): Save waits for a shorter text.
+  const overLimit = max !== undefined && draft.trim().length > max;
   const text = p.instructions?.trim() ? p.instructions : null;
   const canEdit = p.onInstructionsChange !== undefined;
   if (!text && !canEdit) return null;
@@ -1360,7 +1362,7 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
     requestAnimationFrame(() => document.getElementById(editId)?.focus());
   };
   const save = async () => {
-    if (!p.onInstructionsChange || savingRef.current) return;
+    if (!p.onInstructionsChange || savingRef.current || overLimit) return;
     savingRef.current = true;
     setSaving(true);
     try {
@@ -1395,6 +1397,7 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
             ref={editRef}
             aria-label={labels.instructions}
             aria-describedby={nearLimit ? counterId : undefined}
+            aria-invalid={overLimit || undefined}
             maxLength={max}
             value={draft}
             // Read-only while saving, so the saved text is what the editor closes on.
@@ -1432,7 +1435,7 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
             </LineButton>
             <LineButton
               variant="default"
-              disabled={saving}
+              disabled={saving || overLimit}
               data-loading={saving ? "" : undefined}
               aria-busy={saving || undefined}
               onClick={() => void save()}
@@ -1527,11 +1530,13 @@ function ReplyBox({
   if (!p.onReply) return null;
   const max = p.replyMaxLength;
   const nearLimit = max !== undefined && text.length >= max * 0.8;
+  const overLimit = max !== undefined && text.trim().length > max;
   const disabled = p.replyDisabledReason != null;
   const send = async () => {
     const sent = text;
     const value = sent.trim();
     if (!value || disabled || sendingRef.current || !p.onReply) return;
+    if (max !== undefined && value.length > max) return;
     sendingRef.current = true;
     setSending(true);
     try {
@@ -1562,6 +1567,7 @@ function ReplyBox({
               .join(" ") || undefined
           }
           maxLength={max}
+          aria-invalid={overLimit || undefined}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
             if (
@@ -1582,7 +1588,7 @@ function ReplyBox({
             variant="default"
             className="rounded-full"
             aria-label={labels.send}
-            disabled={disabled || sending || text.trim() === ""}
+            disabled={disabled || sending || text.trim() === "" || overLimit}
             onClick={() => void send()}
           >
             <ArrowUp aria-hidden />

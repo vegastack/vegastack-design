@@ -1,4 +1,4 @@
-// @vegastack comments@0.29.1 sha256-8RXyImLxy3fFr/7g7KByuFaakYtPnu3CQviGu2SNC0E=
+// @vegastack comments@0.29.1 sha256-U7qjRgHShUbfzJ2gqGh6NhUnp9bd5gWxbC3ymSHJSUs=
 
 "use client";
 
@@ -147,18 +147,24 @@ const defaultMaxLengthMessage = (maxLength: number) =>
   `Up to ${maxLength} characters`;
 
 /**
- * The text over `maxLength` (counted as it posts, `String.length` — a server's count): the box is
- * invalid with the host's message and refuses to send. Typing, pasting and an IME composing are
- * never cut; the limit holds at the send.
+ * What a box's limit counts: the text as it posts, trimmed as a server trims it before its
+ * `String.length` check.
+ */
+const countedText = (text: string) => postable(text).trim();
+
+/**
+ * The text over `maxLength`: the box is invalid with the host's message and refuses to send.
+ * Typing, pasting and an IME composing are never cut; the limit holds at the send. `null` while
+ * within it — compare with `null`, never on the message's truthiness.
  */
 function overLimitMessage(
   text: string,
   maxLength: number | undefined,
   message: string | undefined,
 ): string | null {
-  if (maxLength === undefined || postable(text).length <= maxLength)
+  if (maxLength === undefined || countedText(text).length <= maxLength)
     return null;
-  return message ?? defaultMaxLengthMessage(maxLength);
+  return message || defaultMaxLengthMessage(maxLength);
 }
 
 /**
@@ -376,11 +382,12 @@ export function CommentItem({
     ? overLimitMessage(draft, maxLength, maxLengthMessage)
     : null;
   const shownError = error ?? overLimit;
+  const errorId = React.useId();
 
   const save = async (value: string) => {
     const body = postable(value);
     if (!onEdit || !canEditThis || !body.trim() || saving) return;
-    if (overLimitMessage(value, maxLength, maxLengthMessage)) return;
+    if (overLimitMessage(value, maxLength, maxLengthMessage) !== null) return;
     if (body.trim() === comment.body.trim()) return cancel();
     setSaving(true);
     setError(null);
@@ -547,7 +554,9 @@ export function CommentItem({
                       aria-label="Save"
                       loading={saving}
                       disabled={
-                        !postable(draft).trim() || unchanged || !!overLimit
+                        !postable(draft).trim() ||
+                        unchanged ||
+                        overLimit !== null
                       }
                       onClick={() => void save(draft)}
                     />
@@ -701,7 +710,8 @@ export function CommentItem({
               onSubmit={(value) => void save(value)}
               onRevert={cancel}
               sending={saving}
-              invalid={!!shownError}
+              invalid={shownError !== null}
+              describedBy={shownError !== null ? errorId : undefined}
               maxLength={maxLength}
               value={draft}
               mentions={mentions}
@@ -755,8 +765,8 @@ export function CommentItem({
               showAdd={canReact}
             />
           ) : null}
-          {shownError ? (
-            <p role="alert" className="text-xs text-destructive">
+          {shownError !== null ? (
+            <p id={errorId} role="alert" className="text-xs text-destructive">
               {shownError}
             </p>
           ) : null}
@@ -918,6 +928,8 @@ interface CommentBoxProps {
   sending?: boolean;
   disabled?: boolean;
   invalid?: boolean;
+  /** The id of the host's error line under the box, describing the editor. */
+  describedBy?: string;
   /** The limit the host holds the text to: a `n/max` count shows under the box near it. */
   maxLength?: number;
   /** The box's text as the host tracks it, for the count. */
@@ -959,6 +971,7 @@ function CommentBox({
   sending = false,
   disabled,
   invalid,
+  describedBy,
   maxLength,
   value = "",
   autoFocus,
@@ -1091,6 +1104,7 @@ function CommentBox({
     disabled,
     dragHandles: false,
     "aria-invalid": invalid ? true : undefined,
+    "aria-describedby": describedBy,
     mentions,
     mentionHref,
     mentionImage,
@@ -1213,7 +1227,7 @@ function CommentBox({
       {maxLength !== undefined ? (
         <FieldCounter
           data-slot="comment-box-counter"
-          value={postable(value)}
+          value={countedText(value)}
           maxLength={maxLength}
           className="self-end pt-1"
         />
@@ -1417,6 +1431,7 @@ export function CommentComposer({
   const [body, setBody] = React.useState(defaultValue ?? "");
   const posting = postingProp ?? pending;
   const overLimit = overLimitMessage(body, maxLength, maxLengthMessage);
+  const errorId = React.useId();
   const error = (errorProp !== undefined ? errorProp : errorState) ?? overLimit;
   // `compact`: the card opens on demand, and a draft (a restored one too) keeps it open.
   const [opened, setOpened] = React.useState(() => !!defaultValue?.trim());
@@ -1469,7 +1484,7 @@ export function CommentComposer({
       posting ||
       uploading > 0 ||
       (box.current?.pendingUploads() ?? 0) > 0 ||
-      overLimitMessage(raw, maxLength, maxLengthMessage)
+      overLimitMessage(raw, maxLength, maxLengthMessage) !== null
     )
       return;
     setPending(true);
@@ -1582,6 +1597,7 @@ export function CommentComposer({
         sending={pending}
         disabled={disabled}
         invalid={!!error}
+        describedBy={error ? errorId : undefined}
         maxLength={maxLength}
         value={body}
         extraActions={attachments}
@@ -1603,7 +1619,7 @@ export function CommentComposer({
             disabled={
               disabled ||
               uploading > 0 ||
-              !!overLimit ||
+              overLimit !== null ||
               (!postable(body).trim() && !hasFiles)
             }
             onClick={() => void submit(body)}
@@ -1611,7 +1627,7 @@ export function CommentComposer({
         }
       />
       {error ? (
-        <p role="alert" className="text-xs text-destructive">
+        <p id={errorId} role="alert" className="text-xs text-destructive">
           {error}
         </p>
       ) : null}
@@ -1903,6 +1919,7 @@ export function CommentThread({
     composer?.maxLengthMessage,
   );
   const error = errorState ?? overLimit;
+  const errorId = React.useId();
   const replyBox = React.useRef<HTMLDivElement>(null);
   const card = React.useRef<HTMLElement>(null);
   // An upload into the reply holds Send until it lands (see `CommentComposer`).
@@ -1965,7 +1982,8 @@ export function CommentThread({
       posting ||
       uploading > 0 ||
       (box.current?.pendingUploads() ?? 0) > 0 ||
-      overLimitMessage(raw, composer?.maxLength, composer?.maxLengthMessage)
+      overLimitMessage(raw, composer?.maxLength, composer?.maxLengthMessage) !==
+        null
     )
       return;
     setPending(true);
@@ -2174,6 +2192,7 @@ export function CommentThread({
               sending={pending}
               disabled={composer?.disabled}
               invalid={!!error}
+              describedBy={error ? errorId : undefined}
               maxLength={composer?.maxLength}
               value={draft}
               extraActions={composer?.attachments}
@@ -2194,7 +2213,7 @@ export function CommentThread({
                   disabled={
                     !!composer?.disabled ||
                     uploading > 0 ||
-                    !!overLimit ||
+                    overLimit !== null ||
                     (!postable(draft).trim() && !composer?.hasFiles)
                   }
                   onClick={() => void reply(draft)}
@@ -2203,7 +2222,11 @@ export function CommentThread({
             />
           </div>
           {error ? (
-            <p role="alert" className="ps-7 text-xs text-destructive">
+            <p
+              id={errorId}
+              role="alert"
+              className="ps-7 text-xs text-destructive"
+            >
               {error}
             </p>
           ) : null}

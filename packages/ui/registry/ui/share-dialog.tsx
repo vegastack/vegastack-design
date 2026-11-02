@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.29.1 sha256-CDF+FKBojcsU2yqQ8U7Ka28FQE11Nh5p5xSLwHXi1zo=
+// @vegastack share-dialog@0.29.1 sha256-RSIg0mSqAtakxCeVo3IBK+q5RSKr0dEQCH3i9YYQsLQ=
 
 "use client";
 
@@ -605,9 +605,14 @@ export function ShareDialog({
   // The counter shows (and describes the message) from 80% of the limit — `FieldCounter`'s band.
   const messageNearLimit =
     messageMaxLength !== undefined && message.length >= messageMaxLength * 0.8;
+  // A message past the limit (a lowered limit) holds the invite until it is shorter.
+  const messageOver =
+    notify &&
+    messageMaxLength !== undefined &&
+    message.length > messageMaxLength;
 
   const sendInvite = async () => {
-    if (!onInvite || invitees.length === 0) return;
+    if (!onInvite || invitees.length === 0 || messageOver) return;
     setInviting(true);
     try {
       const saved = await onInvite({
@@ -652,7 +657,7 @@ export function ShareDialog({
         roleLabel={(label) => labels.inviteLevel(label)}
         onAdd={sendInvite}
         adding={inviting}
-        disabled={invitees.length === 0}
+        disabled={invitees.length === 0 || messageOver}
         addLabel={labels.invite}
       />
     ) : null;
@@ -674,6 +679,7 @@ export function ShareDialog({
             placeholder={labels.messagePlaceholder}
             aria-label={labels.messagePlaceholder.replace(/ \(optional\)$/, "")}
             aria-describedby={messageNearLimit ? messageCounterId : undefined}
+            aria-invalid={messageOver || undefined}
             maxLength={messageMaxLength}
             rows={3}
           />

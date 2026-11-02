@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.29.1 sha256-tIdDNfYDpN43e/19ZRYJrsGIevGX9mHOrawEbaYz0+k=
+// @vegastack add-filter-menu@0.29.1 sha256-iIyC15dHWSBHw8ZJp4s+qH4t4SKOwV+4DkQKtU7m/wI=
 
 "use client";
 
@@ -268,7 +268,11 @@ export function AddFilterMenu({
   );
   // A phrase goes to the AI: two or more words, or a word no field matches.
   const offerAi =
-    ai != null && text !== "" && (wordCount(text) >= 2 || matches.length === 0);
+    ai != null &&
+    text !== "" &&
+    // A request past the limit (an `initialQuery` longer than it) is never sent.
+    (ai.maxLength === undefined || text.length <= ai.maxLength) &&
+    (wordCount(text) >= 2 || matches.length === 0);
   const options: Option[] = [
     ...(offerAi ? [{ kind: "ai", id: `${listId}-ai` } as const] : []),
     ...matches.map((field) => ({
@@ -303,6 +307,7 @@ export function AddFilterMenu({
   const done = () => setOpen(false);
   const runAi = async (request: string) => {
     if (!ai || pending) return;
+    if (ai.maxLength !== undefined && request.length > ai.maxLength) return;
     setPending(true);
     setMessage(null);
     try {

@@ -702,3 +702,24 @@ test("instructionsMaxLength and replyMaxLength: both boxes stop at the limit and
   await expect.element(box).toHaveAttribute("maxlength", "8");
   await expectNoA11yViolations(screen.container);
 });
+
+test("instructionsMaxLength: instructions already past the limit can't be saved until shorter", async () => {
+  const onInstructionsChange = vi.fn();
+  const screen = await render(
+    <AgentPanel
+      {...base}
+      instructions="Far too long."
+      onInstructionsChange={onInstructionsChange}
+      instructionsMaxLength={5}
+    />,
+  );
+  await screen.getByRole("button", { name: "Edit instructions" }).click();
+  const box = screen.getByRole("textbox", { name: "Instructions" });
+  await expect.element(box).toHaveAttribute("aria-invalid", "true");
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await userEvent.keyboard("{Meta>}{Enter}{/Meta}");
+  expect(onInstructionsChange).not.toHaveBeenCalled();
+  await box.fill("Short");
+  await screen.getByRole("button", { name: "Save" }).click();
+  expect(onInstructionsChange).toHaveBeenCalledWith("Short");
+});

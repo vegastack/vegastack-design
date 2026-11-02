@@ -1,4 +1,4 @@
-// @vegastack transcript@0.29.1 sha256-LihPdGV2fv4BLdV8TYJEC61zLEYOuIN8OpbmTHTtpZo=
+// @vegastack transcript@0.29.1 sha256-o8OnH+vR2LaO7VwStgADLtJxG1KkwpliMtCluyVUwZo=
 
 "use client";
 
@@ -1308,6 +1308,8 @@ function SpeakerChip({
 
   const finish = (commit: boolean) => {
     const next = draft.trim();
+    // A name past the limit (seeded, or the limit lowered) is not saved; the field stays.
+    if (commit && maxLength !== undefined && next.length > maxLength) return;
     if (commit && next && next !== name) onRename?.(id, next);
     setEditing(false);
     requestAnimationFrame(() => buttonRef.current?.focus());
@@ -1326,6 +1328,10 @@ function SpeakerChip({
           autoFocus
           aria-label={inputLabel}
           maxLength={maxLength}
+          aria-invalid={
+            (maxLength !== undefined && draft.trim().length > maxLength) ||
+            undefined
+          }
           value={draft}
           onChange={(event) => setDraft(event.currentTarget.value)}
           onFocus={(event) => event.currentTarget.select()}

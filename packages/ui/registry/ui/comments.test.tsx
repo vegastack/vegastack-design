@@ -1558,3 +1558,23 @@ test("maxLength: a thread's reply box over the limit refuses to send", async () 
     .toBeDisabled();
   expect(onReply).not.toHaveBeenCalled();
 });
+
+test("maxLength: an empty host message still refuses an over-limit comment, with the default words, and describes the box", async () => {
+  const onSubmit = vi.fn();
+  const screen = await render(
+    <CommentComposer
+      defaultValue="abcdef"
+      maxLength={3}
+      maxLengthMessage=""
+      onSubmit={onSubmit}
+    />,
+  );
+  await expect.element(screen.getByText("Up to 3 characters")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Send comment" }))
+    .toBeDisabled();
+  const alert = screen.container.querySelector('[role="alert"]')!;
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await expect.element(box).toHaveAttribute("aria-describedby", alert.id);
+  expect(onSubmit).not.toHaveBeenCalled();
+});
