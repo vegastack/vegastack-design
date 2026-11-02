@@ -165,6 +165,42 @@ test("a grouped row stacks its actors and expands to its events", async () => {
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });
 
+test("an event with its own href is a link above the row that opens that record, not the row", async () => {
+  const openedRow: string[] = [];
+  const openedEvent: string[] = [];
+  const screen = await render(
+    <Inbox onOpen={(key) => openedRow.push(key)}>
+      <InboxGroup label="Today">
+        <InboxItem
+          value="batch"
+          title="Neha completed 2 tasks you follow"
+          count={2}
+          countLabel={(n) => `${n} tasks`}
+          events={[
+            {
+              id: "a",
+              text: "Fix driver",
+              href: "/tasks/a",
+              onOpen: () => openedEvent.push("a"),
+            },
+            { id: "b", text: "Order samples", href: "/tasks/b" },
+          ]}
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  await screen.getByRole("button", { name: "2 tasks" }).click();
+  const link = screen.getByRole("link", { name: "Fix driver" });
+  await expect.element(link).toHaveAttribute("href", "/tasks/a");
+  await link.click();
+  expect(openedEvent).toEqual(["a"]);
+  expect(openedRow).toEqual([]);
+  await expect
+    .element(screen.getByRole("link", { name: "Order samples" }))
+    .toHaveAttribute("data-slot", "inbox-item-event-link");
+  await expectNoA11yViolations(screen.container, ["color-contrast"]);
+});
+
 test("a count without events reads through countLabel and is not a button", async () => {
   const screen = await render(
     <InboxGroup label="Today">

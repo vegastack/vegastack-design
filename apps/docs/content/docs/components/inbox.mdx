@@ -112,6 +112,10 @@ the active row gets a start bar, focus follows and `onActiveChange` reports it; 
 `events` the count is plain text, for a row that only says how many repeats it folds ("Raj assigned
 you 3 tasks").
 
+An event about a record of its own (one of a batch's records: "Neha completed 4 tasks") takes
+`href`, and `onOpen` to open it in place: its line becomes a link above the row, so it opens that
+record, never the row. A modified click still opens `href` in a new tab.
+
 <ComponentPreview name="inboxGrouped" file="components/preview/inbox.tsx" />
 
 ### Infinite scroll
@@ -221,6 +225,8 @@ dropdown only when they do not fit the row.
   ignored while typing in a field or inside a menu; ↓ / ↑ walk only from inside the list.
 - The count is a button with `aria-expanded` and `aria-controls` naming the events list; the stacked
   avatars are decorative, and an sr-only line reads everyone's names.
+- An event with `href` is a link of its own in the tab order (above the row's link), named by its
+  line.
 - The hover controls are always in the tab order and show on `focus-within`; on touch screens they
   are always visible.
 - An unread row carries a dot, a soft tint and an sr-only "Unread:" before its title; the dot and the `badge` are decorative (`aria-hidden`), so the title must say what happened.

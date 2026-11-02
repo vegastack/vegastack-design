@@ -1,4 +1,4 @@
-// @vegastack inbox@0.29.1 sha256-U7j69UaO+oIMW9m2xlS70q+A2mPg/9lDX+s+UIa1u+A=
+// @vegastack inbox@0.29.1 sha256-hbAlHp63BTlYGepIDVlNwaR/8v8+SFgSp2cQu3EVnoU=
 
 "use client";
 
@@ -660,6 +660,43 @@ export interface InboxActor {
   hue?: Person["hue"];
 }
 
+/**
+ * An expanded event's line: plain text, or — with its own `href` — a link above the row's overlay
+ * that opens that record (`onOpen` in place on a plain click), never the row.
+ */
+function InboxEventLine({
+  event,
+  children,
+}: {
+  event: InboxItemEvent;
+  children: React.ReactNode;
+}) {
+  if (!event.href) return <span className="min-w-0">{children}</span>;
+  return (
+    <a
+      href={event.href}
+      data-slot="inbox-item-event-link"
+      className="relative z-10 min-w-0 hover:text-foreground hover:underline"
+      onClick={(e) => {
+        e.stopPropagation();
+        if (
+          !event.onOpen ||
+          e.button !== 0 ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey
+        )
+          return;
+        e.preventDefault();
+        event.onOpen();
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
 /** One of the events a grouped {@link InboxItem} stands for, listed when the row expands. */
 export interface InboxItemEvent {
   /** A stable key. @default the index */
@@ -670,6 +707,16 @@ export interface InboxItemEvent {
   text: React.ReactNode;
   /** When it happened. @default undefined */
   time?: Date | string | number;
+  /**
+   * Where this event's own record lives (one of a batch's records): the line becomes a link above
+   * the row's overlay, so it opens that record instead of the row. @default undefined
+   */
+  href?: string;
+  /**
+   * Opens the event's record in place (a peek beside the inbox): a plain click calls it instead of
+   * following `href`; a modified click still opens `href` in a new tab. @default undefined
+   */
+  onOpen?: () => void;
 }
 
 /** Props for {@link InboxItem}. */
@@ -1111,7 +1158,7 @@ export function InboxItem({
                     className="mt-0.5 shrink-0 data-[size=sm]:size-4"
                   />
                 ) : null}
-                <span className="min-w-0">
+                <InboxEventLine event={event}>
                   {event.actor ? (
                     <span className="font-medium text-foreground">
                       {event.actor.name}
@@ -1125,7 +1172,7 @@ export function InboxItem({
                       <RelativeTime date={event.time} focusable={false} />
                     </>
                   ) : null}
-                </span>
+                </InboxEventLine>
               </li>
             ))}
           </ul>
