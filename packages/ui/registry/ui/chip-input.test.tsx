@@ -496,3 +496,35 @@ test("maxLength: refused entries split by a separator a one-line input drops com
   );
   await expect.element(input).toHaveValue("toolong,alsolong");
 });
+
+test("onPendingChange: text a commit refused is reported, so a form can hold its submit", async () => {
+  const onPendingChange = vi.fn();
+  const screen = await render(
+    <ChipInput
+      aria-label="Tags"
+      defaultValue={["ok"]}
+      maxLength={5}
+      onPendingChange={onPendingChange}
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await userEvent.type(input, "toolong");
+  await vi.waitFor(() =>
+    expect(onPendingChange).toHaveBeenLastCalledWith({
+      text: "toolong",
+      refused: false,
+    }),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(onPendingChange).toHaveBeenLastCalledWith({
+      text: "toolong",
+      refused: true,
+    }),
+  );
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await userEvent.clear(input);
+  await vi.waitFor(() =>
+    expect(onPendingChange).toHaveBeenLastCalledWith(null),
+  );
+});

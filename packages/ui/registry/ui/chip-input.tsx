@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.31.0 sha256-chY1stzt3RZTyEUDl3oQuC0rPaHnJHEUNoo0rybJFwQ=
+// @vegastack chip-input@0.31.0 sha256-P8RjKt/PXuVcrG6zOHXig0YfbN/8gy58sM8j/WaHPlg=
 
 "use client";
 
@@ -134,6 +134,15 @@ export interface ChipInputProps {
    */
   maxLengthLabel?: (maxLength: number) => string;
   /**
+   * Called when the text in the input that isn't a chip yet changes: `null` when the input is
+   * empty, else the text and whether a commit refused it (too long, past `max`) — so a host's
+   * form can hold its submit instead of dropping what was typed.
+   * @default undefined
+   */
+  onPendingChange?: (
+    pending: { text: string; refused: boolean } | null,
+  ) => void;
+  /**
    * Disables the field and every chip's remove button.
    * @default false
    */
@@ -197,6 +206,7 @@ export function ChipInput({
   maxLabel = defaultMaxLabel,
   maxLength,
   maxLengthLabel = defaultMaxLengthLabel,
+  onPendingChange,
   disabled = false,
   className,
   ref,
@@ -207,6 +217,16 @@ export function ChipInput({
   const isControlled = controlledValue !== undefined;
   const chips = isControlled ? controlledValue : internalValue;
   const [draft, setDraft] = React.useState("");
+  // The input holds text a commit refused (too long, past `max`), until it changes.
+  const [refused, setRefused] = React.useState(false);
+  const pendingRef = React.useRef(onPendingChange);
+  React.useLayoutEffect(() => {
+    pendingRef.current = onPendingChange;
+  });
+  const pending = draft.trim() ? draft : "";
+  React.useEffect(() => {
+    pendingRef.current?.(pending ? { text: pending, refused } : null);
+  }, [pending, refused]);
   // The visible copy of the last refusal or invalid entry; cleared by the next keystroke.
   const [notice, setNotice] = React.useState<{
     text: string;
@@ -379,7 +399,9 @@ export function ChipInput({
     // An entry too long to add stays in the input to be shortened — a lone one exactly as typed.
     if (tooLong.length > 0) {
       if (parts.length > 1) setDraft(rejoin(draft, tooLong));
+      setRefused(true);
     } else if (clear) setDraft("");
+    else setRefused(true);
   }, [draft, addEntries, splitOn, rejoin]);
 
   return (
@@ -426,13 +448,16 @@ export function ChipInput({
           ref={mergedInputRef}
           aria-label={ariaLabel}
           aria-describedby={hasInvalidChip ? describeId : undefined}
-          aria-invalid={hasInvalidChip || undefined}
+          aria-invalid={
+            hasInvalidChip || (refused && pending !== "") || undefined
+          }
           placeholder={chips.length === 0 ? placeholder : undefined}
           disabled={disabled}
           value={draft}
           onChange={(event) => {
             setDraft(event.target.value);
             setNotice(null);
+            setRefused(false);
           }}
           onKeyDown={(event) => {
             // Never commit mid-IME-composition — Enter there accepts the
@@ -461,6 +486,7 @@ export function ChipInput({
             event.preventDefault();
             const { tooLong } = addEntries(parts);
             // A pasted entry too long to add lands in the input instead of being dropped.
+            if (tooLong.length > 0) setRefused(true);
             if (tooLong.length > 0)
               // What was already typed keeps its own entries (split as a commit would).
               setDraft((current) =>
