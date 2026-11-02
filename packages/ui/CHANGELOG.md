@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.30.0
+
+### Minor Changes
+
+- [#884](https://github.com/vegastack/vegastack-design/pull/884) [`ad2d4b3`](https://github.com/vegastack/vegastack-design/commit/ad2d4b3ff4820d4df57573755f52c0b3f5366982) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `InboxItem` events can link to their own record: an event with `href` (and `onOpen` to open it in place) renders as a link above the row's overlay, so each of a batch's records opens on its own.
+
 ## 0.29.3
 
 ### Patch Changes

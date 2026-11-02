@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.30.0] — November 2, 2026
+
+<!-- assembled from 1 changeset: 6fabb62d9489 -->
+
+### 🧩 New components
+
+- `InboxItem` events can link to their own record: an event with `href` (and `onOpen` to open it in place) renders as a link above the row's overlay, so each of a batch's records opens on its own.
+  [`ad2d4b3`](https://github.com/VegaStack/vegastack-design/commit/ad2d4b3)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.29.3 → 0.30.0.
+
 ## [0.29.3] — November 2, 2026
 
 <!-- assembled from 1 changeset: ddc17c2c3a06 -->
