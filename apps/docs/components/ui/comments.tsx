@@ -1,4 +1,4 @@
-// @vegastack comments@0.29.1 sha256-U7qjRgHShUbfzJ2gqGh6NhUnp9bd5gWxbC3ymSHJSUs=
+// @vegastack comments@0.29.1 sha256-4ZmgCLvEM8WExoTWusDuukYJ315Qrv7CM5C/+hXEqa8=
 
 "use client";
 
@@ -1432,7 +1432,8 @@ export function CommentComposer({
   const posting = postingProp ?? pending;
   const overLimit = overLimitMessage(body, maxLength, maxLengthMessage);
   const errorId = React.useId();
-  const error = (errorProp !== undefined ? errorProp : errorState) ?? overLimit;
+  // An empty controlled error is no error: the limit's message still shows.
+  const error = (errorProp !== undefined ? errorProp : errorState) || overLimit;
   // `compact`: the card opens on demand, and a draft (a restored one too) keeps it open.
   const [opened, setOpened] = React.useState(() => !!defaultValue?.trim());
   // Opened by the reader (not by a restored draft): the caret goes into the card.

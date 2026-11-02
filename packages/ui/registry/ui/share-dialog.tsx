@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.29.1 sha256-RSIg0mSqAtakxCeVo3IBK+q5RSKr0dEQCH3i9YYQsLQ=
+// @vegastack share-dialog@0.29.1 sha256-d5//wPZ70derzeXK2vlLT6L00A4uSxZh88s/ieoMHno=
 
 "use client";
 
@@ -619,7 +619,8 @@ export function ShareDialog({
         invitees,
         level: inviteLevel,
         notify,
-        message,
+        // With a limit set, a message hidden by turning Notify off is not sent (it may be past it).
+        message: notify || messageMaxLength === undefined ? message : "",
       });
       if (saved !== false) resetInvite();
     } catch {

@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.29.1 sha256-/OWQys7ytWt2oL+n52OS4Nk2o968FLcI5mBsCtbOj2w=
+// @vegastack chip-input@0.29.1 sha256-7DGEAwd4B/KbQCMpFcQS+uaYX8jPNlj4oCBDuzr4xGE=
 
 "use client";
 
@@ -262,7 +262,7 @@ export function ChipInput({
         if (chip.length === 0) continue;
         if (maxLength !== undefined && chip.length > maxLength) {
           // The entry as typed, never its normalised form: retrying it normalises it once.
-          tooLong.push(raw.trim());
+          tooLong.push(raw);
           continue;
         }
         if (!allowDuplicates && next.includes(chip)) {
@@ -352,14 +352,15 @@ export function ChipInput({
         splitOn.source,
         splitOn.flags.replace(/[gy]/g, ""),
       );
+      // The separator exactly as the text had it — unless it holds a line break, which a one-line
+      // input drops: then the first common separator the pattern also splits on.
       const first = pattern.exec(text)?.[0];
-      // A line break can't stay in a one-line input: a comma, or a space, where they split too.
       const separator =
-        first !== undefined && first.trim() !== ""
-          ? `${first.trim()} `
-          : pattern.test(",")
-            ? ", "
-            : " ";
+        first !== undefined && !/[\r\n]/.test(first)
+          ? first
+          : ([", ", "; ", "\t", " ", "|"].find((candidate) =>
+              pattern.test(candidate),
+            ) ?? " ");
       return entries.join(separator);
     },
     [splitOn],
@@ -455,12 +456,9 @@ export function ChipInput({
             const { tooLong } = addEntries(parts);
             // A pasted entry too long to add lands in the input instead of being dropped.
             if (tooLong.length > 0)
-              setDraft((current) => {
-                const back = rejoin(text, tooLong);
-                return current.trim()
-                  ? rejoin(text, [current.trim(), back])
-                  : back;
-              });
+              setDraft((current) =>
+                rejoin(text, current.trim() ? [current, ...tooLong] : tooLong),
+              );
           }}
         />
         {/* DS-21: the form value — one hidden input per chip under `name`. */}

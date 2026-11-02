@@ -454,7 +454,8 @@ test("maxLength: a longer entry is refused with the host's words and stays in th
   await vi.waitFor(() =>
     expect(onValueChange).toHaveBeenLastCalledWith(["ok"]),
   );
-  await expect.element(input).toHaveValue("waytoolong");
+  // Exactly as pasted, the space after the comma included.
+  await expect.element(input).toHaveValue(" waytoolong");
 });
 
 test("maxLength: a refused entry comes back as typed (never normalised twice) and keeps a custom separator", async () => {
@@ -476,5 +477,22 @@ test("maxLength: a refused entry comes back as typed (never normalised twice) an
   await userEvent.clear(input);
   await userEvent.type(input, "toolong;ok;alsolong{Enter}");
   expect(onValueChange).toHaveBeenLastCalledWith(["#ok"]);
-  await expect.element(input).toHaveValue("toolong; alsolong");
+  await expect.element(input).toHaveValue("toolong;alsolong");
+});
+
+test("maxLength: refused entries split by a separator a one-line input drops come back split by one it keeps", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <ChipInput aria-label="Tags" maxLength={3} onValueChange={onValueChange} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  const paste = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(paste, "clipboardData", {
+    value: { getData: () => "toolong\nok\nalsolong" },
+  });
+  input.element().dispatchEvent(paste);
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith(["ok"]),
+  );
+  await expect.element(input).toHaveValue("toolong, alsolong");
 });
