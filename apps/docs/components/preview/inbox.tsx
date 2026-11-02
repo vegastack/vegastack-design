@@ -210,6 +210,39 @@ export function inbox(): ReactNode {
   );
 }
 
+/** One action on several records (a batch): each expanded line links to its own record. */
+export function inboxBatch(): ReactNode {
+  return (
+    <Frame>
+      <Inbox>
+        <InboxGroup label="Today">
+          <InboxItem
+            value="batch"
+            unread
+            avatar={{ name: "Neha Kapoor", hue: "pink" }}
+            badge={<SquareCheck />}
+            title={
+              <>
+                <InboxEmphasis>Neha Kapoor</InboxEmphasis> completed 3 tasks you
+                follow
+              </>
+            }
+            countLabel={(n) => `${n} tasks`}
+            defaultExpanded
+            events={[
+              { id: "a", text: "#140 Fix driver", href: "#task-140" },
+              { id: "b", text: "#139 Order samples", href: "#task-139" },
+              { id: "c", text: "#138 Send quote", href: "#task-138" },
+            ]}
+            time={NOW - 4 * MIN}
+            menu={rowMenu}
+          />
+        </InboxGroup>
+      </Inbox>
+    </Frame>
+  );
+}
+
 /** One record's updates grouped into one row: stacked actors, "9 updates" expanding to the list. */
 export function inboxGrouped(): ReactNode {
   return (

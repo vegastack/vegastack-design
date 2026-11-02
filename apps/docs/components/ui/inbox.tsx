@@ -1,4 +1,4 @@
-// @vegastack inbox@0.29.1 sha256-hbAlHp63BTlYGepIDVlNwaR/8v8+SFgSp2cQu3EVnoU=
+// @vegastack inbox@0.29.1 sha256-gT3IZUS1frXa97PzRI7WUpRzzhZos5j/5X2Zma+C64Q=
 
 "use client";
 
@@ -676,7 +676,8 @@ function InboxEventLine({
     <a
       href={event.href}
       data-slot="inbox-item-event-link"
-      className="relative z-10 min-w-0 hover:text-foreground hover:underline"
+      // 24px tall however short the line (the target floor), without moving the lines around it.
+      className="relative z-10 -my-0.5 min-w-0 py-0.5 hover:text-foreground hover:underline"
       onClick={(e) => {
         e.stopPropagation();
         if (
@@ -791,6 +792,11 @@ export interface InboxItemProps extends Omit<
    */
   events?: readonly InboxItemEvent[];
   /**
+   * The events list starts open (a batch whose records are the point of the row).
+   * @default false
+   */
+  defaultExpanded?: boolean;
+  /**
    * When it happened; shown short, absolute on hover.
    * @default undefined
    */
@@ -881,6 +887,7 @@ export function InboxItem({
   count: countProp,
   countLabel = defaultCountLabel,
   events,
+  defaultExpanded = false,
   time,
   href,
   linkRender,
@@ -898,7 +905,7 @@ export function InboxItem({
   const inbox = React.useContext(InboxContext);
   const tracked = !!inbox && value !== undefined;
   const active = tracked && inbox.activeId === value;
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(defaultExpanded);
   const eventsId = React.useId();
   const hasControls = Boolean(onToggleRead || menu);
   const count = countProp ?? events?.length ?? 0;

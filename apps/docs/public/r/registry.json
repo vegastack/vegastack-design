@@ -17421,7 +17421,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.29.1",
-        "integrity": "sha256-hbAlHp63BTlYGepIDVlNwaR/8v8+SFgSp2cQu3EVnoU="
+        "integrity": "sha256-gT3IZUS1frXa97PzRI7WUpRzzhZos5j/5X2Zma+C64Q="
       }
     },
     {
