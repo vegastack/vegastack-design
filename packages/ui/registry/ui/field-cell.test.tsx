@@ -2378,3 +2378,54 @@ test("long text maxLength: a cell's editor over the limit does not commit; it st
     document.querySelector('[data-slot="popover-content"]'),
   ).not.toBeNull();
 });
+
+test("percent and currency cell editors keep every significant digit: an untouched edit writes the value back exactly", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      key="percent"
+      type="percent"
+      variant="cell"
+      label="Share"
+      value={1234567.890123}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  const field = screen.getByRole("textbox", { name: "Share" });
+  // ×100 on the digits: 1234567.890123 is 123456789.0123 points, not 123456789.012.
+  await expect
+    .element(field)
+    .toHaveValue(`123456789${(1.5).toLocaleString().charAt(1)}0123`);
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenLastCalledWith(1234567.890123, "down");
+
+  await screen.rerender(
+    <FieldCellEditor
+      key="percent-edit"
+      type="percent"
+      variant="cell"
+      label="Share"
+      value={0.07}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("{End}5{Enter}");
+  // 75 points is 0.75 exactly (no 0.7500000000000001).
+  expect(onCommit).toHaveBeenLastCalledWith(0.75, "down");
+
+  await screen.rerender(
+    <FieldCellEditor
+      key="currency"
+      type="currency"
+      variant="cell"
+      label="Budget"
+      value={123456789.012345}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenLastCalledWith(123456789.012345, "down");
+});

@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.31.0 sha256-uVxUvVrT12zxfATS1uGfd0qLfF27OhX0Wn0zfPg1KOE=
+// @vegastack field-cell@0.31.0 sha256-+fYhGI9t53lJqTTr3aZxI+MvyyOCIjJvaalS2J1RLkE=
 
 "use client";
 
@@ -1864,11 +1864,41 @@ function cellScale(type: FieldType): number {
   return type === "percent" ? 100 : 1;
 }
 
-/** A multiplication or division by `scale` without float noise (0.07 × 100 is 7, not 7.000…01). */
+/**
+ * `text` (a number as written, `1.5`, `-2e-7`) with its decimal point moved `places` to the right
+ * (left when negative) — exact, digit for digit, so a percent's ×100 and ÷100 never round what a
+ * server keeps (15 significant digits).
+ */
+function shiftDecimal(text: string, places: number): string {
+  let rest = text.trim();
+  const sign = rest.startsWith("-") ? "-" : "";
+  if (rest.startsWith("-") || rest.startsWith("+")) rest = rest.slice(1);
+  let exponent = 0;
+  const e = rest.search(/e/i);
+  if (e >= 0) {
+    exponent = Number(rest.slice(e + 1));
+    rest = rest.slice(0, e);
+  }
+  const dot = rest.indexOf(".");
+  const whole = dot < 0 ? rest : rest.slice(0, dot);
+  let digits = whole + (dot < 0 ? "" : rest.slice(dot + 1));
+  let point = whole.length + exponent + places;
+  if (point <= 0) {
+    digits = "0".repeat(1 - point) + digits;
+    point = 1;
+  }
+  if (point > digits.length) digits += "0".repeat(point - digits.length);
+  const int = digits.slice(0, point).replace(/^0+(?=\d)/, "") || "0";
+  const fraction = digits.slice(point).replace(/0+$/, "");
+  return sign + int + (fraction ? `.${fraction}` : "");
+}
+
+/** A multiplication or division by `scale` (1 or 100) done on the digits, never in floats. */
 function scaled(number: number, scale: number, direction: "up" | "down") {
   if (scale === 1) return number;
+  const places = Math.round(Math.log10(scale));
   return Number(
-    (direction === "up" ? number * scale : number / scale).toPrecision(12),
+    shiftDecimal(String(number), direction === "up" ? places : -places),
   );
 }
 
@@ -2301,9 +2331,12 @@ export function FieldCellEditor({
   const out: FieldValue = typedDate
     ? (typedDay ?? null)
     : cellNumber
-      ? typedNumber == null
-        ? null
-        : scaled(typedNumber, scale, "down")
+      ? // An untouched draft commits the value it was opened from, never a re-read of it.
+        !seed && draft === numberDraft(value, scale)
+        ? value
+        : typedNumber == null
+          ? null
+          : scaled(typedNumber, scale, "down")
       : cellText
         ? draft || null
         : draft;
