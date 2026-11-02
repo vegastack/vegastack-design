@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.29.1 sha256-JYLF6yayu4hxAPwT2zcyr++nV/l3b1JM0I2evfliSsI=
+// @vegastack data-grid@0.29.1 sha256-ZkYAVZJQhsN8RqssAhMdt6bapPJn7kQenBrtvkQ57hQ=
 
 "use client";
 
@@ -719,8 +719,11 @@ export interface DataGridProps<T> {
    * bottom of its nearest vertically scrolling ancestor (less anything the grid draws under it),
    * so its scroll bar rests at the bottom of the window even when the rows are few. It follows
    * the window, the scroller, and anything above the grid that comes, goes or resizes (a banner,
-   * a wrapped toolbar). At least 240px. A `maxHeight` of its own wins over it. Pair it with
-   * `AppShellBleed` for a grid that reaches the page's edges.
+   * a filter row, a wrapped toolbar). The docked selection bar never changes its height: its room
+   * is a band after the last row, inside the scroll. At least 240px: with less room than that the
+   * page scrolls to reach the grid (rows are windowed, so the grid cannot grow to its rows). A
+   * `maxHeight` of its own wins over it. Pair it with `AppShellBleed` for a grid that reaches the
+   * page's edges.
    * @default false
    */
   fill?: boolean;
@@ -1267,6 +1270,14 @@ const END_SPACER_PX = 180;
 const FILL_MIN_HEIGHT = 240;
 /** `fill`, before the grid is measured (a server render): a viewport that is never zero. */
 const FILL_FALLBACK_HEIGHT = "calc(100dvh - 16rem)";
+/**
+ * The room the docked selection bar takes at the bottom of the window: its 16px offset from the
+ * edge and its own height (about 42px), plus the safe area and whatever docks under it. A filling
+ * grid keeps it as a band inside its scroll viewport, never as height of its own, so selecting
+ * rows does not resize the viewport.
+ */
+const SELECTION_BAR_ROOM =
+  "calc(var(--spacing) * 15 + env(safe-area-inset-bottom) + var(--dock-inset-bottom, 0px))";
 
 /** The nearest ancestor that scrolls vertically (the page's main region), or `null`. */
 function scrollParent(node: HTMLElement): HTMLElement | null {
@@ -1306,15 +1317,16 @@ function useFillHeight(
     const observer = new ResizeObserver(measure);
     if (scroller) observer.observe(scroller);
     observer.observe(root);
-    // What sits above the grid, through the wrappers that draw no box of their own: its column
-    // grows or shrinks when a banner comes or goes.
-    let anchor: Element = root;
-    while (
-      anchor.parentElement &&
-      getComputedStyle(anchor.parentElement).display === "contents"
+    // What sits above the grid: a banner or a filter row that comes or goes moves the grid's top
+    // without resizing the grid or its own wrapper, but it resizes every ancestor that holds both
+    // (a wrapper that draws no box of its own reports nothing, harmlessly). So every ancestor up
+    // to the scroller is watched, not only the nearest.
+    for (
+      let ancestor = root.parentElement;
+      ancestor && ancestor !== scroller;
+      ancestor = ancestor.parentElement
     )
-      anchor = anchor.parentElement;
-    if (anchor.parentElement) observer.observe(anchor.parentElement);
+      observer.observe(ancestor);
     window.addEventListener("resize", measure);
     return () => {
       observer.disconnect();
@@ -3245,11 +3257,8 @@ export function DataGrid<T>({
 
   // `fill` is a `maxHeight` the grid measures; the host's own wins, and an embedded block sizes to
   // its rows.
-  const filledHeight = useFillHeight(
-    viewport,
-    root,
-    fill && !embedded && maxHeightProp == null,
-  );
+  const filling = fill && !embedded && maxHeightProp == null;
+  const filledHeight = useFillHeight(viewport, root, filling);
   const maxHeight = embedded
     ? undefined
     : (maxHeightProp ??
@@ -5310,6 +5319,19 @@ export function DataGrid<T>({
     </>
   );
 
+  // The docked selection bar floats over the window's bottom edge. A filling grid is exactly as
+  // tall as the room, so room for the bar cannot be height under the viewport (it would shrink
+  // the viewport and lift the table): it is a band after the last row, inside the scroll. Any other
+  // grid flows with the page and keeps `SelectionBarSpacer` in the flow.
+  // (Cards, on a phone, have no scroll viewport: they flow with the page, spacer and all.)
+  const bandInViewport = filling && !cardMode;
+  const selectionBarBand =
+    bandInViewport &&
+    selectable &&
+    selectionActions != null &&
+    selected.size > 0;
+  const endBand = endSpacerPx > 0 || selectionBarBand;
+
   const viewportProps = {
     ref: setViewport,
     "data-slot": "grid-viewport",
@@ -5320,7 +5342,7 @@ export function DataGrid<T>({
       maxHeight != null && "max-h-[calc(var(--data-grid-max-height))]",
       // Filling: as tall as the room, however few the rows.
       fill && maxHeight != null && "min-h-[calc(var(--data-grid-max-height))]",
-      endSpacerPx > 0 &&
+      endBand &&
         "after:block after:h-(--data-grid-end-spacer) after:content-['']",
     ),
     // Native focus scrolling keeps the focused cell clear of the sticky header, the summary row
@@ -5356,11 +5378,15 @@ export function DataGrid<T>({
         )}
         // Viewport height flows through a custom property (contract-clean).
         style={
-          maxHeight || endSpacerPx > 0
+          maxHeight || endBand
             ? ({
                 ["--data-grid-max-height"]: maxHeight,
-                ["--data-grid-end-spacer"]:
-                  endSpacerPx > 0 ? `${endSpacerPx}px` : undefined,
+                // The band after the last row: the host's `endSpacer`, or at least the bar's room.
+                ["--data-grid-end-spacer"]: selectionBarBand
+                  ? `max(${endSpacerPx}px, ${SELECTION_BAR_ROOM})`
+                  : endSpacerPx > 0
+                    ? `${endSpacerPx}px`
+                    : undefined,
               } as React.CSSProperties)
             : undefined
         }
@@ -5521,7 +5547,10 @@ export function DataGrid<T>({
             {footer}
           </div>
         ) : null}
-        {selectable && selectionActions && selected.size > 0 ? (
+        {selectable &&
+        selectionActions &&
+        selected.size > 0 &&
+        !bandInViewport ? (
           <SelectionBarSpacer slot="data-grid-selection-spacer" />
         ) : null}
         {selectable && selectionActions ? (

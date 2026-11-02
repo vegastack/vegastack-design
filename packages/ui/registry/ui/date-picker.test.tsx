@@ -151,6 +151,57 @@ test("selecting a day fires onValueChange, closes, and shows the formatted date"
   await expect.element(screen.getByText("Jun 21, 2026")).toBeInTheDocument();
 });
 
+test("onOpenChange reports the calendar opening and closing — a dismissal with no day, or a pick after its onValueChange; open controls it", async () => {
+  const order: string[] = [];
+  const onOpenChange = vi.fn((open: boolean) => order.push(`open:${open}`));
+  const onPick = vi.fn(() => order.push("pick"));
+  const screen = await render(
+    <DatePicker
+      value={JUNE_ANCHOR}
+      onValueChange={onPick}
+      onOpenChange={onOpenChange}
+    />,
+  );
+  await screen.getByRole("button", { name: /Jun 1, 2026/ }).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+  // Escape closes it with no day: only the open state moves.
+  await userEvent.keyboard("{Escape}");
+  await waitForClosed();
+  expect(order).toEqual(["open:true", "open:false"]);
+  expect(onPick).not.toHaveBeenCalled();
+
+  // A pick fires onValueChange first, then reports the close.
+  order.length = 0;
+  await screen.getByRole("button", { name: /Jun 1, 2026/ }).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+  await userEvent.click(dayButton(21));
+  await waitForClosed();
+  expect(order).toEqual(["open:true", "pick", "open:false"]);
+
+  // Controlled: `open` opens it with no press, and the host decides when it closes.
+  const closed = vi.fn();
+  await screen.rerender(
+    <DatePicker
+      key="controlled"
+      value={JUNE_ANCHOR}
+      open
+      onOpenChange={closed}
+    />,
+  );
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => closed.mock.calls.length).toBeGreaterThan(0);
+  expect(closed.mock.calls[0]![0]).toBe(false);
+  // The host did not close it, so it stays open.
+  expect(document.querySelector('[data-slot="calendar"]')).not.toBeNull();
+});
+
 test("uses Intl.DateTimeFormat for the trigger label", async () => {
   const screen = await render(
     <DatePicker value={new Date(2026, 5, 21)} locale="en-US" />,

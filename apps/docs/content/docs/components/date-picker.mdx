@@ -140,6 +140,26 @@ to the trigger.
   file="components/preview/date-picker.tsx"
 />
 
+### Knowing how it closed
+
+`onOpenChange(open, details)` reports the calendar opening and closing. A day chosen reports
+`onValueChange` first and the close after it, so a host can tell a choice from a dismissal — a press
+outside, <kbd>Esc</kbd> or the trigger pressed again close it with no day. `open` makes the open
+state the host's: set it to open the calendar from the first render, as an inline cell editor does
+(a programmatic trigger press there can be closed again by the click that opened the editor).
+
+```tsx
+<DatePicker
+  value={date}
+  onValueChange={setDate}
+  open={open}
+  onOpenChange={(next) => {
+    setOpen(next);
+    if (!next) onDismissOrPick();
+  }}
+/>
+```
+
 ### Inline in a row
 
 For a date inside a table row or a toolbar, `size="sm"` matches `Select size="sm"` and

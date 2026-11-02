@@ -2065,6 +2065,153 @@ test('FieldCellEditor variant="cell": a number is typed as written, steps by 1, 
   expect(stuck).not.toHaveBeenCalled();
 });
 
+test('FieldCellEditor variant="cell": currency and percent are Number\'s plain editor — no border, steppers or symbol; a percent is typed as points', async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="currency"
+      label="Price"
+      value={1250.5}
+      config={{ currency: "EUR" }}
+      variant="cell"
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  const field = screen.getByRole("textbox", { name: "Price" });
+  await expect.element(field).toHaveFocus();
+  // The value as it is (not "€1,250.50"), with no group box and no steppers around it.
+  expect((field.element() as HTMLInputElement).value).toBe("1250.5");
+  expect(
+    screen.container.querySelector(
+      '[data-slot="number-field"], [data-slot="input-group"], [data-slot^="number-field-"]',
+    ),
+  ).toBeNull();
+  await field.fill("99.5");
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenCalledWith(99.5, "down");
+
+  // A percent is stored as a fraction and typed as the points the cell shows.
+  const committed = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="percent"
+      type="percent"
+      label="Progress"
+      value={0.42}
+      variant="cell"
+      onCommit={committed}
+      onCancel={() => {}}
+    />,
+  );
+  const points = screen.getByRole("textbox", { name: "Progress" });
+  await expect.element(points).toHaveFocus();
+  expect((points.element() as HTMLInputElement).value).toBe("42");
+  await userEvent.keyboard("{ArrowUp}{Enter}");
+  expect(committed).toHaveBeenCalledWith(0.43, "down");
+
+  // An emptied one commits null; "-" is an unreadable draft: invalid, never committed.
+  const emptied = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="empty"
+      type="percent"
+      label="Progress"
+      value={0.5}
+      variant="cell"
+      onCommit={emptied}
+      onCancel={() => {}}
+    />,
+  );
+  await screen.getByRole("textbox", { name: "Progress" }).fill("");
+  await userEvent.keyboard("{Enter}");
+  expect(emptied).toHaveBeenCalledWith(null, "down");
+  const stuck = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="dash"
+      type="currency"
+      label="Price"
+      value={null}
+      seed="-"
+      variant="cell"
+      onCommit={stuck}
+      onCancel={() => {}}
+    />,
+  );
+  await userEvent.keyboard("{Enter}");
+  expect(stuck).not.toHaveBeenCalled();
+  expect(
+    screen.container
+      .querySelector('[aria-label="Price"]')
+      ?.getAttribute("aria-invalid"),
+  ).toBe("true");
+});
+
+test("FieldCellEditor: a date's calendar is open at once; closing it without a day cancels the edit, a day commits, the × clears", async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  const editor = (key: string) => (
+    <div>
+      <FieldCellEditor
+        key={key}
+        variant="cell"
+        type="date"
+        label="Due"
+        value="2026-10-24"
+        onCommit={onCommit}
+        onCancel={onCancel}
+      />
+    </div>
+  );
+  const calendarOpen = () => document.querySelector("[data-day]") !== null;
+  const screen = await render(editor("outside"));
+  await expect.poll(calendarOpen).toBe(true);
+  // A press outside the calendar, with no day chosen: the edit is cancelled (the host's floating
+  // editor and the page lock behind it go with it), and nothing is committed.
+  const pressOutside = () => {
+    for (const type of ["pointerdown", "mousedown", "mouseup", "click"])
+      document.body.dispatchEvent(
+        new (type.startsWith("pointer") ? PointerEvent : MouseEvent)(type, {
+          bubbles: true,
+        }),
+      );
+  };
+  pressOutside();
+  await expect.poll(() => onCancel.mock.calls.length).toBe(1);
+  expect(onCommit).not.toHaveBeenCalled();
+
+  // Escape in the open calendar cancels too.
+  await screen.rerender(editor("escape"));
+  await expect.poll(calendarOpen).toBe(true);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => onCancel.mock.calls.length).toBe(2);
+  expect(onCommit).not.toHaveBeenCalled();
+
+  // A day is the commit; the calendar closing after it is not a second, cancelling event.
+  await screen.rerender(editor("pick"));
+  await expect.poll(calendarOpen).toBe(true);
+  await screen.getByRole("button", { name: /October 25th, 2026/ }).click();
+  await expect.poll(() => onCommit.mock.calls.length).toBe(1);
+  expect(onCommit.mock.calls[0]![0]).toBe("2026-10-25");
+  expect(onCancel).toHaveBeenCalledTimes(2);
+
+  // The same day pressed again keeps it (Enter on the chosen day must not clear the cell).
+  await screen.rerender(editor("again"));
+  await expect.poll(calendarOpen).toBe(true);
+  await screen.getByRole("button", { name: /October 24th, 2026/ }).click();
+  await expect.poll(() => onCommit.mock.calls.length).toBe(2);
+  expect(onCommit.mock.calls[1]![0]).toBe("2026-10-24");
+
+  // The × beside the day clears: it is not a press outside.
+  await screen.rerender(editor("clear"));
+  await expect.poll(calendarOpen).toBe(true);
+  await screen.getByRole("button", { name: "Clear date" }).click();
+  await expect.poll(() => onCommit.mock.calls.length).toBe(3);
+  expect(onCommit.mock.calls[2]![0]).toBeNull();
+  expect(onCancel).toHaveBeenCalledTimes(2);
+});
+
 test("every field type has a label and an icon, and FieldTypeIcon draws it decoratively", async () => {
   const types = Object.keys(FIELD_TYPE_LABELS) as FieldType[];
   expect(types.length).toBe(22);

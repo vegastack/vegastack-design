@@ -3920,6 +3920,115 @@ test('editing="floating" keeps the cell\'s display and floats a custom editor ov
   await expect.poll(lock).toBeNull();
 });
 
+test("fill follows a banner or filter row that comes and goes above the grid, though no wrapper of the grid resizes", async () => {
+  const page = (shown: boolean) => (
+    <div
+      data-testid="scroller"
+      style={{ height: 600, overflowY: "auto", position: "relative" }}
+    >
+      {/* The page's column: its height is its children's. */}
+      <div>
+        {shown ? <div style={{ height: 60 }} /> : null}
+        {/* The grid's own wrapper is a flex column the same size either way. */}
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <DataGrid
+            aria-label="Deals"
+            columnPicker={false}
+            fill
+            columns={columns()}
+            data={DEALS}
+            getRowId={(d) => d.id}
+          />
+        </div>
+      </div>
+    </div>
+  );
+  const screen = await render(page(false));
+  const height = () =>
+    Number.parseInt(
+      (
+        screen.container.querySelector('[data-slot="data-grid"]') as HTMLElement
+      ).style.getPropertyValue("--data-grid-max-height"),
+      10,
+    );
+  await expect.poll(height).toBeGreaterThan(400);
+  const full = height();
+  // The row goes up: the viewport gives up its height at once...
+  await screen.rerender(page(true));
+  await expect.poll(height).toBe(full - 60);
+  // ...and takes it back when the row goes, its scroll bar returning to the bottom.
+  await screen.rerender(page(false));
+  await expect.poll(height).toBe(full);
+});
+
+test("selecting rows never resizes a filling grid: the bar's room is a band inside the scroll, not height under it", async () => {
+  const restore = injectGridMirror();
+  onTestFinished(restore);
+  function Selecting({ fill }: { fill: boolean }) {
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    return (
+      <div style={{ height: 600, overflowY: "auto", position: "relative" }}>
+        <DataGrid
+          aria-label="Deals"
+          columnPicker={false}
+          {...(fill ? { fill: true } : { maxHeight: "20rem" })}
+          columns={columns()}
+          data={DEALS}
+          getRowId={(d) => d.id}
+          getRowLabel={(d) => d.name}
+          selectable
+          selectedIds={selected}
+          onSelectionChange={setSelected}
+          selectionActions={() => <Button>Archive</Button>}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Selecting fill />);
+  const root = () =>
+    screen.container.querySelector('[data-slot="data-grid"]') as HTMLElement;
+  const var_ = (name: string) => root().style.getPropertyValue(name);
+  const viewport = () =>
+    screen.container.querySelector(
+      '[data-slot="grid-viewport"]',
+    ) as HTMLElement;
+  await expect
+    .poll(() => Number.parseInt(var_("--data-grid-max-height"), 10))
+    .toBeGreaterThan(400);
+  // The viewport's height is this property (the unstyled test page has no classes to apply it).
+  const before = var_("--data-grid-max-height");
+  expect(var_("--data-grid-end-spacer")).toBe("");
+  (
+    screen
+      .getByRole("checkbox", { name: "Select Globex" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByText("1 selected").first())
+    .toBeInTheDocument();
+  // The viewport keeps its height; the bar's room is the end band, and no spacer takes flow room.
+  expect(var_("--data-grid-max-height")).toBe(before);
+  expect(
+    document.querySelector('[data-slot="data-grid-selection-spacer"]'),
+  ).toBeNull();
+  expect(var_("--data-grid-end-spacer")).toContain("max(0px,");
+  expect(viewport().className).toContain("after:h-(--data-grid-end-spacer)");
+
+  // A grid that does not fill flows with the page: its spacer is the room.
+  await screen.rerender(<Selecting key="flow" fill={false} />);
+  (
+    screen
+      .getByRole("checkbox", { name: "Select Globex" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByText("1 selected").first())
+    .toBeInTheDocument();
+  expect(
+    document.querySelector('[data-slot="data-grid-selection-spacer"]'),
+  ).not.toBeNull();
+});
+
 test("POL-14: an empty primary value reads Untitled, muted; a card leaves out empty fields", async () => {
   const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 5 }];
   const grid = await render(

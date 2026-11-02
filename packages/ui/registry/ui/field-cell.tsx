@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.29.1 sha256-kKadZXGoCryEHvCnfBtNLGEIxydzQvK8H4A3xrQiLF4=
+// @vegastack field-cell@0.29.1 sha256-ybxi/7BUTuH4pxHZYhkQZAKFkZbC9vuryZUwrd0qVoQ=
 
 "use client";
 
@@ -1713,9 +1713,11 @@ export interface FieldCellEditorProps {
    * `cell` — the editor of a floating grid cell, which is the box itself: no border, fill or
    * shadow of its own (an invalid draft turns its text destructive, and a number's steppers go).
    * A `text` field is one wrapping box that grows to `max-h-60` then scrolls, its newlines typed
-   * or pasted becoming spaces. A `number` field is typed as written: the reader's decimal mark, no
-   * digit grouping, no steppers, ArrowUp and ArrowDown step by 1, and "-", "." and "1." are drafts
-   * on the way to a value (a draft that never becomes one cancels on blur). `long_text` edits in
+   * or pasted becoming spaces. A `number`, `currency` or `percent` field is typed as written: the
+   * reader's decimal mark, no digit grouping, no symbol, no border and no steppers, ArrowUp and
+   * ArrowDown step by 1, and "-", "." and "1." are drafts on the way to a value (a draft that never
+   * becomes one cancels on blur). A percent is typed as the points its cell shows ("42" for 42%)
+   * and committed as the fraction it is stored as (0.42). `long_text` edits in
    * place on the cell's own surface (no popover from it) and grows to 15rem before it scrolls. A
    * `person` is the chosen people as removable chips over the people list, which leaves them out.
    * A `date` and a date-time's date take the inline (`ghost`) date picker. Every other type is the
@@ -1765,6 +1767,9 @@ const SEARCHED_TYPES: ReadonlySet<FieldType> = new Set([
   "link",
 ]);
 
+/** How long after a date editor opens its trigger ignores a press (a double-click's second). */
+const DATE_SETTLE_MS = 350;
+
 /** Strips the box the DS draws around an input and a number field: the cell editor's host is it. */
 const CELL_BARE =
   "[&_[data-slot=input]]:border-0 [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:shadow-none dark:[&_[data-slot=input]]:bg-transparent " +
@@ -1781,10 +1786,29 @@ function decimalMark(): string {
   );
 }
 
-/** A number as its draft: the shortest text that reads back as it, in the reader's decimal mark. */
-function numberDraft(value: FieldValue): string {
+/**
+ * `scale` of a number-like type in its cell editor: a percent is stored as a fraction and typed as
+ * the points the cell shows (0.42 is "42"); a number and a currency are typed as they are.
+ */
+function cellScale(type: FieldType): number {
+  return type === "percent" ? 100 : 1;
+}
+
+/** A multiplication or division by `scale` without float noise (0.07 × 100 is 7, not 7.000…01). */
+function scaled(number: number, scale: number, direction: "up" | "down") {
+  if (scale === 1) return number;
+  return Number(
+    (direction === "up" ? number * scale : number / scale).toPrecision(12),
+  );
+}
+
+/**
+ * A number as its draft: the shortest text that reads back as it, in the reader's decimal mark,
+ * at the editor's `scale` (a percent is its points).
+ */
+function numberDraft(value: FieldValue, scale = 1): string {
   return typeof value === "number"
-    ? String(value).replace(".", decimalMark())
+    ? String(scaled(value, scale, "up")).replace(".", decimalMark())
     : "";
 }
 
@@ -2044,7 +2068,11 @@ export function FieldCellEditor({
   const cell = variant === "cell";
   // A cell's text and number are edited as text: a number's draft is what was typed.
   const cellText = cell && type === "text";
-  const cellNumber = cell && type === "number";
+  // ...a currency and a percent too: the same plain editor, the symbol and the grouping are the
+  // resting cell's. A percent is typed as points (42) and stored as the fraction (0.42).
+  const cellNumber =
+    cell && (type === "number" || type === "currency" || type === "percent");
+  const scale = cellScale(type);
   // A cell's long text edits where the floating editor is: its own surface, not a popover from it.
   const cellLong = cell && type === "long_text";
   // A cell's people are chips over the picker's list, searched at once.
@@ -2060,7 +2088,7 @@ export function FieldCellEditor({
       : seed && (typedDate || cellText || cellNumber)
         ? seed
         : cellNumber
-          ? numberDraft(value)
+          ? numberDraft(value, scale)
           : value,
   );
   const done = React.useRef(false);
@@ -2070,6 +2098,16 @@ export function FieldCellEditor({
   const creating = React.useRef<Promise<unknown> | null>(null);
   const choice = type === "single_choice" || type === "multi_choice";
   const multiChoice = type === "multi_choice";
+  // A date's calendar is open from the first render, like a choice's list: no trigger press, whose
+  // click (or the double-click's own second one) the just-opened calendar could take for a close.
+  const [calendarOpen, setCalendarOpen] = React.useState(true);
+  // The press that opened the editor may be the first half of a double-click: its second press
+  // lands on the date's trigger, under the pointer, and must not close the calendar it just opened
+  // (`FloatingCellEditor`'s lock layer holds off the same press for the same time).
+  const openedAt = React.useRef(0);
+  React.useEffect(() => {
+    openedAt.current = performance.now();
+  }, []);
   const root = React.useRef<HTMLSpanElement | null>(null);
   const longText = React.useRef<TextEditHandle | null>(null);
   const commit = (next: FieldValue, move?: EditableCellMove) => {
@@ -2094,6 +2132,8 @@ export function FieldCellEditor({
     // A choice's list is open from the first render, its search field focused: no trigger press,
     // whose click the just-opened list could take for a press outside it and close.
     if (type === "single_choice" || type === "multi_choice") return;
+    // A date's calendar is open from the first render and focuses its own day.
+    if (type === "date" && !typedDate) return;
     // A cell's long text and people edit in place and focus themselves.
     if (cellLong || cellPerson) return;
     // Long text edits in a popover outside the cell: its editor takes the caret, however the
@@ -2155,7 +2195,12 @@ export function FieldCellEditor({
     target?.focus();
     // A picker opened from the keyboard (Enter, F2) opens its list or calendar at once, as a
     // spreadsheet's does, so the next keys choose.
-    if (!seed && PICKER_TYPES.has(type) && target instanceof HTMLButtonElement)
+    if (
+      !seed &&
+      PICKER_TYPES.has(type) &&
+      type !== "date" &&
+      target instanceof HTMLButtonElement
+    )
       target.click();
     // Type-to-edit: the key that opened the editor replaces the value, caret after it. (A picker
     // took it as its search instead.)
@@ -2185,7 +2230,9 @@ export function FieldCellEditor({
   const out: FieldValue = typedDate
     ? (typedDay ?? null)
     : cellNumber
-      ? (typedNumber ?? null)
+      ? typedNumber == null
+        ? null
+        : scaled(typedNumber, scale, "down")
       : cellText
         ? draft || null
         : draft;
@@ -2315,6 +2362,18 @@ export function FieldCellEditor({
       onPointerDownCapture={() => {
         pickMove.current = undefined;
       }}
+      onClickCapture={(event) => {
+        if (
+          type === "date" &&
+          performance.now() - openedAt.current < DATE_SETTLE_MS &&
+          (event.target as Element).closest?.(
+            '[data-slot="date-picker-trigger"]',
+          )
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }}
       onKeyDown={(event) => {
         // A key the control inside already handled is its own.
         if (event.defaultPrevented) return;
@@ -2424,6 +2483,45 @@ export function FieldCellEditor({
           value={typeof draft === "string" ? draft : ""}
           className="h-7 w-full"
           onChange={(event) => setDraft(event.target.value)}
+        />
+      ) : type === "date" ? (
+        // A day is the commit, and moves on when Enter made it. A calendar closed with no day
+        // (a press outside, the trigger pressed again) is a dismissal: the edit is cancelled, so
+        // the host's floating editor and the page lock behind it go with it, like a closed list.
+        <DatePicker
+          aria-label={label}
+          aria-invalid={!valid || undefined}
+          size="sm"
+          variant={cell ? "ghost" : "outline"}
+          // Clearing is the × beside the day: pressing the chosen day again (Enter on it) keeps it.
+          clearable
+          calendarProps={{ required: true }}
+          className="w-full"
+          open={calendarOpen}
+          value={
+            typeof draft === "string" ? parseCalendarDay(draft) : undefined
+          }
+          onValueChange={(day) => {
+            const next = day ? toCalendarDay(day) : null;
+            setDraft(next);
+            commit(next, pickMove.current);
+          }}
+          onOpenChange={(open, details) => {
+            setCalendarOpen(open);
+            // The × beside the day closes the calendar as a press or focus outside it, then
+            // clears: that press is the clear, not a dismissal. (After a pick the edit is done:
+            // a no-op.)
+            const event = details?.event as Event | undefined;
+            const at =
+              event && "relatedTarget" in event
+                ? (event as FocusEvent).relatedTarget
+                : event?.target;
+            const onClear =
+              at instanceof Element &&
+              root.current?.contains(at) === true &&
+              !at.closest('[data-slot="date-picker-trigger"]');
+            if (!open && !onClear) cancel();
+          }}
         />
       ) : (
         <FieldInput
