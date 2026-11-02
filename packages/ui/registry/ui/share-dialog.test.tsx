@@ -668,3 +668,32 @@ test("share-dialog at 320 and 375px, published or not: nothing runs past the she
         screen.unmount();
       }
 });
+
+test("share-dialog messageMaxLength: the message stops at the limit and counts near it", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <ShareDialog
+      defaultOpen
+      levels={[{ value: "view", label: "Can view" }]}
+      people={[]}
+      canManage
+      search={() => Promise.resolve({ items: [] })}
+      defaultInvitees={[{ id: "u5", name: "Lena Ortiz" }]}
+      onInvite={() => {}}
+      messageMaxLength={10}
+    />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  const message = dialog.getByRole("textbox", { name: "Add a message" });
+  await expect.element(message).toHaveAttribute("maxlength", "10");
+  await userEvent.type(message, "Hello there, Lena");
+  await expect.element(message).toHaveValue("Hello ther");
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="share-invite-message-counter"]')
+          ?.textContent,
+    )
+    .toContain("10/10");
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});

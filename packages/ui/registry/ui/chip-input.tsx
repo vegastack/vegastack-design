@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.29.1 sha256-nFZZJJ+U5MQv6bAHDxE0P5i+Tm6CTZc4tNuwVPmiBBI=
+// @vegastack chip-input@0.29.1 sha256-TeOr9QyOdWxdiedv4DkHlQdxdKW2DW44MSxldBe1/Lk=
 
 "use client";
 
@@ -121,6 +121,19 @@ export interface ChipInputProps {
    */
   maxLabel?: (max: number) => string;
   /**
+   * The most characters one chip may hold, counted after `normalize` (`String.length`, as a
+   * server counts it). A longer entry is not added: a typed one stays in the input and a pasted one
+   * comes back into it, and the reason (`maxLengthLabel`) is announced and shown under the box.
+   * Checked when an entry commits, never while an IME is composing.
+   * @default undefined
+   */
+  maxLength?: number;
+  /**
+   * The copy announced and shown when an entry is refused for `maxLength` — the host's words.
+   * @default (maxLength) => `Up to ${maxLength} characters per entry`
+   */
+  maxLengthLabel?: (maxLength: number) => string;
+  /**
    * Disables the field and every chip's remove button.
    * @default false
    */
@@ -147,6 +160,8 @@ export interface ChipInputProps {
 
 const defaultNormalize = (raw: string) => raw.trim();
 const defaultMaxLabel = (max: number) => `Up to ${max} entries`;
+const defaultMaxLengthLabel = (maxLength: number) =>
+  `Up to ${maxLength} characters per entry`;
 const DEFAULT_SPLIT = /[,\n]/;
 
 /**
@@ -180,6 +195,8 @@ export function ChipInput({
   name,
   max,
   maxLabel = defaultMaxLabel,
+  maxLength,
+  maxLengthLabel = defaultMaxLengthLabel,
   disabled = false,
   className,
   ref,
@@ -228,17 +245,25 @@ export function ChipInput({
     [inputRef],
   );
 
-  /** Commit one or more raw entries (typed or pasted). */
+  /**
+   * Commit one or more raw entries (typed or pasted). Returns whether the input may clear, and
+   * the entries refused for `maxLength`, which go back into the input so nothing typed is lost.
+   */
   const addEntries = React.useCallback(
-    (raws: string[]) => {
+    (raws: string[]): { clear: boolean; tooLong: string[] } => {
       const next = [...chips];
       let added = 0;
       let invalid = 0;
       let duplicates = 0;
       let overMax = 0;
+      const tooLong: string[] = [];
       for (const raw of raws) {
         const chip = normalize(raw);
         if (chip.length === 0) continue;
+        if (maxLength !== undefined && chip.length > maxLength) {
+          tooLong.push(chip);
+          continue;
+        }
         if (!allowDuplicates && next.includes(chip)) {
           duplicates += 1;
           continue;
@@ -273,16 +298,21 @@ export function ChipInput({
             : `${duplicates} duplicates skipped`,
         );
       if (overMax > 0 && max !== undefined) parts.push(maxLabel(max));
+      if (tooLong.length > 0 && maxLength !== undefined)
+        parts.push(maxLengthLabel(maxLength));
       if (parts.length > 0) setAnnouncement(parts.join(" · "));
       // The visible line names only what didn't go as typed — never the plain "Added …".
       const refusals = parts.slice(added > 0 ? 1 : 0);
       setNotice(
         refusals.length > 0
-          ? { text: refusals.join(" · "), invalid: invalid > 0 }
+          ? {
+              text: refusals.join(" · "),
+              invalid: invalid > 0 || tooLong.length > 0,
+            }
           : null,
       );
       // A refused entry at the cap stays in the input, so nothing typed is lost.
-      return added > 0 || duplicates > 0;
+      return { clear: added > 0 || duplicates > 0, tooLong };
     },
     [
       chips,
@@ -290,6 +320,8 @@ export function ChipInput({
       allowDuplicates,
       max,
       maxLabel,
+      maxLength,
+      maxLengthLabel,
       isInvalidChip,
       commitValue,
       setAnnouncement,
@@ -310,7 +342,10 @@ export function ChipInput({
 
   const commitDraft = React.useCallback(() => {
     if (draft.trim().length === 0) return;
-    if (addEntries(draft.split(splitOn))) setDraft("");
+    const { clear, tooLong } = addEntries(draft.split(splitOn));
+    // An entry too long to add stays in the input to be shortened.
+    if (tooLong.length > 0) setDraft(tooLong.join(", "));
+    else if (clear) setDraft("");
   }, [draft, addEntries, splitOn]);
 
   return (
@@ -390,7 +425,12 @@ export function ChipInput({
             const parts = text.split(splitOn);
             if (parts.length < 2) return;
             event.preventDefault();
-            addEntries(parts);
+            const { tooLong } = addEntries(parts);
+            // A pasted entry too long to add lands in the input instead of being dropped.
+            if (tooLong.length > 0)
+              setDraft((current) =>
+                [current.trim(), ...tooLong].filter(Boolean).join(", "),
+              );
           }}
         />
         {/* DS-21: the form value — one hidden input per chip under `name`. */}

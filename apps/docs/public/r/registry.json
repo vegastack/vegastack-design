@@ -331,6 +331,7 @@
         "@vegastack/button",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/field",
         "@vegastack/file-viewer",
         "@vegastack/load-more",
         "@vegastack/markdown-view",
@@ -356,7 +357,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.29.1",
-        "integrity": "sha256-ydG47t9W9m00Z/hD273uAa2J1D7ZL9bO5H7hZHmGBWw="
+        "integrity": "sha256-8RXyImLxy3fFr/7g7KByuFaakYtPnu3CQviGu2SNC0E="
       }
     },
     {
@@ -1321,7 +1322,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.29.1",
-        "integrity": "sha256-nFZZJJ+U5MQv6bAHDxE0P5i+Tm6CTZc4tNuwVPmiBBI="
+        "integrity": "sha256-TeOr9QyOdWxdiedv4DkHlQdxdKW2DW44MSxldBe1/Lk="
       }
     },
     {
@@ -1712,7 +1713,7 @@
         "whenToUse": "A menu that carries an input, a setting switch, or opens where the pointer was (a column header's field menu).",
         "whenNotToUse": "A form of several fields (a Popover or a Dialog with Field).",
         "version": "0.29.1",
-        "integrity": "sha256-AA+Wjw/X0CAGQAShVefsmkljKVsm3gDH2gTMgGtm1dA="
+        "integrity": "sha256-Yjkh5Q18wEq36ULabfP5s4ikrahUoVvAQfGYRxaEw1o="
       }
     },
     {
@@ -2147,7 +2148,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.29.1",
-        "integrity": "sha256-6gMLZLw9JkBtd1t1hDpE1qjFuJUtGUVjBeY5TWVWdmA="
+        "integrity": "sha256-tIdDNfYDpN43e/19ZRYJrsGIevGX9mHOrawEbaYz0+k="
       }
     },
     {
@@ -3001,6 +3002,7 @@
         "@vegastack/date-picker",
         "@vegastack/date-time",
         "@vegastack/editable-cell",
+        "@vegastack/field",
         "@vegastack/file-kind",
         "@vegastack/inline-chip",
         "@vegastack/input",
@@ -3033,7 +3035,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.29.3",
-        "integrity": "sha256-xW9n9qvnBmXdR+IyaXZoHrCRWB9RHVF5FKkYJD0CLUc="
+        "integrity": "sha256-mglxq5k5+0h4aEAOdioxSy7c5chLKCeUfX4hqWYbpyA="
       }
     },
     {
@@ -17021,7 +17023,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.29.1",
-        "integrity": "sha256-gXhtDSGy1OV6maWgQITlW9aw3io6v7nWyEWPy7osz1Q="
+        "integrity": "sha256-LihPdGV2fv4BLdV8TYJEC61zLEYOuIN8OpbmTHTtpZo="
       }
     },
     {
@@ -18157,7 +18159,7 @@
         "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.29.1",
-        "integrity": "sha256-H3G0FKoCgx3MDWVhRt3QKqeqdCH6CTCdWNLc756RTVQ="
+        "integrity": "sha256-PIK1xsnf/YQzL3qCjVOaCCr8qFDYO0a77iAUkUt4YEw="
       }
     },
     {
@@ -20152,6 +20154,7 @@
         "@vegastack/checkbox",
         "@vegastack/collapsible",
         "@vegastack/copy-button",
+        "@vegastack/field",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
         "@vegastack/member-list",
@@ -20179,7 +20182,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members — MemberList.",
         "version": "0.29.1",
-        "integrity": "sha256-OxiH4Jo6RsEC1Tx/6oV7hcZnmuAEjXlY8OglHsIIHqc="
+        "integrity": "sha256-CDF+FKBojcsU2yqQ8U7Ka28FQE11Nh5p5xSLwHXi1zo="
       }
     },
     {
@@ -23233,6 +23236,7 @@
         "@vegastack/button",
         "@vegastack/collapsible",
         "@vegastack/dropdown-menu",
+        "@vegastack/field",
         "@vegastack/hover-card",
         "@vegastack/input-group",
         "@vegastack/person-avatar",
@@ -23256,7 +23260,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.29.1",
-        "integrity": "sha256-xhDUCnwArDaG8N2ByOkJ37P1QhEl2u8BWmX5oyPkPwQ="
+        "integrity": "sha256-l617uRzgjKoDmiJKhwhLlrhl9Qkz6Om6TqQJhcq8eLg="
       }
     },
     {

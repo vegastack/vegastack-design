@@ -32,6 +32,8 @@ box. The only thing this component adds to that chrome is a field that **wraps**
 it grows with its chips instead of holding one 32px line. The chips are real
 `Tag`s, 24px remove targets included.
 
+`maxLength` limits each chip, counted after `normalize`. A longer entry is not added: a typed one stays in the input and a pasted one comes back into it, with `maxLengthLabel` — the host's words — announced and shown under the box.
+
 ## Scope
 
 | Behaviour                  | Where it lives                                                   |

@@ -84,3 +84,28 @@ test("the skeleton is decorative and keeps the header's heights", async () => {
   expect(root.getAttribute("aria-hidden")).toBe("true");
   expect(root.querySelector(".h-7")).not.toBeNull();
 });
+
+test("titleMaxLength: the rename field stops at the limit and counts near it", async () => {
+  const onRename = vi.fn();
+  const screen = await render(
+    <RecordHeader
+      title="Old"
+      titleLabel="Task title"
+      titleMaxLength={10}
+      onRename={onRename}
+    />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: /Task title/ }));
+  const field = screen.getByRole("textbox", { name: "Task title" });
+  await expect.element(field).toHaveAttribute("maxlength", "10");
+  await userEvent.clear(field);
+  await userEvent.type(field, "abcdefghijkl");
+  await expect.element(field).toHaveValue("abcdefghij");
+  expect(
+    screen.container.querySelector('[data-slot="editable-cell-count"]')
+      ?.textContent,
+  ).toContain("10/10");
+  await expectNoA11yViolations(screen.container);
+  await userEvent.keyboard("{Enter}");
+  expect(onRename).toHaveBeenCalledWith("abcdefghij");
+});

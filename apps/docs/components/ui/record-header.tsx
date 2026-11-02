@@ -1,4 +1,4 @@
-// @vegastack record-header@0.29.1 sha256-H3G0FKoCgx3MDWVhRt3QKqeqdCH6CTCdWNLc756RTVQ=
+// @vegastack record-header@0.29.1 sha256-PIK1xsnf/YQzL3qCjVOaCCr8qFDYO0a77iAUkUt4YEw=
 
 "use client";
 
@@ -29,6 +29,14 @@ export interface RecordHeaderProps extends Omit<
    * @default undefined
    */
   onRename?: (next: string) => void | Promise<void>;
+  /**
+   * The most characters the title may hold while renamed (`String.length`, as a server counts it).
+   * Typing stops there, a paste keeps what fits and says so, and a quiet `n/max` count shows
+   * under the title from 90% of it. A save the host refuses rolls back with an error toast
+   * carrying the rejection's message.
+   * @default undefined
+   */
+  titleMaxLength?: number;
   /**
    * The title's accessible label while it is editable.
    * @default "Title"
@@ -119,6 +127,7 @@ export interface RecordHeaderProps extends Omit<
 export function RecordHeader({
   title,
   onRename,
+  titleMaxLength,
   titleLabel = "Title",
   placeholder = "Untitled",
   level = 1,
@@ -214,6 +223,7 @@ export function RecordHeader({
                 wrap
                 required
                 label={titleLabel}
+                editor={{ type: "text", maxLength: titleMaxLength }}
                 value={title}
                 onSave={onRename}
               />

@@ -1,4 +1,4 @@
-// @vegastack transcript@0.29.1 sha256-gXhtDSGy1OV6maWgQITlW9aw3io6v7nWyEWPy7osz1Q=
+// @vegastack transcript@0.29.1 sha256-LihPdGV2fv4BLdV8TYJEC61zLEYOuIN8OpbmTHTtpZo=
 
 "use client";
 
@@ -84,6 +84,13 @@ export interface TranscriptProps extends Omit<
    * @default undefined
    */
   onSpeakerRename?: (id: string, name: string) => void;
+  /**
+   * The most characters a speaker's name may hold while renamed (`String.length`, as a server
+   * counts it). Typing stops there, a paste keeps what fits and says so, and a quiet `n/max` count
+   * shows from 90% of it.
+   * @default undefined
+   */
+  speakerNameMaxLength?: number;
   /**
    * Rows mounted in the first paint; the rest mount in idle-time batches of the same size. The
    * current row and the current search match are always mounted.
@@ -376,6 +383,7 @@ interface TranscriptContextValue {
   speakers: string[];
   speakerDot: (id: string) => string;
   onSpeakerRename: ((id: string, name: string) => void) | null;
+  speakerNameMaxLength: number | undefined;
   /** Rows mounted so far. */
   renderedCount: number;
   /** Make sure segment `index` is mounted. */
@@ -487,6 +495,7 @@ function TranscriptReveal({
 export function Transcript({
   segments,
   onSpeakerRename,
+  speakerNameMaxLength,
   batchSize = 100,
   speakerName = identity,
   currentTime,
@@ -667,6 +676,7 @@ export function Transcript({
       speakers,
       speakerDot,
       onSpeakerRename: rename,
+      speakerNameMaxLength,
       renderedCount,
       ensureRendered,
       formatTime,
@@ -697,6 +707,7 @@ export function Transcript({
       speakers,
       speakerDot,
       rename,
+      speakerNameMaxLength,
       renderedCount,
       ensureRendered,
       formatTime,
@@ -785,6 +796,7 @@ interface RowProps {
   /** Renames this turn's speaker (every turn with the same id); `null` shows the name read-only. */
   onRename: ((id: string, name: string) => void) | null;
   speakerInputLabel: string;
+  speakerNameMaxLength: number | undefined;
 }
 
 const TranscriptRow = React.memo(function TranscriptRow({
@@ -801,6 +813,7 @@ const TranscriptRow = React.memo(function TranscriptRow({
   nowPlayingLabel,
   onRename,
   speakerInputLabel,
+  speakerNameMaxLength,
 }: RowProps) {
   const active = useIsActive(activeStore, segment.id);
   return (
@@ -848,6 +861,7 @@ const TranscriptRow = React.memo(function TranscriptRow({
                 required
                 saveErrorToast={false}
                 label={speakerInputLabel}
+                editor={{ type: "text", maxLength: speakerNameMaxLength }}
                 value={speaker}
                 onSave={(next) => {
                   const name = next.trim();
@@ -989,6 +1003,7 @@ export function TranscriptList({
     speakerName,
     speakerDot,
     onSpeakerRename,
+    speakerNameMaxLength,
     renderedCount,
     formatTime,
     seekLabel,
@@ -1025,6 +1040,7 @@ export function TranscriptList({
             nowPlayingLabel={nowPlayingLabel}
             onRename={onSpeakerRename}
             speakerInputLabel={speakerInputLabel}
+            speakerNameMaxLength={speakerNameMaxLength}
           />
         );
       }),
@@ -1043,6 +1059,7 @@ export function TranscriptList({
       nowPlayingLabel,
       onSpeakerRename,
       speakerInputLabel,
+      speakerNameMaxLength,
     ],
   );
 
@@ -1275,6 +1292,7 @@ function SpeakerChip({
   onRename,
   renameLabel,
   inputLabel,
+  maxLength,
 }: {
   id: string;
   name: string;
@@ -1282,6 +1300,7 @@ function SpeakerChip({
   onRename: ((id: string, name: string) => void) | null;
   renameLabel: (name: string) => string;
   inputLabel: string;
+  maxLength: number | undefined;
 }) {
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(name);
@@ -1306,6 +1325,7 @@ function SpeakerChip({
         <Input
           autoFocus
           aria-label={inputLabel}
+          maxLength={maxLength}
           value={draft}
           onChange={(event) => setDraft(event.currentTarget.value)}
           onFocus={(event) => event.currentTarget.select()}
@@ -1381,8 +1401,13 @@ export function TranscriptSpeakers({
   inputLabel = "Speaker name",
   className,
 }: TranscriptSpeakersProps) {
-  const { speakers, speakerName, speakerDot, onSpeakerRename } =
-    useTranscript("TranscriptSpeakers");
+  const {
+    speakers,
+    speakerName,
+    speakerDot,
+    onSpeakerRename,
+    speakerNameMaxLength,
+  } = useTranscript("TranscriptSpeakers");
   if (speakers.length === 0) return null;
   return (
     <div
@@ -1400,6 +1425,7 @@ export function TranscriptSpeakers({
           onRename={onSpeakerRename}
           renameLabel={renameLabel}
           inputLabel={inputLabel}
+          maxLength={speakerNameMaxLength}
         />
       ))}
     </div>

@@ -677,3 +677,28 @@ test("section: collapsing keeps a reply draft", async () => {
     .element(screen.getByRole("textbox", { name: "Reply to Claude Code…" }))
     .toHaveValue("Half a thought");
 });
+
+test("instructionsMaxLength and replyMaxLength: both boxes stop at the limit and count near it", async () => {
+  const screen = await render(
+    <AgentPanel
+      {...base}
+      instructions="Draft."
+      onInstructionsChange={() => {}}
+      instructionsMaxLength={8}
+      onReply={() => {}}
+      replyMaxLength={4}
+    />,
+  );
+  const reply = screen.getByRole("textbox", { name: /Reply to/ });
+  await expect.element(reply).toHaveAttribute("maxlength", "4");
+  await userEvent.type(reply, "hello");
+  await expect.element(reply).toHaveValue("hell");
+  expect(
+    slot(screen.container, "agent-panel-reply-counter")?.textContent,
+  ).toContain("4/4");
+
+  await screen.getByRole("button", { name: "Edit instructions" }).click();
+  const box = screen.getByRole("textbox", { name: "Instructions" });
+  await expect.element(box).toHaveAttribute("maxlength", "8");
+  await expectNoA11yViolations(screen.container);
+});

@@ -51,7 +51,7 @@ test("with AI: the first item sends the text; success closes, a failure keeps th
   const onSubmit = vi
     .fn()
     .mockResolvedValueOnce({ added: 2, unmatched: [] })
-    .mockRejectedValueOnce(new Error("cap"));
+    .mockRejectedValueOnce(new Error());
   const screen = await render(
     <AddFilterMenu fields={FIELDS} ai={{ onSubmit }} />,
   );
@@ -185,4 +185,39 @@ test("ai.onApplied fires after a run that added filters, once the popover has cl
     { added: 2, unmatched: ["warehouse"] },
     "high priority warehouse",
   );
+});
+
+test("ai.maxLength caps the input; a thrown error's message and a returned error show, never swallowed", async () => {
+  const onSubmit = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("AI filters are over today's limit."))
+    .mockResolvedValueOnce({
+      added: 0,
+      error: "Request can be up to 12 characters.",
+    });
+  const screen = await render(
+    <AddFilterMenu fields={FIELDS} ai={{ onSubmit, maxLength: 12 }} />,
+  );
+  await screen.getByRole("button", { name: "Filter" }).click();
+  const input = screen.getByRole("combobox", { name: "Filter" });
+  await expect.element(input).toHaveAttribute("maxlength", "12");
+  await userEvent.type(input, "high priority due friday");
+  await expect.element(input).toHaveValue("high priorit");
+  await userEvent.keyboard("{Enter}");
+  const message = () =>
+    document.querySelector('[data-slot="add-filter-menu-message"]');
+  await expect
+    .poll(() => message()?.textContent)
+    .toBe("AI filters are over today's limit.");
+  expect(message()?.getAttribute("data-state")).toBe("error");
+  await expect
+    .element(input)
+    .toHaveAttribute("aria-describedby", message()!.id);
+  await expectNoA11yViolations(
+    document.querySelector('[data-slot="add-filter-menu-content"]')!,
+  );
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .poll(() => message()?.textContent)
+    .toBe("Request can be up to 12 characters.");
 });

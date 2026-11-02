@@ -59,6 +59,8 @@ Each state reads the props it needs: `queued` (`queuedHint` once it has waited a
 whose agent was disconnected since takes `disconnected` and adds a muted note — it never turns back
 into Needs you.
 
+`instructionsMaxLength` and `replyMaxLength` limit the instructions editor and the reply box: each stops there and counts from 80% of the limit.
+
 ## Scope
 
 Placement follows one rule: **the rail card on a record page** (`variant="card"`, directly under

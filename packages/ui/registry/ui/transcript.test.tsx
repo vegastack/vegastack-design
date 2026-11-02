@@ -597,3 +597,17 @@ test("2,000 segments: a currentTime update costs under 16 ms", async () => {
   const median = samples[Math.floor(samples.length / 2)]!;
   expect(median, `median ${median.toFixed(2)} ms`).toBeLessThan(16);
 });
+
+test("speakerNameMaxLength: a speaker's rename field stops at the limit", async () => {
+  const onSpeakerRename = vi.fn();
+  const screen = await render(
+    <Harness onSpeakerRename={onSpeakerRename} speakerNameMaxLength={5} />,
+  );
+  const names = screen.getByRole("button", { name: /Speaker name/ });
+  await userEvent.click(names.first());
+  const field = screen.getByRole("textbox", { name: "Speaker name" });
+  await expect.element(field).toHaveAttribute("maxlength", "5");
+  await userEvent.clear(field);
+  await userEvent.type(field, "Anastasia{Enter}");
+  expect(onSpeakerRename).toHaveBeenCalledWith("ana", "Anast");
+});

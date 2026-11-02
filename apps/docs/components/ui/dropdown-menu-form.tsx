@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu-form@0.29.1 sha256-AA+Wjw/X0CAGQAShVefsmkljKVsm3gDH2gTMgGtm1dA=
+// @vegastack dropdown-menu-form@0.29.1 sha256-Yjkh5Q18wEq36ULabfP5s4ikrahUoVvAQfGYRxaEw1o=
 
 "use client";
 
@@ -60,29 +60,59 @@ export interface DropdownMenuInputProps extends React.ComponentProps<
    * @default false
    */
   passArrows?: boolean;
+  /**
+   * Why the value was refused (an autosave the host turned down — a name too long or taken), in
+   * the host's words: shown under the field, which turns `aria-invalid` and is described by it.
+   * Clear it when the value changes or saves.
+   * @default undefined
+   */
+  error?: React.ReactNode;
 }
 
 /**
  * `DropdownMenuInput` — an `Input` for use inside a menu: its keys stay its own (typing,
  * arrows, Home and End), apart from Escape and Tab, and with `passArrows` the vertical arrows.
+ * An `error` shows under it.
  *
  * @example
- * <DropdownMenuInput passArrows aria-label="Name" value={name} onChange={(e) => setName(e.target.value)} />
+ * <DropdownMenuInput passArrows aria-label="Name" value={name} onChange={(e) => setName(e.target.value)} error={nameError} />
  */
 export function DropdownMenuInput({
   passArrows = false,
   onKeyDown,
+  error,
   ...props
 }: DropdownMenuInputProps) {
+  const errorId = React.useId();
+  const hasError = error != null && error !== false && error !== "";
+  const describedBy =
+    [props["aria-describedby"], hasError ? errorId : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
+  // A fragment, so the error coming and going never remounts the field (focus and caret stay).
   return (
-    <Input
-      data-slot="dropdown-menu-input"
-      onKeyDown={(event) => {
-        stopMenuTyping(event, passArrows);
-        onKeyDown?.(event);
-      }}
-      {...props}
-    />
+    <>
+      <Input
+        data-slot="dropdown-menu-input"
+        onKeyDown={(event) => {
+          stopMenuTyping(event, passArrows);
+          onKeyDown?.(event);
+        }}
+        {...props}
+        aria-invalid={hasError ? true : props["aria-invalid"]}
+        aria-describedby={describedBy}
+      />
+      {hasError ? (
+        <p
+          id={errorId}
+          role="alert"
+          data-slot="dropdown-menu-input-error"
+          className="px-1.5 pt-1 text-xs text-destructive-text"
+        >
+          {error}
+        </p>
+      ) : null}
+    </>
   );
 }
 

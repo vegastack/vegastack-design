@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.29.1 sha256-6gMLZLw9JkBtd1t1hDpE1qjFuJUtGUVjBeY5TWVWdmA=
+// @vegastack add-filter-menu@0.29.1 sha256-tIdDNfYDpN43e/19ZRYJrsGIevGX9mHOrawEbaYz0+k=
 
 "use client";
 
@@ -65,12 +65,28 @@ export interface AiFilterResult {
    * @default []
    */
   unmatched?: readonly string[];
+  /**
+   * The request was refused (over a limit, the AI unavailable): this message shows under the
+   * input, as a thrown error's does, and the fields stay usable.
+   * @default undefined
+   */
+  error?: string | null;
 }
 
 /** The page's AI filter. Absent: no ✦ anywhere. */
 export interface AddFilterAi {
-  /** Turn the request into filters. Reject (or throw) when the AI is unavailable or over its limit. */
+  /**
+   * Turn the request into filters. Reject (or throw) when the AI is unavailable or over its limit:
+   * the thrown `Error`'s message shows under the input (`labels.unavailable` when it has none), or
+   * resolve with `error` set to show that instead.
+   */
   onSubmit: (text: string) => Promise<AiFilterResult> | AiFilterResult;
+  /**
+   * The most characters a request may hold (`String.length`, as a server counts it): the input
+   * stops there, and a paste keeps what fits.
+   * @default undefined
+   */
+  maxLength?: number;
   /**
    * After a run that added filters, once the popover has closed: say what it did (a toast with
    * Undo — `useAiFilterApplied`).
@@ -220,8 +236,12 @@ export function AddFilterMenu({
   const [page, setPage] = React.useState<string | null>(null);
   const [active, setActive] = React.useState(0);
   const [pending, setPending] = React.useState(false);
-  const [message, setMessage] = React.useState<string | null>(null);
+  const [message, setMessage] = React.useState<{
+    text: string;
+    error: boolean;
+  } | null>(null);
   const listId = React.useId();
+  const messageId = React.useId();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   // Every opening starts fresh, focus in the input.
@@ -287,21 +307,33 @@ export function AddFilterMenu({
     setMessage(null);
     try {
       const result = await ai.onSubmit(request);
+      if (result.error) {
+        setMessage({ text: result.error, error: true });
+        return;
+      }
       if (result.added > 0) {
         done();
         ai.onApplied?.(result, request);
         return;
       }
-      setMessage(
-        [
+      setMessage({
+        text: [
           labels.nothingAdded,
           result.unmatched?.length ? labels.unmatched(result.unmatched) : null,
         ]
           .filter(Boolean)
           .join(" "),
-      );
-    } catch {
-      setMessage(labels.unavailable);
+        error: false,
+      });
+    } catch (error) {
+      // The host's words when it threw some; never swallowed.
+      setMessage({
+        text:
+          error instanceof Error && error.message
+            ? error.message
+            : labels.unavailable,
+        error: true,
+      });
     } finally {
       setPending(false);
     }
@@ -377,6 +409,8 @@ export function AddFilterMenu({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.currentTarget.value)}
+            maxLength={ai?.maxLength}
+            aria-describedby={message != null ? messageId : undefined}
             placeholder={labels.placeholder}
             aria-label={labels.filter}
             role="combobox"
@@ -410,11 +444,16 @@ export function AddFilterMenu({
         </InputGroup>
         {message != null ? (
           <p
+            id={messageId}
             role="status"
             data-slot="add-filter-menu-message"
-            className="px-1.5 py-1 text-sm text-muted-foreground"
+            data-state={message.error ? "error" : undefined}
+            className={cn(
+              "px-1.5 py-1 text-sm",
+              message.error ? "text-destructive-text" : "text-muted-foreground",
+            )}
           >
-            {message}
+            {message.text}
           </p>
         ) : null}
         <div
