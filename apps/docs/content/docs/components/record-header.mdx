@@ -36,8 +36,8 @@ Pass `titleMaxLength` (with `titleMaxLengthMessage`) with the limit the server h
 ## Scope
 
 One anatomy for every record kind and both places a record opens. An eyebrow line holds where the
-record lives and its key, with presence and the actions at its end; then the icon and the title —
-renamed in place with `onRename` — with the status beside it; then the meta line and the chip
+record lives and its key, with presence and the actions at its end; then a `leading` control, the
+icon and the title — renamed in place with `onRename` — with the status beside it; then the meta line and the chip
 row. Every slot but the title is optional and leaves no gap when empty. On a full page the
 breadcrumb and the actions usually live in the top bar (`AppShellHeaderActions`); inside a
 `RecordPeek` they belong here, with `level={2}`.
@@ -61,6 +61,17 @@ breadcrumb and the actions usually live in the top bar (`AppShellHeaderActions`)
 
 <ComponentPreview
   name="recordHeaderPeek"
+  file="components/preview/record-header.tsx"
+/>
+
+### A control before the title
+
+`leading` holds a control that leads the title, such as a status circle that opens a menu. Unlike
+`icon` it is not decorative: it stays in the accessibility tree, comes before the title in focus
+order and is centred on the title's first line.
+
+<ComponentPreview
+  name="recordHeaderLeading"
   file="components/preview/record-header.tsx"
 />
 
@@ -92,7 +103,9 @@ breadcrumb and the actions usually live in the top bar (`AppShellHeaderActions`)
 - The title is the record's one heading (`h1` on its page, `h2` in a peek). Renamed in place it
   is an `EditableCell` labelled by `titleLabel`: Enter or blur saves, Esc reverts, a failed save
   rolls back and is announced.
-- The key chip, status and meta are text; icons beside them are decorative.
+- The key chip, status and meta are text; icons beside them are decorative (`icon` is
+  `aria-hidden`). A control before the title goes in `leading`, which is not hidden and comes
+  before the title in focus order.
 
 <StatesTested name="record-header" />
 

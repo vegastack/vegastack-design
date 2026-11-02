@@ -4,6 +4,8 @@ import { useState, type ReactNode } from "react";
 import {
   Bell,
   Calendar,
+  Circle,
+  CircleCheck,
   Clock,
   Ellipsis,
   FileText,
@@ -69,6 +71,31 @@ export function recordHeaderPeek(): ReactNode {
       <RecordHeader
         level={2}
         keyBadge="TASK-12"
+        title="Draft the Q4 pricing note"
+      />
+    </Wrapper>
+  );
+}
+
+/** A status circle before the title: a live control, first in focus order. */
+export function recordHeaderLeading(): ReactNode {
+  const [done, setDone] = useState(false);
+  return (
+    <Wrapper className="block max-w-md">
+      <RecordHeader
+        level={2}
+        keyBadge="TASK-12"
+        leading={
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="rounded-full"
+            aria-label={done ? "Status: Done" : "Status: Todo"}
+            onClick={() => setDone((d) => !d)}
+          >
+            {done ? <CircleCheck /> : <Circle />}
+          </Button>
+        }
         title="Draft the Q4 pricing note"
       />
     </Wrapper>

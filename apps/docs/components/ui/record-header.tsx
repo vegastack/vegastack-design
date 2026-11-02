@@ -1,4 +1,4 @@
-// @vegastack record-header@0.31.0 sha256-kcUw07H3fEP2SgsBAOy7qmy4lufowo7o6HapN85m5jg=
+// @vegastack record-header@0.31.0 sha256-16oNgKpck4TEkZCmNCYohcb70G5fM2uM0NvU5yN7Arg=
 
 "use client";
 
@@ -65,6 +65,13 @@ export interface RecordHeaderProps extends Omit<
    */
   icon?: React.ReactNode;
   /**
+   * A control before the title (a status circle that opens a menu): not decorative like `icon`,
+   * so it stays in the accessibility tree and comes before the title in focus order. Centred on
+   * the title's first line.
+   * @default undefined
+   */
+  leading?: React.ReactNode;
+  /**
    * The record's key or reference ("TASK-42", "SR-12") — a string is a small outline chip; pass a
    * node for a copy-on-click chip.
    * @default undefined
@@ -108,8 +115,8 @@ export interface RecordHeaderProps extends Omit<
 /**
  * `RecordHeader` — the head of a record, one anatomy for every kind and both places a record
  * opens: its full page and `RecordPeek`. An eyebrow line holds where it lives and its key
- * (`eyebrow`, `keyBadge`) with `presence` and `actions` at the end; then the `icon` and the
- * `title` — renamed in place with `onRename` (an `EditableCell` heading) — with its `status`
+ * (`eyebrow`, `keyBadge`) with `presence` and `actions` at the end; then a `leading` control,
+ * the `icon` and the `title` — renamed in place with `onRename` (an `EditableCell` heading) — with its `status`
  * beside it; then the `meta` line and the `chips` row. Every slot is optional except the title,
  * and a slot left empty leaves no gap.
  *
@@ -140,6 +147,7 @@ export function RecordHeader({
   placeholder = "Untitled",
   level = 1,
   icon,
+  leading,
   keyBadge,
   eyebrow,
   status,
@@ -206,6 +214,17 @@ export function RecordHeader({
         className="flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1"
       >
         <div className="flex min-w-0 flex-1 basis-48 items-start gap-2">
+          {leading ? (
+            <div
+              data-slot="record-header-leading"
+              className={cn(
+                "flex shrink-0 items-center",
+                level === 1 ? "h-8" : "h-7",
+              )}
+            >
+              {leading}
+            </div>
+          ) : null}
           {icon ? (
             <span
               data-slot="record-header-icon"

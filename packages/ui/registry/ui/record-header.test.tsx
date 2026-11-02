@@ -44,6 +44,34 @@ test("renders every slot in its place, the title as the level-1 heading", async 
   await expectNoA11yViolations(screen.container);
 });
 
+test("leading is a live control before the title, in focus order", async () => {
+  const screen = await render(
+    <RecordHeader
+      level={2}
+      leading={
+        <button type="button" aria-label="Status: Todo">
+          ○
+        </button>
+      }
+      title="Draft the pricing note"
+      onRename={() => {}}
+      titleLabel="Task title"
+    />,
+  );
+  const leading = slot(screen.container, "record-header-leading")!;
+  expect(leading.closest("[aria-hidden]")).toBeNull();
+  expect(leading.classList.contains("h-7")).toBe(true);
+  const title = slot(screen.container, "record-header-title")!;
+  expect(
+    leading.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  await userEvent.tab();
+  await expect
+    .element(screen.getByRole("button", { name: "Status: Todo" }))
+    .toHaveFocus();
+  await expectNoA11yViolations(screen.container);
+});
+
 test("level 2 is an h2, and empty slots leave nothing behind", async () => {
   const screen = await render(<RecordHeader level={2} title="Row 4" />);
   await expect
