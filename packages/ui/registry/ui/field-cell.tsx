@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.29.3 sha256-EjdzsvPZKc2+rHGA0LnH4gTqu5tSTu8GoViPbgztwhs=
+// @vegastack field-cell@0.29.3 sha256-zDv8bjkSwqukwAVCLf38RAQ5LXB9iUBncXkXg3zObZI=
 
 "use client";
 
@@ -945,7 +945,6 @@ export function FieldCellDisplay({
   }
 }
 
-/** Props accepted by `FieldInput`. */
 /** A long text over `config.maxLength`: the message it shows (and refuses to commit), else `null`. */
 function longTextOver(text: string, config: FieldConfig): string | null {
   const max = config.maxLength;
@@ -984,6 +983,7 @@ function LongTextLimit({
   );
 }
 
+/** Props accepted by `FieldInput`. */
 export interface FieldInputProps {
   /** The field's type. */
   type: FieldType;
