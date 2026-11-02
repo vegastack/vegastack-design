@@ -1,4 +1,4 @@
-// @vegastack inbox@0.29.1 sha256-gT3IZUS1frXa97PzRI7WUpRzzhZos5j/5X2Zma+C64Q=
+// @vegastack inbox@0.29.1 sha256-wYELo0zRK2pON77y2UilV2yULW8Qc05unvF/FW64Ytw=
 
 "use client";
 
@@ -676,8 +676,8 @@ function InboxEventLine({
     <a
       href={event.href}
       data-slot="inbox-item-event-link"
-      // 24px tall however short the line (the target floor), without moving the lines around it.
-      className="relative z-10 -my-0.5 min-w-0 py-0.5 hover:text-foreground hover:underline"
+      // 24px tall however short the line (the target floor); each line is one 24px row.
+      className="relative z-10 flex min-h-6 min-w-0 items-center hover:text-foreground hover:underline"
       onClick={(e) => {
         e.stopPropagation();
         if (
@@ -1147,12 +1147,12 @@ export function InboxItem({
             id={eventsId}
             data-slot="inbox-item-events"
             hidden={!expanded}
-            className="mt-1 flex flex-col gap-1 border-s border-border ps-3"
+            className="mt-1 flex flex-col gap-0.5 border-s border-border ps-3"
           >
             {events!.map((event, i) => (
               <li
                 key={event.id ?? i}
-                className="flex min-w-0 items-start gap-1.5 text-xs leading-5 text-muted-foreground"
+                className="flex min-h-6 min-w-0 items-center gap-1.5 text-xs leading-5 text-muted-foreground"
               >
                 {event.actor ? (
                   <PersonAvatar
