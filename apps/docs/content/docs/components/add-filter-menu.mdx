@@ -65,6 +65,8 @@ drilled into inside the same popover, which widens for it (576px) — never a di
 that added filters, the popover closes and `ai.onApplied(result, text)` fires: toast it with
 `useAiFilterApplied` (Undo). On a phone the popover is a bottom sheet with the input at its top.
 
+`ai.maxLength` limits a request without cutting it: past it the AI item waits and `ai.maxLengthMessage` shows under the input. When `ai.onSubmit` throws, the thrown `Error`'s message shows (`labels.unavailable` when it has none); resolve with `error` to show the host's own words instead.
+
 ## Anatomy
 
 <Anatomy name="add-filter-menu" />

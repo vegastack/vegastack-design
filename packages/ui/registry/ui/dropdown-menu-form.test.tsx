@@ -140,3 +140,37 @@ test("DropdownMenuIdentity and DropdownMenuNote: a header with name and line, a 
   ).not.toBeNull();
   await expectNoA11yViolations(document.body);
 });
+
+test("DropdownMenuInput error: shown under the field, which turns invalid and is described by it, without losing focus", async () => {
+  function Host() {
+    const [error, setError] = React.useState<string | null>(null);
+    return (
+      <DropdownMenuInput
+        aria-label="Field name"
+        error={error}
+        onChange={(event) =>
+          setError(
+            event.target.value.length > 3
+              ? "Name can be up to 3 characters."
+              : null,
+          )
+        }
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  const field = screen.getByRole("textbox", { name: "Field name" });
+  await field.click();
+  await expect.element(field).not.toHaveAttribute("aria-invalid");
+  await userEvent.keyboard("abcd");
+  await expect
+    .element(screen.getByText("Name can be up to 3 characters."))
+    .toBeVisible();
+  await expect.element(field).toHaveAttribute("aria-invalid", "true");
+  await expect.element(field).toHaveFocus();
+  const error = screen.container.querySelector(
+    '[data-slot="dropdown-menu-input-error"]',
+  )!;
+  await expect.element(field).toHaveAttribute("aria-describedby", error.id);
+  await expectNoA11yViolations(screen.container);
+});

@@ -45,6 +45,8 @@ Long transcripts mount progressively: the first `batchSize` turns (100) at once 
 idle-time batches, with the current line and the current search match always mounted before
 anything scrolls to them.
 
+Pass `speakerNameMaxLength` (with `speakerNameMaxLengthMessage`) with the limit the server holds a speaker's name to: nothing is cut, a count shows from 90% of it, and past it the name says why and doesn't save until shorter.
+
 ## Scope
 
 - **Owns:** the current line, following it, pausing on a user scroll, seek buttons, search with

@@ -1,4 +1,4 @@
-// @vegastack comments@0.29.1 sha256-ydG47t9W9m00Z/hD273uAa2J1D7ZL9bO5H7hZHmGBWw=
+// @vegastack comments@0.29.1 sha256-GJ/iliDYaSQd8EmFiaQ+WXzrvfRaUfxC2mYFL8bhucM=
 
 "use client";
 
@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import { FieldCounter } from "@/components/ui/field";
 import { Attachment } from "@/components/ui/attachment";
 import { LoadMore } from "@/components/ui/load-more";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
@@ -141,6 +142,32 @@ function errorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
+/** What a box says while its text is over `maxLength`, when the host gave no words of its own. */
+const defaultMaxLengthMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
+
+/**
+ * What a box's limit counts: the text as it posts, trimmed as a server trims it before its
+ * `String.length` check.
+ */
+const countedText = (text: string) => postable(text).trim();
+
+/**
+ * The text over `maxLength`: the box is invalid with the host's message and refuses to send.
+ * Typing, pasting and an IME composing are never cut; the limit holds at the send. `null` while
+ * within it — compare with `null`, never on the message's truthiness.
+ */
+function overLimitMessage(
+  text: string,
+  maxLength: number | undefined,
+  message: ((excess: number) => string) | undefined,
+): string | null {
+  if (maxLength === undefined) return null;
+  const excess = countedText(text).length - maxLength;
+  if (excess <= 0) return null;
+  return message?.(excess) || defaultMaxLengthMessage(excess);
+}
+
 /**
  * The body as it posts: a trailing lone "@" — a mention started and then left (Escape closes its
  * menu and keeps the "@") — is dropped with the space before it.
@@ -233,6 +260,19 @@ export interface CommentItemProps {
    * edit. @default undefined
    */
   onEditValueChange?: (commentId: string, value: string | null) => void;
+  /**
+   * The most characters an edit may hold, counted as it saves (`String.length`, as a server
+   * counts it). A `n/max` count shows under the edit box from 80% of it; past it the box is
+   * invalid with `maxLengthMessage` and Save is refused. Typing and pasting are never cut.
+   * @default undefined
+   */
+  maxLength?: number;
+  /**
+   * What the edit box says while its text is over `maxLength`, given how many characters are over
+   * — the host's words ("Comment can be up to 10,000 characters. Remove 400 to save.").
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  maxLengthMessage?: (excess: number) => string;
   /** Replies, under the comment (one level of `CommentItem`s, each split by a hairline). @default undefined */
   replies?: React.ReactNode;
   /** Pin the relative time's clock (docs, tests). @default undefined */
@@ -283,6 +323,8 @@ export function CommentItem({
   onEditingChange,
   editDefaultValue,
   onEditValueChange,
+  maxLength,
+  maxLengthMessage,
   replies,
   now,
   attachments,
@@ -338,10 +380,16 @@ export function CommentItem({
     : undefined;
   const canReact = !!toggleReaction && !comment.deleted && !editing;
   const unchanged = postable(draft).trim() === comment.body.trim();
+  const overLimit = editing
+    ? overLimitMessage(draft, maxLength, maxLengthMessage)
+    : null;
+  const shownError = error ?? overLimit;
+  const errorId = React.useId();
 
   const save = async (value: string) => {
     const body = postable(value);
     if (!onEdit || !canEditThis || !body.trim() || saving) return;
+    if (overLimitMessage(value, maxLength, maxLengthMessage) !== null) return;
     if (body.trim() === comment.body.trim()) return cancel();
     setSaving(true);
     setError(null);
@@ -507,7 +555,11 @@ export function CommentItem({
                       className={TOUCH_TARGET}
                       aria-label="Save"
                       loading={saving}
-                      disabled={!postable(draft).trim() || unchanged}
+                      disabled={
+                        !postable(draft).trim() ||
+                        unchanged ||
+                        overLimit !== null
+                      }
                       onClick={() => void save(draft)}
                     />
                   }
@@ -660,7 +712,10 @@ export function CommentItem({
               onSubmit={(value) => void save(value)}
               onRevert={cancel}
               sending={saving}
-              invalid={!!error}
+              invalid={shownError !== null}
+              describedBy={shownError !== null ? errorId : undefined}
+              maxLength={maxLength}
+              value={draft}
               mentions={mentions}
               mentionHref={mentionHref}
               mentionImage={mentionImage}
@@ -712,9 +767,9 @@ export function CommentItem({
               showAdd={canReact}
             />
           ) : null}
-          {error ? (
-            <p role="alert" className="text-xs text-destructive">
-              {error}
+          {shownError !== null ? (
+            <p id={errorId} role="alert" className="text-xs text-destructive">
+              {shownError}
             </p>
           ) : null}
         </div>
@@ -875,6 +930,12 @@ interface CommentBoxProps {
   sending?: boolean;
   disabled?: boolean;
   invalid?: boolean;
+  /** The id of the host's error line under the box, describing the editor. */
+  describedBy?: string;
+  /** The limit the host holds the text to: a `n/max` count shows under the box near it. */
+  maxLength?: number;
+  /** The box's text as the host tracks it, for the count. */
+  value?: string;
   autoFocus?: boolean;
   /** The host's extra controls, first in the end group before attach and Send. */
   extraActions?: React.ReactNode;
@@ -912,6 +973,9 @@ function CommentBox({
   sending = false,
   disabled,
   invalid,
+  describedBy,
+  maxLength,
+  value = "",
   autoFocus,
   extraActions,
   actions,
@@ -1042,6 +1106,7 @@ function CommentBox({
     disabled,
     dragHandles: false,
     "aria-invalid": invalid ? true : undefined,
+    "aria-describedby": describedBy,
     mentions,
     mentionHref,
     mentionImage,
@@ -1161,6 +1226,14 @@ function CommentBox({
           actions={controls}
         />
       )}
+      {maxLength !== undefined ? (
+        <FieldCounter
+          data-slot="comment-box-counter"
+          value={countedText(value)}
+          maxLength={maxLength}
+          className="self-end pt-1"
+        />
+      ) : null}
       {dragging ? (
         <div
           aria-hidden
@@ -1256,6 +1329,19 @@ export interface CommentComposerProps {
   posting?: boolean;
   /** An error under the box (controlled; otherwise a rejected `onSubmit`'s message). @default undefined */
   error?: string | null;
+  /**
+   * The most characters a comment may hold, counted as it posts (`String.length`, as a server
+   * counts it). A `n/max` count shows under the box from 80% of it; past it the box is invalid
+   * with `maxLengthMessage` and Send is refused. Typing and pasting are never cut.
+   * @default undefined
+   */
+  maxLength?: number;
+  /**
+   * What the box says while its text is over `maxLength`, given how many characters are over —
+   * the host's words ("Comment can be up to 10,000 characters. Remove 400 to send.").
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  maxLengthMessage?: (excess: number) => string;
   /** Disable the composer. @default false */
   disabled?: boolean;
   /** Called on every change, e.g. to guard unsaved text. @default undefined */
@@ -1324,6 +1410,8 @@ export function CommentComposer({
   autoFocus = false,
   posting: postingProp,
   error: errorProp,
+  maxLength,
+  maxLengthMessage,
   disabled = false,
   onValueChange,
   mentions,
@@ -1345,7 +1433,10 @@ export function CommentComposer({
   const [errorState, setErrorState] = React.useState<string | null>(null);
   const [body, setBody] = React.useState(defaultValue ?? "");
   const posting = postingProp ?? pending;
-  const error = errorProp !== undefined ? errorProp : errorState;
+  const overLimit = overLimitMessage(body, maxLength, maxLengthMessage);
+  const errorId = React.useId();
+  // An empty controlled error is no error: the limit's message still shows.
+  const error = (errorProp !== undefined ? errorProp : errorState) || overLimit;
   // `compact`: the card opens on demand, and a draft (a restored one too) keeps it open.
   const [opened, setOpened] = React.useState(() => !!defaultValue?.trim());
   // Opened by the reader (not by a restored draft): the caret goes into the card.
@@ -1396,7 +1487,8 @@ export function CommentComposer({
       (!value.trim() && !hasFiles) ||
       posting ||
       uploading > 0 ||
-      (box.current?.pendingUploads() ?? 0) > 0
+      (box.current?.pendingUploads() ?? 0) > 0 ||
+      overLimitMessage(raw, maxLength, maxLengthMessage) !== null
     )
       return;
     setPending(true);
@@ -1509,6 +1601,9 @@ export function CommentComposer({
         sending={pending}
         disabled={disabled}
         invalid={!!error}
+        describedBy={error ? errorId : undefined}
+        maxLength={maxLength}
+        value={body}
         extraActions={attachments}
         mentions={mentions}
         mentionHref={mentionHref}
@@ -1526,14 +1621,17 @@ export function CommentComposer({
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
             loading={posting}
             disabled={
-              disabled || uploading > 0 || (!postable(body).trim() && !hasFiles)
+              disabled ||
+              uploading > 0 ||
+              overLimit !== null ||
+              (!postable(body).trim() && !hasFiles)
             }
             onClick={() => void submit(body)}
           />
         }
       />
       {error ? (
-        <p role="alert" className="text-xs text-destructive">
+        <p id={errorId} role="alert" className="text-xs text-destructive">
           {error}
         </p>
       ) : null}
@@ -1753,6 +1851,8 @@ export interface CommentThreadProps {
       | "defaultValue"
       | "onValueChange"
       | "posting"
+      | "maxLength"
+      | "maxLengthMessage"
     >
   >;
   /** Pin the relative times' clock (docs, tests). @default undefined */
@@ -1816,7 +1916,14 @@ export function CommentThread({
   const [draft, setDraft] = React.useState(composer?.defaultValue ?? "");
   const [pending, setPending] = React.useState(false);
   const posting = pending || !!composer?.posting;
-  const [error, setError] = React.useState<string | null>(null);
+  const [errorState, setError] = React.useState<string | null>(null);
+  const overLimit = overLimitMessage(
+    draft,
+    composer?.maxLength,
+    composer?.maxLengthMessage,
+  );
+  const error = errorState ?? overLimit;
+  const errorId = React.useId();
   const replyBox = React.useRef<HTMLDivElement>(null);
   const card = React.useRef<HTMLElement>(null);
   // An upload into the reply holds Send until it lands (see `CommentComposer`).
@@ -1878,7 +1985,9 @@ export function CommentThread({
       (!body.trim() && !composer?.hasFiles) ||
       posting ||
       uploading > 0 ||
-      (box.current?.pendingUploads() ?? 0) > 0
+      (box.current?.pendingUploads() ?? 0) > 0 ||
+      overLimitMessage(raw, composer?.maxLength, composer?.maxLengthMessage) !==
+        null
     )
       return;
     setPending(true);
@@ -1924,6 +2033,8 @@ export function CommentThread({
       onResolve={isRoot && !resolved ? onResolve : undefined}
       onEditValueChange={onEditValueChange}
       {...editingProps(comment.id)}
+      maxLength={composer?.maxLength}
+      maxLengthMessage={composer?.maxLengthMessage}
       attachments={renderAttachments?.(comment)}
       mentions={composer?.mentions}
       mentionHref={composer?.mentionHref}
@@ -2085,6 +2196,9 @@ export function CommentThread({
               sending={pending}
               disabled={composer?.disabled}
               invalid={!!error}
+              describedBy={error ? errorId : undefined}
+              maxLength={composer?.maxLength}
+              value={draft}
               extraActions={composer?.attachments}
               mentions={composer?.mentions}
               mentionHref={composer?.mentionHref}
@@ -2103,6 +2217,7 @@ export function CommentThread({
                   disabled={
                     !!composer?.disabled ||
                     uploading > 0 ||
+                    overLimit !== null ||
                     (!postable(draft).trim() && !composer?.hasFiles)
                   }
                   onClick={() => void reply(draft)}
@@ -2111,7 +2226,11 @@ export function CommentThread({
             />
           </div>
           {error ? (
-            <p role="alert" className="ps-7 text-xs text-destructive">
+            <p
+              id={errorId}
+              role="alert"
+              className="ps-7 text-xs text-destructive"
+            >
               {error}
             </p>
           ) : null}
@@ -2270,6 +2389,10 @@ export interface CommentListProps {
    * @default undefined
    */
   onEditValueChange?: CommentItemProps["onEditValueChange"];
+  /** The most characters an edit may hold (see `CommentItem`). @default undefined */
+  maxLength?: CommentItemProps["maxLength"];
+  /** What an edit box says while over `maxLength` (see `CommentItem`). @default undefined */
+  maxLengthMessage?: CommentItemProps["maxLengthMessage"];
   /**
    * The comment being edited. Controlled when `onEditingIdChange` is set; otherwise it only picks
    * the comment that mounts in editing mode, and each comment keeps its own editing state.
@@ -2338,6 +2461,8 @@ export function CommentList({
   onChoose,
   onReactionToggle,
   onEditValueChange,
+  maxLength,
+  maxLengthMessage,
   editingId,
   onEditingIdChange,
   editDefaultValue,
@@ -2443,6 +2568,8 @@ export function CommentList({
                           onReactionToggle={onReactionToggle}
                           onEditValueChange={onEditValueChange}
                           {...editingProps(comment.id)}
+                          maxLength={maxLength}
+                          maxLengthMessage={maxLengthMessage}
                           replies={renderReplies?.(comment)}
                           attachments={renderAttachments?.(comment)}
                           mentionHref={mentionHref}

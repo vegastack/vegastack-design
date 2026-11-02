@@ -668,3 +668,43 @@ test("share-dialog at 320 and 375px, published or not: nothing runs past the she
         screen.unmount();
       }
 });
+
+test("share-dialog messageMaxLength: nothing is cut; past the limit the host's message shows and Invite waits", async () => {
+  await page.viewport(1280, 900);
+  const onInvite = vi.fn();
+  const screen = await render(
+    <ShareDialog
+      defaultOpen
+      levels={[{ value: "view", label: "Can view" }]}
+      people={[]}
+      canManage
+      search={() => Promise.resolve({ items: [] })}
+      defaultInvitees={[{ id: "u5", name: "Lena Ortiz" }]}
+      onInvite={onInvite}
+      messageMaxLength={10}
+      messageMaxLengthMessage={(n) =>
+        `Message can be up to 10 characters. Remove ${n} to send.`
+      }
+    />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  const message = dialog.getByRole("textbox", { name: "Add a message" });
+  await expect.element(message).not.toHaveAttribute("maxlength");
+  await userEvent.type(message, "Hello there, Lena");
+  await expect.element(message).toHaveValue("Hello there, Lena");
+  await expect
+    .element(
+      dialog.getByText("Message can be up to 10 characters. Remove 7 to send."),
+    )
+    .toBeVisible();
+  await expect.element(message).toHaveAttribute("aria-invalid", "true");
+  expect(
+    document.querySelector('[data-slot="share-invite-message-counter"]')
+      ?.textContent,
+  ).toContain("17/10");
+  await dialog
+    .getByRole("button", { name: "Invite", exact: true })
+    .click({ force: true });
+  expect(onInvite).not.toHaveBeenCalled();
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});

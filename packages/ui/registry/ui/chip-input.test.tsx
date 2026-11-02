@@ -424,3 +424,75 @@ test("the Enter that ends an IME composition (keyCode 229) does not commit a chi
   await userEvent.keyboard("{Enter}");
   expect(chipTexts()).toEqual(["東京"]);
 });
+
+test("maxLength: a longer entry is refused with the host's words and stays in the input; a pasted one comes back into it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <ChipInput
+      aria-label="Tags"
+      maxLength={5}
+      maxLengthLabel={(n) => `Tags can be up to ${n} characters.`}
+      onValueChange={onValueChange}
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await userEvent.type(input, "toolong{Enter}");
+  expect(onValueChange).not.toHaveBeenCalled();
+  await expect.element(input).toHaveValue("toolong");
+  expect(
+    screen.container.querySelector('[data-slot="chip-input-notice"]')
+      ?.textContent,
+  ).toBe("Tags can be up to 5 characters.");
+  await expectNoA11yViolations(screen.container);
+
+  await userEvent.clear(input);
+  const paste = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(paste, "clipboardData", {
+    value: { getData: () => "ok, waytoolong" },
+  });
+  input.element().dispatchEvent(paste);
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith(["ok"]),
+  );
+  // Exactly as pasted, the space after the comma included.
+  await expect.element(input).toHaveValue(" waytoolong");
+});
+
+test("maxLength: a refused entry comes back as typed (never normalised twice) and keeps a custom separator", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <ChipInput
+      aria-label="Tags"
+      maxLength={5}
+      splitOn={/;/}
+      normalize={(raw) => `#${raw.trim()}`}
+      onValueChange={onValueChange}
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await userEvent.type(input, "hello{Enter}");
+  await expect.element(input).toHaveValue("hello");
+  await userEvent.keyboard("{Enter}");
+  await expect.element(input).toHaveValue("hello");
+  await userEvent.clear(input);
+  await userEvent.type(input, "toolong;ok;alsolong{Enter}");
+  expect(onValueChange).toHaveBeenLastCalledWith(["#ok"]);
+  await expect.element(input).toHaveValue("toolong;alsolong");
+});
+
+test("maxLength: refused entries split by a separator a one-line input drops come back split by one it keeps", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <ChipInput aria-label="Tags" maxLength={3} onValueChange={onValueChange} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  const paste = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(paste, "clipboardData", {
+    value: { getData: () => "toolong\nok\nalsolong" },
+  });
+  input.element().dispatchEvent(paste);
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith(["ok"]),
+  );
+  await expect.element(input).toHaveValue("toolong,alsolong");
+});

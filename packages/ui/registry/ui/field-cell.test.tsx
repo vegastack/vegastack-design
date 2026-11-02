@@ -2326,3 +2326,55 @@ test("FieldCellEditor variant=cell: a single person's pick commits at once; a da
     ),
   ).not.toBeNull();
 });
+
+test("long text maxLength: a form input past it shows the host's message and turns invalid; under it, a count", async () => {
+  const screen = await render(
+    <FieldInput
+      type="long_text"
+      aria-label="Notes"
+      value="abcdefghijkl"
+      config={{
+        maxLength: 10,
+        maxLengthMessage: (n) =>
+          `Notes can be up to 10 characters. Remove ${n} to save.`,
+      }}
+      onChange={() => {}}
+    />,
+  );
+  await expect
+    .element(
+      screen.getByText("Notes can be up to 10 characters. Remove 2 to save."),
+    )
+    .toBeVisible();
+  expect(
+    screen.container.querySelector('[data-slot="field-counter"]')?.textContent,
+  ).toContain("12/10");
+  await expect
+    .element(screen.getByRole("textbox", { name: "Notes" }))
+    .toHaveAttribute("aria-invalid", "true");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("long text maxLength: a cell's editor over the limit does not commit; it stays open with the message", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <FieldCellEditor
+      type="long_text"
+      label="Notes"
+      value="abcdefghijkl"
+      config={{ maxLength: 10, maxLengthMessage: () => "Too long." }}
+      onCommit={onCommit}
+      onCancel={() => {}}
+    />,
+  );
+  await expect
+    .poll(() => document.querySelector('[data-slot="popover-content"]'))
+    .not.toBeNull();
+  await expect.element(screen.getByText("Too long.")).toBeVisible();
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await userEvent.keyboard("{Meta>}{Enter}{/Meta}");
+  expect(onCommit).not.toHaveBeenCalled();
+  expect(
+    document.querySelector('[data-slot="popover-content"]'),
+  ).not.toBeNull();
+});

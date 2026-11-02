@@ -1,9 +1,10 @@
-// @vegastack field-cell@0.29.3 sha256-xW9n9qvnBmXdR+IyaXZoHrCRWB9RHVF5FKkYJD0CLUc=
+// @vegastack field-cell@0.29.3 sha256-iqC9HBQgBi36pAjzQq2YfupKkgIW6iPEsQdoVjbLOOY=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { FieldCounter } from "@/components/ui/field";
 import {
   AtSign,
   Calculator,
@@ -272,8 +273,20 @@ export interface FieldConfig {
   currency?: string;
   /** Decimal places a number, currency or percent shows. @default the value's own */
   decimals?: number;
-  /** A text field's most characters. @default 10000 */
+  /**
+   * A text field's most characters (10000 when unset), and a long text's when set (no limit
+   * otherwise). Counted as `String.length`, as a server counts it. A text field stops typing at
+   * it; a long text — rich text, never cut while typing, pasting or composing — shows a `n/max`
+   * count from 80% of it and, past it, `maxLengthMessage`, and refuses to commit.
+   * @default 10000 for text, undefined for long text
+   */
   maxLength?: number;
+  /**
+   * What a long text says while it is over `maxLength`, given how many characters are over — the
+   * host's words.
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  maxLengthMessage?: (excess: number) => string;
   /** An auto-number's prefix ("SR-"). @default "" */
   prefix?: string;
   /** A person field holds several. @default false */
@@ -933,6 +946,48 @@ export function FieldCellDisplay({
   }
 }
 
+/** A long text over `config.maxLength`: the message it shows (and refuses to commit), else `null`. */
+function longTextOver(text: string, config: FieldConfig): string | null {
+  const max = config.maxLength;
+  if (max === undefined || text.length <= max) return null;
+  const excess = text.length - max;
+  return (
+    config.maxLengthMessage?.(excess) ||
+    `Remove ${excess} ${excess === 1 ? "character" : "characters"}`
+  );
+}
+
+/** Under a long text's editor: past the limit, its message; near it, the `n/max` count. */
+function LongTextLimit({
+  text,
+  config,
+  id,
+}: {
+  text: string;
+  config: FieldConfig;
+  id?: string;
+}) {
+  if (config.maxLength === undefined) return null;
+  const over = longTextOver(text, config);
+  return (
+    <div
+      id={id}
+      data-slot="field-long-text-limit"
+      className="flex min-w-0 items-start gap-2 pt-1"
+    >
+      {over ? (
+        <p
+          role="alert"
+          className="min-w-0 flex-1 text-xs text-destructive-text"
+        >
+          {over}
+        </p>
+      ) : null}
+      <FieldCounter value={text} maxLength={config.maxLength} />
+    </div>
+  );
+}
+
 /** Props accepted by `FieldInput`. */
 export interface FieldInputProps {
   /** The field's type. */
@@ -1192,6 +1247,7 @@ export function FieldInput({
   className,
   variant = "default",
 }: FieldInputProps) {
+  const limitId = React.useId();
   const a11y = {
     id,
     "aria-label": ariaLabel,
@@ -1246,18 +1302,24 @@ export function FieldInput({
         />
       );
     }
-    case "long_text":
-      return (
+    case "long_text": {
+      const longText = typeof value === "string" ? value : "";
+      const over = longTextOver(longText, config) !== null;
+      const editor = (
         <TextEdit
           variant="boxed"
           format="markdown"
           aria-label={ariaLabel}
           id={id}
-          aria-invalid={invalid || undefined}
-          aria-describedby={describedBy}
+          aria-invalid={invalid || over || undefined}
+          aria-describedby={
+            [describedBy, config.maxLength !== undefined ? limitId : null]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
           disabled={disabled}
           placeholder={config.placeholder}
-          value={typeof value === "string" ? value : ""}
+          value={longText}
           onValueChange={(next) => onChange(next || null)}
           mentions={config.mentions}
           mentionHref={config.mentionHref}
@@ -1265,6 +1327,14 @@ export function FieldInput({
           minHeight="6rem"
         />
       );
+      if (config.maxLength === undefined) return editor;
+      return (
+        <div className="flex min-w-0 flex-col">
+          {editor}
+          <LongTextLimit id={limitId} text={longText} config={config} />
+        </div>
+      );
+    }
     case "number":
     case "currency":
     case "percent":
@@ -2110,6 +2180,7 @@ export function FieldCellEditor({
   }, []);
   const root = React.useRef<HTMLSpanElement | null>(null);
   const longText = React.useRef<TextEditHandle | null>(null);
+  const longTextLimitId = React.useId();
   const commit = (next: FieldValue, move?: EditableCellMove) => {
     if (done.current) return;
     done.current = true;
@@ -2288,7 +2359,8 @@ export function FieldCellEditor({
             // An Escape the editor already used (closing its find bar or a menu) is not ours.
             if ((details.event as Event | undefined)?.defaultPrevented) return;
             cancel();
-          } else commit(text || null);
+          } else if (longTextOver(text, config) === null) commit(text || null);
+          // Over `maxLength`: the popover stays open with the message; Escape cancels.
         }}
       >
         <span
@@ -2310,7 +2382,13 @@ export function FieldCellEditor({
             placeholder={config.placeholder}
             value={text}
             onValueChange={setDraft}
-            onSubmit={(next) => commit(next || null)}
+            aria-invalid={longTextOver(text, config) !== null || undefined}
+            aria-describedby={
+              config.maxLength !== undefined ? longTextLimitId : undefined
+            }
+            onSubmit={(next) => {
+              if (longTextOver(next, config) === null) commit(next || null);
+            }}
             // Escape: TextEdit reverts (and marks the key used); the edit is cancelled.
             onRevert={cancel}
             mentions={config.mentions}
@@ -2318,6 +2396,7 @@ export function FieldCellEditor({
             mentionImage={config.mentionImage}
             minHeight="6rem"
           />
+          <LongTextLimit id={longTextLimitId} text={text} config={config} />
         </PopoverContent>
       </Popover>
     );
@@ -2931,11 +3010,16 @@ function LongTextPropertyEditor({
   // The draft as typed, compared with the PERSISTED value when focus leaves: a seeded edit ("W"
   // typed on the resting value) is TextEdit's own baseline, so it would report no change.
   const draft = React.useRef(start);
+  // The text as typed, for the limit's count and message.
+  const [shown, setShown] = React.useState(start);
+  const limitId = React.useId();
   React.useEffect(() => {
     handle.current?.focus("end");
   }, []);
   const finish = (markdown: string) => {
     if (done.current) return;
+    // Over `maxLength`: no commit — the editor stays open with the message (Escape reverts).
+    if (longTextOver(markdown, config) !== null) return;
     done.current = true;
     onCommit(markdown.trim() === "" ? null : markdown);
   };
@@ -2970,7 +3054,10 @@ function LongTextPropertyEditor({
         defaultValue={start}
         onValueChange={(next) => {
           draft.current = next;
+          setShown(next);
         }}
+        aria-invalid={longTextOver(shown, config) !== null || undefined}
+        aria-describedby={config.maxLength !== undefined ? limitId : undefined}
         escapeBehavior="revert"
         handleRef={handle}
         maxHeight={maxHeight}
@@ -2985,6 +3072,7 @@ function LongTextPropertyEditor({
           onCancel();
         }}
       />
+      <LongTextLimit id={limitId} text={shown} config={config} />
     </div>
   );
 }

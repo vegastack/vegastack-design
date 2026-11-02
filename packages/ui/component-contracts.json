@@ -10641,7 +10641,8 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/list-toolbar",
-        "@vegastack/spinner"
+        "@vegastack/spinner",
+        "@vegastack/field"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -10674,6 +10675,7 @@
                 "add-filter-menu-ai",
                 "add-filter-menu-body",
                 "add-filter-menu-content",
+                "add-filter-menu-counter",
                 "add-filter-menu-divider",
                 "add-filter-menu-editor",
                 "add-filter-menu-field",
@@ -10682,6 +10684,10 @@
                 "add-filter-menu-message",
                 "add-filter-menu-trigger"
               ]
+            },
+            {
+              "name": "data-state",
+              "values": ["error"]
             }
           ],
           "cssVariables": []
@@ -14357,7 +14363,8 @@
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-async-search"
+        "@vegastack/use-async-search",
+        "@vegastack/field"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -35579,7 +35586,8 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/field"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.11.0",
@@ -39057,7 +39065,8 @@
         "@vegastack/tabs",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/disclosure-trigger"
+        "@vegastack/disclosure-trigger",
+        "@vegastack/field"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -39093,6 +39102,8 @@
                 "share-dialog-body",
                 "share-general",
                 "share-invite",
+                "share-invite-message-counter",
+                "share-invite-message-error",
                 "share-invite-row",
                 "share-panels",
                 "share-people",
@@ -41186,7 +41197,8 @@
         "@vegastack/textarea",
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
-        "@vegastack/disclosure-trigger"
+        "@vegastack/disclosure-trigger",
+        "@vegastack/field"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -43709,7 +43721,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["dropdown-menu-input"]
+              "values": ["dropdown-menu-input", "dropdown-menu-input-error"]
             }
           ],
           "cssVariables": []

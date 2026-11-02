@@ -31,6 +31,8 @@ import { RecordHeader } from "@/components/ui/record-header";
 />;
 ```
 
+Pass `titleMaxLength` (with `titleMaxLengthMessage`) with the limit the server holds a title to. Nothing typed or pasted is cut: a quiet count shows from 90% of it, past it the count turns destructive with the host's message, and the rename doesn't save until the title is shorter. A rename the host rejects rolls back with an error toast carrying the rejection's message.
+
 ## Scope
 
 One anatomy for every record kind and both places a record opens. An eyebrow line holds where the

@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.29.1 sha256-x8Eo42pvO8xN5MK+oDJG3+bA3efGCw2JX/PQqiVXxWA=
+// @vegastack editable-cell@0.29.1 sha256-hZQlM1S+rfXuiRny6p07qPc5V5pPpw4RsMvZU0xIWcc=
 
 "use client";
 
@@ -155,6 +155,10 @@ export interface EditableCellEditorProps {
   cancel: () => void;
 }
 
+/** What a soft limit says past it when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
+
 /** A move in `onNavigate`'s terms: across is Tab, down and up are Enter. */
 const NAVIGATION: Record<
   EditableCellMove,
@@ -184,9 +188,22 @@ export type EditableCellEditor =
       placeholder?: string;
       /**
        * The most characters the value may hold (the field's `maxlength`). Typing stops there, a
-       * paste keeps what fits and says so, and a quiet `n/max` count shows from 90% of it.
+       * paste keeps what fits and says so, and a quiet `n/max` count shows from 90% of it. A value
+       * already past it (seeded, or the limit lowered) never commits: the field stays open, invalid.
        */
       maxLength?: number;
+      /**
+       * `allow` never cuts what is typed or pasted: past `maxLength` the count turns destructive,
+       * `maxLengthMessage` shows under the field, and the value doesn't commit until it is shorter.
+       * @default "truncate"
+       */
+      overflow?: "truncate" | "allow";
+      /**
+       * With `overflow: "allow"`, what the field says while past `maxLength`, given how many
+       * characters are over — the host's words.
+       * @default (excess) => `Remove ${excess} characters`
+       */
+      maxLengthMessage?: (excess: number) => string;
     }
   | {
       type: "number";
@@ -481,6 +498,10 @@ interface InlineTextEditorProps {
   maxLength?: number;
   /** A paste was cut to fit `maxLength` (the cell announces it). */
   onClipped?: () => void;
+  /** Never cut at `maxLength`: count past it and say `maxLengthMessage` instead. */
+  softMaxLength?: boolean;
+  /** What a soft limit says while past it, given the excess. */
+  maxLengthMessage?: (excess: number) => string;
 }
 
 /**
@@ -568,6 +589,8 @@ function InlineTextBody({
   onInvalid,
   maxLength,
   onClipped,
+  softMaxLength = false,
+  maxLengthMessage,
   measureOnContact = false,
 }: InlineTextEditorProps & { edit: UseInlineEditResult }) {
   const box = bare ? bareBoxClasses : boxClasses;
@@ -667,6 +690,11 @@ function InlineTextBody({
     isEditing &&
     maxLength !== undefined &&
     (clipped || edit.draft.length >= maxLength * 0.9);
+  // A soft limit: how far past it the draft is (0 within it).
+  const over =
+    softMaxLength && maxLength !== undefined && isEditing
+      ? Math.max(0, edit.draft.length - maxLength)
+      : 0;
   const onDraftChange = (next: string) => {
     setClipped(false);
     edit.setDraft(next);
@@ -680,7 +708,7 @@ function InlineTextBody({
   const onPaste = (
     event: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    if (maxLength === undefined) return;
+    if (maxLength === undefined || softMaxLength) return;
     const field = event.currentTarget;
     const kept =
       field.value.length -
@@ -706,9 +734,10 @@ function InlineTextBody({
     value: edit.draft,
     placeholder,
     inputMode,
-    maxLength,
+    maxLength: softMaxLength ? undefined : maxLength,
     onPaste,
-    "aria-invalid": invalid || undefined,
+    // A soft limit is invalid while the draft is past it, not only after a refused save.
+    "aria-invalid": invalid || over > 0 || undefined,
     onBlur: () => {
       if (accepts(edit.draft)) edit.commit();
     },
@@ -845,7 +874,11 @@ function InlineTextBody({
             ref={edit.editRef}
             rows={1}
             {...fieldProps}
-            onChange={(event) => onDraftChange(event.target.value)}
+            onChange={(event) => {
+              onDraftChange(event.target.value);
+              if (invalid && validate?.(event.target.value.trim()))
+                setInvalid(false);
+            }}
           />
         ) : (
           <input
@@ -867,10 +900,14 @@ function InlineTextBody({
         <span
           id={`${textId}-count`}
           data-slot="editable-cell-count"
-          className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 font-sans text-xs font-normal text-end text-pretty wrap-anywhere text-muted-foreground tabular-nums"
+          data-state={over > 0 ? "over" : undefined}
+          className="pointer-events-none absolute inset-x-0 top-full z-10 mt-1 font-sans text-xs font-normal text-end text-pretty wrap-anywhere text-muted-foreground tabular-nums data-[state=over]:text-destructive-text"
         >
           {edit.draft.length}/{maxLength}
           {clipped ? ` · Only the first ${maxLength} characters fit` : null}
+          {over > 0
+            ? ` · ${(maxLengthMessage ?? defaultExcessMessage)(over)}`
+            : null}
         </span>
       ) : null}
     </span>
@@ -1179,6 +1216,10 @@ export function EditableCell({
         }
         inputMode={number ? "decimal" : undefined}
         maxLength={editor.type === "text" ? editor.maxLength : undefined}
+        softMaxLength={editor.type === "text" && editor.overflow === "allow"}
+        maxLengthMessage={
+          editor.type === "text" ? editor.maxLengthMessage : undefined
+        }
         onClipped={() =>
           setAnnouncement(
             `Only the first ${editor.type === "text" ? editor.maxLength : ""} characters fit`,
@@ -1199,7 +1240,11 @@ export function EditableCell({
                 }
                 return true;
               }
-            : undefined
+            : editor.type === "text" && editor.maxLength !== undefined
+              ? // A value already past the limit (seeded, or the limit lowered) never commits:
+                // the field stays open, invalid, with its count.
+                (draft) => draft.length <= editor.maxLength!
+              : undefined
         }
         onInvalid={
           number

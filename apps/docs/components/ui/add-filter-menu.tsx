@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.29.1 sha256-6gMLZLw9JkBtd1t1hDpE1qjFuJUtGUVjBeY5TWVWdmA=
+// @vegastack add-filter-menu@0.29.1 sha256-jnFu5svEKClo+2Sa80YKbxYkUHEOaXKu8kYHAdDO3GA=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   ListToolbarPopover,
   useListToolbar,
 } from "@/components/ui/list-toolbar";
+import { FieldCounter } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 
 /* ---
@@ -65,12 +66,35 @@ export interface AiFilterResult {
    * @default []
    */
   unmatched?: readonly string[];
+  /**
+   * The request was refused (over a limit, the AI unavailable): this message shows under the
+   * input, as a thrown error's does, and the fields stay usable.
+   * @default undefined
+   */
+  error?: string | null;
 }
 
 /** The page's AI filter. Absent: no ✦ anywhere. */
 export interface AddFilterAi {
-  /** Turn the request into filters. Reject (or throw) when the AI is unavailable or over its limit. */
+  /**
+   * Turn the request into filters. Reject (or throw) when the AI is unavailable or over its limit:
+   * the thrown `Error`'s message shows under the input (`labels.unavailable` when it has none), or
+   * resolve with `error` set to show that instead.
+   */
   onSubmit: (text: string) => Promise<AiFilterResult> | AiFilterResult;
+  /**
+   * The most characters a request may hold (`String.length` of the trimmed text, as a server
+   * counts it). Nothing typed or pasted is cut: past it the AI item is withheld (fields still
+   * match) and `maxLengthMessage` shows under the input.
+   * @default undefined
+   */
+  maxLength?: number;
+  /**
+   * What the input says while past `maxLength`, given how many characters are over — the host's
+   * words ("A filter request can be up to 200 characters. Remove 12 to send.").
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  maxLengthMessage?: (excess: number) => string;
   /**
    * After a run that added filters, once the popover has closed: say what it did (a toast with
    * Undo — `useAiFilterApplied`).
@@ -168,6 +192,10 @@ export interface AddFilterMenuProps {
   labels?: Partial<AddFilterMenuLabels>;
 }
 
+/** What the input says past the AI's limit when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
+
 /** The advanced filter page's key — never a field key. */
 const ADVANCED = "\u0000advanced";
 
@@ -220,8 +248,12 @@ export function AddFilterMenu({
   const [page, setPage] = React.useState<string | null>(null);
   const [active, setActive] = React.useState(0);
   const [pending, setPending] = React.useState(false);
-  const [message, setMessage] = React.useState<string | null>(null);
+  const [message, setMessage] = React.useState<{
+    text: string;
+    error: boolean;
+  } | null>(null);
   const listId = React.useId();
+  const messageId = React.useId();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   // Every opening starts fresh, focus in the input.
@@ -236,6 +268,12 @@ export function AddFilterMenu({
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const text = query.trim();
+  // How far a request is past the AI's limit (0 within it): the AI item waits, and says why.
+  const overBy =
+    ai?.maxLength !== undefined ? Math.max(0, text.length - ai.maxLength) : 0;
+  const nearLimit =
+    ai?.maxLength !== undefined && text.length >= ai.maxLength * 0.8;
+  const counterId = React.useId();
   const needle = text.toLowerCase();
   const matches = fields.filter(
     (field) =>
@@ -248,7 +286,11 @@ export function AddFilterMenu({
   );
   // A phrase goes to the AI: two or more words, or a word no field matches.
   const offerAi =
-    ai != null && text !== "" && (wordCount(text) >= 2 || matches.length === 0);
+    ai != null &&
+    text !== "" &&
+    // A request past the limit (an `initialQuery` longer than it) is never sent.
+    (ai.maxLength === undefined || text.length <= ai.maxLength) &&
+    (wordCount(text) >= 2 || matches.length === 0);
   const options: Option[] = [
     ...(offerAi ? [{ kind: "ai", id: `${listId}-ai` } as const] : []),
     ...matches.map((field) => ({
@@ -283,25 +325,38 @@ export function AddFilterMenu({
   const done = () => setOpen(false);
   const runAi = async (request: string) => {
     if (!ai || pending) return;
+    if (ai.maxLength !== undefined && request.length > ai.maxLength) return;
     setPending(true);
     setMessage(null);
     try {
       const result = await ai.onSubmit(request);
+      if (result.error) {
+        setMessage({ text: result.error, error: true });
+        return;
+      }
       if (result.added > 0) {
         done();
         ai.onApplied?.(result, request);
         return;
       }
-      setMessage(
-        [
+      setMessage({
+        text: [
           labels.nothingAdded,
           result.unmatched?.length ? labels.unmatched(result.unmatched) : null,
         ]
           .filter(Boolean)
           .join(" "),
-      );
-    } catch {
-      setMessage(labels.unavailable);
+        error: false,
+      });
+    } catch (error) {
+      // The host's words when it threw some; never swallowed.
+      setMessage({
+        text:
+          error instanceof Error && error.message
+            ? error.message
+            : labels.unavailable,
+        error: true,
+      });
     } finally {
       setPending(false);
     }
@@ -377,6 +432,15 @@ export function AddFilterMenu({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.currentTarget.value)}
+            aria-describedby={
+              [
+                message != null || overBy > 0 ? messageId : null,
+                nearLimit ? counterId : null,
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
+            aria-invalid={overBy > 0 || undefined}
             placeholder={labels.placeholder}
             aria-label={labels.filter}
             role="combobox"
@@ -408,13 +472,37 @@ export function AddFilterMenu({
             </InputGroupAddon>
           ) : null}
         </InputGroup>
+        {ai?.maxLength !== undefined ? (
+          <FieldCounter
+            id={counterId}
+            data-slot="add-filter-menu-counter"
+            value={text}
+            maxLength={ai.maxLength}
+            className="self-end px-1.5"
+          />
+        ) : null}
+        {message == null && overBy > 0 ? (
+          <p
+            id={messageId}
+            data-slot="add-filter-menu-message"
+            data-state="error"
+            className="px-1.5 py-1 text-sm text-destructive-text"
+          >
+            {(ai?.maxLengthMessage ?? defaultExcessMessage)(overBy)}
+          </p>
+        ) : null}
         {message != null ? (
           <p
+            id={messageId}
             role="status"
             data-slot="add-filter-menu-message"
-            className="px-1.5 py-1 text-sm text-muted-foreground"
+            data-state={message.error ? "error" : undefined}
+            className={cn(
+              "px-1.5 py-1 text-sm",
+              message.error ? "text-destructive-text" : "text-muted-foreground",
+            )}
           >
-            {message}
+            {message.text}
           </p>
         ) : null}
         <div

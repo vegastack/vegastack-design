@@ -1456,3 +1456,133 @@ test("a compact thread folds its empty reply row on a press outside", async () =
   await userEvent.click(screen.getByText("Outside"));
   await vi.waitFor(() => expect(row()).toBeNull());
 });
+
+test("maxLength: the composer counts near the limit, and past it shows the host's message and refuses to send", async () => {
+  const onSubmit = vi.fn();
+  const screen = await render(
+    <CommentComposer
+      defaultValue="12345678"
+      maxLength={10}
+      maxLengthMessage={(n) =>
+        `Comment can be up to 10 characters. Remove ${n} to send.`
+      }
+      onSubmit={onSubmit}
+    />,
+  );
+  const counter = screen.container.querySelector(
+    '[data-slot="comment-box-counter"]',
+  );
+  expect(counter?.textContent).toContain("8/10");
+  const send = screen.getByRole("button", { name: "Send comment" });
+  await expect.element(send).toBeEnabled();
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(
+    navigator.platform.startsWith("Mac")
+      ? "{Meta>}{ArrowDown}{/Meta}abc"
+      : "{Control>}{End}{/Control}abc",
+  );
+  await expect
+    .element(
+      screen.getByText("Comment can be up to 10 characters. Remove 1 to send."),
+    )
+    .toBeVisible();
+  await expect.element(send).toBeDisabled();
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  expect(onSubmit).not.toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+  await userEvent.keyboard("{Backspace}{Backspace}{Backspace}");
+  await expect.element(send).toBeEnabled();
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+});
+
+test("maxLength: an edit over the limit keeps Save disabled and shows the message", async () => {
+  const onEdit = vi.fn();
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={{
+          id: "a",
+          author: { name: "Asha Rao" },
+          body: "Hello",
+          createdAt: Date.now(),
+          canEdit: true,
+        }}
+        editing
+        onEditingChange={() => {}}
+        onEdit={onEdit}
+        maxLength={8}
+        maxLengthMessage={(n) =>
+          `Comment can be up to 8 characters. Remove ${n} to save.`
+        }
+      />
+    </ul>,
+  );
+  const box = screen.getByRole("textbox", { name: "Edit comment" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(
+    navigator.platform.startsWith("Mac")
+      ? "{Meta>}{ArrowDown}{/Meta} there"
+      : "{Control>}{End}{/Control} there",
+  );
+  await expect
+    .element(
+      screen.getByText("Comment can be up to 8 characters. Remove 3 to save."),
+    )
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Save" }))
+    .toBeDisabled();
+  expect(onEdit).not.toHaveBeenCalled();
+});
+
+test("maxLength: a thread's reply box over the limit refuses to send", async () => {
+  const onReply = vi.fn();
+  const screen = await render(
+    <CommentThread
+      thread={{
+        id: "t",
+        root: {
+          id: "a",
+          author: { name: "Asha Rao" },
+          body: "Hello",
+          createdAt: Date.now(),
+        },
+        replies: [],
+      }}
+      onReply={onReply}
+      composer={{ maxLength: 3, maxLengthMessage: () => "Reply too long." }}
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Reply" });
+  await box.click();
+  await vi.waitFor(() =>
+    expect(box.element().contains(document.activeElement)).toBe(true),
+  );
+  await userEvent.keyboard("abcd");
+  await expect.element(screen.getByText("Reply too long.")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Send reply" }))
+    .toBeDisabled();
+  expect(onReply).not.toHaveBeenCalled();
+});
+
+test("maxLength: an empty host message still refuses an over-limit comment, with the default words, and describes the box", async () => {
+  const onSubmit = vi.fn();
+  const screen = await render(
+    <CommentComposer
+      defaultValue="abcdef"
+      maxLength={3}
+      maxLengthMessage={() => ""}
+      onSubmit={onSubmit}
+    />,
+  );
+  await expect.element(screen.getByText("Remove 3 characters")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Send comment" }))
+    .toBeDisabled();
+  const alert = screen.container.querySelector('[role="alert"]')!;
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await expect.element(box).toHaveAttribute("aria-describedby", alert.id);
+  expect(onSubmit).not.toHaveBeenCalled();
+});

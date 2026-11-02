@@ -1,4 +1,4 @@
-// @vegastack transcript@0.29.1 sha256-gXhtDSGy1OV6maWgQITlW9aw3io6v7nWyEWPy7osz1Q=
+// @vegastack transcript@0.29.1 sha256-IG19wZf9sRnZ0ysZ8m/SUOVsEmc+chOMa1uVDYI6T/E=
 
 "use client";
 
@@ -84,6 +84,20 @@ export interface TranscriptProps extends Omit<
    * @default undefined
    */
   onSpeakerRename?: (id: string, name: string) => void;
+  /**
+   * The most characters a speaker's name may hold while renamed (`String.length`, as a server
+   * counts it). Nothing typed or pasted is cut: a quiet `n/max` count shows from 90% of it, past
+   * it the count turns destructive with `speakerNameMaxLengthMessage`, and the name doesn't save
+   * until it is shorter.
+   * @default undefined
+   */
+  speakerNameMaxLength?: number;
+  /**
+   * What a speaker's name says while past `speakerNameMaxLength`, given how many characters are
+   * over — the host's words.
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  speakerNameMaxLengthMessage?: (excess: number) => string;
   /**
    * Rows mounted in the first paint; the rest mount in idle-time batches of the same size. The
    * current row and the current search match are always mounted.
@@ -376,6 +390,8 @@ interface TranscriptContextValue {
   speakers: string[];
   speakerDot: (id: string) => string;
   onSpeakerRename: ((id: string, name: string) => void) | null;
+  speakerNameMaxLength: number | undefined;
+  speakerNameMaxLengthMessage: ((excess: number) => string) | undefined;
   /** Rows mounted so far. */
   renderedCount: number;
   /** Make sure segment `index` is mounted. */
@@ -487,6 +503,8 @@ function TranscriptReveal({
 export function Transcript({
   segments,
   onSpeakerRename,
+  speakerNameMaxLength,
+  speakerNameMaxLengthMessage,
   batchSize = 100,
   speakerName = identity,
   currentTime,
@@ -667,6 +685,8 @@ export function Transcript({
       speakers,
       speakerDot,
       onSpeakerRename: rename,
+      speakerNameMaxLength,
+      speakerNameMaxLengthMessage,
       renderedCount,
       ensureRendered,
       formatTime,
@@ -697,6 +717,8 @@ export function Transcript({
       speakers,
       speakerDot,
       rename,
+      speakerNameMaxLength,
+      speakerNameMaxLengthMessage,
       renderedCount,
       ensureRendered,
       formatTime,
@@ -785,6 +807,8 @@ interface RowProps {
   /** Renames this turn's speaker (every turn with the same id); `null` shows the name read-only. */
   onRename: ((id: string, name: string) => void) | null;
   speakerInputLabel: string;
+  speakerNameMaxLength: number | undefined;
+  speakerNameMaxLengthMessage: ((excess: number) => string) | undefined;
 }
 
 const TranscriptRow = React.memo(function TranscriptRow({
@@ -801,6 +825,8 @@ const TranscriptRow = React.memo(function TranscriptRow({
   nowPlayingLabel,
   onRename,
   speakerInputLabel,
+  speakerNameMaxLength,
+  speakerNameMaxLengthMessage,
 }: RowProps) {
   const active = useIsActive(activeStore, segment.id);
   return (
@@ -848,6 +874,12 @@ const TranscriptRow = React.memo(function TranscriptRow({
                 required
                 saveErrorToast={false}
                 label={speakerInputLabel}
+                editor={{
+                  type: "text",
+                  maxLength: speakerNameMaxLength,
+                  overflow: "allow",
+                  maxLengthMessage: speakerNameMaxLengthMessage,
+                }}
                 value={speaker}
                 onSave={(next) => {
                   const name = next.trim();
@@ -989,6 +1021,8 @@ export function TranscriptList({
     speakerName,
     speakerDot,
     onSpeakerRename,
+    speakerNameMaxLength,
+    speakerNameMaxLengthMessage,
     renderedCount,
     formatTime,
     seekLabel,
@@ -1025,6 +1059,8 @@ export function TranscriptList({
             nowPlayingLabel={nowPlayingLabel}
             onRename={onSpeakerRename}
             speakerInputLabel={speakerInputLabel}
+            speakerNameMaxLength={speakerNameMaxLength}
+            speakerNameMaxLengthMessage={speakerNameMaxLengthMessage}
           />
         );
       }),
@@ -1043,6 +1079,8 @@ export function TranscriptList({
       nowPlayingLabel,
       onSpeakerRename,
       speakerInputLabel,
+      speakerNameMaxLength,
+      speakerNameMaxLengthMessage,
     ],
   );
 
@@ -1275,6 +1313,8 @@ function SpeakerChip({
   onRename,
   renameLabel,
   inputLabel,
+  maxLength,
+  maxLengthMessage,
 }: {
   id: string;
   name: string;
@@ -1282,13 +1322,21 @@ function SpeakerChip({
   onRename: ((id: string, name: string) => void) | null;
   renameLabel: (name: string) => string;
   inputLabel: string;
+  maxLength: number | undefined;
+  maxLengthMessage: ((excess: number) => string) | undefined;
 }) {
+  const overId = React.useId();
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(name);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
+  // How far the name is past `maxLength` (0 within it): it doesn't save until shorter.
+  const over =
+    maxLength !== undefined ? Math.max(0, draft.trim().length - maxLength) : 0;
   const finish = (commit: boolean) => {
     const next = draft.trim();
+    // A name past the limit (seeded, or the limit lowered) is not saved; the field stays.
+    if (commit && maxLength !== undefined && next.length > maxLength) return;
     if (commit && next && next !== name) onRename?.(id, next);
     setEditing(false);
     requestAnimationFrame(() => buttonRef.current?.focus());
@@ -1300,12 +1348,15 @@ function SpeakerChip({
         role="listitem"
         data-slot="transcript-speaker"
         data-editing=""
-        className="inline-flex h-7 items-center gap-1.5 rounded-full border border-ring ps-2.5 pe-1"
+        data-over-limit={over > 0 ? "" : undefined}
+        className="inline-flex h-7 items-center gap-1.5 rounded-full border border-ring ps-2.5 pe-1 data-over-limit:border-destructive"
       >
         <SpeakerDot className={dot} />
         <Input
           autoFocus
           aria-label={inputLabel}
+          aria-invalid={over > 0 || undefined}
+          aria-describedby={over > 0 ? overId : undefined}
           value={draft}
           onChange={(event) => setDraft(event.currentTarget.value)}
           onFocus={(event) => event.currentTarget.select()}
@@ -1323,6 +1374,11 @@ function SpeakerChip({
           }}
           className="h-6 w-32 border-0 bg-transparent px-0 text-xs shadow-none dark:bg-transparent"
         />
+        {over > 0 ? (
+          <span id={overId} className="sr-only">
+            {(maxLengthMessage ?? defaultExcessMessage)(over)}
+          </span>
+        ) : null}
       </span>
     );
   }
@@ -1358,6 +1414,9 @@ function SpeakerChip({
 }
 
 const defaultRenameLabel = (name: string) => `Rename ${name}`;
+/** What a speaker's name says past its limit when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
 
 /**
  * @deprecated Rename speakers in place: each turn's speaker name in `TranscriptList` is
@@ -1381,8 +1440,14 @@ export function TranscriptSpeakers({
   inputLabel = "Speaker name",
   className,
 }: TranscriptSpeakersProps) {
-  const { speakers, speakerName, speakerDot, onSpeakerRename } =
-    useTranscript("TranscriptSpeakers");
+  const {
+    speakers,
+    speakerName,
+    speakerDot,
+    onSpeakerRename,
+    speakerNameMaxLength,
+    speakerNameMaxLengthMessage,
+  } = useTranscript("TranscriptSpeakers");
   if (speakers.length === 0) return null;
   return (
     <div
@@ -1400,6 +1465,8 @@ export function TranscriptSpeakers({
           onRename={onSpeakerRename}
           renameLabel={renameLabel}
           inputLabel={inputLabel}
+          maxLength={speakerNameMaxLength}
+          maxLengthMessage={speakerNameMaxLengthMessage}
         />
       ))}
     </div>

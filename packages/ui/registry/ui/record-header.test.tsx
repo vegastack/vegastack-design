@@ -84,3 +84,36 @@ test("the skeleton is decorative and keeps the header's heights", async () => {
   expect(root.getAttribute("aria-hidden")).toBe("true");
   expect(root.querySelector(".h-7")).not.toBeNull();
 });
+
+test("titleMaxLength: nothing is cut; past the limit the count and the host's message show and the rename waits", async () => {
+  const onRename = vi.fn();
+  const screen = await render(
+    <RecordHeader
+      title="Old"
+      titleLabel="Task title"
+      titleMaxLength={10}
+      titleMaxLengthMessage={(n) =>
+        `Title can be up to 10 characters. Remove ${n} to save.`
+      }
+      onRename={onRename}
+    />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: /Task title/ }));
+  const field = screen.getByRole("textbox", { name: "Task title" });
+  await expect.element(field).not.toHaveAttribute("maxlength");
+  await userEvent.clear(field);
+  await userEvent.type(field, "abcdefghijkl");
+  await expect.element(field).toHaveValue("abcdefghijkl");
+  const count = () =>
+    screen.container.querySelector('[data-slot="editable-cell-count"]');
+  await expect
+    .poll(() => count()?.textContent)
+    .toBe("12/10 · Title can be up to 10 characters. Remove 2 to save.");
+  expect(count()?.getAttribute("data-state")).toBe("over");
+  await userEvent.keyboard("{Enter}");
+  expect(onRename).not.toHaveBeenCalled();
+  await expect.element(field).toHaveAttribute("aria-invalid", "true");
+  await expectNoA11yViolations(screen.container);
+  await userEvent.keyboard("{Backspace}{Backspace}{Enter}");
+  expect(onRename).toHaveBeenCalledWith("abcdefghij");
+});

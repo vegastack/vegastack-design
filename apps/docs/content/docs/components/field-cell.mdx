@@ -67,6 +67,8 @@ Field types are data types. Everything a host knows — the options, the people,
 found, a link kind's icon and noun (the host's `InlineChip` kinds) — comes in through `config` and
 the host's providers. Locale and time zone come from the reader (`TimeZoneProvider`).
 
+A long text's `config.maxLength` (with `maxLengthMessage`, given the excess) counts from 80% of the limit and, past it, shows the host's message and refuses to commit — the rich editor is never cut while typing or pasting. A text field keeps its native limit (10,000 unless `config.maxLength` says otherwise).
+
 ## Scope
 
 | Behaviour                          | Where it lives                         |

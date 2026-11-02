@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.29.1 sha256-OxiH4Jo6RsEC1Tx/6oV7hcZnmuAEjXlY8OglHsIIHqc=
+// @vegastack share-dialog@0.29.1 sha256-q46bZ99c/LqKFqfd4D8U4ndTdn2kxFjwuHniS0ru1p4=
 
 "use client";
 
@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FieldCounter } from "@/components/ui/field";
 import {
   Collapsible,
   CollapsibleContent,
@@ -248,6 +249,10 @@ export interface ShareDialogLabels {
   moreFor?: (name: string) => string;
 }
 
+/** What the message says past its limit when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
+
 const defaultLabels: ShareDialogLabels = {
   title: "Share",
   invitePlaceholder: "Add people or teams…",
@@ -353,6 +358,19 @@ export interface ShareDialogProps {
    * for a retry — the host shows its own error. @default undefined
    */
   onInvite?: (invite: ShareInvite) => void | boolean | Promise<void | boolean>;
+  /**
+   * The most characters the invite message may hold (`String.length`, as a server counts it).
+   * Nothing typed or pasted is cut: a `n/max` count shows under the message from 80% of it, and
+   * past it the count turns destructive, `messageMaxLengthMessage` shows and Invite waits.
+   * @default undefined
+   */
+  messageMaxLength?: number;
+  /**
+   * What the message says while past `messageMaxLength`, given how many characters are over —
+   * the host's words.
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  messageMaxLengthMessage?: (excess: number) => string;
   /** Changes one row's level. @default undefined */
   onLevelChange?: (id: string, level: string) => void;
   /** Removes one row's access; adds "Remove access" to its menu. @default undefined */
@@ -512,6 +530,8 @@ export function ShareDialog({
   defaultInvitees = [],
   defaultInviteLevel,
   onInvite,
+  messageMaxLength,
+  messageMaxLengthMessage,
   onLevelChange,
   onRemove,
   generalAccess,
@@ -592,15 +612,27 @@ export function ShareDialog({
     setNotify(true);
   };
 
+  const messageCounterId = React.useId();
+  const messageErrorId = React.useId();
+  // The counter shows (and describes the message) from 80% of the limit — `FieldCounter`'s band.
+  const messageNearLimit =
+    messageMaxLength !== undefined && message.length >= messageMaxLength * 0.8;
+  // A message past the limit (a lowered limit) holds the invite until it is shorter.
+  const messageOver =
+    notify &&
+    messageMaxLength !== undefined &&
+    message.length > messageMaxLength;
+
   const sendInvite = async () => {
-    if (!onInvite || invitees.length === 0) return;
+    if (!onInvite || invitees.length === 0 || messageOver) return;
     setInviting(true);
     try {
       const saved = await onInvite({
         invitees,
         level: inviteLevel,
         notify,
-        message,
+        // With a limit set, a message hidden by turning Notify off is not sent (it may be past it).
+        message: notify || messageMaxLength === undefined ? message : "",
       });
       if (saved !== false) resetInvite();
     } catch {
@@ -638,7 +670,7 @@ export function ShareDialog({
         roleLabel={(label) => labels.inviteLevel(label)}
         onAdd={sendInvite}
         adding={inviting}
-        disabled={invitees.length === 0}
+        disabled={invitees.length === 0 || messageOver}
         addLabel={labels.invite}
       />
     ) : null;
@@ -653,13 +685,44 @@ export function ShareDialog({
         {labels.notify}
       </label>
       {notify ? (
-        <Textarea
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          placeholder={labels.messagePlaceholder}
-          aria-label={labels.messagePlaceholder.replace(/ \(optional\)$/, "")}
-          rows={3}
-        />
+        <div className="flex flex-col gap-1">
+          <Textarea
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder={labels.messagePlaceholder}
+            aria-label={labels.messagePlaceholder.replace(/ \(optional\)$/, "")}
+            aria-describedby={
+              [
+                messageNearLimit ? messageCounterId : null,
+                messageOver ? messageErrorId : null,
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
+            aria-invalid={messageOver || undefined}
+            rows={3}
+          />
+          {messageOver ? (
+            <p
+              id={messageErrorId}
+              data-slot="share-invite-message-error"
+              className="text-xs text-destructive-text"
+            >
+              {(messageMaxLengthMessage ?? defaultExcessMessage)(
+                message.length - messageMaxLength!,
+              )}
+            </p>
+          ) : null}
+          {messageMaxLength !== undefined ? (
+            <FieldCounter
+              id={messageCounterId}
+              data-slot="share-invite-message-counter"
+              value={message}
+              maxLength={messageMaxLength}
+              className="self-end"
+            />
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

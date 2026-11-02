@@ -677,3 +677,58 @@ test("section: collapsing keeps a reply draft", async () => {
     .element(screen.getByRole("textbox", { name: "Reply to Claude Code…" }))
     .toHaveValue("Half a thought");
 });
+
+test("instructionsMaxLength and replyMaxLength: nothing is cut; past the limit the host's message shows and Send waits", async () => {
+  const onReply = vi.fn();
+  const screen = await render(
+    <AgentPanel
+      {...base}
+      instructions="Draft."
+      onInstructionsChange={() => {}}
+      instructionsMaxLength={8}
+      onReply={onReply}
+      replyMaxLength={4}
+      replyMaxLengthMessage={(n) =>
+        `Reply can be up to 4 characters. Remove ${n} to send.`
+      }
+    />,
+  );
+  const reply = screen.getByRole("textbox", { name: /Reply to/ });
+  await expect.element(reply).not.toHaveAttribute("maxlength");
+  await userEvent.type(reply, "hello");
+  await expect.element(reply).toHaveValue("hello");
+  expect(
+    slot(screen.container, "agent-panel-reply-counter")?.textContent,
+  ).toContain("5/4");
+  expect(slot(screen.container, "agent-panel-reply-error")?.textContent).toBe(
+    "Reply can be up to 4 characters. Remove 1 to send.",
+  );
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  expect(onReply).not.toHaveBeenCalled();
+
+  await screen.getByRole("button", { name: "Edit instructions" }).click();
+  const box = screen.getByRole("textbox", { name: "Instructions" });
+  await expect.element(box).not.toHaveAttribute("maxlength");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("instructionsMaxLength: instructions already past the limit can't be saved until shorter", async () => {
+  const onInstructionsChange = vi.fn();
+  const screen = await render(
+    <AgentPanel
+      {...base}
+      instructions="Far too long."
+      onInstructionsChange={onInstructionsChange}
+      instructionsMaxLength={5}
+    />,
+  );
+  await screen.getByRole("button", { name: "Edit instructions" }).click();
+  const box = screen.getByRole("textbox", { name: "Instructions" });
+  await expect.element(box).toHaveAttribute("aria-invalid", "true");
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await userEvent.keyboard("{Meta>}{Enter}{/Meta}");
+  expect(onInstructionsChange).not.toHaveBeenCalled();
+  await box.fill("Short");
+  await screen.getByRole("button", { name: "Save" }).click();
+  expect(onInstructionsChange).toHaveBeenCalledWith("Short");
+});
