@@ -148,18 +148,24 @@ reads 2026), a link shows without its scheme and without a trailing slash on a b
 is clipped on its line rather than ending in an ellipsis, and every person is their avatar and
 name. The editor draws no border, fill or shadow of its own (an invalid draft turns its text
 destructive, and a number's steppers go). A text field is one wrapping box that grows to
-`max-h-60` then scrolls, its newlines typed or pasted becoming spaces; a number field is typed as
-written — the reader's decimal mark, no grouping, no steppers, <kbd>↑</kbd> and <kbd>↓</kbd>
+`max-h-60` then scrolls, its newlines typed or pasted becoming spaces; a number, currency or
+percent field is typed as written — the reader's decimal mark, no grouping, no symbol, no border
+and no steppers (the resting cell shows the symbol and the grouping), <kbd>↑</kbd> and <kbd>↓</kbd>
 step by 1, and "-", "." and "1." are drafts on the way to a value (one that never becomes a number
-cancels when focus leaves). The commit keys are the grid's, as above.
+cancels when focus leaves). A percent is typed as the points its cell shows ("42" for 42%) and
+committed as the fraction it is stored as (0.42). The commit keys are the grid's, as above.
 
 Long text edits where the floating editor is, on its own surface (no second popover from it), and
 grows to 15rem before it scrolls. A person is the chosen people as removable chips over the
 `PeoplePicker` list, which leaves them out; a multiple field toggles with the editor open and
 commits when focus leaves it, a single field commits on the pick. A date, and a date-time's date,
 take the picker's inline (`ghost`) tier, so the date and the time read as one field on the surface.
-Give the floating editor `floatingCellEditorSize(type)` and leave its `onDismiss` unset for these:
-a press outside moves focus away, and that commits.
+A date's calendar is open from the first render, like a choice's list, and a day is the commit:
+closing the calendar with no day (a press outside, <kbd>Esc</kbd>, the trigger pressed again)
+cancels the edit, so the floating editor and the page lock behind it go with it; pressing the
+chosen day again keeps it, and the × beside it clears. Give the floating editor
+`floatingCellEditorSize(type)` and leave its `onDismiss` unset for the person and date-time
+editors: a press outside moves focus away, and that commits.
 
 ```tsx
 <FieldCellDisplay variant="cell" type="url" value="https://example.com/" />

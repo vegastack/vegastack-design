@@ -355,6 +355,18 @@ scrolling ancestor, so the grid's scroll bar rests at the bottom of the window e
 are few; it follows the window and anything above the grid that comes, goes or resizes, and is
 never under 240px. A `maxHeight` of its own wins. Inside an `AppShellPage`, wrap the grid in
 [`AppShellBleed`](/docs/components/app-shell) so it reaches the page's side edges and bottom.
+`fill` re-measures when anything above the grid moves it — a banner or a filter row that comes or
+goes changes the page's column, not the grid's own wrapper, so every ancestor up to the scroller is
+watched — and the viewport gives back or takes the height at once. The docked selection bar
+(`selectionActions`) floats over the bottom of the window and never changes the viewport's height:
+while rows are checked a filling grid keeps the bar's room (at least the `endSpacer`) as a band
+after its last row, inside the scroll, so the last row stays reachable above the bar and the bar
+covers the grid's horizontal scroll bar rather than lifting it (`DataList` and a grid that does not
+fill flow with the page, where the in-flow `SelectionBarSpacer` is the room). Below 240px of room —
+a window too short for the grid's header and a few rows — the grid holds its floor and the page
+scrolls to reach it, the one case with two vertical scroll bars: the grid's rows are windowed
+(`virtualize` needs a bounded viewport), so it cannot grow to its rows and let the page alone
+scroll.
 `endSpacer` leaves a band (180px, or the pixels given) after the last row so the last rows scroll
 clear of anything floating at the bottom, `columnDividers` rules every column's end (the frozen
 columns too, drawn over their sticky background) and `editingTint` fills the cell being edited with

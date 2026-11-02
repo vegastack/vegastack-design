@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.29.1 sha256-PgkuvHVMmLSuaz6xTO6JxjZKwKW16NpNsmD2ZlmiTTs=
+// @vegastack date-picker@0.29.1 sha256-RBEeOFA6DeBxoNJ/EHm31zsh16Rb4B54FM9egM8q3J4=
 
 "use client";
 
@@ -380,6 +380,25 @@ export interface DatePickerProps {
    */
   onValueChange?: (date: Date | undefined) => void;
   /**
+   * The calendar's open state (controlled). Pair it with `onOpenChange`; omit it and the picker
+   * opens and closes itself.
+   * @default undefined
+   */
+  open?: boolean;
+  /**
+   * Fires when the calendar opens or closes, after the `onValueChange` of the day that closed it
+   * (a day picked, a preset chosen), so a host can tell a choice from a dismissal: a press
+   * outside, Escape or the trigger pressed again close it with no pick. The second argument is
+   * Base UI's event details: the `reason` it changed and the `event` behind it.
+   * @default undefined
+   */
+  onOpenChange?: (
+    open: boolean,
+    eventDetails?: Parameters<
+      NonNullable<React.ComponentProps<typeof Popover>["onOpenChange"]>
+    >[1],
+  ) => void;
+  /**
    * Trigger text shown when no date is selected.
    * @default "Pick a date"
    */
@@ -513,6 +532,8 @@ const GHOST_TRIGGER =
 export function DatePicker({
   value,
   onValueChange,
+  open: openProp,
+  onOpenChange,
   placeholder = "Pick a date",
   formatOptions = DEFAULT_DATE_FORMAT,
   locale,
@@ -534,7 +555,15 @@ export function DatePicker({
   renderValue,
   ref,
 }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false);
+  const [openState, setOpenState] = React.useState(false);
+  const open = openProp ?? openState;
+  const setOpen: NonNullable<DatePickerProps["onOpenChange"]> = (
+    next,
+    eventDetails,
+  ) => {
+    setOpenState(next);
+    onOpenChange?.(next, eventDetails);
+  };
   const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
   const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
   const showClear = clearable && value !== undefined;
