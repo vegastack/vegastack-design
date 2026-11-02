@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.31.0 sha256-P8RjKt/PXuVcrG6zOHXig0YfbN/8gy58sM8j/WaHPlg=
+// @vegastack chip-input@0.31.0 sha256-89Y37lT3XZv9ucRHngUfM9q6R9cEs7WucpSMQlvEcM4=
 
 "use client";
 
@@ -270,13 +270,16 @@ export function ChipInput({
    * the entries refused for `maxLength`, which go back into the input so nothing typed is lost.
    */
   const addEntries = React.useCallback(
-    (raws: string[]): { clear: boolean; tooLong: string[] } => {
+    (
+      raws: string[],
+    ): { clear: boolean; tooLong: string[]; overCap: string[] } => {
       const next = [...chips];
       let added = 0;
       let invalid = 0;
       let duplicates = 0;
       let overMax = 0;
       const tooLong: string[] = [];
+      const overCap: string[] = [];
       for (const raw of raws) {
         const chip = normalize(raw);
         if (chip.length === 0) continue;
@@ -291,6 +294,7 @@ export function ChipInput({
         }
         if (max !== undefined && next.length >= max) {
           overMax += 1;
+          overCap.push(raw);
           continue;
         }
         next.push(chip);
@@ -333,7 +337,7 @@ export function ChipInput({
           : null,
       );
       // A refused entry at the cap stays in the input, so nothing typed is lost.
-      return { clear: added > 0 || duplicates > 0, tooLong };
+      return { clear: added > 0 || duplicates > 0, tooLong, overCap };
     },
     [
       chips,
@@ -449,7 +453,10 @@ export function ChipInput({
           aria-label={ariaLabel}
           aria-describedby={hasInvalidChip ? describeId : undefined}
           aria-invalid={
-            hasInvalidChip || (refused && pending !== "") || undefined
+            hasInvalidChip ||
+            // Opt-in: only a host tracking the input (`onPendingChange`) gets the refused state.
+            (onPendingChange !== undefined && refused && pending !== "") ||
+            undefined
           }
           placeholder={chips.length === 0 ? placeholder : undefined}
           disabled={disabled}
@@ -484,17 +491,19 @@ export function ChipInput({
             const parts = text.split(splitOn);
             if (parts.length < 2) return;
             event.preventDefault();
-            const { tooLong } = addEntries(parts);
-            // A pasted entry too long to add lands in the input instead of being dropped.
-            if (tooLong.length > 0) setRefused(true);
-            if (tooLong.length > 0)
+            const { tooLong, overCap } = addEntries(parts);
+            // A pasted entry too long to add lands in the input instead of being dropped — and,
+            // for a host that tracks the input (`onPendingChange`), one past `max` too.
+            const back = onPendingChange ? [...tooLong, ...overCap] : tooLong;
+            if (back.length > 0) setRefused(true);
+            if (back.length > 0)
               // What was already typed keeps its own entries (split as a commit would).
               setDraft((current) =>
                 rejoin(`${current}\n${text}`, [
                   ...(current.trim()
                     ? current.split(splitOn).filter((entry) => entry.trim())
                     : []),
-                  ...tooLong,
+                  ...back,
                 ]),
               );
           }}

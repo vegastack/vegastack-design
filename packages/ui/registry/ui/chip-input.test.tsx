@@ -528,3 +528,33 @@ test("onPendingChange: text a commit refused is reported, so a form can hold its
     expect(onPendingChange).toHaveBeenLastCalledWith(null),
   );
 });
+
+test("onPendingChange: entries a paste couldn't add past `max` come back into the input; without the prop nothing changes", async () => {
+  const onPendingChange = vi.fn();
+  const pasteInto = (input: HTMLElement, text: string) => {
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: { getData: () => text },
+    });
+    input.dispatchEvent(paste);
+  };
+  const screen = await render(
+    <ChipInput aria-label="Tags" max={1} onPendingChange={onPendingChange} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  pasteInto(input.element() as HTMLElement, "one,two");
+  await expect.element(input).toHaveValue("two");
+  await vi.waitFor(() =>
+    expect(onPendingChange).toHaveBeenLastCalledWith({
+      text: "two",
+      refused: true,
+    }),
+  );
+
+  const plain = await render(
+    <ChipInput aria-label="Plain" max={1} maxLength={3} />,
+  );
+  const other = plain.getByRole("textbox", { name: "Plain" });
+  await userEvent.type(other, "toolong{Enter}");
+  await expect.element(other).not.toHaveAttribute("aria-invalid");
+});
