@@ -10641,7 +10641,8 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/list-toolbar",
-        "@vegastack/spinner"
+        "@vegastack/spinner",
+        "@vegastack/field"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -10674,6 +10675,7 @@
                 "add-filter-menu-ai",
                 "add-filter-menu-body",
                 "add-filter-menu-content",
+                "add-filter-menu-counter",
                 "add-filter-menu-divider",
                 "add-filter-menu-editor",
                 "add-filter-menu-field",

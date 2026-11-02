@@ -2133,6 +2133,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/field",
         "@vegastack/input-group",
         "@vegastack/list-toolbar",
         "@vegastack/spinner"
@@ -2148,7 +2149,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.29.1",
-        "integrity": "sha256-keeR7HNG3hgsYuq3RRlzIPTj/OxNXbsz0k9VKWcWIO0="
+        "integrity": "sha256-jnFu5svEKClo+2Sa80YKbxYkUHEOaXKu8kYHAdDO3GA="
       }
     },
     {
@@ -2979,7 +2980,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.29.1",
-        "integrity": "sha256-cSMWIaT5RM7M7SjTK8gM/q7f+pGYjme28u12PnG0oPA="
+        "integrity": "sha256-hZQlM1S+rfXuiRny6p07qPc5V5pPpw4RsMvZU0xIWcc="
       }
     },
     {
@@ -17023,7 +17024,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.29.1",
-        "integrity": "sha256-gTNd7xey8OLI1B4XfYCf7UN1HXaKp0WRNrMiDjIajgg="
+        "integrity": "sha256-IG19wZf9sRnZ0ysZ8m/SUOVsEmc+chOMa1uVDYI6T/E="
       }
     },
     {

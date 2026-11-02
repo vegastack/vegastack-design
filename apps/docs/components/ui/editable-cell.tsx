@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.29.1 sha256-cSMWIaT5RM7M7SjTK8gM/q7f+pGYjme28u12PnG0oPA=
+// @vegastack editable-cell@0.29.1 sha256-hZQlM1S+rfXuiRny6p07qPc5V5pPpw4RsMvZU0xIWcc=
 
 "use client";
 
@@ -736,7 +736,8 @@ function InlineTextBody({
     inputMode,
     maxLength: softMaxLength ? undefined : maxLength,
     onPaste,
-    "aria-invalid": invalid || undefined,
+    // A soft limit is invalid while the draft is past it, not only after a refused save.
+    "aria-invalid": invalid || over > 0 || undefined,
     onBlur: () => {
       if (accepts(edit.draft)) edit.commit();
     },
@@ -873,7 +874,11 @@ function InlineTextBody({
             ref={edit.editRef}
             rows={1}
             {...fieldProps}
-            onChange={(event) => onDraftChange(event.target.value)}
+            onChange={(event) => {
+              onDraftChange(event.target.value);
+              if (invalid && validate?.(event.target.value.trim()))
+                setInvalid(false);
+            }}
           />
         ) : (
           <input

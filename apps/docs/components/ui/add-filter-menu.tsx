@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.29.1 sha256-keeR7HNG3hgsYuq3RRlzIPTj/OxNXbsz0k9VKWcWIO0=
+// @vegastack add-filter-menu@0.29.1 sha256-jnFu5svEKClo+2Sa80YKbxYkUHEOaXKu8kYHAdDO3GA=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   ListToolbarPopover,
   useListToolbar,
 } from "@/components/ui/list-toolbar";
+import { FieldCounter } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 
 /* ---
@@ -270,6 +271,9 @@ export function AddFilterMenu({
   // How far a request is past the AI's limit (0 within it): the AI item waits, and says why.
   const overBy =
     ai?.maxLength !== undefined ? Math.max(0, text.length - ai.maxLength) : 0;
+  const nearLimit =
+    ai?.maxLength !== undefined && text.length >= ai.maxLength * 0.8;
+  const counterId = React.useId();
   const needle = text.toLowerCase();
   const matches = fields.filter(
     (field) =>
@@ -429,8 +433,14 @@ export function AddFilterMenu({
             value={query}
             onChange={(event) => setQuery(event.currentTarget.value)}
             aria-describedby={
-              message != null || overBy > 0 ? messageId : undefined
+              [
+                message != null || overBy > 0 ? messageId : null,
+                nearLimit ? counterId : null,
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
             }
+            aria-invalid={overBy > 0 || undefined}
             placeholder={labels.placeholder}
             aria-label={labels.filter}
             role="combobox"
@@ -462,6 +472,15 @@ export function AddFilterMenu({
             </InputGroupAddon>
           ) : null}
         </InputGroup>
+        {ai?.maxLength !== undefined ? (
+          <FieldCounter
+            id={counterId}
+            data-slot="add-filter-menu-counter"
+            value={text}
+            maxLength={ai.maxLength}
+            className="self-end px-1.5"
+          />
+        ) : null}
         {message == null && overBy > 0 ? (
           <p
             id={messageId}

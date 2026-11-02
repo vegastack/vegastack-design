@@ -1896,6 +1896,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/field",
         "@vegastack/input-group",
         "@vegastack/list-toolbar",
         "@vegastack/spinner"
