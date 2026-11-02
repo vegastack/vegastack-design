@@ -18160,7 +18160,7 @@
         "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.31.0",
-        "integrity": "sha256-kcUw07H3fEP2SgsBAOy7qmy4lufowo7o6HapN85m5jg="
+        "integrity": "sha256-16oNgKpck4TEkZCmNCYohcb70G5fM2uM0NvU5yN7Arg="
       }
     },
     {
