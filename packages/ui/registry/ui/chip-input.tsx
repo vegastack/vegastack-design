@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.31.0 sha256-89Y37lT3XZv9ucRHngUfM9q6R9cEs7WucpSMQlvEcM4=
+// @vegastack chip-input@0.31.0 sha256-Ty7gHGTnDTrU7qYP7ZlhOss6rdQ5RmhEb6ZhUZYILmw=
 
 "use client";
 
@@ -399,14 +399,16 @@ export function ChipInput({
   const commitDraft = React.useCallback(() => {
     if (draft.trim().length === 0) return;
     const parts = draft.split(splitOn);
-    const { clear, tooLong } = addEntries(parts);
-    // An entry too long to add stays in the input to be shortened — a lone one exactly as typed.
-    if (tooLong.length > 0) {
-      if (parts.length > 1) setDraft(rejoin(draft, tooLong));
+    const { clear, tooLong, overCap } = addEntries(parts);
+    // What couldn't be added stays in the input — a lone entry exactly as typed. Entries past
+    // `max` stay too for a host that tracks the input (`onPendingChange`).
+    const back = onPendingChange ? [...tooLong, ...overCap] : tooLong;
+    if (back.length > 0) {
+      if (parts.length > 1) setDraft(rejoin(draft, back));
       setRefused(true);
     } else if (clear) setDraft("");
     else setRefused(true);
-  }, [draft, addEntries, splitOn, rejoin]);
+  }, [draft, addEntries, splitOn, rejoin, onPendingChange]);
 
   return (
     // The column that puts the refusal line UNDER the box wherever the field sits (a Field,

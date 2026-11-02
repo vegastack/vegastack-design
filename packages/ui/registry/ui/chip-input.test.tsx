@@ -558,3 +558,25 @@ test("onPendingChange: entries a paste couldn't add past `max` come back into th
   await userEvent.type(other, "toolong{Enter}");
   await expect.element(other).not.toHaveAttribute("aria-invalid");
 });
+
+test("onPendingChange: committing a list past `max` keeps the entries that didn't fit", async () => {
+  const onPendingChange = vi.fn();
+  const screen = await render(
+    <ChipInput
+      aria-label="Tags"
+      max={2}
+      defaultValue={["one"]}
+      onPendingChange={onPendingChange}
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await userEvent.fill(input, "three,four");
+  await userEvent.keyboard("{Enter}");
+  await expect.element(input).toHaveValue("four");
+  await vi.waitFor(() =>
+    expect(onPendingChange).toHaveBeenLastCalledWith({
+      text: "four",
+      refused: true,
+    }),
+  );
+});
