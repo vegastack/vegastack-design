@@ -14797,7 +14797,7 @@
       "meta": {
         "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
-        "version": "0.31.0"
+        "version": "0.32.0"
       }
     },
     {

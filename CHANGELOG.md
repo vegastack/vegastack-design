@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.32.0] — November 2, 2026
+
+<!-- assembled from 1 changeset: 5d566eb704c9 -->
+
+### 🧩 New components
+
+- `RecordHeader` takes `leading`: a control before the title (a status circle that opens a menu). Unlike the decorative `icon` it is not `aria-hidden`, it comes before the title in focus order, and it is centred on the title's first line (`data-slot="record-header-leading"`). Optional; without it nothing changes.
+  [`8b88717`](https://github.com/VegaStack/vegastack-design/commit/8b88717)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.31.0 → 0.32.0.
+
 ## [0.31.0] — November 2, 2026
 
 <!-- assembled from 1 changeset: fc231bf3d853 -->

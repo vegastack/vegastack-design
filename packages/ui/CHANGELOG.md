@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.32.0
+
+### Minor Changes
+
+- [#886](https://github.com/vegastack/vegastack-design/pull/886) [`8b88717`](https://github.com/vegastack/vegastack-design/commit/8b887175d97fb0f4f212c2c1826598aa316229a9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `RecordHeader` takes `leading`: a control before the title (a status circle that opens a menu). Unlike the decorative `icon` it is not `aria-hidden`, it comes before the title in focus order, and it is centred on the title's first line (`data-slot="record-header-leading"`). Optional; without it nothing changes.
+
 ## 0.31.0
 
 ### Minor Changes
