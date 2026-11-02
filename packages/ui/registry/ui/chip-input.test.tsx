@@ -494,5 +494,5 @@ test("maxLength: refused entries split by a separator a one-line input drops com
   await vi.waitFor(() =>
     expect(onValueChange).toHaveBeenLastCalledWith(["ok"]),
   );
-  await expect.element(input).toHaveValue("toolong, alsolong");
+  await expect.element(input).toHaveValue("toolong,alsolong");
 });
