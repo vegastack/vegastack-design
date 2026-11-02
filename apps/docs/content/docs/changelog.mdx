@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.31.0] — November 2, 2026
+
+### 🔧 Changed components
+
+- Text limits that never cut what a person typed or pasted, counted like a server (`String.length`; trimmed where the server trims). Each shows a count near the limit, turns it destructive past it with the host's message (a function of how many characters are over, e.g. "Remove 400 to send"), marks the field `aria-invalid` and described by that message, and holds the component's own save or send until the text is shorter. `RecordHeader` `titleMaxLength`/`titleMaxLengthMessage` and `Transcript` `speakerNameMaxLength`/`speakerNameMaxLengthMessage` (through `EditableCell`'s new text `overflow: "allow"` with `maxLengthMessage`; the default `"truncate"` is unchanged, and now never commits a value already past `maxLength`); `ShareDialog` `messageMaxLength`/`messageMaxLengthMessage`; `AgentPanel` `instructionsMaxLength`/`replyMaxLength` with their messages; `CommentComposer`, `CommentItem`, `CommentList` and a `CommentThread`'s `composer` take `maxLength`/`maxLengthMessage`; a long text's `FieldConfig.maxLength`/`maxLengthMessage` in `FieldInput`, the cell editor and `FieldProperty`. `ChipInput` takes `maxLength` per chip with `maxLengthLabel`: a longer entry is not added and stays in (or a pasted one comes back into) the input as typed. `AddFilterMenu` takes `ai.maxLength`/`ai.maxLengthMessage`, and no longer swallows a failed request: a thrown `Error`'s message shows (`labels.unavailable` when it has none), or `AiFilterResult.error` shows the host's words. `DropdownMenuInput` gains an `error` slot under the field (`aria-invalid`, described by it) for a refused autosave. Every prop is optional; without them nothing changes.
+  [`76e57a7`](https://github.com/VegaStack/vegastack-design/commit/76e57a7)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.30.0 → 0.31.0.
+
 ## [0.30.0] — November 2, 2026
 
 ### 🧩 New components

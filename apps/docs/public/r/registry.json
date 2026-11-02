@@ -356,8 +356,8 @@
       "meta": {
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
-        "version": "0.29.1",
-        "integrity": "sha256-GJ/iliDYaSQd8EmFiaQ+WXzrvfRaUfxC2mYFL8bhucM="
+        "version": "0.31.0",
+        "integrity": "sha256-enzkDeGBpDTEHqLdodLB2nnNiRtNSm7LvgpGbt9PdAA="
       }
     },
     {
@@ -1321,8 +1321,8 @@
       "meta": {
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
-        "version": "0.29.1",
-        "integrity": "sha256-nbcsm6fMwBY4+5EG3HbP909qMOLkmwJx5wYpiuYo9dY="
+        "version": "0.31.0",
+        "integrity": "sha256-chY1stzt3RZTyEUDl3oQuC0rPaHnJHEUNoo0rybJFwQ="
       }
     },
     {
@@ -1712,8 +1712,8 @@
       "meta": {
         "whenToUse": "A menu that carries an input, a setting switch, or opens where the pointer was (a column header's field menu).",
         "whenNotToUse": "A form of several fields (a Popover or a Dialog with Field).",
-        "version": "0.29.1",
-        "integrity": "sha256-Yjkh5Q18wEq36ULabfP5s4ikrahUoVvAQfGYRxaEw1o="
+        "version": "0.31.0",
+        "integrity": "sha256-uMNuh/m+fjLFz0tGSL9vuminDEmN2R6lmHoxBA/lVNo="
       }
     },
     {
@@ -2148,8 +2148,8 @@
       "meta": {
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
-        "version": "0.29.1",
-        "integrity": "sha256-jnFu5svEKClo+2Sa80YKbxYkUHEOaXKu8kYHAdDO3GA="
+        "version": "0.31.0",
+        "integrity": "sha256-04jO8vuV9dzXbnzNDa0daN0g/y6yrexmALbF2dYdY+U="
       }
     },
     {
@@ -2979,8 +2979,8 @@
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
-        "version": "0.29.1",
-        "integrity": "sha256-hZQlM1S+rfXuiRny6p07qPc5V5pPpw4RsMvZU0xIWcc="
+        "version": "0.31.0",
+        "integrity": "sha256-sY0zdzNA2a+yPERMd81O7gWZ6AhDcIpSuvG1VNr/uMA="
       }
     },
     {
@@ -3035,8 +3035,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.29.3",
-        "integrity": "sha256-iqC9HBQgBi36pAjzQq2YfupKkgIW6iPEsQdoVjbLOOY="
+        "version": "0.31.0",
+        "integrity": "sha256-uVxUvVrT12zxfATS1uGfd0qLfF27OhX0Wn0zfPg1KOE="
       }
     },
     {
@@ -17023,8 +17023,8 @@
       "meta": {
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
-        "version": "0.29.1",
-        "integrity": "sha256-IG19wZf9sRnZ0ysZ8m/SUOVsEmc+chOMa1uVDYI6T/E="
+        "version": "0.31.0",
+        "integrity": "sha256-t0G1qM2VzdLvDSF52u/B1IqMhHrdNJDK8jhllMvMwR4="
       }
     },
     {
@@ -18159,8 +18159,8 @@
       "meta": {
         "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
-        "version": "0.29.1",
-        "integrity": "sha256-2kezdMZyf2fyxMe7tpSb/xNi0UdbLTY6fO2QXpz3jQU="
+        "version": "0.31.0",
+        "integrity": "sha256-kcUw07H3fEP2SgsBAOy7qmy4lufowo7o6HapN85m5jg="
       }
     },
     {
@@ -20182,8 +20182,8 @@
       "meta": {
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members — MemberList.",
-        "version": "0.29.1",
-        "integrity": "sha256-q46bZ99c/LqKFqfd4D8U4ndTdn2kxFjwuHniS0ru1p4="
+        "version": "0.31.0",
+        "integrity": "sha256-yNUlKI+lwrF/xhe0Q9X0KlVo4+5g7hMw0PfcVBRhfJ0="
       }
     },
     {
@@ -23260,8 +23260,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.29.1",
-        "integrity": "sha256-5kevNEhOECYfrm0Ez+WhGtlAfsvvZOls0tWYe6woqRQ="
+        "version": "0.31.0",
+        "integrity": "sha256-arReEdEnfPZ2z7HaezxIoKVxlwxcUlgt+zW5ZA5U0/M="
       }
     },
     {
