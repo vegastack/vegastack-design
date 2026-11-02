@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.29.1 sha256-7DGEAwd4B/KbQCMpFcQS+uaYX8jPNlj4oCBDuzr4xGE=
+// @vegastack chip-input@0.29.1 sha256-MMR6Jl4tRsy9JtkSFiSaJTLFQ/BBDlWmxilWmGbzq8s=
 
 "use client";
 
@@ -347,11 +347,6 @@ export function ChipInput({
    */
   const rejoin = React.useCallback(
     (text: string, entries: string[]) => {
-      // A fresh, stateless copy: a caller's /g or /y would make `exec` and `test` stateful.
-      const pattern = new RegExp(
-        splitOn.source,
-        splitOn.flags.replace(/[gy]/g, ""),
-      );
       // A separator that gives back exactly these entries when the text is split again.
       const roundTrips = (separator: string) => {
         const back = entries.join(separator).split(splitOn);
@@ -360,20 +355,18 @@ export function ChipInput({
           back.every((entry, i) => entry === entries[i])
         );
       };
-      // The one the text used, unless it holds a line break (a one-line input drops it); then
-      // the first common one the pattern splits on cleanly. A pattern that splits on line breaks
+      // The ones the text used, unless they hold a line break (a one-line input drops it); then
+      // the common ones the pattern splits on cleanly. A pattern that splits on line breaks
       // alone can't hold two entries on one line: they are kept, joined by a space.
-      const used = pattern.exec(text)?.[0];
+      const used = [
+        ...text.matchAll(
+          new RegExp(splitOn.source, `${splitOn.flags.replace(/[gy]/g, "")}g`),
+        ),
+      ]
+        .map((match) => match[0])
+        .filter((separator) => separator !== "" && !/[\r\n]/.test(separator));
       const separator =
-        [
-          ...(used !== undefined && !/[\r\n]/.test(used) ? [used] : []),
-          ",",
-          ";",
-          ":",
-          "|",
-          "\t",
-          " ",
-        ].find(roundTrips) ?? " ";
+        [...used, ",", ";", ":", "|", "\t", " "].find(roundTrips) ?? " ";
       return entries.join(separator);
     },
     [splitOn],
@@ -469,8 +462,14 @@ export function ChipInput({
             const { tooLong } = addEntries(parts);
             // A pasted entry too long to add lands in the input instead of being dropped.
             if (tooLong.length > 0)
+              // What was already typed keeps its own entries (split as a commit would).
               setDraft((current) =>
-                rejoin(text, current.trim() ? [current, ...tooLong] : tooLong),
+                rejoin(text, [
+                  ...(current.trim()
+                    ? current.split(splitOn).filter((entry) => entry.trim())
+                    : []),
+                  ...tooLong,
+                ]),
               );
           }}
         />
