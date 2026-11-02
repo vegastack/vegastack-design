@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.29.3 sha256-zDv8bjkSwqukwAVCLf38RAQ5LXB9iUBncXkXg3zObZI=
+// @vegastack field-cell@0.29.3 sha256-iqC9HBQgBi36pAjzQq2YfupKkgIW6iPEsQdoVjbLOOY=
 
 "use client";
 
@@ -282,10 +282,11 @@ export interface FieldConfig {
    */
   maxLength?: number;
   /**
-   * What a long text says while it is over `maxLength` — the host's words.
-   * @default `Up to ${maxLength} characters`
+   * What a long text says while it is over `maxLength`, given how many characters are over — the
+   * host's words.
+   * @default (excess) => `Remove ${excess} characters`
    */
-  maxLengthMessage?: string;
+  maxLengthMessage?: (excess: number) => string;
   /** An auto-number's prefix ("SR-"). @default "" */
   prefix?: string;
   /** A person field holds several. @default false */
@@ -949,7 +950,11 @@ export function FieldCellDisplay({
 function longTextOver(text: string, config: FieldConfig): string | null {
   const max = config.maxLength;
   if (max === undefined || text.length <= max) return null;
-  return config.maxLengthMessage ?? `Up to ${max} characters`;
+  const excess = text.length - max;
+  return (
+    config.maxLengthMessage?.(excess) ||
+    `Remove ${excess} ${excess === 1 ? "character" : "characters"}`
+  );
 }
 
 /** Under a long text's editor: past the limit, its message; near it, the `n/max` count. */

@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.29.1 sha256-4kMNNFSyU0ABh3P2jgrtskPNTHkqG/Lg88hd3u1A3Vc=
+// @vegastack agent-panel@0.29.1 sha256-5kevNEhOECYfrm0Ez+WhGtlAfsvvZOls0tWYe6woqRQ=
 
 "use client";
 
@@ -1022,12 +1022,19 @@ export interface AgentPanelProps extends Omit<
    */
   onInstructionsChange?: (instructions: string) => void | Promise<void>;
   /**
-   * The most characters the instructions may hold while edited (`String.length`, as a server
-   * counts it). Typing stops there, a paste keeps what fits, and a `n/max` count shows under the
-   * editor from 80% of it.
+   * The most characters the instructions may hold while edited (`String.length` of the trimmed
+   * text, as a server counts it). Nothing typed or pasted is cut: a `n/max` count shows under the
+   * editor from 80% of it, and past it the count turns destructive, `instructionsMaxLengthMessage`
+   * shows and Save waits.
    * @default undefined
    */
   instructionsMaxLength?: number;
+  /**
+   * What the instructions say while past `instructionsMaxLength`, given how many characters are
+   * over — the host's words.
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  instructionsMaxLengthMessage?: (excess: number) => string;
   /** The agent's latest messages and changes, newest first; the first three show. @default [] */
   latest?: readonly AgentPanelEvent[];
   /** How many there are in all, for "Show all 5". @default undefined */
@@ -1041,11 +1048,18 @@ export interface AgentPanelProps extends Omit<
    */
   onReply?: (text: string) => void | Promise<void>;
   /**
-   * The most characters a reply may hold (`String.length`, as a server counts it). Typing stops
-   * there, a paste keeps what fits, and a `n/max` count shows under the box from 80% of it.
+   * The most characters a reply may hold (`String.length` of the trimmed text, as a server counts
+   * it). Nothing typed or pasted is cut: a `n/max` count shows under the box from 80% of it, and
+   * past it the count turns destructive, `replyMaxLengthMessage` shows and Send waits.
    * @default undefined
    */
   replyMaxLength?: number;
+  /**
+   * What the reply box says while past `replyMaxLength`, given how many characters are over — the
+   * host's words.
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  replyMaxLengthMessage?: (excess: number) => string;
   /** Why the reply box is disabled ("It's stopped"), shown under it. @default undefined */
   replyDisabledReason?: React.ReactNode;
   /** The agent's runs, newest first, under History. @default [] */
@@ -1065,6 +1079,10 @@ export interface AgentPanelProps extends Omit<
   /** Pin the clock for elapsed and relative times (docs, tests). @default undefined */
   now?: number;
 }
+
+/** What a box says past its limit when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
 
 /** The small button every state line uses. */
 function LineButton({
@@ -1347,6 +1365,7 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
   const nearLimit = max !== undefined && draft.length >= max * 0.8;
   // Past the limit (instructions saved before it, or a lowered limit): Save waits for a shorter text.
   const overLimit = max !== undefined && draft.trim().length > max;
+  const errorId = React.useId();
   const text = p.instructions?.trim() ? p.instructions : null;
   const canEdit = p.onInstructionsChange !== undefined;
   if (!text && !canEdit) return null;
@@ -1396,9 +1415,12 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
           <Textarea
             ref={editRef}
             aria-label={labels.instructions}
-            aria-describedby={nearLimit ? counterId : undefined}
+            aria-describedby={
+              [nearLimit ? counterId : null, overLimit ? errorId : null]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
             aria-invalid={overLimit || undefined}
-            maxLength={max}
             value={draft}
             // Read-only while saving, so the saved text is what the editor closes on.
             readOnly={saving}
@@ -1420,12 +1442,23 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
             }}
             className="min-h-16 text-sm"
           />
+          {overLimit ? (
+            <p
+              id={errorId}
+              data-slot="agent-panel-instructions-error"
+              className="text-xs text-destructive-text"
+            >
+              {(p.instructionsMaxLengthMessage ?? defaultExcessMessage)(
+                draft.trim().length - max!,
+              )}
+            </p>
+          ) : null}
           <div className="flex items-center justify-end gap-1.5">
             {max !== undefined ? (
               <FieldCounter
                 id={counterId}
                 data-slot="agent-panel-instructions-counter"
-                value={draft}
+                value={draft.trim()}
                 maxLength={max}
                 className="me-auto ms-0"
               />
@@ -1527,6 +1560,7 @@ function ReplyBox({
   const sendingRef = React.useRef(false);
   const reasonId = React.useId();
   const counterId = React.useId();
+  const errorId = React.useId();
   if (!p.onReply) return null;
   const max = p.replyMaxLength;
   const nearLimit = max !== undefined && text.length >= max * 0.8;
@@ -1562,11 +1596,14 @@ function ReplyBox({
           value={text}
           disabled={disabled}
           aria-describedby={
-            [disabled ? reasonId : null, nearLimit ? counterId : null]
+            [
+              disabled ? reasonId : null,
+              nearLimit ? counterId : null,
+              overLimit ? errorId : null,
+            ]
               .filter(Boolean)
               .join(" ") || undefined
           }
-          maxLength={max}
           aria-invalid={overLimit || undefined}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
@@ -1599,10 +1636,21 @@ function ReplyBox({
         <FieldCounter
           id={counterId}
           data-slot="agent-panel-reply-counter"
-          value={text}
+          value={text.trim()}
           maxLength={max}
           className="self-end"
         />
+      ) : null}
+      {overLimit ? (
+        <p
+          id={errorId}
+          data-slot="agent-panel-reply-error"
+          className="text-xs text-destructive-text"
+        >
+          {(p.replyMaxLengthMessage ?? defaultExcessMessage)(
+            text.trim().length - max!,
+          )}
+        </p>
       ) : null}
       {disabled ? (
         <p id={reasonId} className="text-xs text-muted-foreground">
@@ -1821,11 +1869,13 @@ const PANEL_KEYS = [
   "instructions",
   "onInstructionsChange",
   "instructionsMaxLength",
+  "instructionsMaxLengthMessage",
   "latest",
   "latestTotal",
   "onShowAll",
   "onReply",
   "replyMaxLength",
+  "replyMaxLengthMessage",
   "replyDisabledReason",
   "runs",
   "onViewAgent",

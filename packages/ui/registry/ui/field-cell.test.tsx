@@ -2335,13 +2335,16 @@ test("long text maxLength: a form input past it shows the host's message and tur
       value="abcdefghijkl"
       config={{
         maxLength: 10,
-        maxLengthMessage: "Notes can be up to 10 characters.",
+        maxLengthMessage: (n) =>
+          `Notes can be up to 10 characters. Remove ${n} to save.`,
       }}
       onChange={() => {}}
     />,
   );
   await expect
-    .element(screen.getByText("Notes can be up to 10 characters."))
+    .element(
+      screen.getByText("Notes can be up to 10 characters. Remove 2 to save."),
+    )
     .toBeVisible();
   expect(
     screen.container.querySelector('[data-slot="field-counter"]')?.textContent,
@@ -2359,7 +2362,7 @@ test("long text maxLength: a cell's editor over the limit does not commit; it st
       type="long_text"
       label="Notes"
       value="abcdefghijkl"
-      config={{ maxLength: 10, maxLengthMessage: "Too long." }}
+      config={{ maxLength: 10, maxLengthMessage: () => "Too long." }}
       onCommit={onCommit}
       onCancel={() => {}}
     />,

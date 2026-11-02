@@ -678,28 +678,37 @@ test("section: collapsing keeps a reply draft", async () => {
     .toHaveValue("Half a thought");
 });
 
-test("instructionsMaxLength and replyMaxLength: both boxes stop at the limit and count near it", async () => {
+test("instructionsMaxLength and replyMaxLength: nothing is cut; past the limit the host's message shows and Send waits", async () => {
+  const onReply = vi.fn();
   const screen = await render(
     <AgentPanel
       {...base}
       instructions="Draft."
       onInstructionsChange={() => {}}
       instructionsMaxLength={8}
-      onReply={() => {}}
+      onReply={onReply}
       replyMaxLength={4}
+      replyMaxLengthMessage={(n) =>
+        `Reply can be up to 4 characters. Remove ${n} to send.`
+      }
     />,
   );
   const reply = screen.getByRole("textbox", { name: /Reply to/ });
-  await expect.element(reply).toHaveAttribute("maxlength", "4");
+  await expect.element(reply).not.toHaveAttribute("maxlength");
   await userEvent.type(reply, "hello");
-  await expect.element(reply).toHaveValue("hell");
+  await expect.element(reply).toHaveValue("hello");
   expect(
     slot(screen.container, "agent-panel-reply-counter")?.textContent,
-  ).toContain("4/4");
+  ).toContain("5/4");
+  expect(slot(screen.container, "agent-panel-reply-error")?.textContent).toBe(
+    "Reply can be up to 4 characters. Remove 1 to send.",
+  );
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  expect(onReply).not.toHaveBeenCalled();
 
   await screen.getByRole("button", { name: "Edit instructions" }).click();
   const box = screen.getByRole("textbox", { name: "Instructions" });
-  await expect.element(box).toHaveAttribute("maxlength", "8");
+  await expect.element(box).not.toHaveAttribute("maxlength");
   await expectNoA11yViolations(screen.container);
 });
 

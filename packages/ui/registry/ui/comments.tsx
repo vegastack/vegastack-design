@@ -1,4 +1,4 @@
-// @vegastack comments@0.29.1 sha256-4ZmgCLvEM8WExoTWusDuukYJ315Qrv7CM5C/+hXEqa8=
+// @vegastack comments@0.29.1 sha256-GJ/iliDYaSQd8EmFiaQ+WXzrvfRaUfxC2mYFL8bhucM=
 
 "use client";
 
@@ -143,8 +143,8 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 /** What a box says while its text is over `maxLength`, when the host gave no words of its own. */
-const defaultMaxLengthMessage = (maxLength: number) =>
-  `Up to ${maxLength} characters`;
+const defaultMaxLengthMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
 
 /**
  * What a box's limit counts: the text as it posts, trimmed as a server trims it before its
@@ -160,11 +160,12 @@ const countedText = (text: string) => postable(text).trim();
 function overLimitMessage(
   text: string,
   maxLength: number | undefined,
-  message: string | undefined,
+  message: ((excess: number) => string) | undefined,
 ): string | null {
-  if (maxLength === undefined || countedText(text).length <= maxLength)
-    return null;
-  return message || defaultMaxLengthMessage(maxLength);
+  if (maxLength === undefined) return null;
+  const excess = countedText(text).length - maxLength;
+  if (excess <= 0) return null;
+  return message?.(excess) || defaultMaxLengthMessage(excess);
 }
 
 /**
@@ -267,10 +268,11 @@ export interface CommentItemProps {
    */
   maxLength?: number;
   /**
-   * What the edit box says while its text is over `maxLength` — the host's words.
-   * @default `Up to ${maxLength} characters`
+   * What the edit box says while its text is over `maxLength`, given how many characters are over
+   * — the host's words ("Comment can be up to 10,000 characters. Remove 400 to save.").
+   * @default (excess) => `Remove ${excess} characters`
    */
-  maxLengthMessage?: string;
+  maxLengthMessage?: (excess: number) => string;
   /** Replies, under the comment (one level of `CommentItem`s, each split by a hairline). @default undefined */
   replies?: React.ReactNode;
   /** Pin the relative time's clock (docs, tests). @default undefined */
@@ -1335,10 +1337,11 @@ export interface CommentComposerProps {
    */
   maxLength?: number;
   /**
-   * What the box says while its text is over `maxLength` — the host's words.
-   * @default `Up to ${maxLength} characters`
+   * What the box says while its text is over `maxLength`, given how many characters are over —
+   * the host's words ("Comment can be up to 10,000 characters. Remove 400 to send.").
+   * @default (excess) => `Remove ${excess} characters`
    */
-  maxLengthMessage?: string;
+  maxLengthMessage?: (excess: number) => string;
   /** Disable the composer. @default false */
   disabled?: boolean;
   /** Called on every change, e.g. to guard unsaved text. @default undefined */

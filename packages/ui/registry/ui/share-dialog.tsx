@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.29.1 sha256-d5//wPZ70derzeXK2vlLT6L00A4uSxZh88s/ieoMHno=
+// @vegastack share-dialog@0.29.1 sha256-q46bZ99c/LqKFqfd4D8U4ndTdn2kxFjwuHniS0ru1p4=
 
 "use client";
 
@@ -249,6 +249,10 @@ export interface ShareDialogLabels {
   moreFor?: (name: string) => string;
 }
 
+/** What the message says past its limit when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
+
 const defaultLabels: ShareDialogLabels = {
   title: "Share",
   invitePlaceholder: "Add people or teams…",
@@ -356,11 +360,17 @@ export interface ShareDialogProps {
   onInvite?: (invite: ShareInvite) => void | boolean | Promise<void | boolean>;
   /**
    * The most characters the invite message may hold (`String.length`, as a server counts it).
-   * Typing stops there, a paste keeps what fits, and a `n/max` count shows under the message from
-   * 80% of it.
+   * Nothing typed or pasted is cut: a `n/max` count shows under the message from 80% of it, and
+   * past it the count turns destructive, `messageMaxLengthMessage` shows and Invite waits.
    * @default undefined
    */
   messageMaxLength?: number;
+  /**
+   * What the message says while past `messageMaxLength`, given how many characters are over —
+   * the host's words.
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  messageMaxLengthMessage?: (excess: number) => string;
   /** Changes one row's level. @default undefined */
   onLevelChange?: (id: string, level: string) => void;
   /** Removes one row's access; adds "Remove access" to its menu. @default undefined */
@@ -521,6 +531,7 @@ export function ShareDialog({
   defaultInviteLevel,
   onInvite,
   messageMaxLength,
+  messageMaxLengthMessage,
   onLevelChange,
   onRemove,
   generalAccess,
@@ -602,6 +613,7 @@ export function ShareDialog({
   };
 
   const messageCounterId = React.useId();
+  const messageErrorId = React.useId();
   // The counter shows (and describes the message) from 80% of the limit — `FieldCounter`'s band.
   const messageNearLimit =
     messageMaxLength !== undefined && message.length >= messageMaxLength * 0.8;
@@ -679,11 +691,28 @@ export function ShareDialog({
             onChange={(event) => setMessage(event.target.value)}
             placeholder={labels.messagePlaceholder}
             aria-label={labels.messagePlaceholder.replace(/ \(optional\)$/, "")}
-            aria-describedby={messageNearLimit ? messageCounterId : undefined}
+            aria-describedby={
+              [
+                messageNearLimit ? messageCounterId : null,
+                messageOver ? messageErrorId : null,
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
             aria-invalid={messageOver || undefined}
-            maxLength={messageMaxLength}
             rows={3}
           />
+          {messageOver ? (
+            <p
+              id={messageErrorId}
+              data-slot="share-invite-message-error"
+              className="text-xs text-destructive-text"
+            >
+              {(messageMaxLengthMessage ?? defaultExcessMessage)(
+                message.length - messageMaxLength!,
+              )}
+            </p>
+          ) : null}
           {messageMaxLength !== undefined ? (
             <FieldCounter
               id={messageCounterId}

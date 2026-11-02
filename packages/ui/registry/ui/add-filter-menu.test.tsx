@@ -187,25 +187,36 @@ test("ai.onApplied fires after a run that added filters, once the popover has cl
   );
 });
 
-test("ai.maxLength caps the input; a thrown error's message and a returned error show, never swallowed", async () => {
+test("ai.maxLength: nothing is cut; past it the AI waits with the host's message; a thrown error's message and a returned error show", async () => {
   const onSubmit = vi
     .fn()
     .mockRejectedValueOnce(new Error("AI filters are over today's limit."))
-    .mockResolvedValueOnce({
-      added: 0,
-      error: "Request can be up to 12 characters.",
-    });
+    .mockResolvedValueOnce({ added: 0, error: "That request was refused." });
   const screen = await render(
-    <AddFilterMenu fields={FIELDS} ai={{ onSubmit, maxLength: 12 }} />,
+    <AddFilterMenu
+      fields={FIELDS}
+      ai={{
+        onSubmit,
+        maxLength: 12,
+        maxLengthMessage: (n) =>
+          `A filter request can be up to 12 characters. Remove ${n} to send.`,
+      }}
+    />,
   );
   await screen.getByRole("button", { name: "Filter" }).click();
   const input = screen.getByRole("combobox", { name: "Filter" });
-  await expect.element(input).toHaveAttribute("maxlength", "12");
-  await userEvent.type(input, "high priority due friday");
-  await expect.element(input).toHaveValue("high priorit");
-  await userEvent.keyboard("{Enter}");
+  await expect.element(input).not.toHaveAttribute("maxlength");
+  await userEvent.type(input, "high priority due");
+  await expect.element(input).toHaveValue("high priority due");
   const message = () =>
     document.querySelector('[data-slot="add-filter-menu-message"]');
+  await expect
+    .poll(() => message()?.textContent)
+    .toBe("A filter request can be up to 12 characters. Remove 5 to send.");
+  expect(document.querySelector('[data-slot="add-filter-menu-ai"]')).toBeNull();
+  await userEvent.clear(input);
+  await userEvent.type(input, "high prio");
+  await userEvent.keyboard("{Enter}");
   await expect
     .poll(() => message()?.textContent)
     .toBe("AI filters are over today's limit.");
@@ -219,5 +230,5 @@ test("ai.maxLength caps the input; a thrown error's message and a returned error
   await userEvent.keyboard("{Enter}");
   await expect
     .poll(() => message()?.textContent)
-    .toBe("Request can be up to 12 characters.");
+    .toBe("That request was refused.");
 });

@@ -1,4 +1,4 @@
-// @vegastack record-header@0.29.1 sha256-PIK1xsnf/YQzL3qCjVOaCCr8qFDYO0a77iAUkUt4YEw=
+// @vegastack record-header@0.29.1 sha256-2kezdMZyf2fyxMe7tpSb/xNi0UdbLTY6fO2QXpz3jQU=
 
 "use client";
 
@@ -31,12 +31,19 @@ export interface RecordHeaderProps extends Omit<
   onRename?: (next: string) => void | Promise<void>;
   /**
    * The most characters the title may hold while renamed (`String.length`, as a server counts it).
-   * Typing stops there, a paste keeps what fits and says so, and a quiet `n/max` count shows
-   * under the title from 90% of it. A save the host refuses rolls back with an error toast
-   * carrying the rejection's message.
+   * Nothing typed or pasted is cut: a quiet `n/max` count shows under the title from 90% of it,
+   * past it the count turns destructive with `titleMaxLengthMessage`, and the rename doesn't save
+   * until the title is shorter. A save the host refuses rolls back with an error toast carrying the
+   * rejection's message.
    * @default undefined
    */
   titleMaxLength?: number;
+  /**
+   * What the title says while past `titleMaxLength`, given how many characters are over — the
+   * host's words ("Title can be up to 500 characters. Remove 12 to save.").
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  titleMaxLengthMessage?: (excess: number) => string;
   /**
    * The title's accessible label while it is editable.
    * @default "Title"
@@ -128,6 +135,7 @@ export function RecordHeader({
   title,
   onRename,
   titleMaxLength,
+  titleMaxLengthMessage,
   titleLabel = "Title",
   placeholder = "Untitled",
   level = 1,
@@ -223,7 +231,12 @@ export function RecordHeader({
                 wrap
                 required
                 label={titleLabel}
-                editor={{ type: "text", maxLength: titleMaxLength }}
+                editor={{
+                  type: "text",
+                  maxLength: titleMaxLength,
+                  overflow: "allow",
+                  maxLengthMessage: titleMaxLengthMessage,
+                }}
                 value={title}
                 onSave={onRename}
               />

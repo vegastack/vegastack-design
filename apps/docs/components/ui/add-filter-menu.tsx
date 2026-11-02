@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.29.1 sha256-iIyC15dHWSBHw8ZJp4s+qH4t4SKOwV+4DkQKtU7m/wI=
+// @vegastack add-filter-menu@0.29.1 sha256-keeR7HNG3hgsYuq3RRlzIPTj/OxNXbsz0k9VKWcWIO0=
 
 "use client";
 
@@ -82,11 +82,18 @@ export interface AddFilterAi {
    */
   onSubmit: (text: string) => Promise<AiFilterResult> | AiFilterResult;
   /**
-   * The most characters a request may hold (`String.length`, as a server counts it): the input
-   * stops there, and a paste keeps what fits.
+   * The most characters a request may hold (`String.length` of the trimmed text, as a server
+   * counts it). Nothing typed or pasted is cut: past it the AI item is withheld (fields still
+   * match) and `maxLengthMessage` shows under the input.
    * @default undefined
    */
   maxLength?: number;
+  /**
+   * What the input says while past `maxLength`, given how many characters are over — the host's
+   * words ("A filter request can be up to 200 characters. Remove 12 to send.").
+   * @default (excess) => `Remove ${excess} characters`
+   */
+  maxLengthMessage?: (excess: number) => string;
   /**
    * After a run that added filters, once the popover has closed: say what it did (a toast with
    * Undo — `useAiFilterApplied`).
@@ -184,6 +191,10 @@ export interface AddFilterMenuProps {
   labels?: Partial<AddFilterMenuLabels>;
 }
 
+/** What the input says past the AI's limit when the host gave no words. */
+const defaultExcessMessage = (excess: number) =>
+  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
+
 /** The advanced filter page's key — never a field key. */
 const ADVANCED = "\u0000advanced";
 
@@ -256,6 +267,9 @@ export function AddFilterMenu({
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const text = query.trim();
+  // How far a request is past the AI's limit (0 within it): the AI item waits, and says why.
+  const overBy =
+    ai?.maxLength !== undefined ? Math.max(0, text.length - ai.maxLength) : 0;
   const needle = text.toLowerCase();
   const matches = fields.filter(
     (field) =>
@@ -414,8 +428,9 @@ export function AddFilterMenu({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.currentTarget.value)}
-            maxLength={ai?.maxLength}
-            aria-describedby={message != null ? messageId : undefined}
+            aria-describedby={
+              message != null || overBy > 0 ? messageId : undefined
+            }
             placeholder={labels.placeholder}
             aria-label={labels.filter}
             role="combobox"
@@ -447,6 +462,16 @@ export function AddFilterMenu({
             </InputGroupAddon>
           ) : null}
         </InputGroup>
+        {message == null && overBy > 0 ? (
+          <p
+            id={messageId}
+            data-slot="add-filter-menu-message"
+            data-state="error"
+            className="px-1.5 py-1 text-sm text-destructive-text"
+          >
+            {(ai?.maxLengthMessage ?? defaultExcessMessage)(overBy)}
+          </p>
+        ) : null}
         {message != null ? (
           <p
             id={messageId}

@@ -109,7 +109,7 @@ click toggles and an "Add reaction" button joins the hover actions too, Slack st
 
 <ComponentPreview name="comments" file="components/preview/comments.tsx" />
 
-`maxLength` with `maxLengthMessage` (on `CommentComposer`, `CommentItem` and `CommentList`, and in a thread's `composer`) holds a comment to the server's limit, counted as it posts. A count shows from 80% of it; past it the box is invalid with the host's message and Send or Save is refused. Typing, pasting and an IME composing are never cut — the limit holds at the send.
+`maxLength` with `maxLengthMessage` (on `CommentComposer`, `CommentItem` and `CommentList`, and in a thread's `composer`) holds a comment to the server's limit, counted as it posts. A count shows from 80% of it; past it the box is invalid with the host's message — given how many characters are over — and Send or Save waits. Typing, pasting and an IME composing are never cut.
 
 ## Anatomy
 

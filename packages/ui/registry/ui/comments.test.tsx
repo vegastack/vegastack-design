@@ -1463,7 +1463,9 @@ test("maxLength: the composer counts near the limit, and past it shows the host'
     <CommentComposer
       defaultValue="12345678"
       maxLength={10}
-      maxLengthMessage="Comment can be up to 10 characters."
+      maxLengthMessage={(n) =>
+        `Comment can be up to 10 characters. Remove ${n} to send.`
+      }
       onSubmit={onSubmit}
     />,
   );
@@ -1481,7 +1483,9 @@ test("maxLength: the composer counts near the limit, and past it shows the host'
       : "{Control>}{End}{/Control}abc",
   );
   await expect
-    .element(screen.getByText("Comment can be up to 10 characters."))
+    .element(
+      screen.getByText("Comment can be up to 10 characters. Remove 1 to send."),
+    )
     .toBeVisible();
   await expect.element(send).toBeDisabled();
   await userEvent.keyboard("{Control>}{Enter}{/Control}");
@@ -1508,7 +1512,9 @@ test("maxLength: an edit over the limit keeps Save disabled and shows the messag
         onEditingChange={() => {}}
         onEdit={onEdit}
         maxLength={8}
-        maxLengthMessage="Comment can be up to 8 characters."
+        maxLengthMessage={(n) =>
+          `Comment can be up to 8 characters. Remove ${n} to save.`
+        }
       />
     </ul>,
   );
@@ -1520,7 +1526,9 @@ test("maxLength: an edit over the limit keeps Save disabled and shows the messag
       : "{Control>}{End}{/Control} there",
   );
   await expect
-    .element(screen.getByText("Comment can be up to 8 characters."))
+    .element(
+      screen.getByText("Comment can be up to 8 characters. Remove 3 to save."),
+    )
     .toBeVisible();
   await expect
     .element(screen.getByRole("button", { name: "Save" }))
@@ -1543,7 +1551,7 @@ test("maxLength: a thread's reply box over the limit refuses to send", async () 
         replies: [],
       }}
       onReply={onReply}
-      composer={{ maxLength: 3, maxLengthMessage: "Reply too long." }}
+      composer={{ maxLength: 3, maxLengthMessage: () => "Reply too long." }}
     />,
   );
   const box = screen.getByRole("textbox", { name: "Reply" });
@@ -1565,11 +1573,11 @@ test("maxLength: an empty host message still refuses an over-limit comment, with
     <CommentComposer
       defaultValue="abcdef"
       maxLength={3}
-      maxLengthMessage=""
+      maxLengthMessage={() => ""}
       onSubmit={onSubmit}
     />,
   );
-  await expect.element(screen.getByText("Up to 3 characters")).toBeVisible();
+  await expect.element(screen.getByText("Remove 3 characters")).toBeVisible();
   await expect
     .element(screen.getByRole("button", { name: "Send comment" }))
     .toBeDisabled();
