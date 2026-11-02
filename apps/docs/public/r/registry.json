@@ -1321,8 +1321,8 @@
       "meta": {
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
-        "version": "0.31.0",
-        "integrity": "sha256-Ty7gHGTnDTrU7qYP7ZlhOss6rdQ5RmhEb6ZhUZYILmw="
+        "version": "0.32.1",
+        "integrity": "sha256-nyIuAd6C7P9yn63oZzYqIuhWfierVtWJWJQFMYr8dtY="
       }
     },
     {
@@ -3035,8 +3035,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.31.0",
-        "integrity": "sha256-+fYhGI9t53lJqTTr3aZxI+MvyyOCIjJvaalS2J1RLkE="
+        "version": "0.32.1",
+        "integrity": "sha256-MB8fhIVibmRXeNhOijIYy8IksJVtIHW5xf5T8oLWDME="
       }
     },
     {
