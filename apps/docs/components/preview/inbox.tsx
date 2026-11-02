@@ -230,9 +230,9 @@ export function inboxBatch(): ReactNode {
             countLabel={(n) => `${n} tasks`}
             defaultExpanded
             events={[
-              { id: "a", text: "#140 Fix driver", href: "#task-140" },
-              { id: "b", text: "#139 Order samples", href: "#task-139" },
-              { id: "c", text: "#138 Send quote", href: "#task-138" },
+              { id: "a", text: "#140 Fix driver", href: "/tasks/140" },
+              { id: "b", text: "#139 Order samples", href: "/tasks/139" },
+              { id: "c", text: "#138 Send quote", href: "/tasks/138" },
             ]}
             time={NOW - 4 * MIN}
             menu={rowMenu}
