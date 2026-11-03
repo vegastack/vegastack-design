@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 786,
-    "components": 196,
+    "totalRegistryItems": 788,
+    "components": 198,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 42,
+    "Forms/editing": 44,
     "Navigation/layout": 26,
     "Overlays": 24,
     "Data display": 46,
@@ -71,6 +71,8 @@
       "combobox",
       "country-select",
       "date-picker",
+      "time-picker",
+      "date-time-picker",
       "dropzone",
       "editable-cell",
       "field-cell",
@@ -12111,6 +12113,329 @@
       }
     },
     {
+      "name": "time-picker",
+      "registryType": "registry:ui",
+      "title": "Time Picker",
+      "summary": "A time of day, typed (\"930\", \"9:30 pm\", \"21:30\") or picked from the day's times at a minute step, in the locale's 12- or 24-hour clock — the same field chrome, sizes and states as every input.",
+      "status": "stable",
+      "since": "0.33.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/time-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TimePicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/time-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "input",
+            "rationale": "ref reaches the combobox input."
+          }
+        },
+        {
+          "name": "TimePickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/time-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TimePickerHourCycle",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/time-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["outline", "ghost"],
+            "evidence": "packages/ui/registry/ui/time-picker.tsx: variant prop, matching DatePicker"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default"],
+            "evidence": "packages/ui/registry/ui/time-picker.tsx: size prop, matching DatePicker"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "empty",
+            "selected",
+            "open",
+            "typed",
+            "off-step",
+            "invalid",
+            "cleared",
+            "disabled",
+            "h12",
+            "h23"
+          ],
+          "evidence": "packages/ui/registry/ui/time-picker.tsx + packages/ui/registry/ui/time-picker.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "combobox",
+            "listbox",
+            "labeled",
+            "invalid",
+            "field-wiring",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/time-picker.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "open",
+            "invalid",
+            "disabled",
+            "empty"
+          ],
+          "evidence": "packages/ui/registry/ui/time-picker.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["viewport-positioning-and-collision", "overflow-and-scroll"],
+        "rationale": "The list popup is Combobox's (clamped to the available height and width) and scrolls to the value on open."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the list popup's transition is Combobox's and the calendar's is Popover's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/time-picker",
+      "registryDependencies": [
+        "@vegastack/date-time",
+        "@vegastack/combobox",
+        "@vegastack/input-group"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.11.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/time-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "time-picker",
+      "dataAttributes": {
+        "TimePicker": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["time-picker", "time-picker-content"]
+            },
+            {
+              "name": "data-time",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "date-time-picker",
+      "registryType": "registry:ui",
+      "title": "Date Time Picker",
+      "summary": "One moment: the DatePicker trigger and the TimePicker field in one named group, editing an instant on the reader's clock, with a default time for a day picked alone.",
+      "status": "stable",
+      "since": "0.33.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/date-time-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DateTimePicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/date-time-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the group root div."
+          }
+        },
+        {
+          "name": "DateTimePickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-time-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DateTimePickerLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-time-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["outline", "ghost"],
+            "evidence": "packages/ui/registry/ui/date-time-picker.tsx: variant prop, matching DatePicker"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default"],
+            "evidence": "packages/ui/registry/ui/date-time-picker.tsx: size prop, matching DatePicker"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "empty",
+            "selected",
+            "default-time",
+            "time-zone",
+            "dst-gap",
+            "clearable",
+            "invalid",
+            "disabled",
+            "labels"
+          ],
+          "evidence": "packages/ui/registry/ui/date-time-picker.tsx + packages/ui/registry/ui/date-time-picker.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "group",
+            "labeled",
+            "invalid",
+            "described-by",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/date-time-picker.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "inline", "disabled", "empty"],
+          "evidence": "packages/ui/registry/ui/date-time-picker.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "grid-wrapping",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The date takes what the time leaves, on one line while 8rem of date fits, and the time wraps under it where not."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the list popup's transition is Combobox's and the calendar's is Popover's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/date-time-picker",
+      "registryDependencies": [
+        "@vegastack/date-time",
+        "@vegastack/date-picker",
+        "@vegastack/relative-time",
+        "@vegastack/time-picker"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.11.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/date-time-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "date-time-picker",
+      "dataAttributes": {
+        "DateTimePicker": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["date-time-picker"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "dialog",
       "registryType": "registry:ui",
       "title": "Dialog",
@@ -14344,7 +14669,9 @@
         "@vegastack/chip",
         "@vegastack/date-picker",
         "@vegastack/date-time",
+        "@vegastack/date-time-picker",
         "@vegastack/editable-cell",
+        "@vegastack/field",
         "@vegastack/file-kind",
         "@vegastack/inline-chip",
         "@vegastack/input",
@@ -14364,8 +14691,7 @@
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-async-search",
-        "@vegastack/field"
+        "@vegastack/use-async-search"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -51245,6 +51571,24 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "fromZoned",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "zonedParts",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

@@ -1,7 +1,11 @@
 # Date and time picker — proposal (P-71 #3)
 
-Status: **proposal, not built.** Waiting on design input from Manoj (comment on Regent P-71 #3).
-Nothing in `packages/ui` changes until the anatomy below is agreed.
+Status: **built 2026-11-03** at the operator's word ("come up with a basic standard design, using
+our components … add the date and Time picker"), ahead of Manoj's input. What shipped is option B
+everywhere: `TimePicker` (typed or picked, `step`, `hourCycle`, `sm`/`default`, `outline`/`ghost`)
+and `DateTimePicker` (`DatePicker` + `TimePicker` in one group); the grid cell uses the `sm` ghost
+tier of the same split layout, and the single-trigger `layout="single"` (option A) was not built.
+"9:3" reads as 9:30. The questions below remain open for design review.
 
 ## Problem
 

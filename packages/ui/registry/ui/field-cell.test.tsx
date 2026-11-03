@@ -483,6 +483,17 @@ test("a restricted, unavailable or deleted link shows only that word — never t
   expect(screen.container.textContent).toContain("Restricted");
 });
 
+/** Types a time into a date-time editor's time field and commits it with Enter. */
+async function typeTime(
+  screen: { getByLabelText: (text: string) => { element: () => Element } },
+  text: string,
+) {
+  const input = screen.getByLabelText("Time").element() as HTMLInputElement;
+  await userEvent.click(input);
+  await userEvent.fill(input, text);
+  await userEvent.keyboard("{Enter}");
+}
+
 test("date-time edits in the reader's zone, not the browser's", async () => {
   const onChange = vi.fn();
   const screen = await render(
@@ -497,8 +508,8 @@ test("date-time edits in the reader's zone, not the browser's", async () => {
   );
   const time = screen.getByLabelText("Time").element() as HTMLInputElement;
   // 13:30Z is 09:30 in New York (EDT).
-  expect(time.value).toBe("09:30");
-  await screen.getByLabelText("Time").fill("10:00");
+  expect(time.value).toBe("9:30 AM");
+  await typeTime(screen, "10:00");
   expect(onChange).toHaveBeenLastCalledWith("2026-10-24T14:00:00.000Z");
 });
 
@@ -586,7 +597,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await screen.getByLabelText("Time").fill("02:30");
+  await typeTime(screen, "02:30");
   expect(onChange).toHaveBeenLastCalledWith("2026-03-08T07:30:00.000Z"); // 03:30 EDT
   const fold = vi.fn();
   await screen.rerender(
@@ -600,7 +611,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await screen.getByLabelText("Time").fill("01:45");
+  await typeTime(screen, "01:45");
   expect(fold).toHaveBeenLastCalledWith("2026-11-01T06:45:00.000Z");
   // Auckland (UTC+12/+13): the changes fall where a half-day sample misses them.
   const gap = vi.fn();
@@ -614,7 +625,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await screen.getByLabelText("Time").fill("02:30");
+  await typeTime(screen, "02:30");
   expect(gap).toHaveBeenLastCalledWith("2026-09-26T14:30:00.000Z"); // 03:30 NZDT
   const first = vi.fn();
   await screen.rerender(
@@ -628,7 +639,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await screen.getByLabelText("Time").fill("02:45");
+  await typeTime(screen, "02:45");
   expect(first).toHaveBeenLastCalledWith("2026-04-04T13:45:00.000Z");
 });
 

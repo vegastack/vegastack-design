@@ -1,4 +1,4 @@
-// @vegastack button@0.29.1 sha256-Xhk9dr36MpXxiqIR2AQg1Q+tKylyUylAiKwvg3kG4OA=
+// @vegastack button@0.29.1 sha256-eho+lJ/q2gSHPfMReuIpri1XCu6Fb4Gyf2t647WEnXA=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -7,7 +7,7 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 
 const buttonVariants = cva(
-  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:not-data-disabled:translate-y-px aria-invalid:border-destructive data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:not-data-disabled:translate-y-px aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

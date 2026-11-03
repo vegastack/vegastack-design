@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.32.1 sha256-MB8fhIVibmRXeNhOijIYy8IksJVtIHW5xf5T8oLWDME=
+// @vegastack field-cell@0.32.1 sha256-mjXj5AXD+PqWMn04FiO6yeq5Wx8uoAUJ0XLFvtTcf0k=
 
 "use client";
 
@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import {
   EditableCell,
   type EditableCellMove,
@@ -1082,84 +1083,6 @@ function RecordLinkEditor({
   );
 }
 
-/** An instant's wall-clock day and time in a zone (the reader's, else the browser's). */
-function zonedParts(iso: string, timeZone: string | undefined) {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(new Date(iso))
-      .map((part) => [part.type, part.value]),
-  );
-  return {
-    day: `${parts.year}-${parts.month}-${parts.day}`,
-    time: `${parts.hour}:${parts.minute}`,
-  };
-}
-
-/** A zone's offset from UTC at an instant, in milliseconds. */
-function zoneOffset(instant: number, timeZone: string | undefined) {
-  const seen = zonedParts(new Date(instant).toISOString(), timeZone);
-  const [y, mo, d] = seen.day.split("-").map(Number);
-  const [h, mi] = seen.time.split(":").map(Number);
-  return (
-    Date.UTC(y!, mo! - 1, d!, h!, mi!) - Math.floor(instant / 60_000) * 60_000
-  );
-}
-
-/**
- * The instant a wall-clock day and time in a zone names. The zone's offsets either side of the
- * moment give the candidates: one fits on an ordinary day; on the autumn change two do (the hour
- * repeats) and the one sharing `previous`'s offset is kept, else the earlier; on the spring
- * change none does (the hour is skipped) and the time moves forward past the gap.
- */
-function fromZoned(
-  day: string,
-  time: string,
-  timeZone: string | undefined,
-  previous?: string | null,
-) {
-  const [y, mo, d] = day.split("-").map(Number);
-  const [h, mi] = (time || "00:00").split(":").map(Number);
-  const wall = Date.UTC(y!, mo! - 1, d!, h ?? 0, mi ?? 0);
-  // Every offset the zone uses within a day either side (zones span UTC−12 to UTC+14), so a
-  // change near the moment is seen whichever side of it the wall time falls.
-  const offsets = [
-    ...new Set(
-      Array.from({ length: 31 }, (_, i) =>
-        zoneOffset(wall + (i - 15) * 3_600_000, timeZone),
-      ),
-    ),
-  ];
-  const wanted = time || "00:00";
-  const fits = offsets
-    .map((offset) => wall - offset)
-    .filter((instant) => {
-      const seen = zonedParts(new Date(instant).toISOString(), timeZone);
-      return seen.day === day && seen.time === wanted;
-    })
-    .sort((a, b) => a - b);
-  // A skipped time: the offset before a spring change is the smaller one, so the time moves
-  // forward past the gap.
-  if (fits.length === 0)
-    return new Date(wall - Math.min(...offsets)).toISOString();
-  const kept =
-    previous != null
-      ? fits.find(
-          (instant) =>
-            zoneOffset(instant, timeZone) ===
-            zoneOffset(Date.parse(previous), timeZone),
-        )
-      : undefined;
-  return new Date(kept ?? fits[0]!).toISOString();
-}
-
 /** A date and a time of day, in the reader's zone; the value is an ISO instant. */
 function DateTimeEditor({
   value,
@@ -1178,46 +1101,23 @@ function DateTimeEditor({
   id?: string;
   invalid?: boolean;
   describedBy?: string;
-  /** The editor sits in a surface that is its box: the date takes its inline (ghost) tier. */
+  /** The editor sits in a surface that is its box: both halves take their inline (ghost) tier. */
   inline?: boolean;
 }) {
-  const timeZone = useTimeZone();
-  const current = value ? zonedParts(value, timeZone) : null;
-  const commit = (day: string | null, time: string) =>
-    onChange(day ? fromZoned(day, time, timeZone, value) : null);
+  const date = value ? new Date(value) : undefined;
   return (
-    <span
-      role="group"
-      aria-label={ariaLabel}
+    <DateTimePicker
       data-slot="field-datetime-editor"
-      // The date takes what the time leaves, on one line where 8rem of date still fits.
-      className="flex w-full min-w-0 flex-wrap items-center gap-2 [&>[data-slot=date-picker]]:w-auto [&>[data-slot=date-picker]]:flex-1 [&>[data-slot=date-picker]]:basis-32"
-    >
-      <DatePicker
-        id={id}
-        size="sm"
-        variant={inline ? "ghost" : "outline"}
-        aria-label="Date"
-        className="w-auto min-w-0 flex-1 basis-32"
-        aria-invalid={invalid || undefined}
-        aria-describedby={describedBy}
-        disabled={disabled}
-        value={current ? parseCalendarDay(current.day) : undefined}
-        onValueChange={(day) =>
-          commit(day ? toCalendarDay(day) : null, current?.time ?? "09:00")
-        }
-      />
-      <Input
-        type="time"
-        aria-label="Time"
-        aria-invalid={invalid || undefined}
-        aria-describedby={describedBy}
-        disabled={disabled || !current}
-        value={current?.time ?? ""}
-        className="h-7 w-32 max-w-full min-w-0 max-md:w-36"
-        onChange={(event) => current && commit(current.day, event.target.value)}
-      />
-    </span>
+      aria-label={ariaLabel}
+      id={id}
+      size="sm"
+      variant={inline ? "ghost" : "outline"}
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
+      disabled={disabled}
+      value={date && !Number.isNaN(date.getTime()) ? date : undefined}
+      onValueChange={(next) => onChange(next ? next.toISOString() : null)}
+    />
   );
 }
 

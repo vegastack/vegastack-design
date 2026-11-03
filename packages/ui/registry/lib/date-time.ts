@@ -1,4 +1,4 @@
-// @vegastack date-time@0.26.4 sha256-UERfDh7Lhv5yd2XaRFxwYUHlKrXn6Crk94Bce36wYFM=
+// @vegastack date-time@0.26.4 sha256-Ka6JH/OWytSeuYg2aTzexlSlNwPIExNb4IEK2FirBts=
 
 export type DateInput = Date | string | number;
 
@@ -750,3 +750,84 @@ function safeDecode(value: string): string {
  * regains focus (so a zone change — travel, OS setting — is picked up on the next request).
  */
 export const TIME_ZONE_COOKIE_SCRIPT = `(function(){function w(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone;if(!z)return;var v=encodeURIComponent(z);if(document.cookie.indexOf("${TIME_ZONE_COOKIE}="+v)===-1){document.cookie="${TIME_ZONE_COOKIE}="+v+";path=/;max-age=31536000;samesite=lax"}}catch(e){}}w();document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")w()});})();`;
+
+/**
+ * An instant's wall-clock day (`YYYY-MM-DD`) and time (`HH:MM`, 24-hour) in a zone (the reader's,
+ * else the runtime's) — the halves a date-and-time editor shows.
+ */
+export function zonedParts(iso: string, timeZone: string | undefined) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(new Date(iso))
+      .map((part) => [part.type, part.value]),
+  );
+  return {
+    day: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour}:${parts.minute}`,
+  };
+}
+
+/** A zone's offset from UTC at an instant, in milliseconds. */
+function zoneOffset(instant: number, timeZone: string | undefined) {
+  const seen = zonedParts(new Date(instant).toISOString(), timeZone);
+  const [y, mo, d] = seen.day.split("-").map(Number);
+  const [h, mi] = seen.time.split(":").map(Number);
+  return (
+    Date.UTC(y!, mo! - 1, d!, h!, mi!) - Math.floor(instant / 60_000) * 60_000
+  );
+}
+
+/**
+ * The instant a wall-clock day and time in a zone names. The zone's offsets either side of the
+ * moment give the candidates: one fits on an ordinary day; on the autumn change two do (the hour
+ * repeats) and the one sharing `previous`'s offset is kept, else the earlier; on the spring
+ * change none does (the hour is skipped) and the time moves forward past the gap.
+ */
+export function fromZoned(
+  day: string,
+  time: string,
+  timeZone: string | undefined,
+  previous?: string | null,
+) {
+  const [y, mo, d] = day.split("-").map(Number);
+  const [h, mi] = (time || "00:00").split(":").map(Number);
+  const wall = Date.UTC(y!, mo! - 1, d!, h ?? 0, mi ?? 0);
+  // Every offset the zone uses within a day either side (zones span UTC−12 to UTC+14), so a
+  // change near the moment is seen whichever side of it the wall time falls.
+  const offsets = [
+    ...new Set(
+      Array.from({ length: 31 }, (_, i) =>
+        zoneOffset(wall + (i - 15) * 3_600_000, timeZone),
+      ),
+    ),
+  ];
+  const wanted = time || "00:00";
+  const fits = offsets
+    .map((offset) => wall - offset)
+    .filter((instant) => {
+      const seen = zonedParts(new Date(instant).toISOString(), timeZone);
+      return seen.day === day && seen.time === wanted;
+    })
+    .sort((a, b) => a - b);
+  // A skipped time: the offset before a spring change is the smaller one, so the time moves
+  // forward past the gap.
+  if (fits.length === 0)
+    return new Date(wall - Math.min(...offsets)).toISOString();
+  const kept =
+    previous != null
+      ? fits.find(
+          (instant) =>
+            zoneOffset(instant, timeZone) ===
+            zoneOffset(Date.parse(previous), timeZone),
+        )
+      : undefined;
+  return new Date(kept ?? fits[0]!).toISOString();
+}

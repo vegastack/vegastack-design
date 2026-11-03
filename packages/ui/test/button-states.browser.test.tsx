@@ -249,6 +249,33 @@ test("FRM-4: a disabled or loading button never presses (no :active translate)",
   await userEvent.keyboard("{/Space}");
 });
 
+test("FOC-14: an invalid outline button keeps its destructive border in dark too", async () => {
+  // Outline's `dark:border-input` outranked `aria-invalid:border-destructive`, so an invalid
+  // DatePicker trigger lost its red border in dark (P-71 #3). Upstream's own
+  // `dark:aria-invalid:border-destructive/50` restores it.
+  const screen = await render(
+    <div className="dark">
+      <Button data-testid="rest" variant="outline">
+        Rest
+      </Button>
+      <Button data-testid="invalid" variant="outline" aria-invalid>
+        Invalid
+      </Button>
+    </div>,
+  );
+  const border = (id: string) =>
+    getComputedStyle(screen.getByTestId(id).element()).borderTopColor;
+  // The dark scope's own token, read where the button sits.
+  const darkDestructive = getComputedStyle(screen.getByTestId("rest").element())
+    .getPropertyValue("--destructive")
+    .trim();
+  const destructive = resolved(
+    `color-mix(in oklab, ${darkDestructive} 50%, transparent)`,
+  );
+  expect(border("invalid")).not.toBe(border("rest"));
+  expect(border("invalid")).toBe(destructive);
+});
+
 test("A11Y-13: the destructive variant is a tint inked with --destructive-text", async () => {
   const screen = await render(
     <Button variant="destructive" data-testid="d">

@@ -1,0 +1,129 @@
+---
+title: Date Time Picker
+description: One moment — the date picker and the time picker in one named group, editing an instant on the reader's clock.
+audience: public
+registry: date-time-picker
+status: stable
+since: 0.33.0
+a11y: named group of a date picker and an editable combobox
+preview: dateTimePicker
+---
+
+## Install
+
+<InstallSteps name="date-time-picker" />
+
+## Usage
+
+```tsx
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+
+function Example() {
+  const [due, setDue] = React.useState<Date>();
+  return <DateTimePicker aria-label="Due" value={due} onValueChange={setDue} />;
+}
+```
+
+The value is an instant (a `Date`), or `undefined` for none. Both halves show and edit it on the
+clock of `timeZone`: the reader's zone from `TimeZoneProvider` when it is left out, else the
+runtime's. So 09:00 picked in Asia/Kolkata is 03:30 UTC, and the same value reads 09:00 to every
+reader in that zone.
+
+The time waits for a day. A day picked on its own takes `defaultTime` (09:00); a new day keeps the
+time, and a new time keeps the day. On the spring clock change a wall time the zone skips (02:30 in
+New York) moves forward past the gap; on the autumn change a repeated time keeps the offset the value
+already had. Only the date clears the value — `clearable` adds its clear control.
+
+## Scope
+
+A date with a time of day: a due time, a meeting start, a Date and time field. It is
+[`DatePicker`](/docs/components/date-picker) and [`TimePicker`](/docs/components/time-picker), so
+`size`, `variant`, `locale`, `step` and `hourCycle` mean what they mean there. A day with no time
+is a `DatePicker`; a span is a `DateRangePicker`.
+
+## Examples
+
+<ComponentPreview
+  name="dateTimePicker"
+  file="components/preview/date-time-picker.tsx"
+/>
+
+### Default time and clear
+
+Empty, the time is disabled until a day is picked; that day takes `defaultTime` (10:00 here).
+`clearable` shows the date's clear control while a moment is set.
+
+<ComponentPreview
+  name="dateTimePickerDefaultTime"
+  file="components/preview/date-time-picker.tsx"
+/>
+
+### Inline in a row
+
+`size="sm"` with `variant="ghost"` is the inline tier for a table cell or a list row: no borders at
+rest, a border on hover and while open or typing. The date takes what the time leaves, on one line
+while 8rem of date still fits, and the time wraps under it where not.
+
+<ComponentPreview
+  name="dateTimePickerInline"
+  file="components/preview/date-time-picker.tsx"
+/>
+
+### States
+
+Disabled, invalid (both halves take the destructive border), and a 24-hour clock every 30 minutes.
+
+<ComponentPreview
+  name="dateTimePickerStates"
+  file="components/preview/date-time-picker.tsx"
+/>
+
+### Inside a Field
+
+`id` goes on the date trigger, so the `FieldLabel` names the field and opens the calendar;
+`aria-describedby` and `aria-invalid` reach both halves.
+
+<ComponentPreview
+  name="dateTimePickerInsideField"
+  file="components/preview/date-time-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/date-time-picker.tsx"
+  name="DateTimePickerProps"
+/>
+
+### DateTimePickerLabels
+
+<ApiTable
+  path="../../packages/ui/registry/ui/date-time-picker.tsx"
+  name="DateTimePickerLabels"
+/>
+
+## Accessibility
+
+- The halves sit in one `role="group"` named by `aria-label` (the field's name); the date trigger is
+  named "Date" and the time field "Time" (`labels` translates them), so a reader hears "Due, group,
+  Date, Nov 3, 2026".
+- The date half is [`DatePicker`](/docs/components/date-picker) and the time half
+  [`TimePicker`](/docs/components/time-picker); each keeps its own keyboard model.
+- The time is disabled, not hidden, until there is a day, so the field's shape does not change as
+  it fills.
+
+| Key                                 | Action                                                                |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move from the date trigger to the time field (and the clear control). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the calendar on the date trigger.                                |
+| Type, <kbd>↓</kbd>                  | Edit the time, or open its list, in the time field.                   |
+| <kbd>Esc</kbd>                      | Close the calendar or the list.                                       |
+
+<StatesTested name="date-time-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Use a DateTimePicker for a moment someone schedules, pass the reader's zone through TimeZoneProvider, and store the value as an ISO instant."
+  dont="Don't store the wall-clock day and time apart from their zone, and don't pair a DatePicker with a native time input — use this."
+/>
