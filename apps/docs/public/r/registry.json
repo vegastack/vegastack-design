@@ -356,8 +356,8 @@
       "meta": {
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
-        "version": "0.33.0",
-        "integrity": "sha256-OjTdt6Mu412T2Xg2PJA60pM15LLZhiFJ9aBMfXHbChc="
+        "version": "0.38.0",
+        "integrity": "sha256-5/tfJHLk2BCL/BKZotDT2BjLP+O3yv+eiOST00fOKiE="
       }
     },
     {
@@ -392,8 +392,8 @@
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
-        "version": "0.33.0",
-        "integrity": "sha256-Rq8acQJtoEZaQcn4ktg7Isq5zSs6vOznSDN2+MMCshc="
+        "version": "0.38.0",
+        "integrity": "sha256-kX90/yhyyes4D+c8vuZgJkA9r4KTKCkBSW5JdGpdQJE="
       }
     },
     {
@@ -456,8 +456,8 @@
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
-        "version": "0.33.0",
-        "integrity": "sha256-WGczzjeym8Y/ZPyi7WwZZ+cWYfYCGZqnm1X6zmt432E="
+        "version": "0.38.0",
+        "integrity": "sha256-S95+xOUEHBLo7RPKy1sXRB4juHv19l5zH2fl1k85nag="
       }
     },
     {
@@ -17737,8 +17737,8 @@
       "meta": {
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
-        "version": "0.35.0",
-        "integrity": "sha256-sbs0CifVRQysYTA2rLAsXgrqpJbdWhpQszA4R8fCnmA="
+        "version": "0.38.0",
+        "integrity": "sha256-Gtd8Zkz2YRZmu94W/ClLCPVvTXwtZEp6iRt5O8CYOJ4="
       }
     },
     {
@@ -18091,8 +18091,8 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.36.0",
-        "integrity": "sha256-+wMB2Bae4gNauCsbiNzGdVoasJZRsJLMu/+msYvYjvM="
+        "version": "0.38.0",
+        "integrity": "sha256-kUsVz03wHO9spxat7oaDLX4B1O71qpC3SpgDXVH6nRM="
       }
     },
     {
@@ -23218,8 +23218,8 @@
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
-        "version": "0.33.0",
-        "integrity": "sha256-CvY24UXNm1EBEnnpeXmmb+e2wWV76oGlwOisj6ZoLmw="
+        "version": "0.38.0",
+        "integrity": "sha256-2XmFMC2VGTuMlFBUh+uwuKiQ2PYImjOPHehwj6fhM+k="
       }
     },
     {
@@ -23262,8 +23262,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.36.0",
-        "integrity": "sha256-3cGNaUG/M9q6pkZXR14mDnXzZzP0KuLR7mqXsv0WL7s="
+        "version": "0.38.0",
+        "integrity": "sha256-UDDcKHBfY+F7QblwbV8aKpt9MzFC0QULAOL1bAb+M84="
       }
     },
     {
