@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.33.0 sha256-UmW4M5iY9Lu1nNX67F/MvZJ8wP4zxZ2sIh2ccB8qb0I=
+// @vegastack data-grid@0.33.0 sha256-ePkGbJPd0g/TPbR4usOxd0ZoI5fVunhFcTErIrNGT4g=
 
 "use client";
 
@@ -724,9 +724,16 @@ export interface DataGridProps<T> {
    * page scrolls to reach the grid (rows are windowed, so the grid cannot grow to its rows). A
    * `maxHeight` of its own wins over it. Pair it with `AppShellBleed` for a grid that reaches the
    * page's edges.
+   *
+   * `"flex"` fills the same room without measuring: the grid takes the height its flex-column
+   * parent leaves it, so a filter row or banner that comes or goes resizes it in the same layout
+   * pass and its scroll bar never moves. The host owes it a bounded chain — every wrapper between
+   * the scrolling region and the grid a `flex-1` column (`AppShellPage size="full"`, then an
+   * `AppShellBleed className="flex-1"`). Without one the viewport stays at its 240px floor; use
+   * `true` there.
    * @default false
    */
-  fill?: boolean;
+  fill?: boolean | "flex";
   /**
    * How an editing cell appears. `inline` — the editor replaces the cell's content. `floating` —
    * the cell keeps drawing its resting display and a `custom` editor opens over it
@@ -3257,16 +3264,21 @@ export function DataGrid<T>({
 
   // `fill` is a `maxHeight` the grid measures; the host's own wins, and an embedded block sizes to
   // its rows.
-  const filling = fill && !embedded && maxHeightProp == null;
-  const filledHeight = useFillHeight(viewport, root, filling);
-  const maxHeight = embedded
-    ? undefined
-    : (maxHeightProp ??
-      (fill
-        ? filledHeight != null
-          ? `${filledHeight}px`
-          : FILL_FALLBACK_HEIGHT
-        : undefined));
+  const filling = !!fill && !embedded && maxHeightProp == null;
+  // `"flex"`: the layout sizes the viewport (no measuring, no height to pass down).
+  const flexFill = filling && fill === "flex";
+  const filledHeight = useFillHeight(viewport, root, filling && !flexFill);
+  const maxHeight =
+    embedded || flexFill
+      ? undefined
+      : (maxHeightProp ??
+        (fill
+          ? filledHeight != null
+            ? `${filledHeight}px`
+            : FILL_FALLBACK_HEIGHT
+          : undefined));
+  // A viewport of bounded height: its header sticks while the body scrolls.
+  const bounded = maxHeight != null || flexFill;
   const endSpacerPx = endSpacer === true ? END_SPACER_PX : endSpacer || 0;
 
   // ---- columns: order, layout, widths ---------------------------------------
@@ -5220,7 +5232,7 @@ export function DataGrid<T>({
           <thead
             data-slot="table-header"
             className={cn(
-              (maxHeight != null || fixed) && "sticky top-0 z-20 bg-background",
+              (bounded || fixed) && "sticky top-0 z-20 bg-background",
             )}
           >
             {headerRow}
@@ -5342,6 +5354,8 @@ export function DataGrid<T>({
       maxHeight != null && "max-h-[calc(var(--data-grid-max-height))]",
       // Filling: as tall as the room, however few the rows.
       fill && maxHeight != null && "min-h-[calc(var(--data-grid-max-height))]",
+      // Filling by layout: the room the frame leaves it, never under the 240px floor.
+      flexFill && !cardMode && "min-h-60 flex-1 basis-0",
       endBand &&
         "after:block after:h-(--data-grid-end-spacer) after:content-['']",
     ),
@@ -5371,6 +5385,8 @@ export function DataGrid<T>({
         // the viewport frame, round the layers it contains (P-71 #1).
         className={cn(
           "flex w-full min-w-0 flex-col",
+          // Filling by layout: the grid takes what its flex-column parent leaves.
+          flexFill && !cardMode && "flex-1",
           // Embedded: one framed block — header, rows and footer ruled from each other.
           embedded
             ? "overflow-hidden rounded-lg border border-border"
@@ -5490,7 +5506,10 @@ export function DataGrid<T>({
             // Its own stacking context: the sticky header, summary row and frozen columns
             // (z-20/z-30) layer inside the frame, never over the page's floating parts — the
             // grid's own selection bar included, which sits outside the frame.
-            className="relative isolate flex min-h-0 min-w-0 flex-col"
+            className={cn(
+              "relative isolate flex min-h-0 min-w-0 flex-col",
+              flexFill && "flex-1",
+            )}
           >
             {cellMenu ? (
               <ContextMenu
