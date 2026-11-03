@@ -37947,7 +37947,7 @@
       "name": "person-avatar",
       "registryType": "registry:ui",
       "title": "Person Avatar",
-      "summary": "A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.",
+      "summary": "A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person; teams and workspaces are rounded squares, agents a soft hexagon with an optional mark.",
       "status": "stable",
       "since": "0.23.44",
       "family": "data",
@@ -38054,6 +38054,42 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "agentShapeMask",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "agentShapeStyle",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "PersonAvatarSize",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "PersonMark",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -38061,20 +38097,36 @@
         "dimensions": [
           {
             "name": "kind",
-            "values": ["person", "team"]
+            "values": ["person", "team", "workspace", "agent"]
           }
         ],
-        "rationale": "A person is the photo or initials on a circle; a team is the team icon on a rounded square. The hue is data, not a variant axis."
+        "rationale": "A person is the photo or initials on a circle; a team is the team icon, and a workspace its logo or initials, on a rounded square; an agent is a soft hexagon with its mark, else the bot or its initials. The hue is data, not a variant axis."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Avatar's own sm/default/lg tiers, passed through."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["2xs", "xs", "sm", "default", "lg", "xl"]
+          }
+        ],
+        "rationale": "16, 20, 24, 32, 40 and 64px: sm/default/lg are Avatar's own tiers, and 2xs, xs and xl ride on Avatar's default with their own box. Initials (one at 16 and 20px), icons (about 60% of the shape) and marks scale with the step, so no caller resizes an avatar with a className."
       },
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["image", "initials", "hue", "team"],
+          "values": [
+            "image",
+            "initials",
+            "hue",
+            "team",
+            "workspace",
+            "agent",
+            "mark",
+            "mark-fallback",
+            "indicator",
+            "stacked"
+          ],
           "evidence": "packages/ui/registry/ui/person-avatar.tsx + packages/ui/registry/ui/person-avatar.test.tsx"
         },
         "accessibility": {
@@ -38084,7 +38136,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hue", "team"],
+          "values": ["default", "hue", "team", "agent", "mark"],
           "evidence": "packages/ui/registry/ui/person-avatar.tsx"
         }
       },
@@ -38122,12 +38174,20 @@
         "PersonAvatar": {
           "attributes": [
             {
+              "name": "data-fit",
+              "values": ["inset"]
+            },
+            {
               "name": "data-kind",
               "values": ["agent", "team", "workspace"]
             },
             {
               "name": "data-slot",
-              "values": ["avatar-image", "person-avatar-agent-badge"]
+              "values": [
+                "avatar-image",
+                "person-avatar-indicator",
+                "person-avatar-mark"
+              ]
             }
           ],
           "cssVariables": []
@@ -41298,6 +41358,10 @@
       "dataAttributes": {
         "AgentStateBadge": {
           "attributes": [
+            {
+              "name": "data-icon-only",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["agent-state-badge"]

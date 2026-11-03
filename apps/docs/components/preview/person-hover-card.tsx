@@ -1,9 +1,16 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Wrapper } from "./wrapper";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PersonAvatar,
+  PersonName,
+  type Person,
+  type PersonAvatarSize,
+} from "@/components/ui/person-avatar";
+import { AgentStateBadge, AgentStateRing } from "@/components/ui/agent-panel";
 import {
   AvatarStack,
   PersonCard,
@@ -163,6 +170,217 @@ export function personHoverCardName(): ReactNode {
           {PEOPLE[2]!.name}
         </PersonHoverCard>
       </p>
+    </Wrapper>
+  );
+}
+
+const SIZES: readonly PersonAvatarSize[] = [
+  "2xs",
+  "xs",
+  "sm",
+  "default",
+  "lg",
+  "xl",
+];
+
+/* Sample marks for the docs only: abstract shapes, not any real provider's logo. */
+const ORBIT = { src: "/preview/agent-mark-orbit.svg" };
+const KNOT = { src: "/preview/agent-mark-knot.svg", tile: "light" } as const;
+const TILE = { src: "/preview/agent-mark-tile.svg", fit: "fill" } as const;
+
+const AGENTS: Person[] = [
+  { name: "Review agent", kind: "agent", via: "Manoj" },
+  { name: "Orbit", kind: "agent", via: "Asha", mark: ORBIT },
+  { name: "Knot", kind: "agent", via: "Dev", mark: KNOT },
+  { name: "Atlas", kind: "agent", via: "Lena", mark: TILE },
+  { name: "Assistant", kind: "agent", hue: "blue", mark: <Sparkles /> },
+];
+
+/**
+ * Every size step, people beside agents: a photo, initials on a hue, a team, an agent's icon, an
+ * inset mark and a full-bleed mark. Initials, icons and marks scale with the step.
+ */
+export function personHoverCardSizes(): ReactNode {
+  const rows: { label: string; person: Person }[] = [
+    {
+      label: "Photo",
+      person: { name: "Dev Menon", image: "/preview/avatar-2.svg" },
+    },
+    { label: "Initials", person: { name: "Asha Rao", hue: "blue" } },
+    {
+      label: "Team",
+      person: { name: "Sales", kind: "team", hue: "green" },
+    },
+    { label: "Agent", person: AGENTS[0]! },
+    { label: "Inset mark", person: AGENTS[1]! },
+    { label: "Full-bleed mark", person: AGENTS[3]! },
+  ];
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto grid grid-cols-[repeat(6,auto)] items-center gap-x-3 gap-y-3 text-xs text-muted-foreground sm:grid-cols-[auto_repeat(6,minmax(0,1fr))] sm:gap-x-4">
+        <span className="max-sm:hidden" />
+        {SIZES.map((size) => (
+          <span key={size} className="text-center">
+            {size}
+          </span>
+        ))}
+        {rows.map(({ label, person }) => (
+          <div key={label} className="contents">
+            <span className="whitespace-nowrap max-sm:hidden">{label}</span>
+            {SIZES.map((size) => (
+              <span key={size} className="flex justify-center">
+                <PersonAvatar person={person} size={size} />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * An agent is a soft hexagon. With no mark it shows the bot (or, with `agentFallback="initials"`,
+ * its initials) on its hue; a mark is an image or a node, inset on a neutral tile, on a light tile
+ * for a dark-ink logo, or full-bleed. A mark that fails to load falls back to the bot.
+ */
+export function personHoverCardAgents(): ReactNode {
+  return (
+    <Wrapper className="flex-col">
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <PersonAvatar size="lg" person={AGENTS[0]!} />
+        <PersonAvatar
+          size="lg"
+          person={{ name: "Build bot", kind: "agent", hue: "cyan" }}
+          agentFallback="initials"
+        />
+        <PersonAvatar size="lg" person={AGENTS[1]!} />
+        <PersonAvatar size="lg" person={AGENTS[2]!} />
+        <PersonAvatar size="lg" person={AGENTS[3]!} />
+        <PersonAvatar size="lg" person={AGENTS[4]!} />
+        <PersonAvatar
+          size="lg"
+          person={{
+            name: "Broken mark",
+            kind: "agent",
+            mark: { src: "/missing-mark.png" },
+          }}
+        />
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <PersonAvatar size="lg" person={{ name: "Asha Rao", hue: "blue" }} />
+        <PersonAvatar
+          size="lg"
+          person={{ name: "Ada Lovelace", image: "/preview/avatar-1.svg" }}
+        />
+        <PersonHoverCard person={AGENTS[1]!}>
+          <PersonAvatar person={AGENTS[1]!} />
+        </PersonHoverCard>
+        <PersonAvatar size="lg" person={AGENTS[0]!} />
+        <PersonAvatar
+          size="lg"
+          person={{ name: "Sales", kind: "team", hue: "green" }}
+        />
+        <PersonAvatar
+          size="lg"
+          person={{ name: "Acme Lighting", kind: "workspace", hue: "orange" }}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** People and agents in one stack: each hexagon gets a halo in its own shape, so overlaps stay clean. */
+export function personHoverCardMixed(): ReactNode {
+  const collaborators: Person[] = [
+    { name: "Manoj Kumar", email: "manoj@acme.com", hue: "blue" },
+    AGENTS[1]!,
+    {
+      name: "Priya Shah",
+      email: "priya@acme.com",
+      image: "/preview/avatar-3.svg",
+    },
+    AGENTS[0]!,
+    AGENTS[3]!,
+    { name: "Lena Ortiz", email: "lena@acme.com", hue: "purple" },
+    AGENTS[2]!,
+  ];
+  return (
+    <Wrapper>
+      <AvatarStack people={collaborators} max={6} label="Collaborators" />
+    </Wrapper>
+  );
+}
+
+/**
+ * `indicator` puts a presence dot or a state icon at the corner, sized to the step; an
+ * `AgentStateRing` follows the hexagon. In a dense row, `AgentStateBadge iconOnly` keeps the state
+ * as an icon with its word in a tooltip, and a long state word truncates.
+ */
+export function personHoverCardIndicators(): ReactNode {
+  const dot = <span className="size-full rounded-full bg-success" />;
+  return (
+    <Wrapper className="flex-col">
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        {SIZES.map((size) => (
+          <span key={size} className="flex items-center gap-2">
+            <PersonAvatar
+              size={size}
+              person={{ name: "Asha Rao", hue: "blue" }}
+              indicator={dot}
+            />
+            <PersonAvatar size={size} person={AGENTS[1]!} indicator={dot} />
+          </span>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        <AgentStateRing state="question">
+          <PersonAvatar size="default" person={AGENTS[0]!} />
+        </AgentStateRing>
+        <AgentStateRing state="failed">
+          <PersonAvatar size="default" person={AGENTS[1]!} />
+        </AgentStateRing>
+        <AgentStateRing state="question">
+          <PersonAvatar
+            size="default"
+            person={{ name: "Asha Rao", hue: "blue" }}
+          />
+        </AgentStateRing>
+      </div>
+      <div className="flex w-full max-w-sm flex-col gap-1 text-xs">
+        <div className="flex h-5 min-w-0 items-center gap-1.5">
+          <PersonAvatar size="2xs" person={AGENTS[1]!} />
+          <PersonName
+            person={AGENTS[1]!}
+            agentLabel={false}
+            className="min-w-0 truncate"
+          />
+          <AgentStateBadge state="working" iconOnly />
+        </div>
+        <div className="flex h-5 min-w-0 items-center gap-1.5">
+          <PersonAvatar size="2xs" person={AGENTS[0]!} />
+          <PersonName
+            person={AGENTS[0]!}
+            agentLabel={false}
+            className="min-w-0 truncate"
+          />
+          <AgentStateBadge state="question" iconOnly />
+        </div>
+        {[240, 170, 120].map((width) => (
+          <div
+            key={width}
+            className="flex h-6 min-w-0 items-center gap-1.5"
+            style={{ width }}
+          >
+            <PersonAvatar size="xs" person={AGENTS[3]!} />
+            <span className="min-w-0 truncate">Atlas reviewer</span>
+            <AgentStateBadge
+              state="approval"
+              stateLabels={{ approval: "Waiting for your approval" }}
+            />
+          </div>
+        ))}
+      </div>
     </Wrapper>
   );
 }

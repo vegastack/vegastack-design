@@ -118,7 +118,7 @@ starts with `icon-` is a component and never an icon.
 - **`list-toolbar`** — The one header row of every list and table: the search left, the icon tools (Filter · Sort · Layout · Display · ⋯) right; scope tabs in their own row above and the filter row under it. Measures its own width and collapses in a fixed order.
 - **`load-more`** — The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.
-- **`person-avatar`** — A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.
+- **`person-avatar`** — A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person; teams and workspaces are rounded squares, agents a soft hexagon with an optional mark.
 - **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
 - **`recent-strip`** — One row of the records a person opened last — compact cards in a sideways strip with edge fades and roving arrow keys, a single line of chips on a phone, collapsible, with a same-shape skeleton.

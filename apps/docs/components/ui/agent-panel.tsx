@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.34.0 sha256-9WZuGfMsrTdHjsq7J7tZF+dBT59nd5Y9MbkV0AR31LM=
+// @vegastack agent-panel@0.34.0 sha256-a4IhrivXfTTEwOI27MnPIcbAXOCuaNHbIyjnsd9StV0=
 
 "use client";
 
@@ -47,6 +47,8 @@ import {
 import {
   PersonAgentLabel,
   PersonAvatar,
+  agentShapeMask,
+  agentShapeStyle,
   personAccessibleName,
   type Person,
 } from "@/components/ui/person-avatar";
@@ -250,29 +252,46 @@ export interface AgentStateBadgeProps extends Omit<
   state: AgentState;
   /** Replace any state word (`AgentStateLabels`). @default undefined */
   stateLabels?: Partial<AgentStateLabels>;
+  /**
+   * Only the state's icon, with the word in a tooltip and for screen readers — for dense rows
+   * where the word does not fit.
+   * @default false
+   */
+  iconOnly?: boolean;
 }
 
 /**
  * `AgentStateBadge` — a delegation's state as its icon and word in the state's ink: ◷ Queued,
- * ◌ Working, ! Needs you (amber), ✕ Failed (red), ✓ Done (green), ■ Stopped. It never truncates:
- * give the name beside it the room to shrink.
+ * ◌ Working, ! Needs you (amber), ✕ Failed (red), ✓ Done (green), ■ Stopped. In a narrow row
+ * the word gives way before the name beside it: it truncates, then drops out, leaving the icon
+ * whole. `iconOnly` shows only the icon, with the word in a tooltip.
  *
  * @example <AgentStateBadge state="working" />
+ * @example <AgentStateBadge state="question" iconOnly />
  */
 export function AgentStateBadge({
   state,
   stateLabels,
+  iconOnly = false,
   className,
   ...props
 }: AgentStateBadgeProps) {
   if (state === "none") return null;
   const word = { ...DEFAULT_STATE_LABELS, ...stateLabels }[state];
-  return (
+  const badge = (
     <span
       data-slot="agent-state-badge"
       data-state={state}
+      data-icon-only={iconOnly ? "" : undefined}
       className={cn(
-        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap",
+        iconOnly
+          ? "inline-flex shrink-0 items-center"
+          : // In a row the word gives way first: it truncates down to about four characters,
+            // then wraps onto a clipped second line, leaving the icon alone. The name beside it
+            // only starts to truncate once the badge is down to its icon. `shrink-9999` (not
+            // 999) keeps the name's share of the shrink under a layout unit, so it never shows
+            // an ellipsis while the word still has room to give.
+            "inline-flex h-lh min-w-3.5 shrink-9999 flex-wrap content-start items-center gap-x-1 overflow-hidden",
         TONE_TEXT[toneOf(state)],
         state === "working" && "text-foreground",
         className,
@@ -280,8 +299,21 @@ export function AgentStateBadge({
       {...props}
     >
       <AgentStateIcon state={state} />
-      {word}
+      {iconOnly ? (
+        <span className="sr-only">{word}</span>
+      ) : (
+        <span className="max-w-max min-w-[4ch] grow basis-[4ch] truncate">
+          {word}
+        </span>
+      )}
     </span>
+  );
+  if (!iconOnly) return badge;
+  return (
+    <Tooltip>
+      <TooltipTrigger render={badge} />
+      <TooltipContent>{word}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -302,8 +334,9 @@ export interface AgentStateRingProps extends React.ComponentPropsWithRef<"span">
 /**
  * `AgentStateRing` — wraps an agent's `PersonAvatar` in a list, a board card or a grid row header
  * with a ring for the states that need someone: amber while it needs you (a question, an approval,
- * a block), red when it failed. Other states draw no ring. The colour is never the only cue: the
- * state is said to screen readers, and the host shows its word where there is room.
+ * a block), red when it failed. Other states draw no ring. Around an agent's hexagon the ring
+ * follows the hexagon. The colour is never the only cue: the state is said to screen readers, and
+ * the host shows its word where there is room.
  *
  * @example
  * <AgentStateRing state="question"><PersonAvatar person={{ name: "Claude Code", kind: "agent" }} /></AgentStateRing>
@@ -329,6 +362,13 @@ export function AgentStateRing({
         "inline-flex shrink-0 rounded-full",
         tone === "warning" && "ring-2 ring-warning",
         tone === "destructive" && "ring-2 ring-destructive",
+        // An agent is a hexagon: its avatar draws the ring in its own shape, so a circle never
+        // rings a hexagon.
+        "has-data-[kind=agent]:ring-0",
+        tone === "warning" &&
+          "**:data-[kind=agent]:[--person-avatar-halo:var(--color-warning)]",
+        tone === "destructive" &&
+          "**:data-[kind=agent]:[--person-avatar-halo:var(--color-destructive)]",
         className,
       )}
       {...props}
@@ -412,12 +452,7 @@ export function AgentSlot({
   }
   const content = agent ? (
     <>
-      <PersonAvatar
-        person={asPerson(agent)}
-        aria-hidden
-        size="default"
-        className="size-5"
-      />
+      <PersonAvatar person={asPerson(agent)} aria-hidden size="xs" />
       <span className="min-w-0 truncate">{agent.name}</span>
       {state !== "none" ? <span className="sr-only">, </span> : null}
       <AgentStateBadge
@@ -514,24 +549,20 @@ export function AgentChip({
       <SplitChipButton {...props}>
         {agent ? (
           <>
-            <PersonAvatar
-              person={asPerson(agent)}
-              aria-hidden
-              size="sm"
-              className="size-4"
-            />
+            <PersonAvatar person={asPerson(agent)} aria-hidden size="2xs" />
             <span className="min-w-0 truncate">{agent.name}</span>
             {word ? <span className="sr-only">, </span> : null}
             {word ? (
               <span
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-1 whitespace-nowrap",
+                  // The word gives way before the name (shrink-9999), down to nothing.
+                  "inline-flex min-w-0 shrink-9999 items-center gap-1 whitespace-nowrap",
                   TONE_TEXT[toneOf(state)],
                   state === "working" && "text-muted-foreground",
                 )}
               >
                 <span aria-hidden>·</span>
-                {word}
+                <span className="min-w-0 truncate">{word}</span>
               </span>
             ) : null}
           </>
@@ -722,7 +753,9 @@ export function AgentHoverCard({
               size="icon-sm"
               data-slot="agent-hover-card-avatar"
               aria-label={name}
-              className={cn("rounded-full", className)}
+              // The hover fill and focus tint follow the agent's hexagon, never a circle.
+              style={agentShapeStyle}
+              className={cn("rounded-none", agentShapeMask, className)}
               onClick={() => setOpen((o) => !o)}
             />
           )
