@@ -18,7 +18,7 @@ here. This skill only adds the release checklist:
    completion.
 5. Read back `npm view @vegastack/design version`, `npm view @vegastack/design-tokens version` and the deploy
    probe; report the merged SHA, versions and probe result.
-6. Tell the consuming app to pull (`pnpm ds:pull` in Regent web).
+6. Tell the consuming app to pull (`pnpm ds:pull` in the VegaStack web app).
 
 Never publish by hand: npm publication is CI-only, token-free OIDC. Recovery and its three-strike stop are in
 RUNBOOK § 8.

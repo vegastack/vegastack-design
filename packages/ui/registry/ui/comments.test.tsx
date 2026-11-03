@@ -1187,7 +1187,7 @@ test("the deprecated agent flag still reads as an agent", async () => {
       <CommentItem
         comment={{
           id: "a",
-          author: { name: "Regent AI" },
+          author: { name: "Assistant" },
           body: "Done.",
           createdAt: Date.now(),
           agent: true,

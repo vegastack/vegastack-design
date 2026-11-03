@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.33.0 sha256-RUjV3bybRIx9ji5pl09qJwM/+U+zWk1X0lE20heD7W4=
+// @vegastack data-table-parts@0.33.0 sha256-6ItccN6CzqffcJBnNjYWt0ZTWSXH+FOiALU+iBFTXZU=
 
 "use client";
 
@@ -399,7 +399,7 @@ export const LIST_ROW_HEIGHT_CLASS = {
 
 /**
  * The ONE row-state ladder, shared by `DataList` and `DataGrid` so a list and a grid answer the
- * same way (Regent POL-01):
+ * same way (web app POL-01):
  *
  * - hover — `ROW_HOVER_CLASS`, the `state-layer` hover/press steps (COL-24) and nothing else;
  * - selected (ticked) — `SELECTED_ROW_CLASS`, the `state-selected` wash, held through hover (the

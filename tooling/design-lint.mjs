@@ -371,9 +371,9 @@ function importantModifierTokens(lit) {
 // Batch 7a of the shadcn reset retired it for `progress` + `spinner`. An exemption that can no
 // longer be reached is an exemption that should not exist.
 // `status-icon` draws Linear's workflow glyphs (partial-fill pies, dashed ring) on a 16-unit grid,
-// which no lucide glyph expresses — operator-approved 09-10-2026 when Regent moved to that set.
+// which no lucide glyph expresses — operator-approved 09-10-2026 when the VegaStack web app moved to that set.
 // `qr-code` draws a QR matrix as one SVG path — a scannable graphic, not an icon (MK blanket
-// approval 27-10-2026, D19, Regent product-cohesion W2-MTG).
+// approval 27-10-2026, D19, web app product-cohesion W2-MTG).
 const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|status-icon|qr-code)\.tsx$/;
 
 /**

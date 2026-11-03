@@ -2977,7 +2977,7 @@ for (const [name, rowSlot] of Object.entries(HYDRATION_FIXTURES)) {
 }
 
 /**
- * Fill and fit (Regent, 14-10-2026). One unbroken 170-character product name squeezed EVERY cell
+ * Fill and fit (VegaStack web app, 14-10-2026). One unbroken 170-character product name squeezed EVERY cell
  * and header, so the headers read "Prod" / "ucts", "Un" / "it", "famil" / "y". The primary column
  * is the fill column now — it takes the leftover width, wraps anywhere and clamps at two lines —
  * and every other column is content-sized on one line, its header too, at phone, tablet and
@@ -4716,7 +4716,7 @@ const LONG_NAME =
 const LONG_WORD =
   "ALPHA-TRIMLESS-73-STD-8W-RA80-3000K-36D-WPB-ND-REV2-DATASHEET.pdf";
 
-/** A dialog holding a long-named `SearchableSelect` and a footer, as Regent's Create variant does. */
+/** A dialog holding a long-named `SearchableSelect` and a footer, as the web app's Create variant does. */
 function LongNameDialog({ wrap }: { wrap?: boolean }) {
   return (
     <Dialog defaultOpen>

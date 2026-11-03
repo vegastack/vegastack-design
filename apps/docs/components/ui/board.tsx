@@ -1,4 +1,4 @@
-// @vegastack board@0.33.0 sha256-jzd/JiaFsAsKysE3cUFj6JjDb2arAU44bNy3gZndnUA=
+// @vegastack board@0.33.0 sha256-elD0rFQdvvWdoiubHhLtAQf7HuRrr8qt533nPSPiiJU=
 
 "use client";
 
@@ -1575,7 +1575,7 @@ export function Board<T>({
   };
 
   // On a phone with more than one lane, the lane strip names each lane and its count, so the
-  // lane's own header drops its title, icon and count (Regent POL-17: "Todo 22" twice) and keeps
+  // lane's own header drops its title, icon and count (web app POL-17: "Todo 22" twice) and keeps
   // only its actions, in a slim row — gone entirely when the lane has none.
   const laneTabsShown = isMobile && !boardLoading && laneColumns.length > 1;
   const renderLane = (column: BoardColumn<T>) => {

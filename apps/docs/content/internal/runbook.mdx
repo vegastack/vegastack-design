@@ -152,7 +152,7 @@ The app's drift check flags this until the real release is pulled.
 
 ## 7. Pull a release into an app
 
-In the Regent web app, once the deploy's `registry` job is green:
+In the VegaStack web app, once the deploy's `registry` job is green:
 
 ```bash
 pnpm ds:pull --dry-run    # what would change
@@ -180,7 +180,7 @@ Other apps use `pnpm exec vegastack-design check-updates` and `pnpm exec shadcn 
 
 ## 9. Runners and caches
 
-Every job runs on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with the Regent app) inside
+Every job runs on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with the VegaStack web app) inside
 `mcr.microsoft.com/playwright:v<lockfile version>-noble`. There are two kinds of cache volume:
 
 - `/opt/vsk-runner/pnpm-store`: used by pull-request jobs.
@@ -191,7 +191,7 @@ Every job runs on `[self-hosted, linux, vsk-runner]` (node-01/06/08, shared with
 To add capacity, follow `docs/runbooks/ci-runner-provisioning-linux.md`.
 
 **Runner network (30-10-2026).** The hosts share a ~22 Mbit/s uplink, and a cold install used to die
-there with `ECONNRESET` / `EAI_AGAIN`. The findings are in the Regent app repo at
+there with `ECONNRESET` / `EAI_AGAIN`. The findings are in the VegaStack web app repo at
 `.vegastack/plans/ds-workflow/30-runner-network.md`. Three things are now in place:
 
 - **LAN npm cache.** Verdaccio 6.11.1 runs on node-06 as the Docker container `npm-cache`, at
@@ -227,5 +227,5 @@ there with `ECONNRESET` / `EAI_AGAIN`. The findings are in the Regent app repo a
   `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
 - Live: [docs](https://design.vegastack.com) · registry `https://design.vegastack.com/r/<name>.json` (service
   token) · [changelog](https://design.vegastack.com/docs/changelog)
-- Consumer side: [Regent dev handbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/.vegastack/dev.md)
-  (Design section) · [Regent deploy runbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/docs/deploy-runbook.md)
+- Consumer side: [Web app dev handbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/.vegastack/dev.md)
+  (Design section) · [Web app deploy runbook](https://github.com/vegastack/engg-clients-regent-ai-platform-web-app-v2/blob/develop/docs/deploy-runbook.md)

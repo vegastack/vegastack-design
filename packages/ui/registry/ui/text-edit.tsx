@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.33.0 sha256-wQoiajxI6CffPB8KUWvdtw7uMLVplbhbdOZQDRnqGks=
+// @vegastack text-edit@0.33.0 sha256-0ttT1n9ICFgRpvTBs1HYn8DLuyEOAP7uxqtIb8WZ1Zg=
 
 "use client";
 
@@ -306,7 +306,7 @@ export interface TextEditSlashAction {
   /** Why it is disabled, shown in place of `description`. @default undefined */
   disabledReason?: string;
   /**
-   * The heading it is listed under in the full menu ("Regent"); host items with the same group sit
+   * The heading it is listed under in the full menu ("Workspace"); host items with the same group sit
    * together, after the basic blocks on a `menuSize="lg"` menu and at the end otherwise.
    * @default "Insert"
    */
