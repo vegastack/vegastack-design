@@ -35,8 +35,8 @@ import { RecentStrip } from "@/components/ui/recent-strip";
 
 One row of the records a person opened last, so they can jump back in without the main list being
 pushed down a screen. Up to `max` (six) compact cards — an icon tile, the title and one meta line —
-sit in a strip that scrolls sideways, with fades at the clipped edges and, on a mouse, buttons at
-the ends. On a narrow strip (under 28rem of its own width, so a phone) the cards become a single
+sit in a strip that scrolls sideways, with fades at the clipped edges and, on a mouse, a pair of
+buttons in their own column at the strip's end, never over a card. On a narrow strip (under 28rem of its own width, so a phone) the cards become a single
 line of chips. The strip is one Tab stop; ← and → move between the cards.
 
 ## Scope
@@ -113,7 +113,7 @@ renders nothing, unless `emptyState` gives it a line to show.
   scrolls it into view.
 - A collapsible heading is a button with `aria-expanded`, inside the heading element
   (`headingRender`, an `h2` by default).
-- The scroll buttons at the ends are for the mouse only — out of the tab order and hidden from
+- The scroll buttons at the strip's end are for the mouse only — out of the tab order and hidden from
   assistive technology, which reaches every card with the keys.
 
 | Key                                 | Action                               |

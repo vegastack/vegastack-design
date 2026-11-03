@@ -1088,6 +1088,11 @@ test("mobileActions sits between the title and the actions, phone-only, with 40p
   expect(
     header.querySelector('[data-slot="sidebar-trigger"]')!.className,
   ).toContain("max-md:size-10");
+  // Optical edges: the icons, not the hit areas, line up with the page gutter.
+  expect(
+    header.querySelector('[data-slot="sidebar-trigger"]')!.className,
+  ).toContain("max-md:-ms-3");
+  expect(tools.className).toContain("-me-3");
   await expectNoA11yViolations(screen.container);
 });
 
