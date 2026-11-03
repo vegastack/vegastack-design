@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.33.0 sha256-ThEiWal/BONlC7jQzGWNsZ36EmPo7xtwwFA8J8qdTxM=
+// @vegastack app-shell@0.33.0 sha256-tPHuXGB92xJS7D9UpUma+RKO5VbaVyg4tCxbSynxeI4=
 
 "use client";
 
@@ -389,7 +389,10 @@ export function AppShellHeader({
       {/* Optical edges: the trigger's icon, not its hit area, lines up with the page content's
           start (the page gutter is the one inset); the phone tools' icons with its end. */}
       <SidebarTrigger
-        className={cn("-ms-1.5", mobileActions && "max-md:-ms-3 max-md:size-10")}
+        className={cn(
+          "-ms-1.5",
+          mobileActions && "max-md:-ms-3 max-md:size-10",
+        )}
       />
       <div
         data-slot="app-shell-header-middle"
