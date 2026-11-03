@@ -921,8 +921,8 @@
       "meta": {
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
-        "version": "0.33.0",
-        "integrity": "sha256-elD0rFQdvvWdoiubHhLtAQf7HuRrr8qt533nPSPiiJU="
+        "version": "0.35.1",
+        "integrity": "sha256-xx92rksIzkJcV+HHLXxxCc7GBYctpoWqwPbz1n6Qo54="
       }
     },
     {
@@ -1652,8 +1652,8 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.33.1",
-        "integrity": "sha256-bPv6jH2hiWFmkR51l3kmjouI+hMKlFUvBeTMnY97mSA="
+        "version": "0.35.1",
+        "integrity": "sha256-zq3W1Dj3JZNcBvmWtP3cDDLM6X/aUBRM8iTYMtQ800I="
       }
     },
     {
@@ -1857,8 +1857,8 @@
       "meta": {
         "whenToUse": "Paging a DataList (or any host-paged list) in place: the range, an optional rows-per-page chooser (omit onPageSizeChange for a fixed size), and page buttons in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
-        "version": "0.33.0",
-        "integrity": "sha256-Idkxgx/8ASkOxB8AFTs/2i77xHaanILFotJuEzzXtas="
+        "version": "0.35.1",
+        "integrity": "sha256-LgQW3giRy6MVdoOSeM9uwPv1azmkvpVsyJHTGdas7Bw="
       }
     },
     {
@@ -2253,8 +2253,8 @@
       "meta": {
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
-        "version": "0.33.0",
-        "integrity": "sha256-6ItccN6CzqffcJBnNjYWt0ZTWSXH+FOiALU+iBFTXZU="
+        "version": "0.35.1",
+        "integrity": "sha256-KtZmaOeIg1REacl4/5oY91PaSGuYWNEw+adIm/wIvBE="
       }
     },
     {
@@ -3037,8 +3037,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.33.0",
-        "integrity": "sha256-JqdAdRhOODdbOajJ4G7e9Pn83Zf4wsqkvDcQ+wwqF+o="
+        "version": "0.35.1",
+        "integrity": "sha256-eXJrJI8HSTqeg3N98vmbGSZ39pgbEp/eP8UJaGgyZWY="
       }
     },
     {
@@ -16778,8 +16778,8 @@
       "meta": {
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
-        "version": "0.33.0",
-        "integrity": "sha256-3pQfcJP1lQMQs8iDXchxDvywMD32c5eWv+NU+tVZiMU="
+        "version": "0.35.1",
+        "integrity": "sha256-q1n2j/x8y1EyP/IM7l+JW8CM+VEXtbofnG0L8v6/WS0="
       }
     },
     {
@@ -19252,8 +19252,8 @@
       "meta": {
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
-        "version": "0.33.0",
-        "integrity": "sha256-0ttT1n9ICFgRpvTBs1HYn8DLuyEOAP7uxqtIb8WZ1Zg="
+        "version": "0.35.1",
+        "integrity": "sha256-0qx8r6ijN8DOQpUzNvkxJls8LunV1bMJ7nq8Leu5khw="
       }
     },
     {

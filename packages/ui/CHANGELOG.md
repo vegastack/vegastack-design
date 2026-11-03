@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.35.1
+
+### Patch Changes
+
+- [#892](https://github.com/vegastack/vegastack-design/pull/892) [`62c9fb2`](https://github.com/vegastack/vegastack-design/commit/62c9fb29be735d295ef3bce99f415e3d31821472) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 Comments, docs and examples name the VegaStack web app instead of a customer: the review references in `Board`, `DataGrid`, `DataListPager`, `DataList`/`DataGrid` row states, `FieldProperty`, `InlineChip` and `TextEdit`'s `group` example, plus the public docs pages and previews. No behaviour change.
+
 ## 0.35.0
 
 ### Minor Changes

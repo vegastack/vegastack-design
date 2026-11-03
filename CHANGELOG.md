@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.35.1] — November 3, 2026
+
+<!-- assembled from 1 changeset: 70aa5b89bd03 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.35.0 → 0.35.1.
+
+### 📚 Docs
+
+- Comments, docs and examples name the VegaStack web app instead of a customer: the review references in `Board`, `DataGrid`, `DataListPager`, `DataList`/`DataGrid` row states, `FieldProperty`, `InlineChip` and `TextEdit`'s `group` example, plus the public docs pages and previews. No behaviour change.
+  [`62c9fb2`](https://github.com/VegaStack/vegastack-design/commit/62c9fb2)
+
 ## [0.35.0] — November 3, 2026
 
 <!-- assembled from 1 changeset: b04cf7564224 -->
