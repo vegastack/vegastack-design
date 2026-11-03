@@ -196,6 +196,7 @@ import type {
 } from "@/components/ui/carousel";
 import type {
   Sidebar,
+  SidebarContent,
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuSkeleton,
@@ -491,6 +492,7 @@ export type SidebarMenuSkeletonProps = React.ComponentProps<
 >;
 export type SidebarTriggerProps = React.ComponentProps<typeof SidebarTrigger>;
 export type SidebarRailProps = React.ComponentProps<typeof SidebarRail>;
+export type SidebarContentProps = React.ComponentProps<typeof SidebarContent>;
 export type SidebarStateScriptProps = React.ComponentProps<
   typeof SidebarStateScript
 >;

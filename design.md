@@ -827,8 +827,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 243 rows, 107 resolved as
-**shadcn** (upstream ships unchanged) and 136 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 244 rows, 107 resolved as
+**shadcn** (upstream ships unchanged) and 137 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1016,7 +1016,7 @@ token — that is COL-20 being enforced, not broken.
 ### 5. Our own recipes and behaviours
 
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · TYP-20 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
-LAY-15 · LAY-16 · LAY-18 · LAY-19 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
+LAY-15 · LAY-16 · LAY-18 · LAY-19 · LAY-21 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
 OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
@@ -1065,7 +1065,11 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   index, never `Math.random()`, so server and client markup agree (LAY-16). Menu rows take `min-w-0`, so a
   row in a grid or narrow column truncates its label (LAY-18), and a large sidebar row centres its content in
   the icon rail (LAY-19) — two deliberate deviations MK approved (31-10-2026) so an app needs no class on
-  these shadcn-copied parts; a shadcn refresh keeps them.
+  these shadcn-copied parts; a shadcn refresh keeps them. A sidebar list that scrolls says so (LAY-21,
+  operator 03-11-2026): `scroll-fade-y` fades only the edge with more, the footer casts a soft top shadow
+  while items sit under it, a fine pointer's hover adds a ⌃/⌄ page button on that side and a thin
+  scrollbar; nothing shows when the list fits, in the icon rail, and the phone drawer keeps only the fades
+  and the shadow.
 - **Forms** (FRM-9…FRM-13, API-26) — `Field` wires its control through Base UI Field (API-26): the label, the
   description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
   including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass

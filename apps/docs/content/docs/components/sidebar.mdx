@@ -256,7 +256,10 @@ component does this, so add no colour classes (see [Icons](/docs/foundations/ico
 ### SidebarContent
 
 `SidebarContent` is the scrollable region between the header and the footer, and it is where
-`SidebarGroup` belongs.
+`SidebarGroup` belongs. When its list runs longer than the panel it says so (LAY-21): the edge with
+more to show fades, the footer casts a soft shadow while items sit under it, and on a fine pointer's
+hover a small ⌃/⌄ button in that edge pages about a screenful, beside a thin scrollbar. Nothing shows
+when the list fits or in the icon rail; the phone drawer keeps the fades and the shadow only.
 
 ```tsx
 <Sidebar>
@@ -826,13 +829,15 @@ there. The script is inline, so a strict Content Security Policy needs a nonce o
 
 <ApiTable path="lib/api-props.ts" name="SidebarRailProps" />
 
+<ApiTable path="lib/api-props.ts" name="SidebarContentProps" />
+
 <ApiTable path="lib/api-props.ts" name="SidebarStateScriptProps" />
 
 `useSidebarCookieOpen(cookieName?: string)` returns `[open: boolean, setOpen: (open: boolean) => void]`;
 `cookieName` defaults to `sidebar_state`.
 
 `SidebarGroupLabel` and `SidebarGroupAction` add only Base UI's `render`, which swaps the rendered
-element — that is how a `CollapsibleTrigger` becomes a group label. `SidebarHeader`, `SidebarContent`,
+element — that is how a `CollapsibleTrigger` becomes a group label. `SidebarHeader`,
 `SidebarFooter`, `SidebarGroup`, `SidebarGroupContent`, `SidebarMenu`, `SidebarMenuItem`,
 `SidebarMenuBadge`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarInset`, `SidebarSeparator` and
 `SidebarInput` add no props of their own — each accepts
@@ -861,6 +866,10 @@ everything its underlying element or component accepts.
   `after:absolute after:-inset-2` grows to a 36px pointer target — at every width, not only on touch
   (A11Y-2). Give each one a real name too: an icon plus an `sr-only` label, as every example here
   does.
+- The ⌃/⌄ scroll buttons in `SidebarContent` are `tabIndex={-1}`, like the rail: they are the
+  pointer affordance, and keyboard focus already scrolls each row into view, clear of the faded edge
+  (`scroll-py-10`). Their names default to "Scroll up" and "Scroll down" (`scrollUpLabel`,
+  `scrollDownLabel`), and a click scrolls instantly under reduced motion (LAY-21).
 - An icon-only row needs the `tooltip` prop, which is what names it once the panel collapses to
   icons.
 - Focus is the global 2px `:focus-visible` outline from `base.css`. Nothing in this component
@@ -878,6 +887,13 @@ everything its underlying element or component accepts.
 ## Deviations
 
 Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
+
+- **LAY-21** — a list that scrolls says so (operator, 2026-11-03). `SidebarContent` sits in a
+  `sidebar-content-frame` marked `data-more-above` / `data-more-below`; upstream's `no-scrollbar`
+  becomes `scrollbar-thin` with a thumb painted only on hover, the list wears `scroll-fade-y` with each
+  edge zeroed unless there is more that way, and the frame holds a ⌃/⌄ button per side with more,
+  shown on a fine pointer's hover. `SidebarFooter` casts a soft top shadow while the list runs under
+  it. None of it shows in the icon rail, and the phone drawer has no buttons.
 
 - **LAY-19** — `SidebarMenuButton size="lg"` centres its content in the collapsed rail
   (`justify-center-safe` beside upstream's `p-0!`): a 24px avatar sits centred in the 32px button and a
