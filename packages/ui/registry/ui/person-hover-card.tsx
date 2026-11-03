@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.33.0 sha256-ke2QLNYHAhAsr29NvGlFzG0EkqVHQCfSIAuYFRzJIEo=
+// @vegastack person-hover-card@0.33.0 sha256-vwS+HgfFIIAaLidFnvoxvnw/OqVfanu1mb2XdaJDuaI=
 
 "use client";
 
@@ -256,13 +256,15 @@ export function AvatarStack({
       <PopoverTrigger
         render={
           <Button
-            variant="ghost"
+            // No fill at rest, on hover or while open: a tint behind overlapping circles reads as
+            // a box around them (the avatars' own hover cards are the feedback).
+            variant="link"
             data-slot="avatar-stack"
             aria-label={`${label}: ${people.map(personAccessibleName).join(", ")}${
               count > people.length ? ` and ${count - people.length} more` : ""
             }`}
             className={cn(
-              "h-auto rounded-full p-0.5 active:not-aria-[haspopup]:translate-y-0",
+              "h-auto rounded-full p-0.5 text-inherit hover:no-underline active:not-aria-[haspopup]:translate-y-0",
               className,
             )}
           />
