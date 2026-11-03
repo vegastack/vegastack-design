@@ -2012,7 +2012,7 @@
       "name": "date-picker",
       "type": "registry:ui",
       "title": "Date Picker",
-      "description": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
+      "description": "Pick a single date, a date and a time, or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -2026,7 +2026,9 @@
         "@vegastack/calendar",
         "@vegastack/popover",
         "@vegastack/button",
-        "@vegastack/relative-time"
+        "@vegastack/relative-time",
+        "@vegastack/input",
+        "@vegastack/toggle-group"
       ],
       "files": [
         {
@@ -2036,67 +2038,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
+        "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
-        "version": "0.29.3"
-      }
-    },
-    {
-      "name": "time-picker",
-      "type": "registry:ui",
-      "title": "Time Picker",
-      "description": "A time of day, typed (\"930\", \"9:30 pm\", \"21:30\") or picked from the day's times at a minute step, in the locale's 12- or 24-hour clock — the same field chrome, sizes and states as every input.",
-      "categories": ["form"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.11.0",
-        "@vegastack/design-tokens@^0.11.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/date-time",
-        "@vegastack/combobox",
-        "@vegastack/input-group"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/time-picker.tsx",
-          "type": "registry:ui",
-          "target": "@ui/time-picker.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A time of day on its own (an opening hour, a reminder time), or the time half of a date and time (DateTimePicker). size=\"sm\" + variant=\"ghost\" is the inline row tier.",
-        "whenNotToUse": "A date and a time together (DateTimePicker), a duration (NumberField with a unit), or a time range.",
-        "version": "0.29.3"
-      }
-    },
-    {
-      "name": "date-time-picker",
-      "type": "registry:ui",
-      "title": "Date Time Picker",
-      "description": "One moment: the DatePicker trigger and the TimePicker field in one named group, editing an instant on the reader's clock, with a default time for a day picked alone.",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.11.0",
-        "@vegastack/design-tokens@^0.11.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/date-time",
-        "@vegastack/date-picker",
-        "@vegastack/relative-time",
-        "@vegastack/time-picker"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/date-time-picker.tsx",
-          "type": "registry:ui",
-          "target": "@ui/date-time-picker.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A date with a time of day — a due time, a meeting start, a Date and time field — shown and edited in the reader's time zone.",
-        "whenNotToUse": "A day with no time (DatePicker), a time with no day (TimePicker), or a range (DateRangePicker).",
         "version": "0.29.3"
       }
     },
@@ -2720,7 +2663,6 @@
         "@vegastack/chip",
         "@vegastack/date-picker",
         "@vegastack/date-time",
-        "@vegastack/date-time-picker",
         "@vegastack/editable-cell",
         "@vegastack/field",
         "@vegastack/file-kind",

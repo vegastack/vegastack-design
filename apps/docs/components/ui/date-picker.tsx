@@ -1,11 +1,22 @@
-// @vegastack date-picker@0.29.3 sha256-rrixBr9oP8W9o8od7UeJ6Wgfs262s5c+eeUpG56CxGU=
+// @vegastack date-picker@0.29.3 sha256-0bLIAww15CHUNxDe7s35muhaSQBui8gGaA7PvYrb+8A=
 
 "use client";
 
 import * as React from "react";
-import { DEFAULT_LOCALE, zonedToday } from "@/lib/date-time";
+import {
+  DEFAULT_LOCALE,
+  formatTimeValue,
+  fromZoned,
+  localeHourCycle,
+  parseCalendarDay,
+  parseTimeOfDay,
+  toCalendarDay,
+  zonedParts,
+  zonedToday,
+  type TimeHourCycle,
+} from "@/lib/date-time";
 import type { DateRange, DayButton, Matcher } from "react-day-picker";
-import { Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar as CalendarIcon, CalendarClock, X } from "lucide-react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
@@ -15,16 +26,20 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { useTimeZone } from "@/components/ui/relative-time";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 /* ------------------------------------------------------------------------------------------------
  * DatePicker — single-date and range date selection, composed from upstream `Calendar`, `Popover`
  * and `Button`. The calendar itself is NOT ours: `@/components/ui/calendar` is shadcn's file plus
  * its patch, and this module imports it rather than restating a single one of its class strings.
  *
- * Two exports:
+ * Three exports:
  *  - `DatePicker`      — single date; upstream `Calendar` inside a `Popover` triggered by a `Button`
  *                        that shows the formatted date. Optional quick presets (Today / Tomorrow).
+ *  - `DateTimePicker`  — a date and a time of day in the same popup: the calendar beside a typed
+ *                        time over the day's times, editing an instant on the reader's clock.
  *  - `DateRangePicker` — the same, for a `{ from, to }` range across two months.
  *
  * Formatting uses the native `Intl.DateTimeFormat` (NO date-fns) so there is no extra runtime dep.
@@ -720,6 +735,475 @@ export function DatePicker({
           data-slot="date-picker-clear"
           // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
           // and would replace the centring transform, dropping the × by half its height.
+          className="absolute inset-y-0 end-1.5 my-auto active:not-aria-[haspopup]:translate-y-0"
+          onClick={() => {
+            trigger?.focus();
+            onValueChange?.(undefined);
+          }}
+        >
+          <X />
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * DateTimePicker — a date and a time of day, picked in one popup
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Every string the date-and-time picker renders or names a part with. */
+export interface DateTimePickerLabels {
+  /** The typed time field's accessible name. */
+  time: string;
+  /** The list of times' accessible name. */
+  times: string;
+  /** The typed field's text while empty. */
+  typeTime: string;
+}
+
+const DEFAULT_DATE_TIME_LABELS: DateTimePickerLabels = {
+  time: "Time",
+  times: "Times",
+  typeTime: "Type a time",
+};
+
+/** Trigger face for a moment: "Nov 3, 2026, 9:00 AM". */
+const DEFAULT_DATE_TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+};
+
+/** Props accepted by `DateTimePicker`. */
+export interface DateTimePickerProps {
+  /** The moment (controlled); `undefined` for none.
+   * @default undefined
+   */
+  value?: Date;
+  /**
+   * Fires with the new moment when a day or a time is picked, and with `undefined` when cleared.
+   * @default undefined
+   */
+  onValueChange?: (value: Date | undefined) => void;
+  /**
+   * The popup's open state (controlled). Pair it with `onOpenChange`.
+   * @default undefined
+   */
+  open?: boolean;
+  /** Fires when the popup opens or closes.
+   * @default undefined
+   */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * IANA zone whose calendar and clock the picker shows. Omit it to use the reader's zone from
+   * `TimeZoneProvider`, else the runtime's.
+   * @default undefined
+   */
+  timeZone?: string;
+  /**
+   * The time a day picked on its own takes, `HH:MM` (24-hour).
+   * @default "09:00"
+   */
+  defaultTime?: string;
+  /**
+   * Minutes between the times in the list. A typed time may fall between them.
+   * @default 15
+   */
+  step?: number;
+  /**
+   * `h12` ("9:30 AM") or `h23` ("09:30"). Omit it and the locale decides.
+   * @default undefined
+   */
+  hourCycle?: TimeHourCycle;
+  /**
+   * Trigger text shown when there is no moment.
+   * @default "Pick a date and time"
+   */
+  placeholder?: string;
+  /**
+   * `Intl.DateTimeFormat` options for the trigger label (formatted in `timeZone`).
+   * @default { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }
+   */
+  formatOptions?: Intl.DateTimeFormatOptions;
+  /** BCP-47 locale for the face, the calendar and the clock (defaults to `DEFAULT_LOCALE`).
+   * @default undefined
+   */
+  locale?: string;
+  /** Days to disable, forwarded to the calendar's `disabled` matcher.
+   * @default undefined
+   */
+  disabledDates?: Matcher | Matcher[];
+  /** Disable the whole control.
+   * @default undefined
+   */
+  disabled?: boolean;
+  /**
+   * Popover side relative to the trigger.
+   * @default "bottom"
+   */
+  side?: React.ComponentProps<typeof PopoverContent>["side"];
+  /**
+   * Popover alignment relative to the trigger.
+   * @default "start"
+   */
+  align?: React.ComponentProps<typeof PopoverContent>["align"];
+  /** Extra classes for the trigger button.
+   * @default undefined
+   */
+  className?: string;
+  /** Accessible name for the trigger (recommended when there is no visible label).
+   * @default undefined
+   */
+  "aria-label"?: string;
+  /** `id` for the trigger, so a `FieldLabel htmlFor` names it and opens the picker.
+   * @default undefined
+   */
+  id?: string;
+  /** Ids of the elements describing the trigger — a `FieldDescription` or `FieldError`.
+   * @default undefined
+   */
+  "aria-describedby"?: string;
+  /** Marks the trigger invalid (the destructive border).
+   * @default undefined
+   */
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  /**
+   * Trigger height: `sm` (28px) is the inline tier shared with `DatePicker size="sm"`.
+   * @default 'default'
+   */
+  size?: "sm" | "default";
+  /**
+   * `ghost` is the inline trigger (a grid cell, a property row): content width, no border at rest.
+   * @default 'outline'
+   */
+  variant?: "outline" | "ghost";
+  /**
+   * Shows a clear control beside the trigger while a moment is set, which reports `undefined`.
+   * @default false
+   */
+  clearable?: boolean;
+  /**
+   * Accessible name for the clear control.
+   * @default "Clear date and time"
+   */
+  clearLabel?: string;
+  /** Replace the time column's strings (`DateTimePickerLabels`).
+   * @default undefined
+   */
+  labels?: Partial<DateTimePickerLabels>;
+  /** Ref forwarded to the trigger button.
+   * @default undefined
+   */
+  ref?: React.Ref<HTMLButtonElement>;
+}
+
+/** Every `step` minutes from midnight, plus `extra` (an off-step value) in its place. */
+function timesOfDay(step: number, extra: string | null | undefined) {
+  const every = Math.min(720, Math.max(1, Math.round(step)));
+  const values = new Set<string>();
+  for (let at = 0; at < 24 * 60; at += every)
+    values.add(
+      `${String(Math.floor(at / 60)).padStart(2, "0")}:${String(at % 60).padStart(2, "0")}`,
+    );
+  if (extra) values.add(extra);
+  return [...values].sort();
+}
+
+/**
+ * `DateTimePicker` — a date and a time of day in one control. One trigger ("Nov 3, 2026, 9:00
+ * AM") opens one popup: the calendar, and beside it the time — a field to type one ("930",
+ * "9:30 pm", "21:30") over the day's times every `step` minutes. Picking a day keeps the popup
+ * open for the time (a day alone takes `defaultTime`, 09:00); picking or entering a time closes it.
+ * The value is an instant, shown and edited on the reader's clock (`timeZone`, else
+ * `TimeZoneProvider`): a wall time the zone skips moves past the gap, a repeated one keeps the
+ * offset it had.
+ *
+ * @example
+ * const [due, setDue] = React.useState<Date>();
+ * <DateTimePicker aria-label="Due" value={due} onValueChange={setDue} clearable />
+ *
+ * @example
+ * // A grid cell: the small inline tier, on a 24-hour clock every 30 minutes
+ * <DateTimePicker size="sm" variant="ghost" hourCycle="h23" step={30} value={at} onValueChange={setAt} />
+ */
+export function DateTimePicker({
+  value,
+  onValueChange,
+  open: openProp,
+  onOpenChange,
+  timeZone: timeZoneProp,
+  defaultTime = "09:00",
+  step = 15,
+  hourCycle: hourCycleProp,
+  placeholder = "Pick a date and time",
+  formatOptions = DEFAULT_DATE_TIME_FORMAT,
+  locale = DEFAULT_LOCALE,
+  disabledDates,
+  disabled,
+  side = "bottom",
+  align = "start",
+  className,
+  "aria-label": ariaLabel,
+  id,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  size = "default",
+  variant = "outline",
+  clearable = false,
+  clearLabel = "Clear date and time",
+  labels: labelsProp,
+  ref,
+}: DateTimePickerProps) {
+  const labels = { ...DEFAULT_DATE_TIME_LABELS, ...labelsProp };
+  const readerZone = useTimeZone();
+  const timeZone = timeZoneProp ?? readerZone;
+  const hourCycle = hourCycleProp ?? localeHourCycle(locale);
+  const [openState, setOpenState] = React.useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    setOpenState(next);
+    onOpenChange?.(next);
+  };
+  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
+  const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
+  const ghost = variant === "ghost";
+
+  const valid = value && !Number.isNaN(value.getTime()) ? value : undefined;
+  const iso = valid?.toISOString() ?? null;
+  const current = iso ? zonedParts(iso, timeZone) : null;
+  // One Date per day: a new object each render reads to the calendar as a new selection, and its
+  // autofocus pulls focus from the time field to the day.
+  const currentDay = current?.day;
+  const selectedDay = React.useMemo(
+    () => (currentDay ? parseCalendarDay(currentDay) : undefined),
+    [currentDay],
+  );
+  // The grid's "today" is the picker's zone's day (the engine's own when there is no zone).
+  const today = React.useMemo(
+    () => (open && timeZone ? zonedToday(Date.now(), timeZone) : undefined),
+    [open, timeZone],
+  );
+  const commit = (day: string, time: string) =>
+    onValueChange?.(new Date(fromZoned(day, time, timeZone, iso)));
+  /** A time picked before any day lands on today, on the picker's clock. */
+  const dayForTime = () =>
+    current?.day ?? zonedParts(new Date().toISOString(), timeZone).day;
+
+  // The typed field: `null` while it shows the value's own time.
+  const [draft, setDraft] = React.useState<string | null>(null);
+  const parsed = draft == null ? undefined : parseTimeOfDay(draft, locale);
+  const draftInvalid = draft != null && draft.trim() !== "" && !parsed;
+  const takeDraft = (close: boolean) => {
+    if (draft == null) {
+      if (close) setOpen(false);
+      return;
+    }
+    if (parsed) {
+      commit(dayForTime(), parsed);
+      if (close) setOpen(false);
+    }
+    setDraft(null);
+  };
+
+  const times = React.useMemo(
+    () => timesOfDay(step, current?.time),
+    [step, current?.time],
+  );
+  // On open, the list scrolls to the value (else the default time) instead of midnight.
+  const scrollToCurrent = React.useCallback(
+    (list: HTMLDivElement | null) => {
+      if (!list) return;
+      const target = current?.time ?? defaultTime;
+      const items = Array.from(
+        list.querySelectorAll<HTMLElement>("[data-time]"),
+      );
+      const item =
+        items.find((el) => (el.dataset.time ?? "") >= target) ?? items.at(-1);
+      // Measured against the list itself: `offsetTop` counts from the popup, which puts the
+      // calendar's height above the list once the column stacks under it on a phone.
+      if (item) {
+        const from = list.getBoundingClientRect();
+        const at = item.getBoundingClientRect();
+        list.scrollTop +=
+          at.top - from.top - list.clientHeight / 2 + at.height / 2;
+      }
+    },
+    [current?.time, defaultTime],
+  );
+
+  const face = valid
+    ? new Intl.DateTimeFormat(locale, {
+        ...formatOptions,
+        hourCycle,
+        timeZone,
+      })
+        .format(valid)
+        .replace(/[  ]/g, " ")
+    : placeholder;
+
+  const picker = (
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setDraft(null);
+        setOpen(next);
+      }}
+    >
+      <FieldPrimitive.Control
+        id={id}
+        disabled={disabled}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
+        render={
+          <PopoverTrigger
+            render={
+              <Button
+                ref={triggerRef}
+                variant="outline"
+                onPointerEnter={prefetchCalendar}
+                onFocus={prefetchCalendar}
+                size={size === "sm" ? "sm" : "default"}
+                data-slot="date-time-picker-trigger"
+                data-size={size}
+                data-variant={variant}
+                data-empty={valid ? undefined : ""}
+                aria-label={ariaLabel}
+                className={cn(
+                  "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+                  size === "sm" && "text-sm",
+                  ghost && GHOST_TRIGGER,
+                  ghost && !clearable && "w-fit",
+                  clearable && "pe-9",
+                  className,
+                )}
+              >
+                <CalendarClock
+                  className="size-4 text-muted-foreground"
+                  aria-hidden
+                />
+                <span className="min-w-0 truncate">{face}</span>
+              </Button>
+            }
+          />
+        }
+      />
+      <PopoverContent
+        data-slot="date-time-picker-content"
+        side={side}
+        align={align}
+        className={cn(POPUP_CLASSES, "flex-row max-sm:flex-col")}
+      >
+        <CalendarBody>
+          {/* The time column comes with the calendar: rendered before it, it took the popup's
+              first focus, and the calendar's autofocus then pulled focus out of a typed time. */}
+          {({ Calendar }) => (
+            <>
+              <Calendar
+                components={POPOVER_CALENDAR_COMPONENTS}
+                className={POPUP_CALENDAR_CLASSES}
+                today={today}
+                mode="single"
+                selected={selectedDay}
+                onSelect={(day: Date | undefined) => {
+                  // A day keeps the popup open for the time; picking the same day again does nothing.
+                  if (day)
+                    commit(toCalendarDay(day), current?.time ?? defaultTime);
+                }}
+                defaultMonth={selectedDay ?? today}
+                disabled={disabledDates}
+                autoFocus
+              />
+              <div
+                data-slot="date-time-picker-time"
+                className="flex w-36 shrink-0 flex-col border-s border-border max-sm:w-auto max-sm:border-s-0 max-sm:border-t"
+              >
+                <div className="p-2 pb-1">
+                  <Input
+                    size="sm"
+                    aria-label={labels.time}
+                    placeholder={labels.typeTime}
+                    autoComplete="off"
+                    value={
+                      draft ??
+                      (current
+                        ? formatTimeValue(current.time, locale, hourCycle)
+                        : "")
+                    }
+                    aria-invalid={draftInvalid || undefined}
+                    className="tabular-nums"
+                    onChange={(event) => setDraft(event.target.value)}
+                    onBlur={() => takeDraft(false)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        takeDraft(true);
+                      } else if (event.key === "Escape" && draft != null) {
+                        // The first Escape only drops what was typed; the next closes the popup.
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setDraft(null);
+                      }
+                    }}
+                  />
+                </div>
+                <div
+                  ref={scrollToCurrent}
+                  data-slot="date-time-picker-times"
+                  className="h-64 overflow-y-auto overscroll-contain p-1 pt-0 max-sm:h-40"
+                >
+                  <ToggleGroup
+                    aria-label={labels.times}
+                    orientation="vertical"
+                    spacing={0.5}
+                    deselectable={false}
+                    className="w-full"
+                    value={current ? [current.time] : []}
+                    onValueChange={(next: string[]) => {
+                      const time = next[0];
+                      if (!time) return;
+                      setDraft(null);
+                      commit(dayForTime(), time);
+                      setOpen(false);
+                    }}
+                  >
+                    {times.map((time) => (
+                      <ToggleGroupItem
+                        key={time}
+                        value={time}
+                        data-time={time}
+                        className="justify-start px-2 font-normal tabular-nums aria-pressed:bg-primary aria-pressed:text-primary-foreground hover:aria-pressed:text-primary-foreground"
+                      >
+                        {formatTimeValue(time, locale, hourCycle)}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
+            </>
+          )}
+        </CalendarBody>
+      </PopoverContent>
+    </Popover>
+  );
+
+  if (!clearable) return picker;
+
+  return (
+    <div
+      data-slot="date-time-picker"
+      className={cn("relative min-w-0", ghost ? "w-fit" : "w-full")}
+    >
+      {picker}
+      {valid ? (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={clearLabel}
+          disabled={disabled}
+          data-slot="date-time-picker-clear"
           className="absolute inset-y-0 end-1.5 my-auto active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             trigger?.focus();

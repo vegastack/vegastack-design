@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5bb314d9debf4c3d4696a2848227f401d5a14b57a9d8c4e4d304f9e892230561",
+  "contractSha256": "423779042360fcd36584000449ef02fcc1cf50bc1f1e64cf16a902453a537351",
   "expectedCounts": {
-    "totalRegistryItems": 788,
-    "components": 198,
+    "totalRegistryItems": 786,
+    "components": 196,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -584,28 +584,6 @@
         "packages/ui/registry/ui/date-picker.tsx"
       ],
       "docsSlug": "/docs/components/date-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "time-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/time-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/time-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "date-time-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/date-time-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/date-time-picker",
       "contractStatus": "reconciled"
     },
     {

@@ -53,7 +53,7 @@ editor as a plain form control.
 | `long_text`                            | The first line                                               | The `TextEdit` editor (Markdown)                            |
 | `number`, `currency`, `percent`        | End-aligned tabular figures in the reader's locale           | `NumberField` — "1,5" is 1.5 where the comma is the decimal |
 | `date`                                 | A calendar day that never shifts with the zone               | `DatePicker`                                                |
-| `datetime`                             | Date and time in the reader's zone                           | `DateTimePicker` (`DatePicker` and `TimePicker`)            |
+| `datetime`                             | Date and time in the reader's zone                           | `DateTimePicker` (one popup: calendar and time)             |
 | `single_choice`, `multi_choice`        | `FieldChoiceBadge`s in the option's hue, "+N" past two       | The option list, Add option with `onCreateOption`           |
 | `checkbox`                             | A checkbox that toggles in place (`onToggle`)                | A checkbox                                                  |
 | `person`                               | Avatar and name; several as avatars                          | `PeoplePicker`                                              |
@@ -119,8 +119,8 @@ with the same badges in its list.
 ### A cell editor
 
 A picker commits on choosing (chosen with <kbd>Enter</kbd>, it also moves down) — a multiple
-choice when the edit ends, as above; text, numbers and date-times commit on <kbd>Enter</kbd> or when focus
-leaves the editor (not into its own calendar); long text opens in a popover, with the `@` mention
+choice when the edit ends, as above; text and numbers commit on <kbd>Enter</kbd> or when focus
+leaves the editor; a date-time commits when its popup closes on a time; long text opens in a popover, with the `@` mention
 menu when `config.mentions` is given (with `mentionHref` and `mentionImage`, as `TextEdit` takes
 them; the row panel's `FieldInput` too); <kbd>Escape</kbd>
 cancels. The editor takes focus as it opens — a picker's list or calendar opens with it, and long
@@ -128,13 +128,13 @@ text's editor takes the caret. In a grid it follows the spreadsheet keys:
 
 <kbd>Enter</kbd> commits and moves down (<kbd>Shift</kbd>+<kbd>Enter</kbd> up),
 <kbd>Tab</kbd> right and <kbd>Shift</kbd>+<kbd>Tab</kbd> left — through
-`onCommit`'s `move` — and <kbd>Tab</kbd> first steps through a date-time's own
-date and time. The key that opened it (`seed`) replaces a text, URL, email,
-phone, number or long-text value (keys typed while long text's editor loads
-follow it); a date opens as a field that takes a typed date ("12/3", "Mar 12",
-"today") starting from it; and a choice, person or link picker opens searching
-for it. A date-time opens as it is. While an IME is composing, no key commits or
-moves.
+`onCommit`'s `move` — and inside a date-time's popup <kbd>Tab</kbd> steps
+between the calendar and the time. The key that opened it (`seed`) replaces a
+text, URL, email, phone, number or long-text value (keys typed while long text's
+editor loads follow it); a date opens as a field that takes a typed date
+("12/3", "Mar 12", "today") starting from it; and a choice, person or link
+picker opens searching for it. A date-time opens its popup as it is. While an
+IME is composing, no key commits or moves.
 
 <ComponentPreview
   name="fieldCellEditor"
@@ -160,14 +160,18 @@ committed as the fraction it is stored as (0.42). The commit keys are the grid's
 Long text edits where the floating editor is, on its own surface (no second popover from it), and
 grows to 15rem before it scrolls. A person is the chosen people as removable chips over the
 `PeoplePicker` list, which leaves them out; a multiple field toggles with the editor open and
-commits when focus leaves it, a single field commits on the pick. A date, and a date-time's date,
-take the picker's inline (`ghost`) tier, so the date and the time read as one field on the surface.
-A date's calendar is open from the first render, like a choice's list, and a day is the commit:
-closing the calendar with no day (a press outside, <kbd>Esc</kbd>, the trigger pressed again)
-cancels the edit, so the floating editor and the page lock behind it go with it; pressing the
-chosen day again keeps it, and the × beside it clears. Give the floating editor
-`floatingCellEditorSize(type)` and leave its `onDismiss` unset for the person and date-time
-editors: a press outside moves focus away, and that commits.
+commits when focus leaves it, a single field commits on the pick. A date and a date-time take
+their picker's inline (`ghost`) tier. A date's calendar is open from the first render, like a
+choice's list, and a day is the commit: closing the calendar with no day (a press outside,
+
+<kbd>Esc</kbd>, the trigger pressed again) cancels the edit, so the floating
+editor and the page lock behind it go with it; pressing the chosen day again
+keeps it, and the × beside it clears. A date-time's popup (`DateTimePicker`: the
+calendar beside the time) opens the same way; a day keeps it open for the time,
+a time picked or typed closes it and commits (Enter moves down), and closing it
+with nothing changed cancels. Give the floating editor
+`floatingCellEditorSize(type)` and leave its `onDismiss` unset for the person
+editor: a press outside moves focus away, and that commits.
 
 ```tsx
 <FieldCellDisplay variant="cell" type="url" value="https://example.com/" />

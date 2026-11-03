@@ -483,15 +483,34 @@ test("a restricted, unavailable or deleted link shows only that word — never t
   expect(screen.container.textContent).toContain("Restricted");
 });
 
-/** Types a time into a date-time editor's time field and commits it with Enter. */
-async function typeTime(
-  screen: { getByLabelText: (text: string) => { element: () => Element } },
-  text: string,
-) {
-  const input = screen.getByLabelText("Time").element() as HTMLInputElement;
-  await userEvent.click(input);
-  await userEvent.fill(input, text);
+/** Opens a date-time editor and returns its typed time field. */
+async function openTime(field: string) {
+  const trigger = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      '[data-slot="date-time-picker-trigger"]',
+    ),
+  ).find((el) => el.getAttribute("aria-label") === field)!;
+  if (!document.querySelector('[data-slot="date-time-picker-content"]'))
+    await userEvent.click(trigger);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="date-time-picker-time"] input'),
+    ).not.toBeNull(),
+  );
+  return document.querySelector<HTMLInputElement>(
+    '[data-slot="date-time-picker-time"] input',
+  )!;
+}
+
+/** Types a time into a date-time editor's popup and commits it with Enter. */
+async function typeTime(field: string, text: string) {
+  await userEvent.fill(await openTime(field), text);
   await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="date-time-picker-content"]'),
+    ).toBeNull(),
+  );
 }
 
 test("date-time edits in the reader's zone, not the browser's", async () => {
@@ -506,10 +525,12 @@ test("date-time edits in the reader's zone, not the browser's", async () => {
       />
     </TimeZoneProvider>,
   );
-  const time = screen.getByLabelText("Time").element() as HTMLInputElement;
   // 13:30Z is 09:30 in New York (EDT).
-  expect(time.value).toBe("9:30 AM");
-  await typeTime(screen, "10:00");
+  await expect
+    .element(screen.getByRole("button", { name: "Visit" }))
+    .toHaveTextContent("Oct 24, 2026, 9:30 AM");
+  expect((await openTime("Visit")).value).toBe("9:30 AM");
+  await typeTime("Visit", "10:00");
   expect(onChange).toHaveBeenLastCalledWith("2026-10-24T14:00:00.000Z");
 });
 
@@ -597,7 +618,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await typeTime(screen, "02:30");
+  await typeTime("A", "02:30");
   expect(onChange).toHaveBeenLastCalledWith("2026-03-08T07:30:00.000Z"); // 03:30 EDT
   const fold = vi.fn();
   await screen.rerender(
@@ -611,7 +632,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await typeTime(screen, "01:45");
+  await typeTime("A", "01:45");
   expect(fold).toHaveBeenLastCalledWith("2026-11-01T06:45:00.000Z");
   // Auckland (UTC+12/+13): the changes fall where a half-day sample misses them.
   const gap = vi.fn();
@@ -625,7 +646,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await typeTime(screen, "02:30");
+  await typeTime("A", "02:30");
   expect(gap).toHaveBeenLastCalledWith("2026-09-26T14:30:00.000Z"); // 03:30 NZDT
   const first = vi.fn();
   await screen.rerender(
@@ -639,7 +660,7 @@ test("date-time across the clock changes: a skipped hour moves forward, a repeat
       />
     </TimeZoneProvider>,
   );
-  await typeTime(screen, "02:45");
+  await typeTime("A", "02:45");
   expect(first).toHaveBeenLastCalledWith("2026-04-04T13:45:00.000Z");
 });
 
@@ -863,29 +884,57 @@ test("FieldCellEditor: a typed seed replaces a text or number value and opens a 
   await expectNoA11yViolations(screen.container);
 });
 
-test("FieldCellEditor: Tab steps through a date-time's own controls before it commits and moves", async () => {
+test("FieldCellEditor: a date-time opens its popup; Tab moves inside it, and a time entered with Enter commits and moves down", async () => {
   const onCommit = vi.fn();
-  const screen = await render(
+  const onCancel = vi.fn();
+  await render(
     <TimeZoneProvider timeZone="UTC">
       <FieldCellEditor
         type="datetime"
         label="Due"
         value="2026-10-24T09:30:00.000Z"
         onCommit={onCommit}
-        onCancel={() => {}}
+        onCancel={onCancel}
       />
     </TimeZoneProvider>,
   );
-  const stops = [
-    ...screen.container.querySelectorAll<HTMLElement>(
-      '[data-slot="field-cell-editor"] button, [data-slot="field-cell-editor"] input',
-    ),
-  ].filter((node) => node.tabIndex >= 0);
-  stops[0]!.focus();
+  // Open with the editor, focus on the chosen day.
+  await vi.waitFor(() =>
+    expect(document.activeElement?.hasAttribute("data-day")).toBe(true),
+  );
   await userEvent.keyboard("{Tab}");
   expect(onCommit).not.toHaveBeenCalled();
-  await userEvent.keyboard("{Tab}");
-  expect(onCommit).toHaveBeenCalledWith("2026-10-24T09:30:00.000Z", "right");
+  await vi.waitFor(() =>
+    expect(
+      document.activeElement?.closest('[data-slot="date-time-picker-time"]'),
+    ).not.toBeNull(),
+  );
+  await userEvent.fill(document.activeElement as HTMLInputElement, "10:00");
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(onCommit).toHaveBeenCalledWith("2026-10-24T10:00:00.000Z", "down"),
+  );
+  expect(onCancel).not.toHaveBeenCalled();
+});
+
+test("FieldCellEditor: a date-time's popup closed with nothing picked is a dismissal", async () => {
+  const onCommit = vi.fn();
+  const onCancel = vi.fn();
+  await render(
+    <FieldCellEditor
+      type="datetime"
+      label="Due"
+      value="2026-10-24T09:30:00.000Z"
+      onCommit={onCommit}
+      onCancel={onCancel}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement?.hasAttribute("data-day")).toBe(true),
+  );
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(onCancel).toHaveBeenCalledTimes(1));
+  expect(onCommit).not.toHaveBeenCalled();
 });
 
 test("FieldCellEditor: a picker chosen with Enter moves down; IME never chooses; a number's Tab moves right", async () => {
@@ -2333,7 +2382,7 @@ test("FieldCellEditor variant=cell: a single person's pick commits at once; a da
   );
   expect(
     screen.container.querySelector(
-      '[data-slot="field-datetime-editor"] [data-variant="ghost"]',
+      '[data-slot="date-time-picker-trigger"][data-variant="ghost"]',
     ),
   ).not.toBeNull();
 });

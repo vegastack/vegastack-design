@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5bb314d9debf4c3d4696a2848227f401d5a14b57a9d8c4e4d304f9e892230561",
+  "contractSha256": "423779042360fcd36584000449ef02fcc1cf50bc1f1e64cf16a902453a537351",
   "inventory": {
-    "expected": 788,
-    "actual": 788,
-    "unique": 788
+    "expected": 786,
+    "actual": 786,
+    "unique": 786
   },
   "classes": {
-    "components": 198,
+    "components": 196,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -47,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 44,
-      "actual": 44,
+      "expected": 42,
+      "actual": 42,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -60,7 +60,6 @@
         "combobox",
         "country-select",
         "date-picker",
-        "date-time-picker",
         "destination-picker",
         "dropzone",
         "editable-cell",
@@ -91,7 +90,6 @@
         "task-inline",
         "template-editor",
         "text-edit",
-        "time-picker",
         "upload-dialog",
         "upload-panel"
       ]
@@ -849,7 +847,7 @@
       ]
     }
   },
-  "componentRoutes": 192,
+  "componentRoutes": 190,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

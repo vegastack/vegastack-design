@@ -7,7 +7,15 @@ import geometryCss from "../../test/geometry.css?inline";
 import * as React from "react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
-import { DatePicker, DateRangePicker, type DateRange } from "./date-picker";
+import {
+  DatePicker,
+  DateRangePicker,
+  DateTimePicker,
+  type DateRange,
+  type DateTimePickerProps,
+} from "./date-picker";
+import { TimeZoneProvider } from "./relative-time";
+import { zonedParts } from "../lib/date-time";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 // A fixed month so the grid is deterministic regardless of the run date. `DatePicker` derives the
@@ -729,4 +737,310 @@ test("no a11y violations — clearable inline trigger", async () => {
     />,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* ------------------------------------------------------------------------------------------------
+ * DateTimePicker
+ * ----------------------------------------------------------------------------------------------*/
+
+const KOLKATA = "Asia/Kolkata";
+/** 3 November 2026, 09:00 in Kolkata. */
+const NOV_3_9AM = new Date("2026-11-03T03:30:00Z");
+
+/** A DateTimePicker that holds its own value, reporting each change. */
+function HeldDateTime({
+  initial,
+  onValueChange,
+  ...props
+}: Omit<DateTimePickerProps, "value"> & { initial?: Date }) {
+  const [value, setValue] = React.useState<Date | undefined>(initial);
+  return (
+    <DateTimePicker
+      aria-label="Due"
+      timeZone={KOLKATA}
+      {...props}
+      value={value}
+      onValueChange={(next) => {
+        setValue(next);
+        onValueChange?.(next);
+      }}
+    />
+  );
+}
+
+const timeField = () =>
+  document.querySelector<HTMLInputElement>(
+    '[data-slot="date-time-picker-time"] input',
+  )!;
+const timeOption = (text: string) =>
+  Array.from(
+    document.querySelectorAll<HTMLElement>(
+      '[data-slot="date-time-picker-times"] [data-slot="toggle-group-item"]',
+    ),
+  ).find((el) => el.textContent?.trim() === text)!;
+const openDateTime = async (screen: { getByRole: typeof page.getByRole }) => {
+  await screen.getByRole("button", { name: "Due" }).click();
+  await expect
+    .poll(() => document.querySelector("button[data-day]"))
+    .not.toBeNull();
+};
+const kolkata = (date: Date) => zonedParts(date.toISOString(), KOLKATA);
+
+test("DateTimePicker: one trigger shows the date and time on the zone's clock", async () => {
+  const screen = await render(
+    <DateTimePicker aria-label="Due" timeZone={KOLKATA} value={NOV_3_9AM} />,
+  );
+  const trigger = screen.getByRole("button", { name: "Due" });
+  await expect.element(trigger).toHaveTextContent("Nov 3, 2026, 9:00 AM");
+  const el = trigger.element() as HTMLElement;
+  expect(el.dataset.slot).toBe("date-time-picker-trigger");
+  expect(el.dataset.size).toBe("default");
+  expect(el.dataset.variant).toBe("outline");
+  expect(el.hasAttribute("data-empty")).toBe(false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("DateTimePicker: empty shows the placeholder", async () => {
+  const screen = await render(<DateTimePicker aria-label="Due" />);
+  const trigger = screen.getByRole("button", { name: "Due" });
+  await expect.element(trigger).toHaveTextContent("Pick a date and time");
+  expect((trigger.element() as HTMLElement).hasAttribute("data-empty")).toBe(
+    true,
+  );
+});
+
+test("DateTimePicker: one popup holds the calendar and the times; the value's time is chosen", async () => {
+  const screen = await render(<HeldDateTime initial={NOV_3_9AM} />);
+  await openDateTime(screen);
+  const content = document.querySelector(
+    '[data-slot="date-time-picker-content"]',
+  )!;
+  expect(content.querySelector("button[data-day]")).not.toBeNull();
+  expect(
+    content.querySelector('[data-slot="date-time-picker-time"]'),
+  ).not.toBeNull();
+  expect(timeField().value).toBe("9:00 AM");
+  expect(timeOption("9:00 AM").getAttribute("aria-pressed")).toBe("true");
+  // Every 15 minutes by default: 96 times.
+  expect(
+    document.querySelectorAll(
+      '[data-slot="date-time-picker-times"] [data-slot="toggle-group-item"]',
+    ),
+  ).toHaveLength(96);
+  await expectNoA11yViolations(content as HTMLElement);
+});
+
+test("DateTimePicker: the list opens scrolled to the value's time", async () => {
+  const screen = await render(<HeldDateTime initial={NOV_3_9AM} />);
+  await openDateTime(screen);
+  const list = document.querySelector<HTMLElement>(
+    '[data-slot="date-time-picker-times"]',
+  )!;
+  // The harness has no CSS: give the list a scroll box, then reopen so it scrolls on mount.
+  const style = document.createElement("style");
+  style.textContent =
+    '[data-slot="date-time-picker-times"] { height: 160px; overflow-y: auto; display: block; }';
+  document.head.append(style);
+  onTestFinished(() => style.remove());
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .poll(() =>
+      document.querySelector('[data-slot="date-time-picker-content"]'),
+    )
+    .toBeNull();
+  await openDateTime(screen);
+  const scroller = document.querySelector<HTMLElement>(
+    '[data-slot="date-time-picker-times"]',
+  )!;
+  const box = scroller.getBoundingClientRect();
+  const chosen = timeOption("9:00 AM").getBoundingClientRect();
+  expect(chosen.top).toBeGreaterThanOrEqual(box.top);
+  expect(chosen.bottom).toBeLessThanOrEqual(box.bottom);
+  expect(list).toBeDefined();
+});
+
+test("DateTimePicker: a day keeps the popup open for the time; a time closes it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <HeldDateTime initial={NOV_3_9AM} onValueChange={onValueChange} />,
+  );
+  await openDateTime(screen);
+  await userEvent.click(dayButton(20));
+  const moved = onValueChange.mock.calls.at(-1)?.[0] as Date;
+  expect(kolkata(moved)).toEqual({ day: "2026-11-20", time: "09:00" });
+  // Still open: the time is next.
+  expect(
+    document.querySelector('[data-slot="date-time-picker-content"]'),
+  ).not.toBeNull();
+  await userEvent.click(timeOption("2:30 PM"));
+  const timed = onValueChange.mock.calls.at(-1)?.[0] as Date;
+  expect(kolkata(timed)).toEqual({ day: "2026-11-20", time: "14:30" });
+  await expect
+    .poll(() =>
+      document.querySelector('[data-slot="date-time-picker-content"]'),
+    )
+    .toBeNull();
+  await expect
+    .element(screen.getByRole("button", { name: "Due" }))
+    .toHaveTextContent("Nov 20, 2026, 2:30 PM");
+});
+
+test("DateTimePicker: a day picked on its own takes defaultTime", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <HeldDateTime defaultTime="10:30" onValueChange={onValueChange} />,
+  );
+  await openDateTime(screen);
+  await userEvent.click(dayButton(15));
+  expect(kolkata(onValueChange.mock.calls.at(-1)?.[0] as Date).time).toBe(
+    "10:30",
+  );
+});
+
+test.each([
+  ["930", "09:30"],
+  ["9:30 pm", "21:30"],
+  ["9:3", "09:30"],
+  ["21:05", "21:05"],
+  ["12am", "00:00"],
+])(
+  "DateTimePicker: typing %s and pressing Enter sets %s and closes",
+  async (typed, expected) => {
+    const onValueChange = vi.fn();
+    const screen = await render(
+      <HeldDateTime initial={NOV_3_9AM} onValueChange={onValueChange} />,
+    );
+    await openDateTime(screen);
+    await userEvent.fill(timeField(), typed);
+    await userEvent.keyboard("{Enter}");
+    const next = onValueChange.mock.calls.at(-1)?.[0] as Date;
+    expect(kolkata(next)).toEqual({ day: "2026-11-03", time: expected });
+    await expect
+      .poll(() =>
+        document.querySelector('[data-slot="date-time-picker-content"]'),
+      )
+      .toBeNull();
+  },
+);
+
+test("DateTimePicker: a typed time that is not one is invalid and changes nothing; Escape drops it", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <HeldDateTime initial={NOV_3_9AM} onValueChange={onValueChange} />,
+  );
+  await openDateTime(screen);
+  await userEvent.fill(timeField(), "soon");
+  expect(timeField().getAttribute("aria-invalid")).toBe("true");
+  await userEvent.keyboard("{Enter}");
+  expect(onValueChange).not.toHaveBeenCalled();
+  await userEvent.fill(timeField(), "11");
+  await userEvent.keyboard("{Escape}");
+  // The first Escape drops the text; the popup stays.
+  expect(timeField().value).toBe("9:00 AM");
+  expect(
+    document.querySelector('[data-slot="date-time-picker-content"]'),
+  ).not.toBeNull();
+  expect(onValueChange).not.toHaveBeenCalled();
+});
+
+test("DateTimePicker: a time picked before any day lands on today", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<HeldDateTime onValueChange={onValueChange} />);
+  await openDateTime(screen);
+  await userEvent.click(timeOption("9:00 AM"));
+  const next = onValueChange.mock.calls.at(-1)?.[0] as Date;
+  expect(kolkata(next)).toEqual({
+    day: zonedParts(new Date().toISOString(), KOLKATA).day,
+    time: "09:00",
+  });
+});
+
+test("DateTimePicker: a wall time the zone skips moves past the gap", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <HeldDateTime
+      timeZone="America/New_York"
+      initial={new Date("2026-03-08T06:00:00Z")}
+      onValueChange={onValueChange}
+    />,
+  );
+  await openDateTime(screen);
+  await userEvent.fill(timeField(), "2:30");
+  await userEvent.keyboard("{Enter}");
+  const moved = onValueChange.mock.calls.at(-1)?.[0] as Date;
+  expect(zonedParts(moved.toISOString(), "America/New_York").time).toBe(
+    "03:30",
+  );
+});
+
+test("DateTimePicker: hourCycle and step shape the clock; an off-step value is listed", async () => {
+  const screen = await render(
+    <HeldDateTime
+      hourCycle="h23"
+      step={60}
+      initial={new Date("2026-11-03T03:37:00Z")}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Due" }))
+    .toHaveTextContent("Nov 3, 2026, 09:07");
+  await openDateTime(screen);
+  const options = Array.from(
+    document.querySelectorAll(
+      '[data-slot="date-time-picker-times"] [data-slot="toggle-group-item"]',
+    ),
+  ).map((el) => el.textContent?.trim());
+  expect(options).toHaveLength(25);
+  expect(options.slice(9, 11)).toEqual(["09:00", "09:07"]);
+});
+
+test("DateTimePicker: the reader's zone comes from TimeZoneProvider", async () => {
+  const screen = await render(
+    <TimeZoneProvider timeZone="America/New_York">
+      <DateTimePicker aria-label="Due" value={NOV_3_9AM} />
+    </TimeZoneProvider>,
+  );
+  // 03:30Z is 10:30 PM on the 2nd in New York.
+  await expect
+    .element(screen.getByRole("button", { name: "Due" }))
+    .toHaveTextContent("Nov 2, 2026, 10:30 PM");
+});
+
+test("DateTimePicker: clearable reports undefined; sm ghost and disabled reflect on the trigger", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <HeldDateTime
+      clearable
+      initial={NOV_3_9AM}
+      onValueChange={onValueChange}
+    />,
+  );
+  await screen.getByRole("button", { name: "Clear date and time" }).click();
+  expect(onValueChange).toHaveBeenLastCalledWith(undefined);
+
+  await screen.rerender(
+    <DateTimePicker
+      aria-label="Due"
+      size="sm"
+      variant="ghost"
+      disabled
+      aria-invalid
+      value={NOV_3_9AM}
+      timeZone={KOLKATA}
+    />,
+  );
+  const trigger = screen
+    .getByRole("button", { name: "Due" })
+    .element() as HTMLElement;
+  expect(trigger.dataset.size).toBe("sm");
+  expect(trigger.dataset.variant).toBe("ghost");
+  expect(trigger.hasAttribute("data-disabled")).toBe(true);
+  expect(trigger.getAttribute("aria-invalid")).toBe("true");
+  await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "DateTimePicker",
+  render: (props) => <DateTimePicker {...props} />,
+  find: (screen, name) => screen.getByRole("button", { name }),
 });

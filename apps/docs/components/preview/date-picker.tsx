@@ -7,6 +7,7 @@ import { Wrapper } from "./wrapper";
 import {
   DatePicker,
   DateRangePicker,
+  DateTimePicker,
   defaultDatePresets,
   defaultRangePresets,
   type DatePreset,
@@ -332,6 +333,58 @@ export function datePickerInline(): ReactNode {
           onValueChange={setDate}
           locale={DOCS_LOCALE}
           renderValue={(value) => `Due ${short.format(value)}`}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** 3 November 2026, 09:00 in Kolkata — the date-and-time fixtures pin their zone, like their locale. */
+const DOCS_ZONE = "Asia/Kolkata";
+const SEEDED_MOMENT = new Date("2026-11-03T03:30:00Z");
+
+/** Date and time in one popup: the calendar beside the time, one trigger for both. */
+export function datePickerDateTime(): ReactNode {
+  const [due, setDue] = useState<Date | undefined>(SEEDED_MOMENT);
+  return (
+    <Wrapper className="flex-col items-start gap-2">
+      <div className="w-full max-w-xs">
+        <DateTimePicker
+          aria-label="Due"
+          locale={DOCS_LOCALE}
+          timeZone={DOCS_ZONE}
+          clearable
+          value={due}
+          onValueChange={setDue}
+        />
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Value:{" "}
+        <code>{due ? due.toISOString().replace(".000", "") : "none"}</code>
+      </p>
+    </Wrapper>
+  );
+}
+
+/** The date-and-time picker's inline tier in a row, on a 24-hour clock every 30 minutes. */
+export function datePickerDateTimeInline(): ReactNode {
+  const [at, setAt] = useState<Date | undefined>(SEEDED_MOMENT);
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border px-3 py-1.5 text-sm">
+        <span className="min-w-0 flex-1 basis-32 truncate">
+          Quarterly review
+        </span>
+        <DateTimePicker
+          aria-label="Meeting time"
+          size="sm"
+          variant="ghost"
+          hourCycle="h23"
+          step={30}
+          locale={DOCS_LOCALE}
+          timeZone={DOCS_ZONE}
+          value={at}
+          onValueChange={setAt}
         />
       </div>
     </Wrapper>

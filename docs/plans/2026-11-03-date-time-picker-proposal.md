@@ -1,11 +1,11 @@
 # Date and time picker — proposal (P-71 #3)
 
-Status: **built 2026-11-03** at the operator's word ("come up with a basic standard design, using
-our components … add the date and Time picker"), ahead of Manoj's input. What shipped is option B
-everywhere: `TimePicker` (typed or picked, `step`, `hourCycle`, `sm`/`default`, `outline`/`ghost`)
-and `DateTimePicker` (`DatePicker` + `TimePicker` in one group); the grid cell uses the `sm` ghost
-tier of the same split layout, and the single-trigger `layout="single"` (option A) was not built.
-"9:3" reads as 9:30. The questions below remain open for design review.
+Status: **built 2026-11-03** at the operator's word ("Date & Time picker, its one comp, where date
+and time both can be selected at once"). What shipped is option A for every surface: one
+`DateTimePicker` in the `date-picker` item — one trigger, one popup with the calendar beside the
+time (a typed field over the day's times at `step` minutes). A first cut that shipped option B as
+two new items (`TimePicker`, `DateTimePicker` as two halves) was replaced before release. "9:3"
+reads as 9:30. The questions below remain open for design review.
 
 ## Problem
 

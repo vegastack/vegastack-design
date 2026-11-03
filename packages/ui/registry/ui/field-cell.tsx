@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.32.1 sha256-mjXj5AXD+PqWMn04FiO6yeq5Wx8uoAUJ0XLFvtTcf0k=
+// @vegastack field-cell@0.32.1 sha256-vsZojXoe5GdgcHXixvJLY75Qpzrlcuo9wyd4bCrbfuE=
 
 "use client";
 
@@ -32,8 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DatePicker } from "@/components/ui/date-picker";
-import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { DatePicker, DateTimePicker } from "@/components/ui/date-picker";
 import {
   EditableCell,
   type EditableCellMove,
@@ -1101,23 +1100,24 @@ function DateTimeEditor({
   id?: string;
   invalid?: boolean;
   describedBy?: string;
-  /** The editor sits in a surface that is its box: both halves take their inline (ghost) tier. */
+  /** The editor sits in a surface that is its box: the trigger takes its inline (ghost) tier. */
   inline?: boolean;
 }) {
   const date = value ? new Date(value) : undefined;
   return (
-    <DateTimePicker
-      data-slot="field-datetime-editor"
-      aria-label={ariaLabel}
-      id={id}
-      size="sm"
-      variant={inline ? "ghost" : "outline"}
-      aria-invalid={invalid || undefined}
-      aria-describedby={describedBy}
-      disabled={disabled}
-      value={date && !Number.isNaN(date.getTime()) ? date : undefined}
-      onValueChange={(next) => onChange(next ? next.toISOString() : null)}
-    />
+    <span data-slot="field-datetime-editor" className="flex w-full min-w-0">
+      <DateTimePicker
+        aria-label={ariaLabel}
+        id={id}
+        size="sm"
+        variant={inline ? "ghost" : "outline"}
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
+        disabled={disabled}
+        value={date && !Number.isNaN(date.getTime()) ? date : undefined}
+        onValueChange={(next) => onChange(next ? next.toISOString() : null)}
+      />
+    </span>
   );
 }
 
@@ -1706,7 +1706,6 @@ const DRAFT_TYPES: ReadonlySet<FieldType> = new Set([
   "number",
   "currency",
   "percent",
-  "datetime",
 ]);
 
 /** The types whose field a typed seed is entered into: one text field, no picker. */
@@ -2012,18 +2011,6 @@ function parseTypedDay(
     return month ? day(yearOf(match[3]), month, Number(match[2])) : undefined;
   }
   return undefined;
-}
-
-/** The editors made of several controls, which <kbd>Tab</kbd> steps through before it moves. */
-const COMPOUND_TYPES: ReadonlySet<FieldType> = new Set(["datetime"]);
-
-/** The editor's own tab stops, in order. */
-function tabStops(root: Element): HTMLElement[] {
-  return [
-    ...root.querySelectorAll<HTMLElement>(
-      'input:not([type="hidden"]), textarea, button, select, [contenteditable="true"], [tabindex]',
-    ),
-  ].filter((node) => node.tabIndex >= 0 && !node.matches(":disabled"));
 }
 
 /**
@@ -2376,10 +2363,10 @@ export function FieldCellEditor({
       }}
       onClickCapture={(event) => {
         if (
-          type === "date" &&
+          (type === "date" || type === "datetime") &&
           performance.now() - openedAt.current < DATE_SETTLE_MS &&
           (event.target as Element).closest?.(
-            '[data-slot="date-picker-trigger"]',
+            '[data-slot="date-picker-trigger"], [data-slot="date-time-picker-trigger"]',
           )
         ) {
           event.preventDefault();
@@ -2394,14 +2381,13 @@ export function FieldCellEditor({
           event.stopPropagation();
           if (valid) commit(out, event.shiftKey ? "up" : "down");
         } else if (event.key === "Tab") {
-          // Tab commits and moves across; in a compound editor (a date-time's date and time) it
-          // first steps through its own controls. A number's steppers are not stops.
-          if (COMPOUND_TYPES.has(type)) {
-            const stops = tabStops(event.currentTarget);
-            const at = stops.indexOf(event.target as HTMLElement);
-            const next = at + (event.shiftKey ? -1 : 1);
-            if (at >= 0 && next >= 0 && next < stops.length) return;
-          }
+          // Tab commits and moves across. Inside a date-time's popup it steps between the calendar
+          // and the time instead (the popup is portaled: outside the editor's own DOM).
+          if (
+            type === "datetime" &&
+            !event.currentTarget.contains(event.target as Node)
+          )
+            return;
           event.preventDefault();
           event.stopPropagation();
           if (valid) commit(out, event.shiftKey ? "left" : "right");
@@ -2533,6 +2519,35 @@ export function FieldCellEditor({
               root.current?.contains(at) === true &&
               !at.closest('[data-slot="date-picker-trigger"]');
             if (!open && !onClear) cancel();
+          }}
+        />
+      ) : type === "datetime" ? (
+        // One popup, open from the first render like the date's calendar: a day keeps it open for
+        // the time, a time closes it. Closing commits what was picked (moving on when Enter picked
+        // it); closed with nothing changed (a press outside, Escape) is a dismissal.
+        <DateTimePicker
+          aria-label={label}
+          aria-invalid={!valid || undefined}
+          size="sm"
+          variant={cell ? "ghost" : "outline"}
+          className="w-full"
+          open={calendarOpen}
+          value={
+            typeof draft === "string" && !Number.isNaN(Date.parse(draft))
+              ? new Date(draft)
+              : undefined
+          }
+          onValueChange={(next) => {
+            const iso = next ? next.toISOString() : null;
+            setDraft(iso);
+            latest.current = iso;
+          }}
+          onOpenChange={(open) => {
+            setCalendarOpen(open);
+            if (open) return;
+            if (latest.current !== value)
+              commit(latest.current, pickMove.current);
+            else cancel();
           }}
         />
       ) : (

@@ -1,4 +1,4 @@
-// @vegastack date-time@0.26.4 sha256-Ka6JH/OWytSeuYg2aTzexlSlNwPIExNb4IEK2FirBts=
+// @vegastack date-time@0.26.4 sha256-/uIXqFRz0QDm2yoZrpks2vtspP+DKfJdbmmH94lPHqA=
 
 export type DateInput = Date | string | number;
 
@@ -830,4 +830,101 @@ export function fromZoned(
         )
       : undefined;
   return new Date(kept ?? fits[0]!).toISOString();
+}
+
+/** A 12-hour ("9:30 AM") or 24-hour ("09:30") clock. */
+export type TimeHourCycle = "h12" | "h23";
+
+const padTime = (n: number) => String(n).padStart(2, "0");
+
+/** The locale's own clock: `h12` where it writes "9:30 AM", `h23` where it writes "09:30". */
+export function localeHourCycle(
+  locale: string = DEFAULT_LOCALE,
+): TimeHourCycle {
+  const cycle = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+  }).resolvedOptions().hourCycle;
+  return cycle === "h11" || cycle === "h12" ? "h12" : "h23";
+}
+
+/** "9:30 AM" / "09:30" for a time of day `HH:MM`; Intl's narrow no-break spaces become plain spaces. */
+export function formatTimeValue(
+  value: string,
+  locale: string = DEFAULT_LOCALE,
+  hourCycle: TimeHourCycle = localeHourCycle(locale),
+): string {
+  const [h, m] = value.split(":").map(Number);
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle,
+    timeZone: "UTC",
+  })
+    .format(Date.UTC(2000, 0, 1, h ?? 0, m ?? 0))
+    .replace(/[  ]/g, " ");
+}
+
+/** The locale's AM and PM words, lower-cased ("am"/"pm"; "vorm."/"nachm." in `de`). */
+function dayPeriods(locale: string) {
+  const period = (hour: number) =>
+    new Intl.DateTimeFormat(locale, {
+      hour: "numeric",
+      hourCycle: "h12",
+      timeZone: "UTC",
+    })
+      .formatToParts(Date.UTC(2000, 0, 1, hour))
+      .find((part) => part.type === "dayPeriod")
+      ?.value.toLowerCase() ?? "";
+  return { am: period(1), pm: period(13) };
+}
+
+/**
+ * Reads a typed time: "9", "930", "0930", "9:30", "9:3" (9:30), "9.30", "21:30", with
+ * "a"/"am"/"p"/"pm" (or the locale's own words) after it. `""` for an empty field, `null` for text that is not a time.
+ * Without AM/PM an hour up to 12 is read as written ("9" is 9 AM, "12" noon).
+ */
+export function parseTimeOfDay(
+  text: string,
+  locale: string = DEFAULT_LOCALE,
+): string | null {
+  let rest = text.trim().toLowerCase();
+  if (!rest) return "";
+  let meridiem: "am" | "pm" | undefined;
+  const { am, pm } = dayPeriods(locale);
+  for (const [word, kind] of [
+    [pm, "pm"],
+    [am, "am"],
+  ] as const) {
+    if (word && rest.endsWith(word)) {
+      meridiem = kind;
+      rest = rest.slice(0, -word.length);
+      break;
+    }
+  }
+  if (!meridiem) {
+    const match = /(a|p)\.?\s*(m\.?)?$/.exec(rest);
+    if (match) {
+      meridiem = match[1] === "p" ? "pm" : "am";
+      rest = rest.slice(0, match.index);
+    }
+  }
+  rest = rest.trim();
+  let hour: number;
+  let minute: number;
+  const split = /^(\d{1,2})(?:\s*[:.h\s]\s*(\d{0,2}))?$/.exec(rest);
+  const packed = /^(\d{1,2})(\d{2})$/.exec(rest);
+  if (split) {
+    hour = Number(split[1]);
+    // One digit after the separator is the tens ("9:3" is 9:30), as it reads while typing.
+    minute = split[2] ? Number(split[2].padEnd(2, "0")) : 0;
+  } else if (packed) {
+    hour = Number(packed[1]);
+    minute = Number(packed[2]);
+  } else return null;
+  if (minute > 59) return null;
+  if (meridiem) {
+    if (hour < 1 || hour > 12) return null;
+    hour = (hour % 12) + (meridiem === "pm" ? 12 : 0);
+  } else if (hour > 23) return null;
+  return `${padTime(hour)}:${padTime(minute)}`;
 }
