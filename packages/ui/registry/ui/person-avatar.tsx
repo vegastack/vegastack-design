@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.36.0 sha256-itryLu0kr2JjdUjgjJtPxkpQDASh1hZxSn9gZcpxte8=
+// @vegastack person-avatar@0.36.0 sha256-+wMB2Bae4gNauCsbiNzGdVoasJZRsJLMu/+msYvYjvM=
 
 "use client";
 
@@ -19,8 +19,9 @@ import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
  * plain tile (a company logo is never cropped into a circle), else its initials on its hue.
  * An agent (`kind: "agent"`) — an AI assistant working for a member — is a soft hexagon, the shape
  * only agents take: its mark (a provider's logo, passed by the app) else a bot on its hue (purple
- * by default), and `PersonName` writes its name as "Claude Code via Manoj" with the purple "Agent"
- * label, so an agent reads the same in every avatar, stack, picker, feed and comment.
+ * by default), and `PersonName` writes its name agent-first as "Claude Code for Manoj" (the hexagon
+ * already says it is an agent, so no label by default), so an agent reads the same in every avatar,
+ * stack, picker, feed and comment.
  * ----------------------------------------------------------------------------------------------*/
 
 /**
@@ -98,11 +99,11 @@ export interface Person {
   /**
    * A person, a team of people (a rounded-square tile with the team icon on its hue), a workspace
    * (a rounded-square tile with its whole logo, else its initials), or an agent working for a member
-   * (a soft hexagon with its mark, else a bot on its hue; named with `via` and an "Agent" label).
+   * (a soft hexagon with its mark, else a bot on its hue; named "Claude Code for Manoj").
    * @default "person"
    */
   kind?: PersonKind;
-  /** An agent's owner — the member it works for: "Claude Code" `via` "Manoj". @default undefined */
+  /** An agent's owner — the member it works for: "Claude Code" for "Manoj". @default undefined */
   via?: string | null;
 }
 
@@ -110,34 +111,34 @@ export interface Person {
 export type PersonKind = "person" | "team" | "workspace" | "agent";
 
 /**
- * `personDisplayName` — a person's name as plain text: an agent reads "Claude Code (via Manoj)",
+ * `personDisplayName` — a person's name as plain text: an agent reads "Claude Code (for Manoj)",
  * anyone else their name. For a toast, a title or a menu label; in a row, use `PersonName`.
  *
  * @example
- * personDisplayName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code (via Manoj)"
+ * personDisplayName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code (for Manoj)"
  */
 export function personDisplayName(
   person: Pick<Person, "name" | "kind" | "via">,
 ): string {
   return person.kind === "agent" && person.via
-    ? `${person.name} (via ${person.via})`
+    ? `${person.name} (for ${person.via})`
     : person.name;
 }
 
 /**
- * `personAccessibleName` — what a screen reader hears for a person: an agent is "Claude Code via
+ * `personAccessibleName` — what a screen reader hears for a person: an agent is "Claude Code for
  * Manoj, agent" (or "Claude Code, agent") — the visible name first, so speech input matches it
  * (WCAG 2.5.3), and "agent" is never carried by colour alone.
  *
  * @example
- * personAccessibleName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code via Manoj, agent"
+ * personAccessibleName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code for Manoj, agent"
  */
 export function personAccessibleName(
   person: Pick<Person, "name" | "kind" | "via">,
 ): string {
   if (person.kind !== "agent") return person.name;
   return person.via
-    ? `${person.name} via ${person.via}, agent`
+    ? `${person.name} for ${person.via}, agent`
     : `${person.name}, agent`;
 }
 
@@ -633,23 +634,26 @@ export interface PersonNameProps extends Omit<
   React.ComponentPropsWithRef<"span">,
   "children"
 > {
-  /** The person; an agent (`kind: "agent"`) reads with its `via` and the "Agent" label. */
+  /** The person; an agent (`kind: "agent"`) reads with "for" its `via`. */
   person: Pick<Person, "name" | "kind" | "via">;
-  /** Show an agent's purple "Agent" label after its name. @default true */
+  /**
+   * Add the purple "Agent" label after an agent's name — for a surface that names agents without
+   * their hexagon (a hover card's heading, a profile). @default false
+   */
   agentLabel?: boolean;
 }
 
 /**
  * `PersonName` — a person's name as every surface writes it. A person or a team is their name; an
- * agent is its name, a muted "via Manoj" and the small purple "Agent" label, and a screen reader
- * hears "Claude Code via Manoj, agent". Inline, so it sits in a sentence, a hover-card trigger or a
+ * agent is its name and a muted "for Manoj" (its hexagon says it is an agent; `agentLabel` adds
+ * the purple label where no avatar shows), and a screen reader hears "Claude Code for Manoj, agent". Inline, so it sits in a sentence, a hover-card trigger or a
  * truncating row.
  *
  * @example <PersonName person={{ name: "Claude Code", kind: "agent", via: "Manoj" }} />
  */
 export function PersonName({
   person,
-  agentLabel = true,
+  agentLabel = false,
   className,
   ...props
 }: PersonNameProps) {
@@ -675,7 +679,7 @@ export function PersonName({
             className="font-normal text-muted-foreground"
           >
             {" "}
-            via {person.via}
+            for {person.via}
           </span>
         ) : null}
         {agentLabel ? (

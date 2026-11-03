@@ -357,7 +357,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.33.0",
-        "integrity": "sha256-kJl2RRHZNGNtTMlfVWSg7KggurFVO0IepgpsrS4Xe6c="
+        "integrity": "sha256-OjTdt6Mu412T2Xg2PJA60pM15LLZhiFJ9aBMfXHbChc="
       }
     },
     {
@@ -393,7 +393,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.33.0",
-        "integrity": "sha256-eQzon/0tbQHE4rI70hu1jNUJDCdYlS3J62/iuTr9lmo="
+        "integrity": "sha256-Rq8acQJtoEZaQcn4ktg7Isq5zSs6vOznSDN2+MMCshc="
       }
     },
     {
@@ -457,7 +457,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.33.0",
-        "integrity": "sha256-/72wgI8DbgIOBLfvtuQ6ckILVDzwXYQhrJPlh0cKJdc="
+        "integrity": "sha256-WGczzjeym8Y/ZPyi7WwZZ+cWYfYCGZqnm1X6zmt432E="
       }
     },
     {
@@ -17738,7 +17738,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.35.0",
-        "integrity": "sha256-sIR6dxbw2w+UzgLMGqSRED0/g8VvfFBf06rHl4IjRwE="
+        "integrity": "sha256-sbs0CifVRQysYTA2rLAsXgrqpJbdWhpQszA4R8fCnmA="
       }
     },
     {
@@ -18092,7 +18092,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.36.0",
-        "integrity": "sha256-itryLu0kr2JjdUjgjJtPxkpQDASh1hZxSn9gZcpxte8="
+        "integrity": "sha256-+wMB2Bae4gNauCsbiNzGdVoasJZRsJLMu/+msYvYjvM="
       }
     },
     {
@@ -19253,7 +19253,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.35.1",
-        "integrity": "sha256-0qx8r6ijN8DOQpUzNvkxJls8LunV1bMJ7nq8Leu5khw="
+        "integrity": "sha256-bkX2s03ChOQJ3Jp62J5H/HftpozmmJed5ZwIgyyl66c="
       }
     },
     {
@@ -23219,7 +23219,7 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.33.0",
-        "integrity": "sha256-ydxxh7wgu3Bcdd9rBXnpKf5TVfN8511e/Yp3LJPVUFA="
+        "integrity": "sha256-CvY24UXNm1EBEnnpeXmmb+e2wWV76oGlwOisj6ZoLmw="
       }
     },
     {
@@ -23263,7 +23263,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.36.0",
-        "integrity": "sha256-WV/jWjl8UorIqKNCWXtrzGPeyv+mTn2y5rFBTIE2hVc="
+        "integrity": "sha256-3cGNaUG/M9q6pkZXR14mDnXzZzP0KuLR7mqXsv0WL7s="
       }
     },
     {

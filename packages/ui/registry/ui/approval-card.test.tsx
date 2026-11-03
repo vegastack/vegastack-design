@@ -42,7 +42,7 @@ test("pending: the agent, the action, the records, the reason, the expiry, and A
     <ApprovalCard {...base} onApprove={onApprove} onDecline={onDecline} />,
   );
   const card = screen.getByRole("region", {
-    name: "Claude Code via Manoj, agent wants to move 2 tasks to Trash",
+    name: "Claude Code for Manoj, agent wants to move 2 tasks to Trash",
   });
   await expect.element(card).toHaveAttribute("data-status", "pending");
   expect(

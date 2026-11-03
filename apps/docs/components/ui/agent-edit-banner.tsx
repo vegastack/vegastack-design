@@ -1,4 +1,4 @@
-// @vegastack agent-edit-banner@0.33.0 sha256-ydxxh7wgu3Bcdd9rBXnpKf5TVfN8511e/Yp3LJPVUFA=
+// @vegastack agent-edit-banner@0.33.0 sha256-CvY24UXNm1EBEnnpeXmmb+e2wWV76oGlwOisj6ZoLmw=
 
 "use client";
 
@@ -23,7 +23,7 @@ import { RelativeTime } from "@/components/ui/relative-time";
 
 /* ------------------------------------------------------------------------------------------------
  * AgentEditBanner — the strip pinned under a document's header after an agent changed it: the
- * agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Approve,
+ * agent's purple bot, "Edited by Claude (for Manoj) · 3 changes · 2m ago", View changes, Approve,
  * Undo this agent's changes and a dismiss ✕. Presentational: the host owns the runs, the undo, the
  * approval, the refusal and the dismiss memory, and passes the state back. Which buttons show is decided by the
  * callbacks passed, so a read-only viewer (no callbacks) gets the words and the ✕ only.
@@ -46,25 +46,25 @@ export type AgentEditBannerKind = "edited" | "created";
 
 /** Every string the banner renders or names a control with. */
 export interface AgentEditBannerLabels {
-  /** The lead of an edit: "Edited by Claude (via Manoj)". */
+  /** The lead of an edit: "Edited by Claude (for Manoj)". */
   edited: (agent: string) => string;
-  /** The lead of a creation: "Created by Claude (via Manoj)". */
+  /** The lead of a creation: "Created by Claude (for Manoj)". */
   created: (agent: string) => string;
   /** The change count: "3 changes". */
   changes: (count: number) => string;
   /** The View changes button. */
   viewChanges: string;
-  /** View changes' accessible name: "View Claude (via Manoj)'s changes". */
+  /** View changes' accessible name: "View Claude (for Manoj)'s changes". */
   viewChangesName: (agent: string) => string;
   /** The Undo button. */
   undo: string;
   /** The Undo button in a narrow banner (under a 24rem container). */
   undoShort: string;
-  /** Undo's accessible name: "Undo Claude (via Manoj)'s changes". */
+  /** Undo's accessible name: "Undo Claude (for Manoj)'s changes". */
   undoName: (agent: string) => string;
   /** The Approve button (the banner's and each row's in "+N more agents"). */
   approve: string;
-  /** Approve's accessible name: "Approve Claude (via Manoj)'s changes". */
+  /** Approve's accessible name: "Approve Claude (for Manoj)'s changes". */
   approveName: (agent: string) => string;
   /** The Open versions button (refused). */
   openVersions: string;
@@ -134,7 +134,7 @@ export interface AgentEditBannerProps extends Omit<
   React.ComponentPropsWithRef<"div">,
   "children"
 > {
-  /** The agent: `{ name: "Claude", via: "Manoj" }` reads "Claude (via Manoj)". */
+  /** The agent: `{ name: "Claude", via: "Manoj" }` reads "Claude (for Manoj)". */
   agent: AgentEditBannerAgent;
   /** Edited the document ("· 3 changes"), or created it. @default "edited" */
   kind?: AgentEditBannerKind;
@@ -176,7 +176,7 @@ function asPerson(agent: AgentEditBannerAgent) {
   return { ...agent, kind: "agent" as const };
 }
 
-/** "Edited by Claude (via Manoj) · 3 changes · 2m ago". */
+/** "Edited by Claude (for Manoj) · 3 changes · 2m ago". */
 function Summary({
   agent,
   kind,
@@ -216,11 +216,11 @@ function Summary({
 
 /**
  * `AgentEditBanner` — the strip under a document's header after an agent changed it: the agent's
- * purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Approve and "Undo
+ * purple bot, "Edited by Claude (for Manoj) · 3 changes · 2m ago", View changes, Approve and "Undo
  * this agent's changes", and a ✕. `status="undoing"` spins Undo and `"approving"` spins Approve,
  * each disabling every action; `refused` adds the reason line and swaps Undo for Open versions. The callbacks decide which buttons show: none for
  * a read-only viewer, no Undo or View changes when the agent's checkpoint is gone. `kind="created"`
- * reads "Created by Claude (via Manoj) · 5m ago". `moreAgents` ends the line with "+1 more agent",
+ * reads "Created by Claude (for Manoj) · 5m ago". `moreAgents` ends the line with "+1 more agent",
  * a popover listing the rest, each with its own Undo. Under a 42rem container the buttons move to
  * their own row; the banner is a polite live region.
  *

@@ -1,4 +1,4 @@
-// @vegastack version-list@0.33.0 sha256-/72wgI8DbgIOBLfvtuQ6ckILVDzwXYQhrJPlh0cKJdc=
+// @vegastack version-list@0.33.0 sha256-WGczzjeym8Y/ZPyi7WwZZ+cWYfYCGZqnm1X6zmt432E=
 
 "use client";
 
@@ -67,7 +67,7 @@ export interface VersionItem {
   /** When that text was last saved. */
   at: Date | string | number;
   /**
-   * A name the author gave it, or a title the host writes ("Before Claude (via Manoj)'s edits");
+   * A name the author gave it, or a title the host writes ("Before Claude (for Manoj)'s edits");
    * the row leads with it. @default undefined
    */
   name?: string | null;

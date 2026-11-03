@@ -191,17 +191,17 @@ test("a chosen agent reads with its owner in the trigger's text and name, single
   // The trigger's text (beside the avatars) and its accessible name both carry the owner.
   await hasText(
     screen.getByRole("button", {
-      name: "Claude Code (via Manoj)",
+      name: "Claude Code (for Manoj)",
       exact: true,
     }),
-    "Claude Code (via Manoj)",
+    "Claude Code (for Manoj)",
   );
   await hasText(
     screen.getByRole("button", {
-      name: "Claude Code (via Manoj), Asha Rao",
+      name: "Claude Code (for Manoj), Asha Rao",
       exact: true,
     }),
-    "Claude Code (via Manoj), Asha Rao",
+    "Claude Code (for Manoj), Asha Rao",
   );
 });
 
@@ -337,7 +337,7 @@ test("menu: agents under a heading; a disabled agent shows why and can't be pick
   await screen.getByRole("menuitem", { name: "Delegate" }).click();
   await expect.element(screen.getByText("Your agents")).toBeVisible();
   const claude = screen.getByRole("menuitem", {
-    name: /Claude Code via Manoj, agent/,
+    name: /Claude Code for Manoj, agent/,
   });
   await expect.element(claude).toBeVisible();
   expect(
