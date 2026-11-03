@@ -18668,8 +18668,8 @@
       "meta": {
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
-        "version": "0.33.0",
-        "integrity": "sha256-PVrvPZ6wp9VLyLzibfe22Il8JcyUMpxZGHSAbtLyDt4="
+        "version": "0.37.0",
+        "integrity": "sha256-oB08DLzluHB1MUDRJ/7NgGmWjWal/0hbXDkFN7DZQKQ="
       }
     },
     {

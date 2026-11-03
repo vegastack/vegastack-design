@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.37.0] — November 3, 2026
+
+<!-- assembled from 1 changeset: 4d32b716b4b2 -->
+
+### 🧩 New components
+
+- Sidebar: a list that scrolls now says so (LAY-21). `SidebarContent` fades only the edge with more to show (`scroll-fade-y`), `SidebarFooter` casts a soft top shadow while items sit under it, and on a fine pointer's hover a small ⌃/⌄ button pages about a screenful beside a thin scrollbar. Nothing shows when the list fits or in the icon rail; the phone drawer keeps only the fades and the shadow. New `scrollUpLabel` / `scrollDownLabel` props name the buttons.
+  [`cdb026c`](https://github.com/VegaStack/vegastack-design/commit/cdb026c)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.36.0 → 0.37.0.
+
 ## [0.36.0] — November 3, 2026
 
 <!-- assembled from 1 changeset: 116f70c7e23d -->
