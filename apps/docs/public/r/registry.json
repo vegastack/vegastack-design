@@ -17425,8 +17425,8 @@
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
-        "version": "0.33.0",
-        "integrity": "sha256-RGymzkBAdWLxUntib9veXNItbFFSnWKEBlabknvm4S8="
+        "version": "0.35.0",
+        "integrity": "sha256-nsU7y+WkpAYo+UyoyNxFWsrnJOEcJPZ0m/DsxSumqGo="
       }
     },
     {
@@ -17699,8 +17699,8 @@
       "meta": {
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
-        "version": "0.33.0",
-        "integrity": "sha256-vwS+HgfFIIAaLidFnvoxvnw/OqVfanu1mb2XdaJDuaI="
+        "version": "0.35.0",
+        "integrity": "sha256-XdAtuZrOvTqOcyDCoq8pGgZVv6vJZmrYTsO+shIPkKA="
       }
     },
     {
@@ -17737,8 +17737,8 @@
       "meta": {
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
-        "version": "0.33.0",
-        "integrity": "sha256-EWnaosynmY7/mAij4CLcgAn9Q1q9t0yPa0WdMzV2QCw="
+        "version": "0.35.0",
+        "integrity": "sha256-sIR6dxbw2w+UzgLMGqSRED0/g8VvfFBf06rHl4IjRwE="
       }
     },
     {
@@ -18091,8 +18091,8 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.33.0",
-        "integrity": "sha256-q4h6dQfHzorTQ7owP4YgOra5ccrE+sZNP96wwD6GbRo="
+        "version": "0.35.0",
+        "integrity": "sha256-f+1gCeB9Y8a6I58WKAEb/KL6Mz/mT+TtF0DHN4IYyos="
       }
     },
     {

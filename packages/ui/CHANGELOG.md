@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.35.0
+
+### Minor Changes
+
+- [#893](https://github.com/vegastack/vegastack-design/pull/893) [`bb98551`](https://github.com/vegastack/vegastack-design/commit/bb98551a5bc5667c60f9791276ec4c416792411c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `InboxItem`'s expanded events leave the indented text column: they run across the row's full width under a thread rail that drops from the row's avatar, each event on a short elbow to its own 16px avatar, which lines up with the title and sits on the event's first line however the text wraps (an event without an actor gets a small dot). An event line is now one paragraph, so a long one wraps as a sentence. The unread dot moves from the start gutter to just before the time (6px, 6px gap), so the row keeps its normal start inset; the time column is 64px at least instead of exactly. `PersonAvatar`'s initials fit the size it is drawn at: 10px under 24px, one 9px initial under 18px, and 10px in a stack, where the next avatar covers the circle's edge ("MK", not "MI"). The new `PERSON_AVATAR_STACK_RING` gives a stack's ring the colour of the surface beneath it (card, popover, dialog or sheet, else the page), and `AvatarStack`, `PeoplePicker`'s chosen avatars and the Inbox's actors use it, so a stack on a card no longer wears dark halos. `AvatarStack`'s trigger has no fill at rest, on hover or while its list is open, so no box shows behind the avatars.
+
 ## 0.34.0
 
 ### Minor Changes
