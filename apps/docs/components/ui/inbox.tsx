@@ -1,4 +1,4 @@
-// @vegastack inbox@0.33.0 sha256-EXdAjb6PGZbG/O1POd74pBUJlyUeW7bB3xDKSTHhWDw=
+// @vegastack inbox@0.33.0 sha256-RGymzkBAdWLxUntib9veXNItbFFSnWKEBlabknvm4S8=
 
 "use client";
 
@@ -15,7 +15,11 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PERSON_AVATAR_STACK_RING,
+  PersonAvatar,
+  type Person,
+} from "@/components/ui/person-avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -671,13 +675,15 @@ function InboxEventLine({
   event: InboxItemEvent;
   children: React.ReactNode;
 }) {
-  if (!event.href) return <span className="min-w-0">{children}</span>;
+  // One paragraph, 24px tall on one line (the target floor), so it wraps as a sentence.
+  if (!event.href)
+    return <span className="block min-w-0 py-0.5">{children}</span>;
   return (
     <a
       href={event.href}
       data-slot="inbox-item-event-link"
-      // 24px tall however short the line (the target floor); each line is one 24px row.
-      className="relative z-10 flex min-h-6 min-w-0 items-center hover:text-foreground hover:underline"
+      // 24px tall however short the line (the target floor); a block, so a long line wraps.
+      className="relative z-10 block min-w-0 py-0.5 hover:text-foreground hover:underline"
       onClick={(e) => {
         e.stopPropagation();
         if (
@@ -734,8 +740,8 @@ export interface InboxItemProps extends Omit<
    */
   value?: string;
   /**
-   * Unread: a dot in the start gutter, a soft full-bleed tint, the title in the foreground colour
-   * (read titles are muted) and an sr-only "Unread".
+   * Unread: a 6px dot just before the time, the title in the foreground colour (read titles are
+   * muted) and an sr-only "Unread".
    * @default false
    */
   unread?: boolean;
@@ -787,7 +793,8 @@ export interface InboxItemProps extends Omit<
   countLabel?: (count: number) => string;
   /**
    * The events behind a grouped row, newest first. The count becomes a disclosure button that
-   * lists them under the row (collapsed at first).
+   * lists them under the row (collapsed at first), across the row's full width on a thread rail
+   * that drops from the avatar, each event's 16px avatar on an elbow, in line with the title.
    * @default undefined
    */
   events?: readonly InboxItemEvent[];
@@ -865,9 +872,9 @@ const onControl = (event: React.SyntheticEvent) =>
  * row's latest event), a line with the stacked `actors` and the `count` ("9 updates", a disclosure
  * for the `events` behind it), and the inline `actions` (Allow · Decline) or, once `status` is
  * `answered`, the `answeredLabel`.
- * Unread rows get a dot in the start gutter and a soft tint; the {@link Inbox}'s active row a start
- * bar. A fixed 64px right column holds the time, with Mark read / Mark unread and the ⋯ menu below
- * it, shown on hover or keyboard focus.
+ * Unread rows get a dot just before the time; the {@link Inbox}'s active row a start bar. A right
+ * column (64px at least) holds the time, with Mark read / Mark unread and the ⋯ menu below it,
+ * shown on hover or keyboard focus.
  *
  * @example
  * <InboxItem value="task-39" unread icon={<SquareCheck />} title="#39 Agent link RCA test"
@@ -1008,7 +1015,9 @@ export function InboxItem({
       className={cn(
         // LAY-20: the row sits 8px inside the pane (the list's `px-2`) on `rounded-md`, so its fill never
         // runs to the pane edge; unread is the dot and the title's ink, never a fill (COL-24).
-        "group/inbox-item relative flex scroll-mt-10 gap-3 rounded-md px-3 py-3 transition-colors state-layer",
+        // Three columns — the avatar, the text, the time and controls — and, under them, the
+        // expanded events across the whole row, threaded from the avatar.
+        "group/inbox-item relative grid scroll-mt-10 grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 rounded-md px-3 py-3 transition-colors state-layer",
         // The active row (the one the peek shows): the selected step and a 2px start bar.
         "data-active:bg-state-selected data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
         tracked && !href && inbox.open && "cursor-pointer",
@@ -1033,13 +1042,6 @@ export function InboxItem({
       }}
       {...props}
     >
-      {unread ? (
-        <span
-          data-slot="inbox-item-unread"
-          aria-hidden
-          className="absolute start-1 top-7 size-1.5 -translate-y-1/2 rounded-full bg-info"
-        />
-      ) : null}
       <div className="relative shrink-0 pt-0.5" aria-hidden>
         {avatar ? (
           <PersonAvatar
@@ -1065,8 +1067,15 @@ export function InboxItem({
             {badge}
           </span>
         ) : null}
+        {expandable && expanded && (avatar || icon) ? (
+          // The thread rail, from under the avatar's centre down to the events.
+          <span
+            data-slot="inbox-item-rail"
+            className="absolute start-[13.5px] top-8.5 bottom-0 w-px bg-border"
+          />
+        ) : null}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <div className="flex min-w-0 flex-col gap-0.5">
         <p
           className={cn(
             "text-sm leading-5 font-normal [&_strong]:font-medium",
@@ -1099,7 +1108,10 @@ export function InboxItem({
                         image: actor.src,
                         hue: actor.hue,
                       }}
-                      className="ring-2 ring-background data-[size=sm]:size-5"
+                      className={cn(
+                        PERSON_AVATAR_STACK_RING,
+                        "data-[size=sm]:size-5",
+                      )}
                     />
                   ))}
                 </span>
@@ -1142,95 +1154,27 @@ export function InboxItem({
             ) : null}
           </div>
         ) : null}
-        {expandable ? (
-          <ul
-            id={eventsId}
-            data-slot="inbox-item-events"
-            hidden={!expanded}
-            className="mt-1 flex flex-col gap-0.5 border-s border-border ps-3"
-          >
-            {events!.map((event, i) => (
-              <li
-                key={event.id ?? i}
-                className="flex min-h-6 min-w-0 items-center gap-1.5 text-xs leading-5 text-muted-foreground"
-              >
-                {event.actor ? (
-                  <PersonAvatar
-                    aria-hidden
-                    person={{
-                      name: event.actor.name,
-                      image: event.actor.src,
-                      hue: event.actor.hue,
-                    }}
-                    className="mt-0.5 shrink-0 data-[size=sm]:size-4"
-                  />
-                ) : null}
-                <InboxEventLine event={event}>
-                  {event.actor ? (
-                    <span className="font-medium text-foreground">
-                      {event.actor.name}
-                    </span>
-                  ) : null}{" "}
-                  {event.text}
-                  {event.time !== undefined ? (
-                    <>
-                      {" "}
-                      <span aria-hidden>·</span>{" "}
-                      <RelativeTime date={event.time} focusable={false} />
-                    </>
-                  ) : null}
-                </InboxEventLine>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {answered ? (
-          answeredLabel ? (
-            <p
-              data-slot="inbox-item-answered"
-              className="flex min-w-0 items-center gap-1 text-xs leading-5 text-muted-foreground"
-            >
-              <Check aria-hidden className="size-3.5 shrink-0" />
-              <span className="min-w-0 truncate">{answeredLabel}</span>
-            </p>
-          ) : null
-        ) : actions?.length ? (
-          <div className="relative z-10 mt-1.5 flex flex-wrap gap-1.5">
-            {actions.slice(0, 3).map((action, i) => (
-              <Button
-                key={action.label}
-                size="sm"
-                // Row actions are never filled: the main one (`primary`) is secondary, the rest
-                // outline. The filled button is the page's top-bar action and a dialog's confirm.
-                variant={
-                  action.variant === "primary" && i === 0
-                    ? "secondary"
-                    : "outline"
-                }
-                loading={action.state === "loading"}
-                disabled={action.state === "done"}
-                onClick={action.onClick}
-              >
-                {action.state === "done" ? (
-                  <>
-                    <Check data-icon="inline-start" />
-                    {action.doneLabel ?? action.label}
-                  </>
-                ) : (
-                  action.label
-                )}
-              </Button>
-            ))}
-          </div>
-        ) : null}
       </div>
-      <div className="flex w-16 shrink-0 flex-col items-end gap-1">
-        {time !== undefined ? (
-          <RelativeTime
-            date={time}
-            focusable={false}
-            className="text-xs leading-5 whitespace-nowrap text-muted-foreground"
-          />
+      <div className="flex min-w-16 shrink-0 flex-col items-end gap-1">
+        {time !== undefined || unread ? (
+          // Unread is a 6px dot just before the time (the title's ink says it too), so the row
+          // keeps its normal start inset.
+          <div className="flex h-5 items-center gap-1.5">
+            {unread ? (
+              <span
+                data-slot="inbox-item-unread"
+                aria-hidden
+                className="size-1.5 shrink-0 rounded-full bg-info"
+              />
+            ) : null}
+            {time !== undefined ? (
+              <RelativeTime
+                date={time}
+                focusable={false}
+                className="text-xs leading-5 whitespace-nowrap text-muted-foreground"
+              />
+            ) : null}
+          </div>
         ) : null}
         {hasControls ? (
           <div className="relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100">
@@ -1277,6 +1221,98 @@ export function InboxItem({
           </div>
         ) : null}
       </div>
+      {expandable ? (
+        <ul
+          id={eventsId}
+          data-slot="inbox-item-events"
+          hidden={!expanded}
+          // Across the whole row: the rail runs on from the avatar (13.5px, its centre) and each
+          // event takes an elbow to its own avatar, which lines up with the title.
+          className="relative col-span-full flex flex-col pt-1 before:absolute before:start-[13.5px] before:top-0 before:h-1 before:w-px before:bg-border"
+        >
+          {events!.map((event, i) => (
+            <li
+              key={event.id ?? i}
+              data-slot="inbox-item-event"
+              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13.5px] before:top-0 before:h-3 before:w-5.5 before:rounded-es-md before:border-s before:border-b before:border-border after:absolute after:inset-y-0 after:start-[13.5px] after:w-px after:bg-border last:after:hidden"
+            >
+              {/* Top-aligned to the first line, whatever the line wraps to. */}
+              <span
+                aria-hidden
+                className="mt-1 flex size-4 shrink-0 items-center justify-center"
+              >
+                {event.actor ? (
+                  <PersonAvatar
+                    person={{
+                      name: event.actor.name,
+                      image: event.actor.src,
+                      hue: event.actor.hue,
+                    }}
+                    className="data-[size=sm]:size-4"
+                  />
+                ) : (
+                  <span className="size-1.5 rounded-full bg-muted-foreground/50" />
+                )}
+              </span>
+              <InboxEventLine event={event}>
+                {event.actor ? (
+                  <span className="font-medium text-foreground">
+                    {event.actor.name}
+                  </span>
+                ) : null}{" "}
+                {event.text}
+                {event.time !== undefined ? (
+                  <>
+                    {" "}
+                    <span aria-hidden>·</span>{" "}
+                    <RelativeTime date={event.time} focusable={false} />
+                  </>
+                ) : null}
+              </InboxEventLine>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {/* The answer or the inline actions, under the text (after the events). */}
+      {answered ? (
+        answeredLabel ? (
+          <p
+            data-slot="inbox-item-answered"
+            className="col-start-2 mt-0.5 flex min-w-0 items-center gap-1 text-xs leading-5 text-muted-foreground"
+          >
+            <Check aria-hidden className="size-3.5 shrink-0" />
+            <span className="min-w-0 truncate">{answeredLabel}</span>
+          </p>
+        ) : null
+      ) : actions?.length ? (
+        <div className="relative z-10 col-start-2 mt-1.5 flex flex-wrap gap-1.5">
+          {actions.slice(0, 3).map((action, i) => (
+            <Button
+              key={action.label}
+              size="sm"
+              // Row actions are never filled: the main one (`primary`) is secondary, the rest
+              // outline. The filled button is the page's top-bar action and a dialog's confirm.
+              variant={
+                action.variant === "primary" && i === 0
+                  ? "secondary"
+                  : "outline"
+              }
+              loading={action.state === "loading"}
+              disabled={action.state === "done"}
+              onClick={action.onClick}
+            >
+              {action.state === "done" ? (
+                <>
+                  <Check data-icon="inline-start" />
+                  {action.doneLabel ?? action.label}
+                </>
+              ) : (
+                action.label
+              )}
+            </Button>
+          ))}
+        </div>
+      ) : null}
     </li>
   );
 }

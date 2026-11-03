@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.33.0 sha256-5cmDo5JxwV62OTPOHYgxeL2KergUVsyEzYYSzAZNzcQ=
+// @vegastack people-picker@0.33.0 sha256-EWnaosynmY7/mAij4CLcgAn9Q1q9t0yPa0WdMzV2QCw=
 
 "use client";
 
@@ -26,6 +26,7 @@ import {
   PanelSearchField,
 } from "@/components/ui/panel-search";
 import {
+  PERSON_AVATAR_STACK_RING,
   PersonAvatar,
   PersonName,
   personDisplayName,
@@ -747,7 +748,7 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
                 person={o}
                 aria-hidden
                 className={cn(
-                  "ring-2 ring-background",
+                  PERSON_AVATAR_STACK_RING,
                   size === "sm" ? "size-5" : "size-6",
                 )}
               />

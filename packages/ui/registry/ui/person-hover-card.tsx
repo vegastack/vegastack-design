@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.33.0 sha256-cFmbq1Ltgi7crkGLsa3VsSNyix9Rz8DmjEdTz11eAXk=
+// @vegastack person-hover-card@0.33.0 sha256-vwS+HgfFIIAaLidFnvoxvnw/OqVfanu1mb2XdaJDuaI=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cn } from "@vegastack/design";
 import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  PERSON_AVATAR_STACK_RING,
   PersonAvatar as BasePersonAvatar,
   PersonName,
   personAccessibleName,
@@ -231,7 +232,7 @@ export interface AvatarStackProps {
 }
 
 /**
- * `AvatarStack` — truly stacked 24px avatars (overlapping, a ring in the background colour) with
+ * `AvatarStack` — truly stacked 24px avatars (overlapping, a ring in the colour of the surface beneath) with
  * "+N" past `max`. Hovering an avatar previews that person (`PersonCard`); the stack itself is one
  * button — click, tap or Enter — that lists everyone as `PersonCard` rows. One control for the
  * whole stack keeps a full 24px target without spreading the avatars apart.
@@ -255,13 +256,15 @@ export function AvatarStack({
       <PopoverTrigger
         render={
           <Button
-            variant="ghost"
+            // No fill at rest, on hover or while open: a tint behind overlapping circles reads as
+            // a box around them (the avatars' own hover cards are the feedback).
+            variant="link"
             data-slot="avatar-stack"
             aria-label={`${label}: ${people.map(personAccessibleName).join(", ")}${
               count > people.length ? ` and ${count - people.length} more` : ""
             }`}
             className={cn(
-              "h-auto rounded-full p-0.5 active:not-aria-[haspopup]:translate-y-0",
+              "h-auto rounded-full p-0.5 text-inherit hover:no-underline active:not-aria-[haspopup]:translate-y-0",
               className,
             )}
           />
@@ -282,14 +285,18 @@ export function AvatarStack({
                   />
                 }
               >
-                <PersonAvatar person={p} className="ring-2 ring-background" />
+                <PersonAvatar person={p} className={PERSON_AVATAR_STACK_RING} />
               </HoverCardTrigger>
               <HoverCardContent align="start" className="w-60 p-2">
                 <PersonCard person={p} />
               </HoverCardContent>
             </HoverCard>
           ))}
-          {rest > 0 ? <AvatarGroupCount>+{rest}</AvatarGroupCount> : null}
+          {rest > 0 ? (
+            <AvatarGroupCount className={PERSON_AVATAR_STACK_RING}>
+              +{rest}
+            </AvatarGroupCount>
+          ) : null}
         </AvatarGroup>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-2">

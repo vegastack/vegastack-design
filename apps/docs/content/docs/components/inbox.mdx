@@ -82,7 +82,7 @@ import {
 - `InboxGroup` — a label that sticks within the scroll area, with no divider above or below it
   (16px above, except on the first group; 6px below), over a list it names. `InboxList` is the ungrouped list.
 - `InboxItem` — one row. Title 14px regular — foreground when unread, muted once read — with the actor and
-  record (`InboxEmphasis`) in medium; a dot in the start gutter and the tint mark unread, a 2px start
+  record (`InboxEmphasis`) in medium; a 6px dot just before the time marks unread, a 2px start
   bar the active row. An optional `badge` glyph on the avatar's corner names the kind of event. Under
   the title, `meta` (12px muted — a grouped row's latest event), then a line with the stacked `actors`
   and the `count` ("9 updates", a disclosure for the `events` behind it), then the inline `actions`,
@@ -112,6 +112,10 @@ the active row gets a start bar, focus follows and `onActiveChange` reports it; 
 `events` the count is plain text, for a row that only says how many repeats it folds ("Raj assigned
 you 3 tasks").
 
+Expanded, the events run across the row's full width under it: a thread rail drops from the row's
+avatar, each event takes an elbow to its own 16px avatar (in line with the title, top-aligned to the
+event's first line) and its text wraps as one sentence. An event without an actor gets a small dot.
+
 An event about a record of its own (one of a batch's records: "Neha completed 4 tasks") takes
 `href`, and `onOpen` to open it in place: its line becomes a link above the row, so it opens that
 record, never the row. A modified click still opens `href` in a new tab. `defaultExpanded` starts
@@ -139,7 +143,7 @@ ends the list on "You’re all caught up".
 
 `tabs` replaces For you · Updates · Archived with your own — each `{ value, label, count? }` — and
 `onValueChange` receives the tab's `value`. There is no Unread toggle: an unread row reads as
-unread in every tab (the dot and the tint), and Mark all read clears them. The tabs fold into one
+unread in every tab (the dot and the title's ink), and Mark all read clears them. The tabs fold into one
 dropdown only when they do not fit the row.
 
 ```tsx
@@ -232,7 +236,7 @@ dropdown only when they do not fit the row.
   line.
 - The hover controls are always in the tab order and show on `focus-within`; on touch screens they
   are always visible.
-- An unread row carries a dot, a soft tint and an sr-only "Unread:" before its title; the dot and the `badge` are decorative (`aria-hidden`), so the title must say what happened.
+- An unread row carries a dot before its time and an sr-only "Unread:" before its title; the dot and the `badge` are decorative (`aria-hidden`), so the title must say what happened.
 - The header icon buttons are named by their tooltips; the tabs are a named tab list and Unread a
   pressed-state toggle.
 
