@@ -3961,6 +3961,87 @@ test("fill follows a banner or filter row that comes and goes above the grid, th
   await expect.poll(height).toBe(full);
 });
 
+test('fill="flex" takes the room its flex column leaves, so a filter row never moves the viewport\'s bottom', async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const page = (shown: boolean) => (
+    <div
+      data-testid="scroller"
+      style={{
+        height: 600,
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "auto",
+      }}
+    >
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+        }}
+      >
+        {shown ? <div style={{ height: 60 }} /> : null}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}
+        >
+          <DataGrid
+            aria-label="Deals"
+            columnPicker={false}
+            fill="flex"
+            columns={columns()}
+            data={DEALS}
+            getRowId={(d) => d.id}
+          />
+        </div>
+      </div>
+    </div>
+  );
+  const screen = await render(page(false));
+  const scroller = screen.container.querySelector(
+    '[data-testid="scroller"]',
+  ) as HTMLElement;
+  const viewport = () =>
+    screen.container.querySelector(
+      '[data-slot="grid-viewport"]',
+    ) as HTMLElement;
+  const bottom = () => viewport().getBoundingClientRect().bottom;
+  const floor = scroller.getBoundingClientRect().bottom;
+  expect(bottom()).toBeCloseTo(floor, 0);
+  // Nothing measured: no height flows through the custom property.
+  expect(
+    (
+      screen.container.querySelector('[data-slot="data-grid"]') as HTMLElement
+    ).style.getPropertyValue("--data-grid-max-height"),
+  ).toBe("");
+  const full = viewport().getBoundingClientRect().height;
+  // The row comes: in the same layout, with no frame between, the viewport gives up its height
+  // and its bottom (the horizontal scroll bar) stays where it was.
+  await screen.rerender(page(true));
+  expect(bottom()).toBeCloseTo(floor, 0);
+  expect(viewport().getBoundingClientRect().height).toBeCloseTo(full - 60, 0);
+  expect(scroller.scrollHeight).toBe(scroller.clientHeight);
+  await screen.rerender(page(false));
+  expect(bottom()).toBeCloseTo(floor, 0);
+  expect(viewport().getBoundingClientRect().height).toBeCloseTo(full, 0);
+  // Bounded, the header sticks while the body scrolls.
+  expect(
+    getComputedStyle(
+      screen.container.querySelector(
+        '[data-slot="table-header"]',
+      ) as HTMLElement,
+    ).position,
+  ).toBe("sticky");
+});
+
 test("selecting rows never resizes a filling grid: the bar's room is a band inside the scroll, not height under it", async () => {
   const restore = injectGridMirror();
   onTestFinished(restore);

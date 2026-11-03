@@ -367,6 +367,23 @@ a window too short for the grid's header and a few rows — the grid holds its f
 scrolls to reach it, the one case with two vertical scroll bars: the grid's rows are windowed
 (`virtualize` needs a bounded viewport), so it cannot grow to its rows and let the page alone
 scroll.
+`fill="flex"` fills the same room without measuring: the grid takes the height its flex-column
+parent leaves it, so a filter row or banner that comes or goes resizes the viewport in the same
+layout pass and its horizontal scroll bar never moves — a measured `fill` follows a frame later, so
+the bar jumps and settles back. The host owes it a bounded column: every wrapper between the
+scrolling region and the grid grows into the room (`AppShellPage size="full"`, then
+`AppShellBleed className="flex-1"`). Without one the viewport stays at its 240px floor, so a grid
+inside a page that grows with its content keeps `fill`.
+
+```tsx
+<AppShellPage size="full">
+  <PageHeader title="Schedule" />
+  <AppShellBleed className="flex-1">
+    <DataGrid fill="flex" endSpacer … />
+  </AppShellBleed>
+</AppShellPage>
+```
+
 `endSpacer` leaves a band (180px, or the pixels given) after the last row so the last rows scroll
 clear of anything floating at the bottom, `columnDividers` rules every column's end (the frozen
 columns too, drawn over their sticky background) and `editingTint` fills the cell being edited with
