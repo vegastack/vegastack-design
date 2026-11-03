@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.33.0 sha256-UKgR73H5cQvLNRypEyoLbit/PN0c0zcTnobXp5bt5S0=
+// @vegastack field-cell@0.33.0 sha256-JqdAdRhOODdbOajJ4G7e9Pn83Zf4wsqkvDcQ+wwqF+o=
 
 "use client";
 
@@ -2572,7 +2572,7 @@ export function FieldCellEditor({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * FieldProperty — one field as an editable property row (Regent POL-30)
+ * FieldProperty — one field as an editable property row (web app POL-30)
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props for `FieldProperty`. */

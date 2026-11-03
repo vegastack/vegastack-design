@@ -174,7 +174,7 @@ export function propertyListInline(): ReactNode {
 export function propertyListColumns(): ReactNode {
   const rows: [ReactNode, string, ReactNode][] = [
     [<Component key="i" />, "Type", "Pendant"],
-    [<Building2 key="i" />, "Brand", "Regent"],
+    [<Building2 key="i" />, "Brand", "Northwind"],
     [<Hash key="i" />, "SKU", "RL-26-104"],
     [<Timer key="i" />, "Lead time", "6 weeks"],
     [<Tags key="i" />, "Finish", "Matt black"],

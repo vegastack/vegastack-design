@@ -7515,7 +7515,7 @@ test('menuSize="lg": the slash menu is 320px, each block says what it is, groupe
         label: "Page",
         icon: <span aria-hidden>P</span>,
         description: "A page inside this one",
-        group: "Regent",
+        group: "Workspace",
         onSelect: () => {},
       },
     ],
@@ -7528,7 +7528,7 @@ test('menuSize="lg": the slash menu is 320px, each block says what it is, groupe
   const headings = [
     ...menu.querySelectorAll('[data-slot="suggestion-menu-group-label"]'),
   ].map((each) => each.textContent);
-  expect(headings).toEqual(["Basic", "Regent", "Media", "Advanced"]);
+  expect(headings).toEqual(["Basic", "Workspace", "Media", "Advanced"]);
   const heading1 = [
     ...menu.querySelectorAll<HTMLElement>(
       '[data-slot="suggestion-menu-option"]',
@@ -7668,9 +7668,9 @@ test("slashActions with the same group sit together under one heading", async ()
   const screen = await markdownEditor({
     slashCommands: ["text"],
     slashActions: [
-      item("Page", "Regent"),
+      item("Page", "Workspace"),
       item("Clip", "Other"),
-      item("Task list", "Regent"),
+      item("Task list", "Workspace"),
     ],
   });
   await screen.getByRole("textbox", { name: "Notes" }).click();
@@ -7687,7 +7687,7 @@ test("slashActions with the same group sit together under one heading", async ()
   ]);
   expect(groups).toEqual([
     ["Text", ["Text"]],
-    ["Regent", ["Page", "Task list"]],
+    ["Workspace", ["Page", "Task list"]],
     ["Other", ["Clip"]],
   ]);
 });

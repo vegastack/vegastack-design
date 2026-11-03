@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.33.0 sha256-Iu3aw2z7BArA9CUntYpcGuNLrlGxKAlFhrySRan5Evc=
+// @vegastack inline-chip@0.33.0 sha256-3pQfcJP1lQMQs8iDXchxDvywMD32c5eWv+NU+tVZiMU=
 
 "use client";
 
@@ -23,7 +23,7 @@ import {
  * the text beside it. Here the label is ordinary text on the line's own baseline, the icon is a 1em
  * glyph nudged down by the usual `-0.125em`, and the tint is the box's own background — so the
  * chip reads at the size, baseline and line height of whatever it sits in (a paragraph, a
- * heading, a list item). The chip is one unit (Regent POL-25): its icon and label never part
+ * heading, a list item). The chip is one unit (web app POL-25): its icon and label never part
  * across a line break, and a chip wider than its line is cut with an ellipsis at `max-w-full`.
  * The cut is `overflow: clip`, not `hidden`: a `hidden` inline-block takes its baseline from its
  * bottom edge and drops off the line, while `clip` keeps the text's own baseline.

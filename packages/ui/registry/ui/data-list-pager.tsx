@@ -1,4 +1,4 @@
-// @vegastack data-list-pager@0.33.0 sha256-irZEgSbbQTD1Z4G3rSDIVr9nSQ1pz9uMO6SMRD1q/QY=
+// @vegastack data-list-pager@0.33.0 sha256-Idkxgx/8ASkOxB8AFTs/2i77xHaanILFotJuEzzXtas=
 
 "use client";
 
@@ -33,7 +33,7 @@ the host holds `page` and `pageSize`, fetches or slices the rows, and passes
 `total`. A server-paged host sends `limit = pageSize` and
 `offset = (page - 1) * pageSize`.
 
-Behaviour reference: the Regent consumer's `list-pager.tsx`, adopted into the
+Behaviour reference: the VegaStack web app's `list-pager.tsx`, adopted into the
 system on 2026-09-23 (docs/plans/2026-09-23-consumer-alignment-fixes.md § 2).
 
 Deliberately NOT done here:

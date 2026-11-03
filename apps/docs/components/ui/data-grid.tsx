@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.33.1 sha256-AwaeKaKXiY798B0QJTMXUhJbtdNDID4BPQRLvQkK91Y=
+// @vegastack data-grid@0.33.1 sha256-bPv6jH2hiWFmkR51l3kmjouI+hMKlFUvBeTMnY97mSA=
 
 "use client";
 
@@ -148,7 +148,7 @@ declares `width`, `frozen` or `resizable`, or the grid takes `onColumnResize` or
 (truncating), horizontal scrolling instead of revelation, frozen columns sticky to the inline
 start. Spreadsheet-scale grids (Tables: 150 columns, 50,000 rows) live here.
 
-The structure the G2 benchmark (Regent Tables, 23-10-2026) measured as passing at 150 × 50,000:
+The structure the G2 benchmark (VegaStack web app Tables, 23-10-2026) measured as passing at 150 × 50,000:
 - ONE scroll container for both axes (`data-slot="grid-viewport"`), so the sticky header, the
   sticky footer and the frozen columns all resolve against one box. The grid renders its own
   `<table>`: `Table`'s own overflow container would capture `position: sticky`.
@@ -1249,7 +1249,7 @@ const HEAD_BASE_CLASS =
  * in at the row-state ladder's own strengths (hover 30%, selected 50%, open `accent`). The row's
  * `data-selected` is present-or-absent (`""`), so the selected step keys on `data-[selected]`:
  * the tokens' `data-selected` custom variant matches only `="true"`, which is why the pinned
- * column stayed white in a ticked row (Regent POL-13). The open step is doubled in specificity so
+ * column stayed white in a ticked row (web app POL-13). The open step is doubled in specificity so
  * it outranks selected, as it does on the row itself (an attribute variant beats the row's plain
  * selected wash): a row both open and ticked is open, pinned cells included.
  */

@@ -10,7 +10,7 @@ test("controlled pointer clear reports one empty value and restores focus", asyn
   const onValueChange = vi.fn();
   const screen = await render(
     <SearchInput
-      value="regent"
+      value="northwind"
       onValueChange={onValueChange}
       aria-label="Search"
     />,
@@ -26,7 +26,7 @@ test.each(["Enter", " "])("keyboard clear via %s reports once", async (key) => {
   const onValueChange = vi.fn();
   const screen = await render(
     <SearchInput
-      value="regent"
+      value="northwind"
       onValueChange={onValueChange}
       aria-label="Search"
     />,
@@ -43,7 +43,7 @@ test.each(["Enter", " "])("keyboard clear via %s reports once", async (key) => {
 test("controlled typing and external updates follow the owner", async () => {
   const onValueChange = vi.fn();
   function Fixture() {
-    const [value, setValue] = React.useState("regent");
+    const [value, setValue] = React.useState("northwind");
     return (
       <>
         <SearchInput
@@ -74,7 +74,7 @@ test("uncontrolled input follows typing, clear, and native form reset", async ()
   const screen = await render(
     <form>
       <SearchInput
-        defaultValue="regent"
+        defaultValue="northwind"
         name="query"
         aria-label="Search"
         onValueChange={onValueChange}
@@ -88,7 +88,7 @@ test("uncontrolled input follows typing, clear, and native form reset", async ()
   await expect.element(input).toHaveValue("");
   expect(onValueChange).toHaveBeenLastCalledWith("");
   await screen.getByRole("button", { name: "Reset" }).click();
-  await expect.element(input).toHaveValue("regent");
+  await expect.element(input).toHaveValue("northwind");
   await expect
     .element(screen.getByRole("button", { name: "Clear search" }))
     .toBeInTheDocument();
@@ -98,7 +98,7 @@ test("Escape clears a filled input once and is a no-op when empty", async () => 
   const onValueChange = vi.fn();
   const screen = await render(
     <SearchInput
-      defaultValue="regent"
+      defaultValue="northwind"
       onValueChange={onValueChange}
       aria-label="Search"
     />,
@@ -137,17 +137,17 @@ test("forwards the input ref, attributes, handlers, and form value", async () =>
   await expect.element(input).toHaveAttribute("required");
   await expect.element(input).toHaveAttribute("autocomplete", "off");
   await expect.element(input).toHaveAttribute("aria-describedby", "hint");
-  await input.fill("regent");
+  await input.fill("northwind");
   expect(onInput).toHaveBeenCalled();
   expect(
     new FormData((input.element() as HTMLInputElement).form!).get("query"),
-  ).toBe("regent");
+  ).toBe("northwind");
 });
 
 test.each([
   ["empty", { value: "" }],
-  ["disabled", { value: "regent", disabled: true }],
-  ["read only", { value: "regent", readOnly: true }],
+  ["disabled", { value: "northwind", disabled: true }],
+  ["read only", { value: "northwind", readOnly: true }],
 ] as const)("%s input exposes no clear action", async (_state, props) => {
   const screen = await render(<SearchInput aria-label="Search" {...props} />);
   expect(
@@ -158,7 +158,7 @@ test.each([
 test("supports a custom clear label and suppresses the native cancel control", async () => {
   const screen = await render(
     <SearchInput
-      defaultValue="regent"
+      defaultValue="northwind"
       aria-label="Search"
       clearLabel="Remove query"
     />,
@@ -186,7 +186,7 @@ test("renders logical icon order in RTL", async () => {
 
 test("Tab moves from the input to the clear action", async () => {
   const screen = await render(
-    <SearchInput defaultValue="regent" aria-label="Search" />,
+    <SearchInput defaultValue="northwind" aria-label="Search" />,
   );
   await screen.getByRole("searchbox", { name: "Search" }).click();
   await userEvent.keyboard("{Tab}");
@@ -199,7 +199,7 @@ test("stays contained at a 320px viewport", async () => {
   await page.viewport(320, 480);
   const screen = await render(
     <div style={{ width: "100%" }}>
-      <SearchInput defaultValue="regent" aria-label="Search" />
+      <SearchInput defaultValue="northwind" aria-label="Search" />
     </div>,
   );
   const group = screen.container.querySelector(
@@ -218,7 +218,7 @@ test("clear target is 24px and remains unobstructed", async () => {
   document.head.appendChild(style);
   try {
     const screen = await render(
-      <SearchInput defaultValue="regent" aria-label="Search" />,
+      <SearchInput defaultValue="northwind" aria-label="Search" />,
     );
     const button = screen
       .getByRole("button", { name: "Clear search" })
@@ -250,7 +250,7 @@ test.each(["light", "dark"])(
   async (theme) => {
     const screen = await render(
       <div className={theme === "dark" ? "dark" : undefined}>
-        <SearchInput defaultValue="regent" aria-label="Search" />
+        <SearchInput defaultValue="northwind" aria-label="Search" />
       </div>,
     );
     await expectNoA11yViolations(screen.container);
@@ -263,7 +263,7 @@ test.each(["light", "dark"])(
 test("the clear addon stays inside the group, and the clear button keeps its inset", async () => {
   const screen = await render(
     <div style={{ width: 200 }}>
-      <SearchInput defaultValue="Regent" aria-label="Search" />
+      <SearchInput defaultValue="Northwind" aria-label="Search" />
     </div>,
   );
   const group = screen.container
@@ -325,7 +325,7 @@ test("clearing commits the empty value at once (DS-37)", async () => {
     const screen = await render(
       <SearchInput
         aria-label="Search"
-        defaultValue="regent"
+        defaultValue="northwind"
         onValueCommitted={committed}
       />,
     );

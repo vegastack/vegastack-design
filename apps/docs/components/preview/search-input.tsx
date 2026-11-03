@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Wrapper } from "./wrapper";
 
 export function searchInput(): ReactNode {
-  const [value, setValue] = useState("Regent");
+  const [value, setValue] = useState("Northwind");
 
   return (
     <Wrapper>
@@ -88,7 +88,7 @@ export function searchInputForm(): ReactNode {
         <SearchInput
           id="docs-search-query"
           name="query"
-          defaultValue="Regent"
+          defaultValue="Northwind"
           aria-describedby="docs-search-help"
         />
         <p id="docs-search-help" className="text-sm text-muted-foreground">
