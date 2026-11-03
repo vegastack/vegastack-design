@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.36.0
+
+### Minor Changes
+
+- [#891](https://github.com/vegastack/vegastack-design/pull/891) [`11db94d`](https://github.com/vegastack/vegastack-design/commit/11db94db1a7174f9aac0aa41a79d64217fc29797) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `PersonAvatar` gives agents their own look: a soft hexagon (circles stay for people, rounded squares for teams and workspaces) with the same hairline, a `mark` slot for the provider's logo or the workspace's own assistant (an image `{ src, alt, fit, tile }` or a node, inset on a neutral tile or full-bleed, falling back to the bot when the image fails), an agent's own `hue` (purple when none) and `agentFallback="initials"`. `size` gains `2xs` (16px), `xs` (20px) and `xl` (64px), and the initials, icons (about 60% of the shape) and marks scale with every step, so no caller resizes an avatar with a `className`. A new `indicator` slot puts a presence dot or state icon at the corner of a circle or a hexagon. In stacks, a hexagon's gap follows its shape, and `AgentStateRing` rings the hexagon. An agent with an image no longer carries the corner bot badge, because the hexagon already marks it as an agent. `AgentStateBadge` now truncates its word and gains `iconOnly`, which shows the state icon with the word in a tooltip, for dense rows.
+
 ## 0.35.2
 
 ### Patch Changes
