@@ -19,14 +19,19 @@ import { PersonAvatar } from "./person-avatar";
 const NOW = Date.parse("2026-10-14T12:00:00Z");
 const MINUTE = 60_000;
 
-const agent = { name: "Claude Code", via: "Priya", access: "Read & write" };
+const agent = {
+  name: "Claude Code",
+  via: "Priya",
+  access: "Read & write",
+  provider: "claude.ai",
+};
 
 const base: AgentPanelProps = { agent, state: "working", now: NOW };
 
 const slot = (c: Element, name: string) =>
   c.querySelector<HTMLElement>(`[data-slot="${name}"]`);
 
-test("working card: identity, acting for, elapsed time, live line, Stop and the ⋯ menu", async () => {
+test("working card: header, for and provider, elapsed time, live line, Stop and the ⋯ menu", async () => {
   const onStop = vi.fn();
   const onViewAgent = vi.fn();
   const ref = React.createRef<HTMLDivElement>();
@@ -48,9 +53,13 @@ test("working card: identity, acting for, elapsed time, live line, Stop and the 
   expect(root.dataset.state).toBe("working");
   expect(root.hasAttribute("data-attention")).toBe(false);
   expect(screen.container.textContent).toContain("Claude Code");
-  expect(slot(root, "agent-identity-facts")!.textContent).toBe(
-    "Acting for Priya · Read & write",
+  // The header is the agent: no "Agent" title or label inside the card.
+  expect(slot(root, "agent-panel-name")!.tagName).toBe("H2");
+  expect(slot(root, "agent-panel-facts")!.textContent).toBe(
+    "For Priya · claude.ai",
   );
+  expect(slot(root, "person-agent-label")).toBeNull();
+  expect(root.textContent).not.toMatch(/^Agent/);
   // The bot is decoration; the words say it is an agent.
   expect(
     root
@@ -113,16 +122,29 @@ test("no handlers: a read-only card, no menu, no reply, no edit", async () => {
   ).toContain("Draft the proposal from M-15.");
 });
 
-test("queued: waiting line, Stop and the hint after a while", async () => {
+test("queued: one sentence in the word's inset, the host's hint after a while, Stop", async () => {
+  const fresh = await render(<AgentPanel {...base} state="queued" />);
+  expect(slot(fresh.container, "agent-panel-state-line")!.textContent).toBe(
+    "Queued",
+  );
+  expect(slot(fresh.container, "agent-panel-sentence")!.textContent).toBe(
+    "Waiting to start.",
+  );
+  await fresh.unmount();
+
   const screen = await render(
-    <AgentPanel {...base} state="queued" queuedHint onStop={() => {}} />,
+    <AgentPanel
+      {...base}
+      state="queued"
+      queuedHint="Claude checks in every few minutes."
+      onStop={() => {}}
+    />,
   );
-  expect(slot(screen.container, "agent-panel-state")!.textContent).toContain(
-    "Queued · Waiting for Claude Code to pick this up",
-  );
-  expect(slot(screen.container, "agent-panel-hint")!.textContent).toBe(
-    "Claude Code picks up work when it's running on your machine.",
-  );
+  const hint = slot(screen.container, "agent-panel-hint")!;
+  expect(hint.textContent).toBe("Claude checks in every few minutes.");
+  // The sentence sits in the word's column, not under the icon.
+  expect(hint.className).toContain("col-start-2");
+  expect(slot(screen.container, "agent-panel-sentence")).toBeNull();
   await expect
     .element(screen.getByRole("button", { name: "Stop", exact: true }))
     .toBeVisible();
@@ -167,8 +189,11 @@ test("approval, failed, blocked: each state's line and actions", async () => {
       onDecline={onDecline}
     />,
   );
-  expect(slot(approval.container, "agent-panel-state")!.textContent).toContain(
-    "Wants approval · Move 3 tasks to Trash",
+  expect(slot(approval.container, "agent-panel-state-line")!.textContent).toBe(
+    "Wants approval",
+  );
+  expect(slot(approval.container, "agent-panel-sentence")!.textContent).toBe(
+    "Move 3 tasks to Trash",
   );
   await approval.getByRole("button", { name: "Approve" }).click();
   await approval.getByRole("button", { name: "Decline" }).click();
@@ -189,7 +214,7 @@ test("approval, failed, blocked: each state's line and actions", async () => {
   );
   const failedLine = slot(failed.container, "agent-panel-state")!;
   expect(failedLine.textContent).toContain(
-    "Failed · Couldn't open M-15 — no access.",
+    "FailedCouldn't open M-15 — no access.",
   );
   expect(failedLine.querySelector("q")).not.toBeNull();
   expect(
@@ -197,10 +222,14 @@ test("approval, failed, blocked: each state's line and actions", async () => {
       .querySelector("[data-slot=agent-state-icon]")!
       .getAttribute("class"),
   ).toContain("text-destructive-text");
+  // One action: Retry. Remove stays in the ⋯ menu.
   await failed.getByRole("button", { name: "Retry" }).click();
-  await failed.getByRole("button", { name: "Remove", exact: true }).click();
   expect(onRetry).toHaveBeenCalledTimes(1);
-  expect(onRemove).toHaveBeenCalledTimes(1);
+  expect(
+    slot(failed.container, "agent-panel-state-actions")!.querySelectorAll(
+      "button",
+    ),
+  ).toHaveLength(1);
   await expectNoA11yViolations(failed.container);
   await failed.unmount();
 
@@ -214,7 +243,7 @@ test("approval, failed, blocked: each state's line and actions", async () => {
     />,
   );
   expect(slot(blocked.container, "agent-panel-state")!.textContent).toContain(
-    "Needs you · Its token expired",
+    "Needs youIts token expired",
   );
   await blocked.getByRole("button", { name: "Reconnect" }).click();
   expect(onReconnect).toHaveBeenCalledTimes(1);
@@ -234,12 +263,20 @@ test("done and stopped: date, duration, summary, the action, and the disconnect 
     />,
   );
   const line = slot(done.container, "agent-panel-state")!;
-  expect(line.textContent).toMatch(/^Done · .+ · 3 min · Proposal drafted/);
+  expect(slot(done.container, "agent-panel-state-line")!.textContent).toMatch(
+    /^Done · .+ · 3 min$/,
+  );
+  expect(line.textContent).toContain("Proposal drafted in P-42.");
   // A finished delegation never turns back into Needs you after a disconnect.
   expect(line.textContent).not.toContain("Needs you");
+  // The disconnect joins the card's one sentence, in the same inset.
   expect(slot(done.container, "agent-panel-disconnected")!.textContent).toBe(
-    "Agent since disconnected",
+    "Claude Code was disconnected since.",
   );
+  expect(
+    slot(done.container, "agent-panel-disconnected")!.closest("p")!.dataset
+      .slot,
+  ).toBe("agent-panel-sentence");
   await done.getByRole("button", { name: "Mark task done" }).click();
   expect(onMarkDone).toHaveBeenCalledTimes(1);
   await done.unmount();
@@ -255,8 +292,11 @@ test("done and stopped: date, duration, summary, the action, and the disconnect 
       onDelegateAgain={onDelegateAgain}
     />,
   );
-  expect(slot(stopped.container, "agent-panel-state")!.textContent).toMatch(
-    /^Stopped by Priya · .+ · Its 12 changes stay — undo them in History/,
+  expect(
+    slot(stopped.container, "agent-panel-state-line")!.textContent,
+  ).toMatch(/^Stopped by Priya · .+$/);
+  expect(slot(stopped.container, "agent-panel-sentence")!.textContent).toBe(
+    "Its 12 changes stay — undo them in History",
   );
   await stopped.getByRole("button", { name: "Delegate again" }).click();
   expect(onDelegateAgain).toHaveBeenCalledTimes(1);
@@ -413,6 +453,30 @@ test("history: runs with View and Undo; Undo disabled with its reason", async ()
   await expectNoA11yViolations(screen.container);
 });
 
+test("a page with its own Activity: showLatest={false} drops Latest, runsLayout=line keeps one Runs line", async () => {
+  const onUndo = vi.fn();
+  const screen = await render(
+    <AgentPanel
+      {...base}
+      state="done"
+      showLatest={false}
+      latest={[{ id: "1", kind: "message", text: "Done.", at: NOW - MINUTE }]}
+      runsLayout="line"
+      runs={[
+        { id: "r1", changeCount: 3, at: NOW - 2 * 60 * MINUTE, onUndo },
+        { id: "r2", changeCount: 1, at: NOW - 3 * 60 * MINUTE },
+      ]}
+    />,
+  );
+  expect(slot(screen.container, "agent-panel-latest")).toBeNull();
+  expect(slot(screen.container, "agent-panel-history")).toBeNull();
+  const line = slot(screen.container, "agent-panel-runs-line")!;
+  expect(line.textContent).toMatch(/^Runs· 3 changes· 2h ago/);
+  await screen.getByRole("button", { name: "Undo" }).click();
+  expect(onUndo).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("section: a one-line summary header, open while working, closed when done", async () => {
   const onStop = vi.fn();
   const screen = await render(
@@ -463,13 +527,19 @@ test("labels replace every string", async () => {
       {...base}
       state="queued"
       onStop={() => {}}
-      labels={{ title: "Agente", stop: "Detener", waiting: () => "En cola" }}
+      labels={{
+        forOwner: (owner) => `Para ${owner}`,
+        stop: "Detener",
+        waiting: () => "En cola",
+      }}
       stateLabels={{ queued: "En espera" }}
     />,
   );
-  expect(screen.container.textContent).toContain("Agente");
+  expect(slot(screen.container, "agent-panel-facts")!.textContent).toBe(
+    "Para Priya · claude.ai",
+  );
   expect(slot(screen.container, "agent-panel-state")!.textContent).toContain(
-    "En espera · En cola",
+    "En esperaEn cola",
   );
   await expect
     .element(screen.getByRole("button", { name: "Detener" }))

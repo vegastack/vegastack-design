@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.33.0 sha256-UCmVpDb3teZXFGNrdQMPoj1mkrRrNhcpwPS/udUMIgw=
+// @vegastack agent-panel@0.33.0 sha256-dsazW0ztJ6ddY0TD6UacTydlsSHmTI7oseKkpF0qIjw=
 
 "use client";
 
@@ -53,7 +53,6 @@ import {
 import {
   RecordAsideAction,
   RecordAsideCard,
-  RecordAsideSection,
 } from "@/components/ui/record-aside";
 import { SplitChip, SplitChipButton } from "@/components/ui/record-chip";
 import {
@@ -74,7 +73,7 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 /* ------------------------------------------------------------------------------------------------
  * AgentPanel — an agent working on a record, as a collaborator: who it is and whom it acts for,
  * where it stands (queued, working, a question, an approval, failed, blocked, done, stopped) with
- * the one or two actions that state needs, its instructions, its latest messages and changes, a
+ * the one action that state needs, its instructions, its latest messages and changes, a
  * reply box, and its runs with View and Undo. One part, two shapes: the rail card on a record page
  * (`variant="card"`) and the collapsible section in a peek (`variant="section"`). Around it:
  *
@@ -123,6 +122,11 @@ export interface AgentPanelAgent extends Pick<Person, "name" | "image"> {
   via?: string | null;
   /** What it may do, in a few words: "Read & write". @default undefined */
   access?: string | null;
+  /**
+   * Where it runs, as the host names it ("claude.ai", "Cursor"): the panel's header reads "For
+   * Priya · claude.ai". @default undefined
+   */
+  provider?: string | null;
 }
 
 type Tone = "muted" | "info" | "warning" | "destructive" | "success";
@@ -830,8 +834,10 @@ export interface AgentPanelChoice {
 
 /** Every string `AgentPanel` renders or names a control with. */
 export interface AgentPanelLabels extends AgentHoverCardLabels {
-  /** The card's and the section's title. */
+  /** The section's title (the peek); the rail card has none — its header is the agent. */
   title: string;
+  /** The header's muted line: "For Priya". */
+  forOwner: (owner: string) => string;
   /** The ⋯ menu's accessible name: "More actions for Claude Code". */
   more: (agent: string) => string;
   /** Menu: Change agent. */
@@ -840,9 +846,12 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
   stop: string;
   /** Menu and the Failed line: Remove. */
   remove: string;
-  /** The Queued line: "Waiting for Claude Code to pick this up". */
+  /** The Queued sentence: "Waiting to start." */
   waiting: (agent: string) => string;
-  /** The hint once it has queued a while: "Claude Code picks up work when it's running on your machine." */
+  /**
+   * The Queued sentence once it has waited a while (`queuedHint={true}`): "Claude Code starts when
+   * it next checks in." Hosts that know how the agent runs pass their own words as `queuedHint`.
+   */
   queuedHint: (agent: string) => string;
   /** The Approval line's word. */
   wantsApproval: string;
@@ -862,8 +871,8 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
   changesStay: (count: number) => string;
   /** The Stopped line's action. */
   delegateAgain: string;
-  /** The muted note on a finished card whose agent was disconnected since. */
-  disconnected: string;
+  /** The sentence a finished card adds when its agent was disconnected since. */
+  disconnected: (agent: string) => string;
   /** An elapsed or run time: "4 min". */
   duration: (seconds: number) => string;
   /** The Instructions heading. */
@@ -892,6 +901,10 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
   send: string;
   /** The History heading. */
   history: string;
+  /** The compact runs line's word (`runsLayout="line"`): "Runs". */
+  runsLine: string;
+  /** The compact runs line's count: "3 changes". */
+  changes: (changeCount: number) => string;
   /** "Run · 3 changes". */
   run: (changeCount: number) => string;
   /** View a run. */
@@ -905,13 +918,13 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
 const DEFAULT_LABELS: AgentPanelLabels = {
   ...DEFAULT_HOVER_LABELS,
   title: "Agent",
+  forOwner: (owner) => `For ${owner}`,
   more: (agent) => `More actions for ${agent}`,
   changeAgent: "Change agent",
   stop: "Stop",
   remove: "Remove",
-  waiting: (agent) => `Waiting for ${agent} to pick this up`,
-  queuedHint: (agent) =>
-    `${agent} picks up work when it's running on your machine.`,
+  waiting: () => "Waiting to start.",
+  queuedHint: (agent) => `${agent} starts when it next checks in.`,
   wantsApproval: "Wants approval",
   approve: "Approve",
   decline: "Decline",
@@ -924,7 +937,7 @@ const DEFAULT_LABELS: AgentPanelLabels = {
       ? "Its 1 change stays — undo it in History"
       : `Its ${count} changes stay — undo them in History`,
   delegateAgain: "Delegate again",
-  disconnected: "Agent since disconnected",
+  disconnected: (agent) => `${agent} was disconnected since.`,
   duration: defaultDuration,
   instructions: "Instructions",
   editInstructions: "Edit instructions",
@@ -939,6 +952,8 @@ const DEFAULT_LABELS: AgentPanelLabels = {
   replyPlaceholder: (agent) => `Reply to ${agent}…`,
   send: "Send reply",
   history: "History",
+  runsLine: "Runs",
+  changes: (n) => (n === 1 ? "1 change" : `${n} changes`),
   run: (n) => (n === 1 ? "Run · 1 change" : `Run · ${n} changes`),
   view: "View",
   undo: "Undo",
@@ -970,8 +985,13 @@ export interface AgentPanelProps extends Omit<
   startedAt?: Date | string | number;
   /** The agent's latest progress line while working ("Reading the 3 linked pages…"). @default undefined */
   progress?: React.ReactNode;
-  /** Queued a while (the host's 10 minutes): add the "picks up work when it's running" hint. @default false */
-  queuedHint?: boolean;
+  /**
+   * Queued a while (the host's 10 minutes): the Queued sentence becomes the hint. `true` uses
+   * `labels.queuedHint`; a node is the host's own words for how this agent starts ("Claude checks
+   * in every few minutes."). The design system holds no provider's vocabulary.
+   * @default false
+   */
+  queuedHint?: boolean | React.ReactNode;
   /** The agent's open question (state `question`). @default undefined */
   question?: React.ReactNode;
   /** One-tap answers to the question. @default [] */
@@ -1007,8 +1027,9 @@ export interface AgentPanelProps extends Omit<
   /** Delegate again (stopped); shows when set. @default undefined */
   onDelegateAgain?: () => void;
   /**
-   * The agent was disconnected since: a finished, failed or stopped card adds the muted "Agent
-   * since disconnected" and never turns back into Needs you.
+   * The agent was disconnected since: a finished, failed or stopped card adds "Claude Code was
+   * disconnected since." to its sentence (with Reconnect when `onReconnect` is set and the state
+   * has no other action) and never turns back into Needs you.
    * @default false
    */
   disconnected?: boolean;
@@ -1037,6 +1058,12 @@ export interface AgentPanelProps extends Omit<
   instructionsMaxLengthMessage?: (excess: number) => string;
   /** The agent's latest messages and changes, newest first; the first three show. @default [] */
   latest?: readonly AgentPanelEvent[];
+  /**
+   * Show Latest. Turn it off where the host page has its own Activity feed (a record page), so
+   * the card doesn't repeat it; keep it in a peek, which has none.
+   * @default true
+   */
+  showLatest?: boolean;
   /** How many there are in all, for "Show all 5". @default undefined */
   latestTotal?: number;
   /** Show them all (filter the activity to this agent); "Show all" shows when set. @default undefined */
@@ -1064,6 +1091,12 @@ export interface AgentPanelProps extends Omit<
   replyDisabledReason?: React.ReactNode;
   /** The agent's runs, newest first, under History. @default [] */
   runs?: readonly AgentPanelRun[];
+  /**
+   * `list` — History, a row per run. `line` — one compact Runs line for the newest run ("Runs · 3
+   * changes · 2 hr ago · View · Undo"), for a page whose Activity feed lists the rest.
+   * @default "list"
+   */
+  runsLayout?: "list" | "line";
   /** Menu: View agent; shows when set. @default undefined */
   onViewAgent?: () => void;
   /** Menu: Change agent; shows when set. @default undefined */
@@ -1110,21 +1143,16 @@ type ResolvedProps = Omit<
   focusReply: () => void;
 };
 
-/** The facts after the state word, as one inline run: "4 min · “Reading…”". */
+/** The short facts after the state word, as one inline run: " · 4 min", " · Oct 14 · 3 min". */
 function StateFacts({ p }: { p: ResolvedProps }) {
   const { state, labels, nowMs } = p;
   const parts: React.ReactNode[] = [];
-  if (state === "queued") parts.push(labels.waiting(p.agent.name));
   if (state === "working") {
     if (p.startedAt != null && nowMs !== undefined)
       parts.push(
         labels.duration(Math.max(0, (nowMs - toMs(p.startedAt)) / 1000)),
       );
   }
-  if (state === "approval" && p.approval != null) parts.push(p.approval);
-  if (state === "failed" && p.error != null) parts.push(<q>{p.error}</q>);
-  if (state === "blocked" && p.blockedReason != null)
-    parts.push(p.blockedReason);
   if (state === "done" || state === "stopped") {
     if (p.finishedAt != null)
       parts.push(
@@ -1135,13 +1163,8 @@ function StateFacts({ p }: { p: ResolvedProps }) {
         />,
       );
   }
-  if (state === "done") {
-    if (p.durationSeconds != null)
-      parts.push(labels.duration(p.durationSeconds));
-    if (p.summary != null) parts.push(<q>{p.summary}</q>);
-  }
-  if (state === "stopped" && p.changeCount != null && p.changeCount > 0)
-    parts.push(labels.changesStay(p.changeCount));
+  if (state === "done" && p.durationSeconds != null)
+    parts.push(labels.duration(p.durationSeconds));
   return (
     <>
       {parts.map((part, i) => (
@@ -1154,6 +1177,59 @@ function StateFacts({ p }: { p: ResolvedProps }) {
   );
 }
 
+/** The one sentence under the state word: what it waits on, says, asks, or why it stopped. */
+function stateSentence(p: ResolvedProps): {
+  slot: string;
+  text: React.ReactNode;
+} | null {
+  const { state, labels, agent } = p;
+  switch (state) {
+    case "queued":
+      return p.queuedHint
+        ? {
+            slot: "agent-panel-hint",
+            text:
+              p.queuedHint === true
+                ? labels.queuedHint(agent.name)
+                : p.queuedHint,
+          }
+        : { slot: "agent-panel-sentence", text: labels.waiting(agent.name) };
+    case "working":
+      return p.progress != null
+        ? { slot: "agent-panel-progress", text: <q>{p.progress}</q> }
+        : null;
+    case "question":
+      return p.question != null
+        ? { slot: "agent-panel-question", text: <q>{p.question}</q> }
+        : null;
+    case "approval":
+      return p.approval != null
+        ? { slot: "agent-panel-sentence", text: p.approval }
+        : null;
+    case "failed":
+      return p.error != null
+        ? { slot: "agent-panel-sentence", text: <q>{p.error}</q> }
+        : null;
+    case "blocked":
+      return p.blockedReason != null
+        ? { slot: "agent-panel-sentence", text: p.blockedReason }
+        : null;
+    case "done":
+      return p.summary != null
+        ? { slot: "agent-panel-sentence", text: <q>{p.summary}</q> }
+        : null;
+    case "stopped":
+      return p.changeCount != null && p.changeCount > 0
+        ? {
+            slot: "agent-panel-sentence",
+            text: labels.changesStay(p.changeCount),
+          }
+        : null;
+    default:
+      return null;
+  }
+}
+
 /** The state's word on the line: "Wants approval", "Stopped by Priya", else the short word. */
 function stateTitle(p: ResolvedProps): string {
   if (p.state === "none") return "";
@@ -1163,133 +1239,142 @@ function stateTitle(p: ResolvedProps): string {
   return p.stateLabels[p.state];
 }
 
-/** The actions a state line offers, in the mockup's order. */
+/**
+ * The state's one action — the next step it asks for (Stop, Retry, Reconnect, Mark task done,
+ * Delegate again), or an approval's Approve and Decline, which are one decision. Everything else
+ * is in the ⋯ menu. The main action is secondary, Stop and Remove outline (never primary in a card).
+ */
 function StateActions({ p }: { p: ResolvedProps }) {
   const { state, labels } = p;
-  const buttons: React.ReactNode[] = [];
-  if ((state === "queued" || state === "working") && p.onStop)
-    buttons.push(
-      <LineButton key="stop" onClick={p.onStop}>
-        {labels.stop}
-      </LineButton>,
-    );
-  if (state === "approval") {
-    if (p.onApprove)
-      buttons.push(
-        <LineButton key="approve" variant="default" onClick={p.onApprove}>
-          {labels.approve}
-        </LineButton>,
-      );
-    if (p.onDecline)
-      buttons.push(
-        <LineButton key="decline" onClick={p.onDecline}>
-          {labels.decline}
-        </LineButton>,
-      );
-  }
-  if (state === "failed") {
-    if (p.onRetry)
-      buttons.push(
-        <LineButton key="retry" onClick={p.onRetry}>
-          {labels.retry}
-        </LineButton>,
-      );
-    if (p.onRemove)
-      buttons.push(
-        <LineButton key="remove" onClick={p.onRemove}>
-          {labels.remove}
-        </LineButton>,
-      );
-  }
-  if (state === "blocked" && p.onReconnect)
-    buttons.push(
-      <LineButton key="reconnect" onClick={p.onReconnect}>
+  const disconnected = p.disconnected && FINISHED.has(state);
+  const reconnect =
+    disconnected && p.onReconnect ? (
+      <LineButton key="reconnect" variant="secondary" onClick={p.onReconnect}>
         {labels.reconnect}
-      </LineButton>,
+      </LineButton>
+    ) : null;
+  let buttons: React.ReactNode = null;
+  if ((state === "queued" || state === "working") && p.onStop)
+    buttons = <LineButton onClick={p.onStop}>{labels.stop}</LineButton>;
+  else if (state === "approval" && (p.onApprove || p.onDecline))
+    buttons = (
+      <>
+        {p.onApprove ? (
+          <LineButton variant="secondary" onClick={p.onApprove}>
+            {labels.approve}
+          </LineButton>
+        ) : null}
+        {p.onDecline ? (
+          <LineButton onClick={p.onDecline}>{labels.decline}</LineButton>
+        ) : null}
+      </>
     );
-  if (state === "done" && p.onMarkDone)
-    buttons.push(
-      <LineButton key="done" onClick={p.onMarkDone}>
+  else if (state === "failed")
+    buttons = p.onRetry ? (
+      <LineButton variant="secondary" onClick={p.onRetry}>
+        {labels.retry}
+      </LineButton>
+    ) : (
+      (reconnect ??
+      (p.onRemove ? (
+        <LineButton onClick={p.onRemove}>{labels.remove}</LineButton>
+      ) : null))
+    );
+  else if (state === "blocked")
+    buttons = p.onReconnect ? (
+      <LineButton variant="secondary" onClick={p.onReconnect}>
+        {labels.reconnect}
+      </LineButton>
+    ) : p.onRemove ? (
+      <LineButton onClick={p.onRemove}>{labels.remove}</LineButton>
+    ) : null;
+  else if (state === "done")
+    buttons = p.onMarkDone ? (
+      <LineButton variant="secondary" onClick={p.onMarkDone}>
         {labels.markDone}
-      </LineButton>,
+      </LineButton>
+    ) : (
+      reconnect
     );
-  if (state === "stopped" && p.onDelegateAgain)
-    buttons.push(
-      <LineButton key="again" onClick={p.onDelegateAgain}>
+  else if (state === "stopped")
+    buttons = p.onDelegateAgain ? (
+      <LineButton variant="secondary" onClick={p.onDelegateAgain}>
         {labels.delegateAgain}
-      </LineButton>,
+      </LineButton>
+    ) : (
+      reconnect
     );
-  if (buttons.length === 0) return null;
+  if (!buttons) return null;
   return (
     <div
       data-slot="agent-panel-state-actions"
-      className="flex flex-wrap items-center gap-1.5"
+      className="col-start-2 flex flex-wrap items-center gap-1.5 pt-0.5"
     >
       {buttons}
     </div>
   );
 }
 
-/** The state block: the line, its detail (question, live line, hint, disconnect) and actions. */
+/**
+ * The status block: the state's icon and word (with its short facts) on the first line, then one
+ * sentence and at most one action, all in the word's inset.
+ */
 function StateBlock({ p }: { p: ResolvedProps }) {
   const { state, labels } = p;
   const tone = toneOf(state);
   const question = state === "question";
+  const sentence = stateSentence(p);
+  const disconnected = p.disconnected && FINISHED.has(state);
   return (
     <div
       data-slot="agent-panel-state"
       data-state={state}
       className={cn(
-        "flex min-w-0 flex-col gap-1.5 text-sm",
+        "grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-x-1.5 gap-y-1 text-sm",
         // A question or an approval sits on the warning tint: it is what the card is for now.
         (question || state === "approval") &&
           "rounded-md bg-warning/10 p-2 dark:bg-warning/20",
       )}
     >
-      <p className="min-w-0 wrap-anywhere">
+      <span className="flex h-5 items-center">
+        <AgentStateIcon state={state} />
+      </span>
+      <p data-slot="agent-panel-state-line" className="min-w-0 wrap-anywhere">
         <span
           className={cn(
-            "inline-flex items-center gap-1 align-[-0.125em] font-medium",
+            "font-medium",
             TONE_TEXT[tone],
             state === "working" && "text-foreground",
           )}
         >
-          <AgentStateIcon state={state} />
           {stateTitle(p)}
         </span>
         <span className="text-muted-foreground">
           <StateFacts p={p} />
         </span>
       </p>
-      {state === "working" && p.progress != null ? (
+      {sentence || disconnected ? (
         <p
-          data-slot="agent-panel-progress"
-          className="min-w-0 ps-4.5 wrap-anywhere text-muted-foreground"
+          data-slot={sentence?.slot ?? "agent-panel-sentence"}
+          className={cn(
+            "col-start-2 min-w-0 wrap-anywhere",
+            question ? "text-foreground" : "text-muted-foreground",
+          )}
         >
-          <q>{p.progress}</q>
-        </p>
-      ) : null}
-      {state === "queued" && p.queuedHint ? (
-        <p
-          data-slot="agent-panel-hint"
-          className="ps-4.5 text-xs text-muted-foreground"
-        >
-          {labels.queuedHint(p.agent.name)}
-        </p>
-      ) : null}
-      {question && p.question != null ? (
-        <p
-          data-slot="agent-panel-question"
-          className="min-w-0 wrap-anywhere text-foreground"
-        >
-          <q>{p.question}</q>
+          {sentence?.text}
+          {sentence && disconnected ? " " : null}
+          {disconnected ? (
+            <span data-slot="agent-panel-disconnected">
+              {labels.disconnected(p.agent.name)}
+            </span>
+          ) : null}
         </p>
       ) : null}
       {question &&
       ((p.onAnswer && (p.choices?.length ?? 0) > 0) || p.onReply) ? (
         <div
           data-slot="agent-panel-choices"
-          className="flex flex-wrap items-center gap-1.5"
+          className="col-start-2 flex flex-wrap items-center gap-1.5 pt-0.5"
         >
           {p.onAnswer
             ? p.choices?.map((choice) => (
@@ -1309,14 +1394,53 @@ function StateBlock({ p }: { p: ResolvedProps }) {
         </div>
       ) : null}
       <StateActions p={p} />
-      {p.disconnected && FINISHED.has(state) ? (
-        <p
-          data-slot="agent-panel-disconnected"
-          className="text-xs text-muted-foreground"
+    </div>
+  );
+}
+
+/**
+ * The rail card's header: the agent's avatar, its name (which gets the room and truncates last) and
+ * one muted line, "For Priya · claude.ai", with the ⋯ menu at the end. No "Agent" title or label:
+ * the avatar already says it is one.
+ */
+function PanelIdentity({
+  p,
+  action,
+  heading = false,
+}: {
+  p: ResolvedProps;
+  action?: React.ReactNode;
+  /** The name is the card's heading (the rail card); the section's header is its own. */
+  heading?: boolean;
+}) {
+  const Name = heading ? "h2" : "span";
+  const { agent, labels } = p;
+  const facts = [agent.via ? labels.forOwner(agent.via) : null, agent.provider]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <div
+      data-slot="agent-panel-header"
+      className="flex min-w-0 items-center gap-2.5"
+    >
+      <PersonAvatar person={asPerson(agent)} aria-hidden size="default" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Name
+          data-slot="agent-panel-name"
+          className="min-w-0 truncate text-sm font-medium"
         >
-          {labels.disconnected}
-        </p>
-      ) : null}
+          {agent.name}
+        </Name>
+        {facts ? (
+          <span
+            data-slot="agent-panel-facts"
+            className="min-w-0 truncate text-xs text-muted-foreground"
+          >
+            {facts}
+          </span>
+        ) : null}
+      </div>
+      {action}
     </div>
   );
 }
@@ -1498,7 +1622,7 @@ function InstructionsBlock({ p }: { p: ResolvedProps }) {
 function LatestBlock({ p }: { p: ResolvedProps }) {
   const { labels } = p;
   const items = (p.latest ?? []).slice(0, 3);
-  if (items.length === 0) return null;
+  if (p.showLatest === false || items.length === 0) return null;
   return (
     <Block slot="agent-panel-latest" title={labels.latest}>
       <ul className="flex flex-col gap-1.5">
@@ -1739,9 +1863,76 @@ function RunRow({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
   );
 }
 
+/** The compact Runs line: "Runs · 3 changes · 2 hr ago", View, Undo — the newest run only. */
+function RunsLine({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
+  const { labels } = p;
+  const reasonId = React.useId();
+  const reason = run.onUndo ? run.undoDisabledReason : undefined;
+  const undoButton = run.onUndo ? (
+    <LineButton
+      variant="ghost"
+      disabled={reason !== undefined || run.undoing}
+      data-loading={run.undoing ? "" : undefined}
+      aria-busy={run.undoing || undefined}
+      aria-describedby={reason ? reasonId : undefined}
+      onClick={run.onUndo}
+    >
+      {run.undoing ? <Spinner aria-hidden data-icon="inline-start" /> : null}
+      {labels.undo}
+    </LineButton>
+  ) : null;
+  return (
+    <div
+      data-slot="agent-panel-runs-line"
+      className="flex min-w-0 items-center justify-between gap-x-2 text-sm"
+    >
+      <span className="flex min-w-0 grow basis-0 items-baseline text-muted-foreground">
+        <span className="shrink-0 text-xs font-medium">{labels.runsLine}</span>
+        <span className="min-w-0 truncate ps-1 text-foreground">
+          <span aria-hidden className="text-muted-foreground">
+            ·{" "}
+          </span>
+          {labels.changes(run.changeCount)}
+        </span>
+        <span className="min-w-0 shrink-999 truncate ps-1">
+          <span aria-hidden>· </span>
+          <RelativeTime
+            date={run.at}
+            now={p.nowMs}
+            focusable={false}
+            aria-live="off"
+            className="tabular-nums"
+          />
+        </span>
+      </span>
+      <span className="-me-2 flex shrink-0 items-center">
+        {run.onView ? (
+          <LineButton variant="ghost" onClick={run.onView}>
+            {labels.view}
+          </LineButton>
+        ) : null}
+        {reason ? (
+          <>
+            <span id={reasonId} hidden>
+              {reason}
+            </span>
+            <Tooltip>
+              <TooltipTrigger render={undoButton as React.ReactElement} />
+              <TooltipContent>{reason}</TooltipContent>
+            </Tooltip>
+          </>
+        ) : (
+          undoButton
+        )}
+      </span>
+    </div>
+  );
+}
+
 function HistoryBlock({ p }: { p: ResolvedProps }) {
   const runs = p.runs ?? [];
   if (runs.length === 0) return null;
+  if (p.runsLayout === "line") return <RunsLine run={runs[0]!} p={p} />;
   return (
     <Block slot="agent-panel-history" title={p.labels.history}>
       <ul className="flex flex-col gap-0.5">
@@ -1809,12 +2000,11 @@ function PanelMenu({ p }: { p: ResolvedProps }) {
 /** The one-line summary in the section's header: "◌ Working · 4 min · “Reading…”". */
 function SectionSummary({ p }: { p: ResolvedProps }) {
   const { state } = p;
+  // Working says everything on the line; the other states keep their sentence in the body.
   const detail: React.ReactNode =
-    state === "working" && p.progress != null ? (
-      <q>{p.progress}</q>
-    ) : state === "question" && p.question != null ? (
-      <q>{p.question}</q>
-    ) : null;
+    state === "working" || state === "question"
+      ? (stateSentence(p)?.text ?? null)
+      : null;
   return (
     <span
       data-slot="agent-panel-summary"
@@ -1830,7 +2020,7 @@ function SectionSummary({ p }: { p: ResolvedProps }) {
         <AgentStateIcon state={state} />
         {stateTitle(p)}
       </span>
-      <StateFacts p={{ ...p, summary: undefined, changeCount: undefined }} />
+      <StateFacts p={p} />
       {detail ? (
         <>
           <Dot />
@@ -1872,12 +2062,14 @@ const PANEL_KEYS = [
   "instructionsMaxLengthMessage",
   "latest",
   "latestTotal",
+  "showLatest",
   "onShowAll",
   "onReply",
   "replyMaxLength",
   "replyMaxLengthMessage",
   "replyDisabledReason",
   "runs",
+  "runsLayout",
   "onViewAgent",
   "onChangeAgent",
   "onStop",
@@ -1904,16 +2096,17 @@ function domProps(
 }
 
 /**
- * `AgentPanel` — the agent on a record: its bot, name and "Agent" label, "Acting for Priya · Read
- * & write" and a ⋯ menu (View agent · Change agent · Stop · Remove); the state line with its
- * actions; its Instructions (✎ for a viewer who may steer); Latest — its newest messages and
- * changes with "Show all"; a Reply box; and History — its runs with View and Undo. `state="none"`
- * renders nothing. A state change is announced politely. Put the card above Properties while it
+ * `AgentPanel` — the agent on a record: a header with its avatar, its name and one muted line ("For
+ * Priya · claude.ai") and a ⋯ menu (View agent · Change agent · Stop · Remove); one status block —
+ * the state's icon and word, one sentence and at most one action; its Instructions (✎ for a viewer
+ * who may steer); Latest — its newest messages and changes with "Show all" (`showLatest={false}`
+ * where the page has its own Activity feed); a Reply box; and History — its runs with View and Undo
+ * (`runsLayout="line"` for one compact Runs line). `state="none"` renders nothing. A state change is announced politely. Put the card above Properties while it
  * needs you (`data-attention`).
  *
  * @example
  * <AgentPanel
- *   agent={{ name: "Claude Code", via: "Priya", access: "Read & write" }}
+ *   agent={{ name: "Claude Code", via: "Priya", provider: "claude.ai" }}
  *   state="working"
  *   startedAt={run.startedAt}
  *   progress="Reading the 3 linked pages…"
@@ -1942,7 +2135,7 @@ export function AgentPanel({
   className,
   ...rest
 }: AgentPanelProps) {
-  const { agent, state, queuedHint, onStop } = rest;
+  const { agent, state, onStop } = rest;
   const props = domProps(rest);
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const stateLabels = { ...DEFAULT_STATE_LABELS, ...stateLabelsProp };
@@ -2001,7 +2194,7 @@ export function AgentPanel({
 
   if (variant === "section") {
     // Queued and working say everything on the header line; the others keep their block below.
-    const lineInHeader = state === "working" || state === "queued";
+    const lineInHeader = state === "working";
     return (
       <Collapsible
         open={open}
@@ -2056,16 +2249,8 @@ export function AgentPanel({
           data-slot="agent-panel-content"
           className="flex min-w-0 flex-col gap-3 px-3 pt-1 pb-3"
         >
-          <AgentIdentity agent={agent} labels={labels} />
-          {lineInHeader ? (
-            state === "queued" && queuedHint ? (
-              <p className="text-xs text-muted-foreground">
-                {labels.queuedHint(agent.name)}
-              </p>
-            ) : null
-          ) : (
-            <StateBlock p={p} />
-          )}
+          <PanelIdentity p={p} />
+          {lineInHeader ? null : <StateBlock p={p} />}
           {body}
         </CollapsibleContent>
         <Announcer />
@@ -2082,13 +2267,11 @@ export function AgentPanel({
       className={className}
       {...props}
     >
-      <RecordAsideSection title={labels.title} action={<PanelMenu p={p} />}>
-        <div className="flex min-w-0 flex-col gap-3">
-          <AgentIdentity agent={agent} labels={labels} />
-          <StateBlock p={p} />
-          {body}
-        </div>
-      </RecordAsideSection>
+      <div className="flex min-w-0 flex-col gap-3">
+        <PanelIdentity p={p} heading action={<PanelMenu p={p} />} />
+        <StateBlock p={p} />
+        {body}
+      </div>
       <Announcer />
     </RecordAsideCard>
   );

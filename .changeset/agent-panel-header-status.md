@@ -1,0 +1,5 @@
+---
+"@vegastack/ui": minor
+---
+
+🔧 `AgentPanel`'s rail card drops the "Agent" title and label: its header is the agent's avatar, its name (which gets the room and truncates last) and one muted line, "For Priya · claude.ai", from the new `agent.provider` and `labels.forOwner`. The state is one status block — icon and word with its short facts, then one sentence and at most one action, all in the word's inset — so a queued hint no longer starts left of the line above it, and a finished card's disconnect joins its sentence (with Reconnect when `onReconnect` is set) instead of floating under the action. Failed shows Retry only (Remove stays in ⋯), Blocked shows Reconnect or else Remove, and row actions are secondary or outline, never primary. `queuedHint` takes the host's own words (the default no longer says "your machine"; `labels.waiting` now reads "Waiting to start."), `showLatest={false}` drops Latest where the page has its own Activity feed, and `runsLayout="line"` shows one compact Runs line ("Runs · 3 changes · 2h ago · View · Undo"). ⚠️ `labels.disconnected` is now a function of the agent's name.
