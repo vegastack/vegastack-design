@@ -9,6 +9,31 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.33.0] — November 3, 2026
+
+<!-- assembled from 5 changesets: 37cfa34dbd7e -->
+
+### 🧩 New components
+
+- `AgentEditBanner` takes `onApprove`: an Approve button beside Undo (outline, like every banner action) for "these changes are fine", named `labels.approveName(agent)` ("Approve Claude (via Manoj)'s changes"). A new `status="approving"` spins it; it and `undoing` each disable every action, so an approval and an undo never race. Each `moreAgents` row takes `onApprove` too. The banner stores nothing: the host keeps the approval and stops rendering the banner.
+  [`03f4e8c`](https://github.com/VegaStack/vegastack-design/commit/03f4e8c)
+- **New: `DateTimePicker`, a date and a time in one picker.** One trigger ("Nov 3, 2026, 9:00 AM") opens one popup with the calendar and, beside it, the time: a field to type one ("930", "9:30 pm", "21:30") over the day's times every `step` minutes. Picking a day keeps the popup open for the time (a day alone takes `defaultTime`, 09:00); picking or entering a time closes it. The value is an instant, shown and edited on the reader's clock (`timeZone`, else `TimeZoneProvider`); a skipped wall time moves past the DST gap and a repeated one keeps its offset. It ships in the `date-picker` item beside `DatePicker` and `DateRangePicker`, with their sizes, `ghost` tier, clear control and `Field` wiring. `FieldInput type="datetime"` and the grid's date-time cell editor use it in place of the browser's native time input: the cell's popup opens with the editor, <kbd>Tab</kbd> steps inside it, a time commits (Enter moves down) and closing it with nothing changed cancels. The `date-time` lib exports `zonedParts`, `fromZoned`, `parseTimeOfDay`, `formatTimeValue` and `localeHourCycle`.
+  [`03f4e8c`](https://github.com/VegaStack/vegastack-design/commit/03f4e8c)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.12.0`** (was `0.11.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.32.1 → 0.33.0.
+
+### 🐛 Fixed
+
+- **An invalid outline button keeps its red border in dark.** Outline's `dark:border-input` outranked `aria-invalid:border-destructive`, so an invalid `DatePicker` trigger (and any invalid outline `Button`) showed a plain border in dark mode. `Button` keeps upstream's own `dark:aria-invalid:border-destructive/50`, the same dark invalid border an `Input` has.
+  [`03f4e8c`](https://github.com/VegaStack/vegastack-design/commit/03f4e8c)
+- **A disabled button no longer presses.** `Button` keeps pointer events while disabled (FRM-4), so a click still matched `:active` and shifted it 1px; inside a scroll container such as `PopoverBody` that transform counted toward overflow and grew a scroll bar on Windows. The press translate and the default/destructive press fills now skip a disabled or loading button.
+  [`03f4e8c`](https://github.com/VegaStack/vegastack-design/commit/03f4e8c)
+- **The selection bar paints above the grid.** `DataGrid` rendered its selection `ActionBar` inside the stacking context it creates for its sticky layers, so the summary row (`z-20`) and frozen columns (`z-30`) drew over the bar (`z-10`) wherever they met, as with 152 rows selected. The isolation now sits on `data-grid-viewport-frame`, round the layers it holds, and the bar, its end band and spacer, the `inert` exit and the `--dock-inset-bottom` docking are unchanged; dialogs and popovers opened from the bar still paint above it.
+  [`03f4e8c`](https://github.com/VegaStack/vegastack-design/commit/03f4e8c)
+
 ## [0.32.1] — November 2, 2026
 
 <!-- assembled from 1 changeset: 8ad08f70c344 -->

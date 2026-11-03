@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.29.1 sha256-LHpx78OBh5FuYKo9WcK6rnWj8sp+pjehv0RA2vYEcnY=
+// @vegastack recent-strip@0.33.0 sha256-VGr12n/Rx9onjG/h26XqQJizTRl3GiPjCF3V5Gr/LGk=
 
 "use client";
 

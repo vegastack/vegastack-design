@@ -1,4 +1,4 @@
-// @vegastack block-header@0.29.1 sha256-0vbKiWccpfKx5YE3ZdGsuww1u3AKX+P1CCFFMn90Ta0=
+// @vegastack block-header@0.33.0 sha256-6Kmj+umv/J9uglAHxOrDimSaerrEGKdpSPIZiSV32tY=
 
 import * as React from "react";
 import { ArrowUpRight, Ellipsis } from "lucide-react";
