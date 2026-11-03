@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.33.0 sha256-dsazW0ztJ6ddY0TD6UacTydlsSHmTI7oseKkpF0qIjw=
+// @vegastack agent-panel@0.33.0 sha256-VMmkAkDOHfPrrsmLj/IV+RPUm2ykU7lAxzyRei6hmlU=
 
 "use client";
 
@@ -110,7 +110,7 @@ const DEFAULT_STATE_LABELS: AgentStateLabels = {
   working: "Working",
   question: "Needs you",
   approval: "Needs you",
-  blocked: "Needs you",
+  blocked: "Can't start",
   failed: "Failed",
   done: "Done",
   stopped: "Stopped",
@@ -802,7 +802,7 @@ export interface AgentPanelEvent {
   at: Date | string | number;
 }
 
-/** One of the agent's runs on the record, under History. */
+/** One of the agent's runs on the record, under Runs. */
 export interface AgentPanelRun {
   /** A stable key. */
   id: string;
@@ -867,7 +867,7 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
   markDone: string;
   /** "Stopped by Priya". */
   stoppedBy: (person: string) => string;
-  /** "Its 12 changes stay — undo them in History". */
+  /** "Its 12 changes stay — undo them in Runs". */
   changesStay: (count: number) => string;
   /** The Stopped line's action. */
   delegateAgain: string;
@@ -899,13 +899,9 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
   replyPlaceholder: (agent: string) => string;
   /** The send button's name. */
   send: string;
-  /** The History heading. */
+  /** The runs' heading, and the compact line's word: "Runs". */
   history: string;
-  /** The compact runs line's word (`runsLayout="line"`): "Runs". */
-  runsLine: string;
-  /** The compact runs line's count: "3 changes". */
-  changes: (changeCount: number) => string;
-  /** "Run · 3 changes". */
+  /** A run's change count: "3 changes". */
   run: (changeCount: number) => string;
   /** View a run. */
   view: string;
@@ -934,10 +930,10 @@ const DEFAULT_LABELS: AgentPanelLabels = {
   stoppedBy: (person) => `Stopped by ${person}`,
   changesStay: (count) =>
     count === 1
-      ? "Its 1 change stays — undo it in History"
-      : `Its ${count} changes stay — undo them in History`,
+      ? "Its 1 change stays — undo it in Runs"
+      : `Its ${count} changes stay — undo them in Runs`,
   delegateAgain: "Delegate again",
-  disconnected: (agent) => `${agent} was disconnected since.`,
+  disconnected: (agent) => `${agent} has since been disconnected.`,
   duration: defaultDuration,
   instructions: "Instructions",
   editInstructions: "Edit instructions",
@@ -951,10 +947,8 @@ const DEFAULT_LABELS: AgentPanelLabels = {
   replyLink: "Reply…",
   replyPlaceholder: (agent) => `Reply to ${agent}…`,
   send: "Send reply",
-  history: "History",
-  runsLine: "Runs",
-  changes: (n) => (n === 1 ? "1 change" : `${n} changes`),
-  run: (n) => (n === 1 ? "Run · 1 change" : `Run · ${n} changes`),
+  history: "Runs",
+  run: (n) => (n === 1 ? "1 change" : `${n} changes`),
   view: "View",
   undo: "Undo",
   announce: (agent, state) => `${agent}: ${state}`,
@@ -1089,10 +1083,10 @@ export interface AgentPanelProps extends Omit<
   replyMaxLengthMessage?: (excess: number) => string;
   /** Why the reply box is disabled ("It's stopped"), shown under it. @default undefined */
   replyDisabledReason?: React.ReactNode;
-  /** The agent's runs, newest first, under History. @default [] */
+  /** The agent's runs, newest first, under Runs. @default [] */
   runs?: readonly AgentPanelRun[];
   /**
-   * `list` — History, a row per run. `line` — one compact Runs line for the newest run ("Runs · 3
+   * `list` — Runs, a row per run. `line` — one compact Runs line for the newest run ("Runs · 3
    * changes · 2 hr ago · View · Undo"), for a page whose Activity feed lists the rest.
    * @default "list"
    */
@@ -1333,7 +1327,7 @@ function StateBlock({ p }: { p: ResolvedProps }) {
         "grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-x-1.5 gap-y-1 text-sm",
         // A question or an approval sits on the warning tint: it is what the card is for now.
         (question || state === "approval") &&
-          "rounded-md bg-warning/10 p-2 dark:bg-warning/20",
+          "rounded-md border border-warning/30 bg-warning/5 p-2 dark:bg-warning/10",
       )}
     >
       <span className="flex h-5 items-center">
@@ -1806,7 +1800,40 @@ function RunTime({
   );
 }
 
-/** One run: "Run · 3 changes · 10:42", View, Undo (disabled with its reason when it can't). */
+/**
+ * A run's words on one line: an optional lead ("Runs"), its count — which never truncates — and its
+ * time. The line is one row high and wraps: when the time doesn't fit, it (and its dot) moves onto
+ * the clipped second row, whole, instead of showing a lone "·…".
+ */
+function RunFacts({
+  lead,
+  count,
+  children,
+}: {
+  lead?: string;
+  count: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="flex h-5 min-w-0 grow basis-0 flex-wrap items-baseline gap-x-1 overflow-hidden text-muted-foreground">
+      {lead ? (
+        <span className="shrink-0 font-medium whitespace-nowrap">
+          {lead}
+          <span aria-hidden> ·</span>
+        </span>
+      ) : null}
+      <span className="shrink-0 whitespace-nowrap text-foreground">
+        {count}
+      </span>
+      <span className="shrink-0 whitespace-nowrap">
+        <span aria-hidden>· </span>
+        {children}
+      </span>
+    </span>
+  );
+}
+
+/** One run: "3 changes · 10:42", View, Undo (disabled with its reason when it can't). */
 function RunRow({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
   const { labels } = p;
   const reasonId = React.useId();
@@ -1829,16 +1856,11 @@ function RunRow({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
       data-slot="agent-panel-run"
       className="flex min-w-0 items-center justify-between gap-x-2 text-sm"
     >
-      {/* One line, the buttons always whole: the time gives way first, then the run's words. */}
-      <span className="flex min-w-0 grow basis-0 items-baseline text-muted-foreground">
-        <span className="min-w-0 truncate text-foreground">
-          {labels.run(run.changeCount)}
-        </span>
-        <span className="min-w-0 shrink-999 truncate ps-1">
-          <span aria-hidden>· </span>
-          <RunTime at={run.at} nowMs={p.nowMs} />
-        </span>
-      </span>
+      {/* One line, the buttons always whole: the count never truncates; the time, with its dot,
+          drops out whole (it wraps onto the clipped second line) before anything is cut. */}
+      <RunFacts count={labels.run(run.changeCount)}>
+        <RunTime at={run.at} nowMs={p.nowMs} />
+      </RunFacts>
       <span className="-me-2 flex shrink-0 items-center">
         {run.onView ? (
           <LineButton variant="ghost" onClick={run.onView}>
@@ -1863,7 +1885,7 @@ function RunRow({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
   );
 }
 
-/** The compact Runs line: "Runs · 3 changes · 2 hr ago", View, Undo — the newest run only. */
+/** The compact Runs line: "Runs · 3 changes · 2h ago", View, Undo — the newest run only. */
 function RunsLine({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
   const { labels } = p;
   const reasonId = React.useId();
@@ -1886,25 +1908,15 @@ function RunsLine({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
       data-slot="agent-panel-runs-line"
       className="flex min-w-0 items-center justify-between gap-x-2 text-sm"
     >
-      <span className="flex min-w-0 grow basis-0 items-baseline text-muted-foreground">
-        <span className="shrink-0 text-xs font-medium">{labels.runsLine}</span>
-        <span className="min-w-0 truncate ps-1 text-foreground">
-          <span aria-hidden className="text-muted-foreground">
-            ·{" "}
-          </span>
-          {labels.changes(run.changeCount)}
-        </span>
-        <span className="min-w-0 shrink-999 truncate ps-1">
-          <span aria-hidden>· </span>
-          <RelativeTime
-            date={run.at}
-            now={p.nowMs}
-            focusable={false}
-            aria-live="off"
-            className="tabular-nums"
-          />
-        </span>
-      </span>
+      <RunFacts lead={labels.history} count={labels.run(run.changeCount)}>
+        <RelativeTime
+          date={run.at}
+          now={p.nowMs}
+          focusable={false}
+          aria-live="off"
+          className="tabular-nums"
+        />
+      </RunFacts>
       <span className="-me-2 flex shrink-0 items-center">
         {run.onView ? (
           <LineButton variant="ghost" onClick={run.onView}>
@@ -2100,7 +2112,7 @@ function domProps(
  * Priya · claude.ai") and a ⋯ menu (View agent · Change agent · Stop · Remove); one status block —
  * the state's icon and word, one sentence and at most one action; its Instructions (✎ for a viewer
  * who may steer); Latest — its newest messages and changes with "Show all" (`showLatest={false}`
- * where the page has its own Activity feed); a Reply box; and History — its runs with View and Undo
+ * where the page has its own Activity feed); a Reply box; and Runs — its runs with View and Undo
  * (`runsLayout="line"` for one compact Runs line). `state="none"` renders nothing. A state change is announced politely. Put the card above Properties while it
  * needs you (`data-attention`).
  *

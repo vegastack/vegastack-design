@@ -29,12 +29,12 @@ const claude = {
   name: "Claude Code",
   via: "Priya",
   access: "Read & write",
-  provider: "claude.ai",
+  provider: "Claude Code",
 };
 const longName = {
-  name: "QA agent for the Meridian proposal on Claude",
+  name: "QA agent for the Meridian proposal in Claude Code",
   via: "Priya",
-  provider: "claude.ai",
+  provider: "Claude Code",
 };
 const priya = { name: "Priya Raman", hue: "blue" as const };
 
@@ -139,7 +139,7 @@ export function agentPanelStates(): ReactNode {
         agent={longName}
         state="queued"
         now={NOW}
-        queuedHint="Claude checks in every few minutes."
+        queuedHint="Starts when Claude Code next checks in."
         onStop={noop}
         onRemove={noop}
       />
@@ -177,7 +177,7 @@ export function agentPanelStates(): ReactNode {
         agent={claude}
         state="blocked"
         now={NOW}
-        blockedReason="Its token expired"
+        blockedReason="Its sign-in expired."
         onReconnect={noop}
         onRemove={noop}
       />

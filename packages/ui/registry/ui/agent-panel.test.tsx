@@ -136,12 +136,12 @@ test("queued: one sentence in the word's inset, the host's hint after a while, S
     <AgentPanel
       {...base}
       state="queued"
-      queuedHint="Claude checks in every few minutes."
+      queuedHint="Starts when Claude Code next checks in."
       onStop={() => {}}
     />,
   );
   const hint = slot(screen.container, "agent-panel-hint")!;
-  expect(hint.textContent).toBe("Claude checks in every few minutes.");
+  expect(hint.textContent).toBe("Starts when Claude Code next checks in.");
   // The sentence sits in the word's column, not under the icon.
   expect(hint.className).toContain("col-start-2");
   expect(slot(screen.container, "agent-panel-sentence")).toBeNull();
@@ -238,12 +238,16 @@ test("approval, failed, blocked: each state's line and actions", async () => {
     <AgentPanel
       {...base}
       state="blocked"
-      blockedReason="Its token expired"
+      blockedReason="Its sign-in expired."
       onReconnect={onReconnect}
     />,
   );
   expect(slot(blocked.container, "agent-panel-state")!.textContent).toContain(
-    "Needs youIts token expired",
+    "Can't startIts sign-in expired.",
+  );
+  // Only a question or an approval sits on the warning tint.
+  expect(slot(blocked.container, "agent-panel-state")!.className).not.toContain(
+    "bg-warning",
   );
   await blocked.getByRole("button", { name: "Reconnect" }).click();
   expect(onReconnect).toHaveBeenCalledTimes(1);
@@ -271,7 +275,7 @@ test("done and stopped: date, duration, summary, the action, and the disconnect 
   expect(line.textContent).not.toContain("Needs you");
   // The disconnect joins the card's one sentence, in the same inset.
   expect(slot(done.container, "agent-panel-disconnected")!.textContent).toBe(
-    "Claude Code was disconnected since.",
+    "Claude Code has since been disconnected.",
   );
   expect(
     slot(done.container, "agent-panel-disconnected")!.closest("p")!.dataset
@@ -296,7 +300,7 @@ test("done and stopped: date, duration, summary, the action, and the disconnect 
     slot(stopped.container, "agent-panel-state-line")!.textContent,
   ).toMatch(/^Stopped by Priya · .+$/);
   expect(slot(stopped.container, "agent-panel-sentence")!.textContent).toBe(
-    "Its 12 changes stay — undo them in History",
+    "Its 12 changes stay — undo them in Runs",
   );
   await stopped.getByRole("button", { name: "Delegate again" }).click();
   expect(onDelegateAgain).toHaveBeenCalledTimes(1);
@@ -438,8 +442,8 @@ test("history: runs with View and Undo; Undo disabled with its reason", async ()
     />,
   );
   const runs = screen.container.querySelectorAll("[data-slot=agent-panel-run]");
-  expect(runs[0]!.textContent).toMatch(/^Run · 3 changes ?· /);
-  expect(runs[1]!.textContent).toMatch(/^Run · 1 change ?· /);
+  expect(runs[0]!.textContent).toMatch(/^3 changes ?· /);
+  expect(runs[1]!.textContent).toMatch(/^1 change ?· /);
   await screen.getByRole("button", { name: "View" }).click();
   expect(onView).toHaveBeenCalledTimes(1);
   const undos = screen.getByRole("button", { name: "Undo" });
@@ -471,7 +475,7 @@ test("a page with its own Activity: showLatest={false} drops Latest, runsLayout=
   expect(slot(screen.container, "agent-panel-latest")).toBeNull();
   expect(slot(screen.container, "agent-panel-history")).toBeNull();
   const line = slot(screen.container, "agent-panel-runs-line")!;
-  expect(line.textContent).toMatch(/^Runs· 3 changes· 2h ago/);
+  expect(line.textContent).toMatch(/^Runs ·3 changes· 2h ago/);
   await screen.getByRole("button", { name: "Undo" }).click();
   expect(onUndo).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
