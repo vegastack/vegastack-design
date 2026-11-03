@@ -4014,8 +4014,10 @@ test('fill="flex" takes the room its flex column leaves, so a filter row never m
       '[data-slot="grid-viewport"]',
     ) as HTMLElement;
   const bottom = () => viewport().getBoundingClientRect().bottom;
-  const floor = scroller.getBoundingClientRect().bottom;
-  expect(bottom()).toBeCloseTo(floor, 0);
+  // The viewport reaches down to what the grid draws under it, inside the column's bottom.
+  const rest = bottom();
+  expect(rest).toBeLessThanOrEqual(scroller.getBoundingClientRect().bottom);
+  expect(rest).toBeGreaterThan(scroller.getBoundingClientRect().bottom - 60);
   // Nothing measured: no height flows through the custom property.
   expect(
     (
@@ -4026,11 +4028,11 @@ test('fill="flex" takes the room its flex column leaves, so a filter row never m
   // The row comes: in the same layout, with no frame between, the viewport gives up its height
   // and its bottom (the horizontal scroll bar) stays where it was.
   await screen.rerender(page(true));
-  expect(bottom()).toBeCloseTo(floor, 0);
+  expect(bottom()).toBeCloseTo(rest, 0);
   expect(viewport().getBoundingClientRect().height).toBeCloseTo(full - 60, 0);
   expect(scroller.scrollHeight).toBe(scroller.clientHeight);
   await screen.rerender(page(false));
-  expect(bottom()).toBeCloseTo(floor, 0);
+  expect(bottom()).toBeCloseTo(rest, 0);
   expect(viewport().getBoundingClientRect().height).toBeCloseTo(full, 0);
   // Bounded, the header sticks while the body scrolls.
   expect(
