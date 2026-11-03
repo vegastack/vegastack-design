@@ -197,6 +197,85 @@ test("disabled dims, loading does not, and neither removes pointer events (FRM-4
     expect(pointer(id)).not.toBe("none");
 });
 
+test("FRM-4: a disabled or loading button never presses (no :active translate)", async () => {
+  // A disabled Button keeps its pointer events and focus (FRM-4), so a mouse press still matches
+  // `:active` on it. A press translate there is a 1px transform, and transforms count toward
+  // scrollable overflow: at the foot of a scroll container (a PopoverBody) it grows a scroll bar
+  // on Windows (P-71 #2). The test harness cannot hold a mouse button down, so the disabled half
+  // reads the COMPILED rules: every `:active` rule that moves the button must stop matching it
+  // once the press is assumed. The enabled half is a real press (Space held on a focused button).
+  const screen = await render(
+    <div className="flex gap-2">
+      <Button data-testid="rest">Rest</Button>
+      <Button data-testid="off" disabled>
+        Disabled
+      </Button>
+      <Button data-testid="busy" loading>
+        Loading
+      </Button>
+    </div>,
+  );
+  const element = (id: string) =>
+    screen.getByTestId(id).element() as HTMLElement;
+
+  const pressRules: CSSStyleRule[] = [];
+  const walk = (rules: CSSRuleList) => {
+    for (const rule of Array.from(rules)) {
+      if (
+        rule instanceof CSSStyleRule &&
+        rule.selectorText.includes(":active") &&
+        (rule.style.translate || rule.style.transform)
+      )
+        pressRules.push(rule);
+      if ("cssRules" in rule) walk((rule as CSSGroupingRule).cssRules);
+    }
+  };
+  for (const sheet of Array.from(document.styleSheets)) walk(sheet.cssRules);
+  const movesWhenPressed = (id: string) =>
+    pressRules.some((rule) =>
+      element(id).matches(rule.selectorText.replaceAll(":active", "")),
+    );
+
+  expect(movesWhenPressed("rest")).toBe(true);
+  expect(movesWhenPressed("off")).toBe(false);
+  expect(movesWhenPressed("busy")).toBe(false);
+
+  element("rest").focus();
+  await userEvent.keyboard("{Space>}");
+  expect(element("rest").matches(":active")).toBe(true);
+  // `transition-all` eases the translate in; settle it before reading the end value.
+  for (const animation of element("rest").getAnimations()) animation.finish();
+  expect(getComputedStyle(element("rest")).translate).toBe("0px 1px");
+  await userEvent.keyboard("{/Space}");
+});
+
+test("FOC-14: an invalid outline button keeps its destructive border in dark too", async () => {
+  // Outline's `dark:border-input` outranked `aria-invalid:border-destructive`, so an invalid
+  // DatePicker trigger lost its red border in dark (P-71 #3). Upstream's own
+  // `dark:aria-invalid:border-destructive/50` restores it.
+  const screen = await render(
+    <div className="dark">
+      <Button data-testid="rest" variant="outline">
+        Rest
+      </Button>
+      <Button data-testid="invalid" variant="outline" aria-invalid>
+        Invalid
+      </Button>
+    </div>,
+  );
+  const border = (id: string) =>
+    getComputedStyle(screen.getByTestId(id).element()).borderTopColor;
+  // The dark scope's own token, read where the button sits.
+  const darkDestructive = getComputedStyle(screen.getByTestId("rest").element())
+    .getPropertyValue("--destructive")
+    .trim();
+  const destructive = resolved(
+    `color-mix(in oklab, ${darkDestructive} 50%, transparent)`,
+  );
+  expect(border("invalid")).not.toBe(border("rest"));
+  expect(border("invalid")).toBe(destructive);
+});
+
 test("A11Y-13: the destructive variant is a tint inked with --destructive-text", async () => {
   const screen = await render(
     <Button variant="destructive" data-testid="d">

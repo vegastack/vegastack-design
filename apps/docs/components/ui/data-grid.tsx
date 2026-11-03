@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.29.3 sha256-BUUx/B3lhceoG8/5ydRaHaZi/WbneAtbIXV6Djoxz1Q=
+// @vegastack data-grid@0.29.3 sha256-sw02iCS3sFAuvT5iZOnuyoXMU62GbHVplmiV4Qoj/vI=
 
 "use client";
 
@@ -5366,10 +5366,11 @@ export function DataGrid<T>({
         data-read-only={readOnly ? "" : undefined}
         // An embedded block is not part of the text around it (a page editor's own node).
         contentEditable={embedded ? false : undefined}
-        // Its own stacking context: the sticky header, summary row and frozen columns layer
-        // inside the grid and never over the page's floating parts (an ActionBar at z-10).
+        // NOT a stacking context: the selection bar below is one of the page's floating parts
+        // (an ActionBar at z-10) and must paint over every grid layer. The isolation lives on
+        // the viewport frame, round the layers it contains (P-71 #1).
         className={cn(
-          "isolate flex w-full min-w-0 flex-col",
+          "flex w-full min-w-0 flex-col",
           // Embedded: one framed block — header, rows and footer ruled from each other.
           embedded
             ? "overflow-hidden rounded-lg border border-border"
@@ -5486,7 +5487,10 @@ export function DataGrid<T>({
           <div
             ref={setFrame}
             data-slot="data-grid-viewport-frame"
-            className="relative flex min-h-0 min-w-0 flex-col"
+            // Its own stacking context: the sticky header, summary row and frozen columns
+            // (z-20/z-30) layer inside the frame, never over the page's floating parts — the
+            // grid's own selection bar included, which sits outside the frame.
+            className="relative isolate flex min-h-0 min-w-0 flex-col"
           >
             {cellMenu ? (
               <ContextMenu

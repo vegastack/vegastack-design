@@ -418,7 +418,8 @@
           "popover",
           "tooltip",
           "toast",
-          "button"
+          "button",
+          "data-grid"
         ],
         "globalInputGroups": ["shared-runtime"]
       },
@@ -11863,7 +11864,7 @@
       "name": "date-picker",
       "registryType": "registry:ui",
       "title": "Date Picker",
-      "summary": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
+      "summary": "Pick a single date, a date and a time, or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -11968,6 +11969,33 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DateTimePicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DateTimePickerLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DateTimePickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -11994,13 +12022,16 @@
         "behavior": {
           "status": "observed",
           "values": [
-            "default",
             "complete",
+            "date-time",
+            "default",
             "disabled",
             "empty",
             "open",
             "range",
-            "selected"
+            "selected",
+            "time-zone",
+            "typed-time"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -12045,7 +12076,9 @@
         "@vegastack/calendar",
         "@vegastack/popover",
         "@vegastack/button",
-        "@vegastack/relative-time"
+        "@vegastack/relative-time",
+        "@vegastack/input",
+        "@vegastack/toggle-group"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -12083,6 +12116,38 @@
                 "date-picker-content",
                 "date-picker-trigger"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DateTimePicker": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "date-time-picker",
+                "date-time-picker-clear",
+                "date-time-picker-content",
+                "date-time-picker-time",
+                "date-time-picker-times",
+                "date-time-picker-trigger"
+              ]
+            },
+            {
+              "name": "data-time",
+              "values": []
             },
             {
               "name": "data-variant",
@@ -14344,6 +14409,7 @@
         "@vegastack/date-picker",
         "@vegastack/date-time",
         "@vegastack/editable-cell",
+        "@vegastack/field",
         "@vegastack/file-kind",
         "@vegastack/inline-chip",
         "@vegastack/input",
@@ -14363,8 +14429,7 @@
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-async-search",
-        "@vegastack/field"
+        "@vegastack/use-async-search"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -40392,7 +40457,7 @@
       "name": "agent-edit-banner",
       "registryType": "registry:ui",
       "title": "Agent Edit Banner",
-      "summary": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.",
+      "summary": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.",
       "status": "stable",
       "since": "0.25.38",
       "family": "chat",
@@ -40467,7 +40532,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "One look (Alert's default); the undo status and the kind are data attributes, not variants."
+        "rationale": "One look (Alert's default); the action status and the kind are data attributes, not variants."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -40479,6 +40544,8 @@
           "status": "covered",
           "values": [
             "edited",
+            "approve",
+            "approving",
             "undoing",
             "refused",
             "too-old",
@@ -40558,6 +40625,7 @@
               "values": [
                 "agent-edit-banner",
                 "agent-edit-banner-actions",
+                "agent-edit-banner-approve",
                 "agent-edit-banner-body",
                 "agent-edit-banner-dismiss",
                 "agent-edit-banner-reason",
@@ -51241,6 +51309,60 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "fromZoned",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "zonedParts",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "formatTimeValue",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "localeHourCycle",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "parseTimeOfDay",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimeHourCycle",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

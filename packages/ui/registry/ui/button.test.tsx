@@ -90,6 +90,22 @@ test("FRM-4: disabled is the aria-disabled form, not the native attribute", asyn
   expect((button.element() as HTMLButtonElement).disabled).toBe(false);
 });
 
+test("FRM-4: a disabled or loading button has no press translate or press fill", () => {
+  // Pointer events stay alive on a disabled button, so `:active` still matches it; the press is
+  // guarded instead. The painted half is in test/button-states.browser.test.tsx.
+  const recipe = buttonVariants({});
+  expect(recipe).toContain(
+    "active:not-aria-[haspopup]:not-data-disabled:translate-y-px",
+  );
+  expect(recipe).not.toMatch(
+    /(^| )active:not-aria-\[haspopup\]:translate-y-px/,
+  );
+  expect(recipe).toContain("active:not-data-disabled:bg-primary/70");
+  const destructive = buttonVariants({ variant: "destructive" });
+  expect(destructive).toContain("active:not-data-disabled:bg-destructive/25");
+  expect(destructive).not.toMatch(/(^| )(dark:)?active:bg-/);
+});
+
 test("FRM-4: the recipe never removes pointer events from a disabled control", async () => {
   // Only the icon children are made click-through; the control itself never is.
   expect(buttonVariants({})).not.toContain("disabled:pointer-events-none");

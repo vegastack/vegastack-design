@@ -1,6 +1,6 @@
 ---
 title: Date Picker
-description: Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
+description: Pick a single date, a date and a time, or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 audience: public
 registry: date-picker
 status: stable
@@ -96,6 +96,33 @@ Pick a start and end across two months. The popover stays open until both ends a
 
 <ComponentPreview
   name="datePickerRange"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Date and time
+
+`DateTimePicker` picks a date and a time of day in one popup: one trigger ("Nov 3, 2026, 9:00 AM")
+opens the calendar with the time beside it — a field to type one ("930", "9:30 pm", "21:30") over
+the day's times every `step` minutes (15 by default). Picking a day keeps the popup open for the
+time, and a day picked on its own takes `defaultTime` (09:00); picking a time, or typing one and
+pressing <kbd>Enter</kbd>, closes it. Picking a time first lands it on today.
+
+The value is an instant (a `Date`), shown and edited on the clock of `timeZone` — the reader's zone
+from `TimeZoneProvider` when it is left out. A wall time the zone skips (02:30 on the spring change
+in New York) moves forward past the gap; a repeated one keeps the offset the value had. The clock
+is the locale's, 12- or 24-hour, unless `hourCycle` fixes one, and the chosen time takes the same
+`primary` fill as the chosen day.
+
+<ComponentPreview
+  name="datePickerDateTime"
+  file="components/preview/date-picker.tsx"
+/>
+
+`size="sm"` with `variant="ghost"` is the same inline tier as the date's, for a table cell or a list
+row — the grid's Date and time field edits with it.
+
+<ComponentPreview
+  name="datePickerDateTimeInline"
   file="components/preview/date-picker.tsx"
 />
 
@@ -238,6 +265,20 @@ other shape and `locale` for a BCP-47 locale.
   name="DatePickerProps"
 />
 
+### DateTimePicker
+
+<ApiTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="DateTimePickerProps"
+/>
+
+The time column's strings come in through `labels`:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="DateTimePickerLabels"
+/>
+
 ### DateRangePicker
 
 <ApiTable
@@ -308,7 +349,8 @@ Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`
 - Opening the picker moves focus into the calendar; arrow keys move day-to-day, and selection restores focus to the trigger. Pressing <kbd>Esc</kbd> closes the popover.
 - Opening a picker that sits below the fold does not scroll the page: the popover's day button focuses with `preventScroll`, because the portaled popup is still unpositioned on its first paint.
 - Focus is always visible — the trigger takes the global `:focus-visible` outline, and the day grid manages roving focus itself.
-- The trigger has no visible text label when empty beyond its placeholder, so name it: pass `id` and a `FieldLabel htmlFor` pointing at it (clicking the label then opens the picker), or `aria-label` when there is no visible label. `aria-describedby` and `aria-invalid` are forwarded to the trigger on both pickers.
+- The trigger has no visible text label when empty beyond its placeholder, so name it: pass `id` and a `FieldLabel htmlFor` pointing at it (clicking the label then opens the picker), or `aria-label` when there is no visible label. `aria-describedby` and `aria-invalid` are forwarded to the trigger on every picker.
+- In `DateTimePicker`, <kbd>Tab</kbd> moves from the calendar to the time field ("Time") and on to the list of times ("Times"), a single tab stop that <kbd>↑</kbd> <kbd>↓</kbd> move through; the chosen time is `aria-pressed`. Typed text that is not a time sets `aria-invalid` on the field and changes nothing; the first <kbd>Esc</kbd> drops it, the next closes the popup.
 
 | Key                                                 | Action                                                                    |
 | --------------------------------------------------- | ------------------------------------------------------------------------- |

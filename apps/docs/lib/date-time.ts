@@ -1,4 +1,4 @@
-// @vegastack date-time@0.26.4 sha256-UERfDh7Lhv5yd2XaRFxwYUHlKrXn6Crk94Bce36wYFM=
+// @vegastack date-time@0.26.4 sha256-/uIXqFRz0QDm2yoZrpks2vtspP+DKfJdbmmH94lPHqA=
 
 export type DateInput = Date | string | number;
 
@@ -750,3 +750,181 @@ function safeDecode(value: string): string {
  * regains focus (so a zone change — travel, OS setting — is picked up on the next request).
  */
 export const TIME_ZONE_COOKIE_SCRIPT = `(function(){function w(){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone;if(!z)return;var v=encodeURIComponent(z);if(document.cookie.indexOf("${TIME_ZONE_COOKIE}="+v)===-1){document.cookie="${TIME_ZONE_COOKIE}="+v+";path=/;max-age=31536000;samesite=lax"}}catch(e){}}w();document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")w()});})();`;
+
+/**
+ * An instant's wall-clock day (`YYYY-MM-DD`) and time (`HH:MM`, 24-hour) in a zone (the reader's,
+ * else the runtime's) — the halves a date-and-time editor shows.
+ */
+export function zonedParts(iso: string, timeZone: string | undefined) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(new Date(iso))
+      .map((part) => [part.type, part.value]),
+  );
+  return {
+    day: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour}:${parts.minute}`,
+  };
+}
+
+/** A zone's offset from UTC at an instant, in milliseconds. */
+function zoneOffset(instant: number, timeZone: string | undefined) {
+  const seen = zonedParts(new Date(instant).toISOString(), timeZone);
+  const [y, mo, d] = seen.day.split("-").map(Number);
+  const [h, mi] = seen.time.split(":").map(Number);
+  return (
+    Date.UTC(y!, mo! - 1, d!, h!, mi!) - Math.floor(instant / 60_000) * 60_000
+  );
+}
+
+/**
+ * The instant a wall-clock day and time in a zone names. The zone's offsets either side of the
+ * moment give the candidates: one fits on an ordinary day; on the autumn change two do (the hour
+ * repeats) and the one sharing `previous`'s offset is kept, else the earlier; on the spring
+ * change none does (the hour is skipped) and the time moves forward past the gap.
+ */
+export function fromZoned(
+  day: string,
+  time: string,
+  timeZone: string | undefined,
+  previous?: string | null,
+) {
+  const [y, mo, d] = day.split("-").map(Number);
+  const [h, mi] = (time || "00:00").split(":").map(Number);
+  const wall = Date.UTC(y!, mo! - 1, d!, h ?? 0, mi ?? 0);
+  // Every offset the zone uses within a day either side (zones span UTC−12 to UTC+14), so a
+  // change near the moment is seen whichever side of it the wall time falls.
+  const offsets = [
+    ...new Set(
+      Array.from({ length: 31 }, (_, i) =>
+        zoneOffset(wall + (i - 15) * 3_600_000, timeZone),
+      ),
+    ),
+  ];
+  const wanted = time || "00:00";
+  const fits = offsets
+    .map((offset) => wall - offset)
+    .filter((instant) => {
+      const seen = zonedParts(new Date(instant).toISOString(), timeZone);
+      return seen.day === day && seen.time === wanted;
+    })
+    .sort((a, b) => a - b);
+  // A skipped time: the offset before a spring change is the smaller one, so the time moves
+  // forward past the gap.
+  if (fits.length === 0)
+    return new Date(wall - Math.min(...offsets)).toISOString();
+  const kept =
+    previous != null
+      ? fits.find(
+          (instant) =>
+            zoneOffset(instant, timeZone) ===
+            zoneOffset(Date.parse(previous), timeZone),
+        )
+      : undefined;
+  return new Date(kept ?? fits[0]!).toISOString();
+}
+
+/** A 12-hour ("9:30 AM") or 24-hour ("09:30") clock. */
+export type TimeHourCycle = "h12" | "h23";
+
+const padTime = (n: number) => String(n).padStart(2, "0");
+
+/** The locale's own clock: `h12` where it writes "9:30 AM", `h23` where it writes "09:30". */
+export function localeHourCycle(
+  locale: string = DEFAULT_LOCALE,
+): TimeHourCycle {
+  const cycle = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+  }).resolvedOptions().hourCycle;
+  return cycle === "h11" || cycle === "h12" ? "h12" : "h23";
+}
+
+/** "9:30 AM" / "09:30" for a time of day `HH:MM`; Intl's narrow no-break spaces become plain spaces. */
+export function formatTimeValue(
+  value: string,
+  locale: string = DEFAULT_LOCALE,
+  hourCycle: TimeHourCycle = localeHourCycle(locale),
+): string {
+  const [h, m] = value.split(":").map(Number);
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle,
+    timeZone: "UTC",
+  })
+    .format(Date.UTC(2000, 0, 1, h ?? 0, m ?? 0))
+    .replace(/[  ]/g, " ");
+}
+
+/** The locale's AM and PM words, lower-cased ("am"/"pm"; "vorm."/"nachm." in `de`). */
+function dayPeriods(locale: string) {
+  const period = (hour: number) =>
+    new Intl.DateTimeFormat(locale, {
+      hour: "numeric",
+      hourCycle: "h12",
+      timeZone: "UTC",
+    })
+      .formatToParts(Date.UTC(2000, 0, 1, hour))
+      .find((part) => part.type === "dayPeriod")
+      ?.value.toLowerCase() ?? "";
+  return { am: period(1), pm: period(13) };
+}
+
+/**
+ * Reads a typed time: "9", "930", "0930", "9:30", "9:3" (9:30), "9.30", "21:30", with
+ * "a"/"am"/"p"/"pm" (or the locale's own words) after it. `""` for an empty field, `null` for text that is not a time.
+ * Without AM/PM an hour up to 12 is read as written ("9" is 9 AM, "12" noon).
+ */
+export function parseTimeOfDay(
+  text: string,
+  locale: string = DEFAULT_LOCALE,
+): string | null {
+  let rest = text.trim().toLowerCase();
+  if (!rest) return "";
+  let meridiem: "am" | "pm" | undefined;
+  const { am, pm } = dayPeriods(locale);
+  for (const [word, kind] of [
+    [pm, "pm"],
+    [am, "am"],
+  ] as const) {
+    if (word && rest.endsWith(word)) {
+      meridiem = kind;
+      rest = rest.slice(0, -word.length);
+      break;
+    }
+  }
+  if (!meridiem) {
+    const match = /(a|p)\.?\s*(m\.?)?$/.exec(rest);
+    if (match) {
+      meridiem = match[1] === "p" ? "pm" : "am";
+      rest = rest.slice(0, match.index);
+    }
+  }
+  rest = rest.trim();
+  let hour: number;
+  let minute: number;
+  const split = /^(\d{1,2})(?:\s*[:.h\s]\s*(\d{0,2}))?$/.exec(rest);
+  const packed = /^(\d{1,2})(\d{2})$/.exec(rest);
+  if (split) {
+    hour = Number(split[1]);
+    // One digit after the separator is the tens ("9:3" is 9:30), as it reads while typing.
+    minute = split[2] ? Number(split[2].padEnd(2, "0")) : 0;
+  } else if (packed) {
+    hour = Number(packed[1]);
+    minute = Number(packed[2]);
+  } else return null;
+  if (minute > 59) return null;
+  if (meridiem) {
+    if (hour < 1 || hour > 12) return null;
+    hour = (hour % 12) + (meridiem === "pm" ? 12 : 0);
+  } else if (hour > 23) return null;
+  return `${padTime(hour)}:${padTime(minute)}`;
+}

@@ -28,7 +28,7 @@ starts with `icon-` is a component and never an icon.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
 - **`combobox`** — A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.
 - **`country-select`** — A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.
-- **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
+- **`date-picker`** — Pick a single date, a date and a time, or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 - **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).
@@ -218,7 +218,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Chat
 
-- **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.
+- **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.
 - **`agent-panel`** — An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.
 - **`approval-card`** — An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.
 - **`cited-list`** — An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.

@@ -23,6 +23,7 @@ const slot = (c: Element, name: string) =>
 
 const UNDO = "Undo Claude (via Manoj)'s changes";
 const VIEW = "View Claude (via Manoj)'s changes";
+const APPROVE = "Approve Claude (via Manoj)'s changes";
 
 test("edited: the purple bot, the summary, View changes, Undo and Dismiss, in a polite region", async () => {
   const onViewChanges = vi.fn();
@@ -99,6 +100,86 @@ test("undoing: Undo spins and both buttons are disabled", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
+test("approve: Approve sits beside Undo in the actions and calls onApprove", async () => {
+  const onApprove = vi.fn();
+  const onUndo = vi.fn();
+  const screen = await render(
+    <AgentEditBanner
+      {...base}
+      onViewChanges={vi.fn()}
+      onApprove={onApprove}
+      onUndo={onUndo}
+      onDismiss={vi.fn()}
+    />,
+  );
+  const actions = slot(screen.container, "actions")!;
+  const names = Array.from(actions.querySelectorAll("button")).map((b) =>
+    b.getAttribute("aria-label"),
+  );
+  // View changes, then Approve, then Undo: Approve leads Undo.
+  expect(names).toEqual([VIEW, APPROVE, UNDO]);
+  const approve = screen.getByRole("button", { name: APPROVE });
+  expect(approve.element().textContent).toBe("Approve");
+  expect(approve.element().getAttribute("data-variant")).toBe("outline");
+  await approve.click();
+  expect(onApprove).toHaveBeenCalledTimes(1);
+  expect(onUndo).not.toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("approve alone: the actions show with only Approve (no Undo checkpoint)", async () => {
+  const screen = await render(
+    <AgentEditBanner {...base} onApprove={vi.fn()} onDismiss={vi.fn()} />,
+  );
+  const actions = slot(screen.container, "actions")!;
+  expect(actions.querySelectorAll("button")).toHaveLength(1);
+  await expect
+    .element(screen.getByRole("button", { name: APPROVE }))
+    .toBeInTheDocument();
+});
+
+test("approving: Approve spins and every action is disabled; undoing disables Approve", async () => {
+  const onApprove = vi.fn();
+  const onUndo = vi.fn();
+  const onViewChanges = vi.fn();
+  const props = {
+    ...base,
+    onViewChanges,
+    onApprove,
+    onUndo,
+    onDismiss: vi.fn(),
+  };
+  const screen = await render(
+    <AgentEditBanner {...props} status="approving" />,
+  );
+  const banner = screen.container.querySelector<HTMLElement>(
+    "[data-slot=agent-edit-banner]",
+  )!;
+  expect(banner.dataset.status).toBe("approving");
+  const approve = screen.getByRole("button", { name: APPROVE });
+  await expect.element(approve).toHaveAttribute("aria-busy", "true");
+  for (const name of [APPROVE, UNDO, VIEW])
+    await expect
+      .element(screen.getByRole("button", { name }))
+      .toHaveAttribute("data-disabled");
+  for (const name of [APPROVE, UNDO, VIEW])
+    (screen.getByRole("button", { name }).element() as HTMLElement).click();
+  expect(onApprove).not.toHaveBeenCalled();
+  expect(onUndo).not.toHaveBeenCalled();
+  expect(onViewChanges).not.toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+
+  await screen.rerender(<AgentEditBanner {...props} status="undoing" />);
+  await expect
+    .element(screen.getByRole("button", { name: UNDO }))
+    .toHaveAttribute("aria-busy", "true");
+  const approveWhileUndoing = screen.getByRole("button", { name: APPROVE });
+  await expect.element(approveWhileUndoing).toHaveAttribute("data-disabled");
+  await expect.element(approveWhileUndoing).not.toHaveAttribute("aria-busy");
+  (approveWhileUndoing.element() as HTMLElement).click();
+  expect(onApprove).not.toHaveBeenCalled();
+});
+
 test("refused: the reason line, then View changes and Open versions — no Undo", async () => {
   const onOpenVersions = vi.fn();
   const screen = await render(
@@ -170,8 +251,9 @@ test("created: who created it and when, no count", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("more agents: the line ends with +N more agents, a popover with each one's own Undo", async () => {
+test("more agents: the line ends with +N more agents, a popover with each one's own Approve and Undo", async () => {
   const undoPriya = vi.fn();
+  const approvePriya = vi.fn();
   const screen = await render(
     <AgentEditBanner
       {...base}
@@ -183,6 +265,7 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
           changeCount: 2,
           at: NOW - 10 * MINUTE,
           onUndo: undoPriya,
+          onApprove: approvePriya,
         },
         {
           id: "asha",
@@ -191,6 +274,7 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
           at: NOW - 20 * MINUTE,
           status: "undoing",
           onUndo: vi.fn(),
+          onApprove: vi.fn(),
         },
         {
           id: "ravi",
@@ -218,6 +302,18 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
     .getByRole("button", { name: "Undo Codex (via Priya)'s changes" })
     .click();
   expect(undoPriya).toHaveBeenCalledTimes(1);
+  await screen
+    .getByRole("button", { name: "Approve Codex (via Priya)'s changes" })
+    .click();
+  expect(approvePriya).toHaveBeenCalledTimes(1);
+  // A row's undo in flight holds its Approve too.
+  await expect
+    .element(
+      screen.getByRole("button", {
+        name: "Approve Claude (via Asha)'s changes",
+      }),
+    )
+    .toHaveAttribute("data-disabled");
   await expect
     .element(
       screen.getByRole("button", { name: "Undo Claude (via Asha)'s changes" }),
