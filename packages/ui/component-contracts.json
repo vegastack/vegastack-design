@@ -21307,8 +21307,10 @@
                 "inbox-item-badge",
                 "inbox-item-byline",
                 "inbox-item-count",
+                "inbox-item-event",
                 "inbox-item-events",
                 "inbox-item-link",
+                "inbox-item-rail",
                 "inbox-item-unread"
               ]
             },
@@ -38042,6 +38044,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A plain function; it renders nothing."
+          }
+        },
+        {
+          "name": "PERSON_AVATAR_STACK_RING",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

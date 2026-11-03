@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.33.0 sha256-HFaGCPPgNIH0/Yo165d7mdDLGo8ZDDTwJKI7XB8V/Os=
+// @vegastack person-avatar@0.33.0 sha256-q4h6dQfHzorTQ7owP4YgOra5ccrE+sZNP96wwD6GbRo=
 
 "use client";
 
@@ -26,6 +26,30 @@ import {
  * hue, and `PersonName` writes its name as "Claude Code via Manoj" with the purple "Agent" label,
  * so an agent reads the same in every avatar, stack, picker, feed and comment.
  * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * The ring that separates overlapping avatars in a stack: the colour of the surface the stack sits
+ * on — a card, a popover, dialog or sheet, else the page — so it reads as a gap, never a halo.
+ */
+export const PERSON_AVATAR_STACK_RING =
+  "ring-2 ring-background in-data-[slot=dialog-content]:ring-popover in-data-[slot=sheet-content]:ring-popover in-data-[slot=popover-content]:ring-popover in-data-[slot=hover-card-content]:ring-popover in-data-[slot=card]:ring-card";
+
+/**
+ * Initials that fit their circle: the second letter drops out under 18px and the type steps down
+ * under 24px, read from the fallback's own width (`@container/initials`), and in a stack, where
+ * the next avatar covers the circle's edge.
+ */
+function PersonInitials({ value }: { value: string }) {
+  const [first = "", ...rest] = Array.from(value);
+  return (
+    <span className="in-data-[slot=avatar-group]:text-[83.333%] in-data-[slot=people-picker-avatars]:text-[83.333%] @max-[23.5px]/initials:text-[83.333%] @max-[17.5px]/initials:text-[75%]">
+      {first}
+      {rest.length ? (
+        <span className="@max-[17.5px]/initials:hidden">{rest.join("")}</span>
+      ) : null}
+    </span>
+  );
+}
 
 /** The first `n` characters of a string, by code point, so an emoji or accent is never split. */
 function head(value: string, n: number): string {
@@ -214,9 +238,12 @@ export function PersonAvatar({
       ) : (
         <AvatarFallback
           hue={person.hue ?? undefined}
-          className={workspace ? "rounded-md" : undefined}
+          // The fallback is the size container, so the initials fit whatever size the avatar is
+          // drawn at (callers shrink it to 20px or 16px with a class): 12px from 24px up, 10px
+          // below that, and one 9px letter under 18px, where two never fit the circle.
+          className={cn("@container/initials", workspace && "rounded-md")}
         >
-          {personInitials(person.name, person.email)}
+          <PersonInitials value={personInitials(person.name, person.email)} />
         </AvatarFallback>
       )}
       {showImage ? (
