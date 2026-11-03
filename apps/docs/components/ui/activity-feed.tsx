@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.33.0 sha256-eQzon/0tbQHE4rI70hu1jNUJDCdYlS3J62/iuTr9lmo=
+// @vegastack activity-feed@0.33.0 sha256-Rq8acQJtoEZaQcn4ktg7Isq5zSs6vOznSDN2+MMCshc=
 
 "use client";
 
@@ -38,11 +38,7 @@ import {
   PersonHoverCard,
   type Person,
 } from "@/components/ui/person-hover-card";
-import {
-  PersonAgentLabel,
-  PersonAvatar,
-  PersonName,
-} from "@/components/ui/person-avatar";
+import { PersonAvatar, PersonName } from "@/components/ui/person-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import {
@@ -763,11 +759,8 @@ export function ActivityEvent({
             <PersonBadge badge={actor.badge} />{" "}
           </>
         ) : null}
-        {agent ? (
-          <>
-            <PersonAgentLabel />{" "}
-          </>
-        ) : null}
+        {/* Agent-first: "Claude Code for Manoj changed …" — its hexagon says it is an agent, so
+            the line carries no label. */}
         {children} <span aria-hidden>·</span>{" "}
         <RelativeTime date={date} now={now} />
       </p>

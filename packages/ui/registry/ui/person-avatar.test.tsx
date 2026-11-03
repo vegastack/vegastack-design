@@ -109,10 +109,10 @@ test("an agent is a bot on its hue, purple when it has none", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("PersonName: an agent reads its name, via its owner, and the Agent label; a person just the name", async () => {
+test("PersonName: an agent reads its name, for its owner, and the Agent label when asked; a person just the name", async () => {
   const screen = await render(
     <p>
-      <PersonName person={claude} /> and{" "}
+      <PersonName person={claude} agentLabel /> and{" "}
       <PersonName person={{ name: "Asha Rao" }} />
     </p>,
   );
@@ -122,37 +122,35 @@ test("PersonName: an agent reads its name, via its owner, and the Agent label; a
   expect(agent!.dataset.kind).toBe("agent");
   expect(
     agent!.querySelector('[data-slot="person-name-via"]')!.textContent,
-  ).toBe(" via Manoj");
+  ).toBe(" for Manoj");
   const label = agent!.querySelector<HTMLElement>(
     '[data-slot="person-agent-label"]',
   )!;
   expect(label.textContent).toBe("Agent");
   expect(label.className).toContain("text-tag-purple-text");
   expect(agent!.querySelector(".sr-only")!.textContent).toBe(
-    "Claude Code via Manoj, agent",
+    "Claude Code for Manoj, agent",
   );
   expect(person!.textContent).toBe("Asha Rao");
   expect(person!.dataset.kind).toBeUndefined();
   await expectNoA11yViolations(screen.container);
 });
 
-test("PersonName: agentLabel={false} drops the label but keeps the spoken agent", async () => {
-  const screen = await render(
-    <PersonName person={claude} agentLabel={false} />,
-  );
+test("PersonName: no label by default (the hexagon says agent) but keeps the spoken agent", async () => {
+  const screen = await render(<PersonName person={claude} />);
   expect(
     screen.container.querySelector('[data-slot="person-agent-label"]'),
   ).toBeNull();
   expect(screen.container.querySelector(".sr-only")!.textContent).toBe(
-    "Claude Code via Manoj, agent",
+    "Claude Code for Manoj, agent",
   );
 });
 
 test("personDisplayName and personAccessibleName", () => {
-  expect(personDisplayName(claude)).toBe("Claude Code (via Manoj)");
+  expect(personDisplayName(claude)).toBe("Claude Code (for Manoj)");
   expect(personDisplayName({ name: "Codex", kind: "agent" })).toBe("Codex");
   expect(personDisplayName({ name: "Asha Rao", via: "x" })).toBe("Asha Rao");
-  expect(personAccessibleName(claude)).toBe("Claude Code via Manoj, agent");
+  expect(personAccessibleName(claude)).toBe("Claude Code for Manoj, agent");
   expect(personAccessibleName({ name: "Codex", kind: "agent" })).toBe(
     "Codex, agent",
   );

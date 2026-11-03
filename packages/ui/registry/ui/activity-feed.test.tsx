@@ -920,7 +920,7 @@ test("a full feed — events, a group, a thread, the New line, jump button — i
   ).not.toBeNull();
 });
 
-test("pending dims the list and marks the section busy; an agent's event says Agent", async () => {
+test("pending dims the list and marks the section busy; an agent's event is said to be an agent's", async () => {
   const screen = await render(
     <ActivityFeed pending>
       <ActivityFeedList>
@@ -937,12 +937,17 @@ test("pending dims the list and marks the section busy; an agent's event says Ag
   )!;
   expect(section.getAttribute("aria-busy")).toBe("true");
   expect(section.hasAttribute("data-pending")).toBe(true);
-  await expect
-    .element(screen.getByText("Agent", { exact: true }))
-    .toBeVisible();
+  // Agent-first, no label: the hexagon shows it, and a screen reader hears it.
+  expect(
+    screen.container.querySelector("[data-slot=person-agent-label]"),
+  ).toBeNull();
+  expect(
+    screen.container.querySelector("[data-slot=person-name] .sr-only")
+      ?.textContent,
+  ).toMatch(/, agent$/);
 });
 
-test("an agent actor reads its owner and the Agent label; the agent kinds draw in their status tones", async () => {
+test("an agent actor reads agent-first, for its owner, with no label; the agent kinds draw in their status tones", async () => {
   const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
   const screen = await render(
     <ActivityFeedList>
@@ -954,7 +959,7 @@ test("an agent actor reads its owner and the Agent label; the agent kinds draw i
           now={NOW}
         >
           delegated this to{" "}
-          <ActivityValue>Claude Code (via Manoj)</ActivityValue>
+          <ActivityValue>Claude Code (for Manoj)</ActivityValue>
         </ActivityEvent>
       </ActivityFeedItem>
       <ActivityFeedItem>
@@ -976,13 +981,11 @@ test("an agent actor reads its owner and the Agent label; the agent kinds draw i
   expect(events[1]!.hasAttribute("data-agent")).toBe(true);
   expect(
     events[1]!.querySelector("[data-slot=person-name-via]")?.textContent,
-  ).toBe(" via Manoj");
-  expect(
-    events[1]!.querySelector("[data-slot=person-agent-label]")?.textContent,
-  ).toBe("Agent");
+  ).toBe(" for Manoj");
+  expect(events[1]!.querySelector("[data-slot=person-agent-label]")).toBeNull();
   await expect
     .element(
-      screen.getByRole("button", { name: "Claude Code via Manoj, agent" }),
+      screen.getByRole("button", { name: "Claude Code for Manoj, agent" }),
     )
     .toBeVisible();
   const icons = screen.container.querySelectorAll<SVGElement>(

@@ -1,4 +1,4 @@
-// @vegastack comments@0.33.0 sha256-kJl2RRHZNGNtTMlfVWSg7KggurFVO0IepgpsrS4Xe6c=
+// @vegastack comments@0.33.0 sha256-OjTdt6Mu412T2Xg2PJA60pM15LLZhiFJ9aBMfXHbChc=
 
 "use client";
 
@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import {
-  PersonAgentLabel,
   PersonAvatar,
   PersonName,
   type Person,
@@ -493,7 +492,7 @@ export function CommentItem({
             >
               <PersonName person={author} agentLabel={false} />
             </PersonHoverCard>
-            {agent ? <PersonAgentLabel /> : null}
+            {/* An agent's comment: its hexagon and "for Manoj" say so; no label (U11). */}
             {question ? (
               <span
                 data-slot="comment-question"

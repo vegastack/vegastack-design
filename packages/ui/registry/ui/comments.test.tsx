@@ -1142,7 +1142,7 @@ test("a deleted first comment keeps the reply row; a collapsed thread with one r
     .toBeVisible();
 });
 
-test("an agent's comment carries data-agent, a bot, its owner and an Agent label; the name opens a hover card", async () => {
+test("an agent's comment carries data-agent, its hexagon and its owner, with no label; the name opens a hover card", async () => {
   const screen = await render(
     <ul>
       <CommentItem
@@ -1165,17 +1165,18 @@ test("an agent's comment carries data-agent, a bot, its owner and an Agent label
   expect(item?.querySelector("[data-slot=comment-card]")?.className).toContain(
     "before:bg-tag-purple",
   );
-  await expect
-    .element(screen.getByText("Agent", { exact: true }))
-    .toBeVisible();
+  // Agent-first: no label beside the name (the hexagon and "for" say it).
+  expect(
+    screen.container.querySelector("[data-slot=person-agent-label]"),
+  ).toBeNull();
   expect(
     screen.container.querySelector("[data-slot=avatar][data-kind=agent]"),
   ).not.toBeNull();
   expect(
     screen.container.querySelector("[data-slot=person-name-via]")?.textContent,
-  ).toBe(" via Manoj");
+  ).toBe(" for Manoj");
   await screen
-    .getByRole("button", { name: "Claude Code via Manoj, agent" })
+    .getByRole("button", { name: "Claude Code for Manoj, agent" })
     .click();
   await expect.element(screen.getByText("claude.ai")).toBeVisible();
   await expectNoA11yViolations(screen.container);

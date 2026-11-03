@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.36.0 sha256-WV/jWjl8UorIqKNCWXtrzGPeyv+mTn2y5rFBTIE2hVc=
+// @vegastack agent-panel@0.36.0 sha256-3cGNaUG/M9q6pkZXR14mDnXzZzP0KuLR7mqXsv0WL7s=
 
 "use client";
 
@@ -119,8 +119,11 @@ const DEFAULT_STATE_LABELS: AgentStateLabels = {
 };
 
 /** The agent an `AgentPanel` shows: a `Person` drawn as an agent, plus its access. */
-export interface AgentPanelAgent extends Pick<Person, "name" | "image"> {
-  /** The member it acts for: "Priya" reads "Acting for Priya". @default undefined */
+export interface AgentPanelAgent extends Pick<
+  Person,
+  "name" | "image" | "mark"
+> {
+  /** The member it acts for: "Priya" reads "For Priya". @default undefined */
   via?: string | null;
   /** What it may do, in a few words: "Read & write". @default undefined */
   access?: string | null;
@@ -223,7 +226,12 @@ function AgentStateIcon({
 
 /** The agent as a `Person`, so the avatar draws the purple bot. */
 function asPerson(agent: AgentPanelAgent) {
-  return { name: agent.name, image: agent.image, kind: "agent" as const };
+  return {
+    name: agent.name,
+    image: agent.image,
+    mark: agent.mark,
+    kind: "agent" as const,
+  };
 }
 
 /** "4 min", "1 h 5 min" — an elapsed or run time, never under a minute. */
@@ -407,8 +415,9 @@ export interface AgentSlotProps extends Omit<
 }
 
 /**
- * `AgentSlot` — the Delegate property's value, on one line: the agent's bot, its name (which
- * truncates) and its state (which never does). Empty, it is a ghost "Delegate to an agent…"; when
+ * `AgentSlot` — the Delegate property's value, on one line: the agent's hexagon, its name (which
+ * gets the room and truncates last) and its state as an icon, with the word in its tooltip and
+ * for screen readers. Empty, it is a ghost "Delegate to an agent…"; when
  * the viewer can't delegate, the muted reason instead. It is a ghost button sized like a ghost
  * `RecordChip`, and hangs the same way inside a `PropertyValue`; every other prop, and the ref, go
  * (to the span in its text forms)
@@ -455,9 +464,11 @@ export function AgentSlot({
       <PersonAvatar person={asPerson(agent)} aria-hidden size="xs" />
       <span className="min-w-0 truncate">{agent.name}</span>
       {state !== "none" ? <span className="sr-only">, </span> : null}
+      {/* The name gets the room; the state is its icon, the word in its tooltip (U3). */}
       <AgentStateBadge
         state={state}
         stateLabels={stateLabels}
+        iconOnly
         className="text-sm"
       />
     </>
@@ -585,7 +596,7 @@ export function AgentChip({
 export interface AgentHoverCardLabels {
   /** The purple label after the name. */
   agent: string;
-  /** "Acting for Priya". */
+  /** "For Priya". */
   actingFor: (owner: string) => string;
   /** The View agent link. */
   viewAgent: string;
@@ -597,7 +608,7 @@ export interface AgentHoverCardLabels {
 
 const DEFAULT_HOVER_LABELS: AgentHoverCardLabels = {
   agent: "Agent",
-  actingFor: (owner) => `Acting for ${owner}`,
+  actingFor: (owner) => `For ${owner}`,
   viewAgent: "View agent",
   name: (agent, owner) =>
     personAccessibleName({ name: agent, kind: "agent", via: owner }),
@@ -626,7 +637,7 @@ export interface AgentCardProps {
 }
 
 /**
- * `AgentCard` — the body of `AgentHoverCard`: the bot and name with the "Agent" label, "Acting for
+ * `AgentCard` — the body of `AgentHoverCard`: the bot and name with the "Agent" label, "For
  * Priya · Read & write", the state, the last action, and View agent. Hand it to a
  * `PersonHoverCardProvider` so an agent's name in comments and activity opens the same card.
  *
@@ -710,7 +721,7 @@ export interface AgentHoverCardProps {
 
 /**
  * `AgentHoverCard` — hover or focus an agent's avatar or name (tap it on touch) for who it is:
- * its bot and name with the "Agent" label, "Acting for Priya · Read & write", where its work on
+ * its bot and name with the "Agent" label, "For Priya · claude.ai · Read & write", where its work on
  * this record stands, what it did last, and View agent (`AgentCard`). `PersonHoverCard` for an
  * agent, with the agent's facts.
  *
@@ -784,7 +795,7 @@ export function AgentHoverCard({
   );
 }
 
-/** The bot, the name with "Agent", and "Acting for Priya · Read & write" under it. */
+/** The bot, the name with "Agent", and "For Priya · claude.ai · Read & write" under it. */
 function AgentIdentity({
   agent,
   labels,
@@ -792,7 +803,11 @@ function AgentIdentity({
   agent: AgentPanelAgent;
   labels: Pick<AgentHoverCardLabels, "agent" | "actingFor">;
 }) {
-  const facts = [agent.via ? labels.actingFor(agent.via) : null, agent.access]
+  const facts = [
+    agent.via ? labels.actingFor(agent.via) : null,
+    agent.provider,
+    agent.access,
+  ]
     .filter(Boolean)
     .join(" · ");
   return (

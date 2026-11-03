@@ -578,13 +578,12 @@ test("slot: the agent on one line, the empty ghost, the muted reason, and read-o
     "Only Priya can delegate — assign it to yourself first",
   );
   expect(slots[3]!.tagName).toBe("SPAN");
-  // The state word can truncate (the icon stays whole), so a narrow row never cuts the name alone.
+  // The name gets the room: the state is its icon alone, the word for screen readers (U3).
   const badge = slots[0]!.querySelector<HTMLElement>(
     "[data-slot=agent-state-badge]",
   )!;
-  expect(getComputedStyle(badge).flexShrink).toBe("9999");
-  const word = badge.querySelector<HTMLElement>("span")!;
-  expect(getComputedStyle(word).textOverflow).toBe("ellipsis");
+  expect(badge.hasAttribute("data-icon-only")).toBe(true);
+  expect(badge.querySelector(".sr-only")!.textContent).toBe("Working");
   await expectNoA11yViolations(screen.container);
 });
 
@@ -730,7 +729,7 @@ test("badge in a row: the word gives way first, then drops out; the name truncat
   );
 });
 
-test("hover card: name, Agent, acting for, access, state and View agent", async () => {
+test("hover card: name, Agent, for, provider, access, state and View agent", async () => {
   const onViewAgent = vi.fn();
   const screen = await render(
     <AgentHoverCard agent={agent} state="working" onViewAgent={onViewAgent}>
@@ -738,10 +737,10 @@ test("hover card: name, Agent, acting for, access, state and View agent", async 
     </AgentHoverCard>,
   );
   const trigger = screen.getByRole("button", {
-    name: "Claude Code via Priya, agent",
+    name: "Claude Code for Priya, agent",
   });
   await trigger.click();
-  const card = page.getByText("Acting for Priya · Read & write");
+  const card = page.getByText("For Priya · claude.ai · Read & write");
   await expect.element(card).toBeVisible();
   await expect.element(page.getByText("Working")).toBeVisible();
   await page.getByRole("button", { name: "View agent" }).click();
@@ -764,7 +763,7 @@ test("hover card: the last action under the state, and AgentCard alone", async (
   const bare = screen.container.querySelector("[data-slot=agent-hover-card]");
   expect(bare!.textContent).not.toContain("Last action");
   await screen
-    .getByRole("button", { name: "Claude Code via Priya, agent" })
+    .getByRole("button", { name: "Claude Code for Priya, agent" })
     .click();
   const last = page.getByText("Which price list — v2 or the client's?");
   await expect.element(last).toBeVisible();

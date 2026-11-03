@@ -35,7 +35,7 @@ import { AgentEditBanner } from "@/components/ui/agent-edit-banner";
 
 The banner is presentational: the host owns the agent's runs, the undo, the approval, the refusal
 and the dismiss memory, and passes the state back. `agent` is the agent as a `Person` reads it — `name`
-("Claude") and `via` its owner ("Manoj") — so the line says "Claude (via Manoj)" and the refused
+("Claude") and `via` its owner ("Manoj") — so the line says "Claude (for Manoj)" and the refused
 sentence uses the short name. **The callbacks decide which buttons show**: leave out `onUndo` and
 `onViewChanges` when the agent's checkpoint is gone, and every callback but `onDismiss` for a
 read-only viewer. When the undo succeeds, remove the banner and show a toast.
@@ -66,7 +66,7 @@ and an undo never race. `refused` adds the reason line and swaps Undo for
 Open versions; pass `refusedReason` for another reason ("…because the page was restored since.").
 Without `onUndo` and `onViewChanges` (too old), or any action (a read-only viewer), the banner is
 words and the ✕ — or words alone without `onDismiss`. `kind="created"` reads "Created by Claude
-(via Manoj) · 5m ago".
+(for Manoj) · 5m ago".
 
 <ComponentPreview
   name="agentEditBannerStates"
@@ -111,8 +111,8 @@ under 24rem Undo reads "Undo changes". On a coarse pointer every button has a 44
 
 - The banner is an `Alert` status region with `aria-live="polite"`, so a banner that changes
   while on screen is announced without interrupting; the relative time inside it ticks silently.
-- The buttons are named for the agent: "View Claude (via Manoj)'s changes", "Approve Claude (via
-  Manoj)'s changes" and "Undo Claude (via Manoj)'s changes", so two stacked banners never offer two
+- The buttons are named for the agent: "View Claude (for Manoj)'s changes", "Approve Claude (for
+  Manoj)'s changes" and "Undo Claude (for Manoj)'s changes", so two stacked banners never offer two
   identical names.
 - The purple bot is decoration (hidden from assistive tech); the words say it was an agent.
 - While undoing or approving, that button is busy (`aria-busy`) and every action stays focusable

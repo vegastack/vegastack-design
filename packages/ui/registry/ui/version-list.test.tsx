@@ -121,7 +121,7 @@ test("an agent's row: the purple bot, its name with via and the Agent label, a f
           },
           at: "2026-09-29T10:00:00Z",
           kind: "agent_checkpoint",
-          name: "Before Claude (via Manoj)'s edits",
+          name: "Before Claude (for Manoj)'s edits",
           summary: "Claude edited 3 blocks",
         },
         {
@@ -129,7 +129,7 @@ test("an agent's row: the purple bot, its name with via and the Agent label, a f
           author: asha,
           at: "2026-09-29T11:00:00Z",
           kind: "restore",
-          name: "Before undoing Claude (via Manoj)'s changes",
+          name: "Before undoing Claude (for Manoj)'s changes",
         },
       ]}
     />,
@@ -140,10 +140,10 @@ test("an agent's row: the purple bot, its name with via and the Agent label, a f
   expect(
     agentRow!.querySelector("[data-slot=avatar][data-kind=agent]"),
   ).not.toBeNull();
-  expect(agentRow!.textContent).toContain("Before Claude (via Manoj)'s edits");
+  expect(agentRow!.textContent).toContain("Before Claude (for Manoj)'s edits");
   expect(
     agentRow!.querySelector("[data-slot=person-name-via]")?.textContent,
-  ).toBe(" via Manoj");
+  ).toBe(" for Manoj");
   expect(
     agentRow!.querySelector("[data-slot=person-agent-label]")?.textContent,
   ).toBe("Agent");
