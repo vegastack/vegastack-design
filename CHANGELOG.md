@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.33.1] — November 3, 2026
+
+<!-- assembled from 1 changeset: 5ea3f5c64907 -->
+
+### 🔧 Changed components
+
+- `DataGrid` takes `fill="flex"`: the grid fills the room its flex-column parent leaves by layout instead of measuring it, so a filter row or banner that comes or goes above it resizes the viewport in the same frame and the horizontal scroll bar stays at the bottom instead of jumping and settling back. The host gives it a bounded column (`AppShellPage size="full"`, `AppShellBleed className="flex-1"`); `fill` (measured) is unchanged.
+  [`f8c6c8f`](https://github.com/VegaStack/vegastack-design/commit/f8c6c8f)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.33.0 → 0.33.1.
+
 ## [0.33.0] — November 3, 2026
 
 <!-- assembled from 5 changesets: 37cfa34dbd7e -->
