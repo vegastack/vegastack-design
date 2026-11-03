@@ -22,7 +22,8 @@ const run = {
 };
 
 export function agentEditBanner(): ReactNode {
-  // The strip under a page's header after an agent edited it. Undo spins, then the host hides it.
+  // The strip under a page's header after an agent edited it. Approve or Undo spins, then the host
+  // hides it (the host stores the approval).
   const [status, setStatus] = useState<AgentEditBannerStatus>("idle");
   const [shown, setShown] = useState(true);
   return (
@@ -32,6 +33,13 @@ export function agentEditBanner(): ReactNode {
           {...run}
           status={status}
           onViewChanges={() => {}}
+          onApprove={() => {
+            setStatus("approving");
+            setTimeout(() => {
+              setShown(false);
+              setStatus("idle");
+            }, 900);
+          }}
           onUndo={() => {
             setStatus("undoing");
             setTimeout(() => {
@@ -51,13 +59,23 @@ export function agentEditBanner(): ReactNode {
 }
 
 export function agentEditBannerStates(): ReactNode {
-  // Undoing, refused, too old (no Undo or View changes), a read-only viewer (no ✕ either), created.
+  // Approving, undoing, refused, too old (no Undo or View changes), a read-only viewer (no ✕
+  // either), created.
   return (
     <Wrapper className="flex-col items-stretch">
       <AgentEditBanner
         {...run}
+        status="approving"
+        onViewChanges={() => {}}
+        onApprove={() => {}}
+        onUndo={() => {}}
+        onDismiss={() => {}}
+      />
+      <AgentEditBanner
+        {...run}
         status="undoing"
         onViewChanges={() => {}}
+        onApprove={() => {}}
         onUndo={() => {}}
         onDismiss={() => {}}
       />
@@ -65,6 +83,7 @@ export function agentEditBannerStates(): ReactNode {
         {...run}
         status="refused"
         onViewChanges={() => {}}
+        onApprove={() => {}}
         onUndo={() => {}}
         onOpenVersions={() => {}}
         onDismiss={() => {}}
@@ -83,12 +102,14 @@ export function agentEditBannerStates(): ReactNode {
 }
 
 export function agentEditBannerStacked(): ReactNode {
-  // Two banners at most; the second ends with "+N more agents", each listed with its own Undo.
+  // Two banners at most; the second ends with "+N more agents", each listed with its own Approve
+  // and Undo.
   return (
     <Wrapper className="flex-col items-stretch">
       <AgentEditBanner
         {...run}
         onViewChanges={() => {}}
+        onApprove={() => {}}
         onUndo={() => {}}
         onDismiss={() => {}}
       />
@@ -98,6 +119,7 @@ export function agentEditBannerStacked(): ReactNode {
         at={NOW - 12 * MINUTE}
         now={NOW}
         onViewChanges={() => {}}
+        onApprove={() => {}}
         onUndo={() => {}}
         onDismiss={() => {}}
         moreAgents={[
@@ -106,6 +128,7 @@ export function agentEditBannerStacked(): ReactNode {
             agent: { name: "Claude", via: "Asha" },
             changeCount: 2,
             at: NOW - 40 * MINUTE,
+            onApprove: () => {},
             onUndo: () => {},
           },
         ]}
@@ -122,6 +145,7 @@ export function agentEditBannerNarrow(): ReactNode {
         {...run}
         className="max-w-sm"
         onViewChanges={() => {}}
+        onApprove={() => {}}
         onUndo={() => {}}
         onDismiss={() => {}}
       />

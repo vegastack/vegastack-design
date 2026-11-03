@@ -1,4 +1,4 @@
-// @vegastack agent-edit-banner@0.29.1 sha256-zeSoW0QQAO35QgtZTd4n4zkUkZsIJE1utxIe2DVUEYc=
+// @vegastack agent-edit-banner@0.29.1 sha256-4pX5XQUSpAh6eh0oaKDIW43X0cNfFqihB3cWK+wnoLg=
 
 "use client";
 
@@ -23,9 +23,9 @@ import { RelativeTime } from "@/components/ui/relative-time";
 
 /* ------------------------------------------------------------------------------------------------
  * AgentEditBanner — the strip pinned under a document's header after an agent changed it: the
- * agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Undo this
- * agent's changes and a dismiss ✕. Presentational: the host owns the runs, the undo, the refusal
- * and the dismiss memory, and passes the state back. Which buttons show is decided by the
+ * agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Approve,
+ * Undo this agent's changes and a dismiss ✕. Presentational: the host owns the runs, the undo, the
+ * approval, the refusal and the dismiss memory, and passes the state back. Which buttons show is decided by the
  * callbacks passed, so a read-only viewer (no callbacks) gets the words and the ✕ only.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -33,11 +33,13 @@ import { RelativeTime } from "@/components/ui/relative-time";
 export type AgentEditBannerAgent = Pick<Person, "name" | "via" | "image">;
 
 /**
- * Where the banner's undo stands. `idle` — View changes and Undo; `undoing` — Undo shows a spinner
- * and both buttons are disabled; `refused` — the undo could not run: the reason line, then View
- * changes and Open versions.
+ * Where the banner's actions stand. `idle` — View changes, Approve and Undo; `undoing` — Undo shows
+ * a spinner and every action is disabled; `approving` — the same, with the spinner on Approve;
+ * `refused` — the undo could not run: the reason line, then View changes, Approve and Open
+ * versions.
  */
-export type AgentEditBannerStatus = "idle" | "undoing" | "refused";
+export type AgentEditBannerStatus =
+  "idle" | "undoing" | "approving" | "refused";
 
 /** What the agent did: changed the document, or created it. */
 export type AgentEditBannerKind = "edited" | "created";
@@ -60,6 +62,10 @@ export interface AgentEditBannerLabels {
   undoShort: string;
   /** Undo's accessible name: "Undo Claude (via Manoj)'s changes". */
   undoName: (agent: string) => string;
+  /** The Approve button (the banner's and each row's in "+N more agents"). */
+  approve: string;
+  /** Approve's accessible name: "Approve Claude (via Manoj)'s changes". */
+  approveName: (agent: string) => string;
   /** The Open versions button (refused). */
   openVersions: string;
   /** The ✕ button's accessible name. */
@@ -83,6 +89,8 @@ const DEFAULT_LABELS: AgentEditBannerLabels = {
   undo: "Undo this agent's changes",
   undoShort: "Undo changes",
   undoName: (agent) => `Undo ${agent}'s changes`,
+  approve: "Approve",
+  approveName: (agent) => `Approve ${agent}'s changes`,
   openVersions: "Open versions",
   dismiss: "Dismiss",
   refused: (agentShort) =>
@@ -105,12 +113,20 @@ export interface AgentEditBannerMoreAgent {
   changeCount?: number;
   /** When it last changed the document. */
   at: Date | string | number;
-  /** Where its undo stands; `refused` shows the reason in place of Undo. @default "idle" */
+  /**
+   * Where its actions stand; `undoing`/`approving` spin that button and disable both, `refused`
+   * shows the reason in place of Undo. @default "idle"
+   */
   status?: AgentEditBannerStatus;
   /** The refused line in place of the default. @default labels.refused(agent.name) */
   refusedReason?: React.ReactNode;
   /** Undo this agent's changes; the row's Undo shows when set. @default undefined */
   onUndo?: () => void;
+  /**
+   * Approve this agent's changes (they are fine as they are); the row's Approve shows when set.
+   * The host stores the approval. @default undefined
+   */
+  onApprove?: () => void;
 }
 
 /** Props for `AgentEditBanner`. */
@@ -126,7 +142,7 @@ export interface AgentEditBannerProps extends Omit<
   changeCount?: number;
   /** When the agent last changed (or created) the document. */
   at: Date | string | number;
-  /** Where the undo stands (`AgentEditBannerStatus`). @default "idle" */
+  /** Where the actions stand (`AgentEditBannerStatus`). @default "idle" */
   status?: AgentEditBannerStatus;
   /**
    * The line `refused` shows, in place of "Couldn't undo only Claude's changes because people
@@ -137,6 +153,12 @@ export interface AgentEditBannerProps extends Omit<
   onViewChanges?: () => void;
   /** Undo the agent's changes; Undo shows when set, except while `refused`. @default undefined */
   onUndo?: () => void;
+  /**
+   * Approve the agent's changes — the viewer has checked them and they stay; Approve shows when
+   * set, beside Undo. The banner keeps no memory of it: the host stores the approval and stops
+   * rendering the banner (or passes `status="approving"` while it saves). @default undefined
+   */
+  onApprove?: () => void;
   /** Open the version history; Open versions shows when set and `refused`. @default undefined */
   onOpenVersions?: () => void;
   /** Dismiss the banner for this viewer; the ✕ shows when set. @default undefined */
@@ -194,9 +216,9 @@ function Summary({
 
 /**
  * `AgentEditBanner` — the strip under a document's header after an agent changed it: the agent's
- * purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes and "Undo this
- * agent's changes", and a ✕. `status="undoing"` spins Undo and disables both; `refused` adds the
- * reason line and swaps Undo for Open versions. The callbacks decide which buttons show: none for
+ * purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Approve and "Undo
+ * this agent's changes", and a ✕. `status="undoing"` spins Undo and `"approving"` spins Approve,
+ * each disabling every action; `refused` adds the reason line and swaps Undo for Open versions. The callbacks decide which buttons show: none for
  * a read-only viewer, no Undo or View changes when the agent's checkpoint is gone. `kind="created"`
  * reads "Created by Claude (via Manoj) · 5m ago". `moreAgents` ends the line with "+1 more agent",
  * a popover listing the rest, each with its own Undo. Under a 42rem container the buttons move to
@@ -209,6 +231,7 @@ function Summary({
  *   at={run.lastWriteAt}
  *   status={undoing ? "undoing" : "idle"}
  *   onViewChanges={() => openDiff(run.checkpointId)}
+ *   onApprove={() => approveAgentChanges(run.ids)}
  *   onUndo={() => undoAgentChanges(run.connectionId)}
  *   onDismiss={() => dismiss(run.ids)}
  * />
@@ -222,6 +245,7 @@ export function AgentEditBanner({
   refusedReason,
   onViewChanges,
   onUndo,
+  onApprove,
   onOpenVersions,
   onDismiss,
   moreAgents = [],
@@ -234,9 +258,13 @@ export function AgentEditBanner({
   const agentLabel = personDisplayName(asPerson(agent));
   const refused = status === "refused";
   const undoing = status === "undoing";
+  const approving = status === "approving";
+  // Either one running holds every action: an approval and an undo never race.
+  const busy = undoing || approving;
   const showUndo = !!onUndo && !refused;
   const showOpenVersions = !!onOpenVersions && refused;
-  const hasActions = !!onViewChanges || showUndo || showOpenVersions;
+  const hasActions =
+    !!onViewChanges || !!onApprove || showUndo || showOpenVersions;
   const dismissible = !!onDismiss;
 
   return (
@@ -307,10 +335,23 @@ export function AgentEditBanner({
               variant="outline"
               size="sm"
               aria-label={labels.viewChangesName(agentLabel)}
-              disabled={undoing}
+              disabled={busy}
               onClick={onViewChanges}
             >
               {labels.viewChanges}
+            </Button>
+          ) : null}
+          {onApprove ? (
+            <Button
+              data-slot="agent-edit-banner-approve"
+              variant="outline"
+              size="sm"
+              aria-label={labels.approveName(agentLabel)}
+              loading={approving}
+              disabled={undoing}
+              onClick={onApprove}
+            >
+              {labels.approve}
             </Button>
           ) : null}
           {showUndo ? (
@@ -319,6 +360,7 @@ export function AgentEditBanner({
               size="sm"
               aria-label={labels.undoName(agentLabel)}
               loading={undoing}
+              disabled={approving}
               onClick={onUndo}
             >
               <span className="@sm/alert:hidden">{labels.undoShort}</span>
@@ -351,7 +393,7 @@ export function AgentEditBanner({
   );
 }
 
-/** "+1 more agent": a popover listing the other agents, each with its own Undo. */
+/** "+1 more agent": a popover listing the other agents, each with its own Approve and Undo. */
 function MoreAgents({
   agents,
   labels,
@@ -418,16 +460,36 @@ function MoreAgents({
                     </p>
                   ) : null}
                 </div>
-                {item.onUndo && itemStatus !== "refused" ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    aria-label={labels.undoName(label)}
-                    loading={itemStatus === "undoing"}
-                    onClick={item.onUndo}
+                {item.onApprove || (item.onUndo && itemStatus !== "refused") ? (
+                  <div
+                    data-slot="agent-edit-banner-more-actions"
+                    className="flex shrink-0 items-center gap-2"
                   >
-                    {labels.moreUndo}
-                  </Button>
+                    {item.onApprove ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        aria-label={labels.approveName(label)}
+                        loading={itemStatus === "approving"}
+                        disabled={itemStatus === "undoing"}
+                        onClick={item.onApprove}
+                      >
+                        {labels.approve}
+                      </Button>
+                    ) : null}
+                    {item.onUndo && itemStatus !== "refused" ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        aria-label={labels.undoName(label)}
+                        loading={itemStatus === "undoing"}
+                        disabled={itemStatus === "approving"}
+                        onClick={item.onUndo}
+                      >
+                        {labels.moreUndo}
+                      </Button>
+                    ) : null}
+                  </div>
                 ) : null}
               </li>
             );

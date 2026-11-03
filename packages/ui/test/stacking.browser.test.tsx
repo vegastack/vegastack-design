@@ -47,6 +47,7 @@ import {
   useToastManager,
 } from "../registry/ui/toast";
 import { Button } from "../registry/ui/button";
+import { DataGrid } from "../registry/ui/data-grid";
 
 /**
  * Nested-overlay stacking contract (plan v5 T3, CX-8): every portaled surface sits in the ONE
@@ -390,4 +391,53 @@ test("OVL-15: a toast inside a ToastPositioner is placed against its anchor", as
   expect(Math.abs(r.top - p.top)).toBeLessThan(2);
   expect(document.querySelector('[data-slot="toast-arrow"]')).not.toBeNull();
   manager.close();
+});
+
+test("DataGrid: the selection ActionBar paints above the grid's sticky summary row (P-71 #1)", async () => {
+  // The grid isolates its sticky header, summary row and frozen columns (z-20/z-30) so they never
+  // cover the page. The bar (z-10) is the page's floating part: it must not be inside that
+  // isolation, or the summary row draws over it wherever the two overlap.
+  const rows = Array.from({ length: 60 }, (_, i) => ({
+    id: `r${i}`,
+    name: `Row ${i}`,
+  }));
+  const screen = await render(
+    <div style={{ position: "fixed", inset: 0 }}>
+      <DataGrid
+        aria-label="Rows"
+        columnPicker={false}
+        maxHeight="100vh"
+        columns={[{ key: "name", header: "Name", minWidth: 10 }]}
+        data={rows}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        selectable
+        selectedIds={new Set(rows.map((row) => row.id))}
+        onSelectionChange={() => {}}
+        selectionActions={() => <Button>Archive</Button>}
+        summaryRow={{ label: "60 rows", value: {}, onValueChange: () => {} }}
+      />
+    </div>,
+  );
+  await expect
+    .element(screen.getByText("60 selected").first())
+    .toBeInTheDocument();
+  const bar = document.querySelector<HTMLElement>(
+    '[data-slot="data-grid-selection-bar"]',
+  )!;
+  const summary = document.querySelector<HTMLElement>(
+    '[data-slot="data-grid-summary"]',
+  )!;
+  await expect.poll(() => bar.getAttribute("data-active")).toBe("true");
+  for (const animation of bar.getAnimations({ subtree: true }))
+    animation.finish();
+
+  const b = bar.getBoundingClientRect();
+  const f = summary.getBoundingClientRect();
+  // The fixture is only meaningful where the two overlap.
+  const top = Math.max(b.top, f.top);
+  const bottom = Math.min(b.bottom, f.bottom);
+  expect(bottom - top).toBeGreaterThan(4);
+  const hit = document.elementFromPoint(b.left + 6, (top + bottom) / 2);
+  expect(hit != null && bar.contains(hit)).toBe(true);
 });

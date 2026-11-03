@@ -136,7 +136,7 @@ its accessible name survives (A11Y-12).
   focus ring, no `ring-3` glow and no `outline-none` of its own (FOC-6).
 - `disabled` renders `aria-disabled` rather than the native attribute, so the control keeps its
   pointer events and a Tooltip can explain why it is unavailable (FRM-4). Base UI still suppresses
-  activation.
+  activation, and a disabled or loading button does not press: no 1px press shift and no press fill.
 - `loading` sets `aria-busy="true"` and keeps the label in the accessibility tree (A11Y-12).
 - An icon-only button (`size="icon"` and the three other icon tiers) has no visible text — give it
   an `aria-label`.
@@ -175,7 +175,8 @@ Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:
   state, focused or not (FOC-14 retired FOC-5's `not-focus:` guard); the `aria-invalid` glow rings
   go with FOC-6.
 - **FRM-4** — `disabled:pointer-events-none` is dropped and `focusableWhenDisabled` defaults to true,
-  so a disabled button stays hoverable and focusable.
+  so a disabled button stays hoverable and focusable. The press (`active:` translate and press fills)
+  takes `not-data-disabled:`, which upstream's `pointer-events-none` used to give for free.
 - **API-5, A11Y-12** — the `loading` prop, the out-of-flow spinner and the `opacity-0` label.
 - **A11Y-13** — the `destructive` variant's tint takes `text-destructive-text`; upstream's
   `text-destructive` on its own `/10` measures 3.98:1 in light, under the AA floor A11Y-1 enforces.

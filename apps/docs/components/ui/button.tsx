@@ -1,4 +1,4 @@
-// @vegastack button@0.29.1 sha256-fRpAu71kQry9/OrnqwC+Mw4cIjPhuzMq37u+w33r4cY=
+// @vegastack button@0.29.1 sha256-Xhk9dr36MpXxiqIR2AQg1Q+tKylyUylAiKwvg3kG4OA=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -7,12 +7,12 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 
 const buttonVariants = cva(
-  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:translate-y-px aria-invalid:border-destructive data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:not-data-disabled:translate-y-px aria-invalid:border-destructive data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/70",
+          "bg-primary text-primary-foreground hover:bg-primary/80 active:not-data-disabled:bg-primary/70",
         outline:
           "state-layer border-border bg-background hover:text-foreground aria-expanded:layer-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30",
         secondary:
@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost:
           "state-layer hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground",
         destructive:
-          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 active:bg-destructive/25 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:active:bg-destructive/35",
+          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 active:not-data-disabled:bg-destructive/25 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:active:not-data-disabled:bg-destructive/35",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

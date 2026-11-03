@@ -1082,7 +1082,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.29.1",
-        "integrity": "sha256-fRpAu71kQry9/OrnqwC+Mw4cIjPhuzMq37u+w33r4cY="
+        "integrity": "sha256-Xhk9dr36MpXxiqIR2AQg1Q+tKylyUylAiKwvg3kG4OA="
       }
     },
     {
@@ -1653,7 +1653,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.29.3",
-        "integrity": "sha256-BUUx/B3lhceoG8/5ydRaHaZi/WbneAtbIXV6Djoxz1Q="
+        "integrity": "sha256-sw02iCS3sFAuvT5iZOnuyoXMU62GbHVplmiV4Qoj/vI="
       }
     },
     {
@@ -23217,7 +23217,7 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.29.1",
-        "integrity": "sha256-zeSoW0QQAO35QgtZTd4n4zkUkZsIJE1utxIe2DVUEYc="
+        "integrity": "sha256-4pX5XQUSpAh6eh0oaKDIW43X0cNfFqihB3cWK+wnoLg="
       }
     },
     {

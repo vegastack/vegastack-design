@@ -4029,6 +4029,73 @@ test("selecting rows never resizes a filling grid: the bar's room is a band insi
   ).not.toBeNull();
 });
 
+test("P-71 #1: the selection bar sits outside every isolated layer — grid, cards and embedded", async () => {
+  // The grid's sticky header, summary row and frozen columns (z-20/z-30) are isolated so they
+  // never cover the page; the bar (an ActionBar at z-10) must be outside that isolation or the
+  // summary row draws over it. The painted half is in test/stacking.browser.test.tsx.
+  const selected = new Set(DEALS.map((d) => d.id));
+  function Selecting(props: { layout: "grid" | "cards" | "embedded" }) {
+    return (
+      <div style={{ width: props.layout === "cards" ? 360 : 800 }}>
+        <DataGrid
+          aria-label="Deals"
+          columns={fixedColumns()}
+          data={DEALS}
+          getRowId={(d) => d.id}
+          getRowLabel={(d) => d.name}
+          columnPicker={false}
+          selectable
+          selectedIds={selected}
+          onSelectionChange={() => {}}
+          selectionActions={() => <Button>Archive</Button>}
+          summaryRow={{ label: "3 deals", value: {}, onValueChange: () => {} }}
+          {...(props.layout === "cards"
+            ? { phoneLayout: "cards" as const }
+            : {})}
+          {...(props.layout === "embedded" ? { embedded: true } : {})}
+        />
+      </div>
+    );
+  }
+  const isolatedAncestor = (node: Element) => {
+    for (let at = node.parentElement; at; at = at.parentElement)
+      if (at.classList.contains("isolate")) return at;
+    return null;
+  };
+  const bar = () =>
+    document.querySelector('[data-slot="data-grid-selection-bar"]')!;
+
+  const screen = await render(<Selecting layout="grid" />);
+  await expect
+    .element(screen.getByText("3 selected").first())
+    .toBeInTheDocument();
+  const root = document.querySelector('[data-slot="data-grid"]')!;
+  expect(root.classList.contains("isolate")).toBe(false);
+  expect(isolatedAncestor(bar())).toBeNull();
+  // The layers are still isolated — round the frame that holds them.
+  const frame = document.querySelector(
+    '[data-slot="data-grid-viewport-frame"]',
+  )!;
+  expect(frame.classList.contains("isolate")).toBe(true);
+  expect(
+    frame.contains(document.querySelector('[data-slot="data-grid-summary"]')),
+  ).toBe(true);
+  expect(frame.contains(bar())).toBe(false);
+
+  await screen.rerender(<Selecting layout="embedded" />);
+  await expect
+    .element(screen.getByText("3 selected").first())
+    .toBeInTheDocument();
+  expect(isolatedAncestor(bar())).toBeNull();
+
+  await screen.rerender(<Selecting layout="cards" />);
+  await expect
+    .poll(() => document.querySelector('[data-slot="data-grid-cards"]'))
+    .not.toBeNull();
+  expect(isolatedAncestor(bar())).toBeNull();
+  expect(bar().getAttribute("data-active")).toBe("true");
+});
+
 test("POL-14: an empty primary value reads Untitled, muted; a card leaves out empty fields", async () => {
   const rows: Deal[] = [{ id: "e1", name: "", stage: "", amount: 5 }];
   const grid = await render(

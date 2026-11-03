@@ -418,7 +418,8 @@
           "popover",
           "tooltip",
           "toast",
-          "button"
+          "button",
+          "data-grid"
         ],
         "globalInputGroups": ["shared-runtime"]
       },
@@ -40392,7 +40393,7 @@
       "name": "agent-edit-banner",
       "registryType": "registry:ui",
       "title": "Agent Edit Banner",
-      "summary": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.",
+      "summary": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.",
       "status": "stable",
       "since": "0.25.38",
       "family": "chat",
@@ -40467,7 +40468,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "One look (Alert's default); the undo status and the kind are data attributes, not variants."
+        "rationale": "One look (Alert's default); the action status and the kind are data attributes, not variants."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -40479,6 +40480,8 @@
           "status": "covered",
           "values": [
             "edited",
+            "approve",
+            "approving",
             "undoing",
             "refused",
             "too-old",
@@ -40558,6 +40561,7 @@
               "values": [
                 "agent-edit-banner",
                 "agent-edit-banner-actions",
+                "agent-edit-banner-approve",
                 "agent-edit-banner-body",
                 "agent-edit-banner-dismiss",
                 "agent-edit-banner-reason",
