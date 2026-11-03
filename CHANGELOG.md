@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.35.2] — November 3, 2026
+
+<!-- assembled from 1 changeset: 2b0aa7d0d992 -->
+
+### 🔧 Changed components
+
+- `AppShellHeader` lines its edge controls up with the page: the sidebar trigger's icon now starts at the page gutter, where the content below starts, and on a phone the Search and Inbox icons end where the content ends. An actions slot with nothing in it (an unfilled portal target) no longer leaves a gap at the end of the bar. `RecentStrip`'s scroll buttons move into their own column at the strip's end, so they never sit over a half-visible card; the list fades where a card is cut. A card's icon tile now sits 8px from the card's edge on every side, which gives the title 8px more room.
+  [`7eeee1c`](https://github.com/VegaStack/vegastack-design/commit/7eeee1c)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.35.1 → 0.35.2.
+
 ## [0.35.1] — November 3, 2026
 
 <!-- assembled from 1 changeset: 70aa5b89bd03 -->

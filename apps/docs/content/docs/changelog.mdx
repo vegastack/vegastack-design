@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.35.2] — November 3, 2026
+
+### 🔧 Changed components
+
+- `AppShellHeader` lines its edge controls up with the page: the sidebar trigger's icon now starts at the page gutter, where the content below starts, and on a phone the Search and Inbox icons end where the content ends. An actions slot with nothing in it (an unfilled portal target) no longer leaves a gap at the end of the bar. `RecentStrip`'s scroll buttons move into their own column at the strip's end, so they never sit over a half-visible card; the list fades where a card is cut. A card's icon tile now sits 8px from the card's edge on every side, which gives the title 8px more room.
+  [`7eeee1c`](https://github.com/VegaStack/vegastack-design/commit/7eeee1c)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.35.1 → 0.35.2.
+
 ## [0.35.1] — November 3, 2026
 
 ### 📦 npm

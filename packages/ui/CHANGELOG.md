@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.35.2
+
+### Patch Changes
+
+- [#894](https://github.com/vegastack/vegastack-design/pull/894) [`7eeee1c`](https://github.com/vegastack/vegastack-design/commit/7eeee1cfa63a330982b5db2d1bef9f92a546bd9b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AppShellHeader` lines its edge controls up with the page: the sidebar trigger's icon now starts at the page gutter, where the content below starts, and on a phone the Search and Inbox icons end where the content ends. An actions slot with nothing in it (an unfilled portal target) no longer leaves a gap at the end of the bar. `RecentStrip`'s scroll buttons move into their own column at the strip's end, so they never sit over a half-visible card; the list fades where a card is cut. A card's icon tile now sits 8px from the card's edge on every side, which gives the title 8px more room.
+
 ## 0.35.1
 
 ### Patch Changes
