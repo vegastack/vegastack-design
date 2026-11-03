@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.35.0 sha256-XdAtuZrOvTqOcyDCoq8pGgZVv6vJZmrYTsO+shIPkKA=
+// @vegastack person-hover-card@0.35.0 sha256-TgsERT38OsBHftww8ZRtd/xW20ZktGl+8Am6rbRhbyA=
 
 "use client";
 
@@ -10,6 +10,8 @@ import {
   PERSON_AVATAR_STACK_RING,
   PersonAvatar as BasePersonAvatar,
   PersonName,
+  agentShapeMask,
+  agentShapeStyle,
   personAccessibleName,
   type Person as BasePerson,
 } from "@/components/ui/person-avatar";
@@ -184,8 +186,14 @@ export function PersonHoverCard({
               variant="ghost"
               size="icon-sm"
               aria-label={personAccessibleName(person)}
+              // An agent's hover fill and focus tint follow its hexagon, never a circle.
+              style={person.kind === "agent" ? agentShapeStyle : undefined}
               className={cn(
-                person.kind === "team" ? "rounded-md" : "rounded-full",
+                person.kind === "team"
+                  ? "rounded-md"
+                  : person.kind === "agent"
+                    ? cn("rounded-none", agentShapeMask)
+                    : "rounded-full",
                 className,
               )}
               onClick={() => setOpen((o) => !o)}

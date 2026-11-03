@@ -15,6 +15,7 @@ import {
   type AgentPanelProps,
 } from "./agent-panel";
 import { PersonAvatar } from "./person-avatar";
+import { TooltipProvider } from "./tooltip";
 
 const NOW = Date.parse("2026-10-14T12:00:00Z");
 const MINUTE = 60_000;
@@ -577,12 +578,13 @@ test("slot: the agent on one line, the empty ghost, the muted reason, and read-o
     "Only Priya can delegate — assign it to yourself first",
   );
   expect(slots[3]!.tagName).toBe("SPAN");
-  // The state word never truncates; the name does.
+  // The state word can truncate (the icon stays whole), so a narrow row never cuts the name alone.
   const badge = slots[0]!.querySelector<HTMLElement>(
     "[data-slot=agent-state-badge]",
   )!;
-  expect(getComputedStyle(badge).flexShrink).toBe("0");
-  expect(getComputedStyle(badge).whiteSpace).toBe("nowrap");
+  expect(getComputedStyle(badge).flexShrink).toBe("9999");
+  const word = badge.querySelector<HTMLElement>("span")!;
+  expect(getComputedStyle(word).textOverflow).toBe("ellipsis");
   await expectNoA11yViolations(screen.container);
 });
 
@@ -636,7 +638,96 @@ test("badge and ring: icon and word; amber ring for needs you, red for failed, n
   expect(rings[1]!.className).toContain("ring-destructive");
   expect(rings[1]!.textContent).toBe("");
   expect(rings[2]!.className).not.toContain("ring-2");
+  // Around an agent's hexagon the circle ring stands down; the avatar draws it in its own shape.
+  expect(getComputedStyle(rings[0]!).boxShadow).not.toContain(" 2px");
+  const hex = rings[0]!.querySelector<HTMLElement>("[data-kind=agent]")!;
+  expect(
+    getComputedStyle(hex).getPropertyValue("--person-avatar-halo").trim(),
+  ).not.toBe("");
+  expect(getComputedStyle(hex, "::before").backgroundColor).not.toBe(
+    "rgba(0, 0, 0, 0)",
+  );
   await expectNoA11yViolations(screen.container);
+});
+
+test("badge iconOnly: the state's icon, its word for screen readers and in a tooltip", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <div className="flex w-24 p-10">
+        <AgentStateBadge state="question" iconOnly />
+        <AgentStateBadge
+          state="approval"
+          stateLabels={{ approval: "Waiting for your approval on the change" }}
+        />
+      </div>
+    </TooltipProvider>,
+  );
+  const [icon, long] = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=agent-state-badge]",
+  );
+  expect(icon!.hasAttribute("data-icon-only")).toBe(true);
+  expect(icon!.querySelector("[data-slot=agent-state-icon]")).not.toBeNull();
+  expect(icon!.querySelector(".sr-only")!.textContent).toBe("Needs you");
+  expect(icon!.dataset.slot).toBe("agent-state-badge");
+  await userEvent.hover(icon!);
+  await expect.poll(() => icon!.hasAttribute("data-popup-open")).toBe(true);
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+    )
+    .toContain("Needs you");
+  // A long word stays inside a narrow row instead of overflowing it.
+  expect(long!.getBoundingClientRect().right).toBeLessThanOrEqual(
+    long!.parentElement!.getBoundingClientRect().right + 0.5,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("badge in a row: the word gives way first, then drops out; the name truncates last", async () => {
+  const widths = [400, 220, 120, 110];
+  const screen = await render(
+    <div className="flex flex-col">
+      {widths.map((width) => (
+        <div
+          key={width}
+          data-row={width}
+          className="flex items-center gap-1.5 text-xs"
+          style={{ width }}
+        >
+          <span data-name className="min-w-0 truncate">
+            Atlas reviewer
+          </span>
+          <AgentStateBadge
+            state="approval"
+            stateLabels={{ approval: "Waiting for your approval" }}
+          />
+        </div>
+      ))}
+    </div>,
+  );
+  const part = (width: number, sel: string) =>
+    screen.container.querySelector<HTMLElement>(
+      `[data-row="${width}"] ${sel}`,
+    )!;
+  const fullName = part(400, "[data-name]").scrollWidth;
+  // The name keeps its full width while the badge still has a word to give.
+  for (const width of [220, 120, 110]) {
+    const name = part(width, "[data-name]");
+    expect(name.scrollWidth).toBeLessThanOrEqual(name.clientWidth);
+    expect(name.clientWidth).toBeGreaterThanOrEqual(fullName - 1);
+  }
+  // At its floor the word has wrapped onto the clipped line: only the icon shows.
+  const badge = part(110, "[data-slot=agent-state-badge]");
+  expect(badge.querySelector<HTMLElement>("span")!.offsetTop).toBeGreaterThan(
+    0,
+  );
+  const icon = badge.querySelector<HTMLElement>(
+    "[data-slot=agent-state-icon]",
+  )!;
+  expect(icon.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    badge.getBoundingClientRect().bottom,
+  );
 });
 
 test("hover card: name, Agent, acting for, access, state and View agent", async () => {

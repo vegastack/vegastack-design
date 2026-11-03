@@ -79,11 +79,71 @@ two characters when there is no name (`personInitials`, exported from `person-av
 The photo is a plain `<img>` in the server HTML, layered over the initials, so the browser fetches
 it straight from the markup and paints it the moment it decodes: a cached photo is there on first
 paint, with no flash of initials and no wait for hydration. The initials stay underneath until the
-photo loads, and a photo that fails (a broken or expired URL) falls back to them. Sizes are
-Avatar's own — `sm` (the default), `default` and `lg` — and the photo never changes the box.
+photo loads, and a photo that fails (a broken or expired URL) falls back to them. The photo never
+changes the box.
 
 <ComponentPreview
   name="personHoverCardAvatar"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+### Sizes
+
+`size` is one of six steps: `2xs` 16px and `xs` 20px for rows, chips and meta lines; `sm` 24px (the
+default), `default` 32px and `lg` 40px, which are Avatar's own tiers; and `xl` 64px for a profile or
+an agent's header. The initials, the team and agent icons (about 60% of the shape) and an agent's
+mark all scale with the step, so never resize an avatar with a `className`. That override is what
+left a 16px glyph filling a 16px circle. The two row steps show one initial, because two letters
+crowd a 16 or 20px circle. Initials stay `text-xs`. `data-size` names the step that is drawn.
+
+<ComponentPreview
+  name="personHoverCardSizes"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+### Agents
+
+An agent (`kind: "agent"`) is a soft hexagon, pointy at the top and bottom. Only agents use that
+shape: circles are people, and rounded squares are teams and workspaces. With no mark, an agent
+shows the bot on its `hue` (purple when none is set), or its initials with
+`agentFallback="initials"`. `mark` (on the `Person`, or as a prop) puts the agent's own mark inside
+the hexagon. It can be an image `{ src, alt, fit, tile }`, such as a provider's favicon or the
+workspace's built-in assistant mark, or a node, such as an icon. The design system holds no
+provider names or logos: the app passes them in. An `inset` mark (the default) sits with room on
+every side, on a neutral tile. Use `tile: "light"` for a dark-ink logo that would vanish on a dark
+tile. A `fill` mark covers the whole hexagon. Until the image decodes the bot shows, and an image
+that fails falls back to it. An agent's `image`, with no `mark`, is treated as an inset mark.
+
+The hexagon is a CSS mask over the same square box as a circle, so there is no layout shift between
+people and agents. It carries the same 1px hairline as a person's avatar, in both themes. A `PersonHoverCard` or `AgentHoverCard` around an agent takes the
+hexagon too, so its hover fill and focus tint follow the shape, never a circle.
+
+<ComponentPreview
+  name="personHoverCardAgents"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+### People and agents together
+
+`AvatarStack` mixes people and agents in one stack. Each person keeps the background-coloured ring,
+and each agent gets the same 2px halo in its own hexagon, so an overlap never cuts a circle into a
+hexagon. A raw `AvatarGroup` gets the same treatment.
+
+<ComponentPreview
+  name="personHoverCardMixed"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+### Indicators and agent state
+
+`indicator` puts a small presence dot or state icon at the bottom-end corner, sized to the step
+with a background-coloured gap, on a circle or a hexagon. `AgentStateRing` follows the hexagon
+around an agent. In a narrow row, `AgentStateBadge` gives way before the agent's name: its word
+truncates, then drops out, leaving the icon. The name truncates only after that. For the densest
+rows, `iconOnly` keeps only the state's icon, with the word in a tooltip and for screen readers.
+
+<ComponentPreview
+  name="personHoverCardIndicators"
   file="components/preview/person-hover-card.tsx"
 />
 
@@ -191,6 +251,9 @@ for the standard `PersonCard`. The element you return renders only while its car
 - `PersonHoverCard` on its own is a round button named by the person (or, with `trigger="name"`,
   a text button whose name is the visible name); its card opens on hover and on keyboard focus, a
   tap toggles it, and <kbd>Esc</kbd> closes it.
+- An agent is never told apart by shape alone: `PersonName` and `personAccessibleName` say
+  "agent" in text. A mark image takes an `alt` only when no name is shown beside it, and an
+  `indicator` is decorative, so say the state it shows in text too.
 
 | Key                                 | Action                                  |
 | ----------------------------------- | --------------------------------------- |

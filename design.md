@@ -1041,6 +1041,14 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
   `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking
   gap, not an outline, and stays. `design-lint`'s `no-surface-ring` keeps the ring from returning.
+- **Identity shapes** (operator, 03-11-2026) — the shape says what something is before any label:
+  a circle is a person, a rounded square a team or workspace, and a soft hexagon an agent (only
+  agents take it; after Atlassian's agent rule). `PersonAvatar` owns all three, in six size steps
+  (`2xs` 16px to `xl` 64px) whose initials, icons (about 60% of the shape) and marks scale with
+  the step, so an avatar is never resized with a `className`. An agent's mark — a provider's logo
+  or the workspace's own assistant — is passed in by the app as an image or a node (the design
+  system holds no provider names or assets), inset on a neutral tile or full-bleed, and falls back
+  to the bot. In a stack or an `AgentStateRing`, a hexagon's gap and ring follow the hexagon.
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the

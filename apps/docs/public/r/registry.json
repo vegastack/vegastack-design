@@ -17700,7 +17700,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.35.0",
-        "integrity": "sha256-XdAtuZrOvTqOcyDCoq8pGgZVv6vJZmrYTsO+shIPkKA="
+        "integrity": "sha256-TgsERT38OsBHftww8ZRtd/xW20ZktGl+8Am6rbRhbyA="
       }
     },
     {
@@ -18092,7 +18092,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.35.0",
-        "integrity": "sha256-f+1gCeB9Y8a6I58WKAEb/KL6Mz/mT+TtF0DHN4IYyos="
+        "integrity": "sha256-T3lqyeqM6Bn0TxUKHN+klISxmhFczq+QDVPZXJPjSk0="
       }
     },
     {
@@ -23263,7 +23263,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.34.0",
-        "integrity": "sha256-9WZuGfMsrTdHjsq7J7tZF+dBT59nd5Y9MbkV0AR31LM="
+        "integrity": "sha256-a4IhrivXfTTEwOI27MnPIcbAXOCuaNHbIyjnsd9StV0="
       }
     },
     {
