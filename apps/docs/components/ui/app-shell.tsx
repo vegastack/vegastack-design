@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.33.0 sha256-ICliT8bsDmzuLlGdpIo/WZf2VFy05ksXxxLxIfeJbtk=
+// @vegastack app-shell@0.33.0 sha256-tPHuXGB92xJS7D9UpUma+RKO5VbaVyg4tCxbSynxeI4=
 
 "use client";
 
@@ -386,8 +386,13 @@ export function AppShellHeader({
       )}
       {...props}
     >
+      {/* Optical edges: the trigger's icon, not its hit area, lines up with the page content's
+          start (the page gutter is the one inset); the phone tools' icons with its end. */}
       <SidebarTrigger
-        className={mobileActions ? "max-md:size-10" : undefined}
+        className={cn(
+          "-ms-1.5",
+          mobileActions && "max-md:-ms-3 max-md:size-10",
+        )}
       />
       <div
         data-slot="app-shell-header-middle"
@@ -398,7 +403,7 @@ export function AppShellHeader({
       {mobileActions ? (
         <div
           data-slot="app-shell-header-mobile-actions"
-          className="flex shrink-0 items-center md:hidden"
+          className="-me-3 flex shrink-0 items-center md:hidden"
         >
           {mobileActions}
         </div>
@@ -406,7 +411,11 @@ export function AppShellHeader({
       {actions ? (
         <div
           data-slot="app-shell-header-actions"
-          className="flex shrink-0 items-center gap-2"
+          className={cn(
+            // An unfilled slot (a portal target with nothing in it) takes no room and no gap.
+            "flex shrink-0 items-center gap-2 [&:not(:has(>:not(:empty)))]:hidden",
+            mobileActions && "max-md:ms-3",
+          )}
         >
           {actions}
         </div>

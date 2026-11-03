@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.33.0 sha256-VGr12n/Rx9onjG/h26XqQJizTRl3GiPjCF3V5Gr/LGk=
+// @vegastack recent-strip@0.33.0 sha256-IffD7DPb4ze9KoijdHRoEWai4Bchq6NBhcrHcDMOT0A=
 
 "use client";
 
@@ -110,14 +110,17 @@ export interface RecentStripProps extends Omit<
 
 const STRIP_KEYS = new Set(["ArrowLeft", "ArrowRight", "Home", "End"]);
 
-/** Shared card/chip geometry: a chip on a narrow strip, a two-line card from 28rem of its width. */
+/**
+ * Shared card/chip geometry: a chip on a narrow strip, a two-line card from 28rem of its width. A
+ * card's icon tile sits the same 8px from its edge on every side, so the title gets the rest.
+ */
 const ITEM_SHAPE =
-  "flex max-w-48 min-w-0 items-center gap-1.5 rounded-full border border-border bg-transparent px-3 @max-md/recent-strip:h-8 @md/recent-strip:w-56 @md/recent-strip:max-w-none @md/recent-strip:gap-2.5 @md/recent-strip:rounded-lg @md/recent-strip:px-3 @md/recent-strip:py-2";
+  "flex max-w-48 min-w-0 items-center gap-1.5 rounded-full border border-border bg-transparent px-3 @max-md/recent-strip:h-8 @md/recent-strip:w-56 @md/recent-strip:max-w-none @md/recent-strip:gap-2.5 @md/recent-strip:rounded-lg @md/recent-strip:px-2 @md/recent-strip:py-2";
 
 /**
  * `RecentStrip` — one row of the records a person opened last, to jump back in: a horizontal strip
  * of compact cards (icon tile · title · one meta line) that scrolls sideways with edge fades and,
- * on a fine pointer, ◂ ▸ buttons at the ends. On a narrow strip (under 28rem of its own width — a
+ * on a fine pointer, ◂ ▸ buttons in their own column at its end (never over a card). On a narrow strip (under 28rem of its own width — a
  * phone) the cards become a single line of chips. The strip is one Tab stop: ←/→ move between
  * cards, Home/End jump to the ends. `collapsible` turns the heading into a toggle; `loading` shows
  * skeleton cards of the same shape; with no records the strip renders nothing, or `emptyState`.
@@ -297,10 +300,11 @@ function RecentStripList({
     });
   };
 
+  const overflowing = edges.start || edges.end;
   return (
     <div
       data-slot="recent-strip-viewport"
-      className="relative min-w-0 shrink-0"
+      className="flex min-w-0 shrink-0 items-center gap-2"
     >
       <ul
         ref={listRef}
@@ -310,7 +314,7 @@ function RecentStripList({
         onKeyDown={(event) => {
           if (STRIP_KEYS.has(event.key)) nav.handleKeyDown(event);
         }}
-        className="flex min-w-0 snap-x gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-fade-x scrollbar-none"
+        className="flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-fade-x scrollbar-none"
       >
         {items.map((item, index) => {
           const itemProps = nav.getItemProps(index);
@@ -375,35 +379,42 @@ function RecentStripList({
         })}
       </ul>
       {/* Mouse-only: the keyboard has ←/→ and a touch screen swipes, so both stay out of the tab
-          order and the accessibility tree. */}
-      <Button
-        data-slot="recent-strip-scroll-start"
-        data-visible={edges.start ? "" : undefined}
-        variant="outline"
-        size="icon-xs"
-        tabIndex={-1}
-        aria-hidden="true"
-        aria-label={scrollBackLabel}
-        onClick={() => scroll(-1)}
-        // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
-        // and would replace the centring transform, dropping the arrow by half its height.
-        className="absolute inset-y-0 start-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background"
+          order and the accessibility tree. They sit in their own column at the strip's end, never
+          over a card; the list's edge fades where a card is cut. */}
+      <div
+        data-slot="recent-strip-controls"
+        data-visible={overflowing ? "" : undefined}
+        className="hidden shrink-0 items-center gap-1 pointer-fine:data-visible:flex"
       >
-        <ChevronLeft className="rtl:rotate-180" />
-      </Button>
-      <Button
-        data-slot="recent-strip-scroll-end"
-        data-visible={edges.end ? "" : undefined}
-        variant="outline"
-        size="icon-xs"
-        tabIndex={-1}
-        aria-hidden="true"
-        aria-label={scrollForwardLabel}
-        onClick={() => scroll(1)}
-        className="absolute inset-y-0 end-0 my-auto hidden rounded-full border-border bg-background text-foreground pointer-fine:data-visible:inline-flex dark:border-border dark:bg-background"
-      >
-        <ChevronRight className="rtl:rotate-180" />
-      </Button>
+        <Button
+          data-slot="recent-strip-scroll-start"
+          data-visible={edges.start ? "" : undefined}
+          variant="outline"
+          size="icon-xs"
+          tabIndex={-1}
+          aria-hidden="true"
+          aria-label={scrollBackLabel}
+          disabled={!edges.start}
+          onClick={() => scroll(-1)}
+          className="rounded-full"
+        >
+          <ChevronLeft className="rtl:rotate-180" />
+        </Button>
+        <Button
+          data-slot="recent-strip-scroll-end"
+          data-visible={edges.end ? "" : undefined}
+          variant="outline"
+          size="icon-xs"
+          tabIndex={-1}
+          aria-hidden="true"
+          aria-label={scrollForwardLabel}
+          disabled={!edges.end}
+          onClick={() => scroll(1)}
+          className="rounded-full"
+        >
+          <ChevronRight className="rtl:rotate-180" />
+        </Button>
+      </div>
     </div>
   );
 }

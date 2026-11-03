@@ -182,6 +182,11 @@ test("the mouse-only scroll buttons stay out of the tab order and the accessibil
     )!;
     expect(button.getAttribute("aria-hidden")).toBe("true");
     expect(button.tabIndex).toBe(-1);
+    // In their own column at the end, never over the list's cards.
+    expect(
+      button.closest('[data-slot="recent-strip-controls"]'),
+    ).not.toBeNull();
+    expect(button.closest('[data-slot="recent-strip-list"]')).toBeNull();
   }
 });
 
