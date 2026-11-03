@@ -363,7 +363,13 @@ test("each structural part is the element its role needs (Structure)", async () 
   // SidebarContent is the scrollable region between header and footer.
   const content = slot(root, "sidebar-content") as HTMLElement;
   expect(getComputedStyle(content).overflowY).toBe("auto");
-  expect(getComputedStyle(content).flexGrow).toBe("1");
+  // It fills the panel through its LAY-21 frame, which takes the free height.
+  const frame = slot(root, "sidebar-content-frame") as HTMLElement;
+  expect(frame.contains(content)).toBe(true);
+  expect(getComputedStyle(frame).flexGrow).toBe("1");
+  expect(content.getBoundingClientRect().height).toBe(
+    frame.getBoundingClientRect().height,
+  );
 
   // SidebarMenu is a real list, so the rows are announced as list items.
   expect((slot(root, "sidebar-menu") as HTMLElement).tagName).toBe("UL");
@@ -2482,4 +2488,173 @@ test("A11Y-17 (UXS-01): the collapsed icon rail keeps the count as a pill, or a 
     expect(m.className.split(/\s+/)).toContain(
       "group-data-[collapsible=icon]:flex",
     );
+});
+
+/* ── LAY-21: the scroll cue ─────────────────────────────────────────────────────────────────── */
+
+/** A panel whose list is `count` rows long, with a footer — at 900px tall, 40 rows overflow. */
+function ScrollShell({
+  count,
+  collapsible = "icon",
+  defaultOpen = true,
+}: {
+  count: number;
+  collapsible?: "offcanvas" | "icon";
+  defaultOpen?: boolean;
+}) {
+  return (
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <Sidebar collapsible={collapsible}>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              {Array.from({ length: count }, (_, i) => (
+                <SidebarMenuItem key={i}>
+                  <SidebarMenuButton render={<a href={`#row-${i}`} />}>
+                    <Home />
+                    <span>Row {i + 1}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Settings2 />
+                <span>Settings</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <SidebarTrigger />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+const frameOf = (root: ParentNode) =>
+  slot(root, "sidebar-content-frame") as HTMLElement;
+const edgeButtons = (root: ParentNode) =>
+  allSlots(root, "sidebar-content-scroll").map((b) => b.dataset.direction);
+const fadeSizes = (content: HTMLElement) => {
+  const style = getComputedStyle(content);
+  return [
+    style.getPropertyValue("--scroll-fade-t-size").trim(),
+    style.getPropertyValue("--scroll-fade-b-size").trim(),
+  ];
+};
+
+test("LAY-21: a list that fits shows no fade, no shadow and no scroll button", async () => {
+  const screen = await render(<ScrollShell count={3} />);
+  const root = screen.container;
+  const content = slot(root, "sidebar-content") as HTMLElement;
+  expect(frameOf(root).hasAttribute("data-more-above")).toBe(false);
+  expect(frameOf(root).hasAttribute("data-more-below")).toBe(false);
+  expect(fadeSizes(content)).toEqual(["0px", "0px"]);
+  expect(edgeButtons(root)).toEqual([]);
+  expect(
+    getComputedStyle(slot(root, "sidebar-footer") as HTMLElement).boxShadow,
+  ).toBe("none");
+});
+
+test("LAY-21: a long list fades and shadows only toward the side with more, and the buttons page it", async () => {
+  const screen = await render(<ScrollShell count={60} />);
+  const root = screen.container;
+  const content = slot(root, "sidebar-content") as HTMLElement;
+  const footer = slot(root, "sidebar-footer") as HTMLElement;
+
+  // At the top: more below only — the bottom fade, the footer shadow and a ⌄ button.
+  await expect
+    .poll(() => frameOf(root).hasAttribute("data-more-below"))
+    .toBe(true);
+  expect(frameOf(root).hasAttribute("data-more-above")).toBe(false);
+  expect(getComputedStyle(content).maskImage).toContain("linear-gradient");
+  expect(fadeSizes(content)[0]).toBe("0px");
+  expect(fadeSizes(content)[1]).not.toBe("0px");
+  await expect.poll(() => getComputedStyle(footer).boxShadow).not.toBe("none");
+  expect(edgeButtons(root)).toEqual(["down"]);
+
+  // The button is a pointer affordance: named, out of the tab order, hidden until hover.
+  const down = screen.getByRole("button", { name: "Scroll down" });
+  expect(down.element().getAttribute("tabindex")).toBe("-1");
+  expect(getComputedStyle(down.element()).opacity).toBe("0");
+  await userEvent.hover(content);
+  await expect.poll(() => getComputedStyle(down.element()).opacity).toBe("1");
+
+  // A click scrolls about a screenful (instantly under the lane's reduced motion).
+  await down.click();
+  await expect
+    .poll(() => content.scrollTop)
+    .toBeGreaterThan(content.clientHeight / 2);
+  await expect
+    .poll(() => frameOf(root).hasAttribute("data-more-above"))
+    .toBe(true);
+  expect(edgeButtons(root)).toEqual(["up", "down"]);
+
+  // At the bottom: more above only — the footer shadow and the ⌄ are gone.
+  content.scrollTop = content.scrollHeight;
+  await expect
+    .poll(() => frameOf(root).hasAttribute("data-more-below"))
+    .toBe(false);
+  expect(fadeSizes(content)[1]).toBe("0px");
+  // The shadow eases out (`transition-shadow`), so wait for it to settle.
+  await expect.poll(() => getComputedStyle(footer).boxShadow).toBe("none");
+  expect(edgeButtons(root)).toEqual(["up"]);
+  await screen.getByRole("button", { name: "Scroll up" }).click();
+  await expect
+    .poll(() => content.scrollTop)
+    .toBeLessThan(content.scrollHeight - content.clientHeight);
+});
+
+test("LAY-21: keyboard focus scrolls a row into view, clear of the faded edge", async () => {
+  const screen = await render(<ScrollShell count={60} />);
+  const content = slot(screen.container, "sidebar-content") as HTMLElement;
+  const last = screen.getByRole("link", { name: "Row 60" }).element();
+  (last as HTMLElement).focus();
+  await expect.poll(() => content.scrollTop).toBeGreaterThan(0);
+  const row = last.getBoundingClientRect();
+  const box = content.getBoundingClientRect();
+  expect(row.bottom).toBeLessThanOrEqual(box.bottom);
+  expect(getComputedStyle(content).scrollPaddingBottom).not.toBe("0px");
+});
+
+test("LAY-21: the collapsed icon rail shows no cue", async () => {
+  const screen = await render(
+    <ScrollShell count={60} collapsible="icon" defaultOpen={false} />,
+  );
+  const root = screen.container;
+  const content = slot(root, "sidebar-content") as HTMLElement;
+  expect(getComputedStyle(content).overflowY).toBe("hidden");
+  expect(frameOf(root).hasAttribute("data-more-below")).toBe(false);
+  expect(fadeSizes(content)).toEqual(["0px", "0px"]);
+  expect(edgeButtons(root)).toEqual([]);
+  expect(
+    getComputedStyle(slot(root, "sidebar-footer") as HTMLElement).boxShadow,
+  ).toBe("none");
+});
+
+test("LAY-21: the phone drawer keeps the fade and the footer shadow, with no buttons", async () => {
+  await page.viewport(...NARROW);
+  const screen = await render(<ScrollShell count={60} />);
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect
+    .poll(() =>
+      document.querySelector('[data-slot="sidebar"][data-mobile="true"]'),
+    )
+    .not.toBeNull();
+  const panel = document.querySelector(
+    '[data-slot="sidebar"][data-mobile="true"]',
+  ) as HTMLElement;
+  await expect
+    .poll(() => frameOf(panel)?.hasAttribute("data-more-below"))
+    .toBe(true);
+  expect(
+    getComputedStyle(slot(panel, "sidebar-footer") as HTMLElement).boxShadow,
+  ).not.toBe("none");
+  expect(edgeButtons(panel)).toEqual([]);
 });

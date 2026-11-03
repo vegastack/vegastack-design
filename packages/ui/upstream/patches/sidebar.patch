@@ -1,6 +1,17 @@
 # component: sidebar
-# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, INT-15, LAY-13, LAY-16, LAY-19, OVL-16, VOI-1, COL-24, INT-4
+# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, INT-15, LAY-13, LAY-16, LAY-19, LAY-21, OVL-16, VOI-1, COL-24, INT-4
 # hunks:
+#   LAY-21: a sidebar list that scrolls says so (operator as the Regent operator, 2026-11-03: "on
+#     hovering on sidebar, show some shadow and arrow chevron and top and bottom", approved "Yes, build
+#     it"). `SidebarContent` renders inside a one-row grid `sidebar-content-frame` that a `useSidebarScrollEdges`
+#     hook marks `data-more-above` / `data-more-below` (scroll, ResizeObserver, child mutations; neither
+#     in the icon rail). Upstream's `no-scrollbar` becomes `scrollbar-thin` with a thumb painted only on
+#     hover, the list wears `scroll-fade-y` with each edge's size zeroed unless there is more that way,
+#     and `scroll-py-10` keeps a focused row clear of the fade. The frame holds a `variant="outline"
+#     size="icon-xs"` ⌃/⌄ `sidebar-content-scroll` button per side with more, shown on a fine pointer's
+#     hover, `tabIndex={-1}`, named by `scrollUpLabel` / `scrollDownLabel` (VOI-1), paging a screenful
+#     (smooth unless reduced motion), never rendered in the phone drawer. `SidebarFooter` casts the
+#     DataGrid pinned-edge shadow upward while its sidebar's frame has `data-more-below`.
 #   LAY-19: `SidebarMenuButton size="lg"` adds `group-data-[collapsible=icon]:justify-center-safe`
 #     beside upstream's `p-0!`, so smaller content (a 24px avatar) sits centred in the 32px rail
 #     button while a `size-8` tile still fills it; `safe` keeps overflowing content (an avatar
@@ -106,7 +117,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..6eef0fe 100644
+index cbcc413..4a734c9 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,224 @@
@@ -128,7 +139,7 @@ index cbcc413..6eef0fe 100644
 +import { mergeProps } from "@base-ui/react/merge-props";
 +import { useRender } from "@base-ui/react/use-render";
 +import { cva, type VariantProps } from "class-variance-authority";
-+import { cn } from "@vegastack/design";
++import { cn, mergeRefs } from "@vegastack/design";
 +
 +import { useIsMobile } from "@/components/ui/use-mobile";
 +import { RAIL_COLLAPSED_QUERY } from "@/lib/page-layout";
@@ -153,15 +164,29 @@ index cbcc413..6eef0fe 100644
 -} from "@/components/ui/tooltip"
 -import { PanelLeftIcon } from "lucide-react"
 +} from "@/components/ui/tooltip";
-+import { PanelLeftIcon } from "lucide-react";
-+
++import { ChevronDownIcon, ChevronUpIcon, PanelLeftIcon } from "lucide-react";
+ 
+-const SIDEBAR_COOKIE_NAME = "sidebar_state"
+-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+-const SIDEBAR_WIDTH = "16rem"
+-const SIDEBAR_WIDTH_MOBILE = "18rem"
+-const SIDEBAR_WIDTH_ICON = "3rem"
+-const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 +const SIDEBAR_COOKIE_NAME = "sidebar_state";
 +const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 +const SIDEBAR_WIDTH = "16rem";
 +const SIDEBAR_WIDTH_MOBILE = "18rem";
 +const SIDEBAR_WIDTH_ICON = "3rem";
 +const SIDEBAR_KEYBOARD_SHORTCUT = "b";
-+
+ 
+-type SidebarContextProps = {
+-  state: "expanded" | "collapsed"
+-  open: boolean
+-  setOpen: (open: boolean) => void
+-  openMobile: boolean
+-  setOpenMobile: (open: boolean) => void
+-  isMobile: boolean
+-  toggleSidebar: () => void
 +const SIDEBAR_STATE_ATTRIBUTE = "data-sidebar-state";
 +
 +/** The collapsed mark `SidebarStateScript` leaves on `<html>`, read once on the client. */
@@ -178,25 +203,11 @@ index cbcc413..6eef0fe 100644
 +    root.setAttribute(SIDEBAR_STATE_ATTRIBUTE, open ? "expanded" : "collapsed");
 +  }
 +}
- 
--const SIDEBAR_COOKIE_NAME = "sidebar_state"
--const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
--const SIDEBAR_WIDTH = "16rem"
--const SIDEBAR_WIDTH_MOBILE = "18rem"
--const SIDEBAR_WIDTH_ICON = "3rem"
--const SIDEBAR_KEYBOARD_SHORTCUT = "b"
++
 +function writeSidebarCookie(name: string, open: boolean) {
 +  document.cookie = `${name}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
 +}
- 
--type SidebarContextProps = {
--  state: "expanded" | "collapsed"
--  open: boolean
--  setOpen: (open: boolean) => void
--  openMobile: boolean
--  setOpenMobile: (open: boolean) => void
--  isMobile: boolean
--  toggleSidebar: () => void
++
 +/** A JSON string literal that cannot close the inline `<script>` it is written into. */
 +function scriptLiteral(value: string) {
 +  return JSON.stringify(value).replace(/</g, "\\u003c");
@@ -244,9 +255,8 @@ index cbcc413..6eef0fe 100644
 +      dangerouslySetInnerHTML={{ __html: source }}
 +    />
 +  );
- }
- 
--const SidebarContext = React.createContext<SidebarContextProps | null>(null)
++}
++
 +/**
 + * The open state for a controlled `SidebarProvider`, persisted in the sidebar cookie. It starts
 + * from `SidebarStateScript`'s mark when there is one, so hydration matches a pre-painted panel,
@@ -274,8 +284,9 @@ index cbcc413..6eef0fe 100644
 +    [cookieName],
 +  );
 +  return [open, setOpen];
-+}
-+
+ }
+ 
+-const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 +type SidebarContextProps = {
 +  state: "expanded" | "collapsed";
 +  open: boolean;
@@ -608,8 +619,17 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -348,7 +464,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
-       className={cn("flex flex-col gap-2 p-2", className)}
+@@ -345,10 +461,15 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
+     <div
+       data-slot="sidebar-footer"
+       data-sidebar="footer"
+-      className={cn("flex flex-col gap-2 p-2", className)}
++      className={cn(
++        "flex flex-col gap-2 p-2",
++        // While items sit under the footer, its top edge casts a soft shadow over them.
++        "transition-shadow duration-fast ease-standard in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:relative in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:z-10 in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:shadow-[0_-6px_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]",
++        className,
++      )}
        {...props}
      />
 -  )
@@ -617,7 +637,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarSeparator({
-@@ -362,7 +478,7 @@ function SidebarSeparator({
+@@ -362,21 +483,145 @@ function SidebarSeparator({
        className={cn("mx-2 w-auto bg-sidebar-border", className)}
        {...props}
      />
@@ -625,22 +645,156 @@ index cbcc413..6eef0fe 100644
 +  );
  }
  
- function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -372,11 +488,11 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
-       data-sidebar="content"
+-function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
+-  return (
+-    <div
+-      data-slot="sidebar-content"
+-      data-sidebar="content"
++/** Which edges of a scroller have more to show; both false when it fits or rests in the icon rail. */
++type SidebarScrollEdges = { above: boolean; below: boolean };
++
++const NO_SCROLL_EDGES: SidebarScrollEdges = { above: false, below: false };
++
++/**
++ * Overflow up to 8px is not more content: an action's invisible `after:-inset-2` hit area (A11Y-2)
++ * reaches past the last row, and a list that only "overflows" by it fits.
++ */
++const SCROLL_EDGE_SLOP = 8;
++
++/**
++ * Tracks the content's scroll position against its size: on scroll, when the box resizes, and when
++ * what it holds changes (a group expands, a module's items arrive). Re-renders only when an edge
++ * flips. In the collapsed icon rail the content is `overflow-hidden`, so no edge is reported.
++ */
++function useSidebarScrollEdges(node: HTMLDivElement | null, state: string) {
++  const [edges, setEdges] = React.useState<SidebarScrollEdges>(NO_SCROLL_EDGES);
++
++  React.useEffect(() => {
++    if (!node) return;
++    const measure = () => {
++      const rail = node.closest('[data-collapsible="icon"]') !== null;
++      const max = node.scrollHeight - node.clientHeight;
++      const top = Math.abs(node.scrollTop);
++      const next =
++        rail || max <= SCROLL_EDGE_SLOP
++          ? NO_SCROLL_EDGES
++          : { above: top > 1, below: top < max - 1 };
++      setEdges((prev) =>
++        prev.above === next.above && prev.below === next.below ? prev : next,
++      );
++    };
++    measure();
++    node.addEventListener("scroll", measure, { passive: true });
++    const resize = new ResizeObserver(measure);
++    const observeChildren = () => {
++      resize.disconnect();
++      resize.observe(node);
++      for (const child of node.children) resize.observe(child);
++    };
++    observeChildren();
++    const mutation = new MutationObserver(() => {
++      observeChildren();
++      measure();
++    });
++    mutation.observe(node, { childList: true });
++    return () => {
++      node.removeEventListener("scroll", measure);
++      resize.disconnect();
++      mutation.disconnect();
++    };
++  }, [node, state]);
++
++  return edges;
++}
++
++function SidebarContent({
++  className,
++  ref,
++  scrollUpLabel = "Scroll up",
++  scrollDownLabel = "Scroll down",
++  ...props
++}: React.ComponentProps<"div"> & {
++  scrollUpLabel?: string;
++  scrollDownLabel?: string;
++}) {
++  // Read softly: upstream's SidebarContent renders outside a provider too (a static preview).
++  const sidebar = React.useContext(SidebarContext);
++  const isMobile = sidebar?.isMobile ?? false;
++  const state = sidebar?.state ?? "expanded";
++  const [node, setNode] = React.useState<HTMLDivElement | null>(null);
++  const setRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
++  const edges = useSidebarScrollEdges(node, state);
++
++  // About a screenful, less the faded edge, so the row that was half under the fade stays in view.
++  const scrollPage = (direction: -1 | 1) => {
++    if (!node) return;
++    const reduce = window.matchMedia?.(
++      "(prefers-reduced-motion: reduce)",
++    ).matches;
++    node.scrollBy({
++      top: direction * Math.max(node.clientHeight - 64, node.clientHeight / 2),
++      behavior: reduce ? "auto" : "smooth",
++    });
++  };
++
++  // The ⌃/⌄ buttons are a pointer affordance: out of the tab order (keyboard focus already scrolls
++  // a row into view), absent from the phone drawer, and shown only on a fine pointer's hover.
++  const edgeButton = (direction: -1 | 1) => (
++    <Button
++      type="button"
++      variant="outline"
++      size="icon-xs"
++      tabIndex={-1}
++      aria-label={direction < 0 ? scrollUpLabel : scrollDownLabel}
++      data-slot="sidebar-content-scroll"
++      data-direction={direction < 0 ? "up" : "down"}
++      onClick={() => scrollPage(direction)}
        className={cn(
-         "no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+-        "no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
 -        className
-+        className,
++        "absolute start-1/2 z-10 -translate-x-1/2 rounded-full bg-sidebar shadow-sm rtl:translate-x-1/2 dark:bg-sidebar",
++        "pointer-events-none opacity-0 transition-opacity duration-fast ease-standard pointer-fine:group-hover/sidebar-content:pointer-events-auto pointer-fine:group-hover/sidebar-content:opacity-100 pointer-coarse:hidden",
++        direction < 0 ? "top-1" : "bottom-1",
        )}
-       {...props}
-     />
+-      {...props}
+-    />
 -  )
++    >
++      {direction < 0 ? <ChevronUpIcon /> : <ChevronDownIcon />}
++    </Button>
++  );
++
++  return (
++    // A one-row grid, not a nested flex column: the list takes the frame's height when the panel
++    // has one, and its own content height when it does not (a panel in an auto-height host).
++    <div
++      data-slot="sidebar-content-frame"
++      data-more-above={edges.above ? "" : undefined}
++      data-more-below={edges.below ? "" : undefined}
++      className="group/sidebar-content relative grid min-h-0 flex-1 grid-rows-1"
++    >
++      <div
++        ref={setRef}
++        data-slot="sidebar-content"
++        data-sidebar="content"
++        className={cn(
++          "flex min-h-0 flex-col gap-0 overflow-auto scroll-py-10 group-data-[collapsible=icon]:overflow-hidden",
++          // The edge fades (scroll-fade-y), each only toward the side with more to show.
++          "scroll-fade-y not-group-data-more-above/sidebar-content:[--scroll-fade-t-size:0px] not-group-data-more-below/sidebar-content:[--scroll-fade-b-size:0px]",
++          // A thin scrollbar that paints its thumb only while the pointer is over the list.
++          "scrollbar-thin [scrollbar-color:transparent_transparent] hover:[scrollbar-color:var(--border)_transparent]",
++          className,
++        )}
++        {...props}
++      />
++      {!isMobile && edges.above ? edgeButton(-1) : null}
++      {!isMobile && edges.below ? edgeButton(1) : null}
++    </div>
 +  );
  }
  
  function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -384,10 +500,13 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -384,10 +629,13 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
      <div
        data-slot="sidebar-group"
        data-sidebar="group"
@@ -656,7 +810,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarGroupLabel({
-@@ -400,42 +519,50 @@ function SidebarGroupLabel({
+@@ -400,42 +648,50 @@ function SidebarGroupLabel({
      props: mergeProps<"div">(
        {
          className: cn(
@@ -716,7 +870,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarGroupContent({
-@@ -449,7 +576,7 @@ function SidebarGroupContent({
+@@ -449,7 +705,7 @@ function SidebarGroupContent({
        className={cn("w-full text-sm", className)}
        {...props}
      />
@@ -725,7 +879,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -457,10 +584,10 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -457,10 +713,10 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
      <ul
        data-slot="sidebar-menu"
        data-sidebar="menu"
@@ -738,7 +892,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
-@@ -471,30 +598,30 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
+@@ -471,30 +727,30 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
        className={cn("group/menu-item relative", className)}
        {...props}
      />
@@ -776,7 +930,7 @@ index cbcc413..6eef0fe 100644
  
  function SidebarMenuButton({
    render,
-@@ -502,21 +629,45 @@ function SidebarMenuButton({
+@@ -502,21 +758,45 @@ function SidebarMenuButton({
    variant = "default",
    size = "default",
    tooltip,
@@ -827,7 +981,7 @@ index cbcc413..6eef0fe 100644
      ),
      render: !tooltip ? render : <TooltipTrigger render={render} />,
      state: {
-@@ -525,29 +676,81 @@ function SidebarMenuButton({
+@@ -525,29 +805,81 @@ function SidebarMenuButton({
        size,
        active: isActive,
      },
@@ -922,7 +1076,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenuAction({
-@@ -557,27 +760,31 @@ function SidebarMenuAction({
+@@ -557,27 +889,31 @@ function SidebarMenuAction({
    ...props
  }: useRender.ComponentProps<"button"> &
    React.ComponentProps<"button"> & {
@@ -960,7 +1114,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenuBadge({
-@@ -588,26 +795,32 @@ function SidebarMenuBadge({
+@@ -588,26 +924,32 @@ function SidebarMenuBadge({
      <div
        data-slot="sidebar-menu-badge"
        data-sidebar="menu-badge"
@@ -1001,7 +1155,7 @@ index cbcc413..6eef0fe 100644
  
    return (
      <div
-@@ -632,7 +845,7 @@ function SidebarMenuSkeleton({
+@@ -632,7 +974,7 @@ function SidebarMenuSkeleton({
          }
        />
      </div>
@@ -1010,7 +1164,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -642,11 +855,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -642,11 +984,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
        data-sidebar="menu-sub"
        className={cn(
          "mx-3.5 flex min-w-0 translate-x-px rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
@@ -1024,7 +1178,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenuSubItem({
-@@ -660,7 +873,7 @@ function SidebarMenuSubItem({
+@@ -660,7 +1002,7 @@ function SidebarMenuSubItem({
        className={cn("group/menu-sub-item relative", className)}
        {...props}
      />
@@ -1033,7 +1187,7 @@ index cbcc413..6eef0fe 100644
  }
  
  function SidebarMenuSubButton({
-@@ -671,19 +884,19 @@ function SidebarMenuSubButton({
+@@ -671,19 +1013,19 @@ function SidebarMenuSubButton({
    ...props
  }: useRender.ComponentProps<"a"> &
    React.ComponentProps<"a"> & {
@@ -1058,7 +1212,7 @@ index cbcc413..6eef0fe 100644
      ),
      render,
      state: {
-@@ -692,7 +905,7 @@ function SidebarMenuSubButton({
+@@ -692,7 +1034,7 @@ function SidebarMenuSubButton({
        size,
        active: isActive,
      },
@@ -1067,7 +1221,7 @@ index cbcc413..6eef0fe 100644
  }
  
  export {
-@@ -718,6 +931,8 @@ export {
+@@ -718,6 +1060,8 @@ export {
    SidebarProvider,
    SidebarRail,
    SidebarSeparator,

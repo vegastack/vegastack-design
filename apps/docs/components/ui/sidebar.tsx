@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.33.0 sha256-JoY+tMx3cb9/qrpy2hVFf9vTpAM1nsYo9+on8AaKktU=
+// @vegastack sidebar@0.33.0 sha256-PVrvPZ6wp9VLyLzibfe22Il8JcyUMpxZGHSAbtLyDt4=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { RAIL_COLLAPSED_QUERY } from "@/lib/page-layout";
@@ -27,7 +27,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PanelLeftIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, PanelLeftIcon } from "lucide-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -463,7 +463,12 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-footer"
       data-sidebar="footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn(
+        "flex flex-col gap-2 p-2",
+        // While items sit under the footer, its top edge casts a soft shadow over them.
+        "transition-shadow duration-fast ease-standard in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:relative in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:z-10 in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:shadow-[0_-6px_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]",
+        className,
+      )}
       {...props}
     />
   );
@@ -483,17 +488,141 @@ function SidebarSeparator({
   );
 }
 
-function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sidebar-content"
-      data-sidebar="content"
+/** Which edges of a scroller have more to show; both false when it fits or rests in the icon rail. */
+type SidebarScrollEdges = { above: boolean; below: boolean };
+
+const NO_SCROLL_EDGES: SidebarScrollEdges = { above: false, below: false };
+
+/**
+ * Overflow up to 8px is not more content: an action's invisible `after:-inset-2` hit area (A11Y-2)
+ * reaches past the last row, and a list that only "overflows" by it fits.
+ */
+const SCROLL_EDGE_SLOP = 8;
+
+/**
+ * Tracks the content's scroll position against its size: on scroll, when the box resizes, and when
+ * what it holds changes (a group expands, a module's items arrive). Re-renders only when an edge
+ * flips. In the collapsed icon rail the content is `overflow-hidden`, so no edge is reported.
+ */
+function useSidebarScrollEdges(node: HTMLDivElement | null, state: string) {
+  const [edges, setEdges] = React.useState<SidebarScrollEdges>(NO_SCROLL_EDGES);
+
+  React.useEffect(() => {
+    if (!node) return;
+    const measure = () => {
+      const rail = node.closest('[data-collapsible="icon"]') !== null;
+      const max = node.scrollHeight - node.clientHeight;
+      const top = Math.abs(node.scrollTop);
+      const next =
+        rail || max <= SCROLL_EDGE_SLOP
+          ? NO_SCROLL_EDGES
+          : { above: top > 1, below: top < max - 1 };
+      setEdges((prev) =>
+        prev.above === next.above && prev.below === next.below ? prev : next,
+      );
+    };
+    measure();
+    node.addEventListener("scroll", measure, { passive: true });
+    const resize = new ResizeObserver(measure);
+    const observeChildren = () => {
+      resize.disconnect();
+      resize.observe(node);
+      for (const child of node.children) resize.observe(child);
+    };
+    observeChildren();
+    const mutation = new MutationObserver(() => {
+      observeChildren();
+      measure();
+    });
+    mutation.observe(node, { childList: true });
+    return () => {
+      node.removeEventListener("scroll", measure);
+      resize.disconnect();
+      mutation.disconnect();
+    };
+  }, [node, state]);
+
+  return edges;
+}
+
+function SidebarContent({
+  className,
+  ref,
+  scrollUpLabel = "Scroll up",
+  scrollDownLabel = "Scroll down",
+  ...props
+}: React.ComponentProps<"div"> & {
+  scrollUpLabel?: string;
+  scrollDownLabel?: string;
+}) {
+  // Read softly: upstream's SidebarContent renders outside a provider too (a static preview).
+  const sidebar = React.useContext(SidebarContext);
+  const isMobile = sidebar?.isMobile ?? false;
+  const state = sidebar?.state ?? "expanded";
+  const [node, setNode] = React.useState<HTMLDivElement | null>(null);
+  const setRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
+  const edges = useSidebarScrollEdges(node, state);
+
+  // About a screenful, less the faded edge, so the row that was half under the fade stays in view.
+  const scrollPage = (direction: -1 | 1) => {
+    if (!node) return;
+    const reduce = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    node.scrollBy({
+      top: direction * Math.max(node.clientHeight - 64, node.clientHeight / 2),
+      behavior: reduce ? "auto" : "smooth",
+    });
+  };
+
+  // The ⌃/⌄ buttons are a pointer affordance: out of the tab order (keyboard focus already scrolls
+  // a row into view), absent from the phone drawer, and shown only on a fine pointer's hover.
+  const edgeButton = (direction: -1 | 1) => (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon-xs"
+      tabIndex={-1}
+      aria-label={direction < 0 ? scrollUpLabel : scrollDownLabel}
+      data-slot="sidebar-content-scroll"
+      data-direction={direction < 0 ? "up" : "down"}
+      onClick={() => scrollPage(direction)}
       className={cn(
-        "no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
-        className,
+        "absolute start-1/2 z-10 -translate-x-1/2 rounded-full bg-sidebar shadow-sm rtl:translate-x-1/2 dark:bg-sidebar",
+        "pointer-events-none opacity-0 transition-opacity duration-fast ease-standard pointer-fine:group-hover/sidebar-content:pointer-events-auto pointer-fine:group-hover/sidebar-content:opacity-100 pointer-coarse:hidden",
+        direction < 0 ? "top-1" : "bottom-1",
       )}
-      {...props}
-    />
+    >
+      {direction < 0 ? <ChevronUpIcon /> : <ChevronDownIcon />}
+    </Button>
+  );
+
+  return (
+    // A one-row grid, not a nested flex column: the list takes the frame's height when the panel
+    // has one, and its own content height when it does not (a panel in an auto-height host).
+    <div
+      data-slot="sidebar-content-frame"
+      data-more-above={edges.above ? "" : undefined}
+      data-more-below={edges.below ? "" : undefined}
+      className="group/sidebar-content relative grid min-h-0 flex-1 grid-rows-1"
+    >
+      <div
+        ref={setRef}
+        data-slot="sidebar-content"
+        data-sidebar="content"
+        className={cn(
+          "flex min-h-0 flex-col gap-0 overflow-auto scroll-py-10 group-data-[collapsible=icon]:overflow-hidden",
+          // The edge fades (scroll-fade-y), each only toward the side with more to show.
+          "scroll-fade-y not-group-data-more-above/sidebar-content:[--scroll-fade-t-size:0px] not-group-data-more-below/sidebar-content:[--scroll-fade-b-size:0px]",
+          // A thin scrollbar that paints its thumb only while the pointer is over the list.
+          "scrollbar-thin [scrollbar-color:transparent_transparent] hover:[scrollbar-color:var(--border)_transparent]",
+          className,
+        )}
+        {...props}
+      />
+      {!isMobile && edges.above ? edgeButton(-1) : null}
+      {!isMobile && edges.below ? edgeButton(1) : null}
+    </div>
   );
 }
 

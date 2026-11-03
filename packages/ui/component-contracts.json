@@ -31935,12 +31935,28 @@
         "SidebarContent": {
           "attributes": [
             {
+              "name": "data-direction",
+              "values": ["down", "up"]
+            },
+            {
+              "name": "data-more-above",
+              "values": [""]
+            },
+            {
+              "name": "data-more-below",
+              "values": [""]
+            },
+            {
               "name": "data-sidebar",
               "values": ["content"]
             },
             {
               "name": "data-slot",
-              "values": ["sidebar-content"]
+              "values": [
+                "sidebar-content",
+                "sidebar-content-frame",
+                "sidebar-content-scroll"
+              ]
             }
           ],
           "cssVariables": []
