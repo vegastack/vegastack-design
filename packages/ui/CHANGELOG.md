@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.34.0
+
+### Minor Changes
+
+- [#890](https://github.com/vegastack/vegastack-design/pull/890) [`05c71c4`](https://github.com/vegastack/vegastack-design/commit/05c71c45f2112932c971bd275d0c2554900d3cda) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AgentPanel`'s rail card drops the "Agent" title and label. Its header is the agent's avatar, its name (which gets the room and truncates last) and one muted line, "For Priya · claude.ai", built from the new `agent.provider` and `labels.forOwner`. The state is one status block: the icon and word with short facts, then one sentence and at most one action, all at the word's inset. A queued hint no longer starts at a different inset from the line above it. A finished card's disconnect joins its sentence ("… has since been disconnected.", with Reconnect when `onReconnect` is set) instead of floating under the action. Failed shows Retry only (Remove stays in ⋯). Blocked reads "Can't start" with Reconnect, or else Remove. Only a question or an approval sits on the warning tint, now the subtle translucent tint `Alert` uses, in both themes. Row actions are secondary or outline, never primary. `queuedHint` takes the host's own words, and the default no longer says "your machine" (`labels.waiting` now reads "Waiting to start."). `showLatest={false}` drops Latest where the page has its own Activity feed. `runsLayout="line"` shows one compact Runs line ("Runs · 3 changes · 2h ago · View · Undo"). Runs read the same everywhere: the heading is "Runs", and a row reads "3 changes · 10:42" with no "Run ·" prefix. The count never truncates, and the time drops out whole when there's no room. ⚠️ `labels.disconnected` is now a function of the agent's name, `labels.run` is the bare count, and the `blocked` state word is "Can't start".
+
 ## 0.33.1
 
 ### Patch Changes
