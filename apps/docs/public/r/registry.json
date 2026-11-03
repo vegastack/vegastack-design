@@ -23263,7 +23263,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.33.0",
-        "integrity": "sha256-UCmVpDb3teZXFGNrdQMPoj1mkrRrNhcpwPS/udUMIgw="
+        "integrity": "sha256-VMmkAkDOHfPrrsmLj/IV+RPUm2ykU7lAxzyRei6hmlU="
       }
     },
     {

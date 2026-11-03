@@ -25,7 +25,17 @@ import {
 const NOW = Date.parse("2026-10-14T10:46:00Z");
 const MINUTE = 60_000;
 
-const claude = { name: "Claude Code", via: "Priya", access: "Read & write" };
+const claude = {
+  name: "Claude Code",
+  via: "Priya",
+  access: "Read & write",
+  provider: "Claude Code",
+};
+const longName = {
+  name: "QA agent for the Meridian proposal in Claude Code",
+  via: "Priya",
+  provider: "Claude Code",
+};
 const priya = { name: "Priya Raman", hue: "blue" as const };
 
 const latest: AgentPanelEvent[] = [
@@ -61,7 +71,8 @@ function Rail({ children }: { children: ReactNode }) {
 }
 
 export function agentPanel(): ReactNode {
-  // The task page's rail card while the agent works: Stop, steer, reply, undo a run.
+  // The task page's rail card while the agent works: Stop, steer, reply, undo a run. The page has
+  // its own Activity feed, so the card drops Latest and keeps one compact Runs line.
   const [state, setState] = useState<AgentState>("working");
   const [instructions, setInstructions] = useState(
     "Draft the proposal from M-15.",
@@ -82,8 +93,7 @@ export function agentPanel(): ReactNode {
           instructions={instructions}
           onInstructionsChange={setInstructions}
           latest={events}
-          latestTotal={5}
-          onShowAll={noop}
+          showLatest={false}
           onReply={(text) =>
             setEvents((list) => [
               {
@@ -96,6 +106,7 @@ export function agentPanel(): ReactNode {
             ])
           }
           runs={runs}
+          runsLayout="line"
           onViewAgent={noop}
           onChangeAgent={noop}
           onStop={() => setState("stopped")}
@@ -120,7 +131,15 @@ export function agentPanelStates(): ReactNode {
         agent={claude}
         state="queued"
         now={NOW}
-        queuedHint
+        onStop={noop}
+        onRemove={noop}
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={longName}
+        state="queued"
+        now={NOW}
+        queuedHint="Starts when Claude Code next checks in."
         onStop={noop}
         onRemove={noop}
       />
@@ -158,7 +177,7 @@ export function agentPanelStates(): ReactNode {
         agent={claude}
         state="blocked"
         now={NOW}
-        blockedReason="Its token expired"
+        blockedReason="Its sign-in expired."
         onReconnect={noop}
         onRemove={noop}
       />
@@ -210,6 +229,7 @@ export function agentPanelStates(): ReactNode {
         durationSeconds={600}
         summary="Checked the MCP tools end to end; nothing else to do."
         disconnected
+        onReconnect={noop}
       />
     </Wrapper>
   );

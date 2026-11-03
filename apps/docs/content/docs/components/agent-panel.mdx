@@ -24,21 +24,21 @@ import {
 } from "@/components/ui/agent-panel";
 
 <AgentPanel
-  agent={{ name: "Claude Code", via: "Priya", access: "Read & write" }}
+  agent={{ name: "Claude Code", via: "Priya", provider: "claude.ai" }}
   state="working"
   startedAt={run.startedAt}
   progress={run.lastNote}
   instructions={delegation.instructions}
   onInstructionsChange={canSteer ? saveInstructions : undefined}
   latest={events}
-  latestTotal={eventCount}
-  onShowAll={() => filterActivity(agent.id)}
+  showLatest={!pageHasActivity}
   onReply={canSteer ? reply : undefined}
   runs={runs.map((run) => ({
     ...run,
     onView: () => openRun(run),
     onUndo: () => undo(run),
   }))}
+  runsLayout={pageHasActivity ? "line" : "list"}
   onViewAgent={openAgent}
   onChangeAgent={canSteer ? openDelegate : undefined}
   onStop={canSteer ? stop : undefined}
@@ -51,13 +51,22 @@ callbacks. **The callbacks decide what shows**: pass `onReply`, `onInstructionsC
 only to the person who delegated, `onRemove` to them and to admins, and `onReconnect` to the
 agent's owner. `state="none"` renders nothing — the Delegate slot carries the empty state.
 
-Each state reads the props it needs: `queued` (`queuedHint` once it has waited a while), `working`
+The card's header is the agent itself — its avatar, its name (which gets the room and truncates
+last) and one muted line, "For Priya · claude.ai" (`via` and `provider`) — with no "Agent" title or
+label. Under it sits **one status block**: the state's icon and word with its short facts, then one
+sentence and at most one action, all in the word's inset. The other actions live in the ⋯ menu.
+On a record page that has its own Activity feed, pass `showLatest={false}` so the card doesn't
+repeat it, and `runsLayout="line"` for one compact Runs line ("Runs · 3 changes · 2h ago · View ·
+Undo"); a peek, which has no feed, keeps both.
+
+Each state reads the props it needs: `queued` (the host's `queuedHint` words once it has waited a
+while — the design system holds no provider's vocabulary), `working`
 (`startedAt`, `progress`), `question` (`question`, `choices`, `onAnswer`), `approval` (`approval`,
 `onApprove`, `onDecline`), `failed` (`error`, `onRetry`), `blocked` (`blockedReason`,
 `onReconnect`), `done` (`finishedAt`, `durationSeconds`, `summary`, `onMarkDone`) and `stopped`
 (`stoppedBy`, `finishedAt`, `changeCount`, `onDelegateAgain`). A finished, failed or stopped card
-whose agent was disconnected since takes `disconnected` and adds a muted note — it never turns back
-into Needs you.
+whose agent was disconnected since takes `disconnected` and adds it to its sentence (with Reconnect
+when `onReconnect` is set and the state has no other action) — it never turns back into Needs you.
 
 `instructionsMaxLength` and `replyMaxLength` limit the instructions editor and the reply box without cutting them: each counts from 80% of the limit and, past it, shows its `…MaxLengthMessage` while Save or Send waits.
 
@@ -82,11 +91,11 @@ defaults shown here.
 
 ### States
 
-The same card in every state: Queued with Stop and the hint after a while; Needs you with the
-question, one-tap answers and Reply…; Wants approval with Approve and Decline; Failed with Retry and
-Remove; Blocked with Reconnect for the owner; Done with its date, run time, closing message and
-Mark task done; Stopped with what stays and Delegate again — and a done card whose agent was
-disconnected since. History's Undo shows disabled with its reason when the run can't be undone.
+The same card in every state: Queued with Stop, and with the host's hint after a while (and a long
+name that truncates); Needs you with the question, one-tap answers and Reply…; Wants approval with
+Approve and Decline; Failed with Retry; Can't start (blocked: its sign-in expired) with Reconnect for the owner — no tint; only a question or an approval sits on the warning tint; Done with its date,
+run time, closing message and Mark task done; Stopped with what stays and Delegate again — and a
+done card whose agent has since been disconnected, with Reconnect. A run's Undo shows disabled with its reason when the run can't be undone.
 
 <ComponentPreview
   name="agentPanelStates"
