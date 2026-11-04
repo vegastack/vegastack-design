@@ -1,4 +1,4 @@
-// @vegastack inbox@0.35.0 sha256-nsU7y+WkpAYo+UyoyNxFWsrnJOEcJPZ0m/DsxSumqGo=
+// @vegastack inbox@0.35.0 sha256-dqyBjiRou01HbS2bZsAlnTaedAF7OtRguASCdllsETw=
 
 "use client";
 
@@ -1047,7 +1047,12 @@ export function InboxItem({
           <PersonAvatar
             person={{ name: avatar.name, image: avatar.src, hue: avatar.hue }}
             size="default"
-            className="size-7"
+            className={cn(
+              "size-7",
+              // With a corner badge the initials step down and up a pixel, clear of it.
+              badge &&
+                "[&_[data-slot=person-avatar-initials]]:-translate-y-px [&_[data-slot=person-avatar-initials]]:text-[83.333%]",
+            )}
           />
         ) : icon ? (
           <span
