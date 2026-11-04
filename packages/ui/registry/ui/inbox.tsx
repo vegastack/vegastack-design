@@ -1,4 +1,4 @@
-// @vegastack inbox@0.35.0 sha256-mNrYE4pJ+unEHveQiyY8UmgoO9/ODpXlE9vOPSt9WdU=
+// @vegastack inbox@0.35.0 sha256-O1tnbTj2vdcIotUZSOZMCO7dak8BRxmNovG9ZU9FgXU=
 
 "use client";
 
@@ -1077,7 +1077,7 @@ export function InboxItem({
           // The thread rail, from under the avatar's centre down to the events.
           <span
             data-slot="inbox-item-rail"
-            className="absolute start-[13.5px] top-8 bottom-0 w-px bg-border"
+            className="absolute start-[13px] top-8 bottom-0 w-0 border-s border-border"
           />
         ) : null}
       </div>
@@ -1232,16 +1232,17 @@ export function InboxItem({
           id={eventsId}
           data-slot="inbox-item-events"
           hidden={!expanded}
-          // Across the whole row: the rail runs on from the avatar (13.5px, its centre) and each
-          // event curves into its own avatar (10px radius; the rail stops at the last one), in line
-          // with the title.
-          className="relative col-span-full flex flex-col pt-1 before:absolute before:start-[13.5px] before:top-0 before:h-1 before:w-px before:bg-border"
+          // Across the whole row: the rail runs on from the avatar and each event curves into its own
+          // avatar (10px radius; the rail stops at the last one), in line with the title. Every
+          // vertical is a 1px start border at the same whole-pixel x, so where the rail and a
+          // connector meet they are one line at any zoom.
+          className="relative col-span-full flex flex-col pt-1 before:absolute before:start-[13px] before:top-0 before:h-1 before:w-0 before:border-s before:border-border"
         >
           {events!.map((event, i) => (
             <li
               key={event.id ?? i}
               data-slot="inbox-item-event"
-              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13.5px] before:top-0 before:h-3 before:w-6 before:rounded-es-[10px] before:border-s before:border-b before:border-border after:absolute after:inset-y-0 after:start-[13.5px] after:w-px after:bg-border last:after:hidden"
+              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13px] before:top-0 before:h-3 before:w-6 before:rounded-es-[10px] before:border-s before:border-b before:border-border after:absolute after:inset-y-0 after:start-[13px] after:w-0 after:border-s after:border-border last:after:hidden"
             >
               {/* Top-aligned to the first line, whatever the line wraps to. */}
               <span
