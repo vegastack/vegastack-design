@@ -9,8 +9,10 @@ import {
   CommentItem,
   CommentList,
   CommentThread,
+  CommentWorkingRow,
   type CommentData,
 } from "./comments";
+import { Button } from "./button";
 import { preloadTextEdit } from "./text-edit";
 
 // TextEdit renders a light read view and loads its editor on intent; these tests exercise the
@@ -1586,4 +1588,183 @@ test("maxLength: an empty host message still refuses an over-limit comment, with
   const box = screen.getByRole("textbox", { name: "Comment" });
   await expect.element(box).toHaveAttribute("aria-describedby", alert.id);
   expect(onSubmit).not.toHaveBeenCalled();
+});
+
+const workingThread = {
+  id: "t",
+  root: {
+    id: "a",
+    author: { name: "Asha" },
+    body: "Match the lines",
+    createdAt: 1,
+  },
+  replies: [
+    { id: "b", author: { name: "Ravi" }, body: "Line 21 too", createdAt: 2 },
+  ],
+};
+
+const workingRow = (onStop?: () => void) => (
+  <CommentWorkingRow
+    action={
+      <Button size="xs" variant="outline" onClick={onStop}>
+        Stop
+      </Button>
+    }
+  >
+    BOQ processor · Matching line 21…
+  </CommentWorkingRow>
+);
+
+test("the working row follows the last reply, silently, in a list item of its own", async () => {
+  const onStop = vi.fn();
+  const screen = await render(
+    <CommentThread
+      thread={workingThread}
+      onReply={() => {}}
+      working={workingRow(onStop)}
+    />,
+  );
+  const list = screen.container.querySelector(
+    "[data-slot=comment-thread-comments]",
+  )!;
+  const item = list.lastElementChild!;
+  expect(item.getAttribute("data-slot")).toBe("comment-thread-working");
+  const row = item.querySelector("[data-slot=comment-working-row]")!;
+  expect(row.textContent).toContain("Matching line 21…");
+  expect(row.getAttribute("role")).toBeNull();
+  expect(row.querySelector("[role=status],[role=alert]")).toBeNull();
+  await screen.getByRole("button", { name: "Stop" }).click();
+  expect(onStop).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a collapsed thread keeps the working row", async () => {
+  const screen = await render(
+    <CommentThread thread={workingThread} collapsed working={workingRow()} />,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=comment-working-row]"),
+  ).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a failed row drops the spinner and takes the destructive ink", async () => {
+  const screen = await render(
+    <CommentThread
+      thread={workingThread}
+      working={
+        <CommentWorkingRow
+          status="error"
+          action={
+            <Button size="xs" variant="outline">
+              Retry
+            </Button>
+          }
+        >
+          BOQ processor couldn't finish: the sheet is locked.
+        </CommentWorkingRow>
+      }
+    />,
+  );
+  const row = screen.container.querySelector<HTMLElement>(
+    "[data-slot=comment-working-row]",
+  )!;
+  expect(row.dataset.status).toBe("error");
+  expect(row.querySelector("[data-slot=spinner]")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("many actions wrap under the text instead of crushing it", async () => {
+  const screen = await render(
+    <div style={{ width: 288 }}>
+      <CommentThread
+        thread={workingThread}
+        working={
+          <CommentWorkingRow
+            action={
+              <>
+                <Button size="xs">Retry</Button>
+                <Button size="xs">Edit message</Button>
+                <Button size="xs">Fix with agent</Button>
+              </>
+            }
+          >
+            BOQ processor couldn't finish
+          </CommentWorkingRow>
+        }
+      />
+    </div>,
+  );
+  const row = screen.container.querySelector(
+    "[data-slot=comment-working-row]",
+  )!;
+  expect(row.getBoundingClientRect().height).toBeLessThan(200);
+});
+
+test("when the row goes with focus on it, the reply box takes the focus", async () => {
+  const thread = (working?: React.ReactNode) => (
+    <CommentThread
+      thread={workingThread}
+      onReply={() => {}}
+      working={working}
+    />
+  );
+  const screen = await render(thread(workingRow()));
+  await expect
+    .element(screen.getByRole("textbox", { name: "Reply" }))
+    .toBeInTheDocument();
+  const stop = screen
+    .getByRole("button", { name: "Stop" })
+    .element() as HTMLElement;
+  stop.focus();
+  await screen.rerender(thread());
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("contenteditable")).toBe(
+      "true",
+    ),
+  );
+});
+
+test("the reply box is described by its error and hint together", async () => {
+  const screen = await render(
+    <CommentThread
+      thread={workingThread}
+      onReply={() => Promise.reject(new Error("No"))}
+      composer={{
+        defaultValue: "Hello",
+        hint: "BOQ processor sees replies in this thread.",
+      }}
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Reply" });
+  const hint = screen.container.querySelector(
+    "[data-slot=comment-thread-reply-hint]",
+  )!;
+  expect(hint.textContent).toBe("BOQ processor sees replies in this thread.");
+  await vi.waitFor(() =>
+    expect(box.element().getAttribute("aria-describedby")).toBe(hint.id),
+  );
+  await screen.getByRole("button", { name: "Send reply" }).click();
+  await expect.element(screen.getByRole("alert")).toBeVisible();
+  const ids = box.element().getAttribute("aria-describedby")!.split(" ");
+  expect(ids).toHaveLength(2);
+  expect(ids[1]).toBe(hint.id);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a composer's hint describes its box", async () => {
+  const screen = await render(
+    <CommentComposer onSubmit={() => {}} hint="Only your team sees this." />,
+  );
+  const hint = screen.container.querySelector(
+    "[data-slot=comment-composer-hint]",
+  )!;
+  await vi.waitFor(() =>
+    expect(
+      screen
+        .getByRole("textbox", { name: "Comment" })
+        .element()
+        .getAttribute("aria-describedby"),
+    ).toBe(hint.id),
+  );
 });

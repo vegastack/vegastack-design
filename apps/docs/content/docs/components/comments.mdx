@@ -240,7 +240,7 @@ thread with none of them opens straight on the first comment. Pass `composer` to
 A resolved thread says who resolved it (with their `badge`, such as "Inactive", after the name) and
 when, and offers Reopen (`onReopen`). An `orphaned`
 thread — its text was deleted — says "Original text was removed" instead of the quote. `collapsed`
-shows the first comment, "N replies" (a button with `onExpand`) and the last reply, with no reply
+shows the first comment, "N replies" (a button with `onExpand`), the last reply and any `working` row, with no reply
 row.
 
 <ComponentPreview
@@ -287,6 +287,22 @@ author's name — a person's or an agent's — opens their hover card.
 
 <ComponentPreview name="commentsAgent" file="components/preview/comments.tsx" />
 
+### Something still answering
+
+While an agent answers in a thread, pass a `CommentWorkingRow` in `working`: it sits under the last
+reply with what the agent is doing, in collapsed threads too. Pass Stop in `action`, and leave it out
+for someone who may not stop this. `status="error"` turns the row into the failure, with Retry in
+`action`; several actions wrap under the text.
+
+It announces nothing, so tell the reader through your own announcer when the answer lands. If focus
+is on the row when it goes, the reply box takes it. `composer.hint` is a line under the reply box that
+also describes it, such as who sees replies here.
+
+<ComponentPreview
+  name="commentsWorking"
+  file="components/preview/comments.tsx"
+/>
+
 ### Loading more threads
 
 `CommentThreadSkeleton` is one placeholder thread card, in its real shape — for a list loading more
@@ -312,6 +328,11 @@ threads (`LoadMore`'s `skeleton`). `CommentListSkeleton` is the whole list's fir
 <ApiTable
   path="../../packages/ui/registry/ui/comments.tsx"
   name="CommentThreadProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentWorkingRowProps"
 />
 
 <ApiTable

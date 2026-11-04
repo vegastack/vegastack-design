@@ -8,10 +8,13 @@ import {
   CommentItem,
   CommentList,
   CommentThread,
+  CommentWorkingRow,
   type CommentData,
   type CommentOrder,
   type CommentThreadData,
 } from "@/components/ui/comments";
+import { Button } from "@/components/ui/button";
+import { PersonAvatar } from "@/components/ui/person-avatar";
 import { toggleReaction } from "@/components/ui/reactions";
 
 const NOW = Date.parse("2026-09-26T10:00:00Z");
@@ -295,6 +298,39 @@ const THREAD: CommentThreadData = {
     },
   ],
 };
+
+/** An agent still answering in the thread: the row under the last reply, and who it listens to. */
+export function commentsWorking(): ReactNode {
+  return (
+    <Demo>
+      <CommentThread
+        className="max-w-80"
+        now={NOW}
+        viewer={ME}
+        thread={THREAD}
+        onReply={() => {}}
+        composer={{ hint: "BOQ processor sees replies in this thread." }}
+        working={
+          <CommentWorkingRow
+            avatar={
+              <PersonAvatar
+                person={{ name: "BOQ processor", kind: "agent" }}
+                size="xs"
+              />
+            }
+            action={
+              <Button size="xs" variant="outline">
+                Stop
+              </Button>
+            }
+          >
+            BOQ processor · Matching line 21…
+          </CommentWorkingRow>
+        }
+      />
+    </Demo>
+  );
+}
 
 /**
  * A thread about a piece of text: the quote (click it to find the highlight), the first comment,
