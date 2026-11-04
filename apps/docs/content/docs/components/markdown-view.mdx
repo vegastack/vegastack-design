@@ -52,11 +52,13 @@ remote images send no referrer:
 </MarkdownView>
 ```
 
-For content an agent or an outsider wrote, `imageProxy` offers a blocked image on request: its box
-reads "Image from acme.com" with Show, nothing is fetched until then, and Show loads the URL you
-return, so the reader's browser never calls the remote origin. With it set, `*` in
-`allowedImageOrigins` no longer applies, a source that is the proxy's own address stays a box, and
-bookmarks don't fetch a preview.
+For content an agent or an outsider wrote, set `untrusted`: nothing then loads or fetches by itself.
+`*` in `allowedImageOrigins` stops applying, images and media on this site need a prefix in
+`allowedImagePaths` (a plain GET to your own routes carries the reader's session), and bookmarks fetch
+no preview. A blocked image's box names its real origin, since the alt text may claim any.
+
+`imageProxy` adds a Show to that box and implies `untrusted`. Nothing is fetched until the press, and
+then only the URL you return, so the reader's browser never calls the remote origin.
 
 The proxy is yours to secure, because the content chose the address it is given. It must accept only
 requests the content can't forge, reach public addresses only, re-check every redirect, and return
@@ -64,10 +66,12 @@ images only.
 
 `showLinkDomains` says where each external link goes, after its text: "Datasheet (acme.com)". The
 domain is left out only when the link's plain text is exactly that host, with no user name in the
-URL, so its words can't claim a host it doesn't reach.
+URL, so its words can't claim a host it doesn't reach. A `mailto:` shows its address the same way.
 
 ```tsx
 <MarkdownView
+  untrusted
+  allowedImagePaths={["/files/"]}
   imageProxy={(src) => `/api/image?url=${encodeURIComponent(src)}`}
   showLinkDomains
 >
