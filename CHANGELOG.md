@@ -9,6 +9,31 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.39.0] — November 4, 2026
+
+<!-- assembled from 4 changesets: 6cc077bc0b65 -->
+
+### 🧩 New components
+
+- **New: `RecurrencePicker` (item `recurrence-picker`) and `TimeField` (item `time-field`).** `RecurrencePicker` is the body of a repeat popover: presets as a radio group (an optional `noneLabel` row, then the host's presets, then "Custom…"), and a custom editor — Every [n] [day/week/month/year], the weekdays (a multiple toggle group named in full), the month day ("day [n]", "the [second] [Monday]", "the last day", with the 29–31 hint), an optional time, Ends (Never / On a date / After n times) and the host's `extra` fields — over the host's next dates as chips in a polite live region (`preview`, `previewLoading`, `previewError`, `timeZoneLabel`). It edits a plain `RecurrenceValue` (exported with `Weekday`, `RecurrenceFrequency`, `RecurrenceOrdinal`, `RecurrenceMonthRule`, `RecurrenceEnds`, `RecurrencePreset`, `RecurrencePickerView` and `RecurrenceLabels`), computes no dates and ships no RRULE engine; `view`/`onViewChange` let the host grow its popover for the custom editor, and every string is in `labels`. `TimeField` is a typed time of day, `"HH:mm"` in and out, on the locale's or a chosen 12/24-hour clock, stepped by the arrow keys (`step`, default 15 minutes) within `min` and `max`.
+  [`0f57b83`](https://github.com/VegaStack/vegastack-design/commit/0f57b83)
+
+### 🔧 Changed components
+
+- **NumberField** takes `decrementLabel` and `incrementLabel` for its steppers' accessible names, which were fixed English. The defaults are unchanged ("Decrease", "Increase").
+  [`0f57b83`](https://github.com/VegaStack/vegastack-design/commit/0f57b83)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.38.2 → 0.39.0.
+
+### 🐛 Fixed
+
+- **NumberField** no longer looks disabled at its `min` or `max`. Base UI disables the stepper at a bound, and `InputGroup` dimmed the whole field for any disabled descendant, so a field holding its minimum showed at half opacity and failed text contrast. Only a disabled input dims the field now; the stepper at its bound is still muted on its own.
+  [`0f57b83`](https://github.com/VegaStack/vegastack-design/commit/0f57b83)
+- `parseTimeOfDay` (`date-time`) reads back what `formatTimeValue` writes in every locale: the locale's own digits ("٩:٣٠ ص") and a day word before the time ("오전 9:30"). A `DateTimePicker` or `TimeField` in those locales marked its own display invalid when one digit was edited.
+  [`0f57b83`](https://github.com/VegaStack/vegastack-design/commit/0f57b83)
+
 ## [0.38.2] — November 4, 2026
 
 <!-- assembled from 1 changeset: 566adad82657 -->

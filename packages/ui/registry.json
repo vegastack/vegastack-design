@@ -2068,7 +2068,7 @@
       "meta": {
         "whenToUse": "A time of day on its own: a schedule's time, a reminder, opening hours. Typed (\"930\", \"9:30 pm\") or stepped with the arrow keys; the value is always HH:mm.",
         "whenNotToUse": "A date and a time together (DateTimePicker), a duration (NumberField with a unit), or an instant across time zones.",
-        "version": "0.38.0"
+        "version": "0.39.0"
       }
     },
     {
@@ -2104,7 +2104,7 @@
       "meta": {
         "whenToUse": "Choosing how something repeats — a Repeat property, a schedule, a reminder — inside the host's popover or ResponsiveDialog, with presets built from the record's date and the host's formatted next dates.",
         "whenNotToUse": "Picking one date (DatePicker) or a time alone (TimeField); computing occurrences (the host's RRULE engine).",
-        "version": "0.38.0"
+        "version": "0.39.0"
       }
     },
     {
@@ -2175,7 +2175,7 @@
       "meta": {
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
-        "version": "0.33.0"
+        "version": "0.39.0"
       }
     },
     {
@@ -14268,7 +14268,7 @@
       "meta": {
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
-        "version": "0.33.0"
+        "version": "0.39.0"
       }
     },
     {
