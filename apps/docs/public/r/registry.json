@@ -17376,8 +17376,8 @@
       "meta": {
         "whenToUse": "One line of status inside a record header — processing, a failure with its reason and Retry, a quiet notice.",
         "whenNotToUse": "A page-level message with a title (Alert) or a transient confirmation (Toast).",
-        "version": "0.33.0",
-        "integrity": "sha256-ojP8INPWBI+u2yBMJc3NqdyfXB/YOIxbrNwGZ3jhXDc="
+        "version": "0.41.0",
+        "integrity": "sha256-2xxZ4wRuSil4pP7cNqe49A63RNmeB8cpQ06W2U44Wos="
       }
     },
     {
@@ -19567,8 +19567,8 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.40.0",
-        "integrity": "sha256-ZQhJN263x7q1216+8yCszZVOJwNpwZEOtKWUXTKntUU="
+        "version": "0.41.0",
+        "integrity": "sha256-GBF0dULsuP7wwvgeEjKvV3DIOK6v9BH45GjbmByVlDE="
       }
     },
     {
