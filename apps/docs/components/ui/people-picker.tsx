@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.38.0 sha256-Gtd8Zkz2YRZmu94W/ClLCPVvTXwtZEp6iRt5O8CYOJ4=
+// @vegastack people-picker@0.38.0 sha256-nGrek7nDy9A7Ti8dcGT4ABrSCMXdvT4S9A5VPNHOjUk=
 
 "use client";
 
@@ -49,8 +49,8 @@ import {
  * assignee, an owner, a manager, a filter) or several people and teams (members of a team or a
  * space, a share invite) composes it, so a row reads the same everywhere: the avatar on the left,
  * the name (with "(you)" for the viewer), then the email, a description or "Team · N people" in a
- * smaller truncated line. An agent (`kind: "agent"`) reads "Claude Code via Manoj" with its purple
- * bot and "Agent" label, so the same picker delegates to a member's agents; an option it may not
+ * smaller truncated line. An agent (`kind: "agent"`) reads "Claude Code · Manoj" with its hexagon and
+ * the "Agent" label, so the same picker delegates to a member's agents; an option it may not
  * take shows why (`disabledReason`) and can't be picked. Three hosts share the rows, the search and the loading skeleton:
  *
  * - `PeoplePicker` — a field: its own trigger (one height per size, the same as `Button` and
@@ -92,6 +92,18 @@ export interface PeoplePickerOption extends Person {
    * @default undefined
    */
   disabledReason?: string | null;
+  /**
+   * A caution that does not stop the pick ("Can't see this space yet"): its second line, in the
+   * warning ink, in place of the email or description. The host handles what picking it means.
+   * @default undefined
+   */
+  hint?: string | null;
+  /**
+   * The heading this option is listed under ("People", "Agents"); options without one lead,
+   * under `heading`. Groups follow `groupOrder`, else the order they first appear in.
+   * @default undefined
+   */
+  group?: string | null;
 }
 
 /** A static footer action under the results — "Assign to me", "Unassign". */
@@ -148,8 +160,20 @@ export interface PeoplePickerListProps {
   defaultSearch?: string;
   /** Shown when nothing matches. @default "No people found" */
   emptyText?: string;
-  /** A label over the rows ("Your agents"). @default undefined */
+  /** A label over the rows without a `group` ("Your agents"). @default undefined */
   heading?: string;
+  /**
+   * The order of the options' `group` headings; a group not named here follows them, in the order
+   * it first appears. Give it with `search`: results page in, and a group's first row can move.
+   * @default []
+   */
+  groupOrder?: readonly string[];
+  /**
+   * Add the purple "Agent" label to an agent's row ("Claude Code · Manoj"), so agents stand out
+   * where they are picked beside people. Turn it off where every row is an agent (a delegate
+   * list). @default true
+   */
+  agentLabel?: boolean;
   /** The viewer's marker after their name. @default "(you)" */
   youLabel?: string;
   /** A team's second line. @default (n) => `Team · ${n} ${n === 1 ? "person" : "people"}` */
@@ -162,6 +186,40 @@ const defaultTeamLabel = (n: number) =>
   `Team · ${n} ${n === 1 ? "person" : "people"}`;
 
 const SKELETON_ROWS = 4;
+
+/**
+ * The rows in their headed groups: ungrouped rows first, under `heading`, then each `group` in
+ * `groupOrder`, then any other group in the order it first appears. Rows keep their order inside
+ * a group.
+ */
+function groupRows(
+  rows: readonly PeoplePickerOption[],
+  heading: string | undefined,
+  groupOrder: readonly string[] = [],
+): { heading: string | undefined; rows: PeoplePickerOption[] }[] {
+  const ungrouped: PeoplePickerOption[] = [];
+  const groups = new Map<string, PeoplePickerOption[]>();
+  for (const row of rows) {
+    // A group named like `heading` is the same list, not a second one under the same words.
+    if (!row.group || row.group === heading) {
+      ungrouped.push(row);
+      continue;
+    }
+    const list = groups.get(row.group);
+    if (list) list.push(row);
+    else groups.set(row.group, [row]);
+  }
+  const rank = (name: string) => {
+    const i = groupOrder.indexOf(name);
+    return i < 0 ? groupOrder.length : i;
+  };
+  // A stable sort: groups not in `groupOrder` keep the order they first appeared in.
+  const named = [...groups.keys()].sort((a, b) => rank(a) - rank(b));
+  return [
+    ...(ungrouped.length ? [{ heading, rows: ungrouped }] : []),
+    ...named.map((name) => ({ heading: name, rows: groups.get(name)! })),
+  ];
+}
 
 /** The search, the rows and the paging behind every host. */
 function usePeopleList(
@@ -193,21 +251,23 @@ function usePeopleList(
       : (options ?? []).filter(
           (o) =>
             !q ||
-            [o.name, o.email, o.description].some((text) =>
+            [o.name, o.email, o.description, o.for].some((text) =>
               (text ?? "").toLowerCase().includes(q),
             ),
         );
     const skip = new Set(exclude);
     const seen = new Set<string>();
+    // A pinned choice sits under the heading its search result has, however the host stored it.
+    const groupOf = new Map(found.map((o) => [o.id, o.group]));
     // The current choice leads while nothing is typed, so a chosen row is always there to untick.
-    const list = [...leadingOptions, ...(q ? [] : pinned), ...found].filter(
-      (o) => {
+    const list = [...leadingOptions, ...(q ? [] : pinned), ...found]
+      .filter((o) => {
         if (seen.has(o.id) || skip.has(o.id)) return false;
         if (o.active === false && !includeInactive) return false;
         seen.add(o.id);
         return true;
-      },
-    );
+      })
+      .map((o) => (groupOf.has(o.id) ? { ...o, group: groupOf.get(o.id) } : o));
     if (!viewerId || q) return list;
     const me = list.findIndex((o) => o.id === viewerId);
     if (me < 0) return list;
@@ -252,17 +312,26 @@ function PeoplePickerRow({
   youLabel = "(you)",
   teamLabel = defaultTeamLabel,
   inactiveLabel = "Inactive",
+  agentLabel = true,
 }: {
   option: PeoplePickerOption;
   /** The row is part of the choice: screen readers hear it (cmdk's aria-selected is the cursor). */
   checked?: boolean;
 } & Pick<
   PeoplePickerListProps,
-  "viewerId" | "youLabel" | "teamLabel" | "inactiveLabel"
+  "viewerId" | "youLabel" | "teamLabel" | "inactiveLabel" | "agentLabel"
 >) {
   const team = option.kind === "team";
+  const agent = option.kind === "agent";
+  const hint =
+    !option.disabledReason && option.hint ? (
+      <span data-slot="people-picker-hint" className="text-warning-text">
+        {option.hint}
+      </span>
+    ) : null;
   const secondary =
     option.disabledReason ||
+    hint ||
     (option.description ??
       (team
         ? option.memberCount != null
@@ -288,7 +357,11 @@ function PeoplePickerRow({
       }
       name={
         <>
-          <PersonName person={option} />
+          <PersonName
+            person={option}
+            variant="compact"
+            agentLabel={agent && agentLabel}
+          />
           {option.id === viewerId && !team ? (
             <>
               {" "}
@@ -389,7 +462,10 @@ function PeoplePickerTail({
 export interface PeoplePickerContentProps extends PeoplePickerListProps {
   /** Called with the picked person or team. */
   onSelect: (option: PeoplePickerOption) => void;
-  /** Chosen options listed first while nothing is typed (a multiple choice). @default [] */
+  /**
+   * Chosen options listed first while nothing is typed (a multiple choice) — first in their group
+   * when options are grouped. @default []
+   */
   pinned?: readonly PeoplePickerOption[];
   /** Classes for the `Command` root. @default undefined */
   className?: string;
@@ -449,9 +525,12 @@ export function PeoplePickerContent({
         ) : error ? null : (
           <CommandEmpty>{emptyText}</CommandEmpty>
         )}
-        {rows.length > 0 ? (
-          <CommandGroup heading={heading}>
-            {rows.map((option) => (
+        {groupRows(rows, heading, list.groupOrder).map((group, i) => (
+          <CommandGroup
+            key={group.heading ?? `__group-${i}`}
+            heading={group.heading}
+          >
+            {group.rows.map((option) => (
               <CommandItem
                 key={option.id}
                 value={option.id}
@@ -469,7 +548,7 @@ export function PeoplePickerContent({
               </CommandItem>
             ))}
           </CommandGroup>
-        ) : null}
+        ))}
         <PeoplePickerTail paging={loadMore} error={error} rows={rows.length} />
         {actions.length > 0 ? (
           <CommandActions>
@@ -518,7 +597,7 @@ export function PeoplePickerMenu({
   const { rows, query, onSearchChange, loading, error, loadMore, checked } =
     usePeopleList(list);
   const paging = usePaging(loadMore, error, rows.length);
-  const items = rows.map((option) => (
+  const item = (option: PeoplePickerOption) => (
     <DropdownMenuItem
       key={option.id}
       data-slot="people-picker-item"
@@ -532,7 +611,7 @@ export function PeoplePickerMenu({
         {...list}
       />
     </DropdownMenuItem>
-  ));
+  );
   return (
     <>
       <PanelSearch>
@@ -555,13 +634,17 @@ export function PeoplePickerMenu({
         onScroll={paging.onScroll}
       >
         {loading ? <PeoplePickerSkeleton /> : null}
-        {heading && rows.length > 0 ? (
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>{heading}</DropdownMenuLabel>
-            {items}
-          </DropdownMenuGroup>
-        ) : (
-          items
+        {groupRows(rows, heading, list.groupOrder).map((group, i) =>
+          group.heading ? (
+            <DropdownMenuGroup key={group.heading}>
+              <DropdownMenuLabel>{group.heading}</DropdownMenuLabel>
+              {group.rows.map(item)}
+            </DropdownMenuGroup>
+          ) : (
+            <React.Fragment key={`__group-${i}`}>
+              {group.rows.map(item)}
+            </React.Fragment>
+          ),
         )}
         {!loading && !error && rows.length === 0 ? (
           <p className="px-2 py-1.5 text-sm text-muted-foreground">
@@ -626,7 +709,7 @@ export interface PeoplePickerProps<
   ref?: React.Ref<HTMLButtonElement>;
 }
 
-/** "Asha Rao", "Asha Rao, Dev Menon", "Asha Rao, Dev Menon +2"; an agent "Claude Code (for Manoj)". */
+/** "Asha Rao", "Asha Rao, Dev Menon", "Asha Rao, Dev Menon +2"; an agent "Claude Code for Manoj". */
 function namesOf(list: readonly PeoplePickerOption[]): string {
   const shown = list.slice(0, 2).map(personDisplayName).join(", ");
   return list.length > 2 ? `${shown} +${list.length - 2}` : shown;

@@ -189,10 +189,10 @@ const KNOT = { src: "/preview/agent-mark-knot.svg", tile: "light" } as const;
 const TILE = { src: "/preview/agent-mark-tile.svg", fit: "fill" } as const;
 
 const AGENTS: Person[] = [
-  { name: "Review agent", kind: "agent", via: "Manoj" },
-  { name: "Orbit", kind: "agent", via: "Asha", mark: ORBIT },
-  { name: "Knot", kind: "agent", via: "Dev", mark: KNOT },
-  { name: "Atlas", kind: "agent", via: "Lena", mark: TILE },
+  { name: "Review agent", kind: "agent", for: "Manoj" },
+  { name: "Orbit", kind: "agent", for: "Asha", mark: ORBIT },
+  { name: "Knot", kind: "agent", for: "Dev", mark: KNOT },
+  { name: "Atlas", kind: "agent", for: "Lena", mark: TILE },
   { name: "Assistant", kind: "agent", hue: "blue", mark: <Sparkles /> },
 ];
 
@@ -380,6 +380,91 @@ export function personHoverCardIndicators(): ReactNode {
             />
           </div>
         ))}
+      </div>
+    </Wrapper>
+  );
+}
+
+/* A sample mark with a dark-theme variant and a small glyph for the row steps (abstract, no brand). */
+const ORBIT_THEMED = {
+  src: "/preview/agent-mark-orbit.svg",
+  srcDark: "/preview/agent-mark-orbit-dark.svg",
+  small: { src: "/preview/agent-mark-orbit-small.svg" },
+};
+
+/**
+ * A mark with a dark-theme variant (`srcDark`) and a small glyph (`small`) for the 16 and 20px
+ * steps; `small: false` draws the bot there instead, for a mark that turns to mush when small.
+ */
+export function personHoverCardMarks(): ReactNode {
+  const rows: { label: string; person: Person }[] = [
+    {
+      label: "Theme variant + small glyph",
+      person: { name: "Orbit", kind: "agent", mark: ORBIT_THEMED },
+    },
+    {
+      label: "Bot at the row steps",
+      person: {
+        name: "Knot",
+        kind: "agent",
+        mark: { ...KNOT, small: false },
+      },
+    },
+  ];
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto grid grid-cols-[repeat(6,auto)] items-center gap-x-3 gap-y-3 text-xs text-muted-foreground sm:grid-cols-[auto_repeat(6,minmax(0,1fr))] sm:gap-x-4">
+        <span className="max-sm:hidden" />
+        {SIZES.map((size) => (
+          <span key={size} className="text-center">
+            {size}
+          </span>
+        ))}
+        {rows.map(({ label, person }) => (
+          <div key={label} className="contents">
+            <span className="whitespace-nowrap max-sm:hidden">{label}</span>
+            {SIZES.map((size) => (
+              <span key={size} className="flex justify-center">
+                <PersonAvatar person={person} size={size} />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * `actingFor`: the member an agent works for rides on its hexagon as a small circle at the
+ * bottom-end corner — the agent leads. From `sm` up; the row steps leave it out. In a picker the
+ * name reads compact, "Orbit · Asha", with the "Agent" label.
+ */
+export function personHoverCardActingFor(): ReactNode {
+  const asha = { name: "Asha Rao", hue: "blue" as const };
+  const dev = { name: "Dev Menon", image: "/preview/avatar-2.svg" };
+  return (
+    <Wrapper className="flex-col">
+      <div className="flex flex-wrap items-end justify-center gap-4">
+        {(["sm", "default", "lg", "xl"] as const).map((size) => (
+          <PersonAvatar
+            key={size}
+            size={size}
+            person={AGENTS[1]!}
+            actingFor={asha}
+          />
+        ))}
+        <PersonAvatar size="lg" person={AGENTS[0]!} actingFor={dev} />
+      </div>
+      <div className="flex flex-col items-start gap-1 text-sm">
+        <span className="flex items-center gap-2">
+          <PersonAvatar size="default" person={AGENTS[1]!} actingFor={asha} />
+          <PersonName person={AGENTS[1]!} />
+        </span>
+        <span className="flex items-center gap-2">
+          <PersonAvatar size="sm" person={AGENTS[1]!} />
+          <PersonName person={AGENTS[1]!} variant="compact" agentLabel />
+        </span>
       </div>
     </Wrapper>
   );

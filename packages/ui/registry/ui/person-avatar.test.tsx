@@ -89,7 +89,7 @@ test("a workspace is a rounded-square tile: its whole logo, else its initials on
   await expectNoA11yViolations(screen.container);
 });
 
-const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
+const claude = { name: "Claude Code", kind: "agent" as const, for: "Manoj" };
 
 test("an agent is a bot on its hue, purple when it has none", async () => {
   const screen = await render(
@@ -121,7 +121,7 @@ test("PersonName: an agent reads its name, for its owner, and the Agent label wh
   );
   expect(agent!.dataset.kind).toBe("agent");
   expect(
-    agent!.querySelector('[data-slot="person-name-via"]')!.textContent,
+    agent!.querySelector('[data-slot="person-name-for"]')!.textContent,
   ).toBe(" for Manoj");
   const label = agent!.querySelector<HTMLElement>(
     '[data-slot="person-agent-label"]',
@@ -147,9 +147,9 @@ test("PersonName: no label by default (the hexagon says agent) but keeps the spo
 });
 
 test("personDisplayName and personAccessibleName", () => {
-  expect(personDisplayName(claude)).toBe("Claude Code (for Manoj)");
+  expect(personDisplayName(claude)).toBe("Claude Code for Manoj");
   expect(personDisplayName({ name: "Codex", kind: "agent" })).toBe("Codex");
-  expect(personDisplayName({ name: "Asha Rao", via: "x" })).toBe("Asha Rao");
+  expect(personDisplayName({ name: "Asha Rao", for: "x" })).toBe("Asha Rao");
   expect(personAccessibleName(claude)).toBe("Claude Code for Manoj, agent");
   expect(personAccessibleName({ name: "Codex", kind: "agent" })).toBe(
     "Codex, agent",
@@ -357,5 +357,143 @@ test("in a group an agent drops the circular ring for a halo in its own shape", 
   expect(getComputedStyle(agent!).boxShadow).not.toContain(" 2px");
   expect(getComputedStyle(agent!, "::before").backgroundColor).not.toBe(
     "rgba(0, 0, 0, 0)",
+  );
+});
+
+test("an agent's mark: a dark-theme variant beside the light one, and either stands in when the other fails", async () => {
+  const DARK = `${PNG}#dark`;
+  const screen = await render(
+    <div className="flex gap-2">
+      <PersonAvatar
+        size="lg"
+        person={{ name: "A", kind: "agent", mark: { src: PNG, srcDark: DARK } }}
+      />
+      <PersonAvatar
+        size="lg"
+        person={{ name: "B", kind: "agent", mark: { src: PNG, srcDark: GIF } }}
+      />
+      <PersonAvatar
+        size="lg"
+        person={{ name: "C", kind: "agent", mark: { src: GIF, srcDark: GIF } }}
+      />
+    </div>,
+  );
+  const [both, darkBroken, allBroken] =
+    screen.container.querySelectorAll<HTMLElement>('[data-slot="avatar"]');
+  await expect
+    .poll(() =>
+      both!
+        .querySelector('[data-slot="person-avatar-mark"]')
+        ?.classList.contains("invisible"),
+    )
+    .toBe(false);
+  const light = both!.querySelector<HTMLImageElement>(
+    'img[data-theme-variant="light"]',
+  )!;
+  const dark = both!.querySelector<HTMLImageElement>(
+    'img[data-theme-variant="dark"]',
+  )!;
+  expect(light.className).toContain("dark:hidden");
+  expect(dark.className).toContain("hidden");
+  expect(dark.className).toContain("dark:block");
+  expect(dark.getAttribute("src")).toBe(DARK);
+  // A dark variant that fails leaves the light mark in both themes, with no theme classes.
+  await expect.poll(() => darkBroken!.querySelectorAll("img").length).toBe(1);
+  expect(darkBroken!.querySelector("img")!.className).not.toContain(
+    "dark:hidden",
+  );
+  // Both failing gives way to the bot.
+  await expect
+    .poll(() => allBroken!.querySelector('[data-slot="person-avatar-mark"]'))
+    .toBeNull();
+  expect(allBroken!.querySelector("svg.lucide-bot")).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("an agent's mark at the row steps: its small glyph, or the bot when it asks for none", async () => {
+  const GLYPH = `${PNG}#glyph`;
+  const mark = { src: PNG, small: { src: GLYPH } };
+  const screen = await render(
+    <div className="flex gap-2">
+      <PersonAvatar size="2xs" person={{ name: "A", kind: "agent", mark }} />
+      <PersonAvatar size="xs" person={{ name: "B", kind: "agent", mark }} />
+      <PersonAvatar size="sm" person={{ name: "C", kind: "agent", mark }} />
+      <PersonAvatar
+        size="2xs"
+        person={{ name: "D", kind: "agent", mark: { src: PNG, small: false } }}
+      />
+      <PersonAvatar
+        size="lg"
+        person={{ name: "E", kind: "agent", mark: { src: PNG, small: false } }}
+      />
+    </div>,
+  );
+  const [tiny, row, larger, noGlyph, large] =
+    screen.container.querySelectorAll<HTMLElement>('[data-slot="avatar"]');
+  expect(tiny!.querySelector("img")!.getAttribute("src")).toBe(GLYPH);
+  expect(row!.querySelector("img")!.getAttribute("src")).toBe(GLYPH);
+  expect(larger!.querySelector("img")!.getAttribute("src")).toBe(PNG);
+  expect(noGlyph!.querySelector("img")).toBeNull();
+  expect(noGlyph!.querySelector("svg.lucide-bot")).not.toBeNull();
+  expect(large!.querySelector("img")!.getAttribute("src")).toBe(PNG);
+});
+
+test("actingFor: the member as a small offset circle on an agent from sm up; never at the row steps or on a person", async () => {
+  const manoj = { name: "Manoj Kumar", hue: "blue" as const };
+  const screen = await render(
+    <div className="flex gap-4 p-2">
+      <PersonAvatar size="lg" person={claude} actingFor={manoj} />
+      <PersonAvatar size="xl" person={claude} actingFor={manoj} />
+      <PersonAvatar size="xs" person={claude} actingFor={manoj} />
+      <PersonAvatar size="lg" person={{ name: "Asha" }} actingFor={manoj} />
+      <PersonAvatar
+        size="lg"
+        person={claude}
+        actingFor={manoj}
+        indicator={<span />}
+      />
+    </div>,
+  );
+  const roots = screen.container.querySelectorAll<HTMLElement>(
+    ':scope > div > [data-slot="avatar"]',
+  );
+  const actingFor = (el: HTMLElement) =>
+    el.querySelector<HTMLElement>('[data-slot="person-avatar-acting-for"]');
+  const [lg, xl, xs, person, withIndicator] = roots;
+  const small = actingFor(lg!)!;
+  expect(small.getAttribute("aria-hidden")).toBe("true");
+  expect(box(small).width).toBe(16);
+  // Two pixels out past the hexagon's bottom-end corner.
+  expect(box(small).right - box(lg!).right).toBe(2);
+  expect(box(small).bottom - box(lg!).bottom).toBe(2);
+  expect(
+    small.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')!.dataset
+      .hue,
+  ).toBe("blue");
+  expect(box(actingFor(xl!)!).width).toBe(24);
+  expect(actingFor(xs!)).toBeNull();
+  expect(actingFor(person!)).toBeNull();
+  // The indicator gives the bottom corner to the member and moves to the top.
+  const dot = withIndicator!.querySelector<HTMLElement>(
+    '[data-slot="person-avatar-indicator"]',
+  )!;
+  expect(box(dot).bottom).toBeLessThan(box(withIndicator!).top + 20);
+  await expectNoA11yViolations(screen.container);
+});
+
+test('PersonName compact: a picker\'s "Claude Code · Manoj", spoken the same as the sentence form', async () => {
+  const screen = await render(
+    <PersonName person={claude} variant="compact" agentLabel />,
+  );
+  const name = screen.container.querySelector<HTMLElement>(
+    '[data-slot="person-name"]',
+  )!;
+  expect(name.dataset.variant).toBe("compact");
+  expect(name.querySelector('[data-slot="person-name-for"]')!.textContent).toBe(
+    " · Manoj",
+  );
+  expect(name.querySelector('[data-slot="person-agent-label"]')).not.toBeNull();
+  expect(name.querySelector(".sr-only")!.textContent).toBe(
+    "Claude Code for Manoj, agent",
   );
 });

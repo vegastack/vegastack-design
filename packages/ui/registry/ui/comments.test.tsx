@@ -1152,7 +1152,7 @@ test("an agent's comment carries data-agent, its hexagon and its owner, with no 
             name: "Claude Code",
             email: "claude.ai",
             kind: "agent",
-            via: "Manoj",
+            for: "Manoj",
           },
           body: "Summarised the thread.",
           createdAt: Date.now(),
@@ -1173,7 +1173,7 @@ test("an agent's comment carries data-agent, its hexagon and its owner, with no 
     screen.container.querySelector("[data-slot=avatar][data-kind=agent]"),
   ).not.toBeNull();
   expect(
-    screen.container.querySelector("[data-slot=person-name-via]")?.textContent,
+    screen.container.querySelector("[data-slot=person-name-for]")?.textContent,
   ).toBe(" for Manoj");
   await screen
     .getByRole("button", { name: "Claude Code for Manoj, agent" })
@@ -1209,7 +1209,7 @@ test("a question has an amber bar, Needs your reply, and choices that answer it"
   const onChoose = vi.fn(() => new Promise<void>((done) => (resolve = done)));
   const question = {
     id: "q",
-    author: { name: "Claude Code", kind: "agent" as const, via: "Manoj" },
+    author: { name: "Claude Code", kind: "agent" as const, for: "Manoj" },
     body: "Which rate should I use?",
     createdAt: Date.now(),
     tone: "question" as const,

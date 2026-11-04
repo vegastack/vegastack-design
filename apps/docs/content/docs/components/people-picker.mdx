@@ -93,12 +93,24 @@ is exactly as tall as the `PermissionMenu` and `Button` beside it.
 
 ### Agents
 
-An option with `kind: "agent"` and `via` reads "Claude Code for Manoj" with its hexagon, so the same picker delegates work to a member's agents. `heading` labels the rows
+An option with `kind: "agent"` and `for` reads "Claude Code · Manoj" with its hexagon and the "Agent" label (`agentLabel={false}` where every row is an agent), so the same picker delegates work to a member's agents. `heading` labels the rows
 ("Your agents"); an option with `disabledReason` stays listed, disabled, with the reason as its
 second line.
 
 <ComponentPreview
   name="peoplePickerAgents"
+  file="components/preview/people-picker.tsx"
+/>
+
+### Groups
+
+Give options a `group` ("People", "Agents") to list them under headings; `groupOrder` orders the
+headings, and options without a group lead under `heading`. An option's `hint` ("Can't see this
+space yet") is a caution in the warning ink that, unlike `disabledReason`, still lets it be picked —
+the host decides what picking it means.
+
+<ComponentPreview
+  name="peoplePickerGroups"
   file="components/preview/people-picker.tsx"
 />
 

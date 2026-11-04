@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.38.0 sha256-kX90/yhyyes4D+c8vuZgJkA9r4KTKCkBSW5JdGpdQJE=
+// @vegastack activity-feed@0.38.0 sha256-E3pLIcn6SgM5YRMLkfkda6tf99oM9+L1EgB4IkQW5K0=
 
 "use client";
 
@@ -679,7 +679,7 @@ export interface ActivityEventProps {
   /** Who did it; `null` for the system. A `badge` on the person ("Inactive") follows the name. */
   actor: Person | null;
   /**
-   * @deprecated Give the actor `kind: "agent"` (and `via`) instead; kept for one release. The
+   * @deprecated Give the actor `kind: "agent"` (and `for`) instead; kept for one release. The
    * actor is an agent: read as if `actor.kind` were `"agent"`. @default false
    */
   agent?: boolean;

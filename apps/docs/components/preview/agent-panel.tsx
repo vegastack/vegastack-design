@@ -27,13 +27,13 @@ const MINUTE = 60_000;
 
 const claude = {
   name: "Claude Code",
-  via: "Priya",
+  for: "Priya",
   access: "Read & write",
   provider: "Claude Code",
 };
 const longName = {
   name: "QA agent for the Meridian proposal in Claude Code",
-  via: "Priya",
+  for: "Priya",
   provider: "Claude Code",
 };
 const priya = { name: "Priya Raman", hue: "blue" as const };
@@ -107,7 +107,7 @@ export function agentPanel(): ReactNode {
           }
           runs={runs}
           runsLayout="line"
-          onViewAgent={noop}
+          onOpenAgent={noop}
           onChangeAgent={noop}
           onStop={() => setState("stopped")}
           onRemove={() => setState("none")}
@@ -223,6 +223,55 @@ export function agentPanelStates(): ReactNode {
       <AgentPanel
         className="w-full max-w-80"
         agent={claude}
+        state="quiet"
+        now={NOW}
+        startedAt={NOW - 45 * MINUTE}
+        lastUpdateAt={NOW - 30 * MINUTE}
+        onStop={noop}
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={claude}
+        state="not-started"
+        now={NOW}
+        queuedHint="Starts when Claude Code next checks in."
+        onStop={noop}
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={claude}
+        state="paused"
+        now={NOW}
+        pausedReason="Reached its usage limit."
+        onResume={noop}
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={claude}
+        state="approval"
+        now={NOW}
+        approval="Wants to share Quotation.xlsx with Acme."
+        onReview={noop}
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={claude}
+        state="blocked"
+        now={NOW}
+        blockedReason="Can't see Showroom yet."
+        onGiveAccess={noop}
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={claude}
+        state="no-action"
+        now={NOW}
+        finishedAt={NOW - 60 * MINUTE}
+        summary="Nothing new in Sales East since Friday."
+      />
+      <AgentPanel
+        className="w-full max-w-80"
+        agent={claude}
         state="done"
         now={NOW}
         finishedAt={NOW - 7 * 24 * 60 * MINUTE}
@@ -254,7 +303,7 @@ export function agentPanelSection(): ReactNode {
           onReply={noop}
           runs={runs}
           onStop={noop}
-          onViewAgent={noop}
+          onOpenAgent={noop}
           onRemove={noop}
         />
         <AgentPanel
@@ -332,10 +381,16 @@ export function agentPanelSlot(): ReactNode {
           {(
             [
               "queued",
+              "not-started",
               "working",
+              "quiet",
               "question",
+              "approval",
+              "paused",
+              "blocked",
               "failed",
               "done",
+              "no-action",
               "stopped",
             ] as const
           ).map((state) => (
@@ -358,7 +413,7 @@ export function agentPanelSlot(): ReactNode {
             agent={claude}
             state="working"
             lastAction="Reading the 3 linked pages…"
-            onViewAgent={noop}
+            onOpenAgent={noop}
           >
             <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
           </AgentHoverCard>
@@ -366,9 +421,23 @@ export function agentPanelSlot(): ReactNode {
             agent={claude}
             state="done"
             trigger="name"
-            onViewAgent={noop}
+            onOpenAgent={noop}
           >
             Claude Code
+          </AgentHoverCard>
+          <AgentHoverCard
+            agent={{ ...claude, provider: null, access: null }}
+            kindLabel="Connected app"
+            owner="Priya Raman's agent"
+            description="Works with Priya's access. Give it work from any task."
+            state="working"
+            footer="Claude Code · Signed in · last used 3 min ago"
+            href="#agent"
+          >
+            <PersonAvatar
+              person={{ name: "Claude Code", kind: "agent" }}
+              actingFor={priya}
+            />
           </AgentHoverCard>
         </div>
       </div>

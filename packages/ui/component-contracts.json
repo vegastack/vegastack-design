@@ -38503,6 +38503,24 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "agentShapeTarget",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AgentShapeLayer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -38584,6 +38602,15 @@
         "vrt": "exempt"
       },
       "dataAttributes": {
+        "AgentShapeLayer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-shape-layer"]
+            }
+          ],
+          "cssVariables": []
+        },
         "PersonAvatar": {
           "attributes": [
             {
@@ -38598,9 +38625,14 @@
               "name": "data-slot",
               "values": [
                 "avatar-image",
+                "person-avatar-acting-for",
                 "person-avatar-indicator",
                 "person-avatar-mark"
               ]
+            },
+            {
+              "name": "data-theme-variant",
+              "values": ["dark", "light"]
             }
           ],
           "cssVariables": []
@@ -38622,7 +38654,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["person-name", "person-name-via"]
+              "values": ["person-name", "person-name-for"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -40941,7 +40977,7 @@
       "name": "agent-edit-banner",
       "registryType": "registry:ui",
       "title": "Agent Edit Banner",
-      "summary": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.",
+      "summary": "The strip under a document's header after an agent changed it: the agent's hexagon, \"Edited by Claude for Manoj · 3 changes · 2m ago\", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.",
       "status": "stable",
       "since": "0.25.38",
       "family": "chat",
@@ -41642,6 +41678,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "AgentLanyardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -41751,7 +41796,8 @@
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
         "@vegastack/disclosure-trigger",
-        "@vegastack/field"
+        "@vegastack/field",
+        "@vegastack/badge"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -41845,7 +41891,13 @@
             },
             {
               "name": "data-slot",
-              "values": ["agent-hover-card", "agent-hover-card-last-action"]
+              "values": [
+                "agent-hover-card",
+                "agent-hover-card-description",
+                "agent-hover-card-footer",
+                "agent-hover-card-last-action",
+                "agent-hover-card-open"
+              ]
             }
           ],
           "cssVariables": []
@@ -41950,6 +42002,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DelegatePopoverPickedContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-popover.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -42023,7 +42084,9 @@
         "@vegastack/separator",
         "@vegastack/skeleton",
         "@vegastack/spinner",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/avatar",
+        "@vegastack/person-avatar"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -42055,11 +42118,13 @@
               "name": "data-slot",
               "values": [
                 "delegate-popover",
+                "delegate-popover-connect",
                 "delegate-popover-empty",
                 "delegate-popover-finish",
                 "delegate-popover-footer",
                 "delegate-popover-form",
                 "delegate-popover-loading",
+                "delegate-popover-picked",
                 "delegate-popover-submit"
               ]
             }

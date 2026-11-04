@@ -1,24 +1,29 @@
-// @vegastack agent-panel@0.38.0 sha256-UDDcKHBfY+F7QblwbV8aKpt9MzFC0QULAOL1bAb+M84=
+// @vegastack agent-panel@0.38.0 sha256-mwJ0yJ6SY1JDVwpJzdRrmb4112wVzWXGhfirZ31YmGY=
 
 "use client";
 
 import * as React from "react";
+import { mergeProps } from "@base-ui/react/merge-props";
 import {
   ArrowUp,
   Bot,
   ChevronRight,
   CircleAlert,
   CircleCheck,
+  CircleMinus,
+  CirclePause,
   CircleX,
   Clock,
   Ellipsis,
+  Hourglass,
   MessageSquare,
   Pencil,
   RefreshCw,
   Square,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
 import {
   Collapsible,
@@ -46,9 +51,10 @@ import {
 } from "@/components/ui/input-group";
 import {
   PersonAgentLabel,
+  AgentShapeLayer,
   PersonAvatar,
-  agentShapeMask,
   agentShapeStyle,
+  agentShapeTarget,
   personAccessibleName,
   type Person,
 } from "@/components/ui/person-avatar";
@@ -85,23 +91,33 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
  * - `AgentStateBadge` — the state as an icon and a word; `AgentStateRing` — the avatar ring for
  *   lists and boards (amber: needs you, red: failed).
  * - `AgentHoverCard` — the agent behind an avatar or a name: acting for, access, state, last action,
- *   View agent. `AgentCard` is its body, for a `PersonHoverCardProvider`.
+ *   Open agent. `AgentCard` is its body, for a `PersonHoverCardProvider`.
  *
  * Presentational: the host owns the delegation and passes its state, data and callbacks. Which
  * actions show is decided by the callbacks passed, so a viewer who can't steer gets the words only.
  * Every string comes in through `labels`, with English defaults.
  * ----------------------------------------------------------------------------------------------*/
 
-/** Where a delegation stands. `none` — nothing is delegated (the panel renders nothing). */
+/**
+ * Where a delegation stands. `none` — nothing is delegated (the panel renders nothing). Waiting:
+ * `queued`, and `not-started` once it has waited past the host's promise. On it: `working`,
+ * `quiet` (no update for a while), `question` and `approval` (it needs someone), `paused` (held,
+ * with a reason) and `blocked` (it can't start). Over: `done`, `no-action` (done, nothing needed
+ * doing), `failed` and `stopped`.
+ */
 export type AgentState =
   | "none"
   | "queued"
+  | "not-started"
   | "working"
+  | "quiet"
   | "question"
   | "approval"
+  | "paused"
   | "failed"
   | "blocked"
   | "done"
+  | "no-action"
   | "stopped";
 
 /** The short word for each state, as badges, slots and chips write it. */
@@ -109,22 +125,26 @@ export type AgentStateLabels = Record<Exclude<AgentState, "none">, string>;
 
 const DEFAULT_STATE_LABELS: AgentStateLabels = {
   queued: "Queued",
+  "not-started": "Not started",
   working: "Working",
+  quiet: "Quiet",
   question: "Needs you",
-  approval: "Needs you",
+  approval: "Needs approval",
+  paused: "Paused",
   blocked: "Can't start",
   failed: "Failed",
   done: "Done",
+  "no-action": "No action needed",
   stopped: "Stopped",
 };
 
 /** The agent an `AgentPanel` shows: a `Person` drawn as an agent, plus its access. */
 export interface AgentPanelAgent extends Pick<
   Person,
-  "name" | "image" | "mark"
+  "name" | "image" | "mark" | "hue"
 > {
   /** The member it acts for: "Priya" reads "For Priya". @default undefined */
-  via?: string | null;
+  for?: string | null;
   /** What it may do, in a few words: "Read & write". @default undefined */
   access?: string | null;
   /**
@@ -138,12 +158,16 @@ type Tone = "muted" | "info" | "warning" | "destructive" | "success";
 
 const STATE_TONE: Record<Exclude<AgentState, "none">, Tone> = {
   queued: "muted",
+  "not-started": "warning",
   working: "info",
+  quiet: "warning",
   question: "warning",
   approval: "warning",
+  paused: "muted",
   blocked: "warning",
   failed: "destructive",
   done: "success",
+  "no-action": "muted",
   stopped: "muted",
 };
 
@@ -158,24 +182,47 @@ const TONE_TEXT: Record<Tone, string> = {
 /** States the agent is still on: Stop applies, and a disconnect can still block it. */
 const ACTIVE: ReadonlySet<AgentState> = new Set([
   "queued",
+  "not-started",
   "working",
+  "quiet",
   "question",
   "approval",
+  "paused",
   "blocked",
 ]);
 
 /** States the work is over in: "Agent since disconnected" may follow. */
 const FINISHED: ReadonlySet<AgentState> = new Set([
   "done",
+  "no-action",
   "failed",
   "stopped",
+]);
+
+/** States whose one action is Stop: on the status block, or a section's header. */
+const STOPPABLE: ReadonlySet<AgentState> = new Set([
+  "queued",
+  "not-started",
+  "working",
+  "quiet",
+]);
+
+/** States that need someone: the avatar ring is amber for these, red for a failure. */
+const NEEDS_SOMEONE: ReadonlySet<AgentState> = new Set([
+  "question",
+  "approval",
+  "blocked",
+  "failed",
 ]);
 
 function toneOf(state: AgentState): Tone {
   return state === "none" ? "muted" : STATE_TONE[state];
 }
 
-/** The state's glyph: a clock, a spinner, "!", ✕, ✓ or ■ — always beside its word. */
+/**
+ * The state's glyph, always beside its word: a clock (waiting; amber once late), a spinner, an
+ * hourglass (quiet), "!", a pause, ✕, ✓, a dash (no action) or ■.
+ */
 function AgentStateIcon({
   state,
   className,
@@ -186,6 +233,7 @@ function AgentStateIcon({
   const cls = cn("size-3.5 shrink-0", TONE_TEXT[toneOf(state)], className);
   switch (state) {
     case "queued":
+    case "not-started":
       return <Clock aria-hidden data-slot="agent-state-icon" className={cls} />;
     case "working":
       return (
@@ -197,11 +245,19 @@ function AgentStateIcon({
           className={cls}
         />
       );
+    case "quiet":
+      return (
+        <Hourglass aria-hidden data-slot="agent-state-icon" className={cls} />
+      );
     case "question":
     case "approval":
     case "blocked":
       return (
         <CircleAlert aria-hidden data-slot="agent-state-icon" className={cls} />
+      );
+    case "paused":
+      return (
+        <CirclePause aria-hidden data-slot="agent-state-icon" className={cls} />
       );
     case "failed":
       return (
@@ -210,6 +266,10 @@ function AgentStateIcon({
     case "done":
       return (
         <CircleCheck aria-hidden data-slot="agent-state-icon" className={cls} />
+      );
+    case "no-action":
+      return (
+        <CircleMinus aria-hidden data-slot="agent-state-icon" className={cls} />
       );
     case "stopped":
       return (
@@ -230,6 +290,7 @@ function asPerson(agent: AgentPanelAgent) {
     name: agent.name,
     image: agent.image,
     mark: agent.mark,
+    hue: agent.hue,
     kind: "agent" as const,
   };
 }
@@ -357,7 +418,8 @@ export function AgentStateRing({
   children,
   ...props
 }: AgentStateRingProps) {
-  const tone = toneOf(state);
+  // Only the states that need someone ring; an amber wait or a quiet spell is its icon's alone.
+  const tone = NEEDS_SOMEONE.has(state) ? toneOf(state) : "muted";
   const word =
     state === "none"
       ? null
@@ -594,13 +656,13 @@ export function AgentChip({
 
 /** Every string `AgentHoverCard` renders. */
 export interface AgentHoverCardLabels {
-  /** The purple label after the name. */
+  /** The purple label after the name, when no `kindLabel` is given. */
   agent: string;
   /** "For Priya". */
   actingFor: (owner: string) => string;
-  /** The View agent link. */
-  viewAgent: string;
-  /** The avatar trigger's accessible name: "Claude Code via Priya, agent". */
+  /** The link to the agent's page: "Open agent". */
+  open: string;
+  /** The avatar trigger's accessible name: "Claude Code for Priya, agent". */
   name: (agent: string, owner?: string | null) => string;
   /** The heading over `lastAction`. */
   lastAction: string;
@@ -609,14 +671,46 @@ export interface AgentHoverCardLabels {
 const DEFAULT_HOVER_LABELS: AgentHoverCardLabels = {
   agent: "Agent",
   actingFor: (owner) => `For ${owner}`,
-  viewAgent: "View agent",
+  open: "Open agent",
   name: (agent, owner) =>
-    personAccessibleName({ name: agent, kind: "agent", via: owner }),
+    personAccessibleName({ name: agent, kind: "agent", for: owner }),
   lastAction: "Last action",
 };
 
+/** What the hover card says about the agent itself — its lanyard — beyond its name and state. */
+export interface AgentLanyardProps {
+  /**
+   * What kind of agent it is, as a small outline badge after the name ("Custom", "Connected app",
+   * "Built in"), in place of the purple "Agent" label. @default undefined
+   */
+  kindLabel?: string;
+  /**
+   * Whose it is, as the line under the name ("Asha Rao's agent", "Built in") — in place of "For
+   * Priya · claude.ai · Read & write"; give those facts to `footer`. @default undefined
+   */
+  owner?: React.ReactNode;
+  /** What it does, clamped to two lines. @default undefined */
+  description?: React.ReactNode;
+  /** More badges after the kind ("Managed by VegaStack"). @default undefined */
+  badges?: React.ReactNode;
+  /**
+   * The technical facts — where it runs, how it signs in ("claude.ai · MCP · Access token") — in
+   * a muted footer under a rule, so the card leads with the agent, not its plumbing.
+   * @default undefined
+   */
+  footer?: React.ReactNode;
+  /** The agent's page: "Open agent" is a link to it. @default undefined */
+  href?: string;
+  /**
+   * The element the link renders — a router link such as `<Link href="" />`; `href` wins over the
+   * template's.
+   * @default <a />
+   */
+  linkRender?: React.ReactElement;
+}
+
 /** Props for `AgentCard`. */
-export interface AgentCardProps {
+export interface AgentCardProps extends AgentLanyardProps {
   /** The agent. */
   agent: AgentPanelAgent;
   /** Where its work on this record stands, shown under its access. @default undefined */
@@ -626,8 +720,11 @@ export interface AgentCardProps {
    * pages…"), or why it stopped. Clamped to two lines. @default undefined
    */
   lastAction?: React.ReactNode;
-  /** Open the agent's page; the View agent link shows when set. @default undefined */
-  onViewAgent?: () => void;
+  /**
+   * Open the agent's page: "Open agent" shows when this or `href` is set (with `href`, it runs on
+   * the link's click). @default undefined
+   */
+  onOpenAgent?: () => void;
   /** Replace any of the strings (`AgentHoverCardLabels`). @default undefined */
   labels?: Partial<AgentHoverCardLabels>;
   /** Replace any state word (`AgentStateLabels`). @default undefined */
@@ -637,29 +734,56 @@ export interface AgentCardProps {
 }
 
 /**
- * `AgentCard` — the body of `AgentHoverCard`: the bot and name with the "Agent" label, "For
- * Priya · Read & write", the state, the last action, and View agent. Hand it to a
- * `PersonHoverCardProvider` so an agent's name in comments and activity opens the same card.
+ * `AgentCard` — the body of `AgentHoverCard`, the agent's lanyard: its hexagon and name with its
+ * kind ("Custom") or the "Agent" label, whose it is ("Asha Rao's agent", else "For Priya ·
+ * Read & write"), what it does, where its work on this record stands, what it did last, Open
+ * agent, and the technical facts in a muted footer. Hand it to a `PersonHoverCardProvider` so an
+ * agent's name in comments and activity opens the same card.
  *
  * @example
- * <AgentCard agent={{ name: "Claude Code", via: "Priya" }} state="working" lastAction="Reading the 3 linked pages…" />
+ * <AgentCard agent={{ name: "Claude Code", for: "Priya" }} state="working" lastAction="Reading the 3 linked pages…" />
+ * @example
+ * <AgentCard agent={agent} kindLabel="Connected app" owner="Asha Rao's agent" description="Works with Asha's access." footer="claude.ai · MCP" href="/agents/a1" />
  */
 export function AgentCard({
   agent,
   state,
   lastAction,
-  onViewAgent,
+  onOpenAgent,
+  kindLabel,
+  owner,
+  description,
+  badges,
+  footer,
+  href,
+  linkRender,
   labels: labelsProp,
   stateLabels,
   className,
 }: AgentCardProps) {
   const labels = { ...DEFAULT_HOVER_LABELS, ...labelsProp };
+  const shown = (node: React.ReactNode) =>
+    node != null && node !== false && node !== "";
   return (
     <div
       data-slot="agent-hover-card"
       className={cn("flex min-w-0 flex-col gap-2", className)}
     >
-      <AgentIdentity agent={agent} labels={labels} />
+      <AgentIdentity
+        agent={agent}
+        labels={labels}
+        kindLabel={kindLabel}
+        owner={owner}
+        badges={badges}
+      />
+      {shown(description) ? (
+        <p
+          data-slot="agent-hover-card-description"
+          className="line-clamp-2 text-sm wrap-anywhere text-muted-foreground"
+        >
+          {description}
+        </p>
+      ) : null}
       {state && state !== "none" ? (
         <AgentStateBadge
           state={state}
@@ -667,7 +791,7 @@ export function AgentCard({
           className="text-sm"
         />
       ) : null}
-      {lastAction != null && lastAction !== false && lastAction !== "" ? (
+      {shown(lastAction) ? (
         <div
           data-slot="agent-hover-card-last-action"
           className="flex min-w-0 flex-col text-xs"
@@ -678,23 +802,52 @@ export function AgentCard({
           </span>
         </div>
       ) : null}
-      {onViewAgent ? (
+      {href ? (
+        React.cloneElement(
+          linkRender ?? <a />,
+          mergeProps((linkRender?.props ?? {}) as object, {
+            href,
+            "data-slot": "agent-hover-card-open",
+            className: buttonVariants({
+              variant: "link",
+              size: "xs",
+              className: "self-start px-0",
+            }),
+            onClick: onOpenAgent,
+            children: (
+              <>
+                {labels.open}
+                <ChevronRight aria-hidden data-icon="inline-end" />
+              </>
+            ),
+          }) as object,
+        )
+      ) : onOpenAgent ? (
         <Button
           variant="link"
           size="xs"
+          data-slot="agent-hover-card-open"
           className="self-start px-0"
-          onClick={onViewAgent}
+          onClick={onOpenAgent}
         >
-          {labels.viewAgent}
+          {labels.open}
           <ChevronRight aria-hidden data-icon="inline-end" />
         </Button>
+      ) : null}
+      {shown(footer) ? (
+        <div
+          data-slot="agent-hover-card-footer"
+          className="-mx-2.5 -mb-2.5 border-t px-2.5 py-1.5 text-xs wrap-anywhere text-muted-foreground"
+        >
+          {footer}
+        </div>
       ) : null}
     </div>
   );
 }
 
 /** Props for `AgentHoverCard`. */
-export interface AgentHoverCardProps {
+export interface AgentHoverCardProps extends AgentLanyardProps {
   /** The agent. */
   agent: AgentPanelAgent;
   /** Where its work on this record stands, shown under its access. @default undefined */
@@ -704,13 +857,16 @@ export interface AgentHoverCardProps {
   /** The trigger — the agent's `PersonAvatar` (`trigger="avatar"`) or its name (`trigger="name"`). */
   children: React.ReactNode;
   /**
-   * `avatar` — the children sit in a round ghost button named for the agent. `name` — inline text
-   * (an activity's actor) in a quiet text button.
+   * `avatar` — the children sit in a ghost button in the agent's hexagon, named for the agent.
+   * `name` — inline text (an activity's actor) in a quiet text button.
    * @default "avatar"
    */
   trigger?: "avatar" | "name";
-  /** Open the agent's page; the View agent link shows when set. @default undefined */
-  onViewAgent?: () => void;
+  /**
+   * Open the agent's page: "Open agent" shows when this or `href` is set (with `href`, it runs on
+   * the link's click). @default undefined
+   */
+  onOpenAgent?: () => void;
   /** Replace any of the strings (`AgentHoverCardLabels`). @default undefined */
   labels?: Partial<AgentHoverCardLabels>;
   /** Replace any state word (`AgentStateLabels`). @default undefined */
@@ -720,14 +876,18 @@ export interface AgentHoverCardProps {
 }
 
 /**
- * `AgentHoverCard` — hover or focus an agent's avatar or name (tap it on touch) for who it is:
- * its bot and name with the "Agent" label, "For Priya · claude.ai · Read & write", where its work on
- * this record stands, what it did last, and View agent (`AgentCard`). `PersonHoverCard` for an
- * agent, with the agent's facts.
+ * `AgentHoverCard` — hover or focus an agent's avatar or name (tap it on touch) for its lanyard:
+ * its hexagon and name with its kind, whose it is, what it does, where its work on this record
+ * stands, what it did last, Open agent, and the technical facts in a muted footer (`AgentCard`).
+ * `PersonHoverCard` for an agent, with the agent's facts.
  *
  * @example
- * <AgentHoverCard agent={{ name: "Claude Code", via: "Priya", access: "Read & write" }} state="working" onViewAgent={openAgent}>
+ * <AgentHoverCard agent={{ name: "Claude Code", for: "Priya", access: "Read & write" }} state="working" onOpenAgent={openAgent}>
  *   <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
+ * </AgentHoverCard>
+ * @example
+ * <AgentHoverCard agent={agent} kindLabel="Custom" owner="Asha Rao's agent" description={agent.description} href={`/agents/${agent.id}`}>
+ *   <PersonAvatar person={agent} />
  * </AgentHoverCard>
  */
 export function AgentHoverCard({
@@ -736,14 +896,25 @@ export function AgentHoverCard({
   lastAction,
   children,
   trigger = "avatar",
-  onViewAgent,
+  onOpenAgent,
   labels: labelsProp,
   stateLabels,
   className,
+  ...lanyard
 }: AgentHoverCardProps) {
   const labels = { ...DEFAULT_HOVER_LABELS, ...labelsProp };
   const [open, setOpen] = React.useState(false);
-  const name = labels.name(agent.name, agent.via);
+  const name = labels.name(agent.name, agent.for);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  // Focus opens the card; Enter then steps into it, so its link is reachable by keyboard.
+  const press = (event: React.MouseEvent) => {
+    const action =
+      event.detail === 0 && open
+        ? contentRef.current?.querySelector<HTMLElement>("a[href],button")
+        : null;
+    if (action) action.focus();
+    else setOpen((o) => !o);
+  };
   return (
     <HoverCard open={open} onOpenChange={setOpen}>
       <HoverCardTrigger
@@ -756,7 +927,7 @@ export function AgentHoverCard({
                 "h-6 min-w-0 px-0 font-medium text-foreground no-underline hover:underline",
                 className,
               )}
-              onClick={() => setOpen((o) => !o)}
+              onClick={press}
             />
           ) : (
             <Button
@@ -766,26 +937,28 @@ export function AgentHoverCard({
               aria-label={name}
               // The hover fill and focus tint follow the agent's hexagon, never a circle.
               style={agentShapeStyle}
-              className={cn("rounded-none", agentShapeMask, className)}
-              onClick={() => setOpen((o) => !o)}
+              className={cn(agentShapeTarget, className)}
+              onClick={press}
             />
           )
         }
       >
+        {trigger === "avatar" ? <AgentShapeLayer /> : null}
         {children}
       </HoverCardTrigger>
-      <HoverCardContent align="start" className="w-64 p-2.5">
+      <HoverCardContent ref={contentRef} align="start" className="w-72 p-2.5">
         <AgentCard
           agent={agent}
           state={state}
           lastAction={lastAction}
           labels={labels}
           stateLabels={stateLabels}
-          onViewAgent={
-            onViewAgent
+          {...lanyard}
+          onOpenAgent={
+            onOpenAgent || lanyard.href
               ? () => {
                   setOpen(false);
-                  onViewAgent();
+                  onOpenAgent?.();
                 }
               : undefined
           }
@@ -795,16 +968,23 @@ export function AgentHoverCard({
   );
 }
 
-/** The bot, the name with "Agent", and "For Priya · claude.ai · Read & write" under it. */
+/**
+ * The hexagon, the name with its kind (or "Agent"), and whose it is under it: the host's `owner`
+ * line, else "For Priya · claude.ai · Read & write".
+ */
 function AgentIdentity({
   agent,
   labels,
+  kindLabel,
+  owner,
+  badges,
 }: {
   agent: AgentPanelAgent;
   labels: Pick<AgentHoverCardLabels, "agent" | "actingFor">;
-}) {
+} & Pick<AgentLanyardProps, "kindLabel" | "owner" | "badges">) {
+  const hasOwner = owner != null && owner !== false && owner !== "";
   const facts = [
-    agent.via ? labels.actingFor(agent.via) : null,
+    agent.for ? labels.actingFor(agent.for) : null,
     agent.provider,
     agent.access,
   ]
@@ -815,18 +995,25 @@ function AgentIdentity({
       data-slot="agent-identity"
       className="flex min-w-0 items-center gap-2.5"
     >
-      <PersonAvatar person={asPerson(agent)} aria-hidden size="default" />
+      <PersonAvatar person={asPerson(agent)} aria-hidden size="lg" />
       <div className="flex min-w-0 flex-col">
-        <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 text-sm font-medium">
+        <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-medium">
           <span className="wrap-anywhere">{agent.name}</span>
-          <PersonAgentLabel>{labels.agent}</PersonAgentLabel>
+          {kindLabel ? (
+            <Badge variant="outline" data-slot="agent-identity-kind">
+              {kindLabel}
+            </Badge>
+          ) : (
+            <PersonAgentLabel>{labels.agent}</PersonAgentLabel>
+          )}
+          {badges}
         </span>
-        {facts ? (
+        {hasOwner || facts ? (
           <span
             data-slot="agent-identity-facts"
             className="text-xs wrap-anywhere text-muted-foreground"
           >
-            {facts}
+            {hasOwner ? owner : facts}
           </span>
         ) : null}
       </div>
@@ -901,8 +1088,16 @@ export interface AgentPanelLabels extends AgentHoverCardLabels {
    * it next checks in." Hosts that know how the agent runs pass their own words as `queuedHint`.
    */
   queuedHint: (agent: string) => string;
-  /** The Approval line's word. */
-  wantsApproval: string;
+  /** The Quiet sentence, given how long since its last update: "No update for 30 min." */
+  noUpdate: (duration: string) => string;
+  /** The Quiet sentence with no time to give. */
+  noUpdateYet: string;
+  /** Review (an approval decided elsewhere, such as an approval card). */
+  review: string;
+  /** Resume (paused). */
+  resume: string;
+  /** Give access (blocked because it can't see the record). */
+  giveAccess: string;
   /** Approve. */
   approve: string;
   /** Decline. */
@@ -969,7 +1164,11 @@ const DEFAULT_LABELS: AgentPanelLabels = {
   remove: "Remove",
   waiting: () => "Waiting to start.",
   queuedHint: (agent) => `${agent} starts when it next checks in.`,
-  wantsApproval: "Wants approval",
+  noUpdate: (duration) => `No update for ${duration}.`,
+  noUpdateYet: "No update for a while.",
+  review: "Review",
+  resume: "Resume",
+  giveAccess: "Give access",
   approve: "Approve",
   decline: "Decline",
   retry: "Retry",
@@ -1013,13 +1212,13 @@ export interface AgentPanelProps extends Omit<
   state: AgentState;
   /**
    * `card` — the record page's rail card. `section` — the peek's collapsible section, its header
-   * a one-line summary; open unless the work is done or stopped.
+   * a one-line summary; open unless the work is over (done, no action needed, stopped).
    * @default "card"
    */
   variant?: "card" | "section";
   /** The section's open state (controlled). @default undefined */
   open?: boolean;
-  /** The section's initial open state. @default true, false when done or stopped */
+  /** The section's initial open state. @default true, false once the work is over */
   defaultOpen?: boolean;
   /** Called when the section opens or closes. @default undefined */
   onOpenChange?: (open: boolean) => void;
@@ -1044,6 +1243,11 @@ export interface AgentPanelProps extends Omit<
   approval?: React.ReactNode;
   /** Approve; shows when set. @default undefined */
   onApprove?: () => void;
+  /**
+   * Review the approval where it is decided (an approval card, a sheet): the Approval line's one
+   * action when neither `onApprove` nor `onDecline` is set. @default undefined
+   */
+  onReview?: () => void;
   /** Decline; shows when set. @default undefined */
   onDecline?: () => void;
   /** The agent's problem (state `failed`): "Couldn't open M-15 — no access." @default undefined */
@@ -1054,11 +1258,22 @@ export interface AgentPanelProps extends Omit<
   blockedReason?: React.ReactNode;
   /** Reconnect (blocked) — pass it to the agent's owner only. @default undefined */
   onReconnect?: () => void;
+  /**
+   * Give the agent access to what it can't see (blocked) — pass it only to a viewer who can share;
+   * the blocked line's action when `onReconnect` is not set. @default undefined
+   */
+  onGiveAccess?: () => void;
+  /** When the agent last reported progress (quiet: "No update for 30 min."). @default undefined */
+  lastUpdateAt?: Date | string | number;
+  /** Why it is paused (state `paused`): "Reached its usage limit". @default undefined */
+  pausedReason?: React.ReactNode;
+  /** Resume (paused) — pass it only to a viewer who may. @default undefined */
+  onResume?: () => void;
   /** When it finished (done) or was stopped (stopped). @default undefined */
   finishedAt?: Date | string | number;
   /** How long the run took (done), in seconds: "3 min". @default undefined */
   durationSeconds?: number;
-  /** The agent's closing message (done): "Proposal drafted in P-42." @default undefined */
+  /** The agent's closing message (done, no-action): "Proposal drafted in P-42." @default undefined */
   summary?: React.ReactNode;
   /** Mark the record done (done, when it isn't done on its own); shows when set. @default undefined */
   onMarkDone?: () => void;
@@ -1139,11 +1354,14 @@ export interface AgentPanelProps extends Omit<
    * @default "list"
    */
   runsLayout?: "list" | "line";
-  /** Menu: View agent; shows when set. @default undefined */
-  onViewAgent?: () => void;
+  /** Menu: Open agent; shows when set. @default undefined */
+  onOpenAgent?: () => void;
   /** Menu: Change agent; shows when set. @default undefined */
   onChangeAgent?: () => void;
-  /** Stop (queued and working lines, and the menu while it is on the work); shows when set. @default undefined */
+  /**
+   * Stop (the waiting and working states, a paused card with no Resume, and the menu while it is
+   * on the work); shows when set. @default undefined
+   */
   onStop?: () => void;
   /** Remove the agent from the record (menu, and the Failed line); shows when set. @default undefined */
   onRemove?: () => void;
@@ -1183,19 +1401,21 @@ type ResolvedProps = Omit<
   stateLabels: AgentStateLabels;
   nowMs: number | undefined;
   focusReply: () => void;
+  /** A section: Stop sits on the header, not the status block. */
+  stopInHeader: boolean;
 };
 
 /** The short facts after the state word, as one inline run: " · 4 min", " · Oct 14 · 3 min". */
 function StateFacts({ p }: { p: ResolvedProps }) {
   const { state, labels, nowMs } = p;
   const parts: React.ReactNode[] = [];
-  if (state === "working") {
+  if (state === "working" || state === "quiet") {
     if (p.startedAt != null && nowMs !== undefined)
       parts.push(
         labels.duration(Math.max(0, (nowMs - toMs(p.startedAt)) / 1000)),
       );
   }
-  if (state === "done" || state === "stopped") {
+  if (state === "done" || state === "no-action" || state === "stopped") {
     if (p.finishedAt != null)
       parts.push(
         <DateTime
@@ -1205,7 +1425,7 @@ function StateFacts({ p }: { p: ResolvedProps }) {
         />,
       );
   }
-  if (state === "done" && p.durationSeconds != null)
+  if ((state === "done" || state === "no-action") && p.durationSeconds != null)
     parts.push(labels.duration(p.durationSeconds));
   return (
     <>
@@ -1227,6 +1447,7 @@ function stateSentence(p: ResolvedProps): {
   const { state, labels, agent } = p;
   switch (state) {
     case "queued":
+    case "not-started":
       return p.queuedHint
         ? {
             slot: "agent-panel-hint",
@@ -1240,6 +1461,18 @@ function stateSentence(p: ResolvedProps): {
       return p.progress != null
         ? { slot: "agent-panel-progress", text: <q>{p.progress}</q> }
         : null;
+    case "quiet":
+      return {
+        slot: "agent-panel-sentence",
+        text:
+          p.lastUpdateAt != null && p.nowMs !== undefined
+            ? labels.noUpdate(
+                labels.duration(
+                  Math.max(0, (p.nowMs - toMs(p.lastUpdateAt)) / 1000),
+                ),
+              )
+            : labels.noUpdateYet,
+      };
     case "question":
       return p.question != null
         ? { slot: "agent-panel-question", text: <q>{p.question}</q> }
@@ -1247,6 +1480,10 @@ function stateSentence(p: ResolvedProps): {
     case "approval":
       return p.approval != null
         ? { slot: "agent-panel-sentence", text: p.approval }
+        : null;
+    case "paused":
+      return p.pausedReason != null
+        ? { slot: "agent-panel-sentence", text: p.pausedReason }
         : null;
     case "failed":
       return p.error != null
@@ -1257,6 +1494,7 @@ function stateSentence(p: ResolvedProps): {
         ? { slot: "agent-panel-sentence", text: p.blockedReason }
         : null;
     case "done":
+    case "no-action":
       return p.summary != null
         ? { slot: "agent-panel-sentence", text: <q>{p.summary}</q> }
         : null;
@@ -1272,19 +1510,19 @@ function stateSentence(p: ResolvedProps): {
   }
 }
 
-/** The state's word on the line: "Wants approval", "Stopped by Priya", else the short word. */
+/** The state's word on the line: "Stopped by Priya", else the short word. */
 function stateTitle(p: ResolvedProps): string {
   if (p.state === "none") return "";
-  if (p.state === "approval") return p.labels.wantsApproval;
   if (p.state === "stopped" && p.stoppedBy)
     return p.labels.stoppedBy(p.stoppedBy);
   return p.stateLabels[p.state];
 }
 
 /**
- * The state's one action — the next step it asks for (Stop, Retry, Reconnect, Mark task done,
- * Delegate again), or an approval's Approve and Decline, which are one decision. Everything else
- * is in the ⋯ menu. The main action is secondary, Stop and Remove outline (never primary in a card).
+ * The state's one action — the next step it asks for (Stop, Review, Resume, Retry, Reconnect or
+ * Give access, Mark task done, Delegate again), or an approval's Approve and Decline, which are
+ * one decision. Everything else is in the ⋯ menu. The main action is secondary, Stop and Remove
+ * outline (never primary in a card).
  */
 function StateActions({ p }: { p: ResolvedProps }) {
   const { state, labels } = p;
@@ -1296,9 +1534,11 @@ function StateActions({ p }: { p: ResolvedProps }) {
       </LineButton>
     ) : null;
   let buttons: React.ReactNode = null;
-  if ((state === "queued" || state === "working") && p.onStop)
-    buttons = <LineButton onClick={p.onStop}>{labels.stop}</LineButton>;
-  else if (state === "approval" && (p.onApprove || p.onDecline))
+  if (STOPPABLE.has(state)) {
+    // A section keeps Stop on its header, where it stays while collapsed.
+    if (p.onStop && !p.stopInHeader)
+      buttons = <LineButton onClick={p.onStop}>{labels.stop}</LineButton>;
+  } else if (state === "approval" && (p.onApprove || p.onDecline))
     buttons = (
       <>
         {p.onApprove ? (
@@ -1311,6 +1551,20 @@ function StateActions({ p }: { p: ResolvedProps }) {
         ) : null}
       </>
     );
+  else if (state === "approval" && p.onReview)
+    buttons = (
+      <LineButton variant="secondary" onClick={p.onReview}>
+        {labels.review}
+      </LineButton>
+    );
+  else if (state === "paused")
+    buttons = p.onResume ? (
+      <LineButton variant="secondary" onClick={p.onResume}>
+        {labels.resume}
+      </LineButton>
+    ) : p.onStop ? (
+      <LineButton onClick={p.onStop}>{labels.stop}</LineButton>
+    ) : null;
   else if (state === "failed")
     buttons = p.onRetry ? (
       <LineButton variant="secondary" onClick={p.onRetry}>
@@ -1327,6 +1581,10 @@ function StateActions({ p }: { p: ResolvedProps }) {
       <LineButton variant="secondary" onClick={p.onReconnect}>
         {labels.reconnect}
       </LineButton>
+    ) : p.onGiveAccess ? (
+      <LineButton variant="secondary" onClick={p.onGiveAccess}>
+        {labels.giveAccess}
+      </LineButton>
     ) : p.onRemove ? (
       <LineButton onClick={p.onRemove}>{labels.remove}</LineButton>
     ) : null;
@@ -1338,6 +1596,7 @@ function StateActions({ p }: { p: ResolvedProps }) {
     ) : (
       reconnect
     );
+  else if (state === "no-action") buttons = reconnect;
   else if (state === "stopped")
     buttons = p.onDelegateAgain ? (
       <LineButton variant="secondary" onClick={p.onDelegateAgain}>
@@ -1457,7 +1716,7 @@ function PanelIdentity({
 }) {
   const Name = heading ? "h2" : "span";
   const { agent, labels } = p;
-  const facts = [agent.via ? labels.forOwner(agent.via) : null, agent.provider]
+  const facts = [agent.for ? labels.forOwner(agent.for) : null, agent.provider]
     .filter(Boolean)
     .join(" · ");
   return (
@@ -2004,14 +2263,14 @@ function HistoryBlock({ p }: { p: ResolvedProps }) {
   );
 }
 
-/** The ⋯ menu: View agent · Change agent · Stop · Remove — each only when its handler is set. */
+/** The ⋯ menu: Open agent · Change agent · Stop · Remove — each only when its handler is set. */
 function PanelMenu({ p }: { p: ResolvedProps }) {
   const { labels } = p;
   const canStop = p.onStop !== undefined && ACTIVE.has(p.state);
   const first = [
-    p.onViewAgent ? (
-      <DropdownMenuItem key="view" onClick={p.onViewAgent}>
-        {labels.viewAgent}
+    p.onOpenAgent ? (
+      <DropdownMenuItem key="open" onClick={p.onOpenAgent}>
+        {labels.open}
       </DropdownMenuItem>
     ) : null,
     p.onChangeAgent ? (
@@ -2103,11 +2362,16 @@ const PANEL_KEYS = [
   "onAnswer",
   "approval",
   "onApprove",
+  "onReview",
   "onDecline",
   "error",
   "onRetry",
   "blockedReason",
   "onReconnect",
+  "onGiveAccess",
+  "lastUpdateAt",
+  "pausedReason",
+  "onResume",
   "finishedAt",
   "durationSeconds",
   "summary",
@@ -2130,7 +2394,7 @@ const PANEL_KEYS = [
   "replyDisabledReason",
   "runs",
   "runsLayout",
-  "onViewAgent",
+  "onOpenAgent",
   "onChangeAgent",
   "onStop",
   "onRemove",
@@ -2157,7 +2421,7 @@ function domProps(
 
 /**
  * `AgentPanel` — the agent on a record: a header with its avatar, its name and one muted line ("For
- * Priya · claude.ai") and a ⋯ menu (View agent · Change agent · Stop · Remove); one status block —
+ * Priya · claude.ai") and a ⋯ menu (Open agent · Change agent · Stop · Remove); one status block —
  * the state's icon and word, one sentence and at most one action; its Instructions (✎ for a viewer
  * who may steer); Latest — its newest messages and changes with "Show all" (`showLatest={false}`
  * where the page has its own Activity feed); a Reply box; and Runs — its runs with View and Undo
@@ -2166,7 +2430,7 @@ function domProps(
  *
  * @example
  * <AgentPanel
- *   agent={{ name: "Claude Code", via: "Priya", provider: "claude.ai" }}
+ *   agent={{ name: "Claude Code", for: "Priya", provider: "claude.ai" }}
  *   state="working"
  *   startedAt={run.startedAt}
  *   progress="Reading the 3 linked pages…"
@@ -2176,7 +2440,7 @@ function domProps(
  *   onShowAll={() => filterActivity(agent.id)}
  *   onReply={canSteer ? reply : undefined}
  *   runs={runs}
- *   onViewAgent={openAgent}
+ *   onOpenAgent={openAgent}
  *   onStop={canSteer ? stop : undefined}
  *   onRemove={canRemove ? remove : undefined}
  * />
@@ -2214,7 +2478,8 @@ export function AgentPanel({
     if (message) announce(message);
   }, [announced, state, announce, message]);
 
-  const finished = state === "done" || state === "stopped";
+  const finished =
+    state === "done" || state === "no-action" || state === "stopped";
   const [openState, setOpenState] = React.useState(defaultOpen ?? !finished);
   // The section opens again when finished work comes back to life, and closes when it finishes.
   const [wasFinished, setWasFinished] = React.useState(finished);
@@ -2236,12 +2501,9 @@ export function AgentPanel({
     stateLabels,
     nowMs,
     focusReply: () => replyRef.current?.focus(),
+    stopInHeader: variant === "section",
   };
-  const attention =
-    state === "question" ||
-    state === "approval" ||
-    state === "blocked" ||
-    state === "failed";
+  const attention = NEEDS_SOMEONE.has(state);
 
   const body = (
     <>
@@ -2253,7 +2515,7 @@ export function AgentPanel({
   );
 
   if (variant === "section") {
-    // Queued and working say everything on the header line; the others keep their block below.
+    // Working says everything on the header line; the others keep their block below.
     const lineInHeader = state === "working";
     return (
       <Collapsible
@@ -2298,7 +2560,7 @@ export function AgentPanel({
               <SectionSummary p={p} />
             </CollapsibleTrigger>
           </h2>
-          {(state === "queued" || state === "working") && onStop ? (
+          {STOPPABLE.has(state) && onStop ? (
             <LineButton onClick={onStop}>{labels.stop}</LineButton>
           ) : null}
           <PanelMenu p={p} />

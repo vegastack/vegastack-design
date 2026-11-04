@@ -13,7 +13,7 @@ const versions: VersionItem[] = [
   { id: "v3", author: asha, at: "2026-09-29T11:00:00Z", kind: "auto" },
   {
     id: "v2",
-    author: { name: "Claude", kind: "agent", via: "Asha Rao" },
+    author: { name: "Claude", kind: "agent", for: "Asha Rao" },
     at: "2026-09-29T10:00:00Z",
     kind: "agent_checkpoint",
   },

@@ -102,7 +102,7 @@ export function versionListStates(): ReactNode {
   );
 }
 
-const CLAUDE = { name: "Claude", kind: "agent" as const, via: "Asha Rao" };
+const CLAUDE = { name: "Claude", kind: "agent" as const, for: "Asha Rao" };
 
 /**
  * By day: a heading per calendar day, each unnamed row its time of day, and an agent's version

@@ -9,7 +9,7 @@ const NOW = Date.parse("2026-10-14T12:00:00Z");
 const DAY = 86_400_000;
 
 const base: ApprovalCardProps = {
-  actor: { name: "Claude Code", kind: "agent", via: "Manoj" },
+  actor: { name: "Claude Code", kind: "agent", for: "Manoj" },
   verb: (
     <>
       wants to <strong>move 2 tasks to Trash</strong>

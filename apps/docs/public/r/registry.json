@@ -357,7 +357,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.38.0",
-        "integrity": "sha256-5/tfJHLk2BCL/BKZotDT2BjLP+O3yv+eiOST00fOKiE="
+        "integrity": "sha256-zBYXeTCracaxnjmVYpcHd7nhJE3++byvt+LNzR4Nx1U="
       }
     },
     {
@@ -393,7 +393,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.38.0",
-        "integrity": "sha256-kX90/yhyyes4D+c8vuZgJkA9r4KTKCkBSW5JdGpdQJE="
+        "integrity": "sha256-E3pLIcn6SgM5YRMLkfkda6tf99oM9+L1EgB4IkQW5K0="
       }
     },
     {
@@ -457,7 +457,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.38.0",
-        "integrity": "sha256-S95+xOUEHBLo7RPKy1sXRB4juHv19l5zH2fl1k85nag="
+        "integrity": "sha256-MaLeLTS+FOyUXmolAKiJ5d2usqr3i9ilPJ/kEKK/r3Q="
       }
     },
     {
@@ -17771,7 +17771,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.38.1",
-        "integrity": "sha256-UiwpS0Ea/hHlC9pFE2KaW4XZ0apIzg8YCwbsEdl3IEA="
+        "integrity": "sha256-myuFhVGxpTeyj4ecC7VV3cGwdZWRkxHC7xVf7TYvL6A="
       }
     },
     {
@@ -17809,7 +17809,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.38.0",
-        "integrity": "sha256-Gtd8Zkz2YRZmu94W/ClLCPVvTXwtZEp6iRt5O8CYOJ4="
+        "integrity": "sha256-nGrek7nDy9A7Ti8dcGT4ABrSCMXdvT4S9A5VPNHOjUk="
       }
     },
     {
@@ -18163,7 +18163,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.38.1",
-        "integrity": "sha256-cAN8XUbeVaJrN7uSAhZw4XdluOcZVjELu9pSs8x8bUk="
+        "integrity": "sha256-sf2xFa1yM/MrAQls1NoHrrgNVNLxMPFSu+D32Aek01U="
       }
     },
     {
@@ -23256,7 +23256,7 @@
         "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.33.0",
-        "integrity": "sha256-xfNOE3cMIH5cWxDZB05SrVkqac8GUVovu6ghLHP2ZQA="
+        "integrity": "sha256-DY2PGHnExBuSL22YZZydhkZylwn40afmD4iHUMnpn8g="
       }
     },
     {
@@ -23290,7 +23290,7 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.38.0",
-        "integrity": "sha256-2XmFMC2VGTuMlFBUh+uwuKiQ2PYImjOPHehwj6fhM+k="
+        "integrity": "sha256-0CmpR3ROjpTLc2KFhOgQSGXZ4bLHvdrA7w5fDizC3ag="
       }
     },
     {
@@ -23307,6 +23307,7 @@
         "@vegastack/design-tokens@^0.11.0"
       ],
       "registryDependencies": [
+        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/collapsible",
         "@vegastack/dropdown-menu",
@@ -23334,7 +23335,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.38.0",
-        "integrity": "sha256-UDDcKHBfY+F7QblwbV8aKpt9MzFC0QULAOL1bAb+M84="
+        "integrity": "sha256-mwJ0yJ6SY1JDVwpJzdRrmb4112wVzWXGhfirZ31YmGY="
       }
     },
     {
@@ -23351,10 +23352,12 @@
         "@vegastack/design-tokens@^0.11.0"
       ],
       "registryDependencies": [
+        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/empty",
         "@vegastack/label",
         "@vegastack/people-picker",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/select",
         "@vegastack/separator",
@@ -23373,7 +23376,7 @@
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
         "version": "0.33.0",
-        "integrity": "sha256-a+DU1dTgJ3D4E/gJp+MfWs4Ecmr+b1563DNKhE8sArM="
+        "integrity": "sha256-TE1p69ChIgFkkuF9XWUQ6eSyyybllYf4pKkdfjJxwac="
       }
     },
     {

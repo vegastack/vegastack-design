@@ -68,6 +68,21 @@ Bulk rows (their own title, no When finished), no agents connected, and agents l
   file="components/preview/delegate-popover.tsx"
 />
 
+### A step before it can start
+
+An agent can carry a `hint` — "Can't see this space yet" — that shows as its second line in the
+warning ink without disabling it. `renderPicked` returns the host's step for a picked agent (give
+access to the task or the space, or ask the space owner, with Cancel), shown in place of the
+instructions; return `null` for the usual form. The step's buttons call `close` once their action
+has run, or `clear` to un-pick the agent. `connectHref` makes "Connect an app" a real link (through
+`linkRender` for a router link). The list's heading is "Agents you can use"; every row is an agent,
+so rows carry no "Agent" label.
+
+<ComponentPreview
+  name="delegatePopoverPicked"
+  file="components/preview/delegate-popover.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

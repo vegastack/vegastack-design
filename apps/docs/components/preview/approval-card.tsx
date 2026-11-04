@@ -9,7 +9,7 @@ import { ApprovalCard } from "@/components/ui/approval-card";
 const NOW = Date.parse("2026-10-14T12:00:00Z");
 const DAY = 86_400_000;
 
-const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
+const claude = { name: "Claude Code", kind: "agent" as const, for: "Manoj" };
 
 const request = {
   actor: claude,

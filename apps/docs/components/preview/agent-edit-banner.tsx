@@ -12,7 +12,7 @@ import {
 const NOW = Date.parse("2026-10-14T12:00:00Z");
 const MINUTE = 60_000;
 
-const claude = { name: "Claude", via: "Manoj" };
+const claude = { name: "Claude", for: "Manoj" };
 
 const run = {
   agent: claude,
@@ -114,7 +114,7 @@ export function agentEditBannerStacked(): ReactNode {
         onDismiss={() => {}}
       />
       <AgentEditBanner
-        agent={{ name: "Codex", via: "Priya" }}
+        agent={{ name: "Codex", for: "Priya" }}
         changeCount={1}
         at={NOW - 12 * MINUTE}
         now={NOW}
@@ -125,7 +125,7 @@ export function agentEditBannerStacked(): ReactNode {
         moreAgents={[
           {
             id: "asha",
-            agent: { name: "Claude", via: "Asha" },
+            agent: { name: "Claude", for: "Asha" },
             changeCount: 2,
             at: NOW - 40 * MINUTE,
             onApprove: () => {},

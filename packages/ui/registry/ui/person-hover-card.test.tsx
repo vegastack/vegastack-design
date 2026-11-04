@@ -109,7 +109,7 @@ test("PersonHoverCardProvider draws the host's card for the people it knows, Per
       }}
     >
       <PersonHoverCard
-        person={{ id: "c1", name: "Claude Code", kind: "agent", via: "Asha" }}
+        person={{ id: "c1", name: "Claude Code", kind: "agent", for: "Asha" }}
         trigger="name"
       >
         Claude Code

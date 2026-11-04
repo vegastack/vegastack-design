@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.38.1 sha256-cAN8XUbeVaJrN7uSAhZw4XdluOcZVjELu9pSs8x8bUk=
+// @vegastack person-avatar@0.38.1 sha256-sf2xFa1yM/MrAQls1NoHrrgNVNLxMPFSu+D32Aek01U=
 
 "use client";
 
@@ -89,7 +89,7 @@ export function personInitials(name: string, email?: string | null): string {
 /** A person shown by `PersonAvatar`, `PersonCard`, `PersonHoverCard` and `AvatarStack`. */
 export interface Person {
   /**
-   * Your stable id for them (a member's id, an agent's connection), never shown — what a
+   * Your stable id for them (a member's id, an agent's id), never shown — what a
    * `PersonHoverCardProvider` looks them up by. @default undefined
    */
   id?: string | null;
@@ -116,24 +116,24 @@ export interface Person {
    */
   kind?: PersonKind;
   /** An agent's owner — the member it works for: "Claude Code" for "Manoj". @default undefined */
-  via?: string | null;
+  for?: string | null;
 }
 
 /** What a `Person` is: a person, a team of people, a workspace, or an agent working for a member. */
 export type PersonKind = "person" | "team" | "workspace" | "agent";
 
 /**
- * `personDisplayName` — a person's name as plain text: an agent reads "Claude Code (for Manoj)",
+ * `personDisplayName` — a person's name as plain text: an agent reads "Claude Code for Manoj",
  * anyone else their name. For a toast, a title or a menu label; in a row, use `PersonName`.
  *
  * @example
- * personDisplayName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code (for Manoj)"
+ * personDisplayName({ name: "Claude Code", kind: "agent", for: "Manoj" }); // "Claude Code for Manoj"
  */
 export function personDisplayName(
-  person: Pick<Person, "name" | "kind" | "via">,
+  person: Pick<Person, "name" | "kind" | "for">,
 ): string {
-  return person.kind === "agent" && person.via
-    ? `${person.name} (for ${person.via})`
+  return person.kind === "agent" && person.for
+    ? `${person.name} for ${person.for}`
     : person.name;
 }
 
@@ -143,14 +143,14 @@ export function personDisplayName(
  * (WCAG 2.5.3), and "agent" is never carried by colour alone.
  *
  * @example
- * personAccessibleName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code for Manoj, agent"
+ * personAccessibleName({ name: "Claude Code", kind: "agent", for: "Manoj" }); // "Claude Code for Manoj, agent"
  */
 export function personAccessibleName(
-  person: Pick<Person, "name" | "kind" | "via">,
+  person: Pick<Person, "name" | "kind" | "for">,
 ): string {
   if (person.kind !== "agent") return person.name;
-  return person.via
-    ? `${person.name} for ${person.via}, agent`
+  return person.for
+    ? `${person.name} for ${person.for}, agent`
     : `${person.name}, agent`;
 }
 
@@ -269,6 +269,38 @@ export const agentShapeMask =
 const AGENT_SHAPE_MASK = agentShapeMask;
 
 /**
+ * `agentShapeTarget` — the classes for a button around an agent's avatar (with `agentShapeStyle` on
+ * it, and an `AgentShapeLayer` as its first child): it hugs the avatar at any size and paints no
+ * tint of its own. The button is never masked, so the avatar's `actingFor` circle and `indicator`,
+ * which reach past the hexagon, are not clipped.
+ *
+ * @example <Button variant="ghost" style={agentShapeStyle} className={agentShapeTarget} …><AgentShapeLayer /><PersonAvatar person={agent} actingFor={owner} /></Button>
+ */
+export const agentShapeTarget =
+  "group/agent-shape size-auto rounded-none p-px hover:not-focus-visible:bg-none focus-visible:bg-none active:bg-none aria-expanded:bg-transparent";
+
+/**
+ * `AgentShapeLayer` — the hexagon behind an agent's avatar that carries its button's hover, press,
+ * open and keyboard-focus tints, so they follow the shape, never a square. Goes in a button with
+ * `agentShapeTarget`.
+ *
+ * @example <Button variant="ghost" style={agentShapeStyle} className={agentShapeTarget}><AgentShapeLayer /><PersonAvatar person={agent} /></Button>
+ */
+export function AgentShapeLayer() {
+  return (
+    <span
+      aria-hidden
+      data-slot="agent-shape-layer"
+      className={cn(
+        "absolute inset-0",
+        AGENT_SHAPE_MASK,
+        "group-hover/agent-shape:layer-hover group-active/agent-shape:bg-(--state-pressed) group-aria-expanded/agent-shape:layer-selected group-focus-visible/agent-shape:layer-focus",
+      )}
+    />
+  );
+}
+
+/**
  * The agent root: no circle; the hairline is the shape's own 1px edge (the shape minus the shape
  * inset by 1px), in the same border ink and blend as a person's; and in a group — or inside an
  * `AgentStateRing` — a 2px halo in the shape, which replaces the circular ring a stack gives each
@@ -290,6 +322,18 @@ export type PersonMark =
   | {
       /** The mark's image URL. */
       src: string;
+      /**
+       * The mark for a dark theme — a vendor's own dark-background variant — shown instead of
+       * `src` under `.dark`. If it fails to load, `src` is shown in both themes. @default undefined
+       */
+      srcDark?: string;
+      /**
+       * The mark at the two row steps (`2xs` 16px, `xs` 20px), where a full logo turns to mush:
+       * a vendor's small glyph (`{ src, srcDark }`), or `false` to draw the agent's fallback (the
+       * bot on its hue) there. Check that a glyph keeps 3:1 contrast on its tile in each theme
+       * before passing it. @default the full mark at every step
+       */
+      small?: { src: string; srcDark?: string } | false;
       /** Its text alternative; leave it empty when the agent's name is shown beside it. @default "" */
       alt?: string;
       /**
@@ -318,6 +362,47 @@ function isMarkImage(mark: PersonMark): mark is MarkImage {
   );
 }
 
+/**
+ * Whether an image has loaded or failed, keyed by its `src` so a new image starts over: a failure
+ * or a load of the old one never sticks. It may have settled before hydration attached
+ * `onLoad`/`onError`, so its element's own state is read once it is in the tree.
+ */
+function useImageStatus(src: string | undefined) {
+  const [loaded, setLoaded] = React.useState<string | null>(null);
+  const [failed, setFailed] = React.useState<string | null>(null);
+  const ref = React.useRef<HTMLImageElement | null>(null);
+  React.useLayoutEffect(() => {
+    const img = ref.current;
+    if (!src || !img || !img.complete) return;
+    if (img.naturalWidth > 0) setLoaded(src);
+    else if (img.currentSrc)
+      // No width is not a failure on its own: some engines report 0 for an SVG with only a
+      // viewBox. Decoding tells a broken image from one with no intrinsic size.
+      img.decode().then(
+        () => setLoaded(src),
+        () => setFailed(src),
+      );
+  }, [src]);
+  return {
+    ref,
+    loaded: src !== undefined && loaded === src,
+    failed: src !== undefined && failed === src,
+    onLoad: () => setLoaded(src ?? null),
+    onError: () => setFailed(src ?? null),
+  };
+}
+
+/**
+ * The member an agent acts for, as a small circle at the avatar's bottom-end corner, per step —
+ * none at the row steps, where it would cover the mark.
+ */
+const ACTING_FOR: Partial<Record<PersonAvatarSize, string>> = {
+  sm: "size-3",
+  default: "size-3.5",
+  lg: "size-4",
+  xl: "size-6",
+};
+
 /** Props for `PersonAvatar`. */
 export interface PersonAvatarProps extends Omit<
   React.ComponentProps<typeof Avatar>,
@@ -334,9 +419,9 @@ export interface PersonAvatarProps extends Omit<
   /** Draw a person, a team, a workspace or an agent; overrides `person.kind`. @default person.kind ?? "person" */
   kind?: PersonKind;
   /**
-   * An agent's mark inside its shape, overriding `person.mark`: an image (`{ src, alt, fit, tile }`)
-   * or a node. An image that fails to load falls back to the agent's icon or initials. Ignored
-   * for anyone who is not an agent.
+   * An agent's mark inside its shape, overriding `person.mark`: an image
+   * (`{ src, srcDark, small, alt, fit, tile }`) or a node. An image that fails to load falls back
+   * to the agent's icon or initials. Ignored for anyone who is not an agent.
    * @default person.mark
    */
   mark?: PersonMark;
@@ -346,10 +431,19 @@ export interface PersonAvatarProps extends Omit<
   agentFallback?: "icon" | "initials";
   /**
    * A small indicator at the bottom-end corner — a presence dot or a state icon — sized to the
-   * step, with a background-coloured gap. Decorative: say what it means in text too.
+   * step, with a background-coloured gap. Decorative: say what it means in text too. With
+   * `actingFor` shown it moves to the top-end corner.
    * @default undefined
    */
   indicator?: React.ReactNode;
+  /**
+   * The member an agent acts for, as a small circle (their photo, else their initials on their
+   * hue) offset at the bottom-end corner with a halo — the agent leads and the person rides on
+   * it, as in "Claude Code for Manoj". Shown from `sm` up; the row steps leave it out. Decorative:
+   * name the member in text too (`PersonName` does). Ignored for anyone who is not an agent.
+   * @default undefined
+   */
+  actingFor?: Pick<Person, "name" | "image" | "hue"> | null;
 }
 
 /**
@@ -366,8 +460,9 @@ export interface PersonAvatarProps extends Omit<
  * with its logo scaled to fit whole (`object-contain`) on the plain background, else its initials
  * on its hue — for workspace switchers and headers. An agent (`kind="agent"`) is a soft hexagon —
  * the shape only agents take, so an agent never passes for a person: its mark (a provider's
- * logo, inset on a neutral tile or full-bleed), else the `Bot` icon (or its initials) on its hue,
- * purple by default.
+ * logo, inset on a neutral tile or full-bleed, with a dark-theme variant and a small glyph for the
+ * row steps), else the `Bot` icon (or its initials) on its hue, purple by default; `actingFor`
+ * adds the member it works for as a small circle at its corner.
  *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} size="2xs" />
@@ -375,6 +470,8 @@ export interface PersonAvatarProps extends Omit<
  * @example <PersonAvatar person={{ name: "Acme Lighting", kind: "workspace", image: logoUrl }} />
  * @example <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
  * @example <PersonAvatar person={{ name: "Claude Code", kind: "agent", mark: { src: faviconUrl } }} size="xs" />
+ * @example <PersonAvatar person={{ name: "Orbit", kind: "agent", mark: { src: light, srcDark: dark, small: { src: glyph } } }} />
+ * @example <PersonAvatar person={agent} actingFor={{ name: "Manoj", hue: "blue" }} size="lg" />
  * @example <PersonAvatar person={agent} indicator={<AgentStateIcon state="working" />} />
  */
 export function PersonAvatar({
@@ -384,6 +481,7 @@ export function PersonAvatar({
   mark: markProp,
   agentFallback = "icon",
   indicator,
+  actingFor,
   className,
   style,
   ...props
@@ -408,10 +506,19 @@ export function PersonAvatar({
       person.mark ??
       (person.image ? { src: person.image } : undefined))
     : undefined;
-  const markImage =
+  const fullMarkImage =
     rawMark != null && isMarkImage(rawMark) ? rawMark : undefined;
+  // At the row steps a mark may bring its small glyph, or ask for the fallback.
+  const rowStep = size === "2xs" || size === "xs";
+  const small = rowStep ? fullMarkImage?.small : undefined;
+  const markImage: MarkImage | undefined =
+    small === false
+      ? undefined
+      : small && fullMarkImage
+        ? { ...fullMarkImage, src: small.src, srcDark: small.srcDark }
+        : fullMarkImage;
   const markNode =
-    rawMark != null && rawMark !== false && !markImage
+    rawMark != null && rawMark !== false && !fullMarkImage
       ? (rawMark as React.ReactNode)
       : undefined;
   const src = team
@@ -419,23 +526,42 @@ export function PersonAvatar({
     : agent
       ? markImage?.src || undefined
       : person.image || undefined;
+  const darkSrc = agent ? markImage?.srcDark || undefined : undefined;
 
-  // Keyed by `src`, so a new photo starts over: a failure or a load of the old one never sticks.
-  const [loaded, setLoaded] = React.useState<string | null>(null);
-  const [failed, setFailed] = React.useState<string | null>(null);
-  const imgRef = React.useRef<HTMLImageElement | null>(null);
+  const image = useImageStatus(src);
+  const dark = useImageStatus(darkSrc);
 
-  // The photo may have loaded, or failed, before hydration attached `onLoad`/`onError` — read the
-  // element's own state once it is in the tree.
-  React.useLayoutEffect(() => {
-    const img = imgRef.current;
-    if (!src || !img || !img.complete) return;
-    if (img.naturalWidth > 0) setLoaded(src);
-    else if (img.currentSrc) setFailed(src);
-  }, [src]);
+  // Each variant stands in for the other when it fails; the fallback only when both have.
+  const showImage = src !== undefined && !image.failed;
+  const showDark = darkSrc !== undefined && !dark.failed;
+  const imageLoaded = showImage && image.loaded;
+  // A mark is revealed once every image it shows has decoded, so a theme switch never meets an
+  // empty tile.
+  const markLoaded =
+    (showImage || showDark) &&
+    (!showImage || image.loaded) &&
+    (!showDark || dark.loaded);
 
-  const showImage = src !== undefined && failed !== src;
-  const imageLoaded = showImage && loaded === src;
+  const actingForClass = agent && actingFor ? ACTING_FOR[size] : undefined;
+  const actingForNode = actingForClass ? (
+    <span
+      aria-hidden
+      data-slot="person-avatar-acting-for"
+      // Two pixels out from the corner, on a halo the colour of the surface beneath. A stack's
+      // nudge for covered initials is the agent's, not this circle's.
+      className="absolute -end-0.5 -bottom-0.5 z-10 inline-flex [&&&_[data-slot=person-avatar-initials]]:translate-x-0"
+    >
+      <PersonAvatar
+        person={{
+          name: actingFor!.name,
+          image: actingFor!.image,
+          hue: actingFor!.hue,
+        }}
+        size="2xs"
+        className={cn(PERSON_AVATAR_STACK_RING, actingForClass)}
+      />
+    </span>
+  ) : null;
 
   const indicatorNode =
     indicator != null && indicator !== false ? (
@@ -446,6 +572,8 @@ export function PersonAvatar({
           // The hexagon's lower edge crosses the diagonal about 6% further in than a circle's,
           // so the indicator moves in with it and sits on the shape, not beside it.
           agent && "end-[6%] bottom-[6%]",
+          // The member takes the bottom corner; the indicator moves to the top.
+          actingForNode && "top-[6%] bottom-auto",
           step.indicator,
         )}
       >
@@ -486,7 +614,11 @@ export function PersonAvatar({
     // assistant icon); without a hue it sits on the neutral tile like a logo.
     const hueMark = markNode !== undefined && person.hue != null;
     const tileMark = markNode !== undefined && !hueMark;
-    const markShown = tileMark || imageLoaded;
+    const markShown = tileMark || markLoaded;
+    const imgClass =
+      fit === "fill"
+        ? "size-full object-cover"
+        : cn("object-contain", step.mark);
     return (
       <Avatar
         {...rootProps}
@@ -522,7 +654,7 @@ export function PersonAvatar({
             )}
           </AvatarFallback>
         )}
-        {tileMark || showImage ? (
+        {tileMark || showImage || showDark ? (
           <span
             data-slot="person-avatar-mark"
             data-fit={markImage ? fit : "inset"}
@@ -540,19 +672,32 @@ export function PersonAvatar({
             )}
           >
             {markImage ? (
-              <img
-                ref={imgRef}
-                src={src}
-                alt={markImage.alt ?? ""}
-                decoding="async"
-                onLoad={() => setLoaded(src ?? null)}
-                onError={() => setFailed(src ?? null)}
-                className={
-                  fit === "fill"
-                    ? "size-full object-cover"
-                    : cn("object-contain", step.mark)
-                }
-              />
+              <>
+                {showImage ? (
+                  <img
+                    ref={image.ref}
+                    src={src}
+                    alt={markImage.alt ?? ""}
+                    decoding="async"
+                    data-theme-variant={showDark ? "light" : undefined}
+                    onLoad={image.onLoad}
+                    onError={image.onError}
+                    className={cn(imgClass, showDark && "dark:hidden")}
+                  />
+                ) : null}
+                {showDark ? (
+                  <img
+                    ref={dark.ref}
+                    src={darkSrc}
+                    alt={markImage.alt ?? ""}
+                    decoding="async"
+                    data-theme-variant={showImage ? "dark" : undefined}
+                    onLoad={dark.onLoad}
+                    onError={dark.onError}
+                    className={cn(imgClass, showImage && "hidden dark:block")}
+                  />
+                ) : null}
+              </>
             ) : (
               <span
                 aria-hidden
@@ -566,6 +711,7 @@ export function PersonAvatar({
             )}
           </span>
         ) : null}
+        {actingForNode}
         {indicatorNode}
       </Avatar>
     );
@@ -594,13 +740,13 @@ export function PersonAvatar({
       )}
       {showImage ? (
         <img
-          ref={imgRef}
+          ref={image.ref}
           data-slot="avatar-image"
           src={src}
           alt=""
           decoding="async"
-          onLoad={() => setLoaded(src)}
-          onError={() => setFailed(src)}
+          onLoad={image.onLoad}
+          onError={image.onError}
           // Over the initials (the root is `relative` and sized), so nothing shifts when it lands.
           className={cn(
             "absolute inset-0 aspect-square size-full",
@@ -646,26 +792,37 @@ export interface PersonNameProps extends Omit<
   React.ComponentPropsWithRef<"span">,
   "children"
 > {
-  /** The person; an agent (`kind: "agent"`) reads with "for" its `via`. */
-  person: Pick<Person, "name" | "kind" | "via">;
+  /** The person; an agent (`kind: "agent"`) reads with the member it works `for`. */
+  person: Pick<Person, "name" | "kind" | "for">;
   /**
    * Add the purple "Agent" label after an agent's name — for a surface that names agents without
-   * their hexagon (a hover card's heading, a profile). @default false
+   * their hexagon (a hover card's heading, a profile), and in pickers, where people and agents are
+   * chosen side by side. @default false
    */
   agentLabel?: boolean;
+  /**
+   * How an agent's member reads: `sentence` — "Claude Code for Manoj", for attribution in a row,
+   * a feed or a comment; `compact` — "Claude Code · Manoj", for a picker row, where the name is
+   * scanned in a list.
+   * @default "sentence"
+   */
+  variant?: "sentence" | "compact";
 }
 
 /**
  * `PersonName` — a person's name as every surface writes it. A person or a team is their name; an
  * agent is its name and a muted "for Manoj" (its hexagon says it is an agent; `agentLabel` adds
- * the purple label where no avatar shows), and a screen reader hears "Claude Code for Manoj, agent". Inline, so it sits in a sentence, a hover-card trigger or a
- * truncating row.
+ * the purple label where no avatar shows, or where people and agents are picked together), or
+ * "· Manoj" in a picker (`variant="compact"`); a screen reader hears "Claude Code for Manoj,
+ * agent". Inline, so it sits in a sentence, a hover-card trigger or a truncating row.
  *
- * @example <PersonName person={{ name: "Claude Code", kind: "agent", via: "Manoj" }} />
+ * @example <PersonName person={{ name: "Claude Code", kind: "agent", for: "Manoj" }} />
+ * @example <PersonName person={agent} variant="compact" agentLabel />
  */
 export function PersonName({
   person,
   agentLabel = false,
+  variant = "sentence",
   className,
   ...props
 }: PersonNameProps) {
@@ -680,18 +837,19 @@ export function PersonName({
     <span
       data-slot="person-name"
       data-kind="agent"
+      data-variant={variant}
       className={className}
       {...props}
     >
       <span aria-hidden>
         {person.name}
-        {person.via ? (
+        {person.for ? (
           <span
-            data-slot="person-name-via"
+            data-slot="person-name-for"
             className="font-normal text-muted-foreground"
           >
-            {" "}
-            for {person.via}
+            {variant === "compact" ? " · " : " for "}
+            {person.for}
           </span>
         ) : null}
         {agentLabel ? (

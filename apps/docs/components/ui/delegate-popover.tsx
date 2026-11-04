@@ -1,11 +1,12 @@
-// @vegastack delegate-popover@0.33.0 sha256-a+DU1dTgJ3D4E/gJp+MfWs4Ecmr+b1563DNKhE8sArM=
+// @vegastack delegate-popover@0.33.0 sha256-TE1p69ChIgFkkuF9XWUQ6eSyyybllYf4pKkdfjJxwac=
 
 "use client";
 
 import * as React from "react";
+import { mergeProps } from "@base-ui/react/merge-props";
 import { Bot, ChevronRight } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -35,6 +36,8 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import type { AvatarHue } from "@/components/ui/avatar";
+import type { PersonMark } from "@/components/ui/person-avatar";
 
 /* ------------------------------------------------------------------------------------------------
  * DelegatePopover — hand a record (or a selection of rows) to an agent: pick one of the viewer's
@@ -52,8 +55,12 @@ export interface DelegatePopoverAgent {
   name: string;
   /** Its image, under the purple bot. @default undefined */
   image?: string | null;
+  /** Its mark inside the hexagon (a provider's logo, or a glyph on its `hue`). @default undefined */
+  mark?: PersonMark;
+  /** Its colour behind the bot or a glyph mark. @default undefined */
+  hue?: AvatarHue | null;
   /** The member it acts for, when the list mixes owners. @default undefined */
-  via?: string | null;
+  for?: string | null;
   /** What it may do, as its second line: "Read & write · Tasks". @default undefined */
   access?: string | null;
   /**
@@ -62,6 +69,20 @@ export interface DelegatePopoverAgent {
    * @default undefined
    */
   disabledReason?: string | null;
+  /**
+   * A caution that does not stop the pick ("Can't see this space yet"): its second line, in the
+   * warning ink. Pair it with `renderPicked` to offer the way out when it is picked.
+   * @default undefined
+   */
+  hint?: string | null;
+}
+
+/** What `renderPicked` can do with the popover. */
+export interface DelegatePopoverPickedContext {
+  /** Close the popover (after the step's action has run). */
+  close: () => void;
+  /** Un-pick the agent, back to the list and the form, which keeps what was typed. */
+  clear: () => void;
 }
 
 /** One "When finished" choice: "Move to review", "Mark done". */
@@ -88,7 +109,7 @@ export interface DelegatePopoverLabels {
   search: string;
   /** No agent matches the search. */
   noMatch: string;
-  /** The heading over the agents, for screen readers. */
+  /** The heading over the agents. */
   agents: string;
   /** The instructions field's label. */
   instructions: string;
@@ -107,11 +128,11 @@ export interface DelegatePopoverLabels {
 const DEFAULT_LABELS: DelegatePopoverLabels = {
   search: "Search agents",
   noMatch: "No agents found",
-  agents: "Your agents",
+  agents: "Agents you can use",
   instructions: "Instructions (optional)",
   instructionsPlaceholder: "Say what to do…",
   whenFinished: "When finished",
-  connect: "Connect an agent",
+  connect: "Connect an app",
   delegate: "Delegate",
   empty: "Connect Claude, Codex or any MCP app to delegate work.",
 };
@@ -141,8 +162,29 @@ export interface DelegatePopoverProps {
   whenFinishedOptions?: readonly DelegatePopoverOption[];
   /** The "When finished" choice it opens with. @default the first option */
   defaultWhenFinished?: string;
-  /** Open the place to connect an agent; the link (and the empty state's button) show when set. @default undefined */
+  /**
+   * Open the place to connect an agent; the link (and the empty state's button) show when this or
+   * `connectHref` is set (with `connectHref`, it runs on the link's click). @default undefined
+   */
   onConnect?: () => void;
+  /** The page to connect an agent: the connect link and the empty state's button go there. @default undefined */
+  connectHref?: string;
+  /**
+   * The element the connect link renders — a router link such as `<Link href="" />`;
+   * `connectHref` wins over the template's.
+   * @default <a />
+   */
+  linkRender?: React.ReactElement;
+  /**
+   * A step in place of the instructions once an agent is picked — return it for an agent that
+   * needs one before it can start (it can't see the record yet: "Give access" or "Ask the space
+   * owner", with Cancel), or `null` for the usual form. The host's buttons call `close` or `clear`.
+   * @default undefined
+   */
+  renderPicked?: (
+    agent: DelegatePopoverAgent,
+    context: DelegatePopoverPickedContext,
+  ) => React.ReactNode;
   /** Open state (controlled). @default undefined */
   open?: boolean;
   /** Called when it opens or closes. @default undefined */
@@ -155,16 +197,19 @@ export interface DelegatePopoverProps {
   className?: string;
 }
 
-/** The agent as a picker option: the purple bot, its access as the second line. */
+/** The agent as a picker option: its hexagon, its access (or its hint) as the second line. */
 function toOption(agent: DelegatePopoverAgent): PeoplePickerOption {
   return {
     id: agent.id,
     name: agent.name,
     image: agent.image,
-    via: agent.via,
+    mark: agent.mark,
+    hue: agent.hue,
+    for: agent.for,
     kind: "agent",
     description: agent.access ?? null,
     disabledReason: agent.disabledReason ?? null,
+    hint: agent.hint ?? null,
   };
 }
 
@@ -173,14 +218,15 @@ function initialAgent(
   defaultAgentId: string | null | undefined,
 ): string | null {
   if (defaultAgentId !== undefined) return defaultAgentId;
-  const open = agents.filter((a) => !a.disabledReason);
+  // An agent with a hint needs someone's choice first, so it is never picked for them.
+  const open = agents.filter((a) => !a.disabledReason && !a.hint);
   return open.length === 1 ? open[0]!.id : null;
 }
 
 /**
  * `DelegatePopover` — "Delegate to an agent": search the viewer's agents (arrow keys move, Enter
  * picks; one that can't take it is disabled with its reason), optional instructions, a "When
- * finished" choice for tasks, "Connect an agent ›" and Delegate. With no agents it shows "Connect
+ * finished" choice for tasks, "Connect an app ›" and Delegate. With no agents it shows "Connect
  * Claude, Codex or any MCP app to delegate work." and the connect button. Cmd/Ctrl+Enter in the
  * instructions delegates. The host shows the toast ("Delegated to Claude Code · Undo").
  *
@@ -188,7 +234,7 @@ function initialAgent(
  * <DelegatePopover
  *   agents={agents}
  *   whenFinishedOptions={[{ value: "review", label: "Move to review" }, { value: "done", label: "Mark done" }]}
- *   onConnect={() => router.push("/settings/agents")}
+ *   connectHref="/agents/connect"
  *   onDelegate={({ agentId, instructions, whenFinished }) => delegate(task.id, agentId, instructions, whenFinished)}
  * >
  *   <AgentSlot />
@@ -211,6 +257,9 @@ export function DelegatePopover({
   whenFinishedOptions,
   defaultWhenFinished,
   onConnect,
+  connectHref,
+  linkRender,
+  renderPicked,
   open: openProp,
   onOpenChange,
   align = "start",
@@ -228,6 +277,8 @@ export function DelegatePopover({
   const [agentId, setAgentId] = React.useState<string | null>(() =>
     initialAgent(agents, defaultAgentId),
   );
+  // Un-picked by hand this opening: the one-agent default stands down until the next.
+  const [cleared, setCleared] = React.useState(false);
   const [instructions, setInstructions] = React.useState(defaultInstructions);
   const [whenFinished, setWhenFinished] = React.useState<string | undefined>(
     defaultWhenFinished ?? whenFinishedOptions?.[0]?.value,
@@ -247,17 +298,21 @@ export function DelegatePopover({
     if (open) {
       setSession((n) => n + 1);
       setAgentId(initialAgent(agents, defaultAgentId));
+      setCleared(false);
       setInstructions(defaultInstructions);
       setWhenFinished(defaultWhenFinished ?? whenFinishedOptions?.[0]?.value);
     }
   }
   // Agents that arrive after opening (they were loading) still get the one-agent default.
-  if (agentId === null && defaultAgentId === undefined) {
+  if (agentId === null && defaultAgentId === undefined && !cleared) {
     const only = initialAgent(agents, undefined);
     if (only !== null) setAgentId(only);
   }
 
   const chosen = agents.find((a) => a.id === agentId && !a.disabledReason);
+  // A picked agent that went away or can no longer take it is un-picked, never left as a dead form.
+  if (agentId !== null && !chosen && !loading && agents.length > 0)
+    setAgentId(null);
   const instructionsId = React.useId();
   const finishId = React.useId();
 
@@ -289,6 +344,60 @@ export function DelegatePopover({
 
   const options = React.useMemo(() => agents.map(toOption), [agents]);
   const empty = !loading && agents.length === 0;
+  const canConnect = Boolean(onConnect || connectHref);
+  const connect = (event: React.MouseEvent) => {
+    // A link opened in a new tab leaves this one as it was, with what was typed.
+    if (connectHref && (event.metaKey || event.ctrlKey || event.shiftKey))
+      return;
+    setOpen(false);
+    onConnect?.();
+  };
+  // A link when the host gives the page, so it opens like one (a new tab, a copied address).
+  const connectControl = (
+    variant: "default" | "link",
+    size: "sm" | "xs",
+    className?: string,
+    trailing?: React.ReactNode,
+  ) =>
+    connectHref ? (
+      React.cloneElement(
+        linkRender ?? <a />,
+        mergeProps((linkRender?.props ?? {}) as object, {
+          href: connectHref,
+          "data-slot": "delegate-popover-connect",
+          className: buttonVariants({ variant, size, className }),
+          onClick: connect,
+          children: (
+            <>
+              {labels.connect}
+              {trailing}
+            </>
+          ),
+        }) as object,
+      )
+    ) : (
+      <Button
+        variant={variant}
+        size={size}
+        data-slot="delegate-popover-connect"
+        className={className}
+        onClick={connect}
+      >
+        {labels.connect}
+        {trailing}
+      </Button>
+    );
+  const step =
+    open && chosen
+      ? renderPicked?.(chosen, {
+          close: () => setOpen(false),
+          clear: () => {
+            setAgentId(null);
+            setCleared(true);
+          },
+        })
+      : null;
+  const picked = step === false || step === "" ? null : (step ?? null);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -311,18 +420,8 @@ export function DelegatePopover({
             <EmptyHeader>
               <EmptyDescription>{labels.empty}</EmptyDescription>
             </EmptyHeader>
-            {onConnect ? (
-              <EmptyContent>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setOpen(false);
-                    onConnect();
-                  }}
-                >
-                  {labels.connect}
-                </Button>
-              </EmptyContent>
+            {canConnect ? (
+              <EmptyContent>{connectControl("default", "sm")}</EmptyContent>
             ) : null}
           </Empty>
         ) : (
@@ -350,103 +449,111 @@ export function DelegatePopover({
                 searchPlaceholder={labels.search}
                 emptyText={labels.noMatch}
                 heading={labels.agents}
+                agentLabel={false}
                 onSelect={(option) => setAgentId(option.id)}
                 className="bg-transparent [&_[data-slot=command-list]]:max-h-48"
               />
             )}
             <Separator />
-            <div
-              data-slot="delegate-popover-form"
-              className="flex flex-col gap-3 p-3"
-            >
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor={instructionsId}>{labels.instructions}</Label>
-                <Textarea
-                  id={instructionsId}
-                  value={instructions}
-                  maxLength={instructionsMaxLength}
-                  placeholder={labels.instructionsPlaceholder}
-                  onChange={(event) => setInstructions(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter" &&
-                      (event.metaKey || event.ctrlKey) &&
-                      !event.nativeEvent.isComposing &&
-                      event.keyCode !== 229
-                    ) {
-                      event.preventDefault();
-                      void submit();
-                    }
-                  }}
-                  className="max-h-40 min-h-16 text-sm"
-                />
-              </div>
-              {whenFinishedOptions?.length ? (
-                <div className="flex items-center justify-between gap-3">
-                  <Label id={finishId}>{labels.whenFinished}</Label>
-                  <Select
-                    items={whenFinishedOptions.map((o) => ({
-                      value: o.value,
-                      label: o.label,
-                    }))}
-                    value={whenFinished ?? null}
-                    onValueChange={(value) =>
-                      setWhenFinished((value as string | null) ?? undefined)
-                    }
-                  >
-                    <SelectTrigger
-                      size="sm"
-                      aria-labelledby={finishId}
-                      data-slot="delegate-popover-finish"
-                      className="w-fit min-w-0"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {whenFinishedOptions.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            {/* Always mounted, so a step that appears is read out: focus stays in the search. */}
+            <div aria-live="polite">
+              {picked != null ? (
+                <div
+                  data-slot="delegate-popover-picked"
+                  className="flex flex-col gap-2 p-3 text-sm"
+                >
+                  {picked}
                 </div>
               ) : null}
-              <div
-                data-slot="delegate-popover-footer"
-                className="flex items-center justify-between gap-2"
-              >
-                {onConnect ? (
-                  <Button
-                    variant="link"
-                    size="xs"
-                    className="px-0"
-                    onClick={() => {
-                      setOpen(false);
-                      onConnect();
-                    }}
-                  >
-                    {labels.connect}
-                    <ChevronRight aria-hidden data-icon="inline-end" />
-                  </Button>
-                ) : (
-                  <span />
-                )}
-                <Button
-                  size="sm"
-                  data-slot="delegate-popover-submit"
-                  disabled={!chosen || pending}
-                  data-loading={pending ? "" : undefined}
-                  aria-busy={pending || undefined}
-                  onClick={() => void submit()}
-                >
-                  {pending ? (
-                    <Spinner aria-hidden data-icon="inline-start" />
-                  ) : null}
-                  {labels.delegate}
-                </Button>
-              </div>
             </div>
+            {picked != null ? null : (
+              <div
+                data-slot="delegate-popover-form"
+                className="flex flex-col gap-3 p-3"
+              >
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor={instructionsId}>{labels.instructions}</Label>
+                  <Textarea
+                    id={instructionsId}
+                    value={instructions}
+                    maxLength={instructionsMaxLength}
+                    placeholder={labels.instructionsPlaceholder}
+                    onChange={(event) => setInstructions(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Enter" &&
+                        (event.metaKey || event.ctrlKey) &&
+                        !event.nativeEvent.isComposing &&
+                        event.keyCode !== 229
+                      ) {
+                        event.preventDefault();
+                        void submit();
+                      }
+                    }}
+                    className="max-h-40 min-h-16 text-sm"
+                  />
+                </div>
+                {whenFinishedOptions?.length ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <Label id={finishId}>{labels.whenFinished}</Label>
+                    <Select
+                      items={whenFinishedOptions.map((o) => ({
+                        value: o.value,
+                        label: o.label,
+                      }))}
+                      value={whenFinished ?? null}
+                      onValueChange={(value) =>
+                        setWhenFinished((value as string | null) ?? undefined)
+                      }
+                    >
+                      <SelectTrigger
+                        size="sm"
+                        aria-labelledby={finishId}
+                        data-slot="delegate-popover-finish"
+                        className="w-fit min-w-0"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {whenFinishedOptions.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null}
+                <div
+                  data-slot="delegate-popover-footer"
+                  className="flex items-center justify-between gap-2"
+                >
+                  {canConnect ? (
+                    connectControl(
+                      "link",
+                      "xs",
+                      "px-0",
+                      <ChevronRight aria-hidden data-icon="inline-end" />,
+                    )
+                  ) : (
+                    <span />
+                  )}
+                  <Button
+                    size="sm"
+                    data-slot="delegate-popover-submit"
+                    disabled={!chosen || pending}
+                    data-loading={pending ? "" : undefined}
+                    aria-busy={pending || undefined}
+                    onClick={() => void submit()}
+                  >
+                    {pending ? (
+                      <Spinner aria-hidden data-icon="inline-start" />
+                    ) : null}
+                    {labels.delegate}
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </PopoverContent>

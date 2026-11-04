@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.38.1 sha256-UiwpS0Ea/hHlC9pFE2KaW4XZ0apIzg8YCwbsEdl3IEA=
+// @vegastack person-hover-card@0.38.1 sha256-myuFhVGxpTeyj4ecC7VV3cGwdZWRkxHC7xVf7TYvL6A=
 
 "use client";
 
@@ -11,7 +11,8 @@ import {
   PERSON_AVATAR_STACK_RING,
   PersonAvatar as BasePersonAvatar,
   PersonName,
-  agentShapeMask,
+  AgentShapeLayer,
+  agentShapeTarget,
   agentShapeStyle,
   personAccessibleName,
   type Person as BasePerson,
@@ -34,7 +35,7 @@ import {
  * group recipe) with the rest behind a "+N" that opens the same rows in a list. A person without
  * an account (a free-text participant) shows initials and just the name. A team (`kind: "team"`)
  * stacks and lists the same way, drawn as its rounded-square team tile; an agent
- * (`kind: "agent"`) as its purple bot, named "Claude Code via Manoj" with the "Agent" label.
+ * (`kind: "agent"`) as its hexagon, named "Claude Code for Manoj".
  * `PersonHoverCardProvider` lets the host draw a richer card for some of them (an agent's).
  * ----------------------------------------------------------------------------------------------*/
 
@@ -111,7 +112,7 @@ const PersonHoverCardContext =
 
 /**
  * `PersonHoverCardProvider` — lets the host draw the card behind some people's names and avatars
- * (an agent's state and View agent) in every `PersonHoverCard` below it — the comments' authors
+ * (an agent's state and Open agent) in every `PersonHoverCard` below it — the comments' authors
  * and the activity feed's actors among them. Wrap the app (or one surface) once.
  *
  * @example
@@ -162,6 +163,16 @@ export function PersonHoverCard({
   className,
 }: PersonHoverCardProps) {
   const [open, setOpen] = React.useState(false);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  // Focus opens the card; Enter then steps into it, so a host's link in it is reachable by keyboard.
+  const press = (event: React.MouseEvent) => {
+    const action =
+      event.detail === 0 && open
+        ? contentRef.current?.querySelector<HTMLElement>("a[href],button")
+        : null;
+    if (action) action.focus();
+    else setOpen((o) => !o);
+  };
   const resolver = React.useContext(PersonHoverCardContext);
   // Kept while the card closes, so its exit animation keeps the host's body and width.
   const custom = resolver?.card(person, () => setOpen(false)) ?? null;
@@ -180,7 +191,7 @@ export function PersonHoverCard({
                 "inline min-w-0 cursor-default rounded-sm text-start font-medium text-foreground",
                 className,
               )}
-              onClick={() => setOpen((o) => !o)}
+              onClick={press}
             />
           ) : (
             <Button
@@ -193,20 +204,24 @@ export function PersonHoverCard({
                 person.kind === "team"
                   ? "rounded-md"
                   : person.kind === "agent"
-                    ? cn("rounded-none", agentShapeMask)
+                    ? agentShapeTarget
                     : "rounded-full",
                 className,
               )}
-              onClick={() => setOpen((o) => !o)}
+              onClick={press}
             />
           )
         }
       >
+        {trigger === "avatar" && person.kind === "agent" ? (
+          <AgentShapeLayer />
+        ) : null}
         {children}
       </HoverCardTrigger>
       <HoverCardContent
+        ref={contentRef}
         align="start"
-        className={custom ? "w-64 p-2.5" : "w-60 p-2"}
+        className={custom ? "w-72 p-2.5" : "w-60 p-2"}
       >
         {custom ?? <PersonCard person={person} />}
       </HoverCardContent>

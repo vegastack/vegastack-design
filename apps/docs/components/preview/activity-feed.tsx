@@ -47,7 +47,7 @@ const KAVYA = {
   email: "kavya@acme.com",
   image: "/preview/avatar-2.svg",
 };
-const AGENT = { name: "Claude Code", kind: "agent" as const, via: "Priya" };
+const AGENT = { name: "Claude Code", kind: "agent" as const, for: "Priya" };
 const JAMIE = {
   name: "Jamie Rao",
   email: "jamie@acme.com",

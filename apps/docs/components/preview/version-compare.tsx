@@ -20,7 +20,7 @@ const NOW = Date.parse("2026-09-29T11:30:00Z");
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const MK = { name: "Manoj Kumar", hue: "blue" as const };
-const CLAUDE = { name: "Claude", kind: "agent" as const, via: "Manoj Kumar" };
+const CLAUDE = { name: "Claude", kind: "agent" as const, for: "Manoj Kumar" };
 
 const VERSIONS: VersionItem[] = [
   { id: "now", author: MK, at: NOW - 8 * MINUTE, kind: "auto" },
