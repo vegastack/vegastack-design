@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.38.2] — November 4, 2026
+
+<!-- assembled from 1 changeset: 566adad82657 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.38.1 → 0.38.2.
+
+### 🐛 Fixed
+
+- `InboxItem`'s thread rail no longer doubles up beside a middle event's curve. `--border` is translucent, so the rail and the connector's own start border read as a brighter stretch where they overlapped; the rail now takes over from the curve 6px down, where the curve leaves its pixel column, so each height draws one line.
+  [`de6fdb4`](https://github.com/VegaStack/vegastack-design/commit/de6fdb4)
+
 ## [0.38.1] — November 4, 2026
 
 <!-- assembled from 1 changeset: c34c92842625 -->

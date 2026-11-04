@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.38.2
+
+### Patch Changes
+
+- [#900](https://github.com/vegastack/vegastack-design/pull/900) [`de6fdb4`](https://github.com/vegastack/vegastack-design/commit/de6fdb41803f3b47da7593ed71b130ace778d3a4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `InboxItem`'s thread rail no longer doubles up beside a middle event's curve. `--border` is translucent, so the rail and the connector's own start border read as a brighter stretch where they overlapped; the rail now takes over from the curve 6px down, where the curve leaves its pixel column, so each height draws one line.
+
 ## 0.38.1
 
 ### Patch Changes
