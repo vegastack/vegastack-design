@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.33.0 sha256-SPNQbhIw2JBKmkr1oK5heP8t0rKzRNaYKt9wh9J3+aQ=
+// @vegastack editable-cell@0.33.0 sha256-qBMtJLqugmIvrJuPDWwxGF6x0y5TWQiOA+JvwnUuhe8=
 
 "use client";
 
@@ -371,13 +371,25 @@ export interface EditableCellProps {
    */
   readOnly?: boolean;
   /**
-   * For a value normally filled by something else that a person can still override: a click
+   * For a value normally filled by something else that a person can still override: a mouse click
    * doesn't open the editor and the value shows no text cursor, so it reads as read-only, while a
-   * double-click, <kbd>Enter</kbd>, <kbd>F2</kbd> or <kbd>Space</kbd> still does. Applies to the
+   * double-click, <kbd>Enter</kbd>, <kbd>F2</kbd> or <kbd>Space</kbd> still does, and so does a tap
+   * (a touch screen has no inline caret to avoid, and no double-click to rely on). Applies to the
    * `text`, `number` and `custom` editors; `select` and `date` open from their own trigger.
    * @default false
    */
   readOnlyHint?: boolean;
+  /**
+   * Beside the value while it displays, before it: outside the edit button, so what sits here keeps
+   * its own clicks and keys. Gone while editing.
+   * @default undefined
+   */
+  leading?: React.ReactNode;
+  /**
+   * As `leading`, after the value.
+   * @default undefined
+   */
+  trailing?: React.ReactNode;
   /**
    * What display mode shows for a non-empty value — for a value that is an id (`"u_7"`), the
    * label a person reads (`"Asha Rao"`), or any rich node (an avatar and a name). Used by every
@@ -468,7 +480,7 @@ interface InlineTextEditorProps {
   disabled?: boolean;
   /** Renders plain, non-interactive text — no button role, no edit affordance, not dimmed. */
   readOnly?: boolean;
-  /** A double-click opens the editor instead of a click, and there is no text cursor. */
+  /** A double-click or a tap opens the editor, not a mouse click, and there is no text cursor. */
   readOnlyHint?: boolean;
   /** Tab-stop override for the display element; `managed` hosts pass `-1`. */
   tabIndex?: number;
@@ -738,7 +750,8 @@ function InlineTextBody({
     }, 0);
   };
 
-  const activate = (event: React.MouseEvent<HTMLElement>) => {
+  const press = useHintPress();
+  const activate = (event: React.MouseEvent<HTMLElement>, open: boolean) => {
     // `cell`: only the text starts an edit; a click beside it bubbles on to the row.
     const textNode = textRef.current;
     if (fill && textNode && !textNode.contains(event.target as Node)) return;
@@ -755,7 +768,7 @@ function InlineTextBody({
       return;
     event.stopPropagation();
     // The click's point puts the caret where it landed in the text.
-    edit.start(event);
+    if (open) edit.start(event);
   };
 
   const fieldProps = {
@@ -800,16 +813,19 @@ function InlineTextBody({
       data-truncated={truncated ? "" : undefined}
       onPointerEnter={probe}
       onFocus={probe}
+      onPointerDown={
+        interactive && readOnlyHint ? press.onPointerDown : undefined
+      }
       onClick={
         interactive
-          ? (event) => {
-              // A click with no pointer (`detail` 0: assistive tech pressing the button) has no
-              // double to wait for.
-              if (!readOnlyHint || event.detail === 0) activate(event);
-            }
+          ? (event) => activate(event, !readOnlyHint || press.opens(event))
           : undefined
       }
-      onDoubleClick={interactive && readOnlyHint ? activate : undefined}
+      onDoubleClick={
+        interactive && readOnlyHint
+          ? (event) => activate(event, true)
+          : undefined
+      }
       onKeyDown={
         interactive
           ? (event) => {
@@ -934,6 +950,21 @@ function InlineTextBody({
   );
 }
 
+/**
+ * Whether a `readOnlyHint` display's click opens the editor: a press with no pointer (`detail` 0,
+ * assistive tech pressing the button) or a tap. The pointer is read at `pointerdown`, because not
+ * every browser's `click` says which it was.
+ */
+function useHintPress() {
+  const touch = React.useRef(false);
+  return {
+    onPointerDown: (event: React.PointerEvent) => {
+      touch.current = event.pointerType === "touch";
+    },
+    opens: (event: React.MouseEvent) => event.detail === 0 || touch.current,
+  };
+}
+
 function formatIsoDate(
   value: string,
   options: Intl.DateTimeFormatOptions = {
@@ -983,6 +1014,8 @@ export function EditableCell({
   disabled = false,
   readOnly = false,
   readOnlyHint = false,
+  leading,
+  trailing,
   renderValue,
   variant = "inline",
   multiline = false,
@@ -1326,7 +1359,9 @@ export function EditableCell({
         className,
       )}
     >
+      {isEditing ? null : leading}
       {editorSurface}
+      {isEditing ? null : trailing}
       {/* Decorative: the announcement is the `Announcer` sibling. Appears only after 300ms. */}
       {spinnerVisible ? (
         <Spinner
@@ -1350,7 +1385,10 @@ export interface EditableCellRestProps {
   label?: string;
   /** Renders a non-empty value (tags, chips, avatars) instead of its text. @default undefined */
   renderValue?: (value: string) => React.ReactNode;
-  /** The reader asked to edit: a click on the value, or Enter, F2 or Space on the display. */
+  /**
+   * The reader asked to edit: a click on the value (with `readOnlyHint`, a double-click or a tap),
+   * or Enter, F2 or Space on the display.
+   */
   onStartEditing: () => void;
   /**
    * What an empty value shows (`""`: nothing), as `EditableCell`'s `emptyText`.
@@ -1358,7 +1396,8 @@ export interface EditableCellRestProps {
    */
   emptyText?: string;
   /**
-   * As `EditableCell`'s: a double-click asks to edit instead of a click, with no text cursor.
+   * As `EditableCell`'s: a double-click or a tap asks to edit, not a mouse click, and there is no
+   * text cursor.
    * @default false
    */
   readOnlyHint?: boolean;
@@ -1440,7 +1479,11 @@ export function EditableCellRest({
   );
   const probe = (event: React.SyntheticEvent<HTMLSpanElement>) =>
     probeRest(event.currentTarget, value);
-  const activate = (event: React.MouseEvent<HTMLSpanElement>) => {
+  const press = useHintPress();
+  const activate = (
+    event: React.MouseEvent<HTMLSpanElement>,
+    open: boolean,
+  ) => {
     // A click on a widget inside the value (a link chip) is the widget's: it opens the
     // link, it doesn't start an edit.
     const widget = (event.target as Element).closest(
@@ -1453,7 +1496,7 @@ export function EditableCellRest({
     )
       return;
     event.stopPropagation();
-    onStartEditing();
+    if (open) onStartEditing();
   };
   return (
     <span
@@ -1468,11 +1511,11 @@ export function EditableCellRest({
       aria-describedby={hasDisplayValue ? id : undefined}
       onPointerEnter={probe}
       onFocus={probe}
-      onClick={(event) => {
-        // A click with no pointer (`detail` 0: assistive tech) has no double to wait for.
-        if (!readOnlyHint || event.detail === 0) activate(event);
-      }}
-      onDoubleClick={readOnlyHint ? activate : undefined}
+      onPointerDown={readOnlyHint ? press.onPointerDown : undefined}
+      onClick={(event) => activate(event, !readOnlyHint || press.opens(event))}
+      onDoubleClick={
+        readOnlyHint ? (event) => activate(event, true) : undefined
+      }
       onKeyDown={(event) => {
         // A key on a widget inside the value is the widget's own.
         if (event.target !== event.currentTarget) return;

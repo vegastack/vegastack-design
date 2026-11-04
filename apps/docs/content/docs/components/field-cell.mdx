@@ -185,10 +185,13 @@ editor: a press outside moves focus away, and that commits.
 
 `mark` puts a 12px adornment at the start or end of a displayed value, with its own accessible
 name: an avatar saying who filled the value, an icon saying where it came from. `side` picks the
-end (`"end"` by default) and `content` takes the box whatever size it was drawn at. The value still
-truncates; the mark never does. The name shows on hover, on keyboard focus and on a tap, and a
-screen reader reads it with the value. An empty value, and one `filling` or `recalculating`, shows
-no mark. `FieldProperty` takes the same `mark`.
+end, and `content` takes the box whatever size it was drawn at. A value at the start of its line
+takes the mark after it; one at the end (a number in a column) takes it before, so the figures of a
+partly marked column still line up. The value still truncates; the mark never does. The name shows
+on hover, on keyboard focus and on a tap, and a press on the mark never opens an editor. An empty
+value (a calculated field with no result, a checkbox never set), and one `filling` or
+`recalculating`, shows no mark. `FieldProperty` takes the same `mark`, beside the edit button on an
+editable value.
 
 In a grid the mark is no tab stop: the cell keeps the grid's one stop, and the mark is reached like
 a link chip, with <kbd>Alt</kbd>+<kbd>Enter</kbd> (or <kbd>Enter</kbd> on a read-only cell).
@@ -212,15 +215,16 @@ a link chip, with <kbd>Alt</kbd>+<kbd>Enter</kbd> (or <kbd>Enter</kbd> on a read
 ### Read-only hint
 
 `readOnlyHint` is for a value normally filled by something else that a person can still override.
-The value reads as read-only: no hover wash, no text cursor, and a click opens nothing. A
-double-click opens the editor, and the keyboard is unchanged (<kbd>Enter</kbd>, <kbd>F2</kbd> and
+The value reads as read-only: no hover wash, no text cursor, and a mouse click opens nothing. A
+double-click opens the editor, a tap does too (a touch screen has no inline caret to avoid and no
+double-click to rely on), and the keyboard is unchanged (<kbd>Enter</kbd>, <kbd>F2</kbd> and
 typing), so no one is locked out. A checkbox still toggles in place, and a value that is itself a
 link keeps its link and its Edit pencil.
 
 It lives where a click opens the editor, so it is set on `FieldProperty`, on
 [`EditableCell`](/docs/components/editable-cell) and on a
-[`DataGrid`](/docs/components/data-grid) column, whose cell it holds to a selecting click and opens
-on a double-click anywhere in it. `FieldCellDisplay` shows a value and has nothing to open.
+[`DataGrid`](/docs/components/data-grid) column, whose cell a mouse click only selects and a
+double-click anywhere in it opens. `FieldCellDisplay` shows a value and has nothing to open.
 
 ```tsx
 <FieldProperty label="Lines" type="number" value={lines} onSave={setLines} readOnlyHint />
@@ -326,6 +330,12 @@ goes full width under its label.
   its state); every overflowed list (links, people, files) is read in full by screen readers; the
   row panel shows every value whole.
 - A restricted link is muted and never a link; an unavailable or deleted one says so.
+- A mark is an image named by its `label`, shown on hover, on keyboard focus and on a tap, with a
+  24px target. On its own, or beside an editable property, it is a tab stop. In a grid it is not: it
+  is reached like a link chip, after the cell's real controls, with <kbd>Alt</kbd>+<kbd>Enter</kbd>
+  (or <kbd>Enter</kbd> on a read-only cell), and <kbd>Escape</kbd> goes back to the cell.
+- `readOnlyHint` only takes the mouse's single click. The value stays a named button with its tab
+  stop, and the keyboard, a tap and a screen reader's press all open the editor.
 
 | Key                                              | Action                                                         |
 | ------------------------------------------------ | -------------------------------------------------------------- |
@@ -335,6 +345,7 @@ goes full width under its label.
 | <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Commit and move right / left (past the editor's own controls). |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>    | Commit long text.                                              |
 | <kbd>Escape</kbd>                                | Cancel the edit.                                               |
+| <kbd>Alt</kbd>+<kbd>Enter</kbd> in a grid cell   | Move into the cell's links, then its mark.                     |
 
 <StatesTested name="field-cell" />
 

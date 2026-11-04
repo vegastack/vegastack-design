@@ -540,10 +540,6 @@ function PriorityCell({ task }: { task: string }) {
   );
 }
 
-/**
- * Whole-cell inline editing in a list: priority (an app menu behind `InlineEditTrigger`) and due
- * (the `date` editor) both open from anywhere in the cell, with no border until hover.
- */
 /** `readOnlyHint`: a click opens nothing; a double-click or Enter does. */
 export function editableCellReadOnlyHint(): ReactNode {
   const [value, setValue] = useState("Matched to the price list");
@@ -554,6 +550,10 @@ export function editableCellReadOnlyHint(): ReactNode {
   );
 }
 
+/**
+ * Whole-cell inline editing in a list: priority (an app menu behind `InlineEditTrigger`) and due
+ * (the `date` editor) both open from anywhere in the cell, with no border until hover.
+ */
 export function editableCellWholeCell(): ReactNode {
   const [due, setDue] = useState("2026-10-14");
   return (

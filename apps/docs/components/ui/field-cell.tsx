@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.39.1 sha256-h7y4FvzAiJ06gv9Rw8MCEEk4qRSuIp/+nQ6JEOn06vg=
+// @vegastack field-cell@0.39.1 sha256-joNnl+uuoOYsPfM91XI6BbOLwwQ80C0reJTVfFn2nrw=
 
 "use client";
 
@@ -342,6 +342,14 @@ export const READ_ONLY_FIELD_TYPES: ReadonlySet<FieldType> = new Set([
   "updated_by",
 ]);
 
+/** The types whose value sits at the end of its line, so a column's figures line up. */
+const END_ALIGNED_FIELD_TYPES: ReadonlySet<FieldType> = new Set([
+  "number",
+  "currency",
+  "percent",
+  "calculated",
+]);
+
 /** The most chips, avatars or thumbnails a cell shows before a count. */
 const SHOWN = 3;
 
@@ -560,10 +568,14 @@ function Overflow({
  */
 function ValueMark({
   mark,
+  side,
   tabIndex,
+  className,
 }: {
   mark: FieldCellMark;
+  side: "start" | "end";
   tabIndex?: number;
+  className?: string;
 }) {
   // A tap shows the name too, as `Overflow`'s does: a touch screen has no hover.
   const [open, setOpen] = React.useState(false);
@@ -575,12 +587,20 @@ function ValueMark({
             role="img"
             aria-label={mark.label}
             data-slot="field-cell-mark"
-            data-side={mark.side ?? "end"}
+            data-side={side}
             tabIndex={tabIndex ?? 0}
-            onClick={() => setOpen((shown) => !shown)}
+            // The press is the mark's: it shows the name, it doesn't reach an edit button or a row
+            // around the value.
+            onClick={(event) => {
+              event.stopPropagation();
+              setOpen((shown) => !shown);
+            }}
             // 12px to look at, a 24px target (A11Y-2). Its content takes the box, whatever size
             // it was drawn at.
-            className="relative flex size-3 shrink-0 items-center justify-center text-muted-foreground before:absolute before:-inset-1.5 before:content-[''] [&>*]:size-3"
+            className={cn(
+              "relative flex size-3 shrink-0 items-center justify-center text-muted-foreground before:absolute before:-inset-1.5 before:content-[''] [&>*]:size-3",
+              className,
+            )}
           />
         }
       >
@@ -649,7 +669,8 @@ export interface FieldCellMark {
   label: string;
   /**
    * Which end of the value it sits at.
-   * @default "end"
+   * @default "end", or "start" on a value that sits at the end of its line, so the figures of a
+   * partly marked column still line up
    */
   side?: "start" | "end";
 }
@@ -701,7 +722,8 @@ export interface FieldCellDisplayProps {
   variant?: "default" | "cell";
   /**
    * A 12px mark at the start or end of the value, with its own accessible name. It adorns a value:
-   * an empty field, and one `filling` or `recalculating`, shows none.
+   * an empty field (a calculated one with no result, a checkbox never set), and one `filling` or
+   * `recalculating`, shows none.
    * @default undefined
    */
   mark?: FieldCellMark;
@@ -744,10 +766,18 @@ export function FieldCellDisplay({
   // Inside a grid the cell is the tab stop (`TruncationFocusProvider focusable={false}`); a
   // standalone display's checkbox and links are reachable themselves.
   const tabIndex = useTruncationFocusable() ? undefined : -1;
-  const root = (children: React.ReactNode, extra?: string) => {
+  const endAligned = align
+    ? align === "end"
+    : END_ALIGNED_FIELD_TYPES.has(type);
+  const markSide = mark?.side ?? (endAligned ? "start" : "end");
+  const root = (
+    children: React.ReactNode,
+    extra?: string,
+    hasValue: boolean = true,
+  ) => {
     const shownMark =
-      mark && children != null && state === "ready" ? (
-        <ValueMark mark={mark} tabIndex={tabIndex} />
+      mark && hasValue ? (
+        <ValueMark mark={mark} side={markSide} tabIndex={tabIndex} />
       ) : null;
     return (
       <span
@@ -762,21 +792,25 @@ export function FieldCellDisplay({
           className,
         )}
       >
-        {mark?.side === "start" ? shownMark : null}
+        {markSide === "start" ? shownMark : null}
         {children}
-        {mark?.side === "start" ? null : shownMark}
+        {markSide === "end" ? shownMark : null}
       </span>
     );
   };
   if (state === "filling")
     return root(
       <Skeleton data-slot="field-cell-filling" className="h-4 w-3/4" />,
+      undefined,
+      false,
     );
   if (state === "recalculating")
     return root(
       <span className="text-xs text-muted-foreground">Recalculating…</span>,
+      undefined,
+      false,
     );
-  const empty = root(null);
+  const empty = root(null, undefined, false);
 
   switch (type) {
     case "text":
@@ -810,6 +844,7 @@ export function FieldCellDisplay({
             <span className="text-muted-foreground">—</span>
           ),
           "justify-end",
+          false,
         );
       }
       return root(
@@ -880,6 +915,8 @@ export function FieldCellDisplay({
           aria-label={label ?? (value === true ? "Checked" : "Unchecked")}
           onCheckedChange={(next) => onToggle?.(next === true)}
         />,
+        undefined,
+        value != null,
       );
     case "person":
     case "created_by":
@@ -2740,9 +2777,9 @@ export interface FieldPropertyProps {
   readOnly?: boolean;
   /**
    * For a value normally filled by something else that a person can still override: it reads as
-   * read-only (no hover wash, no text cursor, a click doesn't open the editor), while a
-   * double-click, <kbd>Enter</kbd> or a typed character still does. A checkbox and a value that is
-   * itself a link keep their own controls.
+   * read-only (no hover wash, no text cursor, a mouse click doesn't open the editor), while a
+   * double-click, a tap, <kbd>Enter</kbd> or a typed character still does. A checkbox and a value
+   * that is itself a link keep their own controls.
    * @default false
    */
   readOnlyHint?: boolean;
@@ -2931,7 +2968,7 @@ function CheckboxProperty({
           value={shown === true}
           label={label}
           onToggle={onSave ? (next) => save(next) : undefined}
-          mark={mark}
+          mark={shown == null ? undefined : mark}
         />
       </TruncationFocusProvider>
       {spinner ? <PropertySpinner /> : null}
@@ -3259,6 +3296,18 @@ export function FieldProperty({
     READ_ONLY_FIELD_TYPES.has(type) ||
     type === "file";
   const text = propertyString(value);
+  // On an editable value the mark sits beside the edit button, not in it: a control in a control
+  // has no tab stop of its own, and the value's clipped line would cut its target. Its margin keeps
+  // the two 24px targets apart: a short value's button has none to spare.
+  const beside =
+    mark && text !== "" ? (
+      <ValueMark
+        mark={mark}
+        side={mark.side ?? "end"}
+        tabIndex={managed ? -1 : undefined}
+        className={mark.side === "start" ? "me-1.5" : "ms-1.5"}
+      />
+    ) : null;
   const shownEmpty = (
     <span
       data-slot="field-property-empty"
@@ -3317,6 +3366,8 @@ export function FieldProperty({
         emptyText={emptyText}
         focusMode={focusMode}
         readOnlyHint={readOnlyHint}
+        leading={mark?.side === "start" ? beside : undefined}
+        trailing={mark?.side === "start" ? undefined : beside}
         saveErrorToast={saveErrorToast}
         editing={editing}
         editSeed={seed}
@@ -3336,7 +3387,6 @@ export function FieldProperty({
               value={propertyValue(shown)}
               config={config}
               align="start"
-              mark={mark}
             />
           </TruncationFocusProvider>
         )}

@@ -2857,10 +2857,101 @@ test("readOnlyHint: a click only selects the cell, a double-click anywhere in it
   await userEvent.keyboard("{Escape}");
   await expect.poll(editor).toBeNull();
   await expect.poll(focused).toBe("d1:stage");
+  await userEvent.keyboard("{F2}");
+  await expect.poll(editor).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(editor).toBeNull();
+  await expect.poll(focused).toBe("d1:stage");
   await userEvent.keyboard("W");
   await expect
     .poll(() => (editor() as HTMLInputElement | null)?.value)
     .toBe("W");
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(editor).toBeNull();
+
+  // A tap opens it, on the value or beside it: a touch screen has no double-click to rely on.
+  const tap = (node: Element) => {
+    node.dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+    );
+    node.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+  };
+  tap(value());
+  await expect.poll(editor).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(editor).toBeNull();
+  tap(cell("d2", "stage"));
+  await expect.poll(editor).not.toBeNull();
+});
+
+test("readOnlyHint: a date column keeps its own trigger, and the cell neither opens nor loses the keyboard", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        {
+          key: "stage",
+          header: "Due",
+          minWidth: 10,
+          width: 300,
+          readOnlyHint: true,
+          editable: { type: "date" },
+        },
+        { key: "amount", header: "Amount", minWidth: 10 },
+      ]}
+      data={[{ ...DEALS[0]!, stage: "2026-10-14" }]}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />,
+  );
+  const cell = document.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="stage"]',
+  )!;
+  await userEvent.dblClick(cell, { position: { x: 280, y: 10 } });
+  expect(cell.hasAttribute("data-editing")).toBe(false);
+  cell.focus();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .poll(() =>
+      (document.activeElement as HTMLElement).getAttribute("data-grid-key"),
+    )
+    .toBe("amount");
+});
+
+test("readOnlyHint: a double-click on the fill handle is the handle's, not the cell's", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      selectionMode="cells"
+      columns={[
+        {
+          key: "stage",
+          header: "Stage",
+          minWidth: 10,
+          readOnlyHint: true,
+          editable: { type: "text" },
+        },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+      onCellsCommit={async () => []}
+      onFill={() => {}}
+    />,
+  );
+  const cell = document.querySelector<HTMLElement>(
+    '[data-grid-row="d1"][data-grid-key="stage"]',
+  )!;
+  cell.focus();
+  await expect
+    .poll(() => cell.querySelector('[data-slot="data-grid-fill-handle"]'))
+    .not.toBeNull();
+  cell
+    .querySelector('[data-slot="data-grid-fill-handle"]')!
+    .dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(cell.hasAttribute("data-editing")).toBe(false);
 });
 
 test("a custom editor gets the typed seed, and commit with a move steps the grid on", async () => {

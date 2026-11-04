@@ -172,6 +172,84 @@ test("validate: a string marks the entry invalid and is the message; false keeps
   await expect.poll(notice).toBe(site);
 });
 
+test("validate: one commit mixing false, an empty string and a message counts every invalid entry", async () => {
+  const site = "Enter a site like example.com";
+  const verdicts: Record<string, boolean | string> = {
+    worded: site,
+    plain: false,
+    blank: "",
+  };
+  const screen = await render(
+    <ChipInput aria-label="Sites" validate={(chip) => verdicts[chip]} />,
+  );
+  await screen.getByRole("textbox", { name: "Sites" }).fill("plain,blank");
+  await userEvent.keyboard("{Enter}");
+  const notice = () =>
+    document.querySelector('[data-slot="chip-input-notice"]')?.textContent;
+  // An empty string is `false`: invalid, with no message.
+  await expect.poll(notice).toBe("2 entries are invalid");
+  expect(
+    document.querySelectorAll('[data-slot="tag"][data-invalid]'),
+  ).toHaveLength(2);
+
+  await screen.getByRole("button", { name: "Remove plain" }).click();
+  await screen.getByRole("button", { name: "Remove blank" }).click();
+  await screen
+    .getByRole("textbox", { name: "Sites" })
+    .fill("worded,plain,blank");
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(notice).toBe(`${site} · 3 entries are invalid`);
+});
+
+test("validate: a message lasts as long as its chip, a chip the field started with included", async () => {
+  const site = "Enter a site like example.com";
+  const screen = await render(
+    <ChipInput
+      aria-label="Sites"
+      defaultValue={["example.com", "https://x.dev/a"]}
+      validate={(chip) => (chip.includes("/") ? site : null)}
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Sites" });
+  const notice = () =>
+    document.querySelector('[data-slot="chip-input-notice"]')?.textContent;
+  const description = () =>
+    document.getElementById(
+      input.element().getAttribute("aria-describedby") ?? "",
+    )?.textContent;
+  await expect.poll(notice).toBe(site);
+  expect(description()).toBe(site);
+
+  // A keystroke clears a refusal, never the reason a chip is marked.
+  await input.fill("a");
+  expect(notice()).toBe(site);
+  await input.fill("example.com");
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(notice).toBe("1 duplicate skipped");
+  await input.fill("b");
+  await expect.poll(notice).toBe(site);
+
+  await screen.getByRole("button", { name: "Remove https://x.dev/a" }).click();
+  await expect.poll(notice).toBeUndefined();
+});
+
+test("validate: a boolean's chip the field started with keeps today's description and no line", async () => {
+  const screen = await render(
+    <ChipInput
+      aria-label="Sites"
+      defaultValue={["bad"]}
+      validate={() => false}
+    />,
+  );
+  const input = screen.getByRole("textbox", { name: "Sites" });
+  expect(
+    document.getElementById(
+      input.element().getAttribute("aria-describedby") ?? "",
+    )?.textContent,
+  ).toBe("Some entries are invalid");
+  expect(document.querySelector('[data-slot="chip-input-notice"]')).toBeNull();
+});
+
 test("normalize runs before duplicate checking", async () => {
   const screen = await render(
     <ChipInput

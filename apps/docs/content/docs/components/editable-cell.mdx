@@ -233,10 +233,14 @@ the editor still works on the raw `value`, and an empty value keeps the placehol
 ### Read-only hint
 
 `readOnlyHint` is for a value normally filled by something else that a person can still override.
-It reads as read-only: a click opens nothing and the value shows no text cursor. A double-click
-opens the editor, and so do <kbd>Enter</kbd>, <kbd>F2</kbd> and <kbd>Space</kbd>, so the display
-stays a named button with its tab stop. It applies to the `text`, `number` and `custom` editors; a
-`select` or `date` opens from its own trigger. `EditableCellRest` takes it too.
+It reads as read-only: a mouse click opens nothing and the value shows no text cursor. A
+double-click opens the editor, and so do <kbd>Enter</kbd>, <kbd>F2</kbd> and <kbd>Space</kbd>, so
+the display stays a named button with its tab stop. A tap opens it too: a touch screen has no inline
+caret to avoid and no double-click to rely on. It applies to the `text`, `number` and `custom`
+editors; a `select` or `date` opens from its own trigger. `EditableCellRest` takes it too.
+
+`leading` and `trailing` sit beside the value while it displays, outside the edit button, so what
+goes there keeps its own clicks and keys. `FieldProperty` puts a value's mark there.
 
 <ComponentPreview
   name="editableCellReadOnlyHint"

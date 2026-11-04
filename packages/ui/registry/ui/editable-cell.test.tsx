@@ -311,6 +311,50 @@ test("readOnlyHint: a click leaves the value alone; a double-click, Enter or a p
   await expect.poll(field).not.toBeNull();
 });
 
+/** A finger's press: `pointerdown` says it was touch, and the click that follows carries `detail` 1. */
+function tap(node: Element) {
+  node.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+  );
+  node.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+}
+
+test("readOnlyHint: a tap opens the editor; a hinted click stops at the cell, as an unhinted one does", async () => {
+  const onRowClick = vi.fn();
+  const screen = await render(
+    <div onClick={onRowClick}>
+      <EditableCell value="Acme" label="Account" readOnlyHint />
+    </div>,
+  );
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  await userEvent.click(display);
+  expect(onRowClick).not.toHaveBeenCalled();
+  expect(document.querySelector("input")).toBeNull();
+  tap(display.element());
+  await expect.poll(() => document.querySelector("input")).not.toBeNull();
+  expect(onRowClick).not.toHaveBeenCalled();
+});
+
+test("leading and trailing sit beside the value, outside the edit button, and leave while editing", async () => {
+  const screen = await render(
+    <EditableCell
+      value="Acme"
+      label="Account"
+      leading={<span data-testid="before" />}
+      trailing={<span data-testid="after" />}
+    />,
+  );
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  const before = screen.getByTestId("before").element();
+  const after = screen.getByTestId("after").element();
+  expect(display.element().contains(before)).toBe(false);
+  expect(before.nextElementSibling).toBe(display.element());
+  expect(display.element().nextElementSibling).toBe(after);
+  await display.click();
+  await expect.poll(() => document.querySelector("input")).not.toBeNull();
+  expect(document.querySelector('[data-testid="after"]')).toBeNull();
+});
+
 test("readOnlyHint: EditableCellRest asks to edit on a double-click, not a click", async () => {
   const onStartEditing = vi.fn();
   const screen = await render(
@@ -329,6 +373,8 @@ test("readOnlyHint: EditableCellRest asks to edit on a double-click, not a click
   (display.element() as HTMLElement).focus();
   await userEvent.keyboard("{F2}");
   expect(onStartEditing).toHaveBeenCalledTimes(2);
+  tap(display.element());
+  expect(onStartEditing).toHaveBeenCalledTimes(3);
 });
 
 test("disabled keeps the display visible but blocks editing", async () => {

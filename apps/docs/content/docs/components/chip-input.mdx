@@ -60,10 +60,12 @@ are fixed or removed.
 ### Validation messages
 
 `validate` can say what to fix. A string means the entry is invalid and is the message: announced,
-shown under the box until the next keystroke, and read with the chip. `true`, `null` and `undefined`
-mean valid; `false` means invalid with the default wording ("1 entry is invalid"). The entry is
-still added and marked. Entries that share a message report it once, so write it about the rule,
-not the entry.
+read with the chip and the field, and shown under the box for as long as such a chip stays, a chip
+the field started with included. `true`, `null` and `undefined` mean valid; `false` means invalid
+with the default wording ("1 entry is invalid"), and an empty string counts as `false`. The entry
+is still added and marked. Entries that share a message report it once, so write it about the
+rule, not the entry. A commit that mixes the two gives the message and the count of every invalid
+entry.
 
 ```tsx
 <ChipInput
