@@ -1942,3 +1942,169 @@ test("onTaskOpen: a comment on the line's task keeps it a TaskInline", async () 
     screen.container.querySelector('[data-slot="task-inline"]'),
   ).not.toBeNull();
 });
+
+const proxied = (src: string) => `/proxy?u=${encodeURIComponent(src)}`;
+
+test("imageProxy offers a blocked image and fetches nothing until Show", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {"![](https://evil.media.example/pixel.png)"}
+    </MarkdownView>,
+  );
+  const box = screen.container.querySelector(
+    '[data-slot="markdown-image-blocked"]',
+  )!;
+  expect(box.textContent).toContain("Image from evil.media.example");
+  expect(screen.container.querySelector("img")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  const image = screen.container.querySelector("img")!;
+  expect(image.getAttribute("src")).toBe(
+    "/proxy?u=https%3A%2F%2Fevil.media.example%2Fpixel.png",
+  );
+  expect(image.getAttribute("referrerpolicy")).toBe("no-referrer");
+});
+
+test("alt text can't stand in for the real origin", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {"![Image from acme.com](https://evil.example/p.png)"}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-image-blocked"]')!
+      .textContent,
+  ).toContain("Image from evil.example");
+});
+
+test("Show inside a link shows the image and doesn't follow the link", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {"[![x](https://evil.example/p.png)](#followed)"}
+    </MarkdownView>,
+  );
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  expect(screen.container.querySelector("img")).not.toBeNull();
+  expect(window.location.hash).not.toBe("#followed");
+});
+
+test("the proxy's own address never loads by itself", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {"![](/proxy?u=https%3A%2F%2Fevil.example%2Fsecret)"}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("img")).toBeNull();
+  expect(screen.container.querySelector("button")).toBeNull();
+});
+
+test("agreeing to one image doesn't cover the next one in its place", async () => {
+  const view = (src: string) => (
+    <MarkdownView imageProxy={proxied}>{`![](${src})`}</MarkdownView>
+  );
+  const screen = await render(view("https://a.example/1.png"));
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  expect(screen.container.querySelector("img")).not.toBeNull();
+  await screen.rerender(view("https://b.example/2.png"));
+  expect(screen.container.querySelector("img")).toBeNull();
+});
+
+test("with a proxy, * no longer lets remote images load by themselves", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied} allowedImageOrigins={["*"]}>
+      {"![](https://evil.example/p.png)"}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("img")).toBeNull();
+});
+
+test("a shown image keeps its size and caption", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {'![Plan|320x180](https://evil.example/p.png "The plan")'}
+    </MarkdownView>,
+  );
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  const image = screen.container.querySelector("img")!;
+  expect(image.getAttribute("width")).toBe("320");
+  expect(
+    screen.container.querySelector('[data-slot="markdown-figure-caption"]')
+      ?.textContent,
+  ).toBe("The plan");
+});
+
+test("a non-web or credentialed source stays a box with no Show", async () => {
+  for (const src of [
+    "mailto://evil.example/p.png",
+    "https://u:p@evil.example/p.png",
+  ]) {
+    const screen = await render(
+      <MarkdownView imageProxy={proxied}>{`![Pic](${src})`}</MarkdownView>,
+    );
+    expect(screen.container.querySelector("button")).toBeNull();
+    await screen.unmount();
+  }
+});
+
+test("without imageProxy a blocked image stays a box with no button", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {"![Tracking](https://evil.media.example/p.png)"}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-image-blocked"]')
+      ?.textContent,
+  ).toBe("Tracking");
+  expect(screen.container.querySelector("button")).toBeNull();
+  expect(screen.container.querySelector("img")).toBeNull();
+});
+
+test("showLinkDomains says where a link goes, and only an exact match hides it", async () => {
+  const domains = async (markdown: string) => {
+    const screen = await render(
+      <MarkdownView showLinkDomains>{markdown}</MarkdownView>,
+    );
+    const text = screen.container.querySelector(
+      '[data-slot="markdown-link-domain"]',
+    )?.textContent;
+    await screen.unmount();
+    return text;
+  };
+  expect(await domains("[Datasheet](https://www.acme.com/a.pdf)")).toBe(
+    " (acme.com)",
+  );
+  // The words name another site, or contain the real one inside a different name.
+  expect(await domains("[acme.com](https://evil.com)")).toBe(" (evil.com)");
+  expect(await domains("[notevil.com](https://evil.com)")).toBe(" (evil.com)");
+  expect(await domains("[evil.com](https://evil.com)")).toBeUndefined();
+  expect(await domains("[Tasks](/tasks)")).toBeUndefined();
+  // No https:// to see, and each still leaves the page.
+  expect(await domains("[Datasheet](//evil.com/a)")).toBe(" (evil.com)");
+  expect(await domains("[Datasheet](http:evil.com/a)")).toBe(" (evil.com)");
+  // A bare URL that reads as one host and goes to another.
+  expect(await domains("<https://acme.com@evil.com/a>")).toBe(" (evil.com)");
+  expect(await domains("<https://аcme.com/a>")).toMatch(/xn--/);
+  // A port is part of where it goes.
+  expect(await domains("[acme.com](https://acme.com:8443/a)")).toBe(
+    " (acme.com:8443)",
+  );
+});
+
+test("a network-path link gets the external treatment", async () => {
+  const screen = await render(
+    <MarkdownView>{"[Datasheet](//evil.com/a)"}</MarkdownView>,
+  );
+  const link = screen.container.querySelector("a")!;
+  expect(link.getAttribute("rel")).toBe("noreferrer noopener");
+  expect(link.getAttribute("target")).toBe("_blank");
+});
+
+test("link domains are off unless asked for", async () => {
+  const screen = await render(
+    <MarkdownView>{"[Datasheet](https://acme.com/a.pdf)"}</MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-link-domain"]'),
+  ).toBeNull();
+});

@@ -52,6 +52,29 @@ remote images send no referrer:
 </MarkdownView>
 ```
 
+For content an agent or an outsider wrote, `imageProxy` offers a blocked image on request: its box
+reads "Image from acme.com" with Show, nothing is fetched until then, and Show loads the URL you
+return, so the reader's browser never calls the remote origin. With it set, `*` in
+`allowedImageOrigins` no longer applies, a source that is the proxy's own address stays a box, and
+bookmarks don't fetch a preview.
+
+The proxy is yours to secure, because the content chose the address it is given. It must accept only
+requests the content can't forge, reach public addresses only, re-check every redirect, and return
+images only.
+
+`showLinkDomains` says where each external link goes, after its text: "Datasheet (acme.com)". The
+domain is left out only when the link's plain text is exactly that host, with no user name in the
+URL, so its words can't claim a host it doesn't reach.
+
+```tsx
+<MarkdownView
+  imageProxy={(src) => `/api/image?url=${encodeURIComponent(src)}`}
+  showLinkDomains
+>
+  {agentAnswer}
+</MarkdownView>
+```
+
 An image's width set by resizing it in `TextEdit` travels in its alt text — `![Diagram|320](src)`
 renders 320px wide (never wider than the text column) with the alt "Diagram"; `![Diagram|320x180](src)`
 also gives its height, so its box is reserved before it loads (`TextEdit` stores the size of every

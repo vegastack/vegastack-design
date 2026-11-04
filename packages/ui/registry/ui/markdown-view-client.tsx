@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.33.0 sha256-akrBa1i2o5M94/rgejIWrtFZtg/ZnGqWON+JnK33Bik=
+// @vegastack markdown-view@0.33.0 sha256-CaP22zGJY6YLtLUNJ7jiRnwwVxbfBluWPzFC3ZJD3co=
 
 "use client";
 
@@ -662,7 +662,7 @@ const DOM_TEXT_BLOCKS = new Set([
 ]);
 /** What the view renders that its text does not hold: controls, pills, icons, SR-only hints. */
 const NOT_TEXT =
-  "[data-slot=text-edit-annotation-count],[data-slot=markdown-heading-link],[data-slot=markdown-figure-caption],[data-slot=checkbox],[data-slot=markdown-find-bar],button,input,svg,.sr-only";
+  "[data-slot=markdown-link-domain],[data-slot=text-edit-annotation-count],[data-slot=markdown-heading-link],[data-slot=markdown-figure-caption],[data-slot=checkbox],[data-slot=markdown-find-bar],button,input,svg,.sr-only";
 
 /** One run of the view's anchor text and the DOM it came from. */
 interface AnchorSegment {
@@ -1170,6 +1170,67 @@ function SelectionComment({
       </Button>
     </div>,
     document.body,
+  );
+}
+
+/** Props of `MarkdownBlockedImage`. */
+export interface MarkdownBlockedImageProps extends React.ComponentProps<"span"> {
+  /** The source the reader agreed to: agreeing to one never covers another in its place. */
+  source: string;
+  /** The image's alt text, after the label: never instead of it, since it may claim any origin. */
+  alt: string;
+  /** The box's words: "Image from acme.com". */
+  label: string;
+  /** The button's word. */
+  showLabel: string;
+  /** The image, mounted only after Show, so nothing is fetched before it. */
+  children: React.ReactNode;
+}
+
+/**
+ * `MarkdownBlockedImage` — a remote image waiting for the reader. It keeps the blocked box's look,
+ * so a page reads the same with or without `imageProxy`.
+ *
+ * @example
+ * <MarkdownBlockedImage source={src} alt="" label="Image from acme.com" showLabel="Show">
+ *   <img src={proxied} alt="" />
+ * </MarkdownBlockedImage>
+ */
+export function MarkdownBlockedImage({
+  source,
+  alt,
+  label,
+  showLabel,
+  children,
+  ...props
+}: MarkdownBlockedImageProps) {
+  const [shown, setShown] = React.useState<string | null>(null);
+  if (shown === source) return children;
+  return (
+    <span
+      data-slot="markdown-image-blocked"
+      className="my-2 flex min-w-0 items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
+      {...props}
+    >
+      <span className="min-w-0 wrap-anywhere">
+        {label}
+        {alt ? ` · ${alt}` : null}
+      </span>
+      <Button
+        size="xs"
+        variant="outline"
+        aria-label={`${showLabel}: ${label}`}
+        className="shrink-0"
+        onClick={(event) => {
+          // Inside a link, this press is for the image: it must not follow the link too.
+          event.preventDefault();
+          event.stopPropagation();
+          setShown(source);
+        }}
+      >
+        {showLabel}
+      </Button>
+    </span>
   );
 }
 

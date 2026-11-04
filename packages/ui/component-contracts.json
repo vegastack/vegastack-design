@@ -19282,6 +19282,25 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MarkdownBlockedImage",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the box; it gives way to the image after Show."
+          }
+        },
+        {
+          "name": "MarkdownBlockedImageProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -19404,6 +19423,15 @@
             {
               "name": "data-slot",
               "values": ["markdown-find-bar", "markdown-find-count"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownBlockedImage": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["markdown-image-blocked"]
             }
           ],
           "cssVariables": []
