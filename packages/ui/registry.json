@@ -2044,6 +2044,70 @@
       }
     },
     {
+      "name": "time-field",
+      "type": "registry:ui",
+      "title": "Time Field",
+      "description": "A time of day as one typed field: \"HH:mm\" in and out, shown on the locale's 12- or 24-hour clock, stepped by the arrow keys within min and max.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/date-time",
+        "@vegastack/input-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/time-field.tsx",
+          "type": "registry:ui",
+          "target": "@ui/time-field.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A time of day on its own: a schedule's time, a reminder, opening hours. Typed (\"930\", \"9:30 pm\") or stepped with the arrow keys; the value is always HH:mm.",
+        "whenNotToUse": "A date and a time together (DateTimePicker), a duration (NumberField with a unit), or an instant across time zones.",
+        "version": "0.38.0"
+      }
+    },
+    {
+      "name": "recurrence-picker",
+      "type": "registry:ui",
+      "title": "Recurrence Picker",
+      "description": "The body of a repeat popover: presets, a custom editor (every n days, weeks, months or years; weekdays; month day; ends; time) and the host's preview of the next dates. Never computes a date.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/date-time",
+        "@vegastack/badge",
+        "@vegastack/date-picker",
+        "@vegastack/label",
+        "@vegastack/number-field",
+        "@vegastack/radio-group",
+        "@vegastack/select",
+        "@vegastack/separator",
+        "@vegastack/skeleton",
+        "@vegastack/time-field",
+        "@vegastack/toggle-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/recurrence-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing how something repeats — a Repeat property, a schedule, a reminder — inside the host's popover or ResponsiveDialog, with presets built from the record's date and the host's formatted next dates.",
+        "whenNotToUse": "Picking one date (DatePicker) or a time alone (TimeField); computing occurrences (the host's RRULE engine).",
+        "version": "0.38.0"
+      }
+    },
+    {
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",

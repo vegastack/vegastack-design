@@ -1,0 +1,88 @@
+---
+title: Time Field
+description: A time of day as one typed field — "HH:mm" in and out, shown on the locale's 12- or 24-hour clock, stepped with the arrow keys.
+audience: public
+registry: time-field
+status: stable
+since: 0.39.0
+a11y: APG spinbutton, typed entry, min/max
+preview: timeField
+---
+
+## Install
+
+<InstallSteps name="time-field" />
+
+## Usage
+
+```tsx
+import { TimeField } from "@/components/ui/time-field";
+
+const [time, setTime] = useState<string | null>("09:00");
+
+<TimeField aria-label="Time" value={time} onChange={setTime} />;
+```
+
+The value is always `"HH:mm"` on a 24-hour clock, whatever the field shows: `hourCycle={12}` shows
+"9:30 AM", `24` shows "09:30", and the `locale` decides when it is left out. Typing accepts "9",
+"930", "9:30", "9.30 pm" or "21:30"; <kbd>Enter</kbd> or leaving the field sets it. A typed time
+outside `min`/`max` moves inside, and text that is not a time is marked invalid until it is fixed or
+left, when the field shows the value again. Clearing the field sends `null`. `min` is not after
+`max`: an overnight window is not a range this field holds.
+
+The field holds a wall-clock time, never an instant: say which zone it is in next to it (a hint, or
+the `RecurrencePicker`'s time-zone line).
+
+## Scope
+
+A time of day on its own: a schedule's "at", a reminder, opening hours. A date and a time together
+is the `DateTimePicker`; a duration is a `NumberField` with a unit.
+
+## Examples
+
+<ComponentPreview name="timeField" file="components/preview/time-field.tsx" />
+
+### States
+
+The 24-hour clock, a 30-minute step bounded by `min` and `max`, empty with a placeholder, invalid
+and disabled.
+
+<ComponentPreview
+  name="timeFieldStates"
+  file="components/preview/time-field.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/time-field.tsx"
+  name="TimeFieldProps"
+/>
+
+## Accessibility
+
+- The input is a spin button: its value is the minutes since midnight, read out as the formatted
+  time ("9:30 AM"), with `min` and `max` as its bounds. Name it with a label or `aria-label`.
+- Text that is not a time sets `aria-invalid` while it is in the field.
+
+| Key                                       | Action                                                |
+| ----------------------------------------- | ----------------------------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>               | Step by `step` minutes, on the step's grid.           |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Step by an hour.                                      |
+| <kbd>Home</kbd> / <kbd>End</kbd>          | Jump to `min` / `max`, when set and not typing.       |
+| <kbd>Enter</kbd>                          | Set the typed time.                                   |
+| <kbd>Esc</kbd>                            | Drop what was typed; a second press reaches the host. |
+
+<StatesTested name="time-field" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the value in HH:mm and let hourCycle or the locale decide how it looks."
+  dont="Store the formatted text (9:30 AM) or a Date for a time of day."
+/>
+
+<DoDont
+  do="Say which time zone the time is in, next to the field."
+  dont="Leave the zone implied when people in other zones read it."
+/>

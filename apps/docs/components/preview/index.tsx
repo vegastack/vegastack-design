@@ -95,6 +95,8 @@ export * from "./password-input";
 export * from "./country-select";
 export * from "./region-select";
 export * from "./date-picker";
+export * from "./time-field";
+export * from "./recurrence-picker";
 export * from "./editable-cell";
 export * from "./number-field";
 export * from "./chip-input";

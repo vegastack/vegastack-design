@@ -45,6 +45,8 @@
     "country-select",
     "region-select",
     "date-picker",
+    "time-field",
+    "recurrence-picker",
     "calendar",
     "color-picker",
     "choice-card",

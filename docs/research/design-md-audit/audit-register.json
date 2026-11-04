@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b98c8bdc6d6b0590bbd5767b7c34f7628322641665084d11507640de30fc346f",
+  "contractSha256": "29f125475754187cbcb5ca0a8473f457f95eff02b538b0421f6bb251d7941439",
   "expectedCounts": {
-    "totalRegistryItems": 786,
-    "components": 196,
+    "totalRegistryItems": 788,
+    "components": 198,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -584,6 +584,28 @@
         "packages/ui/registry/ui/date-picker.tsx"
       ],
       "docsSlug": "/docs/components/date-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "time-field",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/time-field.tsx"
+      ],
+      "docsSlug": "/docs/components/time-field",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "recurrence-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/recurrence-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/recurrence-picker",
       "contractStatus": "reconciled"
     },
     {

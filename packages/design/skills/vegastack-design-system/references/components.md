@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**196 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 22 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `disclosure-trigger`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 786 registry items in total.
+**198 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 22 data libs (`code-highlight`, `date-time`, `grid-clipboard`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `embed-providers`, `text-edit-schema`, `text-edit-markdown`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `disclosure-trigger`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 788 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -46,6 +46,7 @@ starts with `icon-` is a component and never an icon.
 - **`people-picker`** — The one picker for people and teams — a field (single or multiple), a popover body for a host trigger, or a dropdown submenu — with avatar rows, "(you)", team sizes, skeleton loading, footer actions and active people only.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`record-chip`** — A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.
+- **`recurrence-picker`** — The body of a repeat popover: presets, a custom editor (every n days, weeks, months or years; weekdays; month day; ends; time) and the host's preview of the next dates. Never computes a date.
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`search-input`** — A token-safe search field with a consistent clear action and controlled or uncontrolled native input semantics.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.
@@ -55,6 +56,7 @@ starts with `icon-` is a component and never an icon.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
 - **`task-inline`** — A task in running text — one box (its done state), the title that opens it, the assignee's avatar, a due chip and ↗ to its page — and MakeTaskPopover, which makes that task from a checklist line in place.
 - **`textarea`** — A styled native textarea that grows with its content; focus darkens its border subtly with an ease and paints no fill.
+- **`time-field`** — A time of day as one typed field: "HH:mm" in and out, shown on the locale's 12- or 24-hour clock, stepped by the arrow keys within min and max.
 
 ## Display
 

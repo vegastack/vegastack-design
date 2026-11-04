@@ -3966,6 +3966,16 @@ test('fill="flex" takes the room its flex column leaves, so a filter row never m
   sheet.textContent = geometryCss;
   document.head.append(sheet);
   onTestFinished(() => sheet.remove());
+  // geometry.css gives every element a 0.01ms transition, and an unset transition-property is
+  // `all`: html and body lose the UA's 3px border widths only on the next frame, so until then the
+  // page sits 6px down. This test compares absolute positions, so that frame must have passed.
+  await expect
+    .poll(() =>
+      [document.documentElement, document.body].map(
+        (element) => getComputedStyle(element).borderTopWidth,
+      ),
+    )
+    .toEqual(["0px", "0px"]);
   const page = (shown: boolean) => (
     <div
       data-testid="scroller"
