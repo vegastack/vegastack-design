@@ -309,6 +309,14 @@ value the cell's string can't carry: `seed` is the key that opened it (type-to-e
 and `commit(next, move)` with `"down"`, `"up"`, `"right"` or `"left"` steps the grid on
 the way <kbd>Enter</kbd> and <kbd>Tab</kbd> do.
 
+A column whose values are normally filled by something else takes `readOnlyHint`: a mouse click on
+a cell only selects it, and a double-click anywhere in the cell, or a tap, edits. The keyboard is
+unchanged: Enter, F2 and typing still edit. It applies to `text`, `number` and `custom` editors.
+
+```tsx
+{ key: "lines", header: "Lines", readOnlyHint: true, editable: { type: "number" } }
+```
+
 <ComponentPreview
   name="dataGridEditable"
   file="components/preview/data-grid.tsx"

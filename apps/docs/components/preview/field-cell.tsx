@@ -2,12 +2,14 @@
 
 import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
+import { PersonAvatar } from "@/components/ui/person-avatar";
 import { PropertyList } from "@/components/ui/property-list";
 import {
   FieldCellDisplay,
   FieldCellEditor,
   FieldInput,
   FieldProperty,
+  type FieldCellMark,
   type FieldConfig,
   type FieldType,
   type FieldValue,
@@ -298,6 +300,82 @@ export function fieldCellProperties(): ReactNode {
           label="Created"
           type="created_at"
           value="2026-10-01T10:00:00Z"
+        />
+      </PropertyList>
+    </Wrapper>
+  );
+}
+
+const FILLED_BY: FieldCellMark = {
+  label: "Filled by Asha Rao",
+  content: (
+    <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} size="2xs" />
+  ),
+};
+
+/** `mark`: a 12px adornment at either end of the value, with its own accessible name. */
+export function fieldCellMark(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <dl className="grid w-full max-w-sm grid-cols-[6rem_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
+        <dt className="text-muted-foreground">Trailing</dt>
+        <dd className="min-w-0">
+          <FieldCellDisplay
+            type="currency"
+            value={1842300}
+            config={{ currency: "EUR" }}
+            align="start"
+            mark={FILLED_BY}
+          />
+        </dd>
+        <dt className="text-muted-foreground">Leading</dt>
+        <dd className="min-w-0">
+          <FieldCellDisplay
+            type="single_choice"
+            value="sent"
+            config={{ options: OPTIONS }}
+            mark={{ ...FILLED_BY, side: "start" }}
+          />
+        </dd>
+        <dt className="text-muted-foreground">Long value</dt>
+        <dd className="min-w-0">
+          <FieldCellDisplay
+            type="text"
+            value="ARC-120 sample for the Leeds showroom refit, second fix"
+            mark={FILLED_BY}
+          />
+        </dd>
+      </dl>
+    </Wrapper>
+  );
+}
+
+/** `readOnlyHint`: reads as read-only, opens on a double-click or Enter. */
+export function fieldCellReadOnlyHint(): ReactNode {
+  const [lines, setLines] = useState<FieldValue>(184);
+  const [note, setNote] = useState<FieldValue>("Matched to the price list");
+  return (
+    <Wrapper className="block">
+      <PropertyList
+        variant="inline"
+        aria-label="Fields"
+        className="w-full max-w-sm"
+      >
+        <FieldProperty
+          label="Lines"
+          type="number"
+          value={lines}
+          onSave={setLines}
+          readOnlyHint
+          mark={FILLED_BY}
+        />
+        <FieldProperty
+          label="Note"
+          type="text"
+          value={note}
+          onSave={setNote}
+          readOnlyHint
+          mark={FILLED_BY}
         />
       </PropertyList>
     </Wrapper>

@@ -59,6 +59,29 @@ export function chipInputValidation(): ReactNode {
   );
 }
 
+/** `validate` returns the words: a string marks the entry invalid and is the line under the box. */
+export function chipInputValidationMessage(): ReactNode {
+  const [sites, setSites] = useState<string[]>(["example.com"]);
+  return (
+    <Wrapper className="block">
+      <Field className="mx-auto w-full max-w-sm">
+        <FieldLabel>Approved sites</FieldLabel>
+        <ChipInput
+          value={sites}
+          onValueChange={setSites}
+          validate={(chip) =>
+            /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(chip)
+              ? null
+              : "Enter a site like example.com"
+          }
+          placeholder="Add a site…"
+        />
+        <FieldDescription>Try https://example.com/docs.</FieldDescription>
+      </Field>
+    </Wrapper>
+  );
+}
+
 export function chipInputStates(): ReactNode {
   return (
     <Wrapper className="block">

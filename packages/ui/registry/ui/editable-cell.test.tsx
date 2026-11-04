@@ -285,6 +285,98 @@ test("a read-only select cell falls back to the raw value for an unknown option"
   await expect.element(screen.getByText("archived")).toBeInTheDocument();
 });
 
+test("readOnlyHint: a click leaves the value alone; a double-click, Enter or a press from assistive tech opens the editor", async () => {
+  const screen = await render(
+    <EditableCell value="Acme" label="Account" readOnlyHint />,
+  );
+  const field = () => document.querySelector("input");
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  await userEvent.click(display);
+  expect(field()).toBeNull();
+
+  await userEvent.dblClick(display);
+  await expect.poll(field).not.toBeNull();
+  await expect.poll(() => document.activeElement).toBe(field());
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(field).toBeNull();
+
+  (display.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(field).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(field).toBeNull();
+
+  // Native `.click()` carries `detail` 0, as a screen reader's press does.
+  (display.element() as HTMLElement).click();
+  await expect.poll(field).not.toBeNull();
+});
+
+/** A finger's press: `pointerdown` says it was touch, and the click that follows carries `detail` 1. */
+function tap(node: Element) {
+  node.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+  );
+  node.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+}
+
+test("readOnlyHint: a tap opens the editor; a hinted click stops at the cell, as an unhinted one does", async () => {
+  const onRowClick = vi.fn();
+  const screen = await render(
+    <div onClick={onRowClick}>
+      <EditableCell value="Acme" label="Account" readOnlyHint />
+    </div>,
+  );
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  await userEvent.click(display);
+  expect(onRowClick).not.toHaveBeenCalled();
+  expect(document.querySelector("input")).toBeNull();
+  tap(display.element());
+  await expect.poll(() => document.querySelector("input")).not.toBeNull();
+  expect(onRowClick).not.toHaveBeenCalled();
+});
+
+test("leading and trailing sit beside the value, outside the edit button, and leave while editing", async () => {
+  const screen = await render(
+    <EditableCell
+      value="Acme"
+      label="Account"
+      leading={<span data-testid="before" />}
+      trailing={<span data-testid="after" />}
+    />,
+  );
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  const before = screen.getByTestId("before").element();
+  const after = screen.getByTestId("after").element();
+  expect(display.element().contains(before)).toBe(false);
+  expect(before.nextElementSibling).toBe(display.element());
+  expect(display.element().nextElementSibling).toBe(after);
+  await display.click();
+  await expect.poll(() => document.querySelector("input")).not.toBeNull();
+  expect(document.querySelector('[data-testid="after"]')).toBeNull();
+});
+
+test("readOnlyHint: EditableCellRest asks to edit on a double-click, not a click", async () => {
+  const onStartEditing = vi.fn();
+  const screen = await render(
+    <EditableCellRest
+      value="Acme"
+      label="Account"
+      readOnlyHint
+      onStartEditing={onStartEditing}
+    />,
+  );
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  await userEvent.click(display);
+  expect(onStartEditing).not.toHaveBeenCalled();
+  await userEvent.dblClick(display);
+  expect(onStartEditing).toHaveBeenCalledOnce();
+  (display.element() as HTMLElement).focus();
+  await userEvent.keyboard("{F2}");
+  expect(onStartEditing).toHaveBeenCalledTimes(2);
+  tap(display.element());
+  expect(onStartEditing).toHaveBeenCalledTimes(3);
+});
+
 test("disabled keeps the display visible but blocks editing", async () => {
   const screen = await render(
     <EditableCell

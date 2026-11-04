@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.33.0 sha256-c3S5LWjiPaiGmBi0PA9cGCw4JoJ3vaL/5V+iAkSU8xA=
+// @vegastack chip-input@0.33.0 sha256-QBr38IbqOUtgSUU1C7Fj5IvY0/hGS0xhkzJrT65tDEs=
 
 "use client";
 
@@ -27,8 +27,11 @@ Validation model: entries are ADDED and marked, not silently dropped. A pasted l
 rejected class. Accepted/invalid/duplicate outcomes are announced politely, and every
 refusal (a duplicate, an entry past `max`) and every invalid entry also shows as one short
 line under the box until the next keystroke — a sighted user would otherwise see the typed
-text stay put with no reason. That line is a visual copy of the announcement, so it is
-`aria-hidden`; the live region stays the one spoken channel.
+text stay put with no reason. `validate` may give that line its words by returning them; it
+then says what to fix rather than that something is wrong, and those words stay for as long as
+a chip they describe does, a chip the field started with included. That line is a visual copy
+of what is spoken, so it is `aria-hidden`; the live region stays the one spoken channel, and
+the field's description carries the lasting words.
 
 Deliberately NOT done here:
 - No suggestion popup. An autocomplete-backed chip field is a Combobox composition, not
@@ -78,10 +81,15 @@ export interface ChipInputProps {
    * flip the whole field invalid until fixed or removed —
    * a pasted list keeps every entry visible instead of silently dropping the
    * malformed ones.
-
+   *
+   * `true`, `null` and `undefined` mean valid. `false` means invalid, reported as "1 entry is
+   * invalid"; an empty string counts as `false`. Any other string means invalid, and is the
+   * message itself: announced, read with the chip and the field, and shown under the box for as
+   * long as such a chip stays. Entries that share a message report it once, so keep it about the
+   * rule ("Enter a site like example.com"), not the entry.
    * @default undefined
    */
-  validate?: (chip: string) => boolean;
+  validate?: (chip: string) => boolean | string | null | undefined;
   /**
    * Pattern the paste handler splits on, in addition to the Enter/comma commit
    * keys.
@@ -246,11 +254,19 @@ export function ChipInput({
     [isControlled, onValueChange],
   );
 
-  const isInvalidChip = React.useCallback(
-    (chip: string) => (validate ? !validate(chip) : false),
+  // What `validate` says of a chip: `null` when valid, else its message (`""` when it has none).
+  const chipProblem = React.useCallback(
+    (chip: string): string | null => {
+      const verdict = validate?.(chip);
+      if (verdict === false) return "";
+      return typeof verdict === "string" ? verdict : null;
+    },
     [validate],
   );
-  const hasInvalidChip = chips.some(isInvalidChip);
+  const problems = chips.map((chip) => chipProblem(chip));
+  const hasInvalidChip = problems.some((problem) => problem !== null);
+  // The words `validate` gave the chips now in the field, once each.
+  const chipMessages = [...new Set(problems.filter(Boolean))].join(" · ");
 
   // The reject/invalid cue is the group border flipping destructive via `data-invalid`. The
   // shake that used to accompany it is gone from here: validation MOTION belongs to `Field`,
@@ -276,6 +292,9 @@ export function ChipInput({
       const next = [...chips];
       let added = 0;
       let invalid = 0;
+      const messages = new Set<string>();
+      // An entry with no message is reported by the count, which takes in every invalid entry.
+      let unexplained = false;
       let duplicates = 0;
       let overMax = 0;
       const tooLong: string[] = [];
@@ -299,7 +318,10 @@ export function ChipInput({
         }
         next.push(chip);
         added += 1;
-        if (isInvalidChip(chip)) invalid += 1;
+        const problem = chipProblem(chip);
+        if (problem !== null) invalid += 1;
+        if (problem) messages.add(problem);
+        else if (problem === "") unexplained = true;
       }
       if (added > 0) commitValue(next);
       // Voice: sentence case, no "successfully", counts only when they inform.
@@ -310,7 +332,8 @@ export function ChipInput({
             ? `Added ${next[next.length - 1]}`
             : `Added ${added} entries`,
         );
-      if (invalid > 0)
+      parts.push(...messages);
+      if (unexplained)
         parts.push(
           invalid === 1
             ? "1 entry is invalid"
@@ -347,7 +370,7 @@ export function ChipInput({
       maxLabel,
       maxLength,
       maxLengthLabel,
-      isInvalidChip,
+      chipProblem,
       commitValue,
       setAnnouncement,
     ],
@@ -410,6 +433,10 @@ export function ChipInput({
     else setRefused(true);
   }, [draft, addEntries, splitOn, rejoin, onPendingChange]);
 
+  // The last refusal while it lasts, else the words the chips in the field still carry.
+  const line =
+    notice ?? (chipMessages ? { text: chipMessages, invalid: true } : null);
+
   return (
     // The column that puts the refusal line UNDER the box wherever the field sits (a Field,
     // a row's actions). `className` lands here, so layout classes (`flex-1`, `col-span-*`,
@@ -428,7 +455,8 @@ export function ChipInput({
         className={chipFieldLayout}
       >
         {chips.map((chip, index) => {
-          const invalid = isInvalidChip(chip);
+          const problem = problems[index] ?? null;
+          const invalid = problem !== null;
           return (
             <Tag
               // Duplicate chips are only possible with `allowDuplicates` — key by
@@ -445,7 +473,9 @@ export function ChipInput({
               {invalid ? (
                 // Real text in the accessible name — aria-description is an
                 // ARIA 1.3 draft with no shipped AT support.
-                <span className="sr-only">, invalid entry</span>
+                <span className="sr-only">
+                  , invalid entry{problem ? `: ${problem}` : null}
+                </span>
               ) : null}
             </Tag>
           );
@@ -524,21 +554,21 @@ export function ChipInput({
         {/* Static description target — separate from the live region so the
           field's description never carries stale transient announcements. */}
         <span id={describeId} className="sr-only">
-          Some entries are invalid
+          {chipMessages || "Some entries are invalid"}
         </span>
         <Announcer />
       </InputGroup>
-      {notice ? (
+      {line ? (
         // `w-0 min-w-full`: the line wraps at the box's width instead of widening it.
         <p
           aria-hidden="true"
           data-slot="chip-input-notice"
           className={cn(
             "w-0 min-w-full text-sm",
-            notice.invalid ? "text-destructive-text" : "text-muted-foreground",
+            line.invalid ? "text-destructive-text" : "text-muted-foreground",
           )}
         >
-          {notice.text}
+          {line.text}
         </p>
       ) : null}
     </div>

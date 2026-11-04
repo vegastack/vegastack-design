@@ -540,6 +540,16 @@ function PriorityCell({ task }: { task: string }) {
   );
 }
 
+/** `readOnlyHint`: a click opens nothing; a double-click or Enter does. */
+export function editableCellReadOnlyHint(): ReactNode {
+  const [value, setValue] = useState("Matched to the price list");
+  return (
+    <Wrapper>
+      <EditableCell value={value} label="Note" onSave={setValue} readOnlyHint />
+    </Wrapper>
+  );
+}
+
 /**
  * Whole-cell inline editing in a list: priority (an app menu behind `InlineEditTrigger`) and due
  * (the `date` editor) both open from anywhere in the cell, with no border until hover.

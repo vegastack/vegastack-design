@@ -1499,6 +1499,315 @@ test("FieldProperty: a typed character opens the editor from it (type-to-edit)",
   await expect.element(field).toHaveValue("W");
 });
 
+test("FieldProperty: readOnlyHint opens on a double-click or Enter, never on a click", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(<Property onSave={onSave} readOnlyHint />);
+  const field = screen.getByRole("textbox", { name: "Stage" });
+  await userEvent.click(screen.getByText("Open"));
+  await expect.element(field).not.toBeInTheDocument();
+  await userEvent.dblClick(screen.getByText("Open"));
+  await expect.element(field).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(field).not.toBeInTheDocument();
+  screen.container
+    .querySelector<HTMLElement>('[data-slot="editable-cell-display"]')!
+    .focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(field).toHaveFocus();
+  await expectNoA11yViolations(screen.container);
+});
+
+const MARK = { label: "Filled by Asha Rao", content: <span>A</span> };
+
+const markNode = () =>
+  document.querySelector<HTMLElement>('[data-slot="field-cell-mark"]');
+
+const tooltipText = () =>
+  document.querySelector('[data-slot="tooltip-content"]')?.textContent;
+
+/** Whether a point `dx`,`dy` from the mark's centre lands on the mark. */
+function hitsMark(dx: number, dy: number) {
+  const box = markNode()!.getBoundingClientRect();
+  const at = document.elementFromPoint(
+    box.left + box.width / 2 + dx,
+    box.top + box.height / 2 + dy,
+  );
+  return at === markNode();
+}
+
+test("a mark sits at either end of the value and is 12px, named on its own", async () => {
+  injectCompiledCss();
+  const screen = await render(
+    <FieldCellDisplay type="text" value="Open" mark={MARK} />,
+  );
+  await expect
+    .element(screen.getByRole("img", { name: "Filled by Asha Rao" }))
+    .toBeInTheDocument();
+  expect(markNode()!.getBoundingClientRect().width).toBe(12);
+  expect(markNode()!.previousElementSibling?.textContent).toBe("Open");
+  await expectNoA11yViolations(screen.container);
+
+  await screen.rerender(
+    <FieldCellDisplay
+      type="text"
+      value="Open"
+      mark={{ ...MARK, side: "start" }}
+    />,
+  );
+  expect(markNode()!.nextElementSibling?.textContent).toBe("Open");
+});
+
+test("a mark on an end-aligned value defaults to its start, so a partly marked column's figures line up", async () => {
+  injectCompiledCss();
+  const screen = await render(
+    <div className="w-48">
+      <FieldCellDisplay type="number" value={184} mark={MARK} />
+      <FieldCellDisplay type="number" value={184} />
+    </div>,
+  );
+  const [marked, plain] = screen.container.querySelectorAll(
+    '[data-slot="truncated-text"]',
+  );
+  expect(markNode()!.getAttribute("data-side")).toBe("start");
+  expect(marked!.getBoundingClientRect().right).toBe(
+    plain!.getBoundingClientRect().right,
+  );
+
+  await screen.rerender(
+    <FieldCellDisplay type="number" value={184} align="start" mark={MARK} />,
+  );
+  expect(markNode()!.getAttribute("data-side")).toBe("end");
+  await screen.rerender(
+    <FieldCellDisplay
+      type="number"
+      value={184}
+      mark={{ ...MARK, side: "end" }}
+    />,
+  );
+  expect(markNode()!.getAttribute("data-side")).toBe("end");
+});
+
+test("no value, no mark: empty, filling, recalculating, an empty calculated field, a checkbox never set", async () => {
+  const screen = await render(
+    <FieldCellDisplay type="number" value={null} mark={MARK} />,
+  );
+  expect(markNode()).toBeNull();
+  for (const element of [
+    <FieldCellDisplay type="number" value={184} mark={MARK} state="filling" />,
+    <FieldCellDisplay
+      type="number"
+      value={184}
+      mark={MARK}
+      state="recalculating"
+    />,
+    <FieldCellDisplay type="calculated" value={null} mark={MARK} />,
+    <FieldCellDisplay
+      type="calculated"
+      value={null}
+      config={{ missingInputs: ["Qty"] }}
+      mark={MARK}
+    />,
+    <FieldCellDisplay type="checkbox" value={null} mark={MARK} />,
+  ]) {
+    await screen.rerender(element);
+    expect(markNode()).toBeNull();
+  }
+  // An unticked box is a value.
+  await screen.rerender(
+    <FieldCellDisplay type="checkbox" value={false} mark={MARK} />,
+  );
+  expect(markNode()).not.toBeNull();
+});
+
+test("a mark names itself on hover, on keyboard focus and on a tap, axe-clean while open", async () => {
+  injectCompiledCss();
+  const hover = await render(
+    <FieldCellDisplay type="text" value="Open" mark={MARK} />,
+  );
+  await userEvent.hover(markNode()!);
+  await expect.poll(tooltipText).toBe("Filled by Asha Rao");
+  await expectNoA11yViolations(document.body);
+  await userEvent.unhover(markNode()!);
+  await expect.poll(tooltipText).toBeUndefined();
+  await hover.unmount();
+
+  const focus = await render(
+    <FieldCellDisplay type="text" value="Open" mark={MARK} />,
+  );
+  await userEvent.tab();
+  expect(document.activeElement).toBe(markNode());
+  await expect.poll(tooltipText).toBe("Filled by Asha Rao");
+  await userEvent.tab();
+  await expect.poll(tooltipText).toBeUndefined();
+  await focus.unmount();
+
+  await render(<FieldCellDisplay type="text" value="Open" mark={MARK} />);
+  markNode()!.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, detail: 1 }),
+  );
+  await expect.poll(tooltipText).toBe("Filled by Asha Rao");
+});
+
+test("a mark's target is 24px across, though it draws 12", async () => {
+  injectCompiledCss();
+  await render(
+    <div className="p-4">
+      <FieldCellDisplay type="text" value="Open" mark={MARK} />
+    </div>,
+  );
+  for (const [dx, dy] of [
+    [-11, -11],
+    [11, -11],
+    [-11, 11],
+    [11, 11],
+  ] as const)
+    expect(hitsMark(dx, dy)).toBe(true);
+  expect(hitsMark(14, 0)).toBe(false);
+});
+
+function MarkedGrid({ onOpen }: { onOpen?: () => void }) {
+  const editor = {
+    type: "custom" as const,
+    render: () => <input aria-label="Quantity" autoFocus />,
+  };
+  return (
+    <DataGrid
+      aria-label="Lines"
+      columns={[
+        {
+          key: "qty",
+          header: "Quantity",
+          minWidth: 10,
+          editable: editor,
+          render: (row: MarkedRow) => (
+            <FieldCellDisplay type="number" value={row.qty} mark={MARK} />
+          ),
+        },
+        {
+          key: "site",
+          header: "Site",
+          minWidth: 10,
+          render: (row: MarkedRow) => (
+            <FieldCellDisplay
+              type="url"
+              value={row.site}
+              mark={{ ...MARK, side: "start" }}
+            />
+          ),
+        },
+        { key: "unit", header: "Unit", minWidth: 10 },
+      ]}
+      data={[{ id: "r1", qty: 184, site: "https://example.com", unit: "m" }]}
+      getRowId={(row) => row.id}
+      onCellCommit={onOpen}
+    />
+  );
+}
+
+interface MarkedRow {
+  id: string;
+  qty: number;
+  site: string;
+  unit: string;
+}
+
+const gridCell = (key: string) =>
+  document.querySelector<HTMLElement>(
+    `[data-slot="data-grid-cell"][data-grid-key="${key}"]`,
+  )!;
+
+test("a mark in a grid is no tab stop: on an editable cell Alt+Enter reaches it, and Escape and the arrows carry on", async () => {
+  await render(<MarkedGrid />);
+  const cell = gridCell("qty");
+  const mark = cell.querySelector<HTMLElement>(
+    '[data-slot="field-cell-mark"]',
+  )!;
+  expect(mark.tabIndex).toBe(-1);
+  cell.focus();
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+  await expect.poll(() => document.activeElement).toBe(mark);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.activeElement).toBe(cell);
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.poll(() => document.activeElement).toBe(gridCell("site"));
+});
+
+test("a press on a mark in an editable cell shows its name and never opens the editor", async () => {
+  await render(<MarkedGrid />);
+  const mark = gridCell("qty").querySelector<HTMLElement>(
+    '[data-slot="field-cell-mark"]',
+  )!;
+  await userEvent.click(mark);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(document.querySelector('input[aria-label="Quantity"]')).toBeNull();
+  mark.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+  );
+  mark.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(document.querySelector('input[aria-label="Quantity"]')).toBeNull();
+});
+
+test("a cell's real control comes before its mark, wherever the mark sits", async () => {
+  await render(<MarkedGrid />);
+  const cell = gridCell("site");
+  cell.focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .poll(() => (document.activeElement as HTMLElement).tagName)
+    .toBe("A");
+});
+
+test("FieldProperty: a mark on an editable value sits beside the edit button: a tab stop, its whole target, its own press", async () => {
+  injectCompiledCss();
+  const onSave = vi.fn();
+  const screen = await render(<Property mark={MARK} onSave={onSave} />);
+  const display = screen.container.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  )!;
+  expect(display.contains(markNode())).toBe(false);
+  expect(display.nextElementSibling).toBe(markNode());
+  // Before the tooltip opens over it. The value's clipped line no longer cuts the target.
+  for (const [dx, dy] of [
+    [-11, -11],
+    [11, -11],
+    [-11, 11],
+    [11, 11],
+  ] as const)
+    expect(hitsMark(dx, dy)).toBe(true);
+  display.focus();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(markNode());
+  await expect.poll(tooltipText).toBe("Filled by Asha Rao");
+  await userEvent.click(markNode()!);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(document.querySelector("input")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+
+  // Gone while the value edits; none on an empty value.
+  await userEvent.click(screen.getByText("Open"));
+  await expect.poll(markNode).toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await screen.rerender(<Property mark={MARK} onSave={onSave} value={null} />);
+  await expect.poll(() => document.querySelector("input")).toBeNull();
+  expect(markNode()).toBeNull();
+});
+
+test("FieldProperty: a mark shows on a read-only row, and a checkbox never set carries none", async () => {
+  const screen = await render(<Property mark={MARK} />);
+  await expect
+    .element(screen.getByRole("img", { name: "Filled by Asha Rao" }))
+    .toBeInTheDocument();
+  await screen.rerender(
+    <Property mark={MARK} type="checkbox" value={null} onSave={() => {}} />,
+  );
+  expect(markNode()).toBeNull();
+  await screen.rerender(
+    <Property mark={MARK} type="checkbox" value={false} onSave={() => {}} />,
+  );
+  expect(markNode()).not.toBeNull();
+});
+
 test("FieldProperty: a rejected save rolls back the value", async () => {
   const onSave = vi.fn(() => Promise.reject(new Error("no")));
   const screen = await render(

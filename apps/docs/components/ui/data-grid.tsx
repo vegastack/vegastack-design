@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.41.1 sha256-qB+tw3K3krDBJ6dH1XQKTBEq2Yns9/3TEybu6JqMIi4=
+// @vegastack data-grid@0.41.1 sha256-mpMK+4nY3FlqCFBq02PSpP2BNRliP2DGaKzZ6xl0mPE=
 
 "use client";
 
@@ -331,6 +331,14 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * @default undefined
    */
   editable?: DataGridEditor<T>;
+  /**
+   * For values normally filled by something else that a person can still override (`EditableCell`'s
+   * `readOnlyHint`): a mouse click only selects the cell, and a double-click anywhere in it, or a
+   * tap, edits. The keyboard is unchanged: <kbd>Enter</kbd>, <kbd>F2</kbd> and typing still edit.
+   * Applies to the `text`, `number` and `custom` editors.
+   * @default false
+   */
+  readOnlyHint?: boolean;
   /**
    * Group rows into collapsible sections by this column's value (client
    * grouping). One grouping column at most; ignored when the grid has
@@ -1503,6 +1511,26 @@ function GridCellImpl<T>({
           <span className="min-w-0 truncate">{shown}</span>
         )
     : undefined;
+  // `select` and `date` open from their own trigger: the hint isn't theirs.
+  const hinted =
+    column.readOnlyHint === true &&
+    (editor?.type === "text" ||
+      editor?.type === "number" ||
+      editor?.type === "custom");
+  const tapped = React.useRef(false);
+  // The cell itself opens a hinted value too: its display is only as wide as its text, and an empty
+  // one is next to nothing to aim at. What isn't the cell's keeps its own press: a control in it
+  // (Open, a link chip), the fill handle, and whatever bubbled here through a portal.
+  const openFromCell = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target as Element;
+    if (
+      event.currentTarget.contains(target) &&
+      !target.closest(
+        'a[href], button, [role="button"], [role="link"], [data-slot="data-grid-fill-handle"]',
+      )
+    )
+      api.setEditing(rowId, key, true);
+  };
   // Floating editing: the cell keeps its resting display and the `custom` editor opens over it.
   const floating =
     placed.floating && editable?.type === "custom"
@@ -1522,6 +1550,7 @@ function GridCellImpl<T>({
                   label={placed.label}
                   emptyText={untitledLabel ?? ""}
                   renderValue={renderValue}
+                  readOnlyHint={hinted}
                   onStartEditing={() => {}}
                 />
               }
@@ -1588,6 +1617,7 @@ function GridCellImpl<T>({
       // editor's placeholder shows only once it edits (UX-11).
       emptyText={untitledLabel ?? ""}
       renderValue={renderValue}
+      readOnlyHint={hinted}
       onStartEditing={() => api.setEditing(rowId, key, true)}
       ref={restRef}
     />
@@ -1597,6 +1627,7 @@ function GridCellImpl<T>({
       label={placed.label}
       editor={shownEditor ?? editor}
       renderValue={renderValue}
+      readOnlyHint={hinted}
       emptyText={untitledLabel ?? ""}
       focusMode="managed"
       editing={editing}
@@ -1631,10 +1662,19 @@ function GridCellImpl<T>({
       data-in-range={inRange && !tabStop ? "" : undefined}
       data-fill-target={fillTarget ? "" : undefined}
       onFocus={() => api.focused(rowId, key)}
-      onPointerDown={
-        cellsMode
+      onDoubleClick={hinted && !editing ? openFromCell : undefined}
+      onClick={
+        hinted && !editing
           ? (event) => {
-              if (event.button === 0)
+              if (tapped.current) openFromCell(event);
+            }
+          : undefined
+      }
+      onPointerDown={
+        cellsMode || hinted
+          ? (event) => {
+              tapped.current = event.pointerType === "touch";
+              if (cellsMode && event.button === 0)
                 api.pointerDown(rowId, key, event.shiftKey);
             }
           : undefined
@@ -2906,7 +2946,7 @@ function GridCards<T>({
                 data-slot="data-grid-card-fields"
                 // A field with no value is left out — label and all — and a card whose fields are
                 // all empty shows none, so a card never lists bare labels ("Notes", "Status").
-                className="pointer-events-none relative grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-3 gap-y-1 text-xs [&:not(:has(dd:not(:empty)))]:hidden [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+                className="pointer-events-none relative grid min-w-0 grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-3 gap-y-1 text-xs [&:not(:has(dd:not(:empty)))]:hidden [&_[data-slot=field-cell-mark]]:pointer-events-auto [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
               >
                 {shown.map((column) => (
                   <React.Fragment key={column.key}>
@@ -2950,6 +2990,7 @@ const CELL_CONTENT_STOPS =
 /**
  * The widgets inside a body cell, in order, that the cell's keyboard model steps through: the
  * innermost ones (a chip, not the editable value around it), never the cell's own edit surface.
+ * A value's mark comes last, wherever it sits: it names the value, the controls act on it.
  */
 function cellWidgets(cell: HTMLElement): HTMLElement[] {
   const candidates = [
@@ -2962,10 +3003,16 @@ function cellWidgets(cell: HTMLElement): HTMLElement[] {
       !node.closest('[aria-hidden="true"]') &&
       node.getClientRects().length > 0,
   );
-  return candidates.filter(
+  const widgets = candidates.filter(
     (node) =>
       !candidates.some((other) => other !== node && node.contains(other)),
   );
+  const isMark = (node: HTMLElement) =>
+    node.matches('[data-slot="field-cell-mark"]');
+  return [
+    ...widgets.filter((node) => !isMark(node)),
+    ...widgets.filter(isMark),
+  ];
 }
 
 /** Take every cell's content stops out of the tab order, now and whenever the body changes. */
