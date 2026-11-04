@@ -283,7 +283,8 @@ violet bar at the row's start, its hexagon and "Claude Code for Arjun", with no 
 An agent's comment renders as `untrusted` (see [`MarkdownView`](/docs/components/markdown-view)):
 it says where each external link goes, and loads and fetches nothing by itself. `agentMarkdown` says
 where its images may load from on this site and how to offer the rest on request. Pass it on the
-items you render yourself too. A person's comments use none of this.
+items you render yourself too. A person's comments use none of this. `agentWritten` renders a body
+this way when its author doesn't show as an agent, as when the app hides agents.
 
 A question waiting on the viewer is `tone: "question"`: an amber bar and a "Needs your reply" label,
 with its `choices` as buttons under the body when you pass `onChoose` (only to whoever may answer).
