@@ -155,7 +155,8 @@ key)` to put the active cell on a new row.
 
 The active cell is outlined (2px, inset) while the grid holds focus, whether a click or a key put
 it there; a range's other cells take the tint. A header with a `headerMenu` is one button that opens
-the menu (sort lives in it), a column's `icon` sits before its label, and a `numeric` column lines
+the menu (sort lives in it); while it is open the grid is locked like an editing cell, so nothing
+scrolls the menu away from its header and the first press outside only closes it. A column's `icon` sits before its label, and a `numeric` column lines
 its figures and its header up at the end. `selectionActions` docks the same selection bar as
 `DataList`'s while rows are checked. Narrow the preview below 40rem to see the cards.
 

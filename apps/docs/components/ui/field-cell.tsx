@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.39.1 sha256-joNnl+uuoOYsPfM91XI6BbOLwwQ80C0reJTVfFn2nrw=
+// @vegastack field-cell@0.41.1 sha256-37zH8mepjDOcCBdA2jfFAoMQcTMCgumQAKV5PEopjTs=
 
 "use client";
 
@@ -265,6 +265,79 @@ export interface FieldFile {
    * @default undefined
    */
   thumbnailUrl?: string | null;
+  /**
+   * Where the file opens (the host's file link, such as `/api/files/<id>`). A grid cell's chip and
+   * thumbnail open it through the host's chip provider (`InlineChipResolver.onOpen`, a file
+   * viewer), as a file link in a page does. Unset, the chip asks the provider's `href`.
+   * @default undefined
+   */
+  href?: string | null;
+}
+
+/** A file link that is same-site (`/…`) or http(s); anything else (`javascript:`…) is none. */
+function safeFileHref(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  return safeHttp(value);
+}
+
+/**
+ * An image file's thumbnail in a grid cell. With a link — the file's `href`, else the host
+ * provider's `href` for a file, as the chip beside it resolves — it is a button that opens the
+ * file as the chip would: the provider's `onOpen` (a file viewer) on a plain click, a new tab on
+ * ⌘/Ctrl/Shift-click. With no link, a picture.
+ */
+function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
+  const resolver = useInlineChipResolver();
+  const href = safeFileHref(
+    file.href !== undefined ? file.href : resolver?.href?.("file", file.id),
+  );
+  const thumbnail = (
+    <Thumbnail
+      src={src}
+      alt={file.name}
+      size="sm"
+      className="h-5 w-8 rounded-sm"
+    />
+  );
+  if (!href)
+    return (
+      <span
+        data-slot="field-cell-file-thumbnail"
+        title={file.name}
+        className="flex shrink-0"
+      >
+        {thumbnail}
+      </span>
+    );
+  return (
+    <Button
+      variant="ghost"
+      size="icon-xs"
+      data-slot="field-cell-file-thumbnail"
+      aria-label={file.name}
+      title={file.name}
+      className="h-5 w-8 rounded-sm border-0"
+      onClick={(event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey) {
+          window.open(href, "_blank", "noopener,noreferrer");
+          return;
+        }
+        const target = {
+          kind: "file",
+          id: file.id,
+          label: file.name,
+          href,
+          ...(file.contentType ? { contentType: file.contentType } : {}),
+        };
+        if (resolver?.onOpen && resolver.onOpen(target, event) !== false)
+          return;
+        window.location.assign(href);
+      }}
+    >
+      {thumbnail}
+    </Button>
+  );
 }
 
 /** A field's configuration — what each type needs to show and edit its value. */
@@ -1012,19 +1085,11 @@ export function FieldCellDisplay({
           <span className="flex min-w-0 items-center gap-1.5 overflow-clip whitespace-nowrap">
             {files.map((file) =>
               file.thumbnailUrl ? (
-                <span
+                <FieldFileThumbnail
                   key={file.id}
-                  data-slot="field-cell-file-thumbnail"
-                  title={file.name}
-                  className="flex shrink-0"
-                >
-                  <Thumbnail
-                    src={file.thumbnailUrl}
-                    alt={file.name}
-                    size="sm"
-                    className="h-5 w-8 rounded-sm"
-                  />
-                </span>
+                  file={file}
+                  src={file.thumbnailUrl}
+                />
               ) : (
                 <span
                   key={file.id}
@@ -1037,6 +1102,7 @@ export function FieldCellDisplay({
                     label={file.name}
                     contentType={file.contentType}
                     targetId={file.id}
+                    href={file.href}
                   />
                 </span>
               ),

@@ -1,4 +1,4 @@
-// @vegastack floating-cell-editor@0.33.0 sha256-iKdIRFCRRXcYV8G7ePWexGhPCnKILQZk+P04OckQSe0=
+// @vegastack floating-cell-editor@0.41.1 sha256-rLwiP2ronhAo3khflshI9E9l6qKAJbJmzEtSgW0o0Fg=
 
 "use client";
 
@@ -76,12 +76,16 @@ export function floatingCellEditorSize(type: string): FloatingCellEditorSize {
 type Anchor = { left: number; top: number; width: number; height: number };
 
 /**
- * The full-window layer behind an open editor: it takes the click that closes it, and the wheel.
- * A pinch is left alone — a trackpad's arrives as a wheel with the ctrl key, a screen's as two
- * touches — and so is a one-finger drag while the page is zoomed in, so the zoom (and moving about
- * in it) always works while the page itself stays still.
+ * The full-window layer behind an open editor (or a grid header's menu): it takes the click that
+ * closes it, and the wheel, so nothing scrolls under the surface it holds still. A pinch is left
+ * alone — a trackpad's arrives as a wheel with the ctrl key, a screen's as two touches — and so is
+ * a one-finger drag while the page is zoomed in, so the zoom (and moving about in it) always works
+ * while the page itself stays still. Render it only while the surface is open.
+ *
+ * @example
+ * {open ? <CellLock onDismiss={() => setOpen(false)} /> : null}
  */
-function Lock({ onDismiss }: { onDismiss?: () => void }) {
+export function CellLock({ onDismiss }: { onDismiss?: () => void }) {
   const ref = React.useRef<HTMLDivElement>(null);
   // The click that opened the editor may be the first half of a double-click: its second press
   // lands here, and must neither take focus off the editor nor close it.
@@ -214,7 +218,7 @@ export function FloatingCellEditor({
       </span>
       {anchor ? (
         <>
-          <Lock onDismiss={onDismiss} />
+          <CellLock onDismiss={onDismiss} />
           {/* Open for as long as the editor is mounted: the editor itself decides when it is done. */}
           <Popover open>
             <PopoverAnchor

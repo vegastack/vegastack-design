@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.41.1] — November 4, 2026
+
+<!-- assembled from 1 changeset: e224b5d236d5 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.12.4`** (was `0.12.3`).
+- The design-system registry (`@vegastack/ui`) bumps 0.41.0 → 0.41.1.
+
+### 🐛 Fixed
+
+- **Grid cells and headers: file chips open the file, header menus hold the grid still, and a frozen primary header stays in its cell.** `FieldFile` gains an optional `href` (the host's file link): a grid cell's file chip opens it through the chip provider's `onOpen` (a file viewer) instead of the provider's record link, and an image thumbnail opens the same way. While a `DataGrid` header menu is open the grid is locked like an editing cell (the lock layer is exported as `CellLock`), so the grid can't scroll the menu away from its header. A frozen primary column's header label no longer reaches past its cell into the next column when the rows open (`onRowOpen`).
+  [`2d2a0a4`](https://github.com/VegaStack/vegastack-design/commit/2d2a0a4)
+
 ## [0.41.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: 32864afef2a2 -->

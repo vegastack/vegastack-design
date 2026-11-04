@@ -53,6 +53,10 @@ for an editor that lives outside a grid's slots (a file dialog opened from a cel
 - It does not commit or cancel: the editor inside does. `onDismiss` is for an editor that has no
   commit of its own on leaving (a picker that saves when something is chosen).
 
+## Anatomy
+
+<Anatomy name="floating-cell-editor" />
+
 ## Examples
 
 ### Over a cell
@@ -71,6 +75,10 @@ for an editor that lives outside a grid's slots (a file dialog opened from a cel
 
 `floatingCellEditorSize(type)` maps a `FieldType` to a `size`: text-like types and people `text`, long text,
 date-time and file types `wide`, choices, dates and links `picker`, everything else `cell`.
+
+`CellLock` is the lock layer on its own, for another surface that must hold the grid still while
+it is open (`DataGrid`'s header menus use it): render it only while open, with `onDismiss` closing
+the surface.
 
 ## Accessibility
 
