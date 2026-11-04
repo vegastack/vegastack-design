@@ -2867,6 +2867,130 @@ test("an unhovered header's menu chevron still opens the menu on a plain click",
     .toBeInTheDocument();
 });
 
+type HeadRow = { id: string; name: string; text: string };
+const HEAD_ROWS: HeadRow[] = [{ id: "r1", name: "Acme", text: "x" }];
+
+for (const frozenCount of [1, 2]) {
+  test(`a frozen primary header with a menu stays in its cell (${frozenCount} frozen), past the Open slot`, async () => {
+    const sheet = document.createElement("style");
+    sheet.textContent = geometryCss;
+    document.head.append(sheet);
+    onTestFinished(() => sheet.remove());
+    const cols: DataGridColumn<HeadRow>[] = [
+      {
+        key: "name",
+        header: "Name",
+        width: 200,
+        frozen: true,
+        headerMenu: <DropdownMenuItem>Hide</DropdownMenuItem>,
+      },
+      {
+        key: "text",
+        header: "Text",
+        width: 160,
+        frozen: frozenCount > 1,
+        headerMenu: <DropdownMenuItem>Hide</DropdownMenuItem>,
+      },
+      { key: "c", header: "C", width: 160, render: () => "c" },
+    ];
+    const screen = await render(
+      <div style={{ width: 800 }}>
+        <DataGrid
+          aria-label="T"
+          columns={cols}
+          data={HEAD_ROWS}
+          getRowId={(r) => r.id}
+          onRowOpen={() => {}}
+        />
+      </div>,
+    );
+    await expect
+      .poll(() =>
+        screen.container.querySelector('[data-slot="data-grid-head-menu"]'),
+      )
+      .not.toBeNull();
+    const th = screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-grid-head"]',
+    )!;
+    const btn = th.querySelector<HTMLElement>(
+      '[data-slot="data-grid-head-menu"]',
+    )!;
+    const a = th.getBoundingClientRect();
+    const b = btn.getBoundingClientRect();
+    expect(b.right).toBeLessThanOrEqual(a.right + 0.5);
+  });
+}
+
+test("an open header menu locks the grid like an editing cell", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const cols: DataGridColumn<HeadRow>[] = [
+    {
+      key: "name",
+      header: "Name",
+      width: 200,
+      frozen: true,
+      headerMenu: <DropdownMenuItem>Hide</DropdownMenuItem>,
+    },
+    { key: "text", header: "Text", width: 160 },
+  ];
+  const screen = await render(
+    <div style={{ width: 800 }}>
+      <DataGrid
+        aria-label="T"
+        columns={cols}
+        data={HEAD_ROWS}
+        getRowId={(r) => r.id}
+        maxHeight="200px"
+      />
+    </div>,
+  );
+  const lock = () =>
+    document.querySelector('[data-slot="floating-cell-editor-lock"]');
+  expect(lock()).toBeNull();
+  await expect
+    .poll(() =>
+      screen.container.querySelector('[data-slot="data-grid-head-menu"]'),
+    )
+    .not.toBeNull();
+  screen.container
+    .querySelector<HTMLElement>('[data-slot="data-grid-head-menu"]')!
+    .click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Hide" }))
+    .toBeInTheDocument();
+  expect(lock()).not.toBeNull();
+  const cell = screen.container
+    .querySelectorAll<HTMLElement>('[data-slot="data-grid-cell"]')[1]!
+    .getBoundingClientRect();
+  const hit = document.elementFromPoint(
+    cell.left + cell.width / 2,
+    cell.top + cell.height / 2,
+  );
+  expect(hit).toBe(lock());
+  const wheel = new WheelEvent("wheel", {
+    deltaY: 100,
+    bubbles: true,
+    cancelable: true,
+  });
+  lock()!.dispatchEvent(wheel);
+  expect(wheel.defaultPrevented).toBe(true);
+  await new Promise((r) => setTimeout(r, 400));
+  // A real press on a cell under the lock only closes the menu: the cell is not made current.
+  const under = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="data-grid-cell"]',
+  )[1]!;
+  await userEvent.click(under, { position: { x: 20, y: 10 }, force: true });
+  await expect.poll(() => document.querySelector('[role="menu"]')).toBeNull();
+  expect(lock()).toBeNull();
+  expect(under.hasAttribute("data-current-cell")).toBe(false);
+  // With the lock gone, the next press reaches the cell.
+  await userEvent.click(under, { position: { x: 20, y: 10 }, force: true });
+  await expect.poll(() => under.hasAttribute("data-current-cell")).toBe(true);
+});
+
 test("a resting custom-editor cell announces the host's first status, and a widget focused inside it keeps focus", async () => {
   const cols: DataGridColumn<Deal>[] = [
     {

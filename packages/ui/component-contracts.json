@@ -14855,7 +14855,6 @@
               "values": [
                 "field-cell-display",
                 "field-cell-file-chip",
-                "field-cell-file-thumbnail",
                 "field-cell-filling"
               ]
             },
@@ -44558,6 +44557,15 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "CellLock",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/floating-cell-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -44618,6 +44626,15 @@
       },
       "previewModule": "floating-cell-editor",
       "dataAttributes": {
+        "CellLock": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["floating-cell-editor-lock"]
+            }
+          ],
+          "cssVariables": []
+        },
         "FloatingCellEditor": {
           "attributes": [
             {

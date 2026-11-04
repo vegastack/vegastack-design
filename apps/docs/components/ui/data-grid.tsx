@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.35.1 sha256-zq3W1Dj3JZNcBvmWtP3cDDLM6X/aUBRM8iTYMtQ800I=
+// @vegastack data-grid@0.35.1 sha256-kshGkKjwshAzTNZ2WcPS4fSCquzrD7H6wqxMiiQBbFs=
 
 "use client";
 
@@ -93,6 +93,7 @@ import {
   type LoadMoreState,
 } from "@/components/ui/load-more";
 import {
+  CellLock,
   FloatingCellEditor,
   type FloatingCellEditorSize,
 } from "@/components/ui/floating-cell-editor";
@@ -2072,7 +2073,9 @@ function GridHeadCellImpl<T>({
       data-slot="data-grid-head-menu"
       className={cn(
         "group/head-menu h-7 max-w-full min-w-0 gap-1 px-1.25 text-sm font-medium select-none",
-        fixed && "w-full",
+        // `flex-1`, not `w-full`: the Open slot shares the row, and a full-width label would push past
+        // the cell into the next column (where a frozen header paints over the cells it overlaps).
+        fixed && "flex-1",
         align === "end"
           ? "justify-end"
           : align === "center"
@@ -2107,6 +2110,11 @@ function GridHeadCellImpl<T>({
         <DropdownMenuContent align={align === "end" ? "end" : "start"}>
           {column.headerMenu}
         </DropdownMenuContent>
+        {/* Held still like an editing cell: the grid can't scroll the menu away from its header,
+            and the first press outside only closes it. */}
+        {menuOpen ? (
+          <CellLock onDismiss={() => actions.setMenuOpen(key, false)} />
+        ) : null}
       </DropdownMenu>
     ) : (
       // The menu's machinery waits until the header is pointed at, focused or opened: a

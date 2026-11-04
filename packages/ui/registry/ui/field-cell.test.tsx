@@ -2544,6 +2544,94 @@ test('FieldCellDisplay variant="cell": every file as its chip, an image as its t
   expect(screen.container.textContent).toContain("+1");
 });
 
+test('FieldCellDisplay variant="cell": a file chip and an image thumbnail open the file through the provider, never the record link', async () => {
+  const onOpen = vi.fn(() => undefined);
+  const files = [
+    {
+      id: "f1",
+      name: "spec.pdf",
+      contentType: "application/pdf",
+      href: "/api/files/a1",
+    },
+    {
+      id: "f2",
+      name: "pole.jpg",
+      contentType: "image/jpeg",
+      href: "/api/files/a2",
+      thumbnailUrl:
+        "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
+    },
+  ];
+  const screen = await render(
+    <InlineChipProvider
+      value={{ href: (kind, id) => `/${kind}s/${id}`, onOpen }}
+    >
+      <FieldCellDisplay type="file" value={files} variant="cell" />
+    </InlineChipProvider>,
+  );
+  const chip = screen.container.querySelector<HTMLAnchorElement>(
+    '[data-slot="field-cell-file-chip"] a',
+  )!;
+  // The file's own link, not the provider's record link (`/files/f1`).
+  expect(chip.getAttribute("href")).toBe("/api/files/a1");
+  chip.click();
+  expect(onOpen).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      kind: "file",
+      href: "/api/files/a1",
+      label: "spec.pdf",
+    }),
+    expect.anything(),
+  );
+  const thumbnail = screen.container.querySelector<HTMLButtonElement>(
+    '[data-slot="field-cell-file-thumbnail"]',
+  )!;
+  expect(thumbnail.tagName).toBe("BUTTON");
+  thumbnail.click();
+  expect(onOpen).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      kind: "file",
+      href: "/api/files/a2",
+      label: "pole.jpg",
+      contentType: "image/jpeg",
+    }),
+    expect.anything(),
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test('FieldCellDisplay variant="cell": a thumbnail with no link, or an unsafe one, is a picture, not a button', async () => {
+  const image =
+    "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+  const screen = await render(
+    <InlineChipProvider value={{ onOpen: () => undefined }}>
+      <FieldCellDisplay
+        type="file"
+        value={[
+          {
+            id: "f1",
+            name: "a.jpg",
+            contentType: "image/jpeg",
+            thumbnailUrl: image,
+          },
+          {
+            id: "f2",
+            name: "b.jpg",
+            contentType: "image/jpeg",
+            thumbnailUrl: image,
+            href: "javascript:alert(1)",
+          },
+        ]}
+        variant="cell"
+      />
+    </InlineChipProvider>,
+  );
+  const thumbnails = screen.container.querySelectorAll(
+    '[data-slot="field-cell-file-thumbnail"]',
+  );
+  expect([...thumbnails].map((el) => el.tagName)).toEqual(["SPAN", "SPAN"]);
+});
+
 test('FieldCellEditor variant="cell": the date, date-time and link triggers sit flat, with no open tint; FieldInput keeps its chrome', async () => {
   injectCompiledCss();
   const trigger = (slot: string) =>
