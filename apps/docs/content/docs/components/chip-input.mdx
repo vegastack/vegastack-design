@@ -57,6 +57,28 @@ are fixed or removed.
   file="components/preview/chip-input.tsx"
 />
 
+### Validation messages
+
+`validate` can say what to fix. A string means the entry is invalid and is the message: announced,
+shown under the box until the next keystroke, and read with the chip. `true`, `null` and `undefined`
+mean valid; `false` means invalid with the default wording ("1 entry is invalid"). The entry is
+still added and marked. Entries that share a message report it once, so write it about the rule,
+not the entry.
+
+```tsx
+<ChipInput
+  aria-label="Approved sites"
+  value={sites}
+  onValueChange={setSites}
+  validate={(chip) => (isSite(chip) ? null : "Enter a site like example.com")}
+/>
+```
+
+<ComponentPreview
+  name="chipInputValidationMessage"
+  file="components/preview/chip-input.tsx"
+/>
+
 ### Inside a Field
 
 Inside a [`Field`](/docs/components/field) the inner input is labelled by `FieldLabel` — a click on
@@ -104,8 +126,9 @@ invalid field keeps its destructive border while focused.
 - The inner input must carry an accessible name (`aria-label`) — it is the
   control assistive tech interacts with.
 - Accepted, invalid, duplicate, and removed outcomes are announced through a
-  polite live region; invalid chips also carry a text description, never colour
-  alone. Refusals and invalid entries also show as one line under the field
+  polite live region; invalid chips also carry a text description (with
+  `validate`'s message, when it gives one), never colour alone. Refusals and
+  invalid entries also show as one line under the field
   (hidden from assistive tech, which already hears the announcement), cleared by
   the next keystroke.
 - Every chip's remove button is named (`Remove …`) with a 24px hit area

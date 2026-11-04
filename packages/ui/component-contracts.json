@@ -14478,6 +14478,10 @@
         "EditableCellRest": {
           "attributes": [
             {
+              "name": "data-read-only-hint",
+              "values": [""]
+            },
+            {
               "name": "data-rest",
               "values": [""]
             },
@@ -14711,6 +14715,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldCellMark",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

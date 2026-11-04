@@ -1322,7 +1322,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.33.0",
-        "integrity": "sha256-c3S5LWjiPaiGmBi0PA9cGCw4JoJ3vaL/5V+iAkSU8xA="
+        "integrity": "sha256-ZPIF0rI0nfOmUdeIPxtW/2z0PetR8WEUV1pg7vrfan0="
       }
     },
     {
@@ -1653,7 +1653,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.35.1",
-        "integrity": "sha256-zq3W1Dj3JZNcBvmWtP3cDDLM6X/aUBRM8iTYMtQ800I="
+        "integrity": "sha256-2TNxBXy8mzvqIcZaor7KH/JyTMugFiuOMpwg1FUBwFw="
       }
     },
     {
@@ -3052,7 +3052,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.33.0",
-        "integrity": "sha256-gbIN1j9QP5uU/P9/Cs576vEBn0ICgunmeA6qFLkLdeg="
+        "integrity": "sha256-SPNQbhIw2JBKmkr1oK5heP8t0rKzRNaYKt9wh9J3+aQ="
       }
     },
     {
@@ -3109,7 +3109,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.39.1",
-        "integrity": "sha256-n3JR8MWUxOcZWUPOE0MHawIMouZ1kojfita3eu+p3UM="
+        "integrity": "sha256-h7y4FvzAiJ06gv9Rw8MCEEk4qRSuIp/+nQ6JEOn06vg="
       }
     },
     {

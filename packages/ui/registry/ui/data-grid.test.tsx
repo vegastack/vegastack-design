@@ -2779,6 +2779,90 @@ test("cells mode: a parse column is writable to assistive technology; a fill dra
   expect(inRange()).toEqual(["d1:amount"]);
 });
 
+test("readOnlyHint: a click only selects the cell, a double-click anywhere in it edits, and the keyboard is unchanged", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        {
+          key: "stage",
+          header: "Stage",
+          minWidth: 10,
+          width: 300,
+          readOnlyHint: true,
+          editable: {
+            type: "custom",
+            render: ({ value, seed, commit, cancel }) => (
+              <input
+                aria-label="Stage"
+                autoFocus
+                defaultValue={seed ?? value}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter")
+                    commit(event.currentTarget.value, "down");
+                  if (event.key === "Escape") cancel();
+                }}
+              />
+            ),
+          },
+        },
+        { key: "amount", header: "Amount", minWidth: 10 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />,
+  );
+  const cell = (row: string, key: string) =>
+    document.querySelector<HTMLElement>(
+      `[data-grid-row="${row}"][data-grid-key="${key}"]`,
+    )!;
+  const editor = () => document.querySelector('input[aria-label="Stage"]');
+  const focused = () => {
+    const at = (
+      document.activeElement as HTMLElement | null
+    )?.closest<HTMLElement>("[data-grid-row]");
+    return `${at?.dataset.gridRow}:${at?.dataset.gridKey}`;
+  };
+  const value = () =>
+    cell("d1", "stage").querySelector<HTMLElement>(
+      '[data-slot="editable-cell-display"]',
+    )!;
+
+  // On the value: a click opens nothing, a double-click does.
+  await userEvent.click(value());
+  expect(editor()).toBeNull();
+  await userEvent.dblClick(value());
+  await expect.poll(editor).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(editor).toBeNull();
+
+  // Beside the value: the display is only as wide as its text.
+  await userEvent.dblClick(cell("d1", "stage"), {
+    position: { x: 280, y: 10 },
+  });
+  await expect.poll(editor).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(editor).toBeNull();
+  await expect.poll(focused).toBe("d1:stage");
+
+  // Arrows pass through the cell, and Enter, F2 and typing open it as on any editable cell.
+  await userEvent.keyboard("{ArrowRight}");
+  expect(focused()).toBe("d1:amount");
+  await userEvent.keyboard("{ArrowLeft}");
+  expect(focused()).toBe("d1:stage");
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(editor).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(editor).toBeNull();
+  await expect.poll(focused).toBe("d1:stage");
+  await userEvent.keyboard("W");
+  await expect
+    .poll(() => (editor() as HTMLInputElement | null)?.value)
+    .toBe("W");
+});
+
 test("a custom editor gets the typed seed, and commit with a move steps the grid on", async () => {
   const onCellCommit = vi.fn();
   await render(

@@ -230,6 +230,19 @@ the editor still works on the raw `value`, and an empty value keeps the placehol
   file="components/preview/editable-cell.tsx"
 />
 
+### Read-only hint
+
+`readOnlyHint` is for a value normally filled by something else that a person can still override.
+It reads as read-only: a click opens nothing and the value shows no text cursor. A double-click
+opens the editor, and so do <kbd>Enter</kbd>, <kbd>F2</kbd> and <kbd>Space</kbd>, so the display
+stays a named button with its tab stop. It applies to the `text`, `number` and `custom` editors; a
+`select` or `date` opens from its own trigger. `EditableCellRest` takes it too.
+
+<ComponentPreview
+  name="editableCellReadOnlyHint"
+  file="components/preview/editable-cell.tsx"
+/>
+
 ### Managed focus (grid hosts)
 
 Inside a grid the grid's roving focus model owns reachability. `focusMode="managed"` removes the

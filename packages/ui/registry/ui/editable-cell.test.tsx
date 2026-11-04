@@ -285,6 +285,52 @@ test("a read-only select cell falls back to the raw value for an unknown option"
   await expect.element(screen.getByText("archived")).toBeInTheDocument();
 });
 
+test("readOnlyHint: a click leaves the value alone; a double-click, Enter or a press from assistive tech opens the editor", async () => {
+  const screen = await render(
+    <EditableCell value="Acme" label="Account" readOnlyHint />,
+  );
+  const field = () => document.querySelector("input");
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  await userEvent.click(display);
+  expect(field()).toBeNull();
+
+  await userEvent.dblClick(display);
+  await expect.poll(field).not.toBeNull();
+  await expect.poll(() => document.activeElement).toBe(field());
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(field).toBeNull();
+
+  (display.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(field).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(field).toBeNull();
+
+  // Native `.click()` carries `detail` 0, as a screen reader's press does.
+  (display.element() as HTMLElement).click();
+  await expect.poll(field).not.toBeNull();
+});
+
+test("readOnlyHint: EditableCellRest asks to edit on a double-click, not a click", async () => {
+  const onStartEditing = vi.fn();
+  const screen = await render(
+    <EditableCellRest
+      value="Acme"
+      label="Account"
+      readOnlyHint
+      onStartEditing={onStartEditing}
+    />,
+  );
+  const display = screen.getByRole("button", { name: "Edit Account" });
+  await userEvent.click(display);
+  expect(onStartEditing).not.toHaveBeenCalled();
+  await userEvent.dblClick(display);
+  expect(onStartEditing).toHaveBeenCalledOnce();
+  (display.element() as HTMLElement).focus();
+  await userEvent.keyboard("{F2}");
+  expect(onStartEditing).toHaveBeenCalledTimes(2);
+});
+
 test("disabled keeps the display visible but blocks editing", async () => {
   const screen = await render(
     <EditableCell

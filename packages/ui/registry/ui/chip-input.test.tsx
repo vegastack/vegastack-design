@@ -117,6 +117,61 @@ test("invalid entries are ADDED and marked data-invalid, and flip the field inva
   expect(root.hasAttribute("data-invalid")).toBe(false);
 });
 
+test("validate: a string marks the entry invalid and is the message; false keeps today's wording; true and null are valid", async () => {
+  const site = "Enter a site like example.com";
+  const verdicts: Record<string, boolean | string | null | undefined> = {
+    bad: site,
+    worse: site,
+    plain: false,
+    fine: true,
+    ok: null,
+    unset: undefined,
+  };
+  const screen = await render(
+    <ChipInput aria-label="Sites" validate={(chip) => verdicts[chip]} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Sites" });
+  const field = document.querySelector('[data-slot="chip-input"]')!;
+  const notice = () =>
+    document.querySelector('[data-slot="chip-input-notice"]')?.textContent;
+  const spoken = () =>
+    field.querySelector('[role="status"]')?.textContent ?? "";
+  const invalidChips = () =>
+    document.querySelectorAll('[data-slot="tag"][data-invalid]').length;
+
+  // Valid: added, nothing marked, no line.
+  for (const chip of ["fine", "ok", "unset"]) {
+    await input.fill(chip);
+    await userEvent.keyboard("{Enter}");
+  }
+  expect(invalidChips()).toBe(0);
+  expect(notice()).toBeUndefined();
+
+  // A string: added and marked, the message shown and announced, and read with the chip.
+  await input.fill("bad");
+  await userEvent.keyboard("{Enter}");
+  expect(chipTexts()).toEqual(["fine", "ok", "unset", "bad"]);
+  expect(invalidChips()).toBe(1);
+  await expect.poll(notice).toBe(site);
+  await expect.poll(spoken).toBe(`Added bad · ${site}`);
+  expect(
+    screen.getByRole("button", { name: "Remove bad" }).element().parentElement
+      ?.textContent,
+  ).toContain(`invalid entry: ${site}`);
+
+  // `false`: today's wording, unchanged.
+  await input.fill("plain");
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(notice).toBe("1 entry is invalid");
+
+  // Entries that share a message report it once.
+  await input.fill("worse,bad2");
+  verdicts.bad2 = site;
+  await userEvent.keyboard("{Enter}");
+  expect(invalidChips()).toBe(4);
+  await expect.poll(notice).toBe(site);
+});
+
 test("normalize runs before duplicate checking", async () => {
   const screen = await render(
     <ChipInput

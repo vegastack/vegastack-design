@@ -1499,6 +1499,109 @@ test("FieldProperty: a typed character opens the editor from it (type-to-edit)",
   await expect.element(field).toHaveValue("W");
 });
 
+test("FieldProperty: readOnlyHint opens on a double-click or Enter, never on a click", async () => {
+  const onSave = vi.fn(() => Promise.resolve());
+  const screen = await render(<Property onSave={onSave} readOnlyHint />);
+  const field = screen.getByRole("textbox", { name: "Stage" });
+  await userEvent.click(screen.getByText("Open"));
+  await expect.element(field).not.toBeInTheDocument();
+  await userEvent.dblClick(screen.getByText("Open"));
+  await expect.element(field).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(field).not.toBeInTheDocument();
+  screen.container
+    .querySelector<HTMLElement>('[data-slot="editable-cell-display"]')!
+    .focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(field).toHaveFocus();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a mark sits at either end of the value, named on its own; no value, no mark", async () => {
+  injectCompiledCss();
+  const mark = { label: "Filled by Asha Rao", content: <span>A</span> };
+  const slot = () =>
+    document.querySelector<HTMLElement>('[data-slot="field-cell-mark"]');
+  const screen = await render(
+    <FieldCellDisplay type="number" value={184} mark={mark} />,
+  );
+  await expect
+    .element(screen.getByRole("img", { name: "Filled by Asha Rao" }))
+    .toBeInTheDocument();
+  expect(slot()!.getBoundingClientRect().width).toBe(12);
+  expect(slot()!.previousElementSibling?.textContent).toBe("184");
+  await expectNoA11yViolations(screen.container);
+
+  await screen.rerender(
+    <FieldCellDisplay
+      type="number"
+      value={184}
+      mark={{ ...mark, side: "start" }}
+    />,
+  );
+  expect(slot()!.nextElementSibling?.textContent).toBe("184");
+
+  await screen.rerender(
+    <FieldCellDisplay type="number" value={null} mark={mark} />,
+  );
+  expect(slot()).toBeNull();
+  await screen.rerender(
+    <FieldCellDisplay type="number" value={184} mark={mark} state="filling" />,
+  );
+  expect(slot()).toBeNull();
+});
+
+test("a mark is no tab stop in a grid: the cell keeps the one stop and reaches it as a widget", async () => {
+  const mark = { label: "Filled by Asha Rao", content: <span>A</span> };
+  await render(
+    <DataGrid
+      aria-label="Lines"
+      columns={[
+        {
+          key: "qty",
+          header: "Quantity",
+          minWidth: 10,
+          render: (row: { id: string; qty: number; unit: string }) => (
+            <FieldCellDisplay type="number" value={row.qty} mark={mark} />
+          ),
+        },
+        { key: "unit", header: "Unit", minWidth: 10 },
+      ]}
+      data={[{ id: "r1", qty: 184, unit: "m" }]}
+      getRowId={(row) => row.id}
+    />,
+  );
+  const slot = document.querySelector<HTMLElement>(
+    '[data-slot="field-cell-mark"]',
+  )!;
+  expect(slot.tabIndex).toBe(-1);
+  const cell = slot.closest<HTMLElement>('[data-slot="data-grid-cell"]')!;
+  cell.focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => document.activeElement).toBe(slot);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => document.activeElement).toBe(cell);
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .poll(() =>
+      (document.activeElement as HTMLElement).getAttribute("data-grid-key"),
+    )
+    .toBe("unit");
+});
+
+test("FieldProperty: a mark shows on a read-only row and an editable one", async () => {
+  const mark = { label: "Filled by Asha Rao", content: <span>A</span> };
+  const screen = await render(<Property mark={mark} />);
+  await expect
+    .element(screen.getByRole("img", { name: "Filled by Asha Rao" }))
+    .toBeInTheDocument();
+  await screen.rerender(<Property mark={mark} onSave={() => {}} />);
+  await expect
+    .element(screen.getByRole("img", { name: "Filled by Asha Rao" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
 test("FieldProperty: a rejected save rolls back the value", async () => {
   const onSave = vi.fn(() => Promise.reject(new Error("no")));
   const screen = await render(

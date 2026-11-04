@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.35.1 sha256-zq3W1Dj3JZNcBvmWtP3cDDLM6X/aUBRM8iTYMtQ800I=
+// @vegastack data-grid@0.35.1 sha256-2TNxBXy8mzvqIcZaor7KH/JyTMugFiuOMpwg1FUBwFw=
 
 "use client";
 
@@ -330,6 +330,14 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
    * @default undefined
    */
   editable?: DataGridEditor<T>;
+  /**
+   * For values normally filled by something else that a person can still override (`EditableCell`'s
+   * `readOnlyHint`): a click only selects the cell and a double-click anywhere in it edits. The
+   * keyboard is unchanged: <kbd>Enter</kbd>, <kbd>F2</kbd> and typing still edit. Applies to the
+   * `text`, `number` and `custom` editors.
+   * @default false
+   */
+  readOnlyHint?: boolean;
   /**
    * Group rows into collapsible sections by this column's value (client
    * grouping). One grouping column at most; ignored when the grid has
@@ -1587,6 +1595,7 @@ function GridCellImpl<T>({
       // editor's placeholder shows only once it edits (UX-11).
       emptyText={untitledLabel ?? ""}
       renderValue={renderValue}
+      readOnlyHint={column.readOnlyHint}
       onStartEditing={() => api.setEditing(rowId, key, true)}
       ref={restRef}
     />
@@ -1596,6 +1605,7 @@ function GridCellImpl<T>({
       label={placed.label}
       editor={shownEditor ?? editor}
       renderValue={renderValue}
+      readOnlyHint={column.readOnlyHint}
       emptyText={untitledLabel ?? ""}
       focusMode="managed"
       editing={editing}
@@ -1630,6 +1640,18 @@ function GridCellImpl<T>({
       data-in-range={inRange && !tabStop ? "" : undefined}
       data-fill-target={fillTarget ? "" : undefined}
       onFocus={() => api.focused(rowId, key)}
+      // Beside the value too: the display box is only as wide as its text, and an empty one is
+      // next to nothing to aim at. A control in the cell (Open, a link chip) keeps its own.
+      onDoubleClick={
+        editor && column.readOnlyHint && !editing
+          ? (event) => {
+              const widget = (event.target as Element).closest(
+                'a[href], button, [role="button"], [role="link"]',
+              );
+              if (!widget) api.setEditing(rowId, key, true);
+            }
+          : undefined
+      }
       onPointerDown={
         cellsMode
           ? (event) => {

@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.33.0 sha256-c3S5LWjiPaiGmBi0PA9cGCw4JoJ3vaL/5V+iAkSU8xA=
+// @vegastack chip-input@0.33.0 sha256-ZPIF0rI0nfOmUdeIPxtW/2z0PetR8WEUV1pg7vrfan0=
 
 "use client";
 
@@ -27,8 +27,9 @@ Validation model: entries are ADDED and marked, not silently dropped. A pasted l
 rejected class. Accepted/invalid/duplicate outcomes are announced politely, and every
 refusal (a duplicate, an entry past `max`) and every invalid entry also shows as one short
 line under the box until the next keystroke — a sighted user would otherwise see the typed
-text stay put with no reason. That line is a visual copy of the announcement, so it is
-`aria-hidden`; the live region stays the one spoken channel.
+text stay put with no reason. `validate` may give that line its words by returning them; it
+then says what to fix rather than that something is wrong. That line is a visual copy of the
+announcement, so it is `aria-hidden`; the live region stays the one spoken channel.
 
 Deliberately NOT done here:
 - No suggestion popup. An autocomplete-backed chip field is a Combobox composition, not
@@ -78,10 +79,14 @@ export interface ChipInputProps {
    * flip the whole field invalid until fixed or removed —
    * a pasted list keeps every entry visible instead of silently dropping the
    * malformed ones.
-
+   *
+   * `true`, `null` and `undefined` mean valid. `false` means invalid, reported as "1 entry is
+   * invalid". A string means invalid, and is the message itself: announced, shown under the box
+   * and read with the chip. Entries that share a message report it once, so keep it about the
+   * rule ("Enter a site like example.com"), not the entry.
    * @default undefined
    */
-  validate?: (chip: string) => boolean;
+  validate?: (chip: string) => boolean | string | null | undefined;
   /**
    * Pattern the paste handler splits on, in addition to the Enter/comma commit
    * keys.
@@ -246,11 +251,17 @@ export function ChipInput({
     [isControlled, onValueChange],
   );
 
-  const isInvalidChip = React.useCallback(
-    (chip: string) => (validate ? !validate(chip) : false),
+  // What `validate` says of a chip: `null` when valid, else its message (`""` when it has none).
+  const chipProblem = React.useCallback(
+    (chip: string): string | null => {
+      const verdict = validate?.(chip);
+      if (verdict === false) return "";
+      return typeof verdict === "string" ? verdict : null;
+    },
     [validate],
   );
-  const hasInvalidChip = chips.some(isInvalidChip);
+  const problems = chips.map((chip) => chipProblem(chip));
+  const hasInvalidChip = problems.some((problem) => problem !== null);
 
   // The reject/invalid cue is the group border flipping destructive via `data-invalid`. The
   // shake that used to accompany it is gone from here: validation MOTION belongs to `Field`,
@@ -275,7 +286,9 @@ export function ChipInput({
     ): { clear: boolean; tooLong: string[]; overCap: string[] } => {
       const next = [...chips];
       let added = 0;
+      // Invalid entries with no message of their own; those with one report it instead.
       let invalid = 0;
+      const messages = new Set<string>();
       let duplicates = 0;
       let overMax = 0;
       const tooLong: string[] = [];
@@ -299,7 +312,9 @@ export function ChipInput({
         }
         next.push(chip);
         added += 1;
-        if (isInvalidChip(chip)) invalid += 1;
+        const problem = chipProblem(chip);
+        if (problem) messages.add(problem);
+        else if (problem === "") invalid += 1;
       }
       if (added > 0) commitValue(next);
       // Voice: sentence case, no "successfully", counts only when they inform.
@@ -310,6 +325,7 @@ export function ChipInput({
             ? `Added ${next[next.length - 1]}`
             : `Added ${added} entries`,
         );
+      parts.push(...messages);
       if (invalid > 0)
         parts.push(
           invalid === 1
@@ -332,7 +348,7 @@ export function ChipInput({
         refusals.length > 0
           ? {
               text: refusals.join(" · "),
-              invalid: invalid > 0 || tooLong.length > 0,
+              invalid: invalid > 0 || messages.size > 0 || tooLong.length > 0,
             }
           : null,
       );
@@ -347,7 +363,7 @@ export function ChipInput({
       maxLabel,
       maxLength,
       maxLengthLabel,
-      isInvalidChip,
+      chipProblem,
       commitValue,
       setAnnouncement,
     ],
@@ -428,7 +444,8 @@ export function ChipInput({
         className={chipFieldLayout}
       >
         {chips.map((chip, index) => {
-          const invalid = isInvalidChip(chip);
+          const problem = problems[index] ?? null;
+          const invalid = problem !== null;
           return (
             <Tag
               // Duplicate chips are only possible with `allowDuplicates` — key by
@@ -445,7 +462,9 @@ export function ChipInput({
               {invalid ? (
                 // Real text in the accessible name — aria-description is an
                 // ARIA 1.3 draft with no shipped AT support.
-                <span className="sr-only">, invalid entry</span>
+                <span className="sr-only">
+                  , invalid entry{problem ? `: ${problem}` : null}
+                </span>
               ) : null}
             </Tag>
           );
