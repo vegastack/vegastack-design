@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.45.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: 68d6fa0ea10b -->
+
+### 🧩 New components
+
+- `AppShellAside` and `AppShellAsideHeader`: a panel at the shell's end that stays across routes. Docked from 1280px, over the content below that, and a full-screen modal dialog on a phone, above the on-screen keyboard. It resizes from its start edge by pointer or keyboard, its children stay mounted through closing and breakpoints, and `AppShellAsideStateScript` with `useAppShellAsideCookie` makes a static shell paint it right the first time. `UploadPanel` stays clear of it through `--app-shell-aside-inset`.
+  [`ebe4537`](https://github.com/VegaStack/vegastack-design/commit/ebe4537)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.44.0 → 0.45.0.
+
 ## [0.44.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: 46480048417d -->

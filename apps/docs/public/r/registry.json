@@ -214,8 +214,8 @@
       "meta": {
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
-        "version": "0.35.2",
-        "integrity": "sha256-1DXnfJJXfS+k0ESXeTQa7rLpUKUnV6g+/vTbWUO+saQ="
+        "version": "0.45.0",
+        "integrity": "sha256-wZ511xXRJIgzF9K70m9MpBRXsdJOESDWTISE+1JMe8g="
       }
     },
     {
@@ -3013,8 +3013,8 @@
       "meta": {
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
-        "version": "0.33.0",
-        "integrity": "sha256-pOxaf+HMJUW9ppM2VwsqnSK/lJwcrCVWGb2I9fpM6EM="
+        "version": "0.45.0",
+        "integrity": "sha256-fjQpEQVMB5wPRsImWH7QlPQhBV2ONgVBedIlZ/4Yp9c="
       }
     },
     {
