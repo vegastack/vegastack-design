@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
@@ -843,4 +844,32 @@ test("renderTrigger replaces the trigger with the host's element and keeps the p
   await userEvent.click(chip);
   await userEvent.click(screen.getByRole("option", { name: "Globex" }));
   await expect.element(chip).toHaveTextContent("Globex");
+});
+
+test("flat: no border, fill or open tint while the panel is open; off by default", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const trigger = () =>
+    document.querySelector(
+      '[data-slot="searchable-select-trigger"]',
+    ) as HTMLElement;
+  const flat = await render(<Picker size="sm" flat />);
+  trigger().click();
+  await expect.poll(() => trigger().getAttribute("aria-expanded")).toBe("true");
+  expect(trigger().hasAttribute("data-flat")).toBe(true);
+  expect(getComputedStyle(trigger()).backgroundImage).toBe("none");
+  expect(getComputedStyle(trigger()).borderTopColor).toBe("rgba(0, 0, 0, 0)");
+  await userEvent.keyboard("{Escape}");
+  await flat.unmount();
+
+  // Without `flat` the open trigger keeps its border and selected layer, as before.
+  const plain = await render(<Picker size="sm" />);
+  trigger().click();
+  await expect.poll(() => trigger().getAttribute("aria-expanded")).toBe("true");
+  expect(trigger().hasAttribute("data-flat")).toBe(false);
+  expect(getComputedStyle(trigger()).backgroundImage).not.toBe("none");
+  await userEvent.keyboard("{Escape}");
+  await plain.unmount();
 });
