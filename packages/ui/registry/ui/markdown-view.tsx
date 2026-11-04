@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.33.0 sha256-akrBa1i2o5M94/rgejIWrtFZtg/ZnGqWON+JnK33Bik=
+// @vegastack markdown-view@0.33.0 sha256-CaP22zGJY6YLtLUNJ7jiRnwwVxbfBluWPzFC3ZJD3co=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -54,6 +54,7 @@ import {
   type MarkdownCitation,
 } from "@/components/ui/markdown-citation";
 import {
+  MarkdownBlockedImage,
   MarkdownBookmark,
   MarkdownEmbed,
   MarkdownTaskInline,
@@ -1590,6 +1591,67 @@ function normalizeAllowedImageOrigins(origins: readonly string[]) {
   );
 }
 
+/** Where a URL really goes, as a browser reads it. */
+interface UrlTarget {
+  /** The host with its port. */
+  host: string;
+  /** The host to show: without `www.`. */
+  domain: string;
+  /** It carries a user name, which is how `https://acme.com@evil.com` reads as acme.com. */
+  userinfo: boolean;
+}
+
+/**
+ * The HTTP(S) host a URL reaches off this page, or null when it stays on it. It resolves the URL the
+ * way the browser will, against both schemes, so `//evil.com`, `\\\\evil.com` and `http:evil.com` count:
+ * they have no `https://` for a prefix test to see, and each leaves the page.
+ */
+function urlTarget(url: string): UrlTarget | null {
+  for (const base of ["https://here-a.invalid/", "http://here-b.invalid/"]) {
+    try {
+      const parsed = new URL(url, base);
+      if (parsed.origin === new URL(base).origin) continue;
+      if (!["http:", "https:"].includes(parsed.protocol)) return null;
+      return {
+        host: parsed.host,
+        domain: parsed.host.replace(/^www\./, ""),
+        userinfo: !!parsed.username || !!parsed.password,
+      };
+    } catch {
+      // Not a URL against this base; the other may read it.
+    }
+  }
+  return null;
+}
+
+/**
+ * The link's words already name its real host, so saying it again adds nothing. Only an exact match
+ * counts, on plain text, with no user name in the URL: anything looser is how a link passes itself
+ * off as somewhere else ("notevil.com" over evil.com, `https://acme.com@evil.com`, a Cyrillic а).
+ */
+function namesHost(node: El, target: UrlTarget): boolean {
+  if (target.userinfo) return false;
+  if (!node.children.every((child) => typeof child === "string")) return false;
+  const written = /^(?:https?:\/\/)?([^/?#]*)/i.exec(textOf(node).trim())?.[1];
+  return written?.toLowerCase() === target.host;
+}
+
+/**
+ * A source that is the image proxy itself. It is relative, so it would load with no click, and the
+ * proxy would fetch whatever URL the content wrote into its query.
+ */
+function isProxySource(src: string, proxy: (src: string) => string) {
+  const base = "https://relative-image.invalid/";
+  const path = (url: URL) => url.pathname.replace(/\/+$/, "");
+  try {
+    const own = new URL(proxy("https://example.invalid/"), base);
+    const url = new URL(src, base);
+    return url.origin === own.origin && path(url) === path(own);
+  } catch {
+    return false;
+  }
+}
+
 function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
   if (!src) return false;
   try {
@@ -1618,6 +1680,12 @@ interface RenderContext {
   /** This image stands alone in its run (\`loneImages\`): titled, it is a figure. */
   figure?: boolean;
   images: ReadonlySet<string>;
+  /** Loads a blocked image on request (`imageProxy`): its box offers Show. */
+  imageProxy?: (src: string) => string;
+  blockedImageLabel: (domain: string) => string;
+  showImageLabel: string;
+  /** Say where an external link goes, after its text (`showLinkDomains`). */
+  linkDomains: boolean;
   headingOffset: number;
   annotationCounts: Map<string, number>;
   activeAnnotationId?: string | null;
@@ -2147,7 +2215,12 @@ function renderNode(
           />
         );
       }
-      const external = /^https?:\/\//i.test(href);
+      const target = urlTarget(href);
+      const external = !!target;
+      const domain =
+        ctx.linkDomains && target && !namesHost(node, target)
+          ? target.domain
+          : null;
       return (
         <a
           key={key}
@@ -2158,6 +2231,15 @@ function renderNode(
             : {})}
         >
           {children()}
+          {domain ? (
+            <span
+              data-slot="markdown-link-domain"
+              className="text-muted-foreground"
+            >
+              {" "}
+              ({domain})
+            </span>
+          ) : null}
           {/* SR-only hint — external links open a new tab, which is otherwise silent to
               assistive tech (register P2-37). */}
           {external ? (
@@ -2174,7 +2256,14 @@ function renderNode(
           ? { alt: attrs.alt ?? "" }
           : parseImageAlt(attrs.alt ?? "");
       const alt = sized.alt;
-      if (!imageSourceAllowed(src, ctx.images)) {
+      const proxy = ctx.imageProxy;
+      const blocked =
+        !imageSourceAllowed(src, ctx.images) ||
+        (!!proxy && isProxySource(src, proxy));
+      const target = blocked && proxy ? urlTarget(src) : null;
+      // Only a plain remote address is offered; anything else stays a box.
+      const offered = target && !target.userinfo ? target : null;
+      if (blocked && !offered) {
         return (
           <span
             key={key}
@@ -2186,9 +2275,11 @@ function renderNode(
           </span>
         );
       }
+      const loaded = offered && proxy ? proxy(src) : src;
       const remote =
+        !!offered ||
         new URL(src, "https://relative-image.invalid/").origin ===
-        new URL(src, "https://other-relative-image.invalid/").origin;
+          new URL(src, "https://other-relative-image.invalid/").origin;
       const width =
         sized.width ?? (Number.parseInt(attrs.width ?? "", 10) || undefined);
       const height = width
@@ -2200,7 +2291,7 @@ function renderNode(
         // rhythm come from `prose.img` on the root. A known size reserves its box before it loads.
         <img
           data-slot="markdown-image"
-          src={src}
+          src={loaded}
           alt={alt}
           width={width}
           height={height}
@@ -2223,7 +2314,7 @@ function renderNode(
       // figure, its title the caption — the box TextEdit draws, so the swap moves nothing; inside a
       // line of text it stays an image with its title.
       const caption = attrs.title?.trim() ?? "";
-      return ctx.figure ? (
+      const drawn = ctx.figure ? (
         <figure key={key} data-slot="markdown-figure">
           {picture}
           {caption ? (
@@ -2237,6 +2328,21 @@ function renderNode(
         </figure>
       ) : (
         <React.Fragment key={key}>{picture}</React.Fragment>
+      );
+      // Offered: the same image, mounted only once the reader asks for it.
+      return offered ? (
+        <MarkdownBlockedImage
+          key={key}
+          source={src}
+          alt={alt}
+          label={ctx.blockedImageLabel(offered.domain)}
+          showLabel={ctx.showImageLabel}
+          data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
+        >
+          {drawn}
+        </MarkdownBlockedImage>
+      ) : (
+        drawn
       );
     }
     case "pre": {
@@ -2410,7 +2516,14 @@ function renderNode(
         <MarkdownEmbed key={key} url={attrs.url ?? ""} providers={ctx.embeds} />
       );
     case "bookmark":
-      return <MarkdownBookmark key={key} url={attrs.url ?? ""} />;
+      // Content that may not be trusted never makes the server fetch its URLs on render.
+      return (
+        <MarkdownBookmark
+          key={key}
+          url={attrs.url ?? ""}
+          preview={ctx.imageProxy ? null : undefined}
+        />
+      );
     case "tasks": {
       const snapshot = attrs.snapshot ?? "";
       const drawn = ctx.renderLiveBlock?.(attrs.kind ?? "tasks", {
@@ -2572,6 +2685,25 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default []
    */
   allowedImageOrigins?: readonly string[];
+  /**
+   * Offer a blocked image on request: its box reads "Image from acme.com" with Show, and Show loads
+   * the URL this returns, the host's image proxy, so the reader's browser never calls the remote
+   * origin. For content an agent or an outsider wrote; it also turns off `*` in
+   * `allowedImageOrigins`, refuses a source that is the proxy itself, and stops bookmarks fetching a
+   * preview. Without it, a blocked image stays a box.
+   * @default undefined
+   */
+  imageProxy?: (src: string) => string;
+  /** The words in a blocked image's box with `imageProxy`. @default (domain) => `Image from ${domain}` */
+  blockedImageLabel?: (domain: string) => string;
+  /** The button in a blocked image's box with `imageProxy`. @default "Show" */
+  showImageLabel?: string;
+  /**
+   * Say where an external link goes, after its text: "Datasheet (acme.com)". For content an agent
+   * or an outsider wrote, where a link's words may not match its target.
+   * @default false
+   */
+  showLinkDomains?: boolean;
   /**
    * Move every heading this many levels down, capped at h6: `1` renders `#` as an `h2`, `2` as
    * an `h3`. Use it when the markdown sits under the page's own headings (a card titled with an
@@ -2855,6 +2987,10 @@ export function MarkdownView({
   content,
   format = "markdown",
   allowedImageOrigins = [],
+  imageProxy,
+  blockedImageLabel = (domain) => `Image from ${domain}`,
+  showImageLabel = "Show",
+  showLinkDomains = false,
   headingOffset = 0,
   headingIds: withHeadingIds = false,
   typeScale = "compact",
@@ -2982,7 +3118,16 @@ export function MarkdownView({
         </style>
       ) : null}
       {renderTop(tree, {
-        images: normalizeAllowedImageOrigins(allowedImageOrigins),
+        // With a proxy nothing remote loads by itself, whatever the origins say.
+        images: new Set(
+          [...normalizeAllowedImageOrigins(allowedImageOrigins)].filter(
+            (origin) => !imageProxy || origin !== "*",
+          ),
+        ),
+        imageProxy,
+        blockedImageLabel,
+        showImageLabel,
+        linkDomains: showLinkDomains,
         headingOffset: Math.trunc(headingOffset),
         annotationCounts: new Map(
           (annotations ?? []).map((a) => [a.id, a.count ?? 1]),
