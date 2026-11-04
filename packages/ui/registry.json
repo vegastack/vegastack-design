@@ -1474,7 +1474,7 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.35.1"
+        "version": "0.41.1"
       }
     },
     {
@@ -1498,7 +1498,7 @@
       "meta": {
         "whenToUse": "An editor too big for its cell (a long text, a picker, a date) that should open over the cell and keep the cell's own face visible; DataGrid uses it for `editing=\"floating\"`.",
         "whenNotToUse": "A pop-up that is not tied to a cell (Popover), or an editor that fits the cell (EditableCell inline).",
-        "version": "0.33.0"
+        "version": "0.41.1"
       }
     },
     {
@@ -2761,7 +2761,7 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.39.1"
+        "version": "0.41.1"
       }
     },
     {
