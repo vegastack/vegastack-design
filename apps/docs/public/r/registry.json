@@ -1321,8 +1321,8 @@
       "meta": {
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
-        "version": "0.33.0",
-        "integrity": "sha256-QBr38IbqOUtgSUU1C7Fj5IvY0/hGS0xhkzJrT65tDEs="
+        "version": "0.42.0",
+        "integrity": "sha256-+fOr/G4crgDCWM+PoD1U3NGqT7Zu9vo8laXuGGif9PM="
       }
     },
     {
@@ -1652,8 +1652,8 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.41.1",
-        "integrity": "sha256-mpMK+4nY3FlqCFBq02PSpP2BNRliP2DGaKzZ6xl0mPE="
+        "version": "0.42.0",
+        "integrity": "sha256-Sy+8XNZNR3YXkS/nWkrT3Fyks8F0rm7LR3Xyz4cG08k="
       }
     },
     {
@@ -3051,8 +3051,8 @@
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
-        "version": "0.33.0",
-        "integrity": "sha256-qBMtJLqugmIvrJuPDWwxGF6x0y5TWQiOA+JvwnUuhe8="
+        "version": "0.42.0",
+        "integrity": "sha256-nJ2VXgLFl0vtA135LZBliPJLESnIrs9vtCSParh9cXg="
       }
     },
     {
@@ -3108,8 +3108,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.41.1",
-        "integrity": "sha256-37zH8mepjDOcCBdA2jfFAoMQcTMCgumQAKV5PEopjTs="
+        "version": "0.42.0",
+        "integrity": "sha256-d0wkErn+1vRAoiA7uLbI9Wi5BaaWWArY/qfSTLsEfWU="
       }
     },
     {

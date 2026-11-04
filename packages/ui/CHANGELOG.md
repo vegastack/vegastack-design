@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.42.0
+
+### Minor Changes
+
+- [#904](https://github.com/vegastack/vegastack-design/pull/904) [`9433c12`](https://github.com/vegastack/vegastack-design/commit/9433c125f0dc999ecd64f8da5552a1e8a59349a8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **`ChipInput`, `FieldCellDisplay`, `FieldProperty`, `EditableCell` and `DataGrid` columns gain small props.** `ChipInput`'s `validate` may return a string: the entry is invalid, still added and marked, and the string is the message announced, read with the chip and the field, and shown under the box for as long as such a chip stays. `true`, `null` and `undefined` are valid; `false` keeps today's wording, so boolean validators work unchanged. `FieldCellDisplay` and `FieldProperty` take `mark` (`FieldCellMark`: `content`, `label`, `side`): a 12px adornment at either end of a displayed value with its own accessible name, shown on hover, keyboard focus and tap, and no tab stop in a grid. `readOnlyHint` on `FieldProperty`, `EditableCell`, `EditableCellRest` and a `DataGrid` column is for a value normally filled by something else: a mouse click opens nothing and there is no text cursor, while a double-click or a tap still opens the editor and the keyboard is unchanged. `EditableCell` also gains `leading` and `trailing`, beside the value and outside its edit button.
+
 ## 0.41.1
 
 ### Patch Changes
