@@ -19323,8 +19323,8 @@
       "meta": {
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
-        "version": "0.35.1",
-        "integrity": "sha256-iRGnrGitvoEjhM581bcAVJr61d2DWIAxkUaUF1LH9y0="
+        "version": "0.43.0",
+        "integrity": "sha256-cHD9VQAOXCo8JZ6AmKCuDTW4/IsX1DHUMx5X4UTq3ag="
       }
     },
     {
@@ -19562,8 +19562,8 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.42.0",
-        "integrity": "sha256-0LphoerDIz2Nz4oHhLb7HzrKrfQOfaTTJjdKCw2Agos="
+        "version": "0.43.0",
+        "integrity": "sha256-OsEHyfxdrtU4BCZkJ1iGGD6wa/4vm9lOaQhCkX91O+M="
       }
     },
     {

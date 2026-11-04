@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.43.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: 5c1ef4acc3c8 -->
+
+### 🧩 New components
+
+- `ChatComposer`, the box a person talks to an agent in: `chips` above the text, `@` mentions, `onAttach` and `onFiles`, Enter to send, and Send that turns into Stop while `status` is `streaming`. `TextEdit` takes `submitOnEnter`, `header` (above the text in a boxed editor) and a handle's `openMentionMenu`, and its placeholder now follows the prop while the document is empty.
+  [`7cc9ea5`](https://github.com/VegaStack/vegastack-design/commit/7cc9ea5)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.42.0 → 0.43.0.
+
 ## [0.42.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: e629539c5959 -->

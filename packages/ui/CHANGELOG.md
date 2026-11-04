@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.43.0
+
+### Minor Changes
+
+- [#906](https://github.com/vegastack/vegastack-design/pull/906) [`7cc9ea5`](https://github.com/vegastack/vegastack-design/commit/7cc9ea50a403afe782ba6c0b25fdbc1ac5e48007) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `ChatComposer`, the box a person talks to an agent in: `chips` above the text, `@` mentions, `onAttach` and `onFiles`, Enter to send, and Send that turns into Stop while `status` is `streaming`. `TextEdit` takes `submitOnEnter`, `header` (above the text in a boxed editor) and a handle's `openMentionMenu`, and its placeholder now follows the prop while the document is empty.
+
 ## 0.42.0
 
 ### Minor Changes
