@@ -381,7 +381,7 @@
       "meta": {
         "whenToUse": "Inline comment threads beside a document (TextEdit annotations + onAnnotationsLayout) on wide screens; the popover below the margin breakpoint.",
         "whenNotToUse": "A plain comments section under a record (CommentList), or touch-sized screens (Sheet side=\"bottom\").",
-        "version": "0.33.0"
+        "version": "0.48.1"
       }
     },
     {
