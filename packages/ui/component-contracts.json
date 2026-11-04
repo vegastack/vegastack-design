@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 789,
-    "components": 199,
+    "totalRegistryItems": 790,
+    "components": 200,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 14,
+    "AI/chat": 15,
     "Hooks": 18,
     "Block": 15,
     "Animated icons": 467
@@ -247,7 +247,8 @@
       "agent-panel",
       "delegate-popover",
       "cited-list",
-      "message-parts"
+      "message-parts",
+      "chat-composer"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -29451,6 +29452,7 @@
                 "text-edit-actions",
                 "text-edit-content",
                 "text-edit-footer",
+                "text-edit-header",
                 "text-edit-leading"
               ]
             },
@@ -30659,6 +30661,184 @@
             {
               "name": "data-slot",
               "values": ["citation-icon"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-composer",
+      "registryType": "registry:ui",
+      "title": "Chat Composer",
+      "summary": "The box a person talks to an agent in: chips for what travels with the message, the text with mentions, and Send, which turns into Stop while the agent answers.",
+      "status": "stable",
+      "since": "0.43.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-composer.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatComposer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the root div."
+          }
+        },
+        {
+          "name": "ChatComposerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChatComposerStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChatComposerHandle",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChatComposerLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look; the turn's status is a data attribute."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container and grows with its text to about eight lines."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "idle",
+            "sending",
+            "streaming",
+            "stop-absent",
+            "empty",
+            "attachments-only",
+            "submit-held",
+            "send-failed",
+            "disabled",
+            "dragging",
+            "edit-last",
+            "filled-by-handle",
+            "mention-button"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-composer.tsx + packages/ui/registry/ui/chat-composer.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-textbox",
+            "described-by-hint-and-error",
+            "named-buttons",
+            "alert-on-failure",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-composer.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "empty",
+            "chips",
+            "streaming",
+            "held",
+            "error",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-composer.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Fills its container; chips wrap, and the text scrolls inside past about eight lines."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the border's ease is TextEdit's and the send spinner is Button's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-composer",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/text-edit",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.12.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-composer.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-composer",
+      "dataAttributes": {
+        "ChatComposer": {
+          "attributes": [
+            {
+              "name": "data-dragging",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-composer",
+                "chat-composer-box",
+                "chat-composer-chips",
+                "chat-composer-drop",
+                "chat-composer-error",
+                "chat-composer-held",
+                "chat-composer-hint",
+                "chat-composer-send",
+                "chat-composer-stop",
+                "chat-composer-toolbar"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
             }
           ],
           "cssVariables": []

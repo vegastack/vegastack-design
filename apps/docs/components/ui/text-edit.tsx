@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.35.1 sha256-0qx8r6ijN8DOQpUzNvkxJls8LunV1bMJ7nq8Leu5khw=
+// @vegastack text-edit@0.35.1 sha256-iRGnrGitvoEjhM581bcAVJr61d2DWIAxkUaUF1LH9y0=
 
 "use client";
 
@@ -552,6 +552,12 @@ export interface TextEditHandle {
   pickFiles: () => void;
   /** How many uploads are still landing: a host shows "Uploading…" and guards leaving while any are. */
   pendingUploads: () => number;
+  /**
+   * Type `@` at the caret and focus the editor, which opens the mention menu; a space goes first
+   * when the caret follows a word, since `@` starts a mention only after a space. Needs `mentions`;
+   * mounts the editor first when it is not in yet.
+   */
+  openMentionMenu: () => void;
   /**
    * A shared document: forget what <kbd>⌘Z</kbd> would undo. For a host that replaced the text
    * under the reader (a version restored): undoing their earlier changes onto the new text would
@@ -1349,6 +1355,14 @@ export interface TextEditProps {
    */
   onSubmit?: (value: string) => void;
   /**
+   * Enter sends too, and Shift+Enter breaks the line: a chat box. Enter keeps its usual job in a
+   * code block, after a ``` that opens one, and on a coarse pointer (a phone's return key, where
+   * the send button sends), and an open menu keeps its Enter. In a list Enter sends. Needs
+   * `onSubmit`.
+   * @default false
+   */
+  submitOnEnter?: boolean;
+  /**
    * Also call `onCommit` after this many milliseconds without typing (`true` is 1000ms).
    * @default false
    */
@@ -1413,6 +1427,11 @@ export interface TextEditProps {
    * @default "document"
    */
   variant?: "document" | "boxed" | "composer";
+  /**
+   * `variant="boxed"`: content inside the box above the text (a chat's context chips).
+   * @default undefined
+   */
+  header?: React.ReactNode;
   /**
    * `variant="composer"`: the leading controls (attach), bottom-left.
    * @default undefined
@@ -1879,7 +1898,8 @@ function useHandleGutter(
  *   `---`, `**`, `*`, `_`, `~~`, `` ` ``), ⌘B / ⌘I / ⌘E / ⇧⌘X / ⌘K / ⌘⇧7·8·9, markdown and URL
  *   paste, sanitized HTML paste, and a lossless round-trip with `format="markdown"`.
  * - **Commit** — `onCommit(value)` when focus leaves with a change (and on hide, unmount and
- *   `autosave`); Escape reverts and calls `onRevert`; Cmd/Ctrl+Enter calls `onSubmit`.
+ *   `autosave`); Escape reverts and calls `onRevert`; Cmd/Ctrl+Enter calls `onSubmit`, and so does
+ *   Enter with `submitOnEnter`.
  * - **Comments** — `annotations` draw highlights (and, with `annotationCounts`, a count pill after
  *   each). Read-only, each highlight is a tab stop that Enter opens; while editing, Alt+Enter with
  *   the caret in a highlight opens it — both call `onAnnotationClick`.
@@ -1906,6 +1926,7 @@ export function TextEdit(props: TextEditProps) {
     "aria-invalid": ariaInvalid,
     "aria-describedby": ariaDescribedBy,
     variant = "document",
+    header,
     typeScale = "compact",
     leading,
     actions,
@@ -2038,6 +2059,7 @@ export function TextEdit(props: TextEditProps) {
   // Files handed to `uploadFiles` before the editor was in: uploaded once it is.
   const pendingFilesRef = React.useRef<File[]>([]);
   const pendingPickRef = React.useRef(false);
+  const pendingMentionRef = React.useRef(false);
   // `openFind` before the editor was in: opened once it is.
   const pendingFindRef = React.useRef(false);
   // `flush()` calls waiting for the files queued before the editor was in to be handed to it.
@@ -2123,6 +2145,15 @@ export function TextEdit(props: TextEditProps) {
           activate("end");
         }
       },
+      openMentionMenu: () => {
+        if (!editableRef.current) return;
+        if (editorHandle.current && readyRef.current)
+          editorHandle.current.openMentionMenu();
+        else {
+          pendingMentionRef.current = true;
+          activate("end");
+        }
+      },
       clearHistory: () => editorHandle.current?.clearHistory(),
       pendingUploads: () =>
         (editorHandle.current?.pendingUploads() ?? 0) +
@@ -2152,6 +2183,10 @@ export function TextEdit(props: TextEditProps) {
         pendingFilesRef.current = [];
       }
       handOver();
+      if (pendingMentionRef.current) {
+        pendingMentionRef.current = false;
+        editorHandle.current?.openMentionMenu();
+      }
       if (pendingPickRef.current) {
         pendingPickRef.current = false;
         editorHandle.current?.pickFiles();
@@ -2352,6 +2387,9 @@ export function TextEdit(props: TextEditProps) {
           <FieldControlBridge control={control} onResolve={setField} />
         )}
       />
+      {boxed && !composer && header ? (
+        <div data-slot="text-edit-header">{header}</div>
+      ) : null}
       {props.diff ? <DiffLegend baseline={props.diff.baseline} /> : null}
       {!ready ? (
         <div

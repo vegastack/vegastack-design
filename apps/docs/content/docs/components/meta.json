@@ -200,6 +200,7 @@
     "agent-panel",
     "delegate-popover",
     "message-scroller",
+    "chat-composer",
     "transcript",
     "questionnaire",
     "icon-picker",

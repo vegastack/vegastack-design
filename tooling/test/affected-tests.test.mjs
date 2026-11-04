@@ -45,6 +45,8 @@ describe("affected component closure", () => {
       "attachment",
       // block-view draws a fence's source with the code panel (B.2).
       "block-view",
+      // chat-composer's text is a TextEdit.
+      "chat-composer",
       "code-block",
       "comments",
       // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).
@@ -67,6 +69,7 @@ describe("affected component closure", () => {
       "packages/ui/registry/blocks/page-editor-01/page-editor-01.test.tsx",
       "packages/ui/registry/ui/attachment.test.tsx",
       "packages/ui/registry/ui/block-view.test.tsx",
+      "packages/ui/registry/ui/chat-composer.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/field-cell.test.tsx",
@@ -84,6 +87,7 @@ describe("affected component closure", () => {
       "activity-feed",
       "attachment",
       "bubble",
+      "chat-composer",
       "code-block",
       "comments",
       // document-layout's preview reads its page through a MarkdownView at the document scale.
@@ -125,6 +129,7 @@ describe("affected component closure", () => {
     expect(result.affectedItems).toEqual([
       "attachment",
       "block-view",
+      "chat-composer",
       "code-block",
       "comments",
       "copy-button",
@@ -172,6 +177,7 @@ describe("affected component closure", () => {
       "app-shell-01",
       "attachment",
       "block-view",
+      "chat-composer",
       "code-block",
       "comments",
       // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).
