@@ -150,7 +150,9 @@ reads 2026), a link shows without its scheme and without a trailing slash on a b
 is clipped on its line rather than ending in an ellipsis, every person is their avatar and name,
 and every file is its `InlineChip` (type icon and name, as a page shows it) — or, when the file
 carries a `thumbnailUrl`, a small `Thumbnail` of the image — on one line that clips at the cell's
-edge with no "+N" and no scroll bar, like the people. The editor draws no border, fill or shadow of its own (an invalid draft turns its text
+edge with no "+N" and no scroll bar, like the people. A file's `href` (the host's file link) is
+where its chip and thumbnail open, through the host's chip provider (`onOpen`, a file viewer), as
+a file link in a page does. The editor draws no border, fill or shadow of its own (an invalid draft turns its text
 destructive, and a number's steppers go). A text field is one wrapping box that grows to
 `max-h-60` then scrolls, its newlines typed or pasted becoming spaces; a number, currency or
 percent field is typed as written — the reader's decimal mark, no grouping, no symbol, no border
