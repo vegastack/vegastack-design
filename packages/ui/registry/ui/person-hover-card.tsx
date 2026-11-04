@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.36.0 sha256-12VwwHpn5uLN3XJmblm6sOeh5UvCcVe1LzcU+jtF2aI=
+// @vegastack person-hover-card@0.36.0 sha256-QccJ4B/3IPJYQbAjFzUYf9jD0TFMyFwixN9gQC5iaEc=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cn } from "@vegastack/design";
 import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  PERSON_AVATAR_STACK_ITEM,
   PERSON_AVATAR_STACK_RING,
   PersonAvatar as BasePersonAvatar,
   PersonName,
@@ -288,6 +289,7 @@ export function AvatarStack({
                   <span
                     className={cn(
                       "inline-flex",
+                      PERSON_AVATAR_STACK_ITEM,
                       p.kind === "team" ? "rounded-md" : "rounded-full",
                     )}
                   />

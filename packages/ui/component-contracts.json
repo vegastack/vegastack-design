@@ -38106,6 +38106,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "PERSON_AVATAR_STACK_ITEM",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {

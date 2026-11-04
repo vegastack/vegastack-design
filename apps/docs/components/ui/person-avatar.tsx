@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.38.0 sha256-kUsVz03wHO9spxat7oaDLX4B1O71qpC3SpgDXVH6nRM=
+// @vegastack person-avatar@0.38.0 sha256-3rV9cWF78M+SlKspEexuSg6vO9a2Wyc2arSDyLZr3Wg=
 
 "use client";
 
@@ -26,10 +26,19 @@ import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
 
 /**
  * The ring that separates overlapping avatars in a stack: the colour of the surface the stack sits
- * on — a card, a popover, dialog or sheet, else the page — so it reads as a gap, never a halo.
+ * on — a card, a popover, dialog or sheet, else the page — so it reads as a gap, never a halo. An
+ * avatar the next one overlaps also centres its initials on the part still showing.
  */
 export const PERSON_AVATAR_STACK_RING =
-  "ring-2 ring-background in-data-[slot=dialog-content]:ring-popover in-data-[slot=sheet-content]:ring-popover in-data-[slot=popover-content]:ring-popover in-data-[slot=hover-card-content]:ring-popover in-data-[slot=card]:ring-card";
+  "ring-2 ring-background in-data-[slot=dialog-content]:ring-popover in-data-[slot=sheet-content]:ring-popover in-data-[slot=popover-content]:ring-popover in-data-[slot=hover-card-content]:ring-popover in-data-[slot=card]:ring-card not-last:[&_[data-slot=person-avatar-initials]]:-translate-x-0.75 rtl:not-last:[&_[data-slot=person-avatar-initials]]:translate-x-0.75";
+
+/**
+ * For a stack item that wraps its avatar (a hover-card trigger): every item the next one overlaps
+ * centres its initials on the part still showing, so two letters are never cut ("MK", not "MI").
+ * `PERSON_AVATAR_STACK_RING` carries the same rule for avatars that are the stack's own children.
+ */
+export const PERSON_AVATAR_STACK_ITEM =
+  "not-last:[&_[data-slot=person-avatar-initials]]:-translate-x-0.75 rtl:not-last:[&_[data-slot=person-avatar-initials]]:translate-x-0.75";
 
 /**
  * Initials that fit their circle: the second letter drops out under 18px and the type steps down
@@ -39,7 +48,10 @@ export const PERSON_AVATAR_STACK_RING =
 function PersonInitials({ value }: { value: string }) {
   const [first = "", ...rest] = Array.from(value);
   return (
-    <span className="in-data-[slot=avatar-group]:text-[83.333%] in-data-[slot=people-picker-avatars]:text-[83.333%] @max-[23.5px]/initials:text-[83.333%] @max-[17.5px]/initials:text-[75%]">
+    <span
+      data-slot="person-avatar-initials"
+      className="inline-block in-data-[slot=avatar-group]:text-[83.333%] in-data-[slot=people-picker-avatars]:text-[83.333%] @max-[23.5px]/initials:text-[83.333%] @max-[17.5px]/initials:text-[75%]"
+    >
       {first}
       {rest.length ? (
         <span className="@max-[17.5px]/initials:hidden">{rest.join("")}</span>
