@@ -14149,7 +14149,7 @@
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
-        "version": "0.35.0"
+        "version": "0.38.1"
       }
     },
     {
@@ -14390,7 +14390,7 @@
       "meta": {
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
-        "version": "0.36.0"
+        "version": "0.38.1"
       }
     },
     {
@@ -14735,7 +14735,7 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.38.0"
+        "version": "0.38.1"
       }
     },
     {

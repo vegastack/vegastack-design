@@ -17425,8 +17425,8 @@
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
-        "version": "0.35.0",
-        "integrity": "sha256-O1tnbTj2vdcIotUZSOZMCO7dak8BRxmNovG9ZU9FgXU="
+        "version": "0.38.1",
+        "integrity": "sha256-KebxnkysinkJGF5ETUe646gc33JlkToCz0TTwNahjts="
       }
     },
     {
@@ -17699,8 +17699,8 @@
       "meta": {
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
-        "version": "0.36.0",
-        "integrity": "sha256-QccJ4B/3IPJYQbAjFzUYf9jD0TFMyFwixN9gQC5iaEc="
+        "version": "0.38.1",
+        "integrity": "sha256-UiwpS0Ea/hHlC9pFE2KaW4XZ0apIzg8YCwbsEdl3IEA="
       }
     },
     {
@@ -18091,8 +18091,8 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.38.0",
-        "integrity": "sha256-3rV9cWF78M+SlKspEexuSg6vO9a2Wyc2arSDyLZr3Wg="
+        "version": "0.38.1",
+        "integrity": "sha256-cAN8XUbeVaJrN7uSAhZw4XdluOcZVjELu9pSs8x8bUk="
       }
     },
     {
