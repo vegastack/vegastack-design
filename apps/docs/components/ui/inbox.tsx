@@ -1,4 +1,4 @@
-// @vegastack inbox@0.35.0 sha256-tP8r+S+gRaH3IAz34WnIm/n8aYR9ckNp6q57SffEc80=
+// @vegastack inbox@0.35.0 sha256-mNrYE4pJ+unEHveQiyY8UmgoO9/ODpXlE9vOPSt9WdU=
 
 "use client";
 
@@ -794,7 +794,8 @@ export interface InboxItemProps extends Omit<
   /**
    * The events behind a grouped row, newest first. The count becomes a disclosure button that
    * lists them under the row (collapsed at first), across the row's full width on a thread rail
-   * that drops from the avatar, each event's 16px avatar on a curved connector (10px radius), in line with the title.
+   * that drops from the avatar, each event curving into its 16px avatar (10px radius), in line with
+   * the title.
    * @default undefined
    */
   events?: readonly InboxItemEvent[];
@@ -1232,7 +1233,8 @@ export function InboxItem({
           data-slot="inbox-item-events"
           hidden={!expanded}
           // Across the whole row: the rail runs on from the avatar (13.5px, its centre) and each
-          // event curves into its own avatar (10px radius; the last one stops there), in line with the title.
+          // event curves into its own avatar (10px radius; the rail stops at the last one), in line
+          // with the title.
           className="relative col-span-full flex flex-col pt-1 before:absolute before:start-[13.5px] before:top-0 before:h-1 before:w-px before:bg-border"
         >
           {events!.map((event, i) => (

@@ -112,9 +112,10 @@ the active row gets a start bar, focus follows and `onActiveChange` reports it; 
 `events` the count is plain text, for a row that only says how many repeats it folds ("Raj assigned
 you 3 tasks").
 
-Expanded, the events run across the row's full width under it: a thread rail drops from the row's
-avatar from under its centre, each event curves into its own 16px avatar (a 10px radius; the line stops at the last one) (in line with the title, top-aligned to the
-event's first line) and its text wraps as one sentence. An event without an actor gets a small dot.
+Expanded, the events run across the row's full width under it: a thread rail drops from under the
+row avatar's centre and each event curves into its own 16px avatar with a 10px radius, in line with
+the title and top-aligned to the event's first line; the rail runs on past middle events and stops at
+the last one's curve. An event's text wraps as one sentence. An event without an actor gets a dot.
 
 An event about a record of its own (one of a batch's records: "Neha completed 4 tasks") takes
 `href`, and `onOpen` to open it in place: its line becomes a link above the row, so it opens that
