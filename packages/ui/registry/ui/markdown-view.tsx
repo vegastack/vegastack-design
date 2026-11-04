@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.47.0 sha256-C0PJUP7Q3WRvHtinu65WUsVcrl/5KRY4iZqqy7wMEe8=
+// @vegastack markdown-view@0.47.0 sha256-PUyUzvXf/iwGUi0IlllK68APb0avMe/KBiIedFAqbU8=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1637,6 +1637,30 @@ function namesHost(node: El, target: UrlTarget): boolean {
 }
 
 /**
+ * May untrusted content load this by itself? A remote source only from a listed origin (never `*`);
+ * anything else stays on this site, where a plain GET is the reader's session calling our own
+ * routes, so it needs a listed path. An `/api/preview?url=…` is how such content would reach out.
+ */
+function untrustedSourceAllowed(
+  src: string,
+  origins: ReadonlySet<string>,
+  paths: readonly string[],
+) {
+  const target = urlTarget(src);
+  if (target)
+    return (
+      origins.has(`https://${target.host}`) ||
+      origins.has(`http://${target.host}`)
+    );
+  try {
+    const { pathname } = new URL(src, "https://relative-image.invalid/");
+    return paths.some((path) => pathname.startsWith(path));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * A source that is the image proxy itself. It is relative, so it would load with no click, and the
  * proxy would fetch whatever URL the content wrote into its query.
  */
@@ -1680,6 +1704,10 @@ interface RenderContext {
   /** This image stands alone in its run (\`loneImages\`): titled, it is a figure. */
   figure?: boolean;
   images: ReadonlySet<string>;
+  /** The content may be hostile (`untrusted`, or `imageProxy`): nothing loads or fetches by itself. */
+  untrusted: boolean;
+  /** Where untrusted content may load from on this site (`allowedImagePaths`). */
+  imagePaths: readonly string[];
   /** Loads a blocked image on request (`imageProxy`): its box offers Show. */
   imageProxy?: (src: string) => string;
   blockedImageLabel: (domain: string) => string;
@@ -2217,10 +2245,17 @@ function renderNode(
       }
       const target = urlTarget(href);
       const external = !!target;
-      const domain =
-        ctx.linkDomains && target && !namesHost(node, target)
-          ? target.domain
-          : null;
+      // A `mailto:` has no host, and its words can say anything too.
+      const address = /^mailto:([^?]*)/i.exec(href)?.[1];
+      const domain = !ctx.linkDomains
+        ? null
+        : target
+          ? namesHost(node, target)
+            ? null
+            : target.domain
+          : address && textOf(node).trim() !== address
+            ? address
+            : null;
       return (
         <a
           key={key}
@@ -2259,19 +2294,30 @@ function renderNode(
       const proxy = ctx.imageProxy;
       const blocked =
         !imageSourceAllowed(src, ctx.images) ||
+        (ctx.untrusted &&
+          !untrustedSourceAllowed(src, ctx.images, ctx.imagePaths)) ||
         (!!proxy && isProxySource(src, proxy));
-      const target = blocked && proxy ? urlTarget(src) : null;
+      const target = blocked ? urlTarget(src) : null;
       // Only a plain remote address is offered; anything else stays a box.
-      const offered = target && !target.userinfo ? target : null;
+      const offered = proxy && target && !target.userinfo ? target : null;
       if (blocked && !offered) {
+        // Untrusted, the box says the real origin: the alt text may claim any.
+        const words = ctx.untrusted
+          ? [
+              target ? ctx.blockedImageLabel(target.domain) : "Image blocked",
+              alt,
+            ]
+              .filter(Boolean)
+              .join(" · ")
+          : alt || "Remote image blocked";
         return (
           <span
             key={key}
             data-slot="markdown-image-blocked"
             data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
-            className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
+            className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground wrap-anywhere"
           >
-            {alt || "Remote image blocked"}
+            {words}
           </span>
         );
       }
@@ -2521,7 +2567,7 @@ function renderNode(
         <MarkdownBookmark
           key={key}
           url={attrs.url ?? ""}
-          preview={ctx.imageProxy ? null : undefined}
+          preview={ctx.untrusted ? null : undefined}
         />
       );
     case "tasks": {
@@ -2558,7 +2604,11 @@ function renderNode(
     case "video":
     case "audio": {
       const src = safeUrl(attrs.src ?? "");
-      if (!imageSourceAllowed(src, ctx.images))
+      if (
+        !imageSourceAllowed(src, ctx.images) ||
+        (ctx.untrusted &&
+          !untrustedSourceAllowed(src, ctx.images, ctx.imagePaths))
+      )
         return (
           <span
             key={key}
@@ -2688,13 +2738,25 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * Offer a blocked image on request: its box reads "Image from acme.com" with Show, and Show loads
    * the URL this returns, the host's image proxy, so the reader's browser never calls the remote
-   * origin. For content an agent or an outsider wrote; it also turns off `*` in
-   * `allowedImageOrigins`, refuses a source that is the proxy itself, and stops bookmarks fetching a
-   * preview. Without it, a blocked image stays a box.
+   * origin. Implies `untrusted`. Without it, a blocked image stays a box.
    * @default undefined
    */
   imageProxy?: (src: string) => string;
-  /** The words in a blocked image's box with `imageProxy`. @default (domain) => `Image from ${domain}` */
+  /**
+   * The content may be hostile: an agent or an outsider wrote it. Nothing then loads or fetches by
+   * itself: `*` in `allowedImageOrigins` stops applying, images and media on this site need
+   * `allowedImagePaths` too, and bookmarks fetch no preview. A blocked image's box names its real
+   * origin, not its alt text.
+   * @default false
+   */
+  untrusted?: boolean;
+  /**
+   * Path prefixes on this site that `untrusted` content may load images and media from, such as a
+   * file store's `/files/`. End each with `/`.
+   * @default []
+   */
+  allowedImagePaths?: readonly string[];
+  /** The words in a blocked image's box with `imageProxy` or `untrusted`. @default (domain) => `Image from ${domain}` */
   blockedImageLabel?: (domain: string) => string;
   /** The button in a blocked image's box with `imageProxy`. @default "Show" */
   showImageLabel?: string;
@@ -2988,6 +3050,8 @@ export function MarkdownView({
   format = "markdown",
   allowedImageOrigins = [],
   imageProxy,
+  untrusted = false,
+  allowedImagePaths = [],
   blockedImageLabel = (domain) => `Image from ${domain}`,
   showImageLabel = "Show",
   showLinkDomains = false,
@@ -3121,9 +3185,11 @@ export function MarkdownView({
         // With a proxy nothing remote loads by itself, whatever the origins say.
         images: new Set(
           [...normalizeAllowedImageOrigins(allowedImageOrigins)].filter(
-            (origin) => !imageProxy || origin !== "*",
+            (origin) => !(untrusted || imageProxy) || origin !== "*",
           ),
         ),
+        untrusted: untrusted || !!imageProxy,
+        imagePaths: allowedImagePaths,
         imageProxy,
         blockedImageLabel,
         showImageLabel,

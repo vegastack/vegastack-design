@@ -280,6 +280,11 @@ An author with `kind: "agent"` (and `for`, the member it works for) marks an age
 violet bar at the row's start, its hexagon and "Claude Code for Arjun", with no label. The
 `agent: true` flag is the deprecated spelling of the same and goes away next release.
 
+An agent's comment renders as `untrusted` (see [`MarkdownView`](/docs/components/markdown-view)):
+it says where each external link goes, and loads and fetches nothing by itself. `agentMarkdown` says
+where its images may load from on this site and how to offer the rest on request. Pass it on the
+items you render yourself too. A person's comments use none of this.
+
 A question waiting on the viewer is `tone: "question"`: an amber bar and a "Needs your reply" label,
 with its `choices` as buttons under the body when you pass `onChoose` (only to whoever may answer).
 A promise keeps the picked button busy. Set `tone` back to `default` once it is answered. Every

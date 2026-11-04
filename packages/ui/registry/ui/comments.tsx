@@ -1,4 +1,4 @@
-// @vegastack comments@0.46.0 sha256-kTqXIZEgPZan1mEiKVxCAe75Dw3tTG7Jif1oxEJIed8=
+// @vegastack comments@0.46.0 sha256-Vx+tsew5aYZi43uVLf9z/f0+7pjx1DRTTAePNGQL12M=
 
 "use client";
 
@@ -35,7 +35,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MarkdownView } from "@/components/ui/markdown-view";
+import {
+  MarkdownView,
+  type MarkdownViewProps,
+} from "@/components/ui/markdown-view";
 import {
   PersonAvatar,
   PersonName,
@@ -290,6 +293,13 @@ export interface CommentItemProps {
   mentionImage?: TextEditProps["mentionImage"];
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
   fileContentType?: TextEditProps["fileContentType"];
+  /**
+   * For an agent's comment, which always renders as `untrusted` with `showLinkDomains`: where its
+   * images may load from on this site (`allowedImagePaths`), and how to offer the rest on request
+   * (`imageProxy`). Pass it on the items you render yourself too. A person's comments never use it.
+   * @default undefined
+   */
+  agentMarkdown?: Pick<MarkdownViewProps, "allowedImagePaths" | "imageProxy">;
   /** Classes for the item. @default undefined */
   className?: string;
 }
@@ -332,6 +342,7 @@ export function CommentItem({
   mentionHref,
   mentionImage,
   fileContentType,
+  agentMarkdown,
   className,
 }: CommentItemProps) {
   const [editingState, setEditingState] = React.useState(editingProp ?? false);
@@ -728,6 +739,11 @@ export function CommentItem({
                 mentionHref={mentionHref}
                 mentionImage={mentionImage}
                 fileContentType={fileContentType}
+                // An agent's words may not match where its links go, and its Markdown must not
+                // fetch anything for the reader on its own.
+                {...(agent
+                  ? { ...agentMarkdown, untrusted: true, showLinkDomains: true }
+                  : null)}
               >
                 {comment.body}
               </MarkdownView>
@@ -1928,6 +1944,8 @@ export interface CommentThreadProps {
   renderAttachments?: (comment: CommentData) => React.ReactNode;
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
   fileContentType?: TextEditProps["fileContentType"];
+  /** How an agent's comments load images (see `CommentItem`). @default undefined */
+  agentMarkdown?: CommentItemProps["agentMarkdown"];
   /**
    * The reply box's options, passed through to its editor — `mentions`, `mentionHref`,
    * `mentionImage`, `onImageUpload`, `onFileUpload`, `onUploadError`, `onAttachFiles`, `files`, `placeholder`, `submitLabel`, `disabled`,
@@ -2013,6 +2031,7 @@ export function CommentThread({
   highlightedId,
   renderAttachments,
   fileContentType,
+  agentMarkdown,
   composer,
   working,
   now,
@@ -2152,6 +2171,7 @@ export function CommentThread({
       mentionHref={composer?.mentionHref}
       mentionImage={composer?.mentionImage}
       fileContentType={fileContentType}
+      agentMarkdown={agentMarkdown}
       now={now}
       // A reply is a row of the card, over a hairline.
       // Under the first comment the hairline spans the card; between replies it starts at the
@@ -2554,6 +2574,8 @@ export interface CommentListProps {
   mentionImage?: CommentItemProps["mentionImage"];
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
   fileContentType?: CommentItemProps["fileContentType"];
+  /** How an agent's comments load images (see `CommentItem`). @default undefined */
+  agentMarkdown?: CommentItemProps["agentMarkdown"];
   /**
    * The composer — at the section's end oldest first, and right under the heading newest first
    * (where the newest comment is). @default undefined
@@ -2608,6 +2630,7 @@ export function CommentList({
   mentionHref,
   mentionImage,
   fileContentType,
+  agentMarkdown,
   composer,
   dayDividers = true,
   emptyText,
@@ -2712,6 +2735,7 @@ export function CommentList({
                           mentionHref={mentionHref}
                           mentionImage={mentionImage}
                           fileContentType={fileContentType}
+                          agentMarkdown={agentMarkdown}
                           now={now}
                         />
                       </React.Fragment>

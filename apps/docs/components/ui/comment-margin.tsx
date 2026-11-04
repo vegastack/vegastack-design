@@ -1,4 +1,4 @@
-// @vegastack comment-margin@0.33.0 sha256-EQQZzj1MP7fs9TFkFjDVQFvdMpSKXKZLRuL0SG41uV0=
+// @vegastack comment-margin@0.33.0 sha256-zv/oH/Xra5OWMiAuWjd7m5D6UbiQKyqGs3O83JbRL0Q=
 
 "use client";
 
@@ -213,7 +213,8 @@ export interface CommentPopoverProps {
  * `CommentPopover` — a comment thread in a popover anchored to its highlight, for widths where no
  * margin fits beside the text. On touch-sized screens use `Sheet side="bottom"` instead. It draws
  * the floating surface every popover has, so a `CommentThread` in it gives up its own border, fill
- * and shadow; a `CommentComposer` keeps its border, its focus cue, and the popup draws none.
+ * and shadow; a `CommentComposer` keeps its border, its focus cue, and the popup draws none. Closing
+ * may drop `anchorRect` and `children` with `open`: it keeps the last of each for its exit.
  *
  * @example
  * <CommentPopover open={!!active} onOpenChange={(open) => !open && setActive(null)}
@@ -229,8 +230,14 @@ export function CommentPopover({
   className,
 }: CommentPopoverProps) {
   const themeScope = useInternalThemeScope();
+  const live = open && anchorRect !== null;
+  // A host may drop the rect and the content in the same render as `open`, but the popup stays for
+  // its exit: it keeps the last of each, so it leaves where it was, whole, not as an empty box at
+  // the viewport's corner.
   const rectRef = React.useRef(anchorRect);
-  rectRef.current = anchorRect;
+  if (anchorRect) rectRef.current = anchorRect;
+  const contentRef = React.useRef(children);
+  if (live) contentRef.current = children;
   const anchor = React.useMemo(
     () => ({
       getBoundingClientRect: () => rectRef.current ?? new DOMRect(0, 0, 0, 0),
@@ -239,7 +246,7 @@ export function CommentPopover({
   );
   return (
     <PopoverPrimitive.Root
-      open={open && anchorRect !== null}
+      open={live}
       onOpenChange={(next) => onOpenChange(next)}
     >
       <PopoverPrimitive.Portal>
@@ -258,13 +265,17 @@ export function CommentPopover({
               // `PopoverContent`'s surface: a thread's card in the margin is see-through on purpose.
               "rounded-lg border border-border bg-popover text-popover-foreground shadow-md",
               // One border, one fill, one shadow: the surface is the popup's, not the card's too.
-              "[&_[data-slot=comment-thread]]:border-0 [&_[data-slot=comment-thread]]:bg-transparent [&_[data-slot=comment-thread][data-active]]:shadow-none",
-              // A composer's box is its own border, and text entry's focus cue: the popup yields.
-              "has-[[data-slot=comment-box][data-layout=card]]:border-0",
+              "[&_:is([data-slot=comment-thread],[data-slot=comment-thread-skeleton])]:border-0 [&_[data-slot=comment-thread]]:bg-transparent [&_[data-slot=comment-thread][data-active]]:shadow-none",
+              // A composer alone: its box is its own border, and text entry's focus cue, so the
+              // popup yields. Beside a thread the popup keeps it: the thread has no edge of its own.
+              "[&:has([data-slot=comment-box][data-layout=card]):not(:has([data-slot=comment-thread]))]:border-0",
+              // What sits around that box (a reply line, an error, a hint, the count) has no border
+              // to sit in, so it keeps off the popup's edge.
+              "[&_[data-slot=comment-composer]>:not([data-slot=comment-box])]:px-3 [&_[data-slot=comment-composer]>:first-child:not([data-slot=comment-box])]:pt-2 [&_[data-slot=comment-composer]>:last-child:not([data-slot=comment-box])]:pb-2 [&_[data-slot=comment-box-counter]]:pe-3 [&_[data-slot=comment-composer]>[data-slot=comment-box]:last-child_[data-slot=comment-box-counter]]:pb-2",
               className,
             )}
           >
-            {children}
+            {contentRef.current}
           </PopoverPrimitive.Popup>
         </PopoverPrimitive.Positioner>
       </PopoverPrimitive.Portal>
