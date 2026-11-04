@@ -370,6 +370,57 @@ describe("NumberField — the stepper is muted ink with a hover step", () => {
   });
 });
 
+describe("NumberField — a value at its bound is not a disabled field", () => {
+  /**
+   * Base UI disables the stepper at `min`/`max` (a real `disabled` button), and upstream's
+   * InputGroup dims the whole box for any disabled descendant. A field holding its minimum read as
+   * disabled at half opacity and failed text contrast; only a disabled input may dim it.
+   */
+  test("at min the field keeps full opacity and only the decrement is disabled", async () => {
+    const screen = await render(
+      <Stage>
+        <NumberField aria-label="quantity" value={1} min={1} max={9} />
+      </Stage>,
+    );
+    await settle();
+    const q = within(screen.container);
+    const group = q.one("[data-slot=number-field]");
+    expect(
+      (q.one("[data-slot=number-field-decrement]") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(Number(getComputedStyle(group).opacity)).toBe(1);
+  });
+
+  test("at max the increment alone is disabled", async () => {
+    const screen = await render(
+      <Stage>
+        <NumberField aria-label="quantity" value={9} min={1} max={9} />
+      </Stage>,
+    );
+    await settle();
+    const q = within(screen.container);
+    expect(
+      (q.one("[data-slot=number-field-increment]") as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      Number(getComputedStyle(q.one("[data-slot=number-field]")).opacity),
+    ).toBe(1);
+  });
+
+  test("a disabled field still dims", async () => {
+    const screen = await render(
+      <Stage>
+        <NumberField aria-label="quantity" value={1} disabled />
+      </Stage>,
+    );
+    await settle();
+    const group = within(screen.container).one("[data-slot=number-field]");
+    expect(Number(getComputedStyle(group).opacity)).toBe(0.5);
+  });
+});
+
 describe("aria-invalid reaches the element that paints the tint", () => {
   /**
    * `aria-invalid` was accepted and inert on two controls: on the retired `OTPInput` it landed on

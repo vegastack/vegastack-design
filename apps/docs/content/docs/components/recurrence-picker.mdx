@@ -1,0 +1,194 @@
+---
+title: Recurrence Picker
+description: The body of a repeat popover — presets, a custom editor (every n days, weeks, months or years; weekdays; month day; ends) and the host's next dates.
+audience: public
+registry: recurrence-picker
+status: stable
+since: 0.39.0
+a11y: radio presets, named weekday toggles, polite preview
+preview: recurrencePicker
+---
+
+## Install
+
+<InstallSteps name="recurrence-picker" />
+
+## Usage
+
+```tsx
+import {
+  RecurrencePicker,
+  type RecurrencePickerView,
+  type RecurrenceValue,
+} from "@/components/ui/recurrence-picker";
+
+const [draft, setDraft] = useState<RecurrenceValue | null>(rule);
+const [view, setView] = useState<RecurrencePickerView>("presets");
+const next = useNextDates(draft); // the host's server call, debounced
+
+<PopoverContent size={view === "custom" ? "lg" : "default"}>
+  <PopoverHeader>
+    <PopoverTitle>
+      {view === "custom" ? "Custom repeat" : "Repeat"}
+    </PopoverTitle>
+  </PopoverHeader>
+  <RecurrencePicker
+    value={draft}
+    onChange={setDraft}
+    noneLabel="Doesn't repeat"
+    presets={presets} // built from the record's own date: "Every week on Monday"
+    view={view}
+    onViewChange={setView}
+    preview={next.dates}
+    previewLoading={next.loading}
+    previewError={next.error ? <RetryLine onRetry={next.retry} /> : undefined}
+    timeZoneLabel={<TimeZoneLine />}
+  />
+  <div className="flex justify-end gap-2">
+    <Button variant="outline" size="sm" onClick={cancel}>
+      Cancel
+    </Button>
+    <Button size="sm" onClick={() => save(draft)}>
+      {primaryLabel(draft, view)} {/* "Repeat weekly", "Save repeat" */}
+    </Button>
+  </div>
+</PopoverContent>;
+```
+
+The picker is the popover's body: the host owns the popover (or `ResponsiveDialog`), the title and
+the footer buttons, and names the primary button after the choice ("Repeat weekly", "Save
+repeat"). The value is plain data, `RecurrenceValue`, and `null` means it doesn't repeat. The picker
+never computes a date: the host maps the value to its own rule format, formats the next dates and
+passes them back as `preview`.
+
+A preset is selected while `value` equals its rule (weekday order aside); a rule no preset matches
+selects **Custom…**. Choosing **Custom…** calls `onViewChange("custom")` so the host can grow its
+popover to `lg`, starts a weekly rule when there was none, and moves focus to the interval; a host
+that offers a way back sets `view` to `"presets"` itself. The presets also tell the custom editor
+the record's weekday and day (the weekly preset with one day, the first monthly preset), so
+switching the unit to months starts on "day 10" rather than the 1st. With no such preset a new rule
+starts on the week's first day and the 1st.
+
+The picker remembers the last end date, count and month day it saw, so a choice can come back. Give
+it a `key` per record if it stays mounted while the record changes.
+
+## Scope
+
+One picker for anything that repeats: a task's Repeat property, a schedule (`showTime`), a reminder.
+Fields that belong to the host's model ("Create each task", "Create the next one") go in `extra`,
+inside the custom editor. Express "every weekday" as a weekly rule on Monday to Friday, which is
+what the custom editor shows. Picking one date is the `DatePicker`; a time of day alone is the
+`TimeField`.
+
+## Examples
+
+<ComponentPreview
+  name="recurrencePicker"
+  file="components/preview/recurrence-picker.tsx"
+/>
+
+### Custom, with the app's fields
+
+The custom editor at the popover's `lg` width. The weekdays are a multiple-choice toggle group named
+in full; `extra` holds the host's fields between Ends and the preview.
+
+<ComponentPreview
+  name="recurrencePickerCustom"
+  file="components/preview/recurrence-picker.tsx"
+/>
+
+### Monthly
+
+On a day, on the nth weekday, or on the last day. A day of 29–31 says that months without it use
+their last day. Editing a choice's field selects that choice.
+
+<ComponentPreview
+  name="recurrencePickerMonthly"
+  file="components/preview/recurrence-picker.tsx"
+/>
+
+### States
+
+The next dates loading (three chip skeletons, shown after a short delay so a fast answer never
+flashes), the host's error line with its retry (saving is still allowed), and disabled.
+
+<ComponentPreview
+  name="recurrencePickerStates"
+  file="components/preview/recurrence-picker.tsx"
+/>
+
+### With a time
+
+`showTime` adds a `TimeField` for `value.time`. A preset keeps the time already set, and presets
+match whatever the time.
+
+<ComponentPreview
+  name="recurrencePickerTime"
+  file="components/preview/recurrence-picker.tsx"
+/>
+
+### In a responsive dialog
+
+Under 640px the host's popover becomes a bottom sheet: the same body inside `ResponsiveDialog`.
+
+<ComponentPreview
+  name="recurrencePickerDialog"
+  file="components/preview/recurrence-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/recurrence-picker.tsx"
+  name="RecurrencePickerProps"
+/>
+
+### RecurrenceValue
+
+<ApiTable
+  path="../../packages/ui/registry/ui/recurrence-picker.tsx"
+  name="RecurrenceValue"
+/>
+
+### RecurrencePreset
+
+<ApiTable
+  path="../../packages/ui/registry/ui/recurrence-picker.tsx"
+  name="RecurrencePreset"
+/>
+
+## Accessibility
+
+- The presets are a radio group: focus lands on the selected preset when the popover opens, and the
+  arrow keys choose. Arrowing onto **Custom…**, or onto an end date with no day yet, only moves
+  focus, so browsing changes nothing; <kbd>Space</kbd> or a click opens it. The host's popover is
+  the dialog, named by its title.
+- The weekdays are a toggle group whose buttons carry the full day name ("Monday"); the monthly
+  and Ends choices are radio groups named by their row label, and each choice's field is labelled.
+- The next dates are a polite live region (`role="status"`): a new set is read once it arrives,
+  and the region is busy while it loads. A new set cross-fades with the old one over 150ms, which
+  reduced motion turns off.
+
+| Key                                           | Action                                                 |
+| --------------------------------------------- | ------------------------------------------------------ |
+| <kbd>↑</kbd> / <kbd>↓</kbd> on a choice       | Move to the previous or next choice, and select it.    |
+| <kbd>←</kbd> / <kbd>→</kbd> on a choice       | The same, and between the weekdays.                    |
+| <kbd>↑</kbd> / <kbd>↓</kbd> in a number field | Step the number. The arrow keys stay in a field.       |
+| <kbd>Tab</kbd>                                | Move between the groups and fields.                    |
+| <kbd>Space</kbd>                              | Toggle a weekday; open Custom… or the end date.        |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> on a menu | Open the unit, week or weekday menu.                   |
+| <kbd>Esc</kbd>                                | Close an open menu or calendar, then the host's popup. |
+
+<StatesTested name="recurrence-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Build the presets from the record's own date and name the primary button after the choice: Repeat weekly."
+  dont="Offer a fixed list that ignores the date, or a generic Save for every preset."
+/>
+
+<DoDont
+  do="Compute and format the next dates on the host and pass them as preview."
+  dont="Leave out the preview, so nobody sees what the rule will do before saving it."
+/>

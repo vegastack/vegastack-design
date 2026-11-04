@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 786,
-    "components": 196,
+    "totalRegistryItems": 788,
+    "components": 198,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 42,
+    "Forms/editing": 44,
     "Navigation/layout": 26,
     "Overlays": 24,
     "Data display": 46,
@@ -102,7 +102,9 @@
       "destination-picker",
       "field-type-picker",
       "field-type-link-step",
-      "option-list-editor"
+      "option-list-editor",
+      "time-field",
+      "recurrence-picker"
     ],
     "Navigation/layout": [
       "accordion",
@@ -12168,6 +12170,374 @@
                 "date-range-picker-content",
                 "date-range-picker-trigger"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "time-field",
+      "registryType": "registry:ui",
+      "title": "Time Field",
+      "summary": "A time of day as one typed field: \"HH:mm\" in and out, shown on the locale's 12- or 24-hour clock, stepped by the arrow keys within min and max.",
+      "status": "stable",
+      "since": "0.39.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/time-field.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TimeField",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/time-field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "InputGroupInput",
+            "rationale": "The ref prop is passed to the input."
+          }
+        },
+        {
+          "name": "TimeFieldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/time-field.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "InputGroup's single 32px height; the width is w-36, overridable through className."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "empty",
+            "stepping",
+            "clamped",
+            "typed",
+            "invalid-draft",
+            "cleared",
+            "disabled",
+            "invalid"
+          ],
+          "evidence": "packages/ui/registry/ui/time-field.tsx + packages/ui/registry/ui/time-field.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "keyboard",
+            "labeled",
+            "spinbutton",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/time-field.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled", "dark"],
+          "evidence": "InputGroup's chrome: focus border, has-aria-invalid destructive hairline, has-disabled wash."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "A fixed w-36 box with a flex-1 input; the clock addon is shrink-0."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "Only InputGroup's border colour transition, collapsed by the global reduced-motion reset.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/time-field",
+      "registryDependencies": [
+        "@vegastack/date-time",
+        "@vegastack/input-group"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/time-field.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "time-field",
+      "dataAttributes": {
+        "TimeField": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["time-field"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "recurrence-picker",
+      "registryType": "registry:ui",
+      "title": "Recurrence Picker",
+      "summary": "The body of a repeat popover: presets, a custom editor (every n days, weeks, months or years; weekdays; month day; ends; time) and the host's preview of the next dates. Never computes a date.",
+      "status": "stable",
+      "since": "0.39.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/recurrence-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecurrencePicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A props-API body with no single host element to forward a ref to; it takes no ref."
+          }
+        },
+        {
+          "name": "RecurrencePickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrenceValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrencePreset",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrenceLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Weekday",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrenceFrequency",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrenceOrdinal",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrenceMonthRule",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrenceEnds",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecurrencePickerView",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/recurrence-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Takes its width from the host's popover: default for the presets, lg for the custom editor."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "presets",
+            "custom",
+            "no-repeat",
+            "preset-selected",
+            "custom-selected",
+            "weekly",
+            "monthly-day",
+            "monthly-weekday",
+            "monthly-last-day",
+            "yearly",
+            "ends-never",
+            "ends-on",
+            "ends-after",
+            "with-time",
+            "with-extra",
+            "preview",
+            "preview-loading",
+            "preview-error",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/recurrence-picker.tsx + packages/ui/registry/ui/recurrence-picker.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "keyboard",
+            "labeled",
+            "radio-group",
+            "live-region",
+            "focus-management",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/recurrence-picker.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "custom",
+            "loading",
+            "error",
+            "disabled",
+            "dark"
+          ],
+          "evidence": "packages/ui/registry/ui/recurrence-picker.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["wrapping"],
+        "rationale": "Row fields wrap (flex-wrap) inside a minmax(0,1fr) column and the preview chips wrap, so a 320px sheet never scrolls sideways."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "tw-animate-css keyed presence on the date row",
+          "CSS utility motion-reveal"
+        ],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "motion-safe gates the cross-fade and motion-reduce hides the outgoing row; the global reset collapses the skeleton's motion-reveal.",
+          "evidence": "packages/ui/registry/ui/recurrence-picker.tsx + packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/recurrence-picker",
+      "registryDependencies": [
+        "@vegastack/date-time",
+        "@vegastack/badge",
+        "@vegastack/date-picker",
+        "@vegastack/label",
+        "@vegastack/number-field",
+        "@vegastack/radio-group",
+        "@vegastack/select",
+        "@vegastack/separator",
+        "@vegastack/skeleton",
+        "@vegastack/time-field",
+        "@vegastack/toggle-group"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/recurrence-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "recurrence-picker",
+      "dataAttributes": {
+        "RecurrencePicker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "recurrence-picker",
+                "recurrence-picker-custom",
+                "recurrence-picker-ends",
+                "recurrence-picker-extra",
+                "recurrence-picker-month",
+                "recurrence-picker-month-hint",
+                "recurrence-picker-presets",
+                "recurrence-picker-preview",
+                "recurrence-picker-preview-error",
+                "recurrence-picker-preview-loading",
+                "recurrence-picker-time-zone",
+                "recurrence-picker-unit",
+                "recurrence-picker-weekdays"
+              ]
+            },
+            {
+              "name": "data-view",
+              "values": []
             }
           ],
           "cssVariables": []

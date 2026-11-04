@@ -1,4 +1,4 @@
-// @vegastack date-time@0.33.0 sha256-4AhF7H+OPCR7UrJK9pvM/LM+WGaNDLP0y7wOg7LStFk=
+// @vegastack date-time@0.33.0 sha256-koQMfSUNsCL4LIz6KacR6khVimQlkwMv+hLjyMAwBrE=
 
 export type DateInput = Date | string | number;
 
@@ -878,16 +878,30 @@ function dayPeriods(locale: string) {
   return { am: period(1), pm: period(13) };
 }
 
+/** `text` with the locale's own digits ("٩:٣٠") as ASCII ones, and bidirectional marks removed. */
+function asciiDigits(text: string, locale: string) {
+  const digits = [
+    ...new Intl.NumberFormat(locale, { useGrouping: false }).format(9876543210),
+  ].reverse();
+  return [...text.replace(/[\u200e\u200f\u061c]/g, "")]
+    .map((char) => {
+      const digit = digits.indexOf(char);
+      return digit === -1 ? char : String(digit);
+    })
+    .join("");
+}
+
 /**
  * Reads a typed time: "9", "930", "0930", "9:30", "9:3" (9:30), "9.30", "21:30", with
- * "a"/"am"/"p"/"pm" (or the locale's own words) after it. `""` for an empty field, `null` for text that is not a time.
+ * "a"/"am"/"p"/"pm" after it, or the locale's own words on either side and its own digits
+ * ("오전 9:30", "٩:٣٠ ص"). `""` for an empty field, `null` for text that is not a time.
  * Without AM/PM an hour up to 12 is read as written ("9" is 9 AM, "12" noon).
  */
 export function parseTimeOfDay(
   text: string,
   locale: string = DEFAULT_LOCALE,
 ): string | null {
-  let rest = text.trim().toLowerCase();
+  let rest = asciiDigits(text, locale).trim().toLowerCase();
   if (!rest) return "";
   let meridiem: "am" | "pm" | undefined;
   const { am, pm } = dayPeriods(locale);
@@ -895,9 +909,11 @@ export function parseTimeOfDay(
     [pm, "pm"],
     [am, "am"],
   ] as const) {
-    if (word && rest.endsWith(word)) {
+    if (word && (rest.endsWith(word) || rest.startsWith(word))) {
       meridiem = kind;
-      rest = rest.slice(0, -word.length);
+      rest = rest.endsWith(word)
+        ? rest.slice(0, -word.length)
+        : rest.slice(word.length);
       break;
     }
   }
@@ -908,7 +924,8 @@ export function parseTimeOfDay(
       rest = rest.slice(0, match.index);
     }
   }
-  rest = rest.trim();
+  // Beside a day word a locale may keep a word of its own ("12:05 ч. пр.об.").
+  rest = meridiem ? rest.replace(/^\D+|\D+$/g, "") : rest.trim();
   let hour: number;
   let minute: number;
   const split = /^(\d{1,2})(?:\s*[:.h\s]\s*(\d{0,2}))?$/.exec(rest);

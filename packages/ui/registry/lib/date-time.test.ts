@@ -1,8 +1,10 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import {
   formatCalendarDate,
   parseCalendarDay,
   toCalendarDay,
+  formatTimeValue,
+  parseTimeOfDay,
 } from "./date-time";
 
 test("a calendar day formats as the day it names, never shifted by a zone", () => {
@@ -56,4 +58,37 @@ test("parseCalendarDay and toCalendarDay round-trip the local day; invalid days 
   expect(toCalendarDay(parseCalendarDay("0099-01-01")!)).toBe("0099-01-01");
   expect(formatCalendarDate("0099-01-01")).toMatch(/^Jan 1, 0*99$/);
   expect(toCalendarDay(new Date(Number.NaN))).toBe("");
+});
+
+describe("parseTimeOfDay reads back what formatTimeValue writes", () => {
+  const LOCALES = [
+    "en-US",
+    "de",
+    "ko",
+    "zh-TW",
+    "zh-CN",
+    "ja",
+    "ar-EG",
+    "ar",
+    "bn",
+    "mr",
+    "fa",
+    "tr",
+    "hu",
+    "bg",
+  ];
+  const TIMES = ["00:05", "09:30", "12:00", "12:45", "13:15", "23:59"];
+  for (const locale of LOCALES)
+    for (const cycle of ["h12", "h23"] as const)
+      test(`${locale} ${cycle}`, () => {
+        for (const time of TIMES)
+          expect(
+            parseTimeOfDay(formatTimeValue(time, locale, cycle), locale),
+          ).toBe(time);
+      });
+
+  test("the day word may lead and the digits may be the locale's", () => {
+    expect(parseTimeOfDay("오전 9:30", "ko")).toBe("09:30");
+    expect(parseTimeOfDay("٩:٣٠ م", "ar-EG")).toBe("21:30");
+  });
 });

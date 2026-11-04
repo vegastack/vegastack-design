@@ -1,4 +1,4 @@
-// @vegastack number-field@0.33.0 sha256-MdrLEN89oDs0f/wEG2b2sAa3vyUKAg0RPTbVr+KDhMs=
+// @vegastack number-field@0.33.0 sha256-s73JhvFpbyOEbPB/2SIJYS7Xlq5bRmpTB6xvQHhJlrM=
 
 "use client";
 
@@ -109,6 +109,16 @@ export interface NumberFieldProps extends Omit<
    * @default false
    */
   hideControls?: boolean;
+  /**
+   * The − stepper's accessible name.
+   * @default "Decrease"
+   */
+  decrementLabel?: string;
+  /**
+   * The + stepper's accessible name.
+   * @default "Increase"
+   */
+  incrementLabel?: string;
   /** Extra classes for the `InputGroup` root.
    * @default undefined
    */
@@ -190,6 +200,8 @@ export function NumberField({
   prefix,
   suffix,
   hideControls = false,
+  decrementLabel = "Decrease",
+  incrementLabel = "Increase",
   className,
   inputClassName,
   inputRef,
@@ -207,7 +219,14 @@ export function NumberField({
       // selector the input satisfies. `control-paint.browser.test.tsx` measures it against a
       // plain invalid `Input`.
       render={<InputGroup />}
-      className={cn("overflow-hidden", className)}
+      className={cn(
+        "overflow-hidden",
+        // A stepper at its bound is a disabled button, and upstream's InputGroup dims the whole
+        // box for ANY disabled descendant (`has-disabled:`). Only a disabled input dims the field:
+        // a value at `min` or `max` keeps the field at full ink, with just that stepper muted.
+        "has-disabled:not-has-[input:disabled]:bg-transparent has-disabled:not-has-[input:disabled]:opacity-100 dark:has-disabled:not-has-[input:disabled]:bg-input/30",
+        className,
+      )}
       id={id}
       {...rootProps}
     >
@@ -216,7 +235,7 @@ export function NumberField({
           <InputGroupButton
             render={<BaseNumberField.Decrement />}
             data-slot="number-field-decrement"
-            aria-label="Decrease"
+            aria-label={decrementLabel}
             className={cn(stepperClasses, stepperDividerClasses.decrement)}
           >
             <Minus />
@@ -270,7 +289,7 @@ export function NumberField({
           <InputGroupButton
             render={<BaseNumberField.Increment />}
             data-slot="number-field-increment"
-            aria-label="Increase"
+            aria-label={incrementLabel}
             className={cn(stepperClasses, stepperDividerClasses.increment)}
           >
             <Plus />
