@@ -1,0 +1,117 @@
+---
+title: Suggestion Card
+description: An agent offers one person a next step, in a card only they see, with buttons that name the action.
+audience: public
+registry: suggestion-card
+status: stable
+since: 0.43.0
+a11y: named region; ticks are labelled checkboxes
+preview: suggestionCard
+---
+
+## Install
+
+<InstallSteps name="suggestion-card" />
+
+## Usage
+
+```tsx
+import { SuggestionCard } from "@/components/ui/suggestion-card";
+
+<SuggestionCard
+  privateLabel="Only you can see this"
+  avatar={<PersonAvatar person={agent} size="sm" />}
+  title="Assistant · 3 decisions from this chat"
+  items={items}
+  onItemCheckedChange={toggle}
+  actions={
+    <>
+      <Button size="sm" variant="secondary" onClick={accept}>
+        Create 2 tasks
+      </Button>
+      <Button size="sm" variant="ghost" onClick={dismiss}>
+        Dismiss
+      </Button>
+    </>
+  }
+  footnote="Expires tomorrow"
+/>;
+```
+
+The card has no action or wording of its own: the host passes the buttons and every line. For an
+agent that must wait for a decision before it acts, use
+[`ApprovalCard`](/docs/components/approval-card). A suggestion is an offer, and ignoring it is fine.
+
+<ComponentPreview
+  name="suggestionCard"
+  file="components/preview/suggestion-card.tsx"
+/>
+
+## Examples
+
+### Accepting
+
+`state="busy"` holds the items still while the host works. The spinner goes on the host's main
+button, and the host turns off its other buttons, so Dismiss can't race the accept.
+
+<ComponentPreview
+  name="suggestionCardBusy"
+  file="components/preview/suggestion-card.tsx"
+/>
+
+### Outcomes
+
+`accepted` replaces the card with `outcome`, a plain line, with `actions` after it for Undo. Use it
+too for something an agent did by itself. `expired` folds to the title, `outcome` and `actions`.
+`failed` keeps the whole card, so Retry has its items. A dismissed card is simply not rendered.
+
+<ComponentPreview
+  name="suggestionCardOutcomes"
+  file="components/preview/suggestion-card.tsx"
+/>
+
+### In a list
+
+`variant="row"` is the compact form for a list: the title and buttons side by side, stacked in a
+container under 32rem. `privateLabel`, items and the footnote don't show.
+
+<ComponentPreview
+  name="suggestionCardRow"
+  file="components/preview/suggestion-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/suggestion-card.tsx"
+  name="SuggestionCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/suggestion-card.tsx"
+  name="SuggestionCardItem"
+/>
+
+## Accessibility
+
+- An open card is a region named by its title. A row is a group, and an accepted line is neither,
+  so a long list or history doesn't flood the landmarks.
+- Each item's label names its checkbox. A long label is cut on screen, not for a screen reader, and
+  shows in full on hover.
+- A card that appears announces nothing. Announce a failure or an acceptance through the
+  conversation's own `useAnnouncer` region, and after `accepted` move focus to the card with `ref`,
+  since the button that had it is gone.
+
+| Key              | Action                         |
+| ---------------- | ------------------------------ |
+| <kbd>Tab</kbd>   | Move through ticks and buttons |
+| <kbd>Space</kbd> | Tick or untick an item         |
+
+<StatesTested name="suggestion-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Name the action on the button, 'Create 2 tasks', with a quiet 'Dismiss' after it."
+  dont="Write 'Yes, do it' or 'No thanks', or make the main button primary."
+/>

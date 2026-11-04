@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "94d744ad161d7981d7d67d2bddea48007747dbcaec41cdf6b9a6b99e14bfdb17",
+  "contractSha256": "96301c1b365d0fda441ac81ff9c90b4697216ecc9d6a0635f1d9a6784f63f3a9",
   "expectedCounts": {
-    "totalRegistryItems": 790,
-    "components": 200,
+    "totalRegistryItems": 791,
+    "components": 201,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -1504,6 +1504,17 @@
         "packages/ui/registry/ui/cited-list.tsx"
       ],
       "docsSlug": "/docs/components/cited-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "suggestion-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/suggestion-card.tsx"
+      ],
+      "docsSlug": "/docs/components/suggestion-card",
       "contractStatus": "reconciled"
     },
     {
