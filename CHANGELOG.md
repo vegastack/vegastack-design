@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.40.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: dfed82ed4dd8 -->
+
+### 🔧 Changed components
+
+- Agent identity and attribution. `PersonAvatar` takes `actingFor`: the member an agent works for as a small offset circle at the hexagon's corner, from `sm` up. An image mark takes `srcDark` (a dark-theme variant; either stands in when the other fails) and `small` (a glyph for the 16 and 20px steps, or `false` for the bot there). `PersonName` takes `variant="compact"` ("Claude Code · Manoj") for pickers. `AgentState` adds `not-started`, `quiet`, `paused` and `no-action`, and `approval` now reads "Needs approval"; `AgentPanel` gives each its sentence and one action (`lastUpdateAt`, `pausedReason` with `onResume`, `onReview`, `onGiveAccess`), and `AgentStateRing` rings only the states that need someone. `AgentHoverCard` and `AgentCard` become the agent's lanyard: a 40px hexagon, `kindLabel`, `owner`, `description`, `badges`, a muted technical `footer`, and Open agent as a link (`href`, `linkRender`). `PeoplePicker` options take `group` (with `groupOrder`) and `hint`, and agent rows read compact with the "Agent" label (`agentLabel={false}` to turn it off). `DelegatePopover` agents take `mark`, `hue` and `hint`; `renderPicked` shows the host's step for a picked agent; `connectHref` makes the connect link a real link; its heading reads "Agents you can use" and its link "Connect an app". `AgentPanelAgent` takes `hue`. `agentShapeTarget` with `AgentShapeLayer` replaces the mask on an agent's hover-card trigger: its tints sit on a hexagon layer behind the avatar, so `actingFor` and `indicator` are not clipped, and the trigger hugs avatars of any size. Enter on a focused hover-card trigger steps into the card. `personDisplayName` reads "Claude Code for Manoj" (was "Claude Code (for Manoj)"), and so does `AgentEditBanner`. ⚠ Renamed: `Person.via`, `AgentPanelAgent.via` and `DelegatePopoverAgent.via` → `for` (the `person-name-via` slot → `person-name-for`); `onViewAgent` → `onOpenAgent` and `labels.viewAgent` → `labels.open` ("Open agent"); `labels.wantsApproval` is gone (the approval's word is `stateLabels.approval`).
+  [`65e9d85`](https://github.com/VegaStack/vegastack-design/commit/65e9d85)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.12.3`** (was `0.12.2`).
+- The design-system registry (`@vegastack/ui`) bumps 0.39.1 → 0.40.0.
+
 ## [0.39.1] — November 4, 2026
 
 <!-- assembled from 2 changesets: e05f2b69bdb0 -->
