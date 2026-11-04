@@ -356,8 +356,8 @@
       "meta": {
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
-        "version": "0.46.0",
-        "integrity": "sha256-Vx+tsew5aYZi43uVLf9z/f0+7pjx1DRTTAePNGQL12M="
+        "version": "0.48.0",
+        "integrity": "sha256-Vb5ov1nsrUm9nOaMhPPRJZ73OU/bcpF0Gy6pACXNyxY="
       }
     },
     {
@@ -16903,8 +16903,8 @@
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
-        "version": "0.47.0",
-        "integrity": "sha256-PUyUzvXf/iwGUi0IlllK68APb0avMe/KBiIedFAqbU8="
+        "version": "0.48.0",
+        "integrity": "sha256-0XVggpIEvzaCYy4QWkyJsTykkzOkRoMxeo6eJT4yoVg="
       }
     },
     {
