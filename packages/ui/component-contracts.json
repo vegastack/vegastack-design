@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 790,
-    "components": 200,
+    "totalRegistryItems": 791,
+    "components": 201,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 15,
+    "AI/chat": 16,
     "Hooks": 18,
     "Block": 15,
     "Animated icons": 467
@@ -248,7 +248,8 @@
       "delegate-popover",
       "cited-list",
       "message-parts",
-      "chat-composer"
+      "chat-composer",
+      "suggestion-card"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -30661,6 +30662,171 @@
             {
               "name": "data-slot",
               "values": ["citation-icon"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "suggestion-card",
+      "registryType": "registry:ui",
+      "title": "Suggestion Card",
+      "summary": "An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.",
+      "status": "stable",
+      "since": "0.43.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/suggestion-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SuggestionCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/suggestion-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Props, including ref, spread onto the root section."
+          }
+        },
+        {
+          "name": "SuggestionCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/suggestion-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SuggestionCardItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/suggestion-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SuggestionCardState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/suggestion-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["card", "row"]
+          }
+        ],
+        "rationale": "A card in a conversation, a compact row in a list."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "open",
+            "busy",
+            "accepted",
+            "expired",
+            "failed",
+            "ticks",
+            "no-ticks"
+          ],
+          "evidence": "packages/ui/registry/ui/suggestion-card.tsx + packages/ui/registry/ui/suggestion-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-region",
+            "group-row",
+            "no-landmark-when-accepted",
+            "labelled-checkboxes",
+            "aria-busy",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/suggestion-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["card", "busy", "outcomes", "row"],
+          "evidence": "packages/ui/registry/ui/suggestion-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "An item's label truncates and its meta stays whole; buttons wrap; the row breaks to two lines under a 32rem container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/suggestion-card",
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/truncated-text"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.12.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/suggestion-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "suggestion-card",
+      "dataAttributes": {
+        "SuggestionCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "suggestion-card",
+                "suggestion-card-actions",
+                "suggestion-card-avatar",
+                "suggestion-card-footnote",
+                "suggestion-card-header",
+                "suggestion-card-heading",
+                "suggestion-card-item",
+                "suggestion-card-items",
+                "suggestion-card-menu",
+                "suggestion-card-outcome",
+                "suggestion-card-private",
+                "suggestion-card-title"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []

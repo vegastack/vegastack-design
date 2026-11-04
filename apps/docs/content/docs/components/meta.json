@@ -196,6 +196,7 @@
     "tool-call-chip",
     "cited-list",
     "approval-card",
+    "suggestion-card",
     "agent-edit-banner",
     "agent-panel",
     "delegate-popover",
