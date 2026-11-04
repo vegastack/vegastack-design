@@ -1,8 +1,9 @@
 import { render } from "vitest-browser-react";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
+import { Citation } from "./cited-list";
 import { Message, MessageContent } from "./message";
 import {
   MessageActions,
@@ -43,12 +44,17 @@ test("steps start closed behind their summary and open on a press", async () => 
   await expectNoA11yViolations(screen.container);
 });
 
-test("a step shows its state, and a failed step its reason", async () => {
+test("a step's status is in words, and a failed step gives its reason", async () => {
   const screen = await render(
-    <MessageSteps summary="3 steps" defaultOpen>
+    <MessageSteps summary="4 steps" defaultOpen>
       <MessageStep label="Done" />
       <MessageStep status="running" label="Working…" />
       <MessageStep status="failed" label="Failed" error="No answer." />
+      <MessageStep
+        status="stopped"
+        label="Halted"
+        statusLabels={{ stopped: "Cancelled" }}
+      />
     </MessageSteps>,
   );
   const steps = screen.container.querySelectorAll<HTMLElement>(
@@ -58,11 +64,33 @@ test("a step shows its state, and a failed step its reason", async () => {
     "done",
     "running",
     "failed",
+    "stopped",
   ]);
+  // What a screen reader gets: the icons are hidden, so the words must be there.
+  expect(steps[0]!.textContent).toBe("Done:Done");
+  expect(steps[2]!.textContent).toContain("Failed:Failed");
+  expect(steps[3]!.textContent).toContain("Cancelled:Halted");
   expect(steps[1]!.querySelector("[data-slot=spinner]")).not.toBeNull();
   expect(steps[1]!.querySelector("[role=status]")).toBeNull();
   expect(slot(steps[2]!, "message-step-error")!.textContent).toBe("No answer.");
   await expectNoA11yViolations(screen.container);
+});
+
+test("the steps line keeps its muted ink when open", async () => {
+  await render(
+    <MessageSteps summary="1 step" defaultOpen>
+      <MessageStep label="Done" />
+    </MessageSteps>,
+  );
+  const open = page.getByRole("button", { name: "1 step" });
+  const ink = getComputedStyle(open.element()).color;
+  await render(
+    <MessageSteps summary="2 steps">
+      <MessageStep label="Done" />
+    </MessageSteps>,
+  );
+  const closed = page.getByRole("button", { name: "2 steps" });
+  expect(ink).toBe(getComputedStyle(closed.element()).color);
 });
 
 test("a plan says each item's state in words", async () => {
@@ -97,7 +125,7 @@ test("a plan says each item's state in words", async () => {
   ).toBe("Finished:Read");
 });
 
-test("status lines keep StatusLine's roles under their own slots", async () => {
+test("status and notice lines stay silent unless marked live", async () => {
   const screen = await render(
     <>
       <MessageStatus>Reading…</MessageStatus>
@@ -110,13 +138,22 @@ test("status lines keep StatusLine's roles under their own slots", async () => {
   const [progress, error] = screen.container.querySelectorAll<HTMLElement>(
     "[data-slot=message-status]",
   );
-  expect(progress!.dataset.status).toBe("progress");
-  expect(progress!.getAttribute("role")).toBe("status");
-  expect(error!.getAttribute("role")).toBe("alert");
   const notice = slot(screen.container, "message-notice")!;
+  expect(progress!.dataset.status).toBe("progress");
+  expect(error!.dataset.status).toBe("error");
   expect(notice.dataset.status).toBe("info");
+  // Inside a role="log" a live part would be read twice, and a past failure would interrupt.
+  expect(
+    screen.container.querySelector("[role=status],[role=alert]"),
+  ).toBeNull();
   expect(notice.textContent).toContain("Reply privately");
   await expectNoA11yViolations(screen.container);
+  await screen.rerender(
+    <MessageStatus status="error" live>
+      It stopped.
+    </MessageStatus>,
+  );
+  expect(screen.container.querySelector("[role=alert]")).not.toBeNull();
 });
 
 test("a change row ends with its action; a hand-off is a divider", async () => {
@@ -137,9 +174,11 @@ test("a change row ends with its action; a hand-off is a divider", async () => {
   );
   await page.getByRole("button", { name: "Undo" }).click();
   expect(undo).toHaveBeenCalledTimes(1);
-  expect(slot(screen.container, "message-handoff")!.textContent).toBe(
-    "Assistant asked BOQ processor",
-  );
+  const handoff = slot(screen.container, "message-handoff")!;
+  expect(handoff.textContent).toBe("Assistant asked BOQ processor");
+  expect(
+    handoff.querySelector("[data-slot=separator]")!.getAttribute("aria-hidden"),
+  ).toBe("true");
   await expectNoA11yViolations(screen.container);
 });
 
@@ -147,7 +186,7 @@ test("sources name their group; the disclaimer is plain muted text", async () =>
   const screen = await render(
     <>
       <MessageSources label="From">
-        <a href="#a">A note</a>
+        <Citation href="#a">A note</Citation>
       </MessageSources>
       <MessageDisclaimer>Generated by AI · can make mistakes</MessageDisclaimer>
     </>,
@@ -159,7 +198,7 @@ test("sources name their group; the disclaimer is plain muted text", async () =>
 
 test("actions show on hover or focus and hold their place while hidden", async () => {
   const screen = await render(
-    <Message>
+    <Message data-testid="message">
       <MessageContent>
         <p>An answer.</p>
         <MessageActions>
@@ -169,13 +208,28 @@ test("actions show on hover or focus and hold their place while hidden", async (
     </Message>,
   );
   const row = slot(screen.container, "message-actions")!;
+  const height = row.getBoundingClientRect().height;
   expect(row.dataset.reveal).toBe("hover");
   expect(getComputedStyle(row).opacity).toBe("0");
-  expect(row.getBoundingClientRect().height).toBeGreaterThan(0);
-  const copy = page.getByRole("button", { name: "Copy" });
-  (copy.element() as HTMLElement).focus();
+  expect(height).toBeGreaterThanOrEqual(24);
+  await page.getByTestId("message").hover();
   await vi.waitFor(() => expect(getComputedStyle(row).opacity).toBe("1"));
+  (page.getByRole("button", { name: "Copy" }).element() as HTMLElement).focus();
+  await vi.waitFor(() => expect(getComputedStyle(row).opacity).toBe("1"));
+  expect(row.getBoundingClientRect().height).toBe(height);
   await expectNoA11yViolations(screen.container);
+});
+
+test("outside a Message, hovering the row itself reveals it", async () => {
+  const screen = await render(
+    <MessageActions data-testid="row">
+      <Button size="icon-xs" variant="ghost" aria-label="Copy" />
+    </MessageActions>,
+  );
+  const row = slot(screen.container, "message-actions")!;
+  expect(getComputedStyle(row).opacity).toBe("0");
+  await page.getByTestId("row").hover();
+  await vi.waitFor(() => expect(getComputedStyle(row).opacity).toBe("1"));
 });
 
 test("always-on actions never hide", async () => {
@@ -195,42 +249,98 @@ test("always-on actions never hide", async () => {
 
 test("the version switch needs two versions and stops at each end", async () => {
   const onPrevious = vi.fn();
+  const onNext = vi.fn();
+  const props = { onPrevious, onNext };
   const screen = await render(
-    <MessageVersionSwitch current={1} total={1} onPrevious={onPrevious} />,
+    <MessageVersionSwitch current={1} total={1} {...props} />,
   );
   expect(slot(screen.container, "message-version-switch")).toBeNull();
   await screen.rerender(
-    <MessageVersionSwitch current={2} total={2} onPrevious={onPrevious} />,
+    <MessageVersionSwitch current={2} total={2} {...props} />,
   );
-  expect(slot(screen.container, "message-version-position")!.textContent).toBe(
-    "2 of 2",
-  );
-  await expect
-    .element(page.getByRole("button", { name: "Next version" }))
-    .toHaveAttribute("aria-disabled", "true");
-  await page.getByRole("button", { name: "Previous version" }).click();
+  const position = slot(screen.container, "message-version-switch-position")!;
+  expect(position.textContent).toBe("2 of 2");
+  const previous = page.getByRole("button", { name: "Previous version" });
+  const next = page.getByRole("button", { name: "Next version" });
+  await expect.element(next).toHaveAttribute("aria-disabled", "true");
+  await previous.click();
   expect(onPrevious).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
+  await screen.rerender(
+    <MessageVersionSwitch current={1} total={2} {...props} />,
+  );
+  await expect.element(previous).toHaveAttribute("aria-disabled", "true");
+  await next.click();
+  expect(onNext).toHaveBeenCalledTimes(1);
+  await screen.rerender(
+    <MessageVersionSwitch current={5} total={2} {...props} />,
+  );
+  expect(position.textContent).toBe("2 of 2");
 });
 
-test("a fold holds long content until Show more, and short content not at all", async () => {
+test("a fold holds long content until Show more", async () => {
+  const onOpenChange = vi.fn();
   const screen = await render(
-    <MessageFold>
+    <MessageFold onOpenChange={onOpenChange}>
       <div style={{ height: 800 }}>Long</div>
     </MessageFold>,
   );
   const content = slot(screen.container, "message-fold-content")!;
+  const more = page.getByRole("button", { name: "Show more" });
+  await expect.element(more).toBeVisible();
   expect(content.getBoundingClientRect().height).toBeLessThan(400);
-  await page.getByRole("button", { name: "Show more" }).click();
+  expect(slot(screen.container, "message-fold")!.dataset.folded).toBe("");
+  await more.click();
   expect(content.getBoundingClientRect().height).toBe(800);
+  expect(onOpenChange).toHaveBeenLastCalledWith(true);
   await expect
     .element(page.getByRole("button", { name: "Show less" }))
-    .toHaveAttribute("aria-expanded", "true");
+    .toBeVisible();
   await expectNoA11yViolations(screen.container);
-  await screen.rerender(
-    <MessageFold foldable={false}>
-      <div style={{ height: 800 }}>Short</div>
+});
+
+test("content that fits is never folded", async () => {
+  const screen = await render(
+    <MessageFold>
+      <div style={{ height: 100 }}>Short</div>
     </MessageFold>,
   );
+  await new Promise((done) => requestAnimationFrame(() => done(null)));
+  const root = slot(screen.container, "message-fold")!;
+  expect(root.dataset.folded).toBeUndefined();
+  expect(getComputedStyle(slot(root, "message-fold-content")!).maskImage).toBe(
+    "none",
+  );
   expect(screen.container.querySelector("button")).toBeNull();
+});
+
+test("an open fold stays open, and tabbing into a folded one opens it", async () => {
+  const screen = await render(
+    <MessageFold defaultOpen>
+      <div style={{ height: 800 }}>Streamed here</div>
+    </MessageFold>,
+  );
+  expect(
+    slot(screen.container, "message-fold-content")!.getBoundingClientRect()
+      .height,
+  ).toBe(800);
+  const folded = await render(
+    <>
+      <button type="button">Before</button>
+      <MessageFold>
+        <div style={{ height: 700 }} />
+        <a href="#deep">Deep link</a>
+      </MessageFold>
+    </>,
+  );
+  const more = folded.getByRole("button", { name: "Show more" });
+  await expect.element(more).toBeVisible();
+  (
+    folded.getByRole("button", { name: "Before" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  await expect
+    .element(folded.getByRole("button", { name: "Show less" }))
+    .toBeVisible();
+  expect(document.activeElement?.textContent).toBe("Deep link");
 });

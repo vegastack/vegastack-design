@@ -17377,7 +17377,7 @@
         "whenToUse": "One line of status inside a record header — processing, a failure with its reason and Retry, a quiet notice.",
         "whenNotToUse": "A page-level message with a title (Alert) or a transient confirmation (Toast).",
         "version": "0.33.0",
-        "integrity": "sha256-i+KU05KqCm/pa21GYxiMEPbzpyzVRF9a7wKt44G6Eq8="
+        "integrity": "sha256-ojP8INPWBI+u2yBMJc3NqdyfXB/YOIxbrNwGZ3jhXDc="
       }
     },
     {
@@ -19554,7 +19554,8 @@
         "@vegastack/separator",
         "@vegastack/spinner",
         "@vegastack/status-line",
-        "@vegastack/tool-call-chip"
+        "@vegastack/tool-call-chip",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -19564,10 +19565,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "An agent's turn in a chat or a comment thread, composed inside MessageContent: what it did, what it changed, where the answer came from.",
+        "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.40.0",
-        "integrity": "sha256-7IKOz/RQHWatVufdFCj4K8p3IyRVzlqGy2DiiqYcT6Q="
+        "integrity": "sha256-ZQhJN263x7q1216+8yCszZVOJwNpwZEOtKWUXTKntUU="
       }
     },
     {

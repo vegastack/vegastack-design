@@ -42,10 +42,27 @@ import {
 </Message>;
 ```
 
-Compose these inside [`MessageContent`](/docs/components/message), next to the text. Two things a
-chat needs are upstream's already, so there is no part for them: a person's message is
-[`Bubble`](/docs/components/bubble) with `align="end"`, and a message still streaming is `aria-busy`
-on `Message`, which keeps a screen reader from reading it word by word.
+Compose these inside [`MessageContent`](/docs/components/message), next to the text. A person's
+message needs none of them: it is [`Bubble`](/docs/components/bubble) with `align="end"`.
+
+`MessageSources` takes [`Citation`](/docs/components/cited-list) chips, which it does not bring with
+it: install `cited-list` too. An item the reader can't open is a `Citation` with `render={<span />}`.
+
+### The whole conversation
+
+```text
+MessageScroller            role="log" aria-label="Messages"
+├── Message                role="article", named "{author}, {time}"
+│   └── MessageContent
+│       ├── MessageStatus
+│       ├── the text       aria-busy while it streams
+│       └── the other parts
+└── one useAnnouncer region, mounted for the conversation's life
+```
+
+Keep `aria-busy` on the text's own wrapper, never on `Message`: anything inside a busy subtree can go
+unannounced, and the status and any failure sit next to the text. Announce the status and "replied"
+through the one `useAnnouncer` region.
 
 <ComponentPreview
   name="messageParts"
@@ -61,7 +78,8 @@ on `Message`, which keeps a screen reader from reading it word by word.
 ### Status while it works
 
 `MessageStatus` is the one line saying what the agent is doing now. Replace its text as the agent
-moves on and remove it when the answer's text starts.
+moves on and remove it when the answer's text starts. The text below it is `aria-busy` until the
+turn ends, so a screen reader doesn't read it word by word.
 
 <ComponentPreview
   name="messagePartsStreaming"
@@ -71,7 +89,7 @@ moves on and remove it when the answer's text starts.
 ### Steps
 
 Closed by default, so the answer stays the first thing to read. A failed step keeps its reason in
-muted text under the chip.
+muted text under the chip, and a step that was running when the turn was stopped says so.
 
 <ComponentPreview
   name="messagePartsSteps"
@@ -100,7 +118,8 @@ them into one row that opens the full list. `MessageHandoff` marks where another
 ### Notices and failures
 
 `MessageNotice` is a quiet line with one action. A failed turn is `MessageStatus` with
-`status="error"`, which is announced, and a Retry.
+`status="error"` and a Retry. Neither is a live region, so reopening a chat stays silent; pass `live`
+to the one that just appeared because of what the person did.
 
 <ComponentPreview
   name="messagePartsNotice"
@@ -110,7 +129,7 @@ them into one row that opens the full list. `MessageHandoff` marks where another
 ### Versions
 
 Shows once an answer has been retried, so the earlier one stays within reach. It renders nothing
-for a single version.
+for a single version. `formatPosition` can say more: `Previous answer (1 of 2)`.
 
 <ComponentPreview
   name="messagePartsVersions"
@@ -119,8 +138,9 @@ for a single version.
 
 ### Long messages
 
-`MessageFold` holds a long message to a fixed height with a fade and Show more. The host decides
-what is long through `foldable`.
+`MessageFold` holds a long message to 20rem with a fade and Show more. It measures, so content that
+fits is left alone. Open a turn streamed in this session with `defaultOpen`: only history folds, and
+an answer never shuts while someone is reading it.
 
 <ComponentPreview
   name="messagePartsFold"
@@ -173,14 +193,17 @@ what is long through `foldable`.
 
 ## Accessibility
 
-- `MessageStatus` and `MessageNotice` are `role="status"`; `status="error"` is `role="alert"`.
-- A plan item's state is read out from `stateLabels`, since the icon alone shows it.
+- No part is a live region unless you pass `live`. A conversation is `role="log"`, so a part that
+  also announced itself would be read twice.
+- A step's status and a plan item's state are read out from `statusLabels` and `stateLabels`, since
+  the icon alone shows them.
 - `MessageActions` keeps its buttons in the Tab order while hidden: focus reveals them.
+- Tabbing to a link inside a folded message opens the fold.
 
-| Key                                 | Action                                       |
-| ----------------------------------- | -------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move through the steps line and the actions  |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the steps, press an action, fold or not |
+| Key                                 | Action                                                   |
+| ----------------------------------- | -------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the steps line, links, actions and versions |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the steps, press an action, Show more or Show less  |
 
 <StatesTested name="message-parts" />
 

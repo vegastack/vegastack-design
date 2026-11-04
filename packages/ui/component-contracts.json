@@ -30912,10 +30912,12 @@
             "step-running",
             "step-done",
             "step-failed",
+            "step-stopped",
             "plan-todo",
             "plan-doing",
             "plan-done",
             "plan-failed",
+            "plan-stopped",
             "status-progress",
             "status-error",
             "notice",
@@ -30927,7 +30929,8 @@
             "single-version",
             "folded",
             "unfolded",
-            "not-foldable"
+            "fits",
+            "focus-opens-fold"
           ],
           "evidence": "packages/ui/registry/ui/message-parts.tsx + packages/ui/registry/ui/message-parts.test.tsx"
         },
@@ -30936,8 +30939,8 @@
           "values": [
             "named-groups",
             "state-in-words",
-            "status-and-alert-roles",
-            "expanded-state",
+            "silent-by-default",
+            "live-opt-in",
             "browser-accessibility-test"
           ],
           "evidence": "packages/ui/registry/ui/message-parts.test.tsx"
@@ -30963,11 +30966,12 @@
         "rationale": "Every part takes its width from the message column; the steps line truncates, sources wrap, and a change row keeps its action while the text wraps."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "modeled",
+        "mechanisms": ["tokenized CSS transition"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "Only the actions row's opacity fade and the chevron's rotation; the spinner is Spinner's."
+          "status": "inherited-global",
+          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; the actions row's fade and the chevron's rotation are plain CSS transitions.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
         }
       },
       "engines": [],
@@ -30979,7 +30983,8 @@
         "@vegastack/separator",
         "@vegastack/spinner",
         "@vegastack/status-line",
-        "@vegastack/tool-call-chip"
+        "@vegastack/tool-call-chip",
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -31107,7 +31112,10 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["message-version-position", "message-version-switch"]
+              "values": [
+                "message-version-switch",
+                "message-version-switch-position"
+              ]
             }
           ],
           "cssVariables": []
@@ -34421,7 +34429,7 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["info", "progress", "error"],
+          "values": ["info", "progress", "error", "silent"],
           "evidence": "Observed from the component's prop branches."
         },
         "accessibility": {

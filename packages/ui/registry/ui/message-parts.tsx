@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.40.0 sha256-7IKOz/RQHWatVufdFCj4K8p3IyRVzlqGy2DiiqYcT6Q=
+// @vegastack message-parts@0.40.0 sha256-ZQhJN263x7q1216+8yCszZVOJwNpwZEOtKWUXTKntUU=
 
 "use client";
 
@@ -9,8 +9,10 @@ import {
   ChevronRight,
   Circle,
   CircleCheck,
+  CircleMinus,
   CircleX,
   CornerDownRight,
+  Minus,
   X,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
@@ -26,15 +28,20 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { StatusLine, type StatusLineProps } from "@/components/ui/status-line";
 import { ToolCallChip } from "@/components/ui/tool-call-chip";
+import { useOverflow } from "@/components/ui/use-overflow";
 
 /* ------------------------------------------------------------------------------------------------
- * Message parts — what an agent's answer is made of beyond its text, for `Message` and `Bubble`.
+ * Message parts — what an agent's answer is made of beyond its text, composed inside
+ * `MessageContent`.
  *
  * These live in their own item, not in `message.tsx`: that file is upstream's, and a new export
- * there would be a hunk no decision row covers. They compose inside `MessageContent` like upstream's
- * own parts do. Two things a chat needs are already upstream's, so nothing here repeats them: a
- * person's message is `Bubble` with `align="end"`, and a streaming message is `aria-busy` on
- * `Message` (it spreads its props).
+ * there would be a hunk no decision row covers. A person's message needs nothing here: it is
+ * `Bubble` with `align="end"`.
+ *
+ * None of these parts is a live region by default. A conversation is `role="log"`, so a part that
+ * were also `role="status"` would be read twice, and a past failure would interrupt whenever the
+ * chat opened. The host announces with one `useAnnouncer` region and marks the text still streaming
+ * `aria-busy`, on the text's own wrapper, so nothing around it is held back.
  *
  * Every string is the caller's: this system knows steps and sources, never what an agent is called
  * or what it did.
@@ -45,11 +52,14 @@ import { ToolCallChip } from "@/components/ui/tool-call-chip";
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `MessageSteps`. */
-export interface MessageStepsProps extends React.ComponentProps<
-  typeof Collapsible
+export interface MessageStepsProps extends Omit<
+  React.ComponentProps<typeof Collapsible>,
+  "className"
 > {
   /** The collapsed line: "3 steps · Searched meetings, read 2 notes". */
   summary: React.ReactNode;
+  /** Classes for the root. @default undefined */
+  className?: string;
 }
 
 /**
@@ -82,7 +92,7 @@ export function MessageSteps({
             size="xs"
             className={cn(
               disclosureTriggerClasses,
-              "group/message-steps -ms-1.5 max-w-full min-w-0 justify-start font-normal text-muted-foreground hover:text-foreground",
+              "group/message-steps -ms-1.5 max-w-full min-w-0 justify-start font-normal text-muted-foreground hover:text-foreground aria-expanded:not-hover:text-muted-foreground aria-expanded:not-hover:**:[svg:not([data-icon-tone])]:text-muted-foreground",
             )}
           />
         }
@@ -100,8 +110,8 @@ export function MessageSteps({
   );
 }
 
-/** The three states a `MessageStep` reports. */
-export type MessageStepStatus = "running" | "done" | "failed";
+/** Where a `MessageStep` stands. `stopped`: the turn was stopped while the step ran. */
+export type MessageStepStatus = "running" | "done" | "failed" | "stopped";
 
 /** Props accepted by `MessageStep`. */
 export interface MessageStepProps extends Omit<
@@ -116,17 +126,30 @@ export interface MessageStepProps extends Omit<
   status?: MessageStepStatus;
   /** Why a failed step failed, under the chip in muted text. @default undefined */
   error?: React.ReactNode;
+  /**
+   * The words a screen reader hears for each status, since the icon is what shows it.
+   * @default { running: "Running", done: "Done", failed: "Failed", stopped: "Stopped" }
+   */
+  statusLabels?: Partial<Record<MessageStepStatus, string>>;
 }
+
+const STEP_STATUS_LABELS: Record<MessageStepStatus, string> = {
+  running: "Running",
+  done: "Done",
+  failed: "Failed",
+  stopped: "Stopped",
+};
 
 const STEP_ICONS: Record<MessageStepStatus, React.ReactNode> = {
   running: <Spinner aria-hidden role={undefined} aria-label={undefined} />,
   done: <Check aria-hidden />,
   failed: <X aria-hidden className="text-destructive-text" />,
+  stopped: <Minus aria-hidden />,
 };
 
 /**
- * `MessageStep` — one step in `MessageSteps`: a `ToolCallChip` with a spinner, a check or a cross,
- * and the reason under it when it failed.
+ * `MessageStep` — one step in `MessageSteps`: a `ToolCallChip` with a spinner, a check, a cross or a
+ * dash, and the reason under it when it failed.
  *
  * @example
  * <MessageStep status="failed" label="Opened acme.com" error="The site didn't answer." />
@@ -136,6 +159,7 @@ export function MessageStep({
   meta,
   status = "done",
   error,
+  statusLabels,
   className,
   ...props
 }: MessageStepProps) {
@@ -146,6 +170,9 @@ export function MessageStep({
       className={cn("flex max-w-full min-w-0 flex-col gap-0.5", className)}
       {...props}
     >
+      <span className="sr-only">
+        {statusLabels?.[status] ?? STEP_STATUS_LABELS[status]}:
+      </span>
       <ToolCallChip label={label} meta={meta}>
         {STEP_ICONS[status]}
       </ToolCallChip>
@@ -165,8 +192,9 @@ export function MessageStep({
  * MessagePlan
  * ----------------------------------------------------------------------------------------------*/
 
-/** Where one item of a `MessagePlan` stands. */
-export type MessagePlanItemState = "todo" | "doing" | "done" | "failed";
+/** Where one item of a `MessagePlan` stands. `stopped`: the turn was stopped before it finished. */
+export type MessagePlanItemState =
+  "todo" | "doing" | "done" | "failed" | "stopped";
 
 /** One item of a `MessagePlan`. */
 export interface MessagePlanItem {
@@ -184,7 +212,7 @@ export interface MessagePlanProps extends React.ComponentProps<"ol"> {
   items: readonly MessagePlanItem[];
   /**
    * The words a screen reader hears for each state, since the icon is what shows it.
-   * @default { todo: "To do", doing: "In progress", done: "Done", failed: "Failed" }
+   * @default { todo: "To do", doing: "In progress", done: "Done", failed: "Failed", stopped: "Stopped" }
    */
   stateLabels?: Partial<Record<MessagePlanItemState, string>>;
 }
@@ -194,6 +222,7 @@ const PLAN_STATE_LABELS: Record<MessagePlanItemState, string> = {
   doing: "In progress",
   done: "Done",
   failed: "Failed",
+  stopped: "Stopped",
 };
 
 const PLAN_ICONS: Record<MessagePlanItemState, React.ReactNode> = {
@@ -208,6 +237,7 @@ const PLAN_ICONS: Record<MessagePlanItemState, React.ReactNode> = {
   ),
   done: <CircleCheck aria-hidden className="text-success-text" />,
   failed: <CircleX aria-hidden className="text-destructive-text" />,
+  stopped: <CircleMinus aria-hidden className="text-muted-foreground" />,
 };
 
 /**
@@ -238,7 +268,7 @@ export function MessagePlan({
           key={item.id ?? index}
           data-slot="message-plan-item"
           data-state={item.state}
-          className="flex min-w-0 items-start gap-2 text-sm data-[state=done]:text-muted-foreground data-[state=todo]:text-muted-foreground"
+          className="flex min-w-0 items-start gap-2 text-sm data-[state=done]:text-muted-foreground data-[state=stopped]:text-muted-foreground data-[state=todo]:text-muted-foreground"
         >
           <span
             aria-hidden
@@ -263,16 +293,24 @@ export function MessagePlan({
 /**
  * `MessageStatus` — the one line that says what the agent is doing now, replaced as it moves on and
  * gone when the text starts. `StatusLine`, defaulting to `progress`; `status="error"` with an
- * `action` is how a failed turn offers Retry.
+ * `action` is how a failed turn offers Retry. Not a live region: the host announces (see above).
  *
  * @example
  * <MessageStatus>Reading 2 meeting notes…</MessageStatus>
  */
 export function MessageStatus({
   status = "progress",
+  live = false,
   ...props
 }: StatusLineProps) {
-  return <StatusLine data-slot="message-status" status={status} {...props} />;
+  return (
+    <StatusLine
+      data-slot="message-status"
+      status={status}
+      live={live}
+      {...props}
+    />
+  );
 }
 
 /** Props accepted by `MessageNotice`. */
@@ -286,8 +324,15 @@ export type MessageNoticeProps = Omit<StatusLineProps, "status">;
  *   1 more source is private to you.
  * </MessageNotice>
  */
-export function MessageNotice(props: MessageNoticeProps) {
-  return <StatusLine data-slot="message-notice" status="info" {...props} />;
+export function MessageNotice({ live = false, ...props }: MessageNoticeProps) {
+  return (
+    <StatusLine
+      data-slot="message-notice"
+      status="info"
+      live={live}
+      {...props}
+    />
+  );
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -367,8 +412,8 @@ export function MessageHandoff({
       {...props}
     >
       <CornerDownRight aria-hidden className="size-3.5 shrink-0" />
-      <span className="min-w-0 truncate">{children}</span>
-      <Separator className="min-w-4 flex-1" />
+      <span className="min-w-0">{children}</span>
+      <Separator aria-hidden className="min-w-4 flex-1" />
     </div>
   );
 }
@@ -458,7 +503,8 @@ export interface MessageActionsProps extends React.ComponentProps<"div"> {
 
 /**
  * `MessageActions` — Copy, Retry and the rest, in a row under the message. Pass small ghost buttons.
- * Their place is kept while they are hidden, so the conversation never jumps.
+ * Their place is kept while they are hidden, so the conversation never jumps. Hover reveals them
+ * across the whole `Message`; outside one, only over the row itself.
  *
  * @example
  * <MessageActions>
@@ -480,7 +526,7 @@ export function MessageActions({
       className={cn(
         "flex min-w-0 items-center gap-0.5 text-muted-foreground",
         reveal === "hover" &&
-          "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100",
+          "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100",
         className,
       )}
       {...props}
@@ -530,11 +576,12 @@ export function MessageVersionSwitch({
   label = "Versions",
   previousLabel = "Previous version",
   nextLabel = "Next version",
-  formatPosition = (at, of) => `${at} of ${of}`,
+  formatPosition = (position, count) => `${position} of ${count}`,
   className,
   ...props
 }: MessageVersionSwitchProps) {
   if (total < 2) return null;
+  const at = Math.min(Math.max(current, 1), total);
   return (
     <div
       data-slot="message-version-switch"
@@ -550,19 +597,22 @@ export function MessageVersionSwitch({
         size="icon-xs"
         variant="ghost"
         aria-label={previousLabel}
-        disabled={current <= 1}
+        disabled={at <= 1}
         onClick={onPrevious}
       >
         <ChevronLeft aria-hidden />
       </Button>
-      <span data-slot="message-version-position" className="tabular-nums">
-        {formatPosition(current, total)}
+      <span
+        data-slot="message-version-switch-position"
+        className="tabular-nums"
+      >
+        {formatPosition(at, total)}
       </span>
       <Button
         size="icon-xs"
         variant="ghost"
         aria-label={nextLabel}
-        disabled={current >= total}
+        disabled={at >= total}
         onClick={onNext}
       >
         <ChevronRight aria-hidden />
@@ -577,14 +627,16 @@ export function MessageVersionSwitch({
 
 /** Props accepted by `MessageFold`. */
 export interface MessageFoldProps extends React.ComponentProps<"div"> {
+  /** Controlled: the whole message shows. Pair with `onOpenChange`. @default undefined */
+  open?: boolean;
   /**
-   * The content is long enough to fold. The host measures it (a message's rendered length), so a
-   * short answer never carries the button.
-   * @default true
+   * Start with the whole message showing. A turn streamed in this session starts open, so an answer
+   * never folds up while someone is reading it; only history folds.
+   * @default false
    */
-  foldable?: boolean;
-  /** Start unfolded. @default false */
   defaultOpen?: boolean;
+  /** Called when Show more or Show less is pressed, or focus reaches folded content. @default undefined */
+  onOpenChange?: (open: boolean) => void;
   /** @default "Show more" */
   showMoreLabel?: string;
   /** @default "Show less" */
@@ -592,25 +644,36 @@ export interface MessageFoldProps extends React.ComponentProps<"div"> {
 }
 
 /**
- * `MessageFold` — holds a long message to a few lines' height, fading at the foot, with Show more.
+ * `MessageFold` — holds a long message to 20rem, fading at the foot, with Show more. It measures:
+ * content that fits is left alone, with no fade and no button. Tabbing to a link in the hidden part
+ * opens it, so the keyboard never lands on something out of sight.
  *
  * @example
- * <MessageFold foldable={text.length > 1500}>
+ * <MessageFold defaultOpen={streamedHere}>
  *   <MarkdownView>{text}</MarkdownView>
  * </MessageFold>
  */
 export function MessageFold({
-  foldable = true,
+  open: openProp,
   defaultOpen = false,
+  onOpenChange,
   showMoreLabel = "Show more",
   showLessLabel = "Show less",
   className,
   children,
   ...props
 }: MessageFoldProps) {
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [ownOpen, setOwnOpen] = React.useState(defaultOpen);
+  const open = openProp ?? ownOpen;
+  const setOpen = (next: boolean) => {
+    setOwnOpen(next);
+    onOpenChange?.(next);
+  };
+  const [content, setContent] = React.useState<HTMLDivElement | null>(null);
+  // Frozen while open: unclamped content no longer overflows, which would take Show less away.
+  const overflowing = useOverflow(content, { axis: "block", paused: open });
   const contentId = React.useId();
-  const folded = foldable && !open;
+  const folded = !open && overflowing;
   return (
     <div
       data-slot="message-fold"
@@ -619,26 +682,27 @@ export function MessageFold({
       {...props}
     >
       <div
+        ref={setContent}
         id={contentId}
         data-slot="message-fold-content"
+        onFocusCapture={(event) => {
+          if (folded && event.target.matches(":focus-visible")) setOpen(true);
+        }}
         className={cn(
           "w-full min-w-0",
-          folded && "max-h-80 overflow-hidden mask-b-from-80% mask-b-to-100%",
+          !open && "max-h-80 overflow-hidden",
+          folded && "mask-b-from-80% mask-b-to-100%",
         )}
       >
         {children}
       </div>
-      {foldable ? (
+      {overflowing ? (
         <Button
           variant="ghost"
           size="xs"
-          aria-expanded={open}
           aria-controls={contentId}
-          onClick={() => setOpen((value) => !value)}
-          className={cn(
-            disclosureTriggerClasses,
-            "-ms-2 text-muted-foreground hover:text-foreground",
-          )}
+          onClick={() => setOpen(!open)}
+          className="-ms-2 text-muted-foreground hover:text-foreground"
         >
           {open ? showLessLabel : showMoreLabel}
         </Button>

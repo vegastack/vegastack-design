@@ -122,13 +122,14 @@ export function messageParts(): ReactNode {
 }
 
 export function messagePartsStreaming(): ReactNode {
-  // Mid-answer: `aria-busy` holds a screen reader back until the turn ends.
+  // Mid-answer: `aria-busy` sits on the text alone, so the status beside it is never held back.
   return (
     <Wrapper className="items-start justify-start">
-      <Message aria-busy className="max-w-sm">
+      <Message className="max-w-sm">
         <MessageContent>
           <AgentHeader />
           <MessageStatus>Reading 2 meeting notes…</MessageStatus>
+          <p aria-busy>In the 28 Oct review you agreed to keep</p>
         </MessageContent>
       </Message>
     </Wrapper>
@@ -150,6 +151,7 @@ export function messagePartsSteps(): ReactNode {
           error="The site didn't answer."
         />
         <MessageStep status="running" label="Reading datasheet.pdf…" />
+        <MessageStep status="stopped" label="Compared the rates" />
       </MessageSteps>
     </Wrapper>
   );
@@ -166,6 +168,7 @@ export function messagePartsPlan(): ReactNode {
           { id: "first", label: "Match lines 1–9", state: "done" },
           { id: "second", label: "Match lines 10–20", state: "doing" },
           { id: "rate", label: "Fetch the project rates", state: "failed" },
+          { id: "check", label: "Check the totals", state: "stopped" },
           { id: "rows", label: "Update the rows", state: "todo" },
         ]}
       />

@@ -16025,7 +16025,8 @@
         "@vegastack/separator",
         "@vegastack/spinner",
         "@vegastack/status-line",
-        "@vegastack/tool-call-chip"
+        "@vegastack/tool-call-chip",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -16035,7 +16036,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "An agent's turn in a chat or a comment thread, composed inside MessageContent: what it did, what it changed, where the answer came from.",
+        "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.40.0"
       }
