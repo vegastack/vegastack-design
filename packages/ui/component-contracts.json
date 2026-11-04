@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 788,
-    "components": 198,
+    "totalRegistryItems": 789,
+    "components": 199,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 13,
+    "AI/chat": 14,
     "Hooks": 18,
     "Block": 15,
     "Animated icons": 467
@@ -246,7 +246,8 @@
       "agent-edit-banner",
       "agent-panel",
       "delegate-popover",
-      "cited-list"
+      "cited-list",
+      "message-parts"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -30646,6 +30647,480 @@
             {
               "name": "data-slot",
               "values": ["citation-icon"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "message-parts",
+      "registryType": "registry:ui",
+      "title": "Message Parts",
+      "summary": "What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions, a version switch and a fold.",
+      "status": "stable",
+      "since": "0.41.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/message-parts.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MessageSteps",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the Collapsible root."
+          }
+        },
+        {
+          "name": "MessageStepsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageStep",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Props, including ref, spread onto the li."
+          }
+        },
+        {
+          "name": "MessageStepProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageStepStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessagePlan",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Props, including ref, spread onto the ol."
+          }
+        },
+        {
+          "name": "MessagePlanProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessagePlanItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessagePlanItemState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageStatus",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread through StatusLine onto its div."
+          }
+        },
+        {
+          "name": "MessageNotice",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread through StatusLine onto its div."
+          }
+        },
+        {
+          "name": "MessageNoticeProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageChange",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the row div."
+          }
+        },
+        {
+          "name": "MessageChangeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageHandoff",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the row div."
+          }
+        },
+        {
+          "name": "MessageSources",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the group div."
+          }
+        },
+        {
+          "name": "MessageSourcesProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageDisclaimer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "p",
+            "rationale": "Props, including ref, spread onto the p."
+          }
+        },
+        {
+          "name": "MessageActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the group div."
+          }
+        },
+        {
+          "name": "MessageActionsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageVersionSwitch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the group div."
+          }
+        },
+        {
+          "name": "MessageVersionSwitchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MessageFold",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the root div."
+          }
+        },
+        {
+          "name": "MessageFoldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look per part; a step's status and a plan item's state are data attributes, and MessageActions' reveal is a behaviour, not a variant."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Parts fill the message column; their buttons are the caller's."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "steps-closed",
+            "steps-open",
+            "step-running",
+            "step-done",
+            "step-failed",
+            "plan-todo",
+            "plan-doing",
+            "plan-done",
+            "plan-failed",
+            "status-progress",
+            "status-error",
+            "notice",
+            "change",
+            "handoff",
+            "actions-hover",
+            "actions-always",
+            "version-ends",
+            "single-version",
+            "folded",
+            "unfolded",
+            "not-foldable"
+          ],
+          "evidence": "packages/ui/registry/ui/message-parts.tsx + packages/ui/registry/ui/message-parts.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-groups",
+            "state-in-words",
+            "status-and-alert-roles",
+            "expanded-state",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/message-parts.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "turn",
+            "streaming",
+            "steps",
+            "plan",
+            "changes",
+            "notices",
+            "versions",
+            "fold"
+          ],
+          "evidence": "packages/ui/registry/ui/message-parts.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Every part takes its width from the message column; the steps line truncates, sources wrap, and a change row keeps its action while the text wraps."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "Only the actions row's opacity fade and the chevron's rotation; the spinner is Spinner's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/message-parts",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/disclosure-trigger",
+        "@vegastack/separator",
+        "@vegastack/spinner",
+        "@vegastack/status-line",
+        "@vegastack/tool-call-chip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.12.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/message-parts.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "message-parts",
+      "dataAttributes": {
+        "MessageSteps": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "message-steps",
+                "message-steps-content",
+                "message-steps-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageStep": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-step", "message-step-error"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessagePlan": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-plan", "message-plan-item"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageStatus": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-status"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageNotice": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-notice"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageChange": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-change", "message-change-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageHandoff": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-handoff"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageSources": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-sources"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageDisclaimer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-disclaimer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActions": {
+          "attributes": [
+            {
+              "name": "data-reveal",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["message-actions"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageVersionSwitch": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-version-position", "message-version-switch"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageFold": {
+          "attributes": [
+            {
+              "name": "data-folded",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["message-fold", "message-fold-content"]
             }
           ],
           "cssVariables": []

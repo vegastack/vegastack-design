@@ -190,6 +190,7 @@
     "---Chat & Communication---",
     "marker",
     "message",
+    "message-parts",
     "bubble",
     "attachment",
     "tool-call-chip",
