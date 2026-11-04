@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.44.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: 46480048417d -->
+
+### 🧩 New components
+
+- `SuggestionCard`: an agent offers one person a next step, in a card only they see. Items with optional ticks, the host's own buttons, a ⋯ menu, a footnote, the states `open`, `busy`, `accepted`, `expired` and `failed`, and a compact `variant="row"` for lists.
+  [`788a0c8`](https://github.com/VegaStack/vegastack-design/commit/788a0c8)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.43.0 → 0.44.0.
+
 ## [0.43.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: 5c1ef4acc3c8 -->

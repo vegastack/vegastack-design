@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.44.0
+
+### Minor Changes
+
+- [#907](https://github.com/vegastack/vegastack-design/pull/907) [`788a0c8`](https://github.com/vegastack/vegastack-design/commit/788a0c8a57ee9411d14d9159e20906ec66869bcf) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `SuggestionCard`: an agent offers one person a next step, in a card only they see. Items with optional ticks, the host's own buttons, a ⋯ menu, a footnote, the states `open`, `busy`, `accepted`, `expired` and `failed`, and a compact `variant="row"` for lists.
+
 ## 0.43.0
 
 ### Minor Changes

@@ -19560,8 +19560,8 @@
       "meta": {
         "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
         "whenNotToUse": "A risky action that waits for a decision (ApprovalCard), or a change already made (AgentEditBanner).",
-        "version": "0.42.0",
-        "integrity": "sha256-XdOhR+o0LVpOY1f0qCSgGQQH9ju4D+yA7a5ebdsOrp4="
+        "version": "0.44.0",
+        "integrity": "sha256-S26eI97h277GKWeQePFgMFy5aFi5iCRSxnVfHBeWzTA="
       }
     },
     {
