@@ -2978,11 +2978,17 @@ test("an open header menu locks the grid like an editing cell", async () => {
   lock()!.dispatchEvent(wheel);
   expect(wheel.defaultPrevented).toBe(true);
   await new Promise((r) => setTimeout(r, 400));
-  lock()!.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
-  await expect
-    .poll(() => screen.container.ownerDocument.querySelector('[role="menu"]'))
-    .toBeNull();
+  // A real press on a cell under the lock only closes the menu: the cell is not made current.
+  const under = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="data-grid-cell"]',
+  )[1]!;
+  await userEvent.click(under, { position: { x: 20, y: 10 }, force: true });
+  await expect.poll(() => document.querySelector('[role="menu"]')).toBeNull();
   expect(lock()).toBeNull();
+  expect(under.hasAttribute("data-current-cell")).toBe(false);
+  // With the lock gone, the next press reaches the cell.
+  await userEvent.click(under, { position: { x: 20, y: 10 }, force: true });
+  await expect.poll(() => under.hasAttribute("data-current-cell")).toBe(true);
 });
 
 test("a resting custom-editor cell announces the host's first status, and a widget focused inside it keeps focus", async () => {

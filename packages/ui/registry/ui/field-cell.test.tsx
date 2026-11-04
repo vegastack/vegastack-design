@@ -2600,6 +2600,38 @@ test('FieldCellDisplay variant="cell": a file chip and an image thumbnail open t
   await expectNoA11yViolations(screen.container);
 });
 
+test('FieldCellDisplay variant="cell": a thumbnail with no link, or an unsafe one, is a picture, not a button', async () => {
+  const image =
+    "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+  const screen = await render(
+    <InlineChipProvider value={{ onOpen: () => undefined }}>
+      <FieldCellDisplay
+        type="file"
+        value={[
+          {
+            id: "f1",
+            name: "a.jpg",
+            contentType: "image/jpeg",
+            thumbnailUrl: image,
+          },
+          {
+            id: "f2",
+            name: "b.jpg",
+            contentType: "image/jpeg",
+            thumbnailUrl: image,
+            href: "javascript:alert(1)",
+          },
+        ]}
+        variant="cell"
+      />
+    </InlineChipProvider>,
+  );
+  const thumbnails = screen.container.querySelectorAll(
+    '[data-slot="field-cell-file-thumbnail"]',
+  );
+  expect([...thumbnails].map((el) => el.tagName)).toEqual(["SPAN", "SPAN"]);
+});
+
 test('FieldCellEditor variant="cell": the date, date-time and link triggers sit flat, with no open tint; FieldInput keeps its chrome', async () => {
   injectCompiledCss();
   const trigger = (slot: string) =>

@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.39.1 sha256-0oJGbso4mbdgpSQl9s6VwMFsGXZvxTqutLvBF2ZNl94=
+// @vegastack field-cell@0.39.1 sha256-xxM+bsu9KfpfpGv0a5Ov7kl/q/KLbFZMJ6YyANLSSFY=
 
 "use client";
 
@@ -274,14 +274,24 @@ export interface FieldFile {
   href?: string | null;
 }
 
+/** A file link that is same-site (`/…`) or http(s); anything else (`javascript:`…) is none. */
+function safeFileHref(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (value.startsWith("/") && !value.startsWith("//")) return value;
+  return safeHttp(value);
+}
+
 /**
- * An image file's thumbnail in a grid cell. With somewhere to open (the file's `href`, or the host
- * provider's `onOpen`), it is a button that opens the file as its chip would; otherwise a picture.
+ * An image file's thumbnail in a grid cell. With a link — the file's `href`, else the host
+ * provider's `href` for a file, as the chip beside it resolves — it is a button that opens the
+ * file as the chip would: the provider's `onOpen` (a file viewer) on a plain click, a new tab on
+ * ⌘/Ctrl/Shift-click. With no link, a picture.
  */
 function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
   const resolver = useInlineChipResolver();
-  const href = file.href ?? null;
-  const onOpen = resolver?.onOpen;
+  const href = safeFileHref(
+    file.href !== undefined ? file.href : resolver?.href?.("file", file.id),
+  );
   const thumbnail = (
     <Thumbnail
       src={src}
@@ -290,7 +300,7 @@ function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
       className="h-5 w-8 rounded-sm"
     />
   );
-  if (!href && !onOpen)
+  if (!href)
     return (
       <span
         data-slot="field-cell-file-thumbnail"
@@ -309,6 +319,10 @@ function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
       title={file.name}
       className="h-5 w-8 rounded-sm border-0"
       onClick={(event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey) {
+          window.open(href, "_blank", "noopener,noreferrer");
+          return;
+        }
         const target = {
           kind: "file",
           id: file.id,
@@ -316,8 +330,9 @@ function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
           href,
           ...(file.contentType ? { contentType: file.contentType } : {}),
         };
-        if (onOpen && onOpen(target, event) !== false) return;
-        if (href) window.open(href, "_blank", "noopener,noreferrer");
+        if (resolver?.onOpen && resolver.onOpen(target, event) !== false)
+          return;
+        window.location.assign(href);
       }}
     >
       {thumbnail}
