@@ -17376,8 +17376,8 @@
       "meta": {
         "whenToUse": "One line of status inside a record header — processing, a failure with its reason and Retry, a quiet notice.",
         "whenNotToUse": "A page-level message with a title (Alert) or a transient confirmation (Toast).",
-        "version": "0.33.0",
-        "integrity": "sha256-i+KU05KqCm/pa21GYxiMEPbzpyzVRF9a7wKt44G6Eq8="
+        "version": "0.41.0",
+        "integrity": "sha256-2xxZ4wRuSil4pP7cNqe49A63RNmeB8cpQ06W2U44Wos="
       }
     },
     {
@@ -19532,6 +19532,43 @@
         "whenNotToUse": "A mention or file link inside running text (InlineChip), a tool invocation in a transcript (ToolCallChip), or a plain numbered list with no sources.",
         "version": "0.33.0",
         "integrity": "sha256-xEx+w9XMFbEKZnVLoTxsjWx6Kljx3bmIkCcnKdH70MU="
+      }
+    },
+    {
+      "name": "message-parts",
+      "type": "registry:ui",
+      "title": "Message Parts",
+      "description": "What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions, a version switch and a fold.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/disclosure-trigger",
+        "@vegastack/separator",
+        "@vegastack/spinner",
+        "@vegastack/status-line",
+        "@vegastack/tool-call-chip",
+        "@vegastack/use-overflow"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/message-parts.tsx",
+          "type": "registry:ui",
+          "target": "@ui/message-parts.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
+        "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
+        "version": "0.41.0",
+        "integrity": "sha256-GBF0dULsuP7wwvgeEjKvV3DIOK6v9BH45GjbmByVlDE="
       }
     },
     {

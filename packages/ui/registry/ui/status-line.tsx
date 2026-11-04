@@ -1,4 +1,4 @@
-// @vegastack status-line@0.33.0 sha256-i+KU05KqCm/pa21GYxiMEPbzpyzVRF9a7wKt44G6Eq8=
+// @vegastack status-line@0.41.0 sha256-2xxZ4wRuSil4pP7cNqe49A63RNmeB8cpQ06W2U44Wos=
 
 import * as React from "react";
 import { CircleAlert, Info } from "lucide-react";
@@ -16,11 +16,16 @@ export interface StatusLineProps extends Omit<
 > {
   /**
    * `progress` shows a spinner ("Transcribing…"), `info` an info icon, and `error` an alert icon
-   * with the text in the destructive ink. `error` is `role="alert"`; the others are
-   * `role="status"`.
+   * with the text in the destructive ink.
    * @default "info"
    */
   status?: StatusLineStatus;
+  /**
+   * Announce it: `error` as `role="alert"`, the others as `role="status"`. Turn it off where the
+   * line sits in something already announced (a `role="log"`) or stays on screen as history.
+   * @default true
+   */
+  live?: boolean;
   /**
    * Replaces the status icon.
    * @default undefined
@@ -45,6 +50,7 @@ export interface StatusLineProps extends Omit<
  */
 export function StatusLine({
   status = "info",
+  live = true,
   icon,
   action,
   className,
@@ -64,7 +70,7 @@ export function StatusLine({
     <div
       data-slot="status-line"
       data-status={status}
-      role={status === "error" ? "alert" : "status"}
+      role={live ? (status === "error" ? "alert" : "status") : undefined}
       className={cn(
         "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground data-[status=error]:text-destructive-text",
         className,

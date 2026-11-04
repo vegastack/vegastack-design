@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.41.0] — November 4, 2026
+
+### 🧩 New components
+
+- Message parts, for an agent's turn in a chat or thread: `MessageSteps` and `MessageStep` (one quiet line that opens to what the agent did), `MessagePlan` (a checklist edited in place), `MessageStatus` and `MessageNotice`, `MessageChange` (what changed, with Undo at the end of the row), `MessageHandoff`, `MessageSources`, `MessageDisclaimer`, `MessageActions`, `MessageVersionSwitch` and `MessageFold`. `StatusLine` takes `live`, on by default; these parts turn it off, since a conversation is a `role="log"`.
+  [`673fc20`](https://github.com/VegaStack/vegastack-design/commit/673fc20)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.40.0 → 0.41.0.
+
 ## [0.40.0] — November 4, 2026
 
 ### 🔧 Changed components

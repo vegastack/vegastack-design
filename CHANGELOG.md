@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.41.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: 32864afef2a2 -->
+
+### 🧩 New components
+
+- Message parts, for an agent's turn in a chat or thread: `MessageSteps` and `MessageStep` (one quiet line that opens to what the agent did), `MessagePlan` (a checklist edited in place), `MessageStatus` and `MessageNotice`, `MessageChange` (what changed, with Undo at the end of the row), `MessageHandoff`, `MessageSources`, `MessageDisclaimer`, `MessageActions`, `MessageVersionSwitch` and `MessageFold`. `StatusLine` takes `live`, on by default; these parts turn it off, since a conversation is a `role="log"`.
+  [`673fc20`](https://github.com/VegaStack/vegastack-design/commit/673fc20)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.40.0 → 0.41.0.
+
 ## [0.40.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: dfed82ed4dd8 -->

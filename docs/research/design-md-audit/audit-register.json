@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4f7aae048536a918965500b132640d2a86c943a466e553964e47a8d9534d692b",
+  "contractSha256": "9af1a2add24baa5ad9d62eec8e43e1eb7b6797cdaa0e83f464e57709fcf6452f",
   "expectedCounts": {
-    "totalRegistryItems": 788,
-    "components": 198,
+    "totalRegistryItems": 789,
+    "components": 199,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -1504,6 +1504,17 @@
         "packages/ui/registry/ui/cited-list.tsx"
       ],
       "docsSlug": "/docs/components/cited-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "message-parts",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/message-parts.tsx"
+      ],
+      "docsSlug": "/docs/components/message-parts",
       "contractStatus": "reconciled"
     },
     {
