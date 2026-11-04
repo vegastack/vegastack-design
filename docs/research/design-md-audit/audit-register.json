@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "25bd33134f208c49b2813220ac40236bafecc746b7ac00dc1ed1fbf220a51697",
+  "contractSha256": "94d744ad161d7981d7d67d2bddea48007747dbcaec41cdf6b9a6b99e14bfdb17",
   "expectedCounts": {
-    "totalRegistryItems": 789,
-    "components": 199,
+    "totalRegistryItems": 790,
+    "components": 200,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -1504,6 +1504,17 @@
         "packages/ui/registry/ui/cited-list.tsx"
       ],
       "docsSlug": "/docs/components/cited-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-composer",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-composer.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-composer",
       "contractStatus": "reconciled"
     },
     {

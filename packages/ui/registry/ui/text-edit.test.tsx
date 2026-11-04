@@ -8450,3 +8450,33 @@ test("a table drawn inside a live block keeps its own cell positioning: the edit
   const own = screen.container.querySelector<HTMLElement>(".tableWrapper td")!;
   expect(getComputedStyle(own).position).toBe("relative");
 });
+
+test("header sits in the box above the text, boxed only", async () => {
+  const screen = await render(
+    <TextEdit variant="boxed" aria-label="Body" header={<span>Top</span>} />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Body" }))
+    .toBeInTheDocument();
+  const header = screen.container.querySelector(
+    "[data-slot=text-edit-header]",
+  )!;
+  expect(header.textContent).toBe("Top");
+  await screen.rerender(
+    <TextEdit aria-label="Body" header={<span>Top</span>} />,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=text-edit-header]"),
+  ).toBeNull();
+});
+
+test("without submitOnEnter, Enter still breaks the line", async () => {
+  const onSubmit = vi.fn();
+  const screen = await render(
+    <TextEdit format="markdown" aria-label="Body" onSubmit={onSubmit} />,
+  );
+  const box = screen.getByRole("textbox", { name: "Body" });
+  await userEvent.click(box);
+  await userEvent.keyboard("One{Enter}two");
+  expect(onSubmit).not.toHaveBeenCalled();
+});

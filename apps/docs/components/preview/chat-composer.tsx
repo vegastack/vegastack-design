@@ -1,0 +1,137 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
+import { SquareCheck, X } from "lucide-react";
+import { Wrapper } from "./wrapper";
+// Copied INTO apps/docs via `shadcn add @vegastack/chat-composer` (dogfoods the registry) → auto-scanned.
+import { Button } from "@/components/ui/button";
+import {
+  ChatComposer,
+  type ChatComposerStatus,
+} from "@/components/ui/chat-composer";
+import {
+  SplitChip,
+  SplitChipButton,
+  SplitChipSeparator,
+  splitChipIconActionClassName,
+} from "@/components/ui/record-chip";
+import type { TextEditMentions } from "@/components/ui/text-edit";
+
+const mentions: TextEditMentions = {
+  kinds: [
+    { id: "agent", noun: "Agent", plural: "Agents", order: 0 },
+    { id: "user", noun: "Person", plural: "People", order: 1 },
+  ],
+  sections: ["people", "agents"],
+  search: async (query) =>
+    [
+      { kind: "agent", id: "boq", label: "BOQ processor" },
+      { kind: "agent", id: "assistant", label: "Assistant" },
+      { kind: "user", id: "asha", label: "Asha Rao" },
+    ].filter((option) =>
+      option.label.toLowerCase().includes(query.toLowerCase()),
+    ),
+};
+
+function ContextChip(): ReactNode {
+  return (
+    <SplitChip>
+      <SplitChipButton>
+        <SquareCheck aria-hidden />
+        <span className="min-w-0 truncate">SR-12 Fix the IES upload</span>
+      </SplitChipButton>
+      <SplitChipSeparator />
+      <button
+        type="button"
+        aria-label="Remove page from chat"
+        className={splitChipIconActionClassName}
+      >
+        <X aria-hidden />
+      </button>
+    </SplitChip>
+  );
+}
+
+function Column({ children }: { children: ReactNode }): ReactNode {
+  return (
+    <Wrapper className="items-stretch justify-start">
+      <div className="w-full max-w-sm">{children}</div>
+    </Wrapper>
+  );
+}
+
+export function chatComposer(): ReactNode {
+  function Demo(): ReactNode {
+    const [status, setStatus] = useState<ChatComposerStatus>("idle");
+    return (
+      <ChatComposer
+        placeholder="Ask anything, or @ an agent…"
+        status={status}
+        chips={<ContextChip />}
+        mentions={mentions}
+        onAttach={() => {}}
+        hint="Only you can see this chat"
+        onSubmit={() => {
+          setStatus("streaming");
+        }}
+        onStop={() => setStatus("idle")}
+      />
+    );
+  }
+  return (
+    <Column>
+      <Demo />
+    </Column>
+  );
+}
+
+export function chatComposerStreaming(): ReactNode {
+  return (
+    <Column>
+      <ChatComposer
+        placeholder="Ask a follow-up…"
+        status="streaming"
+        onStop={() => {}}
+        onAttach={() => {}}
+      />
+    </Column>
+  );
+}
+
+export function chatComposerHeld(): ReactNode {
+  return (
+    <Column>
+      <ChatComposer
+        defaultValue="Compare these two datasheets"
+        submitDisabled
+        submitDisabledReason="datasheet.pdf is still uploading"
+        onAttach={() => {}}
+      />
+    </Column>
+  );
+}
+
+export function chatComposerError(): ReactNode {
+  return (
+    <Column>
+      <ChatComposer
+        defaultValue="Plan my day"
+        error="Couldn't send. Try again."
+        onAttach={() => {}}
+      />
+    </Column>
+  );
+}
+
+export function chatComposerDisabled(): ReactNode {
+  return (
+    <Column>
+      <ChatComposer
+        placeholder="Ask a follow-up…"
+        disabled
+        hint="BOQ processor is paused."
+        onAttach={() => {}}
+      />
+    </Column>
+  );
+}

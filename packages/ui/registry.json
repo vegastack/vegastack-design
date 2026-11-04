@@ -16008,6 +16008,35 @@
       }
     },
     {
+      "name": "chat-composer",
+      "type": "registry:ui",
+      "title": "Chat Composer",
+      "description": "The box a person talks to an agent in: chips for what travels with the message, the text with mentions, and Send, which turns into Stop while the agent answers.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/text-edit",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chat-composer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chat-composer.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
+        "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
+        "version": "0.42.0"
+      }
+    },
+    {
       "name": "message-parts",
       "type": "registry:ui",
       "title": "Message Parts",

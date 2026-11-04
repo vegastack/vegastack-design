@@ -1,0 +1,137 @@
+---
+title: Chat Composer
+description: The box a person talks to an agent in — chips for what travels with the message, the text with mentions, and Send, which turns into Stop.
+audience: public
+registry: chat-composer
+status: stable
+since: 0.43.0
+a11y: named textbox, described by its hint and error
+preview: chatComposer
+---
+
+## Install
+
+<InstallSteps name="chat-composer" />
+
+## Usage
+
+```tsx
+import { ChatComposer } from "@/components/ui/chat-composer";
+
+<ChatComposer
+  placeholder="Ask anything, or @ an agent…"
+  status={status}
+  onSubmit={send}
+  onStop={stop}
+  hint="Only you can see this chat"
+/>;
+```
+
+The text is [`TextEdit`](/docs/components/text-edit), so a mention here is the same chip a comment
+has. For a comment or a reply on a record, use
+[`CommentComposer`](/docs/components/comments): this box is for a conversation, where Enter sends.
+
+<ComponentPreview
+  name="chatComposer"
+  file="components/preview/chat-composer.tsx"
+/>
+
+## Examples
+
+### While the agent answers
+
+With `status="streaming"` the send button is Stop, and the person can keep typing their next
+message. Leave out `onStop` for someone who may not stop this answer: Send stays, held.
+
+<ComponentPreview
+  name="chatComposerStreaming"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### Send held
+
+`submitDisabled` holds Send and keeps the text, while a file uploads for example. The reason goes in
+`submitDisabledReason`, a line under the box that also describes it.
+
+<ComponentPreview
+  name="chatComposerHeld"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### A failed send
+
+The box clears as soon as the person sends, so they can start the next message; resolve `onSubmit`
+when the send is accepted, not when the answer ends. If it rejects, the text comes back, ahead of
+anything typed since, with `labels.sendFailed` under the box. Pass `error` to say more. Resolving
+`false` puts the text back with no error, for a question first: "Send without the skill?".
+
+<ComponentPreview
+  name="chatComposerError"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### Turned off
+
+`disabled` turns off the whole box, for an agent that is paused. The hint can say why.
+
+<ComponentPreview
+  name="chatComposerDisabled"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### Filling it from outside
+
+`handleRef` gives `setValue`, for a starter prompt that fills the box without sending, and `focus`.
+`setValue(draft, { focus: false })` applies a draft that arrived after the box mounted. The text is
+Markdown both ways: `onSubmit`, `onValueChange`, `defaultValue` and `setValue` all carry it, so a
+line break arrives as `\\` and a new line.
+
+```tsx
+const composer = useRef<ChatComposerHandle>(null);
+
+<Button onClick={() => composer.current?.setValue("Plan my day")}>
+  Plan my day
+</Button>;
+<ChatComposer handleRef={composer} onSubmit={send} />;
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-composer.tsx"
+  name="ChatComposerProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-composer.tsx"
+  name="ChatComposerHandle"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-composer.tsx"
+  name="ChatComposerLabels"
+/>
+
+## Accessibility
+
+- The box is a textbox named by `labels.message`, described by the hint and the error.
+- A failed send is `role="alert"`. It appears because of what the person did.
+- Enter sends everywhere but a code block, so in a list it sends too; Shift+Enter continues the line.
+- Send, Stop, 📎 and @ are named buttons in the Tab order, with a tooltip each.
+
+| Key                                               | Action                                                       |
+| ------------------------------------------------- | ------------------------------------------------------------ |
+| <kbd>Enter</kbd>                                  | Send; on a phone, or in a code block, a new line             |
+| <kbd>Shift</kbd> + <kbd>Enter</kbd>               | A new line                                                   |
+| <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | Send, from anywhere in the text                              |
+| <kbd>↑</kbd>                                      | In the empty box, bring back the last message (`onEditLast`) |
+| <kbd>Esc</kbd>                                    | Leave the box; the text stays                                |
+
+<StatesTested name="chat-composer" />
+
+## Do / Don't
+
+<DoDont
+  do="Say who can see the chat in the hint, and keep the person's text when anything fails."
+  dont="Use it for comments on a record, where Enter must not post half a thought."
+/>

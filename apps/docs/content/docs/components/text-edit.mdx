@@ -1081,6 +1081,11 @@ fires it with the current value. It's presentational only: the **host** decides 
   file="components/preview/text-edit.tsx"
 />
 
+`submitOnEnter` makes plain Enter send too, for a chat box, with Shift+Enter for a new line. Enter
+keeps its usual job in a code block, after a ``` that opens one, and on a coarse pointer, and an open
+menu keeps its Enter. [`ChatComposer`](/docs/components/chat-composer) is built on it, with `header`
+for what sits in the box above the text.
+
 ### Sized content area
 
 `minHeight` sets a starting height and `maxHeight` caps it — content past the cap scrolls

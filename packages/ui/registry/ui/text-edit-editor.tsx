@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.35.1 sha256-0qx8r6ijN8DOQpUzNvkxJls8LunV1bMJ7nq8Leu5khw=
+// @vegastack text-edit@0.35.1 sha256-iRGnrGitvoEjhM581bcAVJr61d2DWIAxkUaUF1LH9y0=
 
 "use client";
 
@@ -11131,6 +11131,7 @@ export function TextEditEditor({
   onCommit,
   onRevert,
   onSubmit,
+  submitOnEnter,
   autosave = false,
   escapeBehavior: escapeBehaviorProp,
   saving = false,
@@ -11227,6 +11228,7 @@ export function TextEditEditor({
     onCommit,
     onRevert,
     onSubmit,
+    submitOnEnter,
     mentions,
     onImageUpload,
     onFileUpload,
@@ -11247,6 +11249,7 @@ export function TextEditEditor({
       onCommit,
       onRevert,
       onSubmit,
+      submitOnEnter,
       mentions,
       onImageUpload,
       onFileUpload,
@@ -11266,6 +11269,7 @@ export function TextEditEditor({
     onCommit,
     onRevert,
     onSubmit,
+    submitOnEnter,
     mentions,
     onImageUpload,
     onFileUpload,
@@ -12662,6 +12666,7 @@ export function TextEditEditor({
       // The slash and mention menus own Enter, arrows and Escape while open.
       if (SLASH_KEY.getState(view.state)?.active) return false;
       if (MENTION_KEY.getState(view.state)?.active) return false;
+      if (EMOJI_KEY.getState(view.state)?.active) return false;
       const mod = event.metaKey || event.ctrlKey;
       // In a code block (a diagram's source too), ⌘Enter leaves it — a diagram for its preview —
       // and ↓ on its last line does the same: the caret goes on below, never trapped (UXP-07). A
@@ -12699,7 +12704,18 @@ export function TextEditEditor({
         event.preventDefault();
         return true;
       }
-      if (event.key === "Enter" && mod) {
+      const plainEnter =
+        event.key === "Enter" &&
+        !mod &&
+        !event.shiftKey &&
+        !event.altKey &&
+        !!callbacks.current.submitOnEnter &&
+        !!callbacks.current.onSubmit &&
+        !view.state.selection.$from.parent.type.spec.code &&
+        // ``` then Enter opens a code block: an input rule, which runs after this handler.
+        !/^```\w*$/.test(view.state.selection.$from.parent.textContent) &&
+        !window.matchMedia("(pointer: coarse)").matches;
+      if ((event.key === "Enter" && mod) || plainEnter) {
         event.preventDefault();
         const ed = editorRef.current;
         if (!ed) return true;
@@ -12924,6 +12940,16 @@ export function TextEditEditor({
 
   // New root attributes reach the view after React's commit (a microtask), as one view update —
   // never from an effect, where a redraw that makes a React node view would \`flushSync\` mid-commit.
+  // The placeholder is a decoration, redrawn for the blocks a transaction changes or selects: touch
+  // the selection when the prop changes under an empty document, or it keeps saying the old words.
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed || !editor.isEmpty) return;
+    const { state, view } = editor;
+    view.dispatch(
+      state.tr.setSelection(state.selection).setMeta("addToHistory", false),
+    );
+  }, [editor, placeholder]);
+
   React.useEffect(() => {
     if (!editor) return;
     let live = true;
@@ -13495,6 +13521,17 @@ export function TextEditEditor({
         uploadFiles(files, ed.state.selection.from);
       },
       pickFiles: () => pickRef.current?.(),
+      openMentionMenu: () => {
+        const ed = editorRef.current;
+        if (!ed || ed.isDestroyed) return;
+        const { $from } = ed.state.selection;
+        const before = $from.parent.textBetween(
+          Math.max(0, $from.parentOffset - 1),
+          $from.parentOffset,
+        );
+        const text = !before || /[\s([{]/.test(before) ? "@" : " @";
+        ed.chain().focus().insertContent({ type: "text", text }).run();
+      },
       pendingUploads: () => uploadsRef.current.size,
       clearHistory: () => {
         const ed = editorRef.current;
