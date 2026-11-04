@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.39.1
+
+### Patch Changes
+
+- [#902](https://github.com/vegastack/vegastack-design/pull/902) [`6e001aa`](https://github.com/vegastack/vegastack-design/commit/6e001aac58a7328b1bf1b825fe0305f4861365d0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `InboxItem`'s thread rail is one unbroken line past a middle event. The rail runs that event's full height and the connector masks off the rail's pixel column, leaving only the curve, which removes the small gap where the curve left the rail before the rail resumed. The last event has no rail and keeps its whole connector.
+
+- [#901](https://github.com/vegastack/vegastack-design/pull/901) [`396a39b`](https://github.com/vegastack/vegastack-design/commit/396a39b890393062da8a53c1336b6df8003c49d9) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 **Grid cells: files show as chips, and the date, date-time and link triggers sit flat.** `FieldCellDisplay variant="cell"` shows every file as its `InlineChip` (type icon and name, as a page shows it), or a small `Thumbnail` when the file carries the new optional `FieldFile.thumbnailUrl`, on one line that clips like the person cell — no "+N", no scroll bar. `DatePicker`, `DateTimePicker` and `SearchableSelect` gain `flat` (off by default): no border, fill or shadow, and no open tint while the popup is open. `FieldCellEditor variant="cell"` turns it on for its date, date-time and link editors, so only grid cells change.
+
+- Updated dependencies [[`396a39b`](https://github.com/vegastack/vegastack-design/commit/396a39b890393062da8a53c1336b6df8003c49d9)]:
+  - @vegastack/design@0.12.2
+
 ## 0.39.0
 
 ### Minor Changes

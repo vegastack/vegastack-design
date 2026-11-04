@@ -10,6 +10,20 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.39.1] — November 4, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.12.2`** (was `0.12.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.39.0 → 0.39.1.
+
+### 🐛 Fixed
+
+- `InboxItem`'s thread rail is one unbroken line past a middle event. The rail runs that event's full height and the connector masks off the rail's pixel column, leaving only the curve, which removes the small gap where the curve left the rail before the rail resumed. The last event has no rail and keeps its whole connector.
+  [`6e001aa`](https://github.com/VegaStack/vegastack-design/commit/6e001aa)
+- **Grid cells: files show as chips, and the date, date-time and link triggers sit flat.** `FieldCellDisplay variant="cell"` shows every file as its `InlineChip` (type icon and name, as a page shows it), or a small `Thumbnail` when the file carries the new optional `FieldFile.thumbnailUrl`, on one line that clips like the person cell — no "+N", no scroll bar. `DatePicker`, `DateTimePicker` and `SearchableSelect` gain `flat` (off by default): no border, fill or shadow, and no open tint while the popup is open. `FieldCellEditor variant="cell"` turns it on for its date, date-time and link editors, so only grid cells change.
+  [`396a39b`](https://github.com/VegaStack/vegastack-design/commit/396a39b)
+
 ## [0.39.0] — November 4, 2026
 
 ### 🧩 New components
