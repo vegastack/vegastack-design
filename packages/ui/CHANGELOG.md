@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.48.0
+
+### Minor Changes
+
+- [#911](https://github.com/vegastack/vegastack-design/pull/911) [`1b0149e`](https://github.com/vegastack/vegastack-design/commit/1b0149e2a7a3697267ed2da7233b85dc5197894b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `MarkdownView` takes `untrusted`, for content an agent or an outsider wrote, so safety no longer depends on having a proxy: nothing loads or fetches by itself, images and media on this site need `allowedImagePaths`, bookmarks fetch no preview, and a blocked image's box names its real origin. `imageProxy` implies it. A `mailto:` shows its address under `showLinkDomains`. An agent's comment always renders this way with link domains; `CommentItem`, `CommentThread` and `CommentList` take `agentMarkdown` for its image paths and proxy.
+
 ## 0.47.0
 
 ### Minor Changes
