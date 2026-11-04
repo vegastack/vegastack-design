@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.47.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: f278c133cac4 -->
+
+### 🔧 Changed components
+
+- `MarkdownView` for content an agent or an outsider wrote: `imageProxy` turns a blocked image's box into "Image from acme.com" with Show, which loads through the host's proxy and fetches nothing before that (`blockedImageLabel`, `showImageLabel`), and `showLinkDomains` says where each external link goes, after its text. With `imageProxy` set, `*` in `allowedImageOrigins` no longer applies, the proxy's own address never loads by itself, and bookmarks fetch no preview. Links that leave the page without an `https://` prefix, such as `//host/path`, now open as external links.
+  [`1cbfcc3`](https://github.com/VegaStack/vegastack-design/commit/1cbfcc3)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.46.0 → 0.47.0.
+
 ## [0.46.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: 438d2664e320 -->

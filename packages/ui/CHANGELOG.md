@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.47.0
+
+### Minor Changes
+
+- [#910](https://github.com/vegastack/vegastack-design/pull/910) [`1cbfcc3`](https://github.com/vegastack/vegastack-design/commit/1cbfcc3f1da0481cd613223e2e6c940dbedb400d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `MarkdownView` for content an agent or an outsider wrote: `imageProxy` turns a blocked image's box into "Image from acme.com" with Show, which loads through the host's proxy and fetches nothing before that (`blockedImageLabel`, `showImageLabel`), and `showLinkDomains` says where each external link goes, after its text. With `imageProxy` set, `*` in `allowedImageOrigins` no longer applies, the proxy's own address never loads by itself, and bookmarks fetch no preview. Links that leave the page without an `https://` prefix, such as `//host/path`, now open as external links.
+
 ## 0.46.0
 
 ### Minor Changes

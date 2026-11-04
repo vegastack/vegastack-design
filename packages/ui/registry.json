@@ -13685,7 +13685,7 @@
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
-        "version": "0.33.0"
+        "version": "0.47.0"
       }
     },
     {
