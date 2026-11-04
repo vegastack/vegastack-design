@@ -1,4 +1,4 @@
-// @vegastack inbox@0.38.1 sha256-KebxnkysinkJGF5ETUe646gc33JlkToCz0TTwNahjts=
+// @vegastack inbox@0.38.1 sha256-9+pt5MI/0I+oAmJ13oPmdOoEiX/VnWRKccmWUR6jUUw=
 
 "use client";
 
@@ -1234,15 +1234,16 @@ export function InboxItem({
           hidden={!expanded}
           // Across the whole row: the rail runs on from the avatar and each event curves into its own
           // avatar (10px radius; the rail stops at the last one), in line with the title. Every
-          // vertical is a 1px start border at the same whole-pixel x, so where the rail and a
-          // connector meet they are one line at any zoom.
+          // vertical is a 1px start border at the same whole-pixel x. `--border` is translucent, so
+          // two lines over each other read brighter: a middle event's rail starts at 6px, where its
+          // curve leaves the rail's pixel column, and each height draws one line.
           className="relative col-span-full flex flex-col pt-1 before:absolute before:start-[13px] before:top-0 before:h-1 before:w-0 before:border-s before:border-border"
         >
           {events!.map((event, i) => (
             <li
               key={event.id ?? i}
               data-slot="inbox-item-event"
-              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13px] before:top-0 before:h-3 before:w-6 before:rounded-es-[10px] before:border-s before:border-b before:border-border after:absolute after:inset-y-0 after:start-[13px] after:w-0 after:border-s after:border-border last:after:hidden"
+              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13px] before:top-0 before:h-3 before:w-6 before:rounded-es-[10px] before:border-s before:border-b before:border-border after:absolute after:top-1.5 after:bottom-0 after:start-[13px] after:w-0 after:border-s after:border-border last:after:hidden"
             >
               {/* Top-aligned to the first line, whatever the line wraps to. */}
               <span
