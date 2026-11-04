@@ -30,3 +30,14 @@ test("progress is a status, error is an alert with its action", async () => {
   expect(onRetry).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
 });
+
+test("live={false} drops the role and keeps the look", async () => {
+  const screen = await render(
+    <StatusLine status="error" live={false}>
+      It stopped.
+    </StatusLine>,
+  );
+  const line = screen.container.querySelector("[data-slot=status-line]")!;
+  expect(line.getAttribute("role")).toBeNull();
+  expect(line.getAttribute("data-status")).toBe("error");
+});

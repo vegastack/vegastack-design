@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 137,
+    "total": 138,
     "fromExtras": 46
   },
   "items": {
@@ -936,6 +936,12 @@
       "family": "form",
       "source": "Regent agents platform P4 (recurring tasks and schedules), DS-1 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
       "rationale": "Upstream ships no recurrence editor. A presentational body over our radio-group, toggle-group, number-field, select, date-picker and time-field that edits a plain RecurrenceValue; it computes no dates (no RRULE engine) and the host passes the preview; no patch."
+    },
+    "message-parts": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "Regent agents platform P3 (talk to agents), DS-1 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
+      "rationale": "Upstream's message.tsx is layout only, and a new export there would be a hunk no decision row covers, so these are a separate item: steps, a plan checklist, status and notice lines, a change row, a hand-off divider, sources, the disclaimer, an actions row, a version switch and a fold, composing upstream button, collapsible and separator with our tool-call-chip and status-line; no patch."
     }
   }
 }

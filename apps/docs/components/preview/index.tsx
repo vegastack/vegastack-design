@@ -37,6 +37,7 @@ export * from "./stat";
 export * from "./property-list";
 export * from "./code-block";
 export * from "./tool-call-chip";
+export * from "./message-parts";
 export * from "./approval-card";
 export * from "./agent-edit-banner";
 export * from "./agent-panel";

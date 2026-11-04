@@ -58,6 +58,8 @@ into the same line rather than stacking a second one.
 
 - `progress` and `info` are `role="status"` (polite); `error` is `role="alert"`, so a failure that
   appears while the reader is on the page is announced once.
+- `live={false}` drops the role, for a line inside something already announced (a `role="log"`) or
+  one that stays on screen as history.
 - Icons are decorative; the text says what is happening and why.
 - Actions are ordinary buttons after the text, in the tab order.
 
