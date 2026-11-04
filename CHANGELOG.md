@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.46.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: 438d2664e320 -->
+
+### 🧩 New components
+
+- `CommentWorkingRow`, for something still answering in a thread: `CommentThread` takes it in `working`, under the last reply, with what it is doing and a Stop, or the failure and a Retry. `CommentThread`'s `composer` takes `hint`, a line under the reply box that also describes it.
+  [`f37ff46`](https://github.com/VegaStack/vegastack-design/commit/f37ff46)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.45.0 → 0.46.0.
+
 ## [0.45.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: 68d6fa0ea10b -->

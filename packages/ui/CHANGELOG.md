@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.46.0
+
+### Minor Changes
+
+- [#909](https://github.com/vegastack/vegastack-design/pull/909) [`f37ff46`](https://github.com/vegastack/vegastack-design/commit/f37ff461a8658b6d2d4d245f835e09a6d78f637b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `CommentWorkingRow`, for something still answering in a thread: `CommentThread` takes it in `working`, under the last reply, with what it is doing and a Stop, or the failure and a Retry. `CommentThread`'s `composer` takes `hint`, a line under the reply box that also describes it.
+
 ## 0.45.0
 
 ### Minor Changes
