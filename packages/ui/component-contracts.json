@@ -36915,6 +36915,25 @@
             "status": "not-applicable",
             "rationale": "A fixed placeholder with no native props; it takes no ref."
           }
+        },
+        {
+          "name": "CommentWorkingRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Merged with the row's own ref on the root div."
+          }
+        },
+        {
+          "name": "CommentWorkingRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -37085,6 +37104,19 @@
           ],
           "cssVariables": []
         },
+        "CommentWorkingRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-working-row", "comment-working-row-action"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
         "CommentThread": {
           "attributes": [
             {
@@ -37115,7 +37147,9 @@
                 "comment-thread-header",
                 "comment-thread-quote",
                 "comment-thread-reply",
-                "comment-thread-resolved"
+                "comment-thread-reply-hint",
+                "comment-thread-resolved",
+                "comment-thread-working"
               ]
             }
           ],

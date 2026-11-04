@@ -1,4 +1,4 @@
-// @vegastack comments@0.40.0 sha256-KUCD4GKjp44pETV8HmyyUhcNAd2/YMDod+1Up/Z+Hx4=
+// @vegastack comments@0.40.0 sha256-Qtml8F6bj9L0TMkJz7eerkBQusS0yPhkqyEXz9qbSlw=
 
 "use client";
 
@@ -19,8 +19,9 @@ import {
   Reply,
   Trash2,
   X,
+  CircleAlert,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { FieldCounter } from "@/components/ui/field";
 import { Attachment } from "@/components/ui/attachment";
@@ -1434,6 +1435,7 @@ export function CommentComposer({
   const posting = postingProp ?? pending;
   const overLimit = overLimitMessage(body, maxLength, maxLengthMessage);
   const errorId = React.useId();
+  const hintId = React.useId();
   // An empty controlled error is no error: the limit's message still shows.
   const error = (errorProp !== undefined ? errorProp : errorState) || overLimit;
   // `compact`: the card opens on demand, and a draft (a restored one too) keeps it open.
@@ -1600,7 +1602,11 @@ export function CommentComposer({
         sending={pending}
         disabled={disabled}
         invalid={!!error}
-        describedBy={error ? errorId : undefined}
+        describedBy={
+          [error ? errorId : null, hint ? hintId : null]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         maxLength={maxLength}
         value={body}
         extraActions={attachments}
@@ -1636,12 +1642,112 @@ export function CommentComposer({
       ) : null}
       {hint ? (
         <p
+          id={hintId}
           data-slot="comment-composer-hint"
           className="text-xs text-muted-foreground"
         >
           {hint}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * CommentWorkingRow
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props for `CommentWorkingRow`. */
+export interface CommentWorkingRowProps extends React.ComponentPropsWithRef<"div"> {
+  /** Who is answering: their avatar, `size="xs"` so the text lines up with the comments'. @default undefined */
+  avatar?: React.ReactNode;
+  /**
+   * `working` — a spinner after the text. `error` — it couldn't finish: an alert icon, and the text
+   * in the destructive ink.
+   * @default "working"
+   */
+  status?: "working" | "error";
+  /**
+   * The row's actions, at its end: a small Stop, or Retry when it failed. Leave Stop out for someone
+   * who may not stop this. They wrap under the text when there is no room. @default undefined
+   */
+  action?: React.ReactNode;
+}
+
+/**
+ * `CommentWorkingRow` — someone is still answering in this thread: the row under the last reply, in
+ * `CommentThread`'s `working`. It announces nothing; the host says when the answer arrives. If focus
+ * is on the row when it goes, the reply box takes it.
+ *
+ * @example
+ * <CommentWorkingRow
+ *   avatar={<PersonAvatar person={agent} size="xs" />}
+ *   action={<Button size="xs" variant="outline" onClick={stop}>Stop</Button>}
+ * >
+ *   BOQ processor · Matching line 21…
+ * </CommentWorkingRow>
+ */
+export function CommentWorkingRow({
+  avatar,
+  status = "working",
+  action,
+  className,
+  children,
+  ref,
+  ...props
+}: CommentWorkingRowProps) {
+  const own = React.useRef<HTMLDivElement>(null);
+  const refs = React.useMemo(() => mergeRefs(ref, own), [ref]);
+  // The answer landing takes the row away, Stop and the focus on it with it.
+  React.useLayoutEffect(() => {
+    const row = own.current;
+    return () => {
+      if (!row?.contains(document.activeElement)) return;
+      row
+        .closest("[data-slot=comment-thread]")
+        ?.querySelector<HTMLElement>(
+          '[contenteditable=true],[data-slot="comment-reply"]',
+        )
+        ?.focus();
+    };
+  }, []);
+  return (
+    <div
+      ref={refs}
+      data-slot="comment-working-row"
+      data-status={status}
+      className={cn(
+        "flex min-w-0 items-start gap-2 px-4 py-2 text-sm text-muted-foreground data-[status=error]:text-destructive-text",
+        className,
+      )}
+      {...props}
+    >
+      {avatar ? (
+        <span className="inline-flex h-6 shrink-0 items-center">{avatar}</span>
+      ) : null}
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-2 gap-y-1">
+        <span className="min-h-6 min-w-0 flex-1 basis-40 py-0.5 wrap-anywhere">
+          {children}
+          <span
+            aria-hidden
+            className="ms-1.5 inline-block align-[-0.125em] [&_svg]:size-3.5"
+          >
+            {status === "error" ? (
+              <CircleAlert />
+            ) : (
+              <Spinner aria-hidden role={undefined} aria-label={undefined} />
+            )}
+          </span>
+        </span>
+        {action ? (
+          <span
+            data-slot="comment-working-row-action"
+            className="inline-flex flex-wrap items-center justify-end gap-1"
+          >
+            {action}
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -1852,8 +1958,13 @@ export interface CommentThreadProps {
       | "posting"
       | "maxLength"
       | "maxLengthMessage"
+      | "hint"
     >
   >;
+  /**
+   * After the last reply: something still answering here, a `CommentWorkingRow`. @default undefined
+   */
+  working?: React.ReactNode;
   /** Pin the relative times' clock (docs, tests). @default undefined */
   now?: number;
   /** Classes for the thread. @default undefined */
@@ -1868,7 +1979,7 @@ export interface CommentThreadProps {
  * first comment's ✓ resolves it; a resolved thread says who resolved it and when, and offers
  * Reopen. The header shows only when it has something to say: the quote, "Original text was
  * removed", or the resolved line.
- * `collapsed` shows the first comment, "N replies" and the last reply.
+ * `collapsed` shows the first comment, "N replies", the last reply and any `working` row.
  *
  * @example
  * <CommentThread thread={thread} viewer={me} active={thread.id === activeId}
@@ -1903,6 +2014,7 @@ export function CommentThread({
   renderAttachments,
   fileContentType,
   composer,
+  working,
   now,
   className,
 }: CommentThreadProps) {
@@ -1923,6 +2035,7 @@ export function CommentThread({
   );
   const error = errorState ?? overLimit;
   const errorId = React.useId();
+  const hintId = React.useId();
   const replyBox = React.useRef<HTMLDivElement>(null);
   const card = React.useRef<HTMLElement>(null);
   // An upload into the reply holds Send until it lands (see `CommentComposer`).
@@ -2147,6 +2260,18 @@ export function CommentThread({
           </RepliesToggle>
         ) : null}
         {shown.map((comment, i) => item(comment, false, i > 0))}
+        {working ? (
+          <li
+            data-slot="comment-thread-working"
+            className={
+              shown.length > 0
+                ? "relative before:absolute before:start-11 before:end-0 before:top-0 before:h-px before:bg-border/50"
+                : "border-t border-border/50"
+            }
+          >
+            {working}
+          </li>
+        ) : null}
       </ul>
       {showReplyRow ? (
         <div
@@ -2195,7 +2320,11 @@ export function CommentThread({
               sending={pending}
               disabled={composer?.disabled}
               invalid={!!error}
-              describedBy={error ? errorId : undefined}
+              describedBy={
+                [error ? errorId : null, composer?.hint ? hintId : null]
+                  .filter(Boolean)
+                  .join(" ") || undefined
+              }
               maxLength={composer?.maxLength}
               value={draft}
               extraActions={composer?.attachments}
@@ -2228,9 +2357,18 @@ export function CommentThread({
             <p
               id={errorId}
               role="alert"
-              className="ps-7 text-xs text-destructive"
+              className={cn("text-xs text-destructive", viewer && "ps-7")}
             >
               {error}
+            </p>
+          ) : null}
+          {composer?.hint ? (
+            <p
+              id={hintId}
+              data-slot="comment-thread-reply-hint"
+              className={cn("text-xs text-muted-foreground", viewer && "ps-7")}
+            >
+              {composer.hint}
             </p>
           ) : null}
         </div>
