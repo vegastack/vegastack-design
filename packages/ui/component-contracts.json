@@ -1800,6 +1800,53 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "AppShellAside",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Merged with the panel's own ref on the root div."
+          }
+        },
+        {
+          "name": "AppShellAsideProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AppShellAsideHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the div."
+          }
+        },
+        {
+          "name": "AppShellAsideStateScript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An inline script; it renders no element a ref would reach."
+          }
+        },
+        {
+          "name": "useAppShellAsideCookie",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook returns state, not an element."
+          }
         }
       ],
       "variants": {
@@ -1882,7 +1929,10 @@
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/app-shell.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/ui/app-shell-aside.test.tsx",
+        "packages/ui/registry/ui/app-shell.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -2006,6 +2056,53 @@
             {
               "name": "data-variant",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellAsideStateScript": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-aside-state-script"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellAside": {
+          "attributes": [
+            {
+              "name": "data-keyboard",
+              "values": [""]
+            },
+            {
+              "name": "data-mode",
+              "values": ["phone"]
+            },
+            {
+              "name": "data-resizing",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "app-shell-aside",
+                "app-shell-aside-panel",
+                "app-shell-aside-resize"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["closed", "open"]
+            }
+          ],
+          "cssVariables": ["--app-shell-aside-width"]
+        },
+        "AppShellAsideHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-aside-header"]
             }
           ],
           "cssVariables": []
@@ -30674,7 +30771,7 @@
       "title": "Suggestion Card",
       "summary": "An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.",
       "status": "stable",
-      "since": "0.43.0",
+      "since": "0.44.0",
       "family": "chat",
       "wave": "AI/chat",
       "sourceFiles": ["packages/ui/registry/ui/suggestion-card.tsx"],

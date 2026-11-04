@@ -297,6 +297,62 @@ action that navigates.
 </AppShellHeader>
 ```
 
+### Aside
+
+`AppShellAside` is a panel at the shell's end that stays across routes: a chat beside the page, an
+inspector. Render it as `AppShell`'s last child, after the content column.
+
+```tsx
+<AppShell>
+  <AppShellSidebar>…</AppShellSidebar>
+  <div className="flex h-svh min-w-0 flex-1 flex-col">…</div>
+  <AppShellAside open={open} onOpenChange={setOpen} label="Assistant chat">
+    <AppShellAsideHeader>…</AppShellAsideHeader>
+    <Chat />
+  </AppShellAside>
+</AppShell>
+```
+
+| Window        | The panel                                                        |
+| ------------- | ---------------------------------------------------------------- |
+| 1280px and up | Docked. It pushes the content, which reflows by container query. |
+| 768 to 1279px | Over the content, with a shadow.                                 |
+| Under 768px   | A full-screen modal dialog, above the on-screen keyboard.        |
+
+`mode="dock"` and `mode="overlay"` pin the first two. The width drags from the start edge between
+`minWidth` and `maxWidth`, and a double click goes back to `defaultWidth`.
+
+It is one element in every mode, so closing it or crossing a breakpoint never remounts its children:
+a draft or a stream survives. Closed, they are out of reach; render them after the first open to keep
+their code out of the first load. Escape inside the panel calls `onOpenChange(false)`, and a menu's
+own Escape stays the menu's. Move focus back to the trigger in `onOpenChange`, and into the panel when
+it opens.
+
+While open it sets `--app-shell-aside-inset` on the shell, and `UploadPanel` reads it to stay clear.
+Read it in any other surface pinned to the end edge.
+
+#### First paint
+
+A static shell can't read a cookie on the server, so it would render the panel closed and slide it
+open after loading. `AppShellAsideStateScript` in `<head>` sets the panel before first paint, and
+`useAppShellAsideCookie` keeps the same cookie. A phone always starts closed.
+
+```tsx
+<head>
+  <AppShellAsideStateScript cookieName="vs_aside" />
+</head>;
+
+const aside = useAppShellAsideCookie("vs_aside");
+<AppShellAside {...aside} label="Assistant chat">
+  {mounted ? <Chat /> : null}
+</AppShellAside>;
+```
+
+<ComponentPreview
+  name="appShellAside"
+  file="components/preview/app-shell.tsx"
+/>
+
 ### Skeleton
 
 `AppShellSkeleton` composes a full loading shell — a sidebar column, a header line, and a
@@ -493,6 +549,13 @@ Each entry of `actions` and `menu` is an `AppShellHeaderAction`:
   name="AppShellProgressProps"
 />
 
+### AppShellAside
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellAsideProps"
+/>
+
 ### AppShellContent
 
 <ApiTable
@@ -564,6 +627,18 @@ Each entry of `actions` and `menu` is an `AppShellHeaderAction`:
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet. Upstream's `SidebarProvider` owns the chord. |
 
 <StatesTested name="app-shell" />
+
+### Aside
+
+The panel is a `complementary` landmark named by `label`. On a phone it is a modal dialog, and the
+rest of the shell is inert while it is open. The resize handle is a focusable `separator` with its
+value in px.
+
+| Key                              | Action                      |
+| -------------------------------- | --------------------------- |
+| <kbd>←</kbd> / <kbd>→</kbd>      | Widen or narrow by 16px     |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Go to the narrowest, widest |
+| <kbd>Esc</kbd>                   | Ask to close the panel      |
 
 ## Do / Don't
 
