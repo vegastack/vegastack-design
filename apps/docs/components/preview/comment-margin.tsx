@@ -79,7 +79,7 @@ export function commentMarginPopover(): ReactNode {
         Open the thread on “25 A breaker”
       </Button>
       <CommentPopover anchorRect={rect} open={open} onOpenChange={setOpen}>
-        <div className={CARD}>Is 25 A right for a 7 kW cooker?</div>
+        <p className="p-3 text-sm">Is 25 A right for a 7 kW cooker?</p>
       </CommentPopover>
     </Wrapper>
   );

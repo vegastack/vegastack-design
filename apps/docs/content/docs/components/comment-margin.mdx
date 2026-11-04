@@ -60,6 +60,11 @@ Where no margin fits, open the thread in a `CommentPopover` anchored to the high
 it with `getBoundingClientRect()` on the `[data-annotation]` element. On touch-sized screens use
 `Sheet side="bottom"` instead.
 
+The popover draws the same floating surface as [`Popover`](/docs/components/popover), so the page
+never reads through it. A `CommentThread` inside gives up its own border, fill and shadow, and looks
+as it does in the margin everywhere else. A `CommentComposer` keeps its border, which is its focus
+cue, and the popover draws none. Content of your own brings its own padding and no surface.
+
 <ComponentPreview
   name="commentMarginPopover"
   file="components/preview/comment-margin.tsx"

@@ -7,6 +7,24 @@ import {
   CommentPopover,
   layoutCommentMargin,
 } from "./comment-margin";
+import { CommentComposer, CommentThread } from "./comments";
+
+const THREAD = {
+  id: "t1",
+  root: {
+    id: "c1",
+    author: { name: "Asha Rao" },
+    body: "Is 25 A right for a 7 kW cooker?",
+    createdAt: Date.now(),
+  },
+  replies: [],
+};
+
+/** Whether a computed `box-shadow` draws anything: Tailwind composes transparent layers for none. */
+const drawsShadow = (node: Element) =>
+  getComputedStyle(node)
+    .boxShadow.split(/,\s*(?=rgb)/)
+    .some((layer) => layer !== "none" && !layer.startsWith("rgba(0, 0, 0, 0)"));
 
 const card = (label: string) => (
   <div style={{ height: 60 }} data-testid={label}>
@@ -94,6 +112,83 @@ test("CommentPopover shows its thread anchored to the highlight and closes on Es
     new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
   );
   await vi.waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+});
+
+test("CommentPopover is a floating surface with one border, one fill and one shadow, whatever it holds", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const box = (node: Element) => {
+    const style = getComputedStyle(node);
+    return {
+      border: style.borderTopWidth,
+      fill: style.backgroundColor,
+      shadow: drawsShadow(node),
+    };
+  };
+  const popup = () =>
+    document.querySelector<HTMLElement>('[data-slot="comment-popover"]')!;
+  const card = () =>
+    popup().querySelector<HTMLElement>('[data-slot="comment-thread"]')!;
+  // The token itself, as a real `PopoverContent` resolves it.
+  const reference = document.createElement("div");
+  reference.className = "bg-popover";
+  document.body.append(reference);
+  onTestFinished(() => reference.remove());
+  const surface = getComputedStyle(reference).backgroundColor;
+
+  const open = await render(
+    <CommentPopover
+      open
+      onOpenChange={() => {}}
+      anchorRect={new DOMRect(40, 40, 80, 18)}
+    >
+      <CommentThread thread={THREAD} active />
+    </CommentPopover>,
+  );
+  await expect.poll(() => popup()?.querySelector("article")).toBeTruthy();
+  expect(box(popup()).fill).toBe(surface);
+  expect(box(popup()).border).toBe("1px");
+  expect(box(popup()).shadow).toBe(true);
+  expect(box(card())).toEqual({
+    border: "0px",
+    fill: "rgba(0, 0, 0, 0)",
+    shadow: false,
+  });
+  await open.unmount();
+
+  // A composer's box is the one border, and it stays for its focus cue.
+  await render(
+    <CommentPopover
+      open
+      onOpenChange={() => {}}
+      anchorRect={new DOMRect(40, 40, 80, 18)}
+    >
+      <CommentComposer onSubmit={() => {}} />
+    </CommentPopover>,
+  );
+  await expect
+    .poll(() => popup()?.querySelector('[data-slot="comment-box"]'))
+    .toBeTruthy();
+  expect(box(popup()).fill).toBe(surface);
+  expect(box(popup()).border).toBe("0px");
+  expect(box(popup()).shadow).toBe(true);
+  const field = popup().querySelector('[data-slot="comment-box"] > *')!;
+  expect(box(field).border).toBe("1px");
+});
+
+test("a thread in the margin keeps its own card: the popover's surface reaches no further", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await render(<CommentThread thread={THREAD} active />);
+  const thread = document.querySelector('[data-slot="comment-thread"]')!;
+  const style = getComputedStyle(thread);
+  expect(style.borderTopWidth).toBe("1px");
+  expect(style.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+  await expect.poll(() => drawsShadow(thread)).toBe(true);
 });
 
 test("quote={false} hides each card's quote, and a thread header left with nothing else; the default keeps it", async () => {

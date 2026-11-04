@@ -1,4 +1,4 @@
-// @vegastack comment-margin@0.33.0 sha256-mO4nyW9qqtTfOIljfC/M0L7W8nlkrYAwZ9R1n07fceo=
+// @vegastack comment-margin@0.33.0 sha256-EQQZzj1MP7fs9TFkFjDVQFvdMpSKXKZLRuL0SG41uV0=
 
 "use client";
 
@@ -211,7 +211,9 @@ export interface CommentPopoverProps {
 
 /**
  * `CommentPopover` — a comment thread in a popover anchored to its highlight, for widths where no
- * margin fits beside the text. On touch-sized screens use `Sheet side="bottom"` instead.
+ * margin fits beside the text. On touch-sized screens use `Sheet side="bottom"` instead. It draws
+ * the floating surface every popover has, so a `CommentThread` in it gives up its own border, fill
+ * and shadow; a `CommentComposer` keeps its border, its focus cue, and the popup draws none.
  *
  * @example
  * <CommentPopover open={!!active} onOpenChange={(open) => !open && setActive(null)}
@@ -253,6 +255,12 @@ export function CommentPopover({
             aria-label="Comment thread"
             className={cn(
               "z-50 w-80 max-w-[calc(100vw-1rem)] origin-(--transform-origin) outline-hidden duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+              // `PopoverContent`'s surface: a thread's card in the margin is see-through on purpose.
+              "rounded-lg border border-border bg-popover text-popover-foreground shadow-md",
+              // One border, one fill, one shadow: the surface is the popup's, not the card's too.
+              "[&_[data-slot=comment-thread]]:border-0 [&_[data-slot=comment-thread]]:bg-transparent [&_[data-slot=comment-thread][data-active]]:shadow-none",
+              // A composer's box is its own border, and text entry's focus cue: the popup yields.
+              "has-[[data-slot=comment-box][data-layout=card]]:border-0",
               className,
             )}
           >
