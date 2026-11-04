@@ -2519,9 +2519,9 @@ test('FieldCellDisplay variant="cell": every file as its chip, an image as its t
     "drawing.dwg",
   ]);
   const thumbnail = screen.container.querySelector(
-    '[data-slot="field-cell-file-thumbnail"]',
+    '[data-slot="field-cell-file-thumbnail"] [data-slot="thumbnail"]',
   ) as HTMLElement;
-  expect(thumbnail.getAttribute("title")).toBe("pole.jpg");
+  expect(thumbnail.parentElement!.getAttribute("title")).toBe("pole.jpg");
   expect(thumbnail.querySelector("img")?.getAttribute("alt")).toBe("pole.jpg");
   // The thumbnail sits at the chip's height, not a list row's 32px.
   expect(thumbnail.getBoundingClientRect().height).toBe(20);
@@ -2530,7 +2530,8 @@ test('FieldCellDisplay variant="cell": every file as its chip, an image as its t
   const line = screen.container.querySelector(
     '[data-slot="field-cell-display"] > span',
   ) as HTMLElement;
-  expect(getComputedStyle(line).overflow).toBe("hidden");
+  // Clipped, so it has no scroll position for a focused chip to move.
+  expect(getComputedStyle(line).overflow).toBe("clip");
   expect(line.scrollWidth).toBeGreaterThan(line.clientWidth);
   expect(line.getBoundingClientRect().height).toBeLessThanOrEqual(24);
   await expectNoA11yViolations(screen.container);

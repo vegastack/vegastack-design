@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.35.1 sha256-fSd+RQowJLYiboneOIHJQ2+4Jd+bsia4cHF15eF5scc=
+// @vegastack field-cell@0.35.1 sha256-R284Z3osLGqg5ocSEhsd1Y+WfPDokCAYckXB72zKG3s=
 
 "use client";
 
@@ -896,24 +896,31 @@ export function FieldCellDisplay({
       if (files.length === 0) return empty;
       // In a grid cell every file shows, as a Page shows it — its chip, or an image's thumbnail —
       // on one line that clips at the cell's edge, like the person cell (no "+N", no scroll bar).
+      // `overflow-clip`, not `hidden`: a clipped box has no scroll position, so focusing a chip
+      // past the edge (the grid's arrow keys step through a cell's chips) never slides the line.
       if (cell)
         return root(
-          <span className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap">
+          <span className="flex min-w-0 items-center gap-1.5 overflow-clip whitespace-nowrap">
             {files.map((file) =>
               file.thumbnailUrl ? (
-                <Thumbnail
+                <span
                   key={file.id}
                   data-slot="field-cell-file-thumbnail"
-                  src={file.thumbnailUrl}
-                  alt={file.name}
                   title={file.name}
-                  size="sm"
-                  className="h-5 w-8 rounded-sm"
-                />
+                  className="flex shrink-0"
+                >
+                  <Thumbnail
+                    src={file.thumbnailUrl}
+                    alt={file.name}
+                    size="sm"
+                    className="h-5 w-8 rounded-sm"
+                  />
+                </span>
               ) : (
                 <span
                   key={file.id}
                   data-slot="field-cell-file-chip"
+                  title={file.name}
                   className="shrink-0 [&_*]:whitespace-nowrap"
                 >
                   <InlineChip
