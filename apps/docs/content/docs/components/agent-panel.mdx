@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/agent-panel";
 
 <AgentPanel
-  agent={{ name: "Claude Code", via: "Priya", provider: "claude.ai" }}
+  agent={{ name: "Claude Code", for: "Priya", provider: "claude.ai" }}
   state="working"
   startedAt={run.startedAt}
   progress={run.lastNote}
@@ -39,7 +39,7 @@ import {
     onUndo: () => undo(run),
   }))}
   runsLayout={pageHasActivity ? "line" : "list"}
-  onViewAgent={openAgent}
+  onOpenAgent={openAgent}
   onChangeAgent={canSteer ? openDelegate : undefined}
   onStop={canSteer ? stop : undefined}
   onRemove={canRemove ? remove : undefined}
@@ -52,7 +52,7 @@ only to the person who delegated, `onRemove` to them and to admins, and `onRecon
 agent's owner. `state="none"` renders nothing — the Delegate slot carries the empty state.
 
 The card's header is the agent itself — its avatar, its name (which gets the room and truncates
-last) and one muted line, "For Priya · claude.ai" (`via` and `provider`) — with no "Agent" title or
+last) and one muted line, "For Priya · claude.ai" (`for` and `provider`) — with no "Agent" title or
 label. Under it sits **one status block**: the state's icon and word with its short facts, then one
 sentence and at most one action, all in the word's inset. The other actions live in the ⋯ menu.
 On a record page that has its own Activity feed, pass `showLatest={false}` so the card doesn't
@@ -92,10 +92,20 @@ defaults shown here.
 ### States
 
 The same card in every state: Queued with Stop, and with the host's hint after a while (and a long
-name that truncates); Needs you with the question, one-tap answers and Reply…; Wants approval with
+name that truncates); Needs you with the question, one-tap answers and Reply…; Needs approval with
 Approve and Decline; Failed with Retry; Can't start (blocked: its sign-in expired) with Reconnect for the owner — no tint; only a question or an approval sits on the warning tint; Done with its date,
 run time, closing message and Mark task done; Stopped with what stays and Delegate again — and a
 done card whose agent has since been disconnected, with Reconnect. A run's Undo shows disabled with its reason when the run can't be undone.
+
+The rest of the states, each with one sentence and at most one action: Quiet (working, with no
+update for a while: "No update for 30 min." from `lastUpdateAt`) with Stop; Not started (it waited
+past the host's promise, in amber, with the host's `queuedHint`) with Stop; Paused with its
+`pausedReason` and Resume (`onResume`); Needs approval decided elsewhere, with Review
+(`onReview`) instead of Approve and Decline; Can't start because it can't see the record, with
+Give access (`onGiveAccess`) for a viewer who can share; and No action needed (done, with nothing
+to do) with its closing message. Only a question, an approval, a block and a failure ring the
+avatar (`AgentStateRing`) and lift the card (`data-attention`); a quiet spell or a late start is
+its amber icon alone.
 
 <ComponentPreview
   name="agentPanelStates"
@@ -105,7 +115,7 @@ done card whose agent has since been disconnected, with Reconnect. A run's Undo 
 ### Section
 
 In a peek the panel is a collapsible section whose header is the one-line summary and the state's
-quick action. It opens unless the work is done or stopped.
+quick action. It opens unless the work is over. Stop sits on the header, so it stays in reach while collapsed.
 
 <ComponentPreview
   name="agentPanelSection"
@@ -118,8 +128,12 @@ quick action. It opens unless the work is done or stopped.
 word never does — with the ghost "Delegate to an agent…" when empty and the muted reason when the
 viewer can't delegate. `AgentChip` is the same as a pill; `AgentStateBadge` the state as icon and
 word; `AgentStateRing` rings an agent's avatar amber while it needs you and red when it failed.
-Hover the agent for `AgentHoverCard`: who it is and who it acts for, its state, its `lastAction`
-(the latest progress line, clamped to two lines) and View agent. `AgentCard` is that card's body on
+Hover the agent for `AgentHoverCard`, its lanyard: a 40px hexagon, its name with its kind
+(`kindLabel`: "Custom", "Connected app", "Built in") in place of the "Agent" label, whose it is
+(`owner`: "Priya Raman's agent", in place of "For Priya · claude.ai · Read & write"), what it does (`description`, two lines), any
+`badges`, its state, its `lastAction` (the latest progress line, clamped to two lines), Open agent
+(a link with `href`, through `linkRender` for a router link) and the technical facts in a muted
+`footer`. Focus opens the card and Enter steps into it, so Open agent is reachable by keyboard — the card leads with the agent, not its plumbing. `AgentCard` is that card's body on
 its own — hand it to a `PersonHoverCardProvider` so the agent's name in comments and activity opens
 the same card.
 

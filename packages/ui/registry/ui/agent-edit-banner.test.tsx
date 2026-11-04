@@ -12,7 +12,7 @@ const NOW = Date.parse("2026-10-14T12:00:00Z");
 const MINUTE = 60_000;
 
 const base: AgentEditBannerProps = {
-  agent: { name: "Claude", via: "Manoj" },
+  agent: { name: "Claude", for: "Manoj" },
   changeCount: 3,
   at: NOW - 2 * MINUTE,
   now: NOW,
@@ -21,9 +21,9 @@ const base: AgentEditBannerProps = {
 const slot = (c: Element, name: string) =>
   c.querySelector<HTMLElement>(`[data-slot="agent-edit-banner-${name}"]`);
 
-const UNDO = "Undo Claude (for Manoj)'s changes";
-const VIEW = "View Claude (for Manoj)'s changes";
-const APPROVE = "Approve Claude (for Manoj)'s changes";
+const UNDO = "Undo Claude for Manoj's changes";
+const VIEW = "View Claude for Manoj's changes";
+const APPROVE = "Approve Claude for Manoj's changes";
 
 test("edited: the purple bot, the summary, View changes, Undo and Dismiss, in a polite region", async () => {
   const onViewChanges = vi.fn();
@@ -49,7 +49,7 @@ test("edited: the purple bot, the summary, View changes, Undo and Dismiss, in a 
   expect(avatar).not.toBeNull();
   expect(avatar!.getAttribute("aria-hidden")).toBe("true");
   expect(slot(banner, "summary")!.textContent).toBe(
-    "Edited by Claude (for Manoj) · 3 changes · 2m ago",
+    "Edited by Claude for Manoj · 3 changes · 2m ago",
   );
   // The ticking time is not re-announced by the live region.
   expect(banner.querySelector("time")!.getAttribute("aria-live")).toBe("off");
@@ -68,7 +68,7 @@ test("edited: the purple bot, the summary, View changes, Undo and Dismiss, in a 
 test("one change reads in the singular", async () => {
   const screen = await render(<AgentEditBanner {...base} changeCount={1} />);
   expect(slot(screen.container, "summary")!.textContent).toBe(
-    "Edited by Claude (for Manoj) · 1 change · 2m ago",
+    "Edited by Claude for Manoj · 1 change · 2m ago",
   );
 });
 
@@ -246,7 +246,7 @@ test("created: who created it and when, no count", async () => {
     />,
   );
   expect(slot(screen.container, "summary")!.textContent).toBe(
-    "Created by Claude (for Manoj) · 5m ago",
+    "Created by Claude for Manoj · 5m ago",
   );
   await expectNoA11yViolations(screen.container);
 });
@@ -261,7 +261,7 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
       moreAgents={[
         {
           id: "priya",
-          agent: { name: "Codex", via: "Priya" },
+          agent: { name: "Codex", for: "Priya" },
           changeCount: 2,
           at: NOW - 10 * MINUTE,
           onUndo: undoPriya,
@@ -269,7 +269,7 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
         },
         {
           id: "asha",
-          agent: { name: "Claude", via: "Asha" },
+          agent: { name: "Claude", for: "Asha" },
           changeCount: 1,
           at: NOW - 20 * MINUTE,
           status: "undoing",
@@ -278,7 +278,7 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
         },
         {
           id: "ravi",
-          agent: { name: "Gemini", via: "Ravi" },
+          agent: { name: "Gemini", for: "Ravi" },
           changeCount: 4,
           at: NOW - 30 * MINUTE,
           status: "refused",
@@ -288,7 +288,7 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
     />,
   );
   expect(slot(screen.container, "summary")!.textContent).toBe(
-    "Edited by Claude (for Manoj) · 3 changes · 2m ago · +3 more agents",
+    "Edited by Claude for Manoj · 3 changes · 2m ago · +3 more agents",
   );
   await screen.getByRole("button", { name: "+3 more agents" }).click();
   const items = document.body.querySelectorAll<HTMLElement>(
@@ -296,27 +296,27 @@ test("more agents: the line ends with +N more agents, a popover with each one's 
   );
   expect(items).toHaveLength(3);
   expect(items[0]!.textContent).toContain(
-    "Edited by Codex (for Priya) · 2 changes · 10m ago",
+    "Edited by Codex for Priya · 2 changes · 10m ago",
   );
   await screen
-    .getByRole("button", { name: "Undo Codex (for Priya)'s changes" })
+    .getByRole("button", { name: "Undo Codex for Priya's changes" })
     .click();
   expect(undoPriya).toHaveBeenCalledTimes(1);
   await screen
-    .getByRole("button", { name: "Approve Codex (for Priya)'s changes" })
+    .getByRole("button", { name: "Approve Codex for Priya's changes" })
     .click();
   expect(approvePriya).toHaveBeenCalledTimes(1);
   // A row's undo in flight holds its Approve too.
   await expect
     .element(
       screen.getByRole("button", {
-        name: "Approve Claude (for Asha)'s changes",
+        name: "Approve Claude for Asha's changes",
       }),
     )
     .toHaveAttribute("data-disabled");
   await expect
     .element(
-      screen.getByRole("button", { name: "Undo Claude (for Asha)'s changes" }),
+      screen.getByRole("button", { name: "Undo Claude for Asha's changes" }),
     )
     .toHaveAttribute("aria-busy", "true");
   expect(items[2]!.dataset.status).toBe("refused");
@@ -332,7 +332,7 @@ test("one more agent reads in the singular", async () => {
     <AgentEditBanner
       {...base}
       moreAgents={[
-        { id: "p", agent: { name: "Codex", via: "Priya" }, at: NOW - MINUTE },
+        { id: "p", agent: { name: "Codex", for: "Priya" }, at: NOW - MINUTE },
       ]}
     />,
   );
@@ -356,12 +356,12 @@ test("every string can be replaced", async () => {
     />,
   );
   expect(slot(screen.container, "summary")!.textContent).toBe(
-    "Bearbeitet von Claude (for Manoj) · 3 Änderungen · 2m ago",
+    "Bearbeitet von Claude for Manoj · 3 Änderungen · 2m ago",
   );
   await expect
     .element(
       screen.getByRole("button", {
-        name: "Claude (for Manoj) rückgängig machen",
+        name: "Claude for Manoj rückgängig machen",
       }),
     )
     .toBeInTheDocument();

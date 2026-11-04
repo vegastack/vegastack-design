@@ -630,6 +630,13 @@ function tintCarriers(control: Element): Element[] {
     carriers.push(ancestor);
     ancestor = ancestor.parentElement;
   }
+  // An agent's avatar button paints its tint on a hexagon layer INSIDE it (`AgentShapeLayer`): the
+  // button can't be masked to the shape without clipping the avatar's corner circle, so the layer
+  // is the tint's surface. It must still change to the gradient, as any carrier must.
+  const shapeLayer = control.querySelector(
+    ':scope > [data-slot="agent-shape-layer"]',
+  );
+  if (shapeLayer) carriers.push(shapeLayer);
   // An OTP field's tint lands on the ACTIVE SLOT, which is a SIBLING of the hidden input rather
   // than an ancestor of it: one input drives every slot, and the slot the caret is in carries
   // `data-active` and with it `border-ring/50`. Walking ancestors can never see that, so the

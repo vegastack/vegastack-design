@@ -171,7 +171,7 @@ test("a chosen agent reads with its owner in the trigger's text and name, single
     id: "a1",
     name: "Claude Code",
     kind: "agent",
-    via: "Manoj",
+    for: "Manoj",
   };
   const screen = await render(
     <div className="flex flex-col gap-2">
@@ -191,17 +191,17 @@ test("a chosen agent reads with its owner in the trigger's text and name, single
   // The trigger's text (beside the avatars) and its accessible name both carry the owner.
   await hasText(
     screen.getByRole("button", {
-      name: "Claude Code (for Manoj)",
+      name: "Claude Code for Manoj",
       exact: true,
     }),
-    "Claude Code (for Manoj)",
+    "Claude Code for Manoj",
   );
   await hasText(
     screen.getByRole("button", {
-      name: "Claude Code (for Manoj), Asha Rao",
+      name: "Claude Code for Manoj, Asha Rao",
       exact: true,
     }),
-    "Claude Code (for Manoj), Asha Rao",
+    "Claude Code for Manoj, Asha Rao",
   );
 });
 
@@ -304,14 +304,14 @@ test("menu: agents under a heading; a disabled agent shows why and can't be pick
       id: "a1",
       name: "Claude Code",
       kind: "agent",
-      via: "Manoj",
+      for: "Manoj",
       description: "claude.ai · Read & write",
     },
     {
       id: "a2",
       name: "Nightly digest",
       kind: "agent",
-      via: "Manoj",
+      for: "Manoj",
       disabledReason: "Read only — can't be delegated",
     },
   ];
@@ -407,4 +407,78 @@ test("defaultSearch opens the picker searching for it once; a reopen, controlled
   await vi.waitFor(() => expect(field()).toBeNull());
   await screen.getByRole("button", { name: "Toggle" }).click();
   await vi.waitFor(() => expect(field()?.value).toBe(""));
+});
+
+test("groups: options under their headings in groupOrder; agents read compact with the Agent label", async () => {
+  const options: PeoplePickerOption[] = [
+    {
+      id: "a1",
+      name: "BOQ Intake",
+      kind: "agent",
+      for: "Asha",
+      group: "Agents",
+    },
+    { id: "p1", name: "Asha Rao", email: "asha@acme.com", group: "People" },
+    { id: "u", name: "Unassigned" },
+  ];
+  const screen = await render(
+    <PeoplePickerContent
+      options={options}
+      groupOrder={["People", "Agents"]}
+      onSelect={() => {}}
+    />,
+  );
+  const headings = [
+    ...screen.container.querySelectorAll("[cmdk-group-heading]"),
+  ].map((h) => h.textContent);
+  expect(headings).toEqual(["People", "Agents"]);
+  const rows = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="people-picker-item"]',
+    ),
+  ].map((r) => r.querySelector('[data-slot="person-name"]')!.textContent);
+  // The ungrouped row leads; then People; then Agents.
+  expect(rows[0]).toBe("Unassigned");
+  expect(rows[1]).toBe("Asha Rao");
+  const agent = screen.container.querySelector<HTMLElement>(
+    '[data-slot="people-picker-item"][data-kind="agent"]',
+  )!;
+  expect(
+    agent.querySelector('[data-slot="person-name-for"]')!.textContent,
+  ).toBe(" · Asha");
+  expect(
+    agent.querySelector('[data-slot="person-agent-label"]'),
+  ).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("groups: a chosen row keeps its result's heading; an owner is searchable; a heading and a group of one name are one list", async () => {
+  const options: PeoplePickerOption[] = [
+    { id: "p", name: "Asha Rao", group: "People" },
+    { id: "a", name: "Orbit", kind: "agent", for: "Manoj", group: "Agents" },
+    { id: "b", name: "Knot", kind: "agent", for: "Dev" },
+  ];
+  const screen = await render(
+    <PeoplePickerContent
+      options={options}
+      heading="Agents"
+      pinned={[{ id: "a", name: "Orbit", kind: "agent" }]}
+      groupOrder={["People", "Agents"]}
+      onSelect={() => {}}
+    />,
+  );
+  const headings = () =>
+    [...screen.container.querySelectorAll("[cmdk-group-heading]")].map(
+      (h) => h.textContent,
+    );
+  // The one "Agents" list leads under `heading`, holding the pinned row and the ungrouped one.
+  expect(headings()).toEqual(["Agents", "People"]);
+  await userEvent.fill(screen.getByRole("combobox"), "manoj");
+  await expect
+    .poll(
+      () =>
+        screen.container.querySelectorAll('[data-slot="people-picker-item"]')
+          .length,
+    )
+    .toBe(1);
 });

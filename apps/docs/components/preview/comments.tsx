@@ -607,7 +607,7 @@ export function commentsMentions(): ReactNode {
  * Code via Arjun" and an "Agent" label. Its question to Arjun has an amber bar, "Needs your reply"
  * and suggested answers. Every author's name opens their hover card.
  */
-const CLAUDE = { name: "Claude Code", kind: "agent" as const, via: "Arjun" };
+const CLAUDE = { name: "Claude Code", kind: "agent" as const, for: "Arjun" };
 
 export function commentsAgent(): ReactNode {
   return (

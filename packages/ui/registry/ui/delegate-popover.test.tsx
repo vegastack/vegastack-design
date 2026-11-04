@@ -165,7 +165,7 @@ test("no agents: the connect empty state", async () => {
   ).toBeNull();
   await settle();
   await expectNoA11yViolations(document.body);
-  await page.getByRole("button", { name: "Connect an agent" }).click();
+  await page.getByRole("button", { name: "Connect an app" }).click();
   expect(onConnect).toHaveBeenCalledTimes(1);
 });
 
@@ -258,4 +258,126 @@ test("a delegation in flight is never sent twice, even after closing and reopeni
   await expect
     .element(page.getByRole("dialog", { name: "Delegate to an agent" }))
     .toBeVisible();
+});
+
+test("an agent with a hint can be picked, and the host's step replaces the form until it is cleared", async () => {
+  const onDelegate = vi.fn();
+  const agents: DelegatePopoverAgent[] = [
+    { id: "boq", name: "BOQ Intake", hint: "Can't see this space yet" },
+    { id: "claude", name: "Claude Code", access: "Read & write" },
+  ];
+  const screen = await render(
+    <DelegatePopover
+      agents={agents}
+      onDelegate={onDelegate}
+      connectHref="/agents/connect"
+      renderPicked={(agent, { clear }) =>
+        agent.hint ? (
+          <>
+            <p>{agent.name} can't see Showroom yet.</p>
+            <Button size="sm" variant="outline" onClick={clear}>
+              Cancel
+            </Button>
+          </>
+        ) : null
+      }
+    >
+      {trigger}
+    </DelegatePopover>,
+  );
+  await open();
+  await expect.element(page.getByText("Agents you can use")).toBeVisible();
+  const boq = page.getByRole("option", { name: /BOQ Intake/ });
+  expect(boq.element().getAttribute("aria-disabled")).not.toBe("true");
+  expect(
+    boq.element().querySelector('[data-slot="people-picker-hint"]')!
+      .textContent,
+  ).toBe("Can't see this space yet");
+  // Every row is an agent here: no "Agent" label.
+  expect(
+    boq.element().querySelector('[data-slot="person-agent-label"]'),
+  ).toBeNull();
+  await boq.click();
+  await expect
+    .element(page.getByText("BOQ Intake can't see Showroom yet."))
+    .toBeVisible();
+  expect(
+    screen.container.ownerDocument.querySelector(
+      '[data-slot="delegate-popover-form"]',
+    ),
+  ).toBeNull();
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect
+    .element(page.getByRole("button", { name: "Delegate", exact: true }))
+    .toBeDisabled();
+  // The connect link is a real link to the page.
+  await expect
+    .element(page.getByRole("link", { name: "Connect an app" }))
+    .toHaveAttribute("href", "/agents/connect");
+  await page.getByRole("option", { name: /Claude Code/ }).click();
+  await page.getByRole("button", { name: "Delegate", exact: true }).click();
+  expect(onDelegate).toHaveBeenCalledWith({
+    agentId: "claude",
+    instructions: "",
+  });
+});
+
+test("one agent with a hint is never picked for you, and Cancel on its step stays cancelled", async () => {
+  await render(
+    <DelegatePopover
+      agents={[{ id: "a", name: "Orbit", hint: "Can't see this space yet" }]}
+      onDelegate={() => {}}
+      renderPicked={(_, { clear }) => (
+        <Button size="sm" onClick={clear}>
+          Cancel
+        </Button>
+      )}
+    >
+      {trigger}
+    </DelegatePopover>,
+  );
+  await open();
+  const step = () =>
+    document.querySelector('[data-slot="delegate-popover-picked"]');
+  expect(step()).toBeNull();
+  await page.getByRole("option", { name: /Orbit/ }).click();
+  await expect.poll(step).not.toBeNull();
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect.poll(step).toBeNull();
+  expect(
+    document.querySelector('[data-slot="delegate-popover-form"]'),
+  ).not.toBeNull();
+});
+
+test("a picked agent that can no longer take it is un-picked", async () => {
+  const both: DelegatePopoverAgent[] = [
+    { id: "a", name: "Orbit" },
+    { id: "b", name: "Knot" },
+  ];
+  const view = (agents: DelegatePopoverAgent[]) => (
+    <DelegatePopover agents={agents} open onDelegate={() => {}}>
+      {trigger}
+    </DelegatePopover>
+  );
+  const screen = await render(view(both));
+  await page.getByRole("option", { name: /Orbit/ }).click();
+  await expect
+    .poll(() =>
+      page
+        .getByRole("option", { name: /Orbit/ })
+        .element()
+        .getAttribute("data-checked"),
+    )
+    .toBe("true");
+  await screen.rerender(
+    view([{ id: "a", name: "Orbit", disabledReason: "Paused" }, both[1]!]),
+  );
+  await expect
+    .poll(() =>
+      page
+        .getByRole("option", { name: /Orbit/ })
+        .element()
+        .getAttribute("data-checked"),
+    )
+    .toBeNull();
 });

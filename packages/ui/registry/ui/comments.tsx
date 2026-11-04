@@ -1,4 +1,4 @@
-// @vegastack comments@0.38.0 sha256-5/tfJHLk2BCL/BKZotDT2BjLP+O3yv+eiOST00fOKiE=
+// @vegastack comments@0.38.0 sha256-zBYXeTCracaxnjmVYpcHd7nhJE3++byvt+LNzR4Nx1U=
 
 "use client";
 
@@ -100,7 +100,7 @@ export interface CommentData {
   /** The viewer may delete it (the menu shows Delete). @default false */
   canDelete?: boolean;
   /**
-   * @deprecated Give the author `kind: "agent"` (and `via`) instead; kept for one release. Written by
+   * @deprecated Give the author `kind: "agent"` (and `for`) instead; kept for one release. Written by
    * an agent: read as if `author.kind` were `"agent"`. @default false
    */
   agent?: boolean;

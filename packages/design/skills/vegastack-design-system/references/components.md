@@ -220,7 +220,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Chat
 
-- **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's purple bot, "Edited by Claude (via Manoj) · 3 changes · 2m ago", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.
+- **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's hexagon, "Edited by Claude for Manoj · 3 changes · 2m ago", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.
 - **`agent-panel`** — An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.
 - **`approval-card`** — An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.
 - **`cited-list`** — An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.

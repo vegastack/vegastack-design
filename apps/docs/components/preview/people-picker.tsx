@@ -180,14 +180,14 @@ const AGENTS: PeoplePickerOption[] = [
     id: "a1",
     name: "Claude Code",
     kind: "agent",
-    via: "Manoj",
+    for: "Manoj",
     description: "claude.ai · Read & write",
   },
   {
     id: "a2",
     name: "Nightly digest",
     kind: "agent",
-    via: "Manoj",
+    for: "Manoj",
     disabledReason: "Read only — can't be delegated",
   },
 ];
@@ -202,6 +202,61 @@ export function peoplePickerAgents(): ReactNode {
           options={AGENTS}
           heading="Your agents"
           searchPlaceholder="Search agents"
+          selected={chosen}
+          onSelect={(o) => setChosen([o.id])}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+const ASSIGNEES: PeoplePickerOption[] = [
+  {
+    id: "p1",
+    name: "Asha Rao",
+    email: "asha@acme.com",
+    hue: "blue",
+    group: "People",
+  },
+  {
+    id: "p2",
+    name: "Dev Menon",
+    email: "dev@acme.com",
+    image: "/preview/avatar-2.svg",
+    group: "People",
+  },
+  {
+    id: "a1",
+    name: "Field notes",
+    kind: "agent",
+    for: "Asha",
+    hue: "green",
+    group: "Agents",
+  },
+  {
+    id: "a2",
+    name: "Orbit",
+    kind: "agent",
+    for: "Dev",
+    mark: { src: "/preview/agent-mark-orbit.svg" },
+    hint: "Can't see this space yet",
+    group: "Agents",
+  },
+];
+
+/**
+ * People and agents in one assignee list, each under its heading (`group`, ordered by
+ * `groupOrder`): agents read "Field notes · Asha" with the "Agent" label, and one that can't see the
+ * record yet carries a `hint` without being disabled.
+ */
+export function peoplePickerGroups(): ReactNode {
+  const [chosen, setChosen] = React.useState<string[]>(["p1"]);
+  return (
+    <Wrapper>
+      <div className="w-72 rounded-lg border border-border bg-popover">
+        <PeoplePickerContent
+          options={ASSIGNEES}
+          groupOrder={["People", "Agents"]}
           selected={chosen}
           onSelect={(o) => setChosen([o.id])}
         />

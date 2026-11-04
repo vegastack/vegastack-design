@@ -1,4 +1,4 @@
-// @vegastack version-list@0.38.0 sha256-S95+xOUEHBLo7RPKy1sXRB4juHv19l5zH2fl1k85nag=
+// @vegastack version-list@0.38.0 sha256-MaLeLTS+FOyUXmolAKiJ5d2usqr3i9ilPJ/kEKK/r3Q=
 
 "use client";
 
@@ -58,8 +58,8 @@ export interface VersionItem {
   id: string;
   /**
    * Who wrote the text this version holds; a `badge` on the person ("Inactive") follows the name.
-   * An agent (`kind: "agent"`, `via` its owner) reads as everywhere else: the purple bot, "Claude
-   * via Manoj" and the "Agent" label.
+   * An agent (`kind: "agent"`, `for` its owner) reads as everywhere else: its hexagon and "Claude
+   * for Manoj".
    * `null` for a version the system kept with no person behind it (a page's text from before it
    * moved to live editing): the row names no one — never a placeholder person.
    */
@@ -67,7 +67,7 @@ export interface VersionItem {
   /** When that text was last saved. */
   at: Date | string | number;
   /**
-   * A name the author gave it, or a title the host writes ("Before Claude (for Manoj)'s edits");
+   * A name the author gave it, or a title the host writes ("Before Claude for Manoj's edits");
    * the row leads with it. @default undefined
    */
   name?: string | null;

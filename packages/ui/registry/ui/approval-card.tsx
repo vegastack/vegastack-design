@@ -1,4 +1,4 @@
-// @vegastack approval-card@0.33.0 sha256-xfNOE3cMIH5cWxDZB05SrVkqac8GUVovu6ghLHP2ZQA=
+// @vegastack approval-card@0.33.0 sha256-DY2PGHnExBuSL22YZZydhkZylwn40afmD4iHUMnpn8g=
 
 "use client";
 
@@ -16,7 +16,7 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /* ------------------------------------------------------------------------------------------------
  * ApprovalCard — a risky action an agent asked to take, waiting on the person it works for: who
- * asks (the agent's purple bot, "Claude Code via Manoj" and the "Agent" label), what it wants to
+ * asks (the agent's hexagon and "Claude Code for Manoj"), what it wants to
  * do in plain words, the records it touches (the first few, "and N more"), its reason, a
  * reassurance ("You can restore them from Trash for 30 days."), when it was asked and when it
  * expires, and one Approve / Decline for the whole request — all or nothing. Once decided, the
@@ -53,7 +53,7 @@ export interface ApprovalCardProps extends Omit<
   React.ComponentPropsWithRef<"section">,
   "children"
 > {
-  /** Who asks — an agent (`kind: "agent"`, `via` its owner). */
+  /** Who asks — an agent (`kind: "agent"`, `for` its owner). */
   actor: Person;
   /** What it wants to do, after its name: "wants to move 2 tasks to Trash". */
   verb: React.ReactNode;
@@ -142,8 +142,8 @@ function outcome(
       };
     default:
       return {
-        text: actor.via
-          ? `Waiting for ${actor.via}'s approval`
+        text: actor.for
+          ? `Waiting for ${actor.for}'s approval`
           : "Waiting for approval",
         icon: (
           <Clock aria-hidden className={cn(icon, "text-muted-foreground")} />
@@ -161,7 +161,7 @@ function outcome(
  *
  * @example
  * <ApprovalCard
- *   actor={{ name: "Claude Code", kind: "agent", via: "Manoj" }}
+ *   actor={{ name: "Claude Code", kind: "agent", for: "Manoj" }}
  *   verb={<>wants to <strong>move 2 tasks to Trash</strong></>}
  *   items={[{ id: "12", title: "#12 Update launch spec", href: "/tasks/12", meta: "Marketing" }]}
  *   reason="These duplicate #10 and #11."

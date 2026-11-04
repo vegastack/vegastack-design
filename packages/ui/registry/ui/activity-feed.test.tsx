@@ -948,7 +948,7 @@ test("pending dims the list and marks the section busy; an agent's event is said
 });
 
 test("an agent actor reads agent-first, for its owner, with no label; the agent kinds draw in their status tones", async () => {
-  const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
+  const claude = { name: "Claude Code", kind: "agent" as const, for: "Manoj" };
   const screen = await render(
     <ActivityFeedList>
       <ActivityFeedItem>
@@ -958,8 +958,7 @@ test("an agent actor reads agent-first, for its owner, with no label; the agent 
           date={NOW - HOUR}
           now={NOW}
         >
-          delegated this to{" "}
-          <ActivityValue>Claude Code (for Manoj)</ActivityValue>
+          delegated this to <ActivityValue>Claude Code for Manoj</ActivityValue>
         </ActivityEvent>
       </ActivityFeedItem>
       <ActivityFeedItem>
@@ -980,7 +979,7 @@ test("an agent actor reads agent-first, for its owner, with no label; the agent 
   expect(events[0]!.hasAttribute("data-agent")).toBe(false);
   expect(events[1]!.hasAttribute("data-agent")).toBe(true);
   expect(
-    events[1]!.querySelector("[data-slot=person-name-via]")?.textContent,
+    events[1]!.querySelector("[data-slot=person-name-for]")?.textContent,
   ).toBe(" for Manoj");
   expect(events[1]!.querySelector("[data-slot=person-agent-label]")).toBeNull();
   await expect

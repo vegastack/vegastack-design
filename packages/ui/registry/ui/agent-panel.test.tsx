@@ -22,7 +22,7 @@ const MINUTE = 60_000;
 
 const agent = {
   name: "Claude Code",
-  via: "Priya",
+  for: "Priya",
   access: "Read & write",
   provider: "claude.ai",
 };
@@ -34,7 +34,7 @@ const slot = (c: Element, name: string) =>
 
 test("working card: header, for and provider, elapsed time, live line, Stop and the ⋯ menu", async () => {
   const onStop = vi.fn();
-  const onViewAgent = vi.fn();
+  const onOpenAgent = vi.fn();
   const ref = React.createRef<HTMLDivElement>();
   const screen = await render(
     <AgentPanel
@@ -43,7 +43,7 @@ test("working card: header, for and provider, elapsed time, live line, Stop and 
       startedAt={NOW - 4 * MINUTE}
       progress="Reading the 3 linked pages…"
       onStop={onStop}
-      onViewAgent={onViewAgent}
+      onOpenAgent={onOpenAgent}
       onChangeAgent={() => {}}
       onRemove={() => {}}
     />,
@@ -84,13 +84,13 @@ test("working card: header, for and provider, elapsed time, live line, Stop and 
   const items = page.getByRole("menuitem");
   await expect.element(items.first()).toBeVisible();
   expect(items.elements().map((el) => el.textContent)).toEqual([
-    "View agent",
+    "Open agent",
     "Change agent",
     "Stop",
     "Remove",
   ]);
-  await page.getByRole("menuitem", { name: "View agent" }).click();
-  expect(onViewAgent).toHaveBeenCalledTimes(1);
+  await page.getByRole("menuitem", { name: "Open agent" }).click();
+  expect(onOpenAgent).toHaveBeenCalledTimes(1);
 });
 
 test("the menu shows only the handlers passed, and no Stop once the work is over", async () => {
@@ -191,7 +191,7 @@ test("approval, failed, blocked: each state's line and actions", async () => {
     />,
   );
   expect(slot(approval.container, "agent-panel-state-line")!.textContent).toBe(
-    "Wants approval",
+    "Needs approval",
   );
   expect(slot(approval.container, "agent-panel-sentence")!.textContent).toBe(
     "Move 3 tasks to Trash",
@@ -729,10 +729,10 @@ test("badge in a row: the word gives way first, then drops out; the name truncat
   );
 });
 
-test("hover card: name, Agent, for, provider, access, state and View agent", async () => {
-  const onViewAgent = vi.fn();
+test("hover card: name, Agent, for, provider, access, state and Open agent", async () => {
+  const onOpenAgent = vi.fn();
   const screen = await render(
-    <AgentHoverCard agent={agent} state="working" onViewAgent={onViewAgent}>
+    <AgentHoverCard agent={agent} state="working" onOpenAgent={onOpenAgent}>
       <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
     </AgentHoverCard>,
   );
@@ -743,8 +743,8 @@ test("hover card: name, Agent, for, provider, access, state and View agent", asy
   const card = page.getByText("For Priya · claude.ai · Read & write");
   await expect.element(card).toBeVisible();
   await expect.element(page.getByText("Working")).toBeVisible();
-  await page.getByRole("button", { name: "View agent" }).click();
-  expect(onViewAgent).toHaveBeenCalledTimes(1);
+  await page.getByRole("button", { name: "Open agent" }).click();
+  expect(onOpenAgent).toHaveBeenCalledTimes(1);
 });
 
 test("hover card: the last action under the state, and AgentCard alone", async () => {
@@ -895,4 +895,234 @@ test("instructionsMaxLength: instructions already past the limit can't be saved 
   await box.fill("Short");
   await screen.getByRole("button", { name: "Save" }).click();
   expect(onInstructionsChange).toHaveBeenCalledWith("Short");
+});
+
+test("the added states: quiet, not started, paused, no action, an approval to review and a block to give access", async () => {
+  const onStop = vi.fn();
+  const onResume = vi.fn();
+  const onReview = vi.fn();
+  const onGiveAccess = vi.fn();
+  const screen = await render(
+    <div className="flex w-80 flex-col gap-3">
+      <AgentPanel
+        {...base}
+        data-testid="quiet"
+        state="quiet"
+        startedAt={NOW - 45 * MINUTE}
+        lastUpdateAt={NOW - 30 * MINUTE}
+        onStop={onStop}
+      />
+      <AgentPanel
+        {...base}
+        data-testid="late"
+        state="not-started"
+        queuedHint="Claude checks in every few minutes."
+      />
+      <AgentPanel
+        {...base}
+        data-testid="paused"
+        state="paused"
+        pausedReason="Reached its usage limit"
+        onResume={onResume}
+      />
+      <AgentPanel
+        {...base}
+        data-testid="none-needed"
+        state="no-action"
+        summary="Nothing new since Friday."
+      />
+      <AgentPanel
+        {...base}
+        data-testid="review"
+        state="approval"
+        approval="Wants to share Quotation.xlsx with Acme."
+        onReview={onReview}
+      />
+      <AgentPanel
+        {...base}
+        data-testid="blocked"
+        state="blocked"
+        blockedReason="Can't see Showroom yet."
+        onGiveAccess={onGiveAccess}
+      />
+    </div>,
+  );
+  const card = (id: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+  const line = (id: string) =>
+    slot(card(id), "agent-panel-state-line")!.textContent;
+  const sentence = (id: string) =>
+    slot(card(id), "agent-panel-sentence")?.textContent ??
+    slot(card(id), "agent-panel-hint")?.textContent;
+
+  expect(line("quiet")).toBe("Quiet · 45 min");
+  expect(sentence("quiet")).toBe("No update for 30 min.");
+  expect(
+    slot(card("quiet"), "agent-state-icon")!.getAttribute("class"),
+  ).toContain("text-warning-text");
+  await screen.getByRole("button", { name: "Stop" }).click();
+  expect(onStop).toHaveBeenCalledTimes(1);
+
+  expect(line("late")).toBe("Not started");
+  expect(sentence("late")).toBe("Claude checks in every few minutes.");
+
+  expect(line("paused")).toBe("Paused");
+  expect(sentence("paused")).toBe("Reached its usage limit");
+  await screen.getByRole("button", { name: "Resume" }).click();
+  expect(onResume).toHaveBeenCalledTimes(1);
+
+  expect(line("none-needed")).toBe("No action needed");
+  expect(sentence("none-needed")).toBe("Nothing new since Friday.");
+  expect(slot(card("none-needed"), "agent-panel-state-actions")).toBeNull();
+
+  expect(line("review")).toBe("Needs approval");
+  expect(sentence("review")).toBe("Wants to share Quotation.xlsx with Acme.");
+  await screen.getByRole("button", { name: "Review" }).click();
+  expect(onReview).toHaveBeenCalledTimes(1);
+  expect(card("review").dataset.attention).toBe("");
+
+  expect(line("blocked")).toBe("Can't start");
+  await screen.getByRole("button", { name: "Give access" }).click();
+  expect(onGiveAccess).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the badge words for the added states; the ring stays for the states that need someone", async () => {
+  const screen = await render(
+    <TooltipProvider>
+      <AgentStateBadge state="quiet" />
+      <AgentStateBadge state="not-started" />
+      <AgentStateBadge state="paused" />
+      <AgentStateBadge state="no-action" />
+      <AgentStateBadge state="approval" />
+      <AgentStateRing state="quiet" data-testid="ring-quiet">
+        <PersonAvatar person={{ name: "A", kind: "agent" }} />
+      </AgentStateRing>
+      <AgentStateRing state="approval" data-testid="ring-approval">
+        <PersonAvatar person={{ name: "B", kind: "agent" }} />
+      </AgentStateRing>
+    </TooltipProvider>,
+  );
+  const words = [
+    ...screen.container.querySelectorAll('[data-slot="agent-state-badge"]'),
+  ].map((b) => b.textContent);
+  expect(words).toEqual([
+    "Quiet",
+    "Not started",
+    "Paused",
+    "No action needed",
+    "Needs approval",
+  ]);
+  const ring = (id: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!
+      .className;
+  expect(ring("ring-quiet")).not.toContain("ring-warning");
+  expect(ring("ring-approval")).toContain("ring-warning");
+});
+
+test("hover card lanyard: kind, owner, description, badges, a link to the page and the technical footer", async () => {
+  const onOpenAgent = vi.fn();
+  const screen = await render(
+    <AgentCard
+      agent={{ ...agent, provider: null, access: null }}
+      kindLabel="Connected app"
+      owner="Priya Raman's agent"
+      description="Works with Priya's access."
+      badges={<span data-testid="managed">Managed by VegaStack</span>}
+      footer="claude.ai · MCP · Signed in"
+      href="/agents/a1"
+      state="working"
+      onOpenAgent={onOpenAgent}
+    />,
+  );
+  const card = slot(screen.container, "agent-hover-card")!;
+  expect(slot(card, "agent-identity-kind")!.textContent).toBe("Connected app");
+  // The kind takes the purple label's place.
+  expect(slot(card, "person-agent-label")).toBeNull();
+  expect(slot(card, "agent-identity-facts")!.textContent).toBe(
+    "Priya Raman's agent",
+  );
+  expect(slot(card, "agent-hover-card-description")!.className).toContain(
+    "line-clamp-2",
+  );
+  expect(card.querySelector('[data-testid="managed"]')).not.toBeNull();
+  expect(slot(card, "agent-hover-card-footer")!.textContent).toBe(
+    "claude.ai · MCP · Signed in",
+  );
+  // The lanyard leads with a 40px hexagon.
+  expect(
+    card
+      .querySelector<HTMLElement>('[data-slot="avatar"]')!
+      .getBoundingClientRect().width,
+  ).toBe(40);
+  const open = screen.getByRole("link", { name: "Open agent" });
+  await expect.element(open).toHaveAttribute("href", "/agents/a1");
+  open.element().addEventListener("click", (e) => e.preventDefault());
+  await open.click();
+  expect(onOpenAgent).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a section has one Stop, on its header, in every state Stop applies to", async () => {
+  const screen = await render(
+    <div className="flex flex-col gap-2">
+      {(["queued", "not-started", "quiet"] as const).map((state) => (
+        <AgentPanel
+          key={state}
+          {...base}
+          data-testid={state}
+          variant="section"
+          state={state}
+          onStop={() => {}}
+        />
+      ))}
+    </div>,
+  );
+  for (const state of ["queued", "not-started", "quiet"]) {
+    const buttons = [
+      ...screen.container
+        .querySelector(`[data-testid="${state}"]`)!
+        .querySelectorAll("button"),
+    ].filter((b) => b.textContent === "Stop");
+    expect(buttons).toHaveLength(1);
+  }
+});
+
+test("hover card: the trigger never clips actingFor, and Enter steps into the card", async () => {
+  const screen = await render(
+    <AgentHoverCard agent={agent} href="/agents/a1">
+      <PersonAvatar
+        size="lg"
+        person={{ name: "Claude Code", kind: "agent" }}
+        actingFor={{ name: "Priya", hue: "blue" }}
+      />
+    </AgentHoverCard>,
+  );
+  const trigger = screen.getByRole("button", {
+    name: "Claude Code for Priya, agent",
+  });
+  const el = trigger.element() as HTMLElement;
+  expect(getComputedStyle(el).maskImage).toBe("none");
+  // It hugs the avatar instead of squeezing it into a fixed box.
+  expect(el.getBoundingClientRect().width).toBe(44);
+  // Its hover tint is on the hexagon layer behind the avatar, not the square button.
+  await trigger.hover();
+  await expect.poll(() => getComputedStyle(el).backgroundImage).toBe("none");
+  await expect
+    .poll(
+      () => getComputedStyle(slot(el, "agent-shape-layer")!).backgroundImage,
+    )
+    .not.toBe("none");
+  await userEvent.unhover(trigger);
+  await userEvent.tab();
+  await expect
+    .element(page.getByRole("link", { name: "Open agent" }))
+    .toBeVisible();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(page.getByRole("link", { name: "Open agent" }))
+    .toHaveFocus();
+  await expect
+    .element(page.getByRole("link", { name: "Open agent" }))
+    .toBeVisible();
 });

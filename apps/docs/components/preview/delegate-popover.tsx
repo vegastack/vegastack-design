@@ -86,3 +86,58 @@ export function delegatePopoverStates(): ReactNode {
     </Wrapper>
   );
 }
+
+/** Agents with marks and hues, one of which can't see the record yet. */
+const SPACE_AGENTS: DelegatePopoverAgent[] = [
+  {
+    id: "notes",
+    name: "Field notes",
+    hue: "green",
+    hint: "Can't see this space yet",
+  },
+  {
+    id: "orbit",
+    name: "Orbit",
+    for: "Priya",
+    mark: { src: "/preview/agent-mark-orbit.svg" },
+    access: "Read & write",
+  },
+  { id: "codex", name: "Codex", disabledReason: "Paused" },
+];
+
+export function delegatePopoverPicked(): ReactNode {
+  // An agent that can't see the record is listed with a hint; picking it shows the host's step
+  // (give access, or ask the space owner) instead of the instructions, so no run starts that
+  // can't succeed.
+  return (
+    <Wrapper>
+      <DelegatePopover
+        agents={SPACE_AGENTS}
+        connectHref="#connect"
+        onDelegate={noop}
+        renderPicked={(agent, { close, clear }) =>
+          agent.hint ? (
+            <>
+              <p>{agent.name} can't see Studio yet.</p>
+              <div className="flex flex-wrap gap-1.5">
+                <Button size="sm" variant="secondary" onClick={close}>
+                  Give access to this task
+                </Button>
+                <Button size="sm" variant="outline" onClick={close}>
+                  Give access to Studio
+                </Button>
+                <Button size="sm" variant="ghost" onClick={clear}>
+                  Cancel
+                </Button>
+              </div>
+            </>
+          ) : null
+        }
+      >
+        <Button variant="outline" size="sm">
+          Delegate…
+        </Button>
+      </DelegatePopover>
+    </Wrapper>
+  );
+}
