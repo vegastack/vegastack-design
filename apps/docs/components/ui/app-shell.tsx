@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.35.2 sha256-HQ4kleo2jUwFnnvMVo+144gpLY+AEK1mtRF7d19EOQo=
+// @vegastack app-shell@0.35.2 sha256-1DXnfJJXfS+k0ESXeTQa7rLpUKUnV6g+/vTbWUO+saQ=
 
 "use client";
 
@@ -966,6 +966,402 @@ export function AppShellContent({
       className={cn(
         "@container/app-shell-content relative flex min-h-0 outline-none min-w-0 flex-1 flex-col overflow-y-auto bg-background",
         variant === "inset" && "md:m-2 md:ms-0 md:rounded-xl md:shadow-sm",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Under this the aside is a full-screen dialog: the phone's panel. */
+const ASIDE_PHONE_QUERY = "(width < 48rem)";
+const ASIDE_WIDE_QUERY = "(width >= 48rem)";
+
+/** One press of an arrow key on the aside's resize handle. */
+const ASIDE_RESIZE_STEP = 16;
+
+const ASIDE_COOKIE_NAME = "app_shell_aside";
+const ASIDE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const ASIDE_STATE_ATTRIBUTE = "data-app-shell-aside";
+const ASIDE_WIDTH_ATTRIBUTE = "data-app-shell-aside-width";
+
+/** Under 768px, in every mode: the whole screen, sliding up from the foot. */
+const ASIDE_PHONE =
+  "max-md:fixed max-md:inset-0 max-md:z-50 max-md:w-full max-md:border-s-0 max-md:pt-[env(safe-area-inset-top)] max-md:pb-[env(safe-area-inset-bottom)] max-md:data-keyboard:pb-0 max-md:data-[state=closed]:translate-y-full";
+
+/** Each mode from 768px, literal so a consumer's Tailwind scanner sees every class. */
+const ASIDE_MODES = {
+  // Over the content, then docked from 80rem, pushing it.
+  auto: "md:fixed md:inset-y-0 md:end-0 md:z-50 md:shadow-lg md:data-[state=closed]:translate-x-full md:rtl:data-[state=closed]:-translate-x-full min-[80rem]:sticky min-[80rem]:inset-y-auto min-[80rem]:top-0 min-[80rem]:z-auto min-[80rem]:h-svh min-[80rem]:shadow-none min-[80rem]:data-[state=closed]:w-0 min-[80rem]:data-[state=closed]:translate-x-0 min-[80rem]:data-[state=closed]:border-s-0 min-[80rem]:rtl:data-[state=closed]:translate-x-0",
+  dock: "md:sticky md:top-0 md:h-svh md:data-[state=closed]:w-0 md:data-[state=closed]:border-s-0",
+  overlay:
+    "md:fixed md:inset-y-0 md:end-0 md:z-50 md:shadow-lg md:data-[state=closed]:translate-x-full md:rtl:data-[state=closed]:-translate-x-full",
+} as const;
+
+/** A JSON string literal that cannot close the inline `<script>` it is written into. */
+const asideScriptLiteral = (value: string) =>
+  JSON.stringify(value).replace(/</g, "\\u003c");
+
+/**
+ * A static or cached shell cannot read a cookie on the server, so it renders the aside closed at its
+ * default width. Put this script in `<head>`: before first paint it reads the cookie
+ * `useAppShellAsideCookie` writes, marks `<html>`, and gives the panel its width and open state, so
+ * nothing slides or pushes on load. A phone always starts closed. Under a nonce-based Content
+ * Security Policy, pass the request's `nonce`.
+ *
+ * @example
+ * <head><AppShellAsideStateScript cookieName="vs_aside" /></head>
+ */
+export function AppShellAsideStateScript({
+  cookieName = ASIDE_COOKIE_NAME,
+  nonce,
+}: {
+  /** @default "app_shell_aside" */
+  cookieName?: string;
+  /** @default undefined */
+  nonce?: string;
+}) {
+  const source = `(function(n){try{var c=document.cookie.split(/;\\s*/).filter(function(p){return p.indexOf(n+"=")===0})[0];if(!c)return;var v=c.slice(n.length+1).split("."),w=parseInt(v[1],10),o=v[0]==="1"&&window.matchMedia(${asideScriptLiteral(ASIDE_WIDE_QUERY)}).matches,r=document.documentElement;r.setAttribute("${ASIDE_STATE_ATTRIBUTE}",o?"open":"closed");if(w>0)r.setAttribute("${ASIDE_WIDTH_ATTRIBUTE}",w);var f=function(){var e=document.querySelector('[data-slot="app-shell-aside"]');if(!e)return false;if(w>0)e.style.setProperty("--app-shell-aside-width",w+"px");if(o){e.setAttribute("data-state","open");e.removeAttribute("inert")}return true};if(f())return;var m=new MutationObserver(function(){if(f())m.disconnect()});m.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){m.disconnect()},{once:true})}catch(e){}})(${asideScriptLiteral(cookieName)})`;
+  return (
+    <script
+      data-slot="app-shell-aside-state-script"
+      nonce={nonce}
+      dangerouslySetInnerHTML={{ __html: source }}
+    />
+  );
+}
+
+/** What `AppShellAsideStateScript` left on `<html>`, read once on the client. */
+function readAsideMark(): { open: boolean; width?: number } | undefined {
+  if (typeof document === "undefined") return undefined;
+  const root = document.documentElement;
+  const mark = root.getAttribute(ASIDE_STATE_ATTRIBUTE);
+  if (mark === null) return undefined;
+  const width = Number(root.getAttribute(ASIDE_WIDTH_ATTRIBUTE));
+  return { open: mark === "open", width: width > 0 ? width : undefined };
+}
+
+/**
+ * The aside's open state and width, kept in one cookie. It starts from
+ * `AppShellAsideStateScript`'s mark when there is one, so hydration agrees with a pre-painted panel.
+ * Pass `open`, `onOpenChange`, `width` and `onWidthCommitted` straight to `AppShellAside`. On a
+ * pre-painted open panel, render its children after mount: the server rendered it closed.
+ *
+ * @example
+ * const aside = useAppShellAsideCookie("vs_aside");
+ * <AppShellAside {...aside} label="Assistant chat">…</AppShellAside>
+ */
+export function useAppShellAsideCookie(cookieName = ASIDE_COOKIE_NAME): {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  width: number | undefined;
+  onWidthCommitted: (width: number) => void;
+} {
+  const [state, setState] = React.useState(() => {
+    const mark = readAsideMark();
+    return { open: mark?.open ?? false, width: mark?.width };
+  });
+  const write = React.useCallback(
+    (open: boolean, width: number | undefined) => {
+      setState({ open, width });
+      document.cookie = `${cookieName}=${open ? 1 : 0}.${width ?? 0}; path=/; max-age=${ASIDE_COOKIE_MAX_AGE}; SameSite=Lax`;
+      if (document.documentElement.hasAttribute(ASIDE_STATE_ATTRIBUTE))
+        document.documentElement.setAttribute(
+          ASIDE_STATE_ATTRIBUTE,
+          open ? "open" : "closed",
+        );
+    },
+    [cookieName],
+  );
+  return {
+    open: state.open,
+    onOpenChange: (open) => write(open, state.width),
+    width: state.width,
+    onWidthCommitted: (width) => write(state.open, width),
+  };
+}
+
+/** Props accepted by `AppShellAside`. */
+export interface AppShellAsideProps extends React.ComponentProps<"div"> {
+  /** The panel shows. */
+  open: boolean;
+  /** Close it: Escape inside the panel, or your own ✕. Move focus back to the trigger here. */
+  onOpenChange: (open: boolean) => void;
+  /**
+   * Its width in px, clamped to the bounds. The drag shows at once; take the result in
+   * `onWidthCommitted`, or the panel goes back to this when the drag ends.
+   * @default undefined
+   */
+  width?: number;
+  /** The width to start at, and what a double click on the handle goes back to. @default 400 */
+  defaultWidth?: number;
+  /** Every step of a drag. @default undefined */
+  onWidthChange?: (width: number) => void;
+  /** A drag or a key press changed the width: remember it here. @default undefined */
+  onWidthCommitted?: (width: number) => void;
+  /** @default 360 */
+  minWidth?: number;
+  /** @default 640 */
+  maxWidth?: number;
+  /**
+   * `auto` — docked from 1280px, pushing the content; over the content below that. `dock` and
+   * `overlay` pin one of those. Under 768px it is always a full-screen dialog.
+   * @default "auto"
+   */
+  mode?: "auto" | "dock" | "overlay";
+  /** Names the panel: the landmark, or the dialog on a phone. */
+  label: string;
+  /** Names the resize handle. @default "Resize panel" */
+  resizeLabel?: string;
+}
+
+/**
+ * `AppShellAside` — a panel at the shell's end that stays across routes: a chat beside the page, an
+ * inspector. Render it as `AppShell`'s last child, after the content column. From 1280px it docks and
+ * pushes the content, which reflows through its container queries; below that it lies over the
+ * content; on a phone it is a full-screen modal dialog that stays above the on-screen keyboard. The
+ * width drags from the start edge and resets on a double click.
+ *
+ * One element in every mode, so closing it or crossing a breakpoint never remounts its children: a
+ * draft or a stream survives. Closed, they are out of reach; render them after the first open to
+ * keep their code out of the first load. Escape inside the panel asks to close; a menu's own Escape
+ * stays the menu's. While open it sets `--app-shell-aside-inset` on the shell, which edge-pinned
+ * surfaces such as `UploadPanel` read to stay clear of it.
+ *
+ * @example
+ * <AppShellAside open={open} onOpenChange={setOpen} label="Assistant chat">
+ *   <AppShellAsideHeader>…</AppShellAsideHeader>
+ *   <Chat />
+ * </AppShellAside>
+ */
+export function AppShellAside({
+  open,
+  onOpenChange,
+  width: widthProp,
+  defaultWidth = 400,
+  onWidthChange,
+  onWidthCommitted,
+  minWidth = 360,
+  maxWidth = 640,
+  mode = "auto",
+  label,
+  resizeLabel = "Resize panel",
+  className,
+  style,
+  children,
+  ref,
+  onKeyDown,
+  ...props
+}: AppShellAsideProps) {
+  const phone = useMediaQuery(ASIDE_PHONE_QUERY);
+  const [ownWidth, setOwnWidth] = React.useState(defaultWidth);
+  // The drag's width, ahead of a controlled `width` that only learns of it at the end.
+  const [dragWidth, setDragWidth] = React.useState<number | null>(null);
+  const [node, setNode] = React.useState<HTMLDivElement | null>(null);
+  const setRefs = React.useMemo(() => mergeRefs(ref, setNode), [ref]);
+  const clamp = (value: number) =>
+    Math.round(Math.min(maxWidth, Math.max(minWidth, value)));
+  const width = dragWidth ?? clamp(widthProp ?? ownWidth);
+  const resizing = dragWidth !== null;
+
+  const commit = (next: number) => {
+    const value = clamp(next);
+    setOwnWidth(value);
+    onWidthChange?.(value);
+    onWidthCommitted?.(value);
+  };
+
+  const startResize = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const handle = event.currentTarget;
+    handle.setPointerCapture(event.pointerId);
+    const rtl = getComputedStyle(handle).direction === "rtl";
+    const startX = event.clientX;
+    const startWidth = width;
+    let next = startWidth;
+    // The panel sits at the end edge: dragging towards the start widens it.
+    const onMove = (move: PointerEvent) => {
+      next = clamp(
+        startWidth + (rtl ? move.clientX - startX : startX - move.clientX),
+      );
+      setDragWidth(next);
+      onWidthChange?.(next);
+    };
+    const finish = (cancelled: boolean) => {
+      handle.removeEventListener("pointermove", onMove);
+      handle.removeEventListener("pointerup", onUp);
+      handle.removeEventListener("pointercancel", onCancel);
+      setDragWidth(null);
+      if (!cancelled && next !== startWidth) commit(next);
+    };
+    const onUp = () => finish(false);
+    const onCancel = () => finish(true);
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onUp);
+    handle.addEventListener("pointercancel", onCancel);
+  };
+
+  const onHandleKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+    const wider = rtl ? "ArrowRight" : "ArrowLeft";
+    const narrower = rtl ? "ArrowLeft" : "ArrowRight";
+    if (event.key === wider) commit(width + ASIDE_RESIZE_STEP);
+    else if (event.key === narrower) commit(width - ASIDE_RESIZE_STEP);
+    else if (event.key === "Home") commit(minWidth);
+    else if (event.key === "End") commit(maxWidth);
+    else return;
+    event.preventDefault();
+  };
+
+  // A drag that outlives the handle (the window crossed to the phone) must not keep transitions off.
+  React.useEffect(() => {
+    if (phone) setDragWidth(null);
+  }, [phone]);
+
+  // Edge-pinned surfaces in the shell stay clear of the panel.
+  const inset = open && !phone ? width : 0;
+  React.useEffect(() => {
+    const shell = node?.closest<HTMLElement>("[data-slot=app-shell]");
+    if (!shell) return;
+    shell.style.setProperty("--app-shell-aside-inset", `${inset}px`);
+    return () => {
+      shell.style.removeProperty("--app-shell-aside-inset");
+    };
+  }, [node, inset]);
+
+  // A modal on a phone: the rest of the shell is out of reach. Portals stay reachable, so a menu
+  // the panel opens works, and so do toasts.
+  const modal = phone && open;
+  React.useEffect(() => {
+    if (!modal || !node?.parentElement) return;
+    const others = Array.from(node.parentElement.children).filter(
+      (element): element is HTMLElement =>
+        element !== node && element instanceof HTMLElement && !element.inert,
+    );
+    for (const element of others) element.inert = true;
+    return () => {
+      for (const element of others) element.inert = false;
+    };
+  }, [modal, node]);
+
+  // A phone's keyboard shrinks the visual viewport and not the layout one, so the panel follows the
+  // visual one and the composer at its foot stays above the keys.
+  const [viewport, setViewport] = React.useState<{
+    top: number;
+    height: number;
+    keyboard: boolean;
+  } | null>(null);
+  React.useLayoutEffect(() => {
+    const visual = window.visualViewport;
+    if (!modal || !visual) return;
+    const read = () =>
+      setViewport({
+        top: visual.offsetTop,
+        height: visual.height,
+        keyboard: visual.height < window.innerHeight - 1,
+      });
+    read();
+    visual.addEventListener("resize", read);
+    visual.addEventListener("scroll", read);
+    return () => {
+      visual.removeEventListener("resize", read);
+      visual.removeEventListener("scroll", read);
+      setViewport(null);
+    };
+  }, [modal]);
+
+  return (
+    <div
+      ref={setRefs}
+      role={phone ? "dialog" : "complementary"}
+      aria-modal={modal || undefined}
+      aria-label={label}
+      data-slot="app-shell-aside"
+      data-state={open ? "open" : "closed"}
+      data-mode={phone ? "phone" : mode}
+      data-keyboard={viewport?.keyboard ? "" : undefined}
+      inert={!open}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        // A portaled menu's Escape bubbles here through React; its target is outside the panel.
+        if (
+          event.key === "Escape" &&
+          open &&
+          event.currentTarget.contains(event.target as Node)
+        )
+          onOpenChange(false);
+      }}
+      style={
+        {
+          "--app-shell-aside-width": `${width}px`,
+          ...(modal && viewport
+            ? {
+                top: viewport.top,
+                bottom: "auto",
+                height: viewport.height,
+              }
+            : null),
+          ...style,
+        } as React.CSSProperties
+      }
+      className={cn(
+        "w-(--app-shell-aside-width) max-w-full shrink-0 border-s border-border bg-background data-[state=closed]:invisible",
+        !resizing &&
+          "motion-safe:transition-[width,translate,visibility] motion-safe:duration-150 motion-safe:ease-out",
+        ASIDE_PHONE,
+        ASIDE_MODES[mode],
+        className,
+      )}
+      {...props}
+    >
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={resizeLabel}
+        aria-valuenow={width}
+        aria-valuemin={minWidth}
+        aria-valuemax={maxWidth}
+        tabIndex={0}
+        data-slot="app-shell-aside-resize"
+        data-resizing={resizing ? "" : undefined}
+        onPointerDown={startResize}
+        onKeyDown={onHandleKey}
+        onDoubleClick={() => commit(defaultWidth)}
+        className="absolute inset-y-0 start-0 z-10 w-1 cursor-col-resize touch-none transition-colors outline-none select-none before:absolute before:inset-y-0 before:-start-3 before:-end-2 before:content-[''] hover:bg-border focus-visible:bg-border data-resizing:bg-border max-md:hidden"
+      />
+      {/* The clip is its own box: on the panel it would cut the handle's hit area in half. */}
+      <div className="h-full w-full overflow-hidden">
+        {/* Fixed to the panel's width while the aside animates, so its content never re-wraps. */}
+        <div
+          data-slot="app-shell-aside-panel"
+          className="flex h-full w-(--app-shell-aside-width) min-w-0 flex-col max-md:w-full"
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * `AppShellAsideHeader` — the panel's top bar, the height of `AppShellHeader` so the two rules meet.
+ *
+ * @example
+ * <AppShellAsideHeader>
+ *   <span className="flex-1">Assistant</span>
+ *   <Button size="icon-sm" variant="ghost" aria-label="Close"><X aria-hidden /></Button>
+ * </AppShellAsideHeader>
+ */
+export function AppShellAsideHeader({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="app-shell-aside-header"
+      className={cn(
+        "flex h-14 shrink-0 items-center gap-1 border-b border-border px-3",
         className,
       )}
       {...props}

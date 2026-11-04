@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BookOpen,
   CheckSquare,
@@ -16,11 +16,14 @@ import {
   Link2,
   Share2,
   Trash2,
+  X,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/app-shell` (dogfoods the registry) → auto-scanned.
 import {
   AppShell,
+  AppShellAside,
+  AppShellAsideHeader,
   AppShellContent,
   AppShellFold,
   AppShellHeader,
@@ -308,6 +311,67 @@ export function appShellMobile(): ReactNode {
             </p>
           </AppShellContent>
         </div>
+      </AppShell>
+    </Wrapper>
+  );
+}
+
+export function appShellAside(): ReactNode {
+  // Closed to start on a phone, where an open panel is a modal.
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia("(width >= 48rem)").matches) setOpen(true);
+  }, []);
+  return (
+    <Wrapper className="block h-104 overflow-hidden p-0" style={FRAME}>
+      <AppShell className="h-full min-h-0">
+        <div className="flex h-full min-w-0 flex-1 flex-col">
+          <AppShellHeader
+            actions={
+              <Button
+                size="sm"
+                variant="outline"
+                aria-expanded={open}
+                onClick={() => setOpen(!open)}
+              >
+                Assistant
+              </Button>
+            }
+          >
+            <span className="text-sm font-medium">Fix the IES upload</span>
+          </AppShellHeader>
+          <AppShellContent landmark="region" aria-label="Task">
+            <AppShellPage>
+              <p className="text-sm text-muted-foreground">
+                The page reflows as the panel opens and closes.
+              </p>
+            </AppShellPage>
+          </AppShellContent>
+        </div>
+        <AppShellAside
+          open={open}
+          onOpenChange={setOpen}
+          mode="dock"
+          defaultWidth={360}
+          minWidth={280}
+          label="Assistant chat"
+          className="md:h-full"
+        >
+          <AppShellAsideHeader>
+            <span className="min-w-0 flex-1 truncate text-sm font-medium">
+              Assistant
+            </span>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Close"
+              onClick={() => setOpen(false)}
+            >
+              <X aria-hidden />
+            </Button>
+          </AppShellAsideHeader>
+          <p className="p-4 text-sm text-muted-foreground">How can I help?</p>
+        </AppShellAside>
       </AppShell>
     </Wrapper>
   );
