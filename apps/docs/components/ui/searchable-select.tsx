@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.33.0 sha256-DbMyByY+vQPv+g4oRLeE1uvdhQgbkqO/iBLgUbmKJiw=
+// @vegastack searchable-select@0.33.0 sha256-JxAN78Q2LjNan/5LpFQVf7QjXyZQNgpTuAgIBItD5bI=
 
 "use client";
 
@@ -317,6 +317,13 @@ export interface SearchableSelectProps<
    */
   variant?: "outline" | "ghost";
   /**
+   * The trigger sits flat in a surface that is already its box (a grid cell's editor): no border,
+   * fill or shadow, and no open tint while the panel is open — the same tier as `DatePicker flat`.
+   * Keyboard focus keeps the global cue. Off, the trigger is unchanged.
+   * @default false
+   */
+  flat?: boolean;
+  /**
    * Show the whole selected value: the trigger grows a line at a time from its fixed height
    * instead of cutting the value off, and a long option wraps in the list rather than running out
    * of the panel. For a long user-entered name — a product, a task, a customer — in a dialog,
@@ -516,6 +523,7 @@ export function SearchableSelect<
   required = false,
   size = "default",
   variant = "outline",
+  flat = false,
   wrap = false,
   contentClassName,
   open,
@@ -886,6 +894,8 @@ export function SearchableSelect<
                   size === "sm" && "text-sm",
                   ghost &&
                     "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent",
+                  flat &&
+                    "border-transparent bg-transparent shadow-none hover:border-transparent data-flat:aria-expanded:bg-none dark:border-transparent dark:bg-transparent",
                   // `wrap`: the trigger's fixed height becomes its minimum, and the value runs onto
                   // as many lines as it needs; one line still measures the fixed height.
                   wrap &&
@@ -896,6 +906,7 @@ export function SearchableSelect<
                   className,
                 )}
                 data-slot={`${slot}-trigger`}
+                data-flat={flat ? "" : undefined}
               />
             }
           >

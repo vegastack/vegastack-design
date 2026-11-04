@@ -12107,6 +12107,10 @@
               "values": [""]
             },
             {
+              "name": "data-flat",
+              "values": [""]
+            },
+            {
               "name": "data-size",
               "values": []
             },
@@ -12130,6 +12134,10 @@
           "attributes": [
             {
               "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-flat",
               "values": [""]
             },
             {
@@ -14799,7 +14807,8 @@
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-async-search"
+        "@vegastack/use-async-search",
+        "@vegastack/thumbnail"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -14842,7 +14851,12 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["field-cell-display", "field-cell-filling"]
+              "values": [
+                "field-cell-display",
+                "field-cell-file-chip",
+                "field-cell-file-thumbnail",
+                "field-cell-filling"
+              ]
             },
             {
               "name": "data-type",
@@ -24470,6 +24484,10 @@
       "dataAttributes": {
         "SearchableSelect": {
           "attributes": [
+            {
+              "name": "data-flat",
+              "values": [""]
+            },
             {
               "name": "data-placeholder",
               "values": [""]

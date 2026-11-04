@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.35.1 sha256-eXJrJI8HSTqeg3N98vmbGSZ39pgbEp/eP8UJaGgyZWY=
+// @vegastack field-cell@0.35.1 sha256-fSd+RQowJLYiboneOIHJQ2+4Jd+bsia4cHF15eF5scc=
 
 "use client";
 
@@ -74,6 +74,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
+import { Thumbnail } from "@/components/ui/thumbnail";
 import { toast } from "@/components/ui/toast";
 import {
   TruncatedText,
@@ -258,6 +259,12 @@ export interface FieldFile {
   id: string;
   name: string;
   contentType?: string | null;
+  /**
+   * A small image of the file (an image's own thumbnail): a grid cell (`variant="cell"`) shows it
+   * in place of the file's chip.
+   * @default undefined
+   */
+  thumbnailUrl?: string | null;
 }
 
 /** A field's configuration — what each type needs to show and edit its value. */
@@ -637,8 +644,8 @@ export interface FieldCellDisplayProps {
    * `cell` — the value as a grid cell shows it: one clipped line that never grows its cell. A
    * number or percent is plain (no digit grouping; only a currency groups), a link shows without
    * its scheme and without a trailing slash on a bare host, a date or date-time is clipped on one
-   * line instead of ending in an ellipsis, and a person is always their avatar and name (every
-   * person, not avatars and "+N").
+   * line instead of ending in an ellipsis, a person is always their avatar and name (every
+   * person, not avatars and "+N"), and every file shows as its chip, or an image's thumbnail.
    * @default "default"
    */
   variant?: "default" | "cell";
@@ -887,6 +894,39 @@ export function FieldCellDisplay({
     case "file": {
       const files = (Array.isArray(value) ? value : []) as FieldFile[];
       if (files.length === 0) return empty;
+      // In a grid cell every file shows, as a Page shows it — its chip, or an image's thumbnail —
+      // on one line that clips at the cell's edge, like the person cell (no "+N", no scroll bar).
+      if (cell)
+        return root(
+          <span className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap">
+            {files.map((file) =>
+              file.thumbnailUrl ? (
+                <Thumbnail
+                  key={file.id}
+                  data-slot="field-cell-file-thumbnail"
+                  src={file.thumbnailUrl}
+                  alt={file.name}
+                  title={file.name}
+                  size="sm"
+                  className="h-5 w-8 rounded-sm"
+                />
+              ) : (
+                <span
+                  key={file.id}
+                  data-slot="field-cell-file-chip"
+                  className="shrink-0 [&_*]:whitespace-nowrap"
+                >
+                  <InlineChip
+                    kind="file"
+                    label={file.name}
+                    contentType={file.contentType}
+                    targetId={file.id}
+                  />
+                </span>
+              ),
+            )}
+          </span>,
+        );
       return root(
         <>
           {files.slice(0, SHOWN).map((file) => (
@@ -1036,12 +1076,15 @@ function RecordLinkEditor({
   config,
   onChange,
   defaultSearch,
+  flat,
   ...a11y
 }: {
   value: readonly FieldLinkTarget[];
   config: FieldConfig;
   onChange: (value: FieldLinkTarget[]) => void;
   defaultSearch?: string;
+  /** The editor sits in a grid cell, which is its box: the trigger sits flat in it. */
+  flat?: boolean;
   "aria-label": string;
   id?: string;
   "aria-invalid"?: boolean;
@@ -1077,6 +1120,7 @@ function RecordLinkEditor({
       placeholder={config.placeholder ?? "Link a record…"}
       searchLabel="Search records"
       size="sm"
+      flat={flat}
       {...a11y}
     />
   );
@@ -1100,7 +1144,10 @@ function DateTimeEditor({
   id?: string;
   invalid?: boolean;
   describedBy?: string;
-  /** The editor sits in a surface that is its box: the trigger takes its inline (ghost) tier. */
+  /**
+   * The editor sits in a surface that is its box: the trigger takes its inline (ghost) tier and
+   * sits flat in it, with no open tint.
+   */
   inline?: boolean;
 }) {
   const date = value ? new Date(value) : undefined;
@@ -1111,6 +1158,7 @@ function DateTimeEditor({
         id={id}
         size="sm"
         variant={inline ? "ghost" : "outline"}
+        flat={inline}
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
         disabled={disabled}
@@ -1263,6 +1311,7 @@ export function FieldInput({
           {...a11y}
           size="sm"
           variant={variant === "cell" ? "ghost" : "outline"}
+          flat={variant === "cell"}
           clearable
           className={className}
           value={
@@ -1390,6 +1439,7 @@ export function FieldInput({
           {...a11y}
           config={config}
           defaultSearch={defaultSearch}
+          flat={variant === "cell"}
           value={(Array.isArray(value) ? value : []) as FieldLinkTarget[]}
           onChange={onChange}
         />
@@ -2491,6 +2541,8 @@ export function FieldCellEditor({
           aria-invalid={!valid || undefined}
           size="sm"
           variant={cell ? "ghost" : "outline"}
+          // A grid cell is the trigger's box: no border, fill or open tint inside it.
+          flat={cell}
           // Clearing is the × beside the day: pressing the chosen day again (Enter on it) keeps it.
           clearable
           calendarProps={{ required: true }}
@@ -2530,6 +2582,8 @@ export function FieldCellEditor({
           aria-invalid={!valid || undefined}
           size="sm"
           variant={cell ? "ghost" : "outline"}
+          // A grid cell is the trigger's box: no border, fill or open tint inside it.
+          flat={cell}
           className="w-full"
           open={calendarOpen}
           value={

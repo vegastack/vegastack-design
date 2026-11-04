@@ -1044,3 +1044,40 @@ fieldWiringTests({
   render: (props) => <DateTimePicker {...props} />,
   find: (screen, name) => screen.getByRole("button", { name }),
 });
+
+test("DatePicker and DateTimePicker flat: no border, fill or open tint; off by default", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const openTrigger = async (slot: string) => {
+    const node = document.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
+    node.click();
+    await expect.poll(() => node.getAttribute("aria-expanded")).toBe("true");
+    return node;
+  };
+  for (const [Picker, slot] of [
+    [DatePicker, "date-picker-trigger"],
+    [DateTimePicker, "date-time-picker-trigger"],
+  ] as const) {
+    const flat = await render(
+      <Picker aria-label="When" size="sm" variant="ghost" flat />,
+    );
+    const node = await openTrigger(slot);
+    expect(node.hasAttribute("data-flat")).toBe(true);
+    expect(getComputedStyle(node).backgroundImage).toBe("none");
+    expect(getComputedStyle(node).borderTopColor).toBe("rgba(0, 0, 0, 0)");
+    await userEvent.keyboard("{Escape}");
+    await flat.unmount();
+
+    // Without `flat` the open trigger keeps its selected layer, as before.
+    const ghost = await render(
+      <Picker aria-label="When" size="sm" variant="ghost" />,
+    );
+    const plain = await openTrigger(slot);
+    expect(plain.hasAttribute("data-flat")).toBe(false);
+    expect(getComputedStyle(plain).backgroundImage).not.toBe("none");
+    await userEvent.keyboard("{Escape}");
+    await ghost.unmount();
+  }
+});

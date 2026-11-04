@@ -1,7 +1,8 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { DataGrid } from "./data-grid";
 import { InlineChipProvider } from "./inline-chip";
@@ -2489,3 +2490,113 @@ test("percent and currency cell editors keep every significant digit: an untouch
   await userEvent.keyboard("{Enter}");
   expect(onCommit).toHaveBeenLastCalledWith(123456789.012345, "down");
 });
+
+test('FieldCellDisplay variant="cell": every file as its chip, an image as its thumbnail, clipped with no "+N"', async () => {
+  const files = [
+    { id: "f1", name: "spec.pdf", contentType: "application/pdf" },
+    {
+      id: "f2",
+      name: "pole.jpg",
+      contentType: "image/jpeg",
+      thumbnailUrl:
+        "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
+    },
+    { id: "f3", name: "notes.md", contentType: "text/markdown" },
+    { id: "f4", name: "drawing.dwg" },
+  ];
+  injectCompiledCss();
+  const screen = await render(
+    <div style={{ width: 160 }}>
+      <FieldCellDisplay type="file" value={files} variant="cell" />
+    </div>,
+  );
+  const chips = screen.container.querySelectorAll(
+    '[data-slot="field-cell-file-chip"] [data-slot="inline-chip"]',
+  );
+  expect([...chips].map((chip) => chip.textContent)).toEqual([
+    "spec.pdf",
+    "notes.md",
+    "drawing.dwg",
+  ]);
+  const thumbnail = screen.container.querySelector(
+    '[data-slot="field-cell-file-thumbnail"]',
+  ) as HTMLElement;
+  expect(thumbnail.getAttribute("title")).toBe("pole.jpg");
+  expect(thumbnail.querySelector("img")?.getAttribute("alt")).toBe("pole.jpg");
+  // The thumbnail sits at the chip's height, not a list row's 32px.
+  expect(thumbnail.getBoundingClientRect().height).toBe(20);
+  expect(screen.container.textContent).not.toMatch(/\+\d/);
+  // One line that clips at the cell's edge, with no scroll bar.
+  const line = screen.container.querySelector(
+    '[data-slot="field-cell-display"] > span',
+  ) as HTMLElement;
+  expect(getComputedStyle(line).overflow).toBe("hidden");
+  expect(line.scrollWidth).toBeGreaterThan(line.clientWidth);
+  expect(line.getBoundingClientRect().height).toBeLessThanOrEqual(24);
+  await expectNoA11yViolations(screen.container);
+
+  // The default variant is untouched: kind tiles and "+N" past three.
+  await screen.rerender(<FieldCellDisplay type="file" value={files} />);
+  expect(
+    screen.container.querySelector('[data-slot="field-cell-file-chip"]'),
+  ).toBeNull();
+  expect(screen.container.textContent).toContain("+1");
+});
+
+test('FieldCellEditor variant="cell": the date, date-time and link triggers sit flat, with no open tint; FieldInput keeps its chrome', async () => {
+  injectCompiledCss();
+  const trigger = (slot: string) =>
+    document.querySelector(`[data-slot="${slot}"]`) as HTMLElement | null;
+  const cases: [FieldType, FieldValue, string][] = [
+    ["date", "2026-11-13", "date-picker-trigger"],
+    ["datetime", "2026-11-13T09:00:00.000Z", "date-time-picker-trigger"],
+    ["link", [], "searchable-select-trigger"],
+  ];
+  const config: FieldConfig = {
+    searchRecords: () => Promise.resolve({ items: [] }),
+  };
+  for (const [type, value, slot] of cases) {
+    const screen = await render(
+      <FieldCellEditor
+        variant="cell"
+        type={type}
+        label="Field"
+        value={value}
+        config={config}
+        onCommit={() => {}}
+        onCancel={() => {}}
+      />,
+    );
+    await expect.poll(() => trigger(slot)).not.toBeNull();
+    const node = trigger(slot)!;
+    if (node.getAttribute("aria-expanded") !== "true") node.click();
+    await expect.poll(() => node.getAttribute("aria-expanded")).toBe("true");
+    expect(node.hasAttribute("data-flat")).toBe(true);
+    const style = getComputedStyle(node);
+    expect(style.backgroundImage).toBe("none");
+    expect(style.borderTopColor).toBe("rgba(0, 0, 0, 0)");
+    await screen.unmount();
+
+    // A form control is unchanged: not flat.
+    const form = await render(
+      <FieldInput
+        type={type}
+        aria-label="Field"
+        value={value}
+        config={config}
+        onChange={() => {}}
+      />,
+    );
+    await expect.poll(() => trigger(slot)).not.toBeNull();
+    expect(trigger(slot)!.hasAttribute("data-flat")).toBe(false);
+    await form.unmount();
+  }
+});
+
+/** The compiled token theme and utilities, so a test can read real computed styles. */
+function injectCompiledCss() {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+}

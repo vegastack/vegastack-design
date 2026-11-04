@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.33.0 sha256-Yu553ITIxmPX+oOJB8enknqsrl++TwCdSG+mYJRyTEM=
+// @vegastack date-picker@0.33.0 sha256-MLD3gURTVmS3fX/lvCEJQsqJaOPTqOu9nE+nPTSDfJ4=
 
 "use client";
 
@@ -497,6 +497,13 @@ export interface DatePickerProps {
    */
   variant?: "outline" | "ghost";
   /**
+   * The trigger sits flat in a surface that is already its box (a grid cell's editor): no border,
+   * fill or shadow, and no open tint while the calendar is open. Keyboard focus keeps the global
+   * cue. Off, the trigger is unchanged.
+   * @default false
+   */
+  flat?: boolean;
+  /**
    * Shows a clear control beside the trigger while a date is set, which reports `undefined`.
    * It is a sibling of the trigger, never inside it, and focus returns to the trigger after
    * clearing.
@@ -523,6 +530,14 @@ export interface DatePickerProps {
 /** The inline (`ghost`) trigger chrome shared with `Select variant="ghost"`. */
 const GHOST_TRIGGER =
   "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent";
+
+/**
+ * The `flat` trigger: no border, fill or shadow in any state, and no open layer — for a surface
+ * that is already the trigger's box. The same tier as `SearchableSelect flat`. The open layer is
+ * removed under `data-flat` too, so it outranks Button's own `aria-expanded:layer-selected`.
+ */
+const FLAT_TRIGGER =
+  "border-transparent bg-transparent shadow-none hover:border-transparent data-flat:aria-expanded:bg-none dark:border-transparent dark:bg-transparent";
 
 /**
  * `DatePicker` — pick a single date. Renders an outline `Button` showing the formatted date (or the
@@ -565,6 +580,7 @@ export function DatePicker({
   "aria-invalid": ariaInvalid,
   size = "default",
   variant = "outline",
+  flat = false,
   clearable = false,
   clearLabel = "Clear date",
   renderValue,
@@ -618,6 +634,7 @@ export function DatePicker({
                 data-slot="date-picker-trigger"
                 data-size={size}
                 data-variant={variant}
+                data-flat={flat ? "" : undefined}
                 data-empty={value ? undefined : ""}
                 aria-label={ariaLabel}
                 className={cn(
@@ -628,6 +645,7 @@ export function DatePicker({
                   // The `sm` tier keeps 14px text, like `Select size="sm"`.
                   size === "sm" && "text-sm",
                   ghost && GHOST_TRIGGER,
+                  flat && FLAT_TRIGGER,
                   // Content width for the inline tier. A clearable picker's wrapper carries the
                   // width instead, and the trigger fills it, so the clear control always sits in
                   // the trigger's own trailing reserve.
@@ -881,6 +899,13 @@ export interface DateTimePickerProps {
    */
   variant?: "outline" | "ghost";
   /**
+   * The trigger sits flat in a surface that is already its box (a grid cell's editor): no border,
+   * fill or shadow, and no open tint while its popup is open. Keyboard focus keeps the global
+   * cue. Off, the trigger is unchanged.
+   * @default false
+   */
+  flat?: boolean;
+  /**
    * Shows a clear control beside the trigger while a moment is set, which reports `undefined`.
    * @default false
    */
@@ -952,6 +977,7 @@ export function DateTimePicker({
   "aria-invalid": ariaInvalid,
   size = "default",
   variant = "outline",
+  flat = false,
   clearable = false,
   clearLabel = "Clear date and time",
   labels: labelsProp,
@@ -1069,12 +1095,14 @@ export function DateTimePicker({
                 data-slot="date-time-picker-trigger"
                 data-size={size}
                 data-variant={variant}
+                data-flat={flat ? "" : undefined}
                 data-empty={valid ? undefined : ""}
                 aria-label={ariaLabel}
                 className={cn(
                   "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
                   size === "sm" && "text-sm",
                   ghost && GHOST_TRIGGER,
+                  flat && FLAT_TRIGGER,
                   ghost && !clearable && "w-fit",
                   clearable && "pe-9",
                   className,
