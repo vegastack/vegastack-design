@@ -356,8 +356,8 @@
       "meta": {
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
-        "version": "0.48.0",
-        "integrity": "sha256-8Fsenx04VrOiooCnIN5ecrdQs1SScI1nXOg5yvW5nFQ="
+        "version": "0.49.0",
+        "integrity": "sha256-w5mxH9KmWS51j0So2OYnaCkFvUpzPR1EnHDnW1GbYJ8="
       }
     },
     {

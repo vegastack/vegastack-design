@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.49.0
+
+### Minor Changes
+
+- [#913](https://github.com/vegastack/vegastack-design/pull/913) [`05aa8dc`](https://github.com/vegastack/vegastack-design/commit/05aa8dc76ecb990b7029596ebbd72a268ea51eb1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `CommentData` takes `agentWritten`: a body an agent wrote renders as `untrusted` with link domains and the item's `agentMarkdown` even while its author shows as a person, as when the app hides agents.
+
 ## 0.48.1
 
 ### Patch Changes

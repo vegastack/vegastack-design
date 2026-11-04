@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.49.0] — November 4, 2026
+
+<!-- assembled from 1 changeset: 7ca0b59d159e -->
+
+### 🔧 Changed components
+
+- `CommentData` takes `agentWritten`: a body an agent wrote renders as `untrusted` with link domains and the item's `agentMarkdown` even while its author shows as a person, as when the app hides agents.
+  [`05aa8dc`](https://github.com/VegaStack/vegastack-design/commit/05aa8dc)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.48.1 → 0.49.0.
+
 ## [0.48.1] — November 4, 2026
 
 <!-- assembled from 1 changeset: b7183c164e65 -->
