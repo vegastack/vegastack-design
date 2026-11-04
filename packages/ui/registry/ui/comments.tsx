@@ -1,4 +1,4 @@
-// @vegastack comments@0.48.0 sha256-Vb5ov1nsrUm9nOaMhPPRJZ73OU/bcpF0Gy6pACXNyxY=
+// @vegastack comments@0.48.0 sha256-8Fsenx04VrOiooCnIN5ecrdQs1SScI1nXOg5yvW5nFQ=
 
 "use client";
 
@@ -108,6 +108,12 @@ export interface CommentData {
    * an agent: read as if `author.kind` were `"agent"`. @default false
    */
   agent?: boolean;
+  /**
+   * An agent wrote the body, whoever the author shows as (the app hides agents while its Agents
+   * module is off): it renders as an agent's does, `untrusted` with `showLinkDomains` and the
+   * item's `agentMarkdown`. An `author.kind` of `"agent"` implies it. @default false
+   */
+  agentWritten?: boolean;
   /**
    * `question` — an agent's question waiting on the viewer: an amber bar at the row's start and a
    * "Needs your reply" label after the name, with the `choices` under the body. Set it back to
@@ -294,9 +300,10 @@ export interface CommentItemProps {
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
   fileContentType?: TextEditProps["fileContentType"];
   /**
-   * For an agent's comment, which always renders as `untrusted` with `showLinkDomains`: where its
-   * images may load from on this site (`allowedImagePaths`), and how to offer the rest on request
-   * (`imageProxy`). Pass it on the items you render yourself too. A person's comments never use it.
+   * For an agent's comment or an `agentWritten` body, which always render as `untrusted` with
+   * `showLinkDomains`: where its images may load from on this site (`allowedImagePaths`), and how
+   * to offer the rest on request (`imageProxy`). Pass it on the items you render yourself too. A
+   * person's comments never use it.
    * @default undefined
    */
   agentMarkdown?: Pick<MarkdownViewProps, "allowedImagePaths" | "imageProxy">;
@@ -383,6 +390,7 @@ export function CommentItem({
   const author: Person = agent
     ? { ...comment.author, kind: "agent" }
     : comment.author;
+  const agentWritten = agent || comment.agentWritten === true;
   const question = comment.tone === "question";
   const [choosing, setChoosing] = React.useState<string | null>(null);
   const reactions = comment.reactions?.filter((r) => r.count > 0) ?? [];
@@ -741,7 +749,7 @@ export function CommentItem({
                 fileContentType={fileContentType}
                 // An agent's words may not match where its links go, and its Markdown must not
                 // fetch anything for the reader on its own.
-                {...(agent
+                {...(agentWritten
                   ? { ...agentMarkdown, untrusted: true, showLinkDomains: true }
                   : null)}
               >

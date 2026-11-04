@@ -1817,6 +1817,27 @@ test("an agent's comment says where links go and offers images; a person's doesn
   ).toBeNull();
 });
 
+test("a body an agent wrote stays untrusted while its author shows as a person", async () => {
+  const body = "[Open](https://evil.example/x) ![](https://evil.example/p.png)";
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={{ ...bodyBy({ name: "Asha" }, body), agentWritten: true }}
+        agentMarkdown={{ imageProxy: proxied }}
+      />
+    </ul>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="markdown-link-domain"]')
+      ?.textContent,
+  ).toBe(" (evil.example)");
+  expect(screen.container.querySelector("img")).toBeNull();
+  await expect
+    .element(screen.getByRole("button", { name: /^Show/ }))
+    .toBeVisible();
+  expect(screen.container.querySelector("[data-agent]")).toBeNull();
+});
+
 test("the deprecated agent flag counts as an agent", async () => {
   const screen = await render(
     <ul>
