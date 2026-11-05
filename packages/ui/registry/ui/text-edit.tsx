@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.43.0 sha256-cHD9VQAOXCo8JZ6AmKCuDTW4/IsX1DHUMx5X4UTq3ag=
+// @vegastack text-edit@0.43.0 sha256-NjS4onFKA+bGGwm64O9N0Co3C/PmnQ5UOyjhd5btGzw=
 
 "use client";
 
@@ -896,16 +896,19 @@ const IMAGE_TYPES: Record<string, string> = {
   webp: "image/webp",
 };
 
-/** One document image as a `FileViewer` item: named by its alt text, else its file name. */
+/**
+ * One document image as a `FileViewer` item: named by its alt text, else its file name. A proxied
+ * image says its real name in `data-file-name`: the address it loads from names only the proxy.
+ */
 function imageItem(
   image: HTMLImageElement,
   index: number,
   downloadHref?: (src: string) => string | null | undefined,
 ): FileViewerItem {
   const src = image.currentSrc || image.src;
-  let file = "";
+  let file = image.dataset.fileName ?? "";
   try {
-    file = decodeURIComponent(
+    file ||= decodeURIComponent(
       new URL(src, document.baseURI).pathname.split("/").pop() ?? "",
     );
   } catch {

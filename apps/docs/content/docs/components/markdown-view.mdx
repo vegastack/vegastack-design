@@ -58,7 +58,9 @@ For content an agent or an outsider wrote, set `untrusted`: nothing then loads o
 no preview. A blocked image's box names its real origin, since the alt text may claim any.
 
 `imageProxy` adds a Show to that box and implies `untrusted`. Nothing is fetched until the press, and
-then only the URL you return, so the reader's browser never calls the remote origin.
+then only the URL you return, so the reader's browser never calls the remote origin. An image that
+doesn't load comes back as the box, saying so, with Try again. A viewer names the image by its alt text, then
+by the source's file name, never by the proxy's address.
 
 The proxy is yours to secure, because the content chose the address it is given. It must accept only
 requests the content can't forge, reach public addresses only, re-check every redirect, and return

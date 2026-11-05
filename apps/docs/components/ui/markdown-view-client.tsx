@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.48.0 sha256-0XVggpIEvzaCYy4QWkyJsTykkzOkRoMxeo6eJT4yoVg=
+// @vegastack markdown-view@0.48.0 sha256-eXZqpcmxCVmmqoO1Shlo/LIt7rqqqWSMJQUTDp3vmMA=
 
 "use client";
 
@@ -1183,17 +1183,49 @@ export interface MarkdownBlockedImageProps extends React.ComponentProps<"span"> 
   label: string;
   /** The button's word. */
   showLabel: string;
+  /** The box's words when the image didn't load after Show.
+   * @default "Couldn't load this image"
+   */
+  failedLabel?: string;
+  /** The button's word when the image didn't load after Show.
+   * @default "Try again"
+   */
+  retryLabel?: string;
   /** The image, mounted only after Show, so nothing is fetched before it. */
   children: React.ReactNode;
 }
 
+/** How a shown image tells its box it didn't load. Null outside one. */
+const BlockedImageFailed = React.createContext<(() => void) | null>(null);
+
 /**
- * `MarkdownBlockedImage` — a remote image waiting for the reader. It keeps the blocked box's look,
- * so a page reads the same with or without `imageProxy`.
+ * `MarkdownShownImage` — the `<img>` inside a `MarkdownBlockedImage`. It reports its own failure, so
+ * the box adds nothing around the picture: figures, captions and spacing stay as they are.
  *
  * @example
- * <MarkdownBlockedImage source={src} alt="" label="Image from acme.com" showLabel="Show">
- *   <img src={proxied} alt="" />
+ * <MarkdownShownImage src={proxied} alt="" />
+ */
+export function MarkdownShownImage({
+  alt,
+  ...props
+}: React.ComponentProps<"img">) {
+  const failed = React.useContext(BlockedImageFailed);
+  return <img alt={alt} {...props} onError={failed ?? undefined} />;
+}
+
+/**
+ * `MarkdownBlockedImage` — a remote image waiting for the reader. It keeps the blocked box's look,
+ * so a page reads the same with or without `imageProxy`. An image that fails after Show comes back
+ * as the box, saying so, with a way to try again, rather than leaving a broken picture.
+ *
+ * @example
+ * <MarkdownBlockedImage
+ *   source={src}
+ *   alt=""
+ *   label="Image from acme.com"
+ *   showLabel="Show"
+ * >
+ *   <MarkdownShownImage src={proxied} alt="" />
  * </MarkdownBlockedImage>
  */
 export function MarkdownBlockedImage({
@@ -1201,11 +1233,34 @@ export function MarkdownBlockedImage({
   alt,
   label,
   showLabel,
+  failedLabel = "Couldn't load this image",
+  retryLabel = "Try again",
   children,
   ...props
 }: MarkdownBlockedImageProps) {
   const [shown, setShown] = React.useState<string | null>(null);
-  if (shown === source) return children;
+  const [failed, setFailed] = React.useState<string | null>(null);
+  const button = React.useRef<HTMLButtonElement>(null);
+  const retry = failed === source;
+  const offered = shown !== source;
+  // Show took the button away, so a keyboard reader's focus fell to the page. Landing on Try again
+  // keeps their place and reads out why it's back. Anyone who has moved on stays where they are.
+  React.useEffect(() => {
+    if (retry && offered && document.activeElement === document.body)
+      button.current?.focus();
+  }, [retry, offered]);
+  if (!offered)
+    return (
+      <BlockedImageFailed.Provider
+        value={() => {
+          setFailed(source);
+          setShown(null);
+        }}
+      >
+        {children}
+      </BlockedImageFailed.Provider>
+    );
+  const action = retry ? retryLabel : showLabel;
   return (
     <span
       data-slot="markdown-image-blocked"
@@ -1215,11 +1270,13 @@ export function MarkdownBlockedImage({
       <span className="min-w-0 wrap-anywhere">
         {label}
         {alt ? ` · ${alt}` : null}
+        {retry ? ` · ${failedLabel}` : null}
       </span>
       <Button
         size="xs"
         variant="outline"
-        aria-label={`${showLabel}: ${label}`}
+        ref={button}
+        aria-label={`${action}: ${label}${retry ? ` · ${failedLabel}` : ""}`}
         className="shrink-0"
         onClick={(event) => {
           // Inside a link, this press is for the image: it must not follow the link too.
@@ -1228,7 +1285,7 @@ export function MarkdownBlockedImage({
           setShown(source);
         }}
       >
-        {showLabel}
+        {action}
       </Button>
     </span>
   );

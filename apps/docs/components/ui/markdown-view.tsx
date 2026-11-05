@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.48.0 sha256-0XVggpIEvzaCYy4QWkyJsTykkzOkRoMxeo6eJT4yoVg=
+// @vegastack markdown-view@0.48.0 sha256-eXZqpcmxCVmmqoO1Shlo/LIt7rqqqWSMJQUTDp3vmMA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -55,6 +55,7 @@ import {
 } from "@/components/ui/markdown-citation";
 import {
   MarkdownBlockedImage,
+  MarkdownShownImage,
   MarkdownBookmark,
   MarkdownEmbed,
   MarkdownTaskInline,
@@ -1599,6 +1600,8 @@ interface UrlTarget {
   domain: string;
   /** It carries a user name, which is how `https://acme.com@evil.com` reads as acme.com. */
   userinfo: boolean;
+  /** The address's path, for naming what it points at. */
+  path: string;
 }
 
 /**
@@ -1616,12 +1619,23 @@ function urlTarget(url: string): UrlTarget | null {
         host: parsed.host,
         domain: parsed.host.replace(/^www\./, ""),
         userinfo: !!parsed.username || !!parsed.password,
+        path: parsed.pathname,
       };
     } catch {
       // Not a URL against this base; the other may read it.
     }
   }
   return null;
+}
+
+/** A remote image's own file name, else its site's: what a viewer calls a proxied image. */
+function sourceFileName({ path, domain }: UrlTarget): string {
+  try {
+    const last = path.split("/").filter(Boolean).pop();
+    return (last && decodeURIComponent(last).slice(0, 200)) || domain;
+  } catch {
+    return domain;
+  }
 }
 
 /**
@@ -1712,6 +1726,8 @@ interface RenderContext {
   imageProxy?: (src: string) => string;
   blockedImageLabel: (domain: string) => string;
   showImageLabel: string;
+  imageFailedLabel: string;
+  retryImageLabel: string;
   /** Say where an external link goes, after its text (`showLinkDomains`). */
   linkDomains: boolean;
   headingOffset: number;
@@ -2332,11 +2348,13 @@ function renderNode(
         ? (sized.height ??
           (Number.parseInt(attrs.height ?? "", 10) || undefined))
         : undefined;
+      const Picture = offered ? MarkdownShownImage : "img";
       const picture = (
         // Plain <img>: registry source is framework-agnostic (no next/image dependency). Frame and
         // rhythm come from `prose.img` on the root. A known size reserves its box before it loads.
-        <img
+        <Picture
           data-slot="markdown-image"
+          data-file-name={offered ? sourceFileName(offered) : undefined}
           src={loaded}
           alt={alt}
           width={width}
@@ -2383,6 +2401,8 @@ function renderNode(
           alt={alt}
           label={ctx.blockedImageLabel(offered.domain)}
           showLabel={ctx.showImageLabel}
+          failedLabel={ctx.imageFailedLabel}
+          retryLabel={ctx.retryImageLabel}
           data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
         >
           {drawn}
@@ -2760,6 +2780,10 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   blockedImageLabel?: (domain: string) => string;
   /** The button in a blocked image's box with `imageProxy`. @default "Show" */
   showImageLabel?: string;
+  /** The box's words when an image didn't load after Show. @default "Couldn't load this image" */
+  imageFailedLabel?: string;
+  /** The box's button when an image didn't load after Show. @default "Try again" */
+  retryImageLabel?: string;
   /**
    * Say where an external link goes, after its text: "Datasheet (acme.com)". For content an agent
    * or an outsider wrote, where a link's words may not match its target.
@@ -3054,6 +3078,8 @@ export function MarkdownView({
   allowedImagePaths = [],
   blockedImageLabel = (domain) => `Image from ${domain}`,
   showImageLabel = "Show",
+  imageFailedLabel = "Couldn't load this image",
+  retryImageLabel = "Try again",
   showLinkDomains = false,
   headingOffset = 0,
   headingIds: withHeadingIds = false,
@@ -3193,6 +3219,8 @@ export function MarkdownView({
         imageProxy,
         blockedImageLabel,
         showImageLabel,
+        imageFailedLabel,
+        retryImageLabel,
         linkDomains: showLinkDomains,
         headingOffset: Math.trunc(headingOffset),
         annotationCounts: new Map(

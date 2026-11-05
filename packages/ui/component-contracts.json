@@ -19301,6 +19301,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MarkdownShownImage",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
