@@ -1,26 +1,44 @@
-// @vegastack progress@0.33.0 sha256-lQ6jhfreKG02YjgVBxmCNc/XVPpjp1Twgo3/e8xZnWE=
+// @vegastack progress@0.33.0 sha256-MGjNdyjF5/LTQ1GuUUCVH54b+Cap3nFUXmUCm7ZcL6M=
 
 "use client";
 
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
+
+const progressIndicatorVariants = cva("h-full transition-all", {
+  variants: {
+    tone: {
+      default: "bg-primary",
+      warning: "bg-warning",
+      danger: "bg-destructive",
+    },
+  },
+  defaultVariants: { tone: "default" },
+});
+
+type ProgressTone = NonNullable<
+  VariantProps<typeof progressIndicatorVariants>["tone"]
+>;
 
 function Progress({
   className,
   children,
   value,
+  tone = "default",
   ...props
-}: ProgressPrimitive.Root.Props) {
+}: ProgressPrimitive.Root.Props & { tone?: ProgressTone }) {
   return (
     <ProgressPrimitive.Root
       value={value}
       data-slot="progress"
+      data-tone={tone}
       className={cn("flex flex-wrap gap-3", className)}
       {...props}
     >
       {children}
       <ProgressTrack>
-        <ProgressIndicator />
+        <ProgressIndicator tone={tone} />
       </ProgressTrack>
     </ProgressPrimitive.Root>
   );
@@ -41,12 +59,14 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
 
 function ProgressIndicator({
   className,
+  tone = "default",
   ...props
-}: ProgressPrimitive.Indicator.Props) {
+}: ProgressPrimitive.Indicator.Props & { tone?: ProgressTone }) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
-      className={cn("h-full bg-primary transition-all", className)}
+      data-tone={tone}
+      className={cn(progressIndicatorVariants({ tone }), className)}
       {...props}
     />
   );

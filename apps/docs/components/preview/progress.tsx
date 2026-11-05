@@ -52,6 +52,28 @@ export function progressLabel(): ReactNode {
   );
 }
 
+/** A bar nearing or past its limit, with the words beside it: colour never says it alone. */
+export function progressTone(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <Progress value={40}>
+          <ProgressLabel>Storage used</ProgressLabel>
+          <ProgressValue />
+        </Progress>
+        <Progress value={85} tone="warning">
+          <ProgressLabel>Nearly full</ProgressLabel>
+          <ProgressValue />
+        </Progress>
+        <Progress value={100} tone="danger">
+          <ProgressLabel>Limit reached</ProgressLabel>
+          <ProgressValue />
+        </Progress>
+      </div>
+    </Wrapper>
+  );
+}
+
 export function progressControlled(): ReactNode {
   return (
     <Wrapper>

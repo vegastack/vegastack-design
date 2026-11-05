@@ -249,6 +249,7 @@
     "INT-15": ["sidebar"],
     "API-39": ["toggle", "toggle-group"],
     "API-40": ["textarea"],
+    "API-41": ["progress"],
     "A11Y-25": ["calendar"],
     "API-37": ["item"],
     "FRM-17": ["input"],

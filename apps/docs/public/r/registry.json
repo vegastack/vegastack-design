@@ -17678,7 +17678,7 @@
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
         "version": "0.33.0",
-        "integrity": "sha256-lQ6jhfreKG02YjgVBxmCNc/XVPpjp1Twgo3/e8xZnWE="
+        "integrity": "sha256-MGjNdyjF5/LTQ1GuUUCVH54b+Cap3nFUXmUCm7ZcL6M="
       }
     },
     {

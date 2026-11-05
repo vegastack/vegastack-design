@@ -22896,6 +22896,10 @@
             {
               "name": "data-slot",
               "values": ["progress"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -22914,6 +22918,10 @@
             {
               "name": "data-slot",
               "values": ["progress-indicator"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
             }
           ],
           "cssVariables": []
