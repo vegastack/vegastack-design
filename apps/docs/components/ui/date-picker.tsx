@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.39.1 sha256-N9mW75h9/4x+ifVB51tItUpixpbxXtwlmzt2Ndgi0jA=
+// @vegastack date-picker@0.39.1 sha256-gY7YHXsN31EGA8atNH1i8o0V3R34B/pa33QqnpAK5+c=
 
 "use client";
 
@@ -16,7 +16,12 @@ import {
   type TimeHourCycle,
 } from "@/lib/date-time";
 import type { DateRange, DayButton, Matcher } from "react-day-picker";
-import { Calendar as CalendarIcon, CalendarClock, X } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  CalendarClock,
+  CheckIcon,
+  X,
+} from "lucide-react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
@@ -196,6 +201,13 @@ function PopoverDayButton({
       ref={ref}
       modifiers={{ ...modifiers, focused: false }}
       {...props}
+      // Upstream's `dark:hover:text-foreground` would paint a chosen day's label in the light
+      // foreground over the light primary fill, where it vanishes: a filled day keeps its
+      // primary-foreground ink on hover. `dark:` too, so the attribute outranks upstream's rule.
+      className={cn(
+        "dark:data-[range-end=true]:hover:text-primary-foreground dark:data-[range-start=true]:hover:text-primary-foreground dark:data-[selected-single=true]:hover:text-primary-foreground",
+        props.className,
+      )}
     />
   );
 }
@@ -1202,9 +1214,16 @@ export function DateTimePicker({
                         key={time}
                         value={time}
                         data-time={time}
-                        className="justify-start px-2 font-normal tabular-nums aria-pressed:bg-primary aria-pressed:text-primary-foreground hover:aria-pressed:text-primary-foreground"
+                        // The chosen time reads like a chosen `SelectItem`: no fill, a trailing
+                        // check. Hover and focus keep the toggle's own state tint.
+                        className="justify-between px-2 font-normal tabular-nums aria-pressed:bg-transparent"
                       >
                         {formatTimeValue(time, locale, hourCycle)}
+                        <CheckIcon
+                          aria-hidden="true"
+                          data-slot="date-time-picker-time-check"
+                          className="invisible group-aria-pressed/toggle:visible"
+                        />
                       </ToggleGroupItem>
                     ))}
                   </ToggleGroup>

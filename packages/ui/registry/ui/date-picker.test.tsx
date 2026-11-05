@@ -800,6 +800,33 @@ test("DateTimePicker: one trigger shows the date and time on the zone's clock", 
   await expectNoA11yViolations(screen.container);
 });
 
+test("DateTimePicker: the chosen time shows a check, not a fill; a chosen day keeps its ink on hover", async () => {
+  const screen = await render(<HeldDateTime initial={NOV_3_9AM} />);
+  await openDateTime(screen);
+  const chosen = timeOption("9:00 AM");
+  expect(chosen.getAttribute("aria-pressed")).toBe("true");
+  expect(chosen.className).not.toMatch(
+    /\bbg-primary\b|aria-pressed:bg-primary/,
+  );
+  expect(chosen.className).toContain("aria-pressed:bg-transparent");
+  // Every time carries the check; only the pressed one shows it.
+  expect(
+    document.querySelectorAll('[data-slot="date-time-picker-time-check"]'),
+  ).toHaveLength(96);
+  expect(
+    chosen
+      .querySelector('[data-slot="date-time-picker-time-check"]')
+      ?.getAttribute("class"),
+  ).toContain("invisible group-aria-pressed/toggle:visible");
+  // Upstream's dark `hover:text-foreground` is outranked on a filled day.
+  const day = document.querySelector<HTMLElement>(
+    'button[data-day][data-selected-single="true"]',
+  )!;
+  expect(day.className).toContain(
+    "dark:data-[selected-single=true]:hover:text-primary-foreground",
+  );
+});
+
 test("DateTimePicker: empty shows the placeholder", async () => {
   const screen = await render(<DateTimePicker aria-label="Due" />);
   const trigger = screen.getByRole("button", { name: "Due" });

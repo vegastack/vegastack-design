@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.42.0 sha256-d0wkErn+1vRAoiA7uLbI9Wi5BaaWWArY/qfSTLsEfWU=
+// @vegastack field-cell@0.42.0 sha256-qF04OJEE+0rsX7oyFpeM910HFGG9tpv6fads28MnC40=
 
 "use client";
 
@@ -478,6 +478,9 @@ export function FieldChoiceBadge({
     <Badge
       variant="secondary"
       data-hue={hue}
+      // The hue is the option's identity: a highlighted Select, Combobox or Command row recolours
+      // its contents to the accent ink but skips `data-icon-tone`, so the chip keeps its own.
+      data-icon-tone=""
       // Shrinks with its cell (`min-w-0`); `overflow-visible` lets a clipped name's 24px
       // disclosure target (`TruncatedText`) keep its whole box around the 20px pill.
       className={cn(
@@ -859,6 +862,10 @@ export function FieldCellDisplay({
         data-variant={variant}
         className={cn(
           "flex min-w-0 items-center gap-1",
+          // In a cell, a value's `TruncatedText` keeps its 24px target but lays out on the 20px
+          // line, so a filled cell is as tall as an empty one (in an editable cell's padding the
+          // 24px box made it 4px taller) and every row of a fixed-height grid matches.
+          variant === "cell" && "*:data-[slot=truncated-text]:-my-0.5",
           extra,
           align === "start" && "justify-start",
           align === "end" && "justify-end",

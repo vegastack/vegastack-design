@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.42.0 sha256-Sy+8XNZNR3YXkS/nWkrT3Fyks8F0rm7LR3Xyz4cG08k=
+// @vegastack data-grid@0.42.0 sha256-ype+FBa0w9yLhYyh+wwryStdCls4nSMLUwWnP9yNGdg=
 
 "use client";
 
@@ -645,7 +645,7 @@ export interface DataGridProps<T> {
    */
   sections?: DataGridSection[];
   /**
-   * Fixed row height: `short` 32px, `medium` 40px, `tall` 80px (text wraps to
+   * Fixed row height: `short` 36px, `medium` 40px, `tall` 80px (text wraps to
    * three lines). Cells keep to one line otherwise. Omit for content-sized rows.
    * @default undefined
    */
@@ -1048,14 +1048,15 @@ const EMPTY_ROWS: EngineRow[] = [];
 
 /** Exact row heights, in pixels, and the classes that hold them (`h-8` = 32px). */
 const ROW_PX: Record<DataGridRowHeight, number> = {
-  short: LIST_ROW_HEIGHT_PX.compact,
+  short: 36,
   medium: LIST_ROW_HEIGHT_PX.comfortable,
   tall: 80,
 };
-// `short` and `medium` are the list density scale's two steps (`LIST_ROW_HEIGHT_*`), so a grid
-// and a list beside it share one rhythm.
+// `medium` is the list density scale's comfortable step (`LIST_ROW_HEIGHT_*`). `short` is the
+// grid's own 36px: a cell's 24px value (a chip, an avatar, a clipped value's disclosure target)
+// sits in it with even padding, where the list's 32px compact step would crowd it.
 const ROW_CLASS: Record<DataGridRowHeight, string> = {
-  short: LIST_ROW_HEIGHT_CLASS.compact,
+  short: "h-9",
   medium: LIST_ROW_HEIGHT_CLASS.comfortable,
   tall: "h-20",
 };
@@ -1064,7 +1065,7 @@ const ROW_CLASS: Record<DataGridRowHeight, string> = {
 // every element a scroll tick inserts pays the page's whole style sheet; `tall` wraps up to
 // three lines inside a clamped block.
 const CELL_PAD_CLASS: Record<DataGridRowHeight, string> = {
-  short: "py-1",
+  short: "py-1.5",
   medium: "py-2",
   tall: "py-2",
 };
@@ -3434,7 +3435,7 @@ export function DataGrid<T>({
               "overflow-hidden text-ellipsis",
               alignClass(column.align),
               // An editable cell's display is a padded 32px box: the cell drops its own vertical
-              // padding so the box fits a short (32px) or medium row exactly.
+              // padding and the box sits centred in a short (36px) or medium (40px) row.
               rowHeight &&
                 (column.editable ? "py-0" : CELL_PAD_CLASS[rowHeight]),
               column.mono && "font-mono text-sm tabular-nums",
@@ -5062,7 +5063,9 @@ export function DataGrid<T>({
           !focused.closest('[data-slot="select-content"]'))
       )
         return;
-      cell.focus();
+      // The footer is sticky, so it is always in view; a plain focus() scrolls the viewport
+      // toward the footer's unstuck place at the end of the rows.
+      cell.focus({ preventScroll: true });
     });
   };
   // The header and summary cells' actions: stable, reading the latest state (see `GridEdgeActions`).

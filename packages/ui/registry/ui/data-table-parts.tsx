@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.35.1 sha256-KtZmaOeIg1REacl4/5oY91PaSGuYWNEw+adIm/wIvBE=
+// @vegastack data-table-parts@0.35.1 sha256-XDgppiAfGIZitweakJsTViAgfHPb6yAh7TSn9/kLCQI=
 
 "use client";
 
@@ -386,8 +386,8 @@ export const SELECTED_ROW_CLASS =
  * The ONE list density scale (RS-15), shared by `DataList` and `DataGrid` so a list and a grid
  * side by side have the same rhythm: `compact` rows are 32px and `comfortable` rows 40px — the
  * header row's own height. A row is never shorter than its step; content that needs more (a
- * second line, a thumbnail) grows it. `DataGrid`'s fixed `rowHeight`s are the same steps
- * (`short` = compact, `medium` = comfortable) plus `tall`.
+ * second line, a thumbnail) grows it. `DataGrid`'s `medium` row is the comfortable step; its
+ * `short` row is the grid's own 36px and `tall` its own 80px.
  */
 export const LIST_ROW_HEIGHT_PX = { compact: 32, comfortable: 40 } as const;
 
@@ -2375,7 +2375,8 @@ export function GridSummaryCell({
         <span
           aria-hidden="true"
           data-slot="grid-summary-placeholder"
-          className="text-xs text-muted-foreground pointer-fine:invisible"
+          // The `sm` trigger's own height (`h-7`), so the row is the same before the picker mounts.
+          className="inline-flex h-7 items-center align-middle text-xs text-muted-foreground pointer-fine:invisible"
         >
           {placeholder}
         </span>
