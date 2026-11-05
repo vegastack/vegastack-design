@@ -17663,6 +17663,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.12.0",
         "@vegastack/design-tokens@^0.11.0"
       ],
@@ -17678,7 +17679,7 @@
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
         "version": "0.33.0",
-        "integrity": "sha256-MGjNdyjF5/LTQ1GuUUCVH54b+Cap3nFUXmUCm7ZcL6M="
+        "integrity": "sha256-BERvtmEi7DcVcCpP8BclEXn2/gzwBNSxFXSmJz7SleY="
       }
     },
     {

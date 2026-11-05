@@ -84,6 +84,8 @@ const STATUS_TINT_ALPHAS = [0.1, 0.2, 0.3];
 
 // Non-text UI parts (1.4.11): the ring token (used by text-entry borders; ordinary controls use the no-ring tint) and `primary`, which carries switch/checkbox/radio/tab/slider selection.
 const NONTEXT = ["ring", "primary"];
+// Progress `tone` (API-41): a status fill on the bar's `muted` track is a non-text part too.
+const TRACK_FILLS = ["warning", "destructive"];
 // FOC-3: text entry tints its BORDER with the ring at its canonical opacity rather than painting the outline, because
 // a raw text field cannot tell a mouse click from a Tab. FOC-10 gates that composite.
 // Read the canonical utility instead of independently remembering its opacity. Browser tests
@@ -384,6 +386,12 @@ export function checkTheme(css) {
         if (surface)
           gate(theme, ink, surface, AA_NONTEXT, `non-text ${part} on ${name}`);
       }
+    }
+    for (const part of TRACK_FILLS) {
+      const ink = need(theme, vars, part, "a progress fill");
+      const track = need(theme, vars, "muted", `progress ${part}`);
+      if (ink && track)
+        gate(theme, ink, track, AA_NONTEXT, `progress ${part} on muted`);
     }
     for (const part of MARKERS) {
       const ink = need(theme, vars, part, "a marker");

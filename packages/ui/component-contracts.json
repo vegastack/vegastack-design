@@ -22827,9 +22827,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "tone",
+            "values": ["default", "warning", "danger"],
+            "evidence": "packages/ui/registry/ui/progress.tsx: cva tone"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -22878,7 +22883,8 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.12.0",
-        "@vegastack/design-tokens@^0.11.0"
+        "@vegastack/design-tokens@^0.11.0",
+        "class-variance-authority@^0.7.1"
       ],
       "testFiles": ["packages/ui/registry/ui/progress.test.tsx"],
       "coverage": {
