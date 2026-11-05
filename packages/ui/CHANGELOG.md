@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.51.0
+
+### Minor Changes
+
+- [#916](https://github.com/vegastack/vegastack-design/pull/916) [`06bd8cf`](https://github.com/vegastack/vegastack-design/commit/06bd8cf443a3bad05a92d43439343b9862d5a7d8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `ChatComposer` takes `queues`: the next message sends while the agent answers, for a host that holds it until the answer ends; Send stands beside Stop.
+
 ## 0.50.0
 
 ### Minor Changes

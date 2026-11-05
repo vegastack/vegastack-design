@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.51.0] — November 5, 2026
+
+<!-- assembled from 1 changeset: d6c6e184f2da -->
+
+### 🔧 Changed components
+
+- `ChatComposer` takes `queues`: the next message sends while the agent answers, for a host that holds it until the answer ends; Send stands beside Stop.
+  [`06bd8cf`](https://github.com/VegaStack/vegastack-design/commit/06bd8cf)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.50.0 → 0.51.0.
+
 ## [0.50.0] — November 5, 2026
 
 <!-- assembled from 1 changeset: 8b59dd834762 -->
