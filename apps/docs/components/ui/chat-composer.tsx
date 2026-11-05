@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.43.0 sha256-OsEHyfxdrtU4BCZkJ1iGGD6wa/4vm9lOaQhCkX91O+M=
+// @vegastack chat-composer@0.43.0 sha256-/1HVGOvKsb9Ted25eBZc80EKBDYmfUAW1kUo8Mm0yG4=
 
 "use client";
 
@@ -78,6 +78,12 @@ export interface ChatComposerProps extends Omit<
    * @default "idle"
    */
   status?: ChatComposerStatus;
+  /**
+   * The next message still sends while `streaming`, for a host that holds it until the answer ends:
+   * with text in the box, Send stands beside Stop. `onSubmit` resolves when the host has taken it, not
+   * when it goes out. @default false
+   */
+  queues?: boolean;
   /** Shown while the box is empty. @default undefined */
   placeholder?: string;
   /** Turn the whole box off. @default false */
@@ -201,6 +207,7 @@ export function ChatComposer({
   onSubmit,
   onStop,
   status = "idle",
+  queues = false,
   placeholder,
   disabled = false,
   submitDisabled = false,
@@ -252,7 +259,7 @@ export function ChatComposer({
     !disabled &&
     !submitDisabled &&
     !sending &&
-    !streaming &&
+    (!streaming || queues) &&
     !empty;
   const held = submitDisabled ? submitDisabledReason : undefined;
 
@@ -297,7 +304,7 @@ export function ChatComposer({
       const since = latest.current;
       replace(since.trim() ? `${value}\n\n${since}` : value, true);
     };
-    sentAt.current = Date.now();
+    if (!streaming) sentAt.current = Date.now();
     replace("", true);
     latest.current = "";
     setPending(true);
@@ -324,46 +331,60 @@ export function ChatComposer({
 
   const sendLabel = labels?.send ?? "Send";
   const idleSend = !canSend && !sending;
+  const stopButton = (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            size="icon-xs"
+            aria-label={labels?.stop ?? "Stop"}
+            data-slot="chat-composer-stop"
+            onClick={() => {
+              if (Date.now() - sentAt.current > STOP_GUARD_MS) onStop?.();
+            }}
+            className="rounded-full"
+          />
+        }
+      >
+        <Square aria-hidden className="fill-current" />
+      </TooltipTrigger>
+      <TooltipContent>{labels?.stop ?? "Stop"}</TooltipContent>
+    </Tooltip>
+  );
+  const sendButton = (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            size="icon-xs"
+            variant={idleSend ? "secondary" : "default"}
+            aria-label={sendLabel}
+            data-slot="chat-composer-send"
+            loading={sending}
+            disabled={!canSend}
+            onClick={() => void submit(body)}
+            className="rounded-full data-disabled:not-data-loading:text-muted-foreground data-disabled:not-data-loading:opacity-100"
+          />
+        }
+      >
+        <ArrowUp aria-hidden />
+      </TooltipTrigger>
+      <TooltipContent>{sendLabel}</TooltipContent>
+    </Tooltip>
+  );
+  // Queueing, a phone has no Enter that sends: while there's something to hold, Send stands by Stop.
   const action =
     streaming && onStop ? (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              size="icon-xs"
-              aria-label={labels?.stop ?? "Stop"}
-              data-slot="chat-composer-stop"
-              onClick={() => {
-                if (Date.now() - sentAt.current > STOP_GUARD_MS) onStop();
-              }}
-              className="rounded-full"
-            />
-          }
-        >
-          <Square aria-hidden className="fill-current" />
-        </TooltipTrigger>
-        <TooltipContent>{labels?.stop ?? "Stop"}</TooltipContent>
-      </Tooltip>
+      queues && (!empty || pending) ? (
+        <>
+          {sendButton}
+          {stopButton}
+        </>
+      ) : (
+        stopButton
+      )
     ) : (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              size="icon-xs"
-              variant={idleSend ? "secondary" : "default"}
-              aria-label={sendLabel}
-              data-slot="chat-composer-send"
-              loading={sending}
-              disabled={!canSend}
-              onClick={() => void submit(body)}
-              className="rounded-full data-disabled:not-data-loading:text-muted-foreground data-disabled:not-data-loading:opacity-100"
-            />
-          }
-        >
-          <ArrowUp aria-hidden />
-        </TooltipTrigger>
-        <TooltipContent>{sendLabel}</TooltipContent>
-      </Tooltip>
+      sendButton
     );
 
   return (
