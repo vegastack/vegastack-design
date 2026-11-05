@@ -17809,7 +17809,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.40.0",
-        "integrity": "sha256-PxdPBZELYB1h91VHM7o8t6cOX3ZuIUC0hqYIJ35ZqVo="
+        "integrity": "sha256-2zkPCFUZbBMFDqiV3z+7dte36NLe6hjUVLYAOtVFH1c="
       }
     },
     {

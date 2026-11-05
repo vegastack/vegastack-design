@@ -296,9 +296,7 @@ test("a note sits under the access in its tone, never blocks the pick, and a dis
   const plain = noteIn(/Claude Code/)!;
   expect(plain.textContent).toBe("Usually starts within 2 minutes");
   expect(plain.dataset.tone).toBe("default");
-  await expect
-    .element(page.getByRole("option", { name: /Claude Code/ }))
-    .toHaveTextContent("Read & write");
+  expect(plain.previousElementSibling!.textContent).toBe("Read & write");
   const warned = noteIn(/ChatGPT/)!;
   expect(warned.dataset.tone).toBe("warning");
   expect(warned.className).toContain("text-warning-text");

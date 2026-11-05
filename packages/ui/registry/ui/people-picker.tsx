@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.40.0 sha256-PxdPBZELYB1h91VHM7o8t6cOX3ZuIUC0hqYIJ35ZqVo=
+// @vegastack people-picker@0.40.0 sha256-2zkPCFUZbBMFDqiV3z+7dte36NLe6hjUVLYAOtVFH1c=
 
 "use client";
 
@@ -355,7 +355,8 @@ function PeoplePickerRow({
         data-slot="people-picker-note"
         data-tone={option.noteTone ?? "default"}
         className={cn(
-          "block truncate",
+          // A sentence someone decides on: it wraps rather than losing its end.
+          "block whitespace-normal",
           option.noteTone === "warning" && "text-warning-text",
         )}
       >
