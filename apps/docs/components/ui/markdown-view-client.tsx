@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.48.0 sha256-0XVggpIEvzaCYy4QWkyJsTykkzOkRoMxeo6eJT4yoVg=
+// @vegastack markdown-view@0.48.0 sha256-d+GUbdmoDmVeEUVn6QZsxkmIvFVupfHMz+/nvEn63Ic=
 
 "use client";
 
@@ -1183,16 +1183,28 @@ export interface MarkdownBlockedImageProps extends React.ComponentProps<"span"> 
   label: string;
   /** The button's word. */
   showLabel: string;
+  /** The box's words when the image didn't load after Show. */
+  failedLabel: string;
+  /** The button's word when the image didn't load after Show. */
+  retryLabel: string;
   /** The image, mounted only after Show, so nothing is fetched before it. */
   children: React.ReactNode;
 }
 
 /**
  * `MarkdownBlockedImage` — a remote image waiting for the reader. It keeps the blocked box's look,
- * so a page reads the same with or without `imageProxy`.
+ * so a page reads the same with or without `imageProxy`. An image that fails after Show comes back
+ * as the box, saying so, with a way to try again, rather than leaving a broken picture.
  *
  * @example
- * <MarkdownBlockedImage source={src} alt="" label="Image from acme.com" showLabel="Show">
+ * <MarkdownBlockedImage
+ *   source={src}
+ *   alt=""
+ *   label="Image from acme.com"
+ *   showLabel="Show"
+ *   failedLabel="Couldn't load this image"
+ *   retryLabel="Try again"
+ * >
  *   <img src={proxied} alt="" />
  * </MarkdownBlockedImage>
  */
@@ -1201,25 +1213,43 @@ export function MarkdownBlockedImage({
   alt,
   label,
   showLabel,
+  failedLabel,
+  retryLabel,
   children,
   ...props
 }: MarkdownBlockedImageProps) {
   const [shown, setShown] = React.useState<string | null>(null);
-  if (shown === source) return children;
+  const [failed, setFailed] = React.useState<string | null>(null);
+  if (shown === source)
+    return (
+      // An image's `error` doesn't bubble; React's capture phase is the way to hear it from here.
+      <span
+        className="contents"
+        onErrorCapture={() => {
+          setFailed(source);
+          setShown(null);
+        }}
+      >
+        {children}
+      </span>
+    );
+  const retry = failed === source;
+  const action = retry ? retryLabel : showLabel;
   return (
     <span
       data-slot="markdown-image-blocked"
       className="my-2 flex min-w-0 items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
       {...props}
     >
-      <span className="min-w-0 wrap-anywhere">
+      <span className="min-w-0 wrap-anywhere" aria-live="polite">
         {label}
         {alt ? ` · ${alt}` : null}
+        {retry ? ` · ${failedLabel}` : null}
       </span>
       <Button
         size="xs"
         variant="outline"
-        aria-label={`${showLabel}: ${label}`}
+        aria-label={`${action}: ${label}`}
         className="shrink-0"
         onClick={(event) => {
           // Inside a link, this press is for the image: it must not follow the link too.
@@ -1228,7 +1258,7 @@ export function MarkdownBlockedImage({
           setShown(source);
         }}
       >
-        {showLabel}
+        {action}
       </Button>
     </span>
   );

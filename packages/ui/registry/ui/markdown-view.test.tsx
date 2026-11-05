@@ -1977,6 +1977,29 @@ test("alt text can't stand in for the real origin", async () => {
   ).toContain("Image from evil.example");
 });
 
+test("an image that fails after Show comes back as its box, and can be tried again", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {"![](https://evil.media.example/pixel.png)"}
+    </MarkdownView>,
+  );
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  const image = screen.container.querySelector("img")!;
+  // A proxy address names the proxy; a viewer needs the picture's own name.
+  expect(image.dataset.fileName).toBe("pixel.png");
+  image.dispatchEvent(new Event("error"));
+  await expect
+    .element(screen.getByRole("button", { name: /^Try again/ }))
+    .toBeVisible();
+  expect(screen.container.querySelector("img")).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="markdown-image-blocked"]')!
+      .textContent,
+  ).toContain("Couldn't load this image");
+  await screen.getByRole("button", { name: /^Try again/ }).click();
+  expect(screen.container.querySelector("img")).not.toBeNull();
+});
+
 test("Show inside a link shows the image and doesn't follow the link", async () => {
   const screen = await render(
     <MarkdownView imageProxy={proxied}>

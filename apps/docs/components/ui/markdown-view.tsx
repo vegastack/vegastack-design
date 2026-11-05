@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.48.0 sha256-0XVggpIEvzaCYy4QWkyJsTykkzOkRoMxeo6eJT4yoVg=
+// @vegastack markdown-view@0.48.0 sha256-d+GUbdmoDmVeEUVn6QZsxkmIvFVupfHMz+/nvEn63Ic=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1624,6 +1624,16 @@ function urlTarget(url: string): UrlTarget | null {
   return null;
 }
 
+/** A remote image's own file name, else its site's: what a viewer calls a proxied image. */
+function sourceFileName(url: string, domain: string): string {
+  try {
+    const last = new URL(url).pathname.split("/").filter(Boolean).pop();
+    return (last && decodeURIComponent(last).slice(0, 200)) || domain;
+  } catch {
+    return domain;
+  }
+}
+
 /**
  * The link's words already name its real host, so saying it again adds nothing. Only an exact match
  * counts, on plain text, with no user name in the URL: anything looser is how a link passes itself
@@ -1712,6 +1722,8 @@ interface RenderContext {
   imageProxy?: (src: string) => string;
   blockedImageLabel: (domain: string) => string;
   showImageLabel: string;
+  imageFailedLabel: string;
+  retryImageLabel: string;
   /** Say where an external link goes, after its text (`showLinkDomains`). */
   linkDomains: boolean;
   headingOffset: number;
@@ -2337,6 +2349,9 @@ function renderNode(
         // rhythm come from `prose.img` on the root. A known size reserves its box before it loads.
         <img
           data-slot="markdown-image"
+          data-file-name={
+            offered ? sourceFileName(src, offered.domain) : undefined
+          }
           src={loaded}
           alt={alt}
           width={width}
@@ -2383,6 +2398,8 @@ function renderNode(
           alt={alt}
           label={ctx.blockedImageLabel(offered.domain)}
           showLabel={ctx.showImageLabel}
+          failedLabel={ctx.imageFailedLabel}
+          retryLabel={ctx.retryImageLabel}
           data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
         >
           {drawn}
@@ -2760,6 +2777,10 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   blockedImageLabel?: (domain: string) => string;
   /** The button in a blocked image's box with `imageProxy`. @default "Show" */
   showImageLabel?: string;
+  /** The box's words when an image didn't load after Show. @default "Couldn't load this image" */
+  imageFailedLabel?: string;
+  /** The box's button when an image didn't load after Show. @default "Try again" */
+  retryImageLabel?: string;
   /**
    * Say where an external link goes, after its text: "Datasheet (acme.com)". For content an agent
    * or an outsider wrote, where a link's words may not match its target.
@@ -3054,6 +3075,8 @@ export function MarkdownView({
   allowedImagePaths = [],
   blockedImageLabel = (domain) => `Image from ${domain}`,
   showImageLabel = "Show",
+  imageFailedLabel = "Couldn't load this image",
+  retryImageLabel = "Try again",
   showLinkDomains = false,
   headingOffset = 0,
   headingIds: withHeadingIds = false,
@@ -3193,6 +3216,8 @@ export function MarkdownView({
         imageProxy,
         blockedImageLabel,
         showImageLabel,
+        imageFailedLabel,
+        retryImageLabel,
         linkDomains: showLinkDomains,
         headingOffset: Math.trunc(headingOffset),
         annotationCounts: new Map(
