@@ -2254,7 +2254,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.52.1",
-        "integrity": "sha256-ilvQGzXk9ku+tvh/MH5E9qZwQFXOl+cyTUEk6W4vCCc="
+        "integrity": "sha256-zX4buLg9hrDYNIpy1Mmpyobhl7/pa+AXhTXZKLrbqUs="
       }
     },
     {

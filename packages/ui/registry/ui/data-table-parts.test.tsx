@@ -1152,7 +1152,7 @@ test("GridSummaryCell: the picker spans the cell, a Σ marks an unsummarised cel
     .element();
   // The whole cell is the target, its content following the column's alignment.
   expect(trigger.className).toContain("w-full");
-  expect(trigger.className).toContain("[.text-end>*>&]:justify-end");
+  expect(trigger.className).toContain("[.text-end>*>&]:justify-end-safe");
   // Unsummarised: the Σ leads, and only it shows at rest (the prompt and chevron join on hover).
   expect(trigger.firstElementChild?.getAttribute("data-slot")).toBe(
     "grid-summary-sigma",

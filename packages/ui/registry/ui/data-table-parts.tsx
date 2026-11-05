@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.52.1 sha256-ilvQGzXk9ku+tvh/MH5E9qZwQFXOl+cyTUEk6W4vCCc=
+// @vegastack data-table-parts@0.52.1 sha256-zX4buLg9hrDYNIpy1Mmpyobhl7/pa+AXhTXZKLrbqUs=
 
 "use client";
 
@@ -2239,9 +2239,12 @@ export interface GridSummaryCellProps extends Omit<
 
 const SUMMARY_NONE = "\u0000none";
 
-/** A summary cell's content follows its column's alignment (the cell's `text-end`/`text-center`). */
+/**
+ * A summary cell's content follows its column's alignment (the cell's `text-end`/`text-center`).
+ * `safe`: in a column too narrow for it, the content overflows at the end, never into the column before.
+ */
 const SUMMARY_JUSTIFY =
-  "justify-start [.text-end>*>&]:justify-end [.text-center>*>&]:justify-center";
+  "justify-start [.text-end>*>&]:justify-end-safe [.text-center>*>&]:justify-center-safe";
 
 /**
  * `GridSummaryCell` — one footer cell of a grid's summary row: a `Select` of the column's
@@ -2288,7 +2291,7 @@ export function GridSummaryCell({
   return (
     <TableCell
       data-slot="grid-summary-cell"
-      className={cn("group/summary-cell px-1 py-1", className)}
+      className={cn("px-1 py-1", className)}
       onFocus={(event) => {
         setArmed(true);
         onFocus?.(event);
@@ -2393,10 +2396,10 @@ export function GridSummaryCell({
           <span
             aria-hidden="true"
             data-slot="grid-summary-placeholder"
-            // The `sm` trigger's own box (`h-7`, its padding and alignment), so nothing moves when
+            // The `sm` trigger's own box (`h-7`, its transparent border, padding and alignment), so nothing moves when
             // the picker mounts on hover.
             className={cn(
-              "flex h-7 min-w-0 flex-1 items-center gap-1 ps-1.5 pe-1.5 text-xs text-muted-foreground",
+              "flex h-7 min-w-0 flex-1 items-center gap-1 border border-transparent ps-1.5 pe-1.5 text-xs text-muted-foreground",
               SUMMARY_JUSTIFY,
             )}
           >
