@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.51.1 sha256-ByyzXDPmDZkbJyQwCAfFSGSwPJEJBrioNBRzQd6xSWg=
+// @vegastack markdown-view@0.51.1 sha256-1GaPppPD0j5EsC2Ba0m0bGBgCmlVTeAMfvdnfGgz4Ak=
 
 "use client";
 
@@ -1511,15 +1511,18 @@ const BOOKMARK_PREVIEWS = new WeakMap<
 function bookmarkPreviewOf(
   source: NonNullable<MarkdownBookmarkProps["fetchPreview"]>,
   url: string,
+  asked = false,
 ): Promise<MarkdownBookmarkPreview | null> {
   let answers = BOOKMARK_PREVIEWS.get(source);
   if (!answers) BOOKMARK_PREVIEWS.set(source, (answers = new Map()));
-  let answer = answers.get(url);
+  const key = `${asked ? "asked" : "look"}:${url}`;
+  let answer = answers.get(`asked:${url}`) ?? answers.get(key);
   if (!answer) {
-    answer = source(url, { signal: new AbortController().signal }).catch(
-      () => null,
-    );
-    answers.set(url, answer);
+    answer = source(url, {
+      signal: new AbortController().signal,
+      asked,
+    }).catch(() => null);
+    answers.set(key, answer);
     if (answers.size > 200) answers.delete(answers.keys().next().value!);
   }
   return answer;
@@ -1551,11 +1554,13 @@ export interface MarkdownBookmarkProps extends Omit<
   /**
    * Asks the host for the page's preview (its server reads the page, so the reader's browser never
    * contacts the site), once per URL. Without it, the `InlineChipProvider`'s `linkPreview`.
+   * Rendering asks without `asked`: answer what you hold, contact nothing. With nothing to show the
+   * card offers Show preview, which asks with `asked: true`.
    * @default the provider's `linkPreview`
    */
   fetchPreview?: (
     url: string,
-    options: { signal: AbortSignal },
+    options: { signal: AbortSignal; asked?: boolean },
   ) => Promise<MarkdownBookmarkPreview | null>;
 }
 
@@ -1598,7 +1603,26 @@ export function MarkdownBookmark({
     given === undefined && !!source && safe && fetched?.url !== url;
   const { host, path } = bookmarkAddress(url);
   const title = preview?.title?.trim() || null;
-  return (
+  const [asking, setAsking] = React.useState(false);
+  const [askedFor, setAskedFor] = React.useState<string | null>(null);
+  // Only while there is nothing to show, and once: a page that can't be read answers nothing again.
+  const offer =
+    given === undefined &&
+    !!source &&
+    safe &&
+    !loading &&
+    !preview &&
+    askedFor !== url;
+  const ask = () => {
+    if (!source) return;
+    setAsking(true);
+    void bookmarkPreviewOf(source, url, true).then((answer) => {
+      setAsking(false);
+      setAskedFor(url);
+      setFetched({ url, preview: answer });
+    });
+  };
+  const card = (
     <a
       data-slot="markdown-bookmark"
       data-loading={loading ? "" : undefined}
@@ -1668,6 +1692,26 @@ export function MarkdownBookmark({
         />
       ) : null}
     </a>
+  );
+  if (!offer) return card;
+  // Beside the link, never in it: a button can't live inside an anchor.
+  return (
+    <span
+      data-slot="markdown-bookmark-offer"
+      contentEditable={false}
+      className="relative block"
+    >
+      {card}
+      <Button
+        variant="ghost"
+        size="sm"
+        loading={asking}
+        onClick={ask}
+        className="absolute end-2 top-1/2 -translate-y-1/2"
+      >
+        Show preview
+      </Button>
+    </span>
   );
 }
 
