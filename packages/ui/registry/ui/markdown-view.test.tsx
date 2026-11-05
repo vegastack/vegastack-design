@@ -1943,7 +1943,12 @@ test("onTaskOpen: a comment on the line's task keeps it a TaskInline", async () 
   ).not.toBeNull();
 });
 
-const proxied = (src: string) => `/proxy?u=${encodeURIComponent(src)}`;
+// A picture that loads, so a shown image stays shown; a real failure would take it away mid-test.
+const PIXEL =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+const proxied = (src: string) => `${PIXEL}#${encodeURIComponent(src)}`;
+/** A proxy with a route of its own, for what's said about that route. */
+const routed = (src: string) => `/proxy?u=${encodeURIComponent(src)}`;
 
 test("imageProxy offers a blocked image and fetches nothing until Show", async () => {
   const screen = await render(
@@ -1960,7 +1965,7 @@ test("imageProxy offers a blocked image and fetches nothing until Show", async (
   await screen.getByRole("button", { name: /^Show/ }).click();
   const image = screen.container.querySelector("img")!;
   expect(image.getAttribute("src")).toBe(
-    "/proxy?u=https%3A%2F%2Fevil.media.example%2Fpixel.png",
+    proxied("https://evil.media.example/pixel.png"),
   );
   expect(image.getAttribute("referrerpolicy")).toBe("no-referrer");
 });
@@ -1978,6 +1983,7 @@ test("alt text can't stand in for the real origin", async () => {
 });
 
 test("an image that fails after Show comes back as its box, and can be tried again", async () => {
+  // Press Show from the keyboard's place: the button goes, and focus falls to the page.
   const screen = await render(
     <MarkdownView imageProxy={proxied}>
       {"![](https://evil.media.example/pixel.png)"}
@@ -1988,16 +1994,28 @@ test("an image that fails after Show comes back as its box, and can be tried aga
   // A proxy address names the proxy; a viewer needs the picture's own name.
   expect(image.dataset.fileName).toBe("pixel.png");
   image.dispatchEvent(new Event("error"));
-  await expect
-    .element(screen.getByRole("button", { name: /^Try again/ }))
-    .toBeVisible();
+  const retry = screen.getByRole("button", { name: /^Try again/ });
+  await expect.element(retry).toBeVisible();
+  await expect.element(retry).toHaveFocus();
   expect(screen.container.querySelector("img")).toBeNull();
   expect(
     screen.container.querySelector('[data-slot="markdown-image-blocked"]')!
       .textContent,
   ).toContain("Couldn't load this image");
-  await screen.getByRole("button", { name: /^Try again/ }).click();
-  expect(screen.container.querySelector("img")).not.toBeNull();
+  await retry.click();
+  const again = screen.container.querySelector("img")!;
+  expect(again).not.toBe(image);
+});
+
+test("a shown image adds nothing around its figure", async () => {
+  const screen = await render(
+    <MarkdownView imageProxy={proxied}>
+      {'![](https://evil.media.example/pixel.png "Caption")'}
+    </MarkdownView>,
+  );
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  const figure = screen.container.querySelector("figure")!;
+  expect(figure.parentElement?.tagName).not.toBe("SPAN");
 });
 
 test("Show inside a link shows the image and doesn't follow the link", async () => {
@@ -2013,7 +2031,7 @@ test("Show inside a link shows the image and doesn't follow the link", async () 
 
 test("the proxy's own address never loads by itself", async () => {
   const screen = await render(
-    <MarkdownView imageProxy={proxied}>
+    <MarkdownView imageProxy={routed}>
       {"![](/proxy?u=https%3A%2F%2Fevil.example%2Fsecret)"}
     </MarkdownView>,
   );

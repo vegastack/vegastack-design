@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.48.0 sha256-d+GUbdmoDmVeEUVn6QZsxkmIvFVupfHMz+/nvEn63Ic=
+// @vegastack markdown-view@0.48.0 sha256-eXZqpcmxCVmmqoO1Shlo/LIt7rqqqWSMJQUTDp3vmMA=
 
 "use client";
 
@@ -1183,12 +1183,34 @@ export interface MarkdownBlockedImageProps extends React.ComponentProps<"span"> 
   label: string;
   /** The button's word. */
   showLabel: string;
-  /** The box's words when the image didn't load after Show. */
-  failedLabel: string;
-  /** The button's word when the image didn't load after Show. */
-  retryLabel: string;
+  /** The box's words when the image didn't load after Show.
+   * @default "Couldn't load this image"
+   */
+  failedLabel?: string;
+  /** The button's word when the image didn't load after Show.
+   * @default "Try again"
+   */
+  retryLabel?: string;
   /** The image, mounted only after Show, so nothing is fetched before it. */
   children: React.ReactNode;
+}
+
+/** How a shown image tells its box it didn't load. Null outside one. */
+const BlockedImageFailed = React.createContext<(() => void) | null>(null);
+
+/**
+ * `MarkdownShownImage` — the `<img>` inside a `MarkdownBlockedImage`. It reports its own failure, so
+ * the box adds nothing around the picture: figures, captions and spacing stay as they are.
+ *
+ * @example
+ * <MarkdownShownImage src={proxied} alt="" />
+ */
+export function MarkdownShownImage({
+  alt,
+  ...props
+}: React.ComponentProps<"img">) {
+  const failed = React.useContext(BlockedImageFailed);
+  return <img alt={alt} {...props} onError={failed ?? undefined} />;
 }
 
 /**
@@ -1202,10 +1224,8 @@ export interface MarkdownBlockedImageProps extends React.ComponentProps<"span"> 
  *   alt=""
  *   label="Image from acme.com"
  *   showLabel="Show"
- *   failedLabel="Couldn't load this image"
- *   retryLabel="Try again"
  * >
- *   <img src={proxied} alt="" />
+ *   <MarkdownShownImage src={proxied} alt="" />
  * </MarkdownBlockedImage>
  */
 export function MarkdownBlockedImage({
@@ -1213,27 +1233,33 @@ export function MarkdownBlockedImage({
   alt,
   label,
   showLabel,
-  failedLabel,
-  retryLabel,
+  failedLabel = "Couldn't load this image",
+  retryLabel = "Try again",
   children,
   ...props
 }: MarkdownBlockedImageProps) {
   const [shown, setShown] = React.useState<string | null>(null);
   const [failed, setFailed] = React.useState<string | null>(null);
-  if (shown === source)
+  const button = React.useRef<HTMLButtonElement>(null);
+  const retry = failed === source;
+  const offered = shown !== source;
+  // Show took the button away, so a keyboard reader's focus fell to the page. Landing on Try again
+  // keeps their place and reads out why it's back. Anyone who has moved on stays where they are.
+  React.useEffect(() => {
+    if (retry && offered && document.activeElement === document.body)
+      button.current?.focus();
+  }, [retry, offered]);
+  if (!offered)
     return (
-      // An image's `error` doesn't bubble; React's capture phase is the way to hear it from here.
-      <span
-        className="contents"
-        onErrorCapture={() => {
+      <BlockedImageFailed.Provider
+        value={() => {
           setFailed(source);
           setShown(null);
         }}
       >
         {children}
-      </span>
+      </BlockedImageFailed.Provider>
     );
-  const retry = failed === source;
   const action = retry ? retryLabel : showLabel;
   return (
     <span
@@ -1241,7 +1267,7 @@ export function MarkdownBlockedImage({
       className="my-2 flex min-w-0 items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
       {...props}
     >
-      <span className="min-w-0 wrap-anywhere" aria-live="polite">
+      <span className="min-w-0 wrap-anywhere">
         {label}
         {alt ? ` · ${alt}` : null}
         {retry ? ` · ${failedLabel}` : null}
@@ -1249,7 +1275,8 @@ export function MarkdownBlockedImage({
       <Button
         size="xs"
         variant="outline"
-        aria-label={`${action}: ${label}`}
+        ref={button}
+        aria-label={`${action}: ${label}${retry ? ` · ${failedLabel}` : ""}`}
         className="shrink-0"
         onClick={(event) => {
           // Inside a link, this press is for the image: it must not follow the link too.

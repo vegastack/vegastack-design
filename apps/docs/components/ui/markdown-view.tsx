@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.48.0 sha256-d+GUbdmoDmVeEUVn6QZsxkmIvFVupfHMz+/nvEn63Ic=
+// @vegastack markdown-view@0.48.0 sha256-eXZqpcmxCVmmqoO1Shlo/LIt7rqqqWSMJQUTDp3vmMA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -55,6 +55,7 @@ import {
 } from "@/components/ui/markdown-citation";
 import {
   MarkdownBlockedImage,
+  MarkdownShownImage,
   MarkdownBookmark,
   MarkdownEmbed,
   MarkdownTaskInline,
@@ -1599,6 +1600,8 @@ interface UrlTarget {
   domain: string;
   /** It carries a user name, which is how `https://acme.com@evil.com` reads as acme.com. */
   userinfo: boolean;
+  /** The address's path, for naming what it points at. */
+  path: string;
 }
 
 /**
@@ -1616,6 +1619,7 @@ function urlTarget(url: string): UrlTarget | null {
         host: parsed.host,
         domain: parsed.host.replace(/^www\./, ""),
         userinfo: !!parsed.username || !!parsed.password,
+        path: parsed.pathname,
       };
     } catch {
       // Not a URL against this base; the other may read it.
@@ -1625,9 +1629,9 @@ function urlTarget(url: string): UrlTarget | null {
 }
 
 /** A remote image's own file name, else its site's: what a viewer calls a proxied image. */
-function sourceFileName(url: string, domain: string): string {
+function sourceFileName({ path, domain }: UrlTarget): string {
   try {
-    const last = new URL(url).pathname.split("/").filter(Boolean).pop();
+    const last = path.split("/").filter(Boolean).pop();
     return (last && decodeURIComponent(last).slice(0, 200)) || domain;
   } catch {
     return domain;
@@ -2344,14 +2348,13 @@ function renderNode(
         ? (sized.height ??
           (Number.parseInt(attrs.height ?? "", 10) || undefined))
         : undefined;
+      const Picture = offered ? MarkdownShownImage : "img";
       const picture = (
         // Plain <img>: registry source is framework-agnostic (no next/image dependency). Frame and
         // rhythm come from `prose.img` on the root. A known size reserves its box before it loads.
-        <img
+        <Picture
           data-slot="markdown-image"
-          data-file-name={
-            offered ? sourceFileName(src, offered.domain) : undefined
-          }
+          data-file-name={offered ? sourceFileName(offered) : undefined}
           src={loaded}
           alt={alt}
           width={width}

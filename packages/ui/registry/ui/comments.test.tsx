@@ -1769,7 +1769,9 @@ test("a composer's hint describes its box", async () => {
   );
 });
 
-const proxied = (src: string) => `/proxy?u=${encodeURIComponent(src)}`;
+// A picture that loads, so a shown image stays shown.
+const proxied = (src: string) =>
+  `data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==#${encodeURIComponent(src)}`;
 
 const bodyBy = (author: CommentData["author"], body: string): CommentData => ({
   id: author.name,

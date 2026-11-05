@@ -7111,6 +7111,27 @@ test("read-only: comments, heading links and task lists show without the editor"
   await expect.element(html.getByText("Live list")).toBeInTheDocument();
 });
 
+test("ImageViewerScope: a proxied image with no alt text is named by its source", async () => {
+  const { ImageViewerScope } = await import("./text-edit");
+  const { MarkdownView } = await import("./markdown-view");
+  const pixel =
+    "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  const screen = await render(
+    <ImageViewerScope>
+      <MarkdownView imageProxy={(src) => `${pixel}#${encodeURIComponent(src)}`}>
+        {"![](https://evil.example/files/pixel.png?token=abc)"}
+      </MarkdownView>
+    </ImageViewerScope>,
+  );
+  await screen.getByRole("button", { name: /^Show/ }).click();
+  const image = () => screen.container.querySelector("img")!;
+  await vi.waitFor(() => expect(image()).toHaveAttribute("data-file-name"));
+  image().click();
+  await expect
+    .element(screen.getByRole("dialog"))
+    .toHaveTextContent("pixel.png");
+});
+
 test("ImageViewerScope: turned off, its images are plain pictures again", async () => {
   const { ImageViewerScope } = await import("./text-edit");
   const { MarkdownView } = await import("./markdown-view");
