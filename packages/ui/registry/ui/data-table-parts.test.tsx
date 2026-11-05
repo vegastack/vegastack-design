@@ -1068,11 +1068,15 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
   const screen = await render(<Harness value={null} />);
   // Unsummarised in a grid, the picker mounts on first hover or focus (a wide footer stays light).
   expect(screen.container.querySelector('[role="combobox"]')).toBeNull();
-  // Its stand-in is the `sm` trigger's height, so the row does not grow when the picker mounts.
+  // Its stand-in is the `sm` trigger's height, so the row does not grow when the picker mounts,
+  // and it shows the same Σ.
+  const stand = screen.container.querySelector(
+    '[data-slot="grid-summary-placeholder"]',
+  );
+  expect(stand?.className).toContain("h-7");
   expect(
-    screen.container.querySelector('[data-slot="grid-summary-placeholder"]')
-      ?.className,
-  ).toContain("h-7");
+    stand?.querySelector('[data-slot="grid-summary-sigma"]'),
+  ).not.toBeNull();
   (
     screen.container.querySelector(
       '[data-slot="grid-summary-cell"]',
@@ -1120,4 +1124,49 @@ test("GridSummaryCell standalone keeps its picker mounted, so Tab reaches it", a
   await expect
     .element(screen.getByRole("combobox", { name: "Summarize Qty" }))
     .toBeInTheDocument();
+});
+
+test("GridSummaryCell: the picker spans the cell, a Σ marks an unsummarised cell, a chosen one keeps its chevron", async () => {
+  // CSS-less harness: the shipped classes are the contract here; the look is checked in a browser.
+  function Harness({ value }: { value: string | null }) {
+    return (
+      <Table>
+        <tfoot>
+          <TableRow>
+            <GridSummaryCell
+              className="text-end"
+              columnLabel="Qty"
+              options={[{ value: "max", label: "Max" }]}
+              value={value}
+              onValueChange={() => {}}
+              result="5,400"
+            />
+          </TableRow>
+        </tfoot>
+      </Table>
+    );
+  }
+  const screen = await render(<Harness value={null} />);
+  const trigger = screen
+    .getByRole("combobox", { name: "Summarize Qty" })
+    .element();
+  // The whole cell is the target, its content following the column's alignment.
+  expect(trigger.className).toContain("w-full");
+  expect(trigger.className).toContain("[.text-end>*>&]:justify-end-safe");
+  // Unsummarised: the Σ leads, and only it shows at rest (the prompt and chevron join on hover).
+  expect(trigger.firstElementChild?.getAttribute("data-slot")).toBe(
+    "grid-summary-sigma",
+  );
+  expect(trigger.className).toContain(
+    "pointer-fine:[[data-slot=grid-summary-cell]:not(:hover,:focus-within)_&[data-empty]:not([data-popup-open])>:not(:first-child)]:hidden",
+  );
+  await expectNoA11yViolations(screen.container);
+
+  await screen.rerender(<Harness value="max" />);
+  const chosen = screen.getByRole("combobox", { name: "Max of Qty" }).element();
+  await expect.poll(() => chosen.textContent).toContain("Max5,400");
+  // Chosen: no Σ, and the chevron follows the value at rest (the idle rule needs `data-empty`).
+  expect(chosen.querySelector('[data-slot="grid-summary-sigma"]')).toBeNull();
+  expect(chosen.hasAttribute("data-empty")).toBe(false);
+  await expectNoA11yViolations(screen.container);
 });

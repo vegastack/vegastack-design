@@ -11936,7 +11936,8 @@
               "values": [
                 "grid-summary-cell",
                 "grid-summary-loading",
-                "grid-summary-placeholder"
+                "grid-summary-placeholder",
+                "grid-summary-sigma"
               ]
             }
           ],

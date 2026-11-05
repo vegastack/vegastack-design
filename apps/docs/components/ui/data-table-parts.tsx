@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.52.1 sha256-bvHIlRlvl2cgeACESmymwArHCGkln9NhRVAZI+sqfPg=
+// @vegastack data-table-parts@0.52.1 sha256-zX4buLg9hrDYNIpy1Mmpyobhl7/pa+AXhTXZKLrbqUs=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
   ChevronsUpDown,
   Ellipsis,
   Inbox,
+  Sigma,
   X,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
@@ -2228,8 +2229,9 @@ export interface GridSummaryCellProps extends Omit<
    */
   noneLabel?: string;
   /**
-   * The trigger's text while no function is chosen. It shows only on hover and focus, so a
-   * footer of unsummarised columns stays quiet.
+   * The trigger's text while no function is chosen. At rest the cell shows only a Σ; the text
+   * and the chevron join it on hover and focus (always on a touch screen), so a footer of
+   * unsummarised columns reads as summarisable without filling every column with words.
    * @default "Summarize"
    */
   placeholder?: string;
@@ -2238,8 +2240,16 @@ export interface GridSummaryCellProps extends Omit<
 const SUMMARY_NONE = "\u0000none";
 
 /**
- * `GridSummaryCell` — one footer cell of a grid's summary row: a quiet `Select` of the column's
- * summary functions (None, Count, Sum, …) and the host's result beside the function's name. The
+ * A summary cell's content follows its column's alignment (the cell's `text-end`/`text-center`).
+ * `safe`: in a column too narrow for it, the content overflows at the end, never into the column before.
+ */
+const SUMMARY_JUSTIFY =
+  "justify-start [.text-end>*>&]:justify-end-safe [.text-center>*>&]:justify-center-safe";
+
+/**
+ * `GridSummaryCell` — one footer cell of a grid's summary row: a `Select` of the column's
+ * summary functions (None, Count, Sum, …) that spans the cell, with the host's result beside the
+ * function's name and the chevron after it ("Max 5,400 ⌄"). An unsummarised cell shows a Σ. The
  * value is a prop; the cell computes nothing. The trigger is named "Sum of Qty" (or "Summarize
  * Qty" while none is chosen).
  *
@@ -2281,7 +2291,7 @@ export function GridSummaryCell({
   return (
     <TableCell
       data-slot="grid-summary-cell"
-      className={cn("group/summary-cell py-1", className)}
+      className={cn("px-1 py-1", className)}
       onFocus={(event) => {
         setArmed(true);
         onFocus?.(event);
@@ -2300,87 +2310,110 @@ export function GridSummaryCell({
       }}
       {...props}
     >
-      {leading != null ? (
-        <span className="me-2 align-middle text-xs text-muted-foreground">
-          {leading}
-        </span>
-      ) : null}
-      {live ? (
-        <Select
-          open={open}
-          onOpenChange={(next) => {
-            setOpen(next);
-            onOpenChange?.(next);
-          }}
-          value={chosen ? chosen.value : SUMMARY_NONE}
-          onValueChange={(next) =>
-            onValueChange(
-              next == null || next === SUMMARY_NONE ? null : String(next),
-            )
-          }
-          items={[
-            { value: SUMMARY_NONE, label: noneLabel },
-            ...options.map((option) => ({
-              value: option.value,
-              label: option.label,
-            })),
-          ]}
-        >
-          <SelectTrigger
-            variant="ghost"
-            size="sm"
-            {...(triggerTabIndex !== undefined && {
-              tabIndex: triggerTabIndex,
-            })}
-            aria-label={
-              chosen
-                ? `${chosen.label} of ${columnLabel}`
-                : `${placeholder} ${columnLabel}`
+      <div className="flex min-w-0 items-center gap-2">
+        {leading != null ? (
+          <span className="shrink-0 ps-1 text-xs text-muted-foreground">
+            {leading}
+          </span>
+        ) : null}
+        {live ? (
+          <Select
+            open={open}
+            onOpenChange={(next) => {
+              setOpen(next);
+              onOpenChange?.(next);
+            }}
+            value={chosen ? chosen.value : SUMMARY_NONE}
+            onValueChange={(next) =>
+              onValueChange(
+                next == null || next === SUMMARY_NONE ? null : String(next),
+              )
             }
-            data-empty={chosen ? undefined : ""}
+            items={[
+              { value: SUMMARY_NONE, label: noneLabel },
+              ...options.map((option) => ({
+                value: option.value,
+                label: option.label,
+              })),
+            ]}
+          >
+            <SelectTrigger
+              variant="ghost"
+              size="sm"
+              {...(triggerTabIndex !== undefined && {
+                tabIndex: triggerTabIndex,
+              })}
+              aria-label={
+                chosen
+                  ? `${chosen.label} of ${columnLabel}`
+                  : `${placeholder} ${columnLabel}`
+              }
+              data-empty={chosen ? undefined : ""}
+              className={cn(
+                // The whole cell is the target: the trigger spans the column, its content sits where
+                // the column aligns, and the chevron always follows a chosen function's value.
+                "w-full min-w-0 flex-1 gap-1 ps-1.5 pe-1.5 text-xs text-muted-foreground",
+                SUMMARY_JUSTIFY,
+                // Unsummarised, on a fine pointer, while the cell is neither hovered, focused nor
+                // open: only the Σ shows, so the footer reads as summarisable without filling every
+                // column with words. A touch screen cannot hover, so it always shows the prompt.
+                "pointer-fine:[[data-slot=grid-summary-cell]:not(:hover,:focus-within)_&[data-empty]:not([data-popup-open])>:not(:first-child)]:hidden",
+              )}
+            >
+              {chosen ? null : (
+                <Sigma
+                  aria-hidden="true"
+                  data-slot="grid-summary-sigma"
+                  className="size-3.5"
+                />
+              )}
+              <span className="min-w-0 truncate">
+                {chosen ? chosen.label : placeholder}
+              </span>
+              {chosen ? (
+                loading ? (
+                  <Skeleton
+                    data-slot="grid-summary-loading"
+                    className="h-3 w-8"
+                  />
+                ) : (
+                  <span className="font-medium text-foreground tabular-nums">
+                    {result}
+                  </span>
+                )
+              ) : null}
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false} align="start">
+              <SelectItem value={SUMMARY_NONE}>{noneLabel}</SelectItem>
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <span
+            aria-hidden="true"
+            data-slot="grid-summary-placeholder"
+            // The `sm` trigger's own box (`h-7`, its transparent border, padding and alignment), so nothing moves when
+            // the picker mounts on hover.
             className={cn(
-              "-mx-2 inline-flex max-w-full min-w-0 gap-1 text-xs text-muted-foreground",
-              // Unsummarised, on a fine pointer: invisible until the cell is hovered or focused, so a
-              // footer of unsummarised columns stays quiet. A touch screen cannot hover, so it always
-              // shows the prompt there.
-              "pointer-fine:data-empty:opacity-0 pointer-fine:group-hover/summary-cell:opacity-100 pointer-fine:group-focus-within/summary-cell:opacity-100 data-popup-open:opacity-100",
+              "flex h-7 min-w-0 flex-1 items-center gap-1 border border-transparent ps-1.5 pe-1.5 text-xs text-muted-foreground",
+              SUMMARY_JUSTIFY,
             )}
           >
-            <span className="min-w-0 truncate">
-              {chosen ? chosen.label : placeholder}
+            <Sigma
+              data-slot="grid-summary-sigma"
+              className="size-3.5 shrink-0"
+            />
+            <span className="min-w-0 truncate pointer-fine:hidden">
+              {placeholder}
             </span>
-            {chosen ? (
-              loading ? (
-                <Skeleton
-                  data-slot="grid-summary-loading"
-                  className="h-3 w-8"
-                />
-              ) : (
-                <span className="font-medium text-foreground tabular-nums">
-                  {result}
-                </span>
-              )
-            ) : null}
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false} align="start">
-            <SelectItem value={SUMMARY_NONE}>{noneLabel}</SelectItem>
-            {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ) : (
-        <span
-          aria-hidden="true"
-          data-slot="grid-summary-placeholder"
-          // The `sm` trigger's own height (`h-7`), so the row is the same before the picker mounts.
-          className="inline-flex h-7 items-center align-middle text-xs text-muted-foreground pointer-fine:invisible"
-        >
-          {placeholder}
-        </span>
-      )}
+            <ChevronDown className="size-4 shrink-0 pointer-fine:hidden" />
+          </span>
+        )}
+      </div>
     </TableCell>
   );
 }
