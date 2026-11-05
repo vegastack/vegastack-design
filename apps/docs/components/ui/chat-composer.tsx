@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.43.0 sha256-iAXYGHzp/jBhxM/yiVpsWczOywRpmzqYKRqnlURRQzY=
+// @vegastack chat-composer@0.43.0 sha256-/1HVGOvKsb9Ted25eBZc80EKBDYmfUAW1kUo8Mm0yG4=
 
 "use client";
 
@@ -340,7 +340,7 @@ export function ChatComposer({
             aria-label={labels?.stop ?? "Stop"}
             data-slot="chat-composer-stop"
             onClick={() => {
-              if (Date.now() - sentAt.current > STOP_GUARD_MS) onStop();
+              if (Date.now() - sentAt.current > STOP_GUARD_MS) onStop?.();
             }}
             className="rounded-full"
           />

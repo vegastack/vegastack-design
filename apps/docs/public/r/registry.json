@@ -19593,7 +19593,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.43.0",
-        "integrity": "sha256-iAXYGHzp/jBhxM/yiVpsWczOywRpmzqYKRqnlURRQzY="
+        "integrity": "sha256-/1HVGOvKsb9Ted25eBZc80EKBDYmfUAW1kUo8Mm0yG4="
       }
     },
     {
