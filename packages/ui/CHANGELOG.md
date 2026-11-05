@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.52.0
+
+### Minor Changes
+
+- [#917](https://github.com/vegastack/vegastack-design/pull/917) [`21cd0a3`](https://github.com/vegastack/vegastack-design/commit/21cd0a3d52dd258b1159d4ca1a07ce34c00e0d44) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `Progress` and `ProgressIndicator` take `tone` (`default`, `warning`, `danger`), so a bar nearing or past a limit says so in the bar.
+
 ## 0.51.1
 
 ### Patch Changes

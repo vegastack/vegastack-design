@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.52.0] — November 5, 2026
+
+<!-- assembled from 1 changeset: 2f6d149a69cd -->
+
+### 🔧 Changed components
+
+- `Progress` and `ProgressIndicator` take `tone` (`default`, `warning`, `danger`), so a bar nearing or past a limit says so in the bar.
+  [`21cd0a3`](https://github.com/VegaStack/vegastack-design/commit/21cd0a3)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.51.1 → 0.52.0.
+
 ## [0.51.1] — November 5, 2026
 
 <!-- assembled from 1 changeset: 7f13916dde98 -->

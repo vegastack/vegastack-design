@@ -14374,7 +14374,7 @@
       "meta": {
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
-        "version": "0.33.0"
+        "version": "0.52.0"
       }
     },
     {
