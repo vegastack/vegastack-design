@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.43.0 sha256-OsEHyfxdrtU4BCZkJ1iGGD6wa/4vm9lOaQhCkX91O+M=
+// @vegastack chat-composer@0.43.0 sha256-ueCL4sf5+PVMp8fviRyjzObpynKcvaE21RsYyRmmxdw=
 
 "use client";
 
@@ -78,6 +78,11 @@ export interface ChatComposerProps extends Omit<
    * @default "idle"
    */
   status?: ChatComposerStatus;
+  /**
+   * Enter still sends while `streaming`, for a host that holds the message until the answer ends.
+   * The button stays Stop. @default false
+   */
+  queues?: boolean;
   /** Shown while the box is empty. @default undefined */
   placeholder?: string;
   /** Turn the whole box off. @default false */
@@ -201,6 +206,7 @@ export function ChatComposer({
   onSubmit,
   onStop,
   status = "idle",
+  queues = false,
   placeholder,
   disabled = false,
   submitDisabled = false,
@@ -252,7 +258,7 @@ export function ChatComposer({
     !disabled &&
     !submitDisabled &&
     !sending &&
-    !streaming &&
+    (!streaming || queues) &&
     !empty;
   const held = submitDisabled ? submitDisabledReason : undefined;
 
