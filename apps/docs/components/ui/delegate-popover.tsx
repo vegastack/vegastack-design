@@ -1,4 +1,4 @@
-// @vegastack delegate-popover@0.40.0 sha256-nJwZhBxW7D6FMKsUNAW1g67MkdRdB+gJZLvyiC1QJrA=
+// @vegastack delegate-popover@0.40.0 sha256-aAv/VcSdJyZUBipDg1J+XUOLR2U2pi533KWpI7kWUBE=
 
 "use client";
 
@@ -75,6 +75,14 @@ export interface DelegatePopoverAgent {
    * @default undefined
    */
   hint?: string | null;
+  /**
+   * One more sentence under `access` ("Usually starts within 2 minutes"). It never stops the pick
+   * or changes the one-agent default; a disabled agent shows only its reason.
+   * @default undefined
+   */
+  note?: string | null;
+  /** The note's ink: `"warning"` when it is a caution. @default "default" */
+  noteTone?: "default" | "warning";
 }
 
 /** What `renderPicked` can do with the popover. */
@@ -185,6 +193,11 @@ export interface DelegatePopoverProps {
     agent: DelegatePopoverAgent,
     context: DelegatePopoverPickedContext,
   ) => React.ReactNode;
+  /**
+   * A row of the host's own above the instructions, such as what happens if the agent doesn't
+   * start. It belongs to the form, so a `renderPicked` step replaces it too. @default undefined
+   */
+  beforeInstructions?: React.ReactNode;
   /** Open state (controlled). @default undefined */
   open?: boolean;
   /** Called when it opens or closes. @default undefined */
@@ -197,7 +210,7 @@ export interface DelegatePopoverProps {
   className?: string;
 }
 
-/** The agent as a picker option: its hexagon, its access (or its hint) as the second line. */
+/** The agent as a picker option: its hexagon, its access (or its hint), then its note. */
 function toOption(agent: DelegatePopoverAgent): PeoplePickerOption {
   return {
     id: agent.id,
@@ -210,6 +223,8 @@ function toOption(agent: DelegatePopoverAgent): PeoplePickerOption {
     description: agent.access ?? null,
     disabledReason: agent.disabledReason ?? null,
     hint: agent.hint ?? null,
+    note: agent.note ?? null,
+    noteTone: agent.noteTone,
   };
 }
 
@@ -260,6 +275,7 @@ export function DelegatePopover({
   connectHref,
   linkRender,
   renderPicked,
+  beforeInstructions,
   open: openProp,
   onOpenChange,
   align = "start",
@@ -471,6 +487,11 @@ export function DelegatePopover({
                 data-slot="delegate-popover-form"
                 className="flex flex-col gap-3 p-3"
               >
+                {beforeInstructions != null && beforeInstructions !== false ? (
+                  <div data-slot="delegate-popover-before-instructions">
+                    {beforeInstructions}
+                  </div>
+                ) : null}
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor={instructionsId}>{labels.instructions}</Label>
                   <Textarea

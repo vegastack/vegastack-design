@@ -260,6 +260,86 @@ test("a delegation in flight is never sent twice, even after closing and reopeni
     .toBeVisible();
 });
 
+test("a note sits under the access in its tone, never blocks the pick, and a disabled agent shows only its reason", async () => {
+  const onDelegate = vi.fn();
+  const agents: DelegatePopoverAgent[] = [
+    {
+      id: "claude",
+      name: "Claude Code",
+      access: "Read & write",
+      note: "Usually starts within 2 minutes",
+    },
+    {
+      id: "chatgpt",
+      name: "ChatGPT",
+      note: "Can't start on its own",
+      noteTone: "warning",
+    },
+    {
+      id: "codex",
+      name: "Codex",
+      disabledReason: "Paused",
+      note: "Starts within seconds",
+    },
+  ];
+  await render(
+    <DelegatePopover agents={agents} onDelegate={onDelegate}>
+      {trigger}
+    </DelegatePopover>,
+  );
+  await open();
+  const noteIn = (name: RegExp) =>
+    page
+      .getByRole("option", { name })
+      .element()
+      .querySelector<HTMLElement>('[data-slot="people-picker-note"]');
+  const plain = noteIn(/Claude Code/)!;
+  expect(plain.textContent).toBe("Usually starts within 2 minutes");
+  expect(plain.dataset.tone).toBe("default");
+  expect(plain.previousElementSibling!.textContent).toBe("Read & write");
+  const warned = noteIn(/ChatGPT/)!;
+  expect(warned.dataset.tone).toBe("warning");
+  expect(warned.className).toContain("text-warning-text");
+  expect(noteIn(/Codex/)).toBeNull();
+  await page.getByRole("option", { name: /ChatGPT/ }).click();
+  await page.getByRole("button", { name: "Delegate", exact: true }).click();
+  expect(onDelegate).toHaveBeenCalledWith({
+    agentId: "chatgpt",
+    instructions: "",
+  });
+});
+
+test("the beforeInstructions row sits above the instructions, and a picked step replaces it", async () => {
+  const agents: DelegatePopoverAgent[] = [
+    { id: "boq", name: "BOQ Intake", hint: "Can't see this space yet" },
+    { id: "claude", name: "Claude Code" },
+  ];
+  await render(
+    <DelegatePopover
+      agents={agents}
+      onDelegate={() => {}}
+      beforeInstructions={<p>If it hasn't started</p>}
+      renderPicked={(agent) => (agent.hint ? <p>Needs access</p> : null)}
+    >
+      {trigger}
+    </DelegatePopover>,
+  );
+  await open();
+  const form = document.querySelector('[data-slot="delegate-popover-form"]')!;
+  const row = form.querySelector(
+    '[data-slot="delegate-popover-before-instructions"]',
+  )!;
+  expect(row.textContent).toBe("If it hasn't started");
+  expect(row.nextElementSibling!.querySelector("textarea")).not.toBeNull();
+  await page.getByRole("option", { name: /BOQ Intake/ }).click();
+  await expect.element(page.getByText("Needs access")).toBeVisible();
+  expect(
+    document.querySelector(
+      '[data-slot="delegate-popover-before-instructions"]',
+    ),
+  ).toBeNull();
+});
+
 test("an agent with a hint can be picked, and the host's step replaces the form until it is cleared", async () => {
   const onDelegate = vi.fn();
   const agents: DelegatePopoverAgent[] = [

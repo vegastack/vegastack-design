@@ -83,6 +83,19 @@ so rows carry no "Agent" label.
   file="components/preview/delegate-popover.tsx"
 />
 
+### A note, and a row above the instructions
+
+`note` is one more sentence under an agent's `access` ("Usually starts within 2 minutes"), and
+`noteTone="warning"` draws a caution in the warning ink. A note never stops the pick; a disabled
+agent shows only its `disabledReason`. `beforeInstructions` is a row of the host's own above the
+instructions, such as what happens if the agent doesn't start. It belongs to the form, so a
+`renderPicked` step replaces it too.
+
+<ComponentPreview
+  name="delegatePopoverNote"
+  file="components/preview/delegate-popover.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

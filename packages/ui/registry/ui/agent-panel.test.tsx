@@ -987,6 +987,21 @@ test("the added states: quiet, not started, paused, no action, an approval to re
   await expectNoA11yViolations(screen.container);
 });
 
+test("the chip writes Not started and Quiet in the warning ink", async () => {
+  await render(
+    <>
+      <AgentChip agent={{ name: "Claude Code" }} state="not-started" />
+      <AgentChip agent={{ name: "Orbit" }} state="quiet" />
+    </>,
+  );
+  for (const word of ["Not started", "Quiet"]) {
+    await expect.element(page.getByText(word)).toBeVisible();
+    expect(
+      page.getByText(word).element().parentElement!.getAttribute("class"),
+    ).toContain("text-warning-text");
+  }
+});
+
 test("the badge words for the added states; the ring stays for the states that need someone", async () => {
   const screen = await render(
     <TooltipProvider>

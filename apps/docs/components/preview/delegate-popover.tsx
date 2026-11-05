@@ -5,10 +5,12 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/delegate-popover` (dogfoods the registry) → auto-scanned.
 import { AgentSlot } from "@/components/ui/agent-panel";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DelegatePopover,
   type DelegatePopoverAgent,
 } from "@/components/ui/delegate-popover";
+import { Label } from "@/components/ui/label";
 import {
   PropertyLabel,
   PropertyList,
@@ -132,6 +134,45 @@ export function delegatePopoverPicked(): ReactNode {
               </div>
             </>
           ) : null
+        }
+      >
+        <Button variant="outline" size="sm">
+          Delegate…
+        </Button>
+      </DelegatePopover>
+    </Wrapper>
+  );
+}
+
+/** Agents that say when they start, one of which can't start by itself. */
+const NOTE_AGENTS: DelegatePopoverAgent[] = [
+  {
+    id: "orbit",
+    name: "Orbit",
+    access: "Read & write",
+    note: "Usually starts within 2 minutes",
+  },
+  { id: "notes", name: "Field notes", note: "Starts within seconds" },
+  {
+    id: "codex",
+    name: "Codex",
+    note: "Can't start by itself",
+    noteTone: "warning",
+  },
+];
+
+export function delegatePopoverNote(): ReactNode {
+  // Each agent's note says when it starts; the host's own row sits above the instructions.
+  return (
+    <Wrapper>
+      <DelegatePopover
+        agents={NOTE_AGENTS}
+        onDelegate={noop}
+        beforeInstructions={
+          <Label className="font-normal">
+            <Checkbox />
+            If it hasn't started, hand it to someone else
+          </Label>
         }
       >
         <Button variant="outline" size="sm">
