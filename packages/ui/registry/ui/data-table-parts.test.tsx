@@ -1068,6 +1068,11 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
   const screen = await render(<Harness value={null} />);
   // Unsummarised in a grid, the picker mounts on first hover or focus (a wide footer stays light).
   expect(screen.container.querySelector('[role="combobox"]')).toBeNull();
+  // Its stand-in is the `sm` trigger's height, so the row does not grow when the picker mounts.
+  expect(
+    screen.container.querySelector('[data-slot="grid-summary-placeholder"]')
+      ?.className,
+  ).toContain("h-7");
   (
     screen.container.querySelector(
       '[data-slot="grid-summary-cell"]',

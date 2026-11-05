@@ -12251,6 +12251,7 @@
                 "date-time-picker-clear",
                 "date-time-picker-content",
                 "date-time-picker-time",
+                "date-time-picker-time-check",
                 "date-time-picker-times",
                 "date-time-picker-trigger"
               ]
@@ -14956,6 +14957,10 @@
             {
               "name": "data-hue",
               "values": []
+            },
+            {
+              "name": "data-icon-tone",
+              "values": [""]
             }
           ],
           "cssVariables": []

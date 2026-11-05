@@ -1513,7 +1513,7 @@ function sizeViewport(height = 300, width = 600): () => void {
   [data-slot="grid-viewport"] thead { position: sticky; top: 0; }
   .sticky { position: sticky; }
   .table-fixed { table-layout: fixed; }
-  tr.h-8 { height: 32px; } tr.h-10 { height: 40px; } tr.h-20 { height: 80px; }
+  tr.h-8 { height: 32px; } tr.h-9 { height: 36px; } tr.h-10 { height: 40px; } tr.h-20 { height: 80px; }
   thead tr { height: 40px; }`;
   document.head.append(style);
   return () => style.remove();
@@ -1944,7 +1944,7 @@ test("virtualised rows: PageDown moves a screen, Ctrl+ArrowDown reaches the data
     ).toBeLessThan(40);
     // Fixed heights: every row is exactly the preset.
     const row = grid.querySelector<HTMLElement>('[data-slot="data-grid-row"]')!;
-    expect(row.className).toContain("h-8");
+    expect(row.className).toContain("h-9");
     (
       grid.querySelector(
         '[data-slot="data-grid-cell"][tabindex="0"]',
@@ -2100,6 +2100,80 @@ test("summary row: a sticky footer of host values; the footer is the last row on
   expect(onValueChange).toHaveBeenCalledWith("c1", "avg");
   await expect.poll(() => activeCell()?.dataset.gridKey).toBe("c1");
   await expectNoA11yViolations(screen.container);
+});
+
+test("summary row: choosing a function from the footer leaves the rows where they were", async () => {
+  const restore = sizeViewport(300, 600);
+  const stick = document.createElement("style");
+  stick.textContent = ".bottom-0 { bottom: 0; }";
+  document.head.append(stick);
+  function Held() {
+    const [value, setValue] = React.useState<Record<string, string | null>>({});
+    return (
+      <DataGrid
+        aria-label="Totals"
+        columns={[
+          { key: "c0", header: "Name", width: 240 },
+          {
+            key: "c1",
+            header: "Qty",
+            width: 120,
+            summaryOptions: [{ value: "count", label: "Count" }],
+          },
+        ]}
+        data={wideRows(200, 2)}
+        getRowId={(row) => row.id}
+        columnPicker={false}
+        summaryRow={{
+          label: "200 rows",
+          value,
+          onValueChange: (key, next) =>
+            setValue((current) => ({ ...current, [key]: next })),
+          results: { c1: "200" },
+        }}
+      />
+    );
+  }
+  try {
+    const screen = await render(<Held />);
+    const viewport = screen.container.querySelector<HTMLElement>(
+      '[data-slot="grid-viewport"]',
+    )!;
+    viewport.scrollTop = 800;
+    await expect.poll(() => viewport.scrollTop).toBe(800);
+    const cell = screen.container.querySelector<HTMLElement>(
+      '[data-slot="grid-summary-cell"][data-grid-key="c1"]',
+    )!;
+    // Keyboard only: a pointer action would scroll its target into view first.
+    cell.focus({ preventScroll: true });
+    await userEvent.keyboard("{Enter}");
+    await expect
+      .element(screen.getByRole("option", { name: "Count" }))
+      .toBeInTheDocument();
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await expect
+      .poll(() => screen.container.querySelector('[aria-label="Count of Qty"]'))
+      .not.toBeNull();
+    await expect.poll(() => activeCell()?.dataset.gridKey).toBe("c1");
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(viewport.scrollTop).toBe(800);
+    // And back off again.
+    await userEvent.keyboard("{Enter}");
+    await expect
+      .element(screen.getByRole("option", { name: "None" }))
+      .toBeInTheDocument();
+    await userEvent.keyboard("{ArrowUp}{Enter}");
+    await expect
+      .poll(() =>
+        screen.container.querySelector('[aria-label="Summarize Qty"]'),
+      )
+      .not.toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(viewport.scrollTop).toBe(800);
+  } finally {
+    stick.remove();
+    restore();
+  }
 });
 
 test("type-to-edit replaces the value; Enter commits and moves down, Tab commits and moves right", async () => {

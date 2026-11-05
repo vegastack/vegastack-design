@@ -1,4 +1,4 @@
-// @vegastack data-list@0.33.0 sha256-D+qh3zCI2OU94OrN1BZvFq8b8RccX1rOQLqHEtG/WfQ=
+// @vegastack data-list@0.33.0 sha256-vz8XnP3rlzK1Ew5GCZNMczVeez8rjLsuf5tzlBmjF3Y=
 
 "use client";
 
@@ -2739,7 +2739,7 @@ export function DataList<T>({
           ref={tableRef}
           data-slot="data-list"
           className={cn(
-            // The list density scale (`LIST_ROW_HEIGHT_CLASS`, shared with DataGrid): rows are at
+            // The list density scale (`LIST_ROW_HEIGHT_CLASS`; DataGrid's medium row): rows are at
             // least 40px (comfortable, the header's height) or 32px (compact: 4px cell padding on
             // the block axis and a 32px header row). Content that needs more grows the row.
             density === "compact"

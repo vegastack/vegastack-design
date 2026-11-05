@@ -204,6 +204,47 @@ test("FieldInput: a number reads the reader's locale; an invalid email is marked
   ).toBe("true");
 });
 
+test("variant=cell: a value's 24px TruncatedText lays out on the 20px line, so a filled cell is as tall as an empty one", async () => {
+  await render(
+    <ul>
+      <li data-case="filled">
+        <FieldCellDisplay variant="cell" type="text" value="Filled" />
+      </li>
+      <li data-case="number">
+        <FieldCellDisplay variant="cell" type="number" value={12} />
+      </li>
+      <li data-case="default">
+        <FieldCellDisplay type="text" value="Filled" />
+      </li>
+    </ul>,
+  );
+  const root = (name: string) =>
+    document.querySelector<HTMLElement>(
+      `li[data-case="${name}"] [data-slot="field-cell-display"]`,
+    )!;
+  for (const name of ["filled", "number"])
+    expect(root(name).className).toContain(
+      "*:data-[slot=truncated-text]:-my-0.5",
+    );
+  // Outside a cell the value keeps its own 24px line.
+  expect(root("default").className).not.toContain("-my-0.5");
+});
+
+test("a choice chip keeps its hue inside a highlighted picker row (data-icon-tone)", async () => {
+  await render(
+    <FieldCellDisplay
+      type="single_choice"
+      value="sent"
+      config={{ options: OPTIONS }}
+    />,
+  );
+  // Select, Combobox and Command rows recolour their contents on highlight except under
+  // `data-icon-tone`; the chip carries it so its label stays in the option's hue.
+  const chip = document.querySelector<HTMLElement>("[data-hue]")!;
+  expect(chip.dataset.hue).toBe("green");
+  expect(chip.hasAttribute("data-icon-tone")).toBe(true);
+});
+
 test("FieldCellEditor: text commits on Enter, Escape cancels, a choice commits on choosing", async () => {
   const onCommit = vi.fn();
   const onCancel = vi.fn();

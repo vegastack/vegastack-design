@@ -90,6 +90,8 @@ colour route on the tag tokens, never an outlined pill — and `FieldChoiceBadge
 every surface draws an option the same way: a cell, a phone card, the editor's list, a form
 trigger. Use it wherever the host shows an option outside a field cell (a board card, a filter
 value). A cell shows two and "+N"; a cut name and the hidden ones show on hover and keyboard focus.
+The badge carries `data-icon-tone`, so a highlighted Select, Combobox or Command row leaves its label
+in the option's hue and tints only the row behind it.
 
 ```tsx
 import { FieldChoiceBadge } from "@/components/ui/field-cell";
@@ -144,8 +146,9 @@ IME is composing, no key commits or moves.
 ### In a grid cell
 
 `variant="cell"` on `FieldCellDisplay` and `FieldCellEditor` is the grid cell's own look, for a grid
-whose cells are one clipped line and whose editor floats over the cell as the box itself. The
-display is plain — a number or percent has no digit grouping (only a currency groups, so a year
+whose cells are one clipped line and whose editor floats over the cell as the box itself. A
+filled cell is exactly as tall as an empty one: a clipped value keeps its 24px disclosure target
+but lays out on the text line, so a grid's fixed row height holds. The display is plain — a number or percent has no digit grouping (only a currency groups, so a year
 reads 2026), a link shows without its scheme and without a trailing slash on a bare host, a date
 is clipped on its line rather than ending in an ellipsis, every person is their avatar and name,
 and every file is its `InlineChip` (type icon and name, as a page shows it) — or, when the file
