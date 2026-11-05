@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.52.2] — November 5, 2026
+
+### 🔧 Changed components
+
+- `DataGrid`'s summary row reads as a row of controls instead of an empty row. It sits on a `bg-muted` band, like a group row. Each `GridSummaryCell` picker now spans its column, so hovering anywhere in the cell washes it and a click there opens the picker. An unsummarised cell shows a Σ at rest and adds "Summarize" and its chevron on hover or focus (always on a touch screen). A chosen function shows its name, its value and the chevron ("Max 5,400 ⌄"), aligned with the column.
+  [`2196e0d`](https://github.com/VegaStack/vegastack-design/commit/2196e0d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.52.1 → 0.52.2.
+
 ## [0.52.1] — November 5, 2026
 
 ### 📦 npm

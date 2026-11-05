@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.52.2
+
+### Patch Changes
+
+- [#920](https://github.com/vegastack/vegastack-design/pull/920) [`2196e0d`](https://github.com/vegastack/vegastack-design/commit/2196e0d1fafbe867e09ffc0f6cb22a052295b326) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🔧 `DataGrid`'s summary row reads as a row of controls instead of an empty row. It sits on a `bg-muted` band, like a group row. Each `GridSummaryCell` picker now spans its column, so hovering anywhere in the cell washes it and a click there opens the picker. An unsummarised cell shows a Σ at rest and adds "Summarize" and its chevron on hover or focus (always on a touch screen). A chosen function shows its name, its value and the chevron ("Max 5,400 ⌄"), aligned with the column.
+
 ## 0.52.1
 
 ### Patch Changes

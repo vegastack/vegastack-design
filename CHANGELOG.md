@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.52.2] — November 5, 2026
+
+<!-- assembled from 1 changeset: fbcdd7163f4b -->
+
+### 🔧 Changed components
+
+- `DataGrid`'s summary row reads as a row of controls instead of an empty row. It sits on a `bg-muted` band, like a group row. Each `GridSummaryCell` picker now spans its column, so hovering anywhere in the cell washes it and a click there opens the picker. An unsummarised cell shows a Σ at rest and adds "Summarize" and its chevron on hover or focus (always on a touch screen). A chosen function shows its name, its value and the chevron ("Max 5,400 ⌄"), aligned with the column.
+  [`2196e0d`](https://github.com/VegaStack/vegastack-design/commit/2196e0d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.52.1 → 0.52.2.
+
 ## [0.52.1] — November 5, 2026
 
 <!-- assembled from 2 changesets: 3ec22e306c2c -->
