@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.52.1
+
+### Patch Changes
+
+- [#919](https://github.com/vegastack/vegastack-design/pull/919) [`96ab742`](https://github.com/vegastack/vegastack-design/commit/96ab742c9f8a29d38d20e8d689fbf3c38164ff11) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 Pickers and the grid's summary row: `DateTimePicker` marks the chosen time with a check instead of a `primary` fill, and a chosen day in any popover calendar keeps its `primary-foreground` label on hover in the dark theme. A `FieldChoiceBadge` keeps its hue inside a highlighted Select, Combobox or Command row (`data-icon-tone`). In `DataGrid`, the summary row keeps one height before and after its picker mounts, and choosing a function there no longer scrolls the rows. `DataGrid`'s `short` rows are 36px (`h-9`, `py-1.5` cells) instead of the list's 32px compact step; `medium` (40px) and `tall` (80px) are unchanged. A filled `FieldCellDisplay variant="cell"` is now as tall as an empty one: its `TruncatedText` keeps the 24px target but lays out on the text line, so every row of a fixed-height grid is the same height.
+
 ## 0.52.0
 
 ### Minor Changes

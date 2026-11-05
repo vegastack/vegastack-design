@@ -1652,8 +1652,8 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.42.0",
-        "integrity": "sha256-ype+FBa0w9yLhYyh+wwryStdCls4nSMLUwWnP9yNGdg="
+        "version": "0.52.1",
+        "integrity": "sha256-Vcu5uXMZzkrEIpWtlm6waIZXJufKuj+ZefdMsUVcGSw="
       }
     },
     {
@@ -1824,8 +1824,8 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.33.0",
-        "integrity": "sha256-vz8XnP3rlzK1Ew5GCZNMczVeez8rjLsuf5tzlBmjF3Y="
+        "version": "0.52.1",
+        "integrity": "sha256-sOPwBIUvTY8TLRMRDXHPB5JG1mrcwVm+ejiwbXL6pWI="
       }
     },
     {
@@ -2253,8 +2253,8 @@
       "meta": {
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
-        "version": "0.35.1",
-        "integrity": "sha256-XDgppiAfGIZitweakJsTViAgfHPb6yAh7TSn9/kLCQI="
+        "version": "0.52.1",
+        "integrity": "sha256-bvHIlRlvl2cgeACESmymwArHCGkln9NhRVAZI+sqfPg="
       }
     },
     {
@@ -2291,8 +2291,8 @@
       "meta": {
         "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
-        "version": "0.39.1",
-        "integrity": "sha256-gY7YHXsN31EGA8atNH1i8o0V3R34B/pa33QqnpAK5+c="
+        "version": "0.52.1",
+        "integrity": "sha256-GbJP5+NFIdGdtUpfkBMFayyFhM6pR5MKnYYFxdPgIgM="
       }
     },
     {
@@ -3108,8 +3108,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.42.0",
-        "integrity": "sha256-qF04OJEE+0rsX7oyFpeM910HFGG9tpv6fads28MnC40="
+        "version": "0.52.1",
+        "integrity": "sha256-WD5rSW1M8sWvujbl9jGMB4ne2RltVUEpKEW/VfCjzE8="
       }
     },
     {
