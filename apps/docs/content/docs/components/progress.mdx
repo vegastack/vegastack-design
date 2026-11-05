@@ -60,6 +60,14 @@ from the root.
 
 <ComponentPreview name="progressLabel" file="components/preview/progress.tsx" />
 
+### Tone
+
+`tone` colours the indicator: `default`, `warning` for a bar nearing a limit, `danger` for one that
+reached it. The caller picks the tone, because only it knows what the value means. Say the same thing
+in words: a label, a `ProgressValue` or text nearby.
+
+<ComponentPreview name="progressTone" file="components/preview/progress.tsx" />
+
 ### Controlled
 
 `value` is a controlled prop — there is no uncontrolled mode and no internal timer. Drive it from
@@ -85,11 +93,12 @@ Move the bar's value and copy the generated JSX.
 
 ## API Reference
 
-`Progress`, `ProgressTrack`, `ProgressIndicator`, `ProgressLabel` and `ProgressValue` add no props of
-their own — each accepts everything the corresponding Base UI Progress part accepts (`Root`,
-`Track`, `Indicator`, `Label`, `Value`): the required `value` plus `min`, `max`, `format`, `locale`,
-`getAriaValueText` and `aria-valuetext` on the root, a render function as `children` on the value,
-and `className`, `ref` and `render` everywhere.
+`Progress` and `ProgressIndicator` take `tone` (`default`, `warning` or `danger`; default `default`),
+written as `data-tone`; `Progress` hands it to the indicator it renders. Apart from that, each part
+accepts everything the corresponding Base UI Progress part accepts (`Root`, `Track`, `Indicator`,
+`Label`, `Value`): the required `value` plus `min`, `max`, `format`, `locale`, `getAriaValueText` and
+`aria-valuetext` on the root, a render function as `children` on the value, and `className`, `ref` and
+`render` everywhere.
 
 ## Accessibility
 
@@ -102,7 +111,8 @@ and `className`, `ref` and `render` everywhere.
   interaction, which is why no focus exception reaches this component.
 - The indicator's `transition-all` is upstream's; the global reduced-motion reset in `base.css`
   neutralises it (MOT-5) for a reader who asked for less motion.
-- Never report progress by colour alone — pair the bar with `ProgressValue` or with text nearby.
+- Never report progress by colour alone — pair the bar with `ProgressValue` or with text nearby. That
+  goes for `tone` too: it adds no text and no ARIA of its own, so say "Nearly full" in words.
 
 <StatesTested name="progress" />
 
@@ -117,9 +127,11 @@ and `className`, `ref` and `render` everywhere.
 
 Upstream's file plus `packages/ui/upstream/patches/progress.patch`. Every hunk:
 
-- **NO STYLING HUNK** — Progress has no interactive element at all: no focus, no cursor, no disabled
-  state, so no exception in the plan's matrix reaches it. `transition-all` on the indicator is
-  upstream's, and the global reduced-motion reset (MOT-5) neutralises it.
+- **API-41** — `Progress` and `ProgressIndicator` take `tone`, written as `data-tone`; the indicator's
+  fill moves into `progressIndicatorVariants`.
+- **NO OTHER STYLING HUNK** — Progress has no interactive element at all: no focus, no cursor, no
+  disabled state, so no exception in the plan's matrix reaches it. `transition-all` on the indicator
+  is upstream's, and the global reduced-motion reset (MOT-5) neutralises it.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

@@ -1,7 +1,11 @@
 # component: progress
-# decisions: DOC-1, DOC-2
+# decisions: API-41, DOC-1, DOC-2
 # hunks:
-#   NO STYLING HUNK. Progress has no interactive element at all — no focus, no cursor, no
+#   API-41: `Progress` and `ProgressIndicator` take `tone` (`default` | `warning` | `danger`, written
+#     as `data-tone`), and the indicator's fill moves into `progressIndicatorVariants`: `bg-primary`
+#     stays the default, beside `bg-warning` and `bg-destructive`. `Progress` hands its tone to the
+#     indicator it renders, so a caller never reaches for the lower-level parts to colour a bar.
+#   NO OTHER STYLING HUNK. Progress has no interactive element at all — no focus, no cursor, no
 #     disabled state — so no exception in the map reaches it. `transition-all` on the indicator
 #     is upstream's (MOT rows resolve as **shadcn**), and the global reduced-motion reset (MOT-5)
 #     neutralises it.
@@ -10,22 +14,54 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/progress.tsx b/progress.tsx
-index c3ff9ed..1ddbb68 100644
+index c3ff9ed..b0b700c 100644
 --- a/progress.tsx
 +++ b/progress.tsx
-@@ -1,7 +1,7 @@
+@@ -1,27 +1,45 @@
 -"use client"
 +"use client";
  
 -import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 -import { cn } from "cn"
 +import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
++import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
++
++const progressIndicatorVariants = cva("h-full transition-all", {
++  variants: {
++    tone: {
++      default: "bg-primary",
++      warning: "bg-warning",
++      danger: "bg-destructive",
++    },
++  },
++  defaultVariants: { tone: "default" },
++});
++
++type ProgressTone = NonNullable<
++  VariantProps<typeof progressIndicatorVariants>["tone"]
++>;
  
  function Progress({
    className,
-@@ -21,7 +21,7 @@ function Progress({
-         <ProgressIndicator />
+   children,
+   value,
++  tone = "default",
+   ...props
+-}: ProgressPrimitive.Root.Props) {
++}: ProgressPrimitive.Root.Props & { tone?: ProgressTone }) {
+   return (
+     <ProgressPrimitive.Root
+       value={value}
+       data-slot="progress"
++      data-tone={tone}
+       className={cn("flex flex-wrap gap-3", className)}
+       {...props}
+     >
+       {children}
+       <ProgressTrack>
+-        <ProgressIndicator />
++        <ProgressIndicator tone={tone} />
        </ProgressTrack>
      </ProgressPrimitive.Root>
 -  )
@@ -33,7 +69,7 @@ index c3ff9ed..1ddbb68 100644
  }
  
  function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
-@@ -29,12 +29,12 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+@@ -29,25 +47,27 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
      <ProgressPrimitive.Track
        className={cn(
          "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
@@ -48,8 +84,17 @@ index c3ff9ed..1ddbb68 100644
  }
  
  function ProgressIndicator({
-@@ -47,7 +47,7 @@ function ProgressIndicator({
-       className={cn("h-full bg-primary transition-all", className)}
+   className,
++  tone = "default",
+   ...props
+-}: ProgressPrimitive.Indicator.Props) {
++}: ProgressPrimitive.Indicator.Props & { tone?: ProgressTone }) {
+   return (
+     <ProgressPrimitive.Indicator
+       data-slot="progress-indicator"
+-      className={cn("h-full bg-primary transition-all", className)}
++      data-tone={tone}
++      className={cn(progressIndicatorVariants({ tone }), className)}
        {...props}
      />
 -  )
@@ -57,7 +102,7 @@ index c3ff9ed..1ddbb68 100644
  }
  
  function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
-@@ -57,7 +57,7 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
+@@ -57,7 +77,7 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
        data-slot="progress-label"
        {...props}
      />
@@ -66,7 +111,7 @@ index c3ff9ed..1ddbb68 100644
  }
  
  function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
-@@ -65,12 +65,12 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
+@@ -65,12 +85,12 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
      <ProgressPrimitive.Value
        className={cn(
          "ms-auto text-sm text-muted-foreground tabular-nums",
@@ -81,7 +126,7 @@ index c3ff9ed..1ddbb68 100644
  }
  
  export {
-@@ -79,4 +79,4 @@ export {
+@@ -79,4 +99,4 @@ export {
    ProgressIndicator,
    ProgressLabel,
    ProgressValue,

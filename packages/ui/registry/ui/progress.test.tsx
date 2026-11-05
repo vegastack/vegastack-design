@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
@@ -253,5 +254,60 @@ test("no a11y violations — RTL", async () => {
       </div>
     </DirectionProvider>,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("tone colours the indicator and is written on the root and the indicator", async () => {
+  const fills = {
+    default: "bg-primary",
+    warning: "bg-warning",
+    danger: "bg-destructive",
+  };
+  for (const [tone, fill] of Object.entries(fills)) {
+    const screen = await render(
+      <Progress
+        value={80}
+        aria-label="Usage"
+        tone={tone as keyof typeof fills}
+      />,
+    );
+    const root = slot(screen.container, "progress")!;
+    const indicator = slot(screen.container, "progress-indicator")!;
+    expect(root.getAttribute("data-tone")).toBe(tone);
+    expect(indicator.getAttribute("data-tone")).toBe(tone);
+    expect(indicator.className).toContain(fill);
+    await screen.unmount();
+  }
+});
+
+test("with no tone the bar reads as default, and ProgressIndicator takes one of its own", async () => {
+  const plain = await render(<Progress value={40} aria-label="Usage" />);
+  expect(slot(plain.container, "progress")!.getAttribute("data-tone")).toBe(
+    "default",
+  );
+  expect(slot(plain.container, "progress-indicator")!.className).toContain(
+    "bg-primary",
+  );
+  await plain.unmount();
+
+  const composed = await render(
+    <ProgressPrimitive.Root value={90} aria-label="Usage">
+      <ProgressTrack>
+        <ProgressIndicator tone="warning" />
+      </ProgressTrack>
+    </ProgressPrimitive.Root>,
+  );
+  const indicator = slot(composed.container, "progress-indicator")!;
+  expect(indicator.getAttribute("data-tone")).toBe("warning");
+  expect(indicator.className).toContain("bg-warning");
+});
+
+test("a tone leaves the bar's name and value as they were", async () => {
+  const screen = await render(
+    <Progress value={90} tone="danger" aria-label="Usage" />,
+  );
+  const root = slot(screen.container, "progress")!;
+  expect(root.getAttribute("role")).toBe("progressbar");
+  expect(root.getAttribute("aria-valuenow")).toBe("90");
   await expectNoA11yViolations(screen.container);
 });

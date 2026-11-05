@@ -191,11 +191,13 @@ decision tree in [references/conventions.md](references/conventions.md).
   upstream does not get an `intent` axis**: API-2 resolves as shadcn, so it takes upstream's flat
   `variant` list verbatim, and our four status families surface as EXTRA `variant` values written in
   upstream's own `destructive` shape (COL-12) — `Badge` and `Alert` are the model. A tinted status
-  surface takes the family's `-text` ink, never the fill used as ink (A11Y-13).
+  surface takes the family's `-text` ink, never the fill used as ink (A11Y-13). The one exception is
+  `Progress`, which takes `tone` (`default`, `warning`, `danger`; API-41, operator-approved).
 - **`data-slot`** on every part, plus `data-variant`/`data-size`/`data-state` reflecting the resolved
   CVA variant so consumers can target state in CSS without new props. Base UI already supplies
   `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them. There
-  is no `data-tone` and no `data-shape`: both axes went with the reset, and their mirrors with them.
+  is no `data-shape`, and on an upstream-backed component no `data-tone` apart from `Progress`
+  (API-41): both axes went with the reset, and their mirrors with them.
 - **Render-prop contract** — a component owning a SINGLE polymorphic root must expose Base UI's
   `render` prop: either a thin Base UI wrapper (props extend the Base UI component's own, never
   `Omit<…, 'render'>`), or you own the root via `useRender` with `render?: useRender.RenderProp`
