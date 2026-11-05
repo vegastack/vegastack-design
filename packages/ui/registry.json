@@ -13685,7 +13685,7 @@
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
-        "version": "0.48.0"
+        "version": "0.51.1"
       }
     },
     {
@@ -15828,7 +15828,7 @@
       "meta": {
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
-        "version": "0.43.0"
+        "version": "0.51.1"
       }
     },
     {

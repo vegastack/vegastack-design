@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.51.1
+
+### Patch Changes
+
+- [#915](https://github.com/vegastack/vegastack-design/pull/915) [`db111a2`](https://github.com/vegastack/vegastack-design/commit/db111a23832823438b2f2c9df0875a0a7fbce374) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `MarkdownView`: an image that fails after Show returns to its box with "Couldn't load this image" and Try again (`imageFailedLabel`, `retryImageLabel`), and a proxied image with no alt text is named by its source's file name in the `FileViewer`, not by the proxy's address.
+
 ## 0.51.0
 
 ### Minor Changes

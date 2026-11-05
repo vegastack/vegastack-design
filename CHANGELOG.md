@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.51.1] — November 5, 2026
+
+<!-- assembled from 1 changeset: 7f13916dde98 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.51.0 → 0.51.1.
+
+### 🐛 Fixed
+
+- `MarkdownView`: an image that fails after Show returns to its box with "Couldn't load this image" and Try again (`imageFailedLabel`, `retryImageLabel`), and a proxied image with no alt text is named by its source's file name in the `FileViewer`, not by the proxy's address.
+  [`db111a2`](https://github.com/VegaStack/vegastack-design/commit/db111a2)
+
 ## [0.51.0] — November 5, 2026
 
 <!-- assembled from 1 changeset: d6c6e184f2da -->
