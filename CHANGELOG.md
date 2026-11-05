@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.50.0] — November 5, 2026
+
+<!-- assembled from 1 changeset: 8b59dd834762 -->
+
+### 🔧 Changed components
+
+- `DelegatePopover` agents take a `note` and `noteTone`, and the popover takes a `beforeInstructions` row; `PeoplePicker` options take the same `note` and `noteTone`.
+  [`b74cfea`](https://github.com/VegaStack/vegastack-design/commit/b74cfea)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.49.0 → 0.50.0.
+
 ## [0.49.0] — November 4, 2026
 
 <!-- assembled from 1 changeset: 7ca0b59d159e -->

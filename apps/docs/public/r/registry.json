@@ -17808,8 +17808,8 @@
       "meta": {
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
-        "version": "0.40.0",
-        "integrity": "sha256-2zkPCFUZbBMFDqiV3z+7dte36NLe6hjUVLYAOtVFH1c="
+        "version": "0.50.0",
+        "integrity": "sha256-ZdIyPS0DE7z1GCsAelOvdrav4ZpUvdbQrz0SmX9rGPY="
       }
     },
     {
@@ -23474,8 +23474,8 @@
       "meta": {
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
-        "version": "0.40.0",
-        "integrity": "sha256-aAv/VcSdJyZUBipDg1J+XUOLR2U2pi533KWpI7kWUBE="
+        "version": "0.50.0",
+        "integrity": "sha256-L7VT0/sJ3bQLmr8oMh4ydamHSLrMY8fqGTU5XcaEO+A="
       }
     },
     {

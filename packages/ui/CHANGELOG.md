@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.50.0
+
+### Minor Changes
+
+- [#914](https://github.com/vegastack/vegastack-design/pull/914) [`b74cfea`](https://github.com/vegastack/vegastack-design/commit/b74cfea6b7c73b229f143af6dbdcd7d68f8afe29) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `DelegatePopover` agents take a `note` and `noteTone`, and the popover takes a `beforeInstructions` row; `PeoplePicker` options take the same `note` and `noteTone`.
+
 ## 0.49.0
 
 ### Minor Changes
