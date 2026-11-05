@@ -16850,7 +16850,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.35.1",
-        "integrity": "sha256-q1n2j/x8y1EyP/IM7l+JW8CM+VEXtbofnG0L8v6/WS0="
+        "integrity": "sha256-DBOLgMJU0fQ2ptaMMpfDktuD1MXDULx95/atQogNL9Y="
       }
     },
     {
@@ -16904,7 +16904,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.51.1",
-        "integrity": "sha256-ByyzXDPmDZkbJyQwCAfFSGSwPJEJBrioNBRzQd6xSWg="
+        "integrity": "sha256-1GaPppPD0j5EsC2Ba0m0bGBgCmlVTeAMfvdnfGgz4Ak="
       }
     },
     {
@@ -19324,7 +19324,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.51.1",
-        "integrity": "sha256-m95EXcExw/Vp+QvzIK7UwntnopTHmf0c6Lw8ogb9+FQ="
+        "integrity": "sha256-18rKPFrdO9LbKCr8aQ473PDO3VM91idRWjLU5P6Zwe0="
       }
     },
     {
@@ -23355,7 +23355,7 @@
         "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.40.0",
-        "integrity": "sha256-8en77jprRtpXpjLuZG9klbWAxx2JxYMNS1VwhaeLrgo="
+        "integrity": "sha256-pbcQnpv0N4gTZXw0OnOeqHJZJBvNT6Kqv0lS9muz1ms="
       }
     },
     {

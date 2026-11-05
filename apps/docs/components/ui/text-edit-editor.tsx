@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.51.1 sha256-m95EXcExw/Vp+QvzIK7UwntnopTHmf0c6Lw8ogb9+FQ=
+// @vegastack text-edit@0.51.1 sha256-18rKPFrdO9LbKCr8aQ473PDO3VM91idRWjLU5P6Zwe0=
 
 "use client";
 
@@ -5239,20 +5239,26 @@ const LINK_PREVIEWS = new WeakMap<
 /** How many URLs' answers a host's `linkPreview` keeps. */
 const LINK_PREVIEW_CACHE_SIZE = 200;
 
-/** Another site's page title and icon for `url`, asked of the host once and kept. */
+/**
+ * Another site's page title and icon for `url`, asked of the host once and kept. `asked`: a person
+ * just pasted it, and that answer serves every later look; a look alone never upgrades itself.
+ */
 function linkPreviewOf(
   source: InlineChipResolver["linkPreview"] | undefined,
   url: string,
+  asked = false,
 ): Promise<InlineChipLinkPreview | null> | null {
   if (!source || !/^https?:/i.test(url)) return null;
   let answers = LINK_PREVIEWS.get(source);
   if (!answers) LINK_PREVIEWS.set(source, (answers = new Map()));
-  let answer = answers.get(url);
+  const key = `${asked ? "asked" : "look"}:${url}`;
+  let answer = answers.get(`asked:${url}`) ?? answers.get(key);
   if (!answer) {
-    answer = source(url, { signal: new AbortController().signal }).catch(
-      () => null,
-    );
-    answers.set(url, answer);
+    answer = source(url, {
+      signal: new AbortController().signal,
+      asked,
+    }).catch(() => null);
+    answers.set(key, answer);
     if (answers.size > LINK_PREVIEW_CACHE_SIZE)
       answers.delete(answers.keys().next().value!);
   }
@@ -11653,7 +11659,11 @@ export function TextEditEditor({
         applyPasted("embed", { keepOpen: true });
         return true;
       }
-      const preview = linkPreviewOf(chipResolverRef.current?.linkPreview, url);
+      const preview = linkPreviewOf(
+        chipResolverRef.current?.linkPreview,
+        url,
+        true,
+      );
       if (!preview) {
         applyPasted("link", { keepOpen: true });
         return true;
