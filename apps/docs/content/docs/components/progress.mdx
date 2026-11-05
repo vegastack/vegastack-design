@@ -93,12 +93,16 @@ Move the bar's value and copy the generated JSX.
 
 ## API Reference
 
-`Progress` and `ProgressIndicator` take `tone` (`default`, `warning` or `danger`; default `default`),
-written as `data-tone`; `Progress` hands it to the indicator it renders. Apart from that, each part
-accepts everything the corresponding Base UI Progress part accepts (`Root`, `Track`, `Indicator`,
-`Label`, `Value`): the required `value` plus `min`, `max`, `format`, `locale`, `getAriaValueText` and
-`aria-valuetext` on the root, a render function as `children` on the value, and `className`, `ref` and
-`render` everywhere.
+`Progress` and `ProgressIndicator` add one prop; `Progress` hands it to the indicator it renders.
+
+| Prop   | Type                                 | Default     | Description                                     |
+| ------ | ------------------------------------ | ----------- | ----------------------------------------------- |
+| `tone` | `"default" \| "warning" \| "danger"` | `"default"` | The indicator's colour, written as `data-tone`. |
+
+Apart from that, each part accepts everything the corresponding Base UI Progress part accepts
+(`Root`, `Track`, `Indicator`, `Label`, `Value`): the required `value` plus `min`, `max`, `format`,
+`locale`, `getAriaValueText` and `aria-valuetext` on the root, a render function as `children` on the
+value, and `className`, `ref` and `render` everywhere.
 
 ## Accessibility
 
