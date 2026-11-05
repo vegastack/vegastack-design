@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.40.0 sha256-I6t17DIyH9QqXhc7N9BvOuBgq1FSltmicXUv53PCM0c=
+// @vegastack people-picker@0.40.0 sha256-PxdPBZELYB1h91VHM7o8t6cOX3ZuIUC0hqYIJ35ZqVo=
 
 "use client";
 
@@ -98,6 +98,15 @@ export interface PeoplePickerOption extends Person {
    * @default undefined
    */
   hint?: string | null;
+  /**
+   * One more sentence under the second line ("Usually starts within 2 minutes"), muted unless
+   * `noteTone` says otherwise. It never stops the pick, and a disabled option shows only its
+   * reason.
+   * @default undefined
+   */
+  note?: string | null;
+  /** The note's ink: `"warning"` when it is a caution. @default "default" */
+  noteTone?: "default" | "warning";
   /**
    * The heading this option is listed under ("People", "Agents"); options without one lead,
    * under `heading`. Groups follow `groupOrder`, else the order they first appear in.
@@ -340,6 +349,19 @@ function PeoplePickerRow({
         : option.email && option.email !== option.name
           ? option.email
           : null));
+  const note =
+    !option.disabledReason && option.note ? (
+      <span
+        data-slot="people-picker-note"
+        data-tone={option.noteTone ?? "default"}
+        className={cn(
+          "block truncate",
+          option.noteTone === "warning" && "text-warning-text",
+        )}
+      >
+        {option.note}
+      </span>
+    ) : null;
   return (
     <PersonOption
       avatar={
@@ -376,7 +398,18 @@ function PeoplePickerRow({
           {checked ? <span className="sr-only">, selected</span> : null}
         </>
       }
-      email={secondary ?? undefined}
+      email={
+        note ? (
+          <>
+            {secondary ? (
+              <span className="block truncate">{secondary}</span>
+            ) : null}
+            {note}
+          </>
+        ) : (
+          (secondary ?? undefined)
+        )
+      }
       badge={option.active === false ? inactiveLabel : option.badge}
     />
   );

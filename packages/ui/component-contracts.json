@@ -43118,6 +43118,7 @@
               "name": "data-slot",
               "values": [
                 "delegate-popover",
+                "delegate-popover-before-instructions",
                 "delegate-popover-connect",
                 "delegate-popover-empty",
                 "delegate-popover-finish",

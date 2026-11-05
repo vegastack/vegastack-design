@@ -107,7 +107,9 @@ second line.
 Give options a `group` ("People", "Agents") to list them under headings; `groupOrder` orders the
 headings, and options without a group lead under `heading`. An option's `hint` ("Can't see this
 space yet") is a caution in the warning ink that, unlike `disabledReason`, still lets it be picked —
-the host decides what picking it means.
+the host decides what picking it means. A `note` is one more sentence under the second line, muted
+or, with `noteTone="warning"`, in the warning ink; it never stops the pick, and a disabled option
+shows only its reason.
 
 <ComponentPreview
   name="peoplePickerGroups"
