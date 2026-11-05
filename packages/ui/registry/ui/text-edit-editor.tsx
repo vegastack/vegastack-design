@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.51.1 sha256-18rKPFrdO9LbKCr8aQ473PDO3VM91idRWjLU5P6Zwe0=
+// @vegastack text-edit@0.51.1 sha256-tBOrRksHoCdsBn9sseInpLpLAkuYOyYiJitXYIMMF9M=
 
 "use client";
 
@@ -3991,6 +3991,10 @@ interface EditorRuntime {
   liveBlockKinds: readonly LiveBlockKind[];
   mention: {
     enabled: () => boolean;
+    picked: (
+      option: MentionOption,
+      at: { top: number; right: number; bottom: number; left: number },
+    ) => void;
     get: () => MentionMenuState | null;
     set: (next: MentionMenuState | null) => void;
     query: (query: string) => void;
@@ -4207,6 +4211,7 @@ function mentionBehaviour(runtime: EditorRuntime) {
               .focus()
               .insertContentAt(range, mentionChip(runtime.collaborative, props))
               .run();
+            runtime.mention.picked(props, ed.view.coordsAtPos(range.from));
           },
           render: () => {
             const show = (
@@ -11877,6 +11882,8 @@ export function TextEditEditor({
         liveBlockKinds: liveBlockKinds ?? DEFAULT_LIVE_BLOCK_KINDS,
         mention: {
           enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
+          picked: (option, at) =>
+            callbacks.current.mentions?.onPick?.(option, at),
           get: () => mentionStateRef.current,
           set: (next) => {
             if (!next) {

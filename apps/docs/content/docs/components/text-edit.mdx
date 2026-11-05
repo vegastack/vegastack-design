@@ -544,6 +544,8 @@ person never links, and an id starting with `restricted:` is a muted chip for a
 target the reader may not open — the app keeps the real id after the colon so an
 edit never loses the mention.
 
+`onPick` on `mentions` runs after a person picks from the `@` menu, with the option and where its chip sits on screen, to anchor something to it. Only a pick calls it: a pasted link, loaded text or a collaborator's edit doesn't.
+
 ### Bookmarks
 
 `bookmarks` turns on a link shown as a card: the page's title, a line about it when the host has

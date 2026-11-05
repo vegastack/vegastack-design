@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.51.1 sha256-18rKPFrdO9LbKCr8aQ473PDO3VM91idRWjLU5P6Zwe0=
+// @vegastack text-edit@0.51.1 sha256-tBOrRksHoCdsBn9sseInpLpLAkuYOyYiJitXYIMMF9M=
 
 "use client";
 
@@ -194,6 +194,16 @@ export interface TextEditMentions {
     query: string,
     options: { signal: AbortSignal },
   ) => Promise<MentionOption[]>;
+  /**
+   * A person picked `option` from the `@` menu and its chip is in the text: where the chip sits on
+   * screen, to anchor something to it. Only a pick here calls it, never a pasted link, loaded text
+   * or a collaborator's edit.
+   * @default undefined
+   */
+  onPick?: (
+    option: MentionOption,
+    at: { top: number; right: number; bottom: number; left: number },
+  ) => void;
   /**
    * A pasted link to one of the app's own records, as the mention it becomes. Return `null` at
    * once for a link that is not the app's (it stays a link, titled through the
