@@ -1,9 +1,10 @@
 # component: popover
 # decisions: BRD-1, DOC-1, DOC-2, OVL-13, LAY-17, API-36
 # hunks:
-#   API-36: `PopoverContent` takes `size` (`default` · `md` · `lg` · `fit`); `PopoverBody` scrolls long
-#     content; `PopoverAnchor` is an invisible 0×0 trigger; `PopoverDescription` keeps line breaks
-#     and inks a `strong` in the foreground.
+#   API-36: `PopoverContent` takes `size` (`default` · `md` · `lg` · `fit`) and forwards `anchor` to the
+#     Positioner (an element or a virtual one, read in the window's coordinates); `PopoverBody`
+#     scrolls long content; `PopoverAnchor` is an invisible 0×0 trigger; `PopoverDescription`
+#     keeps line breaks and inks a `strong` in the foreground.
 #   OVL-13: `PopoverContent` reads `useInternalThemeScope()` and attaches it to the Positioner
 #     INSIDE the portal — the same host shape `select`, `combobox` and `tooltip` carry.
 #     `tooling/verify-portal-theme-scope.mjs` inventories this host.
@@ -16,10 +17,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/popover.tsx b/popover.tsx
-index 3e7ac5f..259e983 100644
+index 3e7ac5f..113a997 100644
 --- a/popover.tsx
 +++ b/popover.tsx
-@@ -1,29 +1,48 @@
+@@ -1,29 +1,49 @@
 -"use client"
 +"use client";
  
@@ -56,12 +57,14 @@ index 3e7ac5f..259e983 100644
    side = "bottom",
    sideOffset = 4,
 +  size = "default",
++  anchor,
    ...props
  }: PopoverPrimitive.Popup.Props &
    Pick<
      PopoverPrimitive.Positioner.Props,
-     "align" | "alignOffset" | "side" | "sideOffset"
+-    "align" | "alignOffset" | "side" | "sideOffset"
 -  >) {
++    "align" | "alignOffset" | "side" | "sideOffset" | "anchor"
 +  > & {
 +    /**
 +     * The popover's width: `default` 288px, `md` 320px, `lg` 384px (never wider than the window
@@ -75,11 +78,12 @@ index 3e7ac5f..259e983 100644
    return (
      <PopoverPrimitive.Portal>
        <PopoverPrimitive.Positioner
-@@ -31,19 +50,61 @@ function PopoverContent({
+@@ -31,19 +51,66 @@ function PopoverContent({
          alignOffset={alignOffset}
          side={side}
          sideOffset={sideOffset}
 -        className="isolate z-50"
++        anchor={anchor}
 +        className={cn("isolate z-50", themeScope)}
        >
          <PopoverPrimitive.Popup
@@ -119,7 +123,11 @@ index 3e7ac5f..259e983 100644
 +/**
 + * `PopoverAnchor` — an invisible 0×0 trigger, for a popover opened from elsewhere (a menu item, a
 + * shortcut) that still needs a place to appear: put it where the popover should point. Never a
-+ * tab stop, hidden from assistive technology.
++ * tab stop, hidden from assistive technology. To point at an element elsewhere on the page, or at
++ * a point in the window (a caret, a selection), pass `anchor` to `PopoverContent` instead (an
++ * element, or a virtual element with `getBoundingClientRect`): the positioner tracks it in the
++ * window's own coordinates, so it lands right inside a transformed panel too, where a `fixed` box
++ * would be placed against the panel.
 + */
 +function PopoverAnchor({
 +  className,
@@ -141,7 +149,7 @@ index 3e7ac5f..259e983 100644
  }
  
  function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -53,7 +114,7 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -53,7 +120,7 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-0.5 text-sm", className)}
        {...props}
      />
@@ -150,7 +158,7 @@ index 3e7ac5f..259e983 100644
  }
  
  function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
-@@ -63,7 +124,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
+@@ -63,7 +130,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
        className={cn("font-medium", className)}
        {...props}
      />
@@ -159,7 +167,7 @@ index 3e7ac5f..259e983 100644
  }
  
  function PopoverDescription({
-@@ -73,17 +134,23 @@ function PopoverDescription({
+@@ -73,17 +140,23 @@ function PopoverDescription({
    return (
      <PopoverPrimitive.Description
        data-slot="popover-description"

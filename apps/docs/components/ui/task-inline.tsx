@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.33.0 sha256-+jxv7IScEJcN3hWSQltO1zDxDzlZM8annB4ksYQobJw=
+// @vegastack task-inline@0.33.0 sha256-2ev+abWxxkH9Yi1X/tckQ50kw/tp2D9A5s5k+AD+S7Q=
 
 "use client";
 
@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { PersonAvatar } from "@/components/ui/person-avatar";
 import {
   Popover,
-  PopoverAnchor,
   PopoverContent,
   PopoverHeader,
   PopoverTitle,
@@ -378,38 +377,11 @@ interface Row {
   keep: boolean;
 }
 
-/** Follow `anchor`'s bottom-left while open: the 0×0 anchor the popover points at, kept on it. */
-function useAnchorPoint(anchor: Element | null, open: boolean) {
-  const [point, setPoint] = React.useState<{ left: number; top: number }>({
-    left: 0,
-    top: 0,
-  });
-  React.useLayoutEffect(() => {
-    if (!open || !anchor) return;
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const rect = anchor.getBoundingClientRect();
-        setPoint((now) =>
-          now.left === rect.left && now.top === rect.bottom
-            ? now
-            : { left: rect.left, top: rect.bottom },
-        );
-      });
-    };
-    const rect = anchor.getBoundingClientRect();
-    setPoint({ left: rect.left, top: rect.bottom });
-    window.addEventListener("scroll", measure, true);
-    window.addEventListener("resize", measure);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", measure, true);
-      window.removeEventListener("resize", measure);
-    };
-  }, [anchor, open]);
-  return point;
-}
+/** With no line to point at, the popover opens at the window's top-left, as documented. */
+const WINDOW_ORIGIN = {
+  getBoundingClientRect: () =>
+    DOMRect.fromRect({ x: 0, y: 0, width: 0, height: 0 }),
+};
 
 /**
  * `MakeTaskPopover` — make a task of a checklist line, in place: a popover anchored to the line
@@ -441,7 +413,6 @@ export function MakeTaskPopover({
   cancelLabel = "Cancel",
   titleMaxLength = 500,
 }: MakeTaskPopoverProps) {
-  const point = useAnchorPoint(anchor, open);
   const [rows, setRows] = React.useState<Row[]>([]);
   // One session per opening and set of lines (by value): a host re-rendering with equal lines —
   // its picker changed — keeps the titles being edited.
@@ -502,13 +473,10 @@ export function MakeTaskPopover({
 
   return (
     <Popover open={open} onOpenChange={(next) => onOpenChange(next)}>
-      <PopoverAnchor
-        data-slot="make-task-popover-anchor"
-        className="fixed"
-        style={{ left: point.left, top: point.top }}
-      />
       <PopoverContent
         data-slot="make-task-popover"
+        // The line itself: the positioner follows it as the page scrolls, inside any panel.
+        anchor={anchor ?? WINDOW_ORIGIN}
         align="start"
         size="md"
         aria-labelledby={titleId}

@@ -151,6 +151,43 @@ test("MakeTaskPopover: the line's text is the title; Enter creates and closes", 
   expect(screen.container.textContent).toContain("Order glass");
 });
 
+test("MakeTaskPopover sits under its line, and shows at the window's corner with no line", async () => {
+  function Harness({ withLine }: { withLine: boolean }) {
+    const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
+    return (
+      <div style={{ paddingTop: 200, paddingLeft: 60 }}>
+        <p ref={setAnchor} style={{ display: "inline-block" }}>
+          Order glass
+        </p>
+        <MakeTaskPopover
+          open
+          onOpenChange={() => {}}
+          anchor={withLine ? anchor : null}
+          lines={[{ key: "b1", text: "Order glass" }]}
+          onCreate={() => {}}
+        />
+      </div>
+    );
+  }
+  const shown = () =>
+    document.querySelector<HTMLElement>('[data-slot="make-task-popover"]');
+  const screen = await render(<Harness withLine />);
+  const line = () =>
+    screen.container.querySelector("p")!.getBoundingClientRect();
+  await expect
+    .poll(() => shown()?.getBoundingClientRect().top)
+    .toBeGreaterThanOrEqual(line().bottom);
+  expect(
+    Math.abs(shown()!.getBoundingClientRect().left - line().left),
+  ).toBeLessThan(2);
+
+  await screen.rerender(<Harness withLine={false} />);
+  // A positioner that never placed stays transparent: it must be placed, so seen.
+  await expect
+    .poll(() => getComputedStyle(shown()!.parentElement!).opacity)
+    .toBe("1");
+});
+
 test("MakeTaskPopover with several lines: a keep box per line, Create counts the kept ones, a rejection keeps it open", async () => {
   let fail = true;
   const onCreate = vi.fn(async () => {

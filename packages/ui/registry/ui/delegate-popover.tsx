@@ -1,4 +1,4 @@
-// @vegastack delegate-popover@0.50.0 sha256-L7VT0/sJ3bQLmr8oMh4ydamHSLrMY8fqGTU5XcaEO+A=
+// @vegastack delegate-popover@0.50.0 sha256-bTKJr3b4UPEjTxxCae5yHHJstRGBPtTv8oSFcGTuvQg=
 
 "use client";
 
@@ -467,7 +467,10 @@ export function DelegatePopover({
                 heading={labels.agents}
                 agentLabel={false}
                 onSelect={(option) => setAgentId(option.id)}
-                className="bg-transparent [&_[data-slot=command-list]]:max-h-48"
+                // The list takes the window's height it can: at least 6rem, at most 20rem, leaving
+                // room for the search, the step, instructions and footer (a short window still shows
+                // more than two agents).
+                className="bg-transparent [&_[data-slot=command-list]]:max-h-[clamp(6rem,calc(100dvh-20rem),20rem)]"
               />
             )}
             <Separator />
