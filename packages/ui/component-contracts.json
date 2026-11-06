@@ -42877,7 +42877,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["agent-state-ring"]
+              "values": ["agent-state-ring", "agent-state-ring-glyph"]
             },
             {
               "name": "data-state",
@@ -43162,11 +43162,13 @@
                 "delegate-popover-before-instructions",
                 "delegate-popover-connect",
                 "delegate-popover-empty",
+                "delegate-popover-error",
                 "delegate-popover-finish",
                 "delegate-popover-footer",
                 "delegate-popover-form",
                 "delegate-popover-loading",
                 "delegate-popover-picked",
+                "delegate-popover-retry",
                 "delegate-popover-submit"
               ]
             }

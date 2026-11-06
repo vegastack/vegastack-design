@@ -649,6 +649,44 @@ test("badge and ring: icon and word; amber ring for needs you, red for failed, n
   await expectNoA11yViolations(screen.container);
 });
 
+test("ring glyph: a ringed state's icon on the avatar's corner; none for the quiet states", async () => {
+  const screen = await render(
+    <div className="flex gap-4 p-4">
+      <AgentStateRing state="question" glyph>
+        <PersonAvatar
+          person={{ name: "Claude Code", kind: "agent" }}
+          size="2xs"
+        />
+      </AgentStateRing>
+      <AgentStateRing state="failed" glyph>
+        <PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" />
+      </AgentStateRing>
+      <AgentStateRing state="working" glyph>
+        <PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" />
+      </AgentStateRing>
+      <AgentStateRing state="failed">
+        <PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" />
+      </AgentStateRing>
+    </div>,
+  );
+  const rings = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=agent-state-ring]",
+  );
+  const glyphOf = (el: HTMLElement) =>
+    el.querySelector("[data-slot=agent-state-ring-glyph]");
+  expect(
+    glyphOf(rings[0]!)?.querySelector("svg")?.getAttribute("class"),
+  ).toContain("text-warning-text");
+  expect(
+    glyphOf(rings[1]!)?.querySelector("svg")?.getAttribute("class"),
+  ).toContain("text-destructive-text");
+  expect(glyphOf(rings[2]!)).toBeNull();
+  expect(glyphOf(rings[3]!)).toBeNull();
+  // The state is still said once, in words.
+  expect(rings[1]!.textContent).toContain("Failed");
+  await expectNoA11yViolations(screen.container);
+});
+
 test("badge iconOnly: the state's icon, its word for screen readers and in a tooltip", async () => {
   const screen = await render(
     <TooltipProvider>

@@ -61,7 +61,10 @@ person is the `PeoplePicker`; showing an agent already on the work is the `Agent
 
 ### States
 
-Bulk rows (their own title, no When finished), no agents connected, and agents loading.
+Bulk rows (their own title, no When finished), no agents connected, agents loading, and agents
+that couldn't be read. Pass `error` when the read fails, with `onRetry` for Try again: the popover
+says so instead of showing skeletons forever or the connect state, which would claim there are
+none. Keep passing the agents you already have when only a later read fails.
 
 <ComponentPreview
   name="delegatePopoverStates"

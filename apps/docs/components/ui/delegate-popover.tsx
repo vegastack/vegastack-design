@@ -1,10 +1,10 @@
-// @vegastack delegate-popover@0.55.0 sha256-+7O0u0vmGsxHPyvD1TgpOCGHiaQeLI4RC6QrFMZpJGo=
+// @vegastack delegate-popover@0.55.0 sha256-MLQW47GWKNRQnc5lMa4HbFy0t980JE0rkQGPeQVPpGk=
 
 "use client";
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { Bot, ChevronRight } from "lucide-react";
+import { Bot, ChevronRight, TriangleAlert } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -131,6 +131,10 @@ export interface DelegatePopoverLabels {
   delegate: string;
   /** The empty state's line. */
   empty: string;
+  /** The line when the agents couldn't be read and `error` is not a string. */
+  loadError: string;
+  /** The button that reads them again (`onRetry`). */
+  retry: string;
 }
 
 const DEFAULT_LABELS: DelegatePopoverLabels = {
@@ -143,6 +147,8 @@ const DEFAULT_LABELS: DelegatePopoverLabels = {
   connect: "Connect an app",
   delegate: "Delegate",
   empty: "Connect Claude, Codex or any MCP app to delegate work.",
+  loadError: "Couldn't load your agents.",
+  retry: "Try again",
 };
 
 /** Props for `DelegatePopover`. */
@@ -156,6 +162,16 @@ export interface DelegatePopoverProps {
   agents: readonly DelegatePopoverAgent[];
   /** The agents are loading: skeleton rows in the list. @default false */
   loading?: boolean;
+  /**
+   * The agents couldn't be read: an error state (`error` itself when a string, else
+   * `labels.loadError`) with Try again when `onRetry` is set, in place of the list and the form —
+   * never endless skeletons, and never the connect state, which would say there are none. Wins over
+   * `loading` and the empty state.
+   * @default undefined
+   */
+  error?: React.ReactNode;
+  /** Read the agents again from the error state's Try again. @default undefined */
+  onRetry?: () => void;
   /** Delegate with the chosen agent, instructions and finish rule. A returned promise keeps the popover open (and the button busy) until it settles. */
   onDelegate: (value: DelegatePopoverValue) => void | Promise<void>;
   /** The title. Bulk: "Delegate 40 rows to…". @default "Delegate to an agent" */
@@ -264,6 +280,8 @@ export function DelegatePopover({
   children,
   agents,
   loading = false,
+  error,
+  onRetry,
   onDelegate,
   title = "Delegate to an agent",
   defaultAgentId,
@@ -325,9 +343,10 @@ export function DelegatePopover({
     if (only !== null) setAgentId(only);
   }
 
+  const failed = error != null && error !== false && error !== "";
   const chosen = agents.find((a) => a.id === agentId && !a.disabledReason);
   // A picked agent that went away or can no longer take it is un-picked, never left as a dead form.
-  if (agentId !== null && !chosen && !loading && agents.length > 0)
+  if (agentId !== null && !chosen && !loading && !failed && agents.length > 0)
     setAgentId(null);
   const instructionsId = React.useId();
   const finishId = React.useId();
@@ -359,7 +378,7 @@ export function DelegatePopover({
   };
 
   const options = React.useMemo(() => agents.map(toOption), [agents]);
-  const empty = !loading && agents.length === 0;
+  const empty = !failed && !loading && agents.length === 0;
   const canConnect = Boolean(onConnect || connectHref);
   const connect = (event: React.MouseEvent) => {
     // A link opened in a new tab leaves this one as it was, with what was typed.
@@ -427,7 +446,32 @@ export function DelegatePopover({
         <PopoverHeader className="px-3 pt-3 pb-1">
           <PopoverTitle>{title}</PopoverTitle>
         </PopoverHeader>
-        {empty ? (
+        {failed ? (
+          <Empty
+            size="sm"
+            icon={<TriangleAlert aria-hidden />}
+            role="alert"
+            data-slot="delegate-popover-error"
+          >
+            <EmptyHeader>
+              <EmptyDescription>
+                {typeof error === "string" ? error : labels.loadError}
+              </EmptyDescription>
+            </EmptyHeader>
+            {onRetry ? (
+              <EmptyContent>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  data-slot="delegate-popover-retry"
+                  onClick={onRetry}
+                >
+                  {labels.retry}
+                </Button>
+              </EmptyContent>
+            ) : null}
+          </Empty>
+        ) : empty ? (
           <Empty
             size="sm"
             icon={<Bot aria-hidden />}
