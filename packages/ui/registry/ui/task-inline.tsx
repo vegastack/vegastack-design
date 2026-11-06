@@ -377,6 +377,12 @@ interface Row {
   keep: boolean;
 }
 
+/** With no line to point at, the popover opens at the window's top-left, as documented. */
+const WINDOW_ORIGIN = {
+  getBoundingClientRect: () =>
+    DOMRect.fromRect({ x: 0, y: 0, width: 0, height: 0 }),
+};
+
 /**
  * `MakeTaskPopover` — make a task of a checklist line, in place: a popover anchored to the line
  * with the line's text as the title (each line with a keep box when several), the host's assignee,
@@ -470,7 +476,7 @@ export function MakeTaskPopover({
       <PopoverContent
         data-slot="make-task-popover"
         // The line itself: the positioner follows it as the page scrolls, inside any panel.
-        anchor={anchor}
+        anchor={anchor ?? WINDOW_ORIGIN}
         align="start"
         size="md"
         aria-labelledby={titleId}
