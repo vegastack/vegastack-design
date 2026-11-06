@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.53.0
+
+### Minor Changes
+
+- [#921](https://github.com/vegastack/vegastack-design/pull/921) [`db2ff9a`](https://github.com/vegastack/vegastack-design/commit/db2ff9ae29f803f132cefbd78efb4d2d9400eac8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `ApprovalCard` takes `decisions` and `link`, for a request with more than two answers. `linkPreview` and `fetchPreview` get `asked`: rendering asks for what the host holds, and contacts nothing until a person pastes the link or presses Show preview.
+
+- [#921](https://github.com/vegastack/vegastack-design/pull/921) [`db2ff9a`](https://github.com/vegastack/vegastack-design/commit/db2ff9ae29f803f132cefbd78efb4d2d9400eac8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `Comments` take `editHint`, a line under the edit box read from what it holds. `TextEdit`'s `mentions` take `onPick`, called after a person picks from the `@` menu, with where the chip sits on screen.
+
 ## 0.52.2
 
 ### Patch Changes

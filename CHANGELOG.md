@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.53.0] — November 6, 2026
+
+<!-- assembled from 2 changesets: e103312d2484 -->
+
+### 🔧 Changed components
+
+- `ApprovalCard` takes `decisions` and `link`, for a request with more than two answers. `linkPreview` and `fetchPreview` get `asked`: rendering asks for what the host holds, and contacts nothing until a person pastes the link or presses Show preview.
+  [`db2ff9a`](https://github.com/VegaStack/vegastack-design/commit/db2ff9a)
+- `Comments` take `editHint`, a line under the edit box read from what it holds. `TextEdit`'s `mentions` take `onPick`, called after a person picks from the `@` menu, with where the chip sits on screen.
+  [`db2ff9a`](https://github.com/VegaStack/vegastack-design/commit/db2ff9a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.52.2 → 0.53.0.
+
 ## [0.52.2] — November 5, 2026
 
 <!-- assembled from 1 changeset: fbcdd7163f4b -->
