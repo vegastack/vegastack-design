@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.53.1 sha256-fTaEIwORIGOVYPPAopucA6jgWlbEtZq4eY8CrpVNl9s=
+// @vegastack data-table-parts@0.53.1 sha256-6Di8PwvfRUsLMX0jh3PZgaGbaAwkTtDYXtr4z/smhR4=
 
 "use client";
 
@@ -2376,7 +2376,8 @@ export function GridSummaryCell({
                   className="size-3.5 text-muted-foreground/60"
                 />
               )}
-              <span className="min-w-0 truncate">
+              {/* In a narrow column the name gives way first, then the result ends in "…". */}
+              <span className="min-w-0 shrink-[100] truncate">
                 {chosen ? chosen.label : placeholder}
               </span>
               {chosen ? (
@@ -2386,7 +2387,10 @@ export function GridSummaryCell({
                     className="h-3 w-8"
                   />
                 ) : (
-                  <span className="font-medium text-foreground tabular-nums">
+                  <span
+                    data-slot="grid-summary-result"
+                    className="min-w-0 truncate font-medium text-foreground tabular-nums"
+                  >
                     {result}
                   </span>
                 )

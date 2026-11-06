@@ -11937,6 +11937,7 @@
                 "grid-summary-cell",
                 "grid-summary-loading",
                 "grid-summary-placeholder",
+                "grid-summary-result",
                 "grid-summary-sigma"
               ]
             }

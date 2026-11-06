@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.53.1 sha256-m0N8iPBqN58JYGcmcAvTc6IPn2II7BAVENXvASjaaJw=
+// @vegastack data-grid@0.53.1 sha256-c1LN1J4jNZGgmA4x81D8gWH66SM0ARU+qtEuJQZnK0k=
 
 "use client";
 
@@ -1251,6 +1251,23 @@ const ROW_BASE_CLASS = cn("border-b", ROW_HOVER_CLASS);
 // `data-active-cell`: the tokens' `data-active` custom variant would swallow the latter.)
 const CELL_BASE_CLASS =
   "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-info)_12%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-info)_6%,var(--color-background))] group-focus-within/grid:data-current-cell:inset-ring-2 group-focus-within/grid:data-current-cell:inset-ring-info";
+/**
+ * The header's and the summary row's rules, drawn inside their own cells (an inset shadow on
+ * Tailwind's inset-shadow layer, so it stacks with the frozen edge's shadow). A row border would not
+ * do: in the collapsed table model a border belongs to the table, not the sticky cell, so it stayed
+ * behind while the header or summary row stuck, and opaque sticky cells painted over it. The body's
+ * first row has no top border and its last none at the bottom, so each line is drawn once.
+ */
+const HEAD_ROW_CLASS = "*:inset-shadow-[0_-1px_0_var(--color-border)]";
+/**
+ * The summary row: a rule above and below; embedded, the frame's own border is the one below. Its
+ * cells never take the frozen edge's shadow, so the rules use the plain shadow layer.
+ */
+const SUMMARY_ROW_CLASS =
+  "border-0 *:shadow-[inset_0_1px_0_var(--color-border),inset_0_-1px_0_var(--color-border)]";
+const SUMMARY_ROW_EMBEDDED_CLASS =
+  "border-0 *:shadow-[inset_0_1px_0_var(--color-border)]";
+
 const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
 
@@ -5122,7 +5139,7 @@ export function DataGrid<T>({
   };
 
   const headerRow = (
-    <tr aria-rowindex={1} className="border-b">
+    <tr aria-rowindex={1} className={HEAD_ROW_CLASS}>
       {selectable ? (
         <SelectAllHead
           role="columnheader"
@@ -5183,11 +5200,17 @@ export function DataGrid<T>({
   const summary = summaryRow ? (
     <tfoot
       data-slot="data-grid-summary"
-      className="sticky bottom-0 z-20 border-t bg-background"
+      className="sticky bottom-0 z-20 bg-background"
     >
       <TableRow
         aria-rowindex={footerRowIndex}
-        className="hover:not-focus-visible:bg-none"
+        className={cn(
+          "hover:not-focus-visible:bg-none",
+          // Embedded with nothing after the table, the frame's border is the line below.
+          embedded && !loadMore && !pagedMode
+            ? SUMMARY_ROW_EMBEDDED_CLASS
+            : SUMMARY_ROW_CLASS,
+        )}
       >
         {selectable ? (
           <TableCell
