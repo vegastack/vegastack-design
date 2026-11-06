@@ -47,25 +47,27 @@ a record page's custom fields agree. `FieldCellDisplay` shows a value on one lin
 is what a grid cell opens and commits a **typed** value (not a string); `FieldInput` is the same
 editor as a plain form control.
 
-| Type                                   | Display                                                      | Editor                                                      |
-| -------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
-| `text`                                 | One line, truncated (full value on hover and keyboard focus) | Text field (`maxLength`, 10,000 by default)                 |
-| `long_text`                            | The first line                                               | The `TextEdit` editor (Markdown)                            |
-| `number`, `currency`, `percent`        | End-aligned tabular figures in the reader's locale           | `NumberField` — "1,5" is 1.5 where the comma is the decimal |
-| `date`                                 | A calendar day that never shifts with the zone               | `DatePicker`                                                |
-| `datetime`                             | Date and time in the reader's zone                           | `DateTimePicker` (one popup: calendar and time)             |
-| `single_choice`, `multi_choice`        | `FieldChoiceBadge`s in the option's hue, "+N" past two       | The option list, Add option with `onCreateOption`           |
-| `checkbox`                             | A checkbox that toggles in place (`onToggle`)                | A checkbox                                                  |
-| `person`                               | Avatar and name; several as avatars                          | `PeoplePicker`                                              |
-| `link`                                 | `InlineChip`s in four states, "+N" past three                | An async record search (`searchRecords`)                    |
-| `file`                                 | Kind tiles, "+N" past three; in a cell, file chips           | Uploads live where files are added                          |
-| `url`, `email`, `phone`                | A link out (http(s), mailto, tel)                            | A checked text field                                        |
-| `calculated`                           | The value, or "—" with the missing inputs on hover           | —                                                           |
-| `autonumber`, `created_*`, `updated_*` | Read-only                                                    | —                                                           |
+| Type                                   | Display                                                      | Editor                                                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `text`                                 | One line, truncated (full value on hover and keyboard focus) | Text field (`maxLength`, 10,000 by default)                                                                                               |
+| `long_text`                            | The first line                                               | The `TextEdit` editor (Markdown)                                                                                                          |
+| `number`, `currency`, `percent`        | End-aligned tabular figures in the reader's locale           | `NumberField` — "1,5" is 1.5 where the comma is the decimal                                                                               |
+| `date`                                 | A calendar day that never shifts with the zone               | `DatePicker`                                                                                                                              |
+| `datetime`                             | Date and time in the reader's zone                           | `DateTimePicker` (one popup: calendar and time)                                                                                           |
+| `single_choice`, `multi_choice`        | `FieldChoiceBadge`s in the option's hue, "+N" past two       | The option list, Add option with `onCreateOption`; a single choice clears with _Clear selection_ (in a cell) or the field's clear control |
+| `checkbox`                             | A checkbox that toggles in place (`onToggle`)                | A checkbox                                                                                                                                |
+| `person`                               | Avatar and name; several as avatars                          | `PeoplePicker`                                                                                                                            |
+| `link`                                 | `InlineChip`s in four states, "+N" past three                | An async record search (`searchRecords`)                                                                                                  |
+| `file`                                 | Kind tiles, "+N" past three; in a cell, file chips           | Uploads live where files are added                                                                                                        |
+| `url`, `email`, `phone`                | A link out (http(s), mailto, tel)                            | A checked text field                                                                                                                      |
+| `calculated`                           | The value, or "—" with the missing inputs on hover           | —                                                                                                                                         |
+| `autonumber`, `created_*`, `updated_*` | Read-only                                                    | —                                                                                                                                         |
 
 Field types are data types. Everything a host knows — the options, the people, how records are
 found, a link kind's icon and noun (the host's `InlineChip` kinds) — comes in through `config` and
 the host's providers. Locale and time zone come from the reader (`TimeZoneProvider`).
+
+In a cell (`variant="cell"`) every value lays out on the 20px text line: a 24px chip target, avatar or link keeps its size and overflows into the cell's padding, so no type makes a fixed-height grid row taller than its neighbours.
 
 A long text's `config.maxLength` (with `maxLengthMessage`, given the excess) counts from 80% of the limit and, past it, shows the host's message and refuses to commit — the rich editor is never cut while typing or pasting. A text field keeps its native limit (10,000 unless `config.maxLength` says otherwise).
 

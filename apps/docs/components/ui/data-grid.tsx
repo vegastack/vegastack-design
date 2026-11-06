@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.52.2 sha256-PHrSwJxGLKdIHqC1fJRend8L+IKGGK4h9HkxHaEh4+8=
+// @vegastack data-grid@0.52.2 sha256-yeTGIc9H1mzriT63JaKuCPf8tIFEppWRE9UstiOOZJ8=
 
 "use client";
 
@@ -2297,10 +2297,9 @@ function GridFooterCellImpl<T>({
     onFocus: () => api.focused(FOOTER, p.key),
     style: stickyStyle(p.offset),
     // Every footer cell paints its own background: rows scrolling under the sticky summary
-    // row showed through the row group's. `bg-muted` sets the summary row apart from the rows,
-    // the way a group row is, so it reads as a row of controls rather than an empty row.
+    // row showed through the row group's. Its cells wash on hover, so the row itself stays plain.
     className: cn(
-      "bg-muted",
+      "bg-background",
       alignClass(p.column.align),
       p.offset != null && "sticky z-30",
       "focus-visible:-outline-offset-2",
@@ -5184,7 +5183,7 @@ export function DataGrid<T>({
   const summary = summaryRow ? (
     <tfoot
       data-slot="data-grid-summary"
-      className="sticky bottom-0 z-20 border-t bg-muted"
+      className="sticky bottom-0 z-20 border-t bg-background"
     >
       <TableRow
         aria-rowindex={footerRowIndex}
@@ -5200,18 +5199,21 @@ export function DataGrid<T>({
             }
             tabIndex={resolved.rowId === FOOTER && tabKey === SELECT ? 0 : -1}
             onFocus={() => api.focused(FOOTER, SELECT)}
-            className={cn("bg-muted", selectOffset != null && "sticky z-30")}
+            className={cn(
+              "bg-background",
+              selectOffset != null && "sticky z-30",
+            )}
             style={stickyStyle(selectOffset)}
           />
         ) : null}
         {w.frozen.map(footerCell)}
-        {fixed ? <td aria-hidden="true" className="bg-muted p-0" /> : null}
+        {fixed ? <td aria-hidden="true" className="bg-background p-0" /> : null}
         {w.center.map(footerCell)}
-        {fixed ? <td aria-hidden="true" className="bg-muted p-0" /> : null}
+        {fixed ? <td aria-hidden="true" className="bg-background p-0" /> : null}
         {headerTrailing ? (
-          <td aria-hidden="true" className="bg-muted p-0" />
+          <td aria-hidden="true" className="bg-background p-0" />
         ) : null}
-        {fixed ? <td aria-hidden="true" className="bg-muted p-0" /> : null}
+        {fixed ? <td aria-hidden="true" className="bg-background p-0" /> : null}
       </TableRow>
     </tfoot>
   ) : null;
