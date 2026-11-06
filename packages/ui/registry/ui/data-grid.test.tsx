@@ -2102,6 +2102,61 @@ test("summary row: a sticky footer of host values; the footer is the last row on
   await expectNoA11yViolations(screen.container);
 });
 
+test("sticky header and summary row draw their rules in their own cells, once, and a long result truncates", async () => {
+  const columns = [
+    { key: "c0", header: "Name", width: 240 },
+    {
+      key: "c1",
+      header: "Qty",
+      width: 120,
+      summaryOptions: [{ value: "sum", label: "Sum" }],
+    },
+  ];
+  const summaryRow = {
+    value: { c1: "sum" },
+    onValueChange: () => {},
+    results: { c1: "₹104,041,281.67" },
+  };
+  for (const embedded of [false, true]) {
+    const screen = await render(
+      <DataGrid
+        aria-label="Totals"
+        columns={columns}
+        data={wideRows(3, 2)}
+        getRowId={(row) => row.id}
+        columnPicker={false}
+        embedded={embedded}
+        summaryRow={summaryRow}
+      />,
+    );
+    const grid = screen.getByRole("grid").element() as HTMLElement;
+    // A row border stays with the table, not the sticky row: the rules are the cells' own.
+    const head = grid.querySelector("thead tr")!;
+    expect(head.className).not.toMatch(/(^|\s)border-b(\s|$)/);
+    expect(head.className).toContain(
+      "*:inset-shadow-[0_-1px_0_var(--color-border)]",
+    );
+    const foot = grid.querySelector("tfoot")!;
+    expect(foot.className).not.toMatch(/(^|\s)border-t(\s|$)/);
+    const footRow = foot.querySelector("tr")!;
+    expect(footRow.className).toContain("border-0");
+    // Embedded, the frame's border is the line below, so the row draws only its top rule.
+    expect(footRow.className.includes("inset_0_-1px_0")).toBe(!embedded);
+    // The body's last row has no border of its own, so the summary's top rule is the only one.
+    expect(grid.querySelector("tbody")!.className).toContain(
+      "[&>tr:last-child]:border-0",
+    );
+    const result = await vi.waitFor(() => {
+      const node = foot.querySelector('[data-slot="grid-summary-result"]');
+      if (!node) throw new Error("no result yet");
+      return node;
+    });
+    expect(result.className).toContain("truncate");
+    expect(result.className).toContain("min-w-0");
+    await screen.unmount();
+  }
+});
+
 test("summary row: choosing a function from the footer leaves the rows where they were", async () => {
   const restore = sizeViewport(300, 600);
   const stick = document.createElement("style");
