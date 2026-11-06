@@ -65,7 +65,10 @@ editor as a plain form control.
 
 Field types are data types. Everything a host knows — the options, the people, how records are
 found, a link kind's icon and noun (the host's `InlineChip` kinds) — comes in through `config` and
-the host's providers. Locale and time zone come from the reader (`TimeZoneProvider`).
+the host's providers. Locale and time zone come from the reader (`TimeZoneProvider`). A currency
+with its own grouping keeps it wherever it is read: rupees (`INR`) group in lakhs and crores,
+so 588000 reads ₹5,88,000.00, in the display and the editor alike. Every other currency groups in
+the reader's locale, and `config.decimals` still sets the places.
 
 In a cell (`variant="cell"`) every value lays out on the 20px text line: a 24px chip target, avatar or link keeps its size and overflows into the cell's padding, so no type makes a fixed-height grid row taller than its neighbours.
 
