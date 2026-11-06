@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.53.2 sha256-dtrGPzwRGFK/5SUhjordo1TH4rKD8zSE/H5N/vUOgws=
+// @vegastack data-grid@0.53.2 sha256-fiEENgUuiWwgpG9x0Pdp0oQBpnh50pNDp0bTfm89Fqo=
 
 "use client";
 
@@ -1260,12 +1260,10 @@ const CELL_BASE_CLASS =
  */
 const HEAD_ROW_CLASS = "*:inset-shadow-[0_-1px_0_var(--color-border)]";
 /**
- * The summary row: a rule above and below; embedded, the frame's own border is the one below. Its
- * cells never take the frozen edge's shadow, so the rules use the plain shadow layer.
+ * The summary row: a rule above only, nothing below it. Its cells never take the frozen edge's
+ * shadow, so the rule uses the plain shadow layer.
  */
 const SUMMARY_ROW_CLASS =
-  "border-0 *:shadow-[inset_0_1px_0_var(--color-border),inset_0_-1px_0_var(--color-border)]";
-const SUMMARY_ROW_EMBEDDED_CLASS =
   "border-0 *:shadow-[inset_0_1px_0_var(--color-border)]";
 
 const HEAD_BASE_CLASS =
@@ -5204,13 +5202,7 @@ export function DataGrid<T>({
     >
       <TableRow
         aria-rowindex={footerRowIndex}
-        className={cn(
-          "hover:not-focus-visible:bg-none",
-          // Embedded with nothing after the table, the frame's border is the line below.
-          embedded && !loadMore && !pagedMode
-            ? SUMMARY_ROW_EMBEDDED_CLASS
-            : SUMMARY_ROW_CLASS,
-        )}
+        className={cn("hover:not-focus-visible:bg-none", SUMMARY_ROW_CLASS)}
       >
         {selectable ? (
           <TableCell

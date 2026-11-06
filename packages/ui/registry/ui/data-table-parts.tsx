@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.53.2 sha256-Xv3e7e+BJQzjgDMTD8cYKWQi7qh6XvNoTwRXI+vU8zs=
+// @vegastack data-table-parts@0.53.2 sha256-CJNzS5ztBjTjbFOZgBUTqqYjRx4rXmUrV9BDH6qi6nA=
 
 "use client";
 
@@ -2242,7 +2242,7 @@ const SUMMARY_NONE = "\u0000none";
 
 /**
  * A chosen function follows its column's alignment (the cell's `text-end`/`text-center`), so a
- * numeric column's total sits under its figures; the unsummarised Σ always starts the cell, as a
+ * numeric column's total sits at its end, the chevron last; the unsummarised Σ always starts the cell, as a
  * header does. `safe`: in a column too narrow for it, the content overflows at the end, never into
  * the column before.
  */
@@ -2252,8 +2252,8 @@ const SUMMARY_JUSTIFY =
 /**
  * `GridSummaryCell` — one footer cell of a grid's summary row: a `Select` of the column's
  * summary functions (None, Count, Sum, …) that fills the cell edge to edge, so hovering anywhere
- * in it washes the whole cell. A chosen function reads chevron, name, the host's result ("⌄ Max
- * 5,400"), aligned with the column; an unsummarised cell shows a faint Σ at the start. The value
+ * in it washes the whole cell. A chosen function reads name, the host's result, chevron ("Max
+ * 5,400 ⌄"), aligned with the column; an unsummarised cell shows a faint Σ at the start. The value
  * is a prop; the cell computes nothing. The trigger is named "Sum of Qty" (or "Summarize
  * Qty" while none is chosen).
  *
@@ -2358,8 +2358,6 @@ export function GridSummaryCell({
                 // height, with the state layer's wash and no border (a header's wash, not a chip).
                 "h-9 w-full min-w-0 flex-1 gap-1 rounded-none border-0 ps-2.5 pe-2.5 text-xs text-muted-foreground data-[size=sm]:h-9 data-[size=sm]:rounded-none",
                 SUMMARY_JUSTIFY,
-                // A chosen function leads with its chevron: "⌄ Max 5,400".
-                "[&:not([data-empty])>:last-child]:-order-1",
                 // Unsummarised, on a fine pointer, while the cell is neither hovered, keyboard-focused
                 // nor open: only the Σ shows. Focus handed back to the cell after a pick is not
                 // `:focus-visible`, so choosing None leaves the cell quiet. A touch screen cannot
