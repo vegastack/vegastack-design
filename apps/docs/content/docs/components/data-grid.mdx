@@ -575,17 +575,16 @@ focused header with
 `summaryOptions` (with a built-in _None_) named _Sum of Qty_. The picker fills the cell edge to
 edge, so hovering anywhere in it washes the whole cell, square, with no border (in the primary
 column, the cell after the row count). A chosen function
-reads chevron, name, the host's result ("⌄ Max 5,400") and follows the column's alignment, so a
+reads name, the host's result, then the chevron ("Max 5,400 ⌄") and follows the column's alignment, so a
 numeric column's total sits under its figures. An unsummarised cell shows a faint Σ at its start in
 every column; _Summarize_ and the chevron join it on hover, keyboard focus or while the list is open
 (always on a touch screen). Focus handed back to the cell after a pick doesn't count, so choosing
 _None_ leaves the cell quiet. The row itself has no fill. In a narrow column the function's name
 gives way first, then the result ends in "…". The summary row is sticky at the bottom of the
-viewport, ruled above and below (embedded with nothing after the table, the frame's border is the
-rule below), and counts as a row in `aria-rowcount`. Like the sticky header's rule, these lines are
-drawn in the cells, so they stay with the row while it sticks and the body's own row rules never
-double them. The primary column's cell shows `summaryRow.label` ("412 rows") before its own picker. The cells rove like any row; <kbd>Enter</kbd>
-or <kbd>Space</kbd> opens the picker, and closing it returns focus to the cell.
+viewport, ruled above only, and counts as a row in `aria-rowcount`. Like the sticky header's rule,
+that line is drawn in the cells, so it stays with the row while it sticks and the body's own row
+rules never double it. The primary column's cell shows `summaryRow.label` ("412 rows") before its
+own picker. The cells rove like any row; <kbd>Enter</kbd> or <kbd>Space</kbd> opens the picker, and closing it returns focus to the cell.
 
 ### Trailing header control
 

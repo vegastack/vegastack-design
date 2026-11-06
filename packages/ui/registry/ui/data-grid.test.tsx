@@ -2102,7 +2102,7 @@ test("summary row: a sticky footer of host values; the footer is the last row on
   await expectNoA11yViolations(screen.container);
 });
 
-test("sticky header and summary row draw their rules in their own cells, once, and a long result truncates", async () => {
+test("sticky header and summary row draw their rules in their own cells, once (none under the summary row), and a long result truncates", async () => {
   const columns = [
     { key: "c0", header: "Name", width: 240 },
     {
@@ -2140,8 +2140,11 @@ test("sticky header and summary row draw their rules in their own cells, once, a
     expect(foot.className).not.toMatch(/(^|\s)border-t(\s|$)/);
     const footRow = foot.querySelector("tr")!;
     expect(footRow.className).toContain("border-0");
-    // Embedded, the frame's border is the line below, so the row draws only its top rule.
-    expect(footRow.className.includes("inset_0_-1px_0")).toBe(!embedded);
+    expect(footRow.className).toContain(
+      "*:shadow-[inset_0_1px_0_var(--color-border)]",
+    );
+    // A rule above only: nothing under the summary row, framed or not.
+    expect(footRow.className).not.toContain("inset_0_-1px_0");
     // The body's last row has no border of its own, so the summary's top rule is the only one.
     expect(grid.querySelector("tbody")!.className).toContain(
       "[&>tr:last-child]:border-0",

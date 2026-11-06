@@ -1172,9 +1172,8 @@ test("GridSummaryCell: the picker spans the cell, a Σ marks an unsummarised cel
   // Chosen: no Σ, and the chevron follows the value at rest (the idle rule needs `data-empty`).
   expect(chosen.querySelector('[data-slot="grid-summary-sigma"]')).toBeNull();
   expect(chosen.hasAttribute("data-empty")).toBe(false);
-  // ...and it leads with its chevron: "⌄ Max 5,400".
-  expect(chosen.className).toContain(
-    "[&:not([data-empty])>:last-child]:-order-1",
-  );
+  // ...and the chevron comes last, after the value: "Max 5,400 ⌄".
+  expect(chosen.className).not.toContain("-order-1");
+  expect(chosen.lastElementChild?.tagName.toLowerCase()).toBe("svg");
   await expectNoA11yViolations(screen.container);
 });
