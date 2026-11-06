@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.55.0
+
+### Minor Changes
+
+- [#928](https://github.com/vegastack/vegastack-design/pull/928) [`300a2dc`](https://github.com/vegastack/vegastack-design/commit/300a2dcb9f29f184a541d91520053f2a819376a0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `PopoverContent` takes `anchor` (an element, or a virtual element with `getBoundingClientRect`), forwarded to the positioner: a popover pointing at a point in the window lands right inside a transformed panel such as a side peek. `MakeTaskPopover` anchors to its line through it instead of a fixed 0×0 box, and follows the line as the page scrolls.
+
+### Patch Changes
+
+- [#928](https://github.com/vegastack/vegastack-design/pull/928) [`300a2dc`](https://github.com/vegastack/vegastack-design/commit/300a2dcb9f29f184a541d91520053f2a819376a0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `DelegatePopover`'s agent list takes the window's height it can (at least 6rem, at most 20rem) instead of a fixed 12rem, so a short window still shows more than two agents.
+
 ## 0.54.1
 
 ### Patch Changes

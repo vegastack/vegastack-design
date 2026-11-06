@@ -14053,7 +14053,7 @@
       "meta": {
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
-        "version": "0.33.0"
+        "version": "0.55.0"
       }
     },
     {
@@ -14348,7 +14348,7 @@
       "meta": {
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
-        "version": "0.33.0"
+        "version": "0.55.0"
       }
     },
     {
@@ -19235,7 +19235,7 @@
       "meta": {
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
-        "version": "0.50.0"
+        "version": "0.55.0"
       }
     },
     {

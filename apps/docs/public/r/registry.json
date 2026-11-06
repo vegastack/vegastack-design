@@ -17313,8 +17313,8 @@
       "meta": {
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
-        "version": "0.33.0",
-        "integrity": "sha256-2ev+abWxxkH9Yi1X/tckQ50kw/tp2D9A5s5k+AD+S7Q="
+        "version": "0.55.0",
+        "integrity": "sha256-vro3Gq7/Olcil8viUVmM+Eyqu3iSn+xpRTJ58XianfM="
       }
     },
     {
@@ -17649,8 +17649,8 @@
       "meta": {
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
-        "version": "0.33.0",
-        "integrity": "sha256-PRmHUkcNgDA6SG/8msDvNPN2Uj1mEBwjWIpBkV5C24o="
+        "version": "0.55.0",
+        "integrity": "sha256-+v1jfVEKLiiL7o1ohqgHxXMyr2GUxl/n0w02Ba92ZA0="
       }
     },
     {
@@ -23475,8 +23475,8 @@
       "meta": {
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
-        "version": "0.50.0",
-        "integrity": "sha256-bTKJr3b4UPEjTxxCae5yHHJstRGBPtTv8oSFcGTuvQg="
+        "version": "0.55.0",
+        "integrity": "sha256-+7O0u0vmGsxHPyvD1TgpOCGHiaQeLI4RC6QrFMZpJGo="
       }
     },
     {

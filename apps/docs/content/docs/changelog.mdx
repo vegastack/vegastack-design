@@ -10,6 +10,22 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.55.0] — November 6, 2026
+
+### 🔧 Changed components
+
+- `PopoverContent` takes `anchor` (an element, or a virtual element with `getBoundingClientRect`), forwarded to the positioner: a popover pointing at a point in the window lands right inside a transformed panel such as a side peek. `MakeTaskPopover` anchors to its line through it instead of a fixed 0×0 box, and follows the line as the page scrolls.
+  [`300a2dc`](https://github.com/VegaStack/vegastack-design/commit/300a2dc)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.54.1 → 0.55.0.
+
+### 🐛 Fixed
+
+- `DelegatePopover`'s agent list takes the window's height it can (at least 6rem, at most 20rem) instead of a fixed 12rem, so a short window still shows more than two agents.
+  [`300a2dc`](https://github.com/VegaStack/vegastack-design/commit/300a2dc)
+
 ## [0.54.1] — November 6, 2026
 
 ### 📦 npm

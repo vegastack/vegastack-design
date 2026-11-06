@@ -1,4 +1,4 @@
-// @vegastack delegate-popover@0.50.0 sha256-bTKJr3b4UPEjTxxCae5yHHJstRGBPtTv8oSFcGTuvQg=
+// @vegastack delegate-popover@0.55.0 sha256-+7O0u0vmGsxHPyvD1TgpOCGHiaQeLI4RC6QrFMZpJGo=
 
 "use client";
 
