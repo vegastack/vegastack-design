@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.54.0] — November 6, 2026
+
+<!-- assembled from 1 changeset: 4cca05399747 -->
+
+### 🧩 New components
+
+- `InlineChip` takes any leading avatar: an `avatar` prop (a `Person`, drawn by `PersonAvatar` in its kind's shape) and the provider's `avatar(kind, id)`, so a chip can lead with the same face its `@` menu row shows instead of the kind's glyph.
+  [`6b592b0`](https://github.com/VegaStack/vegastack-design/commit/6b592b0)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.53.3 → 0.54.0.
+
 ## [0.53.3] — November 6, 2026
 
 <!-- assembled from 1 changeset: 036fc1265a40 -->

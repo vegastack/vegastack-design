@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.54.0
+
+### Minor Changes
+
+- [#926](https://github.com/vegastack/vegastack-design/pull/926) [`6b592b0`](https://github.com/vegastack/vegastack-design/commit/6b592b0a4c65622586a397142e4fd5a26093171e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `InlineChip` takes any leading avatar: an `avatar` prop (a `Person`, drawn by `PersonAvatar` in its kind's shape) and the provider's `avatar(kind, id)`, so a chip can lead with the same face its `@` menu row shows instead of the kind's glyph.
+
 ## 0.53.3
 
 ### Patch Changes
