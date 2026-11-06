@@ -204,17 +204,36 @@ test("FieldInput: a number reads the reader's locale; an invalid email is marked
   ).toBe("true");
 });
 
-test("variant=cell: a value's 24px TruncatedText lays out on the 20px line, so a filled cell is as tall as an empty one", async () => {
+test("variant=cell: every value lays out on the 20px line, so no type grows a fixed-height row", async () => {
+  // A 24px part (a clipped name's target, a chip's, an avatar, a link) made a cell 36px, which with
+  // the row's 1px rule grew a `short` row as such a column scrolled into view (zoomed in, most).
+  const cases = [
+    ["text", "Filled", undefined],
+    ["number", 12, undefined],
+    ["single_choice", "sent", { options: OPTIONS }],
+    ["multi_choice", ["sent"], { options: OPTIONS }],
+    ["person", { id: "u1", name: "Asha Rao" }, undefined],
+    ["url", "example.com", undefined],
+    ["email", "a@example.com", undefined],
+  ] as const;
   await render(
     <ul>
-      <li data-case="filled">
-        <FieldCellDisplay variant="cell" type="text" value="Filled" />
-      </li>
-      <li data-case="number">
-        <FieldCellDisplay variant="cell" type="number" value={12} />
-      </li>
+      {cases.map(([type, value, config]) => (
+        <li key={type} data-case={type}>
+          <FieldCellDisplay
+            variant="cell"
+            type={type}
+            value={value as FieldValue}
+            config={config}
+          />
+        </li>
+      ))}
       <li data-case="default">
-        <FieldCellDisplay type="text" value="Filled" />
+        <FieldCellDisplay
+          type="single_choice"
+          value="sent"
+          config={{ options: OPTIONS }}
+        />
       </li>
     </ul>,
   );
@@ -222,12 +241,14 @@ test("variant=cell: a value's 24px TruncatedText lays out on the 20px line, so a
     document.querySelector<HTMLElement>(
       `li[data-case="${name}"] [data-slot="field-cell-display"]`,
     )!;
-  for (const name of ["filled", "number"])
-    expect(root(name).className).toContain(
-      "*:data-[slot=truncated-text]:-my-0.5",
-    );
-  // Outside a cell the value keeps its own 24px line.
-  expect(root("default").className).not.toContain("-my-0.5");
+  for (const [type] of cases) {
+    expect(root(type).className).toContain("h-5");
+    // A min-height would beat the 20px line.
+    expect(root(type).className).not.toContain("min-h-6");
+  }
+  // Outside a cell a value keeps its own 24px box.
+  expect(root("default").className).toContain("min-h-6");
+  expect(root("default").className).not.toContain("h-5 ");
 });
 
 test("a choice chip keeps its hue inside a highlighted picker row (data-icon-tone)", async () => {
@@ -290,6 +311,23 @@ test("FieldCellEditor: text commits on Enter, Escape cancels, a choice commits o
   await screen.getByRole("option", { name: "Sent" }).click();
   expect(choose).toHaveBeenCalledWith("sent", undefined);
   await expectNoA11yViolations(screen.container);
+
+  // A chosen single choice clears from its own list (the cell is the trigger, so no control).
+  const clear = vi.fn();
+  await screen.rerender(
+    <FieldCellEditor
+      key="choice-clear"
+      variant="cell"
+      type="single_choice"
+      label="Status"
+      value="sent"
+      config={{ options: OPTIONS }}
+      onCommit={clear}
+      onCancel={() => {}}
+    />,
+  );
+  await screen.getByRole("option", { name: "Clear selection" }).click();
+  expect(clear).toHaveBeenCalledWith(null, undefined);
 });
 
 test("FieldCellEditor: an invalid URL never commits; a read-only type cancels at once", async () => {

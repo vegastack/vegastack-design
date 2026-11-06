@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.52.2 sha256-KgV2OI7Hytvs5itN1mjKzN1QjdALkJsxefvIUBvyUws=
+// @vegastack data-table-parts@0.52.2 sha256-9UmIYqMw6UdyVCF5xkejaqzRVP/HD1237uqYVshCTFU=
 
 "use client";
 
@@ -2229,9 +2229,10 @@ export interface GridSummaryCellProps extends Omit<
    */
   noneLabel?: string;
   /**
-   * The trigger's text while no function is chosen. At rest the cell shows only a Σ; the text
-   * and the chevron join it on hover and focus (always on a touch screen), so a footer of
-   * unsummarised columns reads as summarisable without filling every column with words.
+   * The trigger's text while no function is chosen. At rest the cell shows only a faint Σ at its
+   * start; the text and the chevron join it on hover, keyboard focus and while open (always on a
+   * touch screen), so a footer of unsummarised columns reads as summarisable without words in
+   * every column.
    * @default "Summarize"
    */
   placeholder?: string;
@@ -2240,17 +2241,20 @@ export interface GridSummaryCellProps extends Omit<
 const SUMMARY_NONE = "\u0000none";
 
 /**
- * A summary cell's content follows its column's alignment (the cell's `text-end`/`text-center`).
- * `safe`: in a column too narrow for it, the content overflows at the end, never into the column before.
+ * A chosen function follows its column's alignment (the cell's `text-end`/`text-center`), so a
+ * numeric column's total sits under its figures; the unsummarised Σ always starts the cell, as a
+ * header does. `safe`: in a column too narrow for it, the content overflows at the end, never into
+ * the column before.
  */
 const SUMMARY_JUSTIFY =
-  "justify-start [.text-end>*>&]:justify-end-safe [.text-center>*>&]:justify-center-safe";
+  "justify-start [.text-end>*>&:not([data-empty])]:justify-end-safe [.text-center>*>&:not([data-empty])]:justify-center-safe";
 
 /**
  * `GridSummaryCell` — one footer cell of a grid's summary row: a `Select` of the column's
- * summary functions (None, Count, Sum, …) that spans the cell, with the host's result beside the
- * function's name and the chevron after it ("Max 5,400 ⌄"). An unsummarised cell shows a Σ. The
- * value is a prop; the cell computes nothing. The trigger is named "Sum of Qty" (or "Summarize
+ * summary functions (None, Count, Sum, …) that fills the cell edge to edge, so hovering anywhere
+ * in it washes the whole cell. A chosen function reads chevron, name, the host's result ("⌄ Max
+ * 5,400"), aligned with the column; an unsummarised cell shows a faint Σ at the start. The value
+ * is a prop; the cell computes nothing. The trigger is named "Sum of Qty" (or "Summarize
  * Qty" while none is chosen).
  *
  * @example
@@ -2291,7 +2295,7 @@ export function GridSummaryCell({
   return (
     <TableCell
       data-slot="grid-summary-cell"
-      className={cn("px-1 py-1", className)}
+      className={cn("p-0", className)}
       onFocus={(event) => {
         setArmed(true);
         onFocus?.(event);
@@ -2312,7 +2316,7 @@ export function GridSummaryCell({
     >
       <div className="flex min-w-0 items-center gap-2">
         {leading != null ? (
-          <span className="shrink-0 ps-1 text-xs text-muted-foreground">
+          <span className="shrink-0 ps-2.5 text-xs text-muted-foreground">
             {leading}
           </span>
         ) : null}
@@ -2350,21 +2354,26 @@ export function GridSummaryCell({
               }
               data-empty={chosen ? undefined : ""}
               className={cn(
-                // The whole cell is the target: the trigger spans the column, its content sits where
-                // the column aligns, and the chevron always follows a chosen function's value.
-                "w-full min-w-0 flex-1 gap-1 ps-1.5 pe-1.5 text-xs text-muted-foreground",
+                // The whole cell is the target and its hover: edge to edge and square, the row's
+                // height, with the state layer's wash and no border (a header's wash, not a chip).
+                "h-9 w-full min-w-0 flex-1 gap-1 rounded-none border-0 ps-2.5 pe-2.5 text-xs text-muted-foreground data-[size=sm]:h-9 data-[size=sm]:rounded-none",
                 SUMMARY_JUSTIFY,
-                // Unsummarised, on a fine pointer, while the cell is neither hovered, focused nor
-                // open: only the Σ shows, so the footer reads as summarisable without filling every
-                // column with words. A touch screen cannot hover, so it always shows the prompt.
-                "pointer-fine:[[data-slot=grid-summary-cell]:not(:hover,:focus-within)_&[data-empty]:not([data-popup-open])>:not(:first-child)]:hidden",
+                // A chosen function leads with its chevron: "⌄ Max 5,400".
+                "[&:not([data-empty])>:last-child]:-order-1",
+                // Unsummarised, on a fine pointer, while the cell is neither hovered, keyboard-focused
+                // nor open: only the Σ shows. Focus handed back to the cell after a pick is not
+                // `:focus-visible`, so choosing None leaves the cell quiet. A touch screen cannot
+                // hover, so it always shows the prompt.
+                "pointer-fine:[[data-slot=grid-summary-cell]:not(:hover,:focus-visible)_&[data-empty]:not([data-popup-open],:focus-visible)>:not(:first-child)]:hidden",
+                // The Σ is fainter at rest and takes the secondary ink when the cell is live.
+                "[[data-slot=grid-summary-cell]:is(:hover,:focus-visible)_&>[data-slot=grid-summary-sigma]]:text-muted-foreground data-popup-open:*:data-[slot=grid-summary-sigma]:text-muted-foreground focus-visible:*:data-[slot=grid-summary-sigma]:text-muted-foreground pointer-coarse:*:data-[slot=grid-summary-sigma]:text-muted-foreground",
               )}
             >
               {chosen ? null : (
                 <Sigma
                   aria-hidden="true"
                   data-slot="grid-summary-sigma"
-                  className="size-3.5"
+                  className="size-3.5 text-muted-foreground/60"
                 />
               )}
               <span className="min-w-0 truncate">
@@ -2396,16 +2405,13 @@ export function GridSummaryCell({
           <span
             aria-hidden="true"
             data-slot="grid-summary-placeholder"
-            // The `sm` trigger's own box (`h-7`, its transparent border, padding and alignment), so nothing moves when
+            // The trigger's own box (`h-9`, its padding, the Σ at the start), so nothing moves when
             // the picker mounts on hover.
-            className={cn(
-              "flex h-7 min-w-0 flex-1 items-center gap-1 border border-transparent ps-1.5 pe-1.5 text-xs text-muted-foreground",
-              SUMMARY_JUSTIFY,
-            )}
+            className="flex h-9 min-w-0 flex-1 items-center justify-start gap-1 ps-2.5 pe-2.5 text-xs text-muted-foreground"
           >
             <Sigma
               data-slot="grid-summary-sigma"
-              className="size-3.5 shrink-0"
+              className="size-3.5 shrink-0 text-muted-foreground/60 pointer-coarse:text-muted-foreground"
             />
             <span className="min-w-0 truncate pointer-fine:hidden">
               {placeholder}

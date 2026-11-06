@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.52.1 sha256-WD5rSW1M8sWvujbl9jGMB4ne2RltVUEpKEW/VfCjzE8=
+// @vegastack field-cell@0.52.1 sha256-bCPLHSepLGl1HP9RpzBviKzml7jwNLtM7cIqzqy8H/s=
 
 "use client";
 
@@ -862,10 +862,12 @@ export function FieldCellDisplay({
         data-variant={variant}
         className={cn(
           "flex min-w-0 items-center gap-1",
-          // In a cell, a value's `TruncatedText` keeps its 24px target but lays out on the 20px
-          // line, so a filled cell is as tall as an empty one (in an editable cell's padding the
-          // 24px box made it 4px taller) and every row of a fixed-height grid matches.
-          variant === "cell" && "*:data-[slot=truncated-text]:-my-0.5",
+          // In a cell, every value lays out on the 20px text line: its 24px parts (a clipped
+          // name's disclosure target, a chip's, an avatar, a link) keep their size and overflow
+          // into the cell's padding. A 24px box made the cell 36px, which with the row's 1px rule
+          // grew a `short` row past its 36px — so a row's height changed as such a column
+          // scrolled in and out of view. Every row of a fixed-height grid now matches.
+          variant === "cell" && "h-5",
           extra,
           align === "start" && "justify-start",
           align === "end" && "justify-end",
@@ -982,8 +984,9 @@ export function FieldCellDisplay({
           />
         </>,
         // A clipped name's 24px disclosure target (taller than the 20px badge) keeps its whole box
-        // inside the row, so a clipping wrapper (a grid cell's) never cuts it.
-        "min-h-6",
+        // inside the row, so a clipping wrapper never cuts it. In a cell it overflows into the
+        // cell's padding instead (`h-5` on the root), so it never grows the row.
+        cell ? undefined : "min-h-6",
       );
     }
     case "checkbox":
@@ -1013,7 +1016,9 @@ export function FieldCellDisplay({
                 key={person.id}
                 className="flex shrink-0 items-center gap-1.5"
               >
-                <PersonAvatar person={person} size="sm" />
+                {/* `xs` (20px): the cell's 20px line, so an editable cell's clipping wrapper never
+                    cuts the circle. */}
+                <PersonAvatar person={person} size="xs" />
                 {person.name}
               </span>
             ))}
@@ -1551,6 +1556,8 @@ export function FieldInput({
       return (
         <SearchableSelect<FieldChoiceOption>
           {...common}
+          // Cleared like a date: a control on the field while an option is chosen.
+          clearable
           value={options.find((option) => option.id === value) ?? null}
           onValueChange={(next) => onChange(next?.id ?? null)}
         />
@@ -1765,6 +1772,9 @@ function ChoiceCellEditor({
   return (
     <SearchableSelect<FieldChoiceOption>
       {...common}
+      // A single choice is cleared from its own list: the cell is the trigger, so there is no
+      // clear control to put on it.
+      clearOption
       value={chosen[0] ?? null}
       onValueChange={(next) => onChange(next?.id ?? null)}
     />
