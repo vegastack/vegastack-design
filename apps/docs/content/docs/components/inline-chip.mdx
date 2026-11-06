@@ -97,6 +97,11 @@ The design system knows three kinds; every other kind is the app's. The provider
 `kinds: { [id]: { icon?, noun } }` gives each app kind its glyph (set at 1em on the baseline) and
 its noun (the hover card's kind word); a kind it does not name shows a link glyph and "Item".
 
+A target with a face of its own (a team's tile, an assistant's mark) leads with it instead of a
+glyph: pass `avatar` (any `Person`, drawn by `PersonAvatar` in its kind's shape) on the chip, or
+answer the provider's `avatar(kind, id)` so every chip of that kind — in an editor, a rendered body
+or a comment — shows it. A restricted chip never shows one.
+
 | Kind     | Icon             | Ground              | Ink               | Click                     |
 | -------- | ---------------- | ------------------- | ----------------- | ------------------------- |
 | `user`   | photo, else user | `--tag-blue-subtle` | `--tag-blue-text` | none; hover card          |

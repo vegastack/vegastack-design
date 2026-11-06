@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.53.0 sha256-CNCFxs6XKrbyZsvfbiOzxp+ua0iDb6Ogtr0YVgt/ZvM=
+// @vegastack inline-chip@0.53.0 sha256-qhE/Mq9ng8cNYzpoy6MlnSmv+2RljjZy6TNdoImGEyQ=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { Bot, CircleCheck, Link2, UserRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
-import { PersonAvatar } from "@/components/ui/person-avatar";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Badge } from "@/components/ui/badge";
 import type { AvatarHue } from "@/components/ui/avatar";
 import {
@@ -100,6 +100,12 @@ export interface InlineChipResolver {
   href?: (kind: InlineChipKind, id: string) => string | null | undefined;
   /** The person behind a `user` chip, by id: the hover card shows them. */
   person?: (id: string) => InlineChipPerson | null | undefined;
+  /**
+   * A chip's own leading avatar, by kind and id, for a target the host draws with a face of its
+   * own (a team's tile, an assistant's mark): drawn by `PersonAvatar` in its `kind`'s shape, in
+   * place of the kind's glyph. Answer `null` to keep the glyph (or a `user` chip's photo).
+   */
+  avatar?: (kind: InlineChipKind, id: string) => Person | null | undefined;
   /**
    * A record's state, for every chip that isn't given its own (`done`, `struck`, `status`): a
    * finished task's check, a canceled or duplicate task struck through with its status. One
@@ -244,6 +250,12 @@ const AVATAR =
   "me-1 inline-block size-[1.1em] shrink-0 overflow-hidden align-[-0.175em] whitespace-nowrap select-none after:hidden data-[size=sm]:size-[1.1em] [&_[data-slot=avatar-fallback]]:text-[55%] [&_[data-slot=avatar-fallback]]:leading-none [&_[data-slot=avatar-fallback]]:font-medium [&_[data-slot=avatar-image]]:m-0 [&_[data-slot=avatar-image]]:max-w-none [&_[data-slot=avatar-image]]:rounded-full [&_[data-slot=avatar-image]]:border-0";
 
 /**
+ * A caller's avatar (`avatar`): the person avatar's box at a row step, its glyph scaled with the
+ * chip's text like the icon (a mark image keeps the row step's size, about two thirds of the box).
+ */
+const FACE = cn(AVATAR, "data-[size=xs]:size-[1.1em] [&_svg]:size-[60%]");
+
+/**
  * The rule a prose root needs so a chip that is an `<a>` keeps its own ink and no underline: the
  * prose recipe's link rule is a descendant rule a class cannot beat. `MarkdownView` and `TextEdit`
  * wear it; any other prose surface rendering chips should too.
@@ -293,6 +305,13 @@ export interface InlineChipProps extends Omit<
    * @default undefined
    */
   image?: string | null;
+  /**
+   * The chip's leading avatar, any `Person` (a team's tile, an assistant's mark in its own shape),
+   * drawn in place of the kind's glyph or a `user` chip's photo. `null` keeps those. Overrides the
+   * provider's `avatar`.
+   * @default the provider's avatar(kind, targetId)
+   */
+  avatar?: Person | null;
   /**
    * A `file` chip's content type: the icon follows it, not only the name's extension.
    * @default undefined
@@ -379,6 +398,7 @@ export function InlineChip({
   onOpen: onOpenProp,
   person: personProp,
   image,
+  avatar: avatarProp,
   contentType,
   preview: previewProp,
   restricted: restrictedProp,
@@ -451,6 +471,12 @@ export function InlineChip({
         ? previewProp
         : (resolver?.preview?.(kind, targetId) ?? null);
   const photo = restricted ? "" : safeUrl(person?.image ?? image ?? "");
+  // The caller's own avatar (any `Person`, in its kind's shape) leads in place of the glyph.
+  const face = restricted
+    ? null
+    : avatarProp !== undefined
+      ? avatarProp
+      : (resolver?.avatar?.(kind, targetId) ?? null);
   const target: InlineChipTarget = {
     kind,
     id: targetId,
@@ -485,8 +511,21 @@ export function InlineChip({
     BUILT_IN_KIND[kind]?.icon ?? <Link2 />;
   // A person chip leads with their avatar — the photo, else their initials on their colour — as
   // a comment's avatar does; other chips with a photo show it too.
+  // A done target's check wins over a caller's avatar: the check is its state.
   const lead =
-    photo || person ? (
+    face && !done ? (
+      <PersonAvatar
+        person={{
+          ...face,
+          image: face.image ? safeUrl(face.image) || null : face.image,
+        }}
+        // A row step, so a mark brings its small glyph (or its fallback) at the chip's size.
+        size="xs"
+        aria-hidden
+        data-slot="inline-chip-avatar"
+        className={FACE}
+      />
+    ) : photo || person ? (
       <PersonAvatar
         person={{
           name: person?.name ?? label,

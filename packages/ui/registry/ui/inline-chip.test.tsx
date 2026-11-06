@@ -121,6 +121,64 @@ test("a person chip's avatar never breaks its initials (a mention in a narrow co
   expect(avatar).toHaveClass("whitespace-nowrap", "shrink-0");
 });
 
+test("a caller's avatar leads any chip in its own shape; the chip's own prop wins; a restricted chip keeps its glyph", async () => {
+  const screen = await render(
+    <InlineChipProvider
+      value={{
+        kinds: HOST_KINDS,
+        avatar: (kind, id) =>
+          kind === "assistant" ? { name: `Bot ${id}`, kind: "agent" } : null,
+      }}
+    >
+      <InlineChip
+        kind="assistant"
+        targetId="a1"
+        label="Orbit"
+        data-testid="resolved"
+      />
+      <InlineChip
+        kind="task"
+        targetId="t1"
+        label="Ship"
+        avatar={{ name: "Sales", kind: "team" }}
+        data-testid="own"
+      />
+      <InlineChip
+        kind="assistant"
+        targetId="restricted:a2"
+        label="Hidden"
+        data-testid="restricted"
+      />
+      <InlineChip
+        kind="assistant"
+        targetId="a3"
+        label="Finished"
+        done
+        data-testid="done"
+      />
+    </InlineChipProvider>,
+  );
+  const lead = (id: string) =>
+    screen
+      .getByTestId(id)
+      .element()
+      .querySelector('[data-slot="inline-chip-avatar"]');
+  expect(lead("resolved")).toHaveAttribute("data-kind", "agent");
+  expect(lead("own")).toHaveAttribute("data-kind", "team");
+  expect(lead("restricted")).toBeNull();
+  // A done target's check is its state: it wins over the avatar.
+  expect(lead("done")).toBeNull();
+  expect(
+    screen.getByTestId("done").element().querySelector('[aria-label="Done"]'),
+  ).not.toBeNull();
+  expect(
+    screen
+      .getByTestId("restricted")
+      .element()
+      .querySelector('[data-slot="inline-chip-icon"]'),
+  ).not.toBeNull();
+});
+
 test("MarkdownView renders mentions of every kind and file links as chips", async () => {
   const screen = await render(
     <MarkdownView
