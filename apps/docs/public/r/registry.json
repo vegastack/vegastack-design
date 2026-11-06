@@ -23476,7 +23476,7 @@
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
         "version": "0.50.0",
-        "integrity": "sha256-L7VT0/sJ3bQLmr8oMh4ydamHSLrMY8fqGTU5XcaEO+A="
+        "integrity": "sha256-bTKJr3b4UPEjTxxCae5yHHJstRGBPtTv8oSFcGTuvQg="
       }
     },
     {
