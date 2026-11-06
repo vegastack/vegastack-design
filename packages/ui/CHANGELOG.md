@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.54.1
+
+### Patch Changes
+
+- [#927](https://github.com/vegastack/vegastack-design/pull/927) [`12cd8ba`](https://github.com/vegastack/vegastack-design/commit/12cd8ba7d971bacad0c7a9d576420af3c5e5dbc6) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `FieldCellDisplay` and `FieldInput` group a rupee amount in lakhs and crores wherever it is read: `INR` 588000 reads ₹5,88,000.00, not ₹588,000.00. A small currency-to-locale map (`INR` → `en-IN`) sets a currency's own grouping; every other currency and `config.decimals` are unchanged.
+
 ## 0.54.0
 
 ### Minor Changes

@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.54.1] — November 6, 2026
+
+<!-- assembled from 1 changeset: f8787367b659 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.54.0 → 0.54.1.
+
+### 🐛 Fixed
+
+- `FieldCellDisplay` and `FieldInput` group a rupee amount in lakhs and crores wherever it is read: `INR` 588000 reads ₹5,88,000.00, not ₹588,000.00. A small currency-to-locale map (`INR` → `en-IN`) sets a currency's own grouping; every other currency and `config.decimals` are unchanged.
+  [`12cd8ba`](https://github.com/VegaStack/vegastack-design/commit/12cd8ba)
+
 ## [0.54.0] — November 6, 2026
 
 <!-- assembled from 1 changeset: 4cca05399747 -->
