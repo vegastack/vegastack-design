@@ -158,7 +158,7 @@ test("anchor: a point in the window lands under it, inside a transformed panel t
     >
       <Popover open>
         <PopoverContent anchor={anchor} align="start" sideOffset={0}>
-          <PopoverTitle>Anchored</PopoverTitle>
+          <span>Anchored</span>
         </PopoverContent>
       </Popover>
     </div>,
