@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.56.0] — November 6, 2026
+
+### 🔧 Changed components
+
+- `DelegatePopover` takes `error` and `onRetry`: when the agents couldn't be read it says so with Try again, instead of skeletons forever or the connect state (which would claim there are none). `AgentStateRing` takes `glyph`, which badges a ringed state's icon (needs you, failed) on the avatar's corner, so a narrow cell never tells the state by colour alone.
+  [`7f67dfe`](https://github.com/VegaStack/vegastack-design/commit/7f67dfe)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.55.0 → 0.56.0.
+
 ## [0.55.0] — November 6, 2026
 
 ### 🔧 Changed components

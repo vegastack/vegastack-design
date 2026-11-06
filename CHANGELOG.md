@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.56.0] — November 6, 2026
+
+<!-- assembled from 1 changeset: b9733098df88 -->
+
+### 🔧 Changed components
+
+- `DelegatePopover` takes `error` and `onRetry`: when the agents couldn't be read it says so with Try again, instead of skeletons forever or the connect state (which would claim there are none). `AgentStateRing` takes `glyph`, which badges a ringed state's icon (needs you, failed) on the avatar's corner, so a narrow cell never tells the state by colour alone.
+  [`7f67dfe`](https://github.com/VegaStack/vegastack-design/commit/7f67dfe)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.55.0 → 0.56.0.
+
 ## [0.55.0] — November 6, 2026
 
 <!-- assembled from 2 changesets: 37a78d62bd8e -->

@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.56.0
+
+### Minor Changes
+
+- [#929](https://github.com/vegastack/vegastack-design/pull/929) [`7f67dfe`](https://github.com/vegastack/vegastack-design/commit/7f67dfe80f0865bf935da5923d9e8e1e2e9cd70f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `DelegatePopover` takes `error` and `onRetry`: when the agents couldn't be read it says so with Try again, instead of skeletons forever or the connect state (which would claim there are none). `AgentStateRing` takes `glyph`, which badges a ringed state's icon (needs you, failed) on the avatar's corner, so a narrow cell never tells the state by colour alone.
+
 ## 0.55.0
 
 ### Minor Changes
