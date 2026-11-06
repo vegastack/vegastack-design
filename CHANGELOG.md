@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.53.3] — November 6, 2026
+
+<!-- assembled from 1 changeset: 036fc1265a40 -->
+
+### 🔧 Changed components
+
+- `DataGrid`'s summary row has no line under it now, framed or not; the rule above it stays. A chosen `GridSummaryCell` function shows its chevron last, after the result: "Max 5,400 ⌄".
+  [`bd56bf0`](https://github.com/VegaStack/vegastack-design/commit/bd56bf0)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.53.2 → 0.53.3.
+
 ## [0.53.2] — November 6, 2026
 
 <!-- assembled from 1 changeset: c0b799d33854 -->

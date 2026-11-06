@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.53.3
+
+### Patch Changes
+
+- [#925](https://github.com/vegastack/vegastack-design/pull/925) [`bd56bf0`](https://github.com/vegastack/vegastack-design/commit/bd56bf0fe5a0608637dfd84b57c615d2cfc2d544) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🔧 `DataGrid`'s summary row has no line under it now, framed or not; the rule above it stays. A chosen `GridSummaryCell` function shows its chevron last, after the result: "Max 5,400 ⌄".
+
 ## 0.53.2
 
 ### Patch Changes
