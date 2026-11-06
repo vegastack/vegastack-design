@@ -2383,6 +2383,19 @@ test("a currency with its own grouping keeps it: rupees group in lakhs, others i
       currency: "EUR",
     }).format(588000),
   );
+  // The editor groups the same way the display does.
+  await screen.rerender(
+    <FieldInput
+      type="currency"
+      aria-label="Budget"
+      value={588000}
+      config={{ currency: "INR" }}
+      onChange={() => {}}
+    />,
+  );
+  expect(
+    (screen.container.querySelector("input") as HTMLInputElement).value,
+  ).toBe("₹5,88,000.00");
 });
 
 test('FieldCellDisplay variant="cell": plain numbers, bare links, clipped dates, every person named', async () => {
