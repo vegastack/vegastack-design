@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.53.2 sha256-KIGqkh0lfe9YC/o586/+DfyMUhBrsdZDqRg3e/TTf3U=
+// @vegastack data-table-parts@0.53.2 sha256-CJNzS5ztBjTjbFOZgBUTqqYjRx4rXmUrV9BDH6qi6nA=
 
 "use client";
 
@@ -2242,7 +2242,7 @@ const SUMMARY_NONE = "\u0000none";
 
 /**
  * A chosen function follows its column's alignment (the cell's `text-end`/`text-center`), so a
- * numeric column's total sits under its figures; the unsummarised Σ always starts the cell, as a
+ * numeric column's total sits at its end, the chevron last; the unsummarised Σ always starts the cell, as a
  * header does. `safe`: in a column too narrow for it, the content overflows at the end, never into
  * the column before.
  */
