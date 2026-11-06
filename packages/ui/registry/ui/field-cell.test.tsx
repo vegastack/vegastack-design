@@ -2351,6 +2351,53 @@ test("FieldProperty: an editable long text at rest reads as the grid's display �
   );
 });
 
+test("a currency with its own grouping keeps it: rupees group in lakhs, others in the reader's locale", async () => {
+  const screen = await render(
+    <FieldCellDisplay
+      type="currency"
+      value={588000}
+      config={{ currency: "INR" }}
+    />,
+  );
+  const text = () => screen.container.textContent ?? "";
+  expect(text()).toBe("₹5,88,000.00");
+  await screen.rerender(
+    <FieldCellDisplay
+      type="currency"
+      value={12345678}
+      config={{ currency: "INR", decimals: 0 }}
+      variant="cell"
+    />,
+  );
+  expect(text()).toBe("₹1,23,45,678");
+  await screen.rerender(
+    <FieldCellDisplay
+      type="currency"
+      value={588000}
+      config={{ currency: "EUR" }}
+    />,
+  );
+  expect(text()).toBe(
+    new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: "EUR",
+    }).format(588000),
+  );
+  // The editor groups the same way the display does.
+  await screen.rerender(
+    <FieldInput
+      type="currency"
+      aria-label="Budget"
+      value={588000}
+      config={{ currency: "INR" }}
+      onChange={() => {}}
+    />,
+  );
+  expect(
+    (screen.container.querySelector("input") as HTMLInputElement).value,
+  ).toBe("₹5,88,000.00");
+});
+
 test('FieldCellDisplay variant="cell": plain numbers, bare links, clipped dates, every person named', async () => {
   const screen = await render(
     <FieldCellDisplay type="number" value={12345.5} variant="cell" />,

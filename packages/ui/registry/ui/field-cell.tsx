@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.53.1 sha256-S6VMx49AgARZPPbGJd++VEkrIaQ0zdt6h9aQGR5V+4I=
+// @vegastack field-cell@0.53.1 sha256-I2vGSIaqX4IxFt+aeaSFwfhsOdf4nTTq0Pl55U1nxp8=
 
 "use client";
 
@@ -518,7 +518,18 @@ function choiceFace(option: FieldChoiceOption) {
   );
 }
 
-/** Number formatting per type, in the reader's locale. */
+/**
+ * Currencies whose grouping is their own, not the reader's: an amount in rupees groups in lakhs
+ * and crores (₹5,88,000.00) wherever it is read. Any other currency formats in the reader's locale.
+ */
+const CURRENCY_LOCALE: Record<string, string> = { INR: "en-IN" };
+
+/** The locale a currency formats in: its own grouping when it has one, else the reader's. */
+function currencyLocale(currency: string): string | undefined {
+  return CURRENCY_LOCALE[currency.toUpperCase()];
+}
+
+/** Number formatting per type, in the reader's locale (a currency with its own grouping, in that). */
 function formatNumber(
   type: FieldType,
   value: number,
@@ -532,15 +543,16 @@ function formatNumber(
           minimumFractionDigits: config.decimals,
           maximumFractionDigits: config.decimals,
         };
+  const currency = config.currency ?? "USD";
   const options: Intl.NumberFormatOptions =
     type === "currency"
-      ? { style: "currency", currency: config.currency ?? "USD", ...digits }
+      ? { style: "currency", currency, ...digits }
       : type === "percent"
         ? { style: "percent", maximumFractionDigits: 2, ...digits }
         : digits;
   // Plain: only a currency groups its digits, so a year reads 2026 and not 2,026.
   return new Intl.NumberFormat(
-    undefined,
+    type === "currency" ? currencyLocale(currency) : undefined,
     plain && type !== "currency" ? { ...options, useGrouping: false } : options,
   ).format(value);
 }
@@ -1484,6 +1496,11 @@ export function FieldInput({
         <NumberField
           {...a11y}
           className={className}
+          locale={
+            type === "currency"
+              ? currencyLocale(config.currency ?? "USD")
+              : undefined
+          }
           format={
             type === "currency"
               ? { style: "currency", currency: config.currency ?? "USD" }
