@@ -17314,7 +17314,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.33.0",
-        "integrity": "sha256-+jxv7IScEJcN3hWSQltO1zDxDzlZM8annB4ksYQobJw="
+        "integrity": "sha256-hqP11pY9i0WimCyDy984FVuL1f8B5BCrgwJE8TYo8kQ="
       }
     },
     {
@@ -17650,7 +17650,7 @@
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.33.0",
-        "integrity": "sha256-Ueu91FYzF4H2Vn7V6gePag7hL+H44CAO1TMUGbVdDis="
+        "integrity": "sha256-PRmHUkcNgDA6SG/8msDvNPN2Uj1mEBwjWIpBkV5C24o="
       }
     },
     {

@@ -117,7 +117,12 @@ the generated JSX.
 2rem) or `fit` (the content's own, up to 320). `PopoverBody` holds content that may run long — it
 scrolls inside the popover from 70% of the window's height. `PopoverDescription` keeps line breaks
 in its text and inks a `strong` in the foreground. For a popover opened from elsewhere (a menu
-item), put a `PopoverAnchor` — an invisible 0×0 trigger — where it should point.
+item), put a `PopoverAnchor` — an invisible 0×0 trigger — where it should point. To point at an
+element elsewhere on the page, or at a point in the window (a caret, a chip just typed), pass
+`anchor` to `PopoverContent` — an element, or a virtual element with `getBoundingClientRect()`. The
+positioner reads it in the window's own coordinates and keeps the popup in view, so it lands right
+inside a transformed panel (a side peek), where a `fixed` anchor box would be placed against the
+panel instead.
 
 ```tsx
 <Popover open={open} onOpenChange={setOpen}>

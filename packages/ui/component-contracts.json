@@ -34635,7 +34635,6 @@
               "values": [
                 "make-task-popover",
                 "make-task-popover-actions",
-                "make-task-popover-anchor",
                 "make-task-popover-fields",
                 "make-task-popover-line",
                 "make-task-popover-lines",

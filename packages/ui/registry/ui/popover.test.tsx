@@ -144,6 +144,31 @@ test("side is forwarded to the positioner (Align)", async () => {
   expect((popup() as HTMLElement).getAttribute("data-side")).toBe("top");
 });
 
+test("anchor: a point in the window lands under it, inside a transformed panel too (API-36)", async () => {
+  // A transformed panel (a side peek sliding in) makes a `fixed` child measure from the panel;
+  // `anchor` is read in the window's coordinates, so the popup sits at the point regardless.
+  const point = { x: 40, y: 120 };
+  const anchor = {
+    getBoundingClientRect: () =>
+      DOMRect.fromRect({ x: point.x, y: point.y, width: 0, height: 0 }),
+  };
+  await render(
+    <div
+      style={{ transform: "translateX(200px)", position: "fixed", inset: 0 }}
+    >
+      <Popover open>
+        <PopoverContent anchor={anchor} align="start" sideOffset={0}>
+          <PopoverTitle>Anchored</PopoverTitle>
+        </PopoverContent>
+      </Popover>
+    </div>,
+  );
+  await expect
+    .poll(() => popup()?.getBoundingClientRect().top)
+    .toBeCloseTo(point.y, 0);
+  expect(popup()!.getBoundingClientRect().left).toBeCloseTo(point.x, 0);
+});
+
 test("form controls inside the popup are labelled and editable (With Form)", async () => {
   const screen = await render(
     <Popover>

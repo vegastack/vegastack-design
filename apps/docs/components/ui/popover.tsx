@@ -1,4 +1,4 @@
-// @vegastack popover@0.33.0 sha256-Ueu91FYzF4H2Vn7V6gePag7hL+H44CAO1TMUGbVdDis=
+// @vegastack popover@0.33.0 sha256-PRmHUkcNgDA6SG/8msDvNPN2Uj1mEBwjWIpBkV5C24o=
 
 "use client";
 
@@ -30,11 +30,12 @@ function PopoverContent({
   side = "bottom",
   sideOffset = 4,
   size = "default",
+  anchor,
   ...props
 }: PopoverPrimitive.Popup.Props &
   Pick<
     PopoverPrimitive.Positioner.Props,
-    "align" | "alignOffset" | "side" | "sideOffset"
+    "align" | "alignOffset" | "side" | "sideOffset" | "anchor"
   > & {
     /**
      * The popover's width: `default` 288px, `md` 320px, `lg` 384px (never wider than the window
@@ -52,6 +53,7 @@ function PopoverContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
+        anchor={anchor}
         className={cn("isolate z-50", themeScope)}
       >
         <PopoverPrimitive.Popup
@@ -88,7 +90,11 @@ function PopoverBody({ className, ...props }: React.ComponentProps<"div">) {
 /**
  * `PopoverAnchor` — an invisible 0×0 trigger, for a popover opened from elsewhere (a menu item, a
  * shortcut) that still needs a place to appear: put it where the popover should point. Never a
- * tab stop, hidden from assistive technology.
+ * tab stop, hidden from assistive technology. To point at an element elsewhere on the page, or at
+ * a point in the window (a caret, a selection), pass `anchor` to `PopoverContent` instead (an
+ * element, or a virtual element with `getBoundingClientRect`): the positioner tracks it in the
+ * window's own coordinates, so it lands right inside a transformed panel too, where a `fixed` box
+ * would be placed against the panel.
  */
 function PopoverAnchor({
   className,
