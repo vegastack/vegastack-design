@@ -59,6 +59,12 @@ detail sheet, or in a dialog; it fills its container.
   file="components/preview/approval-card.tsx"
 />
 
+### More than two answers
+
+`decisions` replaces Approve and Decline, in the order given, for a request with more answers: a
+site an agent wants to open is opened once, allowed for good, or left. `tone="quiet"` is the way
+out. `link` shows what the request is about when it isn't a record, on its own line.
+
 ### Outcomes
 
 `approved`, `declined`, `expired`, `cancelled` and `already` (answered on another device) replace

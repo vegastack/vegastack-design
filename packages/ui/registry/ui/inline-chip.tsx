@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.35.1 sha256-q1n2j/x8y1EyP/IM7l+JW8CM+VEXtbofnG0L8v6/WS0=
+// @vegastack inline-chip@0.35.1 sha256-DBOLgMJU0fQ2ptaMMpfDktuD1MXDULx95/atQogNL9Y=
 
 "use client";
 
@@ -124,11 +124,13 @@ export interface InlineChipResolver {
    * Another site's page, as a link names it: its title and icon. `TextEdit` asks once per URL
    * (and keeps the answer): a pasted link's text becomes the title, and the link card shows the
    * icon and title. Fetch it on the app's server and serve the icon from there, so a reader's
-   * browser never contacts the site. `null` when there is nothing to show.
+   * browser never contacts the site. `null` when there is nothing to show. `asked` says a person
+   * pasted the link or pressed Show preview just now; without it, whoever wrote the text chose the
+   * URL, so answer only what the host already holds and contact nothing.
    */
   linkPreview?: (
     url: string,
-    options: { signal: AbortSignal },
+    options: { signal: AbortSignal; asked?: boolean },
   ) => Promise<InlineChipLinkPreview | null>;
 }
 

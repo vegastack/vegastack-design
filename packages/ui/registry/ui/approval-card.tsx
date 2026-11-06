@@ -1,4 +1,4 @@
-// @vegastack approval-card@0.40.0 sha256-8en77jprRtpXpjLuZG9klbWAxx2JxYMNS1VwhaeLrgo=
+// @vegastack approval-card@0.40.0 sha256-pbcQnpv0N4gTZXw0OnOeqHJZJBvNT6Kqv0lS9muz1ms=
 
 "use client";
 
@@ -48,6 +48,18 @@ export interface ApprovalCardItem {
   meta?: React.ReactNode;
 }
 
+/** A choice that replaces Approve / Decline, for a request with more than two answers. */
+export interface ApprovalCardDecision {
+  /** A stable key. */
+  id: string;
+  /** The button's words: "Open once". */
+  label: React.ReactNode;
+  /** `quiet` is the way out, a text button. @default "secondary" */
+  tone?: "secondary" | "outline" | "quiet";
+  /** Answer the request; a promise keeps this button busy. */
+  onSelect: () => void | Promise<unknown>;
+}
+
 /** Props for `ApprovalCard`. */
 export interface ApprovalCardProps extends Omit<
   React.ComponentPropsWithRef<"section">,
@@ -61,6 +73,8 @@ export interface ApprovalCardProps extends Omit<
   items?: readonly ApprovalCardItem[];
   /** How many more records it touches than `items` lists: "and 3 more". @default 0 */
   moreCount?: number;
+  /** What the request is about when it isn't a record: a link, shown on its own line. @default undefined */
+  link?: React.ReactNode;
   /** The agent's own reason, quoted. @default undefined */
   reason?: React.ReactNode;
   /** What makes the action safe to approve: "You can restore them from Trash for 30 days." @default undefined */
@@ -84,6 +98,11 @@ export interface ApprovalCardProps extends Omit<
   onApprove?: () => void | Promise<unknown>;
   /** Decline the whole request; a promise keeps Decline busy. @default undefined */
   onDecline?: () => void | Promise<unknown>;
+  /**
+   * The answers, when the request has more than Approve and Decline; they replace both, in this
+   * order. @default undefined
+   */
+  decisions?: readonly ApprovalCardDecision[];
   /**
    * The viewer may decide — the agent's owner. Anyone else sees "Waiting for Manoj's approval".
    * @default true
@@ -177,6 +196,7 @@ export function ApprovalCard({
   verb,
   items = [],
   moreCount = 0,
+  link,
   reason,
   reassurance,
   requestedAt,
@@ -185,18 +205,20 @@ export function ApprovalCard({
   statusLine,
   onApprove,
   onDecline,
+  decisions,
   canDecide = true,
   now,
   className,
   ...props
 }: ApprovalCardProps) {
   const titleId = React.useId();
-  const [busy, setBusy] = React.useState<"approve" | "decline" | null>(null);
+  const [busy, setBusy] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const { announce, Announcer } = useAnnouncer();
 
   const open = status === "pending" || status === "approving";
-  const deciding = open && canDecide && (!!onApprove || !!onDecline);
+  const deciding =
+    open && canDecide && (!!onApprove || !!onDecline || !!decisions?.length);
   const approving = status === "approving" || busy === "approve";
   const result = outcome(open ? "pending" : status, actor);
 
@@ -211,7 +233,7 @@ export function ApprovalCard({
   }, [status, open, result.text, announce]);
 
   const decide = async (
-    which: "approve" | "decline",
+    which: string,
     run: (() => void | Promise<unknown>) | undefined,
   ) => {
     if (!run || busy || status === "approving") return;
@@ -303,6 +325,14 @@ export function ApprovalCard({
           ) : null}
         </div>
       ) : null}
+      {link != null && link !== false ? (
+        <p
+          data-slot="approval-card-link"
+          className="min-w-0 font-mono text-xs wrap-anywhere text-muted-foreground"
+        >
+          {link}
+        </p>
+      ) : null}
       {reason != null && reason !== false ? (
         <blockquote
           data-slot="approval-card-reason"
@@ -339,9 +369,25 @@ export function ApprovalCard({
         {deciding ? (
           <div
             data-slot="approval-card-actions"
-            className="flex flex-col-reverse gap-2 @sm/approval-card:flex-row @sm/approval-card:shrink-0"
+            className={cn(
+              "flex gap-2 @sm/approval-card:flex-row @sm/approval-card:shrink-0",
+              decisions ? "flex-col" : "flex-col-reverse",
+            )}
           >
-            {onDecline ? (
+            {decisions?.map((d) => (
+              <Button
+                key={d.id}
+                variant={d.tone === "quiet" ? "ghost" : (d.tone ?? "secondary")}
+                aria-describedby={titleId}
+                loading={busy === d.id}
+                disabled={busy !== null && busy !== d.id}
+                onClick={() => void decide(d.id, d.onSelect)}
+                className="w-full @sm/approval-card:w-auto"
+              >
+                {d.label}
+              </Button>
+            ))}
+            {!decisions && onDecline ? (
               <Button
                 variant="outline"
                 aria-describedby={titleId}
@@ -353,7 +399,7 @@ export function ApprovalCard({
                 Decline
               </Button>
             ) : null}
-            {onApprove ? (
+            {!decisions && onApprove ? (
               // A card's main action is secondary, never primary (row and inline actions).
               <Button
                 variant="secondary"

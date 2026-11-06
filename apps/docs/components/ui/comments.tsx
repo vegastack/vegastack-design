@@ -1,4 +1,4 @@
-// @vegastack comments@0.49.0 sha256-w5mxH9KmWS51j0So2OYnaCkFvUpzPR1EnHDnW1GbYJ8=
+// @vegastack comments@0.49.0 sha256-LLvVoYMGpsxRJMm9J2Kk2auJBvz1TSA/Tu8/w+bkEN4=
 
 "use client";
 
@@ -307,6 +307,12 @@ export interface CommentItemProps {
    * @default undefined
    */
   agentMarkdown?: Pick<MarkdownViewProps, "allowedImagePaths" | "imageProxy">;
+  /**
+   * A line under the edit box, from what it holds now: `null` for none. For what an edit won't do
+   * that a new comment would.
+   * @default undefined
+   */
+  editHint?: (value: string) => React.ReactNode;
   /** Classes for the item. @default undefined */
   className?: string;
 }
@@ -350,6 +356,7 @@ export function CommentItem({
   mentionImage,
   fileContentType,
   agentMarkdown,
+  editHint,
   className,
 }: CommentItemProps) {
   const [editingState, setEditingState] = React.useState(editingProp ?? false);
@@ -404,6 +411,8 @@ export function CommentItem({
     : null;
   const shownError = error ?? overLimit;
   const errorId = React.useId();
+  const editHintId = React.useId();
+  const editNote = editing ? editHint?.(draft) : null;
 
   const save = async (value: string) => {
     const body = postable(value);
@@ -719,26 +728,44 @@ export function CommentItem({
               This comment was deleted.
             </p>
           ) : editing ? (
-            <CommentBox
-              layout="edit"
-              autoFocus
-              label="Edit comment"
-              defaultValue={editStart}
-              onValueChange={(value) => {
-                setDraft(value);
-                onEditValueChange?.(comment.id, value);
-              }}
-              onSubmit={(value) => void save(value)}
-              onRevert={cancel}
-              sending={saving}
-              invalid={shownError !== null}
-              describedBy={shownError !== null ? errorId : undefined}
-              maxLength={maxLength}
-              value={draft}
-              mentions={mentions}
-              mentionHref={mentionHref}
-              mentionImage={mentionImage}
-            />
+            <>
+              <CommentBox
+                layout="edit"
+                autoFocus
+                label="Edit comment"
+                defaultValue={editStart}
+                onValueChange={(value) => {
+                  setDraft(value);
+                  onEditValueChange?.(comment.id, value);
+                }}
+                onSubmit={(value) => void save(value)}
+                onRevert={cancel}
+                sending={saving}
+                invalid={shownError !== null}
+                describedBy={
+                  [
+                    shownError !== null ? errorId : null,
+                    editNote ? editHintId : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || undefined
+                }
+                maxLength={maxLength}
+                value={draft}
+                mentions={mentions}
+                mentionHref={mentionHref}
+                mentionImage={mentionImage}
+              />
+              {editNote ? (
+                <p
+                  id={editHintId}
+                  data-slot="comment-edit-hint"
+                  className="text-xs text-muted-foreground"
+                >
+                  {editNote}
+                </p>
+              ) : null}
+            </>
           ) : comment.body.trim() ? (
             // A posted comment's images open in the `FileViewer`.
             <ImageViewerScope>
@@ -1954,6 +1981,8 @@ export interface CommentThreadProps {
   fileContentType?: TextEditProps["fileContentType"];
   /** How an agent's comments load images (see `CommentItem`). @default undefined */
   agentMarkdown?: CommentItemProps["agentMarkdown"];
+  /** A line under an edit box, from what it holds (see `CommentItem`). @default undefined */
+  editHint?: CommentItemProps["editHint"];
   /**
    * The reply box's options, passed through to its editor — `mentions`, `mentionHref`,
    * `mentionImage`, `onImageUpload`, `onFileUpload`, `onUploadError`, `onAttachFiles`, `files`, `placeholder`, `submitLabel`, `disabled`,
@@ -2040,6 +2069,7 @@ export function CommentThread({
   renderAttachments,
   fileContentType,
   agentMarkdown,
+  editHint,
   composer,
   working,
   now,
@@ -2180,6 +2210,7 @@ export function CommentThread({
       mentionImage={composer?.mentionImage}
       fileContentType={fileContentType}
       agentMarkdown={agentMarkdown}
+      editHint={editHint}
       now={now}
       // A reply is a row of the card, over a hairline.
       // Under the first comment the hairline spans the card; between replies it starts at the
@@ -2584,6 +2615,8 @@ export interface CommentListProps {
   fileContentType?: CommentItemProps["fileContentType"];
   /** How an agent's comments load images (see `CommentItem`). @default undefined */
   agentMarkdown?: CommentItemProps["agentMarkdown"];
+  /** A line under an edit box, from what it holds (see `CommentItem`). @default undefined */
+  editHint?: CommentItemProps["editHint"];
   /**
    * The composer — at the section's end oldest first, and right under the heading newest first
    * (where the newest comment is). @default undefined
@@ -2639,6 +2672,7 @@ export function CommentList({
   mentionImage,
   fileContentType,
   agentMarkdown,
+  editHint,
   composer,
   dayDividers = true,
   emptyText,
@@ -2744,6 +2778,7 @@ export function CommentList({
                           mentionImage={mentionImage}
                           fileContentType={fileContentType}
                           agentMarkdown={agentMarkdown}
+                          editHint={editHint}
                           now={now}
                         />
                       </React.Fragment>

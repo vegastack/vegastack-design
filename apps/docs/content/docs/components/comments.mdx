@@ -148,6 +148,18 @@ list) nests one level of `CommentItem`s as rows of the card, their bodies indent
   file="components/preview/comments.tsx"
 />
 
+### Edit hint
+
+`editHint` reads the edit box as it changes and puts a line under it, or nothing for `null`. Use it to say what an edit won't do that a new comment would. `CommentThread` and `CommentList` pass it on.
+
+```tsx
+<CommentThread
+  editHint={(value) =>
+    hasNewMention(value) ? "Mentions added in an edit don't notify." : null
+  }
+/>
+```
+
 ### Reactions
 
 Pass `reactions` on a comment and `onReactionToggle(id, emoji)`. Hover a pill to see who reacted.

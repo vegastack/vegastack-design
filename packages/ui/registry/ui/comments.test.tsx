@@ -805,6 +805,37 @@ const editable: CommentData = {
   canEdit: true,
 };
 
+test("editHint reads the edit box as it changes, and names itself to the box", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        editing
+        onEditingChange={() => {}}
+        onEdit={() => {}}
+        editHint={(value) =>
+          value.includes("@") ? "Mentions here don't ask anyone." : null
+        }
+        comment={{
+          id: "a",
+          author: { name: "Asha Rao" },
+          body: "Hello",
+          createdAt: Date.now(),
+          canEdit: true,
+        }}
+      />
+    </ul>,
+  );
+  const hint = () =>
+    screen.container.querySelector('[data-slot="comment-edit-hint"]');
+  expect(hint()).toBeNull();
+  const box = screen.getByRole("textbox");
+  await userEvent.click(box);
+  await userEvent.keyboard("{End} @ ");
+  await expect.poll(hint).not.toBeNull();
+  expect(hint()!.textContent).toBe("Mentions here don't ask anyone.");
+  expect(box.element().getAttribute("aria-describedby")).toContain(hint()!.id);
+});
+
 test("an edit survives a remount: editingId and editDefaultValue restore the box, and Save is enabled", async () => {
   const onEditingIdChange = vi.fn();
   function Host() {

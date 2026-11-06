@@ -19503,6 +19503,7 @@
                 "markdown-bookmark-address",
                 "markdown-bookmark-description",
                 "markdown-bookmark-image",
+                "markdown-bookmark-offer",
                 "markdown-bookmark-text",
                 "markdown-bookmark-title"
               ]
@@ -37114,6 +37115,7 @@
                 "comment-card",
                 "comment-choices",
                 "comment-edit-actions",
+                "comment-edit-hint",
                 "comment-edited",
                 "comment-header",
                 "comment-item",
@@ -41888,6 +41890,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ApprovalCardDecision",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/approval-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -41984,6 +41995,7 @@
                 "approval-card-header",
                 "approval-card-item",
                 "approval-card-items",
+                "approval-card-link",
                 "approval-card-meta",
                 "approval-card-more",
                 "approval-card-reason",

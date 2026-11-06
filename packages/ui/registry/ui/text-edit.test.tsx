@@ -3161,6 +3161,35 @@ test("slash menu: `/heading 2` and `/head2` both find Heading 2; a sentence past
   await vi.waitFor(() => expect(slashMenu()).toBeNull());
 });
 
+test("mentions: onPick runs on a pick from the menu, with where the chip sits, and only then", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    { kind: "user", id: "u1", label: "Asha Rao" },
+  ]);
+  const onPick = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Ask [@Ravi](mention://user/u2) ",
+    mentions: { kinds: mentionKinds("user"), search, onPick },
+    onValueChange,
+  });
+  // A chip already in the text was nobody's pick.
+  expect(onPick).not.toHaveBeenCalled();
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("{Control>}{End}{/Control}@as");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Asha Rao"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(onPick).toHaveBeenCalledOnce());
+  const [option, at] = onPick.mock.calls[0]! as [
+    MentionOption,
+    { top: number; left: number },
+  ];
+  expect(option).toMatchObject({ kind: "user", id: "u1" });
+  expect(at.top).toBeGreaterThan(0);
+  expect(at.left).toBeGreaterThan(0);
+});
+
 test("mentions: `@Asha Rao` searches the whole name; two spaces close the menu (B1)", async () => {
   const search = vi.fn(async (query: string): Promise<MentionOption[]> =>
     "asha rao".startsWith(query.toLowerCase())
