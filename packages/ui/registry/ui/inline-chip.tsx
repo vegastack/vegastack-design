@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.53.0 sha256-CNCFxs6XKrbyZsvfbiOzxp+ua0iDb6Ogtr0YVgt/ZvM=
+// @vegastack inline-chip@0.53.0 sha256-qhdulsqi4a+4WqtdoaWYotEy3Twi1ATlEfL5uWyBGXA=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { Bot, CircleCheck, Link2, UserRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
-import { PersonAvatar } from "@/components/ui/person-avatar";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Badge } from "@/components/ui/badge";
 import type { AvatarHue } from "@/components/ui/avatar";
 import {
@@ -100,6 +100,12 @@ export interface InlineChipResolver {
   href?: (kind: InlineChipKind, id: string) => string | null | undefined;
   /** The person behind a `user` chip, by id: the hover card shows them. */
   person?: (id: string) => InlineChipPerson | null | undefined;
+  /**
+   * A chip's own leading avatar, by kind and id, for a target the host draws with a face of its
+   * own (a team's tile, an assistant's mark): drawn by `PersonAvatar` in its `kind`'s shape, in
+   * place of the kind's glyph. Answer `null` to keep the glyph (or a `user` chip's photo).
+   */
+  avatar?: (kind: InlineChipKind, id: string) => Person | null | undefined;
   /**
    * A record's state, for every chip that isn't given its own (`done`, `struck`, `status`): a
    * finished task's check, a canceled or duplicate task struck through with its status. One
@@ -294,6 +300,13 @@ export interface InlineChipProps extends Omit<
    */
   image?: string | null;
   /**
+   * The chip's leading avatar, any `Person` (a team's tile, an assistant's mark in its own shape),
+   * drawn in place of the kind's glyph or a `user` chip's photo. `null` keeps those. Overrides the
+   * provider's `avatar`.
+   * @default the provider's avatar(kind, targetId)
+   */
+  avatar?: Person | null;
+  /**
    * A `file` chip's content type: the icon follows it, not only the name's extension.
    * @default undefined
    */
@@ -379,6 +392,7 @@ export function InlineChip({
   onOpen: onOpenProp,
   person: personProp,
   image,
+  avatar: avatarProp,
   contentType,
   preview: previewProp,
   restricted: restrictedProp,
@@ -451,6 +465,12 @@ export function InlineChip({
         ? previewProp
         : (resolver?.preview?.(kind, targetId) ?? null);
   const photo = restricted ? "" : safeUrl(person?.image ?? image ?? "");
+  // The caller's own avatar (any `Person`, in its kind's shape) leads in place of the glyph.
+  const face = restricted
+    ? null
+    : avatarProp !== undefined
+      ? avatarProp
+      : (resolver?.avatar?.(kind, targetId) ?? null);
   const target: InlineChipTarget = {
     kind,
     id: targetId,
@@ -485,45 +505,55 @@ export function InlineChip({
     BUILT_IN_KIND[kind]?.icon ?? <Link2 />;
   // A person chip leads with their avatar — the photo, else their initials on their colour — as
   // a comment's avatar does; other chips with a photo show it too.
-  const lead =
-    photo || person ? (
-      <PersonAvatar
-        person={{
-          name: person?.name ?? label,
-          image: photo || null,
-          hue: person?.hue ?? null,
-        }}
-        size="sm"
-        aria-hidden
-        data-slot="inline-chip-avatar"
-        className={AVATAR}
-      />
-    ) : done ? (
-      // A done target's check is its state, so it is named; every other glyph is decoration.
-      <CircleCheck
-        role="img"
-        aria-label="Done"
-        data-slot="inline-chip-icon"
-        className={ICON}
-      />
-    ) : kind === "file" ? (
-      <FileTypeIcon
-        contentType={contentType}
-        name={label}
-        data-slot="inline-chip-icon"
-        className={cn(ICON, "text-current")}
-      />
-    ) : React.isValidElement<{ className?: string }>(kindIcon) ? (
-      React.cloneElement(kindIcon, {
-        "aria-hidden": true,
-        "data-slot": "inline-chip-icon",
-        className: cn(ICON, kindIcon.props.className),
-      } as React.HTMLAttributes<HTMLElement>)
-    ) : (
-      <span aria-hidden data-slot="inline-chip-icon" className={ICON}>
-        {kindIcon}
-      </span>
-    );
+  const lead = face ? (
+    <PersonAvatar
+      person={{
+        ...face,
+        image: face.image ? safeUrl(face.image) || null : face.image,
+      }}
+      size="sm"
+      aria-hidden
+      data-slot="inline-chip-avatar"
+      className={AVATAR}
+    />
+  ) : photo || person ? (
+    <PersonAvatar
+      person={{
+        name: person?.name ?? label,
+        image: photo || null,
+        hue: person?.hue ?? null,
+      }}
+      size="sm"
+      aria-hidden
+      data-slot="inline-chip-avatar"
+      className={AVATAR}
+    />
+  ) : done ? (
+    // A done target's check is its state, so it is named; every other glyph is decoration.
+    <CircleCheck
+      role="img"
+      aria-label="Done"
+      data-slot="inline-chip-icon"
+      className={ICON}
+    />
+  ) : kind === "file" ? (
+    <FileTypeIcon
+      contentType={contentType}
+      name={label}
+      data-slot="inline-chip-icon"
+      className={cn(ICON, "text-current")}
+    />
+  ) : React.isValidElement<{ className?: string }>(kindIcon) ? (
+    React.cloneElement(kindIcon, {
+      "aria-hidden": true,
+      "data-slot": "inline-chip-icon",
+      className: cn(ICON, kindIcon.props.className),
+    } as React.HTMLAttributes<HTMLElement>)
+  ) : (
+    <span aria-hidden data-slot="inline-chip-icon" className={ICON}>
+      {kindIcon}
+    </span>
+  );
 
   const shared = {
     "data-slot": "inline-chip",
