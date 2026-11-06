@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.53.2] — November 6, 2026
+
+<!-- assembled from 1 changeset: c0b799d33854 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.53.1 → 0.53.2.
+
+### 🐛 Fixed
+
+- `DataGrid`'s sticky header and summary row keep their rules. The header's bottom line and the summary row's top line vanished while the grid scrolled, and the summary row's bottom line showed under some cells only: in the collapsed table model a row border stays with the table, and opaque sticky cells painted over it. Both rows now draw their rules in their own cells (the summary row above and below; in an embedded grid with nothing after the table, the frame's border is the line below), drawn once with no double line against the body. `GridSummaryCell`'s result truncates in a narrow column instead of overflowing into the next one; the function's name gives way first.
+  [`04c16fd`](https://github.com/VegaStack/vegastack-design/commit/04c16fd)
+
 ## [0.53.1] — November 6, 2026
 
 <!-- assembled from 1 changeset: 78a1313efb2c -->
