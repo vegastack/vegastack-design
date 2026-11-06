@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.40.0 sha256-sxukQIuy0oj3BeIT+V4IM4Fhz0VoybttTwzJTQTVesw=
+// @vegastack agent-panel@0.40.0 sha256-yW3qm8O9kH2i6PNv1QpZu9TCSdaqdDOWpfFdnDOWRAM=
 
 "use client";
 
@@ -398,6 +398,13 @@ export interface AgentStateRingProps extends React.ComponentPropsWithRef<"span">
   srLabel?: boolean;
   /** Replace any state word (`AgentStateLabels`). @default undefined */
   stateLabels?: Partial<AgentStateLabels>;
+  /**
+   * Badge a ringed state's icon ("!" needs you, ✕ failed) on the avatar's corner, so the state
+   * isn't told by colour alone where its word can't sit beside it — a grid's narrow name cell.
+   * Leave it off where an `AgentStateBadge` stands next to the avatar.
+   * @default false
+   */
+  glyph?: boolean;
 }
 
 /**
@@ -405,21 +412,25 @@ export interface AgentStateRingProps extends React.ComponentPropsWithRef<"span">
  * with a ring for the states that need someone: amber while it needs you (a question, an approval,
  * a block), red when it failed. Other states draw no ring. Around an agent's hexagon the ring
  * follows the hexagon. The colour is never the only cue: the state is said to screen readers, and
- * the host shows its word where there is room.
+ * the host shows its word where there is room, or badges the state's icon on the avatar (`glyph`).
  *
  * @example
  * <AgentStateRing state="question"><PersonAvatar person={{ name: "Claude Code", kind: "agent" }} /></AgentStateRing>
+ * @example
+ * <AgentStateRing state="failed" glyph><PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" /></AgentStateRing>
  */
 export function AgentStateRing({
   state,
   srLabel = true,
   stateLabels,
+  glyph = false,
   className,
   children,
   ...props
 }: AgentStateRingProps) {
   // Only the states that need someone ring; an amber wait or a quiet spell is its icon's alone.
   const tone = NEEDS_SOMEONE.has(state) ? toneOf(state) : "muted";
+  const badged = glyph && NEEDS_SOMEONE.has(state);
   const word =
     state === "none"
       ? null
@@ -430,6 +441,7 @@ export function AgentStateRing({
       data-state={state}
       className={cn(
         "inline-flex shrink-0 rounded-full",
+        badged && "relative",
         tone === "warning" && "ring-2 ring-warning",
         tone === "destructive" && "ring-2 ring-destructive",
         // An agent is a hexagon: its avatar draws the ring in its own shape, so a circle never
@@ -444,6 +456,15 @@ export function AgentStateRing({
       {...props}
     >
       {children}
+      {badged ? (
+        <span
+          aria-hidden
+          data-slot="agent-state-ring-glyph"
+          className="absolute -end-1 -bottom-1 inline-flex rounded-full bg-background"
+        >
+          <AgentStateIcon state={state} className="size-2.5" />
+        </span>
+      ) : null}
       {srLabel && word ? <span className="sr-only">, {word}</span> : null}
     </span>
   );

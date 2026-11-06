@@ -62,7 +62,8 @@ export function delegatePopover(): ReactNode {
 }
 
 export function delegatePopoverStates(): ReactNode {
-  // Rows in bulk (its own title, no When finished), no agents connected, and agents loading.
+  // Rows in bulk (its own title, no When finished), no agents connected, agents loading, and a
+  // failed read with Try again.
   return (
     <Wrapper>
       <DelegatePopover
@@ -83,6 +84,11 @@ export function delegatePopoverStates(): ReactNode {
       <DelegatePopover agents={[]} loading onDelegate={noop}>
         <Button variant="outline" size="sm">
           Loading
+        </Button>
+      </DelegatePopover>
+      <DelegatePopover agents={[]} error onRetry={noop} onDelegate={noop}>
+        <Button variant="outline" size="sm">
+          Couldn't load
         </Button>
       </DelegatePopover>
     </Wrapper>

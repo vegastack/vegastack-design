@@ -169,6 +169,39 @@ test("no agents: the connect empty state", async () => {
   expect(onConnect).toHaveBeenCalledTimes(1);
 });
 
+test("a failed read: the error with Try again, never the connect state or skeletons", async () => {
+  const onRetry = vi.fn();
+  await render(
+    <DelegatePopover
+      agents={[]}
+      loading
+      error
+      onRetry={onRetry}
+      onConnect={() => {}}
+      onDelegate={() => {}}
+    >
+      {trigger}
+    </DelegatePopover>,
+  );
+  await open();
+  await expect
+    .element(page.getByText("Couldn't load your agents."))
+    .toBeVisible();
+  expect(
+    document.querySelector("[data-slot=delegate-popover-empty]"),
+  ).toBeNull();
+  expect(
+    document.querySelector("[data-slot=delegate-popover-loading]"),
+  ).toBeNull();
+  expect(
+    document.querySelector("[data-slot=delegate-popover-form]"),
+  ).toBeNull();
+  await settle();
+  await expectNoA11yViolations(document.body);
+  await page.getByRole("button", { name: "Try again" }).click();
+  expect(onRetry).toHaveBeenCalledTimes(1);
+});
+
 test("loading: skeleton rows, no options", async () => {
   await render(
     <DelegatePopover agents={[]} loading onDelegate={() => {}}>
