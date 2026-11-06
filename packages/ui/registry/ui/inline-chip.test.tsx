@@ -149,6 +149,13 @@ test("a caller's avatar leads any chip in its own shape; the chip's own prop win
         label="Hidden"
         data-testid="restricted"
       />
+      <InlineChip
+        kind="assistant"
+        targetId="a3"
+        label="Finished"
+        done
+        data-testid="done"
+      />
     </InlineChipProvider>,
   );
   const lead = (id: string) =>
@@ -159,6 +166,11 @@ test("a caller's avatar leads any chip in its own shape; the chip's own prop win
   expect(lead("resolved")).toHaveAttribute("data-kind", "agent");
   expect(lead("own")).toHaveAttribute("data-kind", "team");
   expect(lead("restricted")).toBeNull();
+  // A done target's check is its state: it wins over the avatar.
+  expect(lead("done")).toBeNull();
+  expect(
+    screen.getByTestId("done").element().querySelector('[aria-label="Done"]'),
+  ).not.toBeNull();
   expect(
     screen
       .getByTestId("restricted")

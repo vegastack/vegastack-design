@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.53.0 sha256-qhdulsqi4a+4WqtdoaWYotEy3Twi1ATlEfL5uWyBGXA=
+// @vegastack inline-chip@0.53.0 sha256-qhE/Mq9ng8cNYzpoy6MlnSmv+2RljjZy6TNdoImGEyQ=
 
 "use client";
 
@@ -248,6 +248,12 @@ const ICON =
  */
 const AVATAR =
   "me-1 inline-block size-[1.1em] shrink-0 overflow-hidden align-[-0.175em] whitespace-nowrap select-none after:hidden data-[size=sm]:size-[1.1em] [&_[data-slot=avatar-fallback]]:text-[55%] [&_[data-slot=avatar-fallback]]:leading-none [&_[data-slot=avatar-fallback]]:font-medium [&_[data-slot=avatar-image]]:m-0 [&_[data-slot=avatar-image]]:max-w-none [&_[data-slot=avatar-image]]:rounded-full [&_[data-slot=avatar-image]]:border-0";
+
+/**
+ * A caller's avatar (`avatar`): the person avatar's box at a row step, its glyph scaled with the
+ * chip's text like the icon (a mark image keeps the row step's size, about two thirds of the box).
+ */
+const FACE = cn(AVATAR, "data-[size=xs]:size-[1.1em] [&_svg]:size-[60%]");
 
 /**
  * The rule a prose root needs so a chip that is an `<a>` keeps its own ink and no underline: the
@@ -505,55 +511,58 @@ export function InlineChip({
     BUILT_IN_KIND[kind]?.icon ?? <Link2 />;
   // A person chip leads with their avatar — the photo, else their initials on their colour — as
   // a comment's avatar does; other chips with a photo show it too.
-  const lead = face ? (
-    <PersonAvatar
-      person={{
-        ...face,
-        image: face.image ? safeUrl(face.image) || null : face.image,
-      }}
-      size="sm"
-      aria-hidden
-      data-slot="inline-chip-avatar"
-      className={AVATAR}
-    />
-  ) : photo || person ? (
-    <PersonAvatar
-      person={{
-        name: person?.name ?? label,
-        image: photo || null,
-        hue: person?.hue ?? null,
-      }}
-      size="sm"
-      aria-hidden
-      data-slot="inline-chip-avatar"
-      className={AVATAR}
-    />
-  ) : done ? (
-    // A done target's check is its state, so it is named; every other glyph is decoration.
-    <CircleCheck
-      role="img"
-      aria-label="Done"
-      data-slot="inline-chip-icon"
-      className={ICON}
-    />
-  ) : kind === "file" ? (
-    <FileTypeIcon
-      contentType={contentType}
-      name={label}
-      data-slot="inline-chip-icon"
-      className={cn(ICON, "text-current")}
-    />
-  ) : React.isValidElement<{ className?: string }>(kindIcon) ? (
-    React.cloneElement(kindIcon, {
-      "aria-hidden": true,
-      "data-slot": "inline-chip-icon",
-      className: cn(ICON, kindIcon.props.className),
-    } as React.HTMLAttributes<HTMLElement>)
-  ) : (
-    <span aria-hidden data-slot="inline-chip-icon" className={ICON}>
-      {kindIcon}
-    </span>
-  );
+  // A done target's check wins over a caller's avatar: the check is its state.
+  const lead =
+    face && !done ? (
+      <PersonAvatar
+        person={{
+          ...face,
+          image: face.image ? safeUrl(face.image) || null : face.image,
+        }}
+        // A row step, so a mark brings its small glyph (or its fallback) at the chip's size.
+        size="xs"
+        aria-hidden
+        data-slot="inline-chip-avatar"
+        className={FACE}
+      />
+    ) : photo || person ? (
+      <PersonAvatar
+        person={{
+          name: person?.name ?? label,
+          image: photo || null,
+          hue: person?.hue ?? null,
+        }}
+        size="sm"
+        aria-hidden
+        data-slot="inline-chip-avatar"
+        className={AVATAR}
+      />
+    ) : done ? (
+      // A done target's check is its state, so it is named; every other glyph is decoration.
+      <CircleCheck
+        role="img"
+        aria-label="Done"
+        data-slot="inline-chip-icon"
+        className={ICON}
+      />
+    ) : kind === "file" ? (
+      <FileTypeIcon
+        contentType={contentType}
+        name={label}
+        data-slot="inline-chip-icon"
+        className={cn(ICON, "text-current")}
+      />
+    ) : React.isValidElement<{ className?: string }>(kindIcon) ? (
+      React.cloneElement(kindIcon, {
+        "aria-hidden": true,
+        "data-slot": "inline-chip-icon",
+        className: cn(ICON, kindIcon.props.className),
+      } as React.HTMLAttributes<HTMLElement>)
+    ) : (
+      <span aria-hidden data-slot="inline-chip-icon" className={ICON}>
+        {kindIcon}
+      </span>
+    );
 
   const shared = {
     "data-slot": "inline-chip",
