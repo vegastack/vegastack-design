@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.53.0 sha256-551xcgb6UGWv6jAnHV1h94qhSqM1+l/A8keR57HTH5I=
+// @vegastack markdown-view@0.53.0 sha256-CZPLfh+3Z0byn0FSCK4uhmlnUc0bi6k6ctaKxG/6rnA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1749,7 +1749,10 @@ interface RenderContext {
   /** The app's own origin (`linkOrigin`): a link on it is an in-app path. */
   linkOrigin?: string;
   /** Opens an in-app link on a plain click (`onNavigate`). */
-  onNavigate?: (href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
+  onNavigate?: (
+    href: string,
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => void;
   headingOffset: number;
   annotationCounts: Map<string, number>;
   activeAnnotationId?: string | null;
@@ -2285,7 +2288,11 @@ function renderNode(
       const navigate = ctx.onNavigate;
       // An in-app path (not a bare `#anchor`): a plain click is the host router's; a modified one
       // (⌘/Ctrl/Shift, middle) stays the browser's, so a new tab is still one gesture away.
-      const routed = !!navigate && !external && href.startsWith("/") && !href.startsWith("//");
+      const routed =
+        !!navigate &&
+        !external &&
+        href.startsWith("/") &&
+        !href.startsWith("//");
       // A `mailto:` has no host, and its words can say anything too.
       const address = /^mailto:([^?]*)/i.exec(href)?.[1];
       const domain = !ctx.linkDomains
@@ -2847,7 +2854,10 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * open a new tab.
    * @default undefined
    */
-  onNavigate?: (href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
+  onNavigate?: (
+    href: string,
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => void;
   /**
    * Move every heading this many levels down, capped at h6: `1` renders `#` as an `h2`, `2` as
    * an `h3`. Use it when the markdown sits under the page's own headings (a card titled with an
