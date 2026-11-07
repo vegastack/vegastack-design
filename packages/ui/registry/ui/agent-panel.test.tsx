@@ -486,14 +486,15 @@ test("a run's summary says what it changed, after the count, and is cut short be
   );
   const runs = screen.container.querySelectorAll("[data-slot=agent-panel-run]");
   expect(runs[1]!.textContent).toMatch(/^1 change ?· ?Status ?· /);
-  const row = runs[0]!.getBoundingClientRect();
   const summary = slot(runs[0] as HTMLElement, "agent-panel-run-summary")!;
   expect(summary.textContent).toBe(
     "Status, Lines, Quote value, Agent notes, Quotation, Reviewer",
   );
   expect(summary.scrollWidth).toBeGreaterThan(summary.clientWidth);
   const undo = screen.getByRole("button", { name: "Undo" }).element();
-  expect(undo.getBoundingClientRect().right).toBeLessThanOrEqual(row.right + 1);
+  // Undo stays whole inside the card (its row's buttons hang into the row's end padding).
+  const card = slot(screen.container, "agent-panel")!.getBoundingClientRect();
+  expect(undo.getBoundingClientRect().right).toBeLessThanOrEqual(card.right);
   expect(runs[0]!.textContent).toMatch(/^4 changes/);
   await expectNoA11yViolations(screen.container);
 });
