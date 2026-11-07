@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.40.0 sha256-CkClMlUR6NBnZvILX8JjYp7Bk5nhpm/f6zG1WF9IRzw=
+// @vegastack activity-feed@0.40.0 sha256-GNNCEK7iIljrwxcQXmNqYVR8M23r47P5rft29hhZvh0=
 
 "use client";
 
@@ -761,8 +761,11 @@ export function ActivityEvent({
         ) : null}
         {/* Agent-first: "Claude Code for Manoj changed …" — its hexagon says it is an agent, so
             the line carries no label. */}
-        {children} <span aria-hidden>·</span>{" "}
-        <RelativeTime date={date} now={now} />
+        {children}{" "}
+        {/* The dot travels with the time: a wrapped line never ends on it. */}
+        <span className="whitespace-nowrap">
+          <span aria-hidden>·</span> <RelativeTime date={date} now={now} />
+        </span>
       </p>
     </div>
   );
