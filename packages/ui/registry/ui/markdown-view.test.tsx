@@ -2132,6 +2132,45 @@ test("showLinkDomains says where a link goes, and only an exact match hides it",
   );
 });
 
+test("linkOrigin makes the app's own links in-app; onNavigate opens them on a plain click", async () => {
+  const navigate = vi.fn();
+  const screen = await render(
+    <MarkdownView
+      showLinkDomains
+      linkOrigin="https://app.example.com"
+      onNavigate={navigate}
+    >
+      {[
+        "[Task](https://app.example.com/tasks/1?x=1#c)",
+        "[Rel](/library/2)",
+        "[Out](https://acme.com/a)",
+        "[Trick](https://app.example.com@evil.com/a)",
+        "[Top](#top)",
+      ].join(" ")}
+    </MarkdownView>,
+  );
+  const [own, rel, out, trick, top] = [
+    ...screen.container.querySelectorAll("a"),
+  ];
+  expect(own!.getAttribute("href")).toBe("/tasks/1?x=1#c");
+  expect(own!.hasAttribute("target")).toBe(false);
+  expect(own!.textContent).toBe("Task");
+  expect(out!.getAttribute("target")).toBe("_blank");
+  expect(trick!.getAttribute("target")).toBe("_blank");
+  await userEvent.click(own!);
+  await userEvent.click(rel!);
+  expect(navigate.mock.calls.map((call) => call[0])).toEqual([
+    "/tasks/1?x=1#c",
+    "/library/2",
+  ]);
+  // A bare anchor and an external link are never the router's.
+  out!.addEventListener("click", (event) => event.preventDefault());
+  top!.addEventListener("click", (event) => event.preventDefault());
+  await userEvent.click(out!);
+  await userEvent.click(top!);
+  expect(navigate).toHaveBeenCalledTimes(2);
+});
+
 test("a network-path link gets the external treatment", async () => {
   const screen = await render(
     <MarkdownView>{"[Datasheet](//evil.com/a)"}</MarkdownView>,

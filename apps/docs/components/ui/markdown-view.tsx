@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.53.0 sha256-SsOEEvzmuIUW72XQ2dpLGaqQgDHvJ4jDmiB4+HXc1Ww=
+// @vegastack markdown-view@0.53.0 sha256-CZPLfh+3Z0byn0FSCK4uhmlnUc0bi6k6ctaKxG/6rnA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1592,6 +1592,22 @@ function normalizeAllowedImageOrigins(origins: readonly string[]) {
   );
 }
 
+/**
+ * A link on `origin` as its in-app path (`/tasks/1?x#y`); any other link unchanged. An address with
+ * a user name (`https://app.com@evil.com`) is never the app's.
+ */
+function inAppPath(href: string, origin: string | undefined): string {
+  if (!origin || !/^https?:\/\//i.test(href)) return href;
+  try {
+    const url = new URL(href);
+    const own = new URL(origin);
+    if (url.origin !== own.origin || url.username || url.password) return href;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return href;
+  }
+}
+
 /** Where a URL really goes, as a browser reads it. */
 interface UrlTarget {
   /** The host with its port. */
@@ -1730,6 +1746,13 @@ interface RenderContext {
   retryImageLabel: string;
   /** Say where an external link goes, after its text (`showLinkDomains`). */
   linkDomains: boolean;
+  /** The app's own origin (`linkOrigin`): a link on it is an in-app path. */
+  linkOrigin?: string;
+  /** Opens an in-app link on a plain click (`onNavigate`). */
+  onNavigate?: (
+    href: string,
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => void;
   headingOffset: number;
   annotationCounts: Map<string, number>;
   activeAnnotationId?: string | null;
@@ -2242,7 +2265,8 @@ function renderNode(
       );
     }
     case "a": {
-      const href = safeUrl(attrs.href ?? "");
+      // A link on the app's own origin is an in-app link: its path, opened like a relative one.
+      const href = inAppPath(safeUrl(attrs.href ?? ""), ctx.linkOrigin);
       if (ctx.fileLinkPrefix && href.startsWith(ctx.fileLinkPrefix)) {
         const name = textOf(node);
 
@@ -2261,6 +2285,14 @@ function renderNode(
       }
       const target = urlTarget(href);
       const external = !!target;
+      const navigate = ctx.onNavigate;
+      // An in-app path (not a bare `#anchor`): a plain click is the host router's; a modified one
+      // (⌘/Ctrl/Shift, middle) stays the browser's, so a new tab is still one gesture away.
+      const routed =
+        !!navigate &&
+        !external &&
+        href.startsWith("/") &&
+        !href.startsWith("//");
       // A `mailto:` has no host, and its words can say anything too.
       const address = /^mailto:([^?]*)/i.exec(href)?.[1];
       const domain = !ctx.linkDomains
@@ -2279,6 +2311,23 @@ function renderNode(
           title={attrs.title}
           {...(external
             ? { target: "_blank", rel: "noreferrer noopener" }
+            : {})}
+          {...(routed
+            ? {
+                onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+                  if (
+                    event.defaultPrevented ||
+                    event.button !== 0 ||
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    event.shiftKey ||
+                    event.altKey
+                  )
+                    return;
+                  event.preventDefault();
+                  navigate(href, event);
+                },
+              }
             : {})}
         >
           {children()}
@@ -2791,6 +2840,25 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   showLinkDomains?: boolean;
   /**
+   * The app's own origin (`window.location.origin` on the client, the app's URL on the server): an
+   * absolute link on it renders as its in-app path — no new tab, no domain after it — as a
+   * relative link does. Content that names the app by its full address (an agent's answer) then
+   * links like the app's own pages. Without it, every absolute link is external.
+   * @default undefined
+   */
+  linkOrigin?: string;
+  /**
+   * Opens an in-app link (a relative path, or one on `linkOrigin`) on a plain click: pass the
+   * router's `push`, so the page changes without a reload and what's around the view (a side
+   * panel) stays. ⌘/Ctrl/Shift-click and middle-click stay the browser's. External links always
+   * open a new tab.
+   * @default undefined
+   */
+  onNavigate?: (
+    href: string,
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => void;
+  /**
    * Move every heading this many levels down, capped at h6: `1` renders `#` as an `h2`, `2` as
    * an `h3`. Use it when the markdown sits under the page's own headings (a card titled with an
    * `h2`), so the document outline never skips back up.
@@ -3081,6 +3149,8 @@ export function MarkdownView({
   imageFailedLabel = "Couldn't load this image",
   retryImageLabel = "Try again",
   showLinkDomains = false,
+  linkOrigin,
+  onNavigate,
   headingOffset = 0,
   headingIds: withHeadingIds = false,
   typeScale = "compact",
@@ -3222,6 +3292,8 @@ export function MarkdownView({
         imageFailedLabel,
         retryImageLabel,
         linkDomains: showLinkDomains,
+        linkOrigin,
+        onNavigate,
         headingOffset: Math.trunc(headingOffset),
         annotationCounts: new Map(
           (annotations ?? []).map((a) => [a.id, a.count ?? 1]),

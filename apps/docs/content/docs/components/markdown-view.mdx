@@ -70,6 +70,23 @@ images only.
 domain is left out only when the link's plain text is exactly that host, with no user name in the
 URL, so its words can't claim a host it doesn't reach. A `mailto:` shows its address the same way.
 
+`linkOrigin` names the app's own origin: an absolute link on it renders as its in-app path, with no
+new tab and no domain after it, as a relative link does. `onNavigate` opens an in-app link on a plain
+click: pass the router's `push`, so the page changes without a reload and a side panel around the
+view stays open. ⌘/Ctrl/Shift-click and middle-click stay the browser's, and external links always
+open a new tab.
+
+```tsx
+<MarkdownView
+  untrusted
+  showLinkDomains
+  linkOrigin={window.location.origin}
+  onNavigate={(href) => router.push(href)}
+>
+  {agentAnswer}
+</MarkdownView>
+```
+
 ```tsx
 <MarkdownView
   untrusted

@@ -16904,7 +16904,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.53.0",
-        "integrity": "sha256-SsOEEvzmuIUW72XQ2dpLGaqQgDHvJ4jDmiB4+HXc1Ww="
+        "integrity": "sha256-CZPLfh+3Z0byn0FSCK4uhmlnUc0bi6k6ctaKxG/6rnA="
       }
     },
     {
