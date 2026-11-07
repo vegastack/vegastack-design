@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.57.2 sha256-gtkx6SJEdYcDCY0EzYJpFLEGb1xDTJn9KZ5Mbicwwpc=
+// @vegastack agent-panel@0.57.2 sha256-KVaJ5qv1BbEi6WQUYgclAa00wiQDWpdugn0sG7uc2Fs=
 
 "use client";
 
@@ -1262,6 +1262,12 @@ export interface AgentPanelProps extends Omit<
   queuedHint?: boolean | React.ReactNode;
   /** The agent's open question (state `question`). @default undefined */
   question?: React.ReactNode;
+  /**
+   * Whom the open question waits on, for a viewer who may not answer it (state `question`): a
+   * plain sentence ("Waiting on Priya to answer."), after the question's quoted words or alone
+   * when the viewer isn't shown them. @default undefined
+   */
+  questionWait?: React.ReactNode;
   /** One-tap answers to the question. @default [] */
   choices?: readonly AgentPanelChoice[];
   /** Answer the question with a choice; the choice buttons show when set. @default undefined */
@@ -1512,10 +1518,29 @@ function stateSentence(p: ResolvedProps): {
               )
             : labels.noUpdateYet,
       };
-    case "question":
-      return p.question != null
-        ? { slot: "agent-panel-question", text: <q>{p.question}</q> }
-        : null;
+    case "question": {
+      const wait =
+        p.questionWait != null ? (
+          <span
+            data-slot="agent-panel-question-wait"
+            className="text-muted-foreground"
+          >
+            {p.questionWait}
+          </span>
+        ) : null;
+      if (p.question != null)
+        return {
+          slot: "agent-panel-question",
+          text: wait ? (
+            <>
+              <q>{p.question}</q> {wait}
+            </>
+          ) : (
+            <q>{p.question}</q>
+          ),
+        };
+      return wait ? { slot: "agent-panel-sentence", text: wait } : null;
+    }
     case "approval":
       return p.approval != null
         ? { slot: "agent-panel-sentence", text: p.approval }
@@ -2438,6 +2463,7 @@ const PANEL_KEYS = [
   "lastUpdateAt",
   "pausedReason",
   "reasonHelp",
+  "questionWait",
   "onResume",
   "finishedAt",
   "durationSeconds",

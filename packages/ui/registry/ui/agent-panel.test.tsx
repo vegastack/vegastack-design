@@ -178,6 +178,36 @@ test("question: needs you, the question, one-tap choices and Reply… focuses th
   );
 });
 
+test("question for a viewer who may not answer: whom it waits on, unquoted, and no answers", async () => {
+  const hidden = await render(
+    <AgentPanel
+      {...base}
+      state="question"
+      questionWait="Waiting on Priya to answer."
+    />,
+  );
+  const line = slot(hidden.container, "agent-panel-question-wait")!;
+  expect(line.textContent).toBe("Waiting on Priya to answer.");
+  expect(line.closest("q")).toBeNull();
+  expect(slot(hidden.container, "agent-panel-choices")).toBeNull();
+  // With the question's words shown, the wait follows the quote, outside it.
+  await hidden.rerender(
+    <AgentPanel
+      {...base}
+      state="question"
+      question="Which price list?"
+      questionWait="Waiting on Priya to answer."
+    />,
+  );
+  const quoted = slot(hidden.container, "agent-panel-question")!.querySelector(
+    "q",
+  )!;
+  expect(quoted.textContent).toBe("Which price list?");
+  expect(
+    slot(hidden.container, "agent-panel-question-wait")!.closest("q"),
+  ).toBeNull();
+});
+
 test("approval, failed, blocked: each state's line and actions", async () => {
   const onApprove = vi.fn();
   const onDecline = vi.fn();
