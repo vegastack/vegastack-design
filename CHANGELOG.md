@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.59.0] — November 7, 2026
+
+<!-- assembled from 1 changeset: c566eea3fb55 -->
+
+### 🧩 New components
+
+- `AgentQuestionForm` and `AgentQuestionAnswers`: an agent asks one to five questions at once. Every option shows its description, the first is marked Recommended, and the person can answer in their own words and add a note. One single-choice question is compact (picking an option sends it); a batch steps through header chips, radio or checkbox choices with number keys, option previews in a monospace panel, Back and Next, and a review before "Submit answers". `AgentQuestionAnswers` lists what was answered, in full.
+  [`31abc8a`](https://github.com/VegaStack/vegastack-design/commit/31abc8a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.58.0 → 0.59.0.
+
 ## [0.58.0] — November 7, 2026
 
 <!-- assembled from 1 changeset: 2e324d3021f6 -->

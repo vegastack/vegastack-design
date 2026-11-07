@@ -1,4 +1,4 @@
-// @vegastack agent-question-form@0.58.0 sha256-tz00vDdbBcJSHWmlgBGgig4BybJHDCvp8zP8EUDoRYE=
+// @vegastack agent-question-form@0.59.0 sha256-ACbX78HWHlMqnVoi7yPa9TOvtFL3qudZGg1+LqjaQi4=
 
 "use client";
 

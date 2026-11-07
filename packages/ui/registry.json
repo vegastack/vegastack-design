@@ -19231,7 +19231,7 @@
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (ApprovalCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
-        "version": "0.58.0"
+        "version": "0.59.0"
       }
     },
     {
