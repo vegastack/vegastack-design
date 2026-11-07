@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.57.4] — November 7, 2026
+
+<!-- assembled from 1 changeset: 7b92896acd35 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.57.3 → 0.57.4.
+
+### 🐛 Fixed
+
+- `MarkdownView` takes `linkOrigin` and `onNavigate`. A link on the app's own origin renders as its in-app path (no new tab, no domain after it), and a plain click on an in-app link calls `onNavigate`, so a host's router changes the page without a reload and a side panel around the view stays open. Modified clicks stay the browser's; external links still open a new tab.
+  [`fef0ca4`](https://github.com/VegaStack/vegastack-design/commit/fef0ca4)
+
 ## [0.57.3] — November 7, 2026
 
 <!-- assembled from 1 changeset: f3f9cda07468 -->
