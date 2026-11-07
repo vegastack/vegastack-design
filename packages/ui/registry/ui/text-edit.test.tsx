@@ -12,6 +12,7 @@ import icon from "../../../../apps/docs/public/preview/avatar-1.svg?no-inline";
 import {
   linkedTaskId,
   clearMentionCache,
+  mentionAnswers,
   prefetchMentions,
   preloadTextEdit,
   TEXT_EDIT_UPLOAD_ABORT,
@@ -1951,6 +1952,31 @@ test("mentions: `prefetchMentions` asks once while an answer is fresh or on its 
   await vi.waitFor(() => expect(search).toHaveBeenCalledTimes(1));
   prefetchMentions(mentions);
   expect(search).toHaveBeenCalledTimes(1);
+});
+
+test("mentions: a search stopped by `clearMentionCache` is never delivered or kept", async () => {
+  clearMentionCache();
+  const mentions = {
+    kinds: mentionKinds("user"),
+    cacheKey: "cleared",
+    search: () =>
+      new Promise<MentionOption[]>((resolve) =>
+        setTimeout(
+          () => resolve([{ kind: "user", id: "u1", label: "Asha Rao" }]),
+          30,
+        ),
+      ),
+  };
+  const waiting = mentionAnswers.ask(
+    mentions,
+    "",
+    undefined,
+    new AbortController().signal,
+  );
+  clearMentionCache();
+  await expect(waiting).rejects.toThrow();
+  expect(mentionAnswers.peek(mentions, "")).toBeNull();
+  expect(mentionAnswers.covered(mentions, "")).toBe(false);
 });
 
 test("mentions: `@task ` and Tab narrow the menu to one kind, shown as a chip; its × or Shift+Tab widen it again", async () => {

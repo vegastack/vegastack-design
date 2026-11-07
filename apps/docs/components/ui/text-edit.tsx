@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.53.0 sha256-6j2kqgb0xzaUENFuRQrN2J87AUBCVBn39KuVeqPLGyU=
+// @vegastack text-edit@0.53.0 sha256-xwEo/xSYk12CR3oL34hURSgYH1ugWbFSdrbRuRpOlV0=
 
 "use client";
 
@@ -986,6 +986,14 @@ class MentionAnswers {
    * `signal`, this caller stops waiting when it aborts; the search itself aborts once no one
    * waits. A failed search is not kept.
    */
+  /** Forget the flight for `at` (if it is still `flight`), and its source's map once empty. */
+  private settle(key: unknown, at: string, flight: MentionAsking) {
+    const flights = this.asking.get(key);
+    if (flights?.get(at) !== flight) return;
+    flights.delete(at);
+    if (flights.size === 0) this.asking.delete(key);
+  }
+
   ask(
     source: TextEditMentions,
     query: string,
@@ -999,27 +1007,30 @@ class MentionAnswers {
     let flight = flights.get(at);
     if (!flight) {
       const controller = new AbortController();
-      const promise = Promise.resolve()
-        .then(() =>
-          source.search(query, {
-            signal: controller.signal,
-            ...(only ? { only } : {}),
-          }),
-        )
-        .then((options) => {
-          if (!controller.signal.aborted) {
+      const started: MentionAsking = {
+        controller,
+        waiting: 0,
+        promise: Promise.resolve()
+          .then(() =>
+            source.search(query, {
+              signal: controller.signal,
+              ...(only ? { only } : {}),
+            }),
+          )
+          .then((options) => {
+            // Stopped (no one waits, or the cache was cleared): never kept, never delivered.
+            if (controller.signal.aborted)
+              throw new DOMException("The search was stopped.", "AbortError");
             const kept = this.of(source);
             kept.delete(at);
             kept.set(at, { at: Date.now(), options });
             if (kept.size > MENTION_QUERIES_KEPT)
               kept.delete(kept.keys().next().value!);
-          }
-          return options;
-        })
-        .finally(() => {
-          if (flights!.get(at) === flight) flights!.delete(at);
-        });
-      flight = { promise, controller, waiting: 0 };
+            return options;
+          })
+          .finally(() => this.settle(key, at, started)),
+      };
+      flight = started;
       flights.set(at, flight);
     }
     const mine = flight;
@@ -1029,17 +1040,16 @@ class MentionAnswers {
       return mine.promise;
     }
     mine.waiting += 1;
-    signal.addEventListener(
-      "abort",
-      () => {
-        mine.waiting -= 1;
-        if (mine.waiting <= 0) {
-          mine.controller.abort();
-          if (flights!.get(at) === mine) flights!.delete(at);
-        }
-      },
-      { once: true },
-    );
+    const stop = () => {
+      mine.waiting -= 1;
+      if (mine.waiting <= 0) {
+        mine.controller.abort();
+        this.settle(key, at, mine);
+      }
+    };
+    signal.addEventListener("abort", stop, { once: true });
+    const detach = () => signal.removeEventListener("abort", stop);
+    mine.promise.then(detach, detach);
     return mine.promise;
   }
 

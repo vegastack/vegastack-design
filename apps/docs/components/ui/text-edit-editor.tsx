@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.53.0 sha256-6j2kqgb0xzaUENFuRQrN2J87AUBCVBn39KuVeqPLGyU=
+// @vegastack text-edit@0.53.0 sha256-xwEo/xSYk12CR3oL34hURSgYH1ugWbFSdrbRuRpOlV0=
 
 "use client";
 
@@ -11916,16 +11916,16 @@ export function TextEditEditor({
   );
   /**
    * Step the open menu's kind filter (`1` next, `-1` back, through every kind and back to none) by
-   * rewriting the query's first word, so the text after the `@` always says what is asked; `null`
-   * takes the filter off. False when the menu offers one kind or none.
+   * rewriting the query's first word, so what is typed always says what is asked — the text after
+   * the `@`, or a sheet's search field; `null` takes the filter off. False when the menu offers
+   * one kind or none.
    */
   const setMentionFilter = React.useCallback(
     (next: MentionKind | null | 1 | -1): boolean => {
       const ed = editorRef.current;
       const state = mentionStateRef.current;
       const kinds = callbacks.current.mentions?.kinds ?? [];
-      if (!ed || ed.isDestroyed || !state?.range || kinds.length < 2)
-        return false;
+      if (!ed || ed.isDestroyed || !state || kinds.length < 2) return false;
       const { only, query } = mentionFilter(state.query, kinds);
       const order = [null, ...orderedKinds(kinds).map((kind) => kind.id)];
       const target =
@@ -11933,13 +11933,38 @@ export function TextEditEditor({
           ? order[(order.indexOf(only) + next + order.length) % order.length]!
           : next;
       const kind = kinds.find((each) => each.id === target);
-      const text = `@${kind ? `${mentionFilterWord(kind)} ` : ""}${query}`;
+      const typed = `${kind ? `${mentionFilterWord(kind)} ` : ""}${query}`;
+      if (menuSheetRef.current) {
+        // A sheet's search field is the query: the hidden text keeps its `@` as typed.
+        setSheetQuery(typed);
+        setMention({ ...state, query: typed, index: 0 });
+        runSearch(typed, true);
+        return true;
+      }
+      if (!state.range) return false;
       const { from, to } = state.range;
-      ed.view.dispatch(ed.state.tr.insertText(text, from, to));
+      ed.view.dispatch(ed.state.tr.insertText(`@${typed}`, from, to));
       ed.view.focus();
       return true;
     },
-    [],
+    [runSearch, setMention],
+  );
+  /** The open menu's query asked again (a failed search's Retry, or Enter on it). */
+  const retryMention = React.useCallback(() => {
+    const state = mentionStateRef.current;
+    if (state) runSearch(state.query, menuSheetRef.current);
+  }, [runSearch]);
+  /** A sheet's search field keys the popover takes from the text: Tab's filter, Enter's Retry. */
+  const mentionSheetKey = React.useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Tab") return setMentionFilter(event.shiftKey ? -1 : 1);
+      if (event.key === "Enter" && mentionStateRef.current?.error) {
+        retryMention();
+        return true;
+      }
+      return false;
+    },
+    [setMentionFilter, retryMention],
   );
   React.useEffect(() => stopSearch, [stopSearch]);
 
@@ -12010,10 +12035,7 @@ export function TextEditEditor({
           },
           query: runSearch,
           cycle: (step) => setMentionFilter(step),
-          retry: () => {
-            const state = mentionStateRef.current;
-            if (state) runSearch(state.query, menuSheetRef.current);
-          },
+          retry: () => retryMention(),
           sheet: () => menuSheetRef.current,
         },
       },
@@ -14047,32 +14069,17 @@ export function TextEditEditor({
             return (
               <MentionFilterHeader
                 kind={kind}
-                onClear={() => {
-                  if (!menuSheetRef.current) {
-                    setMentionFilter(null);
-                    return;
-                  }
-                  const { query } = mentionFilter(
-                    mentionMenu.query,
-                    mentions?.kinds ?? [],
-                  );
-                  setSheetQuery(query);
-                  setMention({ ...mentionMenu, query, index: 0 });
-                  runSearch(query, true);
-                }}
+                onClear={() => setMentionFilter(null)}
               />
             );
           })()}
           status={mentionStatus(mentionMenu)}
           statusAction={
             mentionMenu.error
-              ? {
-                  label: "Retry",
-                  onAction: () =>
-                    runSearch(mentionMenu.query, menuSheetRef.current),
-                }
+              ? { label: "Retry", onAction: retryMention }
               : undefined
           }
+          onSearchKeyDown={mentionSheetKey}
           emptyMessage="No matches"
           loading={mentionMenu.loading}
           activeIndex={mentionMenu.index}

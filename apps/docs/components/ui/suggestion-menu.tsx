@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.33.0 sha256-iiv6+MPFu3VQSERXAOUyBj19XSon7sqRIB9dVsM3r6M=
+// @vegastack suggestion-menu@0.33.0 sha256-QiOjyNIZz3rzHpSx/BavLfrHpiSBXvRFKogDblG2VWk=
 
 "use client";
 
@@ -184,6 +184,12 @@ export interface SuggestionMenuProps extends Omit<
    * @default undefined
    */
   onClose?: () => void;
+  /**
+   * A key in the sheet's search field, before the menu's own keys (↑ ↓ Enter Tab Escape): return
+   * true when it was handled — the editor's own keys, such as a filter's Tab, as in the popover.
+   * @default undefined
+   */
+  onSearchKeyDown?: (event: KeyboardEvent) => boolean;
   /**
    * The sheet's search field placeholder.
    * @default "Search…"
@@ -426,6 +432,7 @@ export function SuggestionMenu({
   query = "",
   onQueryChange,
   onClose,
+  onSearchKeyDown,
   searchPlaceholder = "Search…",
   className,
   style,
@@ -720,6 +727,10 @@ export function SuggestionMenu({
                 // An IME composing (Enter confirms its text) owns the keys.
                 if (event.nativeEvent.isComposing || event.keyCode === 229)
                   return;
+                if (onSearchKeyDown?.(event.nativeEvent)) {
+                  event.preventDefault();
+                  return;
+                }
                 // ↑ ↓ Enter here, as the editor's keys drive the popover; Escape closes.
                 if (
                   suggestionMenuKeyDown(event.nativeEvent, {
