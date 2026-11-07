@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.57.2] — November 7, 2026
+
+<!-- assembled from 1 changeset: 5a58bbf27e28 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.57.1 → 0.57.2.
+
+### 🐛 Fixed
+
+- Fixes from a viewport sweep at 1440 and 390 px:
+
+  - `AppShellAside`: a closed panel lays out no resize handle. The handle's hit area reached 12px past a closed docked panel at the window's edge, so every page without the panel open scrolled sideways.
+  - `ActivityValue`: a field's own display inside it (a status chip, a number a cell right-aligns) reads inline at its own width, so "Quote value to ₹5,88,000.00" stays one phrase instead of breaking onto a line of its own with the value at the far edge.
+  - `DocumentLayoutDecisionBarActions`: on a phone a lone answer (Cancel review) stays at the end of the text's line; two or more still take a full row. A one-answer bar is about 58px tall instead of 80.
+  - `ActivityEvent`: the dot before the time travels with it, so a wrapped line never ends on "·".
+  - `AgentPanel` takes `reasonHelp` (a Learn more link): it follows a paused, failed or blocked card's reason, outside a failure's quotes, instead of inside them.
+    [`a53ecf4`](https://github.com/VegaStack/vegastack-design/commit/a53ecf4)
+
 ## [0.57.1] — November 7, 2026
 
 <!-- assembled from 2 changesets: 6a1c4c6f88ec -->

@@ -214,8 +214,8 @@
       "meta": {
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
-        "version": "0.45.0",
-        "integrity": "sha256-/hPoveuRiU0ML+gR7N0NNbtvQl3glluc+H/ytt5BAjs="
+        "version": "0.57.2",
+        "integrity": "sha256-uvvKa7fsAddfaEHbK4buEsXLuUkv4senMlUKTHk8xmU="
       }
     },
     {
@@ -277,8 +277,8 @@
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
-        "version": "0.57.0",
-        "integrity": "sha256-r8EsCZJUjNU+vwVuVRiOXj+22JtS8Wj4ZCaRjvr1ifM="
+        "version": "0.57.2",
+        "integrity": "sha256-1CFUCwoDa+7aWLJPBaM3ftr/fuuJWm4Doq7INYlSndY="
       }
     },
     {
@@ -392,8 +392,8 @@
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
-        "version": "0.40.0",
-        "integrity": "sha256-GNNCEK7iIljrwxcQXmNqYVR8M23r47P5rft29hhZvh0="
+        "version": "0.57.2",
+        "integrity": "sha256-iEBKmU37pU6BKs/grMFx1weUKQcU10vYoeB0KrRxwbs="
       }
     },
     {
@@ -23435,8 +23435,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.57.0",
-        "integrity": "sha256-FzIHe4jguBw/JWw6vg8lhUu0PV6ch9T395E85DtK+gU="
+        "version": "0.57.2",
+        "integrity": "sha256-gtkx6SJEdYcDCY0EzYJpFLEGb1xDTJn9KZ5Mbicwwpc="
       }
     },
     {
