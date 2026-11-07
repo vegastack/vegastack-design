@@ -278,7 +278,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
         "version": "0.33.0",
-        "integrity": "sha256-KTpB/RrGHE70FOsSsS7ZCOPLT9kyoqKBoXmrFUF8/9M="
+        "integrity": "sha256-AQ4D5tEmfoi9qJ5JalSWnA736PSuYMm27SaTowf2+Uc="
       }
     },
     {
@@ -23421,6 +23421,7 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
+        "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/disclosure-trigger"
       ],
@@ -23435,7 +23436,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.56.0",
-        "integrity": "sha256-GU1Ea8UVq76LC4o/iGKPNeaqWr0z2sZRvBrtvatknSo="
+        "integrity": "sha256-q319I+sI+APFQHuGD+0jREUhFkHcjYtJxpm9qvcTKKY="
       }
     },
     {

@@ -821,10 +821,15 @@ test("on a phone the page's last lines scroll clear of a decision bar", async ()
   window.scrollTo(0, 0);
 });
 
-test("first in the body, the decision bar stays under the top bar while the text scrolls", async () => {
-  await page.viewport(1440, 900);
-  await render(
-    <DocumentLayout>
+function ReviewPage({ barTop }: { barTop?: string }) {
+  return (
+    <DocumentLayout
+      style={
+        barTop
+          ? ({ "--document-layout-bar-top": barTop } as React.CSSProperties)
+          : undefined
+      }
+    >
       <DocumentLayoutHeader>
         <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
       </DocumentLayoutHeader>
@@ -838,13 +843,32 @@ test("first in the body, the decision bar stays under the top bar while the text
           Text
         </div>
       </DocumentLayoutBody>
-    </DocumentLayout>,
+    </DocumentLayout>
   );
+}
+
+test("first in the body, the decision bar sticks at the scroll container's top while the text scrolls", async () => {
+  await page.viewport(1440, 900);
+  await render(<ReviewPage />);
   // 24px between the bar and the text it leads, the gap the header keeps from the text.
   expect(
     document.querySelector("[data-testid=text]")!.getBoundingClientRect().top -
       slot("document-layout-decision-bar").getBoundingClientRect().bottom,
   ).toBe(24);
+  // At the top, never part way down with the text showing above it (a peek, an app shell's
+  // scroll area under its top bar).
+  window.scrollTo(0, 1200);
+  await vi.waitFor(() =>
+    expect(
+      slot("document-layout-decision-bar").getBoundingClientRect().top,
+    ).toBe(0),
+  );
+  window.scrollTo(0, 0);
+});
+
+test("a host whose scroll container runs under a fixed top bar keeps the decision bar below it", async () => {
+  await page.viewport(1440, 900);
+  await render(<ReviewPage barTop="56px" />);
   window.scrollTo(0, 1200);
   await vi.waitFor(() =>
     expect(

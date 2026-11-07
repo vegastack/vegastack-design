@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.56.0 sha256-GU1Ea8UVq76LC4o/iGKPNeaqWr0z2sZRvBrtvatknSo=
+// @vegastack agent-panel@0.56.0 sha256-q319I+sI+APFQHuGD+0jREUhFkHcjYtJxpm9qvcTKKY=
 
 "use client";
 
@@ -71,6 +71,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { FieldCounter } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import {
   Tooltip,
   TooltipContent,
@@ -1064,6 +1065,11 @@ export interface AgentPanelRun {
   id: string;
   /** How many changes the run made. */
   changeCount: number;
+  /**
+   * What it changed, in a few words ("Status, Lines"): after the count, cut short before the
+   * buttons are. @default undefined
+   */
+  summary?: string;
   /** When the run made its last change. */
   at: Date | string | number;
   /** Open the run's changes; View shows when set. @default undefined */
@@ -2136,22 +2142,42 @@ function RunTime({
 function RunFacts({
   lead,
   count,
+  summary,
   children,
 }: {
   lead?: string;
   count: string;
+  summary?: string;
   children: React.ReactNode;
 }) {
   return (
     <span className="flex h-5 min-w-0 grow basis-0 flex-wrap items-baseline gap-x-1 overflow-hidden text-muted-foreground">
-      {lead ? (
-        <span className="shrink-0 font-medium whitespace-nowrap">
-          {lead}
-          <span aria-hidden> ·</span>
+      {/* The lead, the count and what changed hold the first line: what changed is cut short
+          (never the count); the time, with its dot, drops out whole before it is. */}
+      <span className="flex max-w-full min-w-0 items-baseline gap-x-1">
+        {lead ? (
+          <span className="shrink-0 font-medium whitespace-nowrap">
+            {lead}
+            <span aria-hidden> ·</span>
+          </span>
+        ) : null}
+        <span className="shrink-0 whitespace-nowrap text-foreground">
+          {count}
         </span>
-      ) : null}
-      <span className="shrink-0 whitespace-nowrap text-foreground">
-        {count}
+        {summary ? (
+          <>
+            <span aria-hidden className="shrink-0">
+              ·
+            </span>
+            {/* Cut short, it shows whole on hover, focus or a tap (`TruncatedText`). */}
+            <TruncatedText
+              data-slot="agent-panel-run-summary"
+              className="min-w-0"
+            >
+              {summary}
+            </TruncatedText>
+          </>
+        ) : null}
       </span>
       <span className="shrink-0 whitespace-nowrap">
         <span aria-hidden>· </span>
@@ -2161,7 +2187,7 @@ function RunFacts({
   );
 }
 
-/** One run: "3 changes · 10:42", View, Undo (disabled with its reason when it can't). */
+/** One run: "3 changes · Status, Lines · 10:42", View, Undo (disabled with its reason when it can't). */
 function RunRow({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
   const { labels } = p;
   const reasonId = React.useId();
@@ -2186,7 +2212,7 @@ function RunRow({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
     >
       {/* One line, the buttons always whole: the count never truncates; the time, with its dot,
           drops out whole (it wraps onto the clipped second line) before anything is cut. */}
-      <RunFacts count={labels.run(run.changeCount)}>
+      <RunFacts count={labels.run(run.changeCount)} summary={run.summary}>
         <RunTime at={run.at} nowMs={p.nowMs} />
       </RunFacts>
       <span className="-me-2 flex shrink-0 items-center">
@@ -2236,7 +2262,11 @@ function RunsLine({ run, p }: { run: AgentPanelRun; p: ResolvedProps }) {
       data-slot="agent-panel-runs-line"
       className="flex min-w-0 items-center justify-between gap-x-2 text-sm"
     >
-      <RunFacts lead={labels.history} count={labels.run(run.changeCount)}>
+      <RunFacts
+        lead={labels.history}
+        count={labels.run(run.changeCount)}
+        summary={run.summary}
+      >
         <RelativeTime
           date={run.at}
           now={p.nowMs}

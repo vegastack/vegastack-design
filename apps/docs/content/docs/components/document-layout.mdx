@@ -257,8 +257,10 @@ The tools a page lays over or around its text, each without a class of your own:
 - `DocumentLayoutNote` — a quiet line under the text.
 - `DocumentLayoutDecisionBar` with `DocumentLayoutDecisionBarText` and
   `DocumentLayoutDecisionBarActions` — a decision the reader owes the page ("Asha asked you to
-  review this page · Approve"). Put it first in `DocumentLayoutBody`: it sticks under the top bar
-  while the text is in view, and on a phone floats at the bottom with the floating buttons above it.
+  review this page · Approve"). Put it first in `DocumentLayoutBody`: it sticks at the top of the
+  scroll container while the text is in view (a host whose scroll container runs under a fixed top
+  bar sets `--document-layout-bar-top` to that bar's height on the layout), and on a phone floats at the bottom
+  with the floating buttons above it.
 - `DocumentLayout focusable` — the canvas takes focus from a click in its read text (never a tab
   stop) and shows no focus cue of its own.
 

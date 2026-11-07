@@ -42838,7 +42838,8 @@
         "@vegastack/use-announcer",
         "@vegastack/disclosure-trigger",
         "@vegastack/field",
-        "@vegastack/badge"
+        "@vegastack/badge",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",

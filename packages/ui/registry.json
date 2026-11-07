@@ -19184,6 +19184,7 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
+        "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/disclosure-trigger"
       ],

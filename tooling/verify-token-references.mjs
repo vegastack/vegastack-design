@@ -117,6 +117,10 @@ const RUNTIME_VARIABLES = new Set([
   // geometry the layout owns, not theme values.
   "--document-layout-sticky-top",
   "--document-layout-aside-offset",
+  // Its decision bar's sticky offset likewise (`[--document-layout-bar-top:0px]` on the root; a
+  // host whose scroll container runs under a fixed top bar sets that bar's height on the layout),
+  // read by `DocumentLayoutDecisionBar` in `document-layout-tools`.
+  "--document-layout-bar-top",
   // The page gutter: `AppShell` declares it on its root (and `AppShellHeader`/`AppShellPage` on
   // themselves) from `pageGutterClasses`, and `RecordLayoutRail` — a descendant of the page —
   // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so
