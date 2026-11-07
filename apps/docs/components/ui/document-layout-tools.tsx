@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.33.0 sha256-KTpB/RrGHE70FOsSsS7ZCOPLT9kyoqKBoXmrFUF8/9M=
+// @vegastack document-layout@0.33.0 sha256-VifxHufQF7i6TD4Eqf+rnoTng4o/Julf2mNDtWXQmNg=
 
 "use client";
 
@@ -315,8 +315,10 @@ export interface DocumentLayoutDecisionBarProps extends React.ComponentPropsWith
 
 /**
  * `DocumentLayoutDecisionBar` — a decision the reader owes the page ("Asha asked you to review
- * this page · Request changes · Approve"): a card-surface bar that sticks under the top bar while
- * the page scrolls, and on a phone floats at the bottom of the window, clear of the home
+ * this page · Request changes · Approve"): a card-surface bar that sticks to the top of the scroll
+ * container while the page scrolls (`--document-layout-bar-top` below it, 0 unless set: a host
+ * whose scroll container runs under a fixed top bar sets that bar's height on any ancestor), and on
+ * a phone floats at the bottom of the window, clear of the home
  * indicator — the layout's floating buttons (`DocumentLayoutFloatingButton`,
  * `DocumentLayoutContentsButton`) then float above it. A named region; hidden in print. Hold a `DocumentLayoutDecisionBarText` and
  * `DocumentLayoutDecisionBarActions`.
@@ -380,10 +382,11 @@ export function DocumentLayoutDecisionBar({
         role="region"
         data-slot="document-layout-decision-bar"
         className={cn(
-          // Under the 56px top bar while the text scrolls, 24px above the text it leads (the gap the
-          // header keeps from the text); on a phone, floating at the bottom (no margin there: a fixed
-          // box's margin would lift it off its inset).
-          "sticky top-14 z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
+          // At the scroll container's top (past any fixed top bar the host names) while the text
+          // scrolls, never part way down over it; 24px above the text it leads (the gap the header
+          // keeps from the text); on a phone, floating at the bottom (no margin there: a fixed box's
+          // margin would lift it off its inset).
+          "sticky top-[var(--document-layout-bar-top,0px)] z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
           "sm:mb-6 max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))]",
           className,
         )}

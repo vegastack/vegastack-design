@@ -57,7 +57,8 @@ label. Under it sits **one status block**: the state's icon and word with its sh
 sentence and at most one action, all in the word's inset. The other actions live in the ⋯ menu.
 On a record page that has its own Activity feed, pass `showLatest={false}` so the card doesn't
 repeat it, and `runsLayout="line"` for one compact Runs line ("Runs · 3 changes · 2h ago · View ·
-Undo"); a peek, which has no feed, keeps both.
+Undo"); a peek, which has no feed, keeps both. A run's `summary` says what it changed ("1 change ·
+Status, Lines · 12:11"); it is cut short before the count or the buttons are.
 
 Each state reads the props it needs: `queued` (the host's `queuedHint` words once it has waited a
 while — the design system holds no provider's vocabulary), `working`
