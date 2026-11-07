@@ -2661,10 +2661,10 @@
         }
       ],
       "meta": {
-        "version": "0.26.4",
+        "version": "0.57.1",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-sBCLrPROe8RBlG/h3D9h40xZ4gLHYAYLys9E3cRXWqg="
+        "integrity": "sha256-TqPRceK5VNhEvRmkrg/ZGRIHwrW0dgBIQcGjICjBAJs="
       }
     },
     {
@@ -3108,8 +3108,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.54.1",
-        "integrity": "sha256-vbZ33m+kOhM5Xjugub7ooFaENDltv4ikpeDc2hInKiM="
+        "version": "0.57.1",
+        "integrity": "sha256-JUrg28hC8b4Y9lgNT9VftKAcG26FuiEdz2VE+DCJSWY="
       }
     },
     {

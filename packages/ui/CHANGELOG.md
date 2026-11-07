@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.57.1
+
+### Patch Changes
+
+- [#932](https://github.com/vegastack/vegastack-design/pull/932) [`ebac4b7`](https://github.com/vegastack/vegastack-design/commit/ebac4b754ef110a8f9e492191b83d9a564fefd01) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `FieldCellDisplay` `variant="cell"`: a person's name that doesn't fit its cell ends in an ellipsis, and the whole name shows on hover, focus or tap (`TruncatedText`), instead of being cut off mid-letter. The avatar keeps its size; every person still shows as avatar and name.
+
+- [#931](https://github.com/vegastack/vegastack-design/pull/931) [`f7ac482`](https://github.com/vegastack/vegastack-design/commit/f7ac4824223a40ebf38347b51ec2ae4fc95b115c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `text-edit-markdown` escapes a `[`, a backtick, `*`, `_` or `~` only where Markdown could read it as syntax. A `[` is escaped at a line's start, inside link text, or in a block that holds a `](`, `][` or `]:`; a backtick, `*`, `_` or `~` is escaped only when its block holds another one, the writer's own delimiters included. Plain text such as `["a", "b"]`, `see [1]`, `~5 min` or `a*b` is now written as typed, so a chat message or comment reaches its reader unchanged instead of with `\[` and `\~`.
+
 ## 0.57.0
 
 ### Minor Changes

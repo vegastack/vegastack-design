@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.57.1] — November 7, 2026
+
+<!-- assembled from 2 changesets: 6a1c4c6f88ec -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.57.0 → 0.57.1.
+
+### 🐛 Fixed
+
+- `FieldCellDisplay` `variant="cell"`: a person's name that doesn't fit its cell ends in an ellipsis, and the whole name shows on hover, focus or tap (`TruncatedText`), instead of being cut off mid-letter. The avatar keeps its size; every person still shows as avatar and name.
+  [`ebac4b7`](https://github.com/VegaStack/vegastack-design/commit/ebac4b7)
+- `text-edit-markdown` escapes a `[`, a backtick, `*`, `_` or `~` only where Markdown could read it as syntax. A `[` is escaped at a line's start, inside link text, or in a block that holds a `](`, `][` or `]:`; a backtick, `*`, `_` or `~` is escaped only when its block holds another one, the writer's own delimiters included. Plain text such as `["a", "b"]`, `see [1]`, `~5 min` or `a*b` is now written as typed, so a chat message or comment reaches its reader unchanged instead of with `\[` and `\~`.
+  [`f7ac482`](https://github.com/VegaStack/vegastack-design/commit/f7ac482)
+
 ## [0.57.0] — November 7, 2026
 
 <!-- assembled from 1 changeset: 2e744d45def3 -->
