@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.53.0 sha256-V+oeYllrcur15+4lqzLx9LNCAOqHj0fjfv85npztJKg=
+// @vegastack text-edit@0.53.0 sha256-6j2kqgb0xzaUENFuRQrN2J87AUBCVBn39KuVeqPLGyU=
 
 "use client";
 
@@ -153,6 +153,8 @@ import {
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Kbd } from "@/components/ui/kbd";
 import { dropIndicatorClasses } from "@/lib/drag-item";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -315,6 +317,7 @@ import {
 import { TaskInline } from "@/components/ui/task-inline";
 import {
   linkedTaskId,
+  mentionAnswers,
   TEXT_EDIT_SESSION_SELECTOR,
   TEXT_EDIT_UPLOAD_ABORT,
   type TextEditSectionMark,
@@ -3175,7 +3178,12 @@ function orderedKinds(
 }
 
 interface MentionMenuState {
+  /** What follows the `@`, as typed (a kind filter's word included). */
   query: string;
+  /** The kind the query names (`@task …`), else null: every kind. */
+  only: MentionKind | null;
+  /** Where the `@` and its query sit in the text (a kind filter rewrites it). */
+  range: Range | null;
   /** The grouped, capped results in menu order; null until the first search answers. */
   results: MentionOption[] | null;
   loading: boolean;
@@ -3221,6 +3229,8 @@ function groupResults(
   kinds: readonly MentionKindConfig[],
   query = "",
   sections?: readonly MentionSection[],
+  perKind = MENTION_PER_KIND,
+  order: "kinds" | "answer" = "kinds",
 ): MentionOption[] {
   const enabled = new Set(kinds.map((kind) => kind.id));
   // With sections, a kind whose section is left out is not offered at all (before any cap).
@@ -3229,6 +3239,20 @@ function groupResults(
       enabled.has(option.kind) &&
       (!sections || sections.includes(mentionSection(option.kind))),
   );
+  if (order === "answer") {
+    // The source's own order: each group (its own `group`, else its kind) where its first
+    // option arrives, its options together, a kind's capped at `perKind`.
+    const runs = new Map<string, MentionOption[]>();
+    for (const option of offered) {
+      const key = option.group
+        ? `group:${option.group}`
+        : `kind:${option.kind}`;
+      const run = runs.get(key) ?? [];
+      if (option.group || run.length < perKind) run.push(option);
+      runs.set(key, run);
+    }
+    return [...runs.values()].flat();
+  }
   const own = [
     ...new Set(
       offered.flatMap((option) => (option.group ? [option.group] : [])),
@@ -3237,7 +3261,7 @@ function groupResults(
   const groups = orderedKinds(kinds).map((kind) =>
     offered
       .filter((option) => !option.group && option.kind === kind.id)
-      .slice(0, 5),
+      .slice(0, perKind),
   );
   const best = (group: MentionOption[]) =>
     Math.min(...group.map((option) => mentionMatchRank(option.label, query)));
@@ -3273,35 +3297,33 @@ function mentionSection(kind: MentionKind): MentionSection {
 
 /** How long a keystroke waits for the next before the mention search asks. */
 const MENTION_DEBOUNCE_MS = 120;
-/** How long a cached answer is shown without asking again. */
-const MENTION_FRESH_MS = 30_000;
-/** How many queries one editor keeps answers for. */
-const MENTION_CACHE_SIZE = 50;
+/** Rows per kind the menu shows; with a kind filter, that kind shows up to `MENTION_ONLY_ROWS`. */
+const MENTION_PER_KIND = 5;
+const MENTION_ONLY_ROWS = 20;
+
+/** The word a kind filter is typed as: the kind's noun in lower case, or its id. */
+const mentionFilterWord = (kind: MentionKindConfig) =>
+  /\s/.test(kind.noun) ? kind.id : kind.noun.toLowerCase();
 
 /**
- * One editor's mention answers by query, for one `mentions` source: a new source (other kinds,
- * another subject) starts empty. Oldest out first past `MENTION_CACHE_SIZE`.
+ * A query that opens with a kind's id, noun or plural and a space (`task roadmap`, `People asha`)
+ * asks for that kind only: the kind, and the rest as the query. Any other query asks every kind.
  */
-class MentionSearchCache {
-  private source: unknown = null;
-  private answers = new Map<string, { at: number; options: MentionOption[] }>();
-  get(source: unknown, query: string) {
-    if (source !== this.source) return null;
-    const hit = this.answers.get(query);
-    return hit
-      ? { options: hit.options, fresh: Date.now() - hit.at < MENTION_FRESH_MS }
-      : null;
-  }
-  set(source: unknown, query: string, options: MentionOption[]) {
-    if (source !== this.source) {
-      this.source = source;
-      this.answers.clear();
-    }
-    this.answers.delete(query);
-    this.answers.set(query, { at: Date.now(), options });
-    if (this.answers.size > MENTION_CACHE_SIZE)
-      this.answers.delete(this.answers.keys().next().value!);
-  }
+function mentionFilter(
+  typed: string,
+  kinds: readonly MentionKindConfig[],
+): { only: MentionKind | null; query: string } {
+  const match = /^(\S+)\s([\s\S]*)$/.exec(typed);
+  if (!match || kinds.length < 2) return { only: null, query: typed };
+  const word = match[1]!.toLowerCase();
+  const kind = kinds.find((each) =>
+    [each.id, each.noun, each.plural].some(
+      (name) => name.toLowerCase() === word,
+    ),
+  );
+  return kind
+    ? { only: kind.id, query: match[2]! }
+    : { only: null, query: typed };
 }
 
 /** Whether every word of `query` starts a word of the option's label or description. */
@@ -3321,7 +3343,36 @@ function matchesMentionQuery(option: MentionOption, query: string): boolean {
  * rows on show, or shows placeholder rows (`SuggestionMenu`'s `loading`) before the first answer.
  */
 function mentionStatus(state: MentionMenuState): string | undefined {
-  return state.error ? "Couldn't search" : undefined;
+  return state.error ? "Couldn't search." : undefined;
+}
+
+/** The kind filter's chip in the menu's header: the kind, a way off it, and the Tab hint. */
+function MentionFilterHeader({
+  kind,
+  onClear,
+}: {
+  kind: MentionKindConfig;
+  onClear: () => void;
+}) {
+  return (
+    <div
+      data-slot="text-edit-mention-filter"
+      className="flex items-center gap-2 px-1.5 pt-0.5 pb-1 text-xs text-muted-foreground"
+    >
+      <Chip
+        active
+        onRemove={onClear}
+        removeLabel={`Show every kind, not only ${kind.plural.toLowerCase()}`}
+        className="min-w-0 gap-1"
+      >
+        {mentionKindIcon(kind, kind.id)}
+        <span className="min-w-0 truncate">{kind.plural}</span>
+      </Chip>
+      <span className="ms-auto flex shrink-0 items-center gap-1">
+        <Kbd>Tab</Kbd> next kind
+      </span>
+    </div>
+  );
 }
 
 /**
@@ -3998,6 +4049,10 @@ interface EditorRuntime {
     get: () => MentionMenuState | null;
     set: (next: MentionMenuState | null) => void;
     query: (query: string) => void;
+    /** <kbd>Tab</kbd> (`1`) or <kbd>Shift+Tab</kbd> (`-1`): the next kind filter; false when there is none. */
+    cycle: (step: 1 | -1) => boolean;
+    /** Ask the open menu's query again (after a failed search). */
+    retry: () => void;
     /** The menu is a sheet (`menuPresentation="auto"` on a phone): its search field owns the query. */
     sheet: () => boolean;
   };
@@ -4224,6 +4279,8 @@ function mentionBehaviour(runtime: EditorRuntime) {
               const query = sheet ? previous.query : props.query;
               runtime.mention.set({
                 query,
+                only: previous?.only ?? null,
+                range: props.range,
                 results: previous?.results ?? null,
                 loading: previous ? previous.loading : true,
                 error: previous?.error ?? false,
@@ -4242,6 +4299,18 @@ function mentionBehaviour(runtime: EditorRuntime) {
                 const state = runtime.mention.get();
                 if (!state) return false;
                 const options = flatOptions(state.results);
+                if (event.isComposing || event.keyCode === 229) return false;
+                // Tab steps through the kinds (`@task `), Shift+Tab back.
+                if (
+                  event.key === "Tab" &&
+                  runtime.mention.cycle(event.shiftKey ? -1 : 1)
+                )
+                  return true;
+                // A failed search: Enter asks again.
+                if (event.key === "Enter" && state.error) {
+                  runtime.mention.retry();
+                  return true;
+                }
                 // While a search is in flight the menu holds ↑ ↓ and Enter: the caret stays put
                 // and Enter never breaks the line.
                 return suggestionMenuKeyDown(event, {
@@ -11716,39 +11785,54 @@ export function TextEditEditor({
     return () => document.removeEventListener("pointerdown", close, true);
   }, [pasted?.open, closePasted]);
 
-  // The mention search: one AbortSignal per keystroke, and answers kept per query for this
-  // editor (`MentionSearchCache`): a query asked before shows at once (and is asked again when
-  // older than `MENTION_FRESH_MS`); the menu's first query goes out at once, every later one
-  // `MENTION_DEBOUNCE_MS` after the last keystroke. While an answer is on its way the rows that
-  // still match stay (none left: placeholder rows, so Enter never picks a row that no longer
-  // matches).
+  // The mention search: one AbortSignal per keystroke, and answers kept per query for the whole
+  // tab (`mentionAnswers`, by the source's `cacheKey`): a query asked before — here, in another
+  // editor, or by the prefetch a focus starts — shows at once (and is asked again when no longer
+  // fresh); the menu's first query goes out at once, every later one `MENTION_DEBOUNCE_MS` after
+  // the last keystroke. While an answer is on its way the rows that still match stay — the
+  // bare `@` answer's rows when nothing is on show yet (none left: placeholder rows, so Enter
+  // never picks a row that no longer matches). A query that opens with a kind (`task …`) asks
+  // for that kind only (`mentionFilter`).
   const searchRef = React.useRef<{
     timer?: ReturnType<typeof setTimeout>;
     controller?: AbortController;
   }>({});
   /** The open menu has asked once: its later queries wait for the debounce. */
   const askedRef = React.useRef(false);
-  const [searchCache] = React.useState(() => new MentionSearchCache());
   const stopSearch = React.useCallback(() => {
     clearTimeout(searchRef.current.timer);
     searchRef.current.controller?.abort();
     searchRef.current = {};
   }, []);
   const runSearch = React.useCallback(
-    (query: string, typedInSheet = false) => {
+    (typed: string, typedInSheet = false) => {
       stopSearch();
       const source = callbacks.current.mentions;
       const current = mentionStateRef.current;
       if (!source || !current) return;
       const first = !askedRef.current;
       askedRef.current = true;
+      const { only: filter, query } = mentionFilter(typed, source.kinds);
+      const only = filter ?? undefined;
+      const perKind = only ? MENTION_ONLY_ROWS : MENTION_PER_KIND;
+      const ofKind = (options: readonly MentionOption[]) =>
+        only ? options.filter((option) => option.kind === only) : options;
+      const grouped = (options: readonly MentionOption[]) =>
+        groupResults(
+          ofKind(options),
+          source.kinds,
+          query,
+          source.sections,
+          perKind,
+          source.order,
+        );
       // An answer (cached or fresh) for `query`: its rows — or, when no one matches and the phrase
-      // goes on past a space, the menu closes (it was a sentence). A cached answer arrives inside
-      // the suggestion's own update, so its close waits for that update to finish (and for the
-      // menu to still be on this query).
+      // goes on past a space, the menu closes (it was a sentence; never under a kind filter). A
+      // cached answer arrives inside the suggestion's own update, so its close waits for that
+      // update to finish (and for the menu to still be on this query).
       const close = () => {
         const ed = editorRef.current;
-        if (mentionStateRef.current?.query !== query || !ed || ed.isDestroyed)
+        if (mentionStateRef.current?.query !== typed || !ed || ed.isDestroyed)
           return;
         exitSuggestion(ed.view, MENTION_KEY);
       };
@@ -11759,52 +11843,57 @@ export function TextEditEditor({
         if (
           !typedInSheet &&
           !loading &&
+          !only &&
           options.length === 0 &&
-          /\s$/.test(query)
+          /\s$/.test(typed)
         )
           return true;
         setMention({
           ...state,
-          results: groupResults(options, source.kinds, query, source.sections),
+          only: filter,
+          results: grouped(options),
           loading,
           error: false,
           index: 0,
         });
         return false;
       };
-      const hit = searchCache.get(source, query);
+      const hit = mentionAnswers.peek(source, query, only);
       if (hit) {
         if (show(hit.options, !hit.fresh)) {
           searchRef.current.timer = setTimeout(close);
           return;
         }
         if (hit.fresh) return;
-      } else
+      } else {
+        // The rows that still match, grouped again for the query as it now reads: what is on
+        // show, else what a bare `@` answered (the prefetch), filtered here until the answer comes.
+        const shown =
+          current.results && !current.error
+            ? current.results
+            : (mentionAnswers.peek(source, "", only)?.options ??
+              mentionAnswers.peek(source, "")?.options ??
+              null);
         setMention({
           ...current,
-          // The rows that still match, grouped again for the query as it now reads.
-          results: current.results
-            ? groupResults(
-                current.results.filter((option) =>
-                  matchesMentionQuery(option, query),
-                ),
-                source.kinds,
-                query,
-                source.sections,
+          only: filter,
+          results: shown
+            ? grouped(
+                shown.filter((option) => matchesMentionQuery(option, query)),
               )
             : null,
           loading: true,
           error: false,
           index: 0,
         });
+      }
       const controller = new AbortController();
       searchRef.current.controller = controller;
       searchRef.current.timer = setTimeout(
         () => {
-          source.search(query, { signal: controller.signal }).then(
+          mentionAnswers.ask(source, query, only, controller.signal).then(
             (options) => {
               if (controller.signal.aborted) return;
-              searchCache.set(source, query, options);
               if (show(options, false)) close();
             },
             () => {
@@ -11823,7 +11912,34 @@ export function TextEditEditor({
         hit || first ? 0 : MENTION_DEBOUNCE_MS,
       );
     },
-    [searchCache, setMention, stopSearch],
+    [setMention, stopSearch],
+  );
+  /**
+   * Step the open menu's kind filter (`1` next, `-1` back, through every kind and back to none) by
+   * rewriting the query's first word, so the text after the `@` always says what is asked; `null`
+   * takes the filter off. False when the menu offers one kind or none.
+   */
+  const setMentionFilter = React.useCallback(
+    (next: MentionKind | null | 1 | -1): boolean => {
+      const ed = editorRef.current;
+      const state = mentionStateRef.current;
+      const kinds = callbacks.current.mentions?.kinds ?? [];
+      if (!ed || ed.isDestroyed || !state?.range || kinds.length < 2)
+        return false;
+      const { only, query } = mentionFilter(state.query, kinds);
+      const order = [null, ...orderedKinds(kinds).map((kind) => kind.id)];
+      const target =
+        typeof next === "number"
+          ? order[(order.indexOf(only) + next + order.length) % order.length]!
+          : next;
+      const kind = kinds.find((each) => each.id === target);
+      const text = `@${kind ? `${mentionFilterWord(kind)} ` : ""}${query}`;
+      const { from, to } = state.range;
+      ed.view.dispatch(ed.state.tr.insertText(text, from, to));
+      ed.view.focus();
+      return true;
+    },
+    [],
   );
   React.useEffect(() => stopSearch, [stopSearch]);
 
@@ -11893,6 +12009,11 @@ export function TextEditEditor({
             setMention(next);
           },
           query: runSearch,
+          cycle: (step) => setMentionFilter(step),
+          retry: () => {
+            const state = mentionStateRef.current;
+            if (state) runSearch(state.query, menuSheetRef.current);
+          },
           sheet: () => menuSheetRef.current,
         },
       },
@@ -13918,7 +14039,40 @@ export function TextEditEditor({
             mentions?.kinds ?? [],
             mentions?.sections,
           )}
+          header={(() => {
+            const kind = mentions?.kinds.find(
+              (each) => each.id === mentionMenu.only,
+            );
+            if (!kind) return undefined;
+            return (
+              <MentionFilterHeader
+                kind={kind}
+                onClear={() => {
+                  if (!menuSheetRef.current) {
+                    setMentionFilter(null);
+                    return;
+                  }
+                  const { query } = mentionFilter(
+                    mentionMenu.query,
+                    mentions?.kinds ?? [],
+                  );
+                  setSheetQuery(query);
+                  setMention({ ...mentionMenu, query, index: 0 });
+                  runSearch(query, true);
+                }}
+              />
+            );
+          })()}
           status={mentionStatus(mentionMenu)}
+          statusAction={
+            mentionMenu.error
+              ? {
+                  label: "Retry",
+                  onAction: () =>
+                    runSearch(mentionMenu.query, menuSheetRef.current),
+                }
+              : undefined
+          }
           emptyMessage="No matches"
           loading={mentionMenu.loading}
           activeIndex={mentionMenu.index}

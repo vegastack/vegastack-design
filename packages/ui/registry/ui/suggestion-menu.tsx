@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.33.0 sha256-XON/9aboTYBXIQgGpv1FzC/OTL3XRXaCR+JzodLm/wM=
+// @vegastack suggestion-menu@0.33.0 sha256-iiv6+MPFu3VQSERXAOUyBj19XSon7sqRIB9dVsM3r6M=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useMediaQuery } from "@/components/ui/use-media-query";
@@ -117,6 +118,18 @@ export interface SuggestionMenuProps extends Omit<
    * @default undefined
    */
   status?: string;
+  /**
+   * A way out of `status` (an error's Retry): a small button beside it. It never takes focus from
+   * the editor; the editor's own keys may run it too (Enter).
+   * @default undefined
+   */
+  statusAction?: { label: string; onAction: () => void };
+  /**
+   * Shown above the rows and above `status` (a filter the menu is under, as a chip), staying in
+   * view while the rows scroll: part of the menu, never a row the arrow keys reach.
+   * @default undefined
+   */
+  header?: React.ReactNode;
   /**
    * What the placeholder rows announce while a search with nothing to show yet runs.
    * @default "Searching…"
@@ -402,6 +415,8 @@ export function SuggestionMenu({
   onActiveIndexChange,
   onSelect,
   status,
+  statusAction,
+  header,
   emptyMessage = "No results",
   loadingMessage = "Searching…",
   loading = false,
@@ -471,9 +486,13 @@ export function SuggestionMenu({
     const list = localRef.current;
     const row = list?.querySelector<HTMLElement>("[data-highlighted]");
     if (!list || !row) return;
+    // A `header` stays at the top while the rows scroll: a row is in view below it.
+    const head =
+      list.querySelector<HTMLElement>("[data-slot=suggestion-menu-header]")
+        ?.offsetHeight ?? 0;
     const top = row.offsetTop;
     const bottom = top + row.offsetHeight;
-    if (top < list.scrollTop) list.scrollTop = top - 4;
+    if (top - head < list.scrollTop) list.scrollTop = top - head - 4;
     else if (bottom > list.scrollTop + list.clientHeight)
       list.scrollTop = bottom - list.clientHeight + 4;
   }, [activeIndex, showRows]);
@@ -603,6 +622,14 @@ export function SuggestionMenu({
       }
       {...props}
     >
+      {header != null ? (
+        <div
+          data-slot="suggestion-menu-header"
+          className={cn("sticky z-10 bg-popover", sheet ? "top-0" : "-top-1")}
+        >
+          {header}
+        </div>
+      ) : null}
       {showRows ? (
         runs.map((run, at) => {
           const end = runs[at + 1]?.start ?? options.length;
@@ -635,8 +662,25 @@ export function SuggestionMenu({
       ) : placeholder ? (
         <SuggestionMenuSkeleton />
       ) : (
-        <div data-slot="suggestion-menu-status" className={STATUS}>
+        <div
+          data-slot="suggestion-menu-status"
+          className={cn(
+            STATUS,
+            statusAction && "flex items-center justify-between gap-2 py-1",
+          )}
+        >
           {message}
+          {statusAction && status != null ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              data-slot="suggestion-menu-status-action"
+              onClick={statusAction.onAction}
+            >
+              {statusAction.label}
+            </Button>
+          ) : null}
         </div>
       )}
     </div>

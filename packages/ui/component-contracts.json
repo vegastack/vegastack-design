@@ -29429,6 +29429,42 @@
             "status": "not-applicable",
             "rationale": "A loader function, not a component."
           }
+        },
+        {
+          "name": "clearMentionCache",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "mentionAnswers",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "prefetchMentions",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TextEditMentionSearchOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -29546,7 +29582,9 @@
         "@vegastack/person-avatar",
         "@vegastack/task-inline",
         "@vegastack/block-toolbar",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/chip",
+        "@vegastack/kbd"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -32499,7 +32537,8 @@
         "@vegastack/use-announcer",
         "@vegastack/use-media-query",
         "@vegastack/panel-search",
-        "@vegastack/sheet"
+        "@vegastack/sheet",
+        "@vegastack/button"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.12.0",
@@ -32544,6 +32583,7 @@
                 "suggestion-menu-description",
                 "suggestion-menu-group",
                 "suggestion-menu-group-label",
+                "suggestion-menu-header",
                 "suggestion-menu-icon",
                 "suggestion-menu-label",
                 "suggestion-menu-layer",
@@ -32552,6 +32592,7 @@
                 "suggestion-menu-sheet",
                 "suggestion-menu-shortcut",
                 "suggestion-menu-status",
+                "suggestion-menu-status-action",
                 "suggestion-menu-text"
               ]
             }
