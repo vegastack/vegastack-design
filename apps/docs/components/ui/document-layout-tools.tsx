@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.33.0 sha256-VifxHufQF7i6TD4Eqf+rnoTng4o/Julf2mNDtWXQmNg=
+// @vegastack document-layout@0.33.0 sha256-AQ4D5tEmfoi9qJ5JalSWnA736PSuYMm27SaTowf2+Uc=
 
 "use client";
 
@@ -316,8 +316,8 @@ export interface DocumentLayoutDecisionBarProps extends React.ComponentPropsWith
 /**
  * `DocumentLayoutDecisionBar` — a decision the reader owes the page ("Asha asked you to review
  * this page · Request changes · Approve"): a card-surface bar that sticks to the top of the scroll
- * container while the page scrolls (`--document-layout-bar-top` below it, 0 unless set: a host
- * whose scroll container runs under a fixed top bar sets that bar's height on any ancestor), and on
+ * container while the page scrolls (`--document-layout-bar-top` below it, 0 by default: a host
+ * whose scroll container runs under a fixed top bar sets that bar's height on the layout), and on
  * a phone floats at the bottom of the window, clear of the home
  * indicator — the layout's floating buttons (`DocumentLayoutFloatingButton`,
  * `DocumentLayoutContentsButton`) then float above it. A named region; hidden in print. Hold a `DocumentLayoutDecisionBarText` and
@@ -386,7 +386,7 @@ export function DocumentLayoutDecisionBar({
           // scrolls, never part way down over it; 24px above the text it leads (the gap the header
           // keeps from the text); on a phone, floating at the bottom (no margin there: a fixed box's
           // margin would lift it off its inset).
-          "sticky top-[var(--document-layout-bar-top,0px)] z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
+          "sticky top-(--document-layout-bar-top) z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
           "sm:mb-6 max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))]",
           className,
         )}

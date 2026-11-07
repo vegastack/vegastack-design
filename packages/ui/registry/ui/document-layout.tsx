@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.33.0 sha256-VifxHufQF7i6TD4Eqf+rnoTng4o/Julf2mNDtWXQmNg=
+// @vegastack document-layout@0.33.0 sha256-AQ4D5tEmfoi9qJ5JalSWnA736PSuYMm27SaTowf2+Uc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -244,7 +244,7 @@ export function DocumentLayout({
       data-aside={asideState}
       tabIndex={focusable ? -1 : undefined}
       className={cn(
-        "@container/document-layout w-full min-w-0 [--document-layout-aside-offset:--spacing(24)] [--document-layout-sticky-top:--spacing(8)] print:[page:document]",
+        "@container/document-layout w-full min-w-0 [--document-layout-aside-offset:--spacing(24)] [--document-layout-sticky-top:--spacing(8)] [--document-layout-bar-top:0px] print:[page:document]",
         focusable && "outline-none",
         className,
       )}
