@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.26.4 sha256-QkDsxCpYqe748NiJ2APbtgGc1seq0bgB6ecggG09uDo=
+// @vegastack text-edit-markdown@0.26.4 sha256-sBCLrPROe8RBlG/h3D9h40xZ4gLHYAYLys9E3cRXWqg=
 
 import { Mark, type AnyExtension, type JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -304,18 +304,28 @@ function blockOf(siblings: JSONContent[]): Block {
   let block = BLOCKS.get(siblings);
   if (block) return block;
   let source = "";
+  // Attributes are written too (a mention's label, a link's destination and title): a backtick
+  // there closes a code span opened in the text, whatever escapes it. Counted apart from the
+  // source, whose line starts they must not move.
+  let written = "";
+  const attrs = (attrs?: Record<string, unknown>) => {
+    if (attrs) written += JSON.stringify(attrs);
+  };
   const starts = new Map<JSONContent, number>();
   for (const child of siblings) {
     if (child.type !== "text") {
       source += NODE_SOURCE[child.type ?? ""] ?? EVERY_DELIMITER;
+      attrs(child.attrs);
       continue;
     }
     const around = (child.marks ?? [])
       .map((mark) => {
-        const type = typeof mark === "string" ? mark : mark.type;
-        return type.startsWith("highlight")
+        if (typeof mark === "string")
+          return MARK_DELIMITERS[mark] ?? EVERY_DELIMITER;
+        attrs(mark.attrs);
+        return mark.type.startsWith("highlight")
           ? "=="
-          : (MARK_DELIMITERS[type] ?? EVERY_DELIMITER);
+          : (MARK_DELIMITERS[mark.type] ?? EVERY_DELIMITER);
       })
       .join("");
     source += around;
@@ -323,6 +333,8 @@ function blockOf(siblings: JSONContent[]): Block {
     source += `${child.text ?? ""}${around}`;
   }
   const counts = new Map<string, number>();
+  for (const ch of written)
+    if (EVERY_DELIMITER.includes(ch)) counts.set(ch, (counts.get(ch) ?? 0) + 1);
   const lead = new Uint8Array(source.length + 1);
   let inLead = true;
   for (let at = 0; at < source.length; at++) {
@@ -333,7 +345,7 @@ function blockOf(siblings: JSONContent[]): Block {
     if (EVERY_DELIMITER.includes(ch)) counts.set(ch, (counts.get(ch) ?? 0) + 1);
   }
   lead[source.length] = inLead ? 1 : 0;
-  block = { starts, counts, lead, linkish: /\][([:]/.test(source) };
+  block = { starts, counts, lead, linkish: /\][([:]/.test(source + written) };
   BLOCKS.set(siblings, block);
   return block;
 }

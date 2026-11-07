@@ -1,0 +1,18 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "a ` x " },
+        { "type": "mention", "attrs": { "kind": "user", "id": "u1", "label": "z`end" } },
+        { "type": "text", "text": " then b" },
+        {
+          "type": "text",
+          "text": "c",
+          "marks": [{ "type": "link", "attrs": { "href": "/`end", "title": "t`" } }]
+        }
+      ]
+    }
+  ]
+}
