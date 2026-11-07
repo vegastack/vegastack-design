@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.57.3] — November 7, 2026
+
+<!-- assembled from 1 changeset: f3f9cda07468 -->
+
+### 🔧 Changed components
+
+- `AgentPanel` takes `questionWait`: for a viewer who may not answer the agent's question, whom it waits on ("Waiting on Priya to answer."), as a plain sentence after the question's quoted words, or alone when the viewer isn't shown them.
+  [`4358c6d`](https://github.com/VegaStack/vegastack-design/commit/4358c6d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.57.2 → 0.57.3.
+
 ## [0.57.2] — November 7, 2026
 
 <!-- assembled from 1 changeset: 5a58bbf27e28 -->

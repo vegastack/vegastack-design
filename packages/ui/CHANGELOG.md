@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.57.3
+
+### Patch Changes
+
+- [#935](https://github.com/vegastack/vegastack-design/pull/935) [`4358c6d`](https://github.com/vegastack/vegastack-design/commit/4358c6d89d748493d5053329cd152b0394c63a1b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AgentPanel` takes `questionWait`: for a viewer who may not answer the agent's question, whom it waits on ("Waiting on Priya to answer."), as a plain sentence after the question's quoted words, or alone when the viewer isn't shown them.
+
 ## 0.57.2
 
 ### Patch Changes
