@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.57.0 sha256-z+5Yjima0JW+bpX3wvuVm55J2/nG2Ea8HYsPxOpt0eo=
+// @vegastack document-layout@0.57.0 sha256-r8EsCZJUjNU+vwVuVRiOXj+22JtS8Wj4ZCaRjvr1ifM=
 
 "use client";
 
@@ -416,7 +416,8 @@ export function DocumentLayoutDecisionBarText({
 }
 
 /**
- * `DocumentLayoutDecisionBarActions` — the answers; on a phone a full row, spread to its ends.
+ * `DocumentLayoutDecisionBarActions` — the answers; on a phone two or more take a full row, spread
+ * to its ends, and a lone one stays at the end of the text's line.
  *
  * @example
  * <DocumentLayoutDecisionBarActions><Button size="sm">Approve</Button></DocumentLayoutDecisionBarActions>
@@ -429,7 +430,9 @@ export function DocumentLayoutDecisionBarActions({
     <div
       data-slot="document-layout-decision-bar-actions"
       className={cn(
-        "flex flex-wrap gap-2 max-sm:w-full max-sm:justify-between",
+        // Two or more answers take a phone's full row, spread to its ends; a lone one (Cancel
+        // review) stays at the end of the text's line instead of a row of its own.
+        "flex flex-wrap gap-2 max-sm:has-[>*+*]:w-full max-sm:has-[>*+*]:justify-between",
         className,
       )}
       {...props}

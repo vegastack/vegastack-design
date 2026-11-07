@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.57.0 sha256-ogRS23CTn6XQuzjvItSlWP7d0xzpnyLhZqIoyd87Fc4=
+// @vegastack agent-panel@0.57.0 sha256-FzIHe4jguBw/JWw6vg8lhUu0PV6ch9T395E85DtK+gU=
 
 "use client";
 
@@ -1294,6 +1294,11 @@ export interface AgentPanelProps extends Omit<
   lastUpdateAt?: Date | string | number;
   /** Why it is paused (state `paused`): "Reached its usage limit". @default undefined */
   pausedReason?: React.ReactNode;
+  /**
+   * What explains the reason (a Learn more link), after it and outside its quotes — states
+   * `paused`, `failed` and `blocked`, when their words show. @default undefined
+   */
+  reasonHelp?: React.ReactNode;
   /** Resume (paused) — pass it only to a viewer who may. @default undefined */
   onResume?: () => void;
   /** When it finished (done) or was stopped (stopped). @default undefined */
@@ -1414,6 +1419,13 @@ function LineButton({
     <Button size="xs" variant={variant} className={className} {...props} />
   );
 }
+
+/** The states whose sentence is a reason `reasonHelp` explains. */
+const REASON_STATES: ReadonlySet<AgentState> = new Set([
+  "paused",
+  "failed",
+  "blocked",
+]);
 
 /** "· " between facts on a line. */
 function Dot() {
@@ -1690,6 +1702,9 @@ function StateBlock({ p }: { p: ResolvedProps }) {
           )}
         >
           {sentence?.text}
+          {sentence && p.reasonHelp != null && REASON_STATES.has(state) ? (
+            <> {p.reasonHelp}</>
+          ) : null}
           {sentence && disconnected ? " " : null}
           {disconnected ? (
             <span data-slot="agent-panel-disconnected">
@@ -2422,6 +2437,7 @@ const PANEL_KEYS = [
   "onGiveAccess",
   "lastUpdateAt",
   "pausedReason",
+  "reasonHelp",
   "onResume",
   "finishedAt",
   "durationSeconds",

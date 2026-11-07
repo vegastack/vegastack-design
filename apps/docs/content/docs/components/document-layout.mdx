@@ -260,7 +260,8 @@ The tools a page lays over or around its text, each without a class of your own:
   review this page · Approve"). Put it first in `DocumentLayoutBody`: it sticks at the top of the
   scroll container while the text is in view (a host whose scroll container runs under a fixed top
   bar sets `--document-layout-bar-top` to that bar's height on the layout), and on a phone floats at the bottom
-  with the floating buttons above it.
+  with the floating buttons above it. On a phone two or more answers take a row of their own,
+  spread to its ends; a lone one (Cancel review) stays at the end of the text's line.
 - `DocumentLayout focusable` — the canvas takes focus from a click in its read text (never a tab
   stop) and shows no focus cue of its own.
 

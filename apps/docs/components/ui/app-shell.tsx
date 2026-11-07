@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.45.0 sha256-wZ511xXRJIgzF9K70m9MpBRXsdJOESDWTISE+1JMe8g=
+// @vegastack app-shell@0.45.0 sha256-/hPoveuRiU0ML+gR7N0NNbtvQl3glluc+H/ytt5BAjs=
 
 "use client";
 
@@ -1328,7 +1328,12 @@ export function AppShellAside({
         onPointerDown={startResize}
         onKeyDown={onHandleKey}
         onDoubleClick={() => commit(defaultWidth)}
-        className="absolute inset-y-0 start-0 z-10 w-1 cursor-col-resize touch-none transition-colors outline-none select-none before:absolute before:inset-y-0 before:-start-3 before:-end-2 before:content-[''] hover:bg-border focus-visible:bg-border data-resizing:bg-border max-md:hidden"
+        className={cn(
+          "absolute inset-y-0 start-0 z-10 w-1 cursor-col-resize touch-none transition-colors outline-none select-none before:absolute before:inset-y-0 before:-start-3 before:-end-2 before:content-[''] hover:bg-border focus-visible:bg-border data-resizing:bg-border max-md:hidden",
+          // Closed, a docked panel is 0 wide at the window's edge: the hit area past it would
+          // widen the page and scroll it sideways.
+          !open && "hidden",
+        )}
       />
       {/* The clip is its own box: on the panel it would cut the handle's hit area in half. */}
       <div className="h-full w-full overflow-hidden">

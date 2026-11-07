@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.40.0 sha256-RA4mFYNynQhlm90S3ri0t6UgoHccsICKGV5lUcKNO9A=
+// @vegastack activity-feed@0.40.0 sha256-CkClMlUR6NBnZvILX8JjYp7Bk5nhpm/f6zG1WF9IRzw=
 
 "use client";
 
@@ -776,7 +776,12 @@ export function ActivityValue({
   return (
     <span
       data-slot="activity-value"
-      className={cn("font-medium text-foreground", className)}
+      className={cn(
+        // A field's own display (a status chip, a right-aligned number) is a block for a cell:
+        // here it reads inline, in the sentence, at its own width.
+        "font-medium text-foreground *:data-[slot=field-cell-display]:inline-flex *:data-[slot=field-cell-display]:max-w-full *:data-[slot=field-cell-display]:align-bottom",
+        className,
+      )}
       {...props}
     />
   );
