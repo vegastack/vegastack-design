@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.57.0
+
+### Minor Changes
+
+- [#930](https://github.com/vegastack/vegastack-design/pull/930) [`76bf898`](https://github.com/vegastack/vegastack-design/commit/76bf89809d8a7b211f6d9d7416f73cf15e3538b5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `DocumentLayoutDecisionBar` sticks at the top of the scroll container (`--document-layout-bar-top`, 0 unless a host sets it) instead of 56px down it, where text showed above the bar in a peek or an app shell's scroll area. `AgentPanel` runs take `summary`, what the run changed ("1 change · Status, Lines · 12:11"), cut short before the count or the buttons are.
+
 ## 0.56.0
 
 ### Minor Changes

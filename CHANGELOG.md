@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.57.0] — November 7, 2026
+
+<!-- assembled from 1 changeset: 2e744d45def3 -->
+
+### 🔧 Changed components
+
+- `DocumentLayoutDecisionBar` sticks at the top of the scroll container (`--document-layout-bar-top`, 0 unless a host sets it) instead of 56px down it, where text showed above the bar in a peek or an app shell's scroll area. `AgentPanel` runs take `summary`, what the run changed ("1 change · Status, Lines · 12:11"), cut short before the count or the buttons are.
+  [`76bf898`](https://github.com/VegaStack/vegastack-design/commit/76bf898)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.56.0 → 0.57.0.
+
 ## [0.56.0] — November 6, 2026
 
 <!-- assembled from 1 changeset: b9733098df88 -->
