@@ -804,7 +804,7 @@ export interface FieldCellDisplayProps {
    * number or percent is plain (no digit grouping; only a currency groups), a link shows without
    * its scheme and without a trailing slash on a bare host, a date or date-time is clipped on one
    * line instead of ending in an ellipsis, a person is always their avatar and name (every
-   * person, not avatars and "+N"), and every file shows as its chip, or an image's thumbnail.
+   * person, not avatars and "+N"; a name that doesn't fit ends in an ellipsis), and every file shows as its chip, or an image's thumbnail.
    * @default "default"
    */
   variant?: "default" | "cell";
@@ -1024,14 +1024,16 @@ export function FieldCellDisplay({
         return root(
           <span className="flex min-w-0 items-center gap-3 overflow-hidden whitespace-nowrap">
             {people.map((person) => (
+              // Each name shrinks to an ellipsis, with the whole name on hover, focus or tap
+              // (`TruncatedText`); the avatar keeps its size.
               <span
                 key={person.id}
-                className="flex shrink-0 items-center gap-1.5"
+                className="flex max-w-fit min-w-0 items-center gap-1.5"
               >
                 {/* `xs` (20px): the cell's 20px line, so an editable cell's clipping wrapper never
                     cuts the circle. */}
-                <PersonAvatar person={person} size="xs" />
-                {person.name}
+                <PersonAvatar person={person} size="xs" className="shrink-0" />
+                <TruncatedText>{person.name}</TruncatedText>
               </span>
             ))}
           </span>,
