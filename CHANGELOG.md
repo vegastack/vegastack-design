@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.58.0] — November 7, 2026
+
+<!-- assembled from 1 changeset: 2e324d3021f6 -->
+
+### 🧩 New components
+
+- `TextEdit`'s `@` menu keeps its answers for the whole tab under `mentions.cacheKey`, shared by every editor with that key; a focus prefetches the bare `@` answer (`prefetchMentions`, `clearMentionCache`), so the menu opens on rows that typing filters until the answer comes. A query starting with a kind (`@task `) or <kbd>Tab</kbd> asks for that kind only (`search`'s `only`), shown as a chip in the menu's header. A failed search offers Retry. `mentions.order: "answer"` keeps the source's group order. `SuggestionMenu` takes `header` and `statusAction`.
+  [`ec88d7e`](https://github.com/VegaStack/vegastack-design/commit/ec88d7e)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.57.4 → 0.58.0.
+
 ## [0.57.4] — November 7, 2026
 
 <!-- assembled from 1 changeset: 7b92896acd35 -->
