@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.40.0 sha256-RA4mFYNynQhlm90S3ri0t6UgoHccsICKGV5lUcKNO9A=
+// @vegastack activity-feed@0.40.0 sha256-GNNCEK7iIljrwxcQXmNqYVR8M23r47P5rft29hhZvh0=
 
 "use client";
 
@@ -761,8 +761,11 @@ export function ActivityEvent({
         ) : null}
         {/* Agent-first: "Claude Code for Manoj changed …" — its hexagon says it is an agent, so
             the line carries no label. */}
-        {children} <span aria-hidden>·</span>{" "}
-        <RelativeTime date={date} now={now} />
+        {children}{" "}
+        {/* The dot travels with the time: a wrapped line never ends on it. */}
+        <span className="whitespace-nowrap">
+          <span aria-hidden>·</span> <RelativeTime date={date} now={now} />
+        </span>
       </p>
     </div>
   );
@@ -776,7 +779,12 @@ export function ActivityValue({
   return (
     <span
       data-slot="activity-value"
-      className={cn("font-medium text-foreground", className)}
+      className={cn(
+        // A field's own display (a status chip, a right-aligned number) is a block for a cell:
+        // here it reads inline, in the sentence, at its own width.
+        "font-medium text-foreground *:data-[slot=field-cell-display]:inline-flex *:data-[slot=field-cell-display]:max-w-full *:data-[slot=field-cell-display]:align-bottom",
+        className,
+      )}
       {...props}
     />
   );

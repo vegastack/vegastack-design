@@ -68,6 +68,8 @@ while — the design system holds no provider's vocabulary), `working`
 (`stoppedBy`, `finishedAt`, `changeCount`, `onDelegateAgain`). A finished, failed or stopped card
 whose agent was disconnected since takes `disconnected` and adds it to its sentence (with Reconnect
 when `onReconnect` is set and the state has no other action) — it never turns back into Needs you.
+`reasonHelp` (a Learn more link) follows a paused, failed or blocked card's reason, outside a
+failure's quotes.
 
 `instructionsMaxLength` and `replyMaxLength` limit the instructions editor and the reply box without cutting them: each counts from 80% of the limit and, past it, shows its `…MaxLengthMessage` while Save or Send waits.
 

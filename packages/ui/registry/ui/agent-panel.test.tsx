@@ -218,6 +218,25 @@ test("approval, failed, blocked: each state's line and actions", async () => {
     "FailedCouldn't open M-15 — no access.",
   );
   expect(failedLine.querySelector("q")).not.toBeNull();
+  // The reason's help follows the quote, never inside it.
+  await failed.rerender(
+    <AgentPanel
+      {...base}
+      state="failed"
+      error="Couldn't open M-15 — no access."
+      reasonHelp={<a href="#why">Learn more</a>}
+      onRetry={onRetry}
+      onRemove={onRemove}
+    />,
+  );
+  const quoted = slot(failed.container, "agent-panel-state")!.querySelector(
+    "q",
+  )!;
+  expect(quoted.textContent).toBe("Couldn't open M-15 — no access.");
+  expect(quoted.querySelector("a")).toBeNull();
+  expect(quoted.parentElement!.querySelector("a")!.textContent).toBe(
+    "Learn more",
+  );
   expect(
     failedLine
       .querySelector("[data-slot=agent-state-icon]")!

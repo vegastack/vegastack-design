@@ -132,6 +132,14 @@ test("a closed docked panel takes no width and its content keeps its own", async
     expect(asideOf(screen.container).getBoundingClientRect().width).toBe(0),
   );
   expect(panel.getBoundingClientRect().width).toBe(open);
+  // Its resize handle's hit area reaches past the panel's edge: closed at the window's edge, it
+  // would widen the page and scroll it sideways, so it isn't laid out.
+  const handle = screen.container.querySelector<HTMLElement>(
+    "[data-slot=app-shell-aside-resize]",
+  )!;
+  expect(getComputedStyle(handle).display).toBe("none");
+  await screen.rerender(<Aside mode="dock" />);
+  expect(getComputedStyle(handle).display).not.toBe("none");
 });
 
 test("Escape inside asks to close; Escape from outside the panel does not", async () => {

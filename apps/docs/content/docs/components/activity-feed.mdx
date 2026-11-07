@@ -96,7 +96,9 @@ change events into one list, applies the filter and the order, and pages them. E
 apart; a thread card or a divider keeps 12px around it. Each event leads with a 20px node in the
 same column as the comments' avatars — an `ActivityKindIcon`, the new value's `StatusIcon` or
 `PriorityIcon`, or the actor's avatar (`icon="avatar"`) — then the actor, whose name opens their
-person hover card, the sentence with its `ActivityValue`s, and the relative time.
+person hover card, the sentence with its `ActivityValue`s, and the relative time. A field's own
+display inside an `ActivityValue` (a status chip, a number a cell right-aligns) reads inline, at its
+own width, so "Quote value to ₹5,88,000.00" stays one phrase.
 
 Put `CommentDayDivider` (from `comments`) between items on different days, and one
 `ActivityUnreadDivider` before the first item the viewer hasn't seen; its `onVisible` fires once,
