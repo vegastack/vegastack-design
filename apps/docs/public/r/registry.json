@@ -23443,6 +23443,39 @@
       }
     },
     {
+      "name": "agent-question-form",
+      "type": "registry:ui",
+      "title": "Agent Question Form",
+      "description": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended, own words and a note per question, previews, steps and a review; and the read-only answers.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.12.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/questionnaire",
+        "@vegastack/textarea"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/agent-question-form.tsx",
+          "type": "registry:ui",
+          "target": "@ui/agent-question-form.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
+        "whenNotToUse": "An agent asking to perform one action (ApprovalCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
+        "version": "0.58.0",
+        "integrity": "sha256-tz00vDdbBcJSHWmlgBGgig4BybJHDCvp8zP8EUDoRYE="
+      }
+    },
+    {
       "name": "delegate-popover",
       "type": "registry:ui",
       "title": "Delegate Popover",

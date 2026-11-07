@@ -43,6 +43,7 @@ export * from "./message-parts";
 export * from "./approval-card";
 export * from "./agent-edit-banner";
 export * from "./agent-panel";
+export * from "./agent-question-form";
 export * from "./delegate-popover";
 export * from "./navigation-menu";
 export * from "./announcement-banner";
