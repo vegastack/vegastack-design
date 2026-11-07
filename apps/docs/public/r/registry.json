@@ -2664,7 +2664,7 @@
         "version": "0.26.4",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-Hl/G9JWZaecwRsjzFfIuk0qkkOu6Z6h2oQiuwfVTw14="
+        "integrity": "sha256-sBCLrPROe8RBlG/h3D9h40xZ4gLHYAYLys9E3cRXWqg="
       }
     },
     {

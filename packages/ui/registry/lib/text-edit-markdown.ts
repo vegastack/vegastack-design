@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.26.4 sha256-Hl/G9JWZaecwRsjzFfIuk0qkkOu6Z6h2oQiuwfVTw14=
+// @vegastack text-edit-markdown@0.26.4 sha256-sBCLrPROe8RBlG/h3D9h40xZ4gLHYAYLys9E3cRXWqg=
 
 import { Mark, type AnyExtension, type JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -48,7 +48,7 @@ import {
  *   and keeps it literal when not, so a server and a browser read the same page differently. `<br>`
  *   is the one tag read (a line break); toggles and media have their own syntax;
  * - **minimal escaping** — text is escaped only where Markdown would read it as syntax:
- *   `snake_case`, `R&D` and `a * b` stay as typed (tiptap#8471);
+ *   `snake_case`, `R&D`, `a * b`, `~5` and `["a"]` stay as typed (tiptap#8471);
  * - **canonical output** — no `&nbsp;` lines, one blank line between blocks, deterministic.
  */
 
@@ -109,6 +109,21 @@ const ALNUM = /[\p{L}\p{N}]/u;
 const SPACE = /\s/;
 
 /**
+ * The text block a text node is written in, as far as escaping needs it: delimiters pair only
+ * within one block, so a lone `*`, `_`, `~` or backtick can open nothing, and a `[` opens a link
+ * only before a `](`, `][` or `]:`. `null` (a node outside its parent's content) escapes as if
+ * every delimiter had a partner.
+ */
+interface BlockContext {
+  /** How many times `ch` occurs in the block's source, the writer's own delimiters included. */
+  count(ch: string): number;
+  /** Whether the node's `i`th character starts a line, after spaces at most. */
+  lineStart(i: number): boolean;
+  /** Whether the block holds a `](`, `][` or `]:` anywhere. */
+  linkish: boolean;
+}
+
+/**
  * Text escaped only where Markdown would read it as syntax. `before`/`after` are the characters
  * either side of the text node (unknown at a node edge: treated as not a space and not a letter).
  */
@@ -119,7 +134,12 @@ function escapeText(
     end: false,
     marked: false,
   },
+  block: BlockContext | null = null,
+  inLink = false,
 ): string {
+  // A delimiter with no partner in its block opens and closes nothing.
+  const paired = (ch: string) => !block || block.count(ch) > 1;
+  const atLineStart = (i: number) => !block || block.lineStart(i);
   // A marked text's edge spaces are written outside its marks, against their delimiters.
   const lead = edges.marked ? text.length - text.trimStart().length : 0;
   const trail = edges.marked ? text.trimEnd().length : text.length;
@@ -134,19 +154,35 @@ function escapeText(
         out += next === "" || PUNCTUATION.test(next) ? "\\\\" : ch;
         break;
       case "`":
+        // A code span needs a closing run; a fence needs three at a line's start.
+        out += paired(ch) ? `\\${ch}` : ch;
+        break;
       case "[":
-        out += `\\${ch}`;
+        // A link, an image, a reference or its definition, a task box or a callout: `[` opens one
+        // only inside link text, at a line's start, or before a `](`, `][` or `]:`.
+        // `["a", "b"]` and `[1]` stay as typed.
+        out +=
+          inLink || !block || block.linkish || block.lineStart(i)
+            ? `\\${ch}`
+            : ch;
         break;
       case "*":
-        // Between spaces it can neither open nor close emphasis: `2 * 3`.
-        out += SPACE.test(prev) && SPACE.test(next) ? ch : "\\*";
+        // Between spaces it can neither open nor close emphasis (`2 * 3`), nor alone in its block
+        // anywhere but a line's start, where it would be a bullet.
+        out +=
+          (SPACE.test(prev) && SPACE.test(next)) ||
+          (!paired(ch) && !atLineStart(i))
+            ? ch
+            : "\\*";
         break;
       case "_":
-        // Inside a word it cannot open or close emphasis: `snake_case`.
-        out += ALNUM.test(prev) && ALNUM.test(next) ? ch : "\\_";
+        // Inside a word it cannot open or close emphasis: `snake_case`. Alone it opens nothing.
+        out +=
+          (ALNUM.test(prev) && ALNUM.test(next)) || !paired(ch) ? ch : "\\_";
         break;
       case "~":
-        out += SPACE.test(next) ? ch : "\\~";
+        // Strikethrough and a fence need another: `~5 min` stays.
+        out += SPACE.test(next) || !paired(ch) ? ch : "\\~";
         break;
       case "=": {
         // A run of two or more opens or closes a highlight unless spaces surround it (`a == b`):
@@ -234,6 +270,101 @@ function indexIn(siblings: JSONContent[], node: JSONContent): number {
   return index.get(node) ?? -1;
 }
 
+/** What a mark writes around its text, for counting delimiters; an unknown one counts as all. */
+const MARK_DELIMITERS: Readonly<Record<string, string>> = {
+  bold: "**",
+  italic: "*",
+  strike: "~~",
+  code: "`",
+  link: "[](",
+};
+const EVERY_DELIMITER = "*_~`[](";
+/** What an inline node other than text writes, for counting: a mention or an image is a link. */
+const NODE_SOURCE: Readonly<Record<string, string>> = {
+  hardBreak: "\n",
+  mention: "[](",
+  image: "[](",
+};
+
+/** A text block as escaping reads it (`blockOf`). */
+interface Block {
+  /** Where each text child's text starts in the block's source. */
+  starts: Map<JSONContent, number>;
+  /** How often each delimiter occurs in the source, the writer's own included. */
+  counts: Map<string, number>;
+  /** 1 where a position is at most spaces past its line's start. */
+  lead: Uint8Array;
+  linkish: boolean;
+}
+
+/** Each parent's block, built once per parent in one pass (escaping stays linear). */
+const BLOCKS = new WeakMap<JSONContent[], Block>();
+
+function blockOf(siblings: JSONContent[]): Block {
+  let block = BLOCKS.get(siblings);
+  if (block) return block;
+  let source = "";
+  // Attributes are written too (a mention's label, a link's destination and title): a backtick
+  // there closes a code span opened in the text, whatever escapes it. Counted apart from the
+  // source, whose line starts they must not move.
+  let written = "";
+  const attrs = (attrs?: Record<string, unknown>) => {
+    if (attrs) written += JSON.stringify(attrs);
+  };
+  const starts = new Map<JSONContent, number>();
+  for (const child of siblings) {
+    if (child.type !== "text") {
+      source += NODE_SOURCE[child.type ?? ""] ?? EVERY_DELIMITER;
+      attrs(child.attrs);
+      continue;
+    }
+    const around = (child.marks ?? [])
+      .map((mark) => {
+        if (typeof mark === "string")
+          return MARK_DELIMITERS[mark] ?? EVERY_DELIMITER;
+        attrs(mark.attrs);
+        return mark.type.startsWith("highlight")
+          ? "=="
+          : (MARK_DELIMITERS[mark.type] ?? EVERY_DELIMITER);
+      })
+      .join("");
+    source += around;
+    starts.set(child, source.length);
+    source += `${child.text ?? ""}${around}`;
+  }
+  const counts = new Map<string, number>();
+  for (const ch of written)
+    if (EVERY_DELIMITER.includes(ch)) counts.set(ch, (counts.get(ch) ?? 0) + 1);
+  const lead = new Uint8Array(source.length + 1);
+  let inLead = true;
+  for (let at = 0; at < source.length; at++) {
+    const ch = source[at]!;
+    lead[at] = inLead ? 1 : 0;
+    if (ch === "\n") inLead = true;
+    else if (ch !== " " && ch !== "\t") inLead = false;
+    if (EVERY_DELIMITER.includes(ch)) counts.set(ch, (counts.get(ch) ?? 0) + 1);
+  }
+  lead[source.length] = inLead ? 1 : 0;
+  block = { starts, counts, lead, linkish: /\][([:]/.test(source + written) };
+  BLOCKS.set(siblings, block);
+  return block;
+}
+
+/** `node`'s block for `escapeText`; null when it isn't one of `siblings`. */
+function blockContext(
+  siblings: JSONContent[],
+  node: JSONContent,
+): BlockContext | null {
+  const block = blockOf(siblings);
+  const start = block.starts.get(node);
+  if (start === undefined) return null;
+  return {
+    count: (ch) => block.counts.get(ch) ?? 0,
+    lineStart: (i) => block.lead[start + i] === 1,
+    linkish: block.linkish,
+  };
+}
+
 /**
  * Stands in for a code span's edge spaces while the span is written: Tiptap's writer moves a mark's
  * edge whitespace outside it (right for `**bold **`, wrong for code, whose spaces are content).
@@ -311,11 +442,16 @@ function encodeText(
   if (marks.includes("code")) return codeSpanText(text);
   const siblings = parent?.content ?? [];
   const index = indexIn(siblings, node);
-  let out = escapeText(text, {
-    start: index === 0,
-    end: index >= 0 && index === siblings.length - 1,
-    marked: marks.length > 0,
-  });
+  let out = escapeText(
+    text,
+    {
+      start: index === 0,
+      end: index >= 0 && index === siblings.length - 1,
+      marked: marks.length > 0,
+    },
+    blockContext(siblings, node),
+    marks.includes("link"),
+  );
   // Inside link text a `]` would end the link.
   if (marks.includes("link")) out = out.replace(/\]/g, "\\]");
   const next = index >= 0 ? siblings[index + 1] : undefined;
