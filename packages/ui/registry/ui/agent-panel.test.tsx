@@ -458,6 +458,46 @@ test("history: runs with View and Undo; Undo disabled with its reason", async ()
   await expectNoA11yViolations(screen.container);
 });
 
+test("a run's summary says what it changed, after the count, and is cut short before the count or Undo", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <AgentPanel
+        {...base}
+        state="done"
+        runs={[
+          {
+            id: "r1",
+            changeCount: 4,
+            summary:
+              "Status, Lines, Quote value, Agent notes, Quotation, Reviewer",
+            at: NOW - 30 * MINUTE,
+            onView: () => {},
+            onUndo: () => {},
+          },
+          {
+            id: "r2",
+            changeCount: 1,
+            summary: "Status",
+            at: NOW - 60 * MINUTE,
+          },
+        ]}
+      />
+    </div>,
+  );
+  const runs = screen.container.querySelectorAll("[data-slot=agent-panel-run]");
+  expect(runs[1]!.textContent).toMatch(/^1 change ?· ?Status ?· /);
+  const row = runs[0]!.getBoundingClientRect();
+  const summary = slot(runs[0] as HTMLElement, "agent-panel-run-summary")!;
+  expect(summary.textContent).toBe(
+    "Status, Lines, Quote value, Agent notes, Quotation, Reviewer",
+  );
+  expect(summary.scrollWidth).toBeGreaterThan(summary.clientWidth);
+  const undo = screen.getByRole("button", { name: "Undo" }).element();
+  expect(undo.getBoundingClientRect().right).toBeLessThanOrEqual(row.right + 1);
+  expect(runs[0]!.textContent).toMatch(/^4 changes/);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("a page with its own Activity: showLatest={false} drops Latest, runsLayout=line keeps one Runs line", async () => {
   const onUndo = vi.fn();
   const screen = await render(

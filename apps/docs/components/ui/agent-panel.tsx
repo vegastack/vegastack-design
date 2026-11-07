@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.56.0 sha256-B4eTCVe5FJeGeJu6BWwjMG9LHwpyJHPJ9HEffwyoF2E=
+// @vegastack agent-panel@0.56.0 sha256-q319I+sI+APFQHuGD+0jREUhFkHcjYtJxpm9qvcTKKY=
 
 "use client";
 
@@ -71,6 +71,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { FieldCounter } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import {
   Tooltip,
   TooltipContent,
@@ -2164,13 +2165,18 @@ function RunFacts({
           {count}
         </span>
         {summary ? (
-          <span
-            data-slot="agent-panel-run-summary"
-            className="min-w-0 truncate"
-          >
-            <span aria-hidden>· </span>
-            {summary}
-          </span>
+          <>
+            <span aria-hidden className="shrink-0">
+              ·
+            </span>
+            {/* Cut short, it shows whole on hover, focus or a tap (`TruncatedText`). */}
+            <TruncatedText
+              data-slot="agent-panel-run-summary"
+              className="min-w-0"
+            >
+              {summary}
+            </TruncatedText>
+          </>
         ) : null}
       </span>
       <span className="shrink-0 whitespace-nowrap">

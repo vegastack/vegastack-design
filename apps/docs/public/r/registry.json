@@ -23421,6 +23421,7 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
+        "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/disclosure-trigger"
       ],
@@ -23435,7 +23436,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.56.0",
-        "integrity": "sha256-B4eTCVe5FJeGeJu6BWwjMG9LHwpyJHPJ9HEffwyoF2E="
+        "integrity": "sha256-q319I+sI+APFQHuGD+0jREUhFkHcjYtJxpm9qvcTKKY="
       }
     },
     {
