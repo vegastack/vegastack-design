@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 140,
+    "total": 141,
     "fromExtras": 46
   },
   "items": {
@@ -954,6 +954,12 @@
       "family": "chat",
       "source": "Regent agents platform P3 (talk to agents), DS-3 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
       "rationale": "Upstream ships no agent suggestion. A presentational card over upstream checkbox whose buttons and words all come from the host, with a compact row for lists; no patch."
+    },
+    "agent-question-form": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "Regent agents platform, lane AQ (agent question forms) — operator approval 2026-11-05 (go-dark, \"rsume from them on finishing all phases development till the end continuing in godark mode\")",
+      "rationale": "Upstream ships no agent question batch. A composition of our questionnaire (upstream's engine) with upstream badge, button and textarea: a compact pick-and-send form for one question, and a stepped form with own words, notes, previews and a review for the rest; no patch."
     }
   }
 }

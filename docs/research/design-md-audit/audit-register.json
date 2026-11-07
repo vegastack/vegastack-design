@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9a3fddf8bae324b03135c483ab94a3fa8912c31b5528943681ee0711cbbc5c3e",
+  "contractSha256": "af1edb90c1ba469340e98d26c110bb6b610f0e11c5cb6aebf454dcbf185f1f38",
   "expectedCounts": {
-    "totalRegistryItems": 791,
-    "components": 201,
+    "totalRegistryItems": 792,
+    "components": 202,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -2070,6 +2070,17 @@
         "packages/ui/registry/ui/agent-panel.tsx"
       ],
       "docsSlug": "/docs/components/agent-panel",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-question-form",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-question-form.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-question-form",
       "contractStatus": "reconciled"
     },
     {

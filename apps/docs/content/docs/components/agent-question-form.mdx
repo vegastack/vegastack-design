@@ -1,0 +1,138 @@
+---
+title: Agent Question Form
+description: An agent asks one to five questions at once — options with their descriptions in view, the first recommended, own words and a note, previews and a review.
+audience: public
+registry: agent-question-form
+status: stable
+since: 0.59.0
+a11y: named steps, keyed choices, focus follows the step
+preview: agentQuestionForm
+---
+
+## Install
+
+<InstallSteps name="agent-question-form" />
+
+## Usage
+
+```tsx
+import {
+  AgentQuestionAnswers,
+  AgentQuestionForm,
+} from "@/components/ui/agent-question-form";
+
+<AgentQuestionForm
+  questions={questions}
+  onSubmit={async (answers) => {
+    const sent = await answerAgent(answers);
+    return sent ? null : "Couldn't send your answers. Try again.";
+  }}
+/>;
+```
+
+`onSubmit` gets one answer per question, in order: `{ selected, other?, notes? }`, where `selected`
+holds the chosen options' labels. Resolve with an error to show it under the form, which stays
+editable; resolve with `null` once sent, and the form stays disabled. Afterwards, show what was
+answered with `AgentQuestionAnswers`.
+
+<ComponentPreview
+  name="agentQuestionForm"
+  file="components/preview/agent-question-form.tsx"
+/>
+
+## Scope
+
+- The first option is the recommended one and carries the badge. Order the options so it is.
+- Every option shows its description in full. Nothing hides behind a tooltip.
+- The person can always answer in their own words (Other), and add a note to any question.
+- Every word is a prop in `labels`, with an English default.
+
+## Anatomy
+
+<Anatomy name="agent-question-form" />
+
+## Examples
+
+### Compact
+
+One single-choice question with no previews is compact: the options are cards, and picking one
+sends it at once. Other opens a box for the person's own words with a Send button.
+
+<ComponentPreview
+  name="agentQuestionFormCompact"
+  file="components/preview/agent-question-form.tsx"
+/>
+
+### Narrow
+
+In a side panel the preview drops below the choices and scrolls sideways inside its own box; from a
+42rem container it sits beside them. This one fails on submit, to show the error.
+
+<ComponentPreview
+  name="agentQuestionFormNarrow"
+  file="components/preview/agent-question-form.tsx"
+/>
+
+### Answers
+
+`AgentQuestionAnswers` lists each header with the chosen options, own words and note, wrapped in
+full.
+
+<ComponentPreview
+  name="agentQuestionAnswers"
+  file="components/preview/agent-question-form.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-question-form.tsx"
+  name="AgentQuestionFormProps"
+/>
+
+### AgentQuestionFormQuestion
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-question-form.tsx"
+  name="AgentQuestionFormQuestion"
+/>
+
+### AgentQuestionFormOption
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-question-form.tsx"
+  name="AgentQuestionFormOption"
+/>
+
+### AgentQuestionAnswers
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-question-form.tsx"
+  name="AgentQuestionAnswersProps"
+/>
+
+## Accessibility
+
+- The compact form is a group named by its question; each option is a button whose name includes
+  its description.
+- The full form is a `Questionnaire`: each question is a fieldset named by its text, its options
+  are radios or checkboxes, and a multi-select question says "Choose any". The step chips are a
+  navigation list, the current one marked `aria-current="step"`.
+- Focus moves to the question when the step changes. A failed submit shows its message as an alert.
+- The preview is a focusable box, so it can be scrolled from the keyboard.
+
+| Key                         | Action                                    |
+| --------------------------- | ----------------------------------------- |
+| <kbd>1</kbd>–<kbd>5</kbd>   | Pick an option (the last number is Other) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move between options                      |
+| <kbd>Enter</kbd>            | Next, once the question is answered       |
+| <kbd>←</kbd> / <kbd>→</kbd> | Previous or next question                 |
+
+<StatesTested name="agent-question-form" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the option you recommend first and say in one sentence what each one means."
+  dont="Ask a yes/no question about one action — that is an ApprovalCard."
+/>

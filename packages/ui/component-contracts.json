@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 791,
-    "components": 201,
+    "totalRegistryItems": 792,
+    "components": 202,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 46,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 16,
+    "AI/chat": 17,
     "Hooks": 18,
     "Block": 15,
     "Animated icons": 467
@@ -249,7 +249,8 @@
       "cited-list",
       "message-parts",
       "chat-composer",
-      "suggestion-card"
+      "suggestion-card",
+      "agent-question-form"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -43015,6 +43016,200 @@
             {
               "name": "data-variant",
               "values": ["card", "section"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "agent-question-form",
+      "registryType": "registry:ui",
+      "title": "Agent Question Form",
+      "summary": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended, own words and a note per question, previews, steps and a review; and the read-only answers.",
+      "status": "stable",
+      "since": "0.59.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/agent-question-form.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AgentQuestionForm",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no ref: it renders either a compact group or a questionnaire form, chosen from the questions."
+          }
+        },
+        {
+          "name": "AgentQuestionAnswers",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no ref: a read-only list rendered from props."
+          }
+        },
+        {
+          "name": "AgentQuestionFormProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentQuestionAnswersProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentQuestionFormOption",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentQuestionFormQuestion",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentQuestionFormAnswer",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentQuestionFormLabels",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-question-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "data-mode",
+            "values": ["compact", "full"]
+          }
+        ],
+        "rationale": "Chosen from the questions: one single-choice question with no previews is compact, anything else is full."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "compact",
+            "full",
+            "single-select",
+            "multi-select",
+            "other",
+            "notes",
+            "preview",
+            "review",
+            "submitting",
+            "error",
+            "sent",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-question-form.tsx + packages/ui/registry/ui/agent-question-form.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labelled-group",
+            "step-navigation-aria-current",
+            "number-key-shortcuts",
+            "focus-on-step-change",
+            "alert-on-error",
+            "aria-busy",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-question-form.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "compact",
+            "full",
+            "preview-below",
+            "preview-beside",
+            "review"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-question-form.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Descriptions and answers wrap; a header chip truncates; the preview scrolls sideways inside its own box and sits beside the choices from a 42rem container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/agent-question-form",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/questionnaire",
+        "@vegastack/textarea"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.12.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/agent-question-form.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "agent-question-form",
+      "dataAttributes": {
+        "AgentQuestionAnswers": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["agent-question-answer", "agent-question-answers"]
             }
           ],
           "cssVariables": []
