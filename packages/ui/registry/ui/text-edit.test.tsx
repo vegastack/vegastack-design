@@ -11,6 +11,9 @@ import { InlineChipProvider } from "./inline-chip";
 import icon from "../../../../apps/docs/public/preview/avatar-1.svg?no-inline";
 import {
   linkedTaskId,
+  clearMentionCache,
+  mentionAnswers,
+  prefetchMentions,
   preloadTextEdit,
   TEXT_EDIT_UPLOAD_ABORT,
   TextEdit,
@@ -1875,6 +1878,215 @@ test("mentions: the menu asks at once, then once after the debounce; Enter inser
   await vi.waitFor(() => expect(mentionMenu()).not.toBeNull());
   await userEvent.keyboard("{Escape}");
   await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+});
+
+test("mentions: editors with one `cacheKey` share answers; a focus prefetches the bare `@`, so the menu opens on rows", async () => {
+  clearMentionCache();
+  const search = vi.fn(async (query: string): Promise<MentionOption[]> =>
+    query === ""
+      ? [
+          { kind: "user", id: "u1", label: "Asha Rao" },
+          { kind: "page", id: "p1", label: "Assembly notes" },
+        ]
+      : [{ kind: "page", id: "p1", label: "Assembly notes" }],
+  );
+  const mentions = () => ({
+    kinds: mentionKinds("user", "page"),
+    search,
+    cacheKey: "shared",
+  });
+  const screen = await render(
+    <>
+      <TextEdit format="markdown" aria-label="One" mentions={mentions()} />
+      <TextEdit format="markdown" aria-label="Two" mentions={mentions()} />
+    </>,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelectorAll(".ProseMirror")).toHaveLength(2),
+  );
+  await screen.getByRole("textbox", { name: "One" }).click();
+  // The focus asked for the bare `@` before any `@` was typed.
+  await vi.waitFor(() =>
+    expect(search).toHaveBeenCalledWith("", expect.anything()),
+  );
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Asha Rao"),
+  );
+  // Typing filters the rows on show at once, before the answer for "ass" comes.
+  await userEvent.keyboard("ass");
+  await vi.waitFor(() => {
+    expect(mentionMenu()?.textContent).toContain("Assembly notes");
+    expect(mentionMenu()?.textContent).not.toContain("Asha Rao");
+  });
+  await vi.waitFor(() =>
+    expect(search).toHaveBeenCalledWith("ass", expect.anything()),
+  );
+  await userEvent.keyboard("{Escape}");
+  // Another editor with the same key: no new request for the bare `@` (or for "ass").
+  await screen.getByRole("textbox", { name: "Two" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Asha Rao"),
+  );
+  expect(search.mock.calls.filter(([query]) => query === "")).toHaveLength(1);
+  await userEvent.keyboard("ass");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Assembly notes"),
+  );
+  expect(search.mock.calls.filter(([query]) => query === "ass")).toHaveLength(
+    1,
+  );
+});
+
+test("mentions: `prefetchMentions` asks once while an answer is fresh or on its way", async () => {
+  clearMentionCache();
+  const search = vi.fn(async (): Promise<MentionOption[]> => []);
+  const mentions = {
+    kinds: mentionKinds("user"),
+    search,
+    cacheKey: "prefetch",
+  };
+  prefetchMentions(mentions);
+  prefetchMentions(mentions);
+  await vi.waitFor(() => expect(search).toHaveBeenCalledTimes(1));
+  prefetchMentions(mentions);
+  expect(search).toHaveBeenCalledTimes(1);
+});
+
+test("mentions: a search stopped by `clearMentionCache` is never delivered or kept", async () => {
+  clearMentionCache();
+  const mentions = {
+    kinds: mentionKinds("user"),
+    cacheKey: "cleared",
+    search: () =>
+      new Promise<MentionOption[]>((resolve) =>
+        setTimeout(
+          () => resolve([{ kind: "user", id: "u1", label: "Asha Rao" }]),
+          30,
+        ),
+      ),
+  };
+  const waiting = mentionAnswers.ask(
+    mentions,
+    "",
+    undefined,
+    new AbortController().signal,
+  );
+  clearMentionCache();
+  await expect(waiting).rejects.toThrow();
+  expect(mentionAnswers.peek(mentions, "")).toBeNull();
+  expect(mentionAnswers.covered(mentions, "")).toBe(false);
+});
+
+test("mentions: `@task ` and Tab narrow the menu to one kind, shown as a chip; its × or Shift+Tab widen it again", async () => {
+  clearMentionCache();
+  const search = vi.fn(
+    async (
+      _query: string,
+      { only }: { signal: AbortSignal; only?: string },
+    ): Promise<MentionOption[]> =>
+      only === "task"
+        ? Array.from({ length: 8 }, (_, at) => ({
+            kind: "task",
+            id: `t${at}`,
+            label: `Task ${at}`,
+          }))
+        : [
+            { kind: "user", id: "u1", label: "Asha Rao" },
+            { kind: "task", id: "t0", label: "Task 0" },
+          ],
+  );
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: { kinds: mentionKinds("user", "page", "task"), search },
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@task ");
+  await vi.waitFor(() =>
+    expect(search).toHaveBeenLastCalledWith("", {
+      signal: expect.any(AbortSignal),
+      only: "task",
+    }),
+  );
+  // One kind: up to twenty of it, under a chip that names it.
+  await vi.waitFor(() =>
+    expect(
+      mentionMenu()?.querySelectorAll('[data-slot="suggestion-menu-option"]'),
+    ).toHaveLength(8),
+  );
+  const filter = () =>
+    mentionMenu()?.querySelector('[data-slot="text-edit-mention-filter"]');
+  expect(filter()?.textContent).toContain("Tasks");
+  // Tab past the last kind is every kind again: the query loses its kind word.
+  await userEvent.keyboard("{Tab}");
+  await vi.waitFor(() => expect(filter()).toBeNull());
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("@"));
+  // Tab steps to the first kind (People), Shift+Tab back to every kind.
+  await userEvent.keyboard("{Tab}");
+  await vi.waitFor(() => expect(filter()?.textContent).toContain("People"));
+  expect(lastValue(onValueChange)).toMatch(/^@person/);
+  await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  await vi.waitFor(() => expect(filter()).toBeNull());
+  // Its × takes a filter off.
+  await userEvent.keyboard("{Tab}");
+  await vi.waitFor(() => expect(filter()?.textContent).toContain("People"));
+  (filter()!.querySelector("button") as HTMLButtonElement).click();
+  await vi.waitFor(() => expect(filter()).toBeNull());
+  expect(mentionMenu()).not.toBeNull();
+});
+
+test("mentions: a failed search says so with Retry; Retry (or Enter) asks again", async () => {
+  clearMentionCache();
+  let fail = true;
+  const search = vi.fn(async (): Promise<MentionOption[]> => {
+    if (fail) throw new Error("offline");
+    return [{ kind: "user", id: "u1", label: "Asha Rao" }];
+  });
+  const screen = await markdownEditor({
+    mentions: { kinds: mentionKinds("user"), search },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Couldn't search."),
+  );
+  const retry = mentionMenu()!.querySelector(
+    '[data-slot="suggestion-menu-status-action"]',
+  ) as HTMLButtonElement;
+  expect(retry.textContent).toBe("Retry");
+  fail = false;
+  retry.click();
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Asha Rao"),
+  );
+});
+
+test('mentions: `order: "answer"` keeps the source\'s group order as typing filters it', async () => {
+  clearMentionCache();
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    { kind: "page", id: "p0", label: "Roadmap", group: "Here" },
+    { kind: "task", id: "t1", label: "Review rollout", group: "Recent" },
+    { kind: "task", id: "t2", label: "Ring the client" },
+    { kind: "user", id: "u1", label: "Ravi" },
+  ]);
+  const screen = await markdownEditor({
+    mentions: {
+      kinds: mentionKinds("user", "page", "task"),
+      search,
+      order: "answer",
+    },
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@");
+  const headings = () =>
+    [...mentionMenu()!.querySelectorAll('[role="group"]')].map(
+      (group) => group.firstElementChild?.textContent,
+    );
+  await vi.waitFor(() =>
+    expect(headings()).toEqual(["Here", "Recent", "Tasks", "People"]),
+  );
 });
 
 test("uploads: a pasted image shows the uploading overlay, then its final src — committed after blur", async () => {

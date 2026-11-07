@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.53.0 sha256-V+oeYllrcur15+4lqzLx9LNCAOqHj0fjfv85npztJKg=
+// @vegastack text-edit@0.53.0 sha256-xwEo/xSYk12CR3oL34hURSgYH1ugWbFSdrbRuRpOlV0=
 
 "use client";
 
@@ -154,8 +154,8 @@ export interface MentionOption {
   icon?: React.ReactNode;
   /**
    * Shows the option under this heading ("Recent") instead of its kind's: every such group comes
-   * first, in the order its options arrive, ahead of the kinds' groups. Its kind must still be one
-   * of the menu's `kinds`.
+   * first, in the order its options arrive, ahead of the kinds' groups (with `order: "answer"`,
+   * where it arrives). Its kind must still be one of the menu's `kinds`.
    * @default undefined — the kind's own group
    */
   group?: string;
@@ -175,6 +175,17 @@ export interface MentionOption {
  */
 export type MentionSection = "people" | "agents" | "records";
 
+/** What `TextEditMentions.search` is asked with besides the query. */
+export interface TextEditMentionSearchOptions {
+  /** Aborts once no menu waits for this answer any more. */
+  signal: AbortSignal;
+  /**
+   * The one kind asked for (`@task …`, or <kbd>Tab</kbd>): answer only that kind.
+   * @default undefined — every kind in `kinds`
+   */
+  only?: MentionKind;
+}
+
 /** The `@` menu's source: which kinds it offers, and the search behind it. */
 export interface TextEditMentions {
   /**
@@ -186,14 +197,26 @@ export interface TextEditMentions {
   kinds: readonly MentionKindConfig[];
   /**
    * Results for what follows the `@`: asked at once when the menu opens, then 120ms after the
-   * last keystroke. The signal aborts when the query changes; an answer is kept per query and
-   * shown at once when the query comes back (asked again after 30 seconds). The menu shows at
-   * most five per kind.
+   * last keystroke. The signal aborts when the query changes and nothing else waits for that
+   * answer. Answers are kept per query (`cacheKey`) and shown at once when the query comes back
+   * (asked again after 30 seconds, the kept answer on show meanwhile). The menu shows at most
+   * five per kind. A query that starts with a kind's id, noun or plural and a space (`@task `,
+   * `@pages roadmap`, or picked with <kbd>Tab</kbd>) asks for that kind only: `only` names it
+   * and `query` is the rest. Reject (throw) when the search fails: the menu says so and offers
+   * Retry; an empty array means nothing matched.
    */
   search: (
     query: string,
-    options: { signal: AbortSignal },
+    options: TextEditMentionSearchOptions,
   ) => Promise<MentionOption[]>;
+  /**
+   * Names everything `search`'s answers depend on besides the query (who asks, the kinds, the
+   * record written in): every editor in the tab with the same key shares one set of answers, so
+   * a menu another editor (or `prefetchMentions`) asked for shows at once. Leave it out when the
+   * answers belong to this `mentions` object alone.
+   * @default undefined — answers kept for this `mentions` object
+   */
+  cacheKey?: string;
   /**
    * A person picked `option` from the `@` menu and its chip is in the text: where the chip sits on
    * screen, to anchor something to it. Only a pick here calls it, never a pasted link, loaded text
@@ -228,6 +251,17 @@ export interface TextEditMentions {
    * @default undefined — groups by kind, ordered by `order` and the query's best match
    */
   sections?: readonly MentionSection[];
+  /**
+   * How the menu orders its groups. `kinds`: by each kind's `order` (and `sections`), the group
+   * holding the best match first. `answer`: as `search` answers — each group (an option's own
+   * `group`, else its kind) where its first option arrives, so a source that ranks its own
+   * groups (the record the person is on, then Recent, then each kind) is shown as it ranks them;
+   * typing filters those rows in place until the next answer comes. Either way a kind shows at
+   * most five rows (twenty under a kind filter); `sections` still decides which kinds are offered
+   * and how people and agents are drawn.
+   * @default "kinds"
+   */
+  order?: "kinds" | "answer";
 }
 
 /** What an image upload resolves to: the image's final URL (and optional alt text and size). */
@@ -876,6 +910,184 @@ export function preloadTextEdit(): Promise<void> {
 
 function prefetchEditor() {
   void loadEditor().catch(() => {});
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * The `@` menu's answers, shared by every editor in the tab
+ * ----------------------------------------------------------------------------------------------*/
+
+/** How long a kept answer is shown without asking again. */
+const MENTION_FRESH_MS = 30_000;
+/** How many queries are kept per source (`cacheKey`). */
+const MENTION_QUERIES_KEPT = 50;
+/** How many sources are kept; the least recently asked goes first. */
+const MENTION_SOURCES_KEPT = 24;
+
+interface MentionAnswer {
+  at: number;
+  options: MentionOption[];
+}
+
+interface MentionAsking {
+  promise: Promise<MentionOption[]>;
+  controller: AbortController;
+  /** Menus still waiting for it; the last one to stop waiting aborts it. */
+  waiting: number;
+}
+
+/** What a `mentions` source's answers are kept under: its `cacheKey`, else the object itself. */
+const mentionSourceKey = (source: TextEditMentions): unknown =>
+  source.cacheKey ?? source;
+
+const mentionQueryKey = (query: string, only: MentionKind | undefined) =>
+  `${only ?? ""}\u0000${query}`;
+
+/**
+ * The tab's `@` answers by source and query, and the searches in flight: two menus (or a
+ * prefetch and the menu it was for) asking the same thing share one request.
+ */
+class MentionAnswers {
+  private answers = new Map<unknown, Map<string, MentionAnswer>>();
+  private asking = new Map<unknown, Map<string, MentionAsking>>();
+
+  private of(source: TextEditMentions) {
+    const key = mentionSourceKey(source);
+    let kept = this.answers.get(key);
+    if (kept) this.answers.delete(key);
+    else kept = new Map();
+    // Most recently used last: the oldest source is dropped first.
+    this.answers.set(key, kept);
+    if (this.answers.size > MENTION_SOURCES_KEPT)
+      this.answers.delete(this.answers.keys().next().value);
+    return kept;
+  }
+
+  /** The kept answer for `query`, and whether it is still fresh. */
+  peek(source: TextEditMentions, query: string, only?: MentionKind) {
+    const hit = this.answers
+      .get(mentionSourceKey(source))
+      ?.get(mentionQueryKey(query, only));
+    return hit
+      ? { options: hit.options, fresh: Date.now() - hit.at < MENTION_FRESH_MS }
+      : null;
+  }
+
+  /** Whether a fresh answer is kept or one is on its way. */
+  covered(source: TextEditMentions, query: string, only?: MentionKind) {
+    const at = mentionQueryKey(query, only);
+    return (
+      this.peek(source, query, only)?.fresh === true ||
+      Boolean(this.asking.get(mentionSourceKey(source))?.has(at))
+    );
+  }
+
+  /**
+   * Ask `source` for `query` (joining a search already on its way), and keep the answer. With a
+   * `signal`, this caller stops waiting when it aborts; the search itself aborts once no one
+   * waits. A failed search is not kept.
+   */
+  /** Forget the flight for `at` (if it is still `flight`), and its source's map once empty. */
+  private settle(key: unknown, at: string, flight: MentionAsking) {
+    const flights = this.asking.get(key);
+    if (flights?.get(at) !== flight) return;
+    flights.delete(at);
+    if (flights.size === 0) this.asking.delete(key);
+  }
+
+  ask(
+    source: TextEditMentions,
+    query: string,
+    only?: MentionKind,
+    signal?: AbortSignal,
+  ): Promise<MentionOption[]> {
+    const key = mentionSourceKey(source);
+    const at = mentionQueryKey(query, only);
+    let flights = this.asking.get(key);
+    if (!flights) this.asking.set(key, (flights = new Map()));
+    let flight = flights.get(at);
+    if (!flight) {
+      const controller = new AbortController();
+      const started: MentionAsking = {
+        controller,
+        waiting: 0,
+        promise: Promise.resolve()
+          .then(() =>
+            source.search(query, {
+              signal: controller.signal,
+              ...(only ? { only } : {}),
+            }),
+          )
+          .then((options) => {
+            // Stopped (no one waits, or the cache was cleared): never kept, never delivered.
+            if (controller.signal.aborted)
+              throw new DOMException("The search was stopped.", "AbortError");
+            const kept = this.of(source);
+            kept.delete(at);
+            kept.set(at, { at: Date.now(), options });
+            if (kept.size > MENTION_QUERIES_KEPT)
+              kept.delete(kept.keys().next().value!);
+            return options;
+          })
+          .finally(() => this.settle(key, at, started)),
+      };
+      flight = started;
+      flights.set(at, flight);
+    }
+    const mine = flight;
+    if (!signal) {
+      // Nothing will stop waiting (a prefetch): it runs to the end.
+      mine.waiting = Infinity;
+      return mine.promise;
+    }
+    mine.waiting += 1;
+    const stop = () => {
+      mine.waiting -= 1;
+      if (mine.waiting <= 0) {
+        mine.controller.abort();
+        this.settle(key, at, mine);
+      }
+    };
+    signal.addEventListener("abort", stop, { once: true });
+    const detach = () => signal.removeEventListener("abort", stop);
+    mine.promise.then(detach, detach);
+    return mine.promise;
+  }
+
+  clear() {
+    for (const flights of this.asking.values())
+      for (const flight of flights.values()) flight.controller.abort();
+    this.asking.clear();
+    this.answers.clear();
+  }
+}
+
+/** The tab's one `MentionAnswers`, read by every `TextEdit`'s `@` menu. */
+export const mentionAnswers = new MentionAnswers();
+
+/**
+ * `prefetchMentions` — ask `mentions` for what a bare `@` shows (unless a fresh answer is kept or
+ * on its way), so the menu opens with its rows. Every `TextEdit` with `mentions` does this when
+ * it takes focus; call it where a mention is likely before then (a chat box as it mounts). Keyed
+ * by `cacheKey`; a no-op on the server.
+ *
+ * @example
+ * React.useEffect(() => prefetchMentions(mentions), [mentions]);
+ */
+export function prefetchMentions(mentions: TextEditMentions | undefined): void {
+  if (typeof window === "undefined" || !mentions?.kinds.length) return;
+  if (mentionAnswers.covered(mentions, "")) return;
+  mentionAnswers.ask(mentions, "").catch(() => {});
+}
+
+/**
+ * `clearMentionCache` — forget every kept `@` answer and stop every search in flight: call it
+ * when what the answers depend on changes for the whole tab (the person switches workspace).
+ *
+ * @example
+ * onWorkspaceSwitch(clearMentionCache);
+ */
+export function clearMentionCache(): void {
+  mentionAnswers.clear();
 }
 
 const LazyEditor = React.lazy(() =>
@@ -2377,7 +2589,14 @@ export function TextEdit(props: TextEditProps) {
       // Intent: fetch the editor before the click lands.
       onPointerEnter={editable ? prefetchEditor : undefined}
       onTouchStart={editable ? prefetchEditor : undefined}
-      onFocus={editable ? prefetchEditor : undefined}
+      onFocus={
+        editable
+          ? () => {
+              prefetchEditor();
+              prefetchMentions(props.mentions);
+            }
+          : undefined
+      }
       // `boxed`: a click on the box's own padding starts editing, as a textarea's would.
       onMouseDown={
         boxed

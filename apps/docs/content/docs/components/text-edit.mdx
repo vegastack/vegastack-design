@@ -530,12 +530,37 @@ instead, every such group first, in the order its options arrive. Give the same 
 `InlineChipProvider`'s `kinds` so every chip draws the kind's icon and noun. The query may hold spaces — `@Asha Rao` searches the whole name — and two
 spaces in a row, or a phrase that matches no one past a space, close the menu. `search` runs at
 once when the menu opens, then 120ms after the last keystroke, with an `AbortSignal` that aborts
-when the query changes. The menu opens on placeholder rows in its rows' geometry, as tall as its
-answer usually is, and holds its height while a search is in flight, keeping the rows that still
-match; an answer is kept per query, so a query asked before shows at once (and is asked again
-after 30 seconds). It says "No matches" or "Couldn't search" when there is nothing to pick.
+once nothing waits for that answer. The menu opens on placeholder rows in its rows' geometry, as
+tall as its answer usually is, and holds its height while a search is in flight, keeping the rows
+that still match. It says "No matches" when nothing does; a search that rejects shows "Couldn't
+search." with **Retry** (<kbd>Enter</kbd> retries too) — so `search` should throw on a failure
+rather than answer an empty list.
 
-<kbd>↑</kbd> <kbd>↓</kbd> move, <kbd>Enter</kbd> or <kbd>Tab</kbd> pick,
+Answers are kept for the whole tab, per query, under `mentions.cacheKey`: give it a string naming
+everything the answers depend on besides the query (who asks, the kinds, the record), and every
+editor with that key shares them — a query asked before, anywhere in the tab, shows at once, and
+is asked again in the background after 30 seconds while the kept answer stays on show. Two menus
+asking the same thing at once share one request. Without a key, answers belong to that `mentions`
+object. Every `TextEdit` with `mentions` asks for the bare `@` answer as it takes focus, so the
+menu opens on rows, and typing filters those rows at once until the server's answer replaces
+them; `prefetchMentions(mentions)` does the same where a mention is likely before any focus (a
+chat box as it mounts), and `clearMentionCache()` forgets every answer (a workspace switch).
+
+**Kind filter.** A query that starts with a kind's id, noun or plural and a space — `@task `,
+`@pages roadmap`, `@people asha` — asks for that kind only: `search(query, { signal, only })` gets
+the rest as the query and the kind as `only`, the menu shows up to twenty of it, and a chip in the
+menu's header names the kind with a × to take it off. <kbd>Tab</kbd> steps the filter through the
+kinds (in their order, then back to every kind) and <kbd>Shift</kbd>+<kbd>Tab</kbd> steps back,
+by rewriting the word after the `@`, so the text always says what is asked. A menu with one kind
+has no filter, and Tab picks as before.
+
+`mentions.order: "answer"` shows the groups in the order `search` answers them — each group (an
+option's own `group`, else its kind) where its first option arrives — for a source that ranks its
+own groups (the record the person is on, Recent, then each kind as it ranks them). Typing filters
+those rows in place. The default, `"kinds"`, orders by each kind's `order` and the best match.
+
+<kbd>↑</kbd> <kbd>↓</kbd> move, <kbd>Enter</kbd> picks (and <kbd>Tab</kbd> in a
+menu of one kind),
 <kbd>Esc</kbd> closes. A pick becomes a chip, stored as `[@Asha
 Rao](mention://user/u1)`, that <kbd>Backspace</kbd>
 removes whole. `mentionHref(kind, id)` makes a chip open its target on
@@ -1130,8 +1155,10 @@ for what sits in the box above the text.
 - The mention menu is a `listbox` labelled “Mention” whose `group`s are named by their headings
   (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu, with the same
   `aria-activedescendant` wiring. Its placeholder rows are hidden from assistive technology; when
-  a search fails or finds nothing, the menu is a `status` (“Couldn't search”, “No matches”). A
-  chip reads as its name.
+  a search fails or finds nothing, the menu is a `status` (“Couldn't search.”, “No matches”); a
+  failed search's **Retry** is a button inside it, and Enter runs it from the text. A kind filter's
+  chip sits above the rows, outside the listbox, its × named for what it does (“Show every kind,
+  not only tasks”). A chip reads as its name.
 - The paste popover is a `toolbar` labelled “Paste as” whose buttons say which choice is in
   effect (`aria-pressed`); what a lone link became is announced (“Pasted as a mention”,
   “Embedded”, “Pasted as a link”, each with “Tab to change”). Focus stays in the text until Tab
