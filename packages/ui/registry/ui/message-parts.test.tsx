@@ -1,3 +1,4 @@
+import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
@@ -541,4 +542,34 @@ test("activity while running shimmers and counts up", async () => {
     ),
   ).toBe("true");
   await expectNoA11yViolations(screen.container);
+});
+
+test("activity opens while running, closes once a second after, and stays as the reader leaves it", async () => {
+  function Turn() {
+    const [running, setRunning] = React.useState(true);
+    return (
+      <>
+        <button type="button" onClick={() => setRunning((value) => !value)}>
+          Toggle run
+        </button>
+        <MessageActivity running={running} summary="Working">
+          <MessageActivityNote>Planning.</MessageActivityNote>
+        </MessageActivity>
+      </>
+    );
+  }
+  await render(<Turn />);
+  const trigger = page.getByRole("button", { name: /Working/ });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await page.getByRole("button", { name: "Toggle run" }).click();
+  await vi.waitFor(
+    () => expect(trigger.element().getAttribute("aria-expanded")).toBe("false"),
+    { timeout: 3000 },
+  );
+  // The reader opens it; a new run and its end never close it again.
+  await trigger.click();
+  await page.getByRole("button", { name: "Toggle run" }).click();
+  await page.getByRole("button", { name: "Toggle run" }).click();
+  await new Promise((resolve) => setTimeout(resolve, 1300));
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
 });

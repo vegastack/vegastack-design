@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.57.4 sha256-SEfpvgsvSG0RMdIhYEWl6zMZ/+1vy8weQFtWlCRfMfc=
+// @vegastack markdown-view@0.57.4 sha256-t5b+G2yb0WSKtk52IK2PGa2xMyLWQjZngsm7n+77HoI=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1327,39 +1327,50 @@ function fromMarkdown(
  * completeStreamingMarkdown("Use **TM-21 for `L70") // "Use **TM-21 for `L70`**"
  */
 export function completeStreamingMarkdown(block: string): string {
-  const fences = block.match(/^ {0,3}(`{3,}|~{3,})/gm) ?? [];
-  if (fences.length % 2 === 1) {
-    const fence = fences[fences.length - 1]!.trim();
-    return `${block}${block.endsWith("\n") ? "" : "\n"}${fence}`;
+  // An open code fence (``` or ~~~, closed only by its own kind at least as long): close it, and
+  // touch nothing inside — code is never repaired.
+  let fence: string | null = null;
+  for (const line of block.split("\n")) {
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (!marker) continue;
+    if (fence === null) fence = marker;
+    else if (marker[0] === fence[0] && marker.length >= fence.length)
+      fence = null;
   }
-  let text = block
-    // A citation marker still being written.
-    .replace(/\\?\[\\?\[\d*(?:\\?\])?$/, "")
-    // A link whose address is still arriving: its words only.
-    .replace(/\[([^\]\n]*)\]\([^)\s]*$/, "$1")
-    // A link whose words are still arriving.
-    .replace(/(^|[^!\\])\[([^\]\n]*)$/, "$1$2");
-  const closers: string[] = [];
-  const ticks = (text.match(/`/g) ?? []).length;
-  if (ticks % 2 === 1) closers.push("`");
+  if (fence !== null)
+    return `${block}${block.endsWith("\n") ? "" : "\n"}${fence}`;
+  // An open code span: close it, and leave its contents as written.
+  const ticks = (block.match(/`/g) ?? []).length;
+  const openSpan = ticks % 2 === 1;
+  const spanAt = openSpan ? block.lastIndexOf("`") : block.length;
+  let prose = block.slice(0, spanAt);
+  const code = block.slice(spanAt);
+  if (!openSpan)
+    prose = prose
+      // A citation marker still being written.
+      .replace(/\\?\[\\?\[\d*(?:\\?\])?$/, "")
+      // A link whose address is still arriving: its words only.
+      .replace(/\[([^\]\n]*)\]\([^)\s]*$/, "$1")
+      // A link whose words are still arriving.
+      .replace(/(^|[^!\\])\[([^\]\n]*)$/, "$1$2");
   // Emphasis is counted outside code spans only.
-  const prose = text.replace(/`[^`]*`?/g, "");
-  if ((prose.match(/~~/g) ?? []).length % 2 === 1) closers.unshift("~~");
-  const strong = (prose.match(/\*\*/g) ?? []).length;
+  const outside = prose.replace(/`[^`]*`/g, "");
+  const closers: string[] = [];
+  if ((outside.match(/~~/g) ?? []).length % 2 === 1) closers.push("~~");
   const single = (
-    prose
+    outside
       // A list bullet is not emphasis.
       .replace(/^\s*\*\s/gm, "")
       .replace(/\*\*/g, "")
       .match(/\*/g) ?? []
   ).length;
-  if (single % 2 === 1) closers.unshift("*");
-  if (strong % 2 === 1) closers.unshift("**");
-  if (!closers.length) return text;
-  // Emphasis cannot close after a space: trim it first.
-  if (closers.some((closer) => closer !== "`")) text = text.replace(/\s+$/, "");
-  // Close inner first: code, then the emphasis opened last.
-  return text + [...closers].reverse().join("");
+  if (single % 2 === 1) closers.push("*");
+  if ((outside.match(/\*\*/g) ?? []).length % 2 === 1) closers.push("**");
+  let text = prose + code;
+  if (openSpan) text += "`";
+  else if (closers.length) text = text.replace(/\s+$/, ""); // emphasis cannot close after a space
+  // Close inner first: the code span, then the emphasis opened last.
+  return text + closers.join("");
 }
 
 /** The settled blocks of a stream and the last block, which may still be half-written. */
@@ -2269,39 +2280,63 @@ function renderNode(
     case "citation": {
       const numbers = [attrs.n, ...(attrs.more ? attrs.more.split(",") : [])]
         .map(Number)
-        .filter((n) => ctx.citation?.(n));
-      const sources = numbers.map((n) => ctx.citation!(n)!);
-      if (!sources.length) return textOf(node);
-      const [first] = sources;
+        .filter(Boolean);
+      const resolved = numbers.flatMap((n) => {
+        const source = ctx.citation?.(n);
+        return source ? [{ n, source }] : [];
+      });
+      if (!resolved.length) return textOf(node);
+      // A marker the host doesn't answer for stays literal text, as it would on its own.
+      const literal = numbers
+        .filter((n) => !resolved.some((item) => item.n === n))
+        .map((n) => `[[${n}]]`)
+        .join("");
+      // Sources with an action of their own (play from here) keep a pill each: one grouped pill
+      // could only carry one action.
+      const groups =
+        resolved.length > 1 && resolved.some((item) => item.source.onSelect)
+          ? resolved.map((item) => [item])
+          : [resolved];
       return (
-        <MarkdownCitationMarker
-          key={key}
-          n={numbers[0]!}
-          more={sources.length - 1}
-          className={attrs.adjacent !== undefined ? "ms-2.5" : undefined}
-          label={
-            sources.length === 1
-              ? first!.label
-              : sources.map((source) => source.label).join(", ")
-          }
-          content={
-            sources.length === 1 ? (
-              first!.content
-            ) : sources.some((source) => source.content != null) ? (
-              <span
-                data-slot="markdown-citation-group"
-                className="flex flex-col divide-y divide-border [&>*]:py-2 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0"
-              >
-                {sources.map((source, index) => (
-                  <span key={numbers[index]} className="block">
-                    {source.content}
-                  </span>
-                ))}
-              </span>
-            ) : undefined
-          }
-          onSelect={first!.onSelect}
-        />
+        <React.Fragment key={key}>
+          {groups.map((group, index) => {
+            const [first] = group;
+            const contents = group.filter(
+              (item) => item.source.content != null,
+            );
+            return (
+              <MarkdownCitationMarker
+                key={first!.n}
+                n={first!.n}
+                more={group.length - 1}
+                className={
+                  index > 0 || attrs.adjacent !== undefined
+                    ? "ms-2.5"
+                    : undefined
+                }
+                label={group.map((item) => item.source.label).join(", ")}
+                content={
+                  group.length === 1 ? (
+                    first!.source.content
+                  ) : contents.length ? (
+                    <span
+                      data-slot="markdown-citation-group"
+                      className="flex flex-col divide-y divide-border [&>*]:py-2 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0"
+                    >
+                      {contents.map((item) => (
+                        <span key={item.n} className="block">
+                          {item.source.content}
+                        </span>
+                      ))}
+                    </span>
+                  ) : undefined
+                }
+                onSelect={first!.source.onSelect}
+              />
+            );
+          })}
+          {literal}
+        </React.Fragment>
       );
     }
     case "mention": {
@@ -3322,11 +3357,20 @@ export function MarkdownView({
     // The settled blocks render as they will stay; only the last block is completed, and its
     // citations wait until it is settled, so a half-written marker never becomes a pill.
     const { settled, tail } = splitStreamingTail(source);
-    const head = settled.trim() ? fromMarkdown(settled, liveBlockKinds) : [];
-    tree = [
-      ...(citation ? withCitations(head) : head),
-      ...fromMarkdown(completeStreamingMarkdown(tail), liveBlockKinds),
-    ];
+    // Parsed once, whole, so reference definitions and numbering span the blocks.
+    tree = fromMarkdown(
+      settled + completeStreamingMarkdown(tail),
+      liveBlockKinds,
+    );
+    if (citation) {
+      const settledBlocks = settled.trim()
+        ? fromMarkdown(settled, liveBlockKinds).length
+        : 0;
+      tree = [
+        ...withCitations(tree.slice(0, settledBlocks)),
+        ...tree.slice(settledBlocks),
+      ];
+    }
   } else {
     const parsed = fromMarkdown(source, liveBlockKinds);
     tree = citation ? withCitations(parsed) : parsed;

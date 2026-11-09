@@ -93,6 +93,8 @@ test("streaming: the last block's open syntax is closed, half-written links and 
     ["```ts\nconst a = 1;", "```ts\nconst a = 1;\n```"],
     ["- item one\n- item *two", "- item one\n- item *two*"],
     ["Plain text.", "Plain text."],
+    ["Use `array[0", "Use `array[0`"],
+    ["~~~\n```\nstill code", "~~~\n```\nstill code\n~~~"],
   ];
   for (const [input, output] of cases)
     expect(completeStreamingMarkdown(input), input).toBe(output);
@@ -139,4 +141,40 @@ test("adjacent markers group into one pill, '1 +2', whose card lists every sourc
   for (const n of [1, 2, 3])
     await expect.element(screen.getByText(`Card ${n}`)).toBeVisible();
   expect(markers[1]!.textContent).toBe("4");
+});
+
+test("streaming keeps reference definitions across blocks", async () => {
+  const screen = await render(
+    <MarkdownView streaming>
+      {"[id]: https://example.com\n\nRead the [docs][id] and"}
+    </MarkdownView>,
+  );
+  expect(screen.container.querySelector("a")?.getAttribute("href")).toBe(
+    "https://example.com",
+  );
+});
+
+test("a group keeps unresolved markers as text, and actionable sources keep a pill each", async () => {
+  const half = await render(
+    <MarkdownView citation={(n) => (n === 1 ? { label: "Source 1" } : null)}>
+      {"Claim [[1]][[2]]."}
+    </MarkdownView>,
+  );
+  expect(
+    half.container.querySelectorAll("[data-slot=markdown-citation]"),
+  ).toHaveLength(1);
+  expect(half.container.textContent).toContain("[[2]]");
+  const selected: number[] = [];
+  const both = await render(
+    <MarkdownView
+      citation={(n) => ({
+        label: `Clip ${n}`,
+        onSelect: () => selected.push(n),
+      })}
+    >
+      {"Said twice [[1]][[2]]."}
+    </MarkdownView>,
+  );
+  await both.getByRole("button", { name: "Clip 2" }).click();
+  expect(selected).toEqual([2]);
 });

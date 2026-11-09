@@ -16905,7 +16905,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.57.4",
-        "integrity": "sha256-SEfpvgsvSG0RMdIhYEWl6zMZ/+1vy8weQFtWlCRfMfc="
+        "integrity": "sha256-t5b+G2yb0WSKtk52IK2PGa2xMyLWQjZngsm7n+77HoI="
       }
     },
     {
@@ -19637,7 +19637,7 @@
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.41.0",
-        "integrity": "sha256-saeG8GfZa5ppe5sQ3ViLf3oQicsSU6NGi30s/zFNFOk="
+        "integrity": "sha256-sKXPdgG8XtAaBFSdeJNeDw2aaevuzBGmWfmNNj9OVqw="
       }
     },
     {

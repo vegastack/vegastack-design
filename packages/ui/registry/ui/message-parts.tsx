@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.41.0 sha256-saeG8GfZa5ppe5sQ3ViLf3oQicsSU6NGi30s/zFNFOk=
+// @vegastack message-parts@0.41.0 sha256-sKXPdgG8XtAaBFSdeJNeDw2aaevuzBGmWfmNNj9OVqw=
 
 "use client";
 
@@ -1091,6 +1091,7 @@ export function MessageActivity({
   const open = openProp ?? ownOpen;
   // The reader's own choice wins over the automatic open and close from then on.
   const touched = React.useRef(defaultOpen === false);
+  const root = React.useRef<HTMLDivElement>(null);
   const wasRunning = React.useRef(running);
   React.useEffect(() => {
     const started = running && !wasRunning.current;
@@ -1103,7 +1104,9 @@ export function MessageActivity({
     }
     if (!ended) return;
     const timer = setTimeout(() => {
-      if (!touched.current) setOwnOpen(false);
+      // Never close under the reader's keyboard: focus inside the timeline counts as reading it.
+      const focused = root.current?.contains(document.activeElement) ?? false;
+      if (!touched.current && !focused) setOwnOpen(false);
     }, AUTO_CLOSE_MS);
     return () => clearTimeout(timer);
   }, [running, openProp]);
@@ -1117,6 +1120,7 @@ export function MessageActivity({
       : null;
   return (
     <Collapsible
+      ref={root}
       data-slot="message-activity"
       data-running={running ? "" : undefined}
       open={open}
