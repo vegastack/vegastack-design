@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.59.1] — November 9, 2026
+
+<!-- assembled from 1 changeset: c02793c4bf7e -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.59.0 → 0.59.1.
+
+### 🐛 Fixed
+
+- **DataGrid**: once the grid scrolls sideways, the frozen columns' edge shows a soft 4px shadow from the header through the summary row (light theme). The old per-cell shadow never painted: a table that collapses its borders draws no outer shadow on its cells. In dark theme there is no shadow; the frozen edge's `columnDividers` line brightens instead. The frozen edge's divider now also runs through the summary row.
+  [`0a3852d`](https://github.com/VegaStack/vegastack-design/commit/0a3852d)
+
 ## [0.59.0] — November 7, 2026
 
 <!-- assembled from 1 changeset: c566eea3fb55 -->

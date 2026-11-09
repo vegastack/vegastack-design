@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.59.1
+
+### Patch Changes
+
+- [#938](https://github.com/vegastack/vegastack-design/pull/938) [`0a3852d`](https://github.com/vegastack/vegastack-design/commit/0a3852deeab17b9f591ac255e60515aff22399ee) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 **DataGrid**: once the grid scrolls sideways, the frozen columns' edge shows a soft 4px shadow from the header through the summary row (light theme). The old per-cell shadow never painted: a table that collapses its borders draws no outer shadow on its cells. In dark theme there is no shadow; the frozen edge's `columnDividers` line brightens instead. The frozen edge's divider now also runs through the summary row.
+
 ## 0.59.0
 
 ### Minor Changes
